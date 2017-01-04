@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>HaltonSequenceGenerator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.random</a> &gt; <span class="el_source">HaltonSequenceGenerator.java</span></div><h1>HaltonSequenceGenerator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.random;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NotPositiveException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * Implementation of a Halton sequence.
+ * &lt;p&gt;
+ * A Halton sequence is a low-discrepancy sequence generating points in the interval [0, 1] according to
+ * &lt;pre&gt;
+ *   H(n) = d_0 / b + d_1 / b^2 .... d_j / b^j+1
+ *
+ *   with
+ *
+ *   n = d_j * b^j-1 + ... d_1 * b + d_0 * b^0
+ * &lt;/pre&gt;
+ * For higher dimensions, subsequent prime numbers are used as base, e.g. { 2, 3, 5 } for a Halton sequence in R^3.
+ * &lt;p&gt;
+ * Halton sequences are known to suffer from linear correlation for larger prime numbers, thus the individual digits
+ * are usually scrambled. This implementation already comes with support for up to 40 dimensions with optimal weight
+ * numbers from &lt;a href=&quot;http://etd.lib.fsu.edu/theses/available/etd-07062004-140409/unrestricted/dissertation1.pdf&quot;&gt;
+ * H. Chi: Scrambled quasirandom sequences and their applications&lt;/a&gt;.
+ * &lt;p&gt;
+ * The generator supports two modes:
+ * &lt;ul&gt;
+ *   &lt;li&gt;sequential generation of points: {@link #nextVector()}&lt;/li&gt;
+ *   &lt;li&gt;random access to the i-th point in the sequence: {@link #skipTo(int)}&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Halton_sequence&quot;&gt;Halton sequence (Wikipedia)&lt;/a&gt;
+ * @see &lt;a href=&quot;https://lirias.kuleuven.be/bitstream/123456789/131168/1/mcm2005_bartv.pdf&quot;&gt;
+ * On the Halton sequence and its scramblings&lt;/a&gt;
+ * @since 3.3
+ */
+public class HaltonSequenceGenerator implements RandomVectorGenerator {
+
+    /** The first 40 primes. */
+<span class="fc" id="L57">    private static final int[] PRIMES = new int[] {</span>
+        2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67,
+        71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139,
+        149, 151, 157, 163, 167, 173
+    };
+
+    /** The optimal weights used for scrambling of the first 40 dimension. */
+<span class="fc" id="L64">    private static final int[] WEIGHTS = new int[] {</span>
+        1, 2, 3, 3, 8, 11, 12, 14, 7, 18, 12, 13, 17, 18, 29, 14, 18, 43, 41,
+        44, 40, 30, 47, 65, 71, 28, 40, 60, 79, 89, 56, 50, 52, 61, 108, 56,
+        66, 63, 60, 66
+    };
+
+    /** Space dimension. */
+    private final int dimension;
+
+    /** The current index in the sequence. */
+<span class="fc" id="L74">    private int count = 0;</span>
+
+    /** The base numbers for each component. */
+    private final int[] base;
+
+    /** The scrambling weights for each component. */
+    private final int[] weight;
+
+    /**
+     * Construct a new Halton sequence generator for the given space dimension.
+     *
+     * @param dimension the space dimension
+     * @throws OutOfRangeException if the space dimension is outside the allowed range of [1, 40]
+     */
+    public HaltonSequenceGenerator(final int dimension) throws OutOfRangeException {
+<span class="fc" id="L89">        this(dimension, PRIMES, WEIGHTS);</span>
+<span class="fc" id="L90">    }</span>
+
+    /**
+     * Construct a new Halton sequence generator with the given base numbers and weights for each dimension.
+     * The length of the bases array defines the space dimension and is required to be &amp;gt; 0.
+     *
+     * @param dimension the space dimension
+     * @param bases the base number for each dimension, entries should be (pairwise) prime, may not be null
+     * @param weights the weights used during scrambling, may be null in which case no scrambling will be performed
+     * @throws NullArgumentException if base is null
+     * @throws OutOfRangeException if the space dimension is outside the range [1, len], where
+     *   len refers to the length of the bases array
+     * @throws DimensionMismatchException if weights is non-null and the length of the input arrays differ
+     */
+    public HaltonSequenceGenerator(final int dimension, final int[] bases, final int[] weights)
+<span class="fc" id="L105">            throws NullArgumentException, OutOfRangeException, DimensionMismatchException {</span>
+
+<span class="fc" id="L107">        MathUtils.checkNotNull(bases);</span>
+
+<span class="fc bfc" id="L109" title="All 4 branches covered.">        if (dimension &lt; 1 || dimension &gt; bases.length) {</span>
+<span class="fc" id="L110">            throw new OutOfRangeException(dimension, 1, PRIMES.length);</span>
+        }
+
+<span class="fc bfc" id="L113" title="All 4 branches covered.">        if (weights != null &amp;&amp; weights.length != bases.length) {</span>
+<span class="fc" id="L114">            throw new DimensionMismatchException(weights.length, bases.length);</span>
+        }
+
+<span class="fc" id="L117">        this.dimension = dimension;</span>
+<span class="fc" id="L118">        this.base = bases.clone();</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        this.weight = weights == null ? null : weights.clone();</span>
+<span class="fc" id="L120">        count = 0;</span>
+<span class="fc" id="L121">    }</span>
+
+    /** {@inheritDoc} */
+    public double[] nextVector() {
+<span class="fc" id="L125">        final double[] v = new double[dimension];</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        for (int i = 0; i &lt; dimension; i++) {</span>
+<span class="fc" id="L127">            int index = count;</span>
+<span class="fc" id="L128">            double f = 1.0 / base[i];</span>
+
+<span class="fc" id="L130">            int j = 0;</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">            while (index &gt; 0) {</span>
+<span class="fc" id="L132">                final int digit = scramble(i, j, base[i], index % base[i]);</span>
+<span class="fc" id="L133">                v[i] += f * digit;</span>
+<span class="fc" id="L134">                index /= base[i]; // floor( index / base )</span>
+<span class="fc" id="L135">                f /= base[i];</span>
+<span class="fc" id="L136">            }</span>
+        }
+<span class="fc" id="L138">        count++;</span>
+<span class="fc" id="L139">        return v;</span>
+    }
+
+    /**
+     * Performs scrambling of digit {@code d_j} according to the formula:
+     * &lt;pre&gt;
+     *   ( weight_i * d_j ) mod base
+     * &lt;/pre&gt;
+     * Implementations can override this method to do a different scrambling.
+     *
+     * @param i the dimension index
+     * @param j the digit index
+     * @param b the base for this dimension
+     * @param digit the j-th digit
+     * @return the scrambled digit
+     */
+    protected int scramble(final int i, final int j, final int b, final int digit) {
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        return weight != null ? (weight[i] * digit) % b : digit;</span>
+    }
+
+    /**
+     * Skip to the i-th point in the Halton sequence.
+     * &lt;p&gt;
+     * This operation can be performed in O(1).
+     *
+     * @param index the index in the sequence to skip to
+     * @return the i-th point in the Halton sequence
+     * @throws NotPositiveException if index &amp;lt; 0
+     */
+    public double[] skipTo(final int index) throws NotPositiveException {
+<span class="fc" id="L169">        count = index;</span>
+<span class="fc" id="L170">        return nextVector();</span>
+    }
+
+    /**
+     * Returns the index i of the next point in the Halton sequence that will be returned
+     * by calling {@link #nextVector()}.
+     *
+     * @return the index of the next point
+     */
+    public int getNextIndex() {
+<span class="fc" id="L180">        return count;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

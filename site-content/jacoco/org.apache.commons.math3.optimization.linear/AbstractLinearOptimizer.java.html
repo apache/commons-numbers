@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractLinearOptimizer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optimization.linear</a> &gt; <span class="el_source">AbstractLinearOptimizer.java</span></div><h1>AbstractLinearOptimizer.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.optimization.linear;
+
+import java.util.Collection;
+import java.util.Collections;
+
+import org.apache.commons.math3.exception.MathIllegalStateException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.optimization.GoalType;
+import org.apache.commons.math3.optimization.PointValuePair;
+
+/**
+ * Base class for implementing linear optimizers.
+ * &lt;p&gt;
+ * This base class handles the boilerplate methods associated to thresholds
+ * settings and iterations counters.
+ *
+ * @deprecated As of 3.1 (to be removed in 4.0).
+ * @since 2.0
+ */
+@Deprecated
+public abstract class AbstractLinearOptimizer implements LinearOptimizer {
+
+    /** Default maximal number of iterations allowed. */
+    public static final int DEFAULT_MAX_ITERATIONS = 100;
+
+    /**
+     * Linear objective function.
+     * @since 2.1
+     */
+    private LinearObjectiveFunction function;
+
+    /**
+     * Linear constraints.
+     * @since 2.1
+     */
+    private Collection&lt;LinearConstraint&gt; linearConstraints;
+
+    /**
+     * Type of optimization goal: either {@link GoalType#MAXIMIZE} or {@link GoalType#MINIMIZE}.
+     * @since 2.1
+     */
+    private GoalType goal;
+
+    /**
+     * Whether to restrict the variables to non-negative values.
+     * @since 2.1
+     */
+    private boolean nonNegative;
+
+    /** Maximal number of iterations allowed. */
+    private int maxIterations;
+
+    /** Number of iterations already performed. */
+    private int iterations;
+
+    /**
+     * Simple constructor with default settings.
+     * &lt;p&gt;The maximal number of evaluation is set to its default value.&lt;/p&gt;
+     */
+<span class="fc" id="L77">    protected AbstractLinearOptimizer() {</span>
+<span class="fc" id="L78">        setMaxIterations(DEFAULT_MAX_ITERATIONS);</span>
+<span class="fc" id="L79">    }</span>
+
+    /**
+     * @return {@code true} if the variables are restricted to non-negative values.
+     */
+    protected boolean restrictToNonNegative() {
+<span class="fc" id="L85">        return nonNegative;</span>
+    }
+
+    /**
+     * @return the optimization type.
+     */
+    protected GoalType getGoalType() {
+<span class="fc" id="L92">        return goal;</span>
+    }
+
+    /**
+     * @return the optimization type.
+     */
+    protected LinearObjectiveFunction getFunction() {
+<span class="fc" id="L99">        return function;</span>
+    }
+
+    /**
+     * @return the optimization type.
+     */
+    protected Collection&lt;LinearConstraint&gt; getConstraints() {
+<span class="fc" id="L106">        return Collections.unmodifiableCollection(linearConstraints);</span>
+    }
+
+    /** {@inheritDoc} */
+    public void setMaxIterations(int maxIterations) {
+<span class="fc" id="L111">        this.maxIterations = maxIterations;</span>
+<span class="fc" id="L112">    }</span>
+
+    /** {@inheritDoc} */
+    public int getMaxIterations() {
+<span class="fc" id="L116">        return maxIterations;</span>
+    }
+
+    /** {@inheritDoc} */
+    public int getIterations() {
+<span class="fc" id="L121">        return iterations;</span>
+    }
+
+    /**
+     * Increment the iterations counter by 1.
+     * @exception MaxCountExceededException if the maximal number of iterations is exceeded
+     */
+    protected void incrementIterationsCounter()
+        throws MaxCountExceededException {
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">        if (++iterations &gt; maxIterations) {</span>
+<span class="nc" id="L131">            throw new MaxCountExceededException(maxIterations);</span>
+        }
+<span class="fc" id="L133">    }</span>
+
+    /** {@inheritDoc} */
+    public PointValuePair optimize(final LinearObjectiveFunction f,
+                                   final Collection&lt;LinearConstraint&gt; constraints,
+                                   final GoalType goalType, final boolean restrictToNonNegative)
+        throws MathIllegalStateException {
+
+        // store linear problem characteristics
+<span class="fc" id="L142">        this.function          = f;</span>
+<span class="fc" id="L143">        this.linearConstraints = constraints;</span>
+<span class="fc" id="L144">        this.goal              = goalType;</span>
+<span class="fc" id="L145">        this.nonNegative       = restrictToNonNegative;</span>
+
+<span class="fc" id="L147">        iterations  = 0;</span>
+
+        // solve the problem
+<span class="fc" id="L150">        return doOptimize();</span>
+
+    }
+
+    /**
+     * Perform the bulk of optimization algorithm.
+     * @return the point/value pair giving the optimal value for objective function
+     * @exception MathIllegalStateException if no solution fulfilling the constraints
+     * can be found in the allowed number of iterations
+     */
+    protected abstract PointValuePair doOptimize() throws MathIllegalStateException;
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

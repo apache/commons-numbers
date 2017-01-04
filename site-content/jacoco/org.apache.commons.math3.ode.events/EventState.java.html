@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>EventState.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.events</a> &gt; <span class="el_source">EventState.java</span></div><h1>EventState.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.events;
+
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.analysis.solvers.AllowedSolution;
+import org.apache.commons.math3.analysis.solvers.BracketedUnivariateSolver;
+import org.apache.commons.math3.analysis.solvers.PegasusSolver;
+import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
+import org.apache.commons.math3.analysis.solvers.UnivariateSolverUtils;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.exception.NoBracketingException;
+import org.apache.commons.math3.ode.EquationsMapper;
+import org.apache.commons.math3.ode.ExpandableStatefulODE;
+import org.apache.commons.math3.ode.sampling.StepInterpolator;
+import org.apache.commons.math3.util.FastMath;
+
+/** This class handles the state for one {@link EventHandler
+ * event handler} during integration steps.
+ *
+ * &lt;p&gt;Each time the integrator proposes a step, the event handler
+ * switching function should be checked. This class handles the state
+ * of one handler during one integration step, with references to the
+ * state at the end of the preceding step. This information is used to
+ * decide if the handler should trigger an event or not during the
+ * proposed step.&lt;/p&gt;
+ *
+ * @since 1.2
+ */
+public class EventState {
+
+    /** Event handler. */
+    private final EventHandler handler;
+
+    /** Maximal time interval between events handler checks. */
+    private final double maxCheckInterval;
+
+    /** Convergence threshold for event localization. */
+    private final double convergence;
+
+    /** Upper limit in the iteration count for event localization. */
+    private final int maxIterationCount;
+
+    /** Equation being integrated. */
+    private ExpandableStatefulODE expandable;
+
+    /** Time at the beginning of the step. */
+    private double t0;
+
+    /** Value of the events handler at the beginning of the step. */
+    private double g0;
+
+    /** Simulated sign of g0 (we cheat when crossing events). */
+    private boolean g0Positive;
+
+    /** Indicator of event expected during the step. */
+    private boolean pendingEvent;
+
+    /** Occurrence time of the pending event. */
+    private double pendingEventTime;
+
+    /** Occurrence time of the previous event. */
+    private double previousEventTime;
+
+    /** Integration direction. */
+    private boolean forward;
+
+    /** Variation direction around pending event.
+     *  (this is considered with respect to the integration direction)
+     */
+    private boolean increasing;
+
+    /** Next action indicator. */
+    private EventHandler.Action nextAction;
+
+    /** Root-finding algorithm to use to detect state events. */
+    private final UnivariateSolver solver;
+
+    /** Simple constructor.
+     * @param handler event handler
+     * @param maxCheckInterval maximal time interval between switching
+     * function checks (this interval prevents missing sign changes in
+     * case the integration steps becomes very large)
+     * @param convergence convergence threshold in the event time search
+     * @param maxIterationCount upper limit of the iteration count in
+     * the event time search
+     * @param solver Root-finding algorithm to use to detect state events
+     */
+    public EventState(final EventHandler handler, final double maxCheckInterval,
+                      final double convergence, final int maxIterationCount,
+<span class="fc" id="L106">                      final UnivariateSolver solver) {</span>
+<span class="fc" id="L107">        this.handler           = handler;</span>
+<span class="fc" id="L108">        this.maxCheckInterval  = maxCheckInterval;</span>
+<span class="fc" id="L109">        this.convergence       = FastMath.abs(convergence);</span>
+<span class="fc" id="L110">        this.maxIterationCount = maxIterationCount;</span>
+<span class="fc" id="L111">        this.solver            = solver;</span>
+
+        // some dummy values ...
+<span class="fc" id="L114">        expandable        = null;</span>
+<span class="fc" id="L115">        t0                = Double.NaN;</span>
+<span class="fc" id="L116">        g0                = Double.NaN;</span>
+<span class="fc" id="L117">        g0Positive        = true;</span>
+<span class="fc" id="L118">        pendingEvent      = false;</span>
+<span class="fc" id="L119">        pendingEventTime  = Double.NaN;</span>
+<span class="fc" id="L120">        previousEventTime = Double.NaN;</span>
+<span class="fc" id="L121">        increasing        = true;</span>
+<span class="fc" id="L122">        nextAction        = EventHandler.Action.CONTINUE;</span>
+
+<span class="fc" id="L124">    }</span>
+
+    /** Get the underlying event handler.
+     * @return underlying event handler
+     */
+    public EventHandler getEventHandler() {
+<span class="fc" id="L130">        return handler;</span>
+    }
+
+    /** Set the equation.
+     * @param expandable equation being integrated
+     */
+    public void setExpandable(final ExpandableStatefulODE expandable) {
+<span class="fc" id="L137">        this.expandable = expandable;</span>
+<span class="fc" id="L138">    }</span>
+
+    /** Get the maximal time interval between events handler checks.
+     * @return maximal time interval between events handler checks
+     */
+    public double getMaxCheckInterval() {
+<span class="nc" id="L144">        return maxCheckInterval;</span>
+    }
+
+    /** Get the convergence threshold for event localization.
+     * @return convergence threshold for event localization
+     */
+    public double getConvergence() {
+<span class="nc" id="L151">        return convergence;</span>
+    }
+
+    /** Get the upper limit in the iteration count for event localization.
+     * @return upper limit in the iteration count for event localization
+     */
+    public int getMaxIterationCount() {
+<span class="nc" id="L158">        return maxIterationCount;</span>
+    }
+
+    /** Reinitialize the beginning of the step.
+     * @param interpolator valid for the current step
+     * @exception MaxCountExceededException if the interpolator throws one because
+     * the number of functions evaluations is exceeded
+     */
+    public void reinitializeBegin(final StepInterpolator interpolator)
+        throws MaxCountExceededException {
+
+<span class="fc" id="L169">        t0 = interpolator.getPreviousTime();</span>
+<span class="fc" id="L170">        interpolator.setInterpolatedTime(t0);</span>
+<span class="fc" id="L171">        g0 = handler.g(t0, getCompleteState(interpolator));</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">        if (g0 == 0) {</span>
+            // excerpt from MATH-421 issue:
+            // If an ODE solver is setup with an EventHandler that return STOP
+            // when the even is triggered, the integrator stops (which is exactly
+            // the expected behavior). If however the user wants to restart the
+            // solver from the final state reached at the event with the same
+            // configuration (expecting the event to be triggered again at a
+            // later time), then the integrator may fail to start. It can get stuck
+            // at the previous event. The use case for the bug MATH-421 is fairly
+            // general, so events occurring exactly at start in the first step should
+            // be ignored.
+
+            // extremely rare case: there is a zero EXACTLY at interval start
+            // we will use the sign slightly after step beginning to force ignoring this zero
+<span class="fc" id="L186">            final double epsilon = FastMath.max(solver.getAbsoluteAccuracy(),</span>
+                                                FastMath.abs(solver.getRelativeAccuracy() * t0));
+<span class="fc" id="L188">            final double tStart = t0 + 0.5 * epsilon;</span>
+<span class="fc" id="L189">            interpolator.setInterpolatedTime(tStart);</span>
+<span class="fc" id="L190">            g0 = handler.g(tStart, getCompleteState(interpolator));</span>
+        }
+<span class="fc bfc" id="L192" title="All 2 branches covered.">        g0Positive = g0 &gt;= 0;</span>
+
+<span class="fc" id="L194">    }</span>
+
+    /** Get the complete state (primary and secondary).
+     * @param interpolator interpolator to use
+     * @return complete state
+     */
+    private double[] getCompleteState(final StepInterpolator interpolator) {
+
+<span class="fc" id="L202">        final double[] complete = new double[expandable.getTotalDimension()];</span>
+
+<span class="fc" id="L204">        expandable.getPrimaryMapper().insertEquationData(interpolator.getInterpolatedState(),</span>
+                                                         complete);
+<span class="fc" id="L206">        int index = 0;</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        for (EquationsMapper secondary : expandable.getSecondaryMappers()) {</span>
+<span class="fc" id="L208">            secondary.insertEquationData(interpolator.getInterpolatedSecondaryState(index++),</span>
+                                         complete);
+        }
+
+<span class="fc" id="L212">        return complete;</span>
+
+    }
+
+    /** Evaluate the impact of the proposed step on the event handler.
+     * @param interpolator step interpolator for the proposed step
+     * @return true if the event handler triggers an event before
+     * the end of the proposed step
+     * @exception MaxCountExceededException if the interpolator throws one because
+     * the number of functions evaluations is exceeded
+     * @exception NoBracketingException if the event cannot be bracketed
+     */
+    public boolean evaluateStep(final StepInterpolator interpolator)
+        throws MaxCountExceededException, NoBracketingException {
+
+        try {
+<span class="fc" id="L228">            forward = interpolator.isForward();</span>
+<span class="fc" id="L229">            final double t1 = interpolator.getCurrentTime();</span>
+<span class="fc" id="L230">            final double dt = t1 - t0;</span>
+<span class="fc bfc" id="L231" title="All 2 branches covered.">            if (FastMath.abs(dt) &lt; convergence) {</span>
+                // we cannot do anything on such a small step, don't trigger any events
+<span class="fc" id="L233">                return false;</span>
+            }
+<span class="fc" id="L235">            final int    n = FastMath.max(1, (int) FastMath.ceil(FastMath.abs(dt) / maxCheckInterval));</span>
+<span class="fc" id="L236">            final double h = dt / n;</span>
+
+<span class="fc" id="L238">            final UnivariateFunction f = new UnivariateFunction() {</span>
+                /** {@inheritDoc} */
+                public double value(final double t) throws LocalMaxCountExceededException {
+                    try {
+<span class="fc" id="L242">                        interpolator.setInterpolatedTime(t);</span>
+<span class="fc" id="L243">                        return handler.g(t, getCompleteState(interpolator));</span>
+<span class="nc" id="L244">                    } catch (MaxCountExceededException mcee) {</span>
+<span class="nc" id="L245">                        throw new LocalMaxCountExceededException(mcee);</span>
+                    }
+                }
+            };
+
+<span class="fc" id="L250">            double ta = t0;</span>
+<span class="fc" id="L251">            double ga = g0;</span>
+<span class="fc bfc" id="L252" title="All 2 branches covered.">            for (int i = 0; i &lt; n; ++i) {</span>
+
+                // evaluate handler value at the end of the substep
+<span class="fc bfc" id="L255" title="All 2 branches covered.">                final double tb = (i == n - 1) ? t1 : t0 + (i + 1) * h;</span>
+<span class="fc" id="L256">                interpolator.setInterpolatedTime(tb);</span>
+<span class="fc" id="L257">                final double gb = handler.g(tb, getCompleteState(interpolator));</span>
+
+                // check events occurrence
+<span class="fc bfc" id="L260" title="All 4 branches covered.">                if (g0Positive ^ (gb &gt;= 0)) {</span>
+                    // there is a sign change: an event is expected during this step
+
+                    // variation direction, with respect to the integration direction
+<span class="fc bfc" id="L264" title="All 2 branches covered.">                    increasing = gb &gt;= ga;</span>
+
+                    // find the event time making sure we select a solution just at or past the exact root
+                    final double root;
+<span class="fc bfc" id="L268" title="All 2 branches covered.">                    if (solver instanceof BracketedUnivariateSolver&lt;?&gt;) {</span>
+                        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L270">                        BracketedUnivariateSolver&lt;UnivariateFunction&gt; bracketing =</span>
+                                (BracketedUnivariateSolver&lt;UnivariateFunction&gt;) solver;
+<span class="pc bpc" id="L272" title="1 of 2 branches missed.">                        root = forward ?</span>
+                               bracketing.solve(maxIterationCount, f, ta, tb, AllowedSolution.RIGHT_SIDE) :
+                               bracketing.solve(maxIterationCount, f, tb, ta, AllowedSolution.LEFT_SIDE);
+<span class="fc" id="L275">                    } else {</span>
+<span class="pc bpc" id="L276" title="1 of 2 branches missed.">                        final double baseRoot = forward ?</span>
+                                                solver.solve(maxIterationCount, f, ta, tb) :
+                                                solver.solve(maxIterationCount, f, tb, ta);
+<span class="fc" id="L279">                        final int remainingEval = maxIterationCount - solver.getEvaluations();</span>
+<span class="fc" id="L280">                        BracketedUnivariateSolver&lt;UnivariateFunction&gt; bracketing =</span>
+                                new PegasusSolver(solver.getRelativeAccuracy(), solver.getAbsoluteAccuracy());
+<span class="pc bpc" id="L282" title="1 of 2 branches missed.">                        root = forward ?</span>
+                               UnivariateSolverUtils.forceSide(remainingEval, f, bracketing,
+                                                                   baseRoot, ta, tb, AllowedSolution.RIGHT_SIDE) :
+                               UnivariateSolverUtils.forceSide(remainingEval, f, bracketing,
+                                                                   baseRoot, tb, ta, AllowedSolution.LEFT_SIDE);
+                    }
+
+<span class="fc bfc" id="L289" title="All 6 branches covered.">                    if ((!Double.isNaN(previousEventTime)) &amp;&amp;</span>
+                        (FastMath.abs(root - ta) &lt;= convergence) &amp;&amp;
+                        (FastMath.abs(root - previousEventTime) &lt;= convergence)) {
+                        // we have either found nothing or found (again ?) a past event,
+                        // retry the substep excluding this value, and taking care to have the
+                        // required sign in case the g function is noisy around its zero and
+                        // crosses the axis several times
+                        do {
+<span class="pc bpc" id="L297" title="1 of 2 branches missed.">                            ta = forward ? ta + convergence : ta - convergence;</span>
+<span class="fc" id="L298">                            ga = f.value(ta);</span>
+<span class="fc bfc" id="L299" title="All 8 branches covered.">                        } while ((g0Positive ^ (ga &gt;= 0)) &amp;&amp; (forward ^ (ta &gt;= tb)));</span>
+
+<span class="fc bfc" id="L301" title="All 4 branches covered.">                        if (forward ^ (ta &gt;= tb)) {</span>
+                            // we were able to skip this spurious root
+<span class="fc" id="L303">                            --i;</span>
+                        } else {
+                            // we can't avoid this root before the end of the step,
+                            // we have to handle it despite it is close to the former one
+                            // maybe we have two very close roots
+<span class="fc" id="L308">                            pendingEventTime = root;</span>
+<span class="fc" id="L309">                            pendingEvent = true;</span>
+<span class="fc" id="L310">                            return true;</span>
+                        }
+<span class="pc bpc" id="L312" title="1 of 4 branches missed.">                    } else if (Double.isNaN(previousEventTime) ||</span>
+                               (FastMath.abs(previousEventTime - root) &gt; convergence)) {
+<span class="fc" id="L314">                        pendingEventTime = root;</span>
+<span class="fc" id="L315">                        pendingEvent = true;</span>
+<span class="fc" id="L316">                        return true;</span>
+                    } else {
+                        // no sign change: there is no event for now
+<span class="nc" id="L319">                        ta = tb;</span>
+<span class="nc" id="L320">                        ga = gb;</span>
+                    }
+
+<span class="fc" id="L323">                } else {</span>
+                    // no sign change: there is no event for now
+<span class="fc" id="L325">                    ta = tb;</span>
+<span class="fc" id="L326">                    ga = gb;</span>
+                }
+
+            }
+
+            // no event during the whole step
+<span class="fc" id="L332">            pendingEvent     = false;</span>
+<span class="fc" id="L333">            pendingEventTime = Double.NaN;</span>
+<span class="fc" id="L334">            return false;</span>
+
+<span class="nc" id="L336">        } catch (LocalMaxCountExceededException lmcee) {</span>
+<span class="nc" id="L337">            throw lmcee.getException();</span>
+        }
+
+    }
+
+    /** Get the occurrence time of the event triggered in the current step.
+     * @return occurrence time of the event triggered in the current
+     * step or infinity if no events are triggered
+     */
+    public double getEventTime() {
+<span class="pc bpc" id="L347" title="3 of 4 branches missed.">        return pendingEvent ?</span>
+               pendingEventTime :
+               (forward ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY);
+    }
+
+    /** Acknowledge the fact the step has been accepted by the integrator.
+     * @param t value of the independent &lt;i&gt;time&lt;/i&gt; variable at the
+     * end of the step
+     * @param y array containing the current value of the state vector
+     * at the end of the step
+     */
+    public void stepAccepted(final double t, final double[] y) {
+
+<span class="fc" id="L360">        t0 = t;</span>
+<span class="fc" id="L361">        g0 = handler.g(t, y);</span>
+
+<span class="fc bfc" id="L363" title="All 4 branches covered.">        if (pendingEvent &amp;&amp; (FastMath.abs(pendingEventTime - t) &lt;= convergence)) {</span>
+            // force the sign to its value &quot;just after the event&quot;
+<span class="fc" id="L365">            previousEventTime = t;</span>
+<span class="fc" id="L366">            g0Positive        = increasing;</span>
+<span class="fc bfc" id="L367" title="All 2 branches covered.">            nextAction        = handler.eventOccurred(t, y, !(increasing ^ forward));</span>
+        } else {
+<span class="fc bfc" id="L369" title="All 2 branches covered.">            g0Positive = g0 &gt;= 0;</span>
+<span class="fc" id="L370">            nextAction = EventHandler.Action.CONTINUE;</span>
+        }
+<span class="fc" id="L372">    }</span>
+
+    /** Check if the integration should be stopped at the end of the
+     * current step.
+     * @return true if the integration should be stopped
+     */
+    public boolean stop() {
+<span class="fc bfc" id="L379" title="All 2 branches covered.">        return nextAction == EventHandler.Action.STOP;</span>
+    }
+
+    /** Let the event handler reset the state if it wants.
+     * @param t value of the independent &lt;i&gt;time&lt;/i&gt; variable at the
+     * beginning of the next step
+     * @param y array were to put the desired state vector at the beginning
+     * of the next step
+     * @return true if the integrator should reset the derivatives too
+     */
+    public boolean reset(final double t, final double[] y) {
+
+<span class="pc bpc" id="L391" title="2 of 4 branches missed.">        if (!(pendingEvent &amp;&amp; (FastMath.abs(pendingEventTime - t) &lt;= convergence))) {</span>
+<span class="nc" id="L392">            return false;</span>
+        }
+
+<span class="fc bfc" id="L395" title="All 2 branches covered.">        if (nextAction == EventHandler.Action.RESET_STATE) {</span>
+<span class="fc" id="L396">            handler.resetState(t, y);</span>
+        }
+<span class="fc" id="L398">        pendingEvent      = false;</span>
+<span class="fc" id="L399">        pendingEventTime  = Double.NaN;</span>
+
+<span class="fc bfc" id="L401" title="All 4 branches covered.">        return (nextAction == EventHandler.Action.RESET_STATE) ||</span>
+               (nextAction == EventHandler.Action.RESET_DERIVATIVES);
+
+    }
+
+    /** Local wrapper to propagate exceptions. */
+    private static class LocalMaxCountExceededException extends RuntimeException {
+
+        /** Serializable UID. */
+        private static final long serialVersionUID = 20120901L;
+
+        /** Wrapped exception. */
+        private final MaxCountExceededException wrapped;
+
+        /** Simple constructor.
+         * @param exception exception to wrap
+         */
+<span class="nc" id="L418">        LocalMaxCountExceededException(final MaxCountExceededException exception) {</span>
+<span class="nc" id="L419">            wrapped = exception;</span>
+<span class="nc" id="L420">        }</span>
+
+        /** Get the wrapped exception.
+         * @return wrapped exception
+         */
+        public MaxCountExceededException getException() {
+<span class="nc" id="L426">            return wrapped;</span>
+        }
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

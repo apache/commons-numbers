@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ExceptionContext.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.exception.util</a> &gt; <span class="el_source">ExceptionContext.java</span></div><h1>ExceptionContext.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.exception.util;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.Map;
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+import java.util.HashMap;
+import java.text.MessageFormat;
+import java.util.Locale;
+
+/**
+ * Class that contains the actual implementation of the functionality mandated
+ * by the {@link ExceptionContext} interface.
+ * All Commons Math exceptions delegate the interface's methods to this class.
+ *
+ * @since 3.0
+ */
+public class ExceptionContext implements Serializable {
+    /** Serializable version Id. */
+    private static final long serialVersionUID = -6024911025449780478L;
+    /**
+     * The throwable to which this context refers to.
+     */
+    private Throwable throwable;
+    /**
+     * Various informations that enrich the informative message.
+     */
+    private List&lt;Localizable&gt; msgPatterns;
+    /**
+     * Various informations that enrich the informative message.
+     * The arguments will replace the corresponding place-holders in
+     * {@link #msgPatterns}.
+     */
+    private List&lt;Object[]&gt; msgArguments;
+    /**
+     * Arbitrary context information.
+     */
+    private Map&lt;String, Object&gt; context;
+
+    /** Simple constructor.
+     * @param throwable the exception this context refers too
+     */
+<span class="fc" id="L63">    public ExceptionContext(final Throwable throwable) {</span>
+<span class="fc" id="L64">        this.throwable = throwable;</span>
+<span class="fc" id="L65">        msgPatterns    = new ArrayList&lt;Localizable&gt;();</span>
+<span class="fc" id="L66">        msgArguments   = new ArrayList&lt;Object[]&gt;();</span>
+<span class="fc" id="L67">        context        = new HashMap&lt;String, Object&gt;();</span>
+<span class="fc" id="L68">    }</span>
+
+    /** Get a reference to the exception to which the context relates.
+     * @return a reference to the exception to which the context relates
+     */
+    public Throwable getThrowable() {
+<span class="nc" id="L74">        return throwable;</span>
+    }
+
+    /**
+     * Adds a message.
+     *
+     * @param pattern Message pattern.
+     * @param arguments Values for replacing the placeholders in the message
+     * pattern.
+     */
+    public void addMessage(Localizable pattern,
+                           Object ... arguments) {
+<span class="fc" id="L86">        msgPatterns.add(pattern);</span>
+<span class="fc" id="L87">        msgArguments.add(ArgUtils.flatten(arguments));</span>
+<span class="fc" id="L88">    }</span>
+
+    /**
+     * Sets the context (key, value) pair.
+     * Keys are assumed to be unique within an instance. If the same key is
+     * assigned a new value, the previous one will be lost.
+     *
+     * @param key Context key (not null).
+     * @param value Context value.
+     */
+    public void setValue(String key, Object value) {
+<span class="fc" id="L99">        context.put(key, value);</span>
+<span class="fc" id="L100">    }</span>
+
+    /**
+     * Gets the value associated to the given context key.
+     *
+     * @param key Context key.
+     * @return the context value or {@code null} if the key does not exist.
+     */
+    public Object getValue(String key) {
+<span class="fc" id="L109">        return context.get(key);</span>
+    }
+
+    /**
+     * Gets all the keys stored in the exception
+     *
+     * @return the set of keys.
+     */
+    public Set&lt;String&gt; getKeys() {
+<span class="fc" id="L118">        return context.keySet();</span>
+    }
+
+    /**
+     * Gets the default message.
+     *
+     * @return the message.
+     */
+    public String getMessage() {
+<span class="fc" id="L127">        return getMessage(Locale.US);</span>
+    }
+
+    /**
+     * Gets the message in the default locale.
+     *
+     * @return the localized message.
+     */
+    public String getLocalizedMessage() {
+<span class="fc" id="L136">        return getMessage(Locale.getDefault());</span>
+    }
+
+    /**
+     * Gets the message in a specified locale.
+     *
+     * @param locale Locale in which the message should be translated.
+     * @return the localized message.
+     */
+    public String getMessage(final Locale locale) {
+<span class="fc" id="L146">        return buildMessage(locale, &quot;: &quot;);</span>
+    }
+
+    /**
+     * Gets the message in a specified locale.
+     *
+     * @param locale Locale in which the message should be translated.
+     * @param separator Separator inserted between the message parts.
+     * @return the localized message.
+     */
+    public String getMessage(final Locale locale,
+                             final String separator) {
+<span class="fc" id="L158">        return buildMessage(locale, separator);</span>
+    }
+
+    /**
+     * Builds a message string.
+     *
+     * @param locale Locale in which the message should be translated.
+     * @param separator Message separator.
+     * @return a localized message string.
+     */
+    private String buildMessage(Locale locale,
+                                String separator) {
+<span class="fc" id="L170">        final StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L171">        int count = 0;</span>
+<span class="fc" id="L172">        final int len = msgPatterns.size();</span>
+<span class="fc bfc" id="L173" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i++) {</span>
+<span class="fc" id="L174">            final Localizable pat = msgPatterns.get(i);</span>
+<span class="fc" id="L175">            final Object[] args = msgArguments.get(i);</span>
+<span class="fc" id="L176">            final MessageFormat fmt = new MessageFormat(pat.getLocalizedString(locale),</span>
+                                                        locale);
+<span class="fc" id="L178">            sb.append(fmt.format(args));</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">            if (++count &lt; len) {</span>
+                // Add a separator if there are other messages.
+<span class="fc" id="L181">                sb.append(separator);</span>
+            }
+        }
+
+<span class="fc" id="L185">        return sb.toString();</span>
+    }
+
+    /**
+     * Serialize this object to the given stream.
+     *
+     * @param out Stream.
+     * @throws IOException This should never happen.
+     */
+    private void writeObject(ObjectOutputStream out)
+        throws IOException {
+<span class="fc" id="L196">        out.writeObject(throwable);</span>
+<span class="fc" id="L197">        serializeMessages(out);</span>
+<span class="fc" id="L198">        serializeContext(out);</span>
+<span class="fc" id="L199">    }</span>
+    /**
+     * Deserialize this object from the given stream.
+     *
+     * @param in Stream.
+     * @throws IOException This should never happen.
+     * @throws ClassNotFoundException This should never happen.
+     */
+    private void readObject(ObjectInputStream in)
+        throws IOException,
+               ClassNotFoundException {
+<span class="fc" id="L210">        throwable = (Throwable) in.readObject();</span>
+<span class="fc" id="L211">        deSerializeMessages(in);</span>
+<span class="fc" id="L212">        deSerializeContext(in);</span>
+<span class="fc" id="L213">    }</span>
+
+    /**
+     * Serialize  {@link #msgPatterns} and {@link #msgArguments}.
+     *
+     * @param out Stream.
+     * @throws IOException This should never happen.
+     */
+    private void serializeMessages(ObjectOutputStream out)
+        throws IOException {
+        // Step 1.
+<span class="fc" id="L224">        final int len = msgPatterns.size();</span>
+<span class="fc" id="L225">        out.writeInt(len);</span>
+        // Step 2.
+<span class="fc bfc" id="L227" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i++) {</span>
+<span class="fc" id="L228">            final Localizable pat = msgPatterns.get(i);</span>
+            // Step 3.
+<span class="fc" id="L230">            out.writeObject(pat);</span>
+<span class="fc" id="L231">            final Object[] args = msgArguments.get(i);</span>
+<span class="fc" id="L232">            final int aLen = args.length;</span>
+            // Step 4.
+<span class="fc" id="L234">            out.writeInt(aLen);</span>
+<span class="fc bfc" id="L235" title="All 2 branches covered.">            for (int j = 0; j &lt; aLen; j++) {</span>
+<span class="fc bfc" id="L236" title="All 2 branches covered.">                if (args[j] instanceof Serializable) {</span>
+                    // Step 5a.
+<span class="fc" id="L238">                    out.writeObject(args[j]);</span>
+                } else {
+                    // Step 5b.
+<span class="fc" id="L241">                    out.writeObject(nonSerializableReplacement(args[j]));</span>
+                }
+            }
+        }
+<span class="fc" id="L245">    }</span>
+
+    /**
+     * Deserialize {@link #msgPatterns} and {@link #msgArguments}.
+     *
+     * @param in Stream.
+     * @throws IOException This should never happen.
+     * @throws ClassNotFoundException This should never happen.
+     */
+    private void deSerializeMessages(ObjectInputStream in)
+        throws IOException,
+               ClassNotFoundException {
+        // Step 1.
+<span class="fc" id="L258">        final int len = in.readInt();</span>
+<span class="fc" id="L259">        msgPatterns = new ArrayList&lt;Localizable&gt;(len);</span>
+<span class="fc" id="L260">        msgArguments = new ArrayList&lt;Object[]&gt;(len);</span>
+        // Step 2.
+<span class="fc bfc" id="L262" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i++) {</span>
+            // Step 3.
+<span class="fc" id="L264">            final Localizable pat = (Localizable) in.readObject();</span>
+<span class="fc" id="L265">            msgPatterns.add(pat);</span>
+            // Step 4.
+<span class="fc" id="L267">            final int aLen = in.readInt();</span>
+<span class="fc" id="L268">            final Object[] args = new Object[aLen];</span>
+<span class="fc bfc" id="L269" title="All 2 branches covered.">            for (int j = 0; j &lt; aLen; j++) {</span>
+                // Step 5.
+<span class="fc" id="L271">                args[j] = in.readObject();</span>
+            }
+<span class="fc" id="L273">            msgArguments.add(args);</span>
+        }
+<span class="fc" id="L275">    }</span>
+
+    /**
+     * Serialize {@link #context}.
+     *
+     * @param out Stream.
+     * @throws IOException This should never happen.
+     */
+    private void serializeContext(ObjectOutputStream out)
+        throws IOException {
+        // Step 1.
+<span class="fc" id="L286">        final int len = context.size();</span>
+<span class="fc" id="L287">        out.writeInt(len);</span>
+<span class="fc bfc" id="L288" title="All 2 branches covered.">        for (Map.Entry&lt;String, Object&gt; entry : context.entrySet()) {</span>
+            // Step 2.
+<span class="fc" id="L290">            out.writeObject(entry.getKey());</span>
+<span class="fc" id="L291">            final Object value = entry.getValue();</span>
+<span class="fc bfc" id="L292" title="All 2 branches covered.">            if (value instanceof Serializable) {</span>
+                // Step 3a.
+<span class="fc" id="L294">                out.writeObject(value);</span>
+            } else {
+                // Step 3b.
+<span class="fc" id="L297">                out.writeObject(nonSerializableReplacement(value));</span>
+            }
+<span class="fc" id="L299">        }</span>
+<span class="fc" id="L300">    }</span>
+
+    /**
+     * Deserialize {@link #context}.
+     *
+     * @param in Stream.
+     * @throws IOException This should never happen.
+     * @throws ClassNotFoundException This should never happen.
+     */
+    private void deSerializeContext(ObjectInputStream in)
+        throws IOException,
+               ClassNotFoundException {
+        // Step 1.
+<span class="fc" id="L313">        final int len = in.readInt();</span>
+<span class="fc" id="L314">        context = new HashMap&lt;String, Object&gt;();</span>
+<span class="fc bfc" id="L315" title="All 2 branches covered.">        for (int i = 0; i &lt; len; i++) {</span>
+            // Step 2.
+<span class="fc" id="L317">            final String key = (String) in.readObject();</span>
+            // Step 3.
+<span class="fc" id="L319">            final Object value = in.readObject();</span>
+<span class="fc" id="L320">            context.put(key, value);</span>
+        }
+<span class="fc" id="L322">    }</span>
+
+    /**
+     * Replaces a non-serializable object with an error message string.
+     *
+     * @param obj Object that does not implement the {@code Serializable}
+     * interface.
+     * @return a string that mentions which class could not be serialized.
+     */
+    private String nonSerializableReplacement(Object obj) {
+<span class="fc" id="L332">        return &quot;[Object could not be serialized: &quot; + obj.getClass().getName() + &quot;]&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

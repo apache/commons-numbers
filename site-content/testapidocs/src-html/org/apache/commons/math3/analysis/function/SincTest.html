@@ -1,0 +1,192 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.analysis.function;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.apache.commons.math3.analysis.UnivariateFunction;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.dfp.Dfp;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.dfp.DfpField;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.dfp.DfpMath;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.util.FastMath;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.junit.Assert;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.junit.Test;<a name="line.26"></a>
+<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">028</span>public class SincTest {<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>   @Test<a name="line.30"></a>
+<span class="sourceLineNo">031</span>   public void testShortcut() {<a name="line.31"></a>
+<span class="sourceLineNo">032</span>       final Sinc s = new Sinc();<a name="line.32"></a>
+<span class="sourceLineNo">033</span>       final UnivariateFunction f = new UnivariateFunction() {<a name="line.33"></a>
+<span class="sourceLineNo">034</span>           public double value(double x) {<a name="line.34"></a>
+<span class="sourceLineNo">035</span>               Dfp dfpX = new DfpField(25).newDfp(x);<a name="line.35"></a>
+<span class="sourceLineNo">036</span>               return DfpMath.sin(dfpX).divide(dfpX).toDouble();<a name="line.36"></a>
+<span class="sourceLineNo">037</span>           }<a name="line.37"></a>
+<span class="sourceLineNo">038</span>       };<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>       for (double x = 1e-30; x &lt; 1e10; x *= 2) {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>           final double fX = f.value(x);<a name="line.41"></a>
+<span class="sourceLineNo">042</span>           final double sX = s.value(x);<a name="line.42"></a>
+<span class="sourceLineNo">043</span>           Assert.assertEquals("x=" + x, fX, sX, 2.0e-16);<a name="line.43"></a>
+<span class="sourceLineNo">044</span>       }<a name="line.44"></a>
+<span class="sourceLineNo">045</span>   }<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>   @Test<a name="line.47"></a>
+<span class="sourceLineNo">048</span>   public void testCrossings() {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>       final Sinc s = new Sinc(true);<a name="line.49"></a>
+<span class="sourceLineNo">050</span>       final int numCrossings = 1000;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>       final double tol = 2e-16;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>       for (int i = 1; i &lt;= numCrossings; i++) {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>           Assert.assertEquals("i=" + i, 0, s.value(i), tol);<a name="line.53"></a>
+<span class="sourceLineNo">054</span>       }<a name="line.54"></a>
+<span class="sourceLineNo">055</span>   }<a name="line.55"></a>
+<span class="sourceLineNo">056</span><a name="line.56"></a>
+<span class="sourceLineNo">057</span>   @Test<a name="line.57"></a>
+<span class="sourceLineNo">058</span>   public void testZero() {<a name="line.58"></a>
+<span class="sourceLineNo">059</span>       final Sinc s = new Sinc();<a name="line.59"></a>
+<span class="sourceLineNo">060</span>       Assert.assertEquals(1d, s.value(0), 0);<a name="line.60"></a>
+<span class="sourceLineNo">061</span>   }<a name="line.61"></a>
+<span class="sourceLineNo">062</span><a name="line.62"></a>
+<span class="sourceLineNo">063</span>   @Test<a name="line.63"></a>
+<span class="sourceLineNo">064</span>   public void testEuler() {<a name="line.64"></a>
+<span class="sourceLineNo">065</span>       final Sinc s = new Sinc();<a name="line.65"></a>
+<span class="sourceLineNo">066</span>       final double x = 123456.789;<a name="line.66"></a>
+<span class="sourceLineNo">067</span>       double prod = 1;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>       double xOverPow2 = x / 2;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>       while (xOverPow2 &gt; 0) {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>           prod *= FastMath.cos(xOverPow2);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>           xOverPow2 /= 2;<a name="line.71"></a>
+<span class="sourceLineNo">072</span>       }<a name="line.72"></a>
+<span class="sourceLineNo">073</span>       Assert.assertEquals(prod, s.value(x), 1e-13);<a name="line.73"></a>
+<span class="sourceLineNo">074</span>   }<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>   @Test<a name="line.76"></a>
+<span class="sourceLineNo">077</span>   public void testDerivativeZero() {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>       final DerivativeStructure s0 = new Sinc(true).value(new DerivativeStructure(1, 1, 0, 0.0));<a name="line.78"></a>
+<span class="sourceLineNo">079</span>       Assert.assertEquals(0, s0.getPartialDerivative(1), 0);<a name="line.79"></a>
+<span class="sourceLineNo">080</span>   }<a name="line.80"></a>
+<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">082</span>   @Test<a name="line.82"></a>
+<span class="sourceLineNo">083</span>   public void testDerivatives1Dot2Unnormalized() {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>       DerivativeStructure s = new Sinc(false).value(new DerivativeStructure(1, 5, 0, 1.2));<a name="line.84"></a>
+<span class="sourceLineNo">085</span>       Assert.assertEquals( 0.77669923830602195806, s.getPartialDerivative(0), 1.0e-16);<a name="line.85"></a>
+<span class="sourceLineNo">086</span>       Assert.assertEquals(-0.34528456985779031701, s.getPartialDerivative(1), 1.0e-16);<a name="line.86"></a>
+<span class="sourceLineNo">087</span>       Assert.assertEquals(-0.2012249552097047631,  s.getPartialDerivative(2), 1.0e-16);<a name="line.87"></a>
+<span class="sourceLineNo">088</span>       Assert.assertEquals( 0.2010975926270339262,  s.getPartialDerivative(3), 4.0e-16);<a name="line.88"></a>
+<span class="sourceLineNo">089</span>       Assert.assertEquals( 0.106373929549242204,   s.getPartialDerivative(4), 1.0e-15);<a name="line.89"></a>
+<span class="sourceLineNo">090</span>       Assert.assertEquals(-0.1412599110579478695,  s.getPartialDerivative(5), 3.0e-15);<a name="line.90"></a>
+<span class="sourceLineNo">091</span>   }<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>   @Test<a name="line.93"></a>
+<span class="sourceLineNo">094</span>   public void testDerivatives1Dot2Normalized() {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>       DerivativeStructure s = new Sinc(true).value(new DerivativeStructure(1, 5, 0, 1.2));<a name="line.95"></a>
+<span class="sourceLineNo">096</span>       Assert.assertEquals(-0.15591488063143983888, s.getPartialDerivative(0), 6.0e-17);<a name="line.96"></a>
+<span class="sourceLineNo">097</span>       Assert.assertEquals(-0.54425176145292298767, s.getPartialDerivative(1), 2.0e-16);<a name="line.97"></a>
+<span class="sourceLineNo">098</span>       Assert.assertEquals(2.4459044611635856107,   s.getPartialDerivative(2), 9.0e-16);<a name="line.98"></a>
+<span class="sourceLineNo">099</span>       Assert.assertEquals(0.5391369206235909586,   s.getPartialDerivative(3), 7.0e-16);<a name="line.99"></a>
+<span class="sourceLineNo">100</span>       Assert.assertEquals(-16.984649869728849865,  s.getPartialDerivative(4), 8.0e-15);<a name="line.100"></a>
+<span class="sourceLineNo">101</span>       Assert.assertEquals(5.0980327462666316586,   s.getPartialDerivative(5), 9.0e-15);<a name="line.101"></a>
+<span class="sourceLineNo">102</span>   }<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>   @Test<a name="line.104"></a>
+<span class="sourceLineNo">105</span>   public void testDerivativeShortcut() {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>       final Sinc sinc = new Sinc();<a name="line.106"></a>
+<span class="sourceLineNo">107</span>       final UnivariateFunction f = new UnivariateFunction() {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>               public double value(double x) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                   Dfp dfpX = new DfpField(25).newDfp(x);<a name="line.109"></a>
+<span class="sourceLineNo">110</span>                   return DfpMath.cos(dfpX).subtract(DfpMath.sin(dfpX).divide(dfpX)).divide(dfpX).toDouble();<a name="line.110"></a>
+<span class="sourceLineNo">111</span>               }<a name="line.111"></a>
+<span class="sourceLineNo">112</span>           };<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>       for (double x = 1e-30; x &lt; 1e10; x *= 2) {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>           final double fX = f.value(x);<a name="line.115"></a>
+<span class="sourceLineNo">116</span>           final DerivativeStructure sX = sinc.value(new DerivativeStructure(1, 1, 0, x));<a name="line.116"></a>
+<span class="sourceLineNo">117</span>           Assert.assertEquals("x=" + x, fX, sX.getPartialDerivative(1), 3.0e-13);<a name="line.117"></a>
+<span class="sourceLineNo">118</span>       }<a name="line.118"></a>
+<span class="sourceLineNo">119</span>   }<a name="line.119"></a>
+<span class="sourceLineNo">120</span>}<a name="line.120"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

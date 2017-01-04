@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LocalizedFormats.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.exception.util</a> &gt; <span class="el_source">LocalizedFormats.java</span></div><h1>LocalizedFormats.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.exception.util;
+
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
+/**
+ * Enumeration for localized messages formats used in exceptions messages.
+ * &lt;p&gt;
+ * The constants in this enumeration represent the available
+ * formats as localized strings. These formats are intended to be
+ * localized using simple properties files, using the constant
+ * name as the key and the property value as the message format.
+ * The source English format is provided in the constants themselves
+ * to serve both as a reminder for developers to understand the parameters
+ * needed by each format, as a basis for translators to create
+ * localized properties files, and as a default format if some
+ * translation is missing.
+ * &lt;/p&gt;
+ * @since 2.2
+ */
+<span class="fc" id="L38">public enum LocalizedFormats implements Localizable {</span>
+
+    // CHECKSTYLE: stop MultipleVariableDeclarations
+    // CHECKSTYLE: stop JavadocVariable
+
+<span class="fc" id="L43">    ARGUMENT_OUTSIDE_DOMAIN(&quot;Argument {0} outside domain [{1} ; {2}]&quot;),</span>
+<span class="fc" id="L44">    ARRAY_SIZE_EXCEEDS_MAX_VARIABLES(&quot;array size cannot be greater than {0}&quot;),</span>
+<span class="fc" id="L45">    ARRAY_SIZES_SHOULD_HAVE_DIFFERENCE_1(&quot;array sizes should have difference 1 ({0} != {1} + 1)&quot;),</span>
+<span class="fc" id="L46">    ARRAY_SUMS_TO_ZERO(&quot;array sums to zero&quot;),</span>
+<span class="fc" id="L47">    ASSYMETRIC_EIGEN_NOT_SUPPORTED(&quot;eigen decomposition of assymetric matrices not supported yet&quot;),</span>
+<span class="fc" id="L48">    AT_LEAST_ONE_COLUMN(&quot;matrix must have at least one column&quot;),</span>
+<span class="fc" id="L49">    AT_LEAST_ONE_ROW(&quot;matrix must have at least one row&quot;),</span>
+<span class="fc" id="L50">    BANDWIDTH(&quot;bandwidth ({0})&quot;),</span>
+<span class="fc" id="L51">    BESSEL_FUNCTION_BAD_ARGUMENT(&quot;Bessel function of order {0} cannot be computed for x = {1}&quot;),</span>
+<span class="fc" id="L52">    BESSEL_FUNCTION_FAILED_CONVERGENCE(&quot;Bessel function of order {0} failed to converge for x = {1}&quot;),</span>
+<span class="fc" id="L53">    BINOMIAL_INVALID_PARAMETERS_ORDER(&quot;must have n &gt;= k for binomial coefficient (n, k), got k = {0}, n = {1}&quot;),</span>
+<span class="fc" id="L54">    BINOMIAL_NEGATIVE_PARAMETER(&quot;must have n &gt;= 0 for binomial coefficient (n, k), got n = {0}&quot;),</span>
+<span class="fc" id="L55">    CANNOT_CLEAR_STATISTIC_CONSTRUCTED_FROM_EXTERNAL_MOMENTS(&quot;statistics constructed from external moments cannot be cleared&quot;),</span>
+<span class="fc" id="L56">    CANNOT_COMPUTE_0TH_ROOT_OF_UNITY(&quot;cannot compute 0-th root of unity, indefinite result&quot;),</span>
+<span class="fc" id="L57">    CANNOT_COMPUTE_BETA_DENSITY_AT_0_FOR_SOME_ALPHA(&quot;cannot compute beta density at 0 when alpha = {0,number}&quot;),</span>
+<span class="fc" id="L58">    CANNOT_COMPUTE_BETA_DENSITY_AT_1_FOR_SOME_BETA(&quot;cannot compute beta density at 1 when beta = %.3g&quot;),</span>
+<span class="fc" id="L59">    CANNOT_COMPUTE_NTH_ROOT_FOR_NEGATIVE_N(&quot;cannot compute nth root for null or negative n: {0}&quot;),</span>
+<span class="fc" id="L60">    CANNOT_DISCARD_NEGATIVE_NUMBER_OF_ELEMENTS(&quot;cannot discard a negative number of elements ({0})&quot;),</span>
+<span class="fc" id="L61">    CANNOT_FORMAT_INSTANCE_AS_3D_VECTOR(&quot;cannot format a {0} instance as a 3D vector&quot;),</span>
+<span class="fc" id="L62">    CANNOT_FORMAT_INSTANCE_AS_COMPLEX(&quot;cannot format a {0} instance as a complex number&quot;),</span>
+<span class="fc" id="L63">    CANNOT_FORMAT_INSTANCE_AS_REAL_VECTOR(&quot;cannot format a {0} instance as a real vector&quot;),</span>
+<span class="fc" id="L64">    CANNOT_FORMAT_OBJECT_TO_FRACTION(&quot;cannot format given object as a fraction number&quot;),</span>
+<span class="fc" id="L65">    CANNOT_INCREMENT_STATISTIC_CONSTRUCTED_FROM_EXTERNAL_MOMENTS(&quot;statistics constructed from external moments cannot be incremented&quot;),</span>
+<span class="fc" id="L66">    CANNOT_NORMALIZE_A_ZERO_NORM_VECTOR(&quot;cannot normalize a zero norm vector&quot;),</span>
+<span class="fc" id="L67">    CANNOT_RETRIEVE_AT_NEGATIVE_INDEX(&quot;elements cannot be retrieved from a negative array index {0}&quot;),</span>
+<span class="fc" id="L68">    CANNOT_SET_AT_NEGATIVE_INDEX(&quot;cannot set an element at a negative index {0}&quot;),</span>
+<span class="fc" id="L69">    CANNOT_SUBSTITUTE_ELEMENT_FROM_EMPTY_ARRAY(&quot;cannot substitute an element from an empty array&quot;),</span>
+<span class="fc" id="L70">    CANNOT_TRANSFORM_TO_DOUBLE(&quot;Conversion Exception in Transformation: {0}&quot;),</span>
+<span class="fc" id="L71">    CARDAN_ANGLES_SINGULARITY(&quot;Cardan angles singularity&quot;),</span>
+<span class="fc" id="L72">    CLASS_DOESNT_IMPLEMENT_COMPARABLE(&quot;class ({0}) does not implement Comparable&quot;),</span>
+<span class="fc" id="L73">    CLOSE_VERTICES(&quot;too close vertices near point ({0}, {1}, {2})&quot;),</span>
+<span class="fc" id="L74">    CLOSEST_ORTHOGONAL_MATRIX_HAS_NEGATIVE_DETERMINANT(&quot;the closest orthogonal matrix has a negative determinant {0}&quot;),</span>
+<span class="fc" id="L75">    COLUMN_INDEX_OUT_OF_RANGE(&quot;column index {0} out of allowed range [{1}, {2}]&quot;),</span>
+<span class="fc" id="L76">    COLUMN_INDEX(&quot;column index ({0})&quot;), /* keep */</span>
+<span class="fc" id="L77">    CONSTRAINT(&quot;constraint&quot;), /* keep */</span>
+<span class="fc" id="L78">    CONTINUED_FRACTION_INFINITY_DIVERGENCE(&quot;Continued fraction convergents diverged to +/- infinity for value {0}&quot;),</span>
+<span class="fc" id="L79">    CONTINUED_FRACTION_NAN_DIVERGENCE(&quot;Continued fraction diverged to NaN for value {0}&quot;),</span>
+<span class="fc" id="L80">    CONTRACTION_CRITERIA_SMALLER_THAN_EXPANSION_FACTOR(&quot;contraction criteria ({0}) smaller than the expansion factor ({1}).  This would lead to a never ending loop of expansion and contraction as a newly expanded internal storage array would immediately satisfy the criteria for contraction.&quot;),</span>
+<span class="fc" id="L81">    CONTRACTION_CRITERIA_SMALLER_THAN_ONE(&quot;contraction criteria smaller than one ({0}).  This would lead to a never ending loop of expansion and contraction as an internal storage array length equal to the number of elements would satisfy the contraction criteria.&quot;),</span>
+<span class="fc" id="L82">    CONVERGENCE_FAILED(&quot;convergence failed&quot;), /* keep */</span>
+<span class="fc" id="L83">    CROSSING_BOUNDARY_LOOPS(&quot;some outline boundary loops cross each other&quot;),</span>
+<span class="fc" id="L84">    CROSSOVER_RATE(&quot;crossover rate ({0})&quot;),</span>
+<span class="fc" id="L85">    CUMULATIVE_PROBABILITY_RETURNED_NAN(&quot;Cumulative probability function returned NaN for argument {0} p = {1}&quot;),</span>
+<span class="fc" id="L86">    DIFFERENT_ROWS_LENGTHS(&quot;some rows have length {0} while others have length {1}&quot;),</span>
+<span class="fc" id="L87">    DIFFERENT_ORIG_AND_PERMUTED_DATA(&quot;original and permuted data must contain the same elements&quot;),</span>
+<span class="fc" id="L88">    DIGEST_NOT_INITIALIZED(&quot;digest not initialized&quot;),</span>
+<span class="fc" id="L89">    DIMENSIONS_MISMATCH_2x2(&quot;got {0}x{1} but expected {2}x{3}&quot;), /* keep */</span>
+<span class="fc" id="L90">    DIMENSIONS_MISMATCH_SIMPLE(&quot;{0} != {1}&quot;), /* keep */</span>
+<span class="fc" id="L91">    DIMENSIONS_MISMATCH(&quot;dimensions mismatch&quot;), /* keep */</span>
+<span class="fc" id="L92">    DISCRETE_CUMULATIVE_PROBABILITY_RETURNED_NAN(&quot;Discrete cumulative probability function returned NaN for argument {0}&quot;),</span>
+<span class="fc" id="L93">    DISTRIBUTION_NOT_LOADED(&quot;distribution not loaded&quot;),</span>
+<span class="fc" id="L94">    DUPLICATED_ABSCISSA_DIVISION_BY_ZERO(&quot;duplicated abscissa {0} causes division by zero&quot;),</span>
+<span class="fc" id="L95">    EDGE_CONNECTED_TO_ONE_FACET(&quot;edge joining points ({0}, {1}, {2}) and ({3}, {4}, {5}) is connected to one facet only&quot;),</span>
+<span class="fc" id="L96">    ELITISM_RATE(&quot;elitism rate ({0})&quot;),</span>
+<span class="fc" id="L97">    EMPTY_CLUSTER_IN_K_MEANS(&quot;empty cluster in k-means&quot;),</span>
+<span class="fc" id="L98">    EMPTY_INTERPOLATION_SAMPLE(&quot;sample for interpolation is empty&quot;),</span>
+<span class="fc" id="L99">    EMPTY_POLYNOMIALS_COEFFICIENTS_ARRAY(&quot;empty polynomials coefficients array&quot;), /* keep */</span>
+<span class="fc" id="L100">    EMPTY_SELECTED_COLUMN_INDEX_ARRAY(&quot;empty selected column index array&quot;),</span>
+<span class="fc" id="L101">    EMPTY_SELECTED_ROW_INDEX_ARRAY(&quot;empty selected row index array&quot;),</span>
+<span class="fc" id="L102">    EMPTY_STRING_FOR_IMAGINARY_CHARACTER(&quot;empty string for imaginary character&quot;),</span>
+<span class="fc" id="L103">    ENDPOINTS_NOT_AN_INTERVAL(&quot;endpoints do not specify an interval: [{0}, {1}]&quot;),</span>
+<span class="fc" id="L104">    EQUAL_VERTICES_IN_SIMPLEX(&quot;equal vertices {0} and {1} in simplex configuration&quot;),</span>
+<span class="fc" id="L105">    EULER_ANGLES_SINGULARITY(&quot;Euler angles singularity&quot;),</span>
+<span class="fc" id="L106">    EVALUATION(&quot;evaluation&quot;), /* keep */</span>
+<span class="fc" id="L107">    EXPANSION_FACTOR_SMALLER_THAN_ONE(&quot;expansion factor smaller than one ({0})&quot;),</span>
+<span class="fc" id="L108">    FACET_ORIENTATION_MISMATCH(&quot;facets orientation mismatch around edge joining points ({0}, {1}, {2}) and ({3}, {4}, {5})&quot;),</span>
+<span class="fc" id="L109">    FACTORIAL_NEGATIVE_PARAMETER(&quot;must have n &gt;= 0 for n!, got n = {0}&quot;),</span>
+<span class="fc" id="L110">    FAILED_BRACKETING(&quot;number of iterations={4}, maximum iterations={5}, initial={6}, lower bound={7}, upper bound={8}, final a value={0}, final b value={1}, f(a)={2}, f(b)={3}&quot;),</span>
+<span class="fc" id="L111">    FAILED_FRACTION_CONVERSION(&quot;Unable to convert {0} to fraction after {1} iterations&quot;),</span>
+<span class="fc" id="L112">    FIRST_COLUMNS_NOT_INITIALIZED_YET(&quot;first {0} columns are not initialized yet&quot;),</span>
+<span class="fc" id="L113">    FIRST_ELEMENT_NOT_ZERO(&quot;first element is not 0: {0}&quot;),</span>
+<span class="fc" id="L114">    FIRST_ROWS_NOT_INITIALIZED_YET(&quot;first {0} rows are not initialized yet&quot;),</span>
+<span class="fc" id="L115">    FRACTION_CONVERSION_OVERFLOW(&quot;Overflow trying to convert {0} to fraction ({1}/{2})&quot;),</span>
+<span class="fc" id="L116">    FUNCTION_NOT_DIFFERENTIABLE(&quot;function is not differentiable&quot;),</span>
+<span class="fc" id="L117">    FUNCTION_NOT_POLYNOMIAL(&quot;function is not polynomial&quot;),</span>
+<span class="fc" id="L118">    GCD_OVERFLOW_32_BITS(&quot;overflow: gcd({0}, {1}) is 2^31&quot;),</span>
+<span class="fc" id="L119">    GCD_OVERFLOW_64_BITS(&quot;overflow: gcd({0}, {1}) is 2^63&quot;),</span>
+<span class="fc" id="L120">    HOLE_BETWEEN_MODELS_TIME_RANGES(&quot;{0} wide hole between models time ranges&quot;),</span>
+<span class="fc" id="L121">    ILL_CONDITIONED_OPERATOR(&quot;condition number {1} is too high &quot;),</span>
+<span class="fc" id="L122">    INCONSISTENT_STATE_AT_2_PI_WRAPPING(&quot;inconsistent state at 2\u03c0 wrapping&quot;),</span>
+<span class="fc" id="L123">    INDEX_LARGER_THAN_MAX(&quot;the index specified: {0} is larger than the current maximal index {1}&quot;),</span>
+<span class="fc" id="L124">    INDEX_NOT_POSITIVE(&quot;index ({0}) is not positive&quot;),</span>
+<span class="fc" id="L125">    INDEX_OUT_OF_RANGE(&quot;index {0} out of allowed range [{1}, {2}]&quot;),</span>
+<span class="fc" id="L126">    INDEX(&quot;index ({0})&quot;), /* keep */</span>
+<span class="fc" id="L127">    NOT_FINITE_NUMBER(&quot;{0} is not a finite number&quot;), /* keep */</span>
+<span class="fc" id="L128">    INFINITE_BOUND(&quot;interval bounds must be finite&quot;),</span>
+<span class="fc" id="L129">    ARRAY_ELEMENT(&quot;value {0} at index {1}&quot;), /* keep */</span>
+<span class="fc" id="L130">    INFINITE_ARRAY_ELEMENT(&quot;Array contains an infinite element, {0} at index {1}&quot;),</span>
+<span class="fc" id="L131">    INFINITE_VALUE_CONVERSION(&quot;cannot convert infinite value&quot;),</span>
+<span class="fc" id="L132">    INITIAL_CAPACITY_NOT_POSITIVE(&quot;initial capacity ({0}) is not positive&quot;),</span>
+<span class="fc" id="L133">    INITIAL_COLUMN_AFTER_FINAL_COLUMN(&quot;initial column {1} after final column {0}&quot;),</span>
+<span class="fc" id="L134">    INITIAL_ROW_AFTER_FINAL_ROW(&quot;initial row {1} after final row {0}&quot;),</span>
+<span class="fc" id="L135">    @Deprecated</span>
+    INPUT_DATA_FROM_UNSUPPORTED_DATASOURCE(&quot;input data comes from unsupported datasource: {0}, supported sources: {1}, {2}&quot;),
+<span class="fc" id="L137">    INSTANCES_NOT_COMPARABLE_TO_EXISTING_VALUES(&quot;instance of class {0} not comparable to existing values&quot;),</span>
+<span class="fc" id="L138">    INSUFFICIENT_DATA(&quot;insufficient data&quot;),</span>
+<span class="fc" id="L139">    INSUFFICIENT_DATA_FOR_T_STATISTIC(&quot;insufficient data for t statistic, needs at least 2, got {0}&quot;),</span>
+<span class="fc" id="L140">    INSUFFICIENT_DIMENSION(&quot;insufficient dimension {0}, must be at least {1}&quot;),</span>
+<span class="fc" id="L141">    DIMENSION(&quot;dimension ({0})&quot;), /* keep */</span>
+<span class="fc" id="L142">    INSUFFICIENT_OBSERVED_POINTS_IN_SAMPLE(&quot;sample contains {0} observed points, at least {1} are required&quot;),</span>
+<span class="fc" id="L143">    INSUFFICIENT_ROWS_AND_COLUMNS(&quot;insufficient data: only {0} rows and {1} columns.&quot;),</span>
+<span class="fc" id="L144">    INTEGRATION_METHOD_NEEDS_AT_LEAST_TWO_PREVIOUS_POINTS(&quot;multistep method needs at least {0} previous steps, got {1}&quot;),</span>
+<span class="fc" id="L145">    INTERNAL_ERROR(&quot;internal error, please fill a bug report at {0}&quot;),</span>
+<span class="fc" id="L146">    INVALID_BINARY_DIGIT(&quot;invalid binary digit: {0}&quot;),</span>
+<span class="fc" id="L147">    INVALID_BINARY_CHROMOSOME(&quot;binary mutation works on BinaryChromosome only&quot;),</span>
+<span class="fc" id="L148">    INVALID_BRACKETING_PARAMETERS(&quot;invalid bracketing parameters:  lower bound={0},  initial={1}, upper bound={2}&quot;),</span>
+<span class="fc" id="L149">    INVALID_FIXED_LENGTH_CHROMOSOME(&quot;one-point crossover only works with fixed-length chromosomes&quot;),</span>
+<span class="fc" id="L150">    INVALID_IMPLEMENTATION(&quot;required functionality is missing in {0}&quot;),</span>
+<span class="fc" id="L151">    INVALID_INTERVAL_INITIAL_VALUE_PARAMETERS(&quot;invalid interval, initial value parameters:  lower={0}, initial={1}, upper={2}&quot;),</span>
+<span class="fc" id="L152">    INVALID_ITERATIONS_LIMITS(&quot;invalid iteration limits: min={0}, max={1}&quot;),</span>
+<span class="fc" id="L153">    INVALID_MAX_ITERATIONS(&quot;bad value for maximum iterations number: {0}&quot;),</span>
+<span class="fc" id="L154">    NOT_ENOUGH_DATA_REGRESSION(&quot;the number of observations is not sufficient to conduct regression&quot;),</span>
+<span class="fc" id="L155">    INVALID_REGRESSION_ARRAY(&quot;input data array length = {0} does not match the number of observations = {1} and the number of regressors = {2}&quot;),</span>
+<span class="fc" id="L156">    INVALID_REGRESSION_OBSERVATION(&quot;length of regressor array = {0} does not match the number of variables = {1} in the model&quot;),</span>
+<span class="fc" id="L157">    INVALID_ROUNDING_METHOD(&quot;invalid rounding method {0}, valid methods: {1} ({2}), {3} ({4}), {5} ({6}), {7} ({8}), {9} ({10}), {11} ({12}), {13} ({14}), {15} ({16})&quot;),</span>
+<span class="fc" id="L158">    ITERATOR_EXHAUSTED(&quot;iterator exhausted&quot;),</span>
+<span class="fc" id="L159">    ITERATIONS(&quot;iterations&quot;), /* keep */</span>
+<span class="fc" id="L160">    LCM_OVERFLOW_32_BITS(&quot;overflow: lcm({0}, {1}) is 2^31&quot;),</span>
+<span class="fc" id="L161">    LCM_OVERFLOW_64_BITS(&quot;overflow: lcm({0}, {1}) is 2^63&quot;),</span>
+<span class="fc" id="L162">    LIST_OF_CHROMOSOMES_BIGGER_THAN_POPULATION_SIZE(&quot;list of chromosomes bigger than maxPopulationSize&quot;),</span>
+<span class="fc" id="L163">    LOESS_EXPECTS_AT_LEAST_ONE_POINT(&quot;Loess expects at least 1 point&quot;),</span>
+<span class="fc" id="L164">    LOWER_BOUND_NOT_BELOW_UPPER_BOUND(&quot;lower bound ({0}) must be strictly less than upper bound ({1})&quot;), /* keep */</span>
+<span class="fc" id="L165">    LOWER_ENDPOINT_ABOVE_UPPER_ENDPOINT(&quot;lower endpoint ({0}) must be less than or equal to upper endpoint ({1})&quot;),</span>
+<span class="fc" id="L166">    MAP_MODIFIED_WHILE_ITERATING(&quot;map has been modified while iterating&quot;),</span>
+<span class="fc" id="L167">    MULTISTEP_STARTER_STOPPED_EARLY(&quot;multistep integrator starter stopped early, maybe too large step size&quot;),</span>
+<span class="fc" id="L168">    EVALUATIONS(&quot;evaluations&quot;), /* keep */</span>
+<span class="fc" id="L169">    MAX_COUNT_EXCEEDED(&quot;maximal count ({0}) exceeded&quot;), /* keep */</span>
+<span class="fc" id="L170">    MAX_ITERATIONS_EXCEEDED(&quot;maximal number of iterations ({0}) exceeded&quot;),</span>
+<span class="fc" id="L171">    MINIMAL_STEPSIZE_REACHED_DURING_INTEGRATION(&quot;minimal step size ({1,number,0.00E00}) reached, integration needs {0,number,0.00E00}&quot;),</span>
+<span class="fc" id="L172">    MISMATCHED_LOESS_ABSCISSA_ORDINATE_ARRAYS(&quot;Loess expects the abscissa and ordinate arrays to be of the same size, but got {0} abscissae and {1} ordinatae&quot;),</span>
+<span class="fc" id="L173">    MUTATION_RATE(&quot;mutation rate ({0})&quot;),</span>
+<span class="fc" id="L174">    NAN_ELEMENT_AT_INDEX(&quot;element {0} is NaN&quot;),</span>
+<span class="fc" id="L175">    NAN_VALUE_CONVERSION(&quot;cannot convert NaN value&quot;),</span>
+<span class="fc" id="L176">    NEGATIVE_BRIGHTNESS_EXPONENT(&quot;brightness exponent should be positive or null, but got {0}&quot;),</span>
+<span class="fc" id="L177">    NEGATIVE_COMPLEX_MODULE(&quot;negative complex module {0}&quot;),</span>
+<span class="fc" id="L178">    NEGATIVE_ELEMENT_AT_2D_INDEX(&quot;element ({0}, {1}) is negative: {2}&quot;),</span>
+<span class="fc" id="L179">    NEGATIVE_ELEMENT_AT_INDEX(&quot;element {0} is negative: {1}&quot;),</span>
+<span class="fc" id="L180">    NEGATIVE_NUMBER_OF_SUCCESSES(&quot;number of successes must be non-negative ({0})&quot;),</span>
+<span class="fc" id="L181">    NUMBER_OF_SUCCESSES(&quot;number of successes ({0})&quot;), /* keep */</span>
+<span class="fc" id="L182">    NEGATIVE_NUMBER_OF_TRIALS(&quot;number of trials must be non-negative ({0})&quot;),</span>
+<span class="fc" id="L183">    NUMBER_OF_INTERPOLATION_POINTS(&quot;number of interpolation points ({0})&quot;), /* keep */</span>
+<span class="fc" id="L184">    NUMBER_OF_TRIALS(&quot;number of trials ({0})&quot;),</span>
+<span class="fc" id="L185">    NOT_CONVEX(&quot;vertices do not form a convex hull in CCW winding&quot;),</span>
+<span class="fc" id="L186">    NOT_CONVEX_HYPERPLANES(&quot;hyperplanes do not define a convex region&quot;),</span>
+<span class="fc" id="L187">    ROBUSTNESS_ITERATIONS(&quot;number of robustness iterations ({0})&quot;),</span>
+<span class="fc" id="L188">    START_POSITION(&quot;start position ({0})&quot;), /* keep */</span>
+<span class="fc" id="L189">    NON_CONVERGENT_CONTINUED_FRACTION(&quot;Continued fraction convergents failed to converge (in less than {0} iterations) for value {1}&quot;),</span>
+<span class="fc" id="L190">    NON_INVERTIBLE_TRANSFORM(&quot;non-invertible affine transform collapses some lines into single points&quot;),</span>
+<span class="fc" id="L191">    NON_POSITIVE_MICROSPHERE_ELEMENTS(&quot;number of microsphere elements must be positive, but got {0}&quot;),</span>
+<span class="fc" id="L192">    NON_POSITIVE_POLYNOMIAL_DEGREE(&quot;polynomial degree must be positive: degree={0}&quot;),</span>
+<span class="fc" id="L193">    NON_REAL_FINITE_ABSCISSA(&quot;all abscissae must be finite real numbers, but {0}-th is {1}&quot;),</span>
+<span class="fc" id="L194">    NON_REAL_FINITE_ORDINATE(&quot;all ordinatae must be finite real numbers, but {0}-th is {1}&quot;),</span>
+<span class="fc" id="L195">    NON_REAL_FINITE_WEIGHT(&quot;all weights must be finite real numbers, but {0}-th is {1}&quot;),</span>
+<span class="fc" id="L196">    NON_SQUARE_MATRIX(&quot;non square ({0}x{1}) matrix&quot;),</span>
+<span class="fc" id="L197">    NORM(&quot;Norm ({0})&quot;), /* keep */</span>
+<span class="fc" id="L198">    NORMALIZE_INFINITE(&quot;Cannot normalize to an infinite value&quot;),</span>
+<span class="fc" id="L199">    NORMALIZE_NAN(&quot;Cannot normalize to NaN&quot;),</span>
+<span class="fc" id="L200">    NOT_ADDITION_COMPATIBLE_MATRICES(&quot;{0}x{1} and {2}x{3} matrices are not addition compatible&quot;),</span>
+<span class="fc" id="L201">    NOT_DECREASING_NUMBER_OF_POINTS(&quot;points {0} and {1} are not decreasing ({2} &lt; {3})&quot;),</span>
+<span class="fc" id="L202">    NOT_DECREASING_SEQUENCE(&quot;points {3} and {2} are not decreasing ({1} &lt; {0})&quot;), /* keep */</span>
+<span class="fc" id="L203">    NOT_ENOUGH_DATA_FOR_NUMBER_OF_PREDICTORS(&quot;not enough data ({0} rows) for this many predictors ({1} predictors)&quot;),</span>
+<span class="fc" id="L204">    NOT_ENOUGH_POINTS_IN_SPLINE_PARTITION(&quot;spline partition must have at least {0} points, got {1}&quot;),</span>
+<span class="fc" id="L205">    NOT_INCREASING_NUMBER_OF_POINTS(&quot;points {0} and {1} are not increasing ({2} &gt; {3})&quot;),</span>
+<span class="fc" id="L206">    NOT_INCREASING_SEQUENCE(&quot;points {3} and {2} are not increasing ({1} &gt; {0})&quot;), /* keep */</span>
+<span class="fc" id="L207">    NOT_MULTIPLICATION_COMPATIBLE_MATRICES(&quot;{0}x{1} and {2}x{3} matrices are not multiplication compatible&quot;),</span>
+<span class="fc" id="L208">    NOT_POSITIVE_DEFINITE_MATRIX(&quot;not positive definite matrix&quot;), /* keep */</span>
+<span class="fc" id="L209">    NON_POSITIVE_DEFINITE_MATRIX(&quot;not positive definite matrix: diagonal element at ({1},{1}) is smaller than {2} ({0})&quot;),</span>
+<span class="fc" id="L210">    NON_POSITIVE_DEFINITE_OPERATOR(&quot;non positive definite linear operator&quot;), /* keep */</span>
+<span class="fc" id="L211">    NON_SELF_ADJOINT_OPERATOR(&quot;non self-adjoint linear operator&quot;), /* keep */</span>
+<span class="fc" id="L212">    NON_SQUARE_OPERATOR(&quot;non square ({0}x{1}) linear operator&quot;), /* keep */</span>
+<span class="fc" id="L213">    DEGREES_OF_FREEDOM(&quot;degrees of freedom ({0})&quot;), /* keep */</span>
+<span class="fc" id="L214">    NOT_POSITIVE_DEGREES_OF_FREEDOM(&quot;degrees of freedom must be positive ({0})&quot;),</span>
+<span class="fc" id="L215">    NOT_POSITIVE_ELEMENT_AT_INDEX(&quot;element {0} is not positive: {1}&quot;),</span>
+<span class="fc" id="L216">    NOT_POSITIVE_EXPONENT(&quot;invalid exponent {0} (must be positive)&quot;),</span>
+<span class="fc" id="L217">    NUMBER_OF_ELEMENTS_SHOULD_BE_POSITIVE(&quot;number of elements should be positive ({0})&quot;),</span>
+<span class="fc" id="L218">    BASE(&quot;base ({0})&quot;), /* keep */</span>
+<span class="fc" id="L219">    EXPONENT(&quot;exponent ({0})&quot;), /* keep */</span>
+<span class="fc" id="L220">    NOT_POSITIVE_LENGTH(&quot;length must be positive ({0})&quot;),</span>
+<span class="fc" id="L221">    LENGTH(&quot;length ({0})&quot;), /* keep */</span>
+<span class="fc" id="L222">    NOT_POSITIVE_MEAN(&quot;mean must be positive ({0})&quot;),</span>
+<span class="fc" id="L223">    MEAN(&quot;mean ({0})&quot;), /* keep */</span>
+<span class="fc" id="L224">    NOT_POSITIVE_NUMBER_OF_SAMPLES(&quot;number of sample is not positive: {0}&quot;),</span>
+<span class="fc" id="L225">    NUMBER_OF_SAMPLES(&quot;number of samples ({0})&quot;), /* keep */</span>
+<span class="fc" id="L226">    NOT_POSITIVE_PERMUTATION(&quot;permutation k ({0}) must be positive&quot;),</span>
+<span class="fc" id="L227">    PERMUTATION_SIZE(&quot;permutation size ({0}&quot;), /* keep */</span>
+<span class="fc" id="L228">    NOT_POSITIVE_POISSON_MEAN(&quot;the Poisson mean must be positive ({0})&quot;),</span>
+<span class="fc" id="L229">    NOT_POSITIVE_POPULATION_SIZE(&quot;population size must be positive ({0})&quot;),</span>
+<span class="fc" id="L230">    POPULATION_SIZE(&quot;population size ({0})&quot;), /* keep */</span>
+<span class="fc" id="L231">    NOT_POSITIVE_ROW_DIMENSION(&quot;invalid row dimension: {0} (must be positive)&quot;),</span>
+<span class="fc" id="L232">    NOT_POSITIVE_SAMPLE_SIZE(&quot;sample size must be positive ({0})&quot;),</span>
+<span class="fc" id="L233">    NOT_POSITIVE_SCALE(&quot;scale must be positive ({0})&quot;),</span>
+<span class="fc" id="L234">    SCALE(&quot;scale ({0})&quot;), /* keep */</span>
+<span class="fc" id="L235">    NOT_POSITIVE_SHAPE(&quot;shape must be positive ({0})&quot;),</span>
+<span class="fc" id="L236">    SHAPE(&quot;shape ({0})&quot;), /* keep */</span>
+<span class="fc" id="L237">    NOT_POSITIVE_STANDARD_DEVIATION(&quot;standard deviation must be positive ({0})&quot;),</span>
+<span class="fc" id="L238">    STANDARD_DEVIATION(&quot;standard deviation ({0})&quot;), /* keep */</span>
+<span class="fc" id="L239">    NOT_POSITIVE_UPPER_BOUND(&quot;upper bound must be positive ({0})&quot;),</span>
+<span class="fc" id="L240">    NOT_POSITIVE_WINDOW_SIZE(&quot;window size must be positive ({0})&quot;),</span>
+<span class="fc" id="L241">    NOT_POWER_OF_TWO(&quot;{0} is not a power of 2&quot;),</span>
+<span class="fc" id="L242">    NOT_POWER_OF_TWO_CONSIDER_PADDING(&quot;{0} is not a power of 2, consider padding for fix&quot;),</span>
+<span class="fc" id="L243">    NOT_POWER_OF_TWO_PLUS_ONE(&quot;{0} is not a power of 2 plus one&quot;),</span>
+<span class="fc" id="L244">    NOT_STRICTLY_DECREASING_NUMBER_OF_POINTS(&quot;points {0} and {1} are not strictly decreasing ({2} &lt;= {3})&quot;),</span>
+<span class="fc" id="L245">    NOT_STRICTLY_DECREASING_SEQUENCE(&quot;points {3} and {2} are not strictly decreasing ({1} &lt;= {0})&quot;), /* keep */</span>
+<span class="fc" id="L246">    NOT_STRICTLY_INCREASING_KNOT_VALUES(&quot;knot values must be strictly increasing&quot;),</span>
+<span class="fc" id="L247">    NOT_STRICTLY_INCREASING_NUMBER_OF_POINTS(&quot;points {0} and {1} are not strictly increasing ({2} &gt;= {3})&quot;),</span>
+<span class="fc" id="L248">    NOT_STRICTLY_INCREASING_SEQUENCE(&quot;points {3} and {2} are not strictly increasing ({1} &gt;= {0})&quot;), /* keep */</span>
+<span class="fc" id="L249">    NOT_SUBTRACTION_COMPATIBLE_MATRICES(&quot;{0}x{1} and {2}x{3} matrices are not subtraction compatible&quot;),</span>
+<span class="fc" id="L250">    NOT_SUPPORTED_IN_DIMENSION_N(&quot;method not supported in dimension {0}&quot;),</span>
+<span class="fc" id="L251">    NOT_SYMMETRIC_MATRIX(&quot;not symmetric matrix&quot;),</span>
+<span class="fc" id="L252">    NON_SYMMETRIC_MATRIX(&quot;non symmetric matrix: the difference between entries at ({0},{1}) and ({1},{0}) is larger than {2}&quot;), /* keep */</span>
+<span class="fc" id="L253">    NO_BIN_SELECTED(&quot;no bin selected&quot;),</span>
+<span class="fc" id="L254">    NO_CONVERGENCE_WITH_ANY_START_POINT(&quot;none of the {0} start points lead to convergence&quot;), /* keep */</span>
+<span class="fc" id="L255">    NO_DATA(&quot;no data&quot;), /* keep */</span>
+<span class="fc" id="L256">    NO_DEGREES_OF_FREEDOM(&quot;no degrees of freedom ({0} measurements, {1} parameters)&quot;),</span>
+<span class="fc" id="L257">    NO_DENSITY_FOR_THIS_DISTRIBUTION(&quot;This distribution does not have a density function implemented&quot;),</span>
+<span class="fc" id="L258">    NO_FEASIBLE_SOLUTION(&quot;no feasible solution&quot;),</span>
+<span class="fc" id="L259">    NO_OPTIMUM_COMPUTED_YET(&quot;no optimum computed yet&quot;), /* keep */</span>
+<span class="fc" id="L260">    NO_REGRESSORS(&quot;Regression model must include at least one regressor&quot;),</span>
+<span class="fc" id="L261">    NO_RESULT_AVAILABLE(&quot;no result available&quot;),</span>
+<span class="fc" id="L262">    NO_SUCH_MATRIX_ENTRY(&quot;no entry at indices ({0}, {1}) in a {2}x{3} matrix&quot;),</span>
+<span class="fc" id="L263">    NAN_NOT_ALLOWED(&quot;NaN is not allowed&quot;),</span>
+<span class="fc" id="L264">    NULL_NOT_ALLOWED(&quot;null is not allowed&quot;), /* keep */</span>
+<span class="fc" id="L265">    ARRAY_ZERO_LENGTH_OR_NULL_NOT_ALLOWED(&quot;a null or zero length array not allowed&quot;),</span>
+<span class="fc" id="L266">    COVARIANCE_MATRIX(&quot;covariance matrix&quot;), /* keep */</span>
+<span class="fc" id="L267">    DENOMINATOR(&quot;denominator&quot;), /* keep */</span>
+<span class="fc" id="L268">    DENOMINATOR_FORMAT(&quot;denominator format&quot;), /* keep */</span>
+<span class="fc" id="L269">    FRACTION(&quot;fraction&quot;), /* keep */</span>
+<span class="fc" id="L270">    FUNCTION(&quot;function&quot;), /* keep */</span>
+<span class="fc" id="L271">    IMAGINARY_FORMAT(&quot;imaginary format&quot;), /* keep */</span>
+<span class="fc" id="L272">    INPUT_ARRAY(&quot;input array&quot;), /* keep */</span>
+<span class="fc" id="L273">    NUMERATOR(&quot;numerator&quot;), /* keep */</span>
+<span class="fc" id="L274">    NUMERATOR_FORMAT(&quot;numerator format&quot;), /* keep */</span>
+<span class="fc" id="L275">    OBJECT_TRANSFORMATION(&quot;conversion exception in transformation&quot;), /* keep */</span>
+<span class="fc" id="L276">    REAL_FORMAT(&quot;real format&quot;), /* keep */</span>
+<span class="fc" id="L277">    WHOLE_FORMAT(&quot;whole format&quot;), /* keep */</span>
+<span class="fc" id="L278">    NUMBER_TOO_LARGE(&quot;{0} is larger than the maximum ({1})&quot;), /* keep */</span>
+<span class="fc" id="L279">    NUMBER_TOO_SMALL(&quot;{0} is smaller than the minimum ({1})&quot;), /* keep */</span>
+<span class="fc" id="L280">    NUMBER_TOO_LARGE_BOUND_EXCLUDED(&quot;{0} is larger than, or equal to, the maximum ({1})&quot;), /* keep */</span>
+<span class="fc" id="L281">    NUMBER_TOO_SMALL_BOUND_EXCLUDED(&quot;{0} is smaller than, or equal to, the minimum ({1})&quot;), /* keep */</span>
+<span class="fc" id="L282">    NUMBER_OF_SUCCESS_LARGER_THAN_POPULATION_SIZE(&quot;number of successes ({0}) must be less than or equal to population size ({1})&quot;),</span>
+<span class="fc" id="L283">    NUMERATOR_OVERFLOW_AFTER_MULTIPLY(&quot;overflow, numerator too large after multiply: {0}&quot;),</span>
+<span class="fc" id="L284">    N_POINTS_GAUSS_LEGENDRE_INTEGRATOR_NOT_SUPPORTED(&quot;{0} points Legendre-Gauss integrator not supported, number of points must be in the {1}-{2} range&quot;),</span>
+<span class="fc" id="L285">    OBSERVED_COUNTS_ALL_ZERO(&quot;observed counts are all 0 in observed array {0}&quot;),</span>
+<span class="fc" id="L286">    OBSERVED_COUNTS_BOTTH_ZERO_FOR_ENTRY(&quot;observed counts are both zero for entry {0}&quot;),</span>
+<span class="fc" id="L287">    BOBYQA_BOUND_DIFFERENCE_CONDITION(&quot;the difference between the upper and lower bound must be larger than twice the initial trust region radius ({0})&quot;),</span>
+<span class="fc" id="L288">    OUT_OF_BOUNDS_QUANTILE_VALUE(&quot;out of bounds quantile value: {0}, must be in (0, 100]&quot;),</span>
+<span class="fc" id="L289">    OUT_OF_BOUNDS_CONFIDENCE_LEVEL(&quot;out of bounds confidence level {0}, must be between {1} and {2}&quot;),</span>
+<span class="fc" id="L290">    OUT_OF_BOUND_SIGNIFICANCE_LEVEL(&quot;out of bounds significance level {0}, must be between {1} and {2}&quot;),</span>
+<span class="fc" id="L291">    SIGNIFICANCE_LEVEL(&quot;significance level ({0})&quot;), /* keep */</span>
+<span class="fc" id="L292">    OUT_OF_ORDER_ABSCISSA_ARRAY(&quot;the abscissae array must be sorted in a strictly increasing order, but the {0}-th element is {1} whereas {2}-th is {3}&quot;),</span>
+<span class="fc" id="L293">    OUT_OF_PLANE(&quot;point ({0}, {1}, {2}) is out of plane&quot;),</span>
+<span class="fc" id="L294">    OUT_OF_RANGE_ROOT_OF_UNITY_INDEX(&quot;out of range root of unity index {0} (must be in [{1};{2}])&quot;),</span>
+<span class="fc" id="L295">    OUT_OF_RANGE(&quot;out of range&quot;), /* keep */</span>
+<span class="fc" id="L296">    OUT_OF_RANGE_SIMPLE(&quot;{0} out of [{1}, {2}] range&quot;), /* keep */</span>
+<span class="fc" id="L297">    OUT_OF_RANGE_LEFT(&quot;{0} out of ({1}, {2}] range&quot;),</span>
+<span class="fc" id="L298">    OUT_OF_RANGE_RIGHT(&quot;{0} out of [{1}, {2}) range&quot;),</span>
+<span class="fc" id="L299">    OUTLINE_BOUNDARY_LOOP_OPEN(&quot;an outline boundary loop is open&quot;),</span>
+<span class="fc" id="L300">    OVERFLOW(&quot;overflow&quot;), /* keep */</span>
+<span class="fc" id="L301">    OVERFLOW_IN_FRACTION(&quot;overflow in fraction {0}/{1}, cannot negate&quot;),</span>
+<span class="fc" id="L302">    OVERFLOW_IN_ADDITION(&quot;overflow in addition: {0} + {1}&quot;),</span>
+<span class="fc" id="L303">    OVERFLOW_IN_SUBTRACTION(&quot;overflow in subtraction: {0} - {1}&quot;),</span>
+<span class="fc" id="L304">    OVERFLOW_IN_MULTIPLICATION(&quot;overflow in multiplication: {0} * {1}&quot;),</span>
+<span class="fc" id="L305">    PERCENTILE_IMPLEMENTATION_CANNOT_ACCESS_METHOD(&quot;cannot access {0} method in percentile implementation {1}&quot;),</span>
+<span class="fc" id="L306">    PERCENTILE_IMPLEMENTATION_UNSUPPORTED_METHOD(&quot;percentile implementation {0} does not support {1}&quot;),</span>
+<span class="fc" id="L307">    PERMUTATION_EXCEEDS_N(&quot;permutation size ({0}) exceeds permuation domain ({1})&quot;), /* keep */</span>
+<span class="fc" id="L308">    POLYNOMIAL(&quot;polynomial&quot;), /* keep */</span>
+<span class="fc" id="L309">    POLYNOMIAL_INTERPOLANTS_MISMATCH_SEGMENTS(&quot;number of polynomial interpolants must match the number of segments ({0} != {1} - 1)&quot;),</span>
+<span class="fc" id="L310">    POPULATION_LIMIT_NOT_POSITIVE(&quot;population limit has to be positive&quot;),</span>
+<span class="fc" id="L311">    POWER_NEGATIVE_PARAMETERS(&quot;cannot raise an integral value to a negative power ({0}^{1})&quot;),</span>
+<span class="fc" id="L312">    PROPAGATION_DIRECTION_MISMATCH(&quot;propagation direction mismatch&quot;),</span>
+<span class="fc" id="L313">    RANDOMKEY_MUTATION_WRONG_CLASS(&quot;RandomKeyMutation works only with RandomKeys, not {0}&quot;),</span>
+<span class="fc" id="L314">    ROOTS_OF_UNITY_NOT_COMPUTED_YET(&quot;roots of unity have not been computed yet&quot;),</span>
+<span class="fc" id="L315">    ROTATION_MATRIX_DIMENSIONS(&quot;a {0}x{1} matrix cannot be a rotation matrix&quot;),</span>
+<span class="fc" id="L316">    ROW_INDEX_OUT_OF_RANGE(&quot;row index {0} out of allowed range [{1}, {2}]&quot;),</span>
+<span class="fc" id="L317">    ROW_INDEX(&quot;row index ({0})&quot;), /* keep */</span>
+<span class="fc" id="L318">    SAME_SIGN_AT_ENDPOINTS(&quot;function values at endpoints do not have different signs, endpoints: [{0}, {1}], values: [{2}, {3}]&quot;),</span>
+<span class="fc" id="L319">    SAMPLE_SIZE_EXCEEDS_COLLECTION_SIZE(&quot;sample size ({0}) exceeds collection size ({1})&quot;), /* keep */</span>
+<span class="fc" id="L320">    SAMPLE_SIZE_LARGER_THAN_POPULATION_SIZE(&quot;sample size ({0}) must be less than or equal to population size ({1})&quot;),</span>
+<span class="fc" id="L321">    SIMPLEX_NEED_ONE_POINT(&quot;simplex must contain at least one point&quot;),</span>
+<span class="fc" id="L322">    SIMPLE_MESSAGE(&quot;{0}&quot;),</span>
+<span class="fc" id="L323">    SINGULAR_MATRIX(&quot;matrix is singular&quot;), /* keep */</span>
+<span class="fc" id="L324">    SINGULAR_OPERATOR(&quot;operator is singular&quot;),</span>
+<span class="fc" id="L325">    SUBARRAY_ENDS_AFTER_ARRAY_END(&quot;subarray ends after array end&quot;),</span>
+<span class="fc" id="L326">    TOO_LARGE_CUTOFF_SINGULAR_VALUE(&quot;cutoff singular value is {0}, should be at most {1}&quot;),</span>
+<span class="fc" id="L327">    TOO_LARGE_TOURNAMENT_ARITY(&quot;tournament arity ({0}) cannot be bigger than population size ({1})&quot;),</span>
+<span class="fc" id="L328">    TOO_MANY_ELEMENTS_TO_DISCARD_FROM_ARRAY(&quot;cannot discard {0} elements from a {1} elements array&quot;),</span>
+<span class="fc" id="L329">    TOO_MANY_REGRESSORS(&quot;too many regressors ({0}) specified, only {1} in the model&quot;),</span>
+<span class="fc" id="L330">    TOO_SMALL_COST_RELATIVE_TOLERANCE(&quot;cost relative tolerance is too small ({0}), no further reduction in the sum of squares is possible&quot;),</span>
+<span class="fc" id="L331">    TOO_SMALL_INTEGRATION_INTERVAL(&quot;too small integration interval: length = {0}&quot;),</span>
+<span class="fc" id="L332">    TOO_SMALL_ORTHOGONALITY_TOLERANCE(&quot;orthogonality tolerance is too small ({0}), solution is orthogonal to the jacobian&quot;),</span>
+<span class="fc" id="L333">    TOO_SMALL_PARAMETERS_RELATIVE_TOLERANCE(&quot;parameters relative tolerance is too small ({0}), no further improvement in the approximate solution is possible&quot;),</span>
+<span class="fc" id="L334">    TRUST_REGION_STEP_FAILED(&quot;trust region step has failed to reduce Q&quot;),</span>
+<span class="fc" id="L335">    TWO_OR_MORE_CATEGORIES_REQUIRED(&quot;two or more categories required, got {0}&quot;),</span>
+<span class="fc" id="L336">    TWO_OR_MORE_VALUES_IN_CATEGORY_REQUIRED(&quot;two or more values required in each category, one has {0}&quot;),</span>
+<span class="fc" id="L337">    UNABLE_TO_BRACKET_OPTIMUM_IN_LINE_SEARCH(&quot;unable to bracket optimum in line search&quot;),</span>
+<span class="fc" id="L338">    UNABLE_TO_COMPUTE_COVARIANCE_SINGULAR_PROBLEM(&quot;unable to compute covariances: singular problem&quot;),</span>
+<span class="fc" id="L339">    UNABLE_TO_FIRST_GUESS_HARMONIC_COEFFICIENTS(&quot;unable to first guess the harmonic coefficients&quot;),</span>
+<span class="fc" id="L340">    UNABLE_TO_ORTHOGONOLIZE_MATRIX(&quot;unable to orthogonalize matrix in {0} iterations&quot;),</span>
+<span class="fc" id="L341">    UNABLE_TO_PERFORM_QR_DECOMPOSITION_ON_JACOBIAN(&quot;unable to perform Q.R decomposition on the {0}x{1} jacobian matrix&quot;),</span>
+<span class="fc" id="L342">    UNABLE_TO_SOLVE_SINGULAR_PROBLEM(&quot;unable to solve: singular problem&quot;),</span>
+<span class="fc" id="L343">    UNBOUNDED_SOLUTION(&quot;unbounded solution&quot;),</span>
+<span class="fc" id="L344">    UNKNOWN_MODE(&quot;unknown mode {0}, known modes: {1} ({2}), {3} ({4}), {5} ({6}), {7} ({8}), {9} ({10}) and {11} ({12})&quot;),</span>
+<span class="fc" id="L345">    UNKNOWN_PARAMETER(&quot;unknown parameter {0}&quot;),</span>
+<span class="fc" id="L346">    UNMATCHED_ODE_IN_EXPANDED_SET(&quot;ode does not match the main ode set in the extended set&quot;),</span>
+<span class="fc" id="L347">    CANNOT_PARSE_AS_TYPE(&quot;string \&quot;{0}\&quot; unparseable (from position {1}) as an object of type {2}&quot;), /* keep */</span>
+<span class="fc" id="L348">    CANNOT_PARSE(&quot;string \&quot;{0}\&quot; unparseable (from position {1})&quot;), /* keep */</span>
+<span class="fc" id="L349">    UNPARSEABLE_3D_VECTOR(&quot;unparseable 3D vector: \&quot;{0}\&quot;&quot;),</span>
+<span class="fc" id="L350">    UNPARSEABLE_COMPLEX_NUMBER(&quot;unparseable complex number: \&quot;{0}\&quot;&quot;),</span>
+<span class="fc" id="L351">    UNPARSEABLE_REAL_VECTOR(&quot;unparseable real vector: \&quot;{0}\&quot;&quot;),</span>
+<span class="fc" id="L352">    UNSUPPORTED_EXPANSION_MODE(&quot;unsupported expansion mode {0}, supported modes are {1} ({2}) and {3} ({4})&quot;),</span>
+<span class="fc" id="L353">    UNSUPPORTED_OPERATION(&quot;unsupported operation&quot;), /* keep */</span>
+<span class="fc" id="L354">    ARITHMETIC_EXCEPTION(&quot;arithmetic exception&quot;), /* keep */</span>
+<span class="fc" id="L355">    ILLEGAL_STATE(&quot;illegal state&quot;), /* keep */</span>
+<span class="fc" id="L356">    USER_EXCEPTION(&quot;exception generated in user code&quot;), /* keep */</span>
+<span class="fc" id="L357">    URL_CONTAINS_NO_DATA(&quot;URL {0} contains no data&quot;),</span>
+<span class="fc" id="L358">    VALUES_ADDED_BEFORE_CONFIGURING_STATISTIC(&quot;{0} values have been added before statistic is configured&quot;),</span>
+<span class="fc" id="L359">    VECTOR_LENGTH_MISMATCH(&quot;vector length mismatch: got {0} but expected {1}&quot;),</span>
+<span class="fc" id="L360">    VECTOR_MUST_HAVE_AT_LEAST_ONE_ELEMENT(&quot;vector must have at least one element&quot;),</span>
+<span class="fc" id="L361">    WEIGHT_AT_LEAST_ONE_NON_ZERO(&quot;weigth array must contain at least one non-zero value&quot;),</span>
+<span class="fc" id="L362">    WRONG_BLOCK_LENGTH(&quot;wrong array shape (block length = {0}, expected {1})&quot;),</span>
+<span class="fc" id="L363">    WRONG_NUMBER_OF_POINTS(&quot;{0} points are required, got only {1}&quot;),</span>
+<span class="fc" id="L364">    NUMBER_OF_POINTS(&quot;number of points ({0})&quot;), /* keep */</span>
+<span class="fc" id="L365">    ZERO_DENOMINATOR(&quot;denominator must be different from 0&quot;), /* keep */</span>
+<span class="fc" id="L366">    ZERO_DENOMINATOR_IN_FRACTION(&quot;zero denominator in fraction {0}/{1}&quot;),</span>
+<span class="fc" id="L367">    ZERO_FRACTION_TO_DIVIDE_BY(&quot;the fraction to divide by must not be zero: {0}/{1}&quot;),</span>
+<span class="fc" id="L368">    ZERO_NORM(&quot;zero norm&quot;),</span>
+<span class="fc" id="L369">    ZERO_NORM_FOR_ROTATION_AXIS(&quot;zero norm for rotation axis&quot;),</span>
+<span class="fc" id="L370">    ZERO_NORM_FOR_ROTATION_DEFINING_VECTOR(&quot;zero norm for rotation defining vector&quot;),</span>
+<span class="fc" id="L371">    ZERO_NOT_ALLOWED(&quot;zero not allowed here&quot;);</span>
+
+    // CHECKSTYLE: resume JavadocVariable
+    // CHECKSTYLE: resume MultipleVariableDeclarations
+
+
+    /** Source English format. */
+    private final String sourceFormat;
+
+    /** Simple constructor.
+     * @param sourceFormat source English format to use when no
+     * localized version is available
+     */
+<span class="fc" id="L384">    LocalizedFormats(final String sourceFormat) {</span>
+<span class="fc" id="L385">        this.sourceFormat = sourceFormat;</span>
+<span class="fc" id="L386">    }</span>
+
+    /** {@inheritDoc} */
+    public String getSourceString() {
+<span class="fc" id="L390">        return sourceFormat;</span>
+    }
+
+    /** {@inheritDoc} */
+    public String getLocalizedString(final Locale locale) {
+        try {
+<span class="fc" id="L396">            final String path = LocalizedFormats.class.getName().replaceAll(&quot;\\.&quot;, &quot;/&quot;);</span>
+<span class="fc" id="L397">            ResourceBundle bundle =</span>
+                    ResourceBundle.getBundle(&quot;assets/&quot; + path, locale);
+<span class="pc bpc" id="L399" title="1 of 2 branches missed.">            if (bundle.getLocale().getLanguage().equals(locale.getLanguage())) {</span>
+                // the value of the resource is the translated format
+<span class="fc" id="L401">                return bundle.getString(toString());</span>
+            }
+
+<span class="fc" id="L404">        } catch (MissingResourceException mre) { // NOPMD</span>
+            // do nothing here
+<span class="nc" id="L406">        }</span>
+
+        // either the locale is not supported or the resource is unknown
+        // don't translate and fall back to using the source format
+<span class="fc" id="L410">        return sourceFormat;</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

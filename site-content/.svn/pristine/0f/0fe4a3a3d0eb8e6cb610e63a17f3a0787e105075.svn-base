@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LegendreHighPrecisionRuleFactory.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.integration.gauss</a> &gt; <span class="el_source">LegendreHighPrecisionRuleFactory.java</span></div><h1>LegendreHighPrecisionRuleFactory.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.analysis.integration.gauss;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.util.Pair;
+
+/**
+ * Factory that creates Gauss-type quadrature rule using Legendre polynomials.
+ * In this implementation, the lower and upper bounds of the natural interval
+ * of integration are -1 and 1, respectively.
+ * The Legendre polynomials are evaluated using the recurrence relation
+ * presented in &lt;a href=&quot;http://en.wikipedia.org/wiki/Abramowitz_and_Stegun&quot;&gt;
+ * Abramowitz and Stegun, 1964&lt;/a&gt;.
+ *
+ * @since 3.1
+ */
+public class LegendreHighPrecisionRuleFactory extends BaseRuleFactory&lt;BigDecimal&gt; {
+    /** Settings for enhanced precision computations. */
+    private final MathContext mContext;
+    /** The number {@code 2}. */
+    private final BigDecimal two;
+    /** The number {@code -1}. */
+    private final BigDecimal minusOne;
+    /** The number {@code 0.5}. */
+    private final BigDecimal oneHalf;
+
+    /**
+     * Default precision is {@link MathContext#DECIMAL128 DECIMAL128}.
+     */
+    public LegendreHighPrecisionRuleFactory() {
+<span class="fc" id="L49">        this(MathContext.DECIMAL128);</span>
+<span class="fc" id="L50">    }</span>
+
+    /**
+     * @param mContext Precision setting for computing the quadrature rules.
+     */
+<span class="fc" id="L55">    public LegendreHighPrecisionRuleFactory(MathContext mContext) {</span>
+<span class="fc" id="L56">        this.mContext = mContext;</span>
+<span class="fc" id="L57">        two = new BigDecimal(&quot;2&quot;, mContext);</span>
+<span class="fc" id="L58">        minusOne = new BigDecimal(&quot;-1&quot;, mContext);</span>
+<span class="fc" id="L59">        oneHalf = new BigDecimal(&quot;0.5&quot;, mContext);</span>
+<span class="fc" id="L60">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    protected Pair&lt;BigDecimal[], BigDecimal[]&gt; computeRule(int numberOfPoints)
+        throws DimensionMismatchException {
+
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (numberOfPoints == 1) {</span>
+            // Break recursion.
+<span class="fc" id="L69">            return new Pair&lt;BigDecimal[], BigDecimal[]&gt;(new BigDecimal[] { BigDecimal.ZERO },</span>
+                                                        new BigDecimal[] { two });
+        }
+
+        // Get previous rule.
+        // If it has not been computed yet it will trigger a recursive call
+        // to this method.
+<span class="fc" id="L76">        final BigDecimal[] previousPoints = getRuleInternal(numberOfPoints - 1).getFirst();</span>
+
+        // Compute next rule.
+<span class="fc" id="L79">        final BigDecimal[] points = new BigDecimal[numberOfPoints];</span>
+<span class="fc" id="L80">        final BigDecimal[] weights = new BigDecimal[numberOfPoints];</span>
+
+        // Find i-th root of P[n+1] by bracketing.
+<span class="fc" id="L83">        final int iMax = numberOfPoints / 2;</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        for (int i = 0; i &lt; iMax; i++) {</span>
+            // Lower-bound of the interval.
+<span class="fc bfc" id="L86" title="All 2 branches covered.">            BigDecimal a = (i == 0) ? minusOne : previousPoints[i - 1];</span>
+            // Upper-bound of the interval.
+<span class="fc bfc" id="L88" title="All 2 branches covered.">            BigDecimal b = (iMax == 1) ? BigDecimal.ONE : previousPoints[i];</span>
+            // P[j-1](a)
+<span class="fc" id="L90">            BigDecimal pma = BigDecimal.ONE;</span>
+            // P[j](a)
+<span class="fc" id="L92">            BigDecimal pa = a;</span>
+            // P[j-1](b)
+<span class="fc" id="L94">            BigDecimal pmb = BigDecimal.ONE;</span>
+            // P[j](b)
+<span class="fc" id="L96">            BigDecimal pb = b;</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">            for (int j = 1; j &lt; numberOfPoints; j++) {</span>
+<span class="fc" id="L98">                final BigDecimal b_two_j_p_1 = new BigDecimal(2 * j + 1, mContext);</span>
+<span class="fc" id="L99">                final BigDecimal b_j = new BigDecimal(j, mContext);</span>
+<span class="fc" id="L100">                final BigDecimal b_j_p_1 = new BigDecimal(j + 1, mContext);</span>
+
+                // Compute P[j+1](a)
+                // ppa = ((2 * j + 1) * a * pa - j * pma) / (j + 1);
+
+<span class="fc" id="L105">                BigDecimal tmp1 = a.multiply(b_two_j_p_1, mContext);</span>
+<span class="fc" id="L106">                tmp1 = pa.multiply(tmp1, mContext);</span>
+<span class="fc" id="L107">                BigDecimal tmp2 = pma.multiply(b_j, mContext);</span>
+                // P[j+1](a)
+<span class="fc" id="L109">                BigDecimal ppa = tmp1.subtract(tmp2, mContext);</span>
+<span class="fc" id="L110">                ppa = ppa.divide(b_j_p_1, mContext);</span>
+
+                // Compute P[j+1](b)
+                // ppb = ((2 * j + 1) * b * pb - j * pmb) / (j + 1);
+
+<span class="fc" id="L115">                tmp1 = b.multiply(b_two_j_p_1, mContext);</span>
+<span class="fc" id="L116">                tmp1 = pb.multiply(tmp1, mContext);</span>
+<span class="fc" id="L117">                tmp2 = pmb.multiply(b_j, mContext);</span>
+                // P[j+1](b)
+<span class="fc" id="L119">                BigDecimal ppb = tmp1.subtract(tmp2, mContext);</span>
+<span class="fc" id="L120">                ppb = ppb.divide(b_j_p_1, mContext);</span>
+
+<span class="fc" id="L122">                pma = pa;</span>
+<span class="fc" id="L123">                pa = ppa;</span>
+<span class="fc" id="L124">                pmb = pb;</span>
+<span class="fc" id="L125">                pb = ppb;</span>
+            }
+            // Now pa = P[n+1](a), and pma = P[n](a). Same holds for b.
+            // Middle of the interval.
+<span class="fc" id="L129">            BigDecimal c = a.add(b, mContext).multiply(oneHalf, mContext);</span>
+            // P[j-1](c)
+<span class="fc" id="L131">            BigDecimal pmc = BigDecimal.ONE;</span>
+            // P[j](c)
+<span class="fc" id="L133">            BigDecimal pc = c;</span>
+<span class="fc" id="L134">            boolean done = false;</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">            while (!done) {</span>
+<span class="fc" id="L136">                BigDecimal tmp1 = b.subtract(a, mContext);</span>
+<span class="fc" id="L137">                BigDecimal tmp2 = c.ulp().multiply(BigDecimal.TEN, mContext);</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">                done = tmp1.compareTo(tmp2) &lt;= 0;</span>
+<span class="fc" id="L139">                pmc = BigDecimal.ONE;</span>
+<span class="fc" id="L140">                pc = c;</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">                for (int j = 1; j &lt; numberOfPoints; j++) {</span>
+<span class="fc" id="L142">                    final BigDecimal b_two_j_p_1 = new BigDecimal(2 * j + 1, mContext);</span>
+<span class="fc" id="L143">                    final BigDecimal b_j = new BigDecimal(j, mContext);</span>
+<span class="fc" id="L144">                    final BigDecimal b_j_p_1 = new BigDecimal(j + 1, mContext);</span>
+
+                    // Compute P[j+1](c)
+<span class="fc" id="L147">                    tmp1 = c.multiply(b_two_j_p_1, mContext);</span>
+<span class="fc" id="L148">                    tmp1 = pc.multiply(tmp1, mContext);</span>
+<span class="fc" id="L149">                    tmp2 = pmc.multiply(b_j, mContext);</span>
+                    // P[j+1](c)
+<span class="fc" id="L151">                    BigDecimal ppc = tmp1.subtract(tmp2, mContext);</span>
+<span class="fc" id="L152">                    ppc = ppc.divide(b_j_p_1, mContext);</span>
+
+<span class="fc" id="L154">                    pmc = pc;</span>
+<span class="fc" id="L155">                    pc = ppc;</span>
+                }
+                // Now pc = P[n+1](c) and pmc = P[n](c).
+<span class="fc bfc" id="L158" title="All 2 branches covered.">                if (!done) {</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">                    if (pa.signum() * pc.signum() &lt;= 0) {</span>
+<span class="fc" id="L160">                        b = c;</span>
+<span class="fc" id="L161">                        pmb = pmc;</span>
+<span class="fc" id="L162">                        pb = pc;</span>
+                    } else {
+<span class="fc" id="L164">                        a = c;</span>
+<span class="fc" id="L165">                        pma = pmc;</span>
+<span class="fc" id="L166">                        pa = pc;</span>
+                    }
+<span class="fc" id="L168">                    c = a.add(b, mContext).multiply(oneHalf, mContext);</span>
+                }
+<span class="fc" id="L170">            }</span>
+<span class="fc" id="L171">            final BigDecimal nP = new BigDecimal(numberOfPoints, mContext);</span>
+<span class="fc" id="L172">            BigDecimal tmp1 = pmc.subtract(c.multiply(pc, mContext), mContext);</span>
+<span class="fc" id="L173">            tmp1 = tmp1.multiply(nP);</span>
+<span class="fc" id="L174">            tmp1 = tmp1.pow(2, mContext);</span>
+<span class="fc" id="L175">            BigDecimal tmp2 = c.pow(2, mContext);</span>
+<span class="fc" id="L176">            tmp2 = BigDecimal.ONE.subtract(tmp2, mContext);</span>
+<span class="fc" id="L177">            tmp2 = tmp2.multiply(two, mContext);</span>
+<span class="fc" id="L178">            tmp2 = tmp2.divide(tmp1, mContext);</span>
+
+<span class="fc" id="L180">            points[i] = c;</span>
+<span class="fc" id="L181">            weights[i] = tmp2;</span>
+
+<span class="fc" id="L183">            final int idx = numberOfPoints - i - 1;</span>
+<span class="fc" id="L184">            points[idx] = c.negate(mContext);</span>
+<span class="fc" id="L185">            weights[idx] = tmp2;</span>
+        }
+        // If &quot;numberOfPoints&quot; is odd, 0 is a root.
+        // Note: as written, the test for oddness will work for negative
+        // integers too (although it is not necessary here), preventing
+        // a FindBugs warning.
+<span class="fc bfc" id="L191" title="All 2 branches covered.">        if (numberOfPoints % 2 != 0) {</span>
+<span class="fc" id="L192">            BigDecimal pmc = BigDecimal.ONE;</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">            for (int j = 1; j &lt; numberOfPoints; j += 2) {</span>
+<span class="fc" id="L194">                final BigDecimal b_j = new BigDecimal(j, mContext);</span>
+<span class="fc" id="L195">                final BigDecimal b_j_p_1 = new BigDecimal(j + 1, mContext);</span>
+
+                // pmc = -j * pmc / (j + 1);
+<span class="fc" id="L198">                pmc = pmc.multiply(b_j, mContext);</span>
+<span class="fc" id="L199">                pmc = pmc.divide(b_j_p_1, mContext);</span>
+<span class="fc" id="L200">                pmc = pmc.negate(mContext);</span>
+            }
+
+            // 2 / pow(numberOfPoints * pmc, 2);
+<span class="fc" id="L204">            final BigDecimal nP = new BigDecimal(numberOfPoints, mContext);</span>
+<span class="fc" id="L205">            BigDecimal tmp1 = pmc.multiply(nP, mContext);</span>
+<span class="fc" id="L206">            tmp1 = tmp1.pow(2, mContext);</span>
+<span class="fc" id="L207">            BigDecimal tmp2 = two.divide(tmp1, mContext);</span>
+
+<span class="fc" id="L209">            points[iMax] = BigDecimal.ZERO;</span>
+<span class="fc" id="L210">            weights[iMax] = tmp2;</span>
+        }
+
+<span class="fc" id="L213">        return new Pair&lt;BigDecimal[], BigDecimal[]&gt;(points, weights);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

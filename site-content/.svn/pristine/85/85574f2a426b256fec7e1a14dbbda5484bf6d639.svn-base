@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ExponentialDistribution.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.distribution</a> &gt; <span class="el_source">ExponentialDistribution.java</span></div><h1>ExponentialDistribution.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.distribution;
+
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.Well19937c;
+import org.apache.commons.math3.util.CombinatoricsUtils;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.ResizableDoubleArray;
+
+/**
+ * Implementation of the exponential distribution.
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Exponential_distribution&quot;&gt;Exponential distribution (Wikipedia)&lt;/a&gt;
+ * @see &lt;a href=&quot;http://mathworld.wolfram.com/ExponentialDistribution.html&quot;&gt;Exponential distribution (MathWorld)&lt;/a&gt;
+ */
+public class ExponentialDistribution extends AbstractRealDistribution {
+    /**
+     * Default inverse cumulative probability accuracy.
+     * @since 2.1
+     */
+    public static final double DEFAULT_INVERSE_ABSOLUTE_ACCURACY = 1e-9;
+    /** Serializable version identifier */
+    private static final long serialVersionUID = 2401296428283614780L;
+    /**
+     * Used when generating Exponential samples.
+     * Table containing the constants
+     * q_i = sum_{j=1}^i (ln 2)^j/j! = ln 2 + (ln 2)^2/2 + ... + (ln 2)^i/i!
+     * until the largest representable fraction below 1 is exceeded.
+     *
+     * Note that
+     * 1 = 2 - 1 = exp(ln 2) - 1 = sum_{n=1}^infty (ln 2)^n / n!
+     * thus q_i -&gt; 1 as i -&gt; +inf,
+     * so the higher i, the closer to one we get (the series is not alternating).
+     *
+     * By trying, n = 16 in Java is enough to reach 1.0.
+     */
+    private static final double[] EXPONENTIAL_SA_QI;
+    /** The mean of this distribution. */
+    private final double mean;
+    /** The logarithm of the mean, stored to reduce computing time. **/
+    private final double logMean;
+    /** Inverse cumulative probability accuracy. */
+    private final double solverAbsoluteAccuracy;
+
+    /**
+     * Initialize tables.
+     */
+    static {
+        /**
+         * Filling EXPONENTIAL_SA_QI table.
+         * Note that we don't want qi = 0 in the table.
+         */
+<span class="fc" id="L71">        final double LN2 = FastMath.log(2);</span>
+<span class="fc" id="L72">        double qi = 0;</span>
+<span class="fc" id="L73">        int i = 1;</span>
+
+        /**
+         * ArithmeticUtils provides factorials up to 20, so let's use that
+         * limit together with Precision.EPSILON to generate the following
+         * code (a priori, we know that there will be 16 elements, but it is
+         * better to not hardcode it).
+         */
+<span class="fc" id="L81">        final ResizableDoubleArray ra = new ResizableDoubleArray(20);</span>
+
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        while (qi &lt; 1) {</span>
+<span class="fc" id="L84">            qi += FastMath.pow(LN2, i) / CombinatoricsUtils.factorial(i);</span>
+<span class="fc" id="L85">            ra.addElement(qi);</span>
+<span class="fc" id="L86">            ++i;</span>
+        }
+
+<span class="fc" id="L89">        EXPONENTIAL_SA_QI = ra.getElements();</span>
+<span class="fc" id="L90">    }</span>
+
+    /**
+     * Create an exponential distribution with the given mean.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; this constructor will implicitly create an instance of
+     * {@link Well19937c} as random generator to be used for sampling only (see
+     * {@link #sample()} and {@link #sample(int)}). In case no sampling is
+     * needed for the created distribution, it is advised to pass {@code null}
+     * as random generator via the appropriate constructors to avoid the
+     * additional initialisation overhead.
+     *
+     * @param mean mean of this distribution.
+     */
+    public ExponentialDistribution(double mean) {
+<span class="fc" id="L105">        this(mean, DEFAULT_INVERSE_ABSOLUTE_ACCURACY);</span>
+<span class="fc" id="L106">    }</span>
+
+    /**
+     * Create an exponential distribution with the given mean.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; this constructor will implicitly create an instance of
+     * {@link Well19937c} as random generator to be used for sampling only (see
+     * {@link #sample()} and {@link #sample(int)}). In case no sampling is
+     * needed for the created distribution, it is advised to pass {@code null}
+     * as random generator via the appropriate constructors to avoid the
+     * additional initialisation overhead.
+     *
+     * @param mean Mean of this distribution.
+     * @param inverseCumAccuracy Maximum absolute error in inverse
+     * cumulative probability estimates (defaults to
+     * {@link #DEFAULT_INVERSE_ABSOLUTE_ACCURACY}).
+     * @throws NotStrictlyPositiveException if {@code mean &lt;= 0}.
+     * @since 2.1
+     */
+    public ExponentialDistribution(double mean, double inverseCumAccuracy) {
+<span class="fc" id="L126">        this(new Well19937c(), mean, inverseCumAccuracy);</span>
+<span class="fc" id="L127">    }</span>
+
+    /**
+     * Creates an exponential distribution.
+     *
+     * @param rng Random number generator.
+     * @param mean Mean of this distribution.
+     * @throws NotStrictlyPositiveException if {@code mean &lt;= 0}.
+     * @since 3.3
+     */
+    public ExponentialDistribution(RandomGenerator rng, double mean)
+        throws NotStrictlyPositiveException {
+<span class="nc" id="L139">        this(rng, mean, DEFAULT_INVERSE_ABSOLUTE_ACCURACY);</span>
+<span class="nc" id="L140">    }</span>
+
+    /**
+     * Creates an exponential distribution.
+     *
+     * @param rng Random number generator.
+     * @param mean Mean of this distribution.
+     * @param inverseCumAccuracy Maximum absolute error in inverse
+     * cumulative probability estimates (defaults to
+     * {@link #DEFAULT_INVERSE_ABSOLUTE_ACCURACY}).
+     * @throws NotStrictlyPositiveException if {@code mean &lt;= 0}.
+     * @since 3.1
+     */
+    public ExponentialDistribution(RandomGenerator rng,
+                                   double mean,
+                                   double inverseCumAccuracy)
+        throws NotStrictlyPositiveException {
+<span class="fc" id="L157">        super(rng);</span>
+
+<span class="fc bfc" id="L159" title="All 2 branches covered.">        if (mean &lt;= 0) {</span>
+<span class="fc" id="L160">            throw new NotStrictlyPositiveException(LocalizedFormats.MEAN, mean);</span>
+        }
+<span class="fc" id="L162">        this.mean = mean;</span>
+<span class="fc" id="L163">        logMean = FastMath.log(mean);</span>
+<span class="fc" id="L164">        solverAbsoluteAccuracy = inverseCumAccuracy;</span>
+<span class="fc" id="L165">    }</span>
+
+    /**
+     * Access the mean.
+     *
+     * @return the mean.
+     */
+    public double getMean() {
+<span class="fc" id="L173">        return mean;</span>
+    }
+
+    /** {@inheritDoc} */
+    public double density(double x) {
+<span class="fc" id="L178">        final double logDensity = logDensity(x);</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">        return logDensity == Double.NEGATIVE_INFINITY ? 0 : FastMath.exp(logDensity);</span>
+    }
+
+    /** {@inheritDoc} **/
+    @Override
+    public double logDensity(double x) {
+<span class="fc bfc" id="L185" title="All 2 branches covered.">        if (x &lt; 0) {</span>
+<span class="fc" id="L186">            return Double.NEGATIVE_INFINITY;</span>
+        }
+<span class="fc" id="L188">        return -x / mean - logMean;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The implementation of this method is based on:
+     * &lt;ul&gt;
+     * &lt;li&gt;
+     * &lt;a href=&quot;http://mathworld.wolfram.com/ExponentialDistribution.html&quot;&gt;
+     * Exponential Distribution&lt;/a&gt;, equation (1).&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+    public double cumulativeProbability(double x)  {
+        double ret;
+<span class="fc bfc" id="L203" title="All 2 branches covered.">        if (x &lt;= 0.0) {</span>
+<span class="fc" id="L204">            ret = 0.0;</span>
+        } else {
+<span class="fc" id="L206">            ret = 1.0 - FastMath.exp(-x / mean);</span>
+        }
+<span class="fc" id="L208">        return ret;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Returns {@code 0} when {@code p= = 0} and
+     * {@code Double.POSITIVE_INFINITY} when {@code p == 1}.
+     */
+    @Override
+    public double inverseCumulativeProbability(double p) throws OutOfRangeException {
+        double ret;
+
+<span class="fc bfc" id="L221" title="All 4 branches covered.">        if (p &lt; 0.0 || p &gt; 1.0) {</span>
+<span class="fc" id="L222">            throw new OutOfRangeException(p, 0.0, 1.0);</span>
+<span class="fc bfc" id="L223" title="All 2 branches covered.">        } else if (p == 1.0) {</span>
+<span class="fc" id="L224">            ret = Double.POSITIVE_INFINITY;</span>
+        } else {
+<span class="fc" id="L226">            ret = -mean * FastMath.log(1.0 - p);</span>
+        }
+
+<span class="fc" id="L229">        return ret;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * &lt;p&gt;&lt;strong&gt;Algorithm Description&lt;/strong&gt;: this implementation uses the
+     * &lt;a href=&quot;http://www.jesus.ox.ac.uk/~clifford/a5/chap1/node5.html&quot;&gt;
+     * Inversion Method&lt;/a&gt; to generate exponentially distributed random values
+     * from uniform deviates.&lt;/p&gt;
+     *
+     * @return a random value.
+     * @since 2.2
+     */
+    @Override
+    public double sample() {
+        // Step 1:
+<span class="fc" id="L246">        double a = 0;</span>
+<span class="fc" id="L247">        double u = random.nextDouble();</span>
+
+        // Step 2 and 3:
+<span class="fc bfc" id="L250" title="All 2 branches covered.">        while (u &lt; 0.5) {</span>
+<span class="fc" id="L251">            a += EXPONENTIAL_SA_QI[0];</span>
+<span class="fc" id="L252">            u *= 2;</span>
+        }
+
+        // Step 4 (now u &gt;= 0.5):
+<span class="fc" id="L256">        u += u - 1;</span>
+
+        // Step 5:
+<span class="fc bfc" id="L259" title="All 2 branches covered.">        if (u &lt;= EXPONENTIAL_SA_QI[0]) {</span>
+<span class="fc" id="L260">            return mean * (a + u);</span>
+        }
+
+        // Step 6:
+<span class="fc" id="L264">        int i = 0; // Should be 1, be we iterate before it in while using 0</span>
+<span class="fc" id="L265">        double u2 = random.nextDouble();</span>
+<span class="fc" id="L266">        double umin = u2;</span>
+
+        // Step 7 and 8:
+        do {
+<span class="fc" id="L270">            ++i;</span>
+<span class="fc" id="L271">            u2 = random.nextDouble();</span>
+
+<span class="fc bfc" id="L273" title="All 2 branches covered.">            if (u2 &lt; umin) {</span>
+<span class="fc" id="L274">                umin = u2;</span>
+            }
+
+            // Step 8:
+<span class="fc bfc" id="L278" title="All 2 branches covered.">        } while (u &gt; EXPONENTIAL_SA_QI[i]); // Ensured to exit since EXPONENTIAL_SA_QI[MAX] = 1</span>
+
+<span class="fc" id="L280">        return mean * (a + umin * EXPONENTIAL_SA_QI[0]);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected double getSolverAbsoluteAccuracy() {
+<span class="nc" id="L286">        return solverAbsoluteAccuracy;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For mean parameter {@code k}, the mean is {@code k}.
+     */
+    public double getNumericalMean() {
+<span class="fc" id="L295">        return getMean();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For mean parameter {@code k}, the variance is {@code k^2}.
+     */
+    public double getNumericalVariance() {
+<span class="fc" id="L304">        final double m = getMean();</span>
+<span class="fc" id="L305">        return m * m;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The lower bound of the support is always 0 no matter the mean parameter.
+     *
+     * @return lower bound of the support (always 0)
+     */
+    public double getSupportLowerBound() {
+<span class="fc" id="L316">        return 0;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The upper bound of the support is always positive infinity
+     * no matter the mean parameter.
+     *
+     * @return upper bound of the support (always Double.POSITIVE_INFINITY)
+     */
+    public double getSupportUpperBound() {
+<span class="fc" id="L328">        return Double.POSITIVE_INFINITY;</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isSupportLowerBoundInclusive() {
+<span class="fc" id="L333">        return true;</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isSupportUpperBoundInclusive() {
+<span class="fc" id="L338">        return false;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The support of this distribution is connected.
+     *
+     * @return {@code true}
+     */
+    public boolean isSupportConnected() {
+<span class="nc" id="L349">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

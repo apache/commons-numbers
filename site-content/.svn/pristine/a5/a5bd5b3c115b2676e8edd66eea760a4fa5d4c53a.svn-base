@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>PiecewiseBicubicSplineInterpolatingFunction.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.interpolation</a> &gt; <span class="el_source">PiecewiseBicubicSplineInterpolatingFunction.java</span></div><h1>PiecewiseBicubicSplineInterpolatingFunction.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.analysis.interpolation;
+
+import java.util.Arrays;
+import org.apache.commons.math3.analysis.BivariateFunction;
+import org.apache.commons.math3.analysis.polynomials.PolynomialSplineFunction;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.InsufficientDataException;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.NonMonotonicSequenceException;
+import org.apache.commons.math3.util.MathArrays;
+
+/**
+ * Function that implements the
+ * &lt;a href=&quot;http://www.paulinternet.nl/?page=bicubic&quot;&gt;bicubic spline&lt;/a&gt;
+ * interpolation.
+ * This implementation currently uses {@link AkimaSplineInterpolator} as the
+ * underlying one-dimensional interpolator, which requires 5 sample points;
+ * insufficient data will raise an exception when the
+ * {@link #value(double,double) value} method is called.
+ *
+ * @since 3.4
+ */
+public class PiecewiseBicubicSplineInterpolatingFunction
+    implements BivariateFunction {
+    /** The minimum number of points that are needed to compute the function. */
+    private static final int MIN_NUM_POINTS = 5;
+    /** Samples x-coordinates */
+    private final double[] xval;
+    /** Samples y-coordinates */
+    private final double[] yval;
+    /** Set of cubic splines patching the whole data grid */
+    private final double[][] fval;
+
+    /**
+     * @param x Sample values of the x-coordinate, in increasing order.
+     * @param y Sample values of the y-coordinate, in increasing order.
+     * @param f Values of the function on every grid point. the expected number
+     *        of elements.
+     * @throws NonMonotonicSequenceException if {@code x} or {@code y} are not
+     *         strictly increasing.
+     * @throws NullArgumentException if any of the arguments are null
+     * @throws NoDataException if any of the arrays has zero length.
+     * @throws DimensionMismatchException if the length of x and y don't match the row, column
+     *         height of f
+     */
+    public PiecewiseBicubicSplineInterpolatingFunction(double[] x,
+                                                       double[] y,
+                                                       double[][] f)
+        throws DimensionMismatchException,
+               NullArgumentException,
+               NoDataException,
+<span class="fc" id="L70">               NonMonotonicSequenceException {</span>
+<span class="pc bpc" id="L71" title="1 of 8 branches missed.">        if (x == null ||</span>
+            y == null ||
+            f == null ||
+            f[0] == null) {
+<span class="fc" id="L75">            throw new NullArgumentException();</span>
+        }
+
+<span class="fc" id="L78">        final int xLen = x.length;</span>
+<span class="fc" id="L79">        final int yLen = y.length;</span>
+
+<span class="pc bpc" id="L81" title="4 of 8 branches missed.">        if (xLen == 0 ||</span>
+            yLen == 0 ||
+            f.length == 0 ||
+            f[0].length == 0) {
+<span class="nc" id="L85">            throw new NoDataException();</span>
+        }
+
+<span class="pc bpc" id="L88" title="1 of 8 branches missed.">        if (xLen &lt; MIN_NUM_POINTS ||</span>
+            yLen &lt; MIN_NUM_POINTS ||
+            f.length &lt; MIN_NUM_POINTS ||
+            f[0].length &lt; MIN_NUM_POINTS) {
+<span class="fc" id="L92">            throw new InsufficientDataException();</span>
+        }
+
+<span class="fc bfc" id="L95" title="All 2 branches covered.">        if (xLen != f.length) {</span>
+<span class="fc" id="L96">            throw new DimensionMismatchException(xLen, f.length);</span>
+        }
+
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        if (yLen != f[0].length) {</span>
+<span class="fc" id="L100">            throw new DimensionMismatchException(yLen, f[0].length);</span>
+        }
+
+<span class="fc" id="L103">        MathArrays.checkOrder(x);</span>
+<span class="fc" id="L104">        MathArrays.checkOrder(y);</span>
+
+<span class="fc" id="L106">        xval = x.clone();</span>
+<span class="fc" id="L107">        yval = y.clone();</span>
+<span class="fc" id="L108">        fval = f.clone();</span>
+<span class="fc" id="L109">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    public double value(double x,
+                        double y)
+        throws OutOfRangeException {
+<span class="fc" id="L117">        final AkimaSplineInterpolator interpolator = new AkimaSplineInterpolator();</span>
+<span class="fc" id="L118">        final int offset = 2;</span>
+<span class="fc" id="L119">        final int count = offset + 3;</span>
+<span class="fc" id="L120">        final int i = searchIndex(x, xval, offset, count);</span>
+<span class="fc" id="L121">        final int j = searchIndex(y, yval, offset, count);</span>
+
+<span class="fc" id="L123">        final double xArray[] = new double[count];</span>
+<span class="fc" id="L124">        final double yArray[] = new double[count];</span>
+<span class="fc" id="L125">        final double zArray[] = new double[count];</span>
+<span class="fc" id="L126">        final double interpArray[] = new double[count];</span>
+
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        for (int index = 0; index &lt; count; index++) {</span>
+<span class="fc" id="L129">            xArray[index] = xval[i + index];</span>
+<span class="fc" id="L130">            yArray[index] = yval[j + index];</span>
+        }
+
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        for (int zIndex = 0; zIndex &lt; count; zIndex++) {</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">            for (int index = 0; index &lt; count; index++) {</span>
+<span class="fc" id="L135">                zArray[index] = fval[i + index][j + zIndex];</span>
+            }
+<span class="fc" id="L137">            final PolynomialSplineFunction spline = interpolator.interpolate(xArray, zArray);</span>
+<span class="fc" id="L138">            interpArray[zIndex] = spline.value(x);</span>
+        }
+
+<span class="fc" id="L141">        final PolynomialSplineFunction spline = interpolator.interpolate(yArray, interpArray);</span>
+
+<span class="fc" id="L143">        double returnValue = spline.value(y);</span>
+
+<span class="fc" id="L145">        return returnValue;</span>
+    }
+
+    /**
+     * Indicates whether a point is within the interpolation range.
+     *
+     * @param x First coordinate.
+     * @param y Second coordinate.
+     * @return {@code true} if (x, y) is a valid point.
+     * @since 3.3
+     */
+    public boolean isValidPoint(double x,
+                                double y) {
+<span class="nc bnc" id="L158" title="All 8 branches missed.">        if (x &lt; xval[0] ||</span>
+            x &gt; xval[xval.length - 1] ||
+            y &lt; yval[0] ||
+            y &gt; yval[yval.length - 1]) {
+<span class="nc" id="L162">            return false;</span>
+        } else {
+<span class="nc" id="L164">            return true;</span>
+        }
+    }
+
+    /**
+     * @param c Coordinate.
+     * @param val Coordinate samples.
+     * @param offset how far back from found value to offset for querying
+     * @param count total number of elements forward from beginning that will be
+     *        queried
+     * @return the index in {@code val} corresponding to the interval containing
+     *         {@code c}.
+     * @throws OutOfRangeException if {@code c} is out of the range defined by
+     *         the boundary values of {@code val}.
+     */
+    private int searchIndex(double c,
+                            double[] val,
+                            int offset,
+                            int count) {
+<span class="fc" id="L183">        int r = Arrays.binarySearch(val, c);</span>
+
+<span class="pc bpc" id="L185" title="2 of 4 branches missed.">        if (r == -1 || r == -val.length - 1) {</span>
+<span class="nc" id="L186">            throw new OutOfRangeException(c, val[0], val[val.length - 1]);</span>
+        }
+
+<span class="fc bfc" id="L189" title="All 2 branches covered.">        if (r &lt; 0) {</span>
+            // &quot;c&quot; in within an interpolation sub-interval, which returns
+            // negative
+            // need to remove the negative sign for consistency
+<span class="fc" id="L193">            r = -r - offset - 1;</span>
+        } else {
+<span class="fc" id="L195">            r -= offset;</span>
+        }
+
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        if (r &lt; 0) {</span>
+<span class="fc" id="L199">            r = 0;</span>
+        }
+
+<span class="fc bfc" id="L202" title="All 2 branches covered.">        if ((r + count) &gt;= val.length) {</span>
+            // &quot;c&quot; is the last sample of the range: Return the index
+            // of the sample at the lower end of the last sub-interval.
+<span class="fc" id="L205">            r = val.length - count;</span>
+        }
+
+<span class="fc" id="L208">        return r;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

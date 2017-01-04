@@ -1,0 +1,628 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Variance.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive.moment</a> &gt; <span class="el_source">Variance.java</span></div><h1>Variance.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive.moment;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.stat.descriptive.WeightedEvaluation;
+import org.apache.commons.math3.stat.descriptive.AbstractStorelessUnivariateStatistic;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * Computes the variance of the available values.  By default, the unbiased
+ * &quot;sample variance&quot; definitional formula is used:
+ * &lt;p&gt;
+ * variance = sum((x_i - mean)^2) / (n - 1) &lt;/p&gt;
+ * &lt;p&gt;
+ * where mean is the {@link Mean} and &lt;code&gt;n&lt;/code&gt; is the number
+ * of sample observations.&lt;/p&gt;
+ * &lt;p&gt;
+ * The definitional formula does not have good numerical properties, so
+ * this implementation does not compute the statistic using the definitional
+ * formula. &lt;ul&gt;
+ * &lt;li&gt; The &lt;code&gt;getResult&lt;/code&gt; method computes the variance using
+ * updating formulas based on West's algorithm, as described in
+ * &lt;a href=&quot;http://doi.acm.org/10.1145/359146.359152&quot;&gt; Chan, T. F. and
+ * J. G. Lewis 1979, &lt;i&gt;Communications of the ACM&lt;/i&gt;,
+ * vol. 22 no. 9, pp. 526-531.&lt;/a&gt;&lt;/li&gt;
+ * &lt;li&gt; The &lt;code&gt;evaluate&lt;/code&gt; methods leverage the fact that they have the
+ * full array of values in memory to execute a two-pass algorithm.
+ * Specifically, these methods use the &quot;corrected two-pass algorithm&quot; from
+ * Chan, Golub, Levesque, &lt;i&gt;Algorithms for Computing the Sample Variance&lt;/i&gt;,
+ * American Statistician, vol. 37, no. 3 (1983) pp. 242-247.&lt;/li&gt;&lt;/ul&gt;
+ * Note that adding values using &lt;code&gt;increment&lt;/code&gt; or
+ * &lt;code&gt;incrementAll&lt;/code&gt; and then executing &lt;code&gt;getResult&lt;/code&gt; will
+ * sometimes give a different, less accurate, result than executing
+ * &lt;code&gt;evaluate&lt;/code&gt; with the full array of values. The former approach
+ * should only be used when the full array of values is not available.&lt;/p&gt;
+ * &lt;p&gt;
+ * The &quot;population variance&quot;  ( sum((x_i - mean)^2) / n ) can also
+ * be computed using this statistic.  The &lt;code&gt;isBiasCorrected&lt;/code&gt;
+ * property determines whether the &quot;population&quot; or &quot;sample&quot; value is
+ * returned by the &lt;code&gt;evaluate&lt;/code&gt; and &lt;code&gt;getResult&lt;/code&gt; methods.
+ * To compute population variances, set this property to &lt;code&gt;false.&lt;/code&gt;
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * &lt;strong&gt;Note that this implementation is not synchronized.&lt;/strong&gt; If
+ * multiple threads access an instance of this class concurrently, and at least
+ * one of the threads invokes the &lt;code&gt;increment()&lt;/code&gt; or
+ * &lt;code&gt;clear()&lt;/code&gt; method, it must be synchronized externally.&lt;/p&gt;
+ *
+ */
+public class Variance extends AbstractStorelessUnivariateStatistic implements Serializable, WeightedEvaluation {
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = -9111962718267217978L;
+
+    /** SecondMoment is used in incremental calculation of Variance*/
+<span class="pc" id="L75">    protected SecondMoment moment = null;</span>
+
+    /**
+     * Whether or not {@link #increment(double)} should increment
+     * the internal second moment. When a Variance is constructed with an
+     * external SecondMoment as a constructor parameter, this property is
+     * set to false and increments must be applied to the second moment
+     * directly.
+     */
+<span class="pc" id="L84">    protected boolean incMoment = true;</span>
+
+    /**
+     * Whether or not bias correction is applied when computing the
+     * value of the statistic. True means that bias is corrected.  See
+     * {@link Variance} for details on the formula.
+     */
+<span class="pc" id="L91">    private boolean isBiasCorrected = true;</span>
+
+    /**
+     * Constructs a Variance with default (true) &lt;code&gt;isBiasCorrected&lt;/code&gt;
+     * property.
+     */
+<span class="fc" id="L97">    public Variance() {</span>
+<span class="fc" id="L98">        moment = new SecondMoment();</span>
+<span class="fc" id="L99">    }</span>
+
+    /**
+     * Constructs a Variance based on an external second moment.
+     * When this constructor is used, the statistic may only be
+     * incremented via the moment, i.e., {@link #increment(double)}
+     * does nothing; whereas {@code m2.increment(value)} increments
+     * both {@code m2} and the Variance instance constructed from it.
+     *
+     * @param m2 the SecondMoment (Third or Fourth moments work
+     * here as well.)
+     */
+<span class="fc" id="L111">    public Variance(final SecondMoment m2) {</span>
+<span class="fc" id="L112">        incMoment = false;</span>
+<span class="fc" id="L113">        this.moment = m2;</span>
+<span class="fc" id="L114">    }</span>
+
+    /**
+     * Constructs a Variance with the specified &lt;code&gt;isBiasCorrected&lt;/code&gt;
+     * property
+     *
+     * @param isBiasCorrected  setting for bias correction - true means
+     * bias will be corrected and is equivalent to using the argumentless
+     * constructor
+     */
+<span class="fc" id="L124">    public Variance(boolean isBiasCorrected) {</span>
+<span class="fc" id="L125">        moment = new SecondMoment();</span>
+<span class="fc" id="L126">        this.isBiasCorrected = isBiasCorrected;</span>
+<span class="fc" id="L127">    }</span>
+
+    /**
+     * Constructs a Variance with the specified &lt;code&gt;isBiasCorrected&lt;/code&gt;
+     * property and the supplied external second moment.
+     *
+     * @param isBiasCorrected  setting for bias correction - true means
+     * bias will be corrected
+     * @param m2 the SecondMoment (Third or Fourth moments work
+     * here as well.)
+     */
+<span class="fc" id="L138">    public Variance(boolean isBiasCorrected, SecondMoment m2) {</span>
+<span class="fc" id="L139">        incMoment = false;</span>
+<span class="fc" id="L140">        this.moment = m2;</span>
+<span class="fc" id="L141">        this.isBiasCorrected = isBiasCorrected;</span>
+<span class="fc" id="L142">    }</span>
+
+    /**
+     * Copy constructor, creates a new {@code Variance} identical
+     * to the {@code original}
+     *
+     * @param original the {@code Variance} instance to copy
+     * @throws NullArgumentException if original is null
+     */
+<span class="nc" id="L151">    public Variance(Variance original) throws NullArgumentException {</span>
+<span class="nc" id="L152">        copy(original, this);</span>
+<span class="nc" id="L153">    }</span>
+
+    /**
+     * {@inheritDoc}
+     * &lt;p&gt;If all values are available, it is more accurate to use
+     * {@link #evaluate(double[])} rather than adding values one at a time
+     * using this method and then executing {@link #getResult}, since
+     * &lt;code&gt;evaluate&lt;/code&gt; leverages the fact that is has the full
+     * list of values together to execute a two-pass algorithm.
+     * See {@link Variance}.&lt;/p&gt;
+     *
+     * &lt;p&gt;Note also that when {@link #Variance(SecondMoment)} is used to
+     * create a Variance, this method does nothing. In that case, the
+     * SecondMoment should be incremented directly.&lt;/p&gt;
+     */
+    @Override
+    public void increment(final double d) {
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">        if (incMoment) {</span>
+<span class="fc" id="L171">            moment.increment(d);</span>
+        }
+<span class="fc" id="L173">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getResult() {
+<span class="fc bfc" id="L180" title="All 2 branches covered.">            if (moment.n == 0) {</span>
+<span class="fc" id="L181">                return Double.NaN;</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">            } else if (moment.n == 1) {</span>
+<span class="fc" id="L183">                return 0d;</span>
+            } else {
+<span class="fc bfc" id="L185" title="All 2 branches covered.">                if (isBiasCorrected) {</span>
+<span class="fc" id="L186">                    return moment.m2 / (moment.n - 1d);</span>
+                } else {
+<span class="fc" id="L188">                    return moment.m2 / (moment.n);</span>
+                }
+            }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getN() {
+<span class="fc" id="L197">        return moment.getN();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void clear() {
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">        if (incMoment) {</span>
+<span class="fc" id="L206">            moment.clear();</span>
+        }
+<span class="fc" id="L208">    }</span>
+
+    /**
+     * Returns the variance of the entries in the input array, or
+     * &lt;code&gt;Double.NaN&lt;/code&gt; if the array is empty.
+     * &lt;p&gt;
+     * See {@link Variance} for details on the computing algorithm.&lt;/p&gt;
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     * &lt;p&gt;
+     * Does not change the internal state of the statistic.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @return the variance of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null
+     */
+    @Override
+    public double evaluate(final double[] values) throws MathIllegalArgumentException {
+<span class="pc bpc" id="L228" title="1 of 2 branches missed.">        if (values == null) {</span>
+<span class="nc" id="L229">            throw new NullArgumentException(LocalizedFormats.INPUT_ARRAY);</span>
+        }
+<span class="fc" id="L231">        return evaluate(values, 0, values.length);</span>
+    }
+
+    /**
+     * Returns the variance of the entries in the specified portion of
+     * the input array, or &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray
+     * is empty.  Note that Double.NaN may also be returned if the input
+     * includes NaN and / or infinite values.
+     * &lt;p&gt;
+     * See {@link Variance} for details on the computing algorithm.&lt;/p&gt;
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * Does not change the internal state of the statistic.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the variance of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     *  parameters are not valid
+     */
+    @Override
+    public double evaluate(final double[] values, final int begin, final int length)
+    throws MathIllegalArgumentException {
+
+<span class="fc" id="L259">        double var = Double.NaN;</span>
+
+<span class="fc bfc" id="L261" title="All 2 branches covered.">        if (test(values, begin, length)) {</span>
+<span class="fc" id="L262">            clear();</span>
+<span class="fc bfc" id="L263" title="All 2 branches covered.">            if (length == 1) {</span>
+<span class="fc" id="L264">                var = 0.0;</span>
+<span class="pc bpc" id="L265" title="1 of 2 branches missed.">            } else if (length &gt; 1) {</span>
+<span class="fc" id="L266">                Mean mean = new Mean();</span>
+<span class="fc" id="L267">                double m = mean.evaluate(values, begin, length);</span>
+<span class="fc" id="L268">                var = evaluate(values, m, begin, length);</span>
+            }
+        }
+<span class="fc" id="L271">        return var;</span>
+    }
+
+    /**
+     * &lt;p&gt;Returns the weighted variance of the entries in the specified portion of
+     * the input array, or &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray
+     * is empty.&lt;/p&gt;
+     * &lt;p&gt;
+     * Uses the formula &lt;pre&gt;
+     *   &amp;Sigma;(weights[i]*(values[i] - weightedMean)&lt;sup&gt;2&lt;/sup&gt;)/(&amp;Sigma;(weights[i]) - 1)
+     * &lt;/pre&gt;
+     * where weightedMean is the weighted mean&lt;/p&gt;
+     * &lt;p&gt;
+     * This formula will not return the same result as the unweighted variance when all
+     * weights are equal, unless all weights are equal to 1. The formula assumes that
+     * weights are to be treated as &quot;expansion values,&quot; as will be the case if for example
+     * the weights represent frequency counts. To normalize weights so that the denominator
+     * in the variance computation equals the length of the input vector minus one, use &lt;pre&gt;
+     *   &lt;code&gt;evaluate(values, MathArrays.normalizeArray(weights, values.length)); &lt;/code&gt;
+     * &lt;/pre&gt;
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if any of the following are true:
+     * &lt;ul&gt;&lt;li&gt;the values array is null&lt;/li&gt;
+     *     &lt;li&gt;the weights array is null&lt;/li&gt;
+     *     &lt;li&gt;the weights array does not have the same length as the values array&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains one or more infinite values&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains one or more NaN values&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains negative values&lt;/li&gt;
+     *     &lt;li&gt;the start and length arguments do not determine a valid array&lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     * &lt;p&gt;
+     * Does not change the internal state of the statistic.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if either array is null.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param weights the weights array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the weighted variance of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the parameters are not valid
+     * @since 2.1
+     */
+    public double evaluate(final double[] values, final double[] weights,
+                           final int begin, final int length) throws MathIllegalArgumentException {
+
+<span class="fc" id="L319">        double var = Double.NaN;</span>
+
+<span class="pc bpc" id="L321" title="1 of 2 branches missed.">        if (test(values, weights,begin, length)) {</span>
+<span class="fc" id="L322">            clear();</span>
+<span class="pc bpc" id="L323" title="1 of 2 branches missed.">            if (length == 1) {</span>
+<span class="nc" id="L324">                var = 0.0;</span>
+<span class="pc bpc" id="L325" title="1 of 2 branches missed.">            } else if (length &gt; 1) {</span>
+<span class="fc" id="L326">                Mean mean = new Mean();</span>
+<span class="fc" id="L327">                double m = mean.evaluate(values, weights, begin, length);</span>
+<span class="fc" id="L328">                var = evaluate(values, weights, m, begin, length);</span>
+            }
+        }
+<span class="fc" id="L331">        return var;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Returns the weighted variance of the entries in the the input array.&lt;/p&gt;
+     * &lt;p&gt;
+     * Uses the formula &lt;pre&gt;
+     *   &amp;Sigma;(weights[i]*(values[i] - weightedMean)&lt;sup&gt;2&lt;/sup&gt;)/(&amp;Sigma;(weights[i]) - 1)
+     * &lt;/pre&gt;
+     * where weightedMean is the weighted mean&lt;/p&gt;
+     * &lt;p&gt;
+     * This formula will not return the same result as the unweighted variance when all
+     * weights are equal, unless all weights are equal to 1. The formula assumes that
+     * weights are to be treated as &quot;expansion values,&quot; as will be the case if for example
+     * the weights represent frequency counts. To normalize weights so that the denominator
+     * in the variance computation equals the length of the input vector minus one, use &lt;pre&gt;
+     *   &lt;code&gt;evaluate(values, MathArrays.normalizeArray(weights, values.length)); &lt;/code&gt;
+     * &lt;/pre&gt;
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if any of the following are true:
+     * &lt;ul&gt;&lt;li&gt;the values array is null&lt;/li&gt;
+     *     &lt;li&gt;the weights array is null&lt;/li&gt;
+     *     &lt;li&gt;the weights array does not have the same length as the values array&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains one or more infinite values&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains one or more NaN values&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains negative values&lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     * &lt;p&gt;
+     * Does not change the internal state of the statistic.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if either array is null.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param weights the weights array
+     * @return the weighted variance of the values
+     * @throws MathIllegalArgumentException if the parameters are not valid
+     * @since 2.1
+     */
+    public double evaluate(final double[] values, final double[] weights)
+    throws MathIllegalArgumentException {
+<span class="fc" id="L374">        return evaluate(values, weights, 0, values.length);</span>
+    }
+
+    /**
+     * Returns the variance of the entries in the specified portion of
+     * the input array, using the precomputed mean value.  Returns
+     * &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray is empty.
+     * &lt;p&gt;
+     * See {@link Variance} for details on the computing algorithm.&lt;/p&gt;
+     * &lt;p&gt;
+     * The formula used assumes that the supplied mean value is the arithmetic
+     * mean of the sample data, not a known population parameter.  This method
+     * is supplied only to save computation when the mean has already been
+     * computed.&lt;/p&gt;
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     * &lt;p&gt;
+     * Does not change the internal state of the statistic.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param mean the precomputed mean value
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the variance of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     *  parameters are not valid
+     */
+    public double evaluate(final double[] values, final double mean,
+            final int begin, final int length) throws MathIllegalArgumentException {
+
+<span class="fc" id="L406">        double var = Double.NaN;</span>
+
+<span class="pc bpc" id="L408" title="1 of 2 branches missed.">        if (test(values, begin, length)) {</span>
+<span class="pc bpc" id="L409" title="1 of 2 branches missed.">            if (length == 1) {</span>
+<span class="nc" id="L410">                var = 0.0;</span>
+<span class="pc bpc" id="L411" title="1 of 2 branches missed.">            } else if (length &gt; 1) {</span>
+<span class="fc" id="L412">                double accum = 0.0;</span>
+<span class="fc" id="L413">                double dev = 0.0;</span>
+<span class="fc" id="L414">                double accum2 = 0.0;</span>
+<span class="fc bfc" id="L415" title="All 2 branches covered.">                for (int i = begin; i &lt; begin + length; i++) {</span>
+<span class="fc" id="L416">                    dev = values[i] - mean;</span>
+<span class="fc" id="L417">                    accum += dev * dev;</span>
+<span class="fc" id="L418">                    accum2 += dev;</span>
+                }
+<span class="fc" id="L420">                double len = length;</span>
+<span class="fc bfc" id="L421" title="All 2 branches covered.">                if (isBiasCorrected) {</span>
+<span class="fc" id="L422">                    var = (accum - (accum2 * accum2 / len)) / (len - 1.0);</span>
+                } else {
+<span class="fc" id="L424">                    var = (accum - (accum2 * accum2 / len)) / len;</span>
+                }
+            }
+        }
+<span class="fc" id="L428">        return var;</span>
+    }
+
+    /**
+     * Returns the variance of the entries in the input array, using the
+     * precomputed mean value.  Returns &lt;code&gt;Double.NaN&lt;/code&gt; if the array
+     * is empty.
+     * &lt;p&gt;
+     * See {@link Variance} for details on the computing algorithm.&lt;/p&gt;
+     * &lt;p&gt;
+     * If &lt;code&gt;isBiasCorrected&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt; the formula used
+     * assumes that the supplied mean value is the arithmetic mean of the
+     * sample data, not a known population parameter.  If the mean is a known
+     * population parameter, or if the &quot;population&quot; version of the variance is
+     * desired, set &lt;code&gt;isBiasCorrected&lt;/code&gt; to &lt;code&gt;false&lt;/code&gt; before
+     * invoking this method.&lt;/p&gt;
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     * &lt;p&gt;
+     * Does not change the internal state of the statistic.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param mean the precomputed mean value
+     * @return the variance of the values or Double.NaN if the array is empty
+     * @throws MathIllegalArgumentException if the array is null
+     */
+    public double evaluate(final double[] values, final double mean) throws MathIllegalArgumentException {
+<span class="fc" id="L457">        return evaluate(values, mean, 0, values.length);</span>
+    }
+
+    /**
+     * Returns the weighted variance of the entries in the specified portion of
+     * the input array, using the precomputed weighted mean value.  Returns
+     * &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray is empty.
+     * &lt;p&gt;
+     * Uses the formula &lt;pre&gt;
+     *   &amp;Sigma;(weights[i]*(values[i] - mean)&lt;sup&gt;2&lt;/sup&gt;)/(&amp;Sigma;(weights[i]) - 1)
+     * &lt;/pre&gt;&lt;/p&gt;
+     * &lt;p&gt;
+     * The formula used assumes that the supplied mean value is the weighted arithmetic
+     * mean of the sample data, not a known population parameter. This method
+     * is supplied only to save computation when the mean has already been
+     * computed.&lt;/p&gt;
+     * &lt;p&gt;
+     * This formula will not return the same result as the unweighted variance when all
+     * weights are equal, unless all weights are equal to 1. The formula assumes that
+     * weights are to be treated as &quot;expansion values,&quot; as will be the case if for example
+     * the weights represent frequency counts. To normalize weights so that the denominator
+     * in the variance computation equals the length of the input vector minus one, use &lt;pre&gt;
+     *   &lt;code&gt;evaluate(values, MathArrays.normalizeArray(weights, values.length), mean); &lt;/code&gt;
+     * &lt;/pre&gt;
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if any of the following are true:
+     * &lt;ul&gt;&lt;li&gt;the values array is null&lt;/li&gt;
+     *     &lt;li&gt;the weights array is null&lt;/li&gt;
+     *     &lt;li&gt;the weights array does not have the same length as the values array&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains one or more infinite values&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains one or more NaN values&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains negative values&lt;/li&gt;
+     *     &lt;li&gt;the start and length arguments do not determine a valid array&lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     * &lt;p&gt;
+     * Does not change the internal state of the statistic.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param weights the weights array
+     * @param mean the precomputed weighted mean value
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the variance of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the parameters are not valid
+     * @since 2.1
+     */
+    public double evaluate(final double[] values, final double[] weights,
+    final double mean, final int begin, final int length)
+    throws MathIllegalArgumentException {
+
+<span class="fc" id="L509">        double var = Double.NaN;</span>
+
+<span class="pc bpc" id="L511" title="1 of 2 branches missed.">        if (test(values, weights, begin, length)) {</span>
+<span class="pc bpc" id="L512" title="1 of 2 branches missed.">            if (length == 1) {</span>
+<span class="nc" id="L513">                var = 0.0;</span>
+<span class="pc bpc" id="L514" title="1 of 2 branches missed.">            } else if (length &gt; 1) {</span>
+<span class="fc" id="L515">                double accum = 0.0;</span>
+<span class="fc" id="L516">                double dev = 0.0;</span>
+<span class="fc" id="L517">                double accum2 = 0.0;</span>
+<span class="fc bfc" id="L518" title="All 2 branches covered.">                for (int i = begin; i &lt; begin + length; i++) {</span>
+<span class="fc" id="L519">                    dev = values[i] - mean;</span>
+<span class="fc" id="L520">                    accum += weights[i] * (dev * dev);</span>
+<span class="fc" id="L521">                    accum2 += weights[i] * dev;</span>
+                }
+
+<span class="fc" id="L524">                double sumWts = 0;</span>
+<span class="fc bfc" id="L525" title="All 2 branches covered.">                for (int i = begin; i &lt; begin + length; i++) {</span>
+<span class="fc" id="L526">                    sumWts += weights[i];</span>
+                }
+
+<span class="pc bpc" id="L529" title="1 of 2 branches missed.">                if (isBiasCorrected) {</span>
+<span class="fc" id="L530">                    var = (accum - (accum2 * accum2 / sumWts)) / (sumWts - 1.0);</span>
+                } else {
+<span class="nc" id="L532">                    var = (accum - (accum2 * accum2 / sumWts)) / sumWts;</span>
+                }
+            }
+        }
+<span class="fc" id="L536">        return var;</span>
+    }
+
+    /**
+     * &lt;p&gt;Returns the weighted variance of the values in the input array, using
+     * the precomputed weighted mean value.&lt;/p&gt;
+     * &lt;p&gt;
+     * Uses the formula &lt;pre&gt;
+     *   &amp;Sigma;(weights[i]*(values[i] - mean)&lt;sup&gt;2&lt;/sup&gt;)/(&amp;Sigma;(weights[i]) - 1)
+     * &lt;/pre&gt;&lt;/p&gt;
+     * &lt;p&gt;
+     * The formula used assumes that the supplied mean value is the weighted arithmetic
+     * mean of the sample data, not a known population parameter. This method
+     * is supplied only to save computation when the mean has already been
+     * computed.&lt;/p&gt;
+     * &lt;p&gt;
+     * This formula will not return the same result as the unweighted variance when all
+     * weights are equal, unless all weights are equal to 1. The formula assumes that
+     * weights are to be treated as &quot;expansion values,&quot; as will be the case if for example
+     * the weights represent frequency counts. To normalize weights so that the denominator
+     * in the variance computation equals the length of the input vector minus one, use &lt;pre&gt;
+     *   &lt;code&gt;evaluate(values, MathArrays.normalizeArray(weights, values.length), mean); &lt;/code&gt;
+     * &lt;/pre&gt;
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if any of the following are true:
+     * &lt;ul&gt;&lt;li&gt;the values array is null&lt;/li&gt;
+     *     &lt;li&gt;the weights array is null&lt;/li&gt;
+     *     &lt;li&gt;the weights array does not have the same length as the values array&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains one or more infinite values&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains one or more NaN values&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains negative values&lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     * &lt;p&gt;
+     * Does not change the internal state of the statistic.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param weights the weights array
+     * @param mean the precomputed weighted mean value
+     * @return the variance of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the parameters are not valid
+     * @since 2.1
+     */
+    public double evaluate(final double[] values, final double[] weights, final double mean)
+    throws MathIllegalArgumentException {
+<span class="nc" id="L582">        return evaluate(values, weights, mean, 0, values.length);</span>
+    }
+
+    /**
+     * @return Returns the isBiasCorrected.
+     */
+    public boolean isBiasCorrected() {
+<span class="nc" id="L589">        return isBiasCorrected;</span>
+    }
+
+    /**
+     * @param biasCorrected The isBiasCorrected to set.
+     */
+    public void setBiasCorrected(boolean biasCorrected) {
+<span class="fc" id="L596">        this.isBiasCorrected = biasCorrected;</span>
+<span class="fc" id="L597">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Variance copy() {
+<span class="fc" id="L604">        Variance result = new Variance();</span>
+        // No try-catch or advertised exception because parameters are guaranteed non-null
+<span class="fc" id="L606">        copy(this, result);</span>
+<span class="fc" id="L607">        return result;</span>
+    }
+
+    /**
+     * Copies source to dest.
+     * &lt;p&gt;Neither source nor dest can be null.&lt;/p&gt;
+     *
+     * @param source Variance to copy
+     * @param dest Variance to copy to
+     * @throws NullArgumentException if either source or dest is null
+     */
+    public static void copy(Variance source, Variance dest)
+        throws NullArgumentException {
+<span class="fc" id="L620">        MathUtils.checkNotNull(source);</span>
+<span class="fc" id="L621">        MathUtils.checkNotNull(dest);</span>
+<span class="fc" id="L622">        dest.setData(source.getDataRef());</span>
+<span class="fc" id="L623">        dest.moment = source.moment.copy();</span>
+<span class="fc" id="L624">        dest.isBiasCorrected = source.isBiasCorrected;</span>
+<span class="fc" id="L625">        dest.incMoment = source.incMoment;</span>
+<span class="fc" id="L626">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

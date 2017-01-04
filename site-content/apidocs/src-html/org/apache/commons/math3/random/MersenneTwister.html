@@ -1,0 +1,336 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.random;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.io.Serializable;<a name="line.19"></a>
+<span class="sourceLineNo">020</span><a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.util.FastMath;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>/** This class implements a powerful pseudo-random number generator<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * developed by Makoto Matsumoto and Takuji Nishimura during<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * 1996-1997.<a name="line.26"></a>
+<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">028</span> * &lt;p&gt;This generator features an extremely long period<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * (2&lt;sup&gt;19937&lt;/sup&gt;-1) and 623-dimensional equidistribution up to 32<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * bits accuracy. The home page for this generator is located at &lt;a<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * href="http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html"&gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html&lt;/a&gt;.&lt;/p&gt;<a name="line.32"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">034</span> * &lt;p&gt;This generator is described in a paper by Makoto Matsumoto and<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * Takuji Nishimura in 1998: &lt;a<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * href="http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/ARTICLES/mt.pdf"&gt;Mersenne<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * Twister: A 623-Dimensionally Equidistributed Uniform Pseudo-Random<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * Number Generator&lt;/a&gt;, ACM Transactions on Modeling and Computer<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * Simulation, Vol. 8, No. 1, January 1998, pp 3--30&lt;/p&gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span> * &lt;p&gt;This class is mainly a Java port of the 2002-01-26 version of<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * the generator written in C by Makoto Matsumoto and Takuji<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * Nishimura. Here is their original copyright:&lt;/p&gt;<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span> * &lt;table border="0" width="80%" cellpadding="10" align="center" bgcolor="#E0E0E0"&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * &lt;tr&gt;&lt;td&gt;Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,<a name="line.46"></a>
+<span class="sourceLineNo">047</span> *     All rights reserved.&lt;/td&gt;&lt;/tr&gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span> * &lt;tr&gt;&lt;td&gt;Redistribution and use in source and binary forms, with or without<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * modification, are permitted provided that the following conditions<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * are met:<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * &lt;ol&gt;<a name="line.52"></a>
+<span class="sourceLineNo">053</span> *   &lt;li&gt;Redistributions of source code must retain the above copyright<a name="line.53"></a>
+<span class="sourceLineNo">054</span> *       notice, this list of conditions and the following disclaimer.&lt;/li&gt;<a name="line.54"></a>
+<span class="sourceLineNo">055</span> *   &lt;li&gt;Redistributions in binary form must reproduce the above copyright<a name="line.55"></a>
+<span class="sourceLineNo">056</span> *       notice, this list of conditions and the following disclaimer in the<a name="line.56"></a>
+<span class="sourceLineNo">057</span> *       documentation and/or other materials provided with the distribution.&lt;/li&gt;<a name="line.57"></a>
+<span class="sourceLineNo">058</span> *   &lt;li&gt;The names of its contributors may not be used to endorse or promote<a name="line.58"></a>
+<span class="sourceLineNo">059</span> *       products derived from this software without specific prior written<a name="line.59"></a>
+<span class="sourceLineNo">060</span> *       permission.&lt;/li&gt;<a name="line.60"></a>
+<span class="sourceLineNo">061</span> * &lt;/ol&gt;&lt;/td&gt;&lt;/tr&gt;<a name="line.61"></a>
+<span class="sourceLineNo">062</span><a name="line.62"></a>
+<span class="sourceLineNo">063</span> * &lt;tr&gt;&lt;td&gt;&lt;strong&gt;THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND<a name="line.63"></a>
+<span class="sourceLineNo">064</span> * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,<a name="line.64"></a>
+<span class="sourceLineNo">065</span> * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF<a name="line.65"></a>
+<span class="sourceLineNo">066</span> * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE<a name="line.66"></a>
+<span class="sourceLineNo">067</span> * DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS<a name="line.67"></a>
+<span class="sourceLineNo">068</span> * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,<a name="line.68"></a>
+<span class="sourceLineNo">069</span> * OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,<a name="line.69"></a>
+<span class="sourceLineNo">070</span> * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR<a name="line.70"></a>
+<span class="sourceLineNo">071</span> * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY<a name="line.71"></a>
+<span class="sourceLineNo">072</span> * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT<a name="line.72"></a>
+<span class="sourceLineNo">073</span> * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE<a name="line.73"></a>
+<span class="sourceLineNo">074</span> * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH<a name="line.74"></a>
+<span class="sourceLineNo">075</span> * DAMAGE.&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;<a name="line.75"></a>
+<span class="sourceLineNo">076</span> * &lt;/table&gt;<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span> * @since 2.0<a name="line.78"></a>
+<span class="sourceLineNo">079</span><a name="line.79"></a>
+<span class="sourceLineNo">080</span> */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>public class MersenneTwister extends BitsStreamGenerator implements Serializable {<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>    /** Serializable version identifier. */<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    private static final long serialVersionUID = 8661194735290153518L;<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span>    /** Size of the bytes pool. */<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    private static final int   N     = 624;<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>    /** Period second parameter. */<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    private static final int   M     = 397;<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>    /** X * MATRIX_A for X = {0, 1}. */<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    private static final int[] MAG01 = { 0x0, 0x9908b0df };<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>    /** Bytes pool. */<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    private int[] mt;<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>    /** Current index in the bytes pool. */<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    private int   mti;<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>    /** Creates a new random number generator.<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * &lt;p&gt;The instance is initialized using the current time plus the<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * system identity hash code of this instance as the seed.&lt;/p&gt;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     */<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    public MersenneTwister() {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        mt = new int[N];<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        setSeed(System.currentTimeMillis() + System.identityHashCode(this));<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    }<a name="line.108"></a>
+<span class="sourceLineNo">109</span><a name="line.109"></a>
+<span class="sourceLineNo">110</span>    /** Creates a new random number generator using a single int seed.<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     * @param seed the initial seed (32 bits integer)<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     */<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    public MersenneTwister(int seed) {<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        mt = new int[N];<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        setSeed(seed);<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    }<a name="line.116"></a>
+<span class="sourceLineNo">117</span><a name="line.117"></a>
+<span class="sourceLineNo">118</span>    /** Creates a new random number generator using an int array seed.<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * @param seed the initial seed (32 bits integers array), if null<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * the seed of the generator will be related to the current time<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     */<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    public MersenneTwister(int[] seed) {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        mt = new int[N];<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        setSeed(seed);<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    }<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span>    /** Creates a new random number generator using a single long seed.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     * @param seed the initial seed (64 bits integer)<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     */<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    public MersenneTwister(long seed) {<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        mt = new int[N];<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        setSeed(seed);<a name="line.132"></a>
+<span class="sourceLineNo">133</span>    }<a name="line.133"></a>
+<span class="sourceLineNo">134</span><a name="line.134"></a>
+<span class="sourceLineNo">135</span>    /** Reinitialize the generator as if just built with the given int seed.<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     * &lt;p&gt;The state of the generator is exactly the same as a new<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     * generator built with the same seed.&lt;/p&gt;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     * @param seed the initial seed (32 bits integer)<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     */<a name="line.139"></a>
+<span class="sourceLineNo">140</span>    @Override<a name="line.140"></a>
+<span class="sourceLineNo">141</span>    public void setSeed(int seed) {<a name="line.141"></a>
+<span class="sourceLineNo">142</span>        // we use a long masked by 0xffffffffL as a poor man unsigned int<a name="line.142"></a>
+<span class="sourceLineNo">143</span>        long longMT = seed;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        // NB: unlike original C code, we are working with java longs, the cast below makes masking unnecessary<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        mt[0]= (int) longMT;<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        for (mti = 1; mti &lt; N; ++mti) {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>            // See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier.<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            // initializer from the 2002-01-09 C version by Makoto Matsumoto<a name="line.148"></a>
+<span class="sourceLineNo">149</span>            longMT = (1812433253l * (longMT ^ (longMT &gt;&gt; 30)) + mti) &amp; 0xffffffffL;<a name="line.149"></a>
+<span class="sourceLineNo">150</span>            mt[mti]= (int) longMT;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        }<a name="line.151"></a>
+<span class="sourceLineNo">152</span><a name="line.152"></a>
+<span class="sourceLineNo">153</span>        clear(); // Clear normal deviate cache<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    }<a name="line.154"></a>
+<span class="sourceLineNo">155</span><a name="line.155"></a>
+<span class="sourceLineNo">156</span>    /** Reinitialize the generator as if just built with the given int array seed.<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     * &lt;p&gt;The state of the generator is exactly the same as a new<a name="line.157"></a>
+<span class="sourceLineNo">158</span>     * generator built with the same seed.&lt;/p&gt;<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     * @param seed the initial seed (32 bits integers array), if null<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     * the seed of the generator will be the current system time plus the<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     * system identity hash code of this instance<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     */<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    @Override<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    public void setSeed(int[] seed) {<a name="line.164"></a>
+<span class="sourceLineNo">165</span><a name="line.165"></a>
+<span class="sourceLineNo">166</span>        if (seed == null) {<a name="line.166"></a>
+<span class="sourceLineNo">167</span>            setSeed(System.currentTimeMillis() + System.identityHashCode(this));<a name="line.167"></a>
+<span class="sourceLineNo">168</span>            return;<a name="line.168"></a>
+<span class="sourceLineNo">169</span>        }<a name="line.169"></a>
+<span class="sourceLineNo">170</span><a name="line.170"></a>
+<span class="sourceLineNo">171</span>        setSeed(19650218);<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        int i = 1;<a name="line.172"></a>
+<span class="sourceLineNo">173</span>        int j = 0;<a name="line.173"></a>
+<span class="sourceLineNo">174</span><a name="line.174"></a>
+<span class="sourceLineNo">175</span>        for (int k = FastMath.max(N, seed.length); k != 0; k--) {<a name="line.175"></a>
+<span class="sourceLineNo">176</span>            long l0 = (mt[i] &amp; 0x7fffffffl)   | ((mt[i]   &lt; 0) ? 0x80000000l : 0x0l);<a name="line.176"></a>
+<span class="sourceLineNo">177</span>            long l1 = (mt[i-1] &amp; 0x7fffffffl) | ((mt[i-1] &lt; 0) ? 0x80000000l : 0x0l);<a name="line.177"></a>
+<span class="sourceLineNo">178</span>            long l  = (l0 ^ ((l1 ^ (l1 &gt;&gt; 30)) * 1664525l)) + seed[j] + j; // non linear<a name="line.178"></a>
+<span class="sourceLineNo">179</span>            mt[i]   = (int) (l &amp; 0xffffffffl);<a name="line.179"></a>
+<span class="sourceLineNo">180</span>            i++; j++;<a name="line.180"></a>
+<span class="sourceLineNo">181</span>            if (i &gt;= N) {<a name="line.181"></a>
+<span class="sourceLineNo">182</span>                mt[0] = mt[N - 1];<a name="line.182"></a>
+<span class="sourceLineNo">183</span>                i = 1;<a name="line.183"></a>
+<span class="sourceLineNo">184</span>            }<a name="line.184"></a>
+<span class="sourceLineNo">185</span>            if (j &gt;= seed.length) {<a name="line.185"></a>
+<span class="sourceLineNo">186</span>                j = 0;<a name="line.186"></a>
+<span class="sourceLineNo">187</span>            }<a name="line.187"></a>
+<span class="sourceLineNo">188</span>        }<a name="line.188"></a>
+<span class="sourceLineNo">189</span><a name="line.189"></a>
+<span class="sourceLineNo">190</span>        for (int k = N - 1; k != 0; k--) {<a name="line.190"></a>
+<span class="sourceLineNo">191</span>            long l0 = (mt[i] &amp; 0x7fffffffl)   | ((mt[i]   &lt; 0) ? 0x80000000l : 0x0l);<a name="line.191"></a>
+<span class="sourceLineNo">192</span>            long l1 = (mt[i-1] &amp; 0x7fffffffl) | ((mt[i-1] &lt; 0) ? 0x80000000l : 0x0l);<a name="line.192"></a>
+<span class="sourceLineNo">193</span>            long l  = (l0 ^ ((l1 ^ (l1 &gt;&gt; 30)) * 1566083941l)) - i; // non linear<a name="line.193"></a>
+<span class="sourceLineNo">194</span>            mt[i]   = (int) (l &amp; 0xffffffffL);<a name="line.194"></a>
+<span class="sourceLineNo">195</span>            i++;<a name="line.195"></a>
+<span class="sourceLineNo">196</span>            if (i &gt;= N) {<a name="line.196"></a>
+<span class="sourceLineNo">197</span>                mt[0] = mt[N - 1];<a name="line.197"></a>
+<span class="sourceLineNo">198</span>                i = 1;<a name="line.198"></a>
+<span class="sourceLineNo">199</span>            }<a name="line.199"></a>
+<span class="sourceLineNo">200</span>        }<a name="line.200"></a>
+<span class="sourceLineNo">201</span><a name="line.201"></a>
+<span class="sourceLineNo">202</span>        mt[0] = 0x80000000; // MSB is 1; assuring non-zero initial array<a name="line.202"></a>
+<span class="sourceLineNo">203</span><a name="line.203"></a>
+<span class="sourceLineNo">204</span>        clear(); // Clear normal deviate cache<a name="line.204"></a>
+<span class="sourceLineNo">205</span><a name="line.205"></a>
+<span class="sourceLineNo">206</span>    }<a name="line.206"></a>
+<span class="sourceLineNo">207</span><a name="line.207"></a>
+<span class="sourceLineNo">208</span>    /** Reinitialize the generator as if just built with the given long seed.<a name="line.208"></a>
+<span class="sourceLineNo">209</span>     * &lt;p&gt;The state of the generator is exactly the same as a new<a name="line.209"></a>
+<span class="sourceLineNo">210</span>     * generator built with the same seed.&lt;/p&gt;<a name="line.210"></a>
+<span class="sourceLineNo">211</span>     * @param seed the initial seed (64 bits integer)<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     */<a name="line.212"></a>
+<span class="sourceLineNo">213</span>    @Override<a name="line.213"></a>
+<span class="sourceLineNo">214</span>    public void setSeed(long seed) {<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        setSeed(new int[] { (int) (seed &gt;&gt;&gt; 32), (int) (seed &amp; 0xffffffffl) });<a name="line.215"></a>
+<span class="sourceLineNo">216</span>    }<a name="line.216"></a>
+<span class="sourceLineNo">217</span><a name="line.217"></a>
+<span class="sourceLineNo">218</span>    /** Generate next pseudorandom number.<a name="line.218"></a>
+<span class="sourceLineNo">219</span>     * &lt;p&gt;This method is the core generation algorithm. It is used by all the<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     * public generation methods for the various primitive types {@link<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     * #nextBoolean()}, {@link #nextBytes(byte[])}, {@link #nextDouble()},<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     * {@link #nextFloat()}, {@link #nextGaussian()}, {@link #nextInt()},<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     * {@link #next(int)} and {@link #nextLong()}.&lt;/p&gt;<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     * @param bits number of random bits to produce<a name="line.224"></a>
+<span class="sourceLineNo">225</span>     * @return random bits generated<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     */<a name="line.226"></a>
+<span class="sourceLineNo">227</span>    @Override<a name="line.227"></a>
+<span class="sourceLineNo">228</span>    protected int next(int bits) {<a name="line.228"></a>
+<span class="sourceLineNo">229</span><a name="line.229"></a>
+<span class="sourceLineNo">230</span>        int y;<a name="line.230"></a>
+<span class="sourceLineNo">231</span><a name="line.231"></a>
+<span class="sourceLineNo">232</span>        if (mti &gt;= N) { // generate N words at one time<a name="line.232"></a>
+<span class="sourceLineNo">233</span>            int mtNext = mt[0];<a name="line.233"></a>
+<span class="sourceLineNo">234</span>            for (int k = 0; k &lt; N - M; ++k) {<a name="line.234"></a>
+<span class="sourceLineNo">235</span>                int mtCurr = mtNext;<a name="line.235"></a>
+<span class="sourceLineNo">236</span>                mtNext = mt[k + 1];<a name="line.236"></a>
+<span class="sourceLineNo">237</span>                y = (mtCurr &amp; 0x80000000) | (mtNext &amp; 0x7fffffff);<a name="line.237"></a>
+<span class="sourceLineNo">238</span>                mt[k] = mt[k + M] ^ (y &gt;&gt;&gt; 1) ^ MAG01[y &amp; 0x1];<a name="line.238"></a>
+<span class="sourceLineNo">239</span>            }<a name="line.239"></a>
+<span class="sourceLineNo">240</span>            for (int k = N - M; k &lt; N - 1; ++k) {<a name="line.240"></a>
+<span class="sourceLineNo">241</span>                int mtCurr = mtNext;<a name="line.241"></a>
+<span class="sourceLineNo">242</span>                mtNext = mt[k + 1];<a name="line.242"></a>
+<span class="sourceLineNo">243</span>                y = (mtCurr &amp; 0x80000000) | (mtNext &amp; 0x7fffffff);<a name="line.243"></a>
+<span class="sourceLineNo">244</span>                mt[k] = mt[k + (M - N)] ^ (y &gt;&gt;&gt; 1) ^ MAG01[y &amp; 0x1];<a name="line.244"></a>
+<span class="sourceLineNo">245</span>            }<a name="line.245"></a>
+<span class="sourceLineNo">246</span>            y = (mtNext &amp; 0x80000000) | (mt[0] &amp; 0x7fffffff);<a name="line.246"></a>
+<span class="sourceLineNo">247</span>            mt[N - 1] = mt[M - 1] ^ (y &gt;&gt;&gt; 1) ^ MAG01[y &amp; 0x1];<a name="line.247"></a>
+<span class="sourceLineNo">248</span><a name="line.248"></a>
+<span class="sourceLineNo">249</span>            mti = 0;<a name="line.249"></a>
+<span class="sourceLineNo">250</span>        }<a name="line.250"></a>
+<span class="sourceLineNo">251</span><a name="line.251"></a>
+<span class="sourceLineNo">252</span>        y = mt[mti++];<a name="line.252"></a>
+<span class="sourceLineNo">253</span><a name="line.253"></a>
+<span class="sourceLineNo">254</span>        // tempering<a name="line.254"></a>
+<span class="sourceLineNo">255</span>        y ^=  y &gt;&gt;&gt; 11;<a name="line.255"></a>
+<span class="sourceLineNo">256</span>        y ^= (y &lt;&lt;   7) &amp; 0x9d2c5680;<a name="line.256"></a>
+<span class="sourceLineNo">257</span>        y ^= (y &lt;&lt;  15) &amp; 0xefc60000;<a name="line.257"></a>
+<span class="sourceLineNo">258</span>        y ^=  y &gt;&gt;&gt; 18;<a name="line.258"></a>
+<span class="sourceLineNo">259</span><a name="line.259"></a>
+<span class="sourceLineNo">260</span>        return y &gt;&gt;&gt; (32 - bits);<a name="line.260"></a>
+<span class="sourceLineNo">261</span><a name="line.261"></a>
+<span class="sourceLineNo">262</span>    }<a name="line.262"></a>
+<span class="sourceLineNo">263</span><a name="line.263"></a>
+<span class="sourceLineNo">264</span>}<a name="line.264"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

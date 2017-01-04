@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SynchronizedRandomGenerator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.random</a> &gt; <span class="el_source">SynchronizedRandomGenerator.java</span></div><h1>SynchronizedRandomGenerator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.random;
+
+/**
+ * Any {@link RandomGenerator} implementation can be thread-safe if it
+ * is used through an instance of this class.
+ * This is achieved by enclosing calls to the methods of the actual
+ * generator inside the overridden {@code synchronized} methods of this
+ * class.
+ *
+ * @since 3.1
+ */
+public class SynchronizedRandomGenerator implements RandomGenerator {
+    /** Object to which all calls will be delegated. */
+    private final RandomGenerator wrapped;
+
+    /**
+     * Creates a synchronized wrapper for the given {@code RandomGenerator}
+     * instance.
+     *
+     * @param rng Generator whose methods will be called through
+     * their corresponding overridden synchronized version.
+     * To ensure thread-safety, the wrapped generator &lt;em&gt;must&lt;/em&gt;
+     * not be used directly.
+     */
+<span class="fc" id="L41">    public SynchronizedRandomGenerator(RandomGenerator rng) {</span>
+<span class="fc" id="L42">        wrapped = rng;</span>
+<span class="fc" id="L43">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void setSeed(int seed) {
+<span class="nc" id="L49">        wrapped.setSeed(seed);</span>
+<span class="nc" id="L50">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void setSeed(int[] seed) {
+<span class="nc" id="L56">        wrapped.setSeed(seed);</span>
+<span class="nc" id="L57">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void setSeed(long seed) {
+<span class="nc" id="L63">        wrapped.setSeed(seed);</span>
+<span class="nc" id="L64">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void nextBytes(byte[] bytes) {
+<span class="fc" id="L70">        wrapped.nextBytes(bytes);</span>
+<span class="fc" id="L71">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized int nextInt() {
+<span class="fc" id="L77">        return wrapped.nextInt();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized int nextInt(int n) {
+<span class="fc" id="L84">        return wrapped.nextInt(n);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized long nextLong() {
+<span class="fc" id="L91">        return wrapped.nextLong();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized boolean nextBoolean() {
+<span class="fc" id="L98">        return wrapped.nextBoolean();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized float nextFloat() {
+<span class="fc" id="L105">        return wrapped.nextFloat();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized double nextDouble() {
+<span class="fc" id="L112">        return wrapped.nextDouble();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized double nextGaussian() {
+<span class="fc" id="L119">        return wrapped.nextGaussian();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

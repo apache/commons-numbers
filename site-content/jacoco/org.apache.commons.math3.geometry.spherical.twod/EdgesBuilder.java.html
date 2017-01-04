@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>EdgesBuilder.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.spherical.twod</a> &gt; <span class="el_source">EdgesBuilder.java</span></div><h1>EdgesBuilder.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.spherical.twod;
+
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.math3.exception.MathIllegalStateException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.apache.commons.math3.geometry.partitioning.BSPTree;
+import org.apache.commons.math3.geometry.partitioning.BSPTreeVisitor;
+import org.apache.commons.math3.geometry.partitioning.BoundaryAttribute;
+import org.apache.commons.math3.geometry.spherical.oned.Arc;
+import org.apache.commons.math3.geometry.spherical.oned.ArcsSet;
+import org.apache.commons.math3.geometry.spherical.oned.S1Point;
+
+/** Visitor building edges.
+ * @since 3.3
+ */
+class EdgesBuilder implements BSPTreeVisitor&lt;Sphere2D&gt; {
+
+    /** Root of the tree. */
+    private final BSPTree&lt;Sphere2D&gt; root;
+
+    /** Tolerance below which points are consider to be identical. */
+    private final double tolerance;
+
+    /** Built edges and their associated nodes. */
+    private final Map&lt;Edge, BSPTree&lt;Sphere2D&gt;&gt; edgeToNode;
+
+    /** Reversed map. */
+    private final Map&lt;BSPTree&lt;Sphere2D&gt;, List&lt;Edge&gt;&gt; nodeToEdgesList;
+
+    /** Simple constructor.
+     * @param root tree root
+     * @param tolerance below which points are consider to be identical
+     */
+<span class="fc" id="L55">    EdgesBuilder(final BSPTree&lt;Sphere2D&gt; root, final double tolerance) {</span>
+<span class="fc" id="L56">        this.root            = root;</span>
+<span class="fc" id="L57">        this.tolerance       = tolerance;</span>
+<span class="fc" id="L58">        this.edgeToNode      = new IdentityHashMap&lt;Edge, BSPTree&lt;Sphere2D&gt;&gt;();</span>
+<span class="fc" id="L59">        this.nodeToEdgesList = new IdentityHashMap&lt;BSPTree&lt;Sphere2D&gt;, List&lt;Edge&gt;&gt;();</span>
+<span class="fc" id="L60">    }</span>
+
+    /** {@inheritDoc} */
+    public Order visitOrder(final BSPTree&lt;Sphere2D&gt; node) {
+<span class="fc" id="L64">        return Order.MINUS_SUB_PLUS;</span>
+    }
+
+    /** {@inheritDoc} */
+    public void visitInternalNode(final BSPTree&lt;Sphere2D&gt; node) {
+<span class="fc" id="L69">        nodeToEdgesList.put(node, new ArrayList&lt;Edge&gt;());</span>
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L71">        final BoundaryAttribute&lt;Sphere2D&gt; attribute = (BoundaryAttribute&lt;Sphere2D&gt;) node.getAttribute();</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (attribute.getPlusOutside() != null) {</span>
+<span class="fc" id="L73">            addContribution((SubCircle) attribute.getPlusOutside(), false, node);</span>
+        }
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (attribute.getPlusInside() != null) {</span>
+<span class="fc" id="L76">            addContribution((SubCircle) attribute.getPlusInside(), true, node);</span>
+        }
+<span class="fc" id="L78">    }</span>
+
+    /** {@inheritDoc} */
+    public void visitLeafNode(final BSPTree&lt;Sphere2D&gt; node) {
+<span class="fc" id="L82">    }</span>
+
+    /** Add the contribution of a boundary edge.
+     * @param sub boundary facet
+     * @param reversed if true, the facet has the inside on its plus side
+     * @param node node to which the edge belongs
+     */
+    private void addContribution(final SubCircle sub, final boolean reversed,
+                                 final BSPTree&lt;Sphere2D&gt; node) {
+<span class="fc" id="L91">        final Circle circle  = (Circle) sub.getHyperplane();</span>
+<span class="fc" id="L92">        final List&lt;Arc&gt; arcs = ((ArcsSet) sub.getRemainingRegion()).asList();</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        for (final Arc a : arcs) {</span>
+<span class="fc" id="L94">            final Vertex start = new Vertex((S2Point) circle.toSpace(new S1Point(a.getInf())));</span>
+<span class="fc" id="L95">            final Vertex end   = new Vertex((S2Point) circle.toSpace(new S1Point(a.getSup())));</span>
+<span class="fc" id="L96">            start.bindWith(circle);</span>
+<span class="fc" id="L97">            end.bindWith(circle);</span>
+            final Edge edge;
+<span class="fc bfc" id="L99" title="All 2 branches covered.">            if (reversed) {</span>
+<span class="fc" id="L100">                edge = new Edge(end, start, a.getSize(), circle.getReverse());</span>
+            } else {
+<span class="fc" id="L102">                edge = new Edge(start, end, a.getSize(), circle);</span>
+            }
+<span class="fc" id="L104">            edgeToNode.put(edge, node);</span>
+<span class="fc" id="L105">            nodeToEdgesList.get(node).add(edge);</span>
+<span class="fc" id="L106">        }</span>
+<span class="fc" id="L107">    }</span>
+
+    /** Get the edge that should naturally follow another one.
+     * @param previous edge to be continued
+     * @return other edge, starting where the previous one ends (they
+     * have not been connected yet)
+     * @exception MathIllegalStateException if there is not a single other edge
+     */
+    private Edge getFollowingEdge(final Edge previous)
+        throws MathIllegalStateException {
+
+        // get the candidate nodes
+<span class="fc" id="L119">        final S2Point point = previous.getEnd().getLocation();</span>
+<span class="fc" id="L120">        final List&lt;BSPTree&lt;Sphere2D&gt;&gt; candidates = root.getCloseCuts(point, tolerance);</span>
+
+        // the following edge we are looking for must start from one of the candidates nodes
+<span class="fc" id="L123">        double closest = tolerance;</span>
+<span class="fc" id="L124">        Edge following = null;</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        for (final BSPTree&lt;Sphere2D&gt; node : candidates) {</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">            for (final Edge edge : nodeToEdgesList.get(node)) {</span>
+<span class="fc bfc" id="L127" title="All 4 branches covered.">                if (edge != previous &amp;&amp; edge.getStart().getIncoming() == null) {</span>
+<span class="fc" id="L128">                    final Vector3D edgeStart = edge.getStart().getLocation().getVector();</span>
+<span class="fc" id="L129">                    final double gap         = Vector3D.angle(point.getVector(), edgeStart);</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">                    if (gap &lt;= closest) {</span>
+<span class="fc" id="L131">                        closest   = gap;</span>
+<span class="fc" id="L132">                        following = edge;</span>
+                    }
+                }
+<span class="fc" id="L135">            }</span>
+<span class="fc" id="L136">        }</span>
+
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        if (following == null) {</span>
+<span class="fc" id="L139">            final Vector3D previousStart = previous.getStart().getLocation().getVector();</span>
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">            if (Vector3D.angle(point.getVector(), previousStart) &lt;= tolerance) {</span>
+                // the edge connects back to itself
+<span class="fc" id="L142">                return previous;</span>
+            }
+
+            // this should never happen
+<span class="nc" id="L146">            throw new MathIllegalStateException(LocalizedFormats.OUTLINE_BOUNDARY_LOOP_OPEN);</span>
+
+        }
+
+<span class="fc" id="L150">        return following;</span>
+
+    }
+
+    /** Get the boundary edges.
+     * @return boundary edges
+     * @exception MathIllegalStateException if there is not a single other edge
+     */
+    public List&lt;Edge&gt; getEdges() throws MathIllegalStateException {
+
+        // connect the edges
+<span class="fc bfc" id="L161" title="All 2 branches covered.">        for (final Edge previous : edgeToNode.keySet()) {</span>
+<span class="fc" id="L162">            previous.setNextEdge(getFollowingEdge(previous));</span>
+<span class="fc" id="L163">        }</span>
+
+<span class="fc" id="L165">        return new ArrayList&lt;Edge&gt;(edgeToNode.keySet());</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

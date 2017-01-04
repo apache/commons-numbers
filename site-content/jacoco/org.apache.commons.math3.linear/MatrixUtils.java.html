@@ -1,0 +1,1120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MatrixUtils.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.linear</a> &gt; <span class="el_source">MatrixUtils.java</span></div><h1>MatrixUtils.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.linear;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Arrays;
+
+import org.apache.commons.math3.Field;
+import org.apache.commons.math3.FieldElement;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MathArithmeticException;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.ZeroException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.fraction.BigFraction;
+import org.apache.commons.math3.fraction.Fraction;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.math3.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
+
+/**
+ * A collection of static methods that operate on or return matrices.
+ *
+ */
+public class MatrixUtils {
+
+    /**
+     * The default format for {@link RealMatrix} objects.
+     * @since 3.1
+     */
+<span class="fc" id="L52">    public static final RealMatrixFormat DEFAULT_FORMAT = RealMatrixFormat.getInstance();</span>
+
+    /**
+     * A format for {@link RealMatrix} objects compatible with octave.
+     * @since 3.1
+     */
+<span class="fc" id="L58">    public static final RealMatrixFormat OCTAVE_FORMAT = new RealMatrixFormat(&quot;[&quot;, &quot;]&quot;, &quot;&quot;, &quot;&quot;, &quot;; &quot;, &quot;, &quot;);</span>
+
+    /**
+     * Private constructor.
+     */
+    private MatrixUtils() {
+<span class="nc" id="L64">        super();</span>
+<span class="nc" id="L65">    }</span>
+
+    /**
+     * Returns a {@link RealMatrix} with specified dimensions.
+     * &lt;p&gt;The type of matrix returned depends on the dimension. Below
+     * 2&lt;sup&gt;12&lt;/sup&gt; elements (i.e. 4096 elements or 64&amp;times;64 for a
+     * square matrix) which can be stored in a 32kB array, a {@link
+     * Array2DRowRealMatrix} instance is built. Above this threshold a {@link
+     * BlockRealMatrix} instance is built.&lt;/p&gt;
+     * &lt;p&gt;The matrix elements are all set to 0.0.&lt;/p&gt;
+     * @param rows number of rows of the matrix
+     * @param columns number of columns of the matrix
+     * @return  RealMatrix with specified dimensions
+     * @see #createRealMatrix(double[][])
+     */
+    public static RealMatrix createRealMatrix(final int rows, final int columns) {
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        return (rows * columns &lt;= 4096) ?</span>
+                new Array2DRowRealMatrix(rows, columns) : new BlockRealMatrix(rows, columns);
+    }
+
+    /**
+     * Returns a {@link FieldMatrix} with specified dimensions.
+     * &lt;p&gt;The type of matrix returned depends on the dimension. Below
+     * 2&lt;sup&gt;12&lt;/sup&gt; elements (i.e. 4096 elements or 64&amp;times;64 for a
+     * square matrix), a {@link FieldMatrix} instance is built. Above
+     * this threshold a {@link BlockFieldMatrix} instance is built.&lt;/p&gt;
+     * &lt;p&gt;The matrix elements are all set to field.getZero().&lt;/p&gt;
+     * @param &lt;T&gt; the type of the field elements
+     * @param field field to which the matrix elements belong
+     * @param rows number of rows of the matrix
+     * @param columns number of columns of the matrix
+     * @return  FieldMatrix with specified dimensions
+     * @see #createFieldMatrix(FieldElement[][])
+     * @since 2.0
+     */
+    public static &lt;T extends FieldElement&lt;T&gt;&gt; FieldMatrix&lt;T&gt; createFieldMatrix(final Field&lt;T&gt; field,
+                                                                               final int rows,
+                                                                               final int columns) {
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        return (rows * columns &lt;= 4096) ?</span>
+                new Array2DRowFieldMatrix&lt;T&gt;(field, rows, columns) : new BlockFieldMatrix&lt;T&gt;(field, rows, columns);
+    }
+
+    /**
+     * Returns a {@link RealMatrix} whose entries are the the values in the
+     * the input array.
+     * &lt;p&gt;The type of matrix returned depends on the dimension. Below
+     * 2&lt;sup&gt;12&lt;/sup&gt; elements (i.e. 4096 elements or 64&amp;times;64 for a
+     * square matrix) which can be stored in a 32kB array, a {@link
+     * Array2DRowRealMatrix} instance is built. Above this threshold a {@link
+     * BlockRealMatrix} instance is built.&lt;/p&gt;
+     * &lt;p&gt;The input array is copied, not referenced.&lt;/p&gt;
+     *
+     * @param data input array
+     * @return  RealMatrix containing the values of the array
+     * @throws org.apache.commons.math3.exception.DimensionMismatchException
+     * if {@code data} is not rectangular (not all rows have the same length).
+     * @throws NoDataException if a row or column is empty.
+     * @throws NullArgumentException if either {@code data} or {@code data[0]}
+     * is {@code null}.
+     * @throws DimensionMismatchException if {@code data} is not rectangular.
+     * @see #createRealMatrix(int, int)
+     */
+    public static RealMatrix createRealMatrix(double[][] data)
+        throws NullArgumentException, DimensionMismatchException,
+        NoDataException {
+<span class="pc bpc" id="L130" title="1 of 4 branches missed.">        if (data == null ||</span>
+            data[0] == null) {
+<span class="fc" id="L132">            throw new NullArgumentException();</span>
+        }
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        return (data.length * data[0].length &lt;= 4096) ?</span>
+                new Array2DRowRealMatrix(data) : new BlockRealMatrix(data);
+    }
+
+    /**
+     * Returns a {@link FieldMatrix} whose entries are the the values in the
+     * the input array.
+     * &lt;p&gt;The type of matrix returned depends on the dimension. Below
+     * 2&lt;sup&gt;12&lt;/sup&gt; elements (i.e. 4096 elements or 64&amp;times;64 for a
+     * square matrix), a {@link FieldMatrix} instance is built. Above
+     * this threshold a {@link BlockFieldMatrix} instance is built.&lt;/p&gt;
+     * &lt;p&gt;The input array is copied, not referenced.&lt;/p&gt;
+     * @param &lt;T&gt; the type of the field elements
+     * @param data input array
+     * @return a matrix containing the values of the array.
+     * @throws org.apache.commons.math3.exception.DimensionMismatchException
+     * if {@code data} is not rectangular (not all rows have the same length).
+     * @throws NoDataException if a row or column is empty.
+     * @throws NullArgumentException if either {@code data} or {@code data[0]}
+     * is {@code null}.
+     * @see #createFieldMatrix(Field, int, int)
+     * @since 2.0
+     */
+    public static &lt;T extends FieldElement&lt;T&gt;&gt; FieldMatrix&lt;T&gt; createFieldMatrix(T[][] data)
+        throws DimensionMismatchException, NoDataException, NullArgumentException {
+<span class="pc bpc" id="L159" title="1 of 4 branches missed.">        if (data == null ||</span>
+            data[0] == null) {
+<span class="fc" id="L161">            throw new NullArgumentException();</span>
+        }
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">        return (data.length * data[0].length &lt;= 4096) ?</span>
+                new Array2DRowFieldMatrix&lt;T&gt;(data) : new BlockFieldMatrix&lt;T&gt;(data);
+    }
+
+    /**
+     * Returns &lt;code&gt;dimension x dimension&lt;/code&gt; identity matrix.
+     *
+     * @param dimension dimension of identity matrix to generate
+     * @return identity matrix
+     * @throws IllegalArgumentException if dimension is not positive
+     * @since 1.1
+     */
+    public static RealMatrix createRealIdentityMatrix(int dimension) {
+<span class="fc" id="L176">        final RealMatrix m = createRealMatrix(dimension, dimension);</span>
+<span class="fc bfc" id="L177" title="All 2 branches covered.">        for (int i = 0; i &lt; dimension; ++i) {</span>
+<span class="fc" id="L178">            m.setEntry(i, i, 1.0);</span>
+        }
+<span class="fc" id="L180">        return m;</span>
+    }
+
+    /**
+     * Returns &lt;code&gt;dimension x dimension&lt;/code&gt; identity matrix.
+     *
+     * @param &lt;T&gt; the type of the field elements
+     * @param field field to which the elements belong
+     * @param dimension dimension of identity matrix to generate
+     * @return identity matrix
+     * @throws IllegalArgumentException if dimension is not positive
+     * @since 2.0
+     */
+    public static &lt;T extends FieldElement&lt;T&gt;&gt; FieldMatrix&lt;T&gt;
+        createFieldIdentityMatrix(final Field&lt;T&gt; field, final int dimension) {
+<span class="fc" id="L195">        final T zero = field.getZero();</span>
+<span class="fc" id="L196">        final T one  = field.getOne();</span>
+<span class="fc" id="L197">        final T[][] d = MathArrays.buildArray(field, dimension, dimension);</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        for (int row = 0; row &lt; dimension; row++) {</span>
+<span class="fc" id="L199">            final T[] dRow = d[row];</span>
+<span class="fc" id="L200">            Arrays.fill(dRow, zero);</span>
+<span class="fc" id="L201">            dRow[row] = one;</span>
+        }
+<span class="fc" id="L203">        return new Array2DRowFieldMatrix&lt;T&gt;(field, d, false);</span>
+    }
+
+    /**
+     * Returns a diagonal matrix with specified elements.
+     *
+     * @param diagonal diagonal elements of the matrix (the array elements
+     * will be copied)
+     * @return diagonal matrix
+     * @since 2.0
+     */
+    public static RealMatrix createRealDiagonalMatrix(final double[] diagonal) {
+<span class="fc" id="L215">        final RealMatrix m = createRealMatrix(diagonal.length, diagonal.length);</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">        for (int i = 0; i &lt; diagonal.length; ++i) {</span>
+<span class="fc" id="L217">            m.setEntry(i, i, diagonal[i]);</span>
+        }
+<span class="fc" id="L219">        return m;</span>
+    }
+
+    /**
+     * Returns a diagonal matrix with specified elements.
+     *
+     * @param &lt;T&gt; the type of the field elements
+     * @param diagonal diagonal elements of the matrix (the array elements
+     * will be copied)
+     * @return diagonal matrix
+     * @since 2.0
+     */
+    public static &lt;T extends FieldElement&lt;T&gt;&gt; FieldMatrix&lt;T&gt;
+        createFieldDiagonalMatrix(final T[] diagonal) {
+<span class="nc" id="L233">        final FieldMatrix&lt;T&gt; m =</span>
+            createFieldMatrix(diagonal[0].getField(), diagonal.length, diagonal.length);
+<span class="nc bnc" id="L235" title="All 2 branches missed.">        for (int i = 0; i &lt; diagonal.length; ++i) {</span>
+<span class="nc" id="L236">            m.setEntry(i, i, diagonal[i]);</span>
+        }
+<span class="nc" id="L238">        return m;</span>
+    }
+
+    /**
+     * Creates a {@link RealVector} using the data from the input array.
+     *
+     * @param data the input data
+     * @return a data.length RealVector
+     * @throws NoDataException if {@code data} is empty.
+     * @throws NullArgumentException if {@code data} is {@code null}.
+     */
+    public static RealVector createRealVector(double[] data)
+        throws NoDataException, NullArgumentException {
+<span class="pc bpc" id="L251" title="1 of 2 branches missed.">        if (data == null) {</span>
+<span class="nc" id="L252">            throw new NullArgumentException();</span>
+        }
+<span class="fc" id="L254">        return new ArrayRealVector(data, true);</span>
+    }
+
+    /**
+     * Creates a {@link FieldVector} using the data from the input array.
+     *
+     * @param &lt;T&gt; the type of the field elements
+     * @param data the input data
+     * @return a data.length FieldVector
+     * @throws NoDataException if {@code data} is empty.
+     * @throws NullArgumentException if {@code data} is {@code null}.
+     * @throws ZeroException if {@code data} has 0 elements
+     */
+    public static &lt;T extends FieldElement&lt;T&gt;&gt; FieldVector&lt;T&gt; createFieldVector(final T[] data)
+        throws NoDataException, NullArgumentException, ZeroException {
+<span class="nc bnc" id="L269" title="All 2 branches missed.">        if (data == null) {</span>
+<span class="nc" id="L270">            throw new NullArgumentException();</span>
+        }
+<span class="nc bnc" id="L272" title="All 2 branches missed.">        if (data.length == 0) {</span>
+<span class="nc" id="L273">            throw new ZeroException(LocalizedFormats.VECTOR_MUST_HAVE_AT_LEAST_ONE_ELEMENT);</span>
+        }
+<span class="nc" id="L275">        return new ArrayFieldVector&lt;T&gt;(data[0].getField(), data, true);</span>
+    }
+
+    /**
+     * Create a row {@link RealMatrix} using the data from the input
+     * array.
+     *
+     * @param rowData the input row data
+     * @return a 1 x rowData.length RealMatrix
+     * @throws NoDataException if {@code rowData} is empty.
+     * @throws NullArgumentException if {@code rowData} is {@code null}.
+     */
+    public static RealMatrix createRowRealMatrix(double[] rowData)
+        throws NoDataException, NullArgumentException {
+<span class="fc bfc" id="L289" title="All 2 branches covered.">        if (rowData == null) {</span>
+<span class="fc" id="L290">            throw new NullArgumentException();</span>
+        }
+<span class="fc" id="L292">        final int nCols = rowData.length;</span>
+<span class="fc" id="L293">        final RealMatrix m = createRealMatrix(1, nCols);</span>
+<span class="fc bfc" id="L294" title="All 2 branches covered.">        for (int i = 0; i &lt; nCols; ++i) {</span>
+<span class="fc" id="L295">            m.setEntry(0, i, rowData[i]);</span>
+        }
+<span class="fc" id="L297">        return m;</span>
+    }
+
+    /**
+     * Create a row {@link FieldMatrix} using the data from the input
+     * array.
+     *
+     * @param &lt;T&gt; the type of the field elements
+     * @param rowData the input row data
+     * @return a 1 x rowData.length FieldMatrix
+     * @throws NoDataException if {@code rowData} is empty.
+     * @throws NullArgumentException if {@code rowData} is {@code null}.
+     */
+    public static &lt;T extends FieldElement&lt;T&gt;&gt; FieldMatrix&lt;T&gt;
+        createRowFieldMatrix(final T[] rowData)
+        throws NoDataException, NullArgumentException {
+<span class="fc bfc" id="L313" title="All 2 branches covered.">        if (rowData == null) {</span>
+<span class="fc" id="L314">            throw new NullArgumentException();</span>
+        }
+<span class="fc" id="L316">        final int nCols = rowData.length;</span>
+<span class="fc bfc" id="L317" title="All 2 branches covered.">        if (nCols == 0) {</span>
+<span class="fc" id="L318">            throw new NoDataException(LocalizedFormats.AT_LEAST_ONE_COLUMN);</span>
+        }
+<span class="fc" id="L320">        final FieldMatrix&lt;T&gt; m = createFieldMatrix(rowData[0].getField(), 1, nCols);</span>
+<span class="fc bfc" id="L321" title="All 2 branches covered.">        for (int i = 0; i &lt; nCols; ++i) {</span>
+<span class="fc" id="L322">            m.setEntry(0, i, rowData[i]);</span>
+        }
+<span class="fc" id="L324">        return m;</span>
+    }
+
+    /**
+     * Creates a column {@link RealMatrix} using the data from the input
+     * array.
+     *
+     * @param columnData  the input column data
+     * @return a columnData x 1 RealMatrix
+     * @throws NoDataException if {@code columnData} is empty.
+     * @throws NullArgumentException if {@code columnData} is {@code null}.
+     */
+    public static RealMatrix createColumnRealMatrix(double[] columnData)
+        throws NoDataException, NullArgumentException {
+<span class="fc bfc" id="L338" title="All 2 branches covered.">        if (columnData == null) {</span>
+<span class="fc" id="L339">            throw new NullArgumentException();</span>
+        }
+<span class="fc" id="L341">        final int nRows = columnData.length;</span>
+<span class="fc" id="L342">        final RealMatrix m = createRealMatrix(nRows, 1);</span>
+<span class="fc bfc" id="L343" title="All 2 branches covered.">        for (int i = 0; i &lt; nRows; ++i) {</span>
+<span class="fc" id="L344">            m.setEntry(i, 0, columnData[i]);</span>
+        }
+<span class="fc" id="L346">        return m;</span>
+    }
+
+    /**
+     * Creates a column {@link FieldMatrix} using the data from the input
+     * array.
+     *
+     * @param &lt;T&gt; the type of the field elements
+     * @param columnData  the input column data
+     * @return a columnData x 1 FieldMatrix
+     * @throws NoDataException if {@code data} is empty.
+     * @throws NullArgumentException if {@code columnData} is {@code null}.
+     */
+    public static &lt;T extends FieldElement&lt;T&gt;&gt; FieldMatrix&lt;T&gt;
+        createColumnFieldMatrix(final T[] columnData)
+        throws NoDataException, NullArgumentException {
+<span class="fc bfc" id="L362" title="All 2 branches covered.">        if (columnData == null) {</span>
+<span class="fc" id="L363">            throw new NullArgumentException();</span>
+        }
+<span class="fc" id="L365">        final int nRows = columnData.length;</span>
+<span class="fc bfc" id="L366" title="All 2 branches covered.">        if (nRows == 0) {</span>
+<span class="fc" id="L367">            throw new NoDataException(LocalizedFormats.AT_LEAST_ONE_ROW);</span>
+        }
+<span class="fc" id="L369">        final FieldMatrix&lt;T&gt; m = createFieldMatrix(columnData[0].getField(), nRows, 1);</span>
+<span class="fc bfc" id="L370" title="All 2 branches covered.">        for (int i = 0; i &lt; nRows; ++i) {</span>
+<span class="fc" id="L371">            m.setEntry(i, 0, columnData[i]);</span>
+        }
+<span class="fc" id="L373">        return m;</span>
+    }
+
+    /**
+     * Checks whether a matrix is symmetric, within a given relative tolerance.
+     *
+     * @param matrix Matrix to check.
+     * @param relativeTolerance Tolerance of the symmetry check.
+     * @param raiseException If {@code true}, an exception will be raised if
+     * the matrix is not symmetric.
+     * @return {@code true} if {@code matrix} is symmetric.
+     * @throws NonSquareMatrixException if the matrix is not square.
+     * @throws NonSymmetricMatrixException if the matrix is not symmetric.
+     */
+    private static boolean isSymmetricInternal(RealMatrix matrix,
+                                               double relativeTolerance,
+                                               boolean raiseException) {
+<span class="fc" id="L390">        final int rows = matrix.getRowDimension();</span>
+<span class="pc bpc" id="L391" title="1 of 2 branches missed.">        if (rows != matrix.getColumnDimension()) {</span>
+<span class="nc bnc" id="L392" title="All 2 branches missed.">            if (raiseException) {</span>
+<span class="nc" id="L393">                throw new NonSquareMatrixException(rows, matrix.getColumnDimension());</span>
+            } else {
+<span class="nc" id="L395">                return false;</span>
+            }
+        }
+<span class="fc bfc" id="L398" title="All 2 branches covered.">        for (int i = 0; i &lt; rows; i++) {</span>
+<span class="fc bfc" id="L399" title="All 2 branches covered.">            for (int j = i + 1; j &lt; rows; j++) {</span>
+<span class="fc" id="L400">                final double mij = matrix.getEntry(i, j);</span>
+<span class="fc" id="L401">                final double mji = matrix.getEntry(j, i);</span>
+<span class="fc bfc" id="L402" title="All 2 branches covered.">                if (FastMath.abs(mij - mji) &gt;</span>
+                    FastMath.max(FastMath.abs(mij), FastMath.abs(mji)) * relativeTolerance) {
+<span class="fc bfc" id="L404" title="All 2 branches covered.">                    if (raiseException) {</span>
+<span class="fc" id="L405">                        throw new NonSymmetricMatrixException(i, j, relativeTolerance);</span>
+                    } else {
+<span class="fc" id="L407">                        return false;</span>
+                    }
+                }
+            }
+        }
+<span class="fc" id="L412">        return true;</span>
+    }
+
+    /**
+     * Checks whether a matrix is symmetric.
+     *
+     * @param matrix Matrix to check.
+     * @param eps Relative tolerance.
+     * @throws NonSquareMatrixException if the matrix is not square.
+     * @throws NonSymmetricMatrixException if the matrix is not symmetric.
+     * @since 3.1
+     */
+    public static void checkSymmetric(RealMatrix matrix,
+                                      double eps) {
+<span class="fc" id="L426">        isSymmetricInternal(matrix, eps, true);</span>
+<span class="fc" id="L427">    }</span>
+
+    /**
+     * Checks whether a matrix is symmetric.
+     *
+     * @param matrix Matrix to check.
+     * @param eps Relative tolerance.
+     * @return {@code true} if {@code matrix} is symmetric.
+     * @since 3.1
+     */
+    public static boolean isSymmetric(RealMatrix matrix,
+                                      double eps) {
+<span class="fc" id="L439">        return isSymmetricInternal(matrix, eps, false);</span>
+    }
+
+    /**
+     * Check if matrix indices are valid.
+     *
+     * @param m Matrix.
+     * @param row Row index to check.
+     * @param column Column index to check.
+     * @throws OutOfRangeException if {@code row} or {@code column} is not
+     * a valid index.
+     */
+    public static void checkMatrixIndex(final AnyMatrix m,
+                                        final int row, final int column)
+        throws OutOfRangeException {
+<span class="fc" id="L454">        checkRowIndex(m, row);</span>
+<span class="fc" id="L455">        checkColumnIndex(m, column);</span>
+<span class="fc" id="L456">    }</span>
+
+    /**
+     * Check if a row index is valid.
+     *
+     * @param m Matrix.
+     * @param row Row index to check.
+     * @throws OutOfRangeException if {@code row} is not a valid index.
+     */
+    public static void checkRowIndex(final AnyMatrix m, final int row)
+        throws OutOfRangeException {
+<span class="fc bfc" id="L467" title="All 4 branches covered.">        if (row &lt; 0 ||</span>
+            row &gt;= m.getRowDimension()) {
+<span class="fc" id="L469">            throw new OutOfRangeException(LocalizedFormats.ROW_INDEX,</span>
+                                          row, 0, m.getRowDimension() - 1);
+        }
+<span class="fc" id="L472">    }</span>
+
+    /**
+     * Check if a column index is valid.
+     *
+     * @param m Matrix.
+     * @param column Column index to check.
+     * @throws OutOfRangeException if {@code column} is not a valid index.
+     */
+    public static void checkColumnIndex(final AnyMatrix m, final int column)
+        throws OutOfRangeException {
+<span class="fc bfc" id="L483" title="All 4 branches covered.">        if (column &lt; 0 || column &gt;= m.getColumnDimension()) {</span>
+<span class="fc" id="L484">            throw new OutOfRangeException(LocalizedFormats.COLUMN_INDEX,</span>
+                                           column, 0, m.getColumnDimension() - 1);
+        }
+<span class="fc" id="L487">    }</span>
+
+    /**
+     * Check if submatrix ranges indices are valid.
+     * Rows and columns are indicated counting from 0 to {@code n - 1}.
+     *
+     * @param m Matrix.
+     * @param startRow Initial row index.
+     * @param endRow Final row index.
+     * @param startColumn Initial column index.
+     * @param endColumn Final column index.
+     * @throws OutOfRangeException if the indices are invalid.
+     * @throws NumberIsTooSmallException if {@code endRow &lt; startRow} or
+     * {@code endColumn &lt; startColumn}.
+     */
+    public static void checkSubMatrixIndex(final AnyMatrix m,
+                                           final int startRow, final int endRow,
+                                           final int startColumn, final int endColumn)
+        throws NumberIsTooSmallException, OutOfRangeException {
+<span class="fc" id="L506">        checkRowIndex(m, startRow);</span>
+<span class="fc" id="L507">        checkRowIndex(m, endRow);</span>
+<span class="fc bfc" id="L508" title="All 2 branches covered.">        if (endRow &lt; startRow) {</span>
+<span class="fc" id="L509">            throw new NumberIsTooSmallException(LocalizedFormats.INITIAL_ROW_AFTER_FINAL_ROW,</span>
+                                                endRow, startRow, false);
+        }
+
+<span class="fc" id="L513">        checkColumnIndex(m, startColumn);</span>
+<span class="fc" id="L514">        checkColumnIndex(m, endColumn);</span>
+<span class="pc bpc" id="L515" title="1 of 2 branches missed.">        if (endColumn &lt; startColumn) {</span>
+<span class="nc" id="L516">            throw new NumberIsTooSmallException(LocalizedFormats.INITIAL_COLUMN_AFTER_FINAL_COLUMN,</span>
+                                                endColumn, startColumn, false);
+        }
+
+
+<span class="fc" id="L521">    }</span>
+
+    /**
+     * Check if submatrix ranges indices are valid.
+     * Rows and columns are indicated counting from 0 to n-1.
+     *
+     * @param m Matrix.
+     * @param selectedRows Array of row indices.
+     * @param selectedColumns Array of column indices.
+     * @throws NullArgumentException if {@code selectedRows} or
+     * {@code selectedColumns} are {@code null}.
+     * @throws NoDataException if the row or column selections are empty (zero
+     * length).
+     * @throws OutOfRangeException if row or column selections are not valid.
+     */
+    public static void checkSubMatrixIndex(final AnyMatrix m,
+                                           final int[] selectedRows,
+                                           final int[] selectedColumns)
+        throws NoDataException, NullArgumentException, OutOfRangeException {
+<span class="pc bpc" id="L540" title="1 of 2 branches missed.">        if (selectedRows == null) {</span>
+<span class="nc" id="L541">            throw new NullArgumentException();</span>
+        }
+<span class="pc bpc" id="L543" title="1 of 2 branches missed.">        if (selectedColumns == null) {</span>
+<span class="nc" id="L544">            throw new NullArgumentException();</span>
+        }
+<span class="fc bfc" id="L546" title="All 2 branches covered.">        if (selectedRows.length == 0) {</span>
+<span class="fc" id="L547">            throw new NoDataException(LocalizedFormats.EMPTY_SELECTED_ROW_INDEX_ARRAY);</span>
+        }
+<span class="pc bpc" id="L549" title="1 of 2 branches missed.">        if (selectedColumns.length == 0) {</span>
+<span class="nc" id="L550">            throw new NoDataException(LocalizedFormats.EMPTY_SELECTED_COLUMN_INDEX_ARRAY);</span>
+        }
+
+<span class="fc bfc" id="L553" title="All 2 branches covered.">        for (final int row : selectedRows) {</span>
+<span class="fc" id="L554">            checkRowIndex(m, row);</span>
+        }
+<span class="fc bfc" id="L556" title="All 2 branches covered.">        for (final int column : selectedColumns) {</span>
+<span class="fc" id="L557">            checkColumnIndex(m, column);</span>
+        }
+<span class="fc" id="L559">    }</span>
+
+    /**
+     * Check if matrices are addition compatible.
+     *
+     * @param left Left hand side matrix.
+     * @param right Right hand side matrix.
+     * @throws MatrixDimensionMismatchException if the matrices are not addition
+     * compatible.
+     */
+    public static void checkAdditionCompatible(final AnyMatrix left, final AnyMatrix right)
+        throws MatrixDimensionMismatchException {
+<span class="pc bpc" id="L571" title="1 of 4 branches missed.">        if ((left.getRowDimension()    != right.getRowDimension()) ||</span>
+            (left.getColumnDimension() != right.getColumnDimension())) {
+<span class="fc" id="L573">            throw new MatrixDimensionMismatchException(left.getRowDimension(), left.getColumnDimension(),</span>
+                                                       right.getRowDimension(), right.getColumnDimension());
+        }
+<span class="fc" id="L576">    }</span>
+
+    /**
+     * Check if matrices are subtraction compatible
+     *
+     * @param left Left hand side matrix.
+     * @param right Right hand side matrix.
+     * @throws MatrixDimensionMismatchException if the matrices are not addition
+     * compatible.
+     */
+    public static void checkSubtractionCompatible(final AnyMatrix left, final AnyMatrix right)
+        throws MatrixDimensionMismatchException {
+<span class="pc bpc" id="L588" title="1 of 4 branches missed.">        if ((left.getRowDimension()    != right.getRowDimension()) ||</span>
+            (left.getColumnDimension() != right.getColumnDimension())) {
+<span class="fc" id="L590">            throw new MatrixDimensionMismatchException(left.getRowDimension(), left.getColumnDimension(),</span>
+                                                       right.getRowDimension(), right.getColumnDimension());
+        }
+<span class="fc" id="L593">    }</span>
+
+    /**
+     * Check if matrices are multiplication compatible
+     *
+     * @param left Left hand side matrix.
+     * @param right Right hand side matrix.
+     * @throws DimensionMismatchException if matrices are not multiplication
+     * compatible.
+     */
+    public static void checkMultiplicationCompatible(final AnyMatrix left, final AnyMatrix right)
+        throws DimensionMismatchException {
+
+<span class="fc bfc" id="L606" title="All 2 branches covered.">        if (left.getColumnDimension() != right.getRowDimension()) {</span>
+<span class="fc" id="L607">            throw new DimensionMismatchException(left.getColumnDimension(),</span>
+                                                 right.getRowDimension());
+        }
+<span class="fc" id="L610">    }</span>
+
+    /**
+     * Convert a {@link FieldMatrix}/{@link Fraction} matrix to a {@link RealMatrix}.
+     * @param m Matrix to convert.
+     * @return the converted matrix.
+     */
+    public static Array2DRowRealMatrix fractionMatrixToRealMatrix(final FieldMatrix&lt;Fraction&gt; m) {
+<span class="fc" id="L618">        final FractionMatrixConverter converter = new FractionMatrixConverter();</span>
+<span class="fc" id="L619">        m.walkInOptimizedOrder(converter);</span>
+<span class="fc" id="L620">        return converter.getConvertedMatrix();</span>
+    }
+
+    /** Converter for {@link FieldMatrix}/{@link Fraction}. */
+    private static class FractionMatrixConverter extends DefaultFieldMatrixPreservingVisitor&lt;Fraction&gt; {
+        /** Converted array. */
+        private double[][] data;
+        /** Simple constructor. */
+        FractionMatrixConverter() {
+<span class="fc" id="L629">            super(Fraction.ZERO);</span>
+<span class="fc" id="L630">        }</span>
+
+        /** {@inheritDoc} */
+        @Override
+        public void start(int rows, int columns,
+                          int startRow, int endRow, int startColumn, int endColumn) {
+<span class="fc" id="L636">            data = new double[rows][columns];</span>
+<span class="fc" id="L637">        }</span>
+
+        /** {@inheritDoc} */
+        @Override
+        public void visit(int row, int column, Fraction value) {
+<span class="fc" id="L642">            data[row][column] = value.doubleValue();</span>
+<span class="fc" id="L643">        }</span>
+
+        /**
+         * Get the converted matrix.
+         *
+         * @return the converted matrix.
+         */
+        Array2DRowRealMatrix getConvertedMatrix() {
+<span class="fc" id="L651">            return new Array2DRowRealMatrix(data, false);</span>
+        }
+
+    }
+
+    /**
+     * Convert a {@link FieldMatrix}/{@link BigFraction} matrix to a {@link RealMatrix}.
+     *
+     * @param m Matrix to convert.
+     * @return the converted matrix.
+     */
+    public static Array2DRowRealMatrix bigFractionMatrixToRealMatrix(final FieldMatrix&lt;BigFraction&gt; m) {
+<span class="fc" id="L663">        final BigFractionMatrixConverter converter = new BigFractionMatrixConverter();</span>
+<span class="fc" id="L664">        m.walkInOptimizedOrder(converter);</span>
+<span class="fc" id="L665">        return converter.getConvertedMatrix();</span>
+    }
+
+    /** Converter for {@link FieldMatrix}/{@link BigFraction}. */
+    private static class BigFractionMatrixConverter extends DefaultFieldMatrixPreservingVisitor&lt;BigFraction&gt; {
+        /** Converted array. */
+        private double[][] data;
+        /** Simple constructor. */
+        BigFractionMatrixConverter() {
+<span class="fc" id="L674">            super(BigFraction.ZERO);</span>
+<span class="fc" id="L675">        }</span>
+
+        /** {@inheritDoc} */
+        @Override
+        public void start(int rows, int columns,
+                          int startRow, int endRow, int startColumn, int endColumn) {
+<span class="fc" id="L681">            data = new double[rows][columns];</span>
+<span class="fc" id="L682">        }</span>
+
+        /** {@inheritDoc} */
+        @Override
+        public void visit(int row, int column, BigFraction value) {
+<span class="fc" id="L687">            data[row][column] = value.doubleValue();</span>
+<span class="fc" id="L688">        }</span>
+
+        /**
+         * Get the converted matrix.
+         *
+         * @return the converted matrix.
+         */
+        Array2DRowRealMatrix getConvertedMatrix() {
+<span class="fc" id="L696">            return new Array2DRowRealMatrix(data, false);</span>
+        }
+    }
+
+    /** Serialize a {@link RealVector}.
+     * &lt;p&gt;
+     * This method is intended to be called from within a private
+     * &lt;code&gt;writeObject&lt;/code&gt; method (after a call to
+     * &lt;code&gt;oos.defaultWriteObject()&lt;/code&gt;) in a class that has a
+     * {@link RealVector} field, which should be declared &lt;code&gt;transient&lt;/code&gt;.
+     * This way, the default handling does not serialize the vector (the {@link
+     * RealVector} interface is not serializable by default) but this method does
+     * serialize it specifically.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * The following example shows how a simple class with a name and a real vector
+     * should be written:
+     * &lt;pre&gt;&lt;code&gt;
+     * public class NamedVector implements Serializable {
+     *
+     *     private final String name;
+     *     private final transient RealVector coefficients;
+     *
+     *     // omitted constructors, getters ...
+     *
+     *     private void writeObject(ObjectOutputStream oos) throws IOException {
+     *         oos.defaultWriteObject();  // takes care of name field
+     *         MatrixUtils.serializeRealVector(coefficients, oos);
+     *     }
+     *
+     *     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+     *         ois.defaultReadObject();  // takes care of name field
+     *         MatrixUtils.deserializeRealVector(this, &quot;coefficients&quot;, ois);
+     *     }
+     *
+     * }
+     * &lt;/code&gt;&lt;/pre&gt;
+     * &lt;/p&gt;
+     *
+     * @param vector real vector to serialize
+     * @param oos stream where the real vector should be written
+     * @exception IOException if object cannot be written to stream
+     * @see #deserializeRealVector(Object, String, ObjectInputStream)
+     */
+    public static void serializeRealVector(final RealVector vector,
+                                           final ObjectOutputStream oos)
+        throws IOException {
+<span class="fc" id="L743">        final int n = vector.getDimension();</span>
+<span class="fc" id="L744">        oos.writeInt(n);</span>
+<span class="fc bfc" id="L745" title="All 2 branches covered.">        for (int i = 0; i &lt; n; ++i) {</span>
+<span class="fc" id="L746">            oos.writeDouble(vector.getEntry(i));</span>
+        }
+<span class="fc" id="L748">    }</span>
+
+    /** Deserialize  a {@link RealVector} field in a class.
+     * &lt;p&gt;
+     * This method is intended to be called from within a private
+     * &lt;code&gt;readObject&lt;/code&gt; method (after a call to
+     * &lt;code&gt;ois.defaultReadObject()&lt;/code&gt;) in a class that has a
+     * {@link RealVector} field, which should be declared &lt;code&gt;transient&lt;/code&gt;.
+     * This way, the default handling does not deserialize the vector (the {@link
+     * RealVector} interface is not serializable by default) but this method does
+     * deserialize it specifically.
+     * &lt;/p&gt;
+     * @param instance instance in which the field must be set up
+     * @param fieldName name of the field within the class (may be private and final)
+     * @param ois stream from which the real vector should be read
+     * @exception ClassNotFoundException if a class in the stream cannot be found
+     * @exception IOException if object cannot be read from the stream
+     * @see #serializeRealVector(RealVector, ObjectOutputStream)
+     */
+    public static void deserializeRealVector(final Object instance,
+                                             final String fieldName,
+                                             final ObjectInputStream ois)
+      throws ClassNotFoundException, IOException {
+        try {
+
+            // read the vector data
+<span class="fc" id="L774">            final int n = ois.readInt();</span>
+<span class="fc" id="L775">            final double[] data = new double[n];</span>
+<span class="fc bfc" id="L776" title="All 2 branches covered.">            for (int i = 0; i &lt; n; ++i) {</span>
+<span class="fc" id="L777">                data[i] = ois.readDouble();</span>
+            }
+
+            // create the instance
+<span class="fc" id="L781">            final RealVector vector = new ArrayRealVector(data, false);</span>
+
+            // set up the field
+<span class="fc" id="L784">            final java.lang.reflect.Field f =</span>
+                instance.getClass().getDeclaredField(fieldName);
+<span class="fc" id="L786">            f.setAccessible(true);</span>
+<span class="fc" id="L787">            f.set(instance, vector);</span>
+
+<span class="nc" id="L789">        } catch (NoSuchFieldException nsfe) {</span>
+<span class="nc" id="L790">            IOException ioe = new IOException();</span>
+<span class="nc" id="L791">            ioe.initCause(nsfe);</span>
+<span class="nc" id="L792">            throw ioe;</span>
+<span class="nc" id="L793">        } catch (IllegalAccessException iae) {</span>
+<span class="nc" id="L794">            IOException ioe = new IOException();</span>
+<span class="nc" id="L795">            ioe.initCause(iae);</span>
+<span class="nc" id="L796">            throw ioe;</span>
+<span class="fc" id="L797">        }</span>
+
+<span class="fc" id="L799">    }</span>
+
+    /** Serialize a {@link RealMatrix}.
+     * &lt;p&gt;
+     * This method is intended to be called from within a private
+     * &lt;code&gt;writeObject&lt;/code&gt; method (after a call to
+     * &lt;code&gt;oos.defaultWriteObject()&lt;/code&gt;) in a class that has a
+     * {@link RealMatrix} field, which should be declared &lt;code&gt;transient&lt;/code&gt;.
+     * This way, the default handling does not serialize the matrix (the {@link
+     * RealMatrix} interface is not serializable by default) but this method does
+     * serialize it specifically.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * The following example shows how a simple class with a name and a real matrix
+     * should be written:
+     * &lt;pre&gt;&lt;code&gt;
+     * public class NamedMatrix implements Serializable {
+     *
+     *     private final String name;
+     *     private final transient RealMatrix coefficients;
+     *
+     *     // omitted constructors, getters ...
+     *
+     *     private void writeObject(ObjectOutputStream oos) throws IOException {
+     *         oos.defaultWriteObject();  // takes care of name field
+     *         MatrixUtils.serializeRealMatrix(coefficients, oos);
+     *     }
+     *
+     *     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+     *         ois.defaultReadObject();  // takes care of name field
+     *         MatrixUtils.deserializeRealMatrix(this, &quot;coefficients&quot;, ois);
+     *     }
+     *
+     * }
+     * &lt;/code&gt;&lt;/pre&gt;
+     * &lt;/p&gt;
+     *
+     * @param matrix real matrix to serialize
+     * @param oos stream where the real matrix should be written
+     * @exception IOException if object cannot be written to stream
+     * @see #deserializeRealMatrix(Object, String, ObjectInputStream)
+     */
+    public static void serializeRealMatrix(final RealMatrix matrix,
+                                           final ObjectOutputStream oos)
+        throws IOException {
+<span class="fc" id="L844">        final int n = matrix.getRowDimension();</span>
+<span class="fc" id="L845">        final int m = matrix.getColumnDimension();</span>
+<span class="fc" id="L846">        oos.writeInt(n);</span>
+<span class="fc" id="L847">        oos.writeInt(m);</span>
+<span class="fc bfc" id="L848" title="All 2 branches covered.">        for (int i = 0; i &lt; n; ++i) {</span>
+<span class="fc bfc" id="L849" title="All 2 branches covered.">            for (int j = 0; j &lt; m; ++j) {</span>
+<span class="fc" id="L850">                oos.writeDouble(matrix.getEntry(i, j));</span>
+            }
+        }
+<span class="fc" id="L853">    }</span>
+
+    /** Deserialize  a {@link RealMatrix} field in a class.
+     * &lt;p&gt;
+     * This method is intended to be called from within a private
+     * &lt;code&gt;readObject&lt;/code&gt; method (after a call to
+     * &lt;code&gt;ois.defaultReadObject()&lt;/code&gt;) in a class that has a
+     * {@link RealMatrix} field, which should be declared &lt;code&gt;transient&lt;/code&gt;.
+     * This way, the default handling does not deserialize the matrix (the {@link
+     * RealMatrix} interface is not serializable by default) but this method does
+     * deserialize it specifically.
+     * &lt;/p&gt;
+     * @param instance instance in which the field must be set up
+     * @param fieldName name of the field within the class (may be private and final)
+     * @param ois stream from which the real matrix should be read
+     * @exception ClassNotFoundException if a class in the stream cannot be found
+     * @exception IOException if object cannot be read from the stream
+     * @see #serializeRealMatrix(RealMatrix, ObjectOutputStream)
+     */
+    public static void deserializeRealMatrix(final Object instance,
+                                             final String fieldName,
+                                             final ObjectInputStream ois)
+      throws ClassNotFoundException, IOException {
+        try {
+
+            // read the matrix data
+<span class="fc" id="L879">            final int n = ois.readInt();</span>
+<span class="fc" id="L880">            final int m = ois.readInt();</span>
+<span class="fc" id="L881">            final double[][] data = new double[n][m];</span>
+<span class="fc bfc" id="L882" title="All 2 branches covered.">            for (int i = 0; i &lt; n; ++i) {</span>
+<span class="fc" id="L883">                final double[] dataI = data[i];</span>
+<span class="fc bfc" id="L884" title="All 2 branches covered.">                for (int j = 0; j &lt; m; ++j) {</span>
+<span class="fc" id="L885">                    dataI[j] = ois.readDouble();</span>
+                }
+            }
+
+            // create the instance
+<span class="fc" id="L890">            final RealMatrix matrix = new Array2DRowRealMatrix(data, false);</span>
+
+            // set up the field
+<span class="fc" id="L893">            final java.lang.reflect.Field f =</span>
+                instance.getClass().getDeclaredField(fieldName);
+<span class="fc" id="L895">            f.setAccessible(true);</span>
+<span class="fc" id="L896">            f.set(instance, matrix);</span>
+
+<span class="nc" id="L898">        } catch (NoSuchFieldException nsfe) {</span>
+<span class="nc" id="L899">            IOException ioe = new IOException();</span>
+<span class="nc" id="L900">            ioe.initCause(nsfe);</span>
+<span class="nc" id="L901">            throw ioe;</span>
+<span class="nc" id="L902">        } catch (IllegalAccessException iae) {</span>
+<span class="nc" id="L903">            IOException ioe = new IOException();</span>
+<span class="nc" id="L904">            ioe.initCause(iae);</span>
+<span class="nc" id="L905">            throw ioe;</span>
+<span class="fc" id="L906">        }</span>
+<span class="fc" id="L907">    }</span>
+
+    /**Solve  a  system of composed of a Lower Triangular Matrix
+     * {@link RealMatrix}.
+     * &lt;p&gt;
+     * This method is called to solve systems of equations which are
+     * of the lower triangular form. The matrix {@link RealMatrix}
+     * is assumed, though not checked, to be in lower triangular form.
+     * The vector {@link RealVector} is overwritten with the solution.
+     * The matrix is checked that it is square and its dimensions match
+     * the length of the vector.
+     * &lt;/p&gt;
+     * @param rm RealMatrix which is lower triangular
+     * @param b  RealVector this is overwritten
+     * @throws DimensionMismatchException if the matrix and vector are not
+     * conformable
+     * @throws NonSquareMatrixException if the matrix {@code rm} is not square
+     * @throws MathArithmeticException if the absolute value of one of the diagonal
+     * coefficient of {@code rm} is lower than {@link Precision#SAFE_MIN}
+     */
+    public static void solveLowerTriangularSystem(RealMatrix rm, RealVector b)
+        throws DimensionMismatchException, MathArithmeticException,
+        NonSquareMatrixException {
+<span class="pc bpc" id="L930" title="3 of 6 branches missed.">        if ((rm == null) || (b == null) || ( rm.getRowDimension() != b.getDimension())) {</span>
+<span class="nc bnc" id="L931" title="All 4 branches missed.">            throw new DimensionMismatchException(</span>
+                    (rm == null) ? 0 : rm.getRowDimension(),
+                    (b == null) ? 0 : b.getDimension());
+        }
+<span class="pc bpc" id="L935" title="1 of 2 branches missed.">        if( rm.getColumnDimension() != rm.getRowDimension() ){</span>
+<span class="nc" id="L936">            throw new NonSquareMatrixException(rm.getRowDimension(),</span>
+                                               rm.getColumnDimension());
+        }
+<span class="fc" id="L939">        int rows = rm.getRowDimension();</span>
+<span class="fc bfc" id="L940" title="All 2 branches covered.">        for( int i = 0 ; i &lt; rows ; i++ ){</span>
+<span class="fc" id="L941">            double diag = rm.getEntry(i, i);</span>
+<span class="pc bpc" id="L942" title="1 of 2 branches missed.">            if( FastMath.abs(diag) &lt; Precision.SAFE_MIN ){</span>
+<span class="nc" id="L943">                throw new MathArithmeticException(LocalizedFormats.ZERO_DENOMINATOR);</span>
+            }
+<span class="fc" id="L945">            double bi = b.getEntry(i)/diag;</span>
+<span class="fc" id="L946">            b.setEntry(i,  bi );</span>
+<span class="fc bfc" id="L947" title="All 2 branches covered.">            for( int j = i+1; j&lt; rows; j++ ){</span>
+<span class="fc" id="L948">                b.setEntry(j, b.getEntry(j)-bi*rm.getEntry(j,i)  );</span>
+            }
+        }
+<span class="fc" id="L951">    }</span>
+
+    /** Solver a  system composed  of an Upper Triangular Matrix
+     * {@link RealMatrix}.
+     * &lt;p&gt;
+     * This method is called to solve systems of equations which are
+     * of the lower triangular form. The matrix {@link RealMatrix}
+     * is assumed, though not checked, to be in upper triangular form.
+     * The vector {@link RealVector} is overwritten with the solution.
+     * The matrix is checked that it is square and its dimensions match
+     * the length of the vector.
+     * &lt;/p&gt;
+     * @param rm RealMatrix which is upper triangular
+     * @param b  RealVector this is overwritten
+     * @throws DimensionMismatchException if the matrix and vector are not
+     * conformable
+     * @throws NonSquareMatrixException if the matrix {@code rm} is not
+     * square
+     * @throws MathArithmeticException if the absolute value of one of the diagonal
+     * coefficient of {@code rm} is lower than {@link Precision#SAFE_MIN}
+     */
+    public static void solveUpperTriangularSystem(RealMatrix rm, RealVector b)
+        throws DimensionMismatchException, MathArithmeticException,
+        NonSquareMatrixException {
+<span class="pc bpc" id="L975" title="3 of 6 branches missed.">        if ((rm == null) || (b == null) || ( rm.getRowDimension() != b.getDimension())) {</span>
+<span class="nc bnc" id="L976" title="All 4 branches missed.">            throw new DimensionMismatchException(</span>
+                    (rm == null) ? 0 : rm.getRowDimension(),
+                    (b == null) ? 0 : b.getDimension());
+        }
+<span class="pc bpc" id="L980" title="1 of 2 branches missed.">        if( rm.getColumnDimension() != rm.getRowDimension() ){</span>
+<span class="nc" id="L981">            throw new NonSquareMatrixException(rm.getRowDimension(),</span>
+                                               rm.getColumnDimension());
+        }
+<span class="fc" id="L984">        int rows = rm.getRowDimension();</span>
+<span class="fc bfc" id="L985" title="All 2 branches covered.">        for( int i = rows-1 ; i &gt;-1 ; i-- ){</span>
+<span class="fc" id="L986">            double diag = rm.getEntry(i, i);</span>
+<span class="pc bpc" id="L987" title="1 of 2 branches missed.">            if( FastMath.abs(diag) &lt; Precision.SAFE_MIN ){</span>
+<span class="nc" id="L988">                throw new MathArithmeticException(LocalizedFormats.ZERO_DENOMINATOR);</span>
+            }
+<span class="fc" id="L990">            double bi = b.getEntry(i)/diag;</span>
+<span class="fc" id="L991">            b.setEntry(i,  bi );</span>
+<span class="fc bfc" id="L992" title="All 2 branches covered.">            for( int j = i-1; j&gt;-1; j-- ){</span>
+<span class="fc" id="L993">                b.setEntry(j, b.getEntry(j)-bi*rm.getEntry(j,i)  );</span>
+            }
+        }
+<span class="fc" id="L996">    }</span>
+
+    /**
+     * Computes the inverse of the given matrix by splitting it into
+     * 4 sub-matrices.
+     *
+     * @param m Matrix whose inverse must be computed.
+     * @param splitIndex Index that determines the &quot;split&quot; line and
+     * column.
+     * The element corresponding to this index will part of the
+     * upper-left sub-matrix.
+     * @return the inverse of {@code m}.
+     * @throws NonSquareMatrixException if {@code m} is not square.
+     */
+    public static RealMatrix blockInverse(RealMatrix m,
+                                          int splitIndex) {
+<span class="fc" id="L1012">        final int n = m.getRowDimension();</span>
+<span class="pc bpc" id="L1013" title="1 of 2 branches missed.">        if (m.getColumnDimension() != n) {</span>
+<span class="nc" id="L1014">            throw new NonSquareMatrixException(m.getRowDimension(),</span>
+                                               m.getColumnDimension());
+        }
+
+<span class="fc" id="L1018">        final int splitIndex1 = splitIndex + 1;</span>
+
+<span class="fc" id="L1020">        final RealMatrix a = m.getSubMatrix(0, splitIndex, 0, splitIndex);</span>
+<span class="fc" id="L1021">        final RealMatrix b = m.getSubMatrix(0, splitIndex, splitIndex1, n - 1);</span>
+<span class="fc" id="L1022">        final RealMatrix c = m.getSubMatrix(splitIndex1, n - 1, 0, splitIndex);</span>
+<span class="fc" id="L1023">        final RealMatrix d = m.getSubMatrix(splitIndex1, n - 1, splitIndex1, n - 1);</span>
+
+<span class="fc" id="L1025">        final SingularValueDecomposition aDec = new SingularValueDecomposition(a);</span>
+<span class="fc" id="L1026">        final DecompositionSolver aSolver = aDec.getSolver();</span>
+<span class="pc bpc" id="L1027" title="1 of 2 branches missed.">        if (!aSolver.isNonSingular()) {</span>
+<span class="nc" id="L1028">            throw new SingularMatrixException();</span>
+        }
+<span class="fc" id="L1030">        final RealMatrix aInv = aSolver.getInverse();</span>
+
+<span class="fc" id="L1032">        final SingularValueDecomposition dDec = new SingularValueDecomposition(d);</span>
+<span class="fc" id="L1033">        final DecompositionSolver dSolver = dDec.getSolver();</span>
+<span class="pc bpc" id="L1034" title="1 of 2 branches missed.">        if (!dSolver.isNonSingular()) {</span>
+<span class="nc" id="L1035">            throw new SingularMatrixException();</span>
+        }
+<span class="fc" id="L1037">        final RealMatrix dInv = dSolver.getInverse();</span>
+
+<span class="fc" id="L1039">        final RealMatrix tmp1 = a.subtract(b.multiply(dInv).multiply(c));</span>
+<span class="fc" id="L1040">        final SingularValueDecomposition tmp1Dec = new SingularValueDecomposition(tmp1);</span>
+<span class="fc" id="L1041">        final DecompositionSolver tmp1Solver = tmp1Dec.getSolver();</span>
+<span class="fc bfc" id="L1042" title="All 2 branches covered.">        if (!tmp1Solver.isNonSingular()) {</span>
+<span class="fc" id="L1043">            throw new SingularMatrixException();</span>
+        }
+<span class="fc" id="L1045">        final RealMatrix result00 = tmp1Solver.getInverse();</span>
+
+<span class="fc" id="L1047">        final RealMatrix tmp2 = d.subtract(c.multiply(aInv).multiply(b));</span>
+<span class="fc" id="L1048">        final SingularValueDecomposition tmp2Dec = new SingularValueDecomposition(tmp2);</span>
+<span class="fc" id="L1049">        final DecompositionSolver tmp2Solver = tmp2Dec.getSolver();</span>
+<span class="pc bpc" id="L1050" title="1 of 2 branches missed.">        if (!tmp2Solver.isNonSingular()) {</span>
+<span class="nc" id="L1051">            throw new SingularMatrixException();</span>
+        }
+<span class="fc" id="L1053">        final RealMatrix result11 = tmp2Solver.getInverse();</span>
+
+<span class="fc" id="L1055">        final RealMatrix result01 = aInv.multiply(b).multiply(result11).scalarMultiply(-1);</span>
+<span class="fc" id="L1056">        final RealMatrix result10 = dInv.multiply(c).multiply(result00).scalarMultiply(-1);</span>
+
+<span class="fc" id="L1058">        final RealMatrix result = new Array2DRowRealMatrix(n, n);</span>
+<span class="fc" id="L1059">        result.setSubMatrix(result00.getData(), 0, 0);</span>
+<span class="fc" id="L1060">        result.setSubMatrix(result01.getData(), 0, splitIndex1);</span>
+<span class="fc" id="L1061">        result.setSubMatrix(result10.getData(), splitIndex1, 0);</span>
+<span class="fc" id="L1062">        result.setSubMatrix(result11.getData(), splitIndex1, splitIndex1);</span>
+
+<span class="fc" id="L1064">        return result;</span>
+    }
+
+    /**
+     * Computes the inverse of the given matrix.
+     * &lt;p&gt;
+     * By default, the inverse of the matrix is computed using the QR-decomposition,
+     * unless a more efficient method can be determined for the input matrix.
+     * &lt;p&gt;
+     * Note: this method will use a singularity threshold of 0,
+     * use {@link #inverse(RealMatrix, double)} if a different threshold is needed.
+     *
+     * @param matrix Matrix whose inverse shall be computed
+     * @return the inverse of {@code matrix}
+     * @throws NullArgumentException if {@code matrix} is {@code null}
+     * @throws SingularMatrixException if m is singular
+     * @throws NonSquareMatrixException if matrix is not square
+     * @since 3.3
+     */
+    public static RealMatrix inverse(RealMatrix matrix)
+            throws NullArgumentException, SingularMatrixException, NonSquareMatrixException {
+<span class="fc" id="L1085">        return inverse(matrix, 0);</span>
+    }
+
+    /**
+     * Computes the inverse of the given matrix.
+     * &lt;p&gt;
+     * By default, the inverse of the matrix is computed using the QR-decomposition,
+     * unless a more efficient method can be determined for the input matrix.
+     *
+     * @param matrix Matrix whose inverse shall be computed
+     * @param threshold Singularity threshold
+     * @return the inverse of {@code m}
+     * @throws NullArgumentException if {@code matrix} is {@code null}
+     * @throws SingularMatrixException if matrix is singular
+     * @throws NonSquareMatrixException if matrix is not square
+     * @since 3.3
+     */
+    public static RealMatrix inverse(RealMatrix matrix, double threshold)
+            throws NullArgumentException, SingularMatrixException, NonSquareMatrixException {
+
+<span class="fc" id="L1105">        MathUtils.checkNotNull(matrix);</span>
+
+<span class="fc bfc" id="L1107" title="All 2 branches covered.">        if (!matrix.isSquare()) {</span>
+<span class="fc" id="L1108">            throw new NonSquareMatrixException(matrix.getRowDimension(),</span>
+                                               matrix.getColumnDimension());
+        }
+
+<span class="fc bfc" id="L1112" title="All 2 branches covered.">        if (matrix instanceof DiagonalMatrix) {</span>
+<span class="fc" id="L1113">            return ((DiagonalMatrix) matrix).inverse(threshold);</span>
+        } else {
+<span class="fc" id="L1115">            QRDecomposition decomposition = new QRDecomposition(matrix, threshold);</span>
+<span class="fc" id="L1116">            return decomposition.getSolver().getInverse();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

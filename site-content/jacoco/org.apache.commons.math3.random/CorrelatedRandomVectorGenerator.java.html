@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CorrelatedRandomVectorGenerator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.random</a> &gt; <span class="el_source">CorrelatedRandomVectorGenerator.java</span></div><h1>CorrelatedRandomVectorGenerator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.random;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.RectangularCholeskyDecomposition;
+
+/**
+ * A {@link RandomVectorGenerator} that generates vectors with with
+ * correlated components.
+ * &lt;p&gt;Random vectors with correlated components are built by combining
+ * the uncorrelated components of another random vector in such a way that
+ * the resulting correlations are the ones specified by a positive
+ * definite covariance matrix.&lt;/p&gt;
+ * &lt;p&gt;The main use for correlated random vector generation is for Monte-Carlo
+ * simulation of physical problems with several variables, for example to
+ * generate error vectors to be added to a nominal vector. A particularly
+ * interesting case is when the generated vector should be drawn from a &lt;a
+ * href=&quot;http://en.wikipedia.org/wiki/Multivariate_normal_distribution&quot;&gt;
+ * Multivariate Normal Distribution&lt;/a&gt;. The approach using a Cholesky
+ * decomposition is quite usual in this case. However, it can be extended
+ * to other cases as long as the underlying random generator provides
+ * {@link NormalizedRandomGenerator normalized values} like {@link
+ * GaussianRandomGenerator} or {@link UniformRandomGenerator}.&lt;/p&gt;
+ * &lt;p&gt;Sometimes, the covariance matrix for a given simulation is not
+ * strictly positive definite. This means that the correlations are
+ * not all independent from each other. In this case, however, the non
+ * strictly positive elements found during the Cholesky decomposition
+ * of the covariance matrix should not be negative either, they
+ * should be null. Another non-conventional extension handling this case
+ * is used here. Rather than computing &lt;code&gt;C = U&lt;sup&gt;T&lt;/sup&gt;.U&lt;/code&gt;
+ * where &lt;code&gt;C&lt;/code&gt; is the covariance matrix and &lt;code&gt;U&lt;/code&gt;
+ * is an upper-triangular matrix, we compute &lt;code&gt;C = B.B&lt;sup&gt;T&lt;/sup&gt;&lt;/code&gt;
+ * where &lt;code&gt;B&lt;/code&gt; is a rectangular matrix having
+ * more rows than columns. The number of columns of &lt;code&gt;B&lt;/code&gt; is
+ * the rank of the covariance matrix, and it is the dimension of the
+ * uncorrelated random vector that is needed to compute the component
+ * of the correlated vector. This class handles this situation
+ * automatically.&lt;/p&gt;
+ *
+ * @since 1.2
+ */
+
+public class CorrelatedRandomVectorGenerator
+    implements RandomVectorGenerator {
+    /** Mean vector. */
+    private final double[] mean;
+    /** Underlying generator. */
+    private final NormalizedRandomGenerator generator;
+    /** Storage for the normalized vector. */
+    private final double[] normalized;
+    /** Root of the covariance matrix. */
+    private final RealMatrix root;
+
+    /**
+     * Builds a correlated random vector generator from its mean
+     * vector and covariance matrix.
+     *
+     * @param mean Expected mean values for all components.
+     * @param covariance Covariance matrix.
+     * @param small Diagonal elements threshold under which  column are
+     * considered to be dependent on previous ones and are discarded
+     * @param generator underlying generator for uncorrelated normalized
+     * components.
+     * @throws org.apache.commons.math3.linear.NonPositiveDefiniteMatrixException
+     * if the covariance matrix is not strictly positive definite.
+     * @throws DimensionMismatchException if the mean and covariance
+     * arrays dimensions do not match.
+     */
+    public CorrelatedRandomVectorGenerator(double[] mean,
+                                           RealMatrix covariance, double small,
+<span class="fc" id="L88">                                           NormalizedRandomGenerator generator) {</span>
+<span class="fc" id="L89">        int order = covariance.getRowDimension();</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        if (mean.length != order) {</span>
+<span class="nc" id="L91">            throw new DimensionMismatchException(mean.length, order);</span>
+        }
+<span class="fc" id="L93">        this.mean = mean.clone();</span>
+
+<span class="fc" id="L95">        final RectangularCholeskyDecomposition decomposition =</span>
+            new RectangularCholeskyDecomposition(covariance, small);
+<span class="fc" id="L97">        root = decomposition.getRootMatrix();</span>
+
+<span class="fc" id="L99">        this.generator = generator;</span>
+<span class="fc" id="L100">        normalized = new double[decomposition.getRank()];</span>
+
+<span class="fc" id="L102">    }</span>
+
+    /**
+     * Builds a null mean random correlated vector generator from its
+     * covariance matrix.
+     *
+     * @param covariance Covariance matrix.
+     * @param small Diagonal elements threshold under which  column are
+     * considered to be dependent on previous ones and are discarded.
+     * @param generator Underlying generator for uncorrelated normalized
+     * components.
+     * @throws org.apache.commons.math3.linear.NonPositiveDefiniteMatrixException
+     * if the covariance matrix is not strictly positive definite.
+     */
+    public CorrelatedRandomVectorGenerator(RealMatrix covariance, double small,
+<span class="nc" id="L117">                                           NormalizedRandomGenerator generator) {</span>
+<span class="nc" id="L118">        int order = covariance.getRowDimension();</span>
+<span class="nc" id="L119">        mean = new double[order];</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        for (int i = 0; i &lt; order; ++i) {</span>
+<span class="nc" id="L121">            mean[i] = 0;</span>
+        }
+
+<span class="nc" id="L124">        final RectangularCholeskyDecomposition decomposition =</span>
+            new RectangularCholeskyDecomposition(covariance, small);
+<span class="nc" id="L126">        root = decomposition.getRootMatrix();</span>
+
+<span class="nc" id="L128">        this.generator = generator;</span>
+<span class="nc" id="L129">        normalized = new double[decomposition.getRank()];</span>
+
+<span class="nc" id="L131">    }</span>
+
+    /** Get the underlying normalized components generator.
+     * @return underlying uncorrelated components generator
+     */
+    public NormalizedRandomGenerator getGenerator() {
+<span class="nc" id="L137">        return generator;</span>
+    }
+
+    /** Get the rank of the covariance matrix.
+     * The rank is the number of independent rows in the covariance
+     * matrix, it is also the number of columns of the root matrix.
+     * @return rank of the square matrix.
+     * @see #getRootMatrix()
+     */
+    public int getRank() {
+<span class="fc" id="L147">        return normalized.length;</span>
+    }
+
+    /** Get the root of the covariance matrix.
+     * The root is the rectangular matrix &lt;code&gt;B&lt;/code&gt; such that
+     * the covariance matrix is equal to &lt;code&gt;B.B&lt;sup&gt;T&lt;/sup&gt;&lt;/code&gt;
+     * @return root of the square matrix
+     * @see #getRank()
+     */
+    public RealMatrix getRootMatrix() {
+<span class="fc" id="L157">        return root;</span>
+    }
+
+    /** Generate a correlated random vector.
+     * @return a random vector as an array of double. The returned array
+     * is created at each call, the caller can do what it wants with it.
+     */
+    public double[] nextVector() {
+
+        // generate uncorrelated vector
+<span class="fc bfc" id="L167" title="All 2 branches covered.">        for (int i = 0; i &lt; normalized.length; ++i) {</span>
+<span class="fc" id="L168">            normalized[i] = generator.nextNormalizedDouble();</span>
+        }
+
+        // compute correlated vector
+<span class="fc" id="L172">        double[] correlated = new double[mean.length];</span>
+<span class="fc bfc" id="L173" title="All 2 branches covered.">        for (int i = 0; i &lt; correlated.length; ++i) {</span>
+<span class="fc" id="L174">            correlated[i] = mean[i];</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">            for (int j = 0; j &lt; root.getColumnDimension(); ++j) {</span>
+<span class="fc" id="L176">                correlated[i] += root.getEntry(i, j) * normalized[j];</span>
+            }
+        }
+
+<span class="fc" id="L180">        return correlated;</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

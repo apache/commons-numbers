@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>StorelessCovariance.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.correlation</a> &gt; <span class="el_source">StorelessCovariance.java</span></div><h1>StorelessCovariance.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.correlation;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MathUnsupportedOperationException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.RealMatrix;
+
+/**
+ * Covariance implementation that does not require input data to be
+ * stored in memory. The size of the covariance matrix is specified in the
+ * constructor. Specific elements of the matrix are incrementally updated with
+ * calls to incrementRow() or increment Covariance().
+ *
+ * &lt;p&gt;This class is based on a paper written by Philippe P&amp;eacute;bay:
+ * &lt;a href=&quot;http://prod.sandia.gov/techlib/access-control.cgi/2008/086212.pdf&quot;&gt;
+ * Formulas for Robust, One-Pass Parallel Computation of Covariances and
+ * Arbitrary-Order Statistical Moments&lt;/a&gt;, 2008, Technical Report SAND2008-6212,
+ * Sandia National Laboratories.&lt;/p&gt;
+ *
+ * &lt;p&gt;Note: the underlying covariance matrix is symmetric, thus only the
+ * upper triangular part of the matrix is stored and updated each increment.&lt;/p&gt;
+ *
+ * @since 3.0
+ */
+public class StorelessCovariance extends Covariance {
+
+    /** the square covariance matrix (upper triangular part) */
+    private StorelessBivariateCovariance[] covMatrix;
+
+    /** dimension of the square covariance matrix */
+    private int dimension;
+
+    /**
+     * Create a bias corrected covariance matrix with a given dimension.
+     *
+     * @param dim the dimension of the square covariance matrix
+     */
+    public StorelessCovariance(final int dim) {
+<span class="fc" id="L56">        this(dim, true);</span>
+<span class="fc" id="L57">    }</span>
+
+    /**
+     * Create a covariance matrix with a given number of rows and columns and the
+     * indicated bias correction.
+     *
+     * @param dim the dimension of the covariance matrix
+     * @param biasCorrected if &lt;code&gt;true&lt;/code&gt; the covariance estimate is corrected
+     * for bias, i.e. n-1 in the denominator, otherwise there is no bias correction,
+     * i.e. n in the denominator.
+     */
+<span class="fc" id="L68">    public StorelessCovariance(final int dim, final boolean biasCorrected) {</span>
+<span class="fc" id="L69">        dimension = dim;</span>
+<span class="fc" id="L70">        covMatrix = new StorelessBivariateCovariance[dimension * (dimension + 1) / 2];</span>
+<span class="fc" id="L71">        initializeMatrix(biasCorrected);</span>
+<span class="fc" id="L72">    }</span>
+
+    /**
+     * Initialize the internal two-dimensional array of
+     * {@link StorelessBivariateCovariance} instances.
+     *
+     * @param biasCorrected if the covariance estimate shall be corrected for bias
+     */
+    private void initializeMatrix(final boolean biasCorrected) {
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        for(int i = 0; i &lt; dimension; i++){</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">            for(int j = 0; j &lt; dimension; j++){</span>
+<span class="fc" id="L83">                setElement(i, j, new StorelessBivariateCovariance(biasCorrected));</span>
+            }
+        }
+<span class="fc" id="L86">    }</span>
+
+    /**
+     * Returns the index (i, j) translated into the one-dimensional
+     * array used to store the upper triangular part of the symmetric
+     * covariance matrix.
+     *
+     * @param i the row index
+     * @param j the column index
+     * @return the corresponding index in the matrix array
+     */
+    private int indexOf(final int i, final int j) {
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        return j &lt; i ? i * (i + 1) / 2 + j : j * (j + 1) / 2 + i;</span>
+    }
+
+    /**
+     * Gets the element at index (i, j) from the covariance matrix
+     * @param i the row index
+     * @param j the column index
+     * @return the {@link StorelessBivariateCovariance} element at the given index
+     */
+    private StorelessBivariateCovariance getElement(final int i, final int j) {
+<span class="fc" id="L108">        return covMatrix[indexOf(i, j)];</span>
+    }
+
+    /**
+     * Sets the covariance element at index (i, j) in the covariance matrix
+     * @param i the row index
+     * @param j the column index
+     * @param cov the {@link StorelessBivariateCovariance} element to be set
+     */
+    private void setElement(final int i, final int j,
+                            final StorelessBivariateCovariance cov) {
+<span class="fc" id="L119">        covMatrix[indexOf(i, j)] = cov;</span>
+<span class="fc" id="L120">    }</span>
+
+    /**
+     * Get the covariance for an individual element of the covariance matrix.
+     *
+     * @param xIndex row index in the covariance matrix
+     * @param yIndex column index in the covariance matrix
+     * @return the covariance of the given element
+     * @throws NumberIsTooSmallException if the number of observations
+     * in the cell is &amp;lt; 2
+     */
+    public double getCovariance(final int xIndex,
+                                final int yIndex)
+        throws NumberIsTooSmallException {
+
+<span class="nc" id="L135">        return getElement(xIndex, yIndex).getResult();</span>
+
+    }
+
+    /**
+     * Increment the covariance matrix with one row of data.
+     *
+     * @param data array representing one row of data.
+     * @throws DimensionMismatchException if the length of &lt;code&gt;rowData&lt;/code&gt;
+     * does not match with the covariance matrix
+     */
+    public void increment(final double[] data)
+        throws DimensionMismatchException {
+
+<span class="fc" id="L149">        int length = data.length;</span>
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">        if (length != dimension) {</span>
+<span class="nc" id="L151">            throw new DimensionMismatchException(length, dimension);</span>
+        }
+
+        // only update the upper triangular part of the covariance matrix
+        // as only these parts are actually stored
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        for (int i = 0; i &lt; length; i++){</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">            for (int j = i; j &lt; length; j++){</span>
+<span class="fc" id="L158">                getElement(i, j).increment(data[i], data[j]);</span>
+            }
+        }
+
+<span class="fc" id="L162">    }</span>
+
+    /**
+     * Appends {@code sc} to this, effectively aggregating the computations in {@code sc}
+     * with this.  After invoking this method, covariances returned should be close
+     * to what would have been obtained by performing all of the {@link #increment(double[])}
+     * operations in {@code sc} directly on this.
+     *
+     * @param sc externally computed StorelessCovariance to add to this
+     * @throws DimensionMismatchException if the dimension of sc does not match this
+     * @since 3.3
+     */
+    public void append(StorelessCovariance sc) throws DimensionMismatchException {
+<span class="nc bnc" id="L175" title="All 2 branches missed.">        if (sc.dimension != dimension) {</span>
+<span class="nc" id="L176">            throw new DimensionMismatchException(sc.dimension, dimension);</span>
+        }
+
+        // only update the upper triangular part of the covariance matrix
+        // as only these parts are actually stored
+<span class="nc bnc" id="L181" title="All 2 branches missed.">        for (int i = 0; i &lt; dimension; i++) {</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">            for (int j = i; j &lt; dimension; j++) {</span>
+<span class="nc" id="L183">                getElement(i, j).append(sc.getElement(i, j));</span>
+            }
+        }
+<span class="nc" id="L186">    }</span>
+
+    /**
+     * {@inheritDoc}
+     * @throws NumberIsTooSmallException if the number of observations
+     * in a cell is &amp;lt; 2
+     */
+    @Override
+    public RealMatrix getCovarianceMatrix() throws NumberIsTooSmallException {
+<span class="fc" id="L195">        return MatrixUtils.createRealMatrix(getData());</span>
+    }
+
+    /**
+     * Return the covariance matrix as two-dimensional array.
+     *
+     * @return a two-dimensional double array of covariance values
+     * @throws NumberIsTooSmallException if the number of observations
+     * for a cell is &amp;lt; 2
+     */
+    public double[][] getData() throws NumberIsTooSmallException {
+<span class="fc" id="L206">        final double[][] data = new double[dimension][dimension];</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        for (int i = 0; i &lt; dimension; i++) {</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">            for (int j = 0; j &lt; dimension; j++) {</span>
+<span class="fc" id="L209">                data[i][j] = getElement(i, j).getResult();</span>
+            }
+        }
+<span class="fc" id="L212">        return data;</span>
+    }
+
+    /**
+     * This {@link Covariance} method is not supported by a {@link StorelessCovariance},
+     * since the number of bivariate observations does not have to be the same for different
+     * pairs of covariates - i.e., N as defined in {@link Covariance#getN()} is undefined.
+     *
+     * @return nothing as this implementation always throws a
+     * {@link MathUnsupportedOperationException}
+     * @throws MathUnsupportedOperationException in all cases
+     */
+    @Override
+    public int getN()
+        throws MathUnsupportedOperationException {
+<span class="nc" id="L227">        throw new MathUnsupportedOperationException();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

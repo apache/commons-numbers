@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Logit.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.function</a> &gt; <span class="el_source">Logit.java</span></div><h1>Logit.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.analysis.function;
+
+import org.apache.commons.math3.analysis.DifferentiableUnivariateFunction;
+import org.apache.commons.math3.analysis.FunctionUtils;
+import org.apache.commons.math3.analysis.ParametricUnivariateFunction;
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;
+import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * &lt;a href=&quot;http://en.wikipedia.org/wiki/Logit&quot;&gt;
+ *  Logit&lt;/a&gt; function.
+ * It is the inverse of the {@link Sigmoid sigmoid} function.
+ *
+ * @since 3.0
+ */
+public class Logit implements UnivariateDifferentiableFunction, DifferentiableUnivariateFunction {
+    /** Lower bound. */
+    private final double lo;
+    /** Higher bound. */
+    private final double hi;
+
+    /**
+     * Usual logit function, where the lower bound is 0 and the higher
+     * bound is 1.
+     */
+    public Logit() {
+<span class="nc" id="L49">        this(0, 1);</span>
+<span class="nc" id="L50">    }</span>
+
+    /**
+     * Logit function.
+     *
+     * @param lo Lower bound of the function domain.
+     * @param hi Higher bound of the function domain.
+     */
+    public Logit(double lo,
+<span class="fc" id="L59">                 double hi) {</span>
+<span class="fc" id="L60">        this.lo = lo;</span>
+<span class="fc" id="L61">        this.hi = hi;</span>
+<span class="fc" id="L62">    }</span>
+
+    /** {@inheritDoc} */
+    public double value(double x)
+        throws OutOfRangeException {
+<span class="fc" id="L67">        return value(x, lo, hi);</span>
+    }
+
+    /** {@inheritDoc}
+     * @deprecated as of 3.1, replaced by {@link #value(DerivativeStructure)}
+     */
+    @Deprecated
+    public UnivariateFunction derivative() {
+<span class="nc" id="L75">        return FunctionUtils.toDifferentiableUnivariateFunction(this).derivative();</span>
+    }
+
+    /**
+     * Parametric function where the input array contains the parameters of
+     * the logit function, ordered as follows:
+     * &lt;ul&gt;
+     *  &lt;li&gt;Lower bound&lt;/li&gt;
+     *  &lt;li&gt;Higher bound&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+<span class="fc" id="L86">    public static class Parametric implements ParametricUnivariateFunction {</span>
+        /**
+         * Computes the value of the logit at {@code x}.
+         *
+         * @param x Value for which the function must be computed.
+         * @param param Values of lower bound and higher bounds.
+         * @return the value of the function.
+         * @throws NullArgumentException if {@code param} is {@code null}.
+         * @throws DimensionMismatchException if the size of {@code param} is
+         * not 2.
+         */
+        public double value(double x, double ... param)
+            throws NullArgumentException,
+                   DimensionMismatchException {
+<span class="fc" id="L100">            validateParameters(param);</span>
+<span class="fc" id="L101">            return Logit.value(x, param[0], param[1]);</span>
+        }
+
+        /**
+         * Computes the value of the gradient at {@code x}.
+         * The components of the gradient vector are the partial
+         * derivatives of the function with respect to each of the
+         * &lt;em&gt;parameters&lt;/em&gt; (lower bound and higher bound).
+         *
+         * @param x Value at which the gradient must be computed.
+         * @param param Values for lower and higher bounds.
+         * @return the gradient vector at {@code x}.
+         * @throws NullArgumentException if {@code param} is {@code null}.
+         * @throws DimensionMismatchException if the size of {@code param} is
+         * not 2.
+         */
+        public double[] gradient(double x, double ... param)
+            throws NullArgumentException,
+                   DimensionMismatchException {
+<span class="nc" id="L120">            validateParameters(param);</span>
+
+<span class="nc" id="L122">            final double lo = param[0];</span>
+<span class="nc" id="L123">            final double hi = param[1];</span>
+
+<span class="nc" id="L125">            return new double[] { 1 / (lo - x), 1 / (hi - x) };</span>
+        }
+
+        /**
+         * Validates parameters to ensure they are appropriate for the evaluation of
+         * the {@link #value(double,double[])} and {@link #gradient(double,double[])}
+         * methods.
+         *
+         * @param param Values for lower and higher bounds.
+         * @throws NullArgumentException if {@code param} is {@code null}.
+         * @throws DimensionMismatchException if the size of {@code param} is
+         * not 2.
+         */
+        private void validateParameters(double[] param)
+            throws NullArgumentException,
+                   DimensionMismatchException {
+<span class="fc bfc" id="L141" title="All 2 branches covered.">            if (param == null) {</span>
+<span class="fc" id="L142">                throw new NullArgumentException();</span>
+            }
+<span class="fc bfc" id="L144" title="All 2 branches covered.">            if (param.length != 2) {</span>
+<span class="fc" id="L145">                throw new DimensionMismatchException(param.length, 2);</span>
+            }
+<span class="fc" id="L147">        }</span>
+    }
+
+    /**
+     * @param x Value at which to compute the logit.
+     * @param lo Lower bound.
+     * @param hi Higher bound.
+     * @return the value of the logit function at {@code x}.
+     * @throws OutOfRangeException if {@code x &lt; lo} or {@code x &gt; hi}.
+     */
+    private static double value(double x,
+                                double lo,
+                                double hi)
+        throws OutOfRangeException {
+<span class="fc bfc" id="L161" title="All 4 branches covered.">        if (x &lt; lo || x &gt; hi) {</span>
+<span class="fc" id="L162">            throw new OutOfRangeException(x, lo, hi);</span>
+        }
+<span class="fc" id="L164">        return FastMath.log((x - lo) / (hi - x));</span>
+    }
+
+    /** {@inheritDoc}
+     * @since 3.1
+     * @exception OutOfRangeException if parameter is outside of function domain
+     */
+    public DerivativeStructure value(final DerivativeStructure t)
+        throws OutOfRangeException {
+<span class="fc" id="L173">        final double x = t.getValue();</span>
+<span class="fc bfc" id="L174" title="All 4 branches covered.">        if (x &lt; lo || x &gt; hi) {</span>
+<span class="fc" id="L175">            throw new OutOfRangeException(x, lo, hi);</span>
+        }
+<span class="fc" id="L177">        double[] f = new double[t.getOrder() + 1];</span>
+
+        // function value
+<span class="fc" id="L180">        f[0] = FastMath.log((x - lo) / (hi - x));</span>
+
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        if (Double.isInfinite(f[0])) {</span>
+
+<span class="fc bfc" id="L184" title="All 2 branches covered.">            if (f.length &gt; 1) {</span>
+<span class="fc" id="L185">                f[1] = Double.POSITIVE_INFINITY;</span>
+            }
+            // fill the array with infinities
+            // (for x close to lo the signs will flip between -inf and +inf,
+            //  for x close to hi the signs will always be +inf)
+            // this is probably overkill, since the call to compose at the end
+            // of the method will transform most infinities into NaN ...
+<span class="fc bfc" id="L192" title="All 2 branches covered.">            for (int i = 2; i &lt; f.length; ++i) {</span>
+<span class="fc" id="L193">                f[i] = f[i - 2];</span>
+            }
+
+        } else {
+
+            // function derivatives
+<span class="fc" id="L199">            final double invL = 1.0 / (x - lo);</span>
+<span class="fc" id="L200">            double xL = invL;</span>
+<span class="fc" id="L201">            final double invH = 1.0 / (hi - x);</span>
+<span class="fc" id="L202">            double xH = invH;</span>
+<span class="fc bfc" id="L203" title="All 2 branches covered.">            for (int i = 1; i &lt; f.length; ++i) {</span>
+<span class="fc" id="L204">                f[i] = xL + xH;</span>
+<span class="fc" id="L205">                xL  *= -i * invL;</span>
+<span class="fc" id="L206">                xH  *=  i * invH;</span>
+            }
+        }
+
+<span class="fc" id="L210">        return t.compose(f);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

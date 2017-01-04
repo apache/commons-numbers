@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SimpleCurveFitter.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.fitting</a> &gt; <span class="el_source">SimpleCurveFitter.java</span></div><h1>SimpleCurveFitter.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.fitting;
+
+import java.util.Collection;
+
+import org.apache.commons.math3.analysis.ParametricUnivariateFunction;
+import org.apache.commons.math3.fitting.leastsquares.LeastSquaresBuilder;
+import org.apache.commons.math3.fitting.leastsquares.LeastSquaresProblem;
+import org.apache.commons.math3.linear.DiagonalMatrix;
+
+/**
+ * Fits points to a user-defined {@link ParametricUnivariateFunction function}.
+ *
+ * @since 3.4
+ */
+public class SimpleCurveFitter extends AbstractCurveFitter {
+    /** Function to fit. */
+    private final ParametricUnivariateFunction function;
+    /** Initial guess for the parameters. */
+    private final double[] initialGuess;
+    /** Maximum number of iterations of the optimization algorithm. */
+    private final int maxIter;
+
+    /**
+     * Contructor used by the factory methods.
+     *
+     * @param function Function to fit.
+     * @param initialGuess Initial guess. Cannot be {@code null}. Its length must
+     * be consistent with the number of parameters of the {@code function} to fit.
+     * @param maxIter Maximum number of iterations of the optimization algorithm.
+     */
+    private SimpleCurveFitter(ParametricUnivariateFunction function,
+                              double[] initialGuess,
+<span class="fc" id="L49">                              int maxIter) {</span>
+<span class="fc" id="L50">        this.function = function;</span>
+<span class="fc" id="L51">        this.initialGuess = initialGuess;</span>
+<span class="fc" id="L52">        this.maxIter = maxIter;</span>
+<span class="fc" id="L53">    }</span>
+
+    /**
+     * Creates a curve fitter.
+     * The maximum number of iterations of the optimization algorithm is set
+     * to {@link Integer#MAX_VALUE}.
+     *
+     * @param f Function to fit.
+     * @param start Initial guess for the parameters.  Cannot be {@code null}.
+     * Its length must be consistent with the number of parameters of the
+     * function to fit.
+     * @return a curve fitter.
+     *
+     * @see #withStartPoint(double[])
+     * @see #withMaxIterations(int)
+     */
+    public static SimpleCurveFitter create(ParametricUnivariateFunction f,
+                                           double[] start) {
+<span class="fc" id="L71">        return new SimpleCurveFitter(f, start, Integer.MAX_VALUE);</span>
+    }
+
+    /**
+     * Configure the start point (initial guess).
+     * @param newStart new start point (initial guess)
+     * @return a new instance.
+     */
+    public SimpleCurveFitter withStartPoint(double[] newStart) {
+<span class="nc" id="L80">        return new SimpleCurveFitter(function,</span>
+                                     newStart.clone(),
+                                     maxIter);
+    }
+
+    /**
+     * Configure the maximum number of iterations.
+     * @param newMaxIter maximum number of iterations
+     * @return a new instance.
+     */
+    public SimpleCurveFitter withMaxIterations(int newMaxIter) {
+<span class="nc" id="L91">        return new SimpleCurveFitter(function,</span>
+                                     initialGuess,
+                                     newMaxIter);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected LeastSquaresProblem getProblem(Collection&lt;WeightedObservedPoint&gt; observations) {
+        // Prepare least-squares problem.
+<span class="fc" id="L100">        final int len = observations.size();</span>
+<span class="fc" id="L101">        final double[] target  = new double[len];</span>
+<span class="fc" id="L102">        final double[] weights = new double[len];</span>
+
+<span class="fc" id="L104">        int count = 0;</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        for (WeightedObservedPoint obs : observations) {</span>
+<span class="fc" id="L106">            target[count]  = obs.getY();</span>
+<span class="fc" id="L107">            weights[count] = obs.getWeight();</span>
+<span class="fc" id="L108">            ++count;</span>
+<span class="fc" id="L109">        }</span>
+
+<span class="fc" id="L111">        final AbstractCurveFitter.TheoreticalValuesFunction model</span>
+            = new AbstractCurveFitter.TheoreticalValuesFunction(function,
+                                                                observations);
+
+        // Create an optimizer for fitting the curve to the observed points.
+<span class="fc" id="L116">        return new LeastSquaresBuilder().</span>
+                maxEvaluations(Integer.MAX_VALUE).
+                maxIterations(maxIter).
+                start(initialGuess).
+                target(target).
+                weight(new DiagonalMatrix(weights)).
+                model(model.getModelFunction(), model.getModelFunctionJacobian()).
+                build();
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

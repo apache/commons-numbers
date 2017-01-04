@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>VectorialMean.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive.moment</a> &gt; <span class="el_source">VectorialMean.java</span></div><h1>VectorialMean.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive.moment;
+
+import java.io.Serializable;
+import java.util.Arrays;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+
+/**
+ * Returns the arithmetic mean of the available vectors.
+ * @since 1.2
+ */
+public class VectorialMean implements Serializable {
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = 8223009086481006892L;
+
+    /** Means for each component. */
+    private final Mean[] means;
+
+    /** Constructs a VectorialMean.
+     * @param dimension vectors dimension
+     */
+<span class="fc" id="L39">    public VectorialMean(int dimension) {</span>
+<span class="fc" id="L40">        means = new Mean[dimension];</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        for (int i = 0; i &lt; dimension; ++i) {</span>
+<span class="fc" id="L42">            means[i] = new Mean();</span>
+        }
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * Add a new vector to the sample.
+     * @param v vector to add
+     * @throws DimensionMismatchException if the vector does not have the right dimension
+     */
+    public void increment(double[] v) throws DimensionMismatchException {
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (v.length != means.length) {</span>
+<span class="fc" id="L53">            throw new DimensionMismatchException(v.length, means.length);</span>
+        }
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        for (int i = 0; i &lt; v.length; ++i) {</span>
+<span class="fc" id="L56">            means[i].increment(v[i]);</span>
+        }
+<span class="fc" id="L58">    }</span>
+
+    /**
+     * Get the mean vector.
+     * @return mean vector
+     */
+    public double[] getResult() {
+<span class="fc" id="L65">        double[] result = new double[means.length];</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        for (int i = 0; i &lt; result.length; ++i) {</span>
+<span class="fc" id="L67">            result[i] = means[i].getResult();</span>
+        }
+<span class="fc" id="L69">        return result;</span>
+    }
+
+    /**
+     * Get the number of vectors in the sample.
+     * @return number of vectors in the sample
+     */
+    public long getN() {
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        return (means.length == 0) ? 0 : means[0].getN();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+<span class="nc" id="L83">        final int prime = 31;</span>
+<span class="nc" id="L84">        int result = 1;</span>
+<span class="nc" id="L85">        result = prime * result + Arrays.hashCode(means);</span>
+<span class="nc" id="L86">        return result;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(Object obj) {
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        if (this == obj) {</span>
+<span class="nc" id="L93">            return true;</span>
+        }
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">        if (!(obj instanceof VectorialMean)) {</span>
+<span class="nc" id="L96">            return false;</span>
+        }
+<span class="fc" id="L98">        VectorialMean other = (VectorialMean) obj;</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        if (!Arrays.equals(means, other.means)) {</span>
+<span class="nc" id="L100">            return false;</span>
+        }
+<span class="fc" id="L102">        return true;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

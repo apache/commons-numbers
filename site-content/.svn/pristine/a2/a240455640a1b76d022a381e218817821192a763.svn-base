@@ -1,0 +1,971 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>EigenDecomposition.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.linear</a> &gt; <span class="el_source">EigenDecomposition.java</span></div><h1>EigenDecomposition.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.linear;
+
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.exception.MathArithmeticException;
+import org.apache.commons.math3.exception.MathUnsupportedOperationException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.util.Precision;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * Calculates the eigen decomposition of a real matrix.
+ * &lt;p&gt;The eigen decomposition of matrix A is a set of two matrices:
+ * V and D such that A = V &amp;times; D &amp;times; V&lt;sup&gt;T&lt;/sup&gt;.
+ * A, V and D are all m &amp;times; m matrices.&lt;/p&gt;
+ * &lt;p&gt;This class is similar in spirit to the &lt;code&gt;EigenvalueDecomposition&lt;/code&gt;
+ * class from the &lt;a href=&quot;http://math.nist.gov/javanumerics/jama/&quot;&gt;JAMA&lt;/a&gt;
+ * library, with the following changes:&lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;a {@link #getVT() getVt} method has been added,&lt;/li&gt;
+ *   &lt;li&gt;two {@link #getRealEigenvalue(int) getRealEigenvalue} and {@link #getImagEigenvalue(int)
+ *   getImagEigenvalue} methods to pick up a single eigenvalue have been added,&lt;/li&gt;
+ *   &lt;li&gt;a {@link #getEigenvector(int) getEigenvector} method to pick up a single
+ *   eigenvector has been added,&lt;/li&gt;
+ *   &lt;li&gt;a {@link #getDeterminant() getDeterminant} method has been added.&lt;/li&gt;
+ *   &lt;li&gt;a {@link #getSolver() getSolver} method has been added.&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;p&gt;
+ * As of 3.1, this class supports general real matrices (both symmetric and non-symmetric):
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * If A is symmetric, then A = V*D*V' where the eigenvalue matrix D is diagonal and the eigenvector
+ * matrix V is orthogonal, i.e. A = V.multiply(D.multiply(V.transpose())) and
+ * V.multiply(V.transpose()) equals the identity matrix.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * If A is not symmetric, then the eigenvalue matrix D is block diagonal with the real eigenvalues
+ * in 1-by-1 blocks and any complex eigenvalues, lambda + i*mu, in 2-by-2 blocks:
+ * &lt;pre&gt;
+ *    [lambda, mu    ]
+ *    [   -mu, lambda]
+ * &lt;/pre&gt;
+ * The columns of V represent the eigenvectors in the sense that A*V = V*D,
+ * i.e. A.multiply(V) equals V.multiply(D).
+ * The matrix V may be badly conditioned, or even singular, so the validity of the equation
+ * A = V*D*inverse(V) depends upon the condition of V.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * This implementation is based on the paper by A. Drubrulle, R.S. Martin and
+ * J.H. Wilkinson &quot;The Implicit QL Algorithm&quot; in Wilksinson and Reinsch (1971)
+ * Handbook for automatic computation, vol. 2, Linear algebra, Springer-Verlag,
+ * New-York
+ * &lt;/p&gt;
+ * @see &lt;a href=&quot;http://mathworld.wolfram.com/EigenDecomposition.html&quot;&gt;MathWorld&lt;/a&gt;
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Eigendecomposition_of_a_matrix&quot;&gt;Wikipedia&lt;/a&gt;
+ * @since 2.0 (changed to concrete class in 3.0)
+ */
+public class EigenDecomposition {
+    /** Internally used epsilon criteria. */
+    private static final double EPSILON = 1e-12;
+    /** Maximum number of iterations accepted in the implicit QL transformation */
+<span class="fc" id="L80">    private byte maxIter = 30;</span>
+    /** Main diagonal of the tridiagonal matrix. */
+    private double[] main;
+    /** Secondary diagonal of the tridiagonal matrix. */
+    private double[] secondary;
+    /**
+     * Transformer to tridiagonal (may be null if matrix is already
+     * tridiagonal).
+     */
+    private TriDiagonalTransformer transformer;
+    /** Real part of the realEigenvalues. */
+    private double[] realEigenvalues;
+    /** Imaginary part of the realEigenvalues. */
+    private double[] imagEigenvalues;
+    /** Eigenvectors. */
+    private ArrayRealVector[] eigenvectors;
+    /** Cached value of V. */
+    private RealMatrix cachedV;
+    /** Cached value of D. */
+    private RealMatrix cachedD;
+    /** Cached value of Vt. */
+    private RealMatrix cachedVt;
+    /** Whether the matrix is symmetric. */
+    private final boolean isSymmetric;
+
+    /**
+     * Calculates the eigen decomposition of the given real matrix.
+     * &lt;p&gt;
+     * Supports decomposition of a general matrix since 3.1.
+     *
+     * @param matrix Matrix to decompose.
+     * @throws MaxCountExceededException if the algorithm fails to converge.
+     * @throws MathArithmeticException if the decomposition of a general matrix
+     * results in a matrix with zero norm
+     * @since 3.1
+     */
+    public EigenDecomposition(final RealMatrix matrix)
+<span class="fc" id="L117">        throws MathArithmeticException {</span>
+<span class="fc" id="L118">        final double symTol = 10 * matrix.getRowDimension() * matrix.getColumnDimension() * Precision.EPSILON;</span>
+<span class="fc" id="L119">        isSymmetric = MatrixUtils.isSymmetric(matrix, symTol);</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        if (isSymmetric) {</span>
+<span class="fc" id="L121">            transformToTridiagonal(matrix);</span>
+<span class="fc" id="L122">            findEigenVectors(transformer.getQ().getData());</span>
+        } else {
+<span class="fc" id="L124">            final SchurTransformer t = transformToSchur(matrix);</span>
+<span class="fc" id="L125">            findEigenVectorsFromSchur(t);</span>
+        }
+<span class="fc" id="L127">    }</span>
+
+    /**
+     * Calculates the eigen decomposition of the given real matrix.
+     *
+     * @param matrix Matrix to decompose.
+     * @param splitTolerance Dummy parameter (present for backward
+     * compatibility only).
+     * @throws MathArithmeticException  if the decomposition of a general matrix
+     * results in a matrix with zero norm
+     * @throws MaxCountExceededException if the algorithm fails to converge.
+     * @deprecated in 3.1 (to be removed in 4.0) due to unused parameter
+     */
+    @Deprecated
+    public EigenDecomposition(final RealMatrix matrix,
+                              final double splitTolerance)
+        throws MathArithmeticException {
+<span class="nc" id="L144">        this(matrix);</span>
+<span class="nc" id="L145">    }</span>
+
+    /**
+     * Calculates the eigen decomposition of the symmetric tridiagonal
+     * matrix.  The Householder matrix is assumed to be the identity matrix.
+     *
+     * @param main Main diagonal of the symmetric tridiagonal form.
+     * @param secondary Secondary of the tridiagonal form.
+     * @throws MaxCountExceededException if the algorithm fails to converge.
+     * @since 3.1
+     */
+<span class="fc" id="L156">    public EigenDecomposition(final double[] main, final double[] secondary) {</span>
+<span class="fc" id="L157">        isSymmetric = true;</span>
+<span class="fc" id="L158">        this.main      = main.clone();</span>
+<span class="fc" id="L159">        this.secondary = secondary.clone();</span>
+<span class="fc" id="L160">        transformer    = null;</span>
+<span class="fc" id="L161">        final int size = main.length;</span>
+<span class="fc" id="L162">        final double[][] z = new double[size][size];</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L164">            z[i][i] = 1.0;</span>
+        }
+<span class="fc" id="L166">        findEigenVectors(z);</span>
+<span class="fc" id="L167">    }</span>
+
+    /**
+     * Calculates the eigen decomposition of the symmetric tridiagonal
+     * matrix.  The Householder matrix is assumed to be the identity matrix.
+     *
+     * @param main Main diagonal of the symmetric tridiagonal form.
+     * @param secondary Secondary of the tridiagonal form.
+     * @param splitTolerance Dummy parameter (present for backward
+     * compatibility only).
+     * @throws MaxCountExceededException if the algorithm fails to converge.
+     * @deprecated in 3.1 (to be removed in 4.0) due to unused parameter
+     */
+    @Deprecated
+    public EigenDecomposition(final double[] main, final double[] secondary,
+                              final double splitTolerance) {
+<span class="nc" id="L183">        this(main, secondary);</span>
+<span class="nc" id="L184">    }</span>
+
+    /**
+     * Gets the matrix V of the decomposition.
+     * V is an orthogonal matrix, i.e. its transpose is also its inverse.
+     * The columns of V are the eigenvectors of the original matrix.
+     * No assumption is made about the orientation of the system axes formed
+     * by the columns of V (e.g. in a 3-dimension space, V can form a left-
+     * or right-handed system).
+     *
+     * @return the V matrix.
+     */
+    public RealMatrix getV() {
+
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        if (cachedV == null) {</span>
+<span class="fc" id="L199">            final int m = eigenvectors.length;</span>
+<span class="fc" id="L200">            cachedV = MatrixUtils.createRealMatrix(m, m);</span>
+<span class="fc bfc" id="L201" title="All 2 branches covered.">            for (int k = 0; k &lt; m; ++k) {</span>
+<span class="fc" id="L202">                cachedV.setColumnVector(k, eigenvectors[k]);</span>
+            }
+        }
+        // return the cached matrix
+<span class="fc" id="L206">        return cachedV;</span>
+    }
+
+    /**
+     * Gets the block diagonal matrix D of the decomposition.
+     * D is a block diagonal matrix.
+     * Real eigenvalues are on the diagonal while complex values are on
+     * 2x2 blocks { {real +imaginary}, {-imaginary, real} }.
+     *
+     * @return the D matrix.
+     *
+     * @see #getRealEigenvalues()
+     * @see #getImagEigenvalues()
+     */
+    public RealMatrix getD() {
+
+<span class="fc bfc" id="L222" title="All 2 branches covered.">        if (cachedD == null) {</span>
+            // cache the matrix for subsequent calls
+<span class="fc" id="L224">            cachedD = MatrixUtils.createRealDiagonalMatrix(realEigenvalues);</span>
+
+<span class="fc bfc" id="L226" title="All 2 branches covered.">            for (int i = 0; i &lt; imagEigenvalues.length; i++) {</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">                if (Precision.compareTo(imagEigenvalues[i], 0.0, EPSILON) &gt; 0) {</span>
+<span class="fc" id="L228">                    cachedD.setEntry(i, i+1, imagEigenvalues[i]);</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">                } else if (Precision.compareTo(imagEigenvalues[i], 0.0, EPSILON) &lt; 0) {</span>
+<span class="fc" id="L230">                    cachedD.setEntry(i, i-1, imagEigenvalues[i]);</span>
+                }
+            }
+        }
+<span class="fc" id="L234">        return cachedD;</span>
+    }
+
+    /**
+     * Gets the transpose of the matrix V of the decomposition.
+     * V is an orthogonal matrix, i.e. its transpose is also its inverse.
+     * The columns of V are the eigenvectors of the original matrix.
+     * No assumption is made about the orientation of the system axes formed
+     * by the columns of V (e.g. in a 3-dimension space, V can form a left-
+     * or right-handed system).
+     *
+     * @return the transpose of the V matrix.
+     */
+    public RealMatrix getVT() {
+
+<span class="fc bfc" id="L249" title="All 2 branches covered.">        if (cachedVt == null) {</span>
+<span class="fc" id="L250">            final int m = eigenvectors.length;</span>
+<span class="fc" id="L251">            cachedVt = MatrixUtils.createRealMatrix(m, m);</span>
+<span class="fc bfc" id="L252" title="All 2 branches covered.">            for (int k = 0; k &lt; m; ++k) {</span>
+<span class="fc" id="L253">                cachedVt.setRowVector(k, eigenvectors[k]);</span>
+            }
+        }
+
+        // return the cached matrix
+<span class="fc" id="L258">        return cachedVt;</span>
+    }
+
+    /**
+     * Returns whether the calculated eigen values are complex or real.
+     * &lt;p&gt;The method performs a zero check for each element of the
+     * {@link #getImagEigenvalues()} array and returns {@code true} if any
+     * element is not equal to zero.
+     *
+     * @return {@code true} if the eigen values are complex, {@code false} otherwise
+     * @since 3.1
+     */
+    public boolean hasComplexEigenvalues() {
+<span class="fc bfc" id="L271" title="All 2 branches covered.">        for (int i = 0; i &lt; imagEigenvalues.length; i++) {</span>
+<span class="pc bpc" id="L272" title="1 of 2 branches missed.">            if (!Precision.equals(imagEigenvalues[i], 0.0, EPSILON)) {</span>
+<span class="nc" id="L273">                return true;</span>
+            }
+        }
+<span class="fc" id="L276">        return false;</span>
+    }
+
+    /**
+     * Gets a copy of the real parts of the eigenvalues of the original matrix.
+     *
+     * @return a copy of the real parts of the eigenvalues of the original matrix.
+     *
+     * @see #getD()
+     * @see #getRealEigenvalue(int)
+     * @see #getImagEigenvalues()
+     */
+    public double[] getRealEigenvalues() {
+<span class="fc" id="L289">        return realEigenvalues.clone();</span>
+    }
+
+    /**
+     * Returns the real part of the i&lt;sup&gt;th&lt;/sup&gt; eigenvalue of the original
+     * matrix.
+     *
+     * @param i index of the eigenvalue (counting from 0)
+     * @return real part of the i&lt;sup&gt;th&lt;/sup&gt; eigenvalue of the original
+     * matrix.
+     *
+     * @see #getD()
+     * @see #getRealEigenvalues()
+     * @see #getImagEigenvalue(int)
+     */
+    public double getRealEigenvalue(final int i) {
+<span class="fc" id="L305">        return realEigenvalues[i];</span>
+    }
+
+    /**
+     * Gets a copy of the imaginary parts of the eigenvalues of the original
+     * matrix.
+     *
+     * @return a copy of the imaginary parts of the eigenvalues of the original
+     * matrix.
+     *
+     * @see #getD()
+     * @see #getImagEigenvalue(int)
+     * @see #getRealEigenvalues()
+     */
+    public double[] getImagEigenvalues() {
+<span class="nc" id="L320">        return imagEigenvalues.clone();</span>
+    }
+
+    /**
+     * Gets the imaginary part of the i&lt;sup&gt;th&lt;/sup&gt; eigenvalue of the original
+     * matrix.
+     *
+     * @param i Index of the eigenvalue (counting from 0).
+     * @return the imaginary part of the i&lt;sup&gt;th&lt;/sup&gt; eigenvalue of the original
+     * matrix.
+     *
+     * @see #getD()
+     * @see #getImagEigenvalues()
+     * @see #getRealEigenvalue(int)
+     */
+    public double getImagEigenvalue(final int i) {
+<span class="nc" id="L336">        return imagEigenvalues[i];</span>
+    }
+
+    /**
+     * Gets a copy of the i&lt;sup&gt;th&lt;/sup&gt; eigenvector of the original matrix.
+     *
+     * @param i Index of the eigenvector (counting from 0).
+     * @return a copy of the i&lt;sup&gt;th&lt;/sup&gt; eigenvector of the original matrix.
+     * @see #getD()
+     */
+    public RealVector getEigenvector(final int i) {
+<span class="fc" id="L347">        return eigenvectors[i].copy();</span>
+    }
+
+    /**
+     * Computes the determinant of the matrix.
+     *
+     * @return the determinant of the matrix.
+     */
+    public double getDeterminant() {
+<span class="fc" id="L356">        double determinant = 1;</span>
+<span class="fc bfc" id="L357" title="All 2 branches covered.">        for (double lambda : realEigenvalues) {</span>
+<span class="fc" id="L358">            determinant *= lambda;</span>
+        }
+<span class="fc" id="L360">        return determinant;</span>
+    }
+
+    /**
+     * Computes the square-root of the matrix.
+     * This implementation assumes that the matrix is symmetric and positive
+     * definite.
+     *
+     * @return the square-root of the matrix.
+     * @throws MathUnsupportedOperationException if the matrix is not
+     * symmetric or not positive definite.
+     * @since 3.1
+     */
+    public RealMatrix getSquareRoot() {
+<span class="fc bfc" id="L374" title="All 2 branches covered.">        if (!isSymmetric) {</span>
+<span class="fc" id="L375">            throw new MathUnsupportedOperationException();</span>
+        }
+
+<span class="fc" id="L378">        final double[] sqrtEigenValues = new double[realEigenvalues.length];</span>
+<span class="fc bfc" id="L379" title="All 2 branches covered.">        for (int i = 0; i &lt; realEigenvalues.length; i++) {</span>
+<span class="fc" id="L380">            final double eigen = realEigenvalues[i];</span>
+<span class="fc bfc" id="L381" title="All 2 branches covered.">            if (eigen &lt;= 0) {</span>
+<span class="fc" id="L382">                throw new MathUnsupportedOperationException();</span>
+            }
+<span class="fc" id="L384">            sqrtEigenValues[i] = FastMath.sqrt(eigen);</span>
+        }
+<span class="fc" id="L386">        final RealMatrix sqrtEigen = MatrixUtils.createRealDiagonalMatrix(sqrtEigenValues);</span>
+<span class="fc" id="L387">        final RealMatrix v = getV();</span>
+<span class="fc" id="L388">        final RealMatrix vT = getVT();</span>
+
+<span class="fc" id="L390">        return v.multiply(sqrtEigen).multiply(vT);</span>
+    }
+
+    /**
+     * Gets a solver for finding the A &amp;times; X = B solution in exact
+     * linear sense.
+     * &lt;p&gt;
+     * Since 3.1, eigen decomposition of a general matrix is supported,
+     * but the {@link DecompositionSolver} only supports real eigenvalues.
+     *
+     * @return a solver
+     * @throws MathUnsupportedOperationException if the decomposition resulted in
+     * complex eigenvalues
+     */
+    public DecompositionSolver getSolver() {
+<span class="pc bpc" id="L405" title="1 of 2 branches missed.">        if (hasComplexEigenvalues()) {</span>
+<span class="nc" id="L406">            throw new MathUnsupportedOperationException();</span>
+        }
+<span class="fc" id="L408">        return new Solver(realEigenvalues, imagEigenvalues, eigenvectors);</span>
+    }
+
+    /** Specialized solver. */
+    private static class Solver implements DecompositionSolver {
+        /** Real part of the realEigenvalues. */
+        private double[] realEigenvalues;
+        /** Imaginary part of the realEigenvalues. */
+        private double[] imagEigenvalues;
+        /** Eigenvectors. */
+        private final ArrayRealVector[] eigenvectors;
+
+        /**
+         * Builds a solver from decomposed matrix.
+         *
+         * @param realEigenvalues Real parts of the eigenvalues.
+         * @param imagEigenvalues Imaginary parts of the eigenvalues.
+         * @param eigenvectors Eigenvectors.
+         */
+        private Solver(final double[] realEigenvalues,
+                final double[] imagEigenvalues,
+<span class="fc" id="L429">                final ArrayRealVector[] eigenvectors) {</span>
+<span class="fc" id="L430">            this.realEigenvalues = realEigenvalues;</span>
+<span class="fc" id="L431">            this.imagEigenvalues = imagEigenvalues;</span>
+<span class="fc" id="L432">            this.eigenvectors = eigenvectors;</span>
+<span class="fc" id="L433">        }</span>
+
+        /**
+         * Solves the linear equation A &amp;times; X = B for symmetric matrices A.
+         * &lt;p&gt;
+         * This method only finds exact linear solutions, i.e. solutions for
+         * which ||A &amp;times; X - B|| is exactly 0.
+         * &lt;/p&gt;
+         *
+         * @param b Right-hand side of the equation A &amp;times; X = B.
+         * @return a Vector X that minimizes the two norm of A &amp;times; X - B.
+         *
+         * @throws DimensionMismatchException if the matrices dimensions do not match.
+         * @throws SingularMatrixException if the decomposed matrix is singular.
+         */
+        public RealVector solve(final RealVector b) {
+<span class="pc bpc" id="L449" title="1 of 2 branches missed.">            if (!isNonSingular()) {</span>
+<span class="nc" id="L450">                throw new SingularMatrixException();</span>
+            }
+
+<span class="fc" id="L453">            final int m = realEigenvalues.length;</span>
+<span class="fc bfc" id="L454" title="All 2 branches covered.">            if (b.getDimension() != m) {</span>
+<span class="fc" id="L455">                throw new DimensionMismatchException(b.getDimension(), m);</span>
+            }
+
+<span class="fc" id="L458">            final double[] bp = new double[m];</span>
+<span class="fc bfc" id="L459" title="All 2 branches covered.">            for (int i = 0; i &lt; m; ++i) {</span>
+<span class="fc" id="L460">                final ArrayRealVector v = eigenvectors[i];</span>
+<span class="fc" id="L461">                final double[] vData = v.getDataRef();</span>
+<span class="fc" id="L462">                final double s = v.dotProduct(b) / realEigenvalues[i];</span>
+<span class="fc bfc" id="L463" title="All 2 branches covered.">                for (int j = 0; j &lt; m; ++j) {</span>
+<span class="fc" id="L464">                    bp[j] += s * vData[j];</span>
+                }
+            }
+
+<span class="fc" id="L468">            return new ArrayRealVector(bp, false);</span>
+        }
+
+        /** {@inheritDoc} */
+        public RealMatrix solve(RealMatrix b) {
+
+<span class="pc bpc" id="L474" title="1 of 2 branches missed.">            if (!isNonSingular()) {</span>
+<span class="nc" id="L475">                throw new SingularMatrixException();</span>
+            }
+
+<span class="fc" id="L478">            final int m = realEigenvalues.length;</span>
+<span class="fc bfc" id="L479" title="All 2 branches covered.">            if (b.getRowDimension() != m) {</span>
+<span class="fc" id="L480">                throw new DimensionMismatchException(b.getRowDimension(), m);</span>
+            }
+
+<span class="fc" id="L483">            final int nColB = b.getColumnDimension();</span>
+<span class="fc" id="L484">            final double[][] bp = new double[m][nColB];</span>
+<span class="fc" id="L485">            final double[] tmpCol = new double[m];</span>
+<span class="fc bfc" id="L486" title="All 2 branches covered.">            for (int k = 0; k &lt; nColB; ++k) {</span>
+<span class="fc bfc" id="L487" title="All 2 branches covered.">                for (int i = 0; i &lt; m; ++i) {</span>
+<span class="fc" id="L488">                    tmpCol[i] = b.getEntry(i, k);</span>
+<span class="fc" id="L489">                    bp[i][k]  = 0;</span>
+                }
+<span class="fc bfc" id="L491" title="All 2 branches covered.">                for (int i = 0; i &lt; m; ++i) {</span>
+<span class="fc" id="L492">                    final ArrayRealVector v = eigenvectors[i];</span>
+<span class="fc" id="L493">                    final double[] vData = v.getDataRef();</span>
+<span class="fc" id="L494">                    double s = 0;</span>
+<span class="fc bfc" id="L495" title="All 2 branches covered.">                    for (int j = 0; j &lt; m; ++j) {</span>
+<span class="fc" id="L496">                        s += v.getEntry(j) * tmpCol[j];</span>
+                    }
+<span class="fc" id="L498">                    s /= realEigenvalues[i];</span>
+<span class="fc bfc" id="L499" title="All 2 branches covered.">                    for (int j = 0; j &lt; m; ++j) {</span>
+<span class="fc" id="L500">                        bp[j][k] += s * vData[j];</span>
+                    }
+                }
+            }
+
+<span class="fc" id="L505">            return new Array2DRowRealMatrix(bp, false);</span>
+
+        }
+
+        /**
+         * Checks whether the decomposed matrix is non-singular.
+         *
+         * @return true if the decomposed matrix is non-singular.
+         */
+        public boolean isNonSingular() {
+<span class="fc" id="L515">            double largestEigenvalueNorm = 0.0;</span>
+            // Looping over all values (in case they are not sorted in decreasing
+            // order of their norm).
+<span class="fc bfc" id="L518" title="All 2 branches covered.">            for (int i = 0; i &lt; realEigenvalues.length; ++i) {</span>
+<span class="fc" id="L519">                largestEigenvalueNorm = FastMath.max(largestEigenvalueNorm, eigenvalueNorm(i));</span>
+            }
+            // Corner case: zero matrix, all exactly 0 eigenvalues
+<span class="fc bfc" id="L522" title="All 2 branches covered.">            if (largestEigenvalueNorm == 0.0) {</span>
+<span class="fc" id="L523">                return false;</span>
+            }
+<span class="fc bfc" id="L525" title="All 2 branches covered.">            for (int i = 0; i &lt; realEigenvalues.length; ++i) {</span>
+                // Looking for eigenvalues that are 0, where we consider anything much much smaller
+                // than the largest eigenvalue to be effectively 0.
+<span class="fc bfc" id="L528" title="All 2 branches covered.">                if (Precision.equals(eigenvalueNorm(i) / largestEigenvalueNorm, 0, EPSILON)) {</span>
+<span class="fc" id="L529">                    return false;</span>
+                }
+            }
+<span class="fc" id="L532">            return true;</span>
+        }
+
+        /**
+         * @param i which eigenvalue to find the norm of
+         * @return the norm of ith (complex) eigenvalue.
+         */
+        private double eigenvalueNorm(int i) {
+<span class="fc" id="L540">            final double re = realEigenvalues[i];</span>
+<span class="fc" id="L541">            final double im = imagEigenvalues[i];</span>
+<span class="fc" id="L542">            return FastMath.sqrt(re * re + im * im);</span>
+        }
+
+        /**
+         * Get the inverse of the decomposed matrix.
+         *
+         * @return the inverse matrix.
+         * @throws SingularMatrixException if the decomposed matrix is singular.
+         */
+        public RealMatrix getInverse() {
+<span class="fc bfc" id="L552" title="All 2 branches covered.">            if (!isNonSingular()) {</span>
+<span class="fc" id="L553">                throw new SingularMatrixException();</span>
+            }
+
+<span class="fc" id="L556">            final int m = realEigenvalues.length;</span>
+<span class="fc" id="L557">            final double[][] invData = new double[m][m];</span>
+
+<span class="fc bfc" id="L559" title="All 2 branches covered.">            for (int i = 0; i &lt; m; ++i) {</span>
+<span class="fc" id="L560">                final double[] invI = invData[i];</span>
+<span class="fc bfc" id="L561" title="All 2 branches covered.">                for (int j = 0; j &lt; m; ++j) {</span>
+<span class="fc" id="L562">                    double invIJ = 0;</span>
+<span class="fc bfc" id="L563" title="All 2 branches covered.">                    for (int k = 0; k &lt; m; ++k) {</span>
+<span class="fc" id="L564">                        final double[] vK = eigenvectors[k].getDataRef();</span>
+<span class="fc" id="L565">                        invIJ += vK[i] * vK[j] / realEigenvalues[k];</span>
+                    }
+<span class="fc" id="L567">                    invI[j] = invIJ;</span>
+                }
+            }
+<span class="fc" id="L570">            return MatrixUtils.createRealMatrix(invData);</span>
+        }
+    }
+
+    /**
+     * Transforms the matrix to tridiagonal form.
+     *
+     * @param matrix Matrix to transform.
+     */
+    private void transformToTridiagonal(final RealMatrix matrix) {
+        // transform the matrix to tridiagonal
+<span class="fc" id="L581">        transformer = new TriDiagonalTransformer(matrix);</span>
+<span class="fc" id="L582">        main = transformer.getMainDiagonalRef();</span>
+<span class="fc" id="L583">        secondary = transformer.getSecondaryDiagonalRef();</span>
+<span class="fc" id="L584">    }</span>
+
+    /**
+     * Find eigenvalues and eigenvectors (Dubrulle et al., 1971)
+     *
+     * @param householderMatrix Householder matrix of the transformation
+     * to tridiagonal form.
+     */
+    private void findEigenVectors(final double[][] householderMatrix) {
+<span class="fc" id="L593">        final double[][]z = householderMatrix.clone();</span>
+<span class="fc" id="L594">        final int n = main.length;</span>
+<span class="fc" id="L595">        realEigenvalues = new double[n];</span>
+<span class="fc" id="L596">        imagEigenvalues = new double[n];</span>
+<span class="fc" id="L597">        final double[] e = new double[n];</span>
+<span class="fc bfc" id="L598" title="All 2 branches covered.">        for (int i = 0; i &lt; n - 1; i++) {</span>
+<span class="fc" id="L599">            realEigenvalues[i] = main[i];</span>
+<span class="fc" id="L600">            e[i] = secondary[i];</span>
+        }
+<span class="fc" id="L602">        realEigenvalues[n - 1] = main[n - 1];</span>
+<span class="fc" id="L603">        e[n - 1] = 0;</span>
+
+        // Determine the largest main and secondary value in absolute term.
+<span class="fc" id="L606">        double maxAbsoluteValue = 0;</span>
+<span class="fc bfc" id="L607" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc bfc" id="L608" title="All 2 branches covered.">            if (FastMath.abs(realEigenvalues[i]) &gt; maxAbsoluteValue) {</span>
+<span class="fc" id="L609">                maxAbsoluteValue = FastMath.abs(realEigenvalues[i]);</span>
+            }
+<span class="fc bfc" id="L611" title="All 2 branches covered.">            if (FastMath.abs(e[i]) &gt; maxAbsoluteValue) {</span>
+<span class="fc" id="L612">                maxAbsoluteValue = FastMath.abs(e[i]);</span>
+            }
+        }
+        // Make null any main and secondary value too small to be significant
+<span class="fc bfc" id="L616" title="All 2 branches covered.">        if (maxAbsoluteValue != 0) {</span>
+<span class="fc bfc" id="L617" title="All 2 branches covered.">            for (int i=0; i &lt; n; i++) {</span>
+<span class="fc bfc" id="L618" title="All 2 branches covered.">                if (FastMath.abs(realEigenvalues[i]) &lt;= Precision.EPSILON * maxAbsoluteValue) {</span>
+<span class="fc" id="L619">                    realEigenvalues[i] = 0;</span>
+                }
+<span class="fc bfc" id="L621" title="All 2 branches covered.">                if (FastMath.abs(e[i]) &lt;= Precision.EPSILON * maxAbsoluteValue) {</span>
+<span class="fc" id="L622">                    e[i]=0;</span>
+                }
+            }
+        }
+
+<span class="fc bfc" id="L627" title="All 2 branches covered.">        for (int j = 0; j &lt; n; j++) {</span>
+<span class="fc" id="L628">            int its = 0;</span>
+            int m;
+            do {
+<span class="fc bfc" id="L631" title="All 2 branches covered.">                for (m = j; m &lt; n - 1; m++) {</span>
+<span class="fc" id="L632">                    double delta = FastMath.abs(realEigenvalues[m]) +</span>
+                        FastMath.abs(realEigenvalues[m + 1]);
+<span class="fc bfc" id="L634" title="All 2 branches covered.">                    if (FastMath.abs(e[m]) + delta == delta) {</span>
+<span class="fc" id="L635">                        break;</span>
+                    }
+                }
+<span class="fc bfc" id="L638" title="All 2 branches covered.">                if (m != j) {</span>
+<span class="pc bpc" id="L639" title="1 of 2 branches missed.">                    if (its == maxIter) {</span>
+<span class="nc" id="L640">                        throw new MaxCountExceededException(LocalizedFormats.CONVERGENCE_FAILED,</span>
+                                                            maxIter);
+                    }
+<span class="fc" id="L643">                    its++;</span>
+<span class="fc" id="L644">                    double q = (realEigenvalues[j + 1] - realEigenvalues[j]) / (2 * e[j]);</span>
+<span class="fc" id="L645">                    double t = FastMath.sqrt(1 + q * q);</span>
+<span class="fc bfc" id="L646" title="All 2 branches covered.">                    if (q &lt; 0.0) {</span>
+<span class="fc" id="L647">                        q = realEigenvalues[m] - realEigenvalues[j] + e[j] / (q - t);</span>
+                    } else {
+<span class="fc" id="L649">                        q = realEigenvalues[m] - realEigenvalues[j] + e[j] / (q + t);</span>
+                    }
+<span class="fc" id="L651">                    double u = 0.0;</span>
+<span class="fc" id="L652">                    double s = 1.0;</span>
+<span class="fc" id="L653">                    double c = 1.0;</span>
+                    int i;
+<span class="fc bfc" id="L655" title="All 2 branches covered.">                    for (i = m - 1; i &gt;= j; i--) {</span>
+<span class="fc" id="L656">                        double p = s * e[i];</span>
+<span class="fc" id="L657">                        double h = c * e[i];</span>
+<span class="fc bfc" id="L658" title="All 2 branches covered.">                        if (FastMath.abs(p) &gt;= FastMath.abs(q)) {</span>
+<span class="fc" id="L659">                            c = q / p;</span>
+<span class="fc" id="L660">                            t = FastMath.sqrt(c * c + 1.0);</span>
+<span class="fc" id="L661">                            e[i + 1] = p * t;</span>
+<span class="fc" id="L662">                            s = 1.0 / t;</span>
+<span class="fc" id="L663">                            c *= s;</span>
+                        } else {
+<span class="fc" id="L665">                            s = p / q;</span>
+<span class="fc" id="L666">                            t = FastMath.sqrt(s * s + 1.0);</span>
+<span class="fc" id="L667">                            e[i + 1] = q * t;</span>
+<span class="fc" id="L668">                            c = 1.0 / t;</span>
+<span class="fc" id="L669">                            s *= c;</span>
+                        }
+<span class="pc bpc" id="L671" title="1 of 2 branches missed.">                        if (e[i + 1] == 0.0) {</span>
+<span class="nc" id="L672">                            realEigenvalues[i + 1] -= u;</span>
+<span class="nc" id="L673">                            e[m] = 0.0;</span>
+<span class="nc" id="L674">                            break;</span>
+                        }
+<span class="fc" id="L676">                        q = realEigenvalues[i + 1] - u;</span>
+<span class="fc" id="L677">                        t = (realEigenvalues[i] - q) * s + 2.0 * c * h;</span>
+<span class="fc" id="L678">                        u = s * t;</span>
+<span class="fc" id="L679">                        realEigenvalues[i + 1] = q + u;</span>
+<span class="fc" id="L680">                        q = c * t - h;</span>
+<span class="fc bfc" id="L681" title="All 2 branches covered.">                        for (int ia = 0; ia &lt; n; ia++) {</span>
+<span class="fc" id="L682">                            p = z[ia][i + 1];</span>
+<span class="fc" id="L683">                            z[ia][i + 1] = s * z[ia][i] + c * p;</span>
+<span class="fc" id="L684">                            z[ia][i] = c * z[ia][i] - s * p;</span>
+                        }
+                    }
+<span class="pc bpc" id="L687" title="3 of 4 branches missed.">                    if (t == 0.0 &amp;&amp; i &gt;= j) {</span>
+<span class="nc" id="L688">                        continue;</span>
+                    }
+<span class="fc" id="L690">                    realEigenvalues[j] -= u;</span>
+<span class="fc" id="L691">                    e[j] = q;</span>
+<span class="fc" id="L692">                    e[m] = 0.0;</span>
+                }
+<span class="fc bfc" id="L694" title="All 2 branches covered.">            } while (m != j);</span>
+        }
+
+        //Sort the eigen values (and vectors) in increase order
+<span class="fc bfc" id="L698" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L699">            int k = i;</span>
+<span class="fc" id="L700">            double p = realEigenvalues[i];</span>
+<span class="fc bfc" id="L701" title="All 2 branches covered.">            for (int j = i + 1; j &lt; n; j++) {</span>
+<span class="fc bfc" id="L702" title="All 2 branches covered.">                if (realEigenvalues[j] &gt; p) {</span>
+<span class="fc" id="L703">                    k = j;</span>
+<span class="fc" id="L704">                    p = realEigenvalues[j];</span>
+                }
+            }
+<span class="fc bfc" id="L707" title="All 2 branches covered.">            if (k != i) {</span>
+<span class="fc" id="L708">                realEigenvalues[k] = realEigenvalues[i];</span>
+<span class="fc" id="L709">                realEigenvalues[i] = p;</span>
+<span class="fc bfc" id="L710" title="All 2 branches covered.">                for (int j = 0; j &lt; n; j++) {</span>
+<span class="fc" id="L711">                    p = z[j][i];</span>
+<span class="fc" id="L712">                    z[j][i] = z[j][k];</span>
+<span class="fc" id="L713">                    z[j][k] = p;</span>
+                }
+            }
+        }
+
+        // Determine the largest eigen value in absolute term.
+<span class="fc" id="L719">        maxAbsoluteValue = 0;</span>
+<span class="fc bfc" id="L720" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc bfc" id="L721" title="All 2 branches covered.">            if (FastMath.abs(realEigenvalues[i]) &gt; maxAbsoluteValue) {</span>
+<span class="fc" id="L722">                maxAbsoluteValue=FastMath.abs(realEigenvalues[i]);</span>
+            }
+        }
+        // Make null any eigen value too small to be significant
+<span class="fc bfc" id="L726" title="All 2 branches covered.">        if (maxAbsoluteValue != 0.0) {</span>
+<span class="fc bfc" id="L727" title="All 2 branches covered.">            for (int i=0; i &lt; n; i++) {</span>
+<span class="fc bfc" id="L728" title="All 2 branches covered.">                if (FastMath.abs(realEigenvalues[i]) &lt; Precision.EPSILON * maxAbsoluteValue) {</span>
+<span class="fc" id="L729">                    realEigenvalues[i] = 0;</span>
+                }
+            }
+        }
+<span class="fc" id="L733">        eigenvectors = new ArrayRealVector[n];</span>
+<span class="fc" id="L734">        final double[] tmp = new double[n];</span>
+<span class="fc bfc" id="L735" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc bfc" id="L736" title="All 2 branches covered.">            for (int j = 0; j &lt; n; j++) {</span>
+<span class="fc" id="L737">                tmp[j] = z[j][i];</span>
+            }
+<span class="fc" id="L739">            eigenvectors[i] = new ArrayRealVector(tmp);</span>
+        }
+<span class="fc" id="L741">    }</span>
+
+    /**
+     * Transforms the matrix to Schur form and calculates the eigenvalues.
+     *
+     * @param matrix Matrix to transform.
+     * @return the {@link SchurTransformer Shur transform} for this matrix
+     */
+    private SchurTransformer transformToSchur(final RealMatrix matrix) {
+<span class="fc" id="L750">        final SchurTransformer schurTransform = new SchurTransformer(matrix);</span>
+<span class="fc" id="L751">        final double[][] matT = schurTransform.getT().getData();</span>
+
+<span class="fc" id="L753">        realEigenvalues = new double[matT.length];</span>
+<span class="fc" id="L754">        imagEigenvalues = new double[matT.length];</span>
+
+<span class="fc bfc" id="L756" title="All 2 branches covered.">        for (int i = 0; i &lt; realEigenvalues.length; i++) {</span>
+<span class="fc bfc" id="L757" title="All 4 branches covered.">            if (i == (realEigenvalues.length - 1) ||</span>
+                Precision.equals(matT[i + 1][i], 0.0, EPSILON)) {
+<span class="fc" id="L759">                realEigenvalues[i] = matT[i][i];</span>
+            } else {
+<span class="fc" id="L761">                final double x = matT[i + 1][i + 1];</span>
+<span class="fc" id="L762">                final double p = 0.5 * (matT[i][i] - x);</span>
+<span class="fc" id="L763">                final double z = FastMath.sqrt(FastMath.abs(p * p + matT[i + 1][i] * matT[i][i + 1]));</span>
+<span class="fc" id="L764">                realEigenvalues[i] = x + p;</span>
+<span class="fc" id="L765">                imagEigenvalues[i] = z;</span>
+<span class="fc" id="L766">                realEigenvalues[i + 1] = x + p;</span>
+<span class="fc" id="L767">                imagEigenvalues[i + 1] = -z;</span>
+<span class="fc" id="L768">                i++;</span>
+            }
+        }
+<span class="fc" id="L771">        return schurTransform;</span>
+    }
+
+    /**
+     * Performs a division of two complex numbers.
+     *
+     * @param xr real part of the first number
+     * @param xi imaginary part of the first number
+     * @param yr real part of the second number
+     * @param yi imaginary part of the second number
+     * @return result of the complex division
+     */
+    private Complex cdiv(final double xr, final double xi,
+                         final double yr, final double yi) {
+<span class="fc" id="L785">        return new Complex(xr, xi).divide(new Complex(yr, yi));</span>
+    }
+
+    /**
+     * Find eigenvectors from a matrix transformed to Schur form.
+     *
+     * @param schur the schur transformation of the matrix
+     * @throws MathArithmeticException if the Schur form has a norm of zero
+     */
+    private void findEigenVectorsFromSchur(final SchurTransformer schur)
+        throws MathArithmeticException {
+<span class="fc" id="L796">        final double[][] matrixT = schur.getT().getData();</span>
+<span class="fc" id="L797">        final double[][] matrixP = schur.getP().getData();</span>
+
+<span class="fc" id="L799">        final int n = matrixT.length;</span>
+
+        // compute matrix norm
+<span class="fc" id="L802">        double norm = 0.0;</span>
+<span class="fc bfc" id="L803" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc bfc" id="L804" title="All 2 branches covered.">           for (int j = FastMath.max(i - 1, 0); j &lt; n; j++) {</span>
+<span class="fc" id="L805">               norm += FastMath.abs(matrixT[i][j]);</span>
+           }
+        }
+
+        // we can not handle a matrix with zero norm
+<span class="pc bpc" id="L810" title="1 of 2 branches missed.">        if (Precision.equals(norm, 0.0, EPSILON)) {</span>
+<span class="nc" id="L811">           throw new MathArithmeticException(LocalizedFormats.ZERO_NORM);</span>
+        }
+
+        // Backsubstitute to find vectors of upper triangular form
+
+<span class="fc" id="L816">        double r = 0.0;</span>
+<span class="fc" id="L817">        double s = 0.0;</span>
+<span class="fc" id="L818">        double z = 0.0;</span>
+
+<span class="fc bfc" id="L820" title="All 2 branches covered.">        for (int idx = n - 1; idx &gt;= 0; idx--) {</span>
+<span class="fc" id="L821">            double p = realEigenvalues[idx];</span>
+<span class="fc" id="L822">            double q = imagEigenvalues[idx];</span>
+
+<span class="fc bfc" id="L824" title="All 2 branches covered.">            if (Precision.equals(q, 0.0)) {</span>
+                // Real vector
+<span class="fc" id="L826">                int l = idx;</span>
+<span class="fc" id="L827">                matrixT[idx][idx] = 1.0;</span>
+<span class="fc bfc" id="L828" title="All 2 branches covered.">                for (int i = idx - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L829">                    double w = matrixT[i][i] - p;</span>
+<span class="fc" id="L830">                    r = 0.0;</span>
+<span class="fc bfc" id="L831" title="All 2 branches covered.">                    for (int j = l; j &lt;= idx; j++) {</span>
+<span class="fc" id="L832">                        r += matrixT[i][j] * matrixT[j][idx];</span>
+                    }
+<span class="fc bfc" id="L834" title="All 2 branches covered.">                    if (Precision.compareTo(imagEigenvalues[i], 0.0, EPSILON) &lt; 0) {</span>
+<span class="fc" id="L835">                        z = w;</span>
+<span class="fc" id="L836">                        s = r;</span>
+                    } else {
+<span class="fc" id="L838">                        l = i;</span>
+<span class="fc bfc" id="L839" title="All 2 branches covered.">                        if (Precision.equals(imagEigenvalues[i], 0.0)) {</span>
+<span class="pc bpc" id="L840" title="1 of 2 branches missed.">                            if (w != 0.0) {</span>
+<span class="fc" id="L841">                                matrixT[i][idx] = -r / w;</span>
+                            } else {
+<span class="nc" id="L843">                                matrixT[i][idx] = -r / (Precision.EPSILON * norm);</span>
+                            }
+                        } else {
+                            // Solve real equations
+<span class="fc" id="L847">                            double x = matrixT[i][i + 1];</span>
+<span class="fc" id="L848">                            double y = matrixT[i + 1][i];</span>
+<span class="fc" id="L849">                            q = (realEigenvalues[i] - p) * (realEigenvalues[i] - p) +</span>
+                                imagEigenvalues[i] * imagEigenvalues[i];
+<span class="fc" id="L851">                            double t = (x * s - z * r) / q;</span>
+<span class="fc" id="L852">                            matrixT[i][idx] = t;</span>
+<span class="fc bfc" id="L853" title="All 2 branches covered.">                            if (FastMath.abs(x) &gt; FastMath.abs(z)) {</span>
+<span class="fc" id="L854">                                matrixT[i + 1][idx] = (-r - w * t) / x;</span>
+                            } else {
+<span class="fc" id="L856">                                matrixT[i + 1][idx] = (-s - y * t) / z;</span>
+                            }
+                        }
+
+                        // Overflow control
+<span class="fc" id="L861">                        double t = FastMath.abs(matrixT[i][idx]);</span>
+<span class="pc bpc" id="L862" title="1 of 2 branches missed.">                        if ((Precision.EPSILON * t) * t &gt; 1) {</span>
+<span class="nc bnc" id="L863" title="All 2 branches missed.">                            for (int j = i; j &lt;= idx; j++) {</span>
+<span class="nc" id="L864">                                matrixT[j][idx] /= t;</span>
+                            }
+                        }
+                    }
+                }
+<span class="fc bfc" id="L869" title="All 2 branches covered.">            } else if (q &lt; 0.0) {</span>
+                // Complex vector
+<span class="fc" id="L871">                int l = idx - 1;</span>
+
+                // Last vector component imaginary so matrix is triangular
+<span class="fc bfc" id="L874" title="All 2 branches covered.">                if (FastMath.abs(matrixT[idx][idx - 1]) &gt; FastMath.abs(matrixT[idx - 1][idx])) {</span>
+<span class="fc" id="L875">                    matrixT[idx - 1][idx - 1] = q / matrixT[idx][idx - 1];</span>
+<span class="fc" id="L876">                    matrixT[idx - 1][idx]     = -(matrixT[idx][idx] - p) / matrixT[idx][idx - 1];</span>
+                } else {
+<span class="fc" id="L878">                    final Complex result = cdiv(0.0, -matrixT[idx - 1][idx],</span>
+                                                matrixT[idx - 1][idx - 1] - p, q);
+<span class="fc" id="L880">                    matrixT[idx - 1][idx - 1] = result.getReal();</span>
+<span class="fc" id="L881">                    matrixT[idx - 1][idx]     = result.getImaginary();</span>
+                }
+
+<span class="fc" id="L884">                matrixT[idx][idx - 1] = 0.0;</span>
+<span class="fc" id="L885">                matrixT[idx][idx]     = 1.0;</span>
+
+<span class="fc bfc" id="L887" title="All 2 branches covered.">                for (int i = idx - 2; i &gt;= 0; i--) {</span>
+<span class="fc" id="L888">                    double ra = 0.0;</span>
+<span class="fc" id="L889">                    double sa = 0.0;</span>
+<span class="fc bfc" id="L890" title="All 2 branches covered.">                    for (int j = l; j &lt;= idx; j++) {</span>
+<span class="fc" id="L891">                        ra += matrixT[i][j] * matrixT[j][idx - 1];</span>
+<span class="fc" id="L892">                        sa += matrixT[i][j] * matrixT[j][idx];</span>
+                    }
+<span class="fc" id="L894">                    double w = matrixT[i][i] - p;</span>
+
+<span class="fc bfc" id="L896" title="All 2 branches covered.">                    if (Precision.compareTo(imagEigenvalues[i], 0.0, EPSILON) &lt; 0) {</span>
+<span class="fc" id="L897">                        z = w;</span>
+<span class="fc" id="L898">                        r = ra;</span>
+<span class="fc" id="L899">                        s = sa;</span>
+                    } else {
+<span class="fc" id="L901">                        l = i;</span>
+<span class="fc bfc" id="L902" title="All 2 branches covered.">                        if (Precision.equals(imagEigenvalues[i], 0.0)) {</span>
+<span class="fc" id="L903">                            final Complex c = cdiv(-ra, -sa, w, q);</span>
+<span class="fc" id="L904">                            matrixT[i][idx - 1] = c.getReal();</span>
+<span class="fc" id="L905">                            matrixT[i][idx] = c.getImaginary();</span>
+<span class="fc" id="L906">                        } else {</span>
+                            // Solve complex equations
+<span class="fc" id="L908">                            double x = matrixT[i][i + 1];</span>
+<span class="fc" id="L909">                            double y = matrixT[i + 1][i];</span>
+<span class="fc" id="L910">                            double vr = (realEigenvalues[i] - p) * (realEigenvalues[i] - p) +</span>
+                                        imagEigenvalues[i] * imagEigenvalues[i] - q * q;
+<span class="fc" id="L912">                            final double vi = (realEigenvalues[i] - p) * 2.0 * q;</span>
+<span class="pc bpc" id="L913" title="3 of 4 branches missed.">                            if (Precision.equals(vr, 0.0) &amp;&amp; Precision.equals(vi, 0.0)) {</span>
+<span class="nc" id="L914">                                vr = Precision.EPSILON * norm *</span>
+                                     (FastMath.abs(w) + FastMath.abs(q) + FastMath.abs(x) +
+                                      FastMath.abs(y) + FastMath.abs(z));
+                            }
+<span class="fc" id="L918">                            final Complex c     = cdiv(x * r - z * ra + q * sa,</span>
+                                                       x * s - z * sa - q * ra, vr, vi);
+<span class="fc" id="L920">                            matrixT[i][idx - 1] = c.getReal();</span>
+<span class="fc" id="L921">                            matrixT[i][idx]     = c.getImaginary();</span>
+
+<span class="fc bfc" id="L923" title="All 2 branches covered.">                            if (FastMath.abs(x) &gt; (FastMath.abs(z) + FastMath.abs(q))) {</span>
+<span class="fc" id="L924">                                matrixT[i + 1][idx - 1] = (-ra - w * matrixT[i][idx - 1] +</span>
+                                                           q * matrixT[i][idx]) / x;
+<span class="fc" id="L926">                                matrixT[i + 1][idx]     = (-sa - w * matrixT[i][idx] -</span>
+                                                           q * matrixT[i][idx - 1]) / x;
+                            } else {
+<span class="fc" id="L929">                                final Complex c2        = cdiv(-r - y * matrixT[i][idx - 1],</span>
+                                                               -s - y * matrixT[i][idx], z, q);
+<span class="fc" id="L931">                                matrixT[i + 1][idx - 1] = c2.getReal();</span>
+<span class="fc" id="L932">                                matrixT[i + 1][idx]     = c2.getImaginary();</span>
+                            }
+                        }
+
+                        // Overflow control
+<span class="fc" id="L937">                        double t = FastMath.max(FastMath.abs(matrixT[i][idx - 1]),</span>
+                                                FastMath.abs(matrixT[i][idx]));
+<span class="pc bpc" id="L939" title="1 of 2 branches missed.">                        if ((Precision.EPSILON * t) * t &gt; 1) {</span>
+<span class="nc bnc" id="L940" title="All 2 branches missed.">                            for (int j = i; j &lt;= idx; j++) {</span>
+<span class="nc" id="L941">                                matrixT[j][idx - 1] /= t;</span>
+<span class="nc" id="L942">                                matrixT[j][idx] /= t;</span>
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Back transformation to get eigenvectors of original matrix
+<span class="fc bfc" id="L951" title="All 2 branches covered.">        for (int j = n - 1; j &gt;= 0; j--) {</span>
+<span class="fc bfc" id="L952" title="All 2 branches covered.">            for (int i = 0; i &lt;= n - 1; i++) {</span>
+<span class="fc" id="L953">                z = 0.0;</span>
+<span class="fc bfc" id="L954" title="All 2 branches covered.">                for (int k = 0; k &lt;= FastMath.min(j, n - 1); k++) {</span>
+<span class="fc" id="L955">                    z += matrixP[i][k] * matrixT[k][j];</span>
+                }
+<span class="fc" id="L957">                matrixP[i][j] = z;</span>
+            }
+        }
+
+<span class="fc" id="L961">        eigenvectors = new ArrayRealVector[n];</span>
+<span class="fc" id="L962">        final double[] tmp = new double[n];</span>
+<span class="fc bfc" id="L963" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc bfc" id="L964" title="All 2 branches covered.">            for (int j = 0; j &lt; n; j++) {</span>
+<span class="fc" id="L965">                tmp[j] = matrixP[j][i];</span>
+            }
+<span class="fc" id="L967">            eigenvectors[i] = new ArrayRealVector(tmp);</span>
+        }
+<span class="fc" id="L969">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

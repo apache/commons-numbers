@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RegressionResults.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.regression</a> &gt; <span class="el_source">RegressionResults.java</span></div><h1>RegressionResults.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.regression;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.math3.exception.OutOfRangeException;
+
+/**
+ * Results of a Multiple Linear Regression model fit.
+ *
+ * @since 3.0
+ */
+public class RegressionResults implements Serializable {
+
+    /** INDEX of Sum of Squared Errors */
+    private static final int SSE_IDX = 0;
+    /** INDEX of Sum of Squares of Model */
+    private static final int SST_IDX = 1;
+    /** INDEX of R-Squared of regression */
+    private static final int RSQ_IDX = 2;
+    /** INDEX of Mean Squared Error */
+    private static final int MSE_IDX = 3;
+    /** INDEX of Adjusted R Squared */
+    private static final int ADJRSQ_IDX = 4;
+    /** UID */
+    private static final long serialVersionUID = 1l;
+    /** regression slope parameters */
+    private final double[] parameters;
+    /** variance covariance matrix of parameters */
+    private final double[][] varCovData;
+    /** boolean flag for variance covariance matrix in symm compressed storage */
+    private final boolean isSymmetricVCD;
+    /** rank of the solution */
+    @SuppressWarnings(&quot;unused&quot;)
+    private final int rank;
+    /** number of observations on which results are based */
+    private final long nobs;
+    /** boolean flag indicator of whether a constant was included*/
+    private final boolean containsConstant;
+    /** array storing global results, SSE, MSE, RSQ, adjRSQ */
+    private final double[] globalFitInfo;
+
+    /**
+     *  Set the default constructor to private access
+     *  to prevent inadvertent instantiation
+     */
+    @SuppressWarnings(&quot;unused&quot;)
+<span class="nc" id="L65">    private RegressionResults() {</span>
+<span class="nc" id="L66">        this.parameters = null;</span>
+<span class="nc" id="L67">        this.varCovData = null;</span>
+<span class="nc" id="L68">        this.rank = -1;</span>
+<span class="nc" id="L69">        this.nobs = -1;</span>
+<span class="nc" id="L70">        this.containsConstant = false;</span>
+<span class="nc" id="L71">        this.isSymmetricVCD = false;</span>
+<span class="nc" id="L72">        this.globalFitInfo = null;</span>
+<span class="nc" id="L73">    }</span>
+
+    /**
+     * Constructor for Regression Results.
+     *
+     * @param parameters a double array with the regression slope estimates
+     * @param varcov the variance covariance matrix, stored either in a square matrix
+     * or as a compressed
+     * @param isSymmetricCompressed a flag which denotes that the variance covariance
+     * matrix is in symmetric compressed format
+     * @param nobs the number of observations of the regression estimation
+     * @param rank the number of independent variables in the regression
+     * @param sumy the sum of the independent variable
+     * @param sumysq the sum of the squared independent variable
+     * @param sse sum of squared errors
+     * @param containsConstant true model has constant,  false model does not have constant
+     * @param copyData if true a deep copy of all input data is made, if false only references
+     * are copied and the RegressionResults become mutable
+     */
+    public RegressionResults(
+            final double[] parameters, final double[][] varcov,
+            final boolean isSymmetricCompressed,
+            final long nobs, final int rank,
+            final double sumy, final double sumysq, final double sse,
+            final boolean containsConstant,
+<span class="fc" id="L98">            final boolean copyData) {</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        if (copyData) {</span>
+<span class="nc" id="L100">            this.parameters = MathArrays.copyOf(parameters);</span>
+<span class="nc" id="L101">            this.varCovData = new double[varcov.length][];</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">            for (int i = 0; i &lt; varcov.length; i++) {</span>
+<span class="nc" id="L103">                this.varCovData[i] = MathArrays.copyOf(varcov[i]);</span>
+            }
+        } else {
+<span class="fc" id="L106">            this.parameters = parameters;</span>
+<span class="fc" id="L107">            this.varCovData = varcov;</span>
+        }
+<span class="fc" id="L109">        this.isSymmetricVCD = isSymmetricCompressed;</span>
+<span class="fc" id="L110">        this.nobs = nobs;</span>
+<span class="fc" id="L111">        this.rank = rank;</span>
+<span class="fc" id="L112">        this.containsConstant = containsConstant;</span>
+<span class="fc" id="L113">        this.globalFitInfo = new double[5];</span>
+<span class="fc" id="L114">        Arrays.fill(this.globalFitInfo, Double.NaN);</span>
+
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">        if (rank &gt; 0) {</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">            this.globalFitInfo[SST_IDX] = containsConstant ?</span>
+                    (sumysq - sumy * sumy / nobs) : sumysq;
+        }
+
+<span class="fc" id="L121">        this.globalFitInfo[SSE_IDX] = sse;</span>
+<span class="fc" id="L122">        this.globalFitInfo[MSE_IDX] = this.globalFitInfo[SSE_IDX] /</span>
+                (nobs - rank);
+<span class="fc" id="L124">        this.globalFitInfo[RSQ_IDX] = 1.0 -</span>
+                this.globalFitInfo[SSE_IDX] /
+                this.globalFitInfo[SST_IDX];
+
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        if (!containsConstant) {</span>
+<span class="fc" id="L129">            this.globalFitInfo[ADJRSQ_IDX] = 1.0-</span>
+                    (1.0 - this.globalFitInfo[RSQ_IDX]) *
+                    ( (double) nobs / ( (double) (nobs - rank)));
+        } else {
+<span class="fc" id="L133">            this.globalFitInfo[ADJRSQ_IDX] = 1.0 - (sse * (nobs - 1.0)) /</span>
+                    (globalFitInfo[SST_IDX] * (nobs - rank));
+        }
+<span class="fc" id="L136">    }</span>
+
+    /**
+     * &lt;p&gt;Returns the parameter estimate for the regressor at the given index.&lt;/p&gt;
+     *
+     * &lt;p&gt;A redundant regressor will have its redundancy flag set, as well as
+     *  a parameters estimated equal to {@code Double.NaN}&lt;/p&gt;
+     *
+     * @param index Index.
+     * @return the parameters estimated for regressor at index.
+     * @throws OutOfRangeException if {@code index} is not in the interval
+     * {@code [0, number of parameters)}.
+     */
+    public double getParameterEstimate(int index) throws OutOfRangeException {
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">        if (parameters == null) {</span>
+<span class="nc" id="L151">            return Double.NaN;</span>
+        }
+<span class="pc bpc" id="L153" title="2 of 4 branches missed.">        if (index &lt; 0 || index &gt;= this.parameters.length) {</span>
+<span class="nc" id="L154">            throw new OutOfRangeException(index, 0, this.parameters.length - 1);</span>
+        }
+<span class="fc" id="L156">        return this.parameters[index];</span>
+    }
+
+    /**
+     * &lt;p&gt;Returns a copy of the regression parameters estimates.&lt;/p&gt;
+     *
+     * &lt;p&gt;The parameter estimates are returned in the natural order of the data.&lt;/p&gt;
+     *
+     * &lt;p&gt;A redundant regressor will have its redundancy flag set, as will
+     *  a parameter estimate equal to {@code Double.NaN}.&lt;/p&gt;
+     *
+     * @return array of parameter estimates, null if no estimation occurred
+     */
+    public double[] getParameterEstimates() {
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">        if (this.parameters == null) {</span>
+<span class="nc" id="L171">            return null;</span>
+        }
+<span class="fc" id="L173">        return MathArrays.copyOf(parameters);</span>
+    }
+
+    /**
+     * Returns the &lt;a href=&quot;http://www.xycoon.com/standerrorb(1).htm&quot;&gt;standard
+     * error of the parameter estimate at index&lt;/a&gt;,
+     * usually denoted s(b&lt;sub&gt;index&lt;/sub&gt;).
+     *
+     * @param index Index.
+     * @return the standard errors associated with parameters estimated at index.
+     * @throws OutOfRangeException if {@code index} is not in the interval
+     * {@code [0, number of parameters)}.
+     */
+    public double getStdErrorOfEstimate(int index) throws OutOfRangeException {
+<span class="pc bpc" id="L187" title="1 of 2 branches missed.">        if (parameters == null) {</span>
+<span class="nc" id="L188">            return Double.NaN;</span>
+        }
+<span class="pc bpc" id="L190" title="2 of 4 branches missed.">        if (index &lt; 0 || index &gt;= this.parameters.length) {</span>
+<span class="nc" id="L191">            throw new OutOfRangeException(index, 0, this.parameters.length - 1);</span>
+        }
+<span class="fc" id="L193">        double var = this.getVcvElement(index, index);</span>
+<span class="pc bpc" id="L194" title="2 of 4 branches missed.">        if (!Double.isNaN(var) &amp;&amp; var &gt; Double.MIN_VALUE) {</span>
+<span class="fc" id="L195">            return FastMath.sqrt(var);</span>
+        }
+<span class="nc" id="L197">        return Double.NaN;</span>
+    }
+
+    /**
+     * &lt;p&gt;Returns the &lt;a href=&quot;http://www.xycoon.com/standerrorb(1).htm&quot;&gt;standard
+     * error of the parameter estimates&lt;/a&gt;,
+     * usually denoted s(b&lt;sub&gt;i&lt;/sub&gt;).&lt;/p&gt;
+     *
+     * &lt;p&gt;If there are problems with an ill conditioned design matrix then the regressor
+     * which is redundant will be assigned &lt;code&gt;Double.NaN&lt;/code&gt;. &lt;/p&gt;
+     *
+     * @return an array standard errors associated with parameters estimates,
+     *  null if no estimation occurred
+     */
+    public double[] getStdErrorOfEstimates() {
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">        if (parameters == null) {</span>
+<span class="nc" id="L213">            return null;</span>
+        }
+<span class="fc" id="L215">        double[] se = new double[this.parameters.length];</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">        for (int i = 0; i &lt; this.parameters.length; i++) {</span>
+<span class="fc" id="L217">            double var = this.getVcvElement(i, i);</span>
+<span class="pc bpc" id="L218" title="1 of 4 branches missed.">            if (!Double.isNaN(var) &amp;&amp; var &gt; Double.MIN_VALUE) {</span>
+<span class="fc" id="L219">                se[i] = FastMath.sqrt(var);</span>
+<span class="fc" id="L220">                continue;</span>
+            }
+<span class="fc" id="L222">            se[i] = Double.NaN;</span>
+        }
+<span class="fc" id="L224">        return se;</span>
+    }
+
+    /**
+     * &lt;p&gt;Returns the covariance between regression parameters i and j.&lt;/p&gt;
+     *
+     * &lt;p&gt;If there are problems with an ill conditioned design matrix then the covariance
+     * which involves redundant columns will be assigned {@code Double.NaN}. &lt;/p&gt;
+     *
+     * @param i {@code i}th regression parameter.
+     * @param j {@code j}th regression parameter.
+     * @return the covariance of the parameter estimates.
+     * @throws OutOfRangeException if {@code i} or {@code j} is not in the
+     * interval {@code [0, number of parameters)}.
+     */
+    public double getCovarianceOfParameters(int i, int j) throws OutOfRangeException {
+<span class="pc bpc" id="L240" title="1 of 2 branches missed.">        if (parameters == null) {</span>
+<span class="nc" id="L241">            return Double.NaN;</span>
+        }
+<span class="pc bpc" id="L243" title="2 of 4 branches missed.">        if (i &lt; 0 || i &gt;= this.parameters.length) {</span>
+<span class="nc" id="L244">            throw new OutOfRangeException(i, 0, this.parameters.length - 1);</span>
+        }
+<span class="pc bpc" id="L246" title="2 of 4 branches missed.">        if (j &lt; 0 || j &gt;= this.parameters.length) {</span>
+<span class="nc" id="L247">            throw new OutOfRangeException(j, 0, this.parameters.length - 1);</span>
+        }
+<span class="fc" id="L249">        return this.getVcvElement(i, j);</span>
+    }
+
+    /**
+     * &lt;p&gt;Returns the number of parameters estimated in the model.&lt;/p&gt;
+     *
+     * &lt;p&gt;This is the maximum number of regressors, some techniques may drop
+     * redundant parameters&lt;/p&gt;
+     *
+     * @return number of regressors, -1 if not estimated
+     */
+    public int getNumberOfParameters() {
+<span class="nc bnc" id="L261" title="All 2 branches missed.">        if (this.parameters == null) {</span>
+<span class="nc" id="L262">            return -1;</span>
+        }
+<span class="nc" id="L264">        return this.parameters.length;</span>
+    }
+
+    /**
+     * Returns the number of observations added to the regression model.
+     *
+     * @return Number of observations, -1 if an error condition prevents estimation
+     */
+    public long getN() {
+<span class="fc" id="L273">        return this.nobs;</span>
+    }
+
+    /**
+     * &lt;p&gt;Returns the sum of squared deviations of the y values about their mean.&lt;/p&gt;
+     *
+     * &lt;p&gt;This is defined as SSTO
+     * &lt;a href=&quot;http://www.xycoon.com/SumOfSquares.htm&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+     *
+     * &lt;p&gt;If {@code n &lt; 2}, this returns {@code Double.NaN}.&lt;/p&gt;
+     *
+     * @return sum of squared deviations of y values
+     */
+    public double getTotalSumSquares() {
+<span class="nc" id="L287">        return this.globalFitInfo[SST_IDX];</span>
+    }
+
+    /**
+     * &lt;p&gt;Returns the sum of squared deviations of the predicted y values about
+     * their mean (which equals the mean of y).&lt;/p&gt;
+     *
+     * &lt;p&gt;This is usually abbreviated SSR or SSM.  It is defined as SSM
+     * &lt;a href=&quot;http://www.xycoon.com/SumOfSquares.htm&quot;&gt;here&lt;/a&gt;&lt;/p&gt;
+     *
+     * &lt;p&gt;&lt;strong&gt;Preconditions&lt;/strong&gt;: &lt;ul&gt;
+     * &lt;li&gt;At least two observations (with at least two different x values)
+     * must have been added before invoking this method. If this method is
+     * invoked before a model can be estimated, &lt;code&gt;Double.NaN&lt;/code&gt; is
+     * returned.
+     * &lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;
+     *
+     * @return sum of squared deviations of predicted y values
+     */
+    public double getRegressionSumSquares() {
+<span class="fc" id="L307">        return this.globalFitInfo[SST_IDX] - this.globalFitInfo[SSE_IDX];</span>
+    }
+
+    /**
+     * &lt;p&gt;Returns the &lt;a href=&quot;http://www.xycoon.com/SumOfSquares.htm&quot;&gt;
+     * sum of squared errors&lt;/a&gt; (SSE) associated with the regression
+     * model.&lt;/p&gt;
+     *
+     * &lt;p&gt;The return value is constrained to be non-negative - i.e., if due to
+     * rounding errors the computational formula returns a negative result,
+     * 0 is returned.&lt;/p&gt;
+     *
+     * &lt;p&gt;&lt;strong&gt;Preconditions&lt;/strong&gt;: &lt;ul&gt;
+     * &lt;li&gt;numberOfParameters data pairs
+     * must have been added before invoking this method. If this method is
+     * invoked before a model can be estimated, &lt;code&gt;Double,NaN&lt;/code&gt; is
+     * returned.
+     * &lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;
+     *
+     * @return sum of squared errors associated with the regression model
+     */
+    public double getErrorSumSquares() {
+<span class="fc" id="L329">        return this.globalFitInfo[ SSE_IDX];</span>
+    }
+
+    /**
+     * &lt;p&gt;Returns the sum of squared errors divided by the degrees of freedom,
+     * usually abbreviated MSE.&lt;/p&gt;
+     *
+     * &lt;p&gt;If there are fewer than &lt;strong&gt;numberOfParameters + 1&lt;/strong&gt; data pairs in the model,
+     * or if there is no variation in &lt;code&gt;x&lt;/code&gt;, this returns
+     * &lt;code&gt;Double.NaN&lt;/code&gt;.&lt;/p&gt;
+     *
+     * @return sum of squared deviations of y values
+     */
+    public double getMeanSquareError() {
+<span class="fc" id="L343">        return this.globalFitInfo[ MSE_IDX];</span>
+    }
+
+    /**
+     * &lt;p&gt;Returns the &lt;a href=&quot;http://www.xycoon.com/coefficient1.htm&quot;&gt;
+     * coefficient of multiple determination&lt;/a&gt;,
+     * usually denoted r-square.&lt;/p&gt;
+     *
+     * &lt;p&gt;&lt;strong&gt;Preconditions&lt;/strong&gt;: &lt;ul&gt;
+     * &lt;li&gt;At least numberOfParameters observations (with at least numberOfParameters different x values)
+     * must have been added before invoking this method. If this method is
+     * invoked before a model can be estimated, {@code Double,NaN} is
+     * returned.
+     * &lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;
+     *
+     * @return r-square, a double in the interval [0, 1]
+     */
+    public double getRSquared() {
+<span class="fc" id="L361">        return this.globalFitInfo[ RSQ_IDX];</span>
+    }
+
+    /**
+     * &lt;p&gt;Returns the adjusted R-squared statistic, defined by the formula &lt;pre&gt;
+     * R&lt;sup&gt;2&lt;/sup&gt;&lt;sub&gt;adj&lt;/sub&gt; = 1 - [SSR (n - 1)] / [SSTO (n - p)]
+     * &lt;/pre&gt;
+     * where SSR is the sum of squared residuals},
+     * SSTO is the total sum of squares}, n is the number
+     * of observations and p is the number of parameters estimated (including the intercept).&lt;/p&gt;
+     *
+     * &lt;p&gt;If the regression is estimated without an intercept term, what is returned is &lt;pre&gt;
+     * &lt;code&gt; 1 - (1 - {@link #getRSquared()} ) * (n / (n - p)) &lt;/code&gt;
+     * &lt;/pre&gt;&lt;/p&gt;
+     *
+     * @return adjusted R-Squared statistic
+     */
+    public double getAdjustedRSquared() {
+<span class="fc" id="L379">        return this.globalFitInfo[ ADJRSQ_IDX];</span>
+    }
+
+    /**
+     * Returns true if the regression model has been computed including an intercept.
+     * In this case, the coefficient of the intercept is the first element of the
+     * {@link #getParameterEstimates() parameter estimates}.
+     * @return true if the model has an intercept term
+     */
+    public boolean hasIntercept() {
+<span class="nc" id="L389">        return this.containsConstant;</span>
+    }
+
+    /**
+     * Gets the i-jth element of the variance-covariance matrix.
+     *
+     * @param i first variable index
+     * @param j second variable index
+     * @return the requested variance-covariance matrix entry
+     */
+    private double getVcvElement(int i, int j) {
+<span class="pc bpc" id="L400" title="1 of 2 branches missed.">        if (this.isSymmetricVCD) {</span>
+<span class="pc bpc" id="L401" title="1 of 2 branches missed.">            if (this.varCovData.length &gt; 1) {</span>
+                //could be stored in upper or lower triangular
+<span class="nc bnc" id="L403" title="All 2 branches missed.">                if (i == j) {</span>
+<span class="nc" id="L404">                    return varCovData[i][i];</span>
+<span class="nc bnc" id="L405" title="All 2 branches missed.">                } else if (i &gt;= varCovData[j].length) {</span>
+<span class="nc" id="L406">                    return varCovData[i][j];</span>
+                } else {
+<span class="nc" id="L408">                    return varCovData[j][i];</span>
+                }
+            } else {//could be in single array
+<span class="fc bfc" id="L411" title="All 2 branches covered.">                if (i &gt; j) {</span>
+<span class="fc" id="L412">                    return varCovData[0][(i + 1) * i / 2 + j];</span>
+                } else {
+<span class="fc" id="L414">                    return varCovData[0][(j + 1) * j / 2 + i];</span>
+                }
+            }
+        } else {
+<span class="nc" id="L418">            return this.varCovData[i][j];</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

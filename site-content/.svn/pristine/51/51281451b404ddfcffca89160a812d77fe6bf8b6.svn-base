@@ -1,0 +1,267 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.apache.commons.math3.linear;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.util.FastMath;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>/**<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * Calculates the rectangular Cholesky decomposition of a matrix.<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * &lt;p&gt;The rectangular Cholesky decomposition of a real symmetric positive<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * semidefinite matrix A consists of a rectangular matrix B with the same<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * number of rows such that: A is almost equal to BB&lt;sup&gt;T&lt;/sup&gt;, depending<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * on a user-defined tolerance. In a sense, this is the square root of A.&lt;/p&gt;<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * &lt;p&gt;The difference with respect to the regular {@link CholeskyDecomposition}<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * is that rows/columns may be permuted (hence the rectangular shape instead<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * of the traditional triangular shape) and there is a threshold to ignore<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * small diagonal elements. This is used for example to generate {@link<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * org.apache.commons.math3.random.CorrelatedRandomVectorGenerator correlated<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * random n-dimensions vectors} in a p-dimension subspace (p &lt; n).<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * In other words, it allows generating random vectors from a covariance<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * matrix that is only positive semidefinite, and not positive definite.&lt;/p&gt;<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * &lt;p&gt;Rectangular Cholesky decomposition is &lt;em&gt;not&lt;/em&gt; suited for solving<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * linear systems, so it does not provide any {@link DecompositionSolver<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * decomposition solver}.&lt;/p&gt;<a name="line.38"></a>
+<span class="sourceLineNo">039</span> *<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * @see &lt;a href="http://mathworld.wolfram.com/CholeskyDecomposition.html"&gt;MathWorld&lt;/a&gt;<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * @see &lt;a href="http://en.wikipedia.org/wiki/Cholesky_decomposition"&gt;Wikipedia&lt;/a&gt;<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * @since 2.0 (changed to concrete class in 3.0)<a name="line.42"></a>
+<span class="sourceLineNo">043</span> */<a name="line.43"></a>
+<span class="sourceLineNo">044</span>public class RectangularCholeskyDecomposition {<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>    /** Permutated Cholesky root of the symmetric positive semidefinite matrix. */<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    private final RealMatrix root;<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>    /** Rank of the symmetric positive semidefinite matrix. */<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    private int rank;<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>    /**<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     * Decompose a symmetric positive semidefinite matrix.<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * &lt;p&gt;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * &lt;b&gt;Note:&lt;/b&gt; this constructor follows the linpack method to detect dependent<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * columns by proceeding with the Cholesky algorithm until a nonpositive diagonal<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * element is encountered.<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     *<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * @see &lt;a href="http://eprints.ma.man.ac.uk/1193/01/covered/MIMS_ep2008_56.pdf"&gt;<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * Analysis of the Cholesky Decomposition of a Semi-definite Matrix&lt;/a&gt;<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     *<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     * @param matrix Symmetric positive semidefinite matrix.<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * @exception NonPositiveDefiniteMatrixException if the matrix is not<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * positive semidefinite.<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * @since 3.1<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     */<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    public RectangularCholeskyDecomposition(RealMatrix matrix)<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        throws NonPositiveDefiniteMatrixException {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        this(matrix, 0);<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    }<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>    /**<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * Decompose a symmetric positive semidefinite matrix.<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     *<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * @param matrix Symmetric positive semidefinite matrix.<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * @param small Diagonal elements threshold under which columns are<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * considered to be dependent on previous ones and are discarded.<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * @exception NonPositiveDefiniteMatrixException if the matrix is not<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * positive semidefinite.<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    public RectangularCholeskyDecomposition(RealMatrix matrix, double small)<a name="line.81"></a>
+<span class="sourceLineNo">082</span>        throws NonPositiveDefiniteMatrixException {<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>        final int order = matrix.getRowDimension();<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        final double[][] c = matrix.getData();<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        final double[][] b = new double[order][order];<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>        int[] index = new int[order];<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        for (int i = 0; i &lt; order; ++i) {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>            index[i] = i;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        }<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>        int r = 0;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        for (boolean loop = true; loop;) {<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>            // find maximal diagonal element<a name="line.96"></a>
+<span class="sourceLineNo">097</span>            int swapR = r;<a name="line.97"></a>
+<span class="sourceLineNo">098</span>            for (int i = r + 1; i &lt; order; ++i) {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                int ii  = index[i];<a name="line.99"></a>
+<span class="sourceLineNo">100</span>                int isr = index[swapR];<a name="line.100"></a>
+<span class="sourceLineNo">101</span>                if (c[ii][ii] &gt; c[isr][isr]) {<a name="line.101"></a>
+<span class="sourceLineNo">102</span>                    swapR = i;<a name="line.102"></a>
+<span class="sourceLineNo">103</span>                }<a name="line.103"></a>
+<span class="sourceLineNo">104</span>            }<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>            // swap elements<a name="line.107"></a>
+<span class="sourceLineNo">108</span>            if (swapR != r) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                final int tmpIndex    = index[r];<a name="line.109"></a>
+<span class="sourceLineNo">110</span>                index[r]              = index[swapR];<a name="line.110"></a>
+<span class="sourceLineNo">111</span>                index[swapR]          = tmpIndex;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>                final double[] tmpRow = b[r];<a name="line.112"></a>
+<span class="sourceLineNo">113</span>                b[r]                  = b[swapR];<a name="line.113"></a>
+<span class="sourceLineNo">114</span>                b[swapR]              = tmpRow;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>            }<a name="line.115"></a>
+<span class="sourceLineNo">116</span><a name="line.116"></a>
+<span class="sourceLineNo">117</span>            // check diagonal element<a name="line.117"></a>
+<span class="sourceLineNo">118</span>            int ir = index[r];<a name="line.118"></a>
+<span class="sourceLineNo">119</span>            if (c[ir][ir] &lt;= small) {<a name="line.119"></a>
+<span class="sourceLineNo">120</span><a name="line.120"></a>
+<span class="sourceLineNo">121</span>                if (r == 0) {<a name="line.121"></a>
+<span class="sourceLineNo">122</span>                    throw new NonPositiveDefiniteMatrixException(c[ir][ir], ir, small);<a name="line.122"></a>
+<span class="sourceLineNo">123</span>                }<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>                // check remaining diagonal elements<a name="line.125"></a>
+<span class="sourceLineNo">126</span>                for (int i = r; i &lt; order; ++i) {<a name="line.126"></a>
+<span class="sourceLineNo">127</span>                    if (c[index[i]][index[i]] &lt; -small) {<a name="line.127"></a>
+<span class="sourceLineNo">128</span>                        // there is at least one sufficiently negative diagonal element,<a name="line.128"></a>
+<span class="sourceLineNo">129</span>                        // the symmetric positive semidefinite matrix is wrong<a name="line.129"></a>
+<span class="sourceLineNo">130</span>                        throw new NonPositiveDefiniteMatrixException(c[index[i]][index[i]], i, small);<a name="line.130"></a>
+<span class="sourceLineNo">131</span>                    }<a name="line.131"></a>
+<span class="sourceLineNo">132</span>                }<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>                // all remaining diagonal elements are close to zero, we consider we have<a name="line.134"></a>
+<span class="sourceLineNo">135</span>                // found the rank of the symmetric positive semidefinite matrix<a name="line.135"></a>
+<span class="sourceLineNo">136</span>                loop = false;<a name="line.136"></a>
+<span class="sourceLineNo">137</span><a name="line.137"></a>
+<span class="sourceLineNo">138</span>            } else {<a name="line.138"></a>
+<span class="sourceLineNo">139</span><a name="line.139"></a>
+<span class="sourceLineNo">140</span>                // transform the matrix<a name="line.140"></a>
+<span class="sourceLineNo">141</span>                final double sqrt = FastMath.sqrt(c[ir][ir]);<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                b[r][r] = sqrt;<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                final double inverse  = 1 / sqrt;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>                final double inverse2 = 1 / c[ir][ir];<a name="line.144"></a>
+<span class="sourceLineNo">145</span>                for (int i = r + 1; i &lt; order; ++i) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>                    final int ii = index[i];<a name="line.146"></a>
+<span class="sourceLineNo">147</span>                    final double e = inverse * c[ii][ir];<a name="line.147"></a>
+<span class="sourceLineNo">148</span>                    b[i][r] = e;<a name="line.148"></a>
+<span class="sourceLineNo">149</span>                    c[ii][ii] -= c[ii][ir] * c[ii][ir] * inverse2;<a name="line.149"></a>
+<span class="sourceLineNo">150</span>                    for (int j = r + 1; j &lt; i; ++j) {<a name="line.150"></a>
+<span class="sourceLineNo">151</span>                        final int ij = index[j];<a name="line.151"></a>
+<span class="sourceLineNo">152</span>                        final double f = c[ii][ij] - e * b[j][r];<a name="line.152"></a>
+<span class="sourceLineNo">153</span>                        c[ii][ij] = f;<a name="line.153"></a>
+<span class="sourceLineNo">154</span>                        c[ij][ii] = f;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>                    }<a name="line.155"></a>
+<span class="sourceLineNo">156</span>                }<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>                // prepare next iteration<a name="line.158"></a>
+<span class="sourceLineNo">159</span>                loop = ++r &lt; order;<a name="line.159"></a>
+<span class="sourceLineNo">160</span>            }<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        }<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>        // build the root matrix<a name="line.163"></a>
+<span class="sourceLineNo">164</span>        rank = r;<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        root = MatrixUtils.createRealMatrix(order, r);<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        for (int i = 0; i &lt; order; ++i) {<a name="line.166"></a>
+<span class="sourceLineNo">167</span>            for (int j = 0; j &lt; r; ++j) {<a name="line.167"></a>
+<span class="sourceLineNo">168</span>                root.setEntry(index[i], j, b[i][j]);<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            }<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        }<a name="line.170"></a>
+<span class="sourceLineNo">171</span><a name="line.171"></a>
+<span class="sourceLineNo">172</span>    }<a name="line.172"></a>
+<span class="sourceLineNo">173</span><a name="line.173"></a>
+<span class="sourceLineNo">174</span>    /** Get the root of the covariance matrix.<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     * The root is the rectangular matrix &lt;code&gt;B&lt;/code&gt; such that<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     * the covariance matrix is equal to &lt;code&gt;B.B&lt;sup&gt;T&lt;/sup&gt;&lt;/code&gt;<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     * @return root of the square matrix<a name="line.177"></a>
+<span class="sourceLineNo">178</span>     * @see #getRank()<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     */<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    public RealMatrix getRootMatrix() {<a name="line.180"></a>
+<span class="sourceLineNo">181</span>        return root;<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    }<a name="line.182"></a>
+<span class="sourceLineNo">183</span><a name="line.183"></a>
+<span class="sourceLineNo">184</span>    /** Get the rank of the symmetric positive semidefinite matrix.<a name="line.184"></a>
+<span class="sourceLineNo">185</span>     * The r is the number of independent rows in the symmetric positive semidefinite<a name="line.185"></a>
+<span class="sourceLineNo">186</span>     * matrix, it is also the number of columns of the rectangular<a name="line.186"></a>
+<span class="sourceLineNo">187</span>     * matrix of the decomposition.<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     * @return r of the square matrix.<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     * @see #getRootMatrix()<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     */<a name="line.190"></a>
+<span class="sourceLineNo">191</span>    public int getRank() {<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        return rank;<a name="line.192"></a>
+<span class="sourceLineNo">193</span>    }<a name="line.193"></a>
+<span class="sourceLineNo">194</span><a name="line.194"></a>
+<span class="sourceLineNo">195</span>}<a name="line.195"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

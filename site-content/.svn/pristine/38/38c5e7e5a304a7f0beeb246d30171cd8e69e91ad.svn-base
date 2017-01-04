@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractFormat.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.fraction</a> &gt; <span class="el_source">AbstractFormat.java</span></div><h1>AbstractFormat.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.fraction;
+
+import java.io.Serializable;
+import java.text.FieldPosition;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+import java.util.Locale;
+
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+
+/**
+ * Common part shared by both {@link FractionFormat} and {@link BigFractionFormat}.
+ * @since 2.0
+ */
+public abstract class AbstractFormat extends NumberFormat implements Serializable {
+
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = -6981118387974191891L;
+
+    /** The format used for the denominator. */
+    private NumberFormat denominatorFormat;
+
+    /** The format used for the numerator. */
+    private NumberFormat numeratorFormat;
+
+    /**
+     * Create an improper formatting instance with the default number format
+     * for the numerator and denominator.
+     */
+    protected AbstractFormat() {
+<span class="nc" id="L49">        this(getDefaultNumberFormat());</span>
+<span class="nc" id="L50">    }</span>
+
+    /**
+     * Create an improper formatting instance with a custom number format for
+     * both the numerator and denominator.
+     * @param format the custom format for both the numerator and denominator.
+     */
+    protected AbstractFormat(final NumberFormat format) {
+<span class="fc" id="L58">        this(format, (NumberFormat) format.clone());</span>
+<span class="fc" id="L59">    }</span>
+
+    /**
+     * Create an improper formatting instance with a custom number format for
+     * the numerator and a custom number format for the denominator.
+     * @param numeratorFormat the custom format for the numerator.
+     * @param denominatorFormat the custom format for the denominator.
+     */
+    protected AbstractFormat(final NumberFormat numeratorFormat,
+<span class="fc" id="L68">                             final NumberFormat denominatorFormat) {</span>
+<span class="fc" id="L69">        this.numeratorFormat   = numeratorFormat;</span>
+<span class="fc" id="L70">        this.denominatorFormat = denominatorFormat;</span>
+<span class="fc" id="L71">    }</span>
+
+    /**
+     * Create a default number format.  The default number format is based on
+     * {@link NumberFormat#getNumberInstance(java.util.Locale)}. The only
+     * customization is the maximum number of BigFraction digits, which is set to 0.
+     * @return the default number format.
+     */
+    protected static NumberFormat getDefaultNumberFormat() {
+<span class="nc" id="L80">        return getDefaultNumberFormat(Locale.getDefault());</span>
+    }
+
+    /**
+     * Create a default number format.  The default number format is based on
+     * {@link NumberFormat#getNumberInstance(java.util.Locale)}. The only
+     * customization is the maximum number of BigFraction digits, which is set to 0.
+     * @param locale the specific locale used by the format.
+     * @return the default number format specific to the given locale.
+     */
+    protected static NumberFormat getDefaultNumberFormat(final Locale locale) {
+<span class="fc" id="L91">        final NumberFormat nf = NumberFormat.getNumberInstance(locale);</span>
+<span class="fc" id="L92">        nf.setMaximumFractionDigits(0);</span>
+<span class="fc" id="L93">        nf.setParseIntegerOnly(true);</span>
+<span class="fc" id="L94">        return nf;</span>
+    }
+
+    /**
+     * Access the denominator format.
+     * @return the denominator format.
+     */
+    public NumberFormat getDenominatorFormat() {
+<span class="fc" id="L102">        return denominatorFormat;</span>
+    }
+
+    /**
+     * Access the numerator format.
+     * @return the numerator format.
+     */
+    public NumberFormat getNumeratorFormat() {
+<span class="fc" id="L110">        return numeratorFormat;</span>
+    }
+
+    /**
+     * Modify the denominator format.
+     * @param format the new denominator format value.
+     * @throws NullArgumentException if {@code format} is {@code null}.
+     */
+    public void setDenominatorFormat(final NumberFormat format) {
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">        if (format == null) {</span>
+<span class="nc" id="L120">            throw new NullArgumentException(LocalizedFormats.DENOMINATOR_FORMAT);</span>
+        }
+<span class="fc" id="L122">        this.denominatorFormat = format;</span>
+<span class="fc" id="L123">    }</span>
+
+    /**
+     * Modify the numerator format.
+     * @param format the new numerator format value.
+     * @throws NullArgumentException if {@code format} is {@code null}.
+     */
+    public void setNumeratorFormat(final NumberFormat format) {
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">        if (format == null) {</span>
+<span class="nc" id="L132">            throw new NullArgumentException(LocalizedFormats.NUMERATOR_FORMAT);</span>
+        }
+<span class="fc" id="L134">        this.numeratorFormat = format;</span>
+<span class="fc" id="L135">    }</span>
+
+    /**
+     * Parses &lt;code&gt;source&lt;/code&gt; until a non-whitespace character is found.
+     * @param source the string to parse
+     * @param pos input/output parsing parameter.  On output, &lt;code&gt;pos&lt;/code&gt;
+     *        holds the index of the next non-whitespace character.
+     */
+    protected static void parseAndIgnoreWhitespace(final String source,
+                                                   final ParsePosition pos) {
+<span class="fc" id="L145">        parseNextCharacter(source, pos);</span>
+<span class="fc" id="L146">        pos.setIndex(pos.getIndex() - 1);</span>
+<span class="fc" id="L147">    }</span>
+
+    /**
+     * Parses &lt;code&gt;source&lt;/code&gt; until a non-whitespace character is found.
+     * @param source the string to parse
+     * @param pos input/output parsing parameter.
+     * @return the first non-whitespace character.
+     */
+    protected static char parseNextCharacter(final String source,
+                                             final ParsePosition pos) {
+<span class="fc" id="L157">         int index = pos.getIndex();</span>
+<span class="fc" id="L158">         final int n = source.length();</span>
+<span class="fc" id="L159">         char ret = 0;</span>
+
+<span class="fc bfc" id="L161" title="All 2 branches covered.">         if (index &lt; n) {</span>
+             char c;
+             do {
+<span class="fc" id="L164">                 c = source.charAt(index++);</span>
+<span class="pc bpc" id="L165" title="1 of 4 branches missed.">             } while (Character.isWhitespace(c) &amp;&amp; index &lt; n);</span>
+<span class="fc" id="L166">             pos.setIndex(index);</span>
+
+<span class="fc bfc" id="L168" title="All 2 branches covered.">             if (index &lt; n) {</span>
+<span class="fc" id="L169">                 ret = c;</span>
+             }
+         }
+
+<span class="fc" id="L173">         return ret;</span>
+    }
+
+    /**
+     * Formats a double value as a fraction and appends the result to a StringBuffer.
+     *
+     * @param value the double value to format
+     * @param buffer StringBuffer to append to
+     * @param position On input: an alignment field, if desired. On output: the
+     *            offsets of the alignment field
+     * @return a reference to the appended buffer
+     * @see #format(Object, StringBuffer, FieldPosition)
+     */
+    @Override
+    public StringBuffer format(final double value,
+                               final StringBuffer buffer, final FieldPosition position) {
+<span class="fc" id="L189">        return format(Double.valueOf(value), buffer, position);</span>
+    }
+
+
+    /**
+     * Formats a long value as a fraction and appends the result to a StringBuffer.
+     *
+     * @param value the long value to format
+     * @param buffer StringBuffer to append to
+     * @param position On input: an alignment field, if desired. On output: the
+     *            offsets of the alignment field
+     * @return a reference to the appended buffer
+     * @see #format(Object, StringBuffer, FieldPosition)
+     */
+    @Override
+    public StringBuffer format(final long value,
+                               final StringBuffer buffer, final FieldPosition position) {
+<span class="fc" id="L206">        return format(Long.valueOf(value), buffer, position);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

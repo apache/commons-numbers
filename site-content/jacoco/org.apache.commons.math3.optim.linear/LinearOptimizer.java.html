@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LinearOptimizer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optim.linear</a> &gt; <span class="el_source">LinearOptimizer.java</span></div><h1>LinearOptimizer.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.optim.linear;
+
+import java.util.Collection;
+import java.util.Collections;
+import org.apache.commons.math3.exception.TooManyIterationsException;
+import org.apache.commons.math3.optim.OptimizationData;
+import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math3.optim.nonlinear.scalar.MultivariateOptimizer;
+
+/**
+ * Base class for implementing linear optimizers.
+ *
+ * @since 3.1
+ */
+public abstract class LinearOptimizer
+    extends MultivariateOptimizer {
+    /**
+     * Linear objective function.
+     */
+    private LinearObjectiveFunction function;
+    /**
+     * Linear constraints.
+     */
+    private Collection&lt;LinearConstraint&gt; linearConstraints;
+    /**
+     * Whether to restrict the variables to non-negative values.
+     */
+    private boolean nonNegative;
+
+    /**
+     * Simple constructor with default settings.
+     *
+     */
+    protected LinearOptimizer() {
+<span class="fc" id="L51">        super(null); // No convergence checker.</span>
+<span class="fc" id="L52">    }</span>
+
+    /**
+     * @return {@code true} if the variables are restricted to non-negative values.
+     */
+    protected boolean isRestrictedToNonNegative() {
+<span class="fc" id="L58">        return nonNegative;</span>
+    }
+
+    /**
+     * @return the optimization type.
+     */
+    protected LinearObjectiveFunction getFunction() {
+<span class="fc" id="L65">        return function;</span>
+    }
+
+    /**
+     * @return the optimization type.
+     */
+    protected Collection&lt;LinearConstraint&gt; getConstraints() {
+<span class="fc" id="L72">        return Collections.unmodifiableCollection(linearConstraints);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param optData Optimization data. In addition to those documented in
+     * {@link MultivariateOptimizer#parseOptimizationData(OptimizationData[])
+     * MultivariateOptimizer}, this method will register the following data:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@link LinearObjectiveFunction}&lt;/li&gt;
+     *  &lt;li&gt;{@link LinearConstraintSet}&lt;/li&gt;
+     *  &lt;li&gt;{@link NonNegativeConstraint}&lt;/li&gt;
+     * &lt;/ul&gt;
+     * @return {@inheritDoc}
+     * @throws TooManyIterationsException if the maximal number of
+     * iterations is exceeded.
+     */
+    @Override
+    public PointValuePair optimize(OptimizationData... optData)
+        throws TooManyIterationsException {
+        // Set up base class and perform computation.
+<span class="fc" id="L94">        return super.optimize(optData);</span>
+    }
+
+    /**
+     * Scans the list of (required and optional) optimization data that
+     * characterize the problem.
+     *
+     * @param optData Optimization data.
+     * The following data will be looked for:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@link LinearObjectiveFunction}&lt;/li&gt;
+     *  &lt;li&gt;{@link LinearConstraintSet}&lt;/li&gt;
+     *  &lt;li&gt;{@link NonNegativeConstraint}&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+    @Override
+    protected void parseOptimizationData(OptimizationData... optData) {
+        // Allow base class to register its own data.
+<span class="fc" id="L112">        super.parseOptimizationData(optData);</span>
+
+        // The existing values (as set by the previous call) are reused if
+        // not provided in the argument list.
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        for (OptimizationData data : optData) {</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">            if (data instanceof LinearObjectiveFunction) {</span>
+<span class="fc" id="L118">                function = (LinearObjectiveFunction) data;</span>
+<span class="fc" id="L119">                continue;</span>
+            }
+<span class="fc bfc" id="L121" title="All 2 branches covered.">            if (data instanceof LinearConstraintSet) {</span>
+<span class="fc" id="L122">                linearConstraints = ((LinearConstraintSet) data).getConstraints();</span>
+<span class="fc" id="L123">                continue;</span>
+            }
+<span class="fc bfc" id="L125" title="All 2 branches covered.">            if  (data instanceof NonNegativeConstraint) {</span>
+<span class="fc" id="L126">                nonNegative = ((NonNegativeConstraint) data).isRestrictedToNonNegative();</span>
+<span class="fc" id="L127">                continue;</span>
+            }
+        }
+<span class="fc" id="L130">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

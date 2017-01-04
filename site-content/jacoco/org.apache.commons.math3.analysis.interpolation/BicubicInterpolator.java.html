@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BicubicInterpolator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.interpolation</a> &gt; <span class="el_source">BicubicInterpolator.java</span></div><h1>BicubicInterpolator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.analysis.interpolation;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.NonMonotonicSequenceException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.util.MathArrays;
+
+/**
+ * Generates a {@link BicubicInterpolatingFunction bicubic interpolating
+ * function}.
+ * &lt;p&gt;
+ *  Caveat: Because the interpolation scheme requires that derivatives be
+ *  specified at the sample points, those are approximated with finite
+ *  differences (using the 2-points symmetric formulae).
+ *  Since their values are undefined at the borders of the provided
+ *  interpolation ranges, the interpolated values will be wrong at the
+ *  edges of the patch.
+ *  The {@code interpolate} method will return a function that overrides
+ *  {@link BicubicInterpolatingFunction#isValidPoint(double,double)} to
+ *  indicate points where the interpolation will be inaccurate.
+ * &lt;/p&gt;
+ *
+ * @since 3.4
+ */
+<span class="fc" id="L42">public class BicubicInterpolator</span>
+    implements BivariateGridInterpolator {
+    /**
+     * {@inheritDoc}
+     */
+    public BicubicInterpolatingFunction interpolate(final double[] xval,
+                                                    final double[] yval,
+                                                    final double[][] fval)
+        throws NoDataException, DimensionMismatchException,
+               NonMonotonicSequenceException, NumberIsTooSmallException {
+<span class="pc bpc" id="L52" title="3 of 6 branches missed.">        if (xval.length == 0 || yval.length == 0 || fval.length == 0) {</span>
+<span class="nc" id="L53">            throw new NoDataException();</span>
+        }
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (xval.length != fval.length) {</span>
+<span class="fc" id="L56">            throw new DimensionMismatchException(xval.length, fval.length);</span>
+        }
+
+<span class="fc" id="L59">        MathArrays.checkOrder(xval);</span>
+<span class="fc" id="L60">        MathArrays.checkOrder(yval);</span>
+
+<span class="fc" id="L62">        final int xLen = xval.length;</span>
+<span class="fc" id="L63">        final int yLen = yval.length;</span>
+
+        // Approximation to the partial derivatives using finite differences.
+<span class="fc" id="L66">        final double[][] dFdX = new double[xLen][yLen];</span>
+<span class="fc" id="L67">        final double[][] dFdY = new double[xLen][yLen];</span>
+<span class="fc" id="L68">        final double[][] d2FdXdY = new double[xLen][yLen];</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        for (int i = 1; i &lt; xLen - 1; i++) {</span>
+<span class="fc" id="L70">            final int nI = i + 1;</span>
+<span class="fc" id="L71">            final int pI = i - 1;</span>
+
+<span class="fc" id="L73">            final double nX = xval[nI];</span>
+<span class="fc" id="L74">            final double pX = xval[pI];</span>
+
+<span class="fc" id="L76">            final double deltaX = nX - pX;</span>
+
+<span class="fc bfc" id="L78" title="All 2 branches covered.">            for (int j = 1; j &lt; yLen - 1; j++) {</span>
+<span class="fc" id="L79">                final int nJ = j + 1;</span>
+<span class="fc" id="L80">                final int pJ = j - 1;</span>
+
+<span class="fc" id="L82">                final double nY = yval[nJ];</span>
+<span class="fc" id="L83">                final double pY = yval[pJ];</span>
+
+<span class="fc" id="L85">                final double deltaY = nY - pY;</span>
+
+<span class="fc" id="L87">                dFdX[i][j] = (fval[nI][j] - fval[pI][j]) / deltaX;</span>
+<span class="fc" id="L88">                dFdY[i][j] = (fval[i][nJ] - fval[i][pJ]) / deltaY;</span>
+
+<span class="fc" id="L90">                final double deltaXY = deltaX * deltaY;</span>
+
+<span class="fc" id="L92">                d2FdXdY[i][j] = (fval[nI][nJ] - fval[nI][pJ] - fval[pI][nJ] + fval[pI][pJ]) / deltaXY;</span>
+            }
+        }
+
+        // Create the interpolating function.
+<span class="fc" id="L97">        return new BicubicInterpolatingFunction(xval, yval, fval,</span>
+<span class="fc" id="L98">                                                dFdX, dFdY, d2FdXdY) {</span>
+            /** {@inheritDoc} */
+            @Override
+            public boolean isValidPoint(double x, double y) {
+<span class="fc bfc" id="L102" title="All 8 branches covered.">                if (x &lt; xval[1] ||</span>
+                    x &gt; xval[xval.length - 2] ||
+                    y &lt; yval[1] ||
+                    y &gt; yval[yval.length - 2]) {
+<span class="fc" id="L106">                    return false;</span>
+                } else {
+<span class="fc" id="L108">                    return true;</span>
+                }
+            }
+        };
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>UniformRealDistribution.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.distribution</a> &gt; <span class="el_source">UniformRealDistribution.java</span></div><h1>UniformRealDistribution.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.distribution;
+
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.Well19937c;
+
+/**
+ * Implementation of the uniform real distribution.
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Uniform_distribution_(continuous)&quot;
+ * &gt;Uniform distribution (continuous), at Wikipedia&lt;/a&gt;
+ *
+ * @since 3.0
+ */
+public class UniformRealDistribution extends AbstractRealDistribution {
+    /** Default inverse cumulative probability accuracy.
+     * @deprecated as of 3.2 not used anymore, will be removed in 4.0
+     */
+    @Deprecated
+    public static final double DEFAULT_INVERSE_ABSOLUTE_ACCURACY = 1e-9;
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 20120109L;
+    /** Lower bound of this distribution (inclusive). */
+    private final double lower;
+    /** Upper bound of this distribution (exclusive). */
+    private final double upper;
+
+    /**
+     * Create a standard uniform real distribution with lower bound (inclusive)
+     * equal to zero and upper bound (exclusive) equal to one.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; this constructor will implicitly create an instance of
+     * {@link Well19937c} as random generator to be used for sampling only (see
+     * {@link #sample()} and {@link #sample(int)}). In case no sampling is
+     * needed for the created distribution, it is advised to pass {@code null}
+     * as random generator via the appropriate constructors to avoid the
+     * additional initialisation overhead.
+     */
+    public UniformRealDistribution() {
+<span class="nc" id="L59">        this(0, 1);</span>
+<span class="nc" id="L60">    }</span>
+
+    /**
+     * Create a uniform real distribution using the given lower and upper
+     * bounds.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; this constructor will implicitly create an instance of
+     * {@link Well19937c} as random generator to be used for sampling only (see
+     * {@link #sample()} and {@link #sample(int)}). In case no sampling is
+     * needed for the created distribution, it is advised to pass {@code null}
+     * as random generator via the appropriate constructors to avoid the
+     * additional initialisation overhead.
+     *
+     * @param lower Lower bound of this distribution (inclusive).
+     * @param upper Upper bound of this distribution (exclusive).
+     * @throws NumberIsTooLargeException if {@code lower &gt;= upper}.
+     */
+    public UniformRealDistribution(double lower, double upper)
+        throws NumberIsTooLargeException {
+<span class="fc" id="L79">        this(new Well19937c(), lower, upper);</span>
+<span class="fc" id="L80">    }</span>
+
+    /**
+     * Create a uniform distribution.
+     *
+     * @param lower Lower bound of this distribution (inclusive).
+     * @param upper Upper bound of this distribution (exclusive).
+     * @param inverseCumAccuracy Inverse cumulative probability accuracy.
+     * @throws NumberIsTooLargeException if {@code lower &gt;= upper}.
+     * @deprecated as of 3.2, inverse CDF is now calculated analytically, use
+     *             {@link #UniformRealDistribution(double, double)} instead.
+     */
+    @Deprecated
+    public UniformRealDistribution(double lower, double upper, double inverseCumAccuracy)
+        throws NumberIsTooLargeException {
+<span class="nc" id="L95">        this(new Well19937c(), lower, upper);</span>
+<span class="nc" id="L96">    }</span>
+
+    /**
+     * Creates a uniform distribution.
+     *
+     * @param rng Random number generator.
+     * @param lower Lower bound of this distribution (inclusive).
+     * @param upper Upper bound of this distribution (exclusive).
+     * @param inverseCumAccuracy Inverse cumulative probability accuracy.
+     * @throws NumberIsTooLargeException if {@code lower &gt;= upper}.
+     * @since 3.1
+     * @deprecated as of 3.2, inverse CDF is now calculated analytically, use
+     *             {@link #UniformRealDistribution(RandomGenerator, double, double)}
+     *             instead.
+     */
+    @Deprecated
+    public UniformRealDistribution(RandomGenerator rng,
+                                   double lower,
+                                   double upper,
+                                   double inverseCumAccuracy){
+<span class="fc" id="L116">        this(rng, lower, upper);</span>
+<span class="fc" id="L117">    }</span>
+
+    /**
+     * Creates a uniform distribution.
+     *
+     * @param rng Random number generator.
+     * @param lower Lower bound of this distribution (inclusive).
+     * @param upper Upper bound of this distribution (exclusive).
+     * @throws NumberIsTooLargeException if {@code lower &gt;= upper}.
+     * @since 3.1
+     */
+    public UniformRealDistribution(RandomGenerator rng,
+                                   double lower,
+                                   double upper)
+        throws NumberIsTooLargeException {
+<span class="fc" id="L132">        super(rng);</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (lower &gt;= upper) {</span>
+<span class="fc" id="L134">            throw new NumberIsTooLargeException(</span>
+                            LocalizedFormats.LOWER_BOUND_NOT_BELOW_UPPER_BOUND,
+                            lower, upper, false);
+        }
+
+<span class="fc" id="L139">        this.lower = lower;</span>
+<span class="fc" id="L140">        this.upper = upper;</span>
+<span class="fc" id="L141">    }</span>
+
+    /** {@inheritDoc} */
+    public double density(double x) {
+<span class="fc bfc" id="L145" title="All 4 branches covered.">        if (x &lt; lower || x &gt; upper) {</span>
+<span class="fc" id="L146">            return 0.0;</span>
+        }
+<span class="fc" id="L148">        return 1 / (upper - lower);</span>
+    }
+
+    /** {@inheritDoc} */
+    public double cumulativeProbability(double x)  {
+<span class="fc bfc" id="L153" title="All 2 branches covered.">        if (x &lt;= lower) {</span>
+<span class="fc" id="L154">            return 0;</span>
+        }
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        if (x &gt;= upper) {</span>
+<span class="fc" id="L157">            return 1;</span>
+        }
+<span class="fc" id="L159">        return (x - lower) / (upper - lower);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double inverseCumulativeProbability(final double p)
+            throws OutOfRangeException {
+<span class="fc bfc" id="L166" title="All 4 branches covered.">        if (p &lt; 0.0 || p &gt; 1.0) {</span>
+<span class="fc" id="L167">            throw new OutOfRangeException(p, 0, 1);</span>
+        }
+<span class="fc" id="L169">        return p * (upper - lower) + lower;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For lower bound {@code lower} and upper bound {@code upper}, the mean is
+     * {@code 0.5 * (lower + upper)}.
+     */
+    public double getNumericalMean() {
+<span class="fc" id="L179">        return 0.5 * (lower + upper);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For lower bound {@code lower} and upper bound {@code upper}, the
+     * variance is {@code (upper - lower)^2 / 12}.
+     */
+    public double getNumericalVariance() {
+<span class="fc" id="L189">        double ul = upper - lower;</span>
+<span class="fc" id="L190">        return ul * ul / 12;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The lower bound of the support is equal to the lower bound parameter
+     * of the distribution.
+     *
+     * @return lower bound of the support
+     */
+    public double getSupportLowerBound() {
+<span class="fc" id="L202">        return lower;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The upper bound of the support is equal to the upper bound parameter
+     * of the distribution.
+     *
+     * @return upper bound of the support
+     */
+    public double getSupportUpperBound() {
+<span class="fc" id="L214">        return upper;</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isSupportLowerBoundInclusive() {
+<span class="fc" id="L219">        return true;</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isSupportUpperBoundInclusive() {
+<span class="fc" id="L224">        return true;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The support of this distribution is connected.
+     *
+     * @return {@code true}
+     */
+    public boolean isSupportConnected() {
+<span class="nc" id="L235">        return true;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double sample()  {
+<span class="fc" id="L241">        final double u = random.nextDouble();</span>
+<span class="fc" id="L242">        return u * upper + (1 - u) * lower;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BracketFinder.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optimization.univariate</a> &gt; <span class="el_source">BracketFinder.java</span></div><h1>BracketFinder.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.optimization.univariate;
+
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.Incrementor;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.TooManyEvaluationsException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.optimization.GoalType;
+
+/**
+ * Provide an interval that brackets a local optimum of a function.
+ * This code is based on a Python implementation (from &lt;em&gt;SciPy&lt;/em&gt;,
+ * module {@code optimize.py} v0.5).
+ *
+ * @deprecated As of 3.1 (to be removed in 4.0).
+ * @since 2.2
+ */
+@Deprecated
+public class BracketFinder {
+    /** Tolerance to avoid division by zero. */
+    private static final double EPS_MIN = 1e-21;
+    /**
+     * Golden section.
+     */
+    private static final double GOLD = 1.618034;
+    /**
+     * Factor for expanding the interval.
+     */
+    private final double growLimit;
+    /**
+     * Counter for function evaluations.
+     */
+<span class="fc" id="L50">    private final Incrementor evaluations = new Incrementor();</span>
+    /**
+     * Lower bound of the bracket.
+     */
+    private double lo;
+    /**
+     * Higher bound of the bracket.
+     */
+    private double hi;
+    /**
+     * Point inside the bracket.
+     */
+    private double mid;
+    /**
+     * Function value at {@link #lo}.
+     */
+    private double fLo;
+    /**
+     * Function value at {@link #hi}.
+     */
+    private double fHi;
+    /**
+     * Function value at {@link #mid}.
+     */
+    private double fMid;
+
+    /**
+     * Constructor with default values {@code 100, 50} (see the
+     * {@link #BracketFinder(double,int) other constructor}).
+     */
+    public BracketFinder() {
+<span class="fc" id="L81">        this(100, 50);</span>
+<span class="fc" id="L82">    }</span>
+
+    /**
+     * Create a bracketing interval finder.
+     *
+     * @param growLimit Expanding factor.
+     * @param maxEvaluations Maximum number of evaluations allowed for finding
+     * a bracketing interval.
+     */
+    public BracketFinder(double growLimit,
+<span class="fc" id="L92">                         int maxEvaluations) {</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">        if (growLimit &lt;= 0) {</span>
+<span class="nc" id="L94">            throw new NotStrictlyPositiveException(growLimit);</span>
+        }
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        if (maxEvaluations &lt;= 0) {</span>
+<span class="nc" id="L97">            throw new NotStrictlyPositiveException(maxEvaluations);</span>
+        }
+
+<span class="fc" id="L100">        this.growLimit = growLimit;</span>
+<span class="fc" id="L101">        evaluations.setMaximalCount(maxEvaluations);</span>
+<span class="fc" id="L102">    }</span>
+
+    /**
+     * Search new points that bracket a local optimum of the function.
+     *
+     * @param func Function whose optimum should be bracketed.
+     * @param goal {@link GoalType Goal type}.
+     * @param xA Initial point.
+     * @param xB Initial point.
+     * @throws TooManyEvaluationsException if the maximum number of evaluations
+     * is exceeded.
+     */
+    public void search(UnivariateFunction func, GoalType goal, double xA, double xB) {
+<span class="fc" id="L115">        evaluations.resetCount();</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        final boolean isMinim = goal == GoalType.MINIMIZE;</span>
+
+<span class="fc" id="L118">        double fA = eval(func, xA);</span>
+<span class="fc" id="L119">        double fB = eval(func, xB);</span>
+<span class="fc bfc" id="L120" title="All 6 branches covered.">        if (isMinim ?</span>
+            fA &lt; fB :
+            fA &gt; fB) {
+
+<span class="fc" id="L124">            double tmp = xA;</span>
+<span class="fc" id="L125">            xA = xB;</span>
+<span class="fc" id="L126">            xB = tmp;</span>
+
+<span class="fc" id="L128">            tmp = fA;</span>
+<span class="fc" id="L129">            fA = fB;</span>
+<span class="fc" id="L130">            fB = tmp;</span>
+        }
+
+<span class="fc" id="L133">        double xC = xB + GOLD * (xB - xA);</span>
+<span class="fc" id="L134">        double fC = eval(func, xC);</span>
+
+<span class="fc bfc" id="L136" title="All 6 branches covered.">        while (isMinim ? fC &lt; fB : fC &gt; fB) {</span>
+<span class="fc" id="L137">            double tmp1 = (xB - xA) * (fB - fC);</span>
+<span class="fc" id="L138">            double tmp2 = (xB - xC) * (fB - fA);</span>
+
+<span class="fc" id="L140">            double val = tmp2 - tmp1;</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">            double denom = FastMath.abs(val) &lt; EPS_MIN ? 2 * EPS_MIN : 2 * val;</span>
+
+<span class="fc" id="L143">            double w = xB - ((xB - xC) * tmp2 - (xB - xA) * tmp1) / denom;</span>
+<span class="fc" id="L144">            double wLim = xB + growLimit * (xC - xB);</span>
+
+            double fW;
+<span class="fc bfc" id="L147" title="All 2 branches covered.">            if ((w - xC) * (xB - w) &gt; 0) {</span>
+<span class="fc" id="L148">                fW = eval(func, w);</span>
+<span class="pc bpc" id="L149" title="4 of 6 branches missed.">                if (isMinim ?</span>
+                    fW &lt; fC :
+                    fW &gt; fC) {
+<span class="fc" id="L152">                    xA = xB;</span>
+<span class="fc" id="L153">                    xB = w;</span>
+<span class="fc" id="L154">                    fA = fB;</span>
+<span class="fc" id="L155">                    fB = fW;</span>
+<span class="fc" id="L156">                    break;</span>
+<span class="nc bnc" id="L157" title="All 6 branches missed.">                } else if (isMinim ?</span>
+                           fW &gt; fB :
+                           fW &lt; fB) {
+<span class="nc" id="L160">                    xC = w;</span>
+<span class="nc" id="L161">                    fC = fW;</span>
+<span class="nc" id="L162">                    break;</span>
+                }
+<span class="nc" id="L164">                w = xC + GOLD * (xC - xB);</span>
+<span class="nc" id="L165">                fW = eval(func, w);</span>
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">            } else if ((w - wLim) * (wLim - xC) &gt;= 0) {</span>
+<span class="nc" id="L167">                w = wLim;</span>
+<span class="nc" id="L168">                fW = eval(func, w);</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">            } else if ((w - wLim) * (xC - w) &gt; 0) {</span>
+<span class="fc" id="L170">                fW = eval(func, w);</span>
+<span class="pc bpc" id="L171" title="2 of 6 branches missed.">                if (isMinim ?</span>
+                    fW &lt; fC :
+                    fW &gt; fC) {
+<span class="fc" id="L174">                    xB = xC;</span>
+<span class="fc" id="L175">                    xC = w;</span>
+<span class="fc" id="L176">                    w = xC + GOLD * (xC - xB);</span>
+<span class="fc" id="L177">                    fB = fC;</span>
+<span class="fc" id="L178">                    fC =fW;</span>
+<span class="fc" id="L179">                    fW = eval(func, w);</span>
+                }
+            } else {
+<span class="fc" id="L182">                w = xC + GOLD * (xC - xB);</span>
+<span class="fc" id="L183">                fW = eval(func, w);</span>
+            }
+
+<span class="fc" id="L186">            xA = xB;</span>
+<span class="fc" id="L187">            fA = fB;</span>
+<span class="fc" id="L188">            xB = xC;</span>
+<span class="fc" id="L189">            fB = fC;</span>
+<span class="fc" id="L190">            xC = w;</span>
+<span class="fc" id="L191">            fC = fW;</span>
+<span class="fc" id="L192">        }</span>
+
+<span class="fc" id="L194">        lo = xA;</span>
+<span class="fc" id="L195">        fLo = fA;</span>
+<span class="fc" id="L196">        mid = xB;</span>
+<span class="fc" id="L197">        fMid = fB;</span>
+<span class="fc" id="L198">        hi = xC;</span>
+<span class="fc" id="L199">        fHi = fC;</span>
+
+<span class="fc bfc" id="L201" title="All 2 branches covered.">        if (lo &gt; hi) {</span>
+<span class="fc" id="L202">            double tmp = lo;</span>
+<span class="fc" id="L203">            lo = hi;</span>
+<span class="fc" id="L204">            hi = tmp;</span>
+
+<span class="fc" id="L206">            tmp = fLo;</span>
+<span class="fc" id="L207">            fLo = fHi;</span>
+<span class="fc" id="L208">            fHi = tmp;</span>
+        }
+<span class="fc" id="L210">    }</span>
+
+    /**
+     * @return the number of evalutations.
+     */
+    public int getMaxEvaluations() {
+<span class="nc" id="L216">        return evaluations.getMaximalCount();</span>
+    }
+
+    /**
+     * @return the number of evalutations.
+     */
+    public int getEvaluations() {
+<span class="nc" id="L223">        return evaluations.getCount();</span>
+    }
+
+    /**
+     * @return the lower bound of the bracket.
+     * @see #getFLo()
+     */
+    public double getLo() {
+<span class="fc" id="L231">        return lo;</span>
+    }
+
+    /**
+     * Get function value at {@link #getLo()}.
+     * @return function value at {@link #getLo()}
+     */
+    public double getFLo() {
+<span class="nc" id="L239">        return fLo;</span>
+    }
+
+    /**
+     * @return the higher bound of the bracket.
+     * @see #getFHi()
+     */
+    public double getHi() {
+<span class="fc" id="L247">        return hi;</span>
+    }
+
+    /**
+     * Get function value at {@link #getHi()}.
+     * @return function value at {@link #getHi()}
+     */
+    public double getFHi() {
+<span class="nc" id="L255">        return fHi;</span>
+    }
+
+    /**
+     * @return a point in the middle of the bracket.
+     * @see #getFMid()
+     */
+    public double getMid() {
+<span class="fc" id="L263">        return mid;</span>
+    }
+
+    /**
+     * Get function value at {@link #getMid()}.
+     * @return function value at {@link #getMid()}
+     */
+    public double getFMid() {
+<span class="nc" id="L271">        return fMid;</span>
+    }
+
+    /**
+     * @param f Function.
+     * @param x Argument.
+     * @return {@code f(x)}
+     * @throws TooManyEvaluationsException if the maximal number of evaluations is
+     * exceeded.
+     */
+    private double eval(UnivariateFunction f, double x) {
+        try {
+<span class="fc" id="L283">            evaluations.incrementCount();</span>
+<span class="nc" id="L284">        } catch (MaxCountExceededException e) {</span>
+<span class="nc" id="L285">            throw new TooManyEvaluationsException(e.getMax());</span>
+<span class="fc" id="L286">        }</span>
+<span class="fc" id="L287">        return f.value(x);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

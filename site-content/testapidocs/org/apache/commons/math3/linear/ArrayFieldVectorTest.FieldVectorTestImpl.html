@@ -1,0 +1,954 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+<title>ArrayFieldVectorTest.FieldVectorTestImpl (Apache Commons Math 3.5 Test API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="ArrayFieldVectorTest.FieldVectorTestImpl (Apache Commons Math 3.5 Test API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/ArrayFieldVectorTest.FieldVectorTestImpl.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+<div class="aboutLanguage"><em><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></em></div>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.html" title="class in org.apache.commons.math3.linear"><span class="strong">PREV CLASS</span></a></li>
+<li><a href="../../../../../org/apache/commons/math3/linear/ArrayRealVectorTest.html" title="class in org.apache.commons.math3.linear"><span class="strong">NEXT CLASS</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" target="_top">FRAMES</a></li>
+<li><a href="ArrayFieldVectorTest.FieldVectorTestImpl.html" target="_top">NO FRAMES</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>SUMMARY:&nbsp;</li>
+<li>NESTED&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">FIELD</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">METHOD</a></li>
+</ul>
+<ul class="subNavList">
+<li>DETAIL:&nbsp;</li>
+<li><a href="#field_detail">FIELD</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">METHOD</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<p class="subTitle">org.apache.commons.math3.linear</p>
+<h2 title="Class ArrayFieldVectorTest.FieldVectorTestImpl" class="title">Class ArrayFieldVectorTest.FieldVectorTestImpl&lt;T extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;T&gt;&gt;</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>org.apache.commons.math3.linear.ArrayFieldVectorTest.FieldVectorTestImpl&lt;T&gt;</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="http://docs.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</a>, <a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;T&gt;</dd>
+</dl>
+<dl>
+<dt>Enclosing class:</dt>
+<dd><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.html" title="class in org.apache.commons.math3.linear">ArrayFieldVectorTest</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public static class <a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.html#line.64">ArrayFieldVectorTest.FieldVectorTestImpl&lt;T extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;T&gt;&gt;</a>
+extends <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
+implements <a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;T&gt;, <a href="http://docs.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../serialized-form.html#org.apache.commons.math3.linear.ArrayFieldVectorTest.FieldVectorTestImpl">Serialized Form</a></dd></dl>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#data">data</a></strong></code>
+<div class="block">Entries of the vector.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#ArrayFieldVectorTest.FieldVectorTestImpl(T[])">ArrayFieldVectorTest.FieldVectorTestImpl</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;d)</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#add(org.apache.commons.math3.linear.FieldVector)">add</a></strong>(<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;v)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#add(T[])">add</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;v)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#append(org.apache.commons.math3.linear.FieldVector)">append</a></strong>(<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;v)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#append(T)">append</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;d)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#append(T[])">append</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;a)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#copy()">copy</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#dotProduct(org.apache.commons.math3.linear.FieldVector)">dotProduct</a></strong>(<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;v)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#dotProduct(T[])">dotProduct</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;v)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#ebeDivide(org.apache.commons.math3.linear.FieldVector)">ebeDivide</a></strong>(<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;v)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#ebeDivide(T[])">ebeDivide</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;v)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#ebeMultiply(org.apache.commons.math3.linear.FieldVector)">ebeMultiply</a></strong>(<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;v)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#ebeMultiply(T[])">ebeMultiply</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;v)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#getData()">getData</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#getDimension()">getDimension</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#getEntry(int)">getEntry</a></strong>(int&nbsp;index)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/Field.html?is-external=true" title="class or interface in org.apache.commons.math3">Field</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#getField()">getField</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#getSubVector(int, int)">getSubVector</a></strong>(int&nbsp;index,
+                        int&nbsp;n)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#mapAdd(T)">mapAdd</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;d)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#mapAddToSelf(T)">mapAddToSelf</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;d)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#mapDivide(T)">mapDivide</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;d)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#mapDivideToSelf(T)">mapDivideToSelf</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;d)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#mapInv()">mapInv</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#mapInvToSelf()">mapInvToSelf</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#mapMultiply(T)">mapMultiply</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;d)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#mapMultiplyToSelf(T)">mapMultiplyToSelf</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;d)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#mapSubtract(T)">mapSubtract</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;d)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#mapSubtractToSelf(T)">mapSubtractToSelf</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;d)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldMatrix.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldMatrix</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#outerProduct(org.apache.commons.math3.linear.FieldVector)">outerProduct</a></strong>(<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;v)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldMatrix.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldMatrix</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#outerProduct(T[])">outerProduct</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;v)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#projection(org.apache.commons.math3.linear.FieldVector)">projection</a></strong>(<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;v)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#projection(T[])">projection</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;v)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#set(T)">set</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;value)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#setEntry(int, T)">setEntry</a></strong>(int&nbsp;index,
+                <a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;value)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#setSubVector(int, org.apache.commons.math3.linear.FieldVector)">setSubVector</a></strong>(int&nbsp;index,
+                        <a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;v)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#setSubVector(int, T[])">setSubVector</a></strong>(int&nbsp;index,
+                        <a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;v)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#subtract(org.apache.commons.math3.linear.FieldVector)">subtract</a></strong>(<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;v)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#subtract(T[])">subtract</a></strong>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;v)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#toArray()">toArray</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="data">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>data</h4>
+<pre>protected&nbsp;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;[] <a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.72">data</a></pre>
+<div class="block">Entries of the vector.</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="ArrayFieldVectorTest.FieldVectorTestImpl(org.apache.commons.math3.FieldElement[])">
+<!--   -->
+</a><a name="ArrayFieldVectorTest.FieldVectorTestImpl(T[])">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>ArrayFieldVectorTest.FieldVectorTestImpl</h4>
+<pre>public&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.83">ArrayFieldVectorTest.FieldVectorTestImpl</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;d)</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="getField()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getField</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/Field.html?is-external=true" title="class or interface in org.apache.commons.math3">Field</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.88">getField</a>()</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#getField()" title="class or interface in org.apache.commons.math3.linear">getField</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="copy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copy</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.96">copy</a>()</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#copy()" title="class or interface in org.apache.commons.math3.linear">copy</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="add(org.apache.commons.math3.linear.FieldVector)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>add</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.100">add</a>(<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;v)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#add(org.apache.commons.math3.linear.FieldVector)" title="class or interface in org.apache.commons.math3.linear">add</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="add(org.apache.commons.math3.FieldElement[])">
+<!--   -->
+</a><a name="add(T[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>add</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.104">add</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;v)</pre>
+</li>
+</ul>
+<a name="subtract(org.apache.commons.math3.linear.FieldVector)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>subtract</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.108">subtract</a>(<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;v)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#subtract(org.apache.commons.math3.linear.FieldVector)" title="class or interface in org.apache.commons.math3.linear">subtract</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="subtract(org.apache.commons.math3.FieldElement[])">
+<!--   -->
+</a><a name="subtract(T[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>subtract</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.112">subtract</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;v)</pre>
+</li>
+</ul>
+<a name="mapAdd(org.apache.commons.math3.FieldElement)">
+<!--   -->
+</a><a name="mapAdd(T)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mapAdd</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.116">mapAdd</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;d)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#mapAdd(T)" title="class or interface in org.apache.commons.math3.linear">mapAdd</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="mapAddToSelf(org.apache.commons.math3.FieldElement)">
+<!--   -->
+</a><a name="mapAddToSelf(T)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mapAddToSelf</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.120">mapAddToSelf</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;d)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#mapAddToSelf(T)" title="class or interface in org.apache.commons.math3.linear">mapAddToSelf</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="mapSubtract(org.apache.commons.math3.FieldElement)">
+<!--   -->
+</a><a name="mapSubtract(T)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mapSubtract</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.124">mapSubtract</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;d)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#mapSubtract(T)" title="class or interface in org.apache.commons.math3.linear">mapSubtract</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="mapSubtractToSelf(org.apache.commons.math3.FieldElement)">
+<!--   -->
+</a><a name="mapSubtractToSelf(T)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mapSubtractToSelf</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.128">mapSubtractToSelf</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;d)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#mapSubtractToSelf(T)" title="class or interface in org.apache.commons.math3.linear">mapSubtractToSelf</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="mapMultiply(org.apache.commons.math3.FieldElement)">
+<!--   -->
+</a><a name="mapMultiply(T)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mapMultiply</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.132">mapMultiply</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;d)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#mapMultiply(T)" title="class or interface in org.apache.commons.math3.linear">mapMultiply</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="mapMultiplyToSelf(org.apache.commons.math3.FieldElement)">
+<!--   -->
+</a><a name="mapMultiplyToSelf(T)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mapMultiplyToSelf</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.140">mapMultiplyToSelf</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;d)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#mapMultiplyToSelf(T)" title="class or interface in org.apache.commons.math3.linear">mapMultiplyToSelf</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="mapDivide(org.apache.commons.math3.FieldElement)">
+<!--   -->
+</a><a name="mapDivide(T)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mapDivide</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.144">mapDivide</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;d)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#mapDivide(T)" title="class or interface in org.apache.commons.math3.linear">mapDivide</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="mapDivideToSelf(org.apache.commons.math3.FieldElement)">
+<!--   -->
+</a><a name="mapDivideToSelf(T)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mapDivideToSelf</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.148">mapDivideToSelf</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;d)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#mapDivideToSelf(T)" title="class or interface in org.apache.commons.math3.linear">mapDivideToSelf</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="mapInv()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mapInv</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.152">mapInv</a>()</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#mapInv()" title="class or interface in org.apache.commons.math3.linear">mapInv</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="mapInvToSelf()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mapInvToSelf</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.156">mapInvToSelf</a>()</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#mapInvToSelf()" title="class or interface in org.apache.commons.math3.linear">mapInvToSelf</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="ebeMultiply(org.apache.commons.math3.linear.FieldVector)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ebeMultiply</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.160">ebeMultiply</a>(<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;v)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#ebeMultiply(org.apache.commons.math3.linear.FieldVector)" title="class or interface in org.apache.commons.math3.linear">ebeMultiply</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="ebeMultiply(org.apache.commons.math3.FieldElement[])">
+<!--   -->
+</a><a name="ebeMultiply(T[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ebeMultiply</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.164">ebeMultiply</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;v)</pre>
+</li>
+</ul>
+<a name="ebeDivide(org.apache.commons.math3.linear.FieldVector)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ebeDivide</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.168">ebeDivide</a>(<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;v)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#ebeDivide(org.apache.commons.math3.linear.FieldVector)" title="class or interface in org.apache.commons.math3.linear">ebeDivide</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="ebeDivide(org.apache.commons.math3.FieldElement[])">
+<!--   -->
+</a><a name="ebeDivide(T[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ebeDivide</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.172">ebeDivide</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;v)</pre>
+</li>
+</ul>
+<a name="getData()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getData</h4>
+<pre>public&nbsp;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.176">getData</a>()</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#getData()" title="class or interface in org.apache.commons.math3.linear">getData</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="dotProduct(org.apache.commons.math3.linear.FieldVector)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dotProduct</h4>
+<pre>public&nbsp;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.180">dotProduct</a>(<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;v)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#dotProduct(org.apache.commons.math3.linear.FieldVector)" title="class or interface in org.apache.commons.math3.linear">dotProduct</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="dotProduct(org.apache.commons.math3.FieldElement[])">
+<!--   -->
+</a><a name="dotProduct(T[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dotProduct</h4>
+<pre>public&nbsp;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.188">dotProduct</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;v)</pre>
+</li>
+</ul>
+<a name="projection(org.apache.commons.math3.linear.FieldVector)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>projection</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.196">projection</a>(<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;v)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#projection(org.apache.commons.math3.linear.FieldVector)" title="class or interface in org.apache.commons.math3.linear">projection</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="projection(org.apache.commons.math3.FieldElement[])">
+<!--   -->
+</a><a name="projection(T[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>projection</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.200">projection</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;v)</pre>
+</li>
+</ul>
+<a name="outerProduct(org.apache.commons.math3.linear.FieldVector)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>outerProduct</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldMatrix.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldMatrix</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.204">outerProduct</a>(<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;v)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#outerProduct(org.apache.commons.math3.linear.FieldVector)" title="class or interface in org.apache.commons.math3.linear">outerProduct</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="outerProduct(org.apache.commons.math3.FieldElement[])">
+<!--   -->
+</a><a name="outerProduct(T[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>outerProduct</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldMatrix.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldMatrix</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.208">outerProduct</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;v)</pre>
+</li>
+</ul>
+<a name="getEntry(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getEntry</h4>
+<pre>public&nbsp;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.212">getEntry</a>(int&nbsp;index)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#getEntry(int)" title="class or interface in org.apache.commons.math3.linear">getEntry</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="getDimension()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDimension</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.216">getDimension</a>()</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#getDimension()" title="class or interface in org.apache.commons.math3.linear">getDimension</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="append(org.apache.commons.math3.linear.FieldVector)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>append</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.220">append</a>(<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;v)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#append(org.apache.commons.math3.linear.FieldVector)" title="class or interface in org.apache.commons.math3.linear">append</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="append(org.apache.commons.math3.FieldElement)">
+<!--   -->
+</a><a name="append(T)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>append</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.224">append</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;d)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#append(T)" title="class or interface in org.apache.commons.math3.linear">append</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="append(org.apache.commons.math3.FieldElement[])">
+<!--   -->
+</a><a name="append(T[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>append</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.228">append</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;a)</pre>
+</li>
+</ul>
+<a name="getSubVector(int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSubVector</h4>
+<pre>public&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.232">getSubVector</a>(int&nbsp;index,
+                          int&nbsp;n)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#getSubVector(int, int)" title="class or interface in org.apache.commons.math3.linear">getSubVector</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="setEntry(int,org.apache.commons.math3.FieldElement)">
+<!--   -->
+</a><a name="setEntry(int, T)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setEntry</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.236">setEntry</a>(int&nbsp;index,
+            <a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;value)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#setEntry(int, T)" title="class or interface in org.apache.commons.math3.linear">setEntry</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="setSubVector(int, org.apache.commons.math3.linear.FieldVector)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSubVector</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.240">setSubVector</a>(int&nbsp;index,
+                <a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&nbsp;v)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#setSubVector(int, org.apache.commons.math3.linear.FieldVector)" title="class or interface in org.apache.commons.math3.linear">setSubVector</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="setSubVector(int,org.apache.commons.math3.FieldElement[])">
+<!--   -->
+</a><a name="setSubVector(int, T[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSubVector</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.244">setSubVector</a>(int&nbsp;index,
+                <a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;v)</pre>
+</li>
+</ul>
+<a name="set(org.apache.commons.math3.FieldElement)">
+<!--   -->
+</a><a name="set(T)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>set</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.248">set</a>(<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&nbsp;value)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#set(T)" title="class or interface in org.apache.commons.math3.linear">set</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="toArray()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>toArray</h4>
+<pre>public&nbsp;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>[]&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html#line.252">toArray</a>()</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true#toArray()" title="class or interface in org.apache.commons.math3.linear">toArray</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../apidocs/org/apache/commons/math3/linear/FieldVector.html?is-external=true" title="class or interface in org.apache.commons.math3.linear">FieldVector</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a> extends <a href="../../../../../../apidocs/org/apache/commons/math3/FieldElement.html?is-external=true" title="class or interface in org.apache.commons.math3">FieldElement</a>&lt;<a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" title="type parameter in ArrayFieldVectorTest.FieldVectorTestImpl">T</a>&gt;&gt;</code></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/ArrayFieldVectorTest.FieldVectorTestImpl.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+<div class="aboutLanguage"><em><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></em></div>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../org/apache/commons/math3/linear/ArrayFieldVectorTest.html" title="class in org.apache.commons.math3.linear"><span class="strong">PREV CLASS</span></a></li>
+<li><a href="../../../../../org/apache/commons/math3/linear/ArrayRealVectorTest.html" title="class in org.apache.commons.math3.linear"><span class="strong">NEXT CLASS</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/apache/commons/math3/linear/ArrayFieldVectorTest.FieldVectorTestImpl.html" target="_top">FRAMES</a></li>
+<li><a href="ArrayFieldVectorTest.FieldVectorTestImpl.html" target="_top">NO FRAMES</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>SUMMARY:&nbsp;</li>
+<li>NESTED&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">FIELD</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">METHOD</a></li>
+</ul>
+<ul class="subNavList">
+<li>DETAIL:&nbsp;</li>
+<li><a href="#field_detail">FIELD</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">METHOD</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+<p class="legalCopy"><small>Copyright &#169; 2003&#x2013;2015 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</small></p>
+</body>
+</html>

@@ -1,0 +1,466 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.apache.commons.math3.linear;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.text.FieldPosition;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.text.NumberFormat;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.text.ParsePosition;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import java.util.ArrayList;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import java.util.List;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import java.util.Locale;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.math3.exception.MathParseException;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.commons.math3.util.CompositeFormat;<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>/**<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * Formats a {@code nxm} matrix in components list format<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * "{{a&lt;sub&gt;0&lt;/sub&gt;&lt;sub&gt;0&lt;/sub&gt;,a&lt;sub&gt;0&lt;/sub&gt;&lt;sub&gt;1&lt;/sub&gt;, ...,<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * a&lt;sub&gt;0&lt;/sub&gt;&lt;sub&gt;m-1&lt;/sub&gt;},{a&lt;sub&gt;1&lt;/sub&gt;&lt;sub&gt;0&lt;/sub&gt;,<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * a&lt;sub&gt;1&lt;/sub&gt;&lt;sub&gt;1&lt;/sub&gt;, ..., a&lt;sub&gt;1&lt;/sub&gt;&lt;sub&gt;m-1&lt;/sub&gt;},{...},{<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * a&lt;sub&gt;n-1&lt;/sub&gt;&lt;sub&gt;0&lt;/sub&gt;, a&lt;sub&gt;n-1&lt;/sub&gt;&lt;sub&gt;1&lt;/sub&gt;, ...,<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * a&lt;sub&gt;n-1&lt;/sub&gt;&lt;sub&gt;m-1&lt;/sub&gt;}}".<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * &lt;p&gt;The prefix and suffix "{" and "}", the row prefix and suffix "{" and "}",<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * the row separator "," and the column separator "," can be replaced by any<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * user-defined strings. The number format for components can be configured.&lt;/p&gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span> *<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * &lt;p&gt;White space is ignored at parse time, even if it is in the prefix, suffix<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * or separator specifications. So even if the default separator does include a space<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * character that is used at format time, both input string "{{1,1,1}}" and<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * " { { 1 , 1 , 1 } } " will be parsed without error and the same matrix will be<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * returned. In the second case, however, the parse position after parsing will be<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * just after the closing curly brace, i.e. just before the trailing space.&lt;/p&gt;<a name="line.46"></a>
+<span class="sourceLineNo">047</span> *<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * &lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; the grouping functionality of the used {@link NumberFormat} is<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * disabled to prevent problems when parsing (e.g. 1,345.34 would be a valid number<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * but conflicts with the default column separator).&lt;/p&gt;<a name="line.50"></a>
+<span class="sourceLineNo">051</span> *<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * @since 3.1<a name="line.52"></a>
+<span class="sourceLineNo">053</span> */<a name="line.53"></a>
+<span class="sourceLineNo">054</span>public class RealMatrixFormat {<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>    /** The default prefix: "{". */<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    private static final String DEFAULT_PREFIX = "{";<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    /** The default suffix: "}". */<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    private static final String DEFAULT_SUFFIX = "}";<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    /** The default row prefix: "{". */<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    private static final String DEFAULT_ROW_PREFIX = "{";<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    /** The default row suffix: "}". */<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    private static final String DEFAULT_ROW_SUFFIX = "}";<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    /** The default row separator: ",". */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    private static final String DEFAULT_ROW_SEPARATOR = ",";<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    /** The default column separator: ",". */<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    private static final String DEFAULT_COLUMN_SEPARATOR = ",";<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    /** Prefix. */<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    private final String prefix;<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    /** Suffix. */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    private final String suffix;<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    /** Row prefix. */<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    private final String rowPrefix;<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    /** Row suffix. */<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    private final String rowSuffix;<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    /** Row separator. */<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    private final String rowSeparator;<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    /** Column separator. */<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    private final String columnSeparator;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    /** The format used for components. */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    private final NumberFormat format;<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>    /**<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * Create an instance with default settings.<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * &lt;p&gt;The instance uses the default prefix, suffix and row/column separator:<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * "[", "]", ";" and ", " and the default number format for components.&lt;/p&gt;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     */<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    public RealMatrixFormat() {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        this(DEFAULT_PREFIX, DEFAULT_SUFFIX, DEFAULT_ROW_PREFIX, DEFAULT_ROW_SUFFIX,<a name="line.89"></a>
+<span class="sourceLineNo">090</span>                DEFAULT_ROW_SEPARATOR, DEFAULT_COLUMN_SEPARATOR, CompositeFormat.getDefaultNumberFormat());<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    }<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>    /**<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * Create an instance with a custom number format for components.<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * @param format the custom format for components.<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     */<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    public RealMatrixFormat(final NumberFormat format) {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        this(DEFAULT_PREFIX, DEFAULT_SUFFIX, DEFAULT_ROW_PREFIX, DEFAULT_ROW_SUFFIX,<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                DEFAULT_ROW_SEPARATOR, DEFAULT_COLUMN_SEPARATOR, format);<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    }<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>    /**<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * Create an instance with custom prefix, suffix and separator.<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * @param prefix prefix to use instead of the default "{"<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     * @param suffix suffix to use instead of the default "}"<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     * @param rowPrefix row prefix to use instead of the default "{"<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     * @param rowSuffix row suffix to use instead of the default "}"<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     * @param rowSeparator tow separator to use instead of the default ";"<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     * @param columnSeparator column separator to use instead of the default ", "<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     */<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    public RealMatrixFormat(final String prefix, final String suffix,<a name="line.111"></a>
+<span class="sourceLineNo">112</span>                            final String rowPrefix, final String rowSuffix,<a name="line.112"></a>
+<span class="sourceLineNo">113</span>                            final String rowSeparator, final String columnSeparator) {<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        this(prefix, suffix, rowPrefix, rowSuffix, rowSeparator, columnSeparator,<a name="line.114"></a>
+<span class="sourceLineNo">115</span>                CompositeFormat.getDefaultNumberFormat());<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    }<a name="line.116"></a>
+<span class="sourceLineNo">117</span><a name="line.117"></a>
+<span class="sourceLineNo">118</span>    /**<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * Create an instance with custom prefix, suffix, separator and format<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * for components.<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     * @param prefix prefix to use instead of the default "{"<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     * @param suffix suffix to use instead of the default "}"<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     * @param rowPrefix row prefix to use instead of the default "{"<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     * @param rowSuffix row suffix to use instead of the default "}"<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     * @param rowSeparator tow separator to use instead of the default ";"<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * @param columnSeparator column separator to use instead of the default ", "<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     * @param format the custom format for components.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     */<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    public RealMatrixFormat(final String prefix, final String suffix,<a name="line.129"></a>
+<span class="sourceLineNo">130</span>                            final String rowPrefix, final String rowSuffix,<a name="line.130"></a>
+<span class="sourceLineNo">131</span>                            final String rowSeparator, final String columnSeparator,<a name="line.131"></a>
+<span class="sourceLineNo">132</span>                            final NumberFormat format) {<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        this.prefix            = prefix;<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        this.suffix            = suffix;<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        this.rowPrefix         = rowPrefix;<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        this.rowSuffix         = rowSuffix;<a name="line.136"></a>
+<span class="sourceLineNo">137</span>        this.rowSeparator      = rowSeparator;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        this.columnSeparator   = columnSeparator;<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        this.format            = format;<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        // disable grouping to prevent parsing problems<a name="line.140"></a>
+<span class="sourceLineNo">141</span>        this.format.setGroupingUsed(false);<a name="line.141"></a>
+<span class="sourceLineNo">142</span>    }<a name="line.142"></a>
+<span class="sourceLineNo">143</span><a name="line.143"></a>
+<span class="sourceLineNo">144</span>    /**<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     * Get the set of locales for which real vectors formats are available.<a name="line.145"></a>
+<span class="sourceLineNo">146</span>     * &lt;p&gt;This is the same set as the {@link NumberFormat} set.&lt;/p&gt;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>     * @return available real vector format locales.<a name="line.147"></a>
+<span class="sourceLineNo">148</span>     */<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    public static Locale[] getAvailableLocales() {<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        return NumberFormat.getAvailableLocales();<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    }<a name="line.151"></a>
+<span class="sourceLineNo">152</span><a name="line.152"></a>
+<span class="sourceLineNo">153</span>    /**<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     * Get the format prefix.<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     * @return format prefix.<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     */<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    public String getPrefix() {<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        return prefix;<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    }<a name="line.159"></a>
+<span class="sourceLineNo">160</span><a name="line.160"></a>
+<span class="sourceLineNo">161</span>    /**<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     * Get the format suffix.<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     * @return format suffix.<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     */<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    public String getSuffix() {<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        return suffix;<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    }<a name="line.167"></a>
+<span class="sourceLineNo">168</span><a name="line.168"></a>
+<span class="sourceLineNo">169</span>    /**<a name="line.169"></a>
+<span class="sourceLineNo">170</span>     * Get the format prefix.<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     * @return format prefix.<a name="line.171"></a>
+<span class="sourceLineNo">172</span>     */<a name="line.172"></a>
+<span class="sourceLineNo">173</span>    public String getRowPrefix() {<a name="line.173"></a>
+<span class="sourceLineNo">174</span>        return rowPrefix;<a name="line.174"></a>
+<span class="sourceLineNo">175</span>    }<a name="line.175"></a>
+<span class="sourceLineNo">176</span><a name="line.176"></a>
+<span class="sourceLineNo">177</span>    /**<a name="line.177"></a>
+<span class="sourceLineNo">178</span>     * Get the format suffix.<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     * @return format suffix.<a name="line.179"></a>
+<span class="sourceLineNo">180</span>     */<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    public String getRowSuffix() {<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        return rowSuffix;<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    }<a name="line.183"></a>
+<span class="sourceLineNo">184</span><a name="line.184"></a>
+<span class="sourceLineNo">185</span>    /**<a name="line.185"></a>
+<span class="sourceLineNo">186</span>     * Get the format separator between rows of the matrix.<a name="line.186"></a>
+<span class="sourceLineNo">187</span>     * @return format separator for rows.<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     */<a name="line.188"></a>
+<span class="sourceLineNo">189</span>    public String getRowSeparator() {<a name="line.189"></a>
+<span class="sourceLineNo">190</span>        return rowSeparator;<a name="line.190"></a>
+<span class="sourceLineNo">191</span>    }<a name="line.191"></a>
+<span class="sourceLineNo">192</span><a name="line.192"></a>
+<span class="sourceLineNo">193</span>    /**<a name="line.193"></a>
+<span class="sourceLineNo">194</span>     * Get the format separator between components.<a name="line.194"></a>
+<span class="sourceLineNo">195</span>     * @return format separator between components.<a name="line.195"></a>
+<span class="sourceLineNo">196</span>     */<a name="line.196"></a>
+<span class="sourceLineNo">197</span>    public String getColumnSeparator() {<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        return columnSeparator;<a name="line.198"></a>
+<span class="sourceLineNo">199</span>    }<a name="line.199"></a>
+<span class="sourceLineNo">200</span><a name="line.200"></a>
+<span class="sourceLineNo">201</span>    /**<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     * Get the components format.<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     * @return components format.<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     */<a name="line.204"></a>
+<span class="sourceLineNo">205</span>    public NumberFormat getFormat() {<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        return format;<a name="line.206"></a>
+<span class="sourceLineNo">207</span>    }<a name="line.207"></a>
+<span class="sourceLineNo">208</span><a name="line.208"></a>
+<span class="sourceLineNo">209</span>    /**<a name="line.209"></a>
+<span class="sourceLineNo">210</span>     * Returns the default real vector format for the current locale.<a name="line.210"></a>
+<span class="sourceLineNo">211</span>     * @return the default real vector format.<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     */<a name="line.212"></a>
+<span class="sourceLineNo">213</span>    public static RealMatrixFormat getInstance() {<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        return getInstance(Locale.getDefault());<a name="line.214"></a>
+<span class="sourceLineNo">215</span>    }<a name="line.215"></a>
+<span class="sourceLineNo">216</span><a name="line.216"></a>
+<span class="sourceLineNo">217</span>    /**<a name="line.217"></a>
+<span class="sourceLineNo">218</span>     * Returns the default real vector format for the given locale.<a name="line.218"></a>
+<span class="sourceLineNo">219</span>     * @param locale the specific locale used by the format.<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     * @return the real vector format specific to the given locale.<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     */<a name="line.221"></a>
+<span class="sourceLineNo">222</span>    public static RealMatrixFormat getInstance(final Locale locale) {<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        return new RealMatrixFormat(CompositeFormat.getDefaultNumberFormat(locale));<a name="line.223"></a>
+<span class="sourceLineNo">224</span>    }<a name="line.224"></a>
+<span class="sourceLineNo">225</span><a name="line.225"></a>
+<span class="sourceLineNo">226</span>    /**<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     * This method calls {@link #format(RealMatrix,StringBuffer,FieldPosition)}.<a name="line.227"></a>
+<span class="sourceLineNo">228</span>     *<a name="line.228"></a>
+<span class="sourceLineNo">229</span>     * @param m RealMatrix object to format.<a name="line.229"></a>
+<span class="sourceLineNo">230</span>     * @return a formatted matrix.<a name="line.230"></a>
+<span class="sourceLineNo">231</span>     */<a name="line.231"></a>
+<span class="sourceLineNo">232</span>    public String format(RealMatrix m) {<a name="line.232"></a>
+<span class="sourceLineNo">233</span>        return format(m, new StringBuffer(), new FieldPosition(0)).toString();<a name="line.233"></a>
+<span class="sourceLineNo">234</span>    }<a name="line.234"></a>
+<span class="sourceLineNo">235</span><a name="line.235"></a>
+<span class="sourceLineNo">236</span>    /**<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     * Formats a {@link RealMatrix} object to produce a string.<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     * @param matrix the object to format.<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     * @param toAppendTo where the text is to be appended<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     * @param pos On input: an alignment field, if desired. On output: the<a name="line.240"></a>
+<span class="sourceLineNo">241</span>     *            offsets of the alignment field<a name="line.241"></a>
+<span class="sourceLineNo">242</span>     * @return the value passed in as toAppendTo.<a name="line.242"></a>
+<span class="sourceLineNo">243</span>     */<a name="line.243"></a>
+<span class="sourceLineNo">244</span>    public StringBuffer format(RealMatrix matrix, StringBuffer toAppendTo,<a name="line.244"></a>
+<span class="sourceLineNo">245</span>                               FieldPosition pos) {<a name="line.245"></a>
+<span class="sourceLineNo">246</span><a name="line.246"></a>
+<span class="sourceLineNo">247</span>        pos.setBeginIndex(0);<a name="line.247"></a>
+<span class="sourceLineNo">248</span>        pos.setEndIndex(0);<a name="line.248"></a>
+<span class="sourceLineNo">249</span><a name="line.249"></a>
+<span class="sourceLineNo">250</span>        // format prefix<a name="line.250"></a>
+<span class="sourceLineNo">251</span>        toAppendTo.append(prefix);<a name="line.251"></a>
+<span class="sourceLineNo">252</span><a name="line.252"></a>
+<span class="sourceLineNo">253</span>        // format rows<a name="line.253"></a>
+<span class="sourceLineNo">254</span>        final int rows = matrix.getRowDimension();<a name="line.254"></a>
+<span class="sourceLineNo">255</span>        for (int i = 0; i &lt; rows; ++i) {<a name="line.255"></a>
+<span class="sourceLineNo">256</span>            toAppendTo.append(rowPrefix);<a name="line.256"></a>
+<span class="sourceLineNo">257</span>            for (int j = 0; j &lt; matrix.getColumnDimension(); ++j) {<a name="line.257"></a>
+<span class="sourceLineNo">258</span>                if (j &gt; 0) {<a name="line.258"></a>
+<span class="sourceLineNo">259</span>                    toAppendTo.append(columnSeparator);<a name="line.259"></a>
+<span class="sourceLineNo">260</span>                }<a name="line.260"></a>
+<span class="sourceLineNo">261</span>                CompositeFormat.formatDouble(matrix.getEntry(i, j), format, toAppendTo, pos);<a name="line.261"></a>
+<span class="sourceLineNo">262</span>            }<a name="line.262"></a>
+<span class="sourceLineNo">263</span>            toAppendTo.append(rowSuffix);<a name="line.263"></a>
+<span class="sourceLineNo">264</span>            if (i &lt; rows - 1) {<a name="line.264"></a>
+<span class="sourceLineNo">265</span>                toAppendTo.append(rowSeparator);<a name="line.265"></a>
+<span class="sourceLineNo">266</span>            }<a name="line.266"></a>
+<span class="sourceLineNo">267</span>        }<a name="line.267"></a>
+<span class="sourceLineNo">268</span><a name="line.268"></a>
+<span class="sourceLineNo">269</span>        // format suffix<a name="line.269"></a>
+<span class="sourceLineNo">270</span>        toAppendTo.append(suffix);<a name="line.270"></a>
+<span class="sourceLineNo">271</span><a name="line.271"></a>
+<span class="sourceLineNo">272</span>        return toAppendTo;<a name="line.272"></a>
+<span class="sourceLineNo">273</span>    }<a name="line.273"></a>
+<span class="sourceLineNo">274</span><a name="line.274"></a>
+<span class="sourceLineNo">275</span>    /**<a name="line.275"></a>
+<span class="sourceLineNo">276</span>     * Parse a string to produce a {@link RealMatrix} object.<a name="line.276"></a>
+<span class="sourceLineNo">277</span>     *<a name="line.277"></a>
+<span class="sourceLineNo">278</span>     * @param source String to parse.<a name="line.278"></a>
+<span class="sourceLineNo">279</span>     * @return the parsed {@link RealMatrix} object.<a name="line.279"></a>
+<span class="sourceLineNo">280</span>     * @throws MathParseException if the beginning of the specified string<a name="line.280"></a>
+<span class="sourceLineNo">281</span>     * cannot be parsed.<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     */<a name="line.282"></a>
+<span class="sourceLineNo">283</span>    public RealMatrix parse(String source) {<a name="line.283"></a>
+<span class="sourceLineNo">284</span>        final ParsePosition parsePosition = new ParsePosition(0);<a name="line.284"></a>
+<span class="sourceLineNo">285</span>        final RealMatrix result = parse(source, parsePosition);<a name="line.285"></a>
+<span class="sourceLineNo">286</span>        if (parsePosition.getIndex() == 0) {<a name="line.286"></a>
+<span class="sourceLineNo">287</span>            throw new MathParseException(source,<a name="line.287"></a>
+<span class="sourceLineNo">288</span>                                         parsePosition.getErrorIndex(),<a name="line.288"></a>
+<span class="sourceLineNo">289</span>                                         Array2DRowRealMatrix.class);<a name="line.289"></a>
+<span class="sourceLineNo">290</span>        }<a name="line.290"></a>
+<span class="sourceLineNo">291</span>        return result;<a name="line.291"></a>
+<span class="sourceLineNo">292</span>    }<a name="line.292"></a>
+<span class="sourceLineNo">293</span><a name="line.293"></a>
+<span class="sourceLineNo">294</span>    /**<a name="line.294"></a>
+<span class="sourceLineNo">295</span>     * Parse a string to produce a {@link RealMatrix} object.<a name="line.295"></a>
+<span class="sourceLineNo">296</span>     *<a name="line.296"></a>
+<span class="sourceLineNo">297</span>     * @param source String to parse.<a name="line.297"></a>
+<span class="sourceLineNo">298</span>     * @param pos input/ouput parsing parameter.<a name="line.298"></a>
+<span class="sourceLineNo">299</span>     * @return the parsed {@link RealMatrix} object.<a name="line.299"></a>
+<span class="sourceLineNo">300</span>     */<a name="line.300"></a>
+<span class="sourceLineNo">301</span>    public RealMatrix parse(String source, ParsePosition pos) {<a name="line.301"></a>
+<span class="sourceLineNo">302</span>        int initialIndex = pos.getIndex();<a name="line.302"></a>
+<span class="sourceLineNo">303</span><a name="line.303"></a>
+<span class="sourceLineNo">304</span>        final String trimmedPrefix = prefix.trim();<a name="line.304"></a>
+<span class="sourceLineNo">305</span>        final String trimmedSuffix = suffix.trim();<a name="line.305"></a>
+<span class="sourceLineNo">306</span>        final String trimmedRowPrefix = rowPrefix.trim();<a name="line.306"></a>
+<span class="sourceLineNo">307</span>        final String trimmedRowSuffix = rowSuffix.trim();<a name="line.307"></a>
+<span class="sourceLineNo">308</span>        final String trimmedColumnSeparator = columnSeparator.trim();<a name="line.308"></a>
+<span class="sourceLineNo">309</span>        final String trimmedRowSeparator = rowSeparator.trim();<a name="line.309"></a>
+<span class="sourceLineNo">310</span><a name="line.310"></a>
+<span class="sourceLineNo">311</span>        // parse prefix<a name="line.311"></a>
+<span class="sourceLineNo">312</span>        CompositeFormat.parseAndIgnoreWhitespace(source, pos);<a name="line.312"></a>
+<span class="sourceLineNo">313</span>        if (!CompositeFormat.parseFixedstring(source, trimmedPrefix, pos)) {<a name="line.313"></a>
+<span class="sourceLineNo">314</span>            return null;<a name="line.314"></a>
+<span class="sourceLineNo">315</span>        }<a name="line.315"></a>
+<span class="sourceLineNo">316</span><a name="line.316"></a>
+<span class="sourceLineNo">317</span>        // parse components<a name="line.317"></a>
+<span class="sourceLineNo">318</span>        List&lt;List&lt;Number&gt;&gt; matrix = new ArrayList&lt;List&lt;Number&gt;&gt;();<a name="line.318"></a>
+<span class="sourceLineNo">319</span>        List&lt;Number&gt; rowComponents = new ArrayList&lt;Number&gt;();<a name="line.319"></a>
+<span class="sourceLineNo">320</span>        for (boolean loop = true; loop;){<a name="line.320"></a>
+<span class="sourceLineNo">321</span><a name="line.321"></a>
+<span class="sourceLineNo">322</span>            if (!rowComponents.isEmpty()) {<a name="line.322"></a>
+<span class="sourceLineNo">323</span>                CompositeFormat.parseAndIgnoreWhitespace(source, pos);<a name="line.323"></a>
+<span class="sourceLineNo">324</span>                if (!CompositeFormat.parseFixedstring(source, trimmedColumnSeparator, pos)) {<a name="line.324"></a>
+<span class="sourceLineNo">325</span>                    if (trimmedRowSuffix.length() != 0 &amp;&amp;<a name="line.325"></a>
+<span class="sourceLineNo">326</span>                        !CompositeFormat.parseFixedstring(source, trimmedRowSuffix, pos)) {<a name="line.326"></a>
+<span class="sourceLineNo">327</span>                        return null;<a name="line.327"></a>
+<span class="sourceLineNo">328</span>                    } else {<a name="line.328"></a>
+<span class="sourceLineNo">329</span>                        CompositeFormat.parseAndIgnoreWhitespace(source, pos);<a name="line.329"></a>
+<span class="sourceLineNo">330</span>                        if (CompositeFormat.parseFixedstring(source, trimmedRowSeparator, pos)) {<a name="line.330"></a>
+<span class="sourceLineNo">331</span>                            matrix.add(rowComponents);<a name="line.331"></a>
+<span class="sourceLineNo">332</span>                            rowComponents = new ArrayList&lt;Number&gt;();<a name="line.332"></a>
+<span class="sourceLineNo">333</span>                            continue;<a name="line.333"></a>
+<span class="sourceLineNo">334</span>                        } else {<a name="line.334"></a>
+<span class="sourceLineNo">335</span>                            loop = false;<a name="line.335"></a>
+<span class="sourceLineNo">336</span>                        }<a name="line.336"></a>
+<span class="sourceLineNo">337</span>                    }<a name="line.337"></a>
+<span class="sourceLineNo">338</span>                }<a name="line.338"></a>
+<span class="sourceLineNo">339</span>            } else {<a name="line.339"></a>
+<span class="sourceLineNo">340</span>                CompositeFormat.parseAndIgnoreWhitespace(source, pos);<a name="line.340"></a>
+<span class="sourceLineNo">341</span>                if (trimmedRowPrefix.length() != 0 &amp;&amp;<a name="line.341"></a>
+<span class="sourceLineNo">342</span>                    !CompositeFormat.parseFixedstring(source, trimmedRowPrefix, pos)) {<a name="line.342"></a>
+<span class="sourceLineNo">343</span>                    return null;<a name="line.343"></a>
+<span class="sourceLineNo">344</span>                }<a name="line.344"></a>
+<span class="sourceLineNo">345</span>            }<a name="line.345"></a>
+<span class="sourceLineNo">346</span><a name="line.346"></a>
+<span class="sourceLineNo">347</span>            if (loop) {<a name="line.347"></a>
+<span class="sourceLineNo">348</span>                CompositeFormat.parseAndIgnoreWhitespace(source, pos);<a name="line.348"></a>
+<span class="sourceLineNo">349</span>                Number component = CompositeFormat.parseNumber(source, format, pos);<a name="line.349"></a>
+<span class="sourceLineNo">350</span>                if (component != null) {<a name="line.350"></a>
+<span class="sourceLineNo">351</span>                    rowComponents.add(component);<a name="line.351"></a>
+<span class="sourceLineNo">352</span>                } else {<a name="line.352"></a>
+<span class="sourceLineNo">353</span>                    if (rowComponents.isEmpty()) {<a name="line.353"></a>
+<span class="sourceLineNo">354</span>                        loop = false;<a name="line.354"></a>
+<span class="sourceLineNo">355</span>                    } else {<a name="line.355"></a>
+<span class="sourceLineNo">356</span>                        // invalid component<a name="line.356"></a>
+<span class="sourceLineNo">357</span>                        // set index back to initial, error index should already be set<a name="line.357"></a>
+<span class="sourceLineNo">358</span>                        pos.setIndex(initialIndex);<a name="line.358"></a>
+<span class="sourceLineNo">359</span>                        return null;<a name="line.359"></a>
+<span class="sourceLineNo">360</span>                    }<a name="line.360"></a>
+<span class="sourceLineNo">361</span>                }<a name="line.361"></a>
+<span class="sourceLineNo">362</span>            }<a name="line.362"></a>
+<span class="sourceLineNo">363</span><a name="line.363"></a>
+<span class="sourceLineNo">364</span>        }<a name="line.364"></a>
+<span class="sourceLineNo">365</span><a name="line.365"></a>
+<span class="sourceLineNo">366</span>        if (!rowComponents.isEmpty()) {<a name="line.366"></a>
+<span class="sourceLineNo">367</span>            matrix.add(rowComponents);<a name="line.367"></a>
+<span class="sourceLineNo">368</span>        }<a name="line.368"></a>
+<span class="sourceLineNo">369</span><a name="line.369"></a>
+<span class="sourceLineNo">370</span>        // parse suffix<a name="line.370"></a>
+<span class="sourceLineNo">371</span>        CompositeFormat.parseAndIgnoreWhitespace(source, pos);<a name="line.371"></a>
+<span class="sourceLineNo">372</span>        if (!CompositeFormat.parseFixedstring(source, trimmedSuffix, pos)) {<a name="line.372"></a>
+<span class="sourceLineNo">373</span>            return null;<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        }<a name="line.374"></a>
+<span class="sourceLineNo">375</span><a name="line.375"></a>
+<span class="sourceLineNo">376</span>        // do not allow an empty matrix<a name="line.376"></a>
+<span class="sourceLineNo">377</span>        if (matrix.isEmpty()) {<a name="line.377"></a>
+<span class="sourceLineNo">378</span>            pos.setIndex(initialIndex);<a name="line.378"></a>
+<span class="sourceLineNo">379</span>            return null;<a name="line.379"></a>
+<span class="sourceLineNo">380</span>        }<a name="line.380"></a>
+<span class="sourceLineNo">381</span><a name="line.381"></a>
+<span class="sourceLineNo">382</span>        // build vector<a name="line.382"></a>
+<span class="sourceLineNo">383</span>        double[][] data = new double[matrix.size()][];<a name="line.383"></a>
+<span class="sourceLineNo">384</span>        int row = 0;<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        for (List&lt;Number&gt; rowList : matrix) {<a name="line.385"></a>
+<span class="sourceLineNo">386</span>            data[row] = new double[rowList.size()];<a name="line.386"></a>
+<span class="sourceLineNo">387</span>            for (int i = 0; i &lt; rowList.size(); i++) {<a name="line.387"></a>
+<span class="sourceLineNo">388</span>                data[row][i] = rowList.get(i).doubleValue();<a name="line.388"></a>
+<span class="sourceLineNo">389</span>            }<a name="line.389"></a>
+<span class="sourceLineNo">390</span>            row++;<a name="line.390"></a>
+<span class="sourceLineNo">391</span>        }<a name="line.391"></a>
+<span class="sourceLineNo">392</span>        return MatrixUtils.createRealMatrix(data);<a name="line.392"></a>
+<span class="sourceLineNo">393</span>    }<a name="line.393"></a>
+<span class="sourceLineNo">394</span>}<a name="line.394"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

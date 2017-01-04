@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Precision.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.util</a> &gt; <span class="el_source">Precision.java</span></div><h1>Precision.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.util;
+
+import java.math.BigDecimal;
+
+import org.apache.commons.math3.exception.MathArithmeticException;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+
+/**
+ * Utilities for comparing numbers.
+ *
+ * @since 3.0
+ */
+public class Precision {
+    /**
+     * &lt;p&gt;
+     * Largest double-precision floating-point number such that
+     * {@code 1 + EPSILON} is numerically equal to 1. This value is an upper
+     * bound on the relative error due to rounding real numbers to double
+     * precision floating-point numbers.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * In IEEE 754 arithmetic, this is 2&lt;sup&gt;-53&lt;/sup&gt;.
+     * &lt;/p&gt;
+     *
+     * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Machine_epsilon&quot;&gt;Machine epsilon&lt;/a&gt;
+     */
+    public static final double EPSILON;
+
+    /**
+     * Safe minimum, such that {@code 1 / SAFE_MIN} does not overflow.
+     * &lt;br/&gt;
+     * In IEEE 754 arithmetic, this is also the smallest normalized
+     * number 2&lt;sup&gt;-1022&lt;/sup&gt;.
+     */
+    public static final double SAFE_MIN;
+
+    /** Exponent offset in IEEE754 representation. */
+    private static final long EXPONENT_OFFSET = 1023l;
+
+    /** Offset to order signed double numbers lexicographically. */
+    private static final long SGN_MASK = 0x8000000000000000L;
+    /** Offset to order signed double numbers lexicographically. */
+    private static final int SGN_MASK_FLOAT = 0x80000000;
+    /** Positive zero. */
+    private static final double POSITIVE_ZERO = 0d;
+    /** Positive zero bits. */
+<span class="fc" id="L65">    private static final long POSITIVE_ZERO_DOUBLE_BITS = Double.doubleToRawLongBits(+0.0);</span>
+    /** Negative zero bits. */
+<span class="fc" id="L67">    private static final long NEGATIVE_ZERO_DOUBLE_BITS = Double.doubleToRawLongBits(-0.0);</span>
+    /** Positive zero bits. */
+<span class="fc" id="L69">    private static final int POSITIVE_ZERO_FLOAT_BITS   = Float.floatToRawIntBits(+0.0f);</span>
+    /** Negative zero bits. */
+<span class="fc" id="L71">    private static final int NEGATIVE_ZERO_FLOAT_BITS   = Float.floatToRawIntBits(-0.0f);</span>
+
+    static {
+        /*
+         *  This was previously expressed as = 0x1.0p-53;
+         *  However, OpenJDK (Sparc Solaris) cannot handle such small
+         *  constants: MATH-721
+         */
+<span class="fc" id="L79">        EPSILON = Double.longBitsToDouble((EXPONENT_OFFSET - 53l) &lt;&lt; 52);</span>
+
+        /*
+         * This was previously expressed as = 0x1.0p-1022;
+         * However, OpenJDK (Sparc Solaris) cannot handle such small
+         * constants: MATH-721
+         */
+<span class="fc" id="L86">        SAFE_MIN = Double.longBitsToDouble((EXPONENT_OFFSET - 1022l) &lt;&lt; 52);</span>
+<span class="fc" id="L87">    }</span>
+
+    /**
+     * Private constructor.
+     */
+<span class="nc" id="L92">    private Precision() {}</span>
+
+    /**
+     * Compares two numbers given some amount of allowed error.
+     *
+     * @param x the first number
+     * @param y the second number
+     * @param eps the amount of error to allow when checking for equality
+     * @return &lt;ul&gt;&lt;li&gt;0 if  {@link #equals(double, double, double) equals(x, y, eps)}&lt;/li&gt;
+     *       &lt;li&gt;&amp;lt; 0 if !{@link #equals(double, double, double) equals(x, y, eps)} &amp;amp;&amp;amp; x &amp;lt; y&lt;/li&gt;
+     *       &lt;li&gt;&gt; 0 if !{@link #equals(double, double, double) equals(x, y, eps)} &amp;amp;&amp;amp; x &gt; y or
+     *       either argument is NaN&lt;/li&gt;&lt;/ul&gt;
+     */
+    public static int compareTo(double x, double y, double eps) {
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        if (equals(x, y, eps)) {</span>
+<span class="fc" id="L107">            return 0;</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">        } else if (x &lt; y) {</span>
+<span class="fc" id="L109">            return -1;</span>
+        }
+<span class="fc" id="L111">        return 1;</span>
+    }
+
+    /**
+     * Compares two numbers given some amount of allowed error.
+     * Two float numbers are considered equal if there are {@code (maxUlps - 1)}
+     * (or fewer) floating point numbers between them, i.e. two adjacent floating
+     * point numbers are considered equal.
+     * Adapted from &lt;a
+     * href=&quot;http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/&quot;&gt;
+     * Bruce Dawson&lt;/a&gt;. Returns {@code false} if either of the arguments is NaN.
+     *
+     * @param x first value
+     * @param y second value
+     * @param maxUlps {@code (maxUlps - 1)} is the number of floating point
+     * values between {@code x} and {@code y}.
+     * @return &lt;ul&gt;&lt;li&gt;0 if  {@link #equals(double, double, int) equals(x, y, maxUlps)}&lt;/li&gt;
+     *       &lt;li&gt;&amp;lt; 0 if !{@link #equals(double, double, int) equals(x, y, maxUlps)} &amp;amp;&amp;amp; x &amp;lt; y&lt;/li&gt;
+     *       &lt;li&gt;&amp;gt; 0 if !{@link #equals(double, double, int) equals(x, y, maxUlps)} &amp;amp;&amp;amp; x &gt; y
+     *       or either argument is NaN&lt;/li&gt;&lt;/ul&gt;
+     */
+    public static int compareTo(final double x, final double y, final int maxUlps) {
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (equals(x, y, maxUlps)) {</span>
+<span class="fc" id="L134">            return 0;</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">        } else if (x &lt; y) {</span>
+<span class="fc" id="L136">            return -1;</span>
+        }
+<span class="fc" id="L138">        return 1;</span>
+    }
+
+    /**
+     * Returns true iff they are equal as defined by
+     * {@link #equals(float,float,int) equals(x, y, 1)}.
+     *
+     * @param x first value
+     * @param y second value
+     * @return {@code true} if the values are equal.
+     */
+    public static boolean equals(float x, float y) {
+<span class="fc" id="L150">        return equals(x, y, 1);</span>
+    }
+
+    /**
+     * Returns true if both arguments are NaN or they are
+     * equal as defined by {@link #equals(float,float) equals(x, y, 1)}.
+     *
+     * @param x first value
+     * @param y second value
+     * @return {@code true} if the values are equal or both are NaN.
+     * @since 2.2
+     */
+    public static boolean equalsIncludingNaN(float x, float y) {
+<span class="pc bpc" id="L163" title="8 of 10 branches missed.">        return (x != x || y != y) ? !(x != x ^ y != y) : equals(x, y, 1);</span>
+    }
+
+    /**
+     * Returns true if the arguments are equal or within the range of allowed
+     * error (inclusive).  Returns {@code false} if either of the arguments
+     * is NaN.
+     *
+     * @param x first value
+     * @param y second value
+     * @param eps the amount of absolute error to allow.
+     * @return {@code true} if the values are equal or within range of each other.
+     * @since 2.2
+     */
+    public static boolean equals(float x, float y, float eps) {
+<span class="nc bnc" id="L178" title="All 4 branches missed.">        return equals(x, y, 1) || FastMath.abs(y - x) &lt;= eps;</span>
+    }
+
+    /**
+     * Returns true if the arguments are both NaN, are equal, or are within the range
+     * of allowed error (inclusive).
+     *
+     * @param x first value
+     * @param y second value
+     * @param eps the amount of absolute error to allow.
+     * @return {@code true} if the values are equal or within range of each other,
+     * or both are NaN.
+     * @since 2.2
+     */
+    public static boolean equalsIncludingNaN(float x, float y, float eps) {
+<span class="nc bnc" id="L193" title="All 4 branches missed.">        return equalsIncludingNaN(x, y) || (FastMath.abs(y - x) &lt;= eps);</span>
+    }
+
+    /**
+     * Returns true if the arguments are equal or within the range of allowed
+     * error (inclusive).
+     * Two float numbers are considered equal if there are {@code (maxUlps - 1)}
+     * (or fewer) floating point numbers between them, i.e. two adjacent floating
+     * point numbers are considered equal.
+     * Adapted from &lt;a
+     * href=&quot;http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/&quot;&gt;
+     * Bruce Dawson&lt;/a&gt;.  Returns {@code false} if either of the arguments is NaN.
+     *
+     * @param x first value
+     * @param y second value
+     * @param maxUlps {@code (maxUlps - 1)} is the number of floating point
+     * values between {@code x} and {@code y}.
+     * @return {@code true} if there are fewer than {@code maxUlps} floating
+     * point values between {@code x} and {@code y}.
+     * @since 2.2
+     */
+    public static boolean equals(final float x, final float y, final int maxUlps) {
+
+<span class="fc" id="L216">        final int xInt = Float.floatToRawIntBits(x);</span>
+<span class="fc" id="L217">        final int yInt = Float.floatToRawIntBits(y);</span>
+
+        final boolean isEqual;
+<span class="fc bfc" id="L220" title="All 2 branches covered.">        if (((xInt ^ yInt) &amp; SGN_MASK_FLOAT) == 0) {</span>
+            // number have same sign, there is no risk of overflow
+<span class="fc bfc" id="L222" title="All 2 branches covered.">            isEqual = FastMath.abs(xInt - yInt) &lt;= maxUlps;</span>
+        } else {
+            // number have opposite signs, take care of overflow
+            final int deltaPlus;
+            final int deltaMinus;
+<span class="fc bfc" id="L227" title="All 2 branches covered.">            if (xInt &lt; yInt) {</span>
+<span class="fc" id="L228">                deltaPlus  = yInt - POSITIVE_ZERO_FLOAT_BITS;</span>
+<span class="fc" id="L229">                deltaMinus = xInt - NEGATIVE_ZERO_FLOAT_BITS;</span>
+            } else {
+<span class="fc" id="L231">                deltaPlus  = xInt - POSITIVE_ZERO_FLOAT_BITS;</span>
+<span class="fc" id="L232">                deltaMinus = yInt - NEGATIVE_ZERO_FLOAT_BITS;</span>
+            }
+
+<span class="fc bfc" id="L235" title="All 2 branches covered.">            if (deltaPlus &gt; maxUlps) {</span>
+<span class="fc" id="L236">                isEqual = false;</span>
+            } else {
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">                isEqual = deltaMinus &lt;= (maxUlps - deltaPlus);</span>
+            }
+
+        }
+
+<span class="pc bpc" id="L243" title="1 of 6 branches missed.">        return isEqual &amp;&amp; !Float.isNaN(x) &amp;&amp; !Float.isNaN(y);</span>
+
+    }
+
+    /**
+     * Returns true if the arguments are both NaN or if they are equal as defined
+     * by {@link #equals(float,float,int) equals(x, y, maxUlps)}.
+     *
+     * @param x first value
+     * @param y second value
+     * @param maxUlps {@code (maxUlps - 1)} is the number of floating point
+     * values between {@code x} and {@code y}.
+     * @return {@code true} if both arguments are NaN or if there are less than
+     * {@code maxUlps} floating point values between {@code x} and {@code y}.
+     * @since 2.2
+     */
+    public static boolean equalsIncludingNaN(float x, float y, int maxUlps) {
+<span class="nc bnc" id="L260" title="All 10 branches missed.">        return (x != x || y != y) ? !(x != x ^ y != y) : equals(x, y, maxUlps);</span>
+    }
+
+    /**
+     * Returns true iff they are equal as defined by
+     * {@link #equals(double,double,int) equals(x, y, 1)}.
+     *
+     * @param x first value
+     * @param y second value
+     * @return {@code true} if the values are equal.
+     */
+    public static boolean equals(double x, double y) {
+<span class="fc" id="L272">        return equals(x, y, 1);</span>
+    }
+
+    /**
+     * Returns true if the arguments are both NaN or they are
+     * equal as defined by {@link #equals(double,double) equals(x, y, 1)}.
+     *
+     * @param x first value
+     * @param y second value
+     * @return {@code true} if the values are equal or both are NaN.
+     * @since 2.2
+     */
+    public static boolean equalsIncludingNaN(double x, double y) {
+<span class="fc bfc" id="L285" title="All 10 branches covered.">        return (x != x || y != y) ? !(x != x ^ y != y) : equals(x, y, 1);</span>
+    }
+
+    /**
+     * Returns {@code true} if there is no double value strictly between the
+     * arguments or the difference between them is within the range of allowed
+     * error (inclusive). Returns {@code false} if either of the arguments
+     * is NaN.
+     *
+     * @param x First value.
+     * @param y Second value.
+     * @param eps Amount of allowed absolute error.
+     * @return {@code true} if the values are two adjacent floating point
+     * numbers or they are within range of each other.
+     */
+    public static boolean equals(double x, double y, double eps) {
+<span class="fc bfc" id="L301" title="All 4 branches covered.">        return equals(x, y, 1) || FastMath.abs(y - x) &lt;= eps;</span>
+    }
+
+    /**
+     * Returns {@code true} if there is no double value strictly between the
+     * arguments or the relative difference between them is less than or equal
+     * to the given tolerance. Returns {@code false} if either of the arguments
+     * is NaN.
+     *
+     * @param x First value.
+     * @param y Second value.
+     * @param eps Amount of allowed relative error.
+     * @return {@code true} if the values are two adjacent floating point
+     * numbers or they are within range of each other.
+     * @since 3.1
+     */
+    public static boolean equalsWithRelativeTolerance(double x, double y, double eps) {
+<span class="fc bfc" id="L318" title="All 2 branches covered.">        if (equals(x, y, 1)) {</span>
+<span class="fc" id="L319">            return true;</span>
+        }
+
+<span class="fc" id="L322">        final double absoluteMax = FastMath.max(FastMath.abs(x), FastMath.abs(y));</span>
+<span class="fc" id="L323">        final double relativeDifference = FastMath.abs((x - y) / absoluteMax);</span>
+
+<span class="fc bfc" id="L325" title="All 2 branches covered.">        return relativeDifference &lt;= eps;</span>
+    }
+
+    /**
+     * Returns true if the arguments are both NaN, are equal or are within the range
+     * of allowed error (inclusive).
+     *
+     * @param x first value
+     * @param y second value
+     * @param eps the amount of absolute error to allow.
+     * @return {@code true} if the values are equal or within range of each other,
+     * or both are NaN.
+     * @since 2.2
+     */
+    public static boolean equalsIncludingNaN(double x, double y, double eps) {
+<span class="fc bfc" id="L340" title="All 4 branches covered.">        return equalsIncludingNaN(x, y) || (FastMath.abs(y - x) &lt;= eps);</span>
+    }
+
+    /**
+     * Returns true if the arguments are equal or within the range of allowed
+     * error (inclusive).
+     * &lt;p&gt;
+     * Two float numbers are considered equal if there are {@code (maxUlps - 1)}
+     * (or fewer) floating point numbers between them, i.e. two adjacent
+     * floating point numbers are considered equal.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * Adapted from &lt;a
+     * href=&quot;http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/&quot;&gt;
+     * Bruce Dawson&lt;/a&gt;. Returns {@code false} if either of the arguments is NaN.
+     * &lt;/p&gt;
+     *
+     * @param x first value
+     * @param y second value
+     * @param maxUlps {@code (maxUlps - 1)} is the number of floating point
+     * values between {@code x} and {@code y}.
+     * @return {@code true} if there are fewer than {@code maxUlps} floating
+     * point values between {@code x} and {@code y}.
+     */
+    public static boolean equals(final double x, final double y, final int maxUlps) {
+
+<span class="fc" id="L366">        final long xInt = Double.doubleToRawLongBits(x);</span>
+<span class="fc" id="L367">        final long yInt = Double.doubleToRawLongBits(y);</span>
+
+        final boolean isEqual;
+<span class="fc bfc" id="L370" title="All 2 branches covered.">        if (((xInt ^ yInt) &amp; SGN_MASK) == 0l) {</span>
+            // number have same sign, there is no risk of overflow
+<span class="fc bfc" id="L372" title="All 2 branches covered.">            isEqual = FastMath.abs(xInt - yInt) &lt;= maxUlps;</span>
+        } else {
+            // number have opposite signs, take care of overflow
+            final long deltaPlus;
+            final long deltaMinus;
+<span class="fc bfc" id="L377" title="All 2 branches covered.">            if (xInt &lt; yInt) {</span>
+<span class="fc" id="L378">                deltaPlus  = yInt - POSITIVE_ZERO_DOUBLE_BITS;</span>
+<span class="fc" id="L379">                deltaMinus = xInt - NEGATIVE_ZERO_DOUBLE_BITS;</span>
+            } else {
+<span class="fc" id="L381">                deltaPlus  = xInt - POSITIVE_ZERO_DOUBLE_BITS;</span>
+<span class="fc" id="L382">                deltaMinus = yInt - NEGATIVE_ZERO_DOUBLE_BITS;</span>
+            }
+
+<span class="fc bfc" id="L385" title="All 2 branches covered.">            if (deltaPlus &gt; maxUlps) {</span>
+<span class="fc" id="L386">                isEqual = false;</span>
+            } else {
+<span class="fc bfc" id="L388" title="All 2 branches covered.">                isEqual = deltaMinus &lt;= (maxUlps - deltaPlus);</span>
+            }
+
+        }
+
+<span class="pc bpc" id="L393" title="1 of 6 branches missed.">        return isEqual &amp;&amp; !Double.isNaN(x) &amp;&amp; !Double.isNaN(y);</span>
+
+    }
+
+    /**
+     * Returns true if both arguments are NaN or if they are equal as defined
+     * by {@link #equals(double,double,int) equals(x, y, maxUlps)}.
+     *
+     * @param x first value
+     * @param y second value
+     * @param maxUlps {@code (maxUlps - 1)} is the number of floating point
+     * values between {@code x} and {@code y}.
+     * @return {@code true} if both arguments are NaN or if there are less than
+     * {@code maxUlps} floating point values between {@code x} and {@code y}.
+     * @since 2.2
+     */
+    public static boolean equalsIncludingNaN(double x, double y, int maxUlps) {
+<span class="pc bpc" id="L410" title="4 of 10 branches missed.">        return (x != x || y != y) ? !(x != x ^ y != y) : equals(x, y, maxUlps);</span>
+    }
+
+    /**
+     * Rounds the given value to the specified number of decimal places.
+     * The value is rounded using the {@link BigDecimal#ROUND_HALF_UP} method.
+     *
+     * @param x Value to round.
+     * @param scale Number of digits to the right of the decimal point.
+     * @return the rounded value.
+     * @since 1.1 (previously in {@code MathUtils}, moved as of version 3.0)
+     */
+    public static double round(double x, int scale) {
+<span class="fc" id="L423">        return round(x, scale, BigDecimal.ROUND_HALF_UP);</span>
+    }
+
+    /**
+     * Rounds the given value to the specified number of decimal places.
+     * The value is rounded using the given method which is any method defined
+     * in {@link BigDecimal}.
+     * If {@code x} is infinite or {@code NaN}, then the value of {@code x} is
+     * returned unchanged, regardless of the other parameters.
+     *
+     * @param x Value to round.
+     * @param scale Number of digits to the right of the decimal point.
+     * @param roundingMethod Rounding method as defined in {@link BigDecimal}.
+     * @return the rounded value.
+     * @throws ArithmeticException if {@code roundingMethod == ROUND_UNNECESSARY}
+     * and the specified scaling operation would require rounding.
+     * @throws IllegalArgumentException if {@code roundingMethod} does not
+     * represent a valid rounding mode.
+     * @since 1.1 (previously in {@code MathUtils}, moved as of version 3.0)
+     */
+    public static double round(double x, int scale, int roundingMethod) {
+        try {
+<span class="fc" id="L445">            final double rounded = (new BigDecimal(Double.toString(x))</span>
+                   .setScale(scale, roundingMethod))
+                   .doubleValue();
+            // MATH-1089: negative values rounded to zero should result in negative zero
+<span class="fc bfc" id="L449" title="All 2 branches covered.">            return rounded == POSITIVE_ZERO ? POSITIVE_ZERO * x : rounded;</span>
+<span class="fc" id="L450">        } catch (NumberFormatException ex) {</span>
+<span class="fc bfc" id="L451" title="All 2 branches covered.">            if (Double.isInfinite(x)) {</span>
+<span class="fc" id="L452">                return x;</span>
+            } else {
+<span class="fc" id="L454">                return Double.NaN;</span>
+            }
+        }
+    }
+
+    /**
+     * Rounds the given value to the specified number of decimal places.
+     * The value is rounded using the {@link BigDecimal#ROUND_HALF_UP} method.
+     *
+     * @param x Value to round.
+     * @param scale Number of digits to the right of the decimal point.
+     * @return the rounded value.
+     * @since 1.1 (previously in {@code MathUtils}, moved as of version 3.0)
+     */
+    public static float round(float x, int scale) {
+<span class="fc" id="L469">        return round(x, scale, BigDecimal.ROUND_HALF_UP);</span>
+    }
+
+    /**
+     * Rounds the given value to the specified number of decimal places.
+     * The value is rounded using the given method which is any method defined
+     * in {@link BigDecimal}.
+     *
+     * @param x Value to round.
+     * @param scale Number of digits to the right of the decimal point.
+     * @param roundingMethod Rounding method as defined in {@link BigDecimal}.
+     * @return the rounded value.
+     * @since 1.1 (previously in {@code MathUtils}, moved as of version 3.0)
+     * @throws MathArithmeticException if an exact operation is required but result is not exact
+     * @throws MathIllegalArgumentException if {@code roundingMethod} is not a valid rounding method.
+     */
+    public static float round(float x, int scale, int roundingMethod)
+        throws MathArithmeticException, MathIllegalArgumentException {
+<span class="fc" id="L487">        final float sign = FastMath.copySign(1f, x);</span>
+<span class="fc" id="L488">        final float factor = (float) FastMath.pow(10.0f, scale) * sign;</span>
+<span class="fc" id="L489">        return (float) roundUnscaled(x * factor, sign, roundingMethod) / factor;</span>
+    }
+
+    /**
+     * Rounds the given non-negative value to the &quot;nearest&quot; integer. Nearest is
+     * determined by the rounding method specified. Rounding methods are defined
+     * in {@link BigDecimal}.
+     *
+     * @param unscaled Value to round.
+     * @param sign Sign of the original, scaled value.
+     * @param roundingMethod Rounding method, as defined in {@link BigDecimal}.
+     * @return the rounded value.
+     * @throws MathArithmeticException if an exact operation is required but result is not exact
+     * @throws MathIllegalArgumentException if {@code roundingMethod} is not a valid rounding method.
+     * @since 1.1 (previously in {@code MathUtils}, moved as of version 3.0)
+     */
+    private static double roundUnscaled(double unscaled,
+                                        double sign,
+                                        int roundingMethod)
+        throws MathArithmeticException, MathIllegalArgumentException {
+<span class="fc bfc" id="L509" title="All 9 branches covered.">        switch (roundingMethod) {</span>
+        case BigDecimal.ROUND_CEILING :
+<span class="fc bfc" id="L511" title="All 2 branches covered.">            if (sign == -1) {</span>
+<span class="fc" id="L512">                unscaled = FastMath.floor(FastMath.nextAfter(unscaled, Double.NEGATIVE_INFINITY));</span>
+            } else {
+<span class="fc" id="L514">                unscaled = FastMath.ceil(FastMath.nextAfter(unscaled, Double.POSITIVE_INFINITY));</span>
+            }
+<span class="fc" id="L516">            break;</span>
+        case BigDecimal.ROUND_DOWN :
+<span class="fc" id="L518">            unscaled = FastMath.floor(FastMath.nextAfter(unscaled, Double.NEGATIVE_INFINITY));</span>
+<span class="fc" id="L519">            break;</span>
+        case BigDecimal.ROUND_FLOOR :
+<span class="fc bfc" id="L521" title="All 2 branches covered.">            if (sign == -1) {</span>
+<span class="fc" id="L522">                unscaled = FastMath.ceil(FastMath.nextAfter(unscaled, Double.POSITIVE_INFINITY));</span>
+            } else {
+<span class="fc" id="L524">                unscaled = FastMath.floor(FastMath.nextAfter(unscaled, Double.NEGATIVE_INFINITY));</span>
+            }
+<span class="fc" id="L526">            break;</span>
+        case BigDecimal.ROUND_HALF_DOWN : {
+<span class="fc" id="L528">            unscaled = FastMath.nextAfter(unscaled, Double.NEGATIVE_INFINITY);</span>
+<span class="fc" id="L529">            double fraction = unscaled - FastMath.floor(unscaled);</span>
+<span class="fc bfc" id="L530" title="All 2 branches covered.">            if (fraction &gt; 0.5) {</span>
+<span class="fc" id="L531">                unscaled = FastMath.ceil(unscaled);</span>
+            } else {
+<span class="fc" id="L533">                unscaled = FastMath.floor(unscaled);</span>
+            }
+<span class="fc" id="L535">            break;</span>
+        }
+        case BigDecimal.ROUND_HALF_EVEN : {
+<span class="fc" id="L538">            double fraction = unscaled - FastMath.floor(unscaled);</span>
+<span class="fc bfc" id="L539" title="All 2 branches covered.">            if (fraction &gt; 0.5) {</span>
+<span class="fc" id="L540">                unscaled = FastMath.ceil(unscaled);</span>
+<span class="fc bfc" id="L541" title="All 2 branches covered.">            } else if (fraction &lt; 0.5) {</span>
+<span class="fc" id="L542">                unscaled = FastMath.floor(unscaled);</span>
+            } else {
+                // The following equality test is intentional and needed for rounding purposes
+<span class="fc bfc" id="L545" title="All 2 branches covered.">                if (FastMath.floor(unscaled) / 2.0 == FastMath.floor(FastMath.floor(unscaled) / 2.0)) { // even</span>
+<span class="fc" id="L546">                    unscaled = FastMath.floor(unscaled);</span>
+                } else { // odd
+<span class="fc" id="L548">                    unscaled = FastMath.ceil(unscaled);</span>
+                }
+            }
+<span class="fc" id="L551">            break;</span>
+        }
+        case BigDecimal.ROUND_HALF_UP : {
+<span class="fc" id="L554">            unscaled = FastMath.nextAfter(unscaled, Double.POSITIVE_INFINITY);</span>
+<span class="fc" id="L555">            double fraction = unscaled - FastMath.floor(unscaled);</span>
+<span class="fc bfc" id="L556" title="All 2 branches covered.">            if (fraction &gt;= 0.5) {</span>
+<span class="fc" id="L557">                unscaled = FastMath.ceil(unscaled);</span>
+            } else {
+<span class="fc" id="L559">                unscaled = FastMath.floor(unscaled);</span>
+            }
+<span class="fc" id="L561">            break;</span>
+        }
+        case BigDecimal.ROUND_UNNECESSARY :
+<span class="fc bfc" id="L564" title="All 2 branches covered.">            if (unscaled != FastMath.floor(unscaled)) {</span>
+<span class="fc" id="L565">                throw new MathArithmeticException();</span>
+            }
+            break;
+        case BigDecimal.ROUND_UP :
+            // do not round if the discarded fraction is equal to zero
+<span class="fc bfc" id="L570" title="All 2 branches covered.">            if (unscaled != FastMath.floor(unscaled)) {</span>
+<span class="fc" id="L571">                unscaled = FastMath.ceil(FastMath.nextAfter(unscaled, Double.POSITIVE_INFINITY));</span>
+            }
+            break;
+        default :
+<span class="fc" id="L575">            throw new MathIllegalArgumentException(LocalizedFormats.INVALID_ROUNDING_METHOD,</span>
+                                                   roundingMethod,
+                                                   &quot;ROUND_CEILING&quot;, BigDecimal.ROUND_CEILING,
+                                                   &quot;ROUND_DOWN&quot;, BigDecimal.ROUND_DOWN,
+                                                   &quot;ROUND_FLOOR&quot;, BigDecimal.ROUND_FLOOR,
+                                                   &quot;ROUND_HALF_DOWN&quot;, BigDecimal.ROUND_HALF_DOWN,
+                                                   &quot;ROUND_HALF_EVEN&quot;, BigDecimal.ROUND_HALF_EVEN,
+                                                   &quot;ROUND_HALF_UP&quot;, BigDecimal.ROUND_HALF_UP,
+                                                   &quot;ROUND_UNNECESSARY&quot;, BigDecimal.ROUND_UNNECESSARY,
+                                                   &quot;ROUND_UP&quot;, BigDecimal.ROUND_UP);
+        }
+<span class="fc" id="L586">        return unscaled;</span>
+    }
+
+
+    /**
+     * Computes a number {@code delta} close to {@code originalDelta} with
+     * the property that &lt;pre&gt;&lt;code&gt;
+     *   x + delta - x
+     * &lt;/code&gt;&lt;/pre&gt;
+     * is exactly machine-representable.
+     * This is useful when computing numerical derivatives, in order to reduce
+     * roundoff errors.
+     *
+     * @param x Value.
+     * @param originalDelta Offset value.
+     * @return a number {@code delta} so that {@code x + delta} and {@code x}
+     * differ by a representable floating number.
+     */
+    public static double representableDelta(double x,
+                                            double originalDelta) {
+<span class="fc" id="L606">        return x + originalDelta - x;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ConfidenceInterval.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.interval</a> &gt; <span class="el_source">ConfidenceInterval.java</span></div><h1>ConfidenceInterval.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.interval;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+
+/**
+ * Represents an interval estimate of a population parameter.
+ *
+ * @since 3.3
+ */
+public class ConfidenceInterval {
+
+    /** Lower endpoint of the interval */
+    private double lowerBound;
+
+    /** Upper endpoint of the interval */
+    private double upperBound;
+
+    /**
+     * The asserted probability that the interval contains the population
+     * parameter
+     */
+    private double confidenceLevel;
+
+    /**
+     * Create a confidence interval with the given bounds and confidence level.
+     * &lt;p&gt;
+     * Preconditions:
+     * &lt;ul&gt;
+     * &lt;li&gt;{@code lower} must be strictly less than {@code upper}&lt;/li&gt;
+     * &lt;li&gt;{@code confidenceLevel} must be strictly between 0 and 1 (exclusive)&lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;/p&gt;
+     *
+     * @param lowerBound lower endpoint of the interval
+     * @param upperBound upper endpoint of the interval
+     * @param confidenceLevel coverage probability
+     * @throws MathIllegalArgumentException if the preconditions are not met
+     */
+<span class="fc" id="L56">    public ConfidenceInterval(double lowerBound, double upperBound, double confidenceLevel) {</span>
+<span class="fc" id="L57">        checkParameters(lowerBound, upperBound, confidenceLevel);</span>
+<span class="fc" id="L58">        this.lowerBound = lowerBound;</span>
+<span class="fc" id="L59">        this.upperBound = upperBound;</span>
+<span class="fc" id="L60">        this.confidenceLevel = confidenceLevel;</span>
+<span class="fc" id="L61">    }</span>
+
+    /**
+     * @return the lower endpoint of the interval
+     */
+    public double getLowerBound() {
+<span class="fc" id="L67">        return lowerBound;</span>
+    }
+
+    /**
+     * @return the upper endpoint of the interval
+     */
+    public double getUpperBound() {
+<span class="fc" id="L74">        return upperBound;</span>
+    }
+
+    /**
+     * @return the asserted probability that the interval contains the
+     *         population parameter
+     */
+    public double getConfidenceLevel() {
+<span class="fc" id="L82">        return confidenceLevel;</span>
+    }
+
+    /**
+     * @return String representation of the confidence interval
+     */
+    @Override
+    public String toString() {
+<span class="nc" id="L90">        return &quot;[&quot; + lowerBound + &quot;;&quot; + upperBound + &quot;] (confidence level:&quot; + confidenceLevel + &quot;)&quot;;</span>
+    }
+
+    /**
+     * Verifies that (lower, upper) is a valid non-empty interval and confidence
+     * is strictly between 0 and 1.
+     *
+     * @param lower lower endpoint
+     * @param upper upper endpoint
+     * @param confidence confidence level
+     */
+    private void checkParameters(double lower, double upper, double confidence) {
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">        if (lower &gt;= upper) {</span>
+<span class="nc" id="L103">            throw new MathIllegalArgumentException(LocalizedFormats.LOWER_BOUND_NOT_BELOW_UPPER_BOUND, lower, upper);</span>
+        }
+<span class="pc bpc" id="L105" title="2 of 4 branches missed.">        if (confidence &lt;= 0 || confidence &gt;= 1) {</span>
+<span class="nc" id="L106">            throw new MathIllegalArgumentException(LocalizedFormats.OUT_OF_BOUNDS_CONFIDENCE_LEVEL, confidence, 0, 1);</span>
+        }
+<span class="fc" id="L108">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

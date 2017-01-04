@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>KendallsCorrelation.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.correlation</a> &gt; <span class="el_source">KendallsCorrelation.java</span></div><h1>KendallsCorrelation.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.correlation;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.linear.BlockRealMatrix;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.Pair;
+
+import java.util.Arrays;
+import java.util.Comparator;
+
+/**
+ * Implementation of Kendall's Tau-b rank correlation&lt;/a&gt;.
+ * &lt;p&gt;
+ * A pair of observations (x&lt;sub&gt;1&lt;/sub&gt;, y&lt;sub&gt;1&lt;/sub&gt;) and
+ * (x&lt;sub&gt;2&lt;/sub&gt;, y&lt;sub&gt;2&lt;/sub&gt;) are considered &lt;i&gt;concordant&lt;/i&gt; if
+ * x&lt;sub&gt;1&lt;/sub&gt; &amp;lt; x&lt;sub&gt;2&lt;/sub&gt; and y&lt;sub&gt;1&lt;/sub&gt; &amp;lt; y&lt;sub&gt;2&lt;/sub&gt;
+ * or x&lt;sub&gt;2&lt;/sub&gt; &amp;lt; x&lt;sub&gt;1&lt;/sub&gt; and y&lt;sub&gt;2&lt;/sub&gt; &amp;lt; y&lt;sub&gt;1&lt;/sub&gt;.
+ * The pair is &lt;i&gt;discordant&lt;/i&gt; if x&lt;sub&gt;1&lt;/sub&gt; &amp;lt; x&lt;sub&gt;2&lt;/sub&gt; and
+ * y&lt;sub&gt;2&lt;/sub&gt; &amp;lt; y&lt;sub&gt;1&lt;/sub&gt; or x&lt;sub&gt;2&lt;/sub&gt; &amp;lt; x&lt;sub&gt;1&lt;/sub&gt; and
+ * y&lt;sub&gt;1&lt;/sub&gt; &amp;lt; y&lt;sub&gt;2&lt;/sub&gt;.  If either x&lt;sub&gt;1&lt;/sub&gt; = x&lt;sub&gt;2&lt;/sub&gt;
+ * or y&lt;sub&gt;1&lt;/sub&gt; = y&lt;sub&gt;2&lt;/sub&gt;, the pair is neither concordant nor
+ * discordant.
+ * &lt;p&gt;
+ * Kendall's Tau-b is defined as:
+ * &lt;pre&gt;
+ * tau&lt;sub&gt;b&lt;/sub&gt; = (n&lt;sub&gt;c&lt;/sub&gt; - n&lt;sub&gt;d&lt;/sub&gt;) / sqrt((n&lt;sub&gt;0&lt;/sub&gt; - n&lt;sub&gt;1&lt;/sub&gt;) * (n&lt;sub&gt;0&lt;/sub&gt; - n&lt;sub&gt;2&lt;/sub&gt;))
+ * &lt;/pre&gt;
+ * &lt;p&gt;
+ * where:
+ * &lt;ul&gt;
+ *     &lt;li&gt;n&lt;sub&gt;0&lt;/sub&gt; = n * (n - 1) / 2&lt;/li&gt;
+ *     &lt;li&gt;n&lt;sub&gt;c&lt;/sub&gt; = Number of concordant pairs&lt;/li&gt;
+ *     &lt;li&gt;n&lt;sub&gt;d&lt;/sub&gt; = Number of discordant pairs&lt;/li&gt;
+ *     &lt;li&gt;n&lt;sub&gt;1&lt;/sub&gt; = sum of t&lt;sub&gt;i&lt;/sub&gt; * (t&lt;sub&gt;i&lt;/sub&gt; - 1) / 2 for all i&lt;/li&gt;
+ *     &lt;li&gt;n&lt;sub&gt;2&lt;/sub&gt; = sum of u&lt;sub&gt;j&lt;/sub&gt; * (u&lt;sub&gt;j&lt;/sub&gt; - 1) / 2 for all j&lt;/li&gt;
+ *     &lt;li&gt;t&lt;sub&gt;i&lt;/sub&gt; = Number of tied values in the i&lt;sup&gt;th&lt;/sup&gt; group of ties in x&lt;/li&gt;
+ *     &lt;li&gt;u&lt;sub&gt;j&lt;/sub&gt; = Number of tied values in the j&lt;sup&gt;th&lt;/sup&gt; group of ties in y&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;p&gt;
+ * This implementation uses the O(n log n) algorithm described in
+ * William R. Knight's 1966 paper &quot;A Computer Method for Calculating
+ * Kendall's Tau with Ungrouped Data&quot; in the Journal of the American
+ * Statistical Association.
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Kendall_tau_rank_correlation_coefficient&quot;&gt;
+ * Kendall tau rank correlation coefficient (Wikipedia)&lt;/a&gt;
+ * @see &lt;a href=&quot;http://www.jstor.org/stable/2282833&quot;&gt;A Computer
+ * Method for Calculating Kendall's Tau with Ungrouped Data&lt;/a&gt;
+ *
+ * @since 3.3
+ */
+public class KendallsCorrelation {
+
+    /** correlation matrix */
+    private final RealMatrix correlationMatrix;
+
+    /**
+     * Create a KendallsCorrelation instance without data.
+     */
+<span class="fc" id="L78">    public KendallsCorrelation() {</span>
+<span class="fc" id="L79">        correlationMatrix = null;</span>
+<span class="fc" id="L80">    }</span>
+
+    /**
+     * Create a KendallsCorrelation from a rectangular array
+     * whose columns represent values of variables to be correlated.
+     *
+     * @param data rectangular array with columns representing variables
+     * @throws IllegalArgumentException if the input data array is not
+     * rectangular with at least two rows and two columns.
+     */
+    public KendallsCorrelation(double[][] data) {
+<span class="nc" id="L91">        this(MatrixUtils.createRealMatrix(data));</span>
+<span class="nc" id="L92">    }</span>
+
+    /**
+     * Create a KendallsCorrelation from a RealMatrix whose columns
+     * represent variables to be correlated.
+     *
+     * @param matrix matrix with columns representing variables to correlate
+     */
+<span class="fc" id="L100">    public KendallsCorrelation(RealMatrix matrix) {</span>
+<span class="fc" id="L101">        correlationMatrix = computeCorrelationMatrix(matrix);</span>
+<span class="fc" id="L102">    }</span>
+
+    /**
+     * Returns the correlation matrix.
+     *
+     * @return correlation matrix
+     */
+    public RealMatrix getCorrelationMatrix() {
+<span class="fc" id="L110">        return correlationMatrix;</span>
+    }
+
+    /**
+     * Computes the Kendall's Tau rank correlation matrix for the columns of
+     * the input matrix.
+     *
+     * @param matrix matrix with columns representing variables to correlate
+     * @return correlation matrix
+     */
+    public RealMatrix computeCorrelationMatrix(final RealMatrix matrix) {
+<span class="fc" id="L121">        int nVars = matrix.getColumnDimension();</span>
+<span class="fc" id="L122">        RealMatrix outMatrix = new BlockRealMatrix(nVars, nVars);</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        for (int i = 0; i &lt; nVars; i++) {</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">            for (int j = 0; j &lt; i; j++) {</span>
+<span class="fc" id="L125">                double corr = correlation(matrix.getColumn(i), matrix.getColumn(j));</span>
+<span class="fc" id="L126">                outMatrix.setEntry(i, j, corr);</span>
+<span class="fc" id="L127">                outMatrix.setEntry(j, i, corr);</span>
+            }
+<span class="fc" id="L129">            outMatrix.setEntry(i, i, 1d);</span>
+        }
+<span class="fc" id="L131">        return outMatrix;</span>
+    }
+
+    /**
+     * Computes the Kendall's Tau rank correlation matrix for the columns of
+     * the input rectangular array.  The columns of the array represent values
+     * of variables to be correlated.
+     *
+     * @param matrix matrix with columns representing variables to correlate
+     * @return correlation matrix
+     */
+    public RealMatrix computeCorrelationMatrix(final double[][] matrix) {
+<span class="fc" id="L143">       return computeCorrelationMatrix(new BlockRealMatrix(matrix));</span>
+    }
+
+    /**
+     * Computes the Kendall's Tau rank correlation coefficient between the two arrays.
+     *
+     * @param xArray first data array
+     * @param yArray second data array
+     * @return Returns Kendall's Tau rank correlation coefficient for the two arrays
+     * @throws DimensionMismatchException if the arrays lengths do not match
+     */
+    public double correlation(final double[] xArray, final double[] yArray)
+            throws DimensionMismatchException {
+
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">        if (xArray.length != yArray.length) {</span>
+<span class="nc" id="L158">            throw new DimensionMismatchException(xArray.length, yArray.length);</span>
+        }
+
+<span class="fc" id="L161">        final int n = xArray.length;</span>
+<span class="fc" id="L162">        final long numPairs = sum(n - 1);</span>
+
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L165">        Pair&lt;Double, Double&gt;[] pairs = new Pair[n];</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L167">            pairs[i] = new Pair&lt;Double, Double&gt;(xArray[i], yArray[i]);</span>
+        }
+
+<span class="fc" id="L170">        Arrays.sort(pairs, new Comparator&lt;Pair&lt;Double, Double&gt;&gt;() {</span>
+            /** {@inheritDoc} */
+            public int compare(Pair&lt;Double, Double&gt; pair1, Pair&lt;Double, Double&gt; pair2) {
+<span class="fc" id="L173">                int compareFirst = pair1.getFirst().compareTo(pair2.getFirst());</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">                return compareFirst != 0 ? compareFirst : pair1.getSecond().compareTo(pair2.getSecond());</span>
+            }
+        });
+
+<span class="fc" id="L178">        long tiedXPairs = 0;</span>
+<span class="fc" id="L179">        long tiedXYPairs = 0;</span>
+<span class="fc" id="L180">        long consecutiveXTies = 1;</span>
+<span class="fc" id="L181">        long consecutiveXYTies = 1;</span>
+<span class="fc" id="L182">        Pair&lt;Double, Double&gt; prev = pairs[0];</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">        for (int i = 1; i &lt; n; i++) {</span>
+<span class="fc" id="L184">            final Pair&lt;Double, Double&gt; curr = pairs[i];</span>
+<span class="fc bfc" id="L185" title="All 2 branches covered.">            if (curr.getFirst().equals(prev.getFirst())) {</span>
+<span class="fc" id="L186">                consecutiveXTies++;</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">                if (curr.getSecond().equals(prev.getSecond())) {</span>
+<span class="fc" id="L188">                    consecutiveXYTies++;</span>
+                } else {
+<span class="fc" id="L190">                    tiedXYPairs += sum(consecutiveXYTies - 1);</span>
+<span class="fc" id="L191">                    consecutiveXYTies = 1;</span>
+                }
+            } else {
+<span class="fc" id="L194">                tiedXPairs += sum(consecutiveXTies - 1);</span>
+<span class="fc" id="L195">                consecutiveXTies = 1;</span>
+<span class="fc" id="L196">                tiedXYPairs += sum(consecutiveXYTies - 1);</span>
+<span class="fc" id="L197">                consecutiveXYTies = 1;</span>
+            }
+<span class="fc" id="L199">            prev = curr;</span>
+        }
+<span class="fc" id="L201">        tiedXPairs += sum(consecutiveXTies - 1);</span>
+<span class="fc" id="L202">        tiedXYPairs += sum(consecutiveXYTies - 1);</span>
+
+<span class="fc" id="L204">        long swaps = 0;</span>
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L206">        Pair&lt;Double, Double&gt;[] pairsDestination = new Pair[n];</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        for (int segmentSize = 1; segmentSize &lt; n; segmentSize &lt;&lt;= 1) {</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">            for (int offset = 0; offset &lt; n; offset += 2 * segmentSize) {</span>
+<span class="fc" id="L209">                int i = offset;</span>
+<span class="fc" id="L210">                final int iEnd = FastMath.min(i + segmentSize, n);</span>
+<span class="fc" id="L211">                int j = iEnd;</span>
+<span class="fc" id="L212">                final int jEnd = FastMath.min(j + segmentSize, n);</span>
+
+<span class="fc" id="L214">                int copyLocation = offset;</span>
+<span class="fc bfc" id="L215" title="All 4 branches covered.">                while (i &lt; iEnd || j &lt; jEnd) {</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">                    if (i &lt; iEnd) {</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">                        if (j &lt; jEnd) {</span>
+<span class="fc bfc" id="L218" title="All 2 branches covered.">                            if (pairs[i].getSecond().compareTo(pairs[j].getSecond()) &lt;= 0) {</span>
+<span class="fc" id="L219">                                pairsDestination[copyLocation] = pairs[i];</span>
+<span class="fc" id="L220">                                i++;</span>
+                            } else {
+<span class="fc" id="L222">                                pairsDestination[copyLocation] = pairs[j];</span>
+<span class="fc" id="L223">                                j++;</span>
+<span class="fc" id="L224">                                swaps += iEnd - i;</span>
+                            }
+                        } else {
+<span class="fc" id="L227">                            pairsDestination[copyLocation] = pairs[i];</span>
+<span class="fc" id="L228">                            i++;</span>
+                        }
+                    } else {
+<span class="fc" id="L231">                        pairsDestination[copyLocation] = pairs[j];</span>
+<span class="fc" id="L232">                        j++;</span>
+                    }
+<span class="fc" id="L234">                    copyLocation++;</span>
+                }
+            }
+<span class="fc" id="L237">            final Pair&lt;Double, Double&gt;[] pairsTemp = pairs;</span>
+<span class="fc" id="L238">            pairs = pairsDestination;</span>
+<span class="fc" id="L239">            pairsDestination = pairsTemp;</span>
+        }
+
+<span class="fc" id="L242">        long tiedYPairs = 0;</span>
+<span class="fc" id="L243">        long consecutiveYTies = 1;</span>
+<span class="fc" id="L244">        prev = pairs[0];</span>
+<span class="fc bfc" id="L245" title="All 2 branches covered.">        for (int i = 1; i &lt; n; i++) {</span>
+<span class="fc" id="L246">            final Pair&lt;Double, Double&gt; curr = pairs[i];</span>
+<span class="fc bfc" id="L247" title="All 2 branches covered.">            if (curr.getSecond().equals(prev.getSecond())) {</span>
+<span class="fc" id="L248">                consecutiveYTies++;</span>
+            } else {
+<span class="fc" id="L250">                tiedYPairs += sum(consecutiveYTies - 1);</span>
+<span class="fc" id="L251">                consecutiveYTies = 1;</span>
+            }
+<span class="fc" id="L253">            prev = curr;</span>
+        }
+<span class="fc" id="L255">        tiedYPairs += sum(consecutiveYTies - 1);</span>
+
+<span class="fc" id="L257">        final long concordantMinusDiscordant = numPairs - tiedXPairs - tiedYPairs + tiedXYPairs - 2 * swaps;</span>
+<span class="fc" id="L258">        final double nonTiedPairsMultiplied = (numPairs - tiedXPairs) * (double) (numPairs - tiedYPairs);</span>
+<span class="fc" id="L259">        return concordantMinusDiscordant / FastMath.sqrt(nonTiedPairsMultiplied);</span>
+    }
+
+    /**
+     * Returns the sum of the number from 1 .. n according to Gauss' summation formula:
+     * \[ \sum\limits_{k=1}^n k = \frac{n(n + 1)}{2} \]
+     *
+     * @param n the summation end
+     * @return the sum of the number from 1 to n
+     */
+    private static long sum(long n) {
+<span class="fc" id="L270">        return n * (n + 1) / 2l;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

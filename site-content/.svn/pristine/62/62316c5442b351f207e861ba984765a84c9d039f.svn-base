@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SmoothingPolynomialBicubicSplineInterpolator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.interpolation</a> &gt; <span class="el_source">SmoothingPolynomialBicubicSplineInterpolator.java</span></div><h1>SmoothingPolynomialBicubicSplineInterpolator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.analysis.interpolation;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.NonMonotonicSequenceException;
+import org.apache.commons.math3.exception.NotPositiveException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.math3.util.Precision;
+import org.apache.commons.math3.optim.nonlinear.vector.jacobian.GaussNewtonOptimizer;
+import org.apache.commons.math3.fitting.PolynomialFitter;
+import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
+import org.apache.commons.math3.optim.SimpleVectorValueChecker;
+
+/**
+ * Generates a bicubic interpolation function.
+ * Prior to generating the interpolating function, the input is smoothed using
+ * polynomial fitting.
+ *
+ * @since 2.2
+ * @deprecated To be removed in 4.0 (see MATH-1166).
+ */
+@Deprecated
+public class SmoothingPolynomialBicubicSplineInterpolator
+    extends BicubicSplineInterpolator {
+    /** Fitter for x. */
+    private final PolynomialFitter xFitter;
+    /** Degree of the fitting polynomial. */
+    private final int xDegree;
+    /** Fitter for y. */
+    private final PolynomialFitter yFitter;
+    /** Degree of the fitting polynomial. */
+    private final int yDegree;
+
+    /**
+     * Default constructor. The degree of the fitting polynomials is set to 3.
+     */
+    public SmoothingPolynomialBicubicSplineInterpolator() {
+<span class="nc" id="L55">        this(3);</span>
+<span class="nc" id="L56">    }</span>
+
+    /**
+     * @param degree Degree of the polynomial fitting functions.
+     * @exception NotPositiveException if degree is not positive
+     */
+    public SmoothingPolynomialBicubicSplineInterpolator(int degree)
+        throws NotPositiveException {
+<span class="fc" id="L64">        this(degree, degree);</span>
+<span class="fc" id="L65">    }</span>
+
+    /**
+     * @param xDegree Degree of the polynomial fitting functions along the
+     * x-dimension.
+     * @param yDegree Degree of the polynomial fitting functions along the
+     * y-dimension.
+     * @exception NotPositiveException if degrees are not positive
+     */
+    public SmoothingPolynomialBicubicSplineInterpolator(int xDegree, int yDegree)
+<span class="fc" id="L75">        throws NotPositiveException {</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">        if (xDegree &lt; 0) {</span>
+<span class="nc" id="L77">            throw new NotPositiveException(xDegree);</span>
+        }
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if (yDegree &lt; 0) {</span>
+<span class="nc" id="L80">            throw new NotPositiveException(yDegree);</span>
+        }
+<span class="fc" id="L82">        this.xDegree = xDegree;</span>
+<span class="fc" id="L83">        this.yDegree = yDegree;</span>
+
+<span class="fc" id="L85">        final double safeFactor = 1e2;</span>
+<span class="fc" id="L86">        final SimpleVectorValueChecker checker</span>
+            = new SimpleVectorValueChecker(safeFactor * Precision.EPSILON,
+                                           safeFactor * Precision.SAFE_MIN);
+<span class="fc" id="L89">        xFitter = new PolynomialFitter(new GaussNewtonOptimizer(false, checker));</span>
+<span class="fc" id="L90">        yFitter = new PolynomialFitter(new GaussNewtonOptimizer(false, checker));</span>
+<span class="fc" id="L91">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BicubicSplineInterpolatingFunction interpolate(final double[] xval,
+                                                          final double[] yval,
+                                                          final double[][] fval)
+        throws NoDataException, NullArgumentException,
+               DimensionMismatchException, NonMonotonicSequenceException {
+<span class="pc bpc" id="L102" title="3 of 6 branches missed.">        if (xval.length == 0 || yval.length == 0 || fval.length == 0) {</span>
+<span class="nc" id="L103">            throw new NoDataException();</span>
+        }
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        if (xval.length != fval.length) {</span>
+<span class="fc" id="L106">            throw new DimensionMismatchException(xval.length, fval.length);</span>
+        }
+
+<span class="fc" id="L109">        final int xLen = xval.length;</span>
+<span class="fc" id="L110">        final int yLen = yval.length;</span>
+
+<span class="fc bfc" id="L112" title="All 2 branches covered.">        for (int i = 0; i &lt; xLen; i++) {</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">            if (fval[i].length != yLen) {</span>
+<span class="fc" id="L114">                throw new DimensionMismatchException(fval[i].length, yLen);</span>
+            }
+        }
+
+<span class="fc" id="L118">        MathArrays.checkOrder(xval);</span>
+<span class="fc" id="L119">        MathArrays.checkOrder(yval);</span>
+
+        // For each line y[j] (0 &lt;= j &lt; yLen), construct a polynomial, with
+        // respect to variable x, fitting array fval[][j]
+<span class="fc" id="L123">        final PolynomialFunction[] yPolyX = new PolynomialFunction[yLen];</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        for (int j = 0; j &lt; yLen; j++) {</span>
+<span class="fc" id="L125">            xFitter.clearObservations();</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">            for (int i = 0; i &lt; xLen; i++) {</span>
+<span class="fc" id="L127">                xFitter.addObservedPoint(1, xval[i], fval[i][j]);</span>
+            }
+
+            // Initial guess for the fit is zero for each coefficients (of which
+            // there are &quot;xDegree&quot; + 1).
+<span class="fc" id="L132">            yPolyX[j] = new PolynomialFunction(xFitter.fit(new double[xDegree + 1]));</span>
+        }
+
+        // For every knot (xval[i], yval[j]) of the grid, calculate corrected
+        // values fval_1
+<span class="fc" id="L137">        final double[][] fval_1 = new double[xLen][yLen];</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        for (int j = 0; j &lt; yLen; j++) {</span>
+<span class="fc" id="L139">            final PolynomialFunction f = yPolyX[j];</span>
+<span class="fc bfc" id="L140" title="All 2 branches covered.">            for (int i = 0; i &lt; xLen; i++) {</span>
+<span class="fc" id="L141">                fval_1[i][j] = f.value(xval[i]);</span>
+            }
+        }
+
+        // For each line x[i] (0 &lt;= i &lt; xLen), construct a polynomial, with
+        // respect to variable y, fitting array fval_1[i][]
+<span class="fc" id="L147">        final PolynomialFunction[] xPolyY = new PolynomialFunction[xLen];</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        for (int i = 0; i &lt; xLen; i++) {</span>
+<span class="fc" id="L149">            yFitter.clearObservations();</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">            for (int j = 0; j &lt; yLen; j++) {</span>
+<span class="fc" id="L151">                yFitter.addObservedPoint(1, yval[j], fval_1[i][j]);</span>
+            }
+
+            // Initial guess for the fit is zero for each coefficients (of which
+            // there are &quot;yDegree&quot; + 1).
+<span class="fc" id="L156">            xPolyY[i] = new PolynomialFunction(yFitter.fit(new double[yDegree + 1]));</span>
+        }
+
+        // For every knot (xval[i], yval[j]) of the grid, calculate corrected
+        // values fval_2
+<span class="fc" id="L161">        final double[][] fval_2 = new double[xLen][yLen];</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">        for (int i = 0; i &lt; xLen; i++) {</span>
+<span class="fc" id="L163">            final PolynomialFunction f = xPolyY[i];</span>
+<span class="fc bfc" id="L164" title="All 2 branches covered.">            for (int j = 0; j &lt; yLen; j++) {</span>
+<span class="fc" id="L165">                fval_2[i][j] = f.value(yval[j]);</span>
+            }
+        }
+
+<span class="fc" id="L169">        return super.interpolate(xval, yval, fval_2);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

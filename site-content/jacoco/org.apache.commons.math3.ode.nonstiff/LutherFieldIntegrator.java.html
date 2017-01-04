@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LutherFieldIntegrator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.nonstiff</a> &gt; <span class="el_source">LutherFieldIntegrator.java</span></div><h1>LutherFieldIntegrator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.nonstiff;
+
+import org.apache.commons.math3.Field;
+import org.apache.commons.math3.RealFieldElement;
+import org.apache.commons.math3.ode.FieldEquationsMapper;
+import org.apache.commons.math3.ode.FieldODEStateAndDerivative;
+import org.apache.commons.math3.util.MathArrays;
+
+
+/**
+ * This class implements the Luther sixth order Runge-Kutta
+ * integrator for Ordinary Differential Equations.
+
+ * &lt;p&gt;
+ * This method is described in H. A. Luther 1968 paper &lt;a
+ * href=&quot;http://www.ams.org/journals/mcom/1968-22-102/S0025-5718-68-99876-1/S0025-5718-68-99876-1.pdf&quot;&gt;
+ * An explicit Sixth-Order Runge-Kutta Formula&lt;/a&gt;.
+ * &lt;/p&gt;
+
+ * &lt;p&gt;This method is an explicit Runge-Kutta method, its Butcher-array
+ * is the following one :
+ * &lt;pre&gt;
+ *        0   |               0                     0                     0                     0                     0                     0
+ *        1   |               1                     0                     0                     0                     0                     0
+ *       1/2  |              3/8                   1/8                    0                     0                     0                     0
+ *       2/3  |              8/27                  2/27                  8/27                   0                     0                     0
+ *   (7-q)/14 | (  -21 +   9q)/392    (  -56 +   8q)/392    (  336 -  48q)/392    (  -63 +   3q)/392                  0                     0
+ *   (7+q)/14 | (-1155 - 255q)/1960   ( -280 -  40q)/1960   (    0 - 320q)/1960   (   63 + 363q)/1960   ( 2352 + 392q)/1960                 0
+ *        1   | (  330 + 105q)/180    (  120 +   0q)/180    ( -200 + 280q)/180    (  126 - 189q)/180    ( -686 - 126q)/180     ( 490 -  70q)/180
+ *            |--------------------------------------------------------------------------------------------------------------------------------------------------
+ *            |              1/20                   0                   16/45                  0                   49/180                 49/180         1/20
+ * &lt;/pre&gt;
+ * where q = &amp;radic;21&lt;/p&gt;
+ *
+ * @see EulerFieldIntegrator
+ * @see ClassicalRungeKuttaFieldIntegrator
+ * @see GillFieldIntegrator
+ * @see MidpointFieldIntegrator
+ * @see ThreeEighthesFieldIntegrator
+ * @param &lt;T&gt; the type of the field elements
+ * @since 3.6
+ */
+
+public class LutherFieldIntegrator&lt;T extends RealFieldElement&lt;T&gt;&gt;
+    extends RungeKuttaFieldIntegrator&lt;T&gt; {
+
+    /** Simple constructor.
+     * Build a fourth-order Luther integrator with the given step.
+     * @param field field to which the time and state vector elements belong
+     * @param step integration step
+     */
+    public LutherFieldIntegrator(final Field&lt;T&gt; field, final T step) {
+<span class="fc" id="L70">        super(field, &quot;Luther&quot;, step);</span>
+<span class="fc" id="L71">    }</span>
+
+    /** {@inheritDoc} */
+    public T[] getC() {
+<span class="fc" id="L75">        final T q = getField().getZero().add(21).sqrt();</span>
+<span class="fc" id="L76">        final T[] c = MathArrays.buildArray(getField(), 6);</span>
+<span class="fc" id="L77">        c[0] = getField().getOne();</span>
+<span class="fc" id="L78">        c[1] = fraction(1, 2);</span>
+<span class="fc" id="L79">        c[2] = fraction(2, 3);</span>
+<span class="fc" id="L80">        c[3] = q.subtract(7).divide(-14);</span>
+<span class="fc" id="L81">        c[4] = q.add(7).divide(14);</span>
+<span class="fc" id="L82">        c[5] = getField().getOne();</span>
+<span class="fc" id="L83">        return c;</span>
+    }
+
+    /** {@inheritDoc} */
+    public T[][] getA() {
+<span class="fc" id="L88">        final T q = getField().getZero().add(21).sqrt();</span>
+<span class="fc" id="L89">        final T[][] a = MathArrays.buildArray(getField(), 6, -1);</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        for (int i = 0; i &lt; a.length; ++i) {</span>
+<span class="fc" id="L91">            a[i] = MathArrays.buildArray(getField(), i + 1);</span>
+        }
+<span class="fc" id="L93">        a[0][0] = getField().getOne();</span>
+<span class="fc" id="L94">        a[1][0] = fraction(3,  8);</span>
+<span class="fc" id="L95">        a[1][1] = fraction(1,  8);</span>
+<span class="fc" id="L96">        a[2][0] = fraction(8, 27);</span>
+<span class="fc" id="L97">        a[2][1] = fraction(2, 27);</span>
+<span class="fc" id="L98">        a[2][2] = a[2][0];</span>
+<span class="fc" id="L99">        a[3][0] = q.multiply(   9).add(  -21).divide( 392);</span>
+<span class="fc" id="L100">        a[3][1] = q.multiply(   8).add(  -56).divide( 392);</span>
+<span class="fc" id="L101">        a[3][2] = q.multiply( -48).add(  336).divide( 392);</span>
+<span class="fc" id="L102">        a[3][3] = q.multiply(   3).add(  -63).divide( 392);</span>
+<span class="fc" id="L103">        a[4][0] = q.multiply(-255).add(-1155).divide(1960);</span>
+<span class="fc" id="L104">        a[4][1] = q.multiply( -40).add( -280).divide(1960);</span>
+<span class="fc" id="L105">        a[4][2] = q.multiply(-320)           .divide(1960);</span>
+<span class="fc" id="L106">        a[4][3] = q.multiply( 363).add(   63).divide(1960);</span>
+<span class="fc" id="L107">        a[4][4] = q.multiply( 392).add( 2352).divide(1960);</span>
+<span class="fc" id="L108">        a[5][0] = q.multiply( 105).add(  330).divide( 180);</span>
+<span class="fc" id="L109">        a[5][1] = fraction(2, 3);</span>
+<span class="fc" id="L110">        a[5][2] = q.multiply( 280).add( -200).divide( 180);</span>
+<span class="fc" id="L111">        a[5][3] = q.multiply(-189).add(  126).divide( 180);</span>
+<span class="fc" id="L112">        a[5][4] = q.multiply(-126).add( -686).divide( 180);</span>
+<span class="fc" id="L113">        a[5][5] = q.multiply( -70).add(  490).divide( 180);</span>
+<span class="fc" id="L114">        return a;</span>
+    }
+
+    /** {@inheritDoc} */
+    public T[] getB() {
+
+<span class="fc" id="L120">        final T[] b = MathArrays.buildArray(getField(), 7);</span>
+<span class="fc" id="L121">        b[0] = fraction( 1,  20);</span>
+<span class="fc" id="L122">        b[1] = getField().getZero();</span>
+<span class="fc" id="L123">        b[2] = fraction(16,  45);</span>
+<span class="fc" id="L124">        b[3] = getField().getZero();</span>
+<span class="fc" id="L125">        b[4] = fraction(49, 180);</span>
+<span class="fc" id="L126">        b[5] = b[4];</span>
+<span class="fc" id="L127">        b[6] = b[0];</span>
+
+<span class="fc" id="L129">        return b;</span>
+
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected LutherFieldStepInterpolator&lt;T&gt;
+        createInterpolator(final boolean forward, T[][] yDotK,
+                           final FieldODEStateAndDerivative&lt;T&gt; globalPreviousState,
+                           final FieldODEStateAndDerivative&lt;T&gt; globalCurrentState,
+                           final FieldEquationsMapper&lt;T&gt; mapper) {
+<span class="fc" id="L140">        return new LutherFieldStepInterpolator&lt;T&gt;(getField(), forward, yDotK,</span>
+                                                  globalPreviousState, globalCurrentState,
+                                                  globalPreviousState, globalCurrentState,
+                                                  mapper);
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.stat.inference;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.apache.commons.math3.distribution.BinomialDistribution;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.exception.MathIllegalArgumentException;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.exception.MathInternalError;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.exception.NotPositiveException;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.exception.NullArgumentException;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.exception.OutOfRangeException;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.exception.util.LocalizedFormats;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>/**<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * Implements binomial test statistics.<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * &lt;p&gt;<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * Exact test for the statistical significance of deviations from a<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * theoretically expected distribution of observations into two categories.<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * @see &lt;a href="http://en.wikipedia.org/wiki/Binomial_test"&gt;Binomial test (Wikipedia)&lt;/a&gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * @since 3.3<a name="line.34"></a>
+<span class="sourceLineNo">035</span> */<a name="line.35"></a>
+<span class="sourceLineNo">036</span>public class BinomialTest {<a name="line.36"></a>
+<span class="sourceLineNo">037</span><a name="line.37"></a>
+<span class="sourceLineNo">038</span>    /**<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * Returns whether the null hypothesis can be rejected with the given confidence level.<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     * &lt;p&gt;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     * &lt;strong&gt;Preconditions&lt;/strong&gt;:<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * &lt;ul&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     * &lt;li&gt;Number of trials must be &amp;ge; 0.&lt;/li&gt;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * &lt;li&gt;Number of successes must be &amp;ge; 0.&lt;/li&gt;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     * &lt;li&gt;Number of successes must be &amp;le; number of trials.&lt;/li&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     * &lt;li&gt;Probability must be &amp;ge; 0 and &amp;le; 1.&lt;/li&gt;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * &lt;/ul&gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     *<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * @param numberOfTrials number of trials performed<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     * @param numberOfSuccesses number of successes observed<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     * @param probability assumed probability of a single trial under the null hypothesis<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     * @param alternativeHypothesis type of hypothesis being evaluated (one- or two-sided)<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     * @param alpha significance level of the test<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * @return true if the null hypothesis can be rejected with confidence {@code 1 - alpha}<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * @throws NotPositiveException if {@code numberOfTrials} or {@code numberOfSuccesses} is negative<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * @throws OutOfRangeException if {@code probability} is not between 0 and 1<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * @throws MathIllegalArgumentException if {@code numberOfTrials} &amp;lt; {@code numberOfSuccesses} or<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     * if {@code alternateHypothesis} is null.<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * @see AlternativeHypothesis<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     */<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    public boolean binomialTest(int numberOfTrials, int numberOfSuccesses, double probability,<a name="line.61"></a>
+<span class="sourceLineNo">062</span>                                AlternativeHypothesis alternativeHypothesis, double alpha) {<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        double pValue = binomialTest(numberOfTrials, numberOfSuccesses, probability, alternativeHypothesis);<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        return pValue &lt; alpha;<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    }<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>    /**<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * Returns the &lt;i&gt;observed significance level&lt;/i&gt;, or<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * &lt;a href="http://www.cas.lancs.ac.uk/glossary_v1.1/hyptest.html#pvalue"&gt;p-value&lt;/a&gt;,<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * associated with a &lt;a href="http://en.wikipedia.org/wiki/Binomial_test"&gt; Binomial test&lt;/a&gt;.<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * &lt;p&gt;<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     * The number returned is the smallest significance level at which one can reject the null hypothesis.<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * The form of the hypothesis depends on {@code alternativeHypothesis}.&lt;/p&gt;<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * &lt;p&gt;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * The p-Value represents the likelihood of getting a result at least as extreme as the sample,<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * given the provided {@code probability} of success on a single trial. For single-sided tests,<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * this value can be directly derived from the Binomial distribution. For the two-sided test,<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * the implementation works as follows: we start by looking at the most extreme cases<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * (0 success and n success where n is the number of trials from the sample) and determine their likelihood.<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * The lower value is added to the p-Value (if both values are equal, both are added). Then we continue with<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * the next extreme value, until we added the value for the actual observed sample.&lt;/p&gt;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * &lt;p&gt;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     * &lt;strong&gt;Preconditions&lt;/strong&gt;:<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * &lt;ul&gt;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * &lt;li&gt;Number of trials must be &amp;ge; 0.&lt;/li&gt;<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * &lt;li&gt;Number of successes must be &amp;ge; 0.&lt;/li&gt;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * &lt;li&gt;Number of successes must be &amp;le; number of trials.&lt;/li&gt;<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * &lt;li&gt;Probability must be &amp;ge; 0 and &amp;le; 1.&lt;/li&gt;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * &lt;/ul&gt;&lt;/p&gt;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     *<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * @param numberOfTrials number of trials performed<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     * @param numberOfSuccesses number of successes observed<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * @param probability assumed probability of a single trial under the null hypothesis<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * @param alternativeHypothesis type of hypothesis being evaluated (one- or two-sided)<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * @return p-value<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * @throws NotPositiveException if {@code numberOfTrials} or {@code numberOfSuccesses} is negative<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * @throws OutOfRangeException if {@code probability} is not between 0 and 1<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * @throws MathIllegalArgumentException if {@code numberOfTrials} &amp;lt; {@code numberOfSuccesses} or<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * if {@code alternateHypothesis} is null.<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * @see AlternativeHypothesis<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     */<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    public double binomialTest(int numberOfTrials, int numberOfSuccesses, double probability,<a name="line.102"></a>
+<span class="sourceLineNo">103</span>                               AlternativeHypothesis alternativeHypothesis) {<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        if (numberOfTrials &lt; 0) {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>            throw new NotPositiveException(numberOfTrials);<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        }<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        if (numberOfSuccesses &lt; 0) {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>            throw new NotPositiveException(numberOfSuccesses);<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        }<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        if (probability &lt; 0 || probability &gt; 1) {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>            throw new OutOfRangeException(probability, 0, 1);<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        }<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        if (numberOfTrials &lt; numberOfSuccesses) {<a name="line.113"></a>
+<span class="sourceLineNo">114</span>            throw new MathIllegalArgumentException(<a name="line.114"></a>
+<span class="sourceLineNo">115</span>                LocalizedFormats.BINOMIAL_INVALID_PARAMETERS_ORDER,<a name="line.115"></a>
+<span class="sourceLineNo">116</span>                numberOfTrials, numberOfSuccesses);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        }<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        if (alternativeHypothesis == null) {<a name="line.118"></a>
+<span class="sourceLineNo">119</span>            throw new NullArgumentException();<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        }<a name="line.120"></a>
+<span class="sourceLineNo">121</span><a name="line.121"></a>
+<span class="sourceLineNo">122</span>        // pass a null rng to avoid unneeded overhead as we will not sample from this distribution<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        final BinomialDistribution distribution = new BinomialDistribution(null, numberOfTrials, probability);<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        switch (alternativeHypothesis) {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        case GREATER_THAN:<a name="line.125"></a>
+<span class="sourceLineNo">126</span>            return 1 - distribution.cumulativeProbability(numberOfSuccesses - 1);<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        case LESS_THAN:<a name="line.127"></a>
+<span class="sourceLineNo">128</span>            return distribution.cumulativeProbability(numberOfSuccesses);<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        case TWO_SIDED:<a name="line.129"></a>
+<span class="sourceLineNo">130</span>            int criticalValueLow = 0;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>            int criticalValueHigh = numberOfTrials;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>            double pTotal = 0;<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>            while (true) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>                double pLow = distribution.probability(criticalValueLow);<a name="line.135"></a>
+<span class="sourceLineNo">136</span>                double pHigh = distribution.probability(criticalValueHigh);<a name="line.136"></a>
+<span class="sourceLineNo">137</span><a name="line.137"></a>
+<span class="sourceLineNo">138</span>                if (pLow == pHigh) {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                    pTotal += 2 * pLow;<a name="line.139"></a>
+<span class="sourceLineNo">140</span>                    criticalValueLow++;<a name="line.140"></a>
+<span class="sourceLineNo">141</span>                    criticalValueHigh--;<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                } else if (pLow &lt; pHigh) {<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                    pTotal += pLow;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>                    criticalValueLow++;<a name="line.144"></a>
+<span class="sourceLineNo">145</span>                } else {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>                    pTotal += pHigh;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>                    criticalValueHigh--;<a name="line.147"></a>
+<span class="sourceLineNo">148</span>                }<a name="line.148"></a>
+<span class="sourceLineNo">149</span><a name="line.149"></a>
+<span class="sourceLineNo">150</span>                if (criticalValueLow &gt; numberOfSuccesses || criticalValueHigh &lt; numberOfSuccesses) {<a name="line.150"></a>
+<span class="sourceLineNo">151</span>                    break;<a name="line.151"></a>
+<span class="sourceLineNo">152</span>                }<a name="line.152"></a>
+<span class="sourceLineNo">153</span>            }<a name="line.153"></a>
+<span class="sourceLineNo">154</span>            return pTotal;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        default:<a name="line.155"></a>
+<span class="sourceLineNo">156</span>            throw new MathInternalError(LocalizedFormats. OUT_OF_RANGE_SIMPLE, alternativeHypothesis,<a name="line.156"></a>
+<span class="sourceLineNo">157</span>                      AlternativeHypothesis.TWO_SIDED, AlternativeHypothesis.LESS_THAN);<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        }<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    }<a name="line.159"></a>
+<span class="sourceLineNo">160</span>}<a name="line.160"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

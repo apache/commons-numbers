@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BicubicSplineInterpolator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.interpolation</a> &gt; <span class="el_source">BicubicSplineInterpolator.java</span></div><h1>BicubicSplineInterpolator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.analysis.interpolation;
+
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.analysis.polynomials.PolynomialSplineFunction;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.NonMonotonicSequenceException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.util.MathArrays;
+
+/**
+ * Generates a bicubic interpolating function. Due to numerical accuracy issues this should not
+ * be used.
+ *
+ * @since 2.2
+ * @deprecated as of 3.4 replaced by {@link org.apache.commons.math3.analysis.interpolation.PiecewiseBicubicSplineInterpolator}
+ */
+@Deprecated
+public class BicubicSplineInterpolator
+    implements BivariateGridInterpolator {
+    /** Whether to initialize internal data used to compute the analytical
+        derivatives of the splines. */
+    private final boolean initializeDerivatives;
+
+    /**
+     * Default constructor.
+     * The argument {@link #BicubicSplineInterpolator(boolean) initializeDerivatives}
+     * is set to {@code false}.
+     */
+    public BicubicSplineInterpolator() {
+<span class="fc" id="L47">        this(false);</span>
+<span class="fc" id="L48">    }</span>
+
+    /**
+     * Creates an interpolator.
+     *
+     * @param initializeDerivatives Whether to initialize the internal data
+     * needed for calling any of the methods that compute the partial derivatives
+     * of the {@link BicubicSplineInterpolatingFunction function} returned from
+     * the call to {@link #interpolate(double[],double[],double[][]) interpolate}.
+     */
+<span class="fc" id="L58">    public BicubicSplineInterpolator(boolean initializeDerivatives) {</span>
+<span class="fc" id="L59">        this.initializeDerivatives = initializeDerivatives;</span>
+<span class="fc" id="L60">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    public BicubicSplineInterpolatingFunction interpolate(final double[] xval,
+                                                          final double[] yval,
+                                                          final double[][] fval)
+        throws NoDataException, DimensionMismatchException,
+               NonMonotonicSequenceException, NumberIsTooSmallException {
+<span class="pc bpc" id="L70" title="3 of 6 branches missed.">        if (xval.length == 0 || yval.length == 0 || fval.length == 0) {</span>
+<span class="nc" id="L71">            throw new NoDataException();</span>
+        }
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        if (xval.length != fval.length) {</span>
+<span class="fc" id="L74">            throw new DimensionMismatchException(xval.length, fval.length);</span>
+        }
+
+<span class="fc" id="L77">        MathArrays.checkOrder(xval);</span>
+<span class="fc" id="L78">        MathArrays.checkOrder(yval);</span>
+
+<span class="fc" id="L80">        final int xLen = xval.length;</span>
+<span class="fc" id="L81">        final int yLen = yval.length;</span>
+
+        // Samples (first index is y-coordinate, i.e. subarray variable is x)
+        // 0 &lt;= i &lt; xval.length
+        // 0 &lt;= j &lt; yval.length
+        // fX[j][i] = f(xval[i], yval[j])
+<span class="fc" id="L87">        final double[][] fX = new double[yLen][xLen];</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        for (int i = 0; i &lt; xLen; i++) {</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">            if (fval[i].length != yLen) {</span>
+<span class="fc" id="L90">                throw new DimensionMismatchException(fval[i].length, yLen);</span>
+            }
+
+<span class="fc bfc" id="L93" title="All 2 branches covered.">            for (int j = 0; j &lt; yLen; j++) {</span>
+<span class="fc" id="L94">                fX[j][i] = fval[i][j];</span>
+            }
+        }
+
+<span class="fc" id="L98">        final SplineInterpolator spInterpolator = new SplineInterpolator();</span>
+
+        // For each line y[j] (0 &lt;= j &lt; yLen), construct a 1D spline with
+        // respect to variable x
+<span class="fc" id="L102">        final PolynomialSplineFunction[] ySplineX = new PolynomialSplineFunction[yLen];</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        for (int j = 0; j &lt; yLen; j++) {</span>
+<span class="fc" id="L104">            ySplineX[j] = spInterpolator.interpolate(xval, fX[j]);</span>
+        }
+
+        // For each line x[i] (0 &lt;= i &lt; xLen), construct a 1D spline with
+        // respect to variable y generated by array fY_1[i]
+<span class="fc" id="L109">        final PolynomialSplineFunction[] xSplineY = new PolynomialSplineFunction[xLen];</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        for (int i = 0; i &lt; xLen; i++) {</span>
+<span class="fc" id="L111">            xSplineY[i] = spInterpolator.interpolate(yval, fval[i]);</span>
+        }
+
+        // Partial derivatives with respect to x at the grid knots
+<span class="fc" id="L115">        final double[][] dFdX = new double[xLen][yLen];</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        for (int j = 0; j &lt; yLen; j++) {</span>
+<span class="fc" id="L117">            final UnivariateFunction f = ySplineX[j].derivative();</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">            for (int i = 0; i &lt; xLen; i++) {</span>
+<span class="fc" id="L119">                dFdX[i][j] = f.value(xval[i]);</span>
+            }
+        }
+
+        // Partial derivatives with respect to y at the grid knots
+<span class="fc" id="L124">        final double[][] dFdY = new double[xLen][yLen];</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        for (int i = 0; i &lt; xLen; i++) {</span>
+<span class="fc" id="L126">            final UnivariateFunction f = xSplineY[i].derivative();</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">            for (int j = 0; j &lt; yLen; j++) {</span>
+<span class="fc" id="L128">                dFdY[i][j] = f.value(yval[j]);</span>
+            }
+        }
+
+        // Cross partial derivatives
+<span class="fc" id="L133">        final double[][] d2FdXdY = new double[xLen][yLen];</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        for (int i = 0; i &lt; xLen ; i++) {</span>
+<span class="fc" id="L135">            final int nI = nextIndex(i, xLen);</span>
+<span class="fc" id="L136">            final int pI = previousIndex(i);</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">            for (int j = 0; j &lt; yLen; j++) {</span>
+<span class="fc" id="L138">                final int nJ = nextIndex(j, yLen);</span>
+<span class="fc" id="L139">                final int pJ = previousIndex(j);</span>
+<span class="fc" id="L140">                d2FdXdY[i][j] = (fval[nI][nJ] - fval[nI][pJ] -</span>
+                                 fval[pI][nJ] + fval[pI][pJ]) /
+                    ((xval[nI] - xval[pI]) * (yval[nJ] - yval[pJ]));
+            }
+        }
+
+        // Create the interpolating splines
+<span class="fc" id="L147">        return new BicubicSplineInterpolatingFunction(xval, yval, fval,</span>
+                                                      dFdX, dFdY, d2FdXdY,
+                                                      initializeDerivatives);
+    }
+
+    /**
+     * Computes the next index of an array, clipping if necessary.
+     * It is assumed (but not checked) that {@code i &gt;= 0}.
+     *
+     * @param i Index.
+     * @param max Upper limit of the array.
+     * @return the next index.
+     */
+    private int nextIndex(int i, int max) {
+<span class="fc" id="L161">        final int index = i + 1;</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">        return index &lt; max ? index : index - 1;</span>
+    }
+    /**
+     * Computes the previous index of an array, clipping if necessary.
+     * It is assumed (but not checked) that {@code i} is smaller than the size
+     * of the array.
+     *
+     * @param i Index.
+     * @return the previous index.
+     */
+    private int previousIndex(int i) {
+<span class="fc" id="L173">        final int index = i - 1;</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        return index &gt;= 0 ? index : 0;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RealVectorFormat.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.linear</a> &gt; <span class="el_source">RealVectorFormat.java</span></div><h1>RealVectorFormat.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.linear;
+
+import java.text.FieldPosition;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import org.apache.commons.math3.exception.MathParseException;
+import org.apache.commons.math3.util.CompositeFormat;
+
+/**
+ * Formats a vector in components list format &quot;{v0; v1; ...; vk-1}&quot;.
+ * &lt;p&gt;The prefix and suffix &quot;{&quot; and &quot;}&quot; and the separator &quot;; &quot; can be replaced by
+ * any user-defined strings. The number format for components can be configured.&lt;/p&gt;
+ * &lt;p&gt;White space is ignored at parse time, even if it is in the prefix, suffix
+ * or separator specifications. So even if the default separator does include a space
+ * character that is used at format time, both input string &quot;{1;1;1}&quot; and
+ * &quot; { 1 ; 1 ; 1 } &quot; will be parsed without error and the same vector will be
+ * returned. In the second case, however, the parse position after parsing will be
+ * just after the closing curly brace, i.e. just before the trailing space.&lt;/p&gt;
+ *
+ * @since 2.0
+ */
+public class RealVectorFormat {
+
+    /** The default prefix: &quot;{&quot;. */
+    private static final String DEFAULT_PREFIX = &quot;{&quot;;
+    /** The default suffix: &quot;}&quot;. */
+    private static final String DEFAULT_SUFFIX = &quot;}&quot;;
+    /** The default separator: &quot;, &quot;. */
+    private static final String DEFAULT_SEPARATOR = &quot;; &quot;;
+    /** Prefix. */
+    private final String prefix;
+    /** Suffix. */
+    private final String suffix;
+    /** Separator. */
+    private final String separator;
+    /** Trimmed prefix. */
+    private final String trimmedPrefix;
+    /** Trimmed suffix. */
+    private final String trimmedSuffix;
+    /** Trimmed separator. */
+    private final String trimmedSeparator;
+    /** The format used for components. */
+    private final NumberFormat format;
+
+    /**
+     * Create an instance with default settings.
+     * &lt;p&gt;The instance uses the default prefix, suffix and separator:
+     * &quot;{&quot;, &quot;}&quot;, and &quot;; &quot; and the default number format for components.&lt;/p&gt;
+     */
+    public RealVectorFormat() {
+<span class="fc" id="L72">        this(DEFAULT_PREFIX, DEFAULT_SUFFIX, DEFAULT_SEPARATOR,</span>
+             CompositeFormat.getDefaultNumberFormat());
+<span class="fc" id="L74">    }</span>
+
+    /**
+     * Create an instance with a custom number format for components.
+     * @param format the custom format for components.
+     */
+    public RealVectorFormat(final NumberFormat format) {
+<span class="fc" id="L81">        this(DEFAULT_PREFIX, DEFAULT_SUFFIX, DEFAULT_SEPARATOR, format);</span>
+<span class="fc" id="L82">    }</span>
+
+    /**
+     * Create an instance with custom prefix, suffix and separator.
+     * @param prefix prefix to use instead of the default &quot;{&quot;
+     * @param suffix suffix to use instead of the default &quot;}&quot;
+     * @param separator separator to use instead of the default &quot;; &quot;
+     */
+    public RealVectorFormat(final String prefix, final String suffix,
+                            final String separator) {
+<span class="nc" id="L92">        this(prefix, suffix, separator,</span>
+             CompositeFormat.getDefaultNumberFormat());
+<span class="nc" id="L94">    }</span>
+
+    /**
+     * Create an instance with custom prefix, suffix, separator and format
+     * for components.
+     * @param prefix prefix to use instead of the default &quot;{&quot;
+     * @param suffix suffix to use instead of the default &quot;}&quot;
+     * @param separator separator to use instead of the default &quot;; &quot;
+     * @param format the custom format for components.
+     */
+    public RealVectorFormat(final String prefix, final String suffix,
+<span class="fc" id="L105">                            final String separator, final NumberFormat format) {</span>
+<span class="fc" id="L106">        this.prefix      = prefix;</span>
+<span class="fc" id="L107">        this.suffix      = suffix;</span>
+<span class="fc" id="L108">        this.separator   = separator;</span>
+<span class="fc" id="L109">        trimmedPrefix    = prefix.trim();</span>
+<span class="fc" id="L110">        trimmedSuffix    = suffix.trim();</span>
+<span class="fc" id="L111">        trimmedSeparator = separator.trim();</span>
+<span class="fc" id="L112">        this.format      = format;</span>
+<span class="fc" id="L113">    }</span>
+
+    /**
+     * Get the set of locales for which real vectors formats are available.
+     * &lt;p&gt;This is the same set as the {@link NumberFormat} set.&lt;/p&gt;
+     * @return available real vector format locales.
+     */
+    public static Locale[] getAvailableLocales() {
+<span class="nc" id="L121">        return NumberFormat.getAvailableLocales();</span>
+    }
+
+    /**
+     * Get the format prefix.
+     * @return format prefix.
+     */
+    public String getPrefix() {
+<span class="nc" id="L129">        return prefix;</span>
+    }
+
+    /**
+     * Get the format suffix.
+     * @return format suffix.
+     */
+    public String getSuffix() {
+<span class="nc" id="L137">        return suffix;</span>
+    }
+
+    /**
+     * Get the format separator between components.
+     * @return format separator.
+     */
+    public String getSeparator() {
+<span class="nc" id="L145">        return separator;</span>
+    }
+
+    /**
+     * Get the components format.
+     * @return components format.
+     */
+    public NumberFormat getFormat() {
+<span class="fc" id="L153">        return format;</span>
+    }
+
+    /**
+     * Returns the default real vector format for the current locale.
+     * @return the default real vector format.
+     */
+    public static RealVectorFormat getInstance() {
+<span class="fc" id="L161">        return getInstance(Locale.getDefault());</span>
+    }
+
+    /**
+     * Returns the default real vector format for the given locale.
+     * @param locale the specific locale used by the format.
+     * @return the real vector format specific to the given locale.
+     */
+    public static RealVectorFormat getInstance(final Locale locale) {
+<span class="fc" id="L170">        return new RealVectorFormat(CompositeFormat.getDefaultNumberFormat(locale));</span>
+    }
+
+    /**
+     * This method calls {@link #format(RealVector,StringBuffer,FieldPosition)}.
+     *
+     * @param v RealVector object to format.
+     * @return a formatted vector.
+     */
+    public String format(RealVector v) {
+<span class="fc" id="L180">        return format(v, new StringBuffer(), new FieldPosition(0)).toString();</span>
+    }
+
+    /**
+     * Formats a {@link RealVector} object to produce a string.
+     * @param vector the object to format.
+     * @param toAppendTo where the text is to be appended
+     * @param pos On input: an alignment field, if desired. On output: the
+     *            offsets of the alignment field
+     * @return the value passed in as toAppendTo.
+     */
+    public StringBuffer format(RealVector vector, StringBuffer toAppendTo,
+                               FieldPosition pos) {
+
+<span class="fc" id="L194">        pos.setBeginIndex(0);</span>
+<span class="fc" id="L195">        pos.setEndIndex(0);</span>
+
+        // format prefix
+<span class="fc" id="L198">        toAppendTo.append(prefix);</span>
+
+        // format components
+<span class="fc bfc" id="L201" title="All 2 branches covered.">        for (int i = 0; i &lt; vector.getDimension(); ++i) {</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">            if (i &gt; 0) {</span>
+<span class="fc" id="L203">                toAppendTo.append(separator);</span>
+            }
+<span class="fc" id="L205">            CompositeFormat.formatDouble(vector.getEntry(i), format, toAppendTo, pos);</span>
+        }
+
+        // format suffix
+<span class="fc" id="L209">        toAppendTo.append(suffix);</span>
+
+<span class="fc" id="L211">        return toAppendTo;</span>
+    }
+
+    /**
+     * Parse a string to produce a {@link RealVector} object.
+     *
+     * @param source String to parse.
+     * @return the parsed {@link RealVector} object.
+     * @throws MathParseException if the beginning of the specified string
+     * cannot be parsed.
+     */
+    public ArrayRealVector parse(String source) {
+<span class="fc" id="L223">        final ParsePosition parsePosition = new ParsePosition(0);</span>
+<span class="fc" id="L224">        final ArrayRealVector result = parse(source, parsePosition);</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">        if (parsePosition.getIndex() == 0) {</span>
+<span class="fc" id="L226">            throw new MathParseException(source,</span>
+                                         parsePosition.getErrorIndex(),
+                                         ArrayRealVector.class);
+        }
+<span class="fc" id="L230">        return result;</span>
+    }
+
+    /**
+     * Parse a string to produce a {@link RealVector} object.
+     *
+     * @param source String to parse.
+     * @param pos input/ouput parsing parameter.
+     * @return the parsed {@link RealVector} object.
+     */
+    public ArrayRealVector parse(String source, ParsePosition pos) {
+<span class="fc" id="L241">        int initialIndex = pos.getIndex();</span>
+
+        // parse prefix
+<span class="fc" id="L244">        CompositeFormat.parseAndIgnoreWhitespace(source, pos);</span>
+<span class="fc bfc" id="L245" title="All 2 branches covered.">        if (!CompositeFormat.parseFixedstring(source, trimmedPrefix, pos)) {</span>
+<span class="fc" id="L246">            return null;</span>
+        }
+
+        // parse components
+<span class="fc" id="L250">        List&lt;Number&gt; components = new ArrayList&lt;Number&gt;();</span>
+<span class="fc bfc" id="L251" title="All 2 branches covered.">        for (boolean loop = true; loop;){</span>
+
+<span class="fc bfc" id="L253" title="All 2 branches covered.">            if (!components.isEmpty()) {</span>
+<span class="fc" id="L254">                CompositeFormat.parseAndIgnoreWhitespace(source, pos);</span>
+<span class="fc bfc" id="L255" title="All 2 branches covered.">                if (!CompositeFormat.parseFixedstring(source, trimmedSeparator, pos)) {</span>
+<span class="fc" id="L256">                    loop = false;</span>
+                }
+            }
+
+<span class="fc bfc" id="L260" title="All 2 branches covered.">            if (loop) {</span>
+<span class="fc" id="L261">                CompositeFormat.parseAndIgnoreWhitespace(source, pos);</span>
+<span class="fc" id="L262">                Number component = CompositeFormat.parseNumber(source, format, pos);</span>
+<span class="fc bfc" id="L263" title="All 2 branches covered.">                if (component != null) {</span>
+<span class="fc" id="L264">                    components.add(component);</span>
+                } else {
+                    // invalid component
+                    // set index back to initial, error index should already be set
+<span class="fc" id="L268">                    pos.setIndex(initialIndex);</span>
+<span class="fc" id="L269">                    return null;</span>
+                }
+<span class="fc" id="L271">            }</span>
+
+        }
+
+        // parse suffix
+<span class="fc" id="L276">        CompositeFormat.parseAndIgnoreWhitespace(source, pos);</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">        if (!CompositeFormat.parseFixedstring(source, trimmedSuffix, pos)) {</span>
+<span class="fc" id="L278">            return null;</span>
+        }
+
+        // build vector
+<span class="fc" id="L282">        double[] data = new double[components.size()];</span>
+<span class="fc bfc" id="L283" title="All 2 branches covered.">        for (int i = 0; i &lt; data.length; ++i) {</span>
+<span class="fc" id="L284">            data[i] = components.get(i).doubleValue();</span>
+        }
+<span class="fc" id="L286">        return new ArrayRealVector(data, false);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

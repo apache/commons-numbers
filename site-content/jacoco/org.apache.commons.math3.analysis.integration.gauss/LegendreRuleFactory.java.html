@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LegendreRuleFactory.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.integration.gauss</a> &gt; <span class="el_source">LegendreRuleFactory.java</span></div><h1>LegendreRuleFactory.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.analysis.integration.gauss;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.util.Pair;
+
+/**
+ * Factory that creates Gauss-type quadrature rule using Legendre polynomials.
+ * In this implementation, the lower and upper bounds of the natural interval
+ * of integration are -1 and 1, respectively.
+ * The Legendre polynomials are evaluated using the recurrence relation
+ * presented in &lt;a href=&quot;http://en.wikipedia.org/wiki/Abramowitz_and_Stegun&quot;&gt;
+ * Abramowitz and Stegun, 1964&lt;/a&gt;.
+ *
+ * @since 3.1
+ */
+<span class="fc" id="L32">public class LegendreRuleFactory extends BaseRuleFactory&lt;Double&gt; {</span>
+    /** {@inheritDoc} */
+    @Override
+    protected Pair&lt;Double[], Double[]&gt; computeRule(int numberOfPoints)
+        throws DimensionMismatchException {
+
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        if (numberOfPoints == 1) {</span>
+            // Break recursion.
+<span class="fc" id="L40">            return new Pair&lt;Double[], Double[]&gt;(new Double[] { 0d },</span>
+                                                new Double[] { 2d });
+        }
+
+        // Get previous rule.
+        // If it has not been computed yet it will trigger a recursive call
+        // to this method.
+<span class="fc" id="L47">        final Double[] previousPoints = getRuleInternal(numberOfPoints - 1).getFirst();</span>
+
+        // Compute next rule.
+<span class="fc" id="L50">        final Double[] points = new Double[numberOfPoints];</span>
+<span class="fc" id="L51">        final Double[] weights = new Double[numberOfPoints];</span>
+
+        // Find i-th root of P[n+1] by bracketing.
+<span class="fc" id="L54">        final int iMax = numberOfPoints / 2;</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        for (int i = 0; i &lt; iMax; i++) {</span>
+            // Lower-bound of the interval.
+<span class="fc bfc" id="L57" title="All 2 branches covered.">            double a = (i == 0) ? -1 : previousPoints[i - 1].doubleValue();</span>
+            // Upper-bound of the interval.
+<span class="fc bfc" id="L59" title="All 2 branches covered.">            double b = (iMax == 1) ? 1 : previousPoints[i].doubleValue();</span>
+            // P[j-1](a)
+<span class="fc" id="L61">            double pma = 1;</span>
+            // P[j](a)
+<span class="fc" id="L63">            double pa = a;</span>
+            // P[j-1](b)
+<span class="fc" id="L65">            double pmb = 1;</span>
+            // P[j](b)
+<span class="fc" id="L67">            double pb = b;</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">            for (int j = 1; j &lt; numberOfPoints; j++) {</span>
+<span class="fc" id="L69">                final int two_j_p_1 = 2 * j + 1;</span>
+<span class="fc" id="L70">                final int j_p_1 = j + 1;</span>
+                // P[j+1](a)
+<span class="fc" id="L72">                final double ppa = (two_j_p_1 * a * pa - j * pma) / j_p_1;</span>
+                // P[j+1](b)
+<span class="fc" id="L74">                final double ppb = (two_j_p_1 * b * pb - j * pmb) / j_p_1;</span>
+<span class="fc" id="L75">                pma = pa;</span>
+<span class="fc" id="L76">                pa = ppa;</span>
+<span class="fc" id="L77">                pmb = pb;</span>
+<span class="fc" id="L78">                pb = ppb;</span>
+            }
+            // Now pa = P[n+1](a), and pma = P[n](a) (same holds for b).
+            // Middle of the interval.
+<span class="fc" id="L82">            double c = 0.5 * (a + b);</span>
+            // P[j-1](c)
+<span class="fc" id="L84">            double pmc = 1;</span>
+            // P[j](c)
+<span class="fc" id="L86">            double pc = c;</span>
+<span class="fc" id="L87">            boolean done = false;</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">            while (!done) {</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">                done = b - a &lt;= Math.ulp(c);</span>
+<span class="fc" id="L90">                pmc = 1;</span>
+<span class="fc" id="L91">                pc = c;</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">                for (int j = 1; j &lt; numberOfPoints; j++) {</span>
+                    // P[j+1](c)
+<span class="fc" id="L94">                    final double ppc = ((2 * j + 1) * c * pc - j * pmc) / (j + 1);</span>
+<span class="fc" id="L95">                    pmc = pc;</span>
+<span class="fc" id="L96">                    pc = ppc;</span>
+                }
+                // Now pc = P[n+1](c) and pmc = P[n](c).
+<span class="fc bfc" id="L99" title="All 2 branches covered.">                if (!done) {</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">                    if (pa * pc &lt;= 0) {</span>
+<span class="fc" id="L101">                        b = c;</span>
+<span class="fc" id="L102">                        pmb = pmc;</span>
+<span class="fc" id="L103">                        pb = pc;</span>
+                    } else {
+<span class="fc" id="L105">                        a = c;</span>
+<span class="fc" id="L106">                        pma = pmc;</span>
+<span class="fc" id="L107">                        pa = pc;</span>
+                    }
+<span class="fc" id="L109">                    c = 0.5 * (a + b);</span>
+                }
+            }
+<span class="fc" id="L112">            final double d = numberOfPoints * (pmc - c * pc);</span>
+<span class="fc" id="L113">            final double w = 2 * (1 - c * c) / (d * d);</span>
+
+<span class="fc" id="L115">            points[i] = c;</span>
+<span class="fc" id="L116">            weights[i] = w;</span>
+
+<span class="fc" id="L118">            final int idx = numberOfPoints - i - 1;</span>
+<span class="fc" id="L119">            points[idx] = -c;</span>
+<span class="fc" id="L120">            weights[idx] = w;</span>
+        }
+        // If &quot;numberOfPoints&quot; is odd, 0 is a root.
+        // Note: as written, the test for oddness will work for negative
+        // integers too (although it is not necessary here), preventing
+        // a FindBugs warning.
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        if (numberOfPoints % 2 != 0) {</span>
+<span class="fc" id="L127">            double pmc = 1;</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">            for (int j = 1; j &lt; numberOfPoints; j += 2) {</span>
+<span class="fc" id="L129">                pmc = -j * pmc / (j + 1);</span>
+            }
+<span class="fc" id="L131">            final double d = numberOfPoints * pmc;</span>
+<span class="fc" id="L132">            final double w = 2 / (d * d);</span>
+
+<span class="fc" id="L134">            points[iMax] = 0d;</span>
+<span class="fc" id="L135">            weights[iMax] = w;</span>
+        }
+
+<span class="fc" id="L138">        return new Pair&lt;Double[], Double[]&gt;(points, weights);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

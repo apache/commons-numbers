@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ClassicalRungeKuttaFieldStepInterpolator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.nonstiff</a> &gt; <span class="el_source">ClassicalRungeKuttaFieldStepInterpolator.java</span></div><h1>ClassicalRungeKuttaFieldStepInterpolator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.nonstiff;
+
+import org.apache.commons.math3.Field;
+import org.apache.commons.math3.RealFieldElement;
+import org.apache.commons.math3.ode.FieldEquationsMapper;
+import org.apache.commons.math3.ode.FieldODEStateAndDerivative;
+
+/**
+ * This class implements a step interpolator for the classical fourth
+ * order Runge-Kutta integrator.
+ *
+ * &lt;p&gt;This interpolator allows to compute dense output inside the last
+ * step computed. The interpolation equation is consistent with the
+ * integration scheme :
+ * &lt;ul&gt;
+ *   &lt;li&gt;Using reference point at step start:&lt;br&gt;
+ *   y(t&lt;sub&gt;n&lt;/sub&gt; + &amp;theta; h) = y (t&lt;sub&gt;n&lt;/sub&gt;)
+ *                    + &amp;theta; (h/6) [  (6 - 9 &amp;theta; + 4 &amp;theta;&lt;sup&gt;2&lt;/sup&gt;) y'&lt;sub&gt;1&lt;/sub&gt;
+ *                                     + (    6 &amp;theta; - 4 &amp;theta;&lt;sup&gt;2&lt;/sup&gt;) (y'&lt;sub&gt;2&lt;/sub&gt; + y'&lt;sub&gt;3&lt;/sub&gt;)
+ *                                     + (   -3 &amp;theta; + 4 &amp;theta;&lt;sup&gt;2&lt;/sup&gt;) y'&lt;sub&gt;4&lt;/sub&gt;
+ *                                    ]
+ *   &lt;/li&gt;
+ *   &lt;li&gt;Using reference point at step end:&lt;br&gt;
+ *   y(t&lt;sub&gt;n&lt;/sub&gt; + &amp;theta; h) = y (t&lt;sub&gt;n&lt;/sub&gt; + h)
+ *                    + (1 - &amp;theta;) (h/6) [ (-4 &amp;theta;^2 + 5 &amp;theta; - 1) y'&lt;sub&gt;1&lt;/sub&gt;
+ *                                          +(4 &amp;theta;^2 - 2 &amp;theta; - 2) (y'&lt;sub&gt;2&lt;/sub&gt; + y'&lt;sub&gt;3&lt;/sub&gt;)
+ *                                          -(4 &amp;theta;^2 +   &amp;theta; + 1) y'&lt;sub&gt;4&lt;/sub&gt;
+ *                                        ]
+ *   &lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;/p&gt;
+ *
+ * where &amp;theta; belongs to [0 ; 1] and where y'&lt;sub&gt;1&lt;/sub&gt; to y'&lt;sub&gt;4&lt;/sub&gt; are the four
+ * evaluations of the derivatives already computed during the
+ * step.&lt;/p&gt;
+ *
+ * @see ClassicalRungeKuttaFieldIntegrator
+ * @param &lt;T&gt; the type of the field elements
+ * @since 3.6
+ */
+
+class ClassicalRungeKuttaFieldStepInterpolator&lt;T extends RealFieldElement&lt;T&gt;&gt;
+    extends RungeKuttaFieldStepInterpolator&lt;T&gt; {
+
+    /** Simple constructor.
+     * @param field field to which the time and state vector elements belong
+     * @param forward integration direction indicator
+     * @param yDotK slopes at the intermediate points
+     * @param globalPreviousState start of the global step
+     * @param globalCurrentState end of the global step
+     * @param softPreviousState start of the restricted step
+     * @param softCurrentState end of the restricted step
+     * @param mapper equations mapper for the all equations
+     */
+    ClassicalRungeKuttaFieldStepInterpolator(final Field&lt;T&gt; field, final boolean forward,
+                                             final T[][] yDotK,
+                                             final FieldODEStateAndDerivative&lt;T&gt; globalPreviousState,
+                                             final FieldODEStateAndDerivative&lt;T&gt; globalCurrentState,
+                                             final FieldODEStateAndDerivative&lt;T&gt; softPreviousState,
+                                             final FieldODEStateAndDerivative&lt;T&gt; softCurrentState,
+                                             final FieldEquationsMapper&lt;T&gt; mapper) {
+<span class="fc" id="L79">        super(field, forward, yDotK,</span>
+              globalPreviousState, globalCurrentState, softPreviousState, softCurrentState,
+              mapper);
+<span class="fc" id="L82">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    protected ClassicalRungeKuttaFieldStepInterpolator&lt;T&gt; create(final Field&lt;T&gt; newField, final boolean newForward, final T[][] newYDotK,
+                                                                 final FieldODEStateAndDerivative&lt;T&gt; newGlobalPreviousState,
+                                                                 final FieldODEStateAndDerivative&lt;T&gt; newGlobalCurrentState,
+                                                                 final FieldODEStateAndDerivative&lt;T&gt; newSoftPreviousState,
+                                                                 final FieldODEStateAndDerivative&lt;T&gt; newSoftCurrentState,
+                                                                 final FieldEquationsMapper&lt;T&gt; newMapper) {
+<span class="fc" id="L92">        return new ClassicalRungeKuttaFieldStepInterpolator&lt;T&gt;(newField, newForward, newYDotK,</span>
+                                                               newGlobalPreviousState, newGlobalCurrentState,
+                                                               newSoftPreviousState, newSoftCurrentState,
+                                                               newMapper);
+    }
+
+    /** {@inheritDoc} */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Override
+    protected FieldODEStateAndDerivative&lt;T&gt; computeInterpolatedStateAndDerivatives(final FieldEquationsMapper&lt;T&gt; mapper,
+                                                                                   final T time, final T theta,
+                                                                                   final T thetaH, final T oneMinusThetaH) {
+
+<span class="fc" id="L105">        final T one                       = time.getField().getOne();</span>
+<span class="fc" id="L106">        final T oneMinusTheta             = one.subtract(theta);</span>
+<span class="fc" id="L107">        final T oneMinus2Theta            = one.subtract(theta.multiply(2));</span>
+<span class="fc" id="L108">        final T coeffDot1                 = oneMinusTheta.multiply(oneMinus2Theta);</span>
+<span class="fc" id="L109">        final T coeffDot23                = theta.multiply(oneMinusTheta).multiply(2);</span>
+<span class="fc" id="L110">        final T coeffDot4                 = theta.multiply(oneMinus2Theta).negate();</span>
+        final T[] interpolatedState;
+        final T[] interpolatedDerivatives;
+
+<span class="pc bpc" id="L114" title="1 of 4 branches missed.">        if (getGlobalPreviousState() != null &amp;&amp; theta.getReal() &lt;= 0.5) {</span>
+<span class="fc" id="L115">            final T fourTheta2      = theta.multiply(theta).multiply(4);</span>
+<span class="fc" id="L116">            final T s               = thetaH.divide(6.0);</span>
+<span class="fc" id="L117">            final T coeff1          = s.multiply(fourTheta2.subtract(theta.multiply(9)).add(6));</span>
+<span class="fc" id="L118">            final T coeff23         = s.multiply(theta.multiply(6).subtract(fourTheta2));</span>
+<span class="fc" id="L119">            final T coeff4          = s.multiply(fourTheta2.subtract(theta.multiply(3)));</span>
+<span class="fc" id="L120">            interpolatedState       = previousStateLinearCombination(coeff1, coeff23, coeff23, coeff4);</span>
+<span class="fc" id="L121">            interpolatedDerivatives = derivativeLinearCombination(coeffDot1, coeffDot23, coeffDot23, coeffDot4);</span>
+<span class="fc" id="L122">        } else {</span>
+<span class="fc" id="L123">            final T fourTheta       = theta.multiply(4);</span>
+<span class="fc" id="L124">            final T s               = oneMinusThetaH.divide(6);</span>
+<span class="fc" id="L125">            final T coeff1          = s.multiply(theta.multiply(fourTheta.negate().add(5)).subtract(1));</span>
+<span class="fc" id="L126">            final T coeff23         = s.multiply(theta.multiply(fourTheta.subtract(2)).subtract(2));</span>
+<span class="fc" id="L127">            final T coeff4          = s.multiply(theta.multiply(fourTheta.negate().subtract(1)).subtract(1));</span>
+<span class="fc" id="L128">            interpolatedState       = currentStateLinearCombination(coeff1, coeff23, coeff23, coeff4);</span>
+<span class="fc" id="L129">            interpolatedDerivatives = derivativeLinearCombination(coeffDot1, coeffDot23, coeffDot23, coeffDot4);</span>
+        }
+
+<span class="fc" id="L132">        return new FieldODEStateAndDerivative&lt;T&gt;(time, interpolatedState, interpolatedDerivatives);</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

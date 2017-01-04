@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>OrientedPoint.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.euclidean.oned</a> &gt; <span class="el_source">OrientedPoint.java</span></div><h1>OrientedPoint.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.euclidean.oned;
+
+import org.apache.commons.math3.geometry.Point;
+import org.apache.commons.math3.geometry.Vector;
+import org.apache.commons.math3.geometry.partitioning.Hyperplane;
+
+/** This class represents a 1D oriented hyperplane.
+ * &lt;p&gt;An hyperplane in 1D is a simple point, its orientation being a
+ * boolean.&lt;/p&gt;
+ * &lt;p&gt;Instances of this class are guaranteed to be immutable.&lt;/p&gt;
+ * @since 3.0
+ */
+public class OrientedPoint implements Hyperplane&lt;Euclidean1D&gt; {
+
+    /** Default value for tolerance. */
+    private static final double DEFAULT_TOLERANCE = 1.0e-10;
+
+    /** Vector location. */
+    private Vector1D location;
+
+    /** Orientation. */
+    private boolean direct;
+
+    /** Tolerance below which points are considered to belong to the hyperplane. */
+    private final double tolerance;
+
+    /** Simple constructor.
+     * @param location location of the hyperplane
+     * @param direct if true, the plus side of the hyperplane is towards
+     * abscissas greater than {@code location}
+     * @param tolerance tolerance below which points are considered to belong to the hyperplane
+     * @since 3.3
+     */
+<span class="fc" id="L50">    public OrientedPoint(final Vector1D location, final boolean direct, final double tolerance) {</span>
+<span class="fc" id="L51">        this.location  = location;</span>
+<span class="fc" id="L52">        this.direct    = direct;</span>
+<span class="fc" id="L53">        this.tolerance = tolerance;</span>
+<span class="fc" id="L54">    }</span>
+
+    /** Simple constructor.
+     * @param location location of the hyperplane
+     * @param direct if true, the plus side of the hyperplane is towards
+     * abscissas greater than {@code location}
+     * @deprecated as of 3.3, replaced with {@link #OrientedPoint(Vector1D, boolean, double)}
+     */
+    @Deprecated
+    public OrientedPoint(final Vector1D location, final boolean direct) {
+<span class="nc" id="L64">        this(location, direct, DEFAULT_TOLERANCE);</span>
+<span class="nc" id="L65">    }</span>
+
+    /** Copy the instance.
+     * &lt;p&gt;Since instances are immutable, this method directly returns
+     * the instance.&lt;/p&gt;
+     * @return the instance itself
+     */
+    public OrientedPoint copySelf() {
+<span class="fc" id="L73">        return this;</span>
+    }
+
+    /** Get the offset (oriented distance) of a vector.
+     * @param vector vector to check
+     * @return offset of the vector
+     */
+    public double getOffset(Vector&lt;Euclidean1D&gt; vector) {
+<span class="nc" id="L81">        return getOffset((Point&lt;Euclidean1D&gt;) vector);</span>
+    }
+
+    /** {@inheritDoc} */
+    public double getOffset(final Point&lt;Euclidean1D&gt; point) {
+<span class="fc" id="L86">        final double delta = ((Vector1D) point).getX() - location.getX();</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        return direct ? delta : -delta;</span>
+    }
+
+    /** Build a region covering the whole hyperplane.
+     * &lt;p&gt;Since this class represent zero dimension spaces which does
+     * not have lower dimension sub-spaces, this method returns a dummy
+     * implementation of a {@link
+     * org.apache.commons.math3.geometry.partitioning.SubHyperplane SubHyperplane}.
+     * This implementation is only used to allow the {@link
+     * org.apache.commons.math3.geometry.partitioning.SubHyperplane
+     * SubHyperplane} class implementation to work properly, it should
+     * &lt;em&gt;not&lt;/em&gt; be used otherwise.&lt;/p&gt;
+     * @return a dummy sub hyperplane
+     */
+    public SubOrientedPoint wholeHyperplane() {
+<span class="fc" id="L102">        return new SubOrientedPoint(this, null);</span>
+    }
+
+    /** Build a region covering the whole space.
+     * @return a region containing the instance (really an {@link
+     * IntervalsSet IntervalsSet} instance)
+     */
+    public IntervalsSet wholeSpace() {
+<span class="nc" id="L110">        return new IntervalsSet(tolerance);</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean sameOrientationAs(final Hyperplane&lt;Euclidean1D&gt; other) {
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        return !(direct ^ ((OrientedPoint) other).direct);</span>
+    }
+
+    /** {@inheritDoc}
+     * @since 3.3
+     */
+    public Point&lt;Euclidean1D&gt; project(Point&lt;Euclidean1D&gt; point) {
+<span class="nc" id="L122">        return location;</span>
+    }
+
+    /** {@inheritDoc}
+     * @since 3.3
+     */
+    public double getTolerance() {
+<span class="nc" id="L129">        return tolerance;</span>
+    }
+
+    /** Get the hyperplane location on the real line.
+     * @return the hyperplane location
+     */
+    public Vector1D getLocation() {
+<span class="fc" id="L136">        return location;</span>
+    }
+
+    /** Check if the hyperplane orientation is direct.
+     * @return true if the plus side of the hyperplane is towards
+     * abscissae greater than hyperplane location
+     */
+    public boolean isDirect() {
+<span class="fc" id="L144">        return direct;</span>
+    }
+
+    /** Revert the instance.
+     */
+    public void revertSelf() {
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        direct = !direct;</span>
+<span class="nc" id="L151">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

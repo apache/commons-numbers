@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LinearObjectiveFunction.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optimization.linear</a> &gt; <span class="el_source">LinearObjectiveFunction.java</span></div><h1>LinearObjectiveFunction.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.optimization.linear;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.ArrayRealVector;
+
+/**
+ * An objective function for a linear optimization problem.
+ * &lt;p&gt;
+ * A linear objective function has one the form:
+ * &lt;pre&gt;
+ * c&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... c&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + d
+ * &lt;/pre&gt;
+ * The c&lt;sub&gt;i&lt;/sub&gt; and d are the coefficients of the equation,
+ * the x&lt;sub&gt;i&lt;/sub&gt; are the coordinates of the current point.
+ * &lt;/p&gt;
+ * @deprecated As of 3.1 (to be removed in 4.0).
+ * @since 2.0
+ */
+@Deprecated
+public class LinearObjectiveFunction implements Serializable {
+
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = -4531815507568396090L;
+
+    /** Coefficients of the constraint (c&lt;sub&gt;i&lt;/sub&gt;). */
+    private final transient RealVector coefficients;
+
+    /** Constant term of the linear equation. */
+    private final double constantTerm;
+
+    /**
+     * @param coefficients The coefficients for the linear equation being optimized
+     * @param constantTerm The constant term of the linear equation
+     */
+    public LinearObjectiveFunction(double[] coefficients, double constantTerm) {
+<span class="fc" id="L59">        this(new ArrayRealVector(coefficients), constantTerm);</span>
+<span class="fc" id="L60">    }</span>
+
+    /**
+     * @param coefficients The coefficients for the linear equation being optimized
+     * @param constantTerm The constant term of the linear equation
+     */
+<span class="fc" id="L66">    public LinearObjectiveFunction(RealVector coefficients, double constantTerm) {</span>
+<span class="fc" id="L67">        this.coefficients = coefficients;</span>
+<span class="fc" id="L68">        this.constantTerm = constantTerm;</span>
+<span class="fc" id="L69">    }</span>
+
+    /**
+     * Get the coefficients of the linear equation being optimized.
+     * @return coefficients of the linear equation being optimized
+     */
+    public RealVector getCoefficients() {
+<span class="fc" id="L76">        return coefficients;</span>
+    }
+
+    /**
+     * Get the constant of the linear equation being optimized.
+     * @return constant of the linear equation being optimized
+     */
+    public double getConstantTerm() {
+<span class="fc" id="L84">        return constantTerm;</span>
+    }
+
+    /**
+     * Compute the value of the linear equation at the current point
+     * @param point point at which linear equation must be evaluated
+     * @return value of the linear equation at the current point
+     */
+    public double getValue(final double[] point) {
+<span class="fc" id="L93">        return coefficients.dotProduct(new ArrayRealVector(point, false)) + constantTerm;</span>
+    }
+
+    /**
+     * Compute the value of the linear equation at the current point
+     * @param point point at which linear equation must be evaluated
+     * @return value of the linear equation at the current point
+     */
+    public double getValue(final RealVector point) {
+<span class="nc" id="L102">        return coefficients.dotProduct(point) + constantTerm;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(Object other) {
+
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">      if (this == other) {</span>
+<span class="nc" id="L110">        return true;</span>
+      }
+
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">      if (other instanceof LinearObjectiveFunction) {</span>
+<span class="fc" id="L114">          LinearObjectiveFunction rhs = (LinearObjectiveFunction) other;</span>
+<span class="pc bpc" id="L115" title="2 of 4 branches missed.">          return (constantTerm == rhs.constantTerm) &amp;&amp; coefficients.equals(rhs.coefficients);</span>
+      }
+
+<span class="nc" id="L118">      return false;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+<span class="nc" id="L124">        return Double.valueOf(constantTerm).hashCode() ^ coefficients.hashCode();</span>
+    }
+
+    /**
+     * Serialize the instance.
+     * @param oos stream where object should be written
+     * @throws IOException if object cannot be written to stream
+     */
+    private void writeObject(ObjectOutputStream oos)
+        throws IOException {
+<span class="fc" id="L134">        oos.defaultWriteObject();</span>
+<span class="fc" id="L135">        MatrixUtils.serializeRealVector(coefficients, oos);</span>
+<span class="fc" id="L136">    }</span>
+
+    /**
+     * Deserialize the instance.
+     * @param ois stream from which the object should be read
+     * @throws ClassNotFoundException if a class in the stream cannot be found
+     * @throws IOException if object cannot be read from the stream
+     */
+    private void readObject(ObjectInputStream ois)
+      throws ClassNotFoundException, IOException {
+<span class="fc" id="L146">        ois.defaultReadObject();</span>
+<span class="fc" id="L147">        MatrixUtils.deserializeRealVector(this, &quot;coefficients&quot;, ois);</span>
+<span class="fc" id="L148">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

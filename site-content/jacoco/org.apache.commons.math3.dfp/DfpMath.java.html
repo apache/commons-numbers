@@ -1,0 +1,963 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DfpMath.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.dfp</a> &gt; <span class="el_source">DfpMath.java</span></div><h1>DfpMath.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.dfp;
+
+/** Mathematical routines for use with {@link Dfp}.
+ * The constants are defined in {@link DfpField}
+ * @since 2.2
+ */
+public class DfpMath {
+
+    /** Name for traps triggered by pow. */
+    private static final String POW_TRAP = &quot;pow&quot;;
+
+    /**
+     * Private Constructor.
+     */
+<span class="nc" id="L32">    private DfpMath() {</span>
+<span class="nc" id="L33">    }</span>
+
+    /** Breaks a string representation up into two dfp's.
+     * &lt;p&gt;The two dfp are such that the sum of them is equivalent
+     * to the input string, but has higher precision than using a
+     * single dfp. This is useful for improving accuracy of
+     * exponentiation and critical multiplies.
+     * @param field field to which the Dfp must belong
+     * @param a string representation to split
+     * @return an array of two {@link Dfp} which sum is a
+     */
+    protected static Dfp[] split(final DfpField field, final String a) {
+<span class="nc" id="L45">        Dfp result[] = new Dfp[2];</span>
+        char[] buf;
+<span class="nc" id="L47">        boolean leading = true;</span>
+<span class="nc" id="L48">        int sp = 0;</span>
+<span class="nc" id="L49">        int sig = 0;</span>
+
+<span class="nc" id="L51">        buf = new char[a.length()];</span>
+
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        for (int i = 0; i &lt; buf.length; i++) {</span>
+<span class="nc" id="L54">            buf[i] = a.charAt(i);</span>
+
+<span class="nc bnc" id="L56" title="All 4 branches missed.">            if (buf[i] &gt;= '1' &amp;&amp; buf[i] &lt;= '9') {</span>
+<span class="nc" id="L57">                leading = false;</span>
+            }
+
+<span class="nc bnc" id="L60" title="All 2 branches missed.">            if (buf[i] == '.') {</span>
+<span class="nc" id="L61">                sig += (400 - sig) % 4;</span>
+<span class="nc" id="L62">                leading = false;</span>
+            }
+
+<span class="nc bnc" id="L65" title="All 2 branches missed.">            if (sig == (field.getRadixDigits() / 2) * 4) {</span>
+<span class="nc" id="L66">                sp = i;</span>
+<span class="nc" id="L67">                break;</span>
+            }
+
+<span class="nc bnc" id="L70" title="All 6 branches missed.">            if (buf[i] &gt;= '0' &amp;&amp; buf[i] &lt;= '9' &amp;&amp; !leading) {</span>
+<span class="nc" id="L71">                sig ++;</span>
+            }
+        }
+
+<span class="nc" id="L75">        result[0] = field.newDfp(new String(buf, 0, sp));</span>
+
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        for (int i = 0; i &lt; buf.length; i++) {</span>
+<span class="nc" id="L78">            buf[i] = a.charAt(i);</span>
+<span class="nc bnc" id="L79" title="All 6 branches missed.">            if (buf[i] &gt;= '0' &amp;&amp; buf[i] &lt;= '9' &amp;&amp; i &lt; sp) {</span>
+<span class="nc" id="L80">                buf[i] = '0';</span>
+            }
+        }
+
+<span class="nc" id="L84">        result[1] = field.newDfp(new String(buf));</span>
+
+<span class="nc" id="L86">        return result;</span>
+    }
+
+    /** Splits a {@link Dfp} into 2 {@link Dfp}'s such that their sum is equal to the input {@link Dfp}.
+     * @param a number to split
+     * @return two elements array containing the split number
+     */
+    protected static Dfp[] split(final Dfp a) {
+<span class="fc" id="L94">        final Dfp[] result = new Dfp[2];</span>
+<span class="fc" id="L95">        final Dfp shift = a.multiply(a.power10K(a.getRadixDigits() / 2));</span>
+<span class="fc" id="L96">        result[0] = a.add(shift).subtract(shift);</span>
+<span class="fc" id="L97">        result[1] = a.subtract(result[0]);</span>
+<span class="fc" id="L98">        return result;</span>
+    }
+
+    /** Multiply two numbers that are split in to two pieces that are
+     *  meant to be added together.
+     *  Use binomial multiplication so ab = a0 b0 + a0 b1 + a1 b0 + a1 b1
+     *  Store the first term in result0, the rest in result1
+     *  @param a first factor of the multiplication, in split form
+     *  @param b second factor of the multiplication, in split form
+     *  @return a &amp;times; b, in split form
+     */
+    protected static Dfp[] splitMult(final Dfp[] a, final Dfp[] b) {
+<span class="fc" id="L110">        final Dfp[] result = new Dfp[2];</span>
+
+<span class="fc" id="L112">        result[1] = a[0].getZero();</span>
+<span class="fc" id="L113">        result[0] = a[0].multiply(b[0]);</span>
+
+        /* If result[0] is infinite or zero, don't compute result[1].
+         * Attempting to do so may produce NaNs.
+         */
+
+<span class="pc bpc" id="L119" title="1 of 4 branches missed.">        if (result[0].classify() == Dfp.INFINITE || result[0].equals(result[1])) {</span>
+<span class="fc" id="L120">            return result;</span>
+        }
+
+<span class="fc" id="L123">        result[1] = a[0].multiply(b[1]).add(a[1].multiply(b[0])).add(a[1].multiply(b[1]));</span>
+
+<span class="fc" id="L125">        return result;</span>
+    }
+
+    /** Divide two numbers that are split in to two pieces that are meant to be added together.
+     * Inverse of split multiply above:
+     *  (a+b) / (c+d) = (a/c) + ( (bc-ad)/(c**2+cd) )
+     *  @param a dividend, in split form
+     *  @param b divisor, in split form
+     *  @return a / b, in split form
+     */
+    protected static Dfp[] splitDiv(final Dfp[] a, final Dfp[] b) {
+        final Dfp[] result;
+
+<span class="fc" id="L138">        result = new Dfp[2];</span>
+
+<span class="fc" id="L140">        result[0] = a[0].divide(b[0]);</span>
+<span class="fc" id="L141">        result[1] = a[1].multiply(b[0]).subtract(a[0].multiply(b[1]));</span>
+<span class="fc" id="L142">        result[1] = result[1].divide(b[0].multiply(b[0]).add(b[0].multiply(b[1])));</span>
+
+<span class="fc" id="L144">        return result;</span>
+    }
+
+    /** Raise a split base to the a power.
+     * @param base number to raise
+     * @param a power
+     * @return base&lt;sup&gt;a&lt;/sup&gt;
+     */
+    protected static Dfp splitPow(final Dfp[] base, int a) {
+<span class="fc" id="L153">        boolean invert = false;</span>
+
+<span class="fc" id="L155">        Dfp[] r = new Dfp[2];</span>
+
+<span class="fc" id="L157">        Dfp[] result = new Dfp[2];</span>
+<span class="fc" id="L158">        result[0] = base[0].getOne();</span>
+<span class="fc" id="L159">        result[1] = base[0].getZero();</span>
+
+<span class="fc bfc" id="L161" title="All 2 branches covered.">        if (a == 0) {</span>
+            // Special case a = 0
+<span class="fc" id="L163">            return result[0].add(result[1]);</span>
+        }
+
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        if (a &lt; 0) {</span>
+            // If a is less than zero
+<span class="fc" id="L168">            invert = true;</span>
+<span class="fc" id="L169">            a = -a;</span>
+        }
+
+        // Exponentiate by successive squaring
+        do {
+<span class="fc" id="L174">            r[0] = new Dfp(base[0]);</span>
+<span class="fc" id="L175">            r[1] = new Dfp(base[1]);</span>
+<span class="fc" id="L176">            int trial = 1;</span>
+
+            int prevtrial;
+            while (true) {
+<span class="fc" id="L180">                prevtrial = trial;</span>
+<span class="fc" id="L181">                trial *= 2;</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">                if (trial &gt; a) {</span>
+<span class="fc" id="L183">                    break;</span>
+                }
+<span class="fc" id="L185">                r = splitMult(r, r);</span>
+            }
+
+<span class="fc" id="L188">            trial = prevtrial;</span>
+
+<span class="fc" id="L190">            a -= trial;</span>
+<span class="fc" id="L191">            result = splitMult(result, r);</span>
+
+<span class="fc bfc" id="L193" title="All 2 branches covered.">        } while (a &gt;= 1);</span>
+
+<span class="fc" id="L195">        result[0] = result[0].add(result[1]);</span>
+
+<span class="fc bfc" id="L197" title="All 2 branches covered.">        if (invert) {</span>
+<span class="fc" id="L198">            result[0] = base[0].getOne().divide(result[0]);</span>
+        }
+
+<span class="fc" id="L201">        return result[0];</span>
+
+    }
+
+    /** Raises base to the power a by successive squaring.
+     * @param base number to raise
+     * @param a power
+     * @return base&lt;sup&gt;a&lt;/sup&gt;
+     */
+    public static Dfp pow(Dfp base, int a)
+    {
+<span class="fc" id="L212">        boolean invert = false;</span>
+
+<span class="fc" id="L214">        Dfp result = base.getOne();</span>
+
+<span class="fc bfc" id="L216" title="All 2 branches covered.">        if (a == 0) {</span>
+            // Special case
+<span class="fc" id="L218">            return result;</span>
+        }
+
+<span class="fc bfc" id="L221" title="All 2 branches covered.">        if (a &lt; 0) {</span>
+<span class="fc" id="L222">            invert = true;</span>
+<span class="fc" id="L223">            a = -a;</span>
+        }
+
+        // Exponentiate by successive squaring
+        do {
+<span class="fc" id="L228">            Dfp r = new Dfp(base);</span>
+            Dfp prevr;
+<span class="fc" id="L230">            int trial = 1;</span>
+            int prevtrial;
+
+            do {
+<span class="fc" id="L234">                prevr = new Dfp(r);</span>
+<span class="fc" id="L235">                prevtrial = trial;</span>
+<span class="fc" id="L236">                r = r.multiply(r);</span>
+<span class="fc" id="L237">                trial *= 2;</span>
+<span class="fc bfc" id="L238" title="All 2 branches covered.">            } while (a&gt;trial);</span>
+
+<span class="fc" id="L240">            r = prevr;</span>
+<span class="fc" id="L241">            trial = prevtrial;</span>
+
+<span class="fc" id="L243">            a -= trial;</span>
+<span class="fc" id="L244">            result = result.multiply(r);</span>
+
+<span class="fc bfc" id="L246" title="All 2 branches covered.">        } while (a &gt;= 1);</span>
+
+<span class="fc bfc" id="L248" title="All 2 branches covered.">        if (invert) {</span>
+<span class="fc" id="L249">            result = base.getOne().divide(result);</span>
+        }
+
+<span class="fc" id="L252">        return base.newInstance(result);</span>
+
+    }
+
+    /** Computes e to the given power.
+     * a is broken into two parts, such that a = n+m  where n is an integer.
+     * We use pow() to compute e&lt;sup&gt;n&lt;/sup&gt; and a Taylor series to compute
+     * e&lt;sup&gt;m&lt;/sup&gt;.  We return e*&lt;sup&gt;n&lt;/sup&gt; &amp;times; e&lt;sup&gt;m&lt;/sup&gt;
+     * @param a power at which e should be raised
+     * @return e&lt;sup&gt;a&lt;/sup&gt;
+     */
+    public static Dfp exp(final Dfp a) {
+
+<span class="fc" id="L265">        final Dfp inta = a.rint();</span>
+<span class="fc" id="L266">        final Dfp fraca = a.subtract(inta);</span>
+
+<span class="fc" id="L268">        final int ia = inta.intValue();</span>
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">        if (ia &gt; 2147483646) {</span>
+            // return +Infinity
+<span class="nc" id="L271">            return a.newInstance((byte)1, Dfp.INFINITE);</span>
+        }
+
+<span class="pc bpc" id="L274" title="1 of 2 branches missed.">        if (ia &lt; -2147483646) {</span>
+            // return 0;
+<span class="nc" id="L276">            return a.newInstance();</span>
+        }
+
+<span class="fc" id="L279">        final Dfp einta = splitPow(a.getField().getESplit(), ia);</span>
+<span class="fc" id="L280">        final Dfp efraca = expInternal(fraca);</span>
+
+<span class="fc" id="L282">        return einta.multiply(efraca);</span>
+    }
+
+    /** Computes e to the given power.
+     * Where -1 &lt; a &lt; 1.  Use the classic Taylor series.  1 + x**2/2! + x**3/3! + x**4/4!  ...
+     * @param a power at which e should be raised
+     * @return e&lt;sup&gt;a&lt;/sup&gt;
+     */
+    protected static Dfp expInternal(final Dfp a) {
+<span class="fc" id="L291">        Dfp y = a.getOne();</span>
+<span class="fc" id="L292">        Dfp x = a.getOne();</span>
+<span class="fc" id="L293">        Dfp fact = a.getOne();</span>
+<span class="fc" id="L294">        Dfp py = new Dfp(y);</span>
+
+<span class="pc bpc" id="L296" title="1 of 2 branches missed.">        for (int i = 1; i &lt; 90; i++) {</span>
+<span class="fc" id="L297">            x = x.multiply(a);</span>
+<span class="fc" id="L298">            fact = fact.divide(i);</span>
+<span class="fc" id="L299">            y = y.add(x.multiply(fact));</span>
+<span class="fc bfc" id="L300" title="All 2 branches covered.">            if (y.equals(py)) {</span>
+<span class="fc" id="L301">                break;</span>
+            }
+<span class="fc" id="L303">            py = new Dfp(y);</span>
+        }
+
+<span class="fc" id="L306">        return y;</span>
+    }
+
+    /** Returns the natural logarithm of a.
+     * a is first split into three parts such that  a = (10000^h)(2^j)k.
+     * ln(a) is computed by ln(a) = ln(5)*h + ln(2)*(h+j) + ln(k)
+     * k is in the range 2/3 &lt; k &lt;4/3 and is passed on to a series expansion.
+     * @param a number from which logarithm is requested
+     * @return log(a)
+     */
+    public static Dfp log(Dfp a) {
+        int lr;
+        Dfp x;
+        int ix;
+<span class="fc" id="L320">        int p2 = 0;</span>
+
+        // Check the arguments somewhat here
+<span class="pc bpc" id="L323" title="3 of 6 branches missed.">        if (a.equals(a.getZero()) || a.lessThan(a.getZero()) || a.isNaN()) {</span>
+            // negative, zero or NaN
+<span class="nc" id="L325">            a.getField().setIEEEFlagsBits(DfpField.FLAG_INVALID);</span>
+<span class="nc" id="L326">            return a.dotrap(DfpField.FLAG_INVALID, &quot;ln&quot;, a, a.newInstance((byte)1, Dfp.QNAN));</span>
+        }
+
+<span class="pc bpc" id="L329" title="1 of 2 branches missed.">        if (a.classify() == Dfp.INFINITE) {</span>
+<span class="nc" id="L330">            return a;</span>
+        }
+
+<span class="fc" id="L333">        x = new Dfp(a);</span>
+<span class="fc" id="L334">        lr = x.log10K();</span>
+
+<span class="fc" id="L336">        x = x.divide(pow(a.newInstance(10000), lr));  /* This puts x in the range 0-10000 */</span>
+<span class="fc" id="L337">        ix = x.floor().intValue();</span>
+
+<span class="fc bfc" id="L339" title="All 2 branches covered.">        while (ix &gt; 2) {</span>
+<span class="fc" id="L340">            ix &gt;&gt;= 1;</span>
+<span class="fc" id="L341">            p2++;</span>
+        }
+
+
+<span class="fc" id="L345">        Dfp[] spx = split(x);</span>
+<span class="fc" id="L346">        Dfp[] spy = new Dfp[2];</span>
+<span class="fc" id="L347">        spy[0] = pow(a.getTwo(), p2);          // use spy[0] temporarily as a divisor</span>
+<span class="fc" id="L348">        spx[0] = spx[0].divide(spy[0]);</span>
+<span class="fc" id="L349">        spx[1] = spx[1].divide(spy[0]);</span>
+
+<span class="fc" id="L351">        spy[0] = a.newInstance(&quot;1.33333&quot;);    // Use spy[0] for comparison</span>
+<span class="fc bfc" id="L352" title="All 2 branches covered.">        while (spx[0].add(spx[1]).greaterThan(spy[0])) {</span>
+<span class="fc" id="L353">            spx[0] = spx[0].divide(2);</span>
+<span class="fc" id="L354">            spx[1] = spx[1].divide(2);</span>
+<span class="fc" id="L355">            p2++;</span>
+        }
+
+        // X is now in the range of 2/3 &lt; x &lt; 4/3
+<span class="fc" id="L359">        Dfp[] spz = logInternal(spx);</span>
+
+<span class="fc" id="L361">        spx[0] = a.newInstance(new StringBuilder().append(p2+4*lr).toString());</span>
+<span class="fc" id="L362">        spx[1] = a.getZero();</span>
+<span class="fc" id="L363">        spy = splitMult(a.getField().getLn2Split(), spx);</span>
+
+<span class="fc" id="L365">        spz[0] = spz[0].add(spy[0]);</span>
+<span class="fc" id="L366">        spz[1] = spz[1].add(spy[1]);</span>
+
+<span class="fc" id="L368">        spx[0] = a.newInstance(new StringBuilder().append(4*lr).toString());</span>
+<span class="fc" id="L369">        spx[1] = a.getZero();</span>
+<span class="fc" id="L370">        spy = splitMult(a.getField().getLn5Split(), spx);</span>
+
+<span class="fc" id="L372">        spz[0] = spz[0].add(spy[0]);</span>
+<span class="fc" id="L373">        spz[1] = spz[1].add(spy[1]);</span>
+
+<span class="fc" id="L375">        return a.newInstance(spz[0].add(spz[1]));</span>
+
+    }
+
+    /** Computes the natural log of a number between 0 and 2.
+     *  Let f(x) = ln(x),
+     *
+     *  We know that f'(x) = 1/x, thus from Taylor's theorum we have:
+     *
+     *           -----          n+1         n
+     *  f(x) =   \           (-1)    (x - 1)
+     *           /          ----------------    for 1 &lt;= n &lt;= infinity
+     *           -----             n
+     *
+     *  or
+     *                       2        3       4
+     *                   (x-1)   (x-1)    (x-1)
+     *  ln(x) =  (x-1) - ----- + ------ - ------ + ...
+     *                     2       3        4
+     *
+     *  alternatively,
+     *
+     *                  2    3   4
+     *                 x    x   x
+     *  ln(x+1) =  x - -  + - - - + ...
+     *                 2    3   4
+     *
+     *  This series can be used to compute ln(x), but it converges too slowly.
+     *
+     *  If we substitute -x for x above, we get
+     *
+     *                   2    3    4
+     *                  x    x    x
+     *  ln(1-x) =  -x - -  - -  - - + ...
+     *                  2    3    4
+     *
+     *  Note that all terms are now negative.  Because the even powered ones
+     *  absorbed the sign.  Now, subtract the series above from the previous
+     *  one to get ln(x+1) - ln(1-x).  Note the even terms cancel out leaving
+     *  only the odd ones
+     *
+     *                             3     5      7
+     *                           2x    2x     2x
+     *  ln(x+1) - ln(x-1) = 2x + --- + --- + ---- + ...
+     *                            3     5      7
+     *
+     *  By the property of logarithms that ln(a) - ln(b) = ln (a/b) we have:
+     *
+     *                                3        5        7
+     *      x+1           /          x        x        x          \
+     *  ln ----- =   2 *  |  x  +   ----  +  ----  +  ---- + ...  |
+     *      x-1           \          3        5        7          /
+     *
+     *  But now we want to find ln(a), so we need to find the value of x
+     *  such that a = (x+1)/(x-1).   This is easily solved to find that
+     *  x = (a-1)/(a+1).
+     * @param a number from which logarithm is requested, in split form
+     * @return log(a)
+     */
+    protected static Dfp[] logInternal(final Dfp a[]) {
+
+        /* Now we want to compute x = (a-1)/(a+1) but this is prone to
+         * loss of precision.  So instead, compute x = (a/4 - 1/4) / (a/4 + 1/4)
+         */
+<span class="fc" id="L439">        Dfp t = a[0].divide(4).add(a[1].divide(4));</span>
+<span class="fc" id="L440">        Dfp x = t.add(a[0].newInstance(&quot;-0.25&quot;)).divide(t.add(a[0].newInstance(&quot;0.25&quot;)));</span>
+
+<span class="fc" id="L442">        Dfp y = new Dfp(x);</span>
+<span class="fc" id="L443">        Dfp num = new Dfp(x);</span>
+<span class="fc" id="L444">        Dfp py = new Dfp(y);</span>
+<span class="fc" id="L445">        int den = 1;</span>
+<span class="pc bpc" id="L446" title="1 of 2 branches missed.">        for (int i = 0; i &lt; 10000; i++) {</span>
+<span class="fc" id="L447">            num = num.multiply(x);</span>
+<span class="fc" id="L448">            num = num.multiply(x);</span>
+<span class="fc" id="L449">            den += 2;</span>
+<span class="fc" id="L450">            t = num.divide(den);</span>
+<span class="fc" id="L451">            y = y.add(t);</span>
+<span class="fc bfc" id="L452" title="All 2 branches covered.">            if (y.equals(py)) {</span>
+<span class="fc" id="L453">                break;</span>
+            }
+<span class="fc" id="L455">            py = new Dfp(y);</span>
+        }
+
+<span class="fc" id="L458">        y = y.multiply(a[0].getTwo());</span>
+
+<span class="fc" id="L460">        return split(y);</span>
+
+    }
+
+    /** Computes x to the y power.&lt;p&gt;
+     *
+     *  Uses the following method:&lt;p&gt;
+     *
+     *  &lt;ol&gt;
+     *  &lt;li&gt; Set u = rint(y), v = y-u
+     *  &lt;li&gt; Compute a = v * ln(x)
+     *  &lt;li&gt; Compute b = rint( a/ln(2) )
+     *  &lt;li&gt; Compute c = a - b*ln(2)
+     *  &lt;li&gt; x&lt;sup&gt;y&lt;/sup&gt; = x&lt;sup&gt;u&lt;/sup&gt;  *   2&lt;sup&gt;b&lt;/sup&gt; * e&lt;sup&gt;c&lt;/sup&gt;
+     *  &lt;/ol&gt;
+     *  if |y| &gt; 1e8, then we compute by exp(y*ln(x))   &lt;p&gt;
+     *
+     *  &lt;b&gt;Special Cases&lt;/b&gt;&lt;p&gt;
+     *  &lt;ul&gt;
+     *  &lt;li&gt;  if y is 0.0 or -0.0 then result is 1.0
+     *  &lt;li&gt;  if y is 1.0 then result is x
+     *  &lt;li&gt;  if y is NaN then result is NaN
+     *  &lt;li&gt;  if x is NaN and y is not zero then result is NaN
+     *  &lt;li&gt;  if |x| &gt; 1.0 and y is +Infinity then result is +Infinity
+     *  &lt;li&gt;  if |x| &lt; 1.0 and y is -Infinity then result is +Infinity
+     *  &lt;li&gt;  if |x| &gt; 1.0 and y is -Infinity then result is +0
+     *  &lt;li&gt;  if |x| &lt; 1.0 and y is +Infinity then result is +0
+     *  &lt;li&gt;  if |x| = 1.0 and y is +/-Infinity then result is NaN
+     *  &lt;li&gt;  if x = +0 and y &gt; 0 then result is +0
+     *  &lt;li&gt;  if x = +Inf and y &lt; 0 then result is +0
+     *  &lt;li&gt;  if x = +0 and y &lt; 0 then result is +Inf
+     *  &lt;li&gt;  if x = +Inf and y &gt; 0 then result is +Inf
+     *  &lt;li&gt;  if x = -0 and y &gt; 0, finite, not odd integer then result is +0
+     *  &lt;li&gt;  if x = -0 and y &lt; 0, finite, and odd integer then result is -Inf
+     *  &lt;li&gt;  if x = -Inf and y &gt; 0, finite, and odd integer then result is -Inf
+     *  &lt;li&gt;  if x = -0 and y &lt; 0, not finite odd integer then result is +Inf
+     *  &lt;li&gt;  if x = -Inf and y &gt; 0, not finite odd integer then result is +Inf
+     *  &lt;li&gt;  if x &lt; 0 and y &gt; 0, finite, and odd integer then result is -(|x|&lt;sup&gt;y&lt;/sup&gt;)
+     *  &lt;li&gt;  if x &lt; 0 and y &gt; 0, finite, and not integer then result is NaN
+     *  &lt;/ul&gt;
+     *  @param x base to be raised
+     *  @param y power to which base should be raised
+     *  @return x&lt;sup&gt;y&lt;/sup&gt;
+     */
+    public static Dfp pow(Dfp x, final Dfp y) {
+
+        // make sure we don't mix number with different precision
+<span class="pc bpc" id="L507" title="1 of 2 branches missed.">        if (x.getField().getRadixDigits() != y.getField().getRadixDigits()) {</span>
+<span class="nc" id="L508">            x.getField().setIEEEFlagsBits(DfpField.FLAG_INVALID);</span>
+<span class="nc" id="L509">            final Dfp result = x.newInstance(x.getZero());</span>
+<span class="nc" id="L510">            result.nans = Dfp.QNAN;</span>
+<span class="nc" id="L511">            return x.dotrap(DfpField.FLAG_INVALID, POW_TRAP, x, result);</span>
+        }
+
+<span class="fc" id="L514">        final Dfp zero = x.getZero();</span>
+<span class="fc" id="L515">        final Dfp one  = x.getOne();</span>
+<span class="fc" id="L516">        final Dfp two  = x.getTwo();</span>
+<span class="fc" id="L517">        boolean invert = false;</span>
+        int ui;
+
+        /* Check for special cases */
+<span class="fc bfc" id="L521" title="All 2 branches covered.">        if (y.equals(zero)) {</span>
+<span class="fc" id="L522">            return x.newInstance(one);</span>
+        }
+
+<span class="fc bfc" id="L525" title="All 2 branches covered.">        if (y.equals(one)) {</span>
+<span class="fc bfc" id="L526" title="All 2 branches covered.">            if (x.isNaN()) {</span>
+                // Test for NaNs
+<span class="fc" id="L528">                x.getField().setIEEEFlagsBits(DfpField.FLAG_INVALID);</span>
+<span class="fc" id="L529">                return x.dotrap(DfpField.FLAG_INVALID, POW_TRAP, x, x);</span>
+            }
+<span class="fc" id="L531">            return x;</span>
+        }
+
+<span class="fc bfc" id="L534" title="All 4 branches covered.">        if (x.isNaN() || y.isNaN()) {</span>
+            // Test for NaNs
+<span class="fc" id="L536">            x.getField().setIEEEFlagsBits(DfpField.FLAG_INVALID);</span>
+<span class="fc" id="L537">            return x.dotrap(DfpField.FLAG_INVALID, POW_TRAP, x, x.newInstance((byte)1, Dfp.QNAN));</span>
+        }
+
+        // X == 0
+<span class="fc bfc" id="L541" title="All 2 branches covered.">        if (x.equals(zero)) {</span>
+<span class="fc bfc" id="L542" title="All 2 branches covered.">            if (Dfp.copysign(one, x).greaterThan(zero)) {</span>
+                // X == +0
+<span class="fc bfc" id="L544" title="All 2 branches covered.">                if (y.greaterThan(zero)) {</span>
+<span class="fc" id="L545">                    return x.newInstance(zero);</span>
+                } else {
+<span class="fc" id="L547">                    return x.newInstance(x.newInstance((byte)1, Dfp.INFINITE));</span>
+                }
+            } else {
+                // X == -0
+<span class="fc bfc" id="L551" title="All 6 branches covered.">                if (y.classify() == Dfp.FINITE &amp;&amp; y.rint().equals(y) &amp;&amp; !y.remainder(two).equals(zero)) {</span>
+                    // If y is odd integer
+<span class="fc bfc" id="L553" title="All 2 branches covered.">                    if (y.greaterThan(zero)) {</span>
+<span class="fc" id="L554">                        return x.newInstance(zero.negate());</span>
+                    } else {
+<span class="fc" id="L556">                        return x.newInstance(x.newInstance((byte)-1, Dfp.INFINITE));</span>
+                    }
+                } else {
+                    // Y is not odd integer
+<span class="fc bfc" id="L560" title="All 2 branches covered.">                    if (y.greaterThan(zero)) {</span>
+<span class="fc" id="L561">                        return x.newInstance(zero);</span>
+                    } else {
+<span class="fc" id="L563">                        return x.newInstance(x.newInstance((byte)1, Dfp.INFINITE));</span>
+                    }
+                }
+            }
+        }
+
+<span class="fc bfc" id="L569" title="All 2 branches covered.">        if (x.lessThan(zero)) {</span>
+            // Make x positive, but keep track of it
+<span class="fc" id="L571">            x = x.negate();</span>
+<span class="fc" id="L572">            invert = true;</span>
+        }
+
+<span class="fc bfc" id="L575" title="All 4 branches covered.">        if (x.greaterThan(one) &amp;&amp; y.classify() == Dfp.INFINITE) {</span>
+<span class="fc bfc" id="L576" title="All 2 branches covered.">            if (y.greaterThan(zero)) {</span>
+<span class="fc" id="L577">                return y;</span>
+            } else {
+<span class="fc" id="L579">                return x.newInstance(zero);</span>
+            }
+        }
+
+<span class="fc bfc" id="L583" title="All 4 branches covered.">        if (x.lessThan(one) &amp;&amp; y.classify() == Dfp.INFINITE) {</span>
+<span class="fc bfc" id="L584" title="All 2 branches covered.">            if (y.greaterThan(zero)) {</span>
+<span class="fc" id="L585">                return x.newInstance(zero);</span>
+            } else {
+<span class="fc" id="L587">                return x.newInstance(Dfp.copysign(y, one));</span>
+            }
+        }
+
+<span class="pc bpc" id="L591" title="1 of 4 branches missed.">        if (x.equals(one) &amp;&amp; y.classify() == Dfp.INFINITE) {</span>
+<span class="fc" id="L592">            x.getField().setIEEEFlagsBits(DfpField.FLAG_INVALID);</span>
+<span class="fc" id="L593">            return x.dotrap(DfpField.FLAG_INVALID, POW_TRAP, x, x.newInstance((byte)1, Dfp.QNAN));</span>
+        }
+
+<span class="fc bfc" id="L596" title="All 2 branches covered.">        if (x.classify() == Dfp.INFINITE) {</span>
+            // x = +/- inf
+<span class="fc bfc" id="L598" title="All 2 branches covered.">            if (invert) {</span>
+                // negative infinity
+<span class="pc bpc" id="L600" title="1 of 6 branches missed.">                if (y.classify() == Dfp.FINITE &amp;&amp; y.rint().equals(y) &amp;&amp; !y.remainder(two).equals(zero)) {</span>
+                    // If y is odd integer
+<span class="fc bfc" id="L602" title="All 2 branches covered.">                    if (y.greaterThan(zero)) {</span>
+<span class="fc" id="L603">                        return x.newInstance(x.newInstance((byte)-1, Dfp.INFINITE));</span>
+                    } else {
+<span class="fc" id="L605">                        return x.newInstance(zero.negate());</span>
+                    }
+                } else {
+                    // Y is not odd integer
+<span class="fc bfc" id="L609" title="All 2 branches covered.">                    if (y.greaterThan(zero)) {</span>
+<span class="fc" id="L610">                        return x.newInstance(x.newInstance((byte)1, Dfp.INFINITE));</span>
+                    } else {
+<span class="fc" id="L612">                        return x.newInstance(zero);</span>
+                    }
+                }
+            } else {
+                // positive infinity
+<span class="fc bfc" id="L617" title="All 2 branches covered.">                if (y.greaterThan(zero)) {</span>
+<span class="fc" id="L618">                    return x;</span>
+                } else {
+<span class="fc" id="L620">                    return x.newInstance(zero);</span>
+                }
+            }
+        }
+
+<span class="fc bfc" id="L625" title="All 4 branches covered.">        if (invert &amp;&amp; !y.rint().equals(y)) {</span>
+<span class="fc" id="L626">            x.getField().setIEEEFlagsBits(DfpField.FLAG_INVALID);</span>
+<span class="fc" id="L627">            return x.dotrap(DfpField.FLAG_INVALID, POW_TRAP, x, x.newInstance((byte)1, Dfp.QNAN));</span>
+        }
+
+        // End special cases
+
+        Dfp r;
+<span class="pc bpc" id="L633" title="2 of 4 branches missed.">        if (y.lessThan(x.newInstance(100000000)) &amp;&amp; y.greaterThan(x.newInstance(-100000000))) {</span>
+<span class="fc" id="L634">            final Dfp u = y.rint();</span>
+<span class="fc" id="L635">            ui = u.intValue();</span>
+
+<span class="fc" id="L637">            final Dfp v = y.subtract(u);</span>
+
+<span class="fc bfc" id="L639" title="All 2 branches covered.">            if (v.unequal(zero)) {</span>
+<span class="fc" id="L640">                final Dfp a = v.multiply(log(x));</span>
+<span class="fc" id="L641">                final Dfp b = a.divide(x.getField().getLn2()).rint();</span>
+
+<span class="fc" id="L643">                final Dfp c = a.subtract(b.multiply(x.getField().getLn2()));</span>
+<span class="fc" id="L644">                r = splitPow(split(x), ui);</span>
+<span class="fc" id="L645">                r = r.multiply(pow(two, b.intValue()));</span>
+<span class="fc" id="L646">                r = r.multiply(exp(c));</span>
+<span class="fc" id="L647">            } else {</span>
+<span class="fc" id="L648">                r = splitPow(split(x), ui);</span>
+            }
+<span class="fc" id="L650">        } else {</span>
+            // very large exponent.  |y| &gt; 1e8
+<span class="nc" id="L652">            r = exp(log(x).multiply(y));</span>
+        }
+
+<span class="pc bpc" id="L655" title="1 of 6 branches missed.">        if (invert &amp;&amp; y.rint().equals(y) &amp;&amp; !y.remainder(two).equals(zero)) {</span>
+            // if y is odd integer
+<span class="fc" id="L657">            r = r.negate();</span>
+        }
+
+<span class="fc" id="L660">        return x.newInstance(r);</span>
+
+    }
+
+    /** Computes sin(a)  Used when 0 &lt; a &lt; pi/4.
+     * Uses the classic Taylor series.  x - x**3/3! + x**5/5!  ...
+     * @param a number from which sine is desired, in split form
+     * @return sin(a)
+     */
+    protected static Dfp sinInternal(Dfp a[]) {
+
+<span class="fc" id="L671">        Dfp c = a[0].add(a[1]);</span>
+<span class="fc" id="L672">        Dfp y = c;</span>
+<span class="fc" id="L673">        c = c.multiply(c);</span>
+<span class="fc" id="L674">        Dfp x = y;</span>
+<span class="fc" id="L675">        Dfp fact = a[0].getOne();</span>
+<span class="fc" id="L676">        Dfp py = new Dfp(y);</span>
+
+<span class="pc bpc" id="L678" title="1 of 2 branches missed.">        for (int i = 3; i &lt; 90; i += 2) {</span>
+<span class="fc" id="L679">            x = x.multiply(c);</span>
+<span class="fc" id="L680">            x = x.negate();</span>
+
+<span class="fc" id="L682">            fact = fact.divide((i-1)*i);  // 1 over fact</span>
+<span class="fc" id="L683">            y = y.add(x.multiply(fact));</span>
+<span class="fc bfc" id="L684" title="All 2 branches covered.">            if (y.equals(py)) {</span>
+<span class="fc" id="L685">                break;</span>
+            }
+<span class="fc" id="L687">            py = new Dfp(y);</span>
+        }
+
+<span class="fc" id="L690">        return y;</span>
+
+    }
+
+    /** Computes cos(a)  Used when 0 &lt; a &lt; pi/4.
+     * Uses the classic Taylor series for cosine.  1 - x**2/2! + x**4/4!  ...
+     * @param a number from which cosine is desired, in split form
+     * @return cos(a)
+     */
+    protected static Dfp cosInternal(Dfp a[]) {
+<span class="fc" id="L700">        final Dfp one = a[0].getOne();</span>
+
+
+<span class="fc" id="L703">        Dfp x = one;</span>
+<span class="fc" id="L704">        Dfp y = one;</span>
+<span class="fc" id="L705">        Dfp c = a[0].add(a[1]);</span>
+<span class="fc" id="L706">        c = c.multiply(c);</span>
+
+<span class="fc" id="L708">        Dfp fact = one;</span>
+<span class="fc" id="L709">        Dfp py = new Dfp(y);</span>
+
+<span class="fc bfc" id="L711" title="All 2 branches covered.">        for (int i = 2; i &lt; 90; i += 2) {</span>
+<span class="fc" id="L712">            x = x.multiply(c);</span>
+<span class="fc" id="L713">            x = x.negate();</span>
+
+<span class="fc" id="L715">            fact = fact.divide((i - 1) * i);  // 1 over fact</span>
+
+<span class="fc" id="L717">            y = y.add(x.multiply(fact));</span>
+<span class="fc bfc" id="L718" title="All 2 branches covered.">            if (y.equals(py)) {</span>
+<span class="fc" id="L719">                break;</span>
+            }
+<span class="fc" id="L721">            py = new Dfp(y);</span>
+        }
+
+<span class="fc" id="L724">        return y;</span>
+
+    }
+
+    /** computes the sine of the argument.
+     * @param a number from which sine is desired
+     * @return sin(a)
+     */
+    public static Dfp sin(final Dfp a) {
+<span class="fc" id="L733">        final Dfp pi = a.getField().getPi();</span>
+<span class="fc" id="L734">        final Dfp zero = a.getField().getZero();</span>
+<span class="fc" id="L735">        boolean neg = false;</span>
+
+        /* First reduce the argument to the range of +/- PI */
+<span class="fc" id="L738">        Dfp x = a.remainder(pi.multiply(2));</span>
+
+        /* if x &lt; 0 then apply identity sin(-x) = -sin(x) */
+        /* This puts x in the range 0 &lt; x &lt; PI            */
+<span class="fc bfc" id="L742" title="All 2 branches covered.">        if (x.lessThan(zero)) {</span>
+<span class="fc" id="L743">            x = x.negate();</span>
+<span class="fc" id="L744">            neg = true;</span>
+        }
+
+        /* Since sine(x) = sine(pi - x) we can reduce the range to
+         * 0 &lt; x &lt; pi/2
+         */
+
+<span class="fc bfc" id="L751" title="All 2 branches covered.">        if (x.greaterThan(pi.divide(2))) {</span>
+<span class="fc" id="L752">            x = pi.subtract(x);</span>
+        }
+
+        Dfp y;
+<span class="fc bfc" id="L756" title="All 2 branches covered.">        if (x.lessThan(pi.divide(4))) {</span>
+<span class="fc" id="L757">            y = sinInternal(split(x));</span>
+        } else {
+<span class="fc" id="L759">            final Dfp c[] = new Dfp[2];</span>
+<span class="fc" id="L760">            final Dfp[] piSplit = a.getField().getPiSplit();</span>
+<span class="fc" id="L761">            c[0] = piSplit[0].divide(2).subtract(x);</span>
+<span class="fc" id="L762">            c[1] = piSplit[1].divide(2);</span>
+<span class="fc" id="L763">            y = cosInternal(c);</span>
+        }
+
+<span class="fc bfc" id="L766" title="All 2 branches covered.">        if (neg) {</span>
+<span class="fc" id="L767">            y = y.negate();</span>
+        }
+
+<span class="fc" id="L770">        return a.newInstance(y);</span>
+
+    }
+
+    /** computes the cosine of the argument.
+     * @param a number from which cosine is desired
+     * @return cos(a)
+     */
+    public static Dfp cos(Dfp a) {
+<span class="fc" id="L779">        final Dfp pi = a.getField().getPi();</span>
+<span class="fc" id="L780">        final Dfp zero = a.getField().getZero();</span>
+<span class="fc" id="L781">        boolean neg = false;</span>
+
+        /* First reduce the argument to the range of +/- PI */
+<span class="fc" id="L784">        Dfp x = a.remainder(pi.multiply(2));</span>
+
+        /* if x &lt; 0 then apply identity cos(-x) = cos(x) */
+        /* This puts x in the range 0 &lt; x &lt; PI           */
+<span class="fc bfc" id="L788" title="All 2 branches covered.">        if (x.lessThan(zero)) {</span>
+<span class="fc" id="L789">            x = x.negate();</span>
+        }
+
+        /* Since cos(x) = -cos(pi - x) we can reduce the range to
+         * 0 &lt; x &lt; pi/2
+         */
+
+<span class="fc bfc" id="L796" title="All 2 branches covered.">        if (x.greaterThan(pi.divide(2))) {</span>
+<span class="fc" id="L797">            x = pi.subtract(x);</span>
+<span class="fc" id="L798">            neg = true;</span>
+        }
+
+        Dfp y;
+<span class="fc bfc" id="L802" title="All 2 branches covered.">        if (x.lessThan(pi.divide(4))) {</span>
+<span class="fc" id="L803">            Dfp c[] = new Dfp[2];</span>
+<span class="fc" id="L804">            c[0] = x;</span>
+<span class="fc" id="L805">            c[1] = zero;</span>
+
+<span class="fc" id="L807">            y = cosInternal(c);</span>
+<span class="fc" id="L808">        } else {</span>
+<span class="fc" id="L809">            final Dfp c[] = new Dfp[2];</span>
+<span class="fc" id="L810">            final Dfp[] piSplit = a.getField().getPiSplit();</span>
+<span class="fc" id="L811">            c[0] = piSplit[0].divide(2).subtract(x);</span>
+<span class="fc" id="L812">            c[1] = piSplit[1].divide(2);</span>
+<span class="fc" id="L813">            y = sinInternal(c);</span>
+        }
+
+<span class="fc bfc" id="L816" title="All 2 branches covered.">        if (neg) {</span>
+<span class="fc" id="L817">            y = y.negate();</span>
+        }
+
+<span class="fc" id="L820">        return a.newInstance(y);</span>
+
+    }
+
+    /** computes the tangent of the argument.
+     * @param a number from which tangent is desired
+     * @return tan(a)
+     */
+    public static Dfp tan(final Dfp a) {
+<span class="fc" id="L829">        return sin(a).divide(cos(a));</span>
+    }
+
+    /** computes the arc-tangent of the argument.
+     * @param a number from which arc-tangent is desired
+     * @return atan(a)
+     */
+    protected static Dfp atanInternal(final Dfp a) {
+
+<span class="fc" id="L838">        Dfp y = new Dfp(a);</span>
+<span class="fc" id="L839">        Dfp x = new Dfp(y);</span>
+<span class="fc" id="L840">        Dfp py = new Dfp(y);</span>
+
+<span class="fc bfc" id="L842" title="All 2 branches covered.">        for (int i = 3; i &lt; 90; i += 2) {</span>
+<span class="fc" id="L843">            x = x.multiply(a);</span>
+<span class="fc" id="L844">            x = x.multiply(a);</span>
+<span class="fc" id="L845">            x = x.negate();</span>
+<span class="fc" id="L846">            y = y.add(x.divide(i));</span>
+<span class="fc bfc" id="L847" title="All 2 branches covered.">            if (y.equals(py)) {</span>
+<span class="fc" id="L848">                break;</span>
+            }
+<span class="fc" id="L850">            py = new Dfp(y);</span>
+        }
+
+<span class="fc" id="L853">        return y;</span>
+
+    }
+
+    /** computes the arc tangent of the argument
+     *
+     *  Uses the typical taylor series
+     *
+     *  but may reduce arguments using the following identity
+     * tan(x+y) = (tan(x) + tan(y)) / (1 - tan(x)*tan(y))
+     *
+     * since tan(PI/8) = sqrt(2)-1,
+     *
+     * atan(x) = atan( (x - sqrt(2) + 1) / (1+x*sqrt(2) - x) + PI/8.0
+     * @param a number from which arc-tangent is desired
+     * @return atan(a)
+     */
+    public static Dfp atan(final Dfp a) {
+<span class="fc" id="L871">        final Dfp   zero      = a.getField().getZero();</span>
+<span class="fc" id="L872">        final Dfp   one       = a.getField().getOne();</span>
+<span class="fc" id="L873">        final Dfp[] sqr2Split = a.getField().getSqr2Split();</span>
+<span class="fc" id="L874">        final Dfp[] piSplit   = a.getField().getPiSplit();</span>
+<span class="fc" id="L875">        boolean recp = false;</span>
+<span class="fc" id="L876">        boolean neg = false;</span>
+<span class="fc" id="L877">        boolean sub = false;</span>
+
+<span class="fc" id="L879">        final Dfp ty = sqr2Split[0].subtract(one).add(sqr2Split[1]);</span>
+
+<span class="fc" id="L881">        Dfp x = new Dfp(a);</span>
+<span class="fc bfc" id="L882" title="All 2 branches covered.">        if (x.lessThan(zero)) {</span>
+<span class="fc" id="L883">            neg = true;</span>
+<span class="fc" id="L884">            x = x.negate();</span>
+        }
+
+<span class="fc bfc" id="L887" title="All 2 branches covered.">        if (x.greaterThan(one)) {</span>
+<span class="fc" id="L888">            recp = true;</span>
+<span class="fc" id="L889">            x = one.divide(x);</span>
+        }
+
+<span class="fc bfc" id="L892" title="All 2 branches covered.">        if (x.greaterThan(ty)) {</span>
+<span class="fc" id="L893">            Dfp sty[] = new Dfp[2];</span>
+<span class="fc" id="L894">            sub = true;</span>
+
+<span class="fc" id="L896">            sty[0] = sqr2Split[0].subtract(one);</span>
+<span class="fc" id="L897">            sty[1] = sqr2Split[1];</span>
+
+<span class="fc" id="L899">            Dfp[] xs = split(x);</span>
+
+<span class="fc" id="L901">            Dfp[] ds = splitMult(xs, sty);</span>
+<span class="fc" id="L902">            ds[0] = ds[0].add(one);</span>
+
+<span class="fc" id="L904">            xs[0] = xs[0].subtract(sty[0]);</span>
+<span class="fc" id="L905">            xs[1] = xs[1].subtract(sty[1]);</span>
+
+<span class="fc" id="L907">            xs = splitDiv(xs, ds);</span>
+<span class="fc" id="L908">            x = xs[0].add(xs[1]);</span>
+
+            //x = x.subtract(ty).divide(dfp.one.add(x.multiply(ty)));
+        }
+
+<span class="fc" id="L913">        Dfp y = atanInternal(x);</span>
+
+<span class="fc bfc" id="L915" title="All 2 branches covered.">        if (sub) {</span>
+<span class="fc" id="L916">            y = y.add(piSplit[0].divide(8)).add(piSplit[1].divide(8));</span>
+        }
+
+<span class="fc bfc" id="L919" title="All 2 branches covered.">        if (recp) {</span>
+<span class="fc" id="L920">            y = piSplit[0].divide(2).subtract(y).add(piSplit[1].divide(2));</span>
+        }
+
+<span class="fc bfc" id="L923" title="All 2 branches covered.">        if (neg) {</span>
+<span class="fc" id="L924">            y = y.negate();</span>
+        }
+
+<span class="fc" id="L927">        return a.newInstance(y);</span>
+
+    }
+
+    /** computes the arc-sine of the argument.
+     * @param a number from which arc-sine is desired
+     * @return asin(a)
+     */
+    public static Dfp asin(final Dfp a) {
+<span class="fc" id="L936">        return atan(a.divide(a.getOne().subtract(a.multiply(a)).sqrt()));</span>
+    }
+
+    /** computes the arc-cosine of the argument.
+     * @param a number from which arc-cosine is desired
+     * @return acos(a)
+     */
+    public static Dfp acos(Dfp a) {
+        Dfp result;
+<span class="fc" id="L945">        boolean negative = false;</span>
+
+<span class="fc bfc" id="L947" title="All 2 branches covered.">        if (a.lessThan(a.getZero())) {</span>
+<span class="fc" id="L948">            negative = true;</span>
+        }
+
+<span class="fc" id="L951">        a = Dfp.copysign(a, a.getOne());  // absolute value</span>
+
+<span class="fc" id="L953">        result = atan(a.getOne().subtract(a.multiply(a)).sqrt().divide(a));</span>
+
+<span class="fc bfc" id="L955" title="All 2 branches covered.">        if (negative) {</span>
+<span class="fc" id="L956">            result = a.getField().getPi().subtract(result);</span>
+        }
+
+<span class="fc" id="L959">        return a.newInstance(result);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

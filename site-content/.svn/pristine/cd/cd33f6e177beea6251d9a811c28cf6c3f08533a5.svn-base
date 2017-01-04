@@ -1,0 +1,90 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<title>Apache Commons Math 3.6.1 Reference Package org.apache.commons.math3.optim.nonlinear.scalar.noderiv</title>
+		<link rel="stylesheet" type="text/css" href="../../../../../../../../stylesheet.css" title="style" />
+	</head>
+	<body>
+
+		<h3>
+        	<a href="package-summary.html" target="classFrame">org.apache.commons.math3.optim.nonlinear.scalar.noderiv</a>
+      	</h3>
+
+      	<h3>Classes</h3>
+
+      	<ul>
+      		          	<li>
+            	<a href="BOBYQAOptimizerTest.html" target="classFrame">Ackley</a>
+          	</li>
+          	          	<li>
+            	<a href="BOBYQAOptimizerTest.html" target="classFrame">BOBYQAOptimizerTest</a>
+          	</li>
+          	          	<li>
+            	<a href="BOBYQAOptimizerTest.html" target="classFrame">Basis</a>
+          	</li>
+          	          	<li>
+            	<a href="CMAESOptimizerTest.html" target="classFrame">CMAESOptimizerTest</a>
+          	</li>
+          	          	<li>
+            	<a href="BOBYQAOptimizerTest.html" target="classFrame">CigTab</a>
+          	</li>
+          	          	<li>
+            	<a href="BOBYQAOptimizerTest.html" target="classFrame">Cigar</a>
+          	</li>
+          	          	<li>
+            	<a href="BOBYQAOptimizerTest.html" target="classFrame">DiffPow</a>
+          	</li>
+          	          	<li>
+            	<a href="BOBYQAOptimizerTest.html" target="classFrame">Elli</a>
+          	</li>
+          	          	<li>
+            	<a href="BOBYQAOptimizerTest.html" target="classFrame">ElliRotated</a>
+          	</li>
+          	          	<li>
+            	<a href="SimplexOptimizerMultiDirectionalTest.html" target="classFrame">FourExtrema</a>
+          	</li>
+          	          	<li>
+            	<a href="SimplexOptimizerMultiDirectionalTest.html" target="classFrame">Gaussian2D</a>
+          	</li>
+          	          	<li>
+            	<a href="BOBYQAOptimizerTest.html" target="classFrame">MinusElli</a>
+          	</li>
+          	          	<li>
+            	<a href="SimplexOptimizerNelderMeadTest.html" target="classFrame">Powell</a>
+          	</li>
+          	          	<li>
+            	<a href="PowellOptimizerTest.html" target="classFrame">PowellOptimizerTest</a>
+          	</li>
+          	          	<li>
+            	<a href="BOBYQAOptimizerTest.html" target="classFrame">Rastrigin</a>
+          	</li>
+          	          	<li>
+            	<a href="BOBYQAOptimizerTest.html" target="classFrame">Rosen</a>
+          	</li>
+          	          	<li>
+            	<a href="SimplexOptimizerNelderMeadTest.html" target="classFrame">Rosenbrock</a>
+          	</li>
+          	          	<li>
+            	<a href="SimplexOptimizerMultiDirectionalTest.html" target="classFrame">SimplexOptimizerMultiDirectionalTest</a>
+          	</li>
+          	          	<li>
+            	<a href="SimplexOptimizerNelderMeadTest.html" target="classFrame">SimplexOptimizerNelderMeadTest</a>
+          	</li>
+          	          	<li>
+            	<a href="BOBYQAOptimizerTest.html" target="classFrame">Sphere</a>
+          	</li>
+          	          	<li>
+            	<a href="BOBYQAOptimizerTest.html" target="classFrame">SsDiffPow</a>
+          	</li>
+          	          	<li>
+            	<a href="BOBYQAOptimizerTest.html" target="classFrame">Tablet</a>
+          	</li>
+          	          	<li>
+            	<a href="BOBYQAOptimizerTest.html" target="classFrame">TwoAxes</a>
+          	</li>
+          	      	</ul>
+
+	</body>
+</html>

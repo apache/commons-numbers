@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.apache.commons.math3.optimization.fitting;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.optimization.DifferentiableMultivariateVectorOptimizer;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>/**<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * Polynomial fitting is a very simple case of {@link CurveFitter curve fitting}.<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * The estimated coefficients are the polynomial coefficients (see the<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * {@link #fit(double[]) fit} method).<a name="line.26"></a>
+<span class="sourceLineNo">027</span> *<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * @deprecated As of 3.1 (to be removed in 4.0).<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * @since 2.0<a name="line.29"></a>
+<span class="sourceLineNo">030</span> */<a name="line.30"></a>
+<span class="sourceLineNo">031</span>@Deprecated<a name="line.31"></a>
+<span class="sourceLineNo">032</span>public class PolynomialFitter extends CurveFitter&lt;PolynomialFunction.Parametric&gt; {<a name="line.32"></a>
+<span class="sourceLineNo">033</span>    /** Polynomial degree.<a name="line.33"></a>
+<span class="sourceLineNo">034</span>     * @deprecated<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     */<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    @Deprecated<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    private final int degree;<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">039</span>    /**<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     * Simple constructor.<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     * &lt;p&gt;The polynomial fitter built this way are complete polynomials,<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * ie. a n-degree polynomial has n+1 coefficients.&lt;/p&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     *<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * @param degree Maximal degree of the polynomial.<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     * @param optimizer Optimizer to use for the fitting.<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     * @deprecated Since 3.1 (to be removed in 4.0). Please use<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * {@link #PolynomialFitter(DifferentiableMultivariateVectorOptimizer)} instead.<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     */<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    @Deprecated<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    public PolynomialFitter(int degree, final DifferentiableMultivariateVectorOptimizer optimizer) {<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        super(optimizer);<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        this.degree = degree;<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    }<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>    /**<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * Simple constructor.<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     *<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     * @param optimizer Optimizer to use for the fitting.<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * @since 3.1<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     */<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    public PolynomialFitter(DifferentiableMultivariateVectorOptimizer optimizer) {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        super(optimizer);<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        degree = -1; // To avoid compilation error until the instance variable is removed.<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    }<a name="line.64"></a>
+<span class="sourceLineNo">065</span><a name="line.65"></a>
+<span class="sourceLineNo">066</span>    /**<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * Get the polynomial fitting the weighted (x, y) points.<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     *<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * @return the coefficients of the polynomial that best fits the observed points.<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * @throws org.apache.commons.math3.exception.ConvergenceException<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * if the algorithm failed to converge.<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     * @deprecated Since 3.1 (to be removed in 4.0). Please use {@link #fit(double[])} instead.<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     */<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    @Deprecated<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    public double[] fit() {<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        return fit(new PolynomialFunction.Parametric(), new double[degree + 1]);<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    }<a name="line.77"></a>
+<span class="sourceLineNo">078</span><a name="line.78"></a>
+<span class="sourceLineNo">079</span>    /**<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * Get the coefficients of the polynomial fitting the weighted data points.<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * The degree of the fitting polynomial is {@code guess.length - 1}.<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     *<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     * @param guess First guess for the coefficients. They must be sorted in<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * increasing order of the polynomial's degree.<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * @param maxEval Maximum number of evaluations of the polynomial.<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * @return the coefficients of the polynomial that best fits the observed points.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * @throws org.apache.commons.math3.exception.TooManyEvaluationsException if<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * the number of evaluations exceeds {@code maxEval}.<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * @throws org.apache.commons.math3.exception.ConvergenceException<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * if the algorithm failed to converge.<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * @since 3.1<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     */<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    public double[] fit(int maxEval, double[] guess) {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        return fit(maxEval, new PolynomialFunction.Parametric(), guess);<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    }<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>    /**<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * Get the coefficients of the polynomial fitting the weighted data points.<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * The degree of the fitting polynomial is {@code guess.length - 1}.<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     *<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     * @param guess First guess for the coefficients. They must be sorted in<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * increasing order of the polynomial's degree.<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * @return the coefficients of the polynomial that best fits the observed points.<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * @throws org.apache.commons.math3.exception.ConvergenceException<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     * if the algorithm failed to converge.<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     * @since 3.1<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     */<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    public double[] fit(double[] guess) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        return fit(new PolynomialFunction.Parametric(), guess);<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    }<a name="line.110"></a>
+<span class="sourceLineNo">111</span>}<a name="line.111"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

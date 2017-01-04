@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DoublePoint.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ml.clustering</a> &gt; <span class="el_source">DoublePoint.java</span></div><h1>DoublePoint.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ml.clustering;
+
+import java.io.Serializable;
+import java.util.Arrays;
+
+/**
+ * A simple implementation of {@link Clusterable} for points with double coordinates.
+ * @since 3.2
+ */
+public class DoublePoint implements Clusterable, Serializable {
+
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 3946024775784901369L;
+
+    /** Point coordinates. */
+    private final double[] point;
+
+    /**
+     * Build an instance wrapping an double array.
+     * &lt;p&gt;
+     * The wrapped array is referenced, it is &lt;em&gt;not&lt;/em&gt; copied.
+     *
+     * @param point the n-dimensional point in double space
+     */
+<span class="fc" id="L42">    public DoublePoint(final double[] point) {</span>
+<span class="fc" id="L43">        this.point = point;</span>
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * Build an instance wrapping an integer array.
+     * &lt;p&gt;
+     * The wrapped array is copied to an internal double array.
+     *
+     * @param point the n-dimensional point in integer space
+     */
+<span class="fc" id="L53">    public DoublePoint(final int[] point) {</span>
+<span class="fc" id="L54">        this.point = new double[point.length];</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        for ( int i = 0; i &lt; point.length; i++) {</span>
+<span class="fc" id="L56">            this.point[i] = point[i];</span>
+        }
+<span class="fc" id="L58">    }</span>
+
+    /** {@inheritDoc} */
+    public double[] getPoint() {
+<span class="fc" id="L62">        return point;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(final Object other) {
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if (!(other instanceof DoublePoint)) {</span>
+<span class="nc" id="L69">            return false;</span>
+        }
+<span class="fc" id="L71">        return Arrays.equals(point, ((DoublePoint) other).point);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+<span class="fc" id="L77">        return Arrays.hashCode(point);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+<span class="nc" id="L83">        return Arrays.toString(point);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ThreeEighthesFieldIntegrator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.nonstiff</a> &gt; <span class="el_source">ThreeEighthesFieldIntegrator.java</span></div><h1>ThreeEighthesFieldIntegrator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.nonstiff;
+
+import org.apache.commons.math3.Field;
+import org.apache.commons.math3.RealFieldElement;
+import org.apache.commons.math3.ode.FieldEquationsMapper;
+import org.apache.commons.math3.ode.FieldODEStateAndDerivative;
+import org.apache.commons.math3.util.MathArrays;
+
+/**
+ * This class implements the 3/8 fourth order Runge-Kutta
+ * integrator for Ordinary Differential Equations.
+ *
+ * &lt;p&gt;This method is an explicit Runge-Kutta method, its Butcher-array
+ * is the following one :
+ * &lt;pre&gt;
+ *    0  |  0    0    0    0
+ *   1/3 | 1/3   0    0    0
+ *   2/3 |-1/3   1    0    0
+ *    1  |  1   -1    1    0
+ *       |--------------------
+ *       | 1/8  3/8  3/8  1/8
+ * &lt;/pre&gt;
+ * &lt;/p&gt;
+ *
+ * @see EulerFieldIntegrator
+ * @see ClassicalRungeKuttaFieldIntegrator
+ * @see GillFieldIntegrator
+ * @see MidpointFieldIntegrator
+ * @see LutherFieldIntegrator
+ * @param &lt;T&gt; the type of the field elements
+ * @since 3.6
+ */
+
+public class ThreeEighthesFieldIntegrator&lt;T extends RealFieldElement&lt;T&gt;&gt;
+    extends RungeKuttaFieldIntegrator&lt;T&gt; {
+
+    /** Simple constructor.
+     * Build a 3/8 integrator with the given step.
+     * @param field field to which the time and state vector elements belong
+     * @param step integration step
+     */
+    public ThreeEighthesFieldIntegrator(final Field&lt;T&gt; field, final T step) {
+<span class="fc" id="L60">        super(field, &quot;3/8&quot;, step);</span>
+<span class="fc" id="L61">    }</span>
+
+    /** {@inheritDoc} */
+    public T[] getC() {
+<span class="fc" id="L65">        final T[] c = MathArrays.buildArray(getField(), 3);</span>
+<span class="fc" id="L66">        c[0] = fraction(1, 3);</span>
+<span class="fc" id="L67">        c[1] = c[0].add(c[0]);</span>
+<span class="fc" id="L68">        c[2] = getField().getOne();</span>
+<span class="fc" id="L69">        return c;</span>
+    }
+
+    /** {@inheritDoc} */
+    public T[][] getA() {
+<span class="fc" id="L74">        final T[][] a = MathArrays.buildArray(getField(), 3, -1);</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        for (int i = 0; i &lt; a.length; ++i) {</span>
+<span class="fc" id="L76">            a[i] = MathArrays.buildArray(getField(), i + 1);</span>
+        }
+<span class="fc" id="L78">        a[0][0] = fraction(1, 3);</span>
+<span class="fc" id="L79">        a[1][0] = a[0][0].negate();</span>
+<span class="fc" id="L80">        a[1][1] = getField().getOne();</span>
+<span class="fc" id="L81">        a[2][0] = getField().getOne();</span>
+<span class="fc" id="L82">        a[2][1] = getField().getOne().negate();</span>
+<span class="fc" id="L83">        a[2][2] = getField().getOne();</span>
+<span class="fc" id="L84">        return a;</span>
+    }
+
+    /** {@inheritDoc} */
+    public T[] getB() {
+<span class="fc" id="L89">        final T[] b = MathArrays.buildArray(getField(), 4);</span>
+<span class="fc" id="L90">        b[0] = fraction(1, 8);</span>
+<span class="fc" id="L91">        b[1] = fraction(3, 8);</span>
+<span class="fc" id="L92">        b[2] = b[1];</span>
+<span class="fc" id="L93">        b[3] = b[0];</span>
+<span class="fc" id="L94">        return b;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected ThreeEighthesFieldStepInterpolator&lt;T&gt;
+        createInterpolator(final boolean forward, T[][] yDotK,
+                           final FieldODEStateAndDerivative&lt;T&gt; globalPreviousState,
+                           final FieldODEStateAndDerivative&lt;T&gt; globalCurrentState,
+                           final FieldEquationsMapper&lt;T&gt; mapper) {
+<span class="fc" id="L104">        return new ThreeEighthesFieldStepInterpolator&lt;T&gt;(getField(), forward, yDotK,</span>
+                                                         globalPreviousState, globalCurrentState,
+                                                         globalPreviousState, globalCurrentState,
+                                                         mapper);
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

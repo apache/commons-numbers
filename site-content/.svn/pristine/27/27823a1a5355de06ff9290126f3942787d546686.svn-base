@@ -1,0 +1,503 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.geometry.partitioning.utilities;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.util.Arrays;<a name="line.19"></a>
+<span class="sourceLineNo">020</span><a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.util.FastMath;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>/** This class implements an ordering operation for T-uples.<a name="line.23"></a>
+<span class="sourceLineNo">024</span> *<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * &lt;p&gt;Ordering is done by encoding all components of the T-uple into a<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * single scalar value and using this value as the sorting<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * key. Encoding is performed using the method invented by Georg<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * Cantor in 1877 when he proved it was possible to establish a<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * bijection between a line and a plane. The binary representations of<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * the components of the T-uple are mixed together to form a single<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * scalar. This means that the 2&lt;sup&gt;k&lt;/sup&gt; bit of component 0 is<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * followed by the 2&lt;sup&gt;k&lt;/sup&gt; bit of component 1, then by the<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * 2&lt;sup&gt;k&lt;/sup&gt; bit of component 2 up to the 2&lt;sup&gt;k&lt;/sup&gt; bit of<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * component {@code t}, which is followed by the 2&lt;sup&gt;k-1&lt;/sup&gt;<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * bit of component 0, followed by the 2&lt;sup&gt;k-1&lt;/sup&gt; bit of<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * component 1 ... The binary representations are extended as needed<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * to handle numbers with different scales and a suitable<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * 2&lt;sup&gt;p&lt;/sup&gt; offset is added to the components in order to avoid<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * negative numbers (this offset is adjusted as needed during the<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * comparison operations).&lt;/p&gt;<a name="line.40"></a>
+<span class="sourceLineNo">041</span> *<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * &lt;p&gt;The more interesting property of the encoding method for our<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * purpose is that it allows to select all the points that are in a<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * given range. This is depicted in dimension 2 by the following<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * picture:&lt;/p&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span> *<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * &lt;img src="doc-files/OrderedTuple.png" /&gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span> *<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * &lt;p&gt;This picture shows a set of 100000 random 2-D pairs having their<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * first component between -50 and +150 and their second component<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * between -350 and +50. We wanted to extract all pairs having their<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * first component between +30 and +70 and their second component<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * between -120 and -30. We built the lower left point at coordinates<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * (30, -120) and the upper right point at coordinates (70, -30). All<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * points smaller than the lower left point are drawn in red and all<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * points larger than the upper right point are drawn in blue. The<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * green points are between the two limits. This picture shows that<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * all the desired points are selected, along with spurious points. In<a name="line.58"></a>
+<span class="sourceLineNo">059</span> * this case, we get 15790 points, 4420 of which really belonging to<a name="line.59"></a>
+<span class="sourceLineNo">060</span> * the desired rectangle. It is possible to extract very small<a name="line.60"></a>
+<span class="sourceLineNo">061</span> * subsets. As an example extracting from the same 100000 points set<a name="line.61"></a>
+<span class="sourceLineNo">062</span> * the points having their first component between +30 and +31 and<a name="line.62"></a>
+<span class="sourceLineNo">063</span> * their second component between -91 and -90, we get a subset of 11<a name="line.63"></a>
+<span class="sourceLineNo">064</span> * points, 2 of which really belonging to the desired rectangle.&lt;/p&gt;<a name="line.64"></a>
+<span class="sourceLineNo">065</span> *<a name="line.65"></a>
+<span class="sourceLineNo">066</span> * &lt;p&gt;the previous selection technique can be applied in all<a name="line.66"></a>
+<span class="sourceLineNo">067</span> * dimensions, still using two points to define the interval. The<a name="line.67"></a>
+<span class="sourceLineNo">068</span> * first point will have all its components set to their lower bounds<a name="line.68"></a>
+<span class="sourceLineNo">069</span> * while the second point will have all its components set to their<a name="line.69"></a>
+<span class="sourceLineNo">070</span> * upper bounds.&lt;/p&gt;<a name="line.70"></a>
+<span class="sourceLineNo">071</span> *<a name="line.71"></a>
+<span class="sourceLineNo">072</span> * &lt;p&gt;T-uples with negative infinite or positive infinite components<a name="line.72"></a>
+<span class="sourceLineNo">073</span> * are sorted logically.&lt;/p&gt;<a name="line.73"></a>
+<span class="sourceLineNo">074</span> *<a name="line.74"></a>
+<span class="sourceLineNo">075</span> * &lt;p&gt;Since the specification of the {@code Comparator} interface<a name="line.75"></a>
+<span class="sourceLineNo">076</span> * allows only {@code ClassCastException} errors, some arbitrary<a name="line.76"></a>
+<span class="sourceLineNo">077</span> * choices have been made to handle specific cases. The rationale for<a name="line.77"></a>
+<span class="sourceLineNo">078</span> * these choices is to keep &lt;em&gt;regular&lt;/em&gt; and consistent T-uples<a name="line.78"></a>
+<span class="sourceLineNo">079</span> * together.&lt;/p&gt;<a name="line.79"></a>
+<span class="sourceLineNo">080</span> * &lt;ul&gt;<a name="line.80"></a>
+<span class="sourceLineNo">081</span> * &lt;li&gt;instances with different dimensions are sorted according to<a name="line.81"></a>
+<span class="sourceLineNo">082</span> * their dimension regardless of their components values&lt;/li&gt;<a name="line.82"></a>
+<span class="sourceLineNo">083</span> * &lt;li&gt;instances with {@code Double.NaN} components are sorted<a name="line.83"></a>
+<span class="sourceLineNo">084</span> * after all other ones (even after instances with positive infinite<a name="line.84"></a>
+<span class="sourceLineNo">085</span> * components&lt;/li&gt;<a name="line.85"></a>
+<span class="sourceLineNo">086</span> * &lt;li&gt;instances with both positive and negative infinite components<a name="line.86"></a>
+<span class="sourceLineNo">087</span> * are considered as if they had {@code Double.NaN}<a name="line.87"></a>
+<span class="sourceLineNo">088</span> * components&lt;/li&gt;<a name="line.88"></a>
+<span class="sourceLineNo">089</span> * &lt;/ul&gt;<a name="line.89"></a>
+<span class="sourceLineNo">090</span> *<a name="line.90"></a>
+<span class="sourceLineNo">091</span> * @since 3.0<a name="line.91"></a>
+<span class="sourceLineNo">092</span> * @deprecated as of 3.4, this class is not used anymore and considered<a name="line.92"></a>
+<span class="sourceLineNo">093</span> * to be out of scope of Apache Commons Math<a name="line.93"></a>
+<span class="sourceLineNo">094</span> */<a name="line.94"></a>
+<span class="sourceLineNo">095</span>@Deprecated<a name="line.95"></a>
+<span class="sourceLineNo">096</span>public class OrderedTuple implements Comparable&lt;OrderedTuple&gt; {<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>    /** Sign bit mask. */<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    private static final long SIGN_MASK     = 0x8000000000000000L;<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>    /** Exponent bits mask. */<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    private static final long EXPONENT_MASK = 0x7ff0000000000000L;<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>    /** Mantissa bits mask. */<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    private static final long MANTISSA_MASK = 0x000fffffffffffffL;<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>    /** Implicit MSB for normalized numbers. */<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    private static final long IMPLICIT_ONE  = 0x0010000000000000L;<a name="line.108"></a>
+<span class="sourceLineNo">109</span><a name="line.109"></a>
+<span class="sourceLineNo">110</span>    /** Double components of the T-uple. */<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    private double[] components;<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>    /** Offset scale. */<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    private int offset;<a name="line.114"></a>
+<span class="sourceLineNo">115</span><a name="line.115"></a>
+<span class="sourceLineNo">116</span>    /** Least Significant Bit scale. */<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    private int lsb;<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>    /** Ordering encoding of the double components. */<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    private long[] encoding;<a name="line.120"></a>
+<span class="sourceLineNo">121</span><a name="line.121"></a>
+<span class="sourceLineNo">122</span>    /** Positive infinity marker. */<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    private boolean posInf;<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>    /** Negative infinity marker. */<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    private boolean negInf;<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>    /** Not A Number marker. */<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    private boolean nan;<a name="line.129"></a>
+<span class="sourceLineNo">130</span><a name="line.130"></a>
+<span class="sourceLineNo">131</span>    /** Build an ordered T-uple from its components.<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     * @param components double components of the T-uple<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     */<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    public OrderedTuple(final double ... components) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        this.components = components.clone();<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        int msb = Integer.MIN_VALUE;<a name="line.136"></a>
+<span class="sourceLineNo">137</span>        lsb     = Integer.MAX_VALUE;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        posInf  = false;<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        negInf  = false;<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        nan     = false;<a name="line.140"></a>
+<span class="sourceLineNo">141</span>        for (int i = 0; i &lt; components.length; ++i) {<a name="line.141"></a>
+<span class="sourceLineNo">142</span>            if (Double.isInfinite(components[i])) {<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                if (components[i] &lt; 0) {<a name="line.143"></a>
+<span class="sourceLineNo">144</span>                    negInf = true;<a name="line.144"></a>
+<span class="sourceLineNo">145</span>                } else {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>                    posInf = true;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>                }<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            } else if (Double.isNaN(components[i])) {<a name="line.148"></a>
+<span class="sourceLineNo">149</span>                nan = true;<a name="line.149"></a>
+<span class="sourceLineNo">150</span>            } else {<a name="line.150"></a>
+<span class="sourceLineNo">151</span>                final long b = Double.doubleToLongBits(components[i]);<a name="line.151"></a>
+<span class="sourceLineNo">152</span>                final long m = mantissa(b);<a name="line.152"></a>
+<span class="sourceLineNo">153</span>                if (m != 0) {<a name="line.153"></a>
+<span class="sourceLineNo">154</span>                    final int e = exponent(b);<a name="line.154"></a>
+<span class="sourceLineNo">155</span>                    msb = FastMath.max(msb, e + computeMSB(m));<a name="line.155"></a>
+<span class="sourceLineNo">156</span>                    lsb = FastMath.min(lsb, e + computeLSB(m));<a name="line.156"></a>
+<span class="sourceLineNo">157</span>                }<a name="line.157"></a>
+<span class="sourceLineNo">158</span>            }<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        }<a name="line.159"></a>
+<span class="sourceLineNo">160</span><a name="line.160"></a>
+<span class="sourceLineNo">161</span>        if (posInf &amp;&amp; negInf) {<a name="line.161"></a>
+<span class="sourceLineNo">162</span>            // instance cannot be sorted logically<a name="line.162"></a>
+<span class="sourceLineNo">163</span>            posInf = false;<a name="line.163"></a>
+<span class="sourceLineNo">164</span>            negInf = false;<a name="line.164"></a>
+<span class="sourceLineNo">165</span>            nan    = true;<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        }<a name="line.166"></a>
+<span class="sourceLineNo">167</span><a name="line.167"></a>
+<span class="sourceLineNo">168</span>        if (lsb &lt;= msb) {<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            // encode the T-upple with the specified offset<a name="line.169"></a>
+<span class="sourceLineNo">170</span>            encode(msb + 16);<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        } else {<a name="line.171"></a>
+<span class="sourceLineNo">172</span>            encoding = new long[] {<a name="line.172"></a>
+<span class="sourceLineNo">173</span>                0x0L<a name="line.173"></a>
+<span class="sourceLineNo">174</span>            };<a name="line.174"></a>
+<span class="sourceLineNo">175</span>        }<a name="line.175"></a>
+<span class="sourceLineNo">176</span><a name="line.176"></a>
+<span class="sourceLineNo">177</span>    }<a name="line.177"></a>
+<span class="sourceLineNo">178</span><a name="line.178"></a>
+<span class="sourceLineNo">179</span>    /** Encode the T-uple with a given offset.<a name="line.179"></a>
+<span class="sourceLineNo">180</span>     * @param minOffset minimal scale of the offset to add to all<a name="line.180"></a>
+<span class="sourceLineNo">181</span>     * components (must be greater than the MSBs of all components)<a name="line.181"></a>
+<span class="sourceLineNo">182</span>     */<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    private void encode(final int minOffset) {<a name="line.183"></a>
+<span class="sourceLineNo">184</span><a name="line.184"></a>
+<span class="sourceLineNo">185</span>        // choose an offset with some margins<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        offset  = minOffset + 31;<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        offset -= offset % 32;<a name="line.187"></a>
+<span class="sourceLineNo">188</span><a name="line.188"></a>
+<span class="sourceLineNo">189</span>        if ((encoding != null) &amp;&amp; (encoding.length == 1) &amp;&amp; (encoding[0] == 0x0L)) {<a name="line.189"></a>
+<span class="sourceLineNo">190</span>            // the components are all zeroes<a name="line.190"></a>
+<span class="sourceLineNo">191</span>            return;<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        }<a name="line.192"></a>
+<span class="sourceLineNo">193</span><a name="line.193"></a>
+<span class="sourceLineNo">194</span>        // allocate an integer array to encode the components (we use only<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        // 63 bits per element because there is no unsigned long in Java)<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        final int neededBits  = offset + 1 - lsb;<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        final int neededLongs = (neededBits + 62) / 63;<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        encoding = new long[components.length * neededLongs];<a name="line.198"></a>
+<span class="sourceLineNo">199</span><a name="line.199"></a>
+<span class="sourceLineNo">200</span>        // mix the bits from all components<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        int  eIndex = 0;<a name="line.201"></a>
+<span class="sourceLineNo">202</span>        int  shift  = 62;<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        long word   = 0x0L;<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        for (int k = offset; eIndex &lt; encoding.length; --k) {<a name="line.204"></a>
+<span class="sourceLineNo">205</span>            for (int vIndex = 0; vIndex &lt; components.length; ++vIndex) {<a name="line.205"></a>
+<span class="sourceLineNo">206</span>                if (getBit(vIndex, k) != 0) {<a name="line.206"></a>
+<span class="sourceLineNo">207</span>                    word |= 0x1L &lt;&lt; shift;<a name="line.207"></a>
+<span class="sourceLineNo">208</span>                }<a name="line.208"></a>
+<span class="sourceLineNo">209</span>                if (shift-- == 0) {<a name="line.209"></a>
+<span class="sourceLineNo">210</span>                    encoding[eIndex++] = word;<a name="line.210"></a>
+<span class="sourceLineNo">211</span>                    word  = 0x0L;<a name="line.211"></a>
+<span class="sourceLineNo">212</span>                    shift = 62;<a name="line.212"></a>
+<span class="sourceLineNo">213</span>                }<a name="line.213"></a>
+<span class="sourceLineNo">214</span>            }<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        }<a name="line.215"></a>
+<span class="sourceLineNo">216</span><a name="line.216"></a>
+<span class="sourceLineNo">217</span>    }<a name="line.217"></a>
+<span class="sourceLineNo">218</span><a name="line.218"></a>
+<span class="sourceLineNo">219</span>    /** Compares this ordered T-uple with the specified object.<a name="line.219"></a>
+<span class="sourceLineNo">220</span><a name="line.220"></a>
+<span class="sourceLineNo">221</span>     * &lt;p&gt;The ordering method is detailed in the general description of<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     * the class. Its main property is to be consistent with distance:<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     * geometrically close T-uples stay close to each other when stored<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     * in a sorted collection using this comparison method.&lt;/p&gt;<a name="line.224"></a>
+<span class="sourceLineNo">225</span><a name="line.225"></a>
+<span class="sourceLineNo">226</span>     * &lt;p&gt;T-uples with negative infinite, positive infinite are sorted<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     * logically.&lt;/p&gt;<a name="line.227"></a>
+<span class="sourceLineNo">228</span><a name="line.228"></a>
+<span class="sourceLineNo">229</span>     * &lt;p&gt;Some arbitrary choices have been made to handle specific<a name="line.229"></a>
+<span class="sourceLineNo">230</span>     * cases. The rationale for these choices is to keep<a name="line.230"></a>
+<span class="sourceLineNo">231</span>     * &lt;em&gt;normal&lt;/em&gt; and consistent T-uples together.&lt;/p&gt;<a name="line.231"></a>
+<span class="sourceLineNo">232</span>     * &lt;ul&gt;<a name="line.232"></a>
+<span class="sourceLineNo">233</span>     * &lt;li&gt;instances with different dimensions are sorted according to<a name="line.233"></a>
+<span class="sourceLineNo">234</span>     * their dimension regardless of their components values&lt;/li&gt;<a name="line.234"></a>
+<span class="sourceLineNo">235</span>     * &lt;li&gt;instances with {@code Double.NaN} components are sorted<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     * after all other ones (evan after instances with positive infinite<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     * components&lt;/li&gt;<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     * &lt;li&gt;instances with both positive and negative infinite components<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     * are considered as if they had {@code Double.NaN}<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     * components&lt;/li&gt;<a name="line.240"></a>
+<span class="sourceLineNo">241</span>     * &lt;/ul&gt;<a name="line.241"></a>
+<span class="sourceLineNo">242</span><a name="line.242"></a>
+<span class="sourceLineNo">243</span>     * @param ot T-uple to compare instance with<a name="line.243"></a>
+<span class="sourceLineNo">244</span>     * @return a negative integer if the instance is less than the<a name="line.244"></a>
+<span class="sourceLineNo">245</span>     * object, zero if they are equal, or a positive integer if the<a name="line.245"></a>
+<span class="sourceLineNo">246</span>     * instance is greater than the object<a name="line.246"></a>
+<span class="sourceLineNo">247</span><a name="line.247"></a>
+<span class="sourceLineNo">248</span>     */<a name="line.248"></a>
+<span class="sourceLineNo">249</span>    public int compareTo(final OrderedTuple ot) {<a name="line.249"></a>
+<span class="sourceLineNo">250</span>        if (components.length == ot.components.length) {<a name="line.250"></a>
+<span class="sourceLineNo">251</span>            if (nan) {<a name="line.251"></a>
+<span class="sourceLineNo">252</span>                return +1;<a name="line.252"></a>
+<span class="sourceLineNo">253</span>            } else if (ot.nan) {<a name="line.253"></a>
+<span class="sourceLineNo">254</span>                return -1;<a name="line.254"></a>
+<span class="sourceLineNo">255</span>            } else if (negInf || ot.posInf) {<a name="line.255"></a>
+<span class="sourceLineNo">256</span>                return -1;<a name="line.256"></a>
+<span class="sourceLineNo">257</span>            } else if (posInf || ot.negInf) {<a name="line.257"></a>
+<span class="sourceLineNo">258</span>                return +1;<a name="line.258"></a>
+<span class="sourceLineNo">259</span>            } else {<a name="line.259"></a>
+<span class="sourceLineNo">260</span><a name="line.260"></a>
+<span class="sourceLineNo">261</span>                if (offset &lt; ot.offset) {<a name="line.261"></a>
+<span class="sourceLineNo">262</span>                    encode(ot.offset);<a name="line.262"></a>
+<span class="sourceLineNo">263</span>                } else if (offset &gt; ot.offset) {<a name="line.263"></a>
+<span class="sourceLineNo">264</span>                    ot.encode(offset);<a name="line.264"></a>
+<span class="sourceLineNo">265</span>                }<a name="line.265"></a>
+<span class="sourceLineNo">266</span><a name="line.266"></a>
+<span class="sourceLineNo">267</span>                final int limit = FastMath.min(encoding.length, ot.encoding.length);<a name="line.267"></a>
+<span class="sourceLineNo">268</span>                for (int i = 0; i &lt; limit; ++i) {<a name="line.268"></a>
+<span class="sourceLineNo">269</span>                    if (encoding[i] &lt; ot.encoding[i]) {<a name="line.269"></a>
+<span class="sourceLineNo">270</span>                        return -1;<a name="line.270"></a>
+<span class="sourceLineNo">271</span>                    } else if (encoding[i] &gt; ot.encoding[i]) {<a name="line.271"></a>
+<span class="sourceLineNo">272</span>                        return +1;<a name="line.272"></a>
+<span class="sourceLineNo">273</span>                    }<a name="line.273"></a>
+<span class="sourceLineNo">274</span>                }<a name="line.274"></a>
+<span class="sourceLineNo">275</span><a name="line.275"></a>
+<span class="sourceLineNo">276</span>                if (encoding.length &lt; ot.encoding.length) {<a name="line.276"></a>
+<span class="sourceLineNo">277</span>                    return -1;<a name="line.277"></a>
+<span class="sourceLineNo">278</span>                } else if (encoding.length &gt; ot.encoding.length) {<a name="line.278"></a>
+<span class="sourceLineNo">279</span>                    return +1;<a name="line.279"></a>
+<span class="sourceLineNo">280</span>                } else {<a name="line.280"></a>
+<span class="sourceLineNo">281</span>                    return 0;<a name="line.281"></a>
+<span class="sourceLineNo">282</span>                }<a name="line.282"></a>
+<span class="sourceLineNo">283</span><a name="line.283"></a>
+<span class="sourceLineNo">284</span>            }<a name="line.284"></a>
+<span class="sourceLineNo">285</span>        }<a name="line.285"></a>
+<span class="sourceLineNo">286</span><a name="line.286"></a>
+<span class="sourceLineNo">287</span>        return components.length - ot.components.length;<a name="line.287"></a>
+<span class="sourceLineNo">288</span><a name="line.288"></a>
+<span class="sourceLineNo">289</span>    }<a name="line.289"></a>
+<span class="sourceLineNo">290</span><a name="line.290"></a>
+<span class="sourceLineNo">291</span>    /** {@inheritDoc} */<a name="line.291"></a>
+<span class="sourceLineNo">292</span>    @Override<a name="line.292"></a>
+<span class="sourceLineNo">293</span>    public boolean equals(final Object other) {<a name="line.293"></a>
+<span class="sourceLineNo">294</span>        if (this == other) {<a name="line.294"></a>
+<span class="sourceLineNo">295</span>            return true;<a name="line.295"></a>
+<span class="sourceLineNo">296</span>        } else if (other instanceof OrderedTuple) {<a name="line.296"></a>
+<span class="sourceLineNo">297</span>            return compareTo((OrderedTuple) other) == 0;<a name="line.297"></a>
+<span class="sourceLineNo">298</span>        } else {<a name="line.298"></a>
+<span class="sourceLineNo">299</span>            return false;<a name="line.299"></a>
+<span class="sourceLineNo">300</span>        }<a name="line.300"></a>
+<span class="sourceLineNo">301</span>    }<a name="line.301"></a>
+<span class="sourceLineNo">302</span><a name="line.302"></a>
+<span class="sourceLineNo">303</span>    /** {@inheritDoc} */<a name="line.303"></a>
+<span class="sourceLineNo">304</span>    @Override<a name="line.304"></a>
+<span class="sourceLineNo">305</span>    public int hashCode() {<a name="line.305"></a>
+<span class="sourceLineNo">306</span>        // the following constants are arbitrary small primes<a name="line.306"></a>
+<span class="sourceLineNo">307</span>        final int multiplier = 37;<a name="line.307"></a>
+<span class="sourceLineNo">308</span>        final int trueHash   = 97;<a name="line.308"></a>
+<span class="sourceLineNo">309</span>        final int falseHash  = 71;<a name="line.309"></a>
+<span class="sourceLineNo">310</span><a name="line.310"></a>
+<span class="sourceLineNo">311</span>        // hash fields and combine them<a name="line.311"></a>
+<span class="sourceLineNo">312</span>        // (we rely on the multiplier to have different combined weights<a name="line.312"></a>
+<span class="sourceLineNo">313</span>        //  for all int fields and all boolean fields)<a name="line.313"></a>
+<span class="sourceLineNo">314</span>        int hash = Arrays.hashCode(components);<a name="line.314"></a>
+<span class="sourceLineNo">315</span>        hash = hash * multiplier + offset;<a name="line.315"></a>
+<span class="sourceLineNo">316</span>        hash = hash * multiplier + lsb;<a name="line.316"></a>
+<span class="sourceLineNo">317</span>        hash = hash * multiplier + (posInf ? trueHash : falseHash);<a name="line.317"></a>
+<span class="sourceLineNo">318</span>        hash = hash * multiplier + (negInf ? trueHash : falseHash);<a name="line.318"></a>
+<span class="sourceLineNo">319</span>        hash = hash * multiplier + (nan    ? trueHash : falseHash);<a name="line.319"></a>
+<span class="sourceLineNo">320</span><a name="line.320"></a>
+<span class="sourceLineNo">321</span>        return hash;<a name="line.321"></a>
+<span class="sourceLineNo">322</span><a name="line.322"></a>
+<span class="sourceLineNo">323</span>    }<a name="line.323"></a>
+<span class="sourceLineNo">324</span><a name="line.324"></a>
+<span class="sourceLineNo">325</span>    /** Get the components array.<a name="line.325"></a>
+<span class="sourceLineNo">326</span>     * @return array containing the T-uple components<a name="line.326"></a>
+<span class="sourceLineNo">327</span>     */<a name="line.327"></a>
+<span class="sourceLineNo">328</span>    public double[] getComponents() {<a name="line.328"></a>
+<span class="sourceLineNo">329</span>        return components.clone();<a name="line.329"></a>
+<span class="sourceLineNo">330</span>    }<a name="line.330"></a>
+<span class="sourceLineNo">331</span><a name="line.331"></a>
+<span class="sourceLineNo">332</span>    /** Extract the sign from the bits of a double.<a name="line.332"></a>
+<span class="sourceLineNo">333</span>     * @param bits binary representation of the double<a name="line.333"></a>
+<span class="sourceLineNo">334</span>     * @return sign bit (zero if positive, non zero if negative)<a name="line.334"></a>
+<span class="sourceLineNo">335</span>     */<a name="line.335"></a>
+<span class="sourceLineNo">336</span>    private static long sign(final long bits) {<a name="line.336"></a>
+<span class="sourceLineNo">337</span>        return bits &amp; SIGN_MASK;<a name="line.337"></a>
+<span class="sourceLineNo">338</span>    }<a name="line.338"></a>
+<span class="sourceLineNo">339</span><a name="line.339"></a>
+<span class="sourceLineNo">340</span>    /** Extract the exponent from the bits of a double.<a name="line.340"></a>
+<span class="sourceLineNo">341</span>     * @param bits binary representation of the double<a name="line.341"></a>
+<span class="sourceLineNo">342</span>     * @return exponent<a name="line.342"></a>
+<span class="sourceLineNo">343</span>     */<a name="line.343"></a>
+<span class="sourceLineNo">344</span>    private static int exponent(final long bits) {<a name="line.344"></a>
+<span class="sourceLineNo">345</span>        return ((int) ((bits &amp; EXPONENT_MASK) &gt;&gt; 52)) - 1075;<a name="line.345"></a>
+<span class="sourceLineNo">346</span>    }<a name="line.346"></a>
+<span class="sourceLineNo">347</span><a name="line.347"></a>
+<span class="sourceLineNo">348</span>    /** Extract the mantissa from the bits of a double.<a name="line.348"></a>
+<span class="sourceLineNo">349</span>     * @param bits binary representation of the double<a name="line.349"></a>
+<span class="sourceLineNo">350</span>     * @return mantissa<a name="line.350"></a>
+<span class="sourceLineNo">351</span>     */<a name="line.351"></a>
+<span class="sourceLineNo">352</span>    private static long mantissa(final long bits) {<a name="line.352"></a>
+<span class="sourceLineNo">353</span>        return ((bits &amp; EXPONENT_MASK) == 0) ?<a name="line.353"></a>
+<span class="sourceLineNo">354</span>               ((bits &amp; MANTISSA_MASK) &lt;&lt; 1) :          // subnormal number<a name="line.354"></a>
+<span class="sourceLineNo">355</span>               (IMPLICIT_ONE | (bits &amp; MANTISSA_MASK)); // normal number<a name="line.355"></a>
+<span class="sourceLineNo">356</span>    }<a name="line.356"></a>
+<span class="sourceLineNo">357</span><a name="line.357"></a>
+<span class="sourceLineNo">358</span>    /** Compute the most significant bit of a long.<a name="line.358"></a>
+<span class="sourceLineNo">359</span>     * @param l long from which the most significant bit is requested<a name="line.359"></a>
+<span class="sourceLineNo">360</span>     * @return scale of the most significant bit of {@code l},<a name="line.360"></a>
+<span class="sourceLineNo">361</span>     * or 0 if {@code l} is zero<a name="line.361"></a>
+<span class="sourceLineNo">362</span>     * @see #computeLSB<a name="line.362"></a>
+<span class="sourceLineNo">363</span>     */<a name="line.363"></a>
+<span class="sourceLineNo">364</span>    private static int computeMSB(final long l) {<a name="line.364"></a>
+<span class="sourceLineNo">365</span><a name="line.365"></a>
+<span class="sourceLineNo">366</span>        long ll = l;<a name="line.366"></a>
+<span class="sourceLineNo">367</span>        long mask  = 0xffffffffL;<a name="line.367"></a>
+<span class="sourceLineNo">368</span>        int  scale = 32;<a name="line.368"></a>
+<span class="sourceLineNo">369</span>        int  msb   = 0;<a name="line.369"></a>
+<span class="sourceLineNo">370</span><a name="line.370"></a>
+<span class="sourceLineNo">371</span>        while (scale != 0) {<a name="line.371"></a>
+<span class="sourceLineNo">372</span>            if ((ll &amp; mask) != ll) {<a name="line.372"></a>
+<span class="sourceLineNo">373</span>                msb |= scale;<a name="line.373"></a>
+<span class="sourceLineNo">374</span>                ll &gt;&gt;= scale;<a name="line.374"></a>
+<span class="sourceLineNo">375</span>            }<a name="line.375"></a>
+<span class="sourceLineNo">376</span>            scale &gt;&gt;= 1;<a name="line.376"></a>
+<span class="sourceLineNo">377</span>            mask &gt;&gt;= scale;<a name="line.377"></a>
+<span class="sourceLineNo">378</span>        }<a name="line.378"></a>
+<span class="sourceLineNo">379</span><a name="line.379"></a>
+<span class="sourceLineNo">380</span>        return msb;<a name="line.380"></a>
+<span class="sourceLineNo">381</span><a name="line.381"></a>
+<span class="sourceLineNo">382</span>    }<a name="line.382"></a>
+<span class="sourceLineNo">383</span><a name="line.383"></a>
+<span class="sourceLineNo">384</span>    /** Compute the least significant bit of a long.<a name="line.384"></a>
+<span class="sourceLineNo">385</span>     * @param l long from which the least significant bit is requested<a name="line.385"></a>
+<span class="sourceLineNo">386</span>     * @return scale of the least significant bit of {@code l},<a name="line.386"></a>
+<span class="sourceLineNo">387</span>     * or 63 if {@code l} is zero<a name="line.387"></a>
+<span class="sourceLineNo">388</span>     * @see #computeMSB<a name="line.388"></a>
+<span class="sourceLineNo">389</span>     */<a name="line.389"></a>
+<span class="sourceLineNo">390</span>    private static int computeLSB(final long l) {<a name="line.390"></a>
+<span class="sourceLineNo">391</span><a name="line.391"></a>
+<span class="sourceLineNo">392</span>        long ll = l;<a name="line.392"></a>
+<span class="sourceLineNo">393</span>        long mask  = 0xffffffff00000000L;<a name="line.393"></a>
+<span class="sourceLineNo">394</span>        int  scale = 32;<a name="line.394"></a>
+<span class="sourceLineNo">395</span>        int  lsb   = 0;<a name="line.395"></a>
+<span class="sourceLineNo">396</span><a name="line.396"></a>
+<span class="sourceLineNo">397</span>        while (scale != 0) {<a name="line.397"></a>
+<span class="sourceLineNo">398</span>            if ((ll &amp; mask) == ll) {<a name="line.398"></a>
+<span class="sourceLineNo">399</span>                lsb |= scale;<a name="line.399"></a>
+<span class="sourceLineNo">400</span>                ll &gt;&gt;= scale;<a name="line.400"></a>
+<span class="sourceLineNo">401</span>            }<a name="line.401"></a>
+<span class="sourceLineNo">402</span>            scale &gt;&gt;= 1;<a name="line.402"></a>
+<span class="sourceLineNo">403</span>            mask &gt;&gt;= scale;<a name="line.403"></a>
+<span class="sourceLineNo">404</span>        }<a name="line.404"></a>
+<span class="sourceLineNo">405</span><a name="line.405"></a>
+<span class="sourceLineNo">406</span>        return lsb;<a name="line.406"></a>
+<span class="sourceLineNo">407</span><a name="line.407"></a>
+<span class="sourceLineNo">408</span>    }<a name="line.408"></a>
+<span class="sourceLineNo">409</span><a name="line.409"></a>
+<span class="sourceLineNo">410</span>    /** Get a bit from the mantissa of a double.<a name="line.410"></a>
+<span class="sourceLineNo">411</span>     * @param i index of the component<a name="line.411"></a>
+<span class="sourceLineNo">412</span>     * @param k scale of the requested bit<a name="line.412"></a>
+<span class="sourceLineNo">413</span>     * @return the specified bit (either 0 or 1), after the offset has<a name="line.413"></a>
+<span class="sourceLineNo">414</span>     * been added to the double<a name="line.414"></a>
+<span class="sourceLineNo">415</span>     */<a name="line.415"></a>
+<span class="sourceLineNo">416</span>    private int getBit(final int i, final int k) {<a name="line.416"></a>
+<span class="sourceLineNo">417</span>        final long bits = Double.doubleToLongBits(components[i]);<a name="line.417"></a>
+<span class="sourceLineNo">418</span>        final int e = exponent(bits);<a name="line.418"></a>
+<span class="sourceLineNo">419</span>        if ((k &lt; e) || (k &gt; offset)) {<a name="line.419"></a>
+<span class="sourceLineNo">420</span>            return 0;<a name="line.420"></a>
+<span class="sourceLineNo">421</span>        } else if (k == offset) {<a name="line.421"></a>
+<span class="sourceLineNo">422</span>            return (sign(bits) == 0L) ? 1 : 0;<a name="line.422"></a>
+<span class="sourceLineNo">423</span>        } else if (k &gt; (e + 52)) {<a name="line.423"></a>
+<span class="sourceLineNo">424</span>            return (sign(bits) == 0L) ? 0 : 1;<a name="line.424"></a>
+<span class="sourceLineNo">425</span>        } else {<a name="line.425"></a>
+<span class="sourceLineNo">426</span>            final long m = (sign(bits) == 0L) ? mantissa(bits) : -mantissa(bits);<a name="line.426"></a>
+<span class="sourceLineNo">427</span>            return (int) ((m &gt;&gt; (k - e)) &amp; 0x1L);<a name="line.427"></a>
+<span class="sourceLineNo">428</span>        }<a name="line.428"></a>
+<span class="sourceLineNo">429</span>    }<a name="line.429"></a>
+<span class="sourceLineNo">430</span><a name="line.430"></a>
+<span class="sourceLineNo">431</span>}<a name="line.431"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

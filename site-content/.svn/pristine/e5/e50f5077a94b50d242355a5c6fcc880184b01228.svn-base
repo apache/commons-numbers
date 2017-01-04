@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>NaturalRanking.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.ranking</a> &gt; <span class="el_source">NaturalRanking.java</span></div><h1>NaturalRanking.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.stat.ranking;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.math3.exception.MathInternalError;
+import org.apache.commons.math3.exception.NotANumberException;
+import org.apache.commons.math3.random.RandomDataGenerator;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.util.FastMath;
+
+
+/**
+ * &lt;p&gt; Ranking based on the natural ordering on doubles.&lt;/p&gt;
+ * &lt;p&gt;NaNs are treated according to the configured {@link NaNStrategy} and ties
+ * are handled using the selected {@link TiesStrategy}.
+ * Configuration settings are supplied in optional constructor arguments.
+ * Defaults are {@link NaNStrategy#FAILED} and {@link TiesStrategy#AVERAGE},
+ * respectively. When using {@link TiesStrategy#RANDOM}, a
+ * {@link RandomGenerator} may be supplied as a constructor argument.&lt;/p&gt;
+ * &lt;p&gt;Examples:
+ * &lt;table border=&quot;1&quot; cellpadding=&quot;3&quot;&gt;
+ * &lt;tr&gt;&lt;th colspan=&quot;3&quot;&gt;
+ * Input data: (20, 17, 30, 42.3, 17, 50, Double.NaN, Double.NEGATIVE_INFINITY, 17)
+ * &lt;/th&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;th&gt;NaNStrategy&lt;/th&gt;&lt;th&gt;TiesStrategy&lt;/th&gt;
+ * &lt;th&gt;&lt;code&gt;rank(data)&lt;/code&gt;&lt;/th&gt;
+ * &lt;tr&gt;
+ * &lt;td&gt;default (NaNs maximal)&lt;/td&gt;
+ * &lt;td&gt;default (ties averaged)&lt;/td&gt;
+ * &lt;td&gt;(5, 3, 6, 7, 3, 8, 9, 1, 3)&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;
+ * &lt;td&gt;default (NaNs maximal)&lt;/td&gt;
+ * &lt;td&gt;MINIMUM&lt;/td&gt;
+ * &lt;td&gt;(5, 2, 6, 7, 2, 8, 9, 1, 2)&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;
+ * &lt;td&gt;MINIMAL&lt;/td&gt;
+ * &lt;td&gt;default (ties averaged)&lt;/td&gt;
+ * &lt;td&gt;(6, 4, 7, 8, 4, 9, 1.5, 1.5, 4)&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;
+ * &lt;td&gt;REMOVED&lt;/td&gt;
+ * &lt;td&gt;SEQUENTIAL&lt;/td&gt;
+ * &lt;td&gt;(5, 2, 6, 7, 3, 8, 1, 4)&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;
+ * &lt;td&gt;MINIMAL&lt;/td&gt;
+ * &lt;td&gt;MAXIMUM&lt;/td&gt;
+ * &lt;td&gt;(6, 5, 7, 8, 5, 9, 2, 2, 5)&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;
+ *
+ * @since 2.0
+ */
+public class NaturalRanking implements RankingAlgorithm {
+
+    /** default NaN strategy */
+<span class="fc" id="L73">    public static final NaNStrategy DEFAULT_NAN_STRATEGY = NaNStrategy.FAILED;</span>
+
+    /** default ties strategy */
+<span class="fc" id="L76">    public static final TiesStrategy DEFAULT_TIES_STRATEGY = TiesStrategy.AVERAGE;</span>
+
+    /** NaN strategy - defaults to NaNs maximal */
+    private final NaNStrategy nanStrategy;
+
+    /** Ties strategy - defaults to ties averaged */
+    private final TiesStrategy tiesStrategy;
+
+    /** Source of random data - used only when ties strategy is RANDOM */
+    private final RandomDataGenerator randomData;
+
+    /**
+     * Create a NaturalRanking with default strategies for handling ties and NaNs.
+     */
+    public NaturalRanking() {
+<span class="fc" id="L91">        super();</span>
+<span class="fc" id="L92">        tiesStrategy = DEFAULT_TIES_STRATEGY;</span>
+<span class="fc" id="L93">        nanStrategy = DEFAULT_NAN_STRATEGY;</span>
+<span class="fc" id="L94">        randomData = null;</span>
+<span class="fc" id="L95">    }</span>
+
+    /**
+     * Create a NaturalRanking with the given TiesStrategy.
+     *
+     * @param tiesStrategy the TiesStrategy to use
+     */
+    public NaturalRanking(TiesStrategy tiesStrategy) {
+<span class="nc" id="L103">        super();</span>
+<span class="nc" id="L104">        this.tiesStrategy = tiesStrategy;</span>
+<span class="nc" id="L105">        nanStrategy = DEFAULT_NAN_STRATEGY;</span>
+<span class="nc" id="L106">        randomData = new RandomDataGenerator();</span>
+<span class="nc" id="L107">    }</span>
+
+    /**
+     * Create a NaturalRanking with the given NaNStrategy.
+     *
+     * @param nanStrategy the NaNStrategy to use
+     */
+    public NaturalRanking(NaNStrategy nanStrategy) {
+<span class="fc" id="L115">        super();</span>
+<span class="fc" id="L116">        this.nanStrategy = nanStrategy;</span>
+<span class="fc" id="L117">        tiesStrategy = DEFAULT_TIES_STRATEGY;</span>
+<span class="fc" id="L118">        randomData = null;</span>
+<span class="fc" id="L119">    }</span>
+
+    /**
+     * Create a NaturalRanking with the given NaNStrategy and TiesStrategy.
+     *
+     * @param nanStrategy NaNStrategy to use
+     * @param tiesStrategy TiesStrategy to use
+     */
+    public NaturalRanking(NaNStrategy nanStrategy, TiesStrategy tiesStrategy) {
+<span class="fc" id="L128">        super();</span>
+<span class="fc" id="L129">        this.nanStrategy = nanStrategy;</span>
+<span class="fc" id="L130">        this.tiesStrategy = tiesStrategy;</span>
+<span class="fc" id="L131">        randomData = new RandomDataGenerator();</span>
+<span class="fc" id="L132">    }</span>
+
+    /**
+     * Create a NaturalRanking with TiesStrategy.RANDOM and the given
+     * RandomGenerator as the source of random data.
+     *
+     * @param randomGenerator source of random data
+     */
+    public NaturalRanking(RandomGenerator randomGenerator) {
+<span class="nc" id="L141">        super();</span>
+<span class="nc" id="L142">        this.tiesStrategy = TiesStrategy.RANDOM;</span>
+<span class="nc" id="L143">        nanStrategy = DEFAULT_NAN_STRATEGY;</span>
+<span class="nc" id="L144">        randomData = new RandomDataGenerator(randomGenerator);</span>
+<span class="nc" id="L145">    }</span>
+
+
+    /**
+     * Create a NaturalRanking with the given NaNStrategy, TiesStrategy.RANDOM
+     * and the given source of random data.
+     *
+     * @param nanStrategy NaNStrategy to use
+     * @param randomGenerator source of random data
+     */
+    public NaturalRanking(NaNStrategy nanStrategy,
+            RandomGenerator randomGenerator) {
+<span class="fc" id="L157">        super();</span>
+<span class="fc" id="L158">        this.nanStrategy = nanStrategy;</span>
+<span class="fc" id="L159">        this.tiesStrategy = TiesStrategy.RANDOM;</span>
+<span class="fc" id="L160">        randomData = new RandomDataGenerator(randomGenerator);</span>
+<span class="fc" id="L161">    }</span>
+
+    /**
+     * Return the NaNStrategy
+     *
+     * @return returns the NaNStrategy
+     */
+    public NaNStrategy getNanStrategy() {
+<span class="fc" id="L169">        return nanStrategy;</span>
+    }
+
+    /**
+     * Return the TiesStrategy
+     *
+     * @return the TiesStrategy
+     */
+    public TiesStrategy getTiesStrategy() {
+<span class="nc" id="L178">        return tiesStrategy;</span>
+    }
+
+    /**
+     * Rank &lt;code&gt;data&lt;/code&gt; using the natural ordering on Doubles, with
+     * NaN values handled according to &lt;code&gt;nanStrategy&lt;/code&gt; and ties
+     * resolved using &lt;code&gt;tiesStrategy.&lt;/code&gt;
+     *
+     * @param data array to be ranked
+     * @return array of ranks
+     * @throws NotANumberException if the selected {@link NaNStrategy} is {@code FAILED}
+     * and a {@link Double#NaN} is encountered in the input data
+     */
+    public double[] rank(double[] data) {
+
+        // Array recording initial positions of data to be ranked
+<span class="fc" id="L194">        IntDoublePair[] ranks = new IntDoublePair[data.length];</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">        for (int i = 0; i &lt; data.length; i++) {</span>
+<span class="fc" id="L196">            ranks[i] = new IntDoublePair(data[i], i);</span>
+        }
+
+        // Recode, remove or record positions of NaNs
+<span class="fc" id="L200">        List&lt;Integer&gt; nanPositions = null;</span>
+<span class="pc bpc" id="L201" title="1 of 6 branches missed.">        switch (nanStrategy) {</span>
+            case MAXIMAL: // Replace NaNs with +INFs
+<span class="fc" id="L203">                recodeNaNs(ranks, Double.POSITIVE_INFINITY);</span>
+<span class="fc" id="L204">                break;</span>
+            case MINIMAL: // Replace NaNs with -INFs
+<span class="fc" id="L206">                recodeNaNs(ranks, Double.NEGATIVE_INFINITY);</span>
+<span class="fc" id="L207">                break;</span>
+            case REMOVED: // Drop NaNs from data
+<span class="fc" id="L209">                ranks = removeNaNs(ranks);</span>
+<span class="fc" id="L210">                break;</span>
+            case FIXED:   // Record positions of NaNs
+<span class="fc" id="L212">                nanPositions = getNanPositions(ranks);</span>
+<span class="fc" id="L213">                break;</span>
+            case FAILED:
+<span class="fc" id="L215">                nanPositions = getNanPositions(ranks);</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">                if (nanPositions.size() &gt; 0) {</span>
+<span class="fc" id="L217">                    throw new NotANumberException();</span>
+                }
+                break;
+            default: // this should not happen unless NaNStrategy enum is changed
+<span class="nc" id="L221">                throw new MathInternalError();</span>
+        }
+
+        // Sort the IntDoublePairs
+<span class="fc" id="L225">        Arrays.sort(ranks);</span>
+
+        // Walk the sorted array, filling output array using sorted positions,
+        // resolving ties as we go
+<span class="fc" id="L229">        double[] out = new double[ranks.length];</span>
+<span class="fc" id="L230">        int pos = 1;  // position in sorted array</span>
+<span class="fc" id="L231">        out[ranks[0].getPosition()] = pos;</span>
+<span class="fc" id="L232">        List&lt;Integer&gt; tiesTrace = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L233">        tiesTrace.add(ranks[0].getPosition());</span>
+<span class="fc bfc" id="L234" title="All 2 branches covered.">        for (int i = 1; i &lt; ranks.length; i++) {</span>
+<span class="fc bfc" id="L235" title="All 2 branches covered.">            if (Double.compare(ranks[i].getValue(), ranks[i - 1].getValue()) &gt; 0) {</span>
+                // tie sequence has ended (or had length 1)
+<span class="fc" id="L237">                pos = i + 1;</span>
+<span class="fc bfc" id="L238" title="All 2 branches covered.">                if (tiesTrace.size() &gt; 1) {  // if seq is nontrivial, resolve</span>
+<span class="fc" id="L239">                    resolveTie(out, tiesTrace);</span>
+                }
+<span class="fc" id="L241">                tiesTrace = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc" id="L242">                tiesTrace.add(ranks[i].getPosition());</span>
+            } else {
+                // tie sequence continues
+<span class="fc" id="L245">                tiesTrace.add(ranks[i].getPosition());</span>
+            }
+<span class="fc" id="L247">            out[ranks[i].getPosition()] = pos;</span>
+        }
+<span class="fc bfc" id="L249" title="All 2 branches covered.">        if (tiesTrace.size() &gt; 1) {  // handle tie sequence at end</span>
+<span class="fc" id="L250">            resolveTie(out, tiesTrace);</span>
+        }
+<span class="fc bfc" id="L252" title="All 2 branches covered.">        if (nanStrategy == NaNStrategy.FIXED) {</span>
+<span class="fc" id="L253">            restoreNaNs(out, nanPositions);</span>
+        }
+<span class="fc" id="L255">        return out;</span>
+    }
+
+    /**
+     * Returns an array that is a copy of the input array with IntDoublePairs
+     * having NaN values removed.
+     *
+     * @param ranks input array
+     * @return array with NaN-valued entries removed
+     */
+    private IntDoublePair[] removeNaNs(IntDoublePair[] ranks) {
+<span class="fc bfc" id="L266" title="All 2 branches covered.">        if (!containsNaNs(ranks)) {</span>
+<span class="fc" id="L267">            return ranks;</span>
+        }
+<span class="fc" id="L269">        IntDoublePair[] outRanks = new IntDoublePair[ranks.length];</span>
+<span class="fc" id="L270">        int j = 0;</span>
+<span class="fc bfc" id="L271" title="All 2 branches covered.">        for (int i = 0; i &lt; ranks.length; i++) {</span>
+<span class="fc bfc" id="L272" title="All 2 branches covered.">            if (Double.isNaN(ranks[i].getValue())) {</span>
+                // drop, but adjust original ranks of later elements
+<span class="fc bfc" id="L274" title="All 2 branches covered.">                for (int k = i + 1; k &lt; ranks.length; k++) {</span>
+<span class="fc" id="L275">                    ranks[k] = new IntDoublePair(</span>
+                            ranks[k].getValue(), ranks[k].getPosition() - 1);
+                }
+            } else {
+<span class="fc" id="L279">                outRanks[j] = new IntDoublePair(</span>
+                        ranks[i].getValue(), ranks[i].getPosition());
+<span class="fc" id="L281">                j++;</span>
+            }
+        }
+<span class="fc" id="L284">        IntDoublePair[] returnRanks = new IntDoublePair[j];</span>
+<span class="fc" id="L285">        System.arraycopy(outRanks, 0, returnRanks, 0, j);</span>
+<span class="fc" id="L286">        return returnRanks;</span>
+    }
+
+    /**
+     * Recodes NaN values to the given value.
+     *
+     * @param ranks array to recode
+     * @param value the value to replace NaNs with
+     */
+    private void recodeNaNs(IntDoublePair[] ranks, double value) {
+<span class="fc bfc" id="L296" title="All 2 branches covered.">        for (int i = 0; i &lt; ranks.length; i++) {</span>
+<span class="fc bfc" id="L297" title="All 2 branches covered.">            if (Double.isNaN(ranks[i].getValue())) {</span>
+<span class="fc" id="L298">                ranks[i] = new IntDoublePair(</span>
+                        value, ranks[i].getPosition());
+            }
+        }
+<span class="fc" id="L302">    }</span>
+
+    /**
+     * Checks for presence of NaNs in &lt;code&gt;ranks.&lt;/code&gt;
+     *
+     * @param ranks array to be searched for NaNs
+     * @return true iff ranks contains one or more NaNs
+     */
+    private boolean containsNaNs(IntDoublePair[] ranks) {
+<span class="fc bfc" id="L311" title="All 2 branches covered.">        for (int i = 0; i &lt; ranks.length; i++) {</span>
+<span class="fc bfc" id="L312" title="All 2 branches covered.">            if (Double.isNaN(ranks[i].getValue())) {</span>
+<span class="fc" id="L313">                return true;</span>
+            }
+        }
+<span class="fc" id="L316">        return false;</span>
+    }
+
+    /**
+     * Resolve a sequence of ties, using the configured {@link TiesStrategy}.
+     * The input &lt;code&gt;ranks&lt;/code&gt; array is expected to take the same value
+     * for all indices in &lt;code&gt;tiesTrace&lt;/code&gt;.  The common value is recoded
+     * according to the tiesStrategy. For example, if ranks = &lt;5,8,2,6,2,7,1,2&gt;,
+     * tiesTrace = &lt;2,4,7&gt; and tiesStrategy is MINIMUM, ranks will be unchanged.
+     * The same array and trace with tiesStrategy AVERAGE will come out
+     * &lt;5,8,3,6,3,7,1,3&gt;.
+     *
+     * @param ranks array of ranks
+     * @param tiesTrace list of indices where &lt;code&gt;ranks&lt;/code&gt; is constant
+     * -- that is, for any i and j in TiesTrace, &lt;code&gt; ranks[i] == ranks[j]
+     * &lt;/code&gt;
+     */
+    private void resolveTie(double[] ranks, List&lt;Integer&gt; tiesTrace) {
+
+        // constant value of ranks over tiesTrace
+<span class="fc" id="L336">        final double c = ranks[tiesTrace.get(0)];</span>
+
+        // length of sequence of tied ranks
+<span class="fc" id="L339">        final int length = tiesTrace.size();</span>
+
+<span class="pc bpc" id="L341" title="1 of 6 branches missed.">        switch (tiesStrategy) {</span>
+            case  AVERAGE:  // Replace ranks with average
+<span class="fc" id="L343">                fill(ranks, tiesTrace, (2 * c + length - 1) / 2d);</span>
+<span class="fc" id="L344">                break;</span>
+            case MAXIMUM:   // Replace ranks with maximum values
+<span class="fc" id="L346">                fill(ranks, tiesTrace, c + length - 1);</span>
+<span class="fc" id="L347">                break;</span>
+            case MINIMUM:   // Replace ties with minimum
+<span class="fc" id="L349">                fill(ranks, tiesTrace, c);</span>
+<span class="fc" id="L350">                break;</span>
+            case RANDOM:    // Fill with random integral values in [c, c + length - 1]
+<span class="fc" id="L352">                Iterator&lt;Integer&gt; iterator = tiesTrace.iterator();</span>
+<span class="fc" id="L353">                long f = FastMath.round(c);</span>
+<span class="fc bfc" id="L354" title="All 2 branches covered.">                while (iterator.hasNext()) {</span>
+                    // No advertised exception because args are guaranteed valid
+<span class="fc" id="L356">                    ranks[iterator.next()] =</span>
+                        randomData.nextLong(f, f + length - 1);
+                }
+                break;
+            case SEQUENTIAL:  // Fill sequentially from c to c + length - 1
+                // walk and fill
+<span class="fc" id="L362">                iterator = tiesTrace.iterator();</span>
+<span class="fc" id="L363">                f = FastMath.round(c);</span>
+<span class="fc" id="L364">                int i = 0;</span>
+<span class="fc bfc" id="L365" title="All 2 branches covered.">                while (iterator.hasNext()) {</span>
+<span class="fc" id="L366">                    ranks[iterator.next()] = f + i++;</span>
+                }
+                break;
+            default: // this should not happen unless TiesStrategy enum is changed
+<span class="nc" id="L370">                throw new MathInternalError();</span>
+        }
+<span class="fc" id="L372">    }</span>
+
+    /**
+     * Sets&lt;code&gt;data[i] = value&lt;/code&gt; for each i in &lt;code&gt;tiesTrace.&lt;/code&gt;
+     *
+     * @param data array to modify
+     * @param tiesTrace list of index values to set
+     * @param value value to set
+     */
+    private void fill(double[] data, List&lt;Integer&gt; tiesTrace, double value) {
+<span class="fc" id="L382">        Iterator&lt;Integer&gt; iterator = tiesTrace.iterator();</span>
+<span class="fc bfc" id="L383" title="All 2 branches covered.">        while (iterator.hasNext()) {</span>
+<span class="fc" id="L384">            data[iterator.next()] = value;</span>
+        }
+<span class="fc" id="L386">    }</span>
+
+    /**
+     * Set &lt;code&gt;ranks[i] = Double.NaN&lt;/code&gt; for each i in &lt;code&gt;nanPositions.&lt;/code&gt;
+     *
+     * @param ranks array to modify
+     * @param nanPositions list of index values to set to &lt;code&gt;Double.NaN&lt;/code&gt;
+     */
+    private void restoreNaNs(double[] ranks, List&lt;Integer&gt; nanPositions) {
+<span class="fc bfc" id="L395" title="All 2 branches covered.">        if (nanPositions.size() == 0) {</span>
+<span class="fc" id="L396">            return;</span>
+        }
+<span class="fc" id="L398">        Iterator&lt;Integer&gt; iterator = nanPositions.iterator();</span>
+<span class="fc bfc" id="L399" title="All 2 branches covered.">        while (iterator.hasNext()) {</span>
+<span class="fc" id="L400">            ranks[iterator.next().intValue()] = Double.NaN;</span>
+        }
+
+<span class="fc" id="L403">    }</span>
+
+    /**
+     * Returns a list of indexes where &lt;code&gt;ranks&lt;/code&gt; is &lt;code&gt;NaN.&lt;/code&gt;
+     *
+     * @param ranks array to search for &lt;code&gt;NaNs&lt;/code&gt;
+     * @return list of indexes i such that &lt;code&gt;ranks[i] = NaN&lt;/code&gt;
+     */
+    private List&lt;Integer&gt; getNanPositions(IntDoublePair[] ranks) {
+<span class="fc" id="L412">        ArrayList&lt;Integer&gt; out = new ArrayList&lt;Integer&gt;();</span>
+<span class="fc bfc" id="L413" title="All 2 branches covered.">        for (int i = 0; i &lt; ranks.length; i++) {</span>
+<span class="fc bfc" id="L414" title="All 2 branches covered.">            if (Double.isNaN(ranks[i].getValue())) {</span>
+<span class="fc" id="L415">                out.add(Integer.valueOf(i));</span>
+            }
+        }
+<span class="fc" id="L418">        return out;</span>
+    }
+
+    /**
+     * Represents the position of a double value in an ordering.
+     * Comparable interface is implemented so Arrays.sort can be used
+     * to sort an array of IntDoublePairs by value.  Note that the
+     * implicitly defined natural ordering is NOT consistent with equals.
+     */
+    private static class IntDoublePair implements Comparable&lt;IntDoublePair&gt;  {
+
+        /** Value of the pair */
+        private final double value;
+
+        /** Original position of the pair */
+        private final int position;
+
+        /**
+         * Construct an IntDoublePair with the given value and position.
+         * @param value the value of the pair
+         * @param position the original position
+         */
+<span class="fc" id="L440">        IntDoublePair(double value, int position) {</span>
+<span class="fc" id="L441">            this.value = value;</span>
+<span class="fc" id="L442">            this.position = position;</span>
+<span class="fc" id="L443">        }</span>
+
+        /**
+         * Compare this IntDoublePair to another pair.
+         * Only the &lt;strong&gt;values&lt;/strong&gt; are compared.
+         *
+         * @param other the other pair to compare this to
+         * @return result of &lt;code&gt;Double.compare(value, other.value)&lt;/code&gt;
+         */
+        public int compareTo(IntDoublePair other) {
+<span class="fc" id="L453">            return Double.compare(value, other.value);</span>
+        }
+
+        // N.B. equals() and hashCode() are not implemented; see MATH-610 for discussion.
+
+        /**
+         * Returns the value of the pair.
+         * @return value
+         */
+        public double getValue() {
+<span class="fc" id="L463">            return value;</span>
+        }
+
+        /**
+         * Returns the original position of the pair.
+         * @return position
+         */
+        public int getPosition() {
+<span class="fc" id="L471">            return position;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

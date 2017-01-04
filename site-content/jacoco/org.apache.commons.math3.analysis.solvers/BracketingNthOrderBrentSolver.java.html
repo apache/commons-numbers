@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BracketingNthOrderBrentSolver.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.solvers</a> &gt; <span class="el_source">BracketingNthOrderBrentSolver.java</span></div><h1>BracketingNthOrderBrentSolver.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.analysis.solvers;
+
+
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.exception.MathInternalError;
+import org.apache.commons.math3.exception.NoBracketingException;
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.exception.TooManyEvaluationsException;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.Precision;
+
+/**
+ * This class implements a modification of the &lt;a
+ * href=&quot;http://mathworld.wolfram.com/BrentsMethod.html&quot;&gt; Brent algorithm&lt;/a&gt;.
+ * &lt;p&gt;
+ * The changes with respect to the original Brent algorithm are:
+ * &lt;ul&gt;
+ *   &lt;li&gt;the returned value is chosen in the current interval according
+ *   to user specified {@link AllowedSolution},&lt;/li&gt;
+ *   &lt;li&gt;the maximal order for the invert polynomial root search is
+ *   user-specified instead of being invert quadratic only&lt;/li&gt;
+ * &lt;/ul&gt;&lt;p&gt;
+ * The given interval must bracket the root.&lt;/p&gt;
+ *
+ */
+public class BracketingNthOrderBrentSolver
+    extends AbstractUnivariateSolver
+    implements BracketedUnivariateSolver&lt;UnivariateFunction&gt; {
+
+    /** Default absolute accuracy. */
+    private static final double DEFAULT_ABSOLUTE_ACCURACY = 1e-6;
+
+    /** Default maximal order. */
+    private static final int DEFAULT_MAXIMAL_ORDER = 5;
+
+    /** Maximal aging triggering an attempt to balance the bracketing interval. */
+    private static final int MAXIMAL_AGING = 2;
+
+    /** Reduction factor for attempts to balance the bracketing interval. */
+    private static final double REDUCTION_FACTOR = 1.0 / 16.0;
+
+    /** Maximal order. */
+    private final int maximalOrder;
+
+    /** The kinds of solutions that the algorithm may accept. */
+    private AllowedSolution allowed;
+
+    /**
+     * Construct a solver with default accuracy and maximal order (1e-6 and 5 respectively)
+     */
+    public BracketingNthOrderBrentSolver() {
+<span class="fc" id="L69">        this(DEFAULT_ABSOLUTE_ACCURACY, DEFAULT_MAXIMAL_ORDER);</span>
+<span class="fc" id="L70">    }</span>
+
+    /**
+     * Construct a solver.
+     *
+     * @param absoluteAccuracy Absolute accuracy.
+     * @param maximalOrder maximal order.
+     * @exception NumberIsTooSmallException if maximal order is lower than 2
+     */
+    public BracketingNthOrderBrentSolver(final double absoluteAccuracy,
+                                         final int maximalOrder)
+        throws NumberIsTooSmallException {
+<span class="fc" id="L82">        super(absoluteAccuracy);</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (maximalOrder &lt; 2) {</span>
+<span class="fc" id="L84">            throw new NumberIsTooSmallException(maximalOrder, 2, true);</span>
+        }
+<span class="fc" id="L86">        this.maximalOrder = maximalOrder;</span>
+<span class="fc" id="L87">        this.allowed = AllowedSolution.ANY_SIDE;</span>
+<span class="fc" id="L88">    }</span>
+
+    /**
+     * Construct a solver.
+     *
+     * @param relativeAccuracy Relative accuracy.
+     * @param absoluteAccuracy Absolute accuracy.
+     * @param maximalOrder maximal order.
+     * @exception NumberIsTooSmallException if maximal order is lower than 2
+     */
+    public BracketingNthOrderBrentSolver(final double relativeAccuracy,
+                                         final double absoluteAccuracy,
+                                         final int maximalOrder)
+        throws NumberIsTooSmallException {
+<span class="fc" id="L102">        super(relativeAccuracy, absoluteAccuracy);</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        if (maximalOrder &lt; 2) {</span>
+<span class="fc" id="L104">            throw new NumberIsTooSmallException(maximalOrder, 2, true);</span>
+        }
+<span class="fc" id="L106">        this.maximalOrder = maximalOrder;</span>
+<span class="fc" id="L107">        this.allowed = AllowedSolution.ANY_SIDE;</span>
+<span class="fc" id="L108">    }</span>
+
+    /**
+     * Construct a solver.
+     *
+     * @param relativeAccuracy Relative accuracy.
+     * @param absoluteAccuracy Absolute accuracy.
+     * @param functionValueAccuracy Function value accuracy.
+     * @param maximalOrder maximal order.
+     * @exception NumberIsTooSmallException if maximal order is lower than 2
+     */
+    public BracketingNthOrderBrentSolver(final double relativeAccuracy,
+                                         final double absoluteAccuracy,
+                                         final double functionValueAccuracy,
+                                         final int maximalOrder)
+        throws NumberIsTooSmallException {
+<span class="fc" id="L124">        super(relativeAccuracy, absoluteAccuracy, functionValueAccuracy);</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (maximalOrder &lt; 2) {</span>
+<span class="fc" id="L126">            throw new NumberIsTooSmallException(maximalOrder, 2, true);</span>
+        }
+<span class="fc" id="L128">        this.maximalOrder = maximalOrder;</span>
+<span class="fc" id="L129">        this.allowed = AllowedSolution.ANY_SIDE;</span>
+<span class="fc" id="L130">    }</span>
+
+    /** Get the maximal order.
+     * @return maximal order
+     */
+    public int getMaximalOrder() {
+<span class="fc" id="L136">        return maximalOrder;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected double doSolve()
+        throws TooManyEvaluationsException,
+               NumberIsTooLargeException,
+               NoBracketingException {
+        // prepare arrays with the first points
+<span class="fc" id="L148">        final double[] x = new double[maximalOrder + 1];</span>
+<span class="fc" id="L149">        final double[] y = new double[maximalOrder + 1];</span>
+<span class="fc" id="L150">        x[0] = getMin();</span>
+<span class="fc" id="L151">        x[1] = getStartValue();</span>
+<span class="fc" id="L152">        x[2] = getMax();</span>
+<span class="fc" id="L153">        verifySequence(x[0], x[1], x[2]);</span>
+
+        // evaluate initial guess
+<span class="fc" id="L156">        y[1] = computeObjectiveValue(x[1]);</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        if (Precision.equals(y[1], 0.0, 1)) {</span>
+            // return the initial guess if it is a perfect root.
+<span class="fc" id="L159">            return x[1];</span>
+        }
+
+        // evaluate first  endpoint
+<span class="fc" id="L163">        y[0] = computeObjectiveValue(x[0]);</span>
+<span class="fc bfc" id="L164" title="All 2 branches covered.">        if (Precision.equals(y[0], 0.0, 1)) {</span>
+            // return the first endpoint if it is a perfect root.
+<span class="fc" id="L166">            return x[0];</span>
+        }
+
+        int nbPoints;
+        int signChangeIndex;
+<span class="fc bfc" id="L171" title="All 2 branches covered.">        if (y[0] * y[1] &lt; 0) {</span>
+
+            // reduce interval if it brackets the root
+<span class="fc" id="L174">            nbPoints        = 2;</span>
+<span class="fc" id="L175">            signChangeIndex = 1;</span>
+
+        } else {
+
+            // evaluate second endpoint
+<span class="fc" id="L180">            y[2] = computeObjectiveValue(x[2]);</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">            if (Precision.equals(y[2], 0.0, 1)) {</span>
+                // return the second endpoint if it is a perfect root.
+<span class="fc" id="L183">                return x[2];</span>
+            }
+
+<span class="fc bfc" id="L186" title="All 2 branches covered.">            if (y[1] * y[2] &lt; 0) {</span>
+                // use all computed point as a start sampling array for solving
+<span class="fc" id="L188">                nbPoints        = 3;</span>
+<span class="fc" id="L189">                signChangeIndex = 2;</span>
+            } else {
+<span class="fc" id="L191">                throw new NoBracketingException(x[0], x[2], y[0], y[2]);</span>
+            }
+
+        }
+
+        // prepare a work array for inverse polynomial interpolation
+<span class="fc" id="L197">        final double[] tmpX = new double[x.length];</span>
+
+        // current tightest bracketing of the root
+<span class="fc" id="L200">        double xA    = x[signChangeIndex - 1];</span>
+<span class="fc" id="L201">        double yA    = y[signChangeIndex - 1];</span>
+<span class="fc" id="L202">        double absYA = FastMath.abs(yA);</span>
+<span class="fc" id="L203">        int agingA   = 0;</span>
+<span class="fc" id="L204">        double xB    = x[signChangeIndex];</span>
+<span class="fc" id="L205">        double yB    = y[signChangeIndex];</span>
+<span class="fc" id="L206">        double absYB = FastMath.abs(yB);</span>
+<span class="fc" id="L207">        int agingB   = 0;</span>
+
+        // search loop
+        while (true) {
+
+            // check convergence of bracketing interval
+<span class="fc" id="L213">            final double xTol = getAbsoluteAccuracy() +</span>
+                                getRelativeAccuracy() * FastMath.max(FastMath.abs(xA), FastMath.abs(xB));
+<span class="fc bfc" id="L215" title="All 4 branches covered.">            if (((xB - xA) &lt;= xTol) || (FastMath.max(absYA, absYB) &lt; getFunctionValueAccuracy())) {</span>
+<span class="pc bpc" id="L216" title="1 of 6 branches missed.">                switch (allowed) {</span>
+                case ANY_SIDE :
+<span class="fc bfc" id="L218" title="All 2 branches covered.">                    return absYA &lt; absYB ? xA : xB;</span>
+                case LEFT_SIDE :
+<span class="fc" id="L220">                    return xA;</span>
+                case RIGHT_SIDE :
+<span class="fc" id="L222">                    return xB;</span>
+                case BELOW_SIDE :
+<span class="fc bfc" id="L224" title="All 2 branches covered.">                    return (yA &lt;= 0) ? xA : xB;</span>
+                case ABOVE_SIDE :
+<span class="fc bfc" id="L226" title="All 2 branches covered.">                    return (yA &lt;  0) ? xB : xA;</span>
+                default :
+                    // this should never happen
+<span class="nc" id="L229">                    throw new MathInternalError();</span>
+                }
+            }
+
+            // target for the next evaluation point
+            double targetY;
+<span class="fc bfc" id="L235" title="All 2 branches covered.">            if (agingA &gt;= MAXIMAL_AGING) {</span>
+                // we keep updating the high bracket, try to compensate this
+<span class="fc" id="L237">                final int p = agingA - MAXIMAL_AGING;</span>
+<span class="fc" id="L238">                final double weightA = (1 &lt;&lt; p) - 1;</span>
+<span class="fc" id="L239">                final double weightB = p + 1;</span>
+<span class="fc" id="L240">                targetY = (weightA * yA - weightB * REDUCTION_FACTOR * yB) / (weightA + weightB);</span>
+<span class="fc bfc" id="L241" title="All 2 branches covered.">            } else if (agingB &gt;= MAXIMAL_AGING) {</span>
+                // we keep updating the low bracket, try to compensate this
+<span class="fc" id="L243">                final int p = agingB - MAXIMAL_AGING;</span>
+<span class="fc" id="L244">                final double weightA = p + 1;</span>
+<span class="fc" id="L245">                final double weightB = (1 &lt;&lt; p) - 1;</span>
+<span class="fc" id="L246">                targetY = (weightB * yB - weightA * REDUCTION_FACTOR * yA) / (weightA + weightB);</span>
+<span class="fc" id="L247">            } else {</span>
+                // bracketing is balanced, try to find the root itself
+<span class="fc" id="L249">                targetY = 0;</span>
+            }
+
+            // make a few attempts to guess a root,
+            double nextX;
+<span class="fc" id="L254">            int start = 0;</span>
+<span class="fc" id="L255">            int end   = nbPoints;</span>
+            do {
+
+                // guess a value for current target, using inverse polynomial interpolation
+<span class="fc" id="L259">                System.arraycopy(x, start, tmpX, start, end - start);</span>
+<span class="fc" id="L260">                nextX = guessX(targetY, tmpX, y, start, end);</span>
+
+<span class="fc bfc" id="L262" title="All 4 branches covered.">                if (!((nextX &gt; xA) &amp;&amp; (nextX &lt; xB))) {</span>
+                    // the guessed root is not strictly inside of the tightest bracketing interval
+
+                    // the guessed root is either not strictly inside the interval or it
+                    // is a NaN (which occurs when some sampling points share the same y)
+                    // we try again with a lower interpolation order
+<span class="fc bfc" id="L268" title="All 2 branches covered.">                    if (signChangeIndex - start &gt;= end - signChangeIndex) {</span>
+                        // we have more points before the sign change, drop the lowest point
+<span class="fc" id="L270">                        ++start;</span>
+                    } else {
+                        // we have more points after sign change, drop the highest point
+<span class="fc" id="L273">                        --end;</span>
+                    }
+
+                    // we need to do one more attempt
+<span class="fc" id="L277">                    nextX = Double.NaN;</span>
+
+                }
+
+<span class="fc bfc" id="L281" title="All 4 branches covered.">            } while (Double.isNaN(nextX) &amp;&amp; (end - start &gt; 1));</span>
+
+<span class="fc bfc" id="L283" title="All 2 branches covered.">            if (Double.isNaN(nextX)) {</span>
+                // fall back to bisection
+<span class="fc" id="L285">                nextX = xA + 0.5 * (xB - xA);</span>
+<span class="fc" id="L286">                start = signChangeIndex - 1;</span>
+<span class="fc" id="L287">                end   = signChangeIndex;</span>
+            }
+
+            // evaluate the function at the guessed root
+<span class="fc" id="L291">            final double nextY = computeObjectiveValue(nextX);</span>
+<span class="fc bfc" id="L292" title="All 2 branches covered.">            if (Precision.equals(nextY, 0.0, 1)) {</span>
+                // we have found an exact root, since it is not an approximation
+                // we don't need to bother about the allowed solutions setting
+<span class="fc" id="L295">                return nextX;</span>
+            }
+
+<span class="fc bfc" id="L298" title="All 4 branches covered.">            if ((nbPoints &gt; 2) &amp;&amp; (end - start != nbPoints)) {</span>
+
+                // we have been forced to ignore some points to keep bracketing,
+                // they are probably too far from the root, drop them from now on
+<span class="fc" id="L302">                nbPoints = end - start;</span>
+<span class="fc" id="L303">                System.arraycopy(x, start, x, 0, nbPoints);</span>
+<span class="fc" id="L304">                System.arraycopy(y, start, y, 0, nbPoints);</span>
+<span class="fc" id="L305">                signChangeIndex -= start;</span>
+
+<span class="fc bfc" id="L307" title="All 2 branches covered.">            } else  if (nbPoints == x.length) {</span>
+
+                // we have to drop one point in order to insert the new one
+<span class="fc" id="L310">                nbPoints--;</span>
+
+                // keep the tightest bracketing interval as centered as possible
+<span class="fc bfc" id="L313" title="All 2 branches covered.">                if (signChangeIndex &gt;= (x.length + 1) / 2) {</span>
+                    // we drop the lowest point, we have to shift the arrays and the index
+<span class="fc" id="L315">                    System.arraycopy(x, 1, x, 0, nbPoints);</span>
+<span class="fc" id="L316">                    System.arraycopy(y, 1, y, 0, nbPoints);</span>
+<span class="fc" id="L317">                    --signChangeIndex;</span>
+                }
+
+            }
+
+            // insert the last computed point
+            //(by construction, we know it lies inside the tightest bracketing interval)
+<span class="fc" id="L324">            System.arraycopy(x, signChangeIndex, x, signChangeIndex + 1, nbPoints - signChangeIndex);</span>
+<span class="fc" id="L325">            x[signChangeIndex] = nextX;</span>
+<span class="fc" id="L326">            System.arraycopy(y, signChangeIndex, y, signChangeIndex + 1, nbPoints - signChangeIndex);</span>
+<span class="fc" id="L327">            y[signChangeIndex] = nextY;</span>
+<span class="fc" id="L328">            ++nbPoints;</span>
+
+            // update the bracketing interval
+<span class="fc bfc" id="L331" title="All 2 branches covered.">            if (nextY * yA &lt;= 0) {</span>
+                // the sign change occurs before the inserted point
+<span class="fc" id="L333">                xB = nextX;</span>
+<span class="fc" id="L334">                yB = nextY;</span>
+<span class="fc" id="L335">                absYB = FastMath.abs(yB);</span>
+<span class="fc" id="L336">                ++agingA;</span>
+<span class="fc" id="L337">                agingB = 0;</span>
+            } else {
+                // the sign change occurs after the inserted point
+<span class="fc" id="L340">                xA = nextX;</span>
+<span class="fc" id="L341">                yA = nextY;</span>
+<span class="fc" id="L342">                absYA = FastMath.abs(yA);</span>
+<span class="fc" id="L343">                agingA = 0;</span>
+<span class="fc" id="L344">                ++agingB;</span>
+
+                // update the sign change index
+<span class="fc" id="L347">                signChangeIndex++;</span>
+
+            }
+
+<span class="fc" id="L351">        }</span>
+
+    }
+
+    /** Guess an x value by n&lt;sup&gt;th&lt;/sup&gt; order inverse polynomial interpolation.
+     * &lt;p&gt;
+     * The x value is guessed by evaluating polynomial Q(y) at y = targetY, where Q
+     * is built such that for all considered points (x&lt;sub&gt;i&lt;/sub&gt;, y&lt;sub&gt;i&lt;/sub&gt;),
+     * Q(y&lt;sub&gt;i&lt;/sub&gt;) = x&lt;sub&gt;i&lt;/sub&gt;.
+     * &lt;/p&gt;
+     * @param targetY target value for y
+     * @param x reference points abscissas for interpolation,
+     * note that this array &lt;em&gt;is&lt;/em&gt; modified during computation
+     * @param y reference points ordinates for interpolation
+     * @param start start index of the points to consider (inclusive)
+     * @param end end index of the points to consider (exclusive)
+     * @return guessed root (will be a NaN if two points share the same y)
+     */
+    private double guessX(final double targetY, final double[] x, final double[] y,
+                          final int start, final int end) {
+
+        // compute Q Newton coefficients by divided differences
+<span class="fc bfc" id="L373" title="All 2 branches covered.">        for (int i = start; i &lt; end - 1; ++i) {</span>
+<span class="fc" id="L374">            final int delta = i + 1 - start;</span>
+<span class="fc bfc" id="L375" title="All 2 branches covered.">            for (int j = end - 1; j &gt; i; --j) {</span>
+<span class="fc" id="L376">                x[j] = (x[j] - x[j-1]) / (y[j] - y[j - delta]);</span>
+            }
+        }
+
+        // evaluate Q(targetY)
+<span class="fc" id="L381">        double x0 = 0;</span>
+<span class="fc bfc" id="L382" title="All 2 branches covered.">        for (int j = end - 1; j &gt;= start; --j) {</span>
+<span class="fc" id="L383">            x0 = x[j] + x0 * (targetY - y[j]);</span>
+        }
+
+<span class="fc" id="L386">        return x0;</span>
+
+    }
+
+    /** {@inheritDoc} */
+    public double solve(int maxEval, UnivariateFunction f, double min,
+                        double max, AllowedSolution allowedSolution)
+        throws TooManyEvaluationsException,
+               NumberIsTooLargeException,
+               NoBracketingException {
+<span class="fc" id="L396">        this.allowed = allowedSolution;</span>
+<span class="fc" id="L397">        return super.solve(maxEval, f, min, max);</span>
+    }
+
+    /** {@inheritDoc} */
+    public double solve(int maxEval, UnivariateFunction f, double min,
+                        double max, double startValue,
+                        AllowedSolution allowedSolution)
+        throws TooManyEvaluationsException,
+               NumberIsTooLargeException,
+               NoBracketingException {
+<span class="fc" id="L407">        this.allowed = allowedSolution;</span>
+<span class="fc" id="L408">        return super.solve(maxEval, f, min, max, startValue);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

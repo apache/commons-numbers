@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>NodesSet.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.partitioning</a> &gt; <span class="el_source">NodesSet.java</span></div><h1>NodesSet.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.partitioning;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.math3.geometry.Space;
+
+/** Set of {@link BSPTree BSP tree} nodes.
+ * @see BoundaryAttribute
+ * @param &lt;S&gt; Type of the space.
+ * @since 3.4
+ */
+public class NodesSet&lt;S extends Space&gt; implements Iterable&lt;BSPTree&lt;S&gt;&gt; {
+
+    /** List of sub-hyperplanes. */
+    private List&lt;BSPTree&lt;S&gt;&gt; list;
+
+    /** Simple constructor.
+     */
+<span class="fc" id="L37">    public NodesSet() {</span>
+<span class="fc" id="L38">        list = new ArrayList&lt;BSPTree&lt;S&gt;&gt;();</span>
+<span class="fc" id="L39">    }</span>
+
+    /** Add a node if not already known.
+     * @param node node to add
+     */
+    public void add(final BSPTree&lt;S&gt; node) {
+
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        for (final BSPTree&lt;S&gt; existing : list) {</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">            if (node == existing) {</span>
+                // the node is already known, don't add it
+<span class="fc" id="L49">                return;</span>
+            }
+<span class="fc" id="L51">        }</span>
+
+        // the node was not known, add it
+<span class="fc" id="L54">        list.add(node);</span>
+
+<span class="fc" id="L56">    }</span>
+
+    /** Add nodes if they are not already known.
+     * @param iterator nodes iterator
+     */
+    public void addAll(final Iterable&lt;BSPTree&lt;S&gt;&gt; iterator) {
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        for (final BSPTree&lt;S&gt; node : iterator) {</span>
+<span class="fc" id="L63">            add(node);</span>
+<span class="fc" id="L64">        }</span>
+<span class="fc" id="L65">    }</span>
+
+    /** {@inheritDoc} */
+    public Iterator&lt;BSPTree&lt;S&gt;&gt; iterator() {
+<span class="fc" id="L69">        return list.iterator();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

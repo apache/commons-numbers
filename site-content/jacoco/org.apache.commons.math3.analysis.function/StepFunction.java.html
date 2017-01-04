@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>StepFunction.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.function</a> &gt; <span class="el_source">StepFunction.java</span></div><h1>StepFunction.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.analysis.function;
+
+import java.util.Arrays;
+
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.NonMonotonicSequenceException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.util.MathArrays;
+
+/**
+ * &lt;a href=&quot;http://en.wikipedia.org/wiki/Step_function&quot;&gt;
+ *  Step function&lt;/a&gt;.
+ *
+ * @since 3.0
+ */
+public class StepFunction implements UnivariateFunction {
+    /** Abscissae. */
+    private final double[] abscissa;
+    /** Ordinates. */
+    private final double[] ordinate;
+
+    /**
+     * Builds a step function from a list of arguments and the corresponding
+     * values. Specifically, returns the function h(x) defined by &lt;pre&gt;&lt;code&gt;
+     * h(x) = y[0] for all x &amp;lt; x[1]
+     *        y[1] for x[1] &amp;le; x &amp;lt; x[2]
+     *        ...
+     *        y[y.length - 1] for x &amp;ge; x[x.length - 1]
+     * &lt;/code&gt;&lt;/pre&gt;
+     * The value of {@code x[0]} is ignored, but it must be strictly less than
+     * {@code x[1]}.
+     *
+     * @param x Domain values where the function changes value.
+     * @param y Values of the function.
+     * @throws NonMonotonicSequenceException
+     * if the {@code x} array is not sorted in strictly increasing order.
+     * @throws NullArgumentException if {@code x} or {@code y} are {@code null}.
+     * @throws NoDataException if {@code x} or {@code y} are zero-length.
+     * @throws DimensionMismatchException if {@code x} and {@code y} do not
+     * have the same length.
+     */
+    public StepFunction(double[] x,
+                        double[] y)
+        throws NullArgumentException, NoDataException,
+<span class="fc" id="L64">               DimensionMismatchException, NonMonotonicSequenceException {</span>
+<span class="fc bfc" id="L65" title="All 4 branches covered.">        if (x == null ||</span>
+            y == null) {
+<span class="fc" id="L67">            throw new NullArgumentException();</span>
+        }
+<span class="fc bfc" id="L69" title="All 4 branches covered.">        if (x.length == 0 ||</span>
+            y.length == 0) {
+<span class="fc" id="L71">            throw new NoDataException();</span>
+        }
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        if (y.length != x.length) {</span>
+<span class="fc" id="L74">            throw new DimensionMismatchException(y.length, x.length);</span>
+        }
+<span class="fc" id="L76">        MathArrays.checkOrder(x);</span>
+
+<span class="fc" id="L78">        abscissa = MathArrays.copyOf(x);</span>
+<span class="fc" id="L79">        ordinate = MathArrays.copyOf(y);</span>
+<span class="fc" id="L80">    }</span>
+
+    /** {@inheritDoc} */
+    public double value(double x) {
+<span class="fc" id="L84">        int index = Arrays.binarySearch(abscissa, x);</span>
+<span class="fc" id="L85">        double fx = 0;</span>
+
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (index &lt; -1) {</span>
+            // &quot;x&quot; is between &quot;abscissa[-index-2]&quot; and &quot;abscissa[-index-1]&quot;.
+<span class="fc" id="L89">            fx = ordinate[-index-2];</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        } else if (index &gt;= 0) {</span>
+            // &quot;x&quot; is exactly &quot;abscissa[index]&quot;.
+<span class="fc" id="L92">            fx = ordinate[index];</span>
+        } else {
+            // Otherwise, &quot;x&quot; is smaller than the first value in &quot;abscissa&quot;
+            // (hence the returned value should be &quot;ordinate[0]&quot;).
+<span class="fc" id="L96">            fx = ordinate[0];</span>
+        }
+
+<span class="fc" id="L99">        return fx;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

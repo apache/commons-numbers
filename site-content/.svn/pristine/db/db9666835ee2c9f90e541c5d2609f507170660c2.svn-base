@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Characterization.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.partitioning</a> &gt; <span class="el_source">Characterization.java</span></div><h1>Characterization.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.partitioning;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.math3.exception.MathInternalError;
+import org.apache.commons.math3.geometry.Space;
+
+/** Cut sub-hyperplanes characterization with respect to inside/outside cells.
+ * @see BoundaryBuilder
+ * @param &lt;S&gt; Type of the space.
+ * @since 3.4
+ */
+class Characterization&lt;S extends Space&gt; {
+
+    /** Part of the cut sub-hyperplane that touch outside cells. */
+    private SubHyperplane&lt;S&gt; outsideTouching;
+
+    /** Part of the cut sub-hyperplane that touch inside cells. */
+    private SubHyperplane&lt;S&gt; insideTouching;
+
+    /** Nodes that were used to split the outside touching part. */
+    private final NodesSet&lt;S&gt; outsideSplitters;
+
+    /** Nodes that were used to split the outside touching part. */
+    private final NodesSet&lt;S&gt; insideSplitters;
+
+    /** Simple constructor.
+     * &lt;p&gt;Characterization consists in splitting the specified
+     * sub-hyperplane into several parts lying in inside and outside
+     * cells of the tree. The principle is to compute characterization
+     * twice for each cut sub-hyperplane in the tree, once on the plus
+     * node and once on the minus node. The parts that have the same flag
+     * (inside/inside or outside/outside) do not belong to the boundary
+     * while parts that have different flags (inside/outside or
+     * outside/inside) do belong to the boundary.&lt;/p&gt;
+     * @param node current BSP tree node
+     * @param sub sub-hyperplane to characterize
+     */
+<span class="fc" id="L56">    Characterization(final BSPTree&lt;S&gt; node, final SubHyperplane&lt;S&gt; sub) {</span>
+<span class="fc" id="L57">        outsideTouching  = null;</span>
+<span class="fc" id="L58">        insideTouching   = null;</span>
+<span class="fc" id="L59">        outsideSplitters = new NodesSet&lt;S&gt;();</span>
+<span class="fc" id="L60">        insideSplitters  = new NodesSet&lt;S&gt;();</span>
+<span class="fc" id="L61">        characterize(node, sub, new ArrayList&lt;BSPTree&lt;S&gt;&gt;());</span>
+<span class="fc" id="L62">    }</span>
+
+    /** Filter the parts of an hyperplane belonging to the boundary.
+     * &lt;p&gt;The filtering consist in splitting the specified
+     * sub-hyperplane into several parts lying in inside and outside
+     * cells of the tree. The principle is to call this method twice for
+     * each cut sub-hyperplane in the tree, once on the plus node and
+     * once on the minus node. The parts that have the same flag
+     * (inside/inside or outside/outside) do not belong to the boundary
+     * while parts that have different flags (inside/outside or
+     * outside/inside) do belong to the boundary.&lt;/p&gt;
+     * @param node current BSP tree node
+     * @param sub sub-hyperplane to characterize
+     * @param splitters nodes that did split the current one
+     */
+    private void characterize(final BSPTree&lt;S&gt; node, final SubHyperplane&lt;S&gt; sub,
+                              final List&lt;BSPTree&lt;S&gt;&gt; splitters) {
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (node.getCut() == null) {</span>
+            // we have reached a leaf node
+<span class="fc" id="L81">            final boolean inside = (Boolean) node.getAttribute();</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">            if (inside) {</span>
+<span class="fc" id="L83">                addInsideTouching(sub, splitters);</span>
+            } else {
+<span class="fc" id="L85">                addOutsideTouching(sub, splitters);</span>
+            }
+<span class="fc" id="L87">        } else {</span>
+<span class="fc" id="L88">            final Hyperplane&lt;S&gt; hyperplane = node.getCut().getHyperplane();</span>
+<span class="fc" id="L89">            final SubHyperplane.SplitSubHyperplane&lt;S&gt; split = sub.split(hyperplane);</span>
+<span class="pc bpc" id="L90" title="1 of 4 branches missed.">            switch (split.getSide()) {</span>
+            case PLUS:
+<span class="fc" id="L92">                characterize(node.getPlus(),  sub, splitters);</span>
+<span class="fc" id="L93">                break;</span>
+            case MINUS:
+<span class="fc" id="L95">                characterize(node.getMinus(), sub, splitters);</span>
+<span class="fc" id="L96">                break;</span>
+            case BOTH:
+<span class="fc" id="L98">                splitters.add(node);</span>
+<span class="fc" id="L99">                characterize(node.getPlus(),  split.getPlus(),  splitters);</span>
+<span class="fc" id="L100">                characterize(node.getMinus(), split.getMinus(), splitters);</span>
+<span class="fc" id="L101">                splitters.remove(splitters.size() - 1);</span>
+<span class="fc" id="L102">                break;</span>
+            default:
+                // this should not happen
+<span class="nc" id="L105">                throw new MathInternalError();</span>
+            }
+        }
+<span class="fc" id="L108">    }</span>
+
+    /** Add a part of the cut sub-hyperplane known to touch an outside cell.
+     * @param sub part of the cut sub-hyperplane known to touch an outside cell
+     * @param splitters sub-hyperplanes that did split the current one
+     */
+    private void addOutsideTouching(final SubHyperplane&lt;S&gt; sub,
+                                    final List&lt;BSPTree&lt;S&gt;&gt; splitters) {
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        if (outsideTouching == null) {</span>
+<span class="fc" id="L117">            outsideTouching = sub;</span>
+        } else {
+<span class="fc" id="L119">            outsideTouching = outsideTouching.reunite(sub);</span>
+        }
+<span class="fc" id="L121">        outsideSplitters.addAll(splitters);</span>
+<span class="fc" id="L122">    }</span>
+
+    /** Add a part of the cut sub-hyperplane known to touch an inside cell.
+     * @param sub part of the cut sub-hyperplane known to touch an inside cell
+     * @param splitters sub-hyperplanes that did split the current one
+     */
+    private void addInsideTouching(final SubHyperplane&lt;S&gt; sub,
+                                   final List&lt;BSPTree&lt;S&gt;&gt; splitters) {
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        if (insideTouching == null) {</span>
+<span class="fc" id="L131">            insideTouching = sub;</span>
+        } else {
+<span class="fc" id="L133">            insideTouching = insideTouching.reunite(sub);</span>
+        }
+<span class="fc" id="L135">        insideSplitters.addAll(splitters);</span>
+<span class="fc" id="L136">    }</span>
+
+    /** Check if the cut sub-hyperplane touches outside cells.
+     * @return true if the cut sub-hyperplane touches outside cells
+     */
+    public boolean touchOutside() {
+<span class="fc bfc" id="L142" title="All 4 branches covered.">        return outsideTouching != null &amp;&amp; !outsideTouching.isEmpty();</span>
+    }
+
+    /** Get all the parts of the cut sub-hyperplane known to touch outside cells.
+     * @return parts of the cut sub-hyperplane known to touch outside cells
+     * (may be null or empty)
+     */
+    public SubHyperplane&lt;S&gt; outsideTouching() {
+<span class="fc" id="L150">        return outsideTouching;</span>
+    }
+
+    /** Get the nodes that were used to split the outside touching part.
+     * &lt;p&gt;
+     * Splitting nodes are internal nodes (i.e. they have a non-null
+     * cut sub-hyperplane).
+     * &lt;/p&gt;
+     * @return nodes that were used to split the outside touching part
+     */
+    public NodesSet&lt;S&gt; getOutsideSplitters() {
+<span class="fc" id="L161">        return outsideSplitters;</span>
+    }
+
+    /** Check if the cut sub-hyperplane touches inside cells.
+     * @return true if the cut sub-hyperplane touches inside cells
+     */
+    public boolean touchInside() {
+<span class="pc bpc" id="L168" title="1 of 4 branches missed.">        return insideTouching != null &amp;&amp; !insideTouching.isEmpty();</span>
+    }
+
+    /** Get all the parts of the cut sub-hyperplane known to touch inside cells.
+     * @return parts of the cut sub-hyperplane known to touch inside cells
+     * (may be null or empty)
+     */
+    public SubHyperplane&lt;S&gt; insideTouching() {
+<span class="fc" id="L176">        return insideTouching;</span>
+    }
+
+    /** Get the nodes that were used to split the inside touching part.
+     * &lt;p&gt;
+     * Splitting nodes are internal nodes (i.e. they have a non-null
+     * cut sub-hyperplane).
+     * &lt;/p&gt;
+     * @return nodes that were used to split the inside touching part
+     */
+    public NodesSet&lt;S&gt; getInsideSplitters() {
+<span class="fc" id="L187">        return insideSplitters;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

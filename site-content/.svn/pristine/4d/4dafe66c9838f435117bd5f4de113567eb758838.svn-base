@@ -1,0 +1,2007 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.apache.commons.math3.util;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.lang.reflect.Array;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.util.ArrayList;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.util.Arrays;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import java.util.Collections;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import java.util.Comparator;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import java.util.Iterator;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import java.util.List;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import java.util.TreeSet;<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.math3.Field;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.math3.random.RandomGenerator;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.commons.math3.random.Well19937c;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.apache.commons.math3.distribution.UniformIntegerDistribution;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.apache.commons.math3.exception.DimensionMismatchException;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.apache.commons.math3.exception.MathArithmeticException;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.apache.commons.math3.exception.MathIllegalArgumentException;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.apache.commons.math3.exception.MathInternalError;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.apache.commons.math3.exception.NoDataException;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.apache.commons.math3.exception.NonMonotonicSequenceException;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import org.apache.commons.math3.exception.NotPositiveException;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import org.apache.commons.math3.exception.NotStrictlyPositiveException;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import org.apache.commons.math3.exception.NullArgumentException;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import org.apache.commons.math3.exception.NumberIsTooLargeException;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>import org.apache.commons.math3.exception.NotANumberException;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>import org.apache.commons.math3.exception.util.LocalizedFormats;<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>/**<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * Arrays utilities.<a name="line.47"></a>
+<span class="sourceLineNo">048</span> *<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * @since 3.0<a name="line.49"></a>
+<span class="sourceLineNo">050</span> */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>public class MathArrays {<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>    /**<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * Private constructor.<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     */<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    private MathArrays() {}<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>    /**<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * Real-valued function that operate on an array or a part of it.<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * @since 3.1<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     */<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    public interface Function {<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        /**<a name="line.63"></a>
+<span class="sourceLineNo">064</span>         * Operates on an entire array.<a name="line.64"></a>
+<span class="sourceLineNo">065</span>         *<a name="line.65"></a>
+<span class="sourceLineNo">066</span>         * @param array Array to operate on.<a name="line.66"></a>
+<span class="sourceLineNo">067</span>         * @return the result of the operation.<a name="line.67"></a>
+<span class="sourceLineNo">068</span>         */<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        double evaluate(double[] array);<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        /**<a name="line.70"></a>
+<span class="sourceLineNo">071</span>         * @param array Array to operate on.<a name="line.71"></a>
+<span class="sourceLineNo">072</span>         * @param startIndex Index of the first element to take into account.<a name="line.72"></a>
+<span class="sourceLineNo">073</span>         * @param numElements Number of elements to take into account.<a name="line.73"></a>
+<span class="sourceLineNo">074</span>         * @return the result of the operation.<a name="line.74"></a>
+<span class="sourceLineNo">075</span>         */<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        double evaluate(double[] array,<a name="line.76"></a>
+<span class="sourceLineNo">077</span>                        int startIndex,<a name="line.77"></a>
+<span class="sourceLineNo">078</span>                        int numElements);<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    }<a name="line.79"></a>
+<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">081</span>    /**<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * Create a copy of an array scaled by a value.<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     *<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * @param arr Array to scale.<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * @param val Scalar.<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * @return scaled copy of array with each entry multiplied by val.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * @since 3.2<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     */<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    public static double[] scale(double val, final double[] arr) {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        double[] newArr = new double[arr.length];<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        for (int i = 0; i &lt; arr.length; i++) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>            newArr[i] = arr[i] * val;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        }<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        return newArr;<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    }<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>    /**<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * &lt;p&gt;Multiply each element of an array by a value.&lt;/p&gt;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     *<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * &lt;p&gt;The array is modified in place (no copy is created).&lt;/p&gt;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     *<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * @param arr Array to scale<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * @param val Scalar<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * @since 3.2<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     */<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    public static void scaleInPlace(double val, final double[] arr) {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        for (int i = 0; i &lt; arr.length; i++) {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>            arr[i] *= val;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        }<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    }<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>    /**<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * Creates an array whose contents will be the element-by-element<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     * addition of the arguments.<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     *<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     * @param a First term of the addition.<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * @param b Second term of the addition.<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     * @return a new array {@code r} where {@code r[i] = a[i] + b[i]}.<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * @throws DimensionMismatchException if the array lengths differ.<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * @since 3.1<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     */<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    public static double[] ebeAdd(double[] a, double[] b)<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        throws DimensionMismatchException {<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        checkEqualLength(a, b);<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span>        final double[] result = a.clone();<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        for (int i = 0; i &lt; a.length; i++) {<a name="line.127"></a>
+<span class="sourceLineNo">128</span>            result[i] += b[i];<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        }<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        return result;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    }<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    /**<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     * Creates an array whose contents will be the element-by-element<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     * subtraction of the second argument from the first.<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     *<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     * @param a First term.<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     * @param b Element to be subtracted.<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     * @return a new array {@code r} where {@code r[i] = a[i] - b[i]}.<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * @throws DimensionMismatchException if the array lengths differ.<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     * @since 3.1<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     */<a name="line.141"></a>
+<span class="sourceLineNo">142</span>    public static double[] ebeSubtract(double[] a, double[] b)<a name="line.142"></a>
+<span class="sourceLineNo">143</span>        throws DimensionMismatchException {<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        checkEqualLength(a, b);<a name="line.144"></a>
+<span class="sourceLineNo">145</span><a name="line.145"></a>
+<span class="sourceLineNo">146</span>        final double[] result = a.clone();<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        for (int i = 0; i &lt; a.length; i++) {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            result[i] -= b[i];<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        }<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        return result;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    }<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    /**<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     * Creates an array whose contents will be the element-by-element<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     * multiplication of the arguments.<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     *<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     * @param a First factor of the multiplication.<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     * @param b Second factor of the multiplication.<a name="line.157"></a>
+<span class="sourceLineNo">158</span>     * @return a new array {@code r} where {@code r[i] = a[i] * b[i]}.<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     * @throws DimensionMismatchException if the array lengths differ.<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     * @since 3.1<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     */<a name="line.161"></a>
+<span class="sourceLineNo">162</span>    public static double[] ebeMultiply(double[] a, double[] b)<a name="line.162"></a>
+<span class="sourceLineNo">163</span>        throws DimensionMismatchException {<a name="line.163"></a>
+<span class="sourceLineNo">164</span>        checkEqualLength(a, b);<a name="line.164"></a>
+<span class="sourceLineNo">165</span><a name="line.165"></a>
+<span class="sourceLineNo">166</span>        final double[] result = a.clone();<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        for (int i = 0; i &lt; a.length; i++) {<a name="line.167"></a>
+<span class="sourceLineNo">168</span>            result[i] *= b[i];<a name="line.168"></a>
+<span class="sourceLineNo">169</span>        }<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        return result;<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    }<a name="line.171"></a>
+<span class="sourceLineNo">172</span>    /**<a name="line.172"></a>
+<span class="sourceLineNo">173</span>     * Creates an array whose contents will be the element-by-element<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     * division of the first argument by the second.<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     *<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     * @param a Numerator of the division.<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     * @param b Denominator of the division.<a name="line.177"></a>
+<span class="sourceLineNo">178</span>     * @return a new array {@code r} where {@code r[i] = a[i] / b[i]}.<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     * @throws DimensionMismatchException if the array lengths differ.<a name="line.179"></a>
+<span class="sourceLineNo">180</span>     * @since 3.1<a name="line.180"></a>
+<span class="sourceLineNo">181</span>     */<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    public static double[] ebeDivide(double[] a, double[] b)<a name="line.182"></a>
+<span class="sourceLineNo">183</span>        throws DimensionMismatchException {<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        checkEqualLength(a, b);<a name="line.184"></a>
+<span class="sourceLineNo">185</span><a name="line.185"></a>
+<span class="sourceLineNo">186</span>        final double[] result = a.clone();<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        for (int i = 0; i &lt; a.length; i++) {<a name="line.187"></a>
+<span class="sourceLineNo">188</span>            result[i] /= b[i];<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        }<a name="line.189"></a>
+<span class="sourceLineNo">190</span>        return result;<a name="line.190"></a>
+<span class="sourceLineNo">191</span>    }<a name="line.191"></a>
+<span class="sourceLineNo">192</span><a name="line.192"></a>
+<span class="sourceLineNo">193</span>    /**<a name="line.193"></a>
+<span class="sourceLineNo">194</span>     * Calculates the L&lt;sub&gt;1&lt;/sub&gt; (sum of abs) distance between two points.<a name="line.194"></a>
+<span class="sourceLineNo">195</span>     *<a name="line.195"></a>
+<span class="sourceLineNo">196</span>     * @param p1 the first point<a name="line.196"></a>
+<span class="sourceLineNo">197</span>     * @param p2 the second point<a name="line.197"></a>
+<span class="sourceLineNo">198</span>     * @return the L&lt;sub&gt;1&lt;/sub&gt; distance between the two points<a name="line.198"></a>
+<span class="sourceLineNo">199</span>     * @throws DimensionMismatchException if the array lengths differ.<a name="line.199"></a>
+<span class="sourceLineNo">200</span>     */<a name="line.200"></a>
+<span class="sourceLineNo">201</span>    public static double distance1(double[] p1, double[] p2)<a name="line.201"></a>
+<span class="sourceLineNo">202</span>    throws DimensionMismatchException {<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        checkEqualLength(p1, p2);<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        double sum = 0;<a name="line.204"></a>
+<span class="sourceLineNo">205</span>        for (int i = 0; i &lt; p1.length; i++) {<a name="line.205"></a>
+<span class="sourceLineNo">206</span>            sum += FastMath.abs(p1[i] - p2[i]);<a name="line.206"></a>
+<span class="sourceLineNo">207</span>        }<a name="line.207"></a>
+<span class="sourceLineNo">208</span>        return sum;<a name="line.208"></a>
+<span class="sourceLineNo">209</span>    }<a name="line.209"></a>
+<span class="sourceLineNo">210</span><a name="line.210"></a>
+<span class="sourceLineNo">211</span>    /**<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     * Calculates the L&lt;sub&gt;1&lt;/sub&gt; (sum of abs) distance between two points.<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     *<a name="line.213"></a>
+<span class="sourceLineNo">214</span>     * @param p1 the first point<a name="line.214"></a>
+<span class="sourceLineNo">215</span>     * @param p2 the second point<a name="line.215"></a>
+<span class="sourceLineNo">216</span>     * @return the L&lt;sub&gt;1&lt;/sub&gt; distance between the two points<a name="line.216"></a>
+<span class="sourceLineNo">217</span>     * @throws DimensionMismatchException if the array lengths differ.<a name="line.217"></a>
+<span class="sourceLineNo">218</span>     */<a name="line.218"></a>
+<span class="sourceLineNo">219</span>    public static int distance1(int[] p1, int[] p2)<a name="line.219"></a>
+<span class="sourceLineNo">220</span>    throws DimensionMismatchException {<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        checkEqualLength(p1, p2);<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        int sum = 0;<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        for (int i = 0; i &lt; p1.length; i++) {<a name="line.223"></a>
+<span class="sourceLineNo">224</span>            sum += FastMath.abs(p1[i] - p2[i]);<a name="line.224"></a>
+<span class="sourceLineNo">225</span>        }<a name="line.225"></a>
+<span class="sourceLineNo">226</span>        return sum;<a name="line.226"></a>
+<span class="sourceLineNo">227</span>    }<a name="line.227"></a>
+<span class="sourceLineNo">228</span><a name="line.228"></a>
+<span class="sourceLineNo">229</span>    /**<a name="line.229"></a>
+<span class="sourceLineNo">230</span>     * Calculates the L&lt;sub&gt;2&lt;/sub&gt; (Euclidean) distance between two points.<a name="line.230"></a>
+<span class="sourceLineNo">231</span>     *<a name="line.231"></a>
+<span class="sourceLineNo">232</span>     * @param p1 the first point<a name="line.232"></a>
+<span class="sourceLineNo">233</span>     * @param p2 the second point<a name="line.233"></a>
+<span class="sourceLineNo">234</span>     * @return the L&lt;sub&gt;2&lt;/sub&gt; distance between the two points<a name="line.234"></a>
+<span class="sourceLineNo">235</span>     * @throws DimensionMismatchException if the array lengths differ.<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     */<a name="line.236"></a>
+<span class="sourceLineNo">237</span>    public static double distance(double[] p1, double[] p2)<a name="line.237"></a>
+<span class="sourceLineNo">238</span>    throws DimensionMismatchException {<a name="line.238"></a>
+<span class="sourceLineNo">239</span>        checkEqualLength(p1, p2);<a name="line.239"></a>
+<span class="sourceLineNo">240</span>        double sum = 0;<a name="line.240"></a>
+<span class="sourceLineNo">241</span>        for (int i = 0; i &lt; p1.length; i++) {<a name="line.241"></a>
+<span class="sourceLineNo">242</span>            final double dp = p1[i] - p2[i];<a name="line.242"></a>
+<span class="sourceLineNo">243</span>            sum += dp * dp;<a name="line.243"></a>
+<span class="sourceLineNo">244</span>        }<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        return FastMath.sqrt(sum);<a name="line.245"></a>
+<span class="sourceLineNo">246</span>    }<a name="line.246"></a>
+<span class="sourceLineNo">247</span><a name="line.247"></a>
+<span class="sourceLineNo">248</span>    /**<a name="line.248"></a>
+<span class="sourceLineNo">249</span>     * Calculates the cosine of the angle between two vectors.<a name="line.249"></a>
+<span class="sourceLineNo">250</span>     *<a name="line.250"></a>
+<span class="sourceLineNo">251</span>     * @param v1 Cartesian coordinates of the first vector.<a name="line.251"></a>
+<span class="sourceLineNo">252</span>     * @param v2 Cartesian coordinates of the second vector.<a name="line.252"></a>
+<span class="sourceLineNo">253</span>     * @return the cosine of the angle between the vectors.<a name="line.253"></a>
+<span class="sourceLineNo">254</span>     * @since 3.6<a name="line.254"></a>
+<span class="sourceLineNo">255</span>     */<a name="line.255"></a>
+<span class="sourceLineNo">256</span>    public static double cosAngle(double[] v1, double[] v2) {<a name="line.256"></a>
+<span class="sourceLineNo">257</span>        return linearCombination(v1, v2) / (safeNorm(v1) * safeNorm(v2));<a name="line.257"></a>
+<span class="sourceLineNo">258</span>    }<a name="line.258"></a>
+<span class="sourceLineNo">259</span><a name="line.259"></a>
+<span class="sourceLineNo">260</span>    /**<a name="line.260"></a>
+<span class="sourceLineNo">261</span>     * Calculates the L&lt;sub&gt;2&lt;/sub&gt; (Euclidean) distance between two points.<a name="line.261"></a>
+<span class="sourceLineNo">262</span>     *<a name="line.262"></a>
+<span class="sourceLineNo">263</span>     * @param p1 the first point<a name="line.263"></a>
+<span class="sourceLineNo">264</span>     * @param p2 the second point<a name="line.264"></a>
+<span class="sourceLineNo">265</span>     * @return the L&lt;sub&gt;2&lt;/sub&gt; distance between the two points<a name="line.265"></a>
+<span class="sourceLineNo">266</span>     * @throws DimensionMismatchException if the array lengths differ.<a name="line.266"></a>
+<span class="sourceLineNo">267</span>     */<a name="line.267"></a>
+<span class="sourceLineNo">268</span>    public static double distance(int[] p1, int[] p2)<a name="line.268"></a>
+<span class="sourceLineNo">269</span>    throws DimensionMismatchException {<a name="line.269"></a>
+<span class="sourceLineNo">270</span>      checkEqualLength(p1, p2);<a name="line.270"></a>
+<span class="sourceLineNo">271</span>      double sum = 0;<a name="line.271"></a>
+<span class="sourceLineNo">272</span>      for (int i = 0; i &lt; p1.length; i++) {<a name="line.272"></a>
+<span class="sourceLineNo">273</span>          final double dp = p1[i] - p2[i];<a name="line.273"></a>
+<span class="sourceLineNo">274</span>          sum += dp * dp;<a name="line.274"></a>
+<span class="sourceLineNo">275</span>      }<a name="line.275"></a>
+<span class="sourceLineNo">276</span>      return FastMath.sqrt(sum);<a name="line.276"></a>
+<span class="sourceLineNo">277</span>    }<a name="line.277"></a>
+<span class="sourceLineNo">278</span><a name="line.278"></a>
+<span class="sourceLineNo">279</span>    /**<a name="line.279"></a>
+<span class="sourceLineNo">280</span>     * Calculates the L&lt;sub&gt;&amp;infin;&lt;/sub&gt; (max of abs) distance between two points.<a name="line.280"></a>
+<span class="sourceLineNo">281</span>     *<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     * @param p1 the first point<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     * @param p2 the second point<a name="line.283"></a>
+<span class="sourceLineNo">284</span>     * @return the L&lt;sub&gt;&amp;infin;&lt;/sub&gt; distance between the two points<a name="line.284"></a>
+<span class="sourceLineNo">285</span>     * @throws DimensionMismatchException if the array lengths differ.<a name="line.285"></a>
+<span class="sourceLineNo">286</span>     */<a name="line.286"></a>
+<span class="sourceLineNo">287</span>    public static double distanceInf(double[] p1, double[] p2)<a name="line.287"></a>
+<span class="sourceLineNo">288</span>    throws DimensionMismatchException {<a name="line.288"></a>
+<span class="sourceLineNo">289</span>        checkEqualLength(p1, p2);<a name="line.289"></a>
+<span class="sourceLineNo">290</span>        double max = 0;<a name="line.290"></a>
+<span class="sourceLineNo">291</span>        for (int i = 0; i &lt; p1.length; i++) {<a name="line.291"></a>
+<span class="sourceLineNo">292</span>            max = FastMath.max(max, FastMath.abs(p1[i] - p2[i]));<a name="line.292"></a>
+<span class="sourceLineNo">293</span>        }<a name="line.293"></a>
+<span class="sourceLineNo">294</span>        return max;<a name="line.294"></a>
+<span class="sourceLineNo">295</span>    }<a name="line.295"></a>
+<span class="sourceLineNo">296</span><a name="line.296"></a>
+<span class="sourceLineNo">297</span>    /**<a name="line.297"></a>
+<span class="sourceLineNo">298</span>     * Calculates the L&lt;sub&gt;&amp;infin;&lt;/sub&gt; (max of abs) distance between two points.<a name="line.298"></a>
+<span class="sourceLineNo">299</span>     *<a name="line.299"></a>
+<span class="sourceLineNo">300</span>     * @param p1 the first point<a name="line.300"></a>
+<span class="sourceLineNo">301</span>     * @param p2 the second point<a name="line.301"></a>
+<span class="sourceLineNo">302</span>     * @return the L&lt;sub&gt;&amp;infin;&lt;/sub&gt; distance between the two points<a name="line.302"></a>
+<span class="sourceLineNo">303</span>     * @throws DimensionMismatchException if the array lengths differ.<a name="line.303"></a>
+<span class="sourceLineNo">304</span>     */<a name="line.304"></a>
+<span class="sourceLineNo">305</span>    public static int distanceInf(int[] p1, int[] p2)<a name="line.305"></a>
+<span class="sourceLineNo">306</span>    throws DimensionMismatchException {<a name="line.306"></a>
+<span class="sourceLineNo">307</span>        checkEqualLength(p1, p2);<a name="line.307"></a>
+<span class="sourceLineNo">308</span>        int max = 0;<a name="line.308"></a>
+<span class="sourceLineNo">309</span>        for (int i = 0; i &lt; p1.length; i++) {<a name="line.309"></a>
+<span class="sourceLineNo">310</span>            max = FastMath.max(max, FastMath.abs(p1[i] - p2[i]));<a name="line.310"></a>
+<span class="sourceLineNo">311</span>        }<a name="line.311"></a>
+<span class="sourceLineNo">312</span>        return max;<a name="line.312"></a>
+<span class="sourceLineNo">313</span>    }<a name="line.313"></a>
+<span class="sourceLineNo">314</span><a name="line.314"></a>
+<span class="sourceLineNo">315</span>    /**<a name="line.315"></a>
+<span class="sourceLineNo">316</span>     * Specification of ordering direction.<a name="line.316"></a>
+<span class="sourceLineNo">317</span>     */<a name="line.317"></a>
+<span class="sourceLineNo">318</span>    public enum OrderDirection {<a name="line.318"></a>
+<span class="sourceLineNo">319</span>        /** Constant for increasing direction. */<a name="line.319"></a>
+<span class="sourceLineNo">320</span>        INCREASING,<a name="line.320"></a>
+<span class="sourceLineNo">321</span>        /** Constant for decreasing direction. */<a name="line.321"></a>
+<span class="sourceLineNo">322</span>        DECREASING<a name="line.322"></a>
+<span class="sourceLineNo">323</span>    }<a name="line.323"></a>
+<span class="sourceLineNo">324</span><a name="line.324"></a>
+<span class="sourceLineNo">325</span>    /**<a name="line.325"></a>
+<span class="sourceLineNo">326</span>     * Check that an array is monotonically increasing or decreasing.<a name="line.326"></a>
+<span class="sourceLineNo">327</span>     *<a name="line.327"></a>
+<span class="sourceLineNo">328</span>     * @param &lt;T&gt; the type of the elements in the specified array<a name="line.328"></a>
+<span class="sourceLineNo">329</span>     * @param val Values.<a name="line.329"></a>
+<span class="sourceLineNo">330</span>     * @param dir Ordering direction.<a name="line.330"></a>
+<span class="sourceLineNo">331</span>     * @param strict Whether the order should be strict.<a name="line.331"></a>
+<span class="sourceLineNo">332</span>     * @return {@code true} if sorted, {@code false} otherwise.<a name="line.332"></a>
+<span class="sourceLineNo">333</span>     */<a name="line.333"></a>
+<span class="sourceLineNo">334</span>    public static  &lt;T extends Comparable&lt;? super T&gt;&gt; boolean isMonotonic(T[] val,<a name="line.334"></a>
+<span class="sourceLineNo">335</span>                                      OrderDirection dir,<a name="line.335"></a>
+<span class="sourceLineNo">336</span>                                      boolean strict) {<a name="line.336"></a>
+<span class="sourceLineNo">337</span>        T previous = val[0];<a name="line.337"></a>
+<span class="sourceLineNo">338</span>        final int max = val.length;<a name="line.338"></a>
+<span class="sourceLineNo">339</span>        for (int i = 1; i &lt; max; i++) {<a name="line.339"></a>
+<span class="sourceLineNo">340</span>            final int comp;<a name="line.340"></a>
+<span class="sourceLineNo">341</span>            switch (dir) {<a name="line.341"></a>
+<span class="sourceLineNo">342</span>            case INCREASING:<a name="line.342"></a>
+<span class="sourceLineNo">343</span>                comp = previous.compareTo(val[i]);<a name="line.343"></a>
+<span class="sourceLineNo">344</span>                if (strict) {<a name="line.344"></a>
+<span class="sourceLineNo">345</span>                    if (comp &gt;= 0) {<a name="line.345"></a>
+<span class="sourceLineNo">346</span>                        return false;<a name="line.346"></a>
+<span class="sourceLineNo">347</span>                    }<a name="line.347"></a>
+<span class="sourceLineNo">348</span>                } else {<a name="line.348"></a>
+<span class="sourceLineNo">349</span>                    if (comp &gt; 0) {<a name="line.349"></a>
+<span class="sourceLineNo">350</span>                        return false;<a name="line.350"></a>
+<span class="sourceLineNo">351</span>                    }<a name="line.351"></a>
+<span class="sourceLineNo">352</span>                }<a name="line.352"></a>
+<span class="sourceLineNo">353</span>                break;<a name="line.353"></a>
+<span class="sourceLineNo">354</span>            case DECREASING:<a name="line.354"></a>
+<span class="sourceLineNo">355</span>                comp = val[i].compareTo(previous);<a name="line.355"></a>
+<span class="sourceLineNo">356</span>                if (strict) {<a name="line.356"></a>
+<span class="sourceLineNo">357</span>                    if (comp &gt;= 0) {<a name="line.357"></a>
+<span class="sourceLineNo">358</span>                        return false;<a name="line.358"></a>
+<span class="sourceLineNo">359</span>                    }<a name="line.359"></a>
+<span class="sourceLineNo">360</span>                } else {<a name="line.360"></a>
+<span class="sourceLineNo">361</span>                    if (comp &gt; 0) {<a name="line.361"></a>
+<span class="sourceLineNo">362</span>                       return false;<a name="line.362"></a>
+<span class="sourceLineNo">363</span>                    }<a name="line.363"></a>
+<span class="sourceLineNo">364</span>                }<a name="line.364"></a>
+<span class="sourceLineNo">365</span>                break;<a name="line.365"></a>
+<span class="sourceLineNo">366</span>            default:<a name="line.366"></a>
+<span class="sourceLineNo">367</span>                // Should never happen.<a name="line.367"></a>
+<span class="sourceLineNo">368</span>                throw new MathInternalError();<a name="line.368"></a>
+<span class="sourceLineNo">369</span>            }<a name="line.369"></a>
+<span class="sourceLineNo">370</span><a name="line.370"></a>
+<span class="sourceLineNo">371</span>            previous = val[i];<a name="line.371"></a>
+<span class="sourceLineNo">372</span>        }<a name="line.372"></a>
+<span class="sourceLineNo">373</span>        return true;<a name="line.373"></a>
+<span class="sourceLineNo">374</span>    }<a name="line.374"></a>
+<span class="sourceLineNo">375</span><a name="line.375"></a>
+<span class="sourceLineNo">376</span>    /**<a name="line.376"></a>
+<span class="sourceLineNo">377</span>     * Check that an array is monotonically increasing or decreasing.<a name="line.377"></a>
+<span class="sourceLineNo">378</span>     *<a name="line.378"></a>
+<span class="sourceLineNo">379</span>     * @param val Values.<a name="line.379"></a>
+<span class="sourceLineNo">380</span>     * @param dir Ordering direction.<a name="line.380"></a>
+<span class="sourceLineNo">381</span>     * @param strict Whether the order should be strict.<a name="line.381"></a>
+<span class="sourceLineNo">382</span>     * @return {@code true} if sorted, {@code false} otherwise.<a name="line.382"></a>
+<span class="sourceLineNo">383</span>     */<a name="line.383"></a>
+<span class="sourceLineNo">384</span>    public static boolean isMonotonic(double[] val, OrderDirection dir, boolean strict) {<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        return checkOrder(val, dir, strict, false);<a name="line.385"></a>
+<span class="sourceLineNo">386</span>    }<a name="line.386"></a>
+<span class="sourceLineNo">387</span><a name="line.387"></a>
+<span class="sourceLineNo">388</span>    /**<a name="line.388"></a>
+<span class="sourceLineNo">389</span>     * Check that both arrays have the same length.<a name="line.389"></a>
+<span class="sourceLineNo">390</span>     *<a name="line.390"></a>
+<span class="sourceLineNo">391</span>     * @param a Array.<a name="line.391"></a>
+<span class="sourceLineNo">392</span>     * @param b Array.<a name="line.392"></a>
+<span class="sourceLineNo">393</span>     * @param abort Whether to throw an exception if the check fails.<a name="line.393"></a>
+<span class="sourceLineNo">394</span>     * @return {@code true} if the arrays have the same length.<a name="line.394"></a>
+<span class="sourceLineNo">395</span>     * @throws DimensionMismatchException if the lengths differ and<a name="line.395"></a>
+<span class="sourceLineNo">396</span>     * {@code abort} is {@code true}.<a name="line.396"></a>
+<span class="sourceLineNo">397</span>     * @since 3.6<a name="line.397"></a>
+<span class="sourceLineNo">398</span>     */<a name="line.398"></a>
+<span class="sourceLineNo">399</span>    public static boolean checkEqualLength(double[] a,<a name="line.399"></a>
+<span class="sourceLineNo">400</span>                                           double[] b,<a name="line.400"></a>
+<span class="sourceLineNo">401</span>                                           boolean abort) {<a name="line.401"></a>
+<span class="sourceLineNo">402</span>        if (a.length == b.length) {<a name="line.402"></a>
+<span class="sourceLineNo">403</span>            return true;<a name="line.403"></a>
+<span class="sourceLineNo">404</span>        } else {<a name="line.404"></a>
+<span class="sourceLineNo">405</span>            if (abort) {<a name="line.405"></a>
+<span class="sourceLineNo">406</span>                throw new DimensionMismatchException(a.length, b.length);<a name="line.406"></a>
+<span class="sourceLineNo">407</span>            }<a name="line.407"></a>
+<span class="sourceLineNo">408</span>            return false;<a name="line.408"></a>
+<span class="sourceLineNo">409</span>        }<a name="line.409"></a>
+<span class="sourceLineNo">410</span>    }<a name="line.410"></a>
+<span class="sourceLineNo">411</span><a name="line.411"></a>
+<span class="sourceLineNo">412</span>    /**<a name="line.412"></a>
+<span class="sourceLineNo">413</span>     * Check that both arrays have the same length.<a name="line.413"></a>
+<span class="sourceLineNo">414</span>     *<a name="line.414"></a>
+<span class="sourceLineNo">415</span>     * @param a Array.<a name="line.415"></a>
+<span class="sourceLineNo">416</span>     * @param b Array.<a name="line.416"></a>
+<span class="sourceLineNo">417</span>     * @throws DimensionMismatchException if the lengths differ.<a name="line.417"></a>
+<span class="sourceLineNo">418</span>     * @since 3.6<a name="line.418"></a>
+<span class="sourceLineNo">419</span>     */<a name="line.419"></a>
+<span class="sourceLineNo">420</span>    public static void checkEqualLength(double[] a,<a name="line.420"></a>
+<span class="sourceLineNo">421</span>                                        double[] b) {<a name="line.421"></a>
+<span class="sourceLineNo">422</span>        checkEqualLength(a, b, true);<a name="line.422"></a>
+<span class="sourceLineNo">423</span>    }<a name="line.423"></a>
+<span class="sourceLineNo">424</span><a name="line.424"></a>
+<span class="sourceLineNo">425</span><a name="line.425"></a>
+<span class="sourceLineNo">426</span>    /**<a name="line.426"></a>
+<span class="sourceLineNo">427</span>     * Check that both arrays have the same length.<a name="line.427"></a>
+<span class="sourceLineNo">428</span>     *<a name="line.428"></a>
+<span class="sourceLineNo">429</span>     * @param a Array.<a name="line.429"></a>
+<span class="sourceLineNo">430</span>     * @param b Array.<a name="line.430"></a>
+<span class="sourceLineNo">431</span>     * @param abort Whether to throw an exception if the check fails.<a name="line.431"></a>
+<span class="sourceLineNo">432</span>     * @return {@code true} if the arrays have the same length.<a name="line.432"></a>
+<span class="sourceLineNo">433</span>     * @throws DimensionMismatchException if the lengths differ and<a name="line.433"></a>
+<span class="sourceLineNo">434</span>     * {@code abort} is {@code true}.<a name="line.434"></a>
+<span class="sourceLineNo">435</span>     * @since 3.6<a name="line.435"></a>
+<span class="sourceLineNo">436</span>     */<a name="line.436"></a>
+<span class="sourceLineNo">437</span>    public static boolean checkEqualLength(int[] a,<a name="line.437"></a>
+<span class="sourceLineNo">438</span>                                           int[] b,<a name="line.438"></a>
+<span class="sourceLineNo">439</span>                                           boolean abort) {<a name="line.439"></a>
+<span class="sourceLineNo">440</span>        if (a.length == b.length) {<a name="line.440"></a>
+<span class="sourceLineNo">441</span>            return true;<a name="line.441"></a>
+<span class="sourceLineNo">442</span>        } else {<a name="line.442"></a>
+<span class="sourceLineNo">443</span>            if (abort) {<a name="line.443"></a>
+<span class="sourceLineNo">444</span>                throw new DimensionMismatchException(a.length, b.length);<a name="line.444"></a>
+<span class="sourceLineNo">445</span>            }<a name="line.445"></a>
+<span class="sourceLineNo">446</span>            return false;<a name="line.446"></a>
+<span class="sourceLineNo">447</span>        }<a name="line.447"></a>
+<span class="sourceLineNo">448</span>    }<a name="line.448"></a>
+<span class="sourceLineNo">449</span><a name="line.449"></a>
+<span class="sourceLineNo">450</span>    /**<a name="line.450"></a>
+<span class="sourceLineNo">451</span>     * Check that both arrays have the same length.<a name="line.451"></a>
+<span class="sourceLineNo">452</span>     *<a name="line.452"></a>
+<span class="sourceLineNo">453</span>     * @param a Array.<a name="line.453"></a>
+<span class="sourceLineNo">454</span>     * @param b Array.<a name="line.454"></a>
+<span class="sourceLineNo">455</span>     * @throws DimensionMismatchException if the lengths differ.<a name="line.455"></a>
+<span class="sourceLineNo">456</span>     * @since 3.6<a name="line.456"></a>
+<span class="sourceLineNo">457</span>     */<a name="line.457"></a>
+<span class="sourceLineNo">458</span>    public static void checkEqualLength(int[] a,<a name="line.458"></a>
+<span class="sourceLineNo">459</span>                                        int[] b) {<a name="line.459"></a>
+<span class="sourceLineNo">460</span>        checkEqualLength(a, b, true);<a name="line.460"></a>
+<span class="sourceLineNo">461</span>    }<a name="line.461"></a>
+<span class="sourceLineNo">462</span><a name="line.462"></a>
+<span class="sourceLineNo">463</span>    /**<a name="line.463"></a>
+<span class="sourceLineNo">464</span>     * Check that the given array is sorted.<a name="line.464"></a>
+<span class="sourceLineNo">465</span>     *<a name="line.465"></a>
+<span class="sourceLineNo">466</span>     * @param val Values.<a name="line.466"></a>
+<span class="sourceLineNo">467</span>     * @param dir Ordering direction.<a name="line.467"></a>
+<span class="sourceLineNo">468</span>     * @param strict Whether the order should be strict.<a name="line.468"></a>
+<span class="sourceLineNo">469</span>     * @param abort Whether to throw an exception if the check fails.<a name="line.469"></a>
+<span class="sourceLineNo">470</span>     * @return {@code true} if the array is sorted.<a name="line.470"></a>
+<span class="sourceLineNo">471</span>     * @throws NonMonotonicSequenceException if the array is not sorted<a name="line.471"></a>
+<span class="sourceLineNo">472</span>     * and {@code abort} is {@code true}.<a name="line.472"></a>
+<span class="sourceLineNo">473</span>     */<a name="line.473"></a>
+<span class="sourceLineNo">474</span>    public static boolean checkOrder(double[] val, OrderDirection dir,<a name="line.474"></a>
+<span class="sourceLineNo">475</span>                                     boolean strict, boolean abort)<a name="line.475"></a>
+<span class="sourceLineNo">476</span>        throws NonMonotonicSequenceException {<a name="line.476"></a>
+<span class="sourceLineNo">477</span>        double previous = val[0];<a name="line.477"></a>
+<span class="sourceLineNo">478</span>        final int max = val.length;<a name="line.478"></a>
+<span class="sourceLineNo">479</span><a name="line.479"></a>
+<span class="sourceLineNo">480</span>        int index;<a name="line.480"></a>
+<span class="sourceLineNo">481</span>        ITEM:<a name="line.481"></a>
+<span class="sourceLineNo">482</span>        for (index = 1; index &lt; max; index++) {<a name="line.482"></a>
+<span class="sourceLineNo">483</span>            switch (dir) {<a name="line.483"></a>
+<span class="sourceLineNo">484</span>            case INCREASING:<a name="line.484"></a>
+<span class="sourceLineNo">485</span>                if (strict) {<a name="line.485"></a>
+<span class="sourceLineNo">486</span>                    if (val[index] &lt;= previous) {<a name="line.486"></a>
+<span class="sourceLineNo">487</span>                        break ITEM;<a name="line.487"></a>
+<span class="sourceLineNo">488</span>                    }<a name="line.488"></a>
+<span class="sourceLineNo">489</span>                } else {<a name="line.489"></a>
+<span class="sourceLineNo">490</span>                    if (val[index] &lt; previous) {<a name="line.490"></a>
+<span class="sourceLineNo">491</span>                        break ITEM;<a name="line.491"></a>
+<span class="sourceLineNo">492</span>                    }<a name="line.492"></a>
+<span class="sourceLineNo">493</span>                }<a name="line.493"></a>
+<span class="sourceLineNo">494</span>                break;<a name="line.494"></a>
+<span class="sourceLineNo">495</span>            case DECREASING:<a name="line.495"></a>
+<span class="sourceLineNo">496</span>                if (strict) {<a name="line.496"></a>
+<span class="sourceLineNo">497</span>                    if (val[index] &gt;= previous) {<a name="line.497"></a>
+<span class="sourceLineNo">498</span>                        break ITEM;<a name="line.498"></a>
+<span class="sourceLineNo">499</span>                    }<a name="line.499"></a>
+<span class="sourceLineNo">500</span>                } else {<a name="line.500"></a>
+<span class="sourceLineNo">501</span>                    if (val[index] &gt; previous) {<a name="line.501"></a>
+<span class="sourceLineNo">502</span>                        break ITEM;<a name="line.502"></a>
+<span class="sourceLineNo">503</span>                    }<a name="line.503"></a>
+<span class="sourceLineNo">504</span>                }<a name="line.504"></a>
+<span class="sourceLineNo">505</span>                break;<a name="line.505"></a>
+<span class="sourceLineNo">506</span>            default:<a name="line.506"></a>
+<span class="sourceLineNo">507</span>                // Should never happen.<a name="line.507"></a>
+<span class="sourceLineNo">508</span>                throw new MathInternalError();<a name="line.508"></a>
+<span class="sourceLineNo">509</span>            }<a name="line.509"></a>
+<span class="sourceLineNo">510</span><a name="line.510"></a>
+<span class="sourceLineNo">511</span>            previous = val[index];<a name="line.511"></a>
+<span class="sourceLineNo">512</span>        }<a name="line.512"></a>
+<span class="sourceLineNo">513</span><a name="line.513"></a>
+<span class="sourceLineNo">514</span>        if (index == max) {<a name="line.514"></a>
+<span class="sourceLineNo">515</span>            // Loop completed.<a name="line.515"></a>
+<span class="sourceLineNo">516</span>            return true;<a name="line.516"></a>
+<span class="sourceLineNo">517</span>        }<a name="line.517"></a>
+<span class="sourceLineNo">518</span><a name="line.518"></a>
+<span class="sourceLineNo">519</span>        // Loop early exit means wrong ordering.<a name="line.519"></a>
+<span class="sourceLineNo">520</span>        if (abort) {<a name="line.520"></a>
+<span class="sourceLineNo">521</span>            throw new NonMonotonicSequenceException(val[index], previous, index, dir, strict);<a name="line.521"></a>
+<span class="sourceLineNo">522</span>        } else {<a name="line.522"></a>
+<span class="sourceLineNo">523</span>            return false;<a name="line.523"></a>
+<span class="sourceLineNo">524</span>        }<a name="line.524"></a>
+<span class="sourceLineNo">525</span>    }<a name="line.525"></a>
+<span class="sourceLineNo">526</span><a name="line.526"></a>
+<span class="sourceLineNo">527</span>    /**<a name="line.527"></a>
+<span class="sourceLineNo">528</span>     * Check that the given array is sorted.<a name="line.528"></a>
+<span class="sourceLineNo">529</span>     *<a name="line.529"></a>
+<span class="sourceLineNo">530</span>     * @param val Values.<a name="line.530"></a>
+<span class="sourceLineNo">531</span>     * @param dir Ordering direction.<a name="line.531"></a>
+<span class="sourceLineNo">532</span>     * @param strict Whether the order should be strict.<a name="line.532"></a>
+<span class="sourceLineNo">533</span>     * @throws NonMonotonicSequenceException if the array is not sorted.<a name="line.533"></a>
+<span class="sourceLineNo">534</span>     * @since 2.2<a name="line.534"></a>
+<span class="sourceLineNo">535</span>     */<a name="line.535"></a>
+<span class="sourceLineNo">536</span>    public static void checkOrder(double[] val, OrderDirection dir,<a name="line.536"></a>
+<span class="sourceLineNo">537</span>                                  boolean strict) throws NonMonotonicSequenceException {<a name="line.537"></a>
+<span class="sourceLineNo">538</span>        checkOrder(val, dir, strict, true);<a name="line.538"></a>
+<span class="sourceLineNo">539</span>    }<a name="line.539"></a>
+<span class="sourceLineNo">540</span><a name="line.540"></a>
+<span class="sourceLineNo">541</span>    /**<a name="line.541"></a>
+<span class="sourceLineNo">542</span>     * Check that the given array is sorted in strictly increasing order.<a name="line.542"></a>
+<span class="sourceLineNo">543</span>     *<a name="line.543"></a>
+<span class="sourceLineNo">544</span>     * @param val Values.<a name="line.544"></a>
+<span class="sourceLineNo">545</span>     * @throws NonMonotonicSequenceException if the array is not sorted.<a name="line.545"></a>
+<span class="sourceLineNo">546</span>     * @since 2.2<a name="line.546"></a>
+<span class="sourceLineNo">547</span>     */<a name="line.547"></a>
+<span class="sourceLineNo">548</span>    public static void checkOrder(double[] val) throws NonMonotonicSequenceException {<a name="line.548"></a>
+<span class="sourceLineNo">549</span>        checkOrder(val, OrderDirection.INCREASING, true);<a name="line.549"></a>
+<span class="sourceLineNo">550</span>    }<a name="line.550"></a>
+<span class="sourceLineNo">551</span><a name="line.551"></a>
+<span class="sourceLineNo">552</span>    /**<a name="line.552"></a>
+<span class="sourceLineNo">553</span>     * Throws DimensionMismatchException if the input array is not rectangular.<a name="line.553"></a>
+<span class="sourceLineNo">554</span>     *<a name="line.554"></a>
+<span class="sourceLineNo">555</span>     * @param in array to be tested<a name="line.555"></a>
+<span class="sourceLineNo">556</span>     * @throws NullArgumentException if input array is null<a name="line.556"></a>
+<span class="sourceLineNo">557</span>     * @throws DimensionMismatchException if input array is not rectangular<a name="line.557"></a>
+<span class="sourceLineNo">558</span>     * @since 3.1<a name="line.558"></a>
+<span class="sourceLineNo">559</span>     */<a name="line.559"></a>
+<span class="sourceLineNo">560</span>    public static void checkRectangular(final long[][] in)<a name="line.560"></a>
+<span class="sourceLineNo">561</span>        throws NullArgumentException, DimensionMismatchException {<a name="line.561"></a>
+<span class="sourceLineNo">562</span>        MathUtils.checkNotNull(in);<a name="line.562"></a>
+<span class="sourceLineNo">563</span>        for (int i = 1; i &lt; in.length; i++) {<a name="line.563"></a>
+<span class="sourceLineNo">564</span>            if (in[i].length != in[0].length) {<a name="line.564"></a>
+<span class="sourceLineNo">565</span>                throw new DimensionMismatchException(<a name="line.565"></a>
+<span class="sourceLineNo">566</span>                        LocalizedFormats.DIFFERENT_ROWS_LENGTHS,<a name="line.566"></a>
+<span class="sourceLineNo">567</span>                        in[i].length, in[0].length);<a name="line.567"></a>
+<span class="sourceLineNo">568</span>            }<a name="line.568"></a>
+<span class="sourceLineNo">569</span>        }<a name="line.569"></a>
+<span class="sourceLineNo">570</span>    }<a name="line.570"></a>
+<span class="sourceLineNo">571</span><a name="line.571"></a>
+<span class="sourceLineNo">572</span>    /**<a name="line.572"></a>
+<span class="sourceLineNo">573</span>     * Check that all entries of the input array are strictly positive.<a name="line.573"></a>
+<span class="sourceLineNo">574</span>     *<a name="line.574"></a>
+<span class="sourceLineNo">575</span>     * @param in Array to be tested<a name="line.575"></a>
+<span class="sourceLineNo">576</span>     * @throws NotStrictlyPositiveException if any entries of the array are not<a name="line.576"></a>
+<span class="sourceLineNo">577</span>     * strictly positive.<a name="line.577"></a>
+<span class="sourceLineNo">578</span>     * @since 3.1<a name="line.578"></a>
+<span class="sourceLineNo">579</span>     */<a name="line.579"></a>
+<span class="sourceLineNo">580</span>    public static void checkPositive(final double[] in)<a name="line.580"></a>
+<span class="sourceLineNo">581</span>        throws NotStrictlyPositiveException {<a name="line.581"></a>
+<span class="sourceLineNo">582</span>        for (int i = 0; i &lt; in.length; i++) {<a name="line.582"></a>
+<span class="sourceLineNo">583</span>            if (in[i] &lt;= 0) {<a name="line.583"></a>
+<span class="sourceLineNo">584</span>                throw new NotStrictlyPositiveException(in[i]);<a name="line.584"></a>
+<span class="sourceLineNo">585</span>            }<a name="line.585"></a>
+<span class="sourceLineNo">586</span>        }<a name="line.586"></a>
+<span class="sourceLineNo">587</span>    }<a name="line.587"></a>
+<span class="sourceLineNo">588</span><a name="line.588"></a>
+<span class="sourceLineNo">589</span>    /**<a name="line.589"></a>
+<span class="sourceLineNo">590</span>     * Check that no entry of the input array is {@code NaN}.<a name="line.590"></a>
+<span class="sourceLineNo">591</span>     *<a name="line.591"></a>
+<span class="sourceLineNo">592</span>     * @param in Array to be tested.<a name="line.592"></a>
+<span class="sourceLineNo">593</span>     * @throws NotANumberException if an entry is {@code NaN}.<a name="line.593"></a>
+<span class="sourceLineNo">594</span>     * @since 3.4<a name="line.594"></a>
+<span class="sourceLineNo">595</span>     */<a name="line.595"></a>
+<span class="sourceLineNo">596</span>    public static void checkNotNaN(final double[] in)<a name="line.596"></a>
+<span class="sourceLineNo">597</span>        throws NotANumberException {<a name="line.597"></a>
+<span class="sourceLineNo">598</span>        for(int i = 0; i &lt; in.length; i++) {<a name="line.598"></a>
+<span class="sourceLineNo">599</span>            if (Double.isNaN(in[i])) {<a name="line.599"></a>
+<span class="sourceLineNo">600</span>                throw new NotANumberException();<a name="line.600"></a>
+<span class="sourceLineNo">601</span>            }<a name="line.601"></a>
+<span class="sourceLineNo">602</span>        }<a name="line.602"></a>
+<span class="sourceLineNo">603</span>    }<a name="line.603"></a>
+<span class="sourceLineNo">604</span><a name="line.604"></a>
+<span class="sourceLineNo">605</span>    /**<a name="line.605"></a>
+<span class="sourceLineNo">606</span>     * Check that all entries of the input array are &gt;= 0.<a name="line.606"></a>
+<span class="sourceLineNo">607</span>     *<a name="line.607"></a>
+<span class="sourceLineNo">608</span>     * @param in Array to be tested<a name="line.608"></a>
+<span class="sourceLineNo">609</span>     * @throws NotPositiveException if any array entries are less than 0.<a name="line.609"></a>
+<span class="sourceLineNo">610</span>     * @since 3.1<a name="line.610"></a>
+<span class="sourceLineNo">611</span>     */<a name="line.611"></a>
+<span class="sourceLineNo">612</span>    public static void checkNonNegative(final long[] in)<a name="line.612"></a>
+<span class="sourceLineNo">613</span>        throws NotPositiveException {<a name="line.613"></a>
+<span class="sourceLineNo">614</span>        for (int i = 0; i &lt; in.length; i++) {<a name="line.614"></a>
+<span class="sourceLineNo">615</span>            if (in[i] &lt; 0) {<a name="line.615"></a>
+<span class="sourceLineNo">616</span>                throw new NotPositiveException(in[i]);<a name="line.616"></a>
+<span class="sourceLineNo">617</span>            }<a name="line.617"></a>
+<span class="sourceLineNo">618</span>        }<a name="line.618"></a>
+<span class="sourceLineNo">619</span>    }<a name="line.619"></a>
+<span class="sourceLineNo">620</span><a name="line.620"></a>
+<span class="sourceLineNo">621</span>    /**<a name="line.621"></a>
+<span class="sourceLineNo">622</span>     * Check all entries of the input array are &gt;= 0.<a name="line.622"></a>
+<span class="sourceLineNo">623</span>     *<a name="line.623"></a>
+<span class="sourceLineNo">624</span>     * @param in Array to be tested<a name="line.624"></a>
+<span class="sourceLineNo">625</span>     * @throws NotPositiveException if any array entries are less than 0.<a name="line.625"></a>
+<span class="sourceLineNo">626</span>     * @since 3.1<a name="line.626"></a>
+<span class="sourceLineNo">627</span>     */<a name="line.627"></a>
+<span class="sourceLineNo">628</span>    public static void checkNonNegative(final long[][] in)<a name="line.628"></a>
+<span class="sourceLineNo">629</span>        throws NotPositiveException {<a name="line.629"></a>
+<span class="sourceLineNo">630</span>        for (int i = 0; i &lt; in.length; i ++) {<a name="line.630"></a>
+<span class="sourceLineNo">631</span>            for (int j = 0; j &lt; in[i].length; j++) {<a name="line.631"></a>
+<span class="sourceLineNo">632</span>                if (in[i][j] &lt; 0) {<a name="line.632"></a>
+<span class="sourceLineNo">633</span>                    throw new NotPositiveException(in[i][j]);<a name="line.633"></a>
+<span class="sourceLineNo">634</span>                }<a name="line.634"></a>
+<span class="sourceLineNo">635</span>            }<a name="line.635"></a>
+<span class="sourceLineNo">636</span>        }<a name="line.636"></a>
+<span class="sourceLineNo">637</span>    }<a name="line.637"></a>
+<span class="sourceLineNo">638</span><a name="line.638"></a>
+<span class="sourceLineNo">639</span>    /**<a name="line.639"></a>
+<span class="sourceLineNo">640</span>     * Returns the Cartesian norm (2-norm), handling both overflow and underflow.<a name="line.640"></a>
+<span class="sourceLineNo">641</span>     * Translation of the minpack enorm subroutine.<a name="line.641"></a>
+<span class="sourceLineNo">642</span>     *<a name="line.642"></a>
+<span class="sourceLineNo">643</span>     * The redistribution policy for MINPACK is available<a name="line.643"></a>
+<span class="sourceLineNo">644</span>     * &lt;a href="http://www.netlib.org/minpack/disclaimer"&gt;here&lt;/a&gt;, for<a name="line.644"></a>
+<span class="sourceLineNo">645</span>     * convenience, it is reproduced below.&lt;/p&gt;<a name="line.645"></a>
+<span class="sourceLineNo">646</span>     *<a name="line.646"></a>
+<span class="sourceLineNo">647</span>     * &lt;table border="0" width="80%" cellpadding="10" align="center" bgcolor="#E0E0E0"&gt;<a name="line.647"></a>
+<span class="sourceLineNo">648</span>     * &lt;tr&gt;&lt;td&gt;<a name="line.648"></a>
+<span class="sourceLineNo">649</span>     *    Minpack Copyright Notice (1999) University of Chicago.<a name="line.649"></a>
+<span class="sourceLineNo">650</span>     *    All rights reserved<a name="line.650"></a>
+<span class="sourceLineNo">651</span>     * &lt;/td&gt;&lt;/tr&gt;<a name="line.651"></a>
+<span class="sourceLineNo">652</span>     * &lt;tr&gt;&lt;td&gt;<a name="line.652"></a>
+<span class="sourceLineNo">653</span>     * Redistribution and use in source and binary forms, with or without<a name="line.653"></a>
+<span class="sourceLineNo">654</span>     * modification, are permitted provided that the following conditions<a name="line.654"></a>
+<span class="sourceLineNo">655</span>     * are met:<a name="line.655"></a>
+<span class="sourceLineNo">656</span>     * &lt;ol&gt;<a name="line.656"></a>
+<span class="sourceLineNo">657</span>     *  &lt;li&gt;Redistributions of source code must retain the above copyright<a name="line.657"></a>
+<span class="sourceLineNo">658</span>     *      notice, this list of conditions and the following disclaimer.&lt;/li&gt;<a name="line.658"></a>
+<span class="sourceLineNo">659</span>     * &lt;li&gt;Redistributions in binary form must reproduce the above<a name="line.659"></a>
+<span class="sourceLineNo">660</span>     *     copyright notice, this list of conditions and the following<a name="line.660"></a>
+<span class="sourceLineNo">661</span>     *     disclaimer in the documentation and/or other materials provided<a name="line.661"></a>
+<span class="sourceLineNo">662</span>     *     with the distribution.&lt;/li&gt;<a name="line.662"></a>
+<span class="sourceLineNo">663</span>     * &lt;li&gt;The end-user documentation included with the redistribution, if any,<a name="line.663"></a>
+<span class="sourceLineNo">664</span>     *     must include the following acknowledgment:<a name="line.664"></a>
+<span class="sourceLineNo">665</span>     *     {@code This product includes software developed by the University of<a name="line.665"></a>
+<span class="sourceLineNo">666</span>     *           Chicago, as Operator of Argonne National Laboratory.}<a name="line.666"></a>
+<span class="sourceLineNo">667</span>     *     Alternately, this acknowledgment may appear in the software itself,<a name="line.667"></a>
+<span class="sourceLineNo">668</span>     *     if and wherever such third-party acknowledgments normally appear.&lt;/li&gt;<a name="line.668"></a>
+<span class="sourceLineNo">669</span>     * &lt;li&gt;&lt;strong&gt;WARRANTY DISCLAIMER. THE SOFTWARE IS SUPPLIED "AS IS"<a name="line.669"></a>
+<span class="sourceLineNo">670</span>     *     WITHOUT WARRANTY OF ANY KIND. THE COPYRIGHT HOLDER, THE<a name="line.670"></a>
+<span class="sourceLineNo">671</span>     *     UNITED STATES, THE UNITED STATES DEPARTMENT OF ENERGY, AND<a name="line.671"></a>
+<span class="sourceLineNo">672</span>     *     THEIR EMPLOYEES: (1) DISCLAIM ANY WARRANTIES, EXPRESS OR<a name="line.672"></a>
+<span class="sourceLineNo">673</span>     *     IMPLIED, INCLUDING BUT NOT LIMITED TO ANY IMPLIED WARRANTIES<a name="line.673"></a>
+<span class="sourceLineNo">674</span>     *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE<a name="line.674"></a>
+<span class="sourceLineNo">675</span>     *     OR NON-INFRINGEMENT, (2) DO NOT ASSUME ANY LEGAL LIABILITY<a name="line.675"></a>
+<span class="sourceLineNo">676</span>     *     OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS, OR<a name="line.676"></a>
+<span class="sourceLineNo">677</span>     *     USEFULNESS OF THE SOFTWARE, (3) DO NOT REPRESENT THAT USE OF<a name="line.677"></a>
+<span class="sourceLineNo">678</span>     *     THE SOFTWARE WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS, (4)<a name="line.678"></a>
+<span class="sourceLineNo">679</span>     *     DO NOT WARRANT THAT THE SOFTWARE WILL FUNCTION<a name="line.679"></a>
+<span class="sourceLineNo">680</span>     *     UNINTERRUPTED, THAT IT IS ERROR-FREE OR THAT ANY ERRORS WILL<a name="line.680"></a>
+<span class="sourceLineNo">681</span>     *     BE CORRECTED.&lt;/strong&gt;&lt;/li&gt;<a name="line.681"></a>
+<span class="sourceLineNo">682</span>     * &lt;li&gt;&lt;strong&gt;LIMITATION OF LIABILITY. IN NO EVENT WILL THE COPYRIGHT<a name="line.682"></a>
+<span class="sourceLineNo">683</span>     *     HOLDER, THE UNITED STATES, THE UNITED STATES DEPARTMENT OF<a name="line.683"></a>
+<span class="sourceLineNo">684</span>     *     ENERGY, OR THEIR EMPLOYEES: BE LIABLE FOR ANY INDIRECT,<a name="line.684"></a>
+<span class="sourceLineNo">685</span>     *     INCIDENTAL, CONSEQUENTIAL, SPECIAL OR PUNITIVE DAMAGES OF<a name="line.685"></a>
+<span class="sourceLineNo">686</span>     *     ANY KIND OR NATURE, INCLUDING BUT NOT LIMITED TO LOSS OF<a name="line.686"></a>
+<span class="sourceLineNo">687</span>     *     PROFITS OR LOSS OF DATA, FOR ANY REASON WHATSOEVER, WHETHER<a name="line.687"></a>
+<span class="sourceLineNo">688</span>     *     SUCH LIABILITY IS ASSERTED ON THE BASIS OF CONTRACT, TORT<a name="line.688"></a>
+<span class="sourceLineNo">689</span>     *     (INCLUDING NEGLIGENCE OR STRICT LIABILITY), OR OTHERWISE,<a name="line.689"></a>
+<span class="sourceLineNo">690</span>     *     EVEN IF ANY OF SAID PARTIES HAS BEEN WARNED OF THE<a name="line.690"></a>
+<span class="sourceLineNo">691</span>     *     POSSIBILITY OF SUCH LOSS OR DAMAGES.&lt;/strong&gt;&lt;/li&gt;<a name="line.691"></a>
+<span class="sourceLineNo">692</span>     * &lt;ol&gt;&lt;/td&gt;&lt;/tr&gt;<a name="line.692"></a>
+<span class="sourceLineNo">693</span>     * &lt;/table&gt;<a name="line.693"></a>
+<span class="sourceLineNo">694</span>     *<a name="line.694"></a>
+<span class="sourceLineNo">695</span>     * @param v Vector of doubles.<a name="line.695"></a>
+<span class="sourceLineNo">696</span>     * @return the 2-norm of the vector.<a name="line.696"></a>
+<span class="sourceLineNo">697</span>     * @since 2.2<a name="line.697"></a>
+<span class="sourceLineNo">698</span>     */<a name="line.698"></a>
+<span class="sourceLineNo">699</span>    public static double safeNorm(double[] v) {<a name="line.699"></a>
+<span class="sourceLineNo">700</span>        double rdwarf = 3.834e-20;<a name="line.700"></a>
+<span class="sourceLineNo">701</span>        double rgiant = 1.304e+19;<a name="line.701"></a>
+<span class="sourceLineNo">702</span>        double s1 = 0;<a name="line.702"></a>
+<span class="sourceLineNo">703</span>        double s2 = 0;<a name="line.703"></a>
+<span class="sourceLineNo">704</span>        double s3 = 0;<a name="line.704"></a>
+<span class="sourceLineNo">705</span>        double x1max = 0;<a name="line.705"></a>
+<span class="sourceLineNo">706</span>        double x3max = 0;<a name="line.706"></a>
+<span class="sourceLineNo">707</span>        double floatn = v.length;<a name="line.707"></a>
+<span class="sourceLineNo">708</span>        double agiant = rgiant / floatn;<a name="line.708"></a>
+<span class="sourceLineNo">709</span>        for (int i = 0; i &lt; v.length; i++) {<a name="line.709"></a>
+<span class="sourceLineNo">710</span>            double xabs = FastMath.abs(v[i]);<a name="line.710"></a>
+<span class="sourceLineNo">711</span>            if (xabs &lt; rdwarf || xabs &gt; agiant) {<a name="line.711"></a>
+<span class="sourceLineNo">712</span>                if (xabs &gt; rdwarf) {<a name="line.712"></a>
+<span class="sourceLineNo">713</span>                    if (xabs &gt; x1max) {<a name="line.713"></a>
+<span class="sourceLineNo">714</span>                        double r = x1max / xabs;<a name="line.714"></a>
+<span class="sourceLineNo">715</span>                        s1= 1 + s1 * r * r;<a name="line.715"></a>
+<span class="sourceLineNo">716</span>                        x1max = xabs;<a name="line.716"></a>
+<span class="sourceLineNo">717</span>                    } else {<a name="line.717"></a>
+<span class="sourceLineNo">718</span>                        double r = xabs / x1max;<a name="line.718"></a>
+<span class="sourceLineNo">719</span>                        s1 += r * r;<a name="line.719"></a>
+<span class="sourceLineNo">720</span>                    }<a name="line.720"></a>
+<span class="sourceLineNo">721</span>                } else {<a name="line.721"></a>
+<span class="sourceLineNo">722</span>                    if (xabs &gt; x3max) {<a name="line.722"></a>
+<span class="sourceLineNo">723</span>                        double r = x3max / xabs;<a name="line.723"></a>
+<span class="sourceLineNo">724</span>                        s3= 1 + s3 * r * r;<a name="line.724"></a>
+<span class="sourceLineNo">725</span>                        x3max = xabs;<a name="line.725"></a>
+<span class="sourceLineNo">726</span>                    } else {<a name="line.726"></a>
+<span class="sourceLineNo">727</span>                        if (xabs != 0) {<a name="line.727"></a>
+<span class="sourceLineNo">728</span>                            double r = xabs / x3max;<a name="line.728"></a>
+<span class="sourceLineNo">729</span>                            s3 += r * r;<a name="line.729"></a>
+<span class="sourceLineNo">730</span>                        }<a name="line.730"></a>
+<span class="sourceLineNo">731</span>                    }<a name="line.731"></a>
+<span class="sourceLineNo">732</span>                }<a name="line.732"></a>
+<span class="sourceLineNo">733</span>            } else {<a name="line.733"></a>
+<span class="sourceLineNo">734</span>                s2 += xabs * xabs;<a name="line.734"></a>
+<span class="sourceLineNo">735</span>            }<a name="line.735"></a>
+<span class="sourceLineNo">736</span>        }<a name="line.736"></a>
+<span class="sourceLineNo">737</span>        double norm;<a name="line.737"></a>
+<span class="sourceLineNo">738</span>        if (s1 != 0) {<a name="line.738"></a>
+<span class="sourceLineNo">739</span>            norm = x1max * Math.sqrt(s1 + (s2 / x1max) / x1max);<a name="line.739"></a>
+<span class="sourceLineNo">740</span>        } else {<a name="line.740"></a>
+<span class="sourceLineNo">741</span>            if (s2 == 0) {<a name="line.741"></a>
+<span class="sourceLineNo">742</span>                norm = x3max * Math.sqrt(s3);<a name="line.742"></a>
+<span class="sourceLineNo">743</span>            } else {<a name="line.743"></a>
+<span class="sourceLineNo">744</span>                if (s2 &gt;= x3max) {<a name="line.744"></a>
+<span class="sourceLineNo">745</span>                    norm = Math.sqrt(s2 * (1 + (x3max / s2) * (x3max * s3)));<a name="line.745"></a>
+<span class="sourceLineNo">746</span>                } else {<a name="line.746"></a>
+<span class="sourceLineNo">747</span>                    norm = Math.sqrt(x3max * ((s2 / x3max) + (x3max * s3)));<a name="line.747"></a>
+<span class="sourceLineNo">748</span>                }<a name="line.748"></a>
+<span class="sourceLineNo">749</span>            }<a name="line.749"></a>
+<span class="sourceLineNo">750</span>        }<a name="line.750"></a>
+<span class="sourceLineNo">751</span>        return norm;<a name="line.751"></a>
+<span class="sourceLineNo">752</span>    }<a name="line.752"></a>
+<span class="sourceLineNo">753</span><a name="line.753"></a>
+<span class="sourceLineNo">754</span>    /**<a name="line.754"></a>
+<span class="sourceLineNo">755</span>     * A helper data structure holding a double and an integer value.<a name="line.755"></a>
+<span class="sourceLineNo">756</span>     */<a name="line.756"></a>
+<span class="sourceLineNo">757</span>    private static class PairDoubleInteger {<a name="line.757"></a>
+<span class="sourceLineNo">758</span>        /** Key */<a name="line.758"></a>
+<span class="sourceLineNo">759</span>        private final double key;<a name="line.759"></a>
+<span class="sourceLineNo">760</span>        /** Value */<a name="line.760"></a>
+<span class="sourceLineNo">761</span>        private final int value;<a name="line.761"></a>
+<span class="sourceLineNo">762</span><a name="line.762"></a>
+<span class="sourceLineNo">763</span>        /**<a name="line.763"></a>
+<span class="sourceLineNo">764</span>         * @param key Key.<a name="line.764"></a>
+<span class="sourceLineNo">765</span>         * @param value Value.<a name="line.765"></a>
+<span class="sourceLineNo">766</span>         */<a name="line.766"></a>
+<span class="sourceLineNo">767</span>        PairDoubleInteger(double key, int value) {<a name="line.767"></a>
+<span class="sourceLineNo">768</span>            this.key = key;<a name="line.768"></a>
+<span class="sourceLineNo">769</span>            this.value = value;<a name="line.769"></a>
+<span class="sourceLineNo">770</span>        }<a name="line.770"></a>
+<span class="sourceLineNo">771</span><a name="line.771"></a>
+<span class="sourceLineNo">772</span>        /** @return the key. */<a name="line.772"></a>
+<span class="sourceLineNo">773</span>        public double getKey() {<a name="line.773"></a>
+<span class="sourceLineNo">774</span>            return key;<a name="line.774"></a>
+<span class="sourceLineNo">775</span>        }<a name="line.775"></a>
+<span class="sourceLineNo">776</span><a name="line.776"></a>
+<span class="sourceLineNo">777</span>        /** @return the value. */<a name="line.777"></a>
+<span class="sourceLineNo">778</span>        public int getValue() {<a name="line.778"></a>
+<span class="sourceLineNo">779</span>            return value;<a name="line.779"></a>
+<span class="sourceLineNo">780</span>        }<a name="line.780"></a>
+<span class="sourceLineNo">781</span>    }<a name="line.781"></a>
+<span class="sourceLineNo">782</span><a name="line.782"></a>
+<span class="sourceLineNo">783</span>    /**<a name="line.783"></a>
+<span class="sourceLineNo">784</span>     * Sort an array in ascending order in place and perform the same reordering<a name="line.784"></a>
+<span class="sourceLineNo">785</span>     * of entries on other arrays. For example, if<a name="line.785"></a>
+<span class="sourceLineNo">786</span>     * {@code x = [3, 1, 2], y = [1, 2, 3]} and {@code z = [0, 5, 7]}, then<a name="line.786"></a>
+<span class="sourceLineNo">787</span>     * {@code sortInPlace(x, y, z)} will update {@code x} to {@code [1, 2, 3]},<a name="line.787"></a>
+<span class="sourceLineNo">788</span>     * {@code y} to {@code [2, 3, 1]} and {@code z} to {@code [5, 7, 0]}.<a name="line.788"></a>
+<span class="sourceLineNo">789</span>     *<a name="line.789"></a>
+<span class="sourceLineNo">790</span>     * @param x Array to be sorted and used as a pattern for permutation<a name="line.790"></a>
+<span class="sourceLineNo">791</span>     * of the other arrays.<a name="line.791"></a>
+<span class="sourceLineNo">792</span>     * @param yList Set of arrays whose permutations of entries will follow<a name="line.792"></a>
+<span class="sourceLineNo">793</span>     * those performed on {@code x}.<a name="line.793"></a>
+<span class="sourceLineNo">794</span>     * @throws DimensionMismatchException if any {@code y} is not the same<a name="line.794"></a>
+<span class="sourceLineNo">795</span>     * size as {@code x}.<a name="line.795"></a>
+<span class="sourceLineNo">796</span>     * @throws NullArgumentException if {@code x} or any {@code y} is null.<a name="line.796"></a>
+<span class="sourceLineNo">797</span>     * @since 3.0<a name="line.797"></a>
+<span class="sourceLineNo">798</span>     */<a name="line.798"></a>
+<span class="sourceLineNo">799</span>    public static void sortInPlace(double[] x, double[] ... yList)<a name="line.799"></a>
+<span class="sourceLineNo">800</span>        throws DimensionMismatchException, NullArgumentException {<a name="line.800"></a>
+<span class="sourceLineNo">801</span>        sortInPlace(x, OrderDirection.INCREASING, yList);<a name="line.801"></a>
+<span class="sourceLineNo">802</span>    }<a name="line.802"></a>
+<span class="sourceLineNo">803</span><a name="line.803"></a>
+<span class="sourceLineNo">804</span>    /**<a name="line.804"></a>
+<span class="sourceLineNo">805</span>     * Sort an array in place and perform the same reordering of entries on<a name="line.805"></a>
+<span class="sourceLineNo">806</span>     * other arrays.  This method works the same as the other<a name="line.806"></a>
+<span class="sourceLineNo">807</span>     * {@link #sortInPlace(double[], double[][]) sortInPlace} method, but<a name="line.807"></a>
+<span class="sourceLineNo">808</span>     * allows the order of the sort to be provided in the {@code dir}<a name="line.808"></a>
+<span class="sourceLineNo">809</span>     * parameter.<a name="line.809"></a>
+<span class="sourceLineNo">810</span>     *<a name="line.810"></a>
+<span class="sourceLineNo">811</span>     * @param x Array to be sorted and used as a pattern for permutation<a name="line.811"></a>
+<span class="sourceLineNo">812</span>     * of the other arrays.<a name="line.812"></a>
+<span class="sourceLineNo">813</span>     * @param dir Order direction.<a name="line.813"></a>
+<span class="sourceLineNo">814</span>     * @param yList Set of arrays whose permutations of entries will follow<a name="line.814"></a>
+<span class="sourceLineNo">815</span>     * those performed on {@code x}.<a name="line.815"></a>
+<span class="sourceLineNo">816</span>     * @throws DimensionMismatchException if any {@code y} is not the same<a name="line.816"></a>
+<span class="sourceLineNo">817</span>     * size as {@code x}.<a name="line.817"></a>
+<span class="sourceLineNo">818</span>     * @throws NullArgumentException if {@code x} or any {@code y} is null<a name="line.818"></a>
+<span class="sourceLineNo">819</span>     * @since 3.0<a name="line.819"></a>
+<span class="sourceLineNo">820</span>     */<a name="line.820"></a>
+<span class="sourceLineNo">821</span>    public static void sortInPlace(double[] x,<a name="line.821"></a>
+<span class="sourceLineNo">822</span>                                   final OrderDirection dir,<a name="line.822"></a>
+<span class="sourceLineNo">823</span>                                   double[] ... yList)<a name="line.823"></a>
+<span class="sourceLineNo">824</span>        throws NullArgumentException,<a name="line.824"></a>
+<span class="sourceLineNo">825</span>               DimensionMismatchException {<a name="line.825"></a>
+<span class="sourceLineNo">826</span><a name="line.826"></a>
+<span class="sourceLineNo">827</span>        // Consistency checks.<a name="line.827"></a>
+<span class="sourceLineNo">828</span>        if (x == null) {<a name="line.828"></a>
+<span class="sourceLineNo">829</span>            throw new NullArgumentException();<a name="line.829"></a>
+<span class="sourceLineNo">830</span>        }<a name="line.830"></a>
+<span class="sourceLineNo">831</span><a name="line.831"></a>
+<span class="sourceLineNo">832</span>        final int yListLen = yList.length;<a name="line.832"></a>
+<span class="sourceLineNo">833</span>        final int len = x.length;<a name="line.833"></a>
+<span class="sourceLineNo">834</span><a name="line.834"></a>
+<span class="sourceLineNo">835</span>        for (int j = 0; j &lt; yListLen; j++) {<a name="line.835"></a>
+<span class="sourceLineNo">836</span>            final double[] y = yList[j];<a name="line.836"></a>
+<span class="sourceLineNo">837</span>            if (y == null) {<a name="line.837"></a>
+<span class="sourceLineNo">838</span>                throw new NullArgumentException();<a name="line.838"></a>
+<span class="sourceLineNo">839</span>            }<a name="line.839"></a>
+<span class="sourceLineNo">840</span>            if (y.length != len) {<a name="line.840"></a>
+<span class="sourceLineNo">841</span>                throw new DimensionMismatchException(y.length, len);<a name="line.841"></a>
+<span class="sourceLineNo">842</span>            }<a name="line.842"></a>
+<span class="sourceLineNo">843</span>        }<a name="line.843"></a>
+<span class="sourceLineNo">844</span><a name="line.844"></a>
+<span class="sourceLineNo">845</span>        // Associate each abscissa "x[i]" with its index "i".<a name="line.845"></a>
+<span class="sourceLineNo">846</span>        final List&lt;PairDoubleInteger&gt; list<a name="line.846"></a>
+<span class="sourceLineNo">847</span>            = new ArrayList&lt;PairDoubleInteger&gt;(len);<a name="line.847"></a>
+<span class="sourceLineNo">848</span>        for (int i = 0; i &lt; len; i++) {<a name="line.848"></a>
+<span class="sourceLineNo">849</span>            list.add(new PairDoubleInteger(x[i], i));<a name="line.849"></a>
+<span class="sourceLineNo">850</span>        }<a name="line.850"></a>
+<span class="sourceLineNo">851</span><a name="line.851"></a>
+<span class="sourceLineNo">852</span>        // Create comparators for increasing and decreasing orders.<a name="line.852"></a>
+<span class="sourceLineNo">853</span>        final Comparator&lt;PairDoubleInteger&gt; comp<a name="line.853"></a>
+<span class="sourceLineNo">854</span>            = dir == MathArrays.OrderDirection.INCREASING ?<a name="line.854"></a>
+<span class="sourceLineNo">855</span>            new Comparator&lt;PairDoubleInteger&gt;() {<a name="line.855"></a>
+<span class="sourceLineNo">856</span>            /** {@inheritDoc} */<a name="line.856"></a>
+<span class="sourceLineNo">857</span>            public int compare(PairDoubleInteger o1,<a name="line.857"></a>
+<span class="sourceLineNo">858</span>                               PairDoubleInteger o2) {<a name="line.858"></a>
+<span class="sourceLineNo">859</span>                return Double.compare(o1.getKey(), o2.getKey());<a name="line.859"></a>
+<span class="sourceLineNo">860</span>            }<a name="line.860"></a>
+<span class="sourceLineNo">861</span>        } : new Comparator&lt;PairDoubleInteger&gt;() {<a name="line.861"></a>
+<span class="sourceLineNo">862</span>            /** {@inheritDoc} */<a name="line.862"></a>
+<span class="sourceLineNo">863</span>            public int compare(PairDoubleInteger o1,<a name="line.863"></a>
+<span class="sourceLineNo">864</span>                               PairDoubleInteger o2) {<a name="line.864"></a>
+<span class="sourceLineNo">865</span>                return Double.compare(o2.getKey(), o1.getKey());<a name="line.865"></a>
+<span class="sourceLineNo">866</span>            }<a name="line.866"></a>
+<span class="sourceLineNo">867</span>        };<a name="line.867"></a>
+<span class="sourceLineNo">868</span><a name="line.868"></a>
+<span class="sourceLineNo">869</span>        // Sort.<a name="line.869"></a>
+<span class="sourceLineNo">870</span>        Collections.sort(list, comp);<a name="line.870"></a>
+<span class="sourceLineNo">871</span><a name="line.871"></a>
+<span class="sourceLineNo">872</span>        // Modify the original array so that its elements are in<a name="line.872"></a>
+<span class="sourceLineNo">873</span>        // the prescribed order.<a name="line.873"></a>
+<span class="sourceLineNo">874</span>        // Retrieve indices of original locations.<a name="line.874"></a>
+<span class="sourceLineNo">875</span>        final int[] indices = new int[len];<a name="line.875"></a>
+<span class="sourceLineNo">876</span>        for (int i = 0; i &lt; len; i++) {<a name="line.876"></a>
+<span class="sourceLineNo">877</span>            final PairDoubleInteger e = list.get(i);<a name="line.877"></a>
+<span class="sourceLineNo">878</span>            x[i] = e.getKey();<a name="line.878"></a>
+<span class="sourceLineNo">879</span>            indices[i] = e.getValue();<a name="line.879"></a>
+<span class="sourceLineNo">880</span>        }<a name="line.880"></a>
+<span class="sourceLineNo">881</span><a name="line.881"></a>
+<span class="sourceLineNo">882</span>        // In each of the associated arrays, move the<a name="line.882"></a>
+<span class="sourceLineNo">883</span>        // elements to their new location.<a name="line.883"></a>
+<span class="sourceLineNo">884</span>        for (int j = 0; j &lt; yListLen; j++) {<a name="line.884"></a>
+<span class="sourceLineNo">885</span>            // Input array will be modified in place.<a name="line.885"></a>
+<span class="sourceLineNo">886</span>            final double[] yInPlace = yList[j];<a name="line.886"></a>
+<span class="sourceLineNo">887</span>            final double[] yOrig = yInPlace.clone();<a name="line.887"></a>
+<span class="sourceLineNo">888</span><a name="line.888"></a>
+<span class="sourceLineNo">889</span>            for (int i = 0; i &lt; len; i++) {<a name="line.889"></a>
+<span class="sourceLineNo">890</span>                yInPlace[i] = yOrig[indices[i]];<a name="line.890"></a>
+<span class="sourceLineNo">891</span>            }<a name="line.891"></a>
+<span class="sourceLineNo">892</span>        }<a name="line.892"></a>
+<span class="sourceLineNo">893</span>    }<a name="line.893"></a>
+<span class="sourceLineNo">894</span><a name="line.894"></a>
+<span class="sourceLineNo">895</span>    /**<a name="line.895"></a>
+<span class="sourceLineNo">896</span>     * Creates a copy of the {@code source} array.<a name="line.896"></a>
+<span class="sourceLineNo">897</span>     *<a name="line.897"></a>
+<span class="sourceLineNo">898</span>     * @param source Array to be copied.<a name="line.898"></a>
+<span class="sourceLineNo">899</span>     * @return the copied array.<a name="line.899"></a>
+<span class="sourceLineNo">900</span>     */<a name="line.900"></a>
+<span class="sourceLineNo">901</span>     public static int[] copyOf(int[] source) {<a name="line.901"></a>
+<span class="sourceLineNo">902</span>         return copyOf(source, source.length);<a name="line.902"></a>
+<span class="sourceLineNo">903</span>     }<a name="line.903"></a>
+<span class="sourceLineNo">904</span><a name="line.904"></a>
+<span class="sourceLineNo">905</span>    /**<a name="line.905"></a>
+<span class="sourceLineNo">906</span>     * Creates a copy of the {@code source} array.<a name="line.906"></a>
+<span class="sourceLineNo">907</span>     *<a name="line.907"></a>
+<span class="sourceLineNo">908</span>     * @param source Array to be copied.<a name="line.908"></a>
+<span class="sourceLineNo">909</span>     * @return the copied array.<a name="line.909"></a>
+<span class="sourceLineNo">910</span>     */<a name="line.910"></a>
+<span class="sourceLineNo">911</span>     public static double[] copyOf(double[] source) {<a name="line.911"></a>
+<span class="sourceLineNo">912</span>         return copyOf(source, source.length);<a name="line.912"></a>
+<span class="sourceLineNo">913</span>     }<a name="line.913"></a>
+<span class="sourceLineNo">914</span><a name="line.914"></a>
+<span class="sourceLineNo">915</span>    /**<a name="line.915"></a>
+<span class="sourceLineNo">916</span>     * Creates a copy of the {@code source} array.<a name="line.916"></a>
+<span class="sourceLineNo">917</span>     *<a name="line.917"></a>
+<span class="sourceLineNo">918</span>     * @param source Array to be copied.<a name="line.918"></a>
+<span class="sourceLineNo">919</span>     * @param len Number of entries to copy. If smaller then the source<a name="line.919"></a>
+<span class="sourceLineNo">920</span>     * length, the copy will be truncated, if larger it will padded with<a name="line.920"></a>
+<span class="sourceLineNo">921</span>     * zeroes.<a name="line.921"></a>
+<span class="sourceLineNo">922</span>     * @return the copied array.<a name="line.922"></a>
+<span class="sourceLineNo">923</span>     */<a name="line.923"></a>
+<span class="sourceLineNo">924</span>    public static int[] copyOf(int[] source, int len) {<a name="line.924"></a>
+<span class="sourceLineNo">925</span>         final int[] output = new int[len];<a name="line.925"></a>
+<span class="sourceLineNo">926</span>         System.arraycopy(source, 0, output, 0, FastMath.min(len, source.length));<a name="line.926"></a>
+<span class="sourceLineNo">927</span>         return output;<a name="line.927"></a>
+<span class="sourceLineNo">928</span>     }<a name="line.928"></a>
+<span class="sourceLineNo">929</span><a name="line.929"></a>
+<span class="sourceLineNo">930</span>    /**<a name="line.930"></a>
+<span class="sourceLineNo">931</span>     * Creates a copy of the {@code source} array.<a name="line.931"></a>
+<span class="sourceLineNo">932</span>     *<a name="line.932"></a>
+<span class="sourceLineNo">933</span>     * @param source Array to be copied.<a name="line.933"></a>
+<span class="sourceLineNo">934</span>     * @param len Number of entries to copy. If smaller then the source<a name="line.934"></a>
+<span class="sourceLineNo">935</span>     * length, the copy will be truncated, if larger it will padded with<a name="line.935"></a>
+<span class="sourceLineNo">936</span>     * zeroes.<a name="line.936"></a>
+<span class="sourceLineNo">937</span>     * @return the copied array.<a name="line.937"></a>
+<span class="sourceLineNo">938</span>     */<a name="line.938"></a>
+<span class="sourceLineNo">939</span>    public static double[] copyOf(double[] source, int len) {<a name="line.939"></a>
+<span class="sourceLineNo">940</span>         final double[] output = new double[len];<a name="line.940"></a>
+<span class="sourceLineNo">941</span>         System.arraycopy(source, 0, output, 0, FastMath.min(len, source.length));<a name="line.941"></a>
+<span class="sourceLineNo">942</span>         return output;<a name="line.942"></a>
+<span class="sourceLineNo">943</span>     }<a name="line.943"></a>
+<span class="sourceLineNo">944</span><a name="line.944"></a>
+<span class="sourceLineNo">945</span>    /**<a name="line.945"></a>
+<span class="sourceLineNo">946</span>     * Creates a copy of the {@code source} array.<a name="line.946"></a>
+<span class="sourceLineNo">947</span>     *<a name="line.947"></a>
+<span class="sourceLineNo">948</span>     * @param source Array to be copied.<a name="line.948"></a>
+<span class="sourceLineNo">949</span>     * @param from Initial index of the range to be copied, inclusive.<a name="line.949"></a>
+<span class="sourceLineNo">950</span>     * @param to Final index of the range to be copied, exclusive. (This index may lie outside the array.)<a name="line.950"></a>
+<span class="sourceLineNo">951</span>     * @return the copied array.<a name="line.951"></a>
+<span class="sourceLineNo">952</span>     */<a name="line.952"></a>
+<span class="sourceLineNo">953</span>    public static double[] copyOfRange(double[] source, int from, int to) {<a name="line.953"></a>
+<span class="sourceLineNo">954</span>        final int len = to - from;<a name="line.954"></a>
+<span class="sourceLineNo">955</span>        final double[] output = new double[len];<a name="line.955"></a>
+<span class="sourceLineNo">956</span>        System.arraycopy(source, from, output, 0, FastMath.min(len, source.length - from));<a name="line.956"></a>
+<span class="sourceLineNo">957</span>        return output;<a name="line.957"></a>
+<span class="sourceLineNo">958</span>     }<a name="line.958"></a>
+<span class="sourceLineNo">959</span><a name="line.959"></a>
+<span class="sourceLineNo">960</span>    /**<a name="line.960"></a>
+<span class="sourceLineNo">961</span>     * Compute a linear combination accurately.<a name="line.961"></a>
+<span class="sourceLineNo">962</span>     * This method computes the sum of the products<a name="line.962"></a>
+<span class="sourceLineNo">963</span>     * &lt;code&gt;a&lt;sub&gt;i&lt;/sub&gt; b&lt;sub&gt;i&lt;/sub&gt;&lt;/code&gt; to high accuracy.<a name="line.963"></a>
+<span class="sourceLineNo">964</span>     * It does so by using specific multiplication and addition algorithms to<a name="line.964"></a>
+<span class="sourceLineNo">965</span>     * preserve accuracy and reduce cancellation effects.<a name="line.965"></a>
+<span class="sourceLineNo">966</span>     * &lt;br/&gt;<a name="line.966"></a>
+<span class="sourceLineNo">967</span>     * It is based on the 2005 paper<a name="line.967"></a>
+<span class="sourceLineNo">968</span>     * &lt;a href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.2.1547"&gt;<a name="line.968"></a>
+<span class="sourceLineNo">969</span>     * Accurate Sum and Dot Product&lt;/a&gt; by Takeshi Ogita, Siegfried M. Rump,<a name="line.969"></a>
+<span class="sourceLineNo">970</span>     * and Shin'ichi Oishi published in SIAM J. Sci. Comput.<a name="line.970"></a>
+<span class="sourceLineNo">971</span>     *<a name="line.971"></a>
+<span class="sourceLineNo">972</span>     * @param a Factors.<a name="line.972"></a>
+<span class="sourceLineNo">973</span>     * @param b Factors.<a name="line.973"></a>
+<span class="sourceLineNo">974</span>     * @return &lt;code&gt;&amp;Sigma;&lt;sub&gt;i&lt;/sub&gt; a&lt;sub&gt;i&lt;/sub&gt; b&lt;sub&gt;i&lt;/sub&gt;&lt;/code&gt;.<a name="line.974"></a>
+<span class="sourceLineNo">975</span>     * @throws DimensionMismatchException if arrays dimensions don't match<a name="line.975"></a>
+<span class="sourceLineNo">976</span>     */<a name="line.976"></a>
+<span class="sourceLineNo">977</span>    public static double linearCombination(final double[] a, final double[] b)<a name="line.977"></a>
+<span class="sourceLineNo">978</span>        throws DimensionMismatchException {<a name="line.978"></a>
+<span class="sourceLineNo">979</span>        checkEqualLength(a, b);<a name="line.979"></a>
+<span class="sourceLineNo">980</span>        final int len = a.length;<a name="line.980"></a>
+<span class="sourceLineNo">981</span><a name="line.981"></a>
+<span class="sourceLineNo">982</span>        if (len == 1) {<a name="line.982"></a>
+<span class="sourceLineNo">983</span>            // Revert to scalar multiplication.<a name="line.983"></a>
+<span class="sourceLineNo">984</span>            return a[0] * b[0];<a name="line.984"></a>
+<span class="sourceLineNo">985</span>        }<a name="line.985"></a>
+<span class="sourceLineNo">986</span><a name="line.986"></a>
+<span class="sourceLineNo">987</span>        final double[] prodHigh = new double[len];<a name="line.987"></a>
+<span class="sourceLineNo">988</span>        double prodLowSum = 0;<a name="line.988"></a>
+<span class="sourceLineNo">989</span><a name="line.989"></a>
+<span class="sourceLineNo">990</span>        for (int i = 0; i &lt; len; i++) {<a name="line.990"></a>
+<span class="sourceLineNo">991</span>            final double ai    = a[i];<a name="line.991"></a>
+<span class="sourceLineNo">992</span>            final double aHigh = Double.longBitsToDouble(Double.doubleToRawLongBits(ai) &amp; ((-1L) &lt;&lt; 27));<a name="line.992"></a>
+<span class="sourceLineNo">993</span>            final double aLow  = ai - aHigh;<a name="line.993"></a>
+<span class="sourceLineNo">994</span><a name="line.994"></a>
+<span class="sourceLineNo">995</span>            final double bi    = b[i];<a name="line.995"></a>
+<span class="sourceLineNo">996</span>            final double bHigh = Double.longBitsToDouble(Double.doubleToRawLongBits(bi) &amp; ((-1L) &lt;&lt; 27));<a name="line.996"></a>
+<span class="sourceLineNo">997</span>            final double bLow  = bi - bHigh;<a name="line.997"></a>
+<span class="sourceLineNo">998</span>            prodHigh[i] = ai * bi;<a name="line.998"></a>
+<span class="sourceLineNo">999</span>            final double prodLow = aLow * bLow - (((prodHigh[i] -<a name="line.999"></a>
+<span class="sourceLineNo">1000</span>                                                    aHigh * bHigh) -<a name="line.1000"></a>
+<span class="sourceLineNo">1001</span>                                                   aLow * bHigh) -<a name="line.1001"></a>
+<span class="sourceLineNo">1002</span>                                                  aHigh * bLow);<a name="line.1002"></a>
+<span class="sourceLineNo">1003</span>            prodLowSum += prodLow;<a name="line.1003"></a>
+<span class="sourceLineNo">1004</span>        }<a name="line.1004"></a>
+<span class="sourceLineNo">1005</span><a name="line.1005"></a>
+<span class="sourceLineNo">1006</span><a name="line.1006"></a>
+<span class="sourceLineNo">1007</span>        final double prodHighCur = prodHigh[0];<a name="line.1007"></a>
+<span class="sourceLineNo">1008</span>        double prodHighNext = prodHigh[1];<a name="line.1008"></a>
+<span class="sourceLineNo">1009</span>        double sHighPrev = prodHighCur + prodHighNext;<a name="line.1009"></a>
+<span class="sourceLineNo">1010</span>        double sPrime = sHighPrev - prodHighNext;<a name="line.1010"></a>
+<span class="sourceLineNo">1011</span>        double sLowSum = (prodHighNext - (sHighPrev - sPrime)) + (prodHighCur - sPrime);<a name="line.1011"></a>
+<span class="sourceLineNo">1012</span><a name="line.1012"></a>
+<span class="sourceLineNo">1013</span>        final int lenMinusOne = len - 1;<a name="line.1013"></a>
+<span class="sourceLineNo">1014</span>        for (int i = 1; i &lt; lenMinusOne; i++) {<a name="line.1014"></a>
+<span class="sourceLineNo">1015</span>            prodHighNext = prodHigh[i + 1];<a name="line.1015"></a>
+<span class="sourceLineNo">1016</span>            final double sHighCur = sHighPrev + prodHighNext;<a name="line.1016"></a>
+<span class="sourceLineNo">1017</span>            sPrime = sHighCur - prodHighNext;<a name="line.1017"></a>
+<span class="sourceLineNo">1018</span>            sLowSum += (prodHighNext - (sHighCur - sPrime)) + (sHighPrev - sPrime);<a name="line.1018"></a>
+<span class="sourceLineNo">1019</span>            sHighPrev = sHighCur;<a name="line.1019"></a>
+<span class="sourceLineNo">1020</span>        }<a name="line.1020"></a>
+<span class="sourceLineNo">1021</span><a name="line.1021"></a>
+<span class="sourceLineNo">1022</span>        double result = sHighPrev + (prodLowSum + sLowSum);<a name="line.1022"></a>
+<span class="sourceLineNo">1023</span><a name="line.1023"></a>
+<span class="sourceLineNo">1024</span>        if (Double.isNaN(result)) {<a name="line.1024"></a>
+<span class="sourceLineNo">1025</span>            // either we have split infinite numbers or some coefficients were NaNs,<a name="line.1025"></a>
+<span class="sourceLineNo">1026</span>            // just rely on the naive implementation and let IEEE754 handle this<a name="line.1026"></a>
+<span class="sourceLineNo">1027</span>            result = 0;<a name="line.1027"></a>
+<span class="sourceLineNo">1028</span>            for (int i = 0; i &lt; len; ++i) {<a name="line.1028"></a>
+<span class="sourceLineNo">1029</span>                result += a[i] * b[i];<a name="line.1029"></a>
+<span class="sourceLineNo">1030</span>            }<a name="line.1030"></a>
+<span class="sourceLineNo">1031</span>        }<a name="line.1031"></a>
+<span class="sourceLineNo">1032</span><a name="line.1032"></a>
+<span class="sourceLineNo">1033</span>        return result;<a name="line.1033"></a>
+<span class="sourceLineNo">1034</span>    }<a name="line.1034"></a>
+<span class="sourceLineNo">1035</span><a name="line.1035"></a>
+<span class="sourceLineNo">1036</span>    /**<a name="line.1036"></a>
+<span class="sourceLineNo">1037</span>     * Compute a linear combination accurately.<a name="line.1037"></a>
+<span class="sourceLineNo">1038</span>     * &lt;p&gt;<a name="line.1038"></a>
+<span class="sourceLineNo">1039</span>     * This method computes a&lt;sub&gt;1&lt;/sub&gt;&amp;times;b&lt;sub&gt;1&lt;/sub&gt; +<a name="line.1039"></a>
+<span class="sourceLineNo">1040</span>     * a&lt;sub&gt;2&lt;/sub&gt;&amp;times;b&lt;sub&gt;2&lt;/sub&gt; to high accuracy. It does<a name="line.1040"></a>
+<span class="sourceLineNo">1041</span>     * so by using specific multiplication and addition algorithms to<a name="line.1041"></a>
+<span class="sourceLineNo">1042</span>     * preserve accuracy and reduce cancellation effects. It is based<a name="line.1042"></a>
+<span class="sourceLineNo">1043</span>     * on the 2005 paper &lt;a<a name="line.1043"></a>
+<span class="sourceLineNo">1044</span>     * href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.2.1547"&gt;<a name="line.1044"></a>
+<span class="sourceLineNo">1045</span>     * Accurate Sum and Dot Product&lt;/a&gt; by Takeshi Ogita,<a name="line.1045"></a>
+<span class="sourceLineNo">1046</span>     * Siegfried M. Rump, and Shin'ichi Oishi published in SIAM J. Sci. Comput.<a name="line.1046"></a>
+<span class="sourceLineNo">1047</span>     * &lt;/p&gt;<a name="line.1047"></a>
+<span class="sourceLineNo">1048</span>     * @param a1 first factor of the first term<a name="line.1048"></a>
+<span class="sourceLineNo">1049</span>     * @param b1 second factor of the first term<a name="line.1049"></a>
+<span class="sourceLineNo">1050</span>     * @param a2 first factor of the second term<a name="line.1050"></a>
+<span class="sourceLineNo">1051</span>     * @param b2 second factor of the second term<a name="line.1051"></a>
+<span class="sourceLineNo">1052</span>     * @return a&lt;sub&gt;1&lt;/sub&gt;&amp;times;b&lt;sub&gt;1&lt;/sub&gt; +<a name="line.1052"></a>
+<span class="sourceLineNo">1053</span>     * a&lt;sub&gt;2&lt;/sub&gt;&amp;times;b&lt;sub&gt;2&lt;/sub&gt;<a name="line.1053"></a>
+<span class="sourceLineNo">1054</span>     * @see #linearCombination(double, double, double, double, double, double)<a name="line.1054"></a>
+<span class="sourceLineNo">1055</span>     * @see #linearCombination(double, double, double, double, double, double, double, double)<a name="line.1055"></a>
+<span class="sourceLineNo">1056</span>     */<a name="line.1056"></a>
+<span class="sourceLineNo">1057</span>    public static double linearCombination(final double a1, final double b1,<a name="line.1057"></a>
+<span class="sourceLineNo">1058</span>                                           final double a2, final double b2) {<a name="line.1058"></a>
+<span class="sourceLineNo">1059</span><a name="line.1059"></a>
+<span class="sourceLineNo">1060</span>        // the code below is split in many additions/subtractions that may<a name="line.1060"></a>
+<span class="sourceLineNo">1061</span>        // appear redundant. However, they should NOT be simplified, as they<a name="line.1061"></a>
+<span class="sourceLineNo">1062</span>        // use IEEE754 floating point arithmetic rounding properties.<a name="line.1062"></a>
+<span class="sourceLineNo">1063</span>        // The variable naming conventions are that xyzHigh contains the most significant<a name="line.1063"></a>
+<span class="sourceLineNo">1064</span>        // bits of xyz and xyzLow contains its least significant bits. So theoretically<a name="line.1064"></a>
+<span class="sourceLineNo">1065</span>        // xyz is the sum xyzHigh + xyzLow, but in many cases below, this sum cannot<a name="line.1065"></a>
+<span class="sourceLineNo">1066</span>        // be represented in only one double precision number so we preserve two numbers<a name="line.1066"></a>
+<span class="sourceLineNo">1067</span>        // to hold it as long as we can, combining the high and low order bits together<a name="line.1067"></a>
+<span class="sourceLineNo">1068</span>        // only at the end, after cancellation may have occurred on high order bits<a name="line.1068"></a>
+<span class="sourceLineNo">1069</span><a name="line.1069"></a>
+<span class="sourceLineNo">1070</span>        // split a1 and b1 as one 26 bits number and one 27 bits number<a name="line.1070"></a>
+<span class="sourceLineNo">1071</span>        final double a1High     = Double.longBitsToDouble(Double.doubleToRawLongBits(a1) &amp; ((-1L) &lt;&lt; 27));<a name="line.1071"></a>
+<span class="sourceLineNo">1072</span>        final double a1Low      = a1 - a1High;<a name="line.1072"></a>
+<span class="sourceLineNo">1073</span>        final double b1High     = Double.longBitsToDouble(Double.doubleToRawLongBits(b1) &amp; ((-1L) &lt;&lt; 27));<a name="line.1073"></a>
+<span class="sourceLineNo">1074</span>        final double b1Low      = b1 - b1High;<a name="line.1074"></a>
+<span class="sourceLineNo">1075</span><a name="line.1075"></a>
+<span class="sourceLineNo">1076</span>        // accurate multiplication a1 * b1<a name="line.1076"></a>
+<span class="sourceLineNo">1077</span>        final double prod1High  = a1 * b1;<a name="line.1077"></a>
+<span class="sourceLineNo">1078</span>        final double prod1Low   = a1Low * b1Low - (((prod1High - a1High * b1High) - a1Low * b1High) - a1High * b1Low);<a name="line.1078"></a>
+<span class="sourceLineNo">1079</span><a name="line.1079"></a>
+<span class="sourceLineNo">1080</span>        // split a2 and b2 as one 26 bits number and one 27 bits number<a name="line.1080"></a>
+<span class="sourceLineNo">1081</span>        final double a2High     = Double.longBitsToDouble(Double.doubleToRawLongBits(a2) &amp; ((-1L) &lt;&lt; 27));<a name="line.1081"></a>
+<span class="sourceLineNo">1082</span>        final double a2Low      = a2 - a2High;<a name="line.1082"></a>
+<span class="sourceLineNo">1083</span>        final double b2High     = Double.longBitsToDouble(Double.doubleToRawLongBits(b2) &amp; ((-1L) &lt;&lt; 27));<a name="line.1083"></a>
+<span class="sourceLineNo">1084</span>        final double b2Low      = b2 - b2High;<a name="line.1084"></a>
+<span class="sourceLineNo">1085</span><a name="line.1085"></a>
+<span class="sourceLineNo">1086</span>        // accurate multiplication a2 * b2<a name="line.1086"></a>
+<span class="sourceLineNo">1087</span>        final double prod2High  = a2 * b2;<a name="line.1087"></a>
+<span class="sourceLineNo">1088</span>        final double prod2Low   = a2Low * b2Low - (((prod2High - a2High * b2High) - a2Low * b2High) - a2High * b2Low);<a name="line.1088"></a>
+<span class="sourceLineNo">1089</span><a name="line.1089"></a>
+<span class="sourceLineNo">1090</span>        // accurate addition a1 * b1 + a2 * b2<a name="line.1090"></a>
+<span class="sourceLineNo">1091</span>        final double s12High    = prod1High + prod2High;<a name="line.1091"></a>
+<span class="sourceLineNo">1092</span>        final double s12Prime   = s12High - prod2High;<a name="line.1092"></a>
+<span class="sourceLineNo">1093</span>        final double s12Low     = (prod2High - (s12High - s12Prime)) + (prod1High - s12Prime);<a name="line.1093"></a>
+<span class="sourceLineNo">1094</span><a name="line.1094"></a>
+<span class="sourceLineNo">1095</span>        // final rounding, s12 may have suffered many cancellations, we try<a name="line.1095"></a>
+<span class="sourceLineNo">1096</span>        // to recover some bits from the extra words we have saved up to now<a name="line.1096"></a>
+<span class="sourceLineNo">1097</span>        double result = s12High + (prod1Low + prod2Low + s12Low);<a name="line.1097"></a>
+<span class="sourceLineNo">1098</span><a name="line.1098"></a>
+<span class="sourceLineNo">1099</span>        if (Double.isNaN(result)) {<a name="line.1099"></a>
+<span class="sourceLineNo">1100</span>            // either we have split infinite numbers or some coefficients were NaNs,<a name="line.1100"></a>
+<span class="sourceLineNo">1101</span>            // just rely on the naive implementation and let IEEE754 handle this<a name="line.1101"></a>
+<span class="sourceLineNo">1102</span>            result = a1 * b1 + a2 * b2;<a name="line.1102"></a>
+<span class="sourceLineNo">1103</span>        }<a name="line.1103"></a>
+<span class="sourceLineNo">1104</span><a name="line.1104"></a>
+<span class="sourceLineNo">1105</span>        return result;<a name="line.1105"></a>
+<span class="sourceLineNo">1106</span>    }<a name="line.1106"></a>
+<span class="sourceLineNo">1107</span><a name="line.1107"></a>
+<span class="sourceLineNo">1108</span>    /**<a name="line.1108"></a>
+<span class="sourceLineNo">1109</span>     * Compute a linear combination accurately.<a name="line.1109"></a>
+<span class="sourceLineNo">1110</span>     * &lt;p&gt;<a name="line.1110"></a>
+<span class="sourceLineNo">1111</span>     * This method computes a&lt;sub&gt;1&lt;/sub&gt;&amp;times;b&lt;sub&gt;1&lt;/sub&gt; +<a name="line.1111"></a>
+<span class="sourceLineNo">1112</span>     * a&lt;sub&gt;2&lt;/sub&gt;&amp;times;b&lt;sub&gt;2&lt;/sub&gt; + a&lt;sub&gt;3&lt;/sub&gt;&amp;times;b&lt;sub&gt;3&lt;/sub&gt;<a name="line.1112"></a>
+<span class="sourceLineNo">1113</span>     * to high accuracy. It does so by using specific multiplication and<a name="line.1113"></a>
+<span class="sourceLineNo">1114</span>     * addition algorithms to preserve accuracy and reduce cancellation effects.<a name="line.1114"></a>
+<span class="sourceLineNo">1115</span>     * It is based on the 2005 paper &lt;a<a name="line.1115"></a>
+<span class="sourceLineNo">1116</span>     * href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.2.1547"&gt;<a name="line.1116"></a>
+<span class="sourceLineNo">1117</span>     * Accurate Sum and Dot Product&lt;/a&gt; by Takeshi Ogita,<a name="line.1117"></a>
+<span class="sourceLineNo">1118</span>     * Siegfried M. Rump, and Shin'ichi Oishi published in SIAM J. Sci. Comput.<a name="line.1118"></a>
+<span class="sourceLineNo">1119</span>     * &lt;/p&gt;<a name="line.1119"></a>
+<span class="sourceLineNo">1120</span>     * @param a1 first factor of the first term<a name="line.1120"></a>
+<span class="sourceLineNo">1121</span>     * @param b1 second factor of the first term<a name="line.1121"></a>
+<span class="sourceLineNo">1122</span>     * @param a2 first factor of the second term<a name="line.1122"></a>
+<span class="sourceLineNo">1123</span>     * @param b2 second factor of the second term<a name="line.1123"></a>
+<span class="sourceLineNo">1124</span>     * @param a3 first factor of the third term<a name="line.1124"></a>
+<span class="sourceLineNo">1125</span>     * @param b3 second factor of the third term<a name="line.1125"></a>
+<span class="sourceLineNo">1126</span>     * @return a&lt;sub&gt;1&lt;/sub&gt;&amp;times;b&lt;sub&gt;1&lt;/sub&gt; +<a name="line.1126"></a>
+<span class="sourceLineNo">1127</span>     * a&lt;sub&gt;2&lt;/sub&gt;&amp;times;b&lt;sub&gt;2&lt;/sub&gt; + a&lt;sub&gt;3&lt;/sub&gt;&amp;times;b&lt;sub&gt;3&lt;/sub&gt;<a name="line.1127"></a>
+<span class="sourceLineNo">1128</span>     * @see #linearCombination(double, double, double, double)<a name="line.1128"></a>
+<span class="sourceLineNo">1129</span>     * @see #linearCombination(double, double, double, double, double, double, double, double)<a name="line.1129"></a>
+<span class="sourceLineNo">1130</span>     */<a name="line.1130"></a>
+<span class="sourceLineNo">1131</span>    public static double linearCombination(final double a1, final double b1,<a name="line.1131"></a>
+<span class="sourceLineNo">1132</span>                                           final double a2, final double b2,<a name="line.1132"></a>
+<span class="sourceLineNo">1133</span>                                           final double a3, final double b3) {<a name="line.1133"></a>
+<span class="sourceLineNo">1134</span><a name="line.1134"></a>
+<span class="sourceLineNo">1135</span>        // the code below is split in many additions/subtractions that may<a name="line.1135"></a>
+<span class="sourceLineNo">1136</span>        // appear redundant. However, they should NOT be simplified, as they<a name="line.1136"></a>
+<span class="sourceLineNo">1137</span>        // do use IEEE754 floating point arithmetic rounding properties.<a name="line.1137"></a>
+<span class="sourceLineNo">1138</span>        // The variables naming conventions are that xyzHigh contains the most significant<a name="line.1138"></a>
+<span class="sourceLineNo">1139</span>        // bits of xyz and xyzLow contains its least significant bits. So theoretically<a name="line.1139"></a>
+<span class="sourceLineNo">1140</span>        // xyz is the sum xyzHigh + xyzLow, but in many cases below, this sum cannot<a name="line.1140"></a>
+<span class="sourceLineNo">1141</span>        // be represented in only one double precision number so we preserve two numbers<a name="line.1141"></a>
+<span class="sourceLineNo">1142</span>        // to hold it as long as we can, combining the high and low order bits together<a name="line.1142"></a>
+<span class="sourceLineNo">1143</span>        // only at the end, after cancellation may have occurred on high order bits<a name="line.1143"></a>
+<span class="sourceLineNo">1144</span><a name="line.1144"></a>
+<span class="sourceLineNo">1145</span>        // split a1 and b1 as one 26 bits number and one 27 bits number<a name="line.1145"></a>
+<span class="sourceLineNo">1146</span>        final double a1High     = Double.longBitsToDouble(Double.doubleToRawLongBits(a1) &amp; ((-1L) &lt;&lt; 27));<a name="line.1146"></a>
+<span class="sourceLineNo">1147</span>        final double a1Low      = a1 - a1High;<a name="line.1147"></a>
+<span class="sourceLineNo">1148</span>        final double b1High     = Double.longBitsToDouble(Double.doubleToRawLongBits(b1) &amp; ((-1L) &lt;&lt; 27));<a name="line.1148"></a>
+<span class="sourceLineNo">1149</span>        final double b1Low      = b1 - b1High;<a name="line.1149"></a>
+<span class="sourceLineNo">1150</span><a name="line.1150"></a>
+<span class="sourceLineNo">1151</span>        // accurate multiplication a1 * b1<a name="line.1151"></a>
+<span class="sourceLineNo">1152</span>        final double prod1High  = a1 * b1;<a name="line.1152"></a>
+<span class="sourceLineNo">1153</span>        final double prod1Low   = a1Low * b1Low - (((prod1High - a1High * b1High) - a1Low * b1High) - a1High * b1Low);<a name="line.1153"></a>
+<span class="sourceLineNo">1154</span><a name="line.1154"></a>
+<span class="sourceLineNo">1155</span>        // split a2 and b2 as one 26 bits number and one 27 bits number<a name="line.1155"></a>
+<span class="sourceLineNo">1156</span>        final double a2High     = Double.longBitsToDouble(Double.doubleToRawLongBits(a2) &amp; ((-1L) &lt;&lt; 27));<a name="line.1156"></a>
+<span class="sourceLineNo">1157</span>        final double a2Low      = a2 - a2High;<a name="line.1157"></a>
+<span class="sourceLineNo">1158</span>        final double b2High     = Double.longBitsToDouble(Double.doubleToRawLongBits(b2) &amp; ((-1L) &lt;&lt; 27));<a name="line.1158"></a>
+<span class="sourceLineNo">1159</span>        final double b2Low      = b2 - b2High;<a name="line.1159"></a>
+<span class="sourceLineNo">1160</span><a name="line.1160"></a>
+<span class="sourceLineNo">1161</span>        // accurate multiplication a2 * b2<a name="line.1161"></a>
+<span class="sourceLineNo">1162</span>        final double prod2High  = a2 * b2;<a name="line.1162"></a>
+<span class="sourceLineNo">1163</span>        final double prod2Low   = a2Low * b2Low - (((prod2High - a2High * b2High) - a2Low * b2High) - a2High * b2Low);<a name="line.1163"></a>
+<span class="sourceLineNo">1164</span><a name="line.1164"></a>
+<span class="sourceLineNo">1165</span>        // split a3 and b3 as one 26 bits number and one 27 bits number<a name="line.1165"></a>
+<span class="sourceLineNo">1166</span>        final double a3High     = Double.longBitsToDouble(Double.doubleToRawLongBits(a3) &amp; ((-1L) &lt;&lt; 27));<a name="line.1166"></a>
+<span class="sourceLineNo">1167</span>        final double a3Low      = a3 - a3High;<a name="line.1167"></a>
+<span class="sourceLineNo">1168</span>        final double b3High     = Double.longBitsToDouble(Double.doubleToRawLongBits(b3) &amp; ((-1L) &lt;&lt; 27));<a name="line.1168"></a>
+<span class="sourceLineNo">1169</span>        final double b3Low      = b3 - b3High;<a name="line.1169"></a>
+<span class="sourceLineNo">1170</span><a name="line.1170"></a>
+<span class="sourceLineNo">1171</span>        // accurate multiplication a3 * b3<a name="line.1171"></a>
+<span class="sourceLineNo">1172</span>        final double prod3High  = a3 * b3;<a name="line.1172"></a>
+<span class="sourceLineNo">1173</span>        final double prod3Low   = a3Low * b3Low - (((prod3High - a3High * b3High) - a3Low * b3High) - a3High * b3Low);<a name="line.1173"></a>
+<span class="sourceLineNo">1174</span><a name="line.1174"></a>
+<span class="sourceLineNo">1175</span>        // accurate addition a1 * b1 + a2 * b2<a name="line.1175"></a>
+<span class="sourceLineNo">1176</span>        final double s12High    = prod1High + prod2High;<a name="line.1176"></a>
+<span class="sourceLineNo">1177</span>        final double s12Prime   = s12High - prod2High;<a name="line.1177"></a>
+<span class="sourceLineNo">1178</span>        final double s12Low     = (prod2High - (s12High - s12Prime)) + (prod1High - s12Prime);<a name="line.1178"></a>
+<span class="sourceLineNo">1179</span><a name="line.1179"></a>
+<span class="sourceLineNo">1180</span>        // accurate addition a1 * b1 + a2 * b2 + a3 * b3<a name="line.1180"></a>
+<span class="sourceLineNo">1181</span>        final double s123High   = s12High + prod3High;<a name="line.1181"></a>
+<span class="sourceLineNo">1182</span>        final double s123Prime  = s123High - prod3High;<a name="line.1182"></a>
+<span class="sourceLineNo">1183</span>        final double s123Low    = (prod3High - (s123High - s123Prime)) + (s12High - s123Prime);<a name="line.1183"></a>
+<span class="sourceLineNo">1184</span><a name="line.1184"></a>
+<span class="sourceLineNo">1185</span>        // final rounding, s123 may have suffered many cancellations, we try<a name="line.1185"></a>
+<span class="sourceLineNo">1186</span>        // to recover some bits from the extra words we have saved up to now<a name="line.1186"></a>
+<span class="sourceLineNo">1187</span>        double result = s123High + (prod1Low + prod2Low + prod3Low + s12Low + s123Low);<a name="line.1187"></a>
+<span class="sourceLineNo">1188</span><a name="line.1188"></a>
+<span class="sourceLineNo">1189</span>        if (Double.isNaN(result)) {<a name="line.1189"></a>
+<span class="sourceLineNo">1190</span>            // either we have split infinite numbers or some coefficients were NaNs,<a name="line.1190"></a>
+<span class="sourceLineNo">1191</span>            // just rely on the naive implementation and let IEEE754 handle this<a name="line.1191"></a>
+<span class="sourceLineNo">1192</span>            result = a1 * b1 + a2 * b2 + a3 * b3;<a name="line.1192"></a>
+<span class="sourceLineNo">1193</span>        }<a name="line.1193"></a>
+<span class="sourceLineNo">1194</span><a name="line.1194"></a>
+<span class="sourceLineNo">1195</span>        return result;<a name="line.1195"></a>
+<span class="sourceLineNo">1196</span>    }<a name="line.1196"></a>
+<span class="sourceLineNo">1197</span><a name="line.1197"></a>
+<span class="sourceLineNo">1198</span>    /**<a name="line.1198"></a>
+<span class="sourceLineNo">1199</span>     * Compute a linear combination accurately.<a name="line.1199"></a>
+<span class="sourceLineNo">1200</span>     * &lt;p&gt;<a name="line.1200"></a>
+<span class="sourceLineNo">1201</span>     * This method computes a&lt;sub&gt;1&lt;/sub&gt;&amp;times;b&lt;sub&gt;1&lt;/sub&gt; +<a name="line.1201"></a>
+<span class="sourceLineNo">1202</span>     * a&lt;sub&gt;2&lt;/sub&gt;&amp;times;b&lt;sub&gt;2&lt;/sub&gt; + a&lt;sub&gt;3&lt;/sub&gt;&amp;times;b&lt;sub&gt;3&lt;/sub&gt; +<a name="line.1202"></a>
+<span class="sourceLineNo">1203</span>     * a&lt;sub&gt;4&lt;/sub&gt;&amp;times;b&lt;sub&gt;4&lt;/sub&gt;<a name="line.1203"></a>
+<span class="sourceLineNo">1204</span>     * to high accuracy. It does so by using specific multiplication and<a name="line.1204"></a>
+<span class="sourceLineNo">1205</span>     * addition algorithms to preserve accuracy and reduce cancellation effects.<a name="line.1205"></a>
+<span class="sourceLineNo">1206</span>     * It is based on the 2005 paper &lt;a<a name="line.1206"></a>
+<span class="sourceLineNo">1207</span>     * href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.2.1547"&gt;<a name="line.1207"></a>
+<span class="sourceLineNo">1208</span>     * Accurate Sum and Dot Product&lt;/a&gt; by Takeshi Ogita,<a name="line.1208"></a>
+<span class="sourceLineNo">1209</span>     * Siegfried M. Rump, and Shin'ichi Oishi published in SIAM J. Sci. Comput.<a name="line.1209"></a>
+<span class="sourceLineNo">1210</span>     * &lt;/p&gt;<a name="line.1210"></a>
+<span class="sourceLineNo">1211</span>     * @param a1 first factor of the first term<a name="line.1211"></a>
+<span class="sourceLineNo">1212</span>     * @param b1 second factor of the first term<a name="line.1212"></a>
+<span class="sourceLineNo">1213</span>     * @param a2 first factor of the second term<a name="line.1213"></a>
+<span class="sourceLineNo">1214</span>     * @param b2 second factor of the second term<a name="line.1214"></a>
+<span class="sourceLineNo">1215</span>     * @param a3 first factor of the third term<a name="line.1215"></a>
+<span class="sourceLineNo">1216</span>     * @param b3 second factor of the third term<a name="line.1216"></a>
+<span class="sourceLineNo">1217</span>     * @param a4 first factor of the third term<a name="line.1217"></a>
+<span class="sourceLineNo">1218</span>     * @param b4 second factor of the third term<a name="line.1218"></a>
+<span class="sourceLineNo">1219</span>     * @return a&lt;sub&gt;1&lt;/sub&gt;&amp;times;b&lt;sub&gt;1&lt;/sub&gt; +<a name="line.1219"></a>
+<span class="sourceLineNo">1220</span>     * a&lt;sub&gt;2&lt;/sub&gt;&amp;times;b&lt;sub&gt;2&lt;/sub&gt; + a&lt;sub&gt;3&lt;/sub&gt;&amp;times;b&lt;sub&gt;3&lt;/sub&gt; +<a name="line.1220"></a>
+<span class="sourceLineNo">1221</span>     * a&lt;sub&gt;4&lt;/sub&gt;&amp;times;b&lt;sub&gt;4&lt;/sub&gt;<a name="line.1221"></a>
+<span class="sourceLineNo">1222</span>     * @see #linearCombination(double, double, double, double)<a name="line.1222"></a>
+<span class="sourceLineNo">1223</span>     * @see #linearCombination(double, double, double, double, double, double)<a name="line.1223"></a>
+<span class="sourceLineNo">1224</span>     */<a name="line.1224"></a>
+<span class="sourceLineNo">1225</span>    public static double linearCombination(final double a1, final double b1,<a name="line.1225"></a>
+<span class="sourceLineNo">1226</span>                                           final double a2, final double b2,<a name="line.1226"></a>
+<span class="sourceLineNo">1227</span>                                           final double a3, final double b3,<a name="line.1227"></a>
+<span class="sourceLineNo">1228</span>                                           final double a4, final double b4) {<a name="line.1228"></a>
+<span class="sourceLineNo">1229</span><a name="line.1229"></a>
+<span class="sourceLineNo">1230</span>        // the code below is split in many additions/subtractions that may<a name="line.1230"></a>
+<span class="sourceLineNo">1231</span>        // appear redundant. However, they should NOT be simplified, as they<a name="line.1231"></a>
+<span class="sourceLineNo">1232</span>        // do use IEEE754 floating point arithmetic rounding properties.<a name="line.1232"></a>
+<span class="sourceLineNo">1233</span>        // The variables naming conventions are that xyzHigh contains the most significant<a name="line.1233"></a>
+<span class="sourceLineNo">1234</span>        // bits of xyz and xyzLow contains its least significant bits. So theoretically<a name="line.1234"></a>
+<span class="sourceLineNo">1235</span>        // xyz is the sum xyzHigh + xyzLow, but in many cases below, this sum cannot<a name="line.1235"></a>
+<span class="sourceLineNo">1236</span>        // be represented in only one double precision number so we preserve two numbers<a name="line.1236"></a>
+<span class="sourceLineNo">1237</span>        // to hold it as long as we can, combining the high and low order bits together<a name="line.1237"></a>
+<span class="sourceLineNo">1238</span>        // only at the end, after cancellation may have occurred on high order bits<a name="line.1238"></a>
+<span class="sourceLineNo">1239</span><a name="line.1239"></a>
+<span class="sourceLineNo">1240</span>        // split a1 and b1 as one 26 bits number and one 27 bits number<a name="line.1240"></a>
+<span class="sourceLineNo">1241</span>        final double a1High     = Double.longBitsToDouble(Double.doubleToRawLongBits(a1) &amp; ((-1L) &lt;&lt; 27));<a name="line.1241"></a>
+<span class="sourceLineNo">1242</span>        final double a1Low      = a1 - a1High;<a name="line.1242"></a>
+<span class="sourceLineNo">1243</span>        final double b1High     = Double.longBitsToDouble(Double.doubleToRawLongBits(b1) &amp; ((-1L) &lt;&lt; 27));<a name="line.1243"></a>
+<span class="sourceLineNo">1244</span>        final double b1Low      = b1 - b1High;<a name="line.1244"></a>
+<span class="sourceLineNo">1245</span><a name="line.1245"></a>
+<span class="sourceLineNo">1246</span>        // accurate multiplication a1 * b1<a name="line.1246"></a>
+<span class="sourceLineNo">1247</span>        final double prod1High  = a1 * b1;<a name="line.1247"></a>
+<span class="sourceLineNo">1248</span>        final double prod1Low   = a1Low * b1Low - (((prod1High - a1High * b1High) - a1Low * b1High) - a1High * b1Low);<a name="line.1248"></a>
+<span class="sourceLineNo">1249</span><a name="line.1249"></a>
+<span class="sourceLineNo">1250</span>        // split a2 and b2 as one 26 bits number and one 27 bits number<a name="line.1250"></a>
+<span class="sourceLineNo">1251</span>        final double a2High     = Double.longBitsToDouble(Double.doubleToRawLongBits(a2) &amp; ((-1L) &lt;&lt; 27));<a name="line.1251"></a>
+<span class="sourceLineNo">1252</span>        final double a2Low      = a2 - a2High;<a name="line.1252"></a>
+<span class="sourceLineNo">1253</span>        final double b2High     = Double.longBitsToDouble(Double.doubleToRawLongBits(b2) &amp; ((-1L) &lt;&lt; 27));<a name="line.1253"></a>
+<span class="sourceLineNo">1254</span>        final double b2Low      = b2 - b2High;<a name="line.1254"></a>
+<span class="sourceLineNo">1255</span><a name="line.1255"></a>
+<span class="sourceLineNo">1256</span>        // accurate multiplication a2 * b2<a name="line.1256"></a>
+<span class="sourceLineNo">1257</span>        final double prod2High  = a2 * b2;<a name="line.1257"></a>
+<span class="sourceLineNo">1258</span>        final double prod2Low   = a2Low * b2Low - (((prod2High - a2High * b2High) - a2Low * b2High) - a2High * b2Low);<a name="line.1258"></a>
+<span class="sourceLineNo">1259</span><a name="line.1259"></a>
+<span class="sourceLineNo">1260</span>        // split a3 and b3 as one 26 bits number and one 27 bits number<a name="line.1260"></a>
+<span class="sourceLineNo">1261</span>        final double a3High     = Double.longBitsToDouble(Double.doubleToRawLongBits(a3) &amp; ((-1L) &lt;&lt; 27));<a name="line.1261"></a>
+<span class="sourceLineNo">1262</span>        final double a3Low      = a3 - a3High;<a name="line.1262"></a>
+<span class="sourceLineNo">1263</span>        final double b3High     = Double.longBitsToDouble(Double.doubleToRawLongBits(b3) &amp; ((-1L) &lt;&lt; 27));<a name="line.1263"></a>
+<span class="sourceLineNo">1264</span>        final double b3Low      = b3 - b3High;<a name="line.1264"></a>
+<span class="sourceLineNo">1265</span><a name="line.1265"></a>
+<span class="sourceLineNo">1266</span>        // accurate multiplication a3 * b3<a name="line.1266"></a>
+<span class="sourceLineNo">1267</span>        final double prod3High  = a3 * b3;<a name="line.1267"></a>
+<span class="sourceLineNo">1268</span>        final double prod3Low   = a3Low * b3Low - (((prod3High - a3High * b3High) - a3Low * b3High) - a3High * b3Low);<a name="line.1268"></a>
+<span class="sourceLineNo">1269</span><a name="line.1269"></a>
+<span class="sourceLineNo">1270</span>        // split a4 and b4 as one 26 bits number and one 27 bits number<a name="line.1270"></a>
+<span class="sourceLineNo">1271</span>        final double a4High     = Double.longBitsToDouble(Double.doubleToRawLongBits(a4) &amp; ((-1L) &lt;&lt; 27));<a name="line.1271"></a>
+<span class="sourceLineNo">1272</span>        final double a4Low      = a4 - a4High;<a name="line.1272"></a>
+<span class="sourceLineNo">1273</span>        final double b4High     = Double.longBitsToDouble(Double.doubleToRawLongBits(b4) &amp; ((-1L) &lt;&lt; 27));<a name="line.1273"></a>
+<span class="sourceLineNo">1274</span>        final double b4Low      = b4 - b4High;<a name="line.1274"></a>
+<span class="sourceLineNo">1275</span><a name="line.1275"></a>
+<span class="sourceLineNo">1276</span>        // accurate multiplication a4 * b4<a name="line.1276"></a>
+<span class="sourceLineNo">1277</span>        final double prod4High  = a4 * b4;<a name="line.1277"></a>
+<span class="sourceLineNo">1278</span>        final double prod4Low   = a4Low * b4Low - (((prod4High - a4High * b4High) - a4Low * b4High) - a4High * b4Low);<a name="line.1278"></a>
+<span class="sourceLineNo">1279</span><a name="line.1279"></a>
+<span class="sourceLineNo">1280</span>        // accurate addition a1 * b1 + a2 * b2<a name="line.1280"></a>
+<span class="sourceLineNo">1281</span>        final double s12High    = prod1High + prod2High;<a name="line.1281"></a>
+<span class="sourceLineNo">1282</span>        final double s12Prime   = s12High - prod2High;<a name="line.1282"></a>
+<span class="sourceLineNo">1283</span>        final double s12Low     = (prod2High - (s12High - s12Prime)) + (prod1High - s12Prime);<a name="line.1283"></a>
+<span class="sourceLineNo">1284</span><a name="line.1284"></a>
+<span class="sourceLineNo">1285</span>        // accurate addition a1 * b1 + a2 * b2 + a3 * b3<a name="line.1285"></a>
+<span class="sourceLineNo">1286</span>        final double s123High   = s12High + prod3High;<a name="line.1286"></a>
+<span class="sourceLineNo">1287</span>        final double s123Prime  = s123High - prod3High;<a name="line.1287"></a>
+<span class="sourceLineNo">1288</span>        final double s123Low    = (prod3High - (s123High - s123Prime)) + (s12High - s123Prime);<a name="line.1288"></a>
+<span class="sourceLineNo">1289</span><a name="line.1289"></a>
+<span class="sourceLineNo">1290</span>        // accurate addition a1 * b1 + a2 * b2 + a3 * b3 + a4 * b4<a name="line.1290"></a>
+<span class="sourceLineNo">1291</span>        final double s1234High  = s123High + prod4High;<a name="line.1291"></a>
+<span class="sourceLineNo">1292</span>        final double s1234Prime = s1234High - prod4High;<a name="line.1292"></a>
+<span class="sourceLineNo">1293</span>        final double s1234Low   = (prod4High - (s1234High - s1234Prime)) + (s123High - s1234Prime);<a name="line.1293"></a>
+<span class="sourceLineNo">1294</span><a name="line.1294"></a>
+<span class="sourceLineNo">1295</span>        // final rounding, s1234 may have suffered many cancellations, we try<a name="line.1295"></a>
+<span class="sourceLineNo">1296</span>        // to recover some bits from the extra words we have saved up to now<a name="line.1296"></a>
+<span class="sourceLineNo">1297</span>        double result = s1234High + (prod1Low + prod2Low + prod3Low + prod4Low + s12Low + s123Low + s1234Low);<a name="line.1297"></a>
+<span class="sourceLineNo">1298</span><a name="line.1298"></a>
+<span class="sourceLineNo">1299</span>        if (Double.isNaN(result)) {<a name="line.1299"></a>
+<span class="sourceLineNo">1300</span>            // either we have split infinite numbers or some coefficients were NaNs,<a name="line.1300"></a>
+<span class="sourceLineNo">1301</span>            // just rely on the naive implementation and let IEEE754 handle this<a name="line.1301"></a>
+<span class="sourceLineNo">1302</span>            result = a1 * b1 + a2 * b2 + a3 * b3 + a4 * b4;<a name="line.1302"></a>
+<span class="sourceLineNo">1303</span>        }<a name="line.1303"></a>
+<span class="sourceLineNo">1304</span><a name="line.1304"></a>
+<span class="sourceLineNo">1305</span>        return result;<a name="line.1305"></a>
+<span class="sourceLineNo">1306</span>    }<a name="line.1306"></a>
+<span class="sourceLineNo">1307</span><a name="line.1307"></a>
+<span class="sourceLineNo">1308</span>    /**<a name="line.1308"></a>
+<span class="sourceLineNo">1309</span>     * Returns true iff both arguments are null or have same dimensions and all<a name="line.1309"></a>
+<span class="sourceLineNo">1310</span>     * their elements are equal as defined by<a name="line.1310"></a>
+<span class="sourceLineNo">1311</span>     * {@link Precision#equals(float,float)}.<a name="line.1311"></a>
+<span class="sourceLineNo">1312</span>     *<a name="line.1312"></a>
+<span class="sourceLineNo">1313</span>     * @param x first array<a name="line.1313"></a>
+<span class="sourceLineNo">1314</span>     * @param y second array<a name="line.1314"></a>
+<span class="sourceLineNo">1315</span>     * @return true if the values are both null or have same dimension<a name="line.1315"></a>
+<span class="sourceLineNo">1316</span>     * and equal elements.<a name="line.1316"></a>
+<span class="sourceLineNo">1317</span>     */<a name="line.1317"></a>
+<span class="sourceLineNo">1318</span>    public static boolean equals(float[] x, float[] y) {<a name="line.1318"></a>
+<span class="sourceLineNo">1319</span>        if ((x == null) || (y == null)) {<a name="line.1319"></a>
+<span class="sourceLineNo">1320</span>            return !((x == null) ^ (y == null));<a name="line.1320"></a>
+<span class="sourceLineNo">1321</span>        }<a name="line.1321"></a>
+<span class="sourceLineNo">1322</span>        if (x.length != y.length) {<a name="line.1322"></a>
+<span class="sourceLineNo">1323</span>            return false;<a name="line.1323"></a>
+<span class="sourceLineNo">1324</span>        }<a name="line.1324"></a>
+<span class="sourceLineNo">1325</span>        for (int i = 0; i &lt; x.length; ++i) {<a name="line.1325"></a>
+<span class="sourceLineNo">1326</span>            if (!Precision.equals(x[i], y[i])) {<a name="line.1326"></a>
+<span class="sourceLineNo">1327</span>                return false;<a name="line.1327"></a>
+<span class="sourceLineNo">1328</span>            }<a name="line.1328"></a>
+<span class="sourceLineNo">1329</span>        }<a name="line.1329"></a>
+<span class="sourceLineNo">1330</span>        return true;<a name="line.1330"></a>
+<span class="sourceLineNo">1331</span>    }<a name="line.1331"></a>
+<span class="sourceLineNo">1332</span><a name="line.1332"></a>
+<span class="sourceLineNo">1333</span>    /**<a name="line.1333"></a>
+<span class="sourceLineNo">1334</span>     * Returns true iff both arguments are null or have same dimensions and all<a name="line.1334"></a>
+<span class="sourceLineNo">1335</span>     * their elements are equal as defined by<a name="line.1335"></a>
+<span class="sourceLineNo">1336</span>     * {@link Precision#equalsIncludingNaN(double,double) this method}.<a name="line.1336"></a>
+<span class="sourceLineNo">1337</span>     *<a name="line.1337"></a>
+<span class="sourceLineNo">1338</span>     * @param x first array<a name="line.1338"></a>
+<span class="sourceLineNo">1339</span>     * @param y second array<a name="line.1339"></a>
+<span class="sourceLineNo">1340</span>     * @return true if the values are both null or have same dimension and<a name="line.1340"></a>
+<span class="sourceLineNo">1341</span>     * equal elements<a name="line.1341"></a>
+<span class="sourceLineNo">1342</span>     * @since 2.2<a name="line.1342"></a>
+<span class="sourceLineNo">1343</span>     */<a name="line.1343"></a>
+<span class="sourceLineNo">1344</span>    public static boolean equalsIncludingNaN(float[] x, float[] y) {<a name="line.1344"></a>
+<span class="sourceLineNo">1345</span>        if ((x == null) || (y == null)) {<a name="line.1345"></a>
+<span class="sourceLineNo">1346</span>            return !((x == null) ^ (y == null));<a name="line.1346"></a>
+<span class="sourceLineNo">1347</span>        }<a name="line.1347"></a>
+<span class="sourceLineNo">1348</span>        if (x.length != y.length) {<a name="line.1348"></a>
+<span class="sourceLineNo">1349</span>            return false;<a name="line.1349"></a>
+<span class="sourceLineNo">1350</span>        }<a name="line.1350"></a>
+<span class="sourceLineNo">1351</span>        for (int i = 0; i &lt; x.length; ++i) {<a name="line.1351"></a>
+<span class="sourceLineNo">1352</span>            if (!Precision.equalsIncludingNaN(x[i], y[i])) {<a name="line.1352"></a>
+<span class="sourceLineNo">1353</span>                return false;<a name="line.1353"></a>
+<span class="sourceLineNo">1354</span>            }<a name="line.1354"></a>
+<span class="sourceLineNo">1355</span>        }<a name="line.1355"></a>
+<span class="sourceLineNo">1356</span>        return true;<a name="line.1356"></a>
+<span class="sourceLineNo">1357</span>    }<a name="line.1357"></a>
+<span class="sourceLineNo">1358</span><a name="line.1358"></a>
+<span class="sourceLineNo">1359</span>    /**<a name="line.1359"></a>
+<span class="sourceLineNo">1360</span>     * Returns {@code true} iff both arguments are {@code null} or have same<a name="line.1360"></a>
+<span class="sourceLineNo">1361</span>     * dimensions and all their elements are equal as defined by<a name="line.1361"></a>
+<span class="sourceLineNo">1362</span>     * {@link Precision#equals(double,double)}.<a name="line.1362"></a>
+<span class="sourceLineNo">1363</span>     *<a name="line.1363"></a>
+<span class="sourceLineNo">1364</span>     * @param x First array.<a name="line.1364"></a>
+<span class="sourceLineNo">1365</span>     * @param y Second array.<a name="line.1365"></a>
+<span class="sourceLineNo">1366</span>     * @return {@code true} if the values are both {@code null} or have same<a name="line.1366"></a>
+<span class="sourceLineNo">1367</span>     * dimension and equal elements.<a name="line.1367"></a>
+<span class="sourceLineNo">1368</span>     */<a name="line.1368"></a>
+<span class="sourceLineNo">1369</span>    public static boolean equals(double[] x, double[] y) {<a name="line.1369"></a>
+<span class="sourceLineNo">1370</span>        if ((x == null) || (y == null)) {<a name="line.1370"></a>
+<span class="sourceLineNo">1371</span>            return !((x == null) ^ (y == null));<a name="line.1371"></a>
+<span class="sourceLineNo">1372</span>        }<a name="line.1372"></a>
+<span class="sourceLineNo">1373</span>        if (x.length != y.length) {<a name="line.1373"></a>
+<span class="sourceLineNo">1374</span>            return false;<a name="line.1374"></a>
+<span class="sourceLineNo">1375</span>        }<a name="line.1375"></a>
+<span class="sourceLineNo">1376</span>        for (int i = 0; i &lt; x.length; ++i) {<a name="line.1376"></a>
+<span class="sourceLineNo">1377</span>            if (!Precision.equals(x[i], y[i])) {<a name="line.1377"></a>
+<span class="sourceLineNo">1378</span>                return false;<a name="line.1378"></a>
+<span class="sourceLineNo">1379</span>            }<a name="line.1379"></a>
+<span class="sourceLineNo">1380</span>        }<a name="line.1380"></a>
+<span class="sourceLineNo">1381</span>        return true;<a name="line.1381"></a>
+<span class="sourceLineNo">1382</span>    }<a name="line.1382"></a>
+<span class="sourceLineNo">1383</span><a name="line.1383"></a>
+<span class="sourceLineNo">1384</span>    /**<a name="line.1384"></a>
+<span class="sourceLineNo">1385</span>     * Returns {@code true} iff both arguments are {@code null} or have same<a name="line.1385"></a>
+<span class="sourceLineNo">1386</span>     * dimensions and all their elements are equal as defined by<a name="line.1386"></a>
+<span class="sourceLineNo">1387</span>     * {@link Precision#equalsIncludingNaN(double,double) this method}.<a name="line.1387"></a>
+<span class="sourceLineNo">1388</span>     *<a name="line.1388"></a>
+<span class="sourceLineNo">1389</span>     * @param x First array.<a name="line.1389"></a>
+<span class="sourceLineNo">1390</span>     * @param y Second array.<a name="line.1390"></a>
+<span class="sourceLineNo">1391</span>     * @return {@code true} if the values are both {@code null} or have same<a name="line.1391"></a>
+<span class="sourceLineNo">1392</span>     * dimension and equal elements.<a name="line.1392"></a>
+<span class="sourceLineNo">1393</span>     * @since 2.2<a name="line.1393"></a>
+<span class="sourceLineNo">1394</span>     */<a name="line.1394"></a>
+<span class="sourceLineNo">1395</span>    public static boolean equalsIncludingNaN(double[] x, double[] y) {<a name="line.1395"></a>
+<span class="sourceLineNo">1396</span>        if ((x == null) || (y == null)) {<a name="line.1396"></a>
+<span class="sourceLineNo">1397</span>            return !((x == null) ^ (y == null));<a name="line.1397"></a>
+<span class="sourceLineNo">1398</span>        }<a name="line.1398"></a>
+<span class="sourceLineNo">1399</span>        if (x.length != y.length) {<a name="line.1399"></a>
+<span class="sourceLineNo">1400</span>            return false;<a name="line.1400"></a>
+<span class="sourceLineNo">1401</span>        }<a name="line.1401"></a>
+<span class="sourceLineNo">1402</span>        for (int i = 0; i &lt; x.length; ++i) {<a name="line.1402"></a>
+<span class="sourceLineNo">1403</span>            if (!Precision.equalsIncludingNaN(x[i], y[i])) {<a name="line.1403"></a>
+<span class="sourceLineNo">1404</span>                return false;<a name="line.1404"></a>
+<span class="sourceLineNo">1405</span>            }<a name="line.1405"></a>
+<span class="sourceLineNo">1406</span>        }<a name="line.1406"></a>
+<span class="sourceLineNo">1407</span>        return true;<a name="line.1407"></a>
+<span class="sourceLineNo">1408</span>    }<a name="line.1408"></a>
+<span class="sourceLineNo">1409</span><a name="line.1409"></a>
+<span class="sourceLineNo">1410</span>    /**<a name="line.1410"></a>
+<span class="sourceLineNo">1411</span>     * Normalizes an array to make it sum to a specified value.<a name="line.1411"></a>
+<span class="sourceLineNo">1412</span>     * Returns the result of the transformation<a name="line.1412"></a>
+<span class="sourceLineNo">1413</span>     * &lt;pre&gt;<a name="line.1413"></a>
+<span class="sourceLineNo">1414</span>     *    x |-&gt; x * normalizedSum / sum<a name="line.1414"></a>
+<span class="sourceLineNo">1415</span>     * &lt;/pre&gt;<a name="line.1415"></a>
+<span class="sourceLineNo">1416</span>     * applied to each non-NaN element x of the input array, where sum is the<a name="line.1416"></a>
+<span class="sourceLineNo">1417</span>     * sum of the non-NaN entries in the input array.<a name="line.1417"></a>
+<span class="sourceLineNo">1418</span>     * &lt;p&gt;<a name="line.1418"></a>
+<span class="sourceLineNo">1419</span>     * Throws IllegalArgumentException if {@code normalizedSum} is infinite<a name="line.1419"></a>
+<span class="sourceLineNo">1420</span>     * or NaN and ArithmeticException if the input array contains any infinite elements<a name="line.1420"></a>
+<span class="sourceLineNo">1421</span>     * or sums to 0.<a name="line.1421"></a>
+<span class="sourceLineNo">1422</span>     * &lt;p&gt;<a name="line.1422"></a>
+<span class="sourceLineNo">1423</span>     * Ignores (i.e., copies unchanged to the output array) NaNs in the input array.<a name="line.1423"></a>
+<span class="sourceLineNo">1424</span>     *<a name="line.1424"></a>
+<span class="sourceLineNo">1425</span>     * @param values Input array to be normalized<a name="line.1425"></a>
+<span class="sourceLineNo">1426</span>     * @param normalizedSum Target sum for the normalized array<a name="line.1426"></a>
+<span class="sourceLineNo">1427</span>     * @return the normalized array.<a name="line.1427"></a>
+<span class="sourceLineNo">1428</span>     * @throws MathArithmeticException if the input array contains infinite<a name="line.1428"></a>
+<span class="sourceLineNo">1429</span>     * elements or sums to zero.<a name="line.1429"></a>
+<span class="sourceLineNo">1430</span>     * @throws MathIllegalArgumentException if the target sum is infinite or {@code NaN}.<a name="line.1430"></a>
+<span class="sourceLineNo">1431</span>     * @since 2.1<a name="line.1431"></a>
+<span class="sourceLineNo">1432</span>     */<a name="line.1432"></a>
+<span class="sourceLineNo">1433</span>    public static double[] normalizeArray(double[] values, double normalizedSum)<a name="line.1433"></a>
+<span class="sourceLineNo">1434</span>        throws MathIllegalArgumentException, MathArithmeticException {<a name="line.1434"></a>
+<span class="sourceLineNo">1435</span>        if (Double.isInfinite(normalizedSum)) {<a name="line.1435"></a>
+<span class="sourceLineNo">1436</span>            throw new MathIllegalArgumentException(LocalizedFormats.NORMALIZE_INFINITE);<a name="line.1436"></a>
+<span class="sourceLineNo">1437</span>        }<a name="line.1437"></a>
+<span class="sourceLineNo">1438</span>        if (Double.isNaN(normalizedSum)) {<a name="line.1438"></a>
+<span class="sourceLineNo">1439</span>            throw new MathIllegalArgumentException(LocalizedFormats.NORMALIZE_NAN);<a name="line.1439"></a>
+<span class="sourceLineNo">1440</span>        }<a name="line.1440"></a>
+<span class="sourceLineNo">1441</span>        double sum = 0d;<a name="line.1441"></a>
+<span class="sourceLineNo">1442</span>        final int len = values.length;<a name="line.1442"></a>
+<span class="sourceLineNo">1443</span>        double[] out = new double[len];<a name="line.1443"></a>
+<span class="sourceLineNo">1444</span>        for (int i = 0; i &lt; len; i++) {<a name="line.1444"></a>
+<span class="sourceLineNo">1445</span>            if (Double.isInfinite(values[i])) {<a name="line.1445"></a>
+<span class="sourceLineNo">1446</span>                throw new MathIllegalArgumentException(LocalizedFormats.INFINITE_ARRAY_ELEMENT, values[i], i);<a name="line.1446"></a>
+<span class="sourceLineNo">1447</span>            }<a name="line.1447"></a>
+<span class="sourceLineNo">1448</span>            if (!Double.isNaN(values[i])) {<a name="line.1448"></a>
+<span class="sourceLineNo">1449</span>                sum += values[i];<a name="line.1449"></a>
+<span class="sourceLineNo">1450</span>            }<a name="line.1450"></a>
+<span class="sourceLineNo">1451</span>        }<a name="line.1451"></a>
+<span class="sourceLineNo">1452</span>        if (sum == 0) {<a name="line.1452"></a>
+<span class="sourceLineNo">1453</span>            throw new MathArithmeticException(LocalizedFormats.ARRAY_SUMS_TO_ZERO);<a name="line.1453"></a>
+<span class="sourceLineNo">1454</span>        }<a name="line.1454"></a>
+<span class="sourceLineNo">1455</span>        for (int i = 0; i &lt; len; i++) {<a name="line.1455"></a>
+<span class="sourceLineNo">1456</span>            if (Double.isNaN(values[i])) {<a name="line.1456"></a>
+<span class="sourceLineNo">1457</span>                out[i] = Double.NaN;<a name="line.1457"></a>
+<span class="sourceLineNo">1458</span>            } else {<a name="line.1458"></a>
+<span class="sourceLineNo">1459</span>                out[i] = values[i] * normalizedSum / sum;<a name="line.1459"></a>
+<span class="sourceLineNo">1460</span>            }<a name="line.1460"></a>
+<span class="sourceLineNo">1461</span>        }<a name="line.1461"></a>
+<span class="sourceLineNo">1462</span>        return out;<a name="line.1462"></a>
+<span class="sourceLineNo">1463</span>    }<a name="line.1463"></a>
+<span class="sourceLineNo">1464</span><a name="line.1464"></a>
+<span class="sourceLineNo">1465</span>    /** Build an array of elements.<a name="line.1465"></a>
+<span class="sourceLineNo">1466</span>     * &lt;p&gt;<a name="line.1466"></a>
+<span class="sourceLineNo">1467</span>     * Arrays are filled with field.getZero()<a name="line.1467"></a>
+<span class="sourceLineNo">1468</span>     *<a name="line.1468"></a>
+<span class="sourceLineNo">1469</span>     * @param &lt;T&gt; the type of the field elements<a name="line.1469"></a>
+<span class="sourceLineNo">1470</span>     * @param field field to which array elements belong<a name="line.1470"></a>
+<span class="sourceLineNo">1471</span>     * @param length of the array<a name="line.1471"></a>
+<span class="sourceLineNo">1472</span>     * @return a new array<a name="line.1472"></a>
+<span class="sourceLineNo">1473</span>     * @since 3.2<a name="line.1473"></a>
+<span class="sourceLineNo">1474</span>     */<a name="line.1474"></a>
+<span class="sourceLineNo">1475</span>    public static &lt;T&gt; T[] buildArray(final Field&lt;T&gt; field, final int length) {<a name="line.1475"></a>
+<span class="sourceLineNo">1476</span>        @SuppressWarnings("unchecked") // OK because field must be correct class<a name="line.1476"></a>
+<span class="sourceLineNo">1477</span>        T[] array = (T[]) Array.newInstance(field.getRuntimeClass(), length);<a name="line.1477"></a>
+<span class="sourceLineNo">1478</span>        Arrays.fill(array, field.getZero());<a name="line.1478"></a>
+<span class="sourceLineNo">1479</span>        return array;<a name="line.1479"></a>
+<span class="sourceLineNo">1480</span>    }<a name="line.1480"></a>
+<span class="sourceLineNo">1481</span><a name="line.1481"></a>
+<span class="sourceLineNo">1482</span>    /** Build a double dimension  array of elements.<a name="line.1482"></a>
+<span class="sourceLineNo">1483</span>     * &lt;p&gt;<a name="line.1483"></a>
+<span class="sourceLineNo">1484</span>     * Arrays are filled with field.getZero()<a name="line.1484"></a>
+<span class="sourceLineNo">1485</span>     *<a name="line.1485"></a>
+<span class="sourceLineNo">1486</span>     * @param &lt;T&gt; the type of the field elements<a name="line.1486"></a>
+<span class="sourceLineNo">1487</span>     * @param field field to which array elements belong<a name="line.1487"></a>
+<span class="sourceLineNo">1488</span>     * @param rows number of rows in the array<a name="line.1488"></a>
+<span class="sourceLineNo">1489</span>     * @param columns number of columns (may be negative to build partial<a name="line.1489"></a>
+<span class="sourceLineNo">1490</span>     * arrays in the same way &lt;code&gt;new Field[rows][]&lt;/code&gt; works)<a name="line.1490"></a>
+<span class="sourceLineNo">1491</span>     * @return a new array<a name="line.1491"></a>
+<span class="sourceLineNo">1492</span>     * @since 3.2<a name="line.1492"></a>
+<span class="sourceLineNo">1493</span>     */<a name="line.1493"></a>
+<span class="sourceLineNo">1494</span>    @SuppressWarnings("unchecked")<a name="line.1494"></a>
+<span class="sourceLineNo">1495</span>    public static &lt;T&gt; T[][] buildArray(final Field&lt;T&gt; field, final int rows, final int columns) {<a name="line.1495"></a>
+<span class="sourceLineNo">1496</span>        final T[][] array;<a name="line.1496"></a>
+<span class="sourceLineNo">1497</span>        if (columns &lt; 0) {<a name="line.1497"></a>
+<span class="sourceLineNo">1498</span>            T[] dummyRow = buildArray(field, 0);<a name="line.1498"></a>
+<span class="sourceLineNo">1499</span>            array = (T[][]) Array.newInstance(dummyRow.getClass(), rows);<a name="line.1499"></a>
+<span class="sourceLineNo">1500</span>        } else {<a name="line.1500"></a>
+<span class="sourceLineNo">1501</span>            array = (T[][]) Array.newInstance(field.getRuntimeClass(),<a name="line.1501"></a>
+<span class="sourceLineNo">1502</span>                                              new int[] {<a name="line.1502"></a>
+<span class="sourceLineNo">1503</span>                                                  rows, columns<a name="line.1503"></a>
+<span class="sourceLineNo">1504</span>                                              });<a name="line.1504"></a>
+<span class="sourceLineNo">1505</span>            for (int i = 0; i &lt; rows; ++i) {<a name="line.1505"></a>
+<span class="sourceLineNo">1506</span>                Arrays.fill(array[i], field.getZero());<a name="line.1506"></a>
+<span class="sourceLineNo">1507</span>            }<a name="line.1507"></a>
+<span class="sourceLineNo">1508</span>        }<a name="line.1508"></a>
+<span class="sourceLineNo">1509</span>        return array;<a name="line.1509"></a>
+<span class="sourceLineNo">1510</span>    }<a name="line.1510"></a>
+<span class="sourceLineNo">1511</span><a name="line.1511"></a>
+<span class="sourceLineNo">1512</span>    /**<a name="line.1512"></a>
+<span class="sourceLineNo">1513</span>     * Calculates the &lt;a href="http://en.wikipedia.org/wiki/Convolution"&gt;<a name="line.1513"></a>
+<span class="sourceLineNo">1514</span>     * convolution&lt;/a&gt; between two sequences.<a name="line.1514"></a>
+<span class="sourceLineNo">1515</span>     * &lt;p&gt;<a name="line.1515"></a>
+<span class="sourceLineNo">1516</span>     * The solution is obtained via straightforward computation of the<a name="line.1516"></a>
+<span class="sourceLineNo">1517</span>     * convolution sum (and not via FFT). Whenever the computation needs<a name="line.1517"></a>
+<span class="sourceLineNo">1518</span>     * an element that would be located at an index outside the input arrays,<a name="line.1518"></a>
+<span class="sourceLineNo">1519</span>     * the value is assumed to be zero.<a name="line.1519"></a>
+<span class="sourceLineNo">1520</span>     *<a name="line.1520"></a>
+<span class="sourceLineNo">1521</span>     * @param x First sequence.<a name="line.1521"></a>
+<span class="sourceLineNo">1522</span>     * Typically, this sequence will represent an input signal to a system.<a name="line.1522"></a>
+<span class="sourceLineNo">1523</span>     * @param h Second sequence.<a name="line.1523"></a>
+<span class="sourceLineNo">1524</span>     * Typically, this sequence will represent the impulse response of the system.<a name="line.1524"></a>
+<span class="sourceLineNo">1525</span>     * @return the convolution of {@code x} and {@code h}.<a name="line.1525"></a>
+<span class="sourceLineNo">1526</span>     * This array's length will be {@code x.length + h.length - 1}.<a name="line.1526"></a>
+<span class="sourceLineNo">1527</span>     * @throws NullArgumentException if either {@code x} or {@code h} is {@code null}.<a name="line.1527"></a>
+<span class="sourceLineNo">1528</span>     * @throws NoDataException if either {@code x} or {@code h} is empty.<a name="line.1528"></a>
+<span class="sourceLineNo">1529</span>     *<a name="line.1529"></a>
+<span class="sourceLineNo">1530</span>     * @since 3.3<a name="line.1530"></a>
+<span class="sourceLineNo">1531</span>     */<a name="line.1531"></a>
+<span class="sourceLineNo">1532</span>    public static double[] convolve(double[] x, double[] h)<a name="line.1532"></a>
+<span class="sourceLineNo">1533</span>        throws NullArgumentException,<a name="line.1533"></a>
+<span class="sourceLineNo">1534</span>               NoDataException {<a name="line.1534"></a>
+<span class="sourceLineNo">1535</span>        MathUtils.checkNotNull(x);<a name="line.1535"></a>
+<span class="sourceLineNo">1536</span>        MathUtils.checkNotNull(h);<a name="line.1536"></a>
+<span class="sourceLineNo">1537</span><a name="line.1537"></a>
+<span class="sourceLineNo">1538</span>        final int xLen = x.length;<a name="line.1538"></a>
+<span class="sourceLineNo">1539</span>        final int hLen = h.length;<a name="line.1539"></a>
+<span class="sourceLineNo">1540</span><a name="line.1540"></a>
+<span class="sourceLineNo">1541</span>        if (xLen == 0 || hLen == 0) {<a name="line.1541"></a>
+<span class="sourceLineNo">1542</span>            throw new NoDataException();<a name="line.1542"></a>
+<span class="sourceLineNo">1543</span>        }<a name="line.1543"></a>
+<span class="sourceLineNo">1544</span><a name="line.1544"></a>
+<span class="sourceLineNo">1545</span>        // initialize the output array<a name="line.1545"></a>
+<span class="sourceLineNo">1546</span>        final int totalLength = xLen + hLen - 1;<a name="line.1546"></a>
+<span class="sourceLineNo">1547</span>        final double[] y = new double[totalLength];<a name="line.1547"></a>
+<span class="sourceLineNo">1548</span><a name="line.1548"></a>
+<span class="sourceLineNo">1549</span>        // straightforward implementation of the convolution sum<a name="line.1549"></a>
+<span class="sourceLineNo">1550</span>        for (int n = 0; n &lt; totalLength; n++) {<a name="line.1550"></a>
+<span class="sourceLineNo">1551</span>            double yn = 0;<a name="line.1551"></a>
+<span class="sourceLineNo">1552</span>            int k = FastMath.max(0, n + 1 - xLen);<a name="line.1552"></a>
+<span class="sourceLineNo">1553</span>            int j = n - k;<a name="line.1553"></a>
+<span class="sourceLineNo">1554</span>            while (k &lt; hLen &amp;&amp; j &gt;= 0) {<a name="line.1554"></a>
+<span class="sourceLineNo">1555</span>                yn += x[j--] * h[k++];<a name="line.1555"></a>
+<span class="sourceLineNo">1556</span>            }<a name="line.1556"></a>
+<span class="sourceLineNo">1557</span>            y[n] = yn;<a name="line.1557"></a>
+<span class="sourceLineNo">1558</span>        }<a name="line.1558"></a>
+<span class="sourceLineNo">1559</span><a name="line.1559"></a>
+<span class="sourceLineNo">1560</span>        return y;<a name="line.1560"></a>
+<span class="sourceLineNo">1561</span>    }<a name="line.1561"></a>
+<span class="sourceLineNo">1562</span><a name="line.1562"></a>
+<span class="sourceLineNo">1563</span>    /**<a name="line.1563"></a>
+<span class="sourceLineNo">1564</span>     * Specification for indicating that some operation applies<a name="line.1564"></a>
+<span class="sourceLineNo">1565</span>     * before or after a given index.<a name="line.1565"></a>
+<span class="sourceLineNo">1566</span>     */<a name="line.1566"></a>
+<span class="sourceLineNo">1567</span>    public enum Position {<a name="line.1567"></a>
+<span class="sourceLineNo">1568</span>        /** Designates the beginning of the array (near index 0). */<a name="line.1568"></a>
+<span class="sourceLineNo">1569</span>        HEAD,<a name="line.1569"></a>
+<span class="sourceLineNo">1570</span>        /** Designates the end of the array. */<a name="line.1570"></a>
+<span class="sourceLineNo">1571</span>        TAIL<a name="line.1571"></a>
+<span class="sourceLineNo">1572</span>    }<a name="line.1572"></a>
+<span class="sourceLineNo">1573</span><a name="line.1573"></a>
+<span class="sourceLineNo">1574</span>    /**<a name="line.1574"></a>
+<span class="sourceLineNo">1575</span>     * Shuffle the entries of the given array.<a name="line.1575"></a>
+<span class="sourceLineNo">1576</span>     * The {@code start} and {@code pos} parameters select which portion<a name="line.1576"></a>
+<span class="sourceLineNo">1577</span>     * of the array is randomized and which is left untouched.<a name="line.1577"></a>
+<span class="sourceLineNo">1578</span>     *<a name="line.1578"></a>
+<span class="sourceLineNo">1579</span>     * @see #shuffle(int[],int,Position,RandomGenerator)<a name="line.1579"></a>
+<span class="sourceLineNo">1580</span>     *<a name="line.1580"></a>
+<span class="sourceLineNo">1581</span>     * @param list Array whose entries will be shuffled (in-place).<a name="line.1581"></a>
+<span class="sourceLineNo">1582</span>     * @param start Index at which shuffling begins.<a name="line.1582"></a>
+<span class="sourceLineNo">1583</span>     * @param pos Shuffling is performed for index positions between<a name="line.1583"></a>
+<span class="sourceLineNo">1584</span>     * {@code start} and either the end (if {@link Position#TAIL})<a name="line.1584"></a>
+<span class="sourceLineNo">1585</span>     * or the beginning (if {@link Position#HEAD}) of the array.<a name="line.1585"></a>
+<span class="sourceLineNo">1586</span>     */<a name="line.1586"></a>
+<span class="sourceLineNo">1587</span>    public static void shuffle(int[] list,<a name="line.1587"></a>
+<span class="sourceLineNo">1588</span>                               int start,<a name="line.1588"></a>
+<span class="sourceLineNo">1589</span>                               Position pos) {<a name="line.1589"></a>
+<span class="sourceLineNo">1590</span>        shuffle(list, start, pos, new Well19937c());<a name="line.1590"></a>
+<span class="sourceLineNo">1591</span>    }<a name="line.1591"></a>
+<span class="sourceLineNo">1592</span><a name="line.1592"></a>
+<span class="sourceLineNo">1593</span>    /**<a name="line.1593"></a>
+<span class="sourceLineNo">1594</span>     * Shuffle the entries of the given array, using the<a name="line.1594"></a>
+<span class="sourceLineNo">1595</span>     * &lt;a href="http://en.wikipedia.org/wiki/Fisher–Yates_shuffle#The_modern_algorithm"&gt;<a name="line.1595"></a>
+<span class="sourceLineNo">1596</span>     * Fisher–Yates&lt;/a&gt; algorithm.<a name="line.1596"></a>
+<span class="sourceLineNo">1597</span>     * The {@code start} and {@code pos} parameters select which portion<a name="line.1597"></a>
+<span class="sourceLineNo">1598</span>     * of the array is randomized and which is left untouched.<a name="line.1598"></a>
+<span class="sourceLineNo">1599</span>     *<a name="line.1599"></a>
+<span class="sourceLineNo">1600</span>     * @param list Array whose entries will be shuffled (in-place).<a name="line.1600"></a>
+<span class="sourceLineNo">1601</span>     * @param start Index at which shuffling begins.<a name="line.1601"></a>
+<span class="sourceLineNo">1602</span>     * @param pos Shuffling is performed for index positions between<a name="line.1602"></a>
+<span class="sourceLineNo">1603</span>     * {@code start} and either the end (if {@link Position#TAIL})<a name="line.1603"></a>
+<span class="sourceLineNo">1604</span>     * or the beginning (if {@link Position#HEAD}) of the array.<a name="line.1604"></a>
+<span class="sourceLineNo">1605</span>     * @param rng Random number generator.<a name="line.1605"></a>
+<span class="sourceLineNo">1606</span>     */<a name="line.1606"></a>
+<span class="sourceLineNo">1607</span>    public static void shuffle(int[] list,<a name="line.1607"></a>
+<span class="sourceLineNo">1608</span>                               int start,<a name="line.1608"></a>
+<span class="sourceLineNo">1609</span>                               Position pos,<a name="line.1609"></a>
+<span class="sourceLineNo">1610</span>                               RandomGenerator rng) {<a name="line.1610"></a>
+<span class="sourceLineNo">1611</span>        switch (pos) {<a name="line.1611"></a>
+<span class="sourceLineNo">1612</span>        case TAIL: {<a name="line.1612"></a>
+<span class="sourceLineNo">1613</span>            for (int i = list.length - 1; i &gt;= start; i--) {<a name="line.1613"></a>
+<span class="sourceLineNo">1614</span>                final int target;<a name="line.1614"></a>
+<span class="sourceLineNo">1615</span>                if (i == start) {<a name="line.1615"></a>
+<span class="sourceLineNo">1616</span>                    target = start;<a name="line.1616"></a>
+<span class="sourceLineNo">1617</span>                } else {<a name="line.1617"></a>
+<span class="sourceLineNo">1618</span>                    // NumberIsTooLargeException cannot occur.<a name="line.1618"></a>
+<span class="sourceLineNo">1619</span>                    target = new UniformIntegerDistribution(rng, start, i).sample();<a name="line.1619"></a>
+<span class="sourceLineNo">1620</span>                }<a name="line.1620"></a>
+<span class="sourceLineNo">1621</span>                final int temp = list[target];<a name="line.1621"></a>
+<span class="sourceLineNo">1622</span>                list[target] = list[i];<a name="line.1622"></a>
+<span class="sourceLineNo">1623</span>                list[i] = temp;<a name="line.1623"></a>
+<span class="sourceLineNo">1624</span>            }<a name="line.1624"></a>
+<span class="sourceLineNo">1625</span>        }<a name="line.1625"></a>
+<span class="sourceLineNo">1626</span>            break;<a name="line.1626"></a>
+<span class="sourceLineNo">1627</span>        case HEAD: {<a name="line.1627"></a>
+<span class="sourceLineNo">1628</span>            for (int i = 0; i &lt;= start; i++) {<a name="line.1628"></a>
+<span class="sourceLineNo">1629</span>                final int target;<a name="line.1629"></a>
+<span class="sourceLineNo">1630</span>                if (i == start) {<a name="line.1630"></a>
+<span class="sourceLineNo">1631</span>                    target = start;<a name="line.1631"></a>
+<span class="sourceLineNo">1632</span>                } else {<a name="line.1632"></a>
+<span class="sourceLineNo">1633</span>                    // NumberIsTooLargeException cannot occur.<a name="line.1633"></a>
+<span class="sourceLineNo">1634</span>                    target = new UniformIntegerDistribution(rng, i, start).sample();<a name="line.1634"></a>
+<span class="sourceLineNo">1635</span>                }<a name="line.1635"></a>
+<span class="sourceLineNo">1636</span>                final int temp = list[target];<a name="line.1636"></a>
+<span class="sourceLineNo">1637</span>                list[target] = list[i];<a name="line.1637"></a>
+<span class="sourceLineNo">1638</span>                list[i] = temp;<a name="line.1638"></a>
+<span class="sourceLineNo">1639</span>            }<a name="line.1639"></a>
+<span class="sourceLineNo">1640</span>        }<a name="line.1640"></a>
+<span class="sourceLineNo">1641</span>            break;<a name="line.1641"></a>
+<span class="sourceLineNo">1642</span>        default:<a name="line.1642"></a>
+<span class="sourceLineNo">1643</span>            throw new MathInternalError(); // Should never happen.<a name="line.1643"></a>
+<span class="sourceLineNo">1644</span>        }<a name="line.1644"></a>
+<span class="sourceLineNo">1645</span>    }<a name="line.1645"></a>
+<span class="sourceLineNo">1646</span><a name="line.1646"></a>
+<span class="sourceLineNo">1647</span>    /**<a name="line.1647"></a>
+<span class="sourceLineNo">1648</span>     * Shuffle the entries of the given array.<a name="line.1648"></a>
+<span class="sourceLineNo">1649</span>     *<a name="line.1649"></a>
+<span class="sourceLineNo">1650</span>     * @see #shuffle(int[],int,Position,RandomGenerator)<a name="line.1650"></a>
+<span class="sourceLineNo">1651</span>     *<a name="line.1651"></a>
+<span class="sourceLineNo">1652</span>     * @param list Array whose entries will be shuffled (in-place).<a name="line.1652"></a>
+<span class="sourceLineNo">1653</span>     * @param rng Random number generator.<a name="line.1653"></a>
+<span class="sourceLineNo">1654</span>     */<a name="line.1654"></a>
+<span class="sourceLineNo">1655</span>    public static void shuffle(int[] list,<a name="line.1655"></a>
+<span class="sourceLineNo">1656</span>                               RandomGenerator rng) {<a name="line.1656"></a>
+<span class="sourceLineNo">1657</span>        shuffle(list, 0, Position.TAIL, rng);<a name="line.1657"></a>
+<span class="sourceLineNo">1658</span>    }<a name="line.1658"></a>
+<span class="sourceLineNo">1659</span><a name="line.1659"></a>
+<span class="sourceLineNo">1660</span>    /**<a name="line.1660"></a>
+<span class="sourceLineNo">1661</span>     * Shuffle the entries of the given array.<a name="line.1661"></a>
+<span class="sourceLineNo">1662</span>     *<a name="line.1662"></a>
+<span class="sourceLineNo">1663</span>     * @see #shuffle(int[],int,Position,RandomGenerator)<a name="line.1663"></a>
+<span class="sourceLineNo">1664</span>     *<a name="line.1664"></a>
+<span class="sourceLineNo">1665</span>     * @param list Array whose entries will be shuffled (in-place).<a name="line.1665"></a>
+<span class="sourceLineNo">1666</span>     */<a name="line.1666"></a>
+<span class="sourceLineNo">1667</span>    public static void shuffle(int[] list) {<a name="line.1667"></a>
+<span class="sourceLineNo">1668</span>        shuffle(list, new Well19937c());<a name="line.1668"></a>
+<span class="sourceLineNo">1669</span>    }<a name="line.1669"></a>
+<span class="sourceLineNo">1670</span><a name="line.1670"></a>
+<span class="sourceLineNo">1671</span>    /**<a name="line.1671"></a>
+<span class="sourceLineNo">1672</span>     * Returns an array representing the natural number {@code n}.<a name="line.1672"></a>
+<span class="sourceLineNo">1673</span>     *<a name="line.1673"></a>
+<span class="sourceLineNo">1674</span>     * @param n Natural number.<a name="line.1674"></a>
+<span class="sourceLineNo">1675</span>     * @return an array whose entries are the numbers 0, 1, ..., {@code n}-1.<a name="line.1675"></a>
+<span class="sourceLineNo">1676</span>     * If {@code n == 0}, the returned array is empty.<a name="line.1676"></a>
+<span class="sourceLineNo">1677</span>     */<a name="line.1677"></a>
+<span class="sourceLineNo">1678</span>    public static int[] natural(int n) {<a name="line.1678"></a>
+<span class="sourceLineNo">1679</span>        return sequence(n, 0, 1);<a name="line.1679"></a>
+<span class="sourceLineNo">1680</span>    }<a name="line.1680"></a>
+<span class="sourceLineNo">1681</span>    /**<a name="line.1681"></a>
+<span class="sourceLineNo">1682</span>     * Returns an array of {@code size} integers starting at {@code start},<a name="line.1682"></a>
+<span class="sourceLineNo">1683</span>     * skipping {@code stride} numbers.<a name="line.1683"></a>
+<span class="sourceLineNo">1684</span>     *<a name="line.1684"></a>
+<span class="sourceLineNo">1685</span>     * @param size Natural number.<a name="line.1685"></a>
+<span class="sourceLineNo">1686</span>     * @param start Natural number.<a name="line.1686"></a>
+<span class="sourceLineNo">1687</span>     * @param stride Natural number.<a name="line.1687"></a>
+<span class="sourceLineNo">1688</span>     * @return an array whose entries are the numbers<a name="line.1688"></a>
+<span class="sourceLineNo">1689</span>     * {@code start, start + stride, ..., start + (size - 1) * stride}.<a name="line.1689"></a>
+<span class="sourceLineNo">1690</span>     * If {@code size == 0}, the returned array is empty.<a name="line.1690"></a>
+<span class="sourceLineNo">1691</span>     *<a name="line.1691"></a>
+<span class="sourceLineNo">1692</span>     * @since 3.4<a name="line.1692"></a>
+<span class="sourceLineNo">1693</span>     */<a name="line.1693"></a>
+<span class="sourceLineNo">1694</span>    public static int[] sequence(int size,<a name="line.1694"></a>
+<span class="sourceLineNo">1695</span>                                 int start,<a name="line.1695"></a>
+<span class="sourceLineNo">1696</span>                                 int stride) {<a name="line.1696"></a>
+<span class="sourceLineNo">1697</span>        final int[] a = new int[size];<a name="line.1697"></a>
+<span class="sourceLineNo">1698</span>        for (int i = 0; i &lt; size; i++) {<a name="line.1698"></a>
+<span class="sourceLineNo">1699</span>            a[i] = start + i * stride;<a name="line.1699"></a>
+<span class="sourceLineNo">1700</span>        }<a name="line.1700"></a>
+<span class="sourceLineNo">1701</span>        return a;<a name="line.1701"></a>
+<span class="sourceLineNo">1702</span>    }<a name="line.1702"></a>
+<span class="sourceLineNo">1703</span>    /**<a name="line.1703"></a>
+<span class="sourceLineNo">1704</span>     * This method is used<a name="line.1704"></a>
+<span class="sourceLineNo">1705</span>     * to verify that the input parameters designate a subarray of positive length.<a name="line.1705"></a>
+<span class="sourceLineNo">1706</span>     * &lt;p&gt;<a name="line.1706"></a>
+<span class="sourceLineNo">1707</span>     * &lt;ul&gt;<a name="line.1707"></a>
+<span class="sourceLineNo">1708</span>     * &lt;li&gt;returns &lt;code&gt;true&lt;/code&gt; iff the parameters designate a subarray of<a name="line.1708"></a>
+<span class="sourceLineNo">1709</span>     * positive length&lt;/li&gt;<a name="line.1709"></a>
+<span class="sourceLineNo">1710</span>     * &lt;li&gt;throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null or<a name="line.1710"></a>
+<span class="sourceLineNo">1711</span>     * or the indices are invalid&lt;/li&gt;<a name="line.1711"></a>
+<span class="sourceLineNo">1712</span>     * &lt;li&gt;returns &lt;code&gt;false&lt;/li&gt; if the array is non-null, but<a name="line.1712"></a>
+<span class="sourceLineNo">1713</span>     * &lt;code&gt;length&lt;/code&gt; is 0.<a name="line.1713"></a>
+<span class="sourceLineNo">1714</span>     * &lt;/ul&gt;&lt;/p&gt;<a name="line.1714"></a>
+<span class="sourceLineNo">1715</span>     *<a name="line.1715"></a>
+<span class="sourceLineNo">1716</span>     * @param values the input array<a name="line.1716"></a>
+<span class="sourceLineNo">1717</span>     * @param begin index of the first array element to include<a name="line.1717"></a>
+<span class="sourceLineNo">1718</span>     * @param length the number of elements to include<a name="line.1718"></a>
+<span class="sourceLineNo">1719</span>     * @return true if the parameters are valid and designate a subarray of positive length<a name="line.1719"></a>
+<span class="sourceLineNo">1720</span>     * @throws MathIllegalArgumentException if the indices are invalid or the array is null<a name="line.1720"></a>
+<span class="sourceLineNo">1721</span>     * @since 3.3<a name="line.1721"></a>
+<span class="sourceLineNo">1722</span>     */<a name="line.1722"></a>
+<span class="sourceLineNo">1723</span>    public static boolean verifyValues(final double[] values, final int begin, final int length)<a name="line.1723"></a>
+<span class="sourceLineNo">1724</span>            throws MathIllegalArgumentException {<a name="line.1724"></a>
+<span class="sourceLineNo">1725</span>        return verifyValues(values, begin, length, false);<a name="line.1725"></a>
+<span class="sourceLineNo">1726</span>    }<a name="line.1726"></a>
+<span class="sourceLineNo">1727</span><a name="line.1727"></a>
+<span class="sourceLineNo">1728</span>    /**<a name="line.1728"></a>
+<span class="sourceLineNo">1729</span>     * This method is used<a name="line.1729"></a>
+<span class="sourceLineNo">1730</span>     * to verify that the input parameters designate a subarray of positive length.<a name="line.1730"></a>
+<span class="sourceLineNo">1731</span>     * &lt;p&gt;<a name="line.1731"></a>
+<span class="sourceLineNo">1732</span>     * &lt;ul&gt;<a name="line.1732"></a>
+<span class="sourceLineNo">1733</span>     * &lt;li&gt;returns &lt;code&gt;true&lt;/code&gt; iff the parameters designate a subarray of<a name="line.1733"></a>
+<span class="sourceLineNo">1734</span>     * non-negative length&lt;/li&gt;<a name="line.1734"></a>
+<span class="sourceLineNo">1735</span>     * &lt;li&gt;throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null or<a name="line.1735"></a>
+<span class="sourceLineNo">1736</span>     * or the indices are invalid&lt;/li&gt;<a name="line.1736"></a>
+<span class="sourceLineNo">1737</span>     * &lt;li&gt;returns &lt;code&gt;false&lt;/li&gt; if the array is non-null, but<a name="line.1737"></a>
+<span class="sourceLineNo">1738</span>     * &lt;code&gt;length&lt;/code&gt; is 0 unless &lt;code&gt;allowEmpty&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;<a name="line.1738"></a>
+<span class="sourceLineNo">1739</span>     * &lt;/ul&gt;&lt;/p&gt;<a name="line.1739"></a>
+<span class="sourceLineNo">1740</span>     *<a name="line.1740"></a>
+<span class="sourceLineNo">1741</span>     * @param values the input array<a name="line.1741"></a>
+<span class="sourceLineNo">1742</span>     * @param begin index of the first array element to include<a name="line.1742"></a>
+<span class="sourceLineNo">1743</span>     * @param length the number of elements to include<a name="line.1743"></a>
+<span class="sourceLineNo">1744</span>     * @param allowEmpty if &lt;code&gt;true&lt;/code&gt; then zero length arrays are allowed<a name="line.1744"></a>
+<span class="sourceLineNo">1745</span>     * @return true if the parameters are valid<a name="line.1745"></a>
+<span class="sourceLineNo">1746</span>     * @throws MathIllegalArgumentException if the indices are invalid or the array is null<a name="line.1746"></a>
+<span class="sourceLineNo">1747</span>     * @since 3.3<a name="line.1747"></a>
+<span class="sourceLineNo">1748</span>     */<a name="line.1748"></a>
+<span class="sourceLineNo">1749</span>    public static boolean verifyValues(final double[] values, final int begin,<a name="line.1749"></a>
+<span class="sourceLineNo">1750</span>            final int length, final boolean allowEmpty) throws MathIllegalArgumentException {<a name="line.1750"></a>
+<span class="sourceLineNo">1751</span><a name="line.1751"></a>
+<span class="sourceLineNo">1752</span>        if (values == null) {<a name="line.1752"></a>
+<span class="sourceLineNo">1753</span>            throw new NullArgumentException(LocalizedFormats.INPUT_ARRAY);<a name="line.1753"></a>
+<span class="sourceLineNo">1754</span>        }<a name="line.1754"></a>
+<span class="sourceLineNo">1755</span><a name="line.1755"></a>
+<span class="sourceLineNo">1756</span>        if (begin &lt; 0) {<a name="line.1756"></a>
+<span class="sourceLineNo">1757</span>            throw new NotPositiveException(LocalizedFormats.START_POSITION, Integer.valueOf(begin));<a name="line.1757"></a>
+<span class="sourceLineNo">1758</span>        }<a name="line.1758"></a>
+<span class="sourceLineNo">1759</span><a name="line.1759"></a>
+<span class="sourceLineNo">1760</span>        if (length &lt; 0) {<a name="line.1760"></a>
+<span class="sourceLineNo">1761</span>            throw new NotPositiveException(LocalizedFormats.LENGTH, Integer.valueOf(length));<a name="line.1761"></a>
+<span class="sourceLineNo">1762</span>        }<a name="line.1762"></a>
+<span class="sourceLineNo">1763</span><a name="line.1763"></a>
+<span class="sourceLineNo">1764</span>        if (begin + length &gt; values.length) {<a name="line.1764"></a>
+<span class="sourceLineNo">1765</span>            throw new NumberIsTooLargeException(LocalizedFormats.SUBARRAY_ENDS_AFTER_ARRAY_END,<a name="line.1765"></a>
+<span class="sourceLineNo">1766</span>                    Integer.valueOf(begin + length), Integer.valueOf(values.length), true);<a name="line.1766"></a>
+<span class="sourceLineNo">1767</span>        }<a name="line.1767"></a>
+<span class="sourceLineNo">1768</span><a name="line.1768"></a>
+<span class="sourceLineNo">1769</span>        if (length == 0 &amp;&amp; !allowEmpty) {<a name="line.1769"></a>
+<span class="sourceLineNo">1770</span>            return false;<a name="line.1770"></a>
+<span class="sourceLineNo">1771</span>        }<a name="line.1771"></a>
+<span class="sourceLineNo">1772</span><a name="line.1772"></a>
+<span class="sourceLineNo">1773</span>        return true;<a name="line.1773"></a>
+<span class="sourceLineNo">1774</span><a name="line.1774"></a>
+<span class="sourceLineNo">1775</span>    }<a name="line.1775"></a>
+<span class="sourceLineNo">1776</span><a name="line.1776"></a>
+<span class="sourceLineNo">1777</span>    /**<a name="line.1777"></a>
+<span class="sourceLineNo">1778</span>     * This method is used<a name="line.1778"></a>
+<span class="sourceLineNo">1779</span>     * to verify that the begin and length parameters designate a subarray of positive length<a name="line.1779"></a>
+<span class="sourceLineNo">1780</span>     * and the weights are all non-negative, non-NaN, finite, and not all zero.<a name="line.1780"></a>
+<span class="sourceLineNo">1781</span>     * &lt;p&gt;<a name="line.1781"></a>
+<span class="sourceLineNo">1782</span>     * &lt;ul&gt;<a name="line.1782"></a>
+<span class="sourceLineNo">1783</span>     * &lt;li&gt;returns &lt;code&gt;true&lt;/code&gt; iff the parameters designate a subarray of<a name="line.1783"></a>
+<span class="sourceLineNo">1784</span>     * positive length and the weights array contains legitimate values.&lt;/li&gt;<a name="line.1784"></a>
+<span class="sourceLineNo">1785</span>     * &lt;li&gt;throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if any of the following are true:<a name="line.1785"></a>
+<span class="sourceLineNo">1786</span>     * &lt;ul&gt;&lt;li&gt;the values array is null&lt;/li&gt;<a name="line.1786"></a>
+<span class="sourceLineNo">1787</span>     *     &lt;li&gt;the weights array is null&lt;/li&gt;<a name="line.1787"></a>
+<span class="sourceLineNo">1788</span>     *     &lt;li&gt;the weights array does not have the same length as the values array&lt;/li&gt;<a name="line.1788"></a>
+<span class="sourceLineNo">1789</span>     *     &lt;li&gt;the weights array contains one or more infinite values&lt;/li&gt;<a name="line.1789"></a>
+<span class="sourceLineNo">1790</span>     *     &lt;li&gt;the weights array contains one or more NaN values&lt;/li&gt;<a name="line.1790"></a>
+<span class="sourceLineNo">1791</span>     *     &lt;li&gt;the weights array contains negative values&lt;/li&gt;<a name="line.1791"></a>
+<span class="sourceLineNo">1792</span>     *     &lt;li&gt;the start and length arguments do not determine a valid array&lt;/li&gt;&lt;/ul&gt;<a name="line.1792"></a>
+<span class="sourceLineNo">1793</span>     * &lt;/li&gt;<a name="line.1793"></a>
+<span class="sourceLineNo">1794</span>     * &lt;li&gt;returns &lt;code&gt;false&lt;/li&gt; if the array is non-null, but<a name="line.1794"></a>
+<span class="sourceLineNo">1795</span>     * &lt;code&gt;length&lt;/code&gt; is 0.<a name="line.1795"></a>
+<span class="sourceLineNo">1796</span>     * &lt;/ul&gt;&lt;/p&gt;<a name="line.1796"></a>
+<span class="sourceLineNo">1797</span>     *<a name="line.1797"></a>
+<span class="sourceLineNo">1798</span>     * @param values the input array<a name="line.1798"></a>
+<span class="sourceLineNo">1799</span>     * @param weights the weights array<a name="line.1799"></a>
+<span class="sourceLineNo">1800</span>     * @param begin index of the first array element to include<a name="line.1800"></a>
+<span class="sourceLineNo">1801</span>     * @param length the number of elements to include<a name="line.1801"></a>
+<span class="sourceLineNo">1802</span>     * @return true if the parameters are valid and designate a subarray of positive length<a name="line.1802"></a>
+<span class="sourceLineNo">1803</span>     * @throws MathIllegalArgumentException if the indices are invalid or the array is null<a name="line.1803"></a>
+<span class="sourceLineNo">1804</span>     * @since 3.3<a name="line.1804"></a>
+<span class="sourceLineNo">1805</span>     */<a name="line.1805"></a>
+<span class="sourceLineNo">1806</span>    public static boolean verifyValues(<a name="line.1806"></a>
+<span class="sourceLineNo">1807</span>        final double[] values,<a name="line.1807"></a>
+<span class="sourceLineNo">1808</span>        final double[] weights,<a name="line.1808"></a>
+<span class="sourceLineNo">1809</span>        final int begin,<a name="line.1809"></a>
+<span class="sourceLineNo">1810</span>        final int length) throws MathIllegalArgumentException {<a name="line.1810"></a>
+<span class="sourceLineNo">1811</span>        return verifyValues(values, weights, begin, length, false);<a name="line.1811"></a>
+<span class="sourceLineNo">1812</span>    }<a name="line.1812"></a>
+<span class="sourceLineNo">1813</span><a name="line.1813"></a>
+<span class="sourceLineNo">1814</span>    /**<a name="line.1814"></a>
+<span class="sourceLineNo">1815</span>     * This method is used<a name="line.1815"></a>
+<span class="sourceLineNo">1816</span>     * to verify that the begin and length parameters designate a subarray of positive length<a name="line.1816"></a>
+<span class="sourceLineNo">1817</span>     * and the weights are all non-negative, non-NaN, finite, and not all zero.<a name="line.1817"></a>
+<span class="sourceLineNo">1818</span>     * &lt;p&gt;<a name="line.1818"></a>
+<span class="sourceLineNo">1819</span>     * &lt;ul&gt;<a name="line.1819"></a>
+<span class="sourceLineNo">1820</span>     * &lt;li&gt;returns &lt;code&gt;true&lt;/code&gt; iff the parameters designate a subarray of<a name="line.1820"></a>
+<span class="sourceLineNo">1821</span>     * non-negative length and the weights array contains legitimate values.&lt;/li&gt;<a name="line.1821"></a>
+<span class="sourceLineNo">1822</span>     * &lt;li&gt;throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if any of the following are true:<a name="line.1822"></a>
+<span class="sourceLineNo">1823</span>     * &lt;ul&gt;&lt;li&gt;the values array is null&lt;/li&gt;<a name="line.1823"></a>
+<span class="sourceLineNo">1824</span>     *     &lt;li&gt;the weights array is null&lt;/li&gt;<a name="line.1824"></a>
+<span class="sourceLineNo">1825</span>     *     &lt;li&gt;the weights array does not have the same length as the values array&lt;/li&gt;<a name="line.1825"></a>
+<span class="sourceLineNo">1826</span>     *     &lt;li&gt;the weights array contains one or more infinite values&lt;/li&gt;<a name="line.1826"></a>
+<span class="sourceLineNo">1827</span>     *     &lt;li&gt;the weights array contains one or more NaN values&lt;/li&gt;<a name="line.1827"></a>
+<span class="sourceLineNo">1828</span>     *     &lt;li&gt;the weights array contains negative values&lt;/li&gt;<a name="line.1828"></a>
+<span class="sourceLineNo">1829</span>     *     &lt;li&gt;the start and length arguments do not determine a valid array&lt;/li&gt;&lt;/ul&gt;<a name="line.1829"></a>
+<span class="sourceLineNo">1830</span>     * &lt;/li&gt;<a name="line.1830"></a>
+<span class="sourceLineNo">1831</span>     * &lt;li&gt;returns &lt;code&gt;false&lt;/li&gt; if the array is non-null, but<a name="line.1831"></a>
+<span class="sourceLineNo">1832</span>     * &lt;code&gt;length&lt;/code&gt; is 0 unless &lt;code&gt;allowEmpty&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;.<a name="line.1832"></a>
+<span class="sourceLineNo">1833</span>     * &lt;/ul&gt;&lt;/p&gt;<a name="line.1833"></a>
+<span class="sourceLineNo">1834</span>     *<a name="line.1834"></a>
+<span class="sourceLineNo">1835</span>     * @param values the input array.<a name="line.1835"></a>
+<span class="sourceLineNo">1836</span>     * @param weights the weights array.<a name="line.1836"></a>
+<span class="sourceLineNo">1837</span>     * @param begin index of the first array element to include.<a name="line.1837"></a>
+<span class="sourceLineNo">1838</span>     * @param length the number of elements to include.<a name="line.1838"></a>
+<span class="sourceLineNo">1839</span>     * @param allowEmpty if {@code true} than allow zero length arrays to pass.<a name="line.1839"></a>
+<span class="sourceLineNo">1840</span>     * @return {@code true} if the parameters are valid.<a name="line.1840"></a>
+<span class="sourceLineNo">1841</span>     * @throws NullArgumentException if either of the arrays are null<a name="line.1841"></a>
+<span class="sourceLineNo">1842</span>     * @throws MathIllegalArgumentException if the array indices are not valid,<a name="line.1842"></a>
+<span class="sourceLineNo">1843</span>     * the weights array contains NaN, infinite or negative elements, or there<a name="line.1843"></a>
+<span class="sourceLineNo">1844</span>     * are no positive weights.<a name="line.1844"></a>
+<span class="sourceLineNo">1845</span>     * @since 3.3<a name="line.1845"></a>
+<span class="sourceLineNo">1846</span>     */<a name="line.1846"></a>
+<span class="sourceLineNo">1847</span>    public static boolean verifyValues(final double[] values, final double[] weights,<a name="line.1847"></a>
+<span class="sourceLineNo">1848</span>            final int begin, final int length, final boolean allowEmpty) throws MathIllegalArgumentException {<a name="line.1848"></a>
+<span class="sourceLineNo">1849</span><a name="line.1849"></a>
+<span class="sourceLineNo">1850</span>        if (weights == null || values == null) {<a name="line.1850"></a>
+<span class="sourceLineNo">1851</span>            throw new NullArgumentException(LocalizedFormats.INPUT_ARRAY);<a name="line.1851"></a>
+<span class="sourceLineNo">1852</span>        }<a name="line.1852"></a>
+<span class="sourceLineNo">1853</span><a name="line.1853"></a>
+<span class="sourceLineNo">1854</span>        checkEqualLength(weights, values);<a name="line.1854"></a>
+<span class="sourceLineNo">1855</span><a name="line.1855"></a>
+<span class="sourceLineNo">1856</span>        boolean containsPositiveWeight = false;<a name="line.1856"></a>
+<span class="sourceLineNo">1857</span>        for (int i = begin; i &lt; begin + length; i++) {<a name="line.1857"></a>
+<span class="sourceLineNo">1858</span>            final double weight = weights[i];<a name="line.1858"></a>
+<span class="sourceLineNo">1859</span>            if (Double.isNaN(weight)) {<a name="line.1859"></a>
+<span class="sourceLineNo">1860</span>                throw new MathIllegalArgumentException(LocalizedFormats.NAN_ELEMENT_AT_INDEX, Integer.valueOf(i));<a name="line.1860"></a>
+<span class="sourceLineNo">1861</span>            }<a name="line.1861"></a>
+<span class="sourceLineNo">1862</span>            if (Double.isInfinite(weight)) {<a name="line.1862"></a>
+<span class="sourceLineNo">1863</span>                throw new MathIllegalArgumentException(LocalizedFormats.INFINITE_ARRAY_ELEMENT, Double.valueOf(weight), Integer.valueOf(i));<a name="line.1863"></a>
+<span class="sourceLineNo">1864</span>            }<a name="line.1864"></a>
+<span class="sourceLineNo">1865</span>            if (weight &lt; 0) {<a name="line.1865"></a>
+<span class="sourceLineNo">1866</span>                throw new MathIllegalArgumentException(LocalizedFormats.NEGATIVE_ELEMENT_AT_INDEX, Integer.valueOf(i), Double.valueOf(weight));<a name="line.1866"></a>
+<span class="sourceLineNo">1867</span>            }<a name="line.1867"></a>
+<span class="sourceLineNo">1868</span>            if (!containsPositiveWeight &amp;&amp; weight &gt; 0.0) {<a name="line.1868"></a>
+<span class="sourceLineNo">1869</span>                containsPositiveWeight = true;<a name="line.1869"></a>
+<span class="sourceLineNo">1870</span>            }<a name="line.1870"></a>
+<span class="sourceLineNo">1871</span>        }<a name="line.1871"></a>
+<span class="sourceLineNo">1872</span><a name="line.1872"></a>
+<span class="sourceLineNo">1873</span>        if (!containsPositiveWeight) {<a name="line.1873"></a>
+<span class="sourceLineNo">1874</span>            throw new MathIllegalArgumentException(LocalizedFormats.WEIGHT_AT_LEAST_ONE_NON_ZERO);<a name="line.1874"></a>
+<span class="sourceLineNo">1875</span>        }<a name="line.1875"></a>
+<span class="sourceLineNo">1876</span><a name="line.1876"></a>
+<span class="sourceLineNo">1877</span>        return verifyValues(values, begin, length, allowEmpty);<a name="line.1877"></a>
+<span class="sourceLineNo">1878</span>    }<a name="line.1878"></a>
+<span class="sourceLineNo">1879</span><a name="line.1879"></a>
+<span class="sourceLineNo">1880</span>    /**<a name="line.1880"></a>
+<span class="sourceLineNo">1881</span>     * Concatenates a sequence of arrays. The return array consists of the<a name="line.1881"></a>
+<span class="sourceLineNo">1882</span>     * entries of the input arrays concatenated in the order they appear in<a name="line.1882"></a>
+<span class="sourceLineNo">1883</span>     * the argument list.  Null arrays cause NullPointerExceptions; zero<a name="line.1883"></a>
+<span class="sourceLineNo">1884</span>     * length arrays are allowed (contributing nothing to the output array).<a name="line.1884"></a>
+<span class="sourceLineNo">1885</span>     *<a name="line.1885"></a>
+<span class="sourceLineNo">1886</span>     * @param x list of double[] arrays to concatenate<a name="line.1886"></a>
+<span class="sourceLineNo">1887</span>     * @return a new array consisting of the entries of the argument arrays<a name="line.1887"></a>
+<span class="sourceLineNo">1888</span>     * @throws NullPointerException if any of the arrays are null<a name="line.1888"></a>
+<span class="sourceLineNo">1889</span>     * @since 3.6<a name="line.1889"></a>
+<span class="sourceLineNo">1890</span>     */<a name="line.1890"></a>
+<span class="sourceLineNo">1891</span>    public static double[] concatenate(double[] ...x) {<a name="line.1891"></a>
+<span class="sourceLineNo">1892</span>        int combinedLength = 0;<a name="line.1892"></a>
+<span class="sourceLineNo">1893</span>        for (double[] a : x) {<a name="line.1893"></a>
+<span class="sourceLineNo">1894</span>            combinedLength += a.length;<a name="line.1894"></a>
+<span class="sourceLineNo">1895</span>        }<a name="line.1895"></a>
+<span class="sourceLineNo">1896</span>        int offset = 0;<a name="line.1896"></a>
+<span class="sourceLineNo">1897</span>        int curLength = 0;<a name="line.1897"></a>
+<span class="sourceLineNo">1898</span>        final double[] combined = new double[combinedLength];<a name="line.1898"></a>
+<span class="sourceLineNo">1899</span>        for (int i = 0; i &lt; x.length; i++) {<a name="line.1899"></a>
+<span class="sourceLineNo">1900</span>            curLength = x[i].length;<a name="line.1900"></a>
+<span class="sourceLineNo">1901</span>            System.arraycopy(x[i], 0, combined, offset, curLength);<a name="line.1901"></a>
+<span class="sourceLineNo">1902</span>            offset += curLength;<a name="line.1902"></a>
+<span class="sourceLineNo">1903</span>        }<a name="line.1903"></a>
+<span class="sourceLineNo">1904</span>        return combined;<a name="line.1904"></a>
+<span class="sourceLineNo">1905</span>    }<a name="line.1905"></a>
+<span class="sourceLineNo">1906</span><a name="line.1906"></a>
+<span class="sourceLineNo">1907</span>    /**<a name="line.1907"></a>
+<span class="sourceLineNo">1908</span>     * Returns an array consisting of the unique values in {@code data}.<a name="line.1908"></a>
+<span class="sourceLineNo">1909</span>     * The return array is sorted in descending order.  Empty arrays<a name="line.1909"></a>
+<span class="sourceLineNo">1910</span>     * are allowed, but null arrays result in NullPointerException.<a name="line.1910"></a>
+<span class="sourceLineNo">1911</span>     * Infinities are allowed.  NaN values are allowed with maximum<a name="line.1911"></a>
+<span class="sourceLineNo">1912</span>     * sort order - i.e., if there are NaN values in {@code data},<a name="line.1912"></a>
+<span class="sourceLineNo">1913</span>     * {@code Double.NaN} will be the first element of the output array,<a name="line.1913"></a>
+<span class="sourceLineNo">1914</span>     * even if the array also contains {@code Double.POSITIVE_INFINITY}.<a name="line.1914"></a>
+<span class="sourceLineNo">1915</span>     *<a name="line.1915"></a>
+<span class="sourceLineNo">1916</span>     * @param data array to scan<a name="line.1916"></a>
+<span class="sourceLineNo">1917</span>     * @return descending list of values included in the input array<a name="line.1917"></a>
+<span class="sourceLineNo">1918</span>     * @throws NullPointerException if data is null<a name="line.1918"></a>
+<span class="sourceLineNo">1919</span>     * @since 3.6<a name="line.1919"></a>
+<span class="sourceLineNo">1920</span>     */<a name="line.1920"></a>
+<span class="sourceLineNo">1921</span>    public static double[] unique(double[] data) {<a name="line.1921"></a>
+<span class="sourceLineNo">1922</span>        TreeSet&lt;Double&gt; values = new TreeSet&lt;Double&gt;();<a name="line.1922"></a>
+<span class="sourceLineNo">1923</span>        for (int i = 0; i &lt; data.length; i++) {<a name="line.1923"></a>
+<span class="sourceLineNo">1924</span>            values.add(data[i]);<a name="line.1924"></a>
+<span class="sourceLineNo">1925</span>        }<a name="line.1925"></a>
+<span class="sourceLineNo">1926</span>        final int count = values.size();<a name="line.1926"></a>
+<span class="sourceLineNo">1927</span>        final double[] out = new double[count];<a name="line.1927"></a>
+<span class="sourceLineNo">1928</span>        Iterator&lt;Double&gt; iterator = values.iterator();<a name="line.1928"></a>
+<span class="sourceLineNo">1929</span>        int i = 0;<a name="line.1929"></a>
+<span class="sourceLineNo">1930</span>        while (iterator.hasNext()) {<a name="line.1930"></a>
+<span class="sourceLineNo">1931</span>            out[count - ++i] = iterator.next();<a name="line.1931"></a>
+<span class="sourceLineNo">1932</span>        }<a name="line.1932"></a>
+<span class="sourceLineNo">1933</span>        return out;<a name="line.1933"></a>
+<span class="sourceLineNo">1934</span>    }<a name="line.1934"></a>
+<span class="sourceLineNo">1935</span>}<a name="line.1935"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

@@ -1,0 +1,539 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.analysis.solvers;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.apache.commons.math3.analysis.UnivariateFunction;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.exception.NoBracketingException;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.exception.NotStrictlyPositiveException;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.exception.NullArgumentException;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.exception.NumberIsTooLargeException;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.exception.util.LocalizedFormats;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.util.FastMath;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>/**<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * Utility routines for {@link UnivariateSolver} objects.<a name="line.28"></a>
+<span class="sourceLineNo">029</span> *<a name="line.29"></a>
+<span class="sourceLineNo">030</span> */<a name="line.30"></a>
+<span class="sourceLineNo">031</span>public class UnivariateSolverUtils {<a name="line.31"></a>
+<span class="sourceLineNo">032</span>    /**<a name="line.32"></a>
+<span class="sourceLineNo">033</span>     * Class contains only static methods.<a name="line.33"></a>
+<span class="sourceLineNo">034</span>     */<a name="line.34"></a>
+<span class="sourceLineNo">035</span>    private UnivariateSolverUtils() {}<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span>    /**<a name="line.37"></a>
+<span class="sourceLineNo">038</span>     * Convenience method to find a zero of a univariate real function.  A default<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * solver is used.<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     *<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     * @param function Function.<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * @param x0 Lower bound for the interval.<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     * @param x1 Upper bound for the interval.<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * @return a value where the function is zero.<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     * @throws NoBracketingException if the function has the same sign at the<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     * endpoints.<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * @throws NullArgumentException if {@code function} is {@code null}.<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     */<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    public static double solve(UnivariateFunction function, double x0, double x1)<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        throws NullArgumentException,<a name="line.50"></a>
+<span class="sourceLineNo">051</span>               NoBracketingException {<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        if (function == null) {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>            throw new NullArgumentException(LocalizedFormats.FUNCTION);<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        }<a name="line.54"></a>
+<span class="sourceLineNo">055</span>        final UnivariateSolver solver = new BrentSolver();<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        return solver.solve(Integer.MAX_VALUE, function, x0, x1);<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    }<a name="line.57"></a>
+<span class="sourceLineNo">058</span><a name="line.58"></a>
+<span class="sourceLineNo">059</span>    /**<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * Convenience method to find a zero of a univariate real function.  A default<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * solver is used.<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     *<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * @param function Function.<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * @param x0 Lower bound for the interval.<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * @param x1 Upper bound for the interval.<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     * @param absoluteAccuracy Accuracy to be used by the solver.<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * @return a value where the function is zero.<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * @throws NoBracketingException if the function has the same sign at the<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * endpoints.<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * @throws NullArgumentException if {@code function} is {@code null}.<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     */<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    public static double solve(UnivariateFunction function,<a name="line.72"></a>
+<span class="sourceLineNo">073</span>                               double x0, double x1,<a name="line.73"></a>
+<span class="sourceLineNo">074</span>                               double absoluteAccuracy)<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        throws NullArgumentException,<a name="line.75"></a>
+<span class="sourceLineNo">076</span>               NoBracketingException {<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        if (function == null) {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>            throw new NullArgumentException(LocalizedFormats.FUNCTION);<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        }<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        final UnivariateSolver solver = new BrentSolver(absoluteAccuracy);<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        return solver.solve(Integer.MAX_VALUE, function, x0, x1);<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    }<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>    /**<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * Force a root found by a non-bracketing solver to lie on a specified side,<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * as if the solver were a bracketing one.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     *<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * @param maxEval maximal number of new evaluations of the function<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * (evaluations already done for finding the root should have already been subtracted<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * from this number)<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * @param f function to solve<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     * @param bracketing bracketing solver to use for shifting the root<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * @param baseRoot original root found by a previous non-bracketing solver<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * @param min minimal bound of the search interval<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * @param max maximal bound of the search interval<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * @param allowedSolution the kind of solutions that the root-finding algorithm may<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * accept as solutions.<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * @return a root approximation, on the specified side of the exact root<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * @throws NoBracketingException if the function has the same sign at the<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * endpoints.<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     */<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    public static double forceSide(final int maxEval, final UnivariateFunction f,<a name="line.102"></a>
+<span class="sourceLineNo">103</span>                                   final BracketedUnivariateSolver&lt;UnivariateFunction&gt; bracketing,<a name="line.103"></a>
+<span class="sourceLineNo">104</span>                                   final double baseRoot, final double min, final double max,<a name="line.104"></a>
+<span class="sourceLineNo">105</span>                                   final AllowedSolution allowedSolution)<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        throws NoBracketingException {<a name="line.106"></a>
+<span class="sourceLineNo">107</span><a name="line.107"></a>
+<span class="sourceLineNo">108</span>        if (allowedSolution == AllowedSolution.ANY_SIDE) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>            // no further bracketing required<a name="line.109"></a>
+<span class="sourceLineNo">110</span>            return baseRoot;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        }<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>        // find a very small interval bracketing the root<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        final double step = FastMath.max(bracketing.getAbsoluteAccuracy(),<a name="line.114"></a>
+<span class="sourceLineNo">115</span>                                         FastMath.abs(baseRoot * bracketing.getRelativeAccuracy()));<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        double xLo        = FastMath.max(min, baseRoot - step);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        double fLo        = f.value(xLo);<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        double xHi        = FastMath.min(max, baseRoot + step);<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        double fHi        = f.value(xHi);<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        int remainingEval = maxEval - 2;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        while (remainingEval &gt; 0) {<a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
+<span class="sourceLineNo">123</span>            if ((fLo &gt;= 0 &amp;&amp; fHi &lt;= 0) || (fLo &lt;= 0 &amp;&amp; fHi &gt;= 0)) {<a name="line.123"></a>
+<span class="sourceLineNo">124</span>                // compute the root on the selected side<a name="line.124"></a>
+<span class="sourceLineNo">125</span>                return bracketing.solve(remainingEval, f, xLo, xHi, baseRoot, allowedSolution);<a name="line.125"></a>
+<span class="sourceLineNo">126</span>            }<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>            // try increasing the interval<a name="line.128"></a>
+<span class="sourceLineNo">129</span>            boolean changeLo = false;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>            boolean changeHi = false;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>            if (fLo &lt; fHi) {<a name="line.131"></a>
+<span class="sourceLineNo">132</span>                // increasing function<a name="line.132"></a>
+<span class="sourceLineNo">133</span>                if (fLo &gt;= 0) {<a name="line.133"></a>
+<span class="sourceLineNo">134</span>                    changeLo = true;<a name="line.134"></a>
+<span class="sourceLineNo">135</span>                } else {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>                    changeHi = true;<a name="line.136"></a>
+<span class="sourceLineNo">137</span>                }<a name="line.137"></a>
+<span class="sourceLineNo">138</span>            } else if (fLo &gt; fHi) {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                // decreasing function<a name="line.139"></a>
+<span class="sourceLineNo">140</span>                if (fLo &lt;= 0) {<a name="line.140"></a>
+<span class="sourceLineNo">141</span>                    changeLo = true;<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                } else {<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                    changeHi = true;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>                }<a name="line.144"></a>
+<span class="sourceLineNo">145</span>            } else {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>                // unknown variation<a name="line.146"></a>
+<span class="sourceLineNo">147</span>                changeLo = true;<a name="line.147"></a>
+<span class="sourceLineNo">148</span>                changeHi = true;<a name="line.148"></a>
+<span class="sourceLineNo">149</span>            }<a name="line.149"></a>
+<span class="sourceLineNo">150</span><a name="line.150"></a>
+<span class="sourceLineNo">151</span>            // update the lower bound<a name="line.151"></a>
+<span class="sourceLineNo">152</span>            if (changeLo) {<a name="line.152"></a>
+<span class="sourceLineNo">153</span>                xLo = FastMath.max(min, xLo - step);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>                fLo  = f.value(xLo);<a name="line.154"></a>
+<span class="sourceLineNo">155</span>                remainingEval--;<a name="line.155"></a>
+<span class="sourceLineNo">156</span>            }<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>            // update the higher bound<a name="line.158"></a>
+<span class="sourceLineNo">159</span>            if (changeHi) {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>                xHi = FastMath.min(max, xHi + step);<a name="line.160"></a>
+<span class="sourceLineNo">161</span>                fHi  = f.value(xHi);<a name="line.161"></a>
+<span class="sourceLineNo">162</span>                remainingEval--;<a name="line.162"></a>
+<span class="sourceLineNo">163</span>            }<a name="line.163"></a>
+<span class="sourceLineNo">164</span><a name="line.164"></a>
+<span class="sourceLineNo">165</span>        }<a name="line.165"></a>
+<span class="sourceLineNo">166</span><a name="line.166"></a>
+<span class="sourceLineNo">167</span>        throw new NoBracketingException(LocalizedFormats.FAILED_BRACKETING,<a name="line.167"></a>
+<span class="sourceLineNo">168</span>                                        xLo, xHi, fLo, fHi,<a name="line.168"></a>
+<span class="sourceLineNo">169</span>                                        maxEval - remainingEval, maxEval, baseRoot,<a name="line.169"></a>
+<span class="sourceLineNo">170</span>                                        min, max);<a name="line.170"></a>
+<span class="sourceLineNo">171</span><a name="line.171"></a>
+<span class="sourceLineNo">172</span>    }<a name="line.172"></a>
+<span class="sourceLineNo">173</span><a name="line.173"></a>
+<span class="sourceLineNo">174</span>    /**<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     * This method simply calls {@link #bracket(UnivariateFunction, double, double, double,<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     * double, double, int) bracket(function, initial, lowerBound, upperBound, q, r, maximumIterations)}<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     * with {@code q} and {@code r} set to 1.0 and {@code maximumIterations} set to {@code Integer.MAX_VALUE}.<a name="line.177"></a>
+<span class="sourceLineNo">178</span>     * &lt;p&gt;<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     * &lt;strong&gt;Note: &lt;/strong&gt; this method can take {@code Integer.MAX_VALUE}<a name="line.179"></a>
+<span class="sourceLineNo">180</span>     * iterations to throw a {@code ConvergenceException.}  Unless you are<a name="line.180"></a>
+<span class="sourceLineNo">181</span>     * confident that there is a root between {@code lowerBound} and<a name="line.181"></a>
+<span class="sourceLineNo">182</span>     * {@code upperBound} near {@code initial}, it is better to use<a name="line.182"></a>
+<span class="sourceLineNo">183</span>     * {@link #bracket(UnivariateFunction, double, double, double, double,double, int)<a name="line.183"></a>
+<span class="sourceLineNo">184</span>     * bracket(function, initial, lowerBound, upperBound, q, r, maximumIterations)},<a name="line.184"></a>
+<span class="sourceLineNo">185</span>     * explicitly specifying the maximum number of iterations.&lt;/p&gt;<a name="line.185"></a>
+<span class="sourceLineNo">186</span>     *<a name="line.186"></a>
+<span class="sourceLineNo">187</span>     * @param function Function.<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     * @param initial Initial midpoint of interval being expanded to<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     * bracket a root.<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     * @param lowerBound Lower bound (a is never lower than this value)<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     * @param upperBound Upper bound (b never is greater than this<a name="line.191"></a>
+<span class="sourceLineNo">192</span>     * value).<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     * @return a two-element array holding a and b.<a name="line.193"></a>
+<span class="sourceLineNo">194</span>     * @throws NoBracketingException if a root cannot be bracketted.<a name="line.194"></a>
+<span class="sourceLineNo">195</span>     * @throws NotStrictlyPositiveException if {@code maximumIterations &lt;= 0}.<a name="line.195"></a>
+<span class="sourceLineNo">196</span>     * @throws NullArgumentException if {@code function} is {@code null}.<a name="line.196"></a>
+<span class="sourceLineNo">197</span>     */<a name="line.197"></a>
+<span class="sourceLineNo">198</span>    public static double[] bracket(UnivariateFunction function,<a name="line.198"></a>
+<span class="sourceLineNo">199</span>                                   double initial,<a name="line.199"></a>
+<span class="sourceLineNo">200</span>                                   double lowerBound, double upperBound)<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        throws NullArgumentException,<a name="line.201"></a>
+<span class="sourceLineNo">202</span>               NotStrictlyPositiveException,<a name="line.202"></a>
+<span class="sourceLineNo">203</span>               NoBracketingException {<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        return bracket(function, initial, lowerBound, upperBound, 1.0, 1.0, Integer.MAX_VALUE);<a name="line.204"></a>
+<span class="sourceLineNo">205</span>    }<a name="line.205"></a>
+<span class="sourceLineNo">206</span><a name="line.206"></a>
+<span class="sourceLineNo">207</span>     /**<a name="line.207"></a>
+<span class="sourceLineNo">208</span>     * This method simply calls {@link #bracket(UnivariateFunction, double, double, double,<a name="line.208"></a>
+<span class="sourceLineNo">209</span>     * double, double, int) bracket(function, initial, lowerBound, upperBound, q, r, maximumIterations)}<a name="line.209"></a>
+<span class="sourceLineNo">210</span>     * with {@code q} and {@code r} set to 1.0.<a name="line.210"></a>
+<span class="sourceLineNo">211</span>     * @param function Function.<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     * @param initial Initial midpoint of interval being expanded to<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     * bracket a root.<a name="line.213"></a>
+<span class="sourceLineNo">214</span>     * @param lowerBound Lower bound (a is never lower than this value).<a name="line.214"></a>
+<span class="sourceLineNo">215</span>     * @param upperBound Upper bound (b never is greater than this<a name="line.215"></a>
+<span class="sourceLineNo">216</span>     * value).<a name="line.216"></a>
+<span class="sourceLineNo">217</span>     * @param maximumIterations Maximum number of iterations to perform<a name="line.217"></a>
+<span class="sourceLineNo">218</span>     * @return a two element array holding a and b.<a name="line.218"></a>
+<span class="sourceLineNo">219</span>     * @throws NoBracketingException if the algorithm fails to find a and b<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     * satisfying the desired conditions.<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     * @throws NotStrictlyPositiveException if {@code maximumIterations &lt;= 0}.<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     * @throws NullArgumentException if {@code function} is {@code null}.<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     */<a name="line.223"></a>
+<span class="sourceLineNo">224</span>    public static double[] bracket(UnivariateFunction function,<a name="line.224"></a>
+<span class="sourceLineNo">225</span>                                   double initial,<a name="line.225"></a>
+<span class="sourceLineNo">226</span>                                   double lowerBound, double upperBound,<a name="line.226"></a>
+<span class="sourceLineNo">227</span>                                   int maximumIterations)<a name="line.227"></a>
+<span class="sourceLineNo">228</span>        throws NullArgumentException,<a name="line.228"></a>
+<span class="sourceLineNo">229</span>               NotStrictlyPositiveException,<a name="line.229"></a>
+<span class="sourceLineNo">230</span>               NoBracketingException {<a name="line.230"></a>
+<span class="sourceLineNo">231</span>        return bracket(function, initial, lowerBound, upperBound, 1.0, 1.0, maximumIterations);<a name="line.231"></a>
+<span class="sourceLineNo">232</span>    }<a name="line.232"></a>
+<span class="sourceLineNo">233</span><a name="line.233"></a>
+<span class="sourceLineNo">234</span>    /**<a name="line.234"></a>
+<span class="sourceLineNo">235</span>     * This method attempts to find two values a and b satisfying &lt;ul&gt;<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     * &lt;li&gt; {@code lowerBound &lt;= a &lt; initial &lt; b &lt;= upperBound} &lt;/li&gt;<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     * &lt;li&gt; {@code f(a) * f(b) &lt;= 0} &lt;/li&gt;<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     * &lt;/ul&gt;<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     * If {@code f} is continuous on {@code [a,b]}, this means that {@code a}<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     * and {@code b} bracket a root of {@code f}.<a name="line.240"></a>
+<span class="sourceLineNo">241</span>     * &lt;p&gt;<a name="line.241"></a>
+<span class="sourceLineNo">242</span>     * The algorithm checks the sign of \( f(l_k) \) and \( f(u_k) \) for increasing<a name="line.242"></a>
+<span class="sourceLineNo">243</span>     * values of k, where \( l_k = max(lower, initial - \delta_k) \),<a name="line.243"></a>
+<span class="sourceLineNo">244</span>     * \( u_k = min(upper, initial + \delta_k) \), using recurrence<a name="line.244"></a>
+<span class="sourceLineNo">245</span>     * \( \delta_{k+1} = r \delta_k + q, \delta_0 = 0\) and starting search with \( k=1 \).<a name="line.245"></a>
+<span class="sourceLineNo">246</span>     * The algorithm stops when one of the following happens: &lt;ul&gt;<a name="line.246"></a>
+<span class="sourceLineNo">247</span>     * &lt;li&gt; at least one positive and one negative value have been found --  success!&lt;/li&gt;<a name="line.247"></a>
+<span class="sourceLineNo">248</span>     * &lt;li&gt; both endpoints have reached their respective limits -- NoBracketingException &lt;/li&gt;<a name="line.248"></a>
+<span class="sourceLineNo">249</span>     * &lt;li&gt; {@code maximumIterations} iterations elapse -- NoBracketingException &lt;/li&gt;&lt;/ul&gt;<a name="line.249"></a>
+<span class="sourceLineNo">250</span>     * &lt;p&gt;<a name="line.250"></a>
+<span class="sourceLineNo">251</span>     * If different signs are found at first iteration ({@code k=1}), then the returned<a name="line.251"></a>
+<span class="sourceLineNo">252</span>     * interval will be \( [a, b] = [l_1, u_1] \). If different signs are found at a later<a name="line.252"></a>
+<span class="sourceLineNo">253</span>     * iteration {@code k&gt;1}, then the returned interval will be either<a name="line.253"></a>
+<span class="sourceLineNo">254</span>     * \( [a, b] = [l_{k+1}, l_{k}] \) or \( [a, b] = [u_{k}, u_{k+1}] \). A root solver called<a name="line.254"></a>
+<span class="sourceLineNo">255</span>     * with these parameters will therefore start with the smallest bracketing interval known<a name="line.255"></a>
+<span class="sourceLineNo">256</span>     * at this step.<a name="line.256"></a>
+<span class="sourceLineNo">257</span>     * &lt;/p&gt;<a name="line.257"></a>
+<span class="sourceLineNo">258</span>     * &lt;p&gt;<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     * Interval expansion rate is tuned by changing the recurrence parameters {@code r} and<a name="line.259"></a>
+<span class="sourceLineNo">260</span>     * {@code q}. When the multiplicative factor {@code r} is set to 1, the sequence is a<a name="line.260"></a>
+<span class="sourceLineNo">261</span>     * simple arithmetic sequence with linear increase. When the multiplicative factor {@code r}<a name="line.261"></a>
+<span class="sourceLineNo">262</span>     * is larger than 1, the sequence has an asymptotically exponential rate. Note than the<a name="line.262"></a>
+<span class="sourceLineNo">263</span>     * additive parameter {@code q} should never be set to zero, otherwise the interval would<a name="line.263"></a>
+<span class="sourceLineNo">264</span>     * degenerate to the single initial point for all values of {@code k}.<a name="line.264"></a>
+<span class="sourceLineNo">265</span>     * &lt;/p&gt;<a name="line.265"></a>
+<span class="sourceLineNo">266</span>     * &lt;p&gt;<a name="line.266"></a>
+<span class="sourceLineNo">267</span>     * As a rule of thumb, when the location of the root is expected to be approximately known<a name="line.267"></a>
+<span class="sourceLineNo">268</span>     * within some error margin, {@code r} should be set to 1 and {@code q} should be set to the<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     * order of magnitude of the error margin. When the location of the root is really a wild guess,<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     * then {@code r} should be set to a value larger than 1 (typically 2 to double the interval<a name="line.270"></a>
+<span class="sourceLineNo">271</span>     * length at each iteration) and {@code q} should be set according to half the initial<a name="line.271"></a>
+<span class="sourceLineNo">272</span>     * search interval length.<a name="line.272"></a>
+<span class="sourceLineNo">273</span>     * &lt;/p&gt;<a name="line.273"></a>
+<span class="sourceLineNo">274</span>     * &lt;p&gt;<a name="line.274"></a>
+<span class="sourceLineNo">275</span>     * As an example, if we consider the trivial function {@code f(x) = 1 - x} and use<a name="line.275"></a>
+<span class="sourceLineNo">276</span>     * {@code initial = 4}, {@code r = 1}, {@code q = 2}, the algorithm will compute<a name="line.276"></a>
+<span class="sourceLineNo">277</span>     * {@code f(4-2) = f(2) = -1} and {@code f(4+2) = f(6) = -5} for {@code k = 1}, then<a name="line.277"></a>
+<span class="sourceLineNo">278</span>     * {@code f(4-4) = f(0) = +1} and {@code f(4+4) = f(8) = -7} for {@code k = 2}. Then it will<a name="line.278"></a>
+<span class="sourceLineNo">279</span>     * return the interval {@code [0, 2]} as the smallest one known to be bracketing the root.<a name="line.279"></a>
+<span class="sourceLineNo">280</span>     * As shown by this example, the initial value (here {@code 4}) may lie outside of the returned<a name="line.280"></a>
+<span class="sourceLineNo">281</span>     * bracketing interval.<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     * &lt;/p&gt;<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     * @param function function to check<a name="line.283"></a>
+<span class="sourceLineNo">284</span>     * @param initial Initial midpoint of interval being expanded to<a name="line.284"></a>
+<span class="sourceLineNo">285</span>     * bracket a root.<a name="line.285"></a>
+<span class="sourceLineNo">286</span>     * @param lowerBound Lower bound (a is never lower than this value).<a name="line.286"></a>
+<span class="sourceLineNo">287</span>     * @param upperBound Upper bound (b never is greater than this<a name="line.287"></a>
+<span class="sourceLineNo">288</span>     * value).<a name="line.288"></a>
+<span class="sourceLineNo">289</span>     * @param q additive offset used to compute bounds sequence (must be strictly positive)<a name="line.289"></a>
+<span class="sourceLineNo">290</span>     * @param r multiplicative factor used to compute bounds sequence<a name="line.290"></a>
+<span class="sourceLineNo">291</span>     * @param maximumIterations Maximum number of iterations to perform<a name="line.291"></a>
+<span class="sourceLineNo">292</span>     * @return a two element array holding the bracketing values.<a name="line.292"></a>
+<span class="sourceLineNo">293</span>     * @exception NoBracketingException if function cannot be bracketed in the search interval<a name="line.293"></a>
+<span class="sourceLineNo">294</span>     */<a name="line.294"></a>
+<span class="sourceLineNo">295</span>    public static double[] bracket(final UnivariateFunction function, final double initial,<a name="line.295"></a>
+<span class="sourceLineNo">296</span>                                   final double lowerBound, final double upperBound,<a name="line.296"></a>
+<span class="sourceLineNo">297</span>                                   final double q, final double r, final int maximumIterations)<a name="line.297"></a>
+<span class="sourceLineNo">298</span>        throws NoBracketingException {<a name="line.298"></a>
+<span class="sourceLineNo">299</span><a name="line.299"></a>
+<span class="sourceLineNo">300</span>        if (function == null) {<a name="line.300"></a>
+<span class="sourceLineNo">301</span>            throw new NullArgumentException(LocalizedFormats.FUNCTION);<a name="line.301"></a>
+<span class="sourceLineNo">302</span>        }<a name="line.302"></a>
+<span class="sourceLineNo">303</span>        if (q &lt;= 0)  {<a name="line.303"></a>
+<span class="sourceLineNo">304</span>            throw new NotStrictlyPositiveException(q);<a name="line.304"></a>
+<span class="sourceLineNo">305</span>        }<a name="line.305"></a>
+<span class="sourceLineNo">306</span>        if (maximumIterations &lt;= 0)  {<a name="line.306"></a>
+<span class="sourceLineNo">307</span>            throw new NotStrictlyPositiveException(LocalizedFormats.INVALID_MAX_ITERATIONS, maximumIterations);<a name="line.307"></a>
+<span class="sourceLineNo">308</span>        }<a name="line.308"></a>
+<span class="sourceLineNo">309</span>        verifySequence(lowerBound, initial, upperBound);<a name="line.309"></a>
+<span class="sourceLineNo">310</span><a name="line.310"></a>
+<span class="sourceLineNo">311</span>        // initialize the recurrence<a name="line.311"></a>
+<span class="sourceLineNo">312</span>        double a     = initial;<a name="line.312"></a>
+<span class="sourceLineNo">313</span>        double b     = initial;<a name="line.313"></a>
+<span class="sourceLineNo">314</span>        double fa    = Double.NaN;<a name="line.314"></a>
+<span class="sourceLineNo">315</span>        double fb    = Double.NaN;<a name="line.315"></a>
+<span class="sourceLineNo">316</span>        double delta = 0;<a name="line.316"></a>
+<span class="sourceLineNo">317</span><a name="line.317"></a>
+<span class="sourceLineNo">318</span>        for (int numIterations = 0;<a name="line.318"></a>
+<span class="sourceLineNo">319</span>             (numIterations &lt; maximumIterations) &amp;&amp; (a &gt; lowerBound || b &lt; upperBound);<a name="line.319"></a>
+<span class="sourceLineNo">320</span>             ++numIterations) {<a name="line.320"></a>
+<span class="sourceLineNo">321</span><a name="line.321"></a>
+<span class="sourceLineNo">322</span>            final double previousA  = a;<a name="line.322"></a>
+<span class="sourceLineNo">323</span>            final double previousFa = fa;<a name="line.323"></a>
+<span class="sourceLineNo">324</span>            final double previousB  = b;<a name="line.324"></a>
+<span class="sourceLineNo">325</span>            final double previousFb = fb;<a name="line.325"></a>
+<span class="sourceLineNo">326</span><a name="line.326"></a>
+<span class="sourceLineNo">327</span>            delta = r * delta + q;<a name="line.327"></a>
+<span class="sourceLineNo">328</span>            a     = FastMath.max(initial - delta, lowerBound);<a name="line.328"></a>
+<span class="sourceLineNo">329</span>            b     = FastMath.min(initial + delta, upperBound);<a name="line.329"></a>
+<span class="sourceLineNo">330</span>            fa    = function.value(a);<a name="line.330"></a>
+<span class="sourceLineNo">331</span>            fb    = function.value(b);<a name="line.331"></a>
+<span class="sourceLineNo">332</span><a name="line.332"></a>
+<span class="sourceLineNo">333</span>            if (numIterations == 0) {<a name="line.333"></a>
+<span class="sourceLineNo">334</span>                // at first iteration, we don't have a previous interval<a name="line.334"></a>
+<span class="sourceLineNo">335</span>                // we simply compare both sides of the initial interval<a name="line.335"></a>
+<span class="sourceLineNo">336</span>                if (fa * fb &lt;= 0) {<a name="line.336"></a>
+<span class="sourceLineNo">337</span>                    // the first interval already brackets a root<a name="line.337"></a>
+<span class="sourceLineNo">338</span>                    return new double[] { a, b };<a name="line.338"></a>
+<span class="sourceLineNo">339</span>                }<a name="line.339"></a>
+<span class="sourceLineNo">340</span>            } else {<a name="line.340"></a>
+<span class="sourceLineNo">341</span>                // we have a previous interval with constant sign and expand it,<a name="line.341"></a>
+<span class="sourceLineNo">342</span>                // we expect sign changes to occur at boundaries<a name="line.342"></a>
+<span class="sourceLineNo">343</span>                if (fa * previousFa &lt;= 0) {<a name="line.343"></a>
+<span class="sourceLineNo">344</span>                    // sign change detected at near lower bound<a name="line.344"></a>
+<span class="sourceLineNo">345</span>                    return new double[] { a, previousA };<a name="line.345"></a>
+<span class="sourceLineNo">346</span>                } else if (fb * previousFb &lt;= 0) {<a name="line.346"></a>
+<span class="sourceLineNo">347</span>                    // sign change detected at near upper bound<a name="line.347"></a>
+<span class="sourceLineNo">348</span>                    return new double[] { previousB, b };<a name="line.348"></a>
+<span class="sourceLineNo">349</span>                }<a name="line.349"></a>
+<span class="sourceLineNo">350</span>            }<a name="line.350"></a>
+<span class="sourceLineNo">351</span><a name="line.351"></a>
+<span class="sourceLineNo">352</span>        }<a name="line.352"></a>
+<span class="sourceLineNo">353</span><a name="line.353"></a>
+<span class="sourceLineNo">354</span>        // no bracketing found<a name="line.354"></a>
+<span class="sourceLineNo">355</span>        throw new NoBracketingException(a, b, fa, fb);<a name="line.355"></a>
+<span class="sourceLineNo">356</span><a name="line.356"></a>
+<span class="sourceLineNo">357</span>    }<a name="line.357"></a>
+<span class="sourceLineNo">358</span><a name="line.358"></a>
+<span class="sourceLineNo">359</span>    /**<a name="line.359"></a>
+<span class="sourceLineNo">360</span>     * Compute the midpoint of two values.<a name="line.360"></a>
+<span class="sourceLineNo">361</span>     *<a name="line.361"></a>
+<span class="sourceLineNo">362</span>     * @param a first value.<a name="line.362"></a>
+<span class="sourceLineNo">363</span>     * @param b second value.<a name="line.363"></a>
+<span class="sourceLineNo">364</span>     * @return the midpoint.<a name="line.364"></a>
+<span class="sourceLineNo">365</span>     */<a name="line.365"></a>
+<span class="sourceLineNo">366</span>    public static double midpoint(double a, double b) {<a name="line.366"></a>
+<span class="sourceLineNo">367</span>        return (a + b) * 0.5;<a name="line.367"></a>
+<span class="sourceLineNo">368</span>    }<a name="line.368"></a>
+<span class="sourceLineNo">369</span><a name="line.369"></a>
+<span class="sourceLineNo">370</span>    /**<a name="line.370"></a>
+<span class="sourceLineNo">371</span>     * Check whether the interval bounds bracket a root. That is, if the<a name="line.371"></a>
+<span class="sourceLineNo">372</span>     * values at the endpoints are not equal to zero, then the function takes<a name="line.372"></a>
+<span class="sourceLineNo">373</span>     * opposite signs at the endpoints.<a name="line.373"></a>
+<span class="sourceLineNo">374</span>     *<a name="line.374"></a>
+<span class="sourceLineNo">375</span>     * @param function Function.<a name="line.375"></a>
+<span class="sourceLineNo">376</span>     * @param lower Lower endpoint.<a name="line.376"></a>
+<span class="sourceLineNo">377</span>     * @param upper Upper endpoint.<a name="line.377"></a>
+<span class="sourceLineNo">378</span>     * @return {@code true} if the function values have opposite signs at the<a name="line.378"></a>
+<span class="sourceLineNo">379</span>     * given points.<a name="line.379"></a>
+<span class="sourceLineNo">380</span>     * @throws NullArgumentException if {@code function} is {@code null}.<a name="line.380"></a>
+<span class="sourceLineNo">381</span>     */<a name="line.381"></a>
+<span class="sourceLineNo">382</span>    public static boolean isBracketing(UnivariateFunction function,<a name="line.382"></a>
+<span class="sourceLineNo">383</span>                                       final double lower,<a name="line.383"></a>
+<span class="sourceLineNo">384</span>                                       final double upper)<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        throws NullArgumentException {<a name="line.385"></a>
+<span class="sourceLineNo">386</span>        if (function == null) {<a name="line.386"></a>
+<span class="sourceLineNo">387</span>            throw new NullArgumentException(LocalizedFormats.FUNCTION);<a name="line.387"></a>
+<span class="sourceLineNo">388</span>        }<a name="line.388"></a>
+<span class="sourceLineNo">389</span>        final double fLo = function.value(lower);<a name="line.389"></a>
+<span class="sourceLineNo">390</span>        final double fHi = function.value(upper);<a name="line.390"></a>
+<span class="sourceLineNo">391</span>        return (fLo &gt;= 0 &amp;&amp; fHi &lt;= 0) || (fLo &lt;= 0 &amp;&amp; fHi &gt;= 0);<a name="line.391"></a>
+<span class="sourceLineNo">392</span>    }<a name="line.392"></a>
+<span class="sourceLineNo">393</span><a name="line.393"></a>
+<span class="sourceLineNo">394</span>    /**<a name="line.394"></a>
+<span class="sourceLineNo">395</span>     * Check whether the arguments form a (strictly) increasing sequence.<a name="line.395"></a>
+<span class="sourceLineNo">396</span>     *<a name="line.396"></a>
+<span class="sourceLineNo">397</span>     * @param start First number.<a name="line.397"></a>
+<span class="sourceLineNo">398</span>     * @param mid Second number.<a name="line.398"></a>
+<span class="sourceLineNo">399</span>     * @param end Third number.<a name="line.399"></a>
+<span class="sourceLineNo">400</span>     * @return {@code true} if the arguments form an increasing sequence.<a name="line.400"></a>
+<span class="sourceLineNo">401</span>     */<a name="line.401"></a>
+<span class="sourceLineNo">402</span>    public static boolean isSequence(final double start,<a name="line.402"></a>
+<span class="sourceLineNo">403</span>                                     final double mid,<a name="line.403"></a>
+<span class="sourceLineNo">404</span>                                     final double end) {<a name="line.404"></a>
+<span class="sourceLineNo">405</span>        return (start &lt; mid) &amp;&amp; (mid &lt; end);<a name="line.405"></a>
+<span class="sourceLineNo">406</span>    }<a name="line.406"></a>
+<span class="sourceLineNo">407</span><a name="line.407"></a>
+<span class="sourceLineNo">408</span>    /**<a name="line.408"></a>
+<span class="sourceLineNo">409</span>     * Check that the endpoints specify an interval.<a name="line.409"></a>
+<span class="sourceLineNo">410</span>     *<a name="line.410"></a>
+<span class="sourceLineNo">411</span>     * @param lower Lower endpoint.<a name="line.411"></a>
+<span class="sourceLineNo">412</span>     * @param upper Upper endpoint.<a name="line.412"></a>
+<span class="sourceLineNo">413</span>     * @throws NumberIsTooLargeException if {@code lower &gt;= upper}.<a name="line.413"></a>
+<span class="sourceLineNo">414</span>     */<a name="line.414"></a>
+<span class="sourceLineNo">415</span>    public static void verifyInterval(final double lower,<a name="line.415"></a>
+<span class="sourceLineNo">416</span>                                      final double upper)<a name="line.416"></a>
+<span class="sourceLineNo">417</span>        throws NumberIsTooLargeException {<a name="line.417"></a>
+<span class="sourceLineNo">418</span>        if (lower &gt;= upper) {<a name="line.418"></a>
+<span class="sourceLineNo">419</span>            throw new NumberIsTooLargeException(LocalizedFormats.ENDPOINTS_NOT_AN_INTERVAL,<a name="line.419"></a>
+<span class="sourceLineNo">420</span>                                                lower, upper, false);<a name="line.420"></a>
+<span class="sourceLineNo">421</span>        }<a name="line.421"></a>
+<span class="sourceLineNo">422</span>    }<a name="line.422"></a>
+<span class="sourceLineNo">423</span><a name="line.423"></a>
+<span class="sourceLineNo">424</span>    /**<a name="line.424"></a>
+<span class="sourceLineNo">425</span>     * Check that {@code lower &lt; initial &lt; upper}.<a name="line.425"></a>
+<span class="sourceLineNo">426</span>     *<a name="line.426"></a>
+<span class="sourceLineNo">427</span>     * @param lower Lower endpoint.<a name="line.427"></a>
+<span class="sourceLineNo">428</span>     * @param initial Initial value.<a name="line.428"></a>
+<span class="sourceLineNo">429</span>     * @param upper Upper endpoint.<a name="line.429"></a>
+<span class="sourceLineNo">430</span>     * @throws NumberIsTooLargeException if {@code lower &gt;= initial} or<a name="line.430"></a>
+<span class="sourceLineNo">431</span>     * {@code initial &gt;= upper}.<a name="line.431"></a>
+<span class="sourceLineNo">432</span>     */<a name="line.432"></a>
+<span class="sourceLineNo">433</span>    public static void verifySequence(final double lower,<a name="line.433"></a>
+<span class="sourceLineNo">434</span>                                      final double initial,<a name="line.434"></a>
+<span class="sourceLineNo">435</span>                                      final double upper)<a name="line.435"></a>
+<span class="sourceLineNo">436</span>        throws NumberIsTooLargeException {<a name="line.436"></a>
+<span class="sourceLineNo">437</span>        verifyInterval(lower, initial);<a name="line.437"></a>
+<span class="sourceLineNo">438</span>        verifyInterval(initial, upper);<a name="line.438"></a>
+<span class="sourceLineNo">439</span>    }<a name="line.439"></a>
+<span class="sourceLineNo">440</span><a name="line.440"></a>
+<span class="sourceLineNo">441</span>    /**<a name="line.441"></a>
+<span class="sourceLineNo">442</span>     * Check that the endpoints specify an interval and the end points<a name="line.442"></a>
+<span class="sourceLineNo">443</span>     * bracket a root.<a name="line.443"></a>
+<span class="sourceLineNo">444</span>     *<a name="line.444"></a>
+<span class="sourceLineNo">445</span>     * @param function Function.<a name="line.445"></a>
+<span class="sourceLineNo">446</span>     * @param lower Lower endpoint.<a name="line.446"></a>
+<span class="sourceLineNo">447</span>     * @param upper Upper endpoint.<a name="line.447"></a>
+<span class="sourceLineNo">448</span>     * @throws NoBracketingException if the function has the same sign at the<a name="line.448"></a>
+<span class="sourceLineNo">449</span>     * endpoints.<a name="line.449"></a>
+<span class="sourceLineNo">450</span>     * @throws NullArgumentException if {@code function} is {@code null}.<a name="line.450"></a>
+<span class="sourceLineNo">451</span>     */<a name="line.451"></a>
+<span class="sourceLineNo">452</span>    public static void verifyBracketing(UnivariateFunction function,<a name="line.452"></a>
+<span class="sourceLineNo">453</span>                                        final double lower,<a name="line.453"></a>
+<span class="sourceLineNo">454</span>                                        final double upper)<a name="line.454"></a>
+<span class="sourceLineNo">455</span>        throws NullArgumentException,<a name="line.455"></a>
+<span class="sourceLineNo">456</span>               NoBracketingException {<a name="line.456"></a>
+<span class="sourceLineNo">457</span>        if (function == null) {<a name="line.457"></a>
+<span class="sourceLineNo">458</span>            throw new NullArgumentException(LocalizedFormats.FUNCTION);<a name="line.458"></a>
+<span class="sourceLineNo">459</span>        }<a name="line.459"></a>
+<span class="sourceLineNo">460</span>        verifyInterval(lower, upper);<a name="line.460"></a>
+<span class="sourceLineNo">461</span>        if (!isBracketing(function, lower, upper)) {<a name="line.461"></a>
+<span class="sourceLineNo">462</span>            throw new NoBracketingException(lower, upper,<a name="line.462"></a>
+<span class="sourceLineNo">463</span>                                            function.value(lower),<a name="line.463"></a>
+<span class="sourceLineNo">464</span>                                            function.value(upper));<a name="line.464"></a>
+<span class="sourceLineNo">465</span>        }<a name="line.465"></a>
+<span class="sourceLineNo">466</span>    }<a name="line.466"></a>
+<span class="sourceLineNo">467</span>}<a name="line.467"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

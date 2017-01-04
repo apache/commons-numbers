@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractRandomGenerator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.random</a> &gt; <span class="el_source">AbstractRandomGenerator.java</span></div><h1>AbstractRandomGenerator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.random;
+
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * Abstract class implementing the {@link  RandomGenerator} interface.
+ * Default implementations for all methods other than {@link #nextDouble()} and
+ * {@link #setSeed(long)} are provided.
+ * &lt;p&gt;
+ * All data generation methods are based on {@code code nextDouble()}.
+ * Concrete implementations &lt;strong&gt;must&lt;/strong&gt; override
+ * this method and &lt;strong&gt;should&lt;/strong&gt; provide better / more
+ * performant implementations of the other methods if the underlying PRNG
+ * supplies them.&lt;/p&gt;
+ *
+ * @since 1.1
+ */
+public abstract class AbstractRandomGenerator implements RandomGenerator {
+
+    /**
+     * Cached random normal value.  The default implementation for
+     * {@link #nextGaussian} generates pairs of values and this field caches the
+     * second value so that the full algorithm is not executed for every
+     * activation.  The value {@code Double.NaN} signals that there is
+     * no cached value.  Use {@link #clear} to clear the cached value.
+     */
+<span class="fc" id="L44">    private double cachedNormalDeviate = Double.NaN;</span>
+
+    /**
+     * Construct a RandomGenerator.
+     */
+    public AbstractRandomGenerator() {
+<span class="fc" id="L50">        super();</span>
+
+<span class="fc" id="L52">    }</span>
+
+    /**
+     * Clears the cache used by the default implementation of
+     * {@link #nextGaussian}. Implementations that do not override the
+     * default implementation of {@code nextGaussian} should call this
+     * method in the implementation of {@link #setSeed(long)}
+     */
+    public void clear() {
+<span class="fc" id="L61">        cachedNormalDeviate = Double.NaN;</span>
+<span class="fc" id="L62">    }</span>
+
+    /** {@inheritDoc} */
+    public void setSeed(int seed) {
+<span class="fc" id="L66">        setSeed((long) seed);</span>
+<span class="fc" id="L67">    }</span>
+
+    /** {@inheritDoc} */
+    public void setSeed(int[] seed) {
+        // the following number is the largest prime that fits in 32 bits (it is 2^32 - 5)
+<span class="nc" id="L72">        final long prime = 4294967291l;</span>
+
+<span class="nc" id="L74">        long combined = 0l;</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        for (int s : seed) {</span>
+<span class="nc" id="L76">            combined = combined * prime + s;</span>
+        }
+<span class="nc" id="L78">        setSeed(combined);</span>
+<span class="nc" id="L79">    }</span>
+
+    /**
+     * Sets the seed of the underlying random number generator using a
+     * {@code long} seed.  Sequences of values generated starting with the
+     * same seeds should be identical.
+     * &lt;p&gt;
+     * Implementations that do not override the default implementation of
+     * {@code nextGaussian} should include a call to {@link #clear} in the
+     * implementation of this method.&lt;/p&gt;
+     *
+     * @param seed the seed value
+     */
+    public abstract void setSeed(long seed);
+
+    /**
+     * Generates random bytes and places them into a user-supplied
+     * byte array.  The number of random bytes produced is equal to
+     * the length of the byte array.
+     * &lt;p&gt;
+     * The default implementation fills the array with bytes extracted from
+     * random integers generated using {@link #nextInt}.&lt;/p&gt;
+     *
+     * @param bytes the non-null byte array in which to put the
+     * random bytes
+     */
+    public void nextBytes(byte[] bytes) {
+<span class="fc" id="L106">        int bytesOut = 0;</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        while (bytesOut &lt; bytes.length) {</span>
+<span class="fc" id="L108">          int randInt = nextInt();</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">          for (int i = 0; i &lt; 3; i++) {</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">              if ( i &gt; 0) {</span>
+<span class="fc" id="L111">                  randInt &gt;&gt;= 8;</span>
+              }
+<span class="fc" id="L113">              bytes[bytesOut++] = (byte) randInt;</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">              if (bytesOut == bytes.length) {</span>
+<span class="fc" id="L115">                  return;</span>
+              }
+          }
+<span class="fc" id="L118">        }</span>
+<span class="nc" id="L119">    }</span>
+
+     /**
+     * Returns the next pseudorandom, uniformly distributed {@code int}
+     * value from this random number generator's sequence.
+     * All 2&lt;font size=&quot;-1&quot;&gt;&lt;sup&gt;32&lt;/sup&gt;&lt;/font&gt; possible {@code int} values
+     * should be produced with  (approximately) equal probability.
+     * &lt;p&gt;
+     * The default implementation provided here returns
+     * &lt;pre&gt;
+     * &lt;code&gt;(int) (nextDouble() * Integer.MAX_VALUE)&lt;/code&gt;
+     * &lt;/pre&gt;&lt;/p&gt;
+     *
+     * @return the next pseudorandom, uniformly distributed {@code int}
+     *  value from this random number generator's sequence
+     */
+    public int nextInt() {
+<span class="fc" id="L136">        return (int) ((2d * nextDouble() - 1d) * Integer.MAX_VALUE);</span>
+    }
+
+    /**
+     * Returns a pseudorandom, uniformly distributed {@code int} value
+     * between 0 (inclusive) and the specified value (exclusive), drawn from
+     * this random number generator's sequence.
+     * &lt;p&gt;
+     * The default implementation returns
+     * &lt;pre&gt;
+     * &lt;code&gt;(int) (nextDouble() * n&lt;/code&gt;
+     * &lt;/pre&gt;&lt;/p&gt;
+     *
+     * @param n the bound on the random number to be returned.  Must be
+     * positive.
+     * @return  a pseudorandom, uniformly distributed {@code int}
+     * value between 0 (inclusive) and n (exclusive).
+     * @throws NotStrictlyPositiveException if {@code n &lt;= 0}.
+     */
+    public int nextInt(int n) {
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        if (n &lt;= 0 ) {</span>
+<span class="fc" id="L157">            throw new NotStrictlyPositiveException(n);</span>
+        }
+<span class="fc" id="L159">        int result = (int) (nextDouble() * n);</span>
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">        return result &lt; n ? result : n - 1;</span>
+    }
+
+     /**
+     * Returns the next pseudorandom, uniformly distributed {@code long}
+     * value from this random number generator's sequence.  All
+     * 2&lt;font size=&quot;-1&quot;&gt;&lt;sup&gt;64&lt;/sup&gt;&lt;/font&gt; possible {@code long} values
+     * should be produced with (approximately) equal probability.
+     * &lt;p&gt;
+     * The default implementation returns
+     * &lt;pre&gt;
+     * &lt;code&gt;(long) (nextDouble() * Long.MAX_VALUE)&lt;/code&gt;
+     * &lt;/pre&gt;&lt;/p&gt;
+     *
+     * @return  the next pseudorandom, uniformly distributed {@code long}
+     *value from this random number generator's sequence
+     */
+    public long nextLong() {
+<span class="fc" id="L178">        return (long) ((2d * nextDouble() - 1d) * Long.MAX_VALUE);</span>
+    }
+
+    /**
+     * Returns the next pseudorandom, uniformly distributed
+     * {@code boolean} value from this random number generator's
+     * sequence.
+     * &lt;p&gt;
+     * The default implementation returns
+     * &lt;pre&gt;
+     * &lt;code&gt;nextDouble() &lt;= 0.5&lt;/code&gt;
+     * &lt;/pre&gt;&lt;/p&gt;
+     *
+     * @return  the next pseudorandom, uniformly distributed
+     * {@code boolean} value from this random number generator's
+     * sequence
+     */
+    public boolean nextBoolean() {
+<span class="fc bfc" id="L196" title="All 2 branches covered.">        return nextDouble() &lt;= 0.5;</span>
+    }
+
+     /**
+     * Returns the next pseudorandom, uniformly distributed {@code float}
+     * value between {@code 0.0} and {@code 1.0} from this random
+     * number generator's sequence.
+     * &lt;p&gt;
+     * The default implementation returns
+     * &lt;pre&gt;
+     * &lt;code&gt;(float) nextDouble() &lt;/code&gt;
+     * &lt;/pre&gt;&lt;/p&gt;
+     *
+     * @return  the next pseudorandom, uniformly distributed {@code float}
+     * value between {@code 0.0} and {@code 1.0} from this
+     * random number generator's sequence
+     */
+    public float nextFloat() {
+<span class="fc" id="L214">        return (float) nextDouble();</span>
+    }
+
+    /**
+     * Returns the next pseudorandom, uniformly distributed
+     * {@code double} value between {@code 0.0} and
+     * {@code 1.0} from this random number generator's sequence.
+     * &lt;p&gt;
+     * This method provides the underlying source of random data used by the
+     * other methods.&lt;/p&gt;
+     *
+     * @return  the next pseudorandom, uniformly distributed
+     *  {@code double} value between {@code 0.0} and
+     *  {@code 1.0} from this random number generator's sequence
+     */
+    public abstract double nextDouble();
+
+    /**
+     * Returns the next pseudorandom, Gaussian (&quot;normally&quot;) distributed
+     * {@code double} value with mean {@code 0.0} and standard
+     * deviation {@code 1.0} from this random number generator's sequence.
+     * &lt;p&gt;
+     * The default implementation uses the &lt;em&gt;Polar Method&lt;/em&gt;
+     * due to G.E.P. Box, M.E. Muller and G. Marsaglia, as described in
+     * D. Knuth, &lt;u&gt;The Art of Computer Programming&lt;/u&gt;, 3.4.1C.&lt;/p&gt;
+     * &lt;p&gt;
+     * The algorithm generates a pair of independent random values.  One of
+     * these is cached for reuse, so the full algorithm is not executed on each
+     * activation.  Implementations that do not override this method should
+     * make sure to call {@link #clear} to clear the cached value in the
+     * implementation of {@link #setSeed(long)}.&lt;/p&gt;
+     *
+     * @return  the next pseudorandom, Gaussian (&quot;normally&quot;) distributed
+     * {@code double} value with mean {@code 0.0} and
+     * standard deviation {@code 1.0} from this random number
+     *  generator's sequence
+     */
+    public double nextGaussian() {
+<span class="fc bfc" id="L252" title="All 2 branches covered.">        if (!Double.isNaN(cachedNormalDeviate)) {</span>
+<span class="fc" id="L253">            double dev = cachedNormalDeviate;</span>
+<span class="fc" id="L254">            cachedNormalDeviate = Double.NaN;</span>
+<span class="fc" id="L255">            return dev;</span>
+        }
+<span class="fc" id="L257">        double v1 = 0;</span>
+<span class="fc" id="L258">        double v2 = 0;</span>
+<span class="fc" id="L259">        double s = 1;</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">        while (s &gt;=1 ) {</span>
+<span class="fc" id="L261">            v1 = 2 * nextDouble() - 1;</span>
+<span class="fc" id="L262">            v2 = 2 * nextDouble() - 1;</span>
+<span class="fc" id="L263">            s = v1 * v1 + v2 * v2;</span>
+        }
+<span class="pc bpc" id="L265" title="1 of 2 branches missed.">        if (s != 0) {</span>
+<span class="fc" id="L266">            s = FastMath.sqrt(-2 * FastMath.log(s) / s);</span>
+        }
+<span class="fc" id="L268">        cachedNormalDeviate = v2 * s;</span>
+<span class="fc" id="L269">        return v1 * s;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

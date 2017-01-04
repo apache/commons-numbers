@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RotationOrder.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.euclidean.threed</a> &gt; <span class="el_source">RotationOrder.java</span></div><h1>RotationOrder.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.geometry.euclidean.threed;
+
+/**
+ * This class is a utility representing a rotation order specification
+ * for Cardan or Euler angles specification.
+ *
+ * This class cannot be instanciated by the user. He can only use one
+ * of the twelve predefined supported orders as an argument to either
+ * the {@link Rotation#Rotation(RotationOrder,double,double,double)}
+ * constructor or the {@link Rotation#getAngles} method.
+ *
+ * @since 1.2
+ */
+public final class RotationOrder {
+
+    /** Set of Cardan angles.
+     * this ordered set of rotations is around X, then around Y, then
+     * around Z
+     */
+<span class="fc" id="L37">    public static final RotationOrder XYZ =</span>
+      new RotationOrder(&quot;XYZ&quot;, Vector3D.PLUS_I, Vector3D.PLUS_J, Vector3D.PLUS_K);
+
+    /** Set of Cardan angles.
+     * this ordered set of rotations is around X, then around Z, then
+     * around Y
+     */
+<span class="fc" id="L44">    public static final RotationOrder XZY =</span>
+      new RotationOrder(&quot;XZY&quot;, Vector3D.PLUS_I, Vector3D.PLUS_K, Vector3D.PLUS_J);
+
+    /** Set of Cardan angles.
+     * this ordered set of rotations is around Y, then around X, then
+     * around Z
+     */
+<span class="fc" id="L51">    public static final RotationOrder YXZ =</span>
+      new RotationOrder(&quot;YXZ&quot;, Vector3D.PLUS_J, Vector3D.PLUS_I, Vector3D.PLUS_K);
+
+    /** Set of Cardan angles.
+     * this ordered set of rotations is around Y, then around Z, then
+     * around X
+     */
+<span class="fc" id="L58">    public static final RotationOrder YZX =</span>
+      new RotationOrder(&quot;YZX&quot;, Vector3D.PLUS_J, Vector3D.PLUS_K, Vector3D.PLUS_I);
+
+    /** Set of Cardan angles.
+     * this ordered set of rotations is around Z, then around X, then
+     * around Y
+     */
+<span class="fc" id="L65">    public static final RotationOrder ZXY =</span>
+      new RotationOrder(&quot;ZXY&quot;, Vector3D.PLUS_K, Vector3D.PLUS_I, Vector3D.PLUS_J);
+
+    /** Set of Cardan angles.
+     * this ordered set of rotations is around Z, then around Y, then
+     * around X
+     */
+<span class="fc" id="L72">    public static final RotationOrder ZYX =</span>
+      new RotationOrder(&quot;ZYX&quot;, Vector3D.PLUS_K, Vector3D.PLUS_J, Vector3D.PLUS_I);
+
+    /** Set of Euler angles.
+     * this ordered set of rotations is around X, then around Y, then
+     * around X
+     */
+<span class="fc" id="L79">    public static final RotationOrder XYX =</span>
+      new RotationOrder(&quot;XYX&quot;, Vector3D.PLUS_I, Vector3D.PLUS_J, Vector3D.PLUS_I);
+
+    /** Set of Euler angles.
+     * this ordered set of rotations is around X, then around Z, then
+     * around X
+     */
+<span class="fc" id="L86">    public static final RotationOrder XZX =</span>
+      new RotationOrder(&quot;XZX&quot;, Vector3D.PLUS_I, Vector3D.PLUS_K, Vector3D.PLUS_I);
+
+    /** Set of Euler angles.
+     * this ordered set of rotations is around Y, then around X, then
+     * around Y
+     */
+<span class="fc" id="L93">    public static final RotationOrder YXY =</span>
+      new RotationOrder(&quot;YXY&quot;, Vector3D.PLUS_J, Vector3D.PLUS_I, Vector3D.PLUS_J);
+
+    /** Set of Euler angles.
+     * this ordered set of rotations is around Y, then around Z, then
+     * around Y
+     */
+<span class="fc" id="L100">    public static final RotationOrder YZY =</span>
+      new RotationOrder(&quot;YZY&quot;, Vector3D.PLUS_J, Vector3D.PLUS_K, Vector3D.PLUS_J);
+
+    /** Set of Euler angles.
+     * this ordered set of rotations is around Z, then around X, then
+     * around Z
+     */
+<span class="fc" id="L107">    public static final RotationOrder ZXZ =</span>
+      new RotationOrder(&quot;ZXZ&quot;, Vector3D.PLUS_K, Vector3D.PLUS_I, Vector3D.PLUS_K);
+
+    /** Set of Euler angles.
+     * this ordered set of rotations is around Z, then around Y, then
+     * around Z
+     */
+<span class="fc" id="L114">    public static final RotationOrder ZYZ =</span>
+      new RotationOrder(&quot;ZYZ&quot;, Vector3D.PLUS_K, Vector3D.PLUS_J, Vector3D.PLUS_K);
+
+    /** Name of the rotations order. */
+    private final String name;
+
+    /** Axis of the first rotation. */
+    private final Vector3D a1;
+
+    /** Axis of the second rotation. */
+    private final Vector3D a2;
+
+    /** Axis of the third rotation. */
+    private final Vector3D a3;
+
+    /** Private constructor.
+     * This is a utility class that cannot be instantiated by the user,
+     * so its only constructor is private.
+     * @param name name of the rotation order
+     * @param a1 axis of the first rotation
+     * @param a2 axis of the second rotation
+     * @param a3 axis of the third rotation
+     */
+    private RotationOrder(final String name,
+<span class="fc" id="L138">                          final Vector3D a1, final Vector3D a2, final Vector3D a3) {</span>
+<span class="fc" id="L139">        this.name = name;</span>
+<span class="fc" id="L140">        this.a1   = a1;</span>
+<span class="fc" id="L141">        this.a2   = a2;</span>
+<span class="fc" id="L142">        this.a3   = a3;</span>
+<span class="fc" id="L143">    }</span>
+
+    /** Get a string representation of the instance.
+     * @return a string representation of the instance (in fact, its name)
+     */
+    @Override
+    public String toString() {
+<span class="fc" id="L150">        return name;</span>
+    }
+
+    /** Get the axis of the first rotation.
+     * @return axis of the first rotation
+     */
+    public Vector3D getA1() {
+<span class="fc" id="L157">        return a1;</span>
+    }
+
+    /** Get the axis of the second rotation.
+     * @return axis of the second rotation
+     */
+    public Vector3D getA2() {
+<span class="fc" id="L164">        return a2;</span>
+    }
+
+    /** Get the axis of the second rotation.
+     * @return axis of the second rotation
+     */
+    public Vector3D getA3() {
+<span class="fc" id="L171">        return a3;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

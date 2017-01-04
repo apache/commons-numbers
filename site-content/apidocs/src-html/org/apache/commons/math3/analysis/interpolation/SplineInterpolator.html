@@ -1,0 +1,199 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.analysis.interpolation;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.analysis.polynomials.PolynomialSplineFunction;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.exception.DimensionMismatchException;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.exception.NonMonotonicSequenceException;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.exception.NumberIsTooSmallException;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.exception.util.LocalizedFormats;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.util.MathArrays;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>/**<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * Computes a natural (also known as "free", "unclamped") cubic spline interpolation for the data set.<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * &lt;p&gt;<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * The {@link #interpolate(double[], double[])} method returns a {@link PolynomialSplineFunction}<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * consisting of n cubic polynomials, defined over the subintervals determined by the x values,<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * {@code x[0] &lt; x[i] ... &lt; x[n].}  The x values are referred to as "knot points."<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * &lt;p&gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * The value of the PolynomialSplineFunction at a point x that is greater than or equal to the smallest<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * knot point and strictly less than the largest knot point is computed by finding the subinterval to which<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * x belongs and computing the value of the corresponding polynomial at &lt;code&gt;x - x[i] &lt;/code&gt; where<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * &lt;code&gt;i&lt;/code&gt; is the index of the subinterval.  See {@link PolynomialSplineFunction} for more details.<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * &lt;/p&gt;<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * &lt;p&gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * The interpolating polynomials satisfy: &lt;ol&gt;<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * &lt;li&gt;The value of the PolynomialSplineFunction at each of the input x values equals the<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *  corresponding y value.&lt;/li&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * &lt;li&gt;Adjacent polynomials are equal through two derivatives at the knot points (i.e., adjacent polynomials<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *  "match up" at the knot points, as do their first and second derivatives).&lt;/li&gt;<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * &lt;/ol&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * &lt;p&gt;<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * The cubic spline interpolation algorithm implemented is as described in R.L. Burden, J.D. Faires,<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * &lt;u&gt;Numerical Analysis&lt;/u&gt;, 4th Ed., 1989, PWS-Kent, ISBN 0-53491-585-X, pp 126-131.<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * &lt;/p&gt;<a name="line.49"></a>
+<span class="sourceLineNo">050</span> *<a name="line.50"></a>
+<span class="sourceLineNo">051</span> */<a name="line.51"></a>
+<span class="sourceLineNo">052</span>public class SplineInterpolator implements UnivariateInterpolator {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    /**<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * Computes an interpolating function for the data set.<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * @param x the arguments for the interpolation points<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * @param y the values for the interpolation points<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * @return a function which interpolates the data set<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     * @throws DimensionMismatchException if {@code x} and {@code y}<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * have different sizes.<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * @throws NonMonotonicSequenceException if {@code x} is not sorted in<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * strict increasing order.<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     * @throws NumberIsTooSmallException if the size of {@code x} is smaller<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * than 3.<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    public PolynomialSplineFunction interpolate(double x[], double y[])<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        throws DimensionMismatchException,<a name="line.66"></a>
+<span class="sourceLineNo">067</span>               NumberIsTooSmallException,<a name="line.67"></a>
+<span class="sourceLineNo">068</span>               NonMonotonicSequenceException {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        if (x.length != y.length) {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>            throw new DimensionMismatchException(x.length, y.length);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        }<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>        if (x.length &lt; 3) {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>            throw new NumberIsTooSmallException(LocalizedFormats.NUMBER_OF_POINTS,<a name="line.74"></a>
+<span class="sourceLineNo">075</span>                                                x.length, 3, true);<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        }<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>        // Number of intervals.  The number of data points is n + 1.<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        final int n = x.length - 1;<a name="line.79"></a>
+<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">081</span>        MathArrays.checkOrder(x);<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>        // Differences between knot points<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        final double h[] = new double[n];<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        for (int i = 0; i &lt; n; i++) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>            h[i] = x[i + 1] - x[i];<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        }<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>        final double mu[] = new double[n];<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        final double z[] = new double[n + 1];<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        mu[0] = 0d;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        z[0] = 0d;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        double g = 0;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        for (int i = 1; i &lt; n; i++) {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>            g = 2d * (x[i+1]  - x[i - 1]) - h[i - 1] * mu[i -1];<a name="line.95"></a>
+<span class="sourceLineNo">096</span>            mu[i] = h[i] / g;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>            z[i] = (3d * (y[i + 1] * h[i - 1] - y[i] * (x[i + 1] - x[i - 1])+ y[i - 1] * h[i]) /<a name="line.97"></a>
+<span class="sourceLineNo">098</span>                    (h[i - 1] * h[i]) - h[i - 1] * z[i - 1]) / g;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        }<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>        // cubic spline coefficients --  b is linear, c quadratic, d is cubic (original y's are constants)<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        final double b[] = new double[n];<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        final double c[] = new double[n + 1];<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        final double d[] = new double[n];<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>        z[n] = 0d;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        c[n] = 0d;<a name="line.107"></a>
+<span class="sourceLineNo">108</span><a name="line.108"></a>
+<span class="sourceLineNo">109</span>        for (int j = n -1; j &gt;=0; j--) {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>            c[j] = z[j] - mu[j] * c[j + 1];<a name="line.110"></a>
+<span class="sourceLineNo">111</span>            b[j] = (y[j + 1] - y[j]) / h[j] - h[j] * (c[j + 1] + 2d * c[j]) / 3d;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>            d[j] = (c[j + 1] - c[j]) / (3d * h[j]);<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        }<a name="line.113"></a>
+<span class="sourceLineNo">114</span><a name="line.114"></a>
+<span class="sourceLineNo">115</span>        final PolynomialFunction polynomials[] = new PolynomialFunction[n];<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        final double coefficients[] = new double[4];<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        for (int i = 0; i &lt; n; i++) {<a name="line.117"></a>
+<span class="sourceLineNo">118</span>            coefficients[0] = y[i];<a name="line.118"></a>
+<span class="sourceLineNo">119</span>            coefficients[1] = b[i];<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            coefficients[2] = c[i];<a name="line.120"></a>
+<span class="sourceLineNo">121</span>            coefficients[3] = d[i];<a name="line.121"></a>
+<span class="sourceLineNo">122</span>            polynomials[i] = new PolynomialFunction(coefficients);<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        }<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>        return new PolynomialSplineFunction(x, polynomials);<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    }<a name="line.126"></a>
+<span class="sourceLineNo">127</span>}<a name="line.127"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

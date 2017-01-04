@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AggregateSummaryStatistics.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive</a> &gt; <span class="el_source">AggregateSummaryStatistics.java</span></div><h1>AggregateSummaryStatistics.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.stat.descriptive;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Iterator;
+
+import org.apache.commons.math3.exception.NullArgumentException;
+
+/**
+ * &lt;p&gt;
+ * An aggregator for {@code SummaryStatistics} from several data sets or
+ * data set partitions.  In its simplest usage mode, the client creates an
+ * instance via the zero-argument constructor, then uses
+ * {@link #createContributingStatistics()} to obtain a {@code SummaryStatistics}
+ * for each individual data set / partition.  The per-set statistics objects
+ * are used as normal, and at any time the aggregate statistics for all the
+ * contributors can be obtained from this object.
+ * &lt;/p&gt;&lt;p&gt;
+ * Clients with specialized requirements can use alternative constructors to
+ * control the statistics implementations and initial values used by the
+ * contributing and the internal aggregate {@code SummaryStatistics} objects.
+ * &lt;/p&gt;&lt;p&gt;
+ * A static {@link #aggregate(Collection)} method is also included that computes
+ * aggregate statistics directly from a Collection of SummaryStatistics instances.
+ * &lt;/p&gt;&lt;p&gt;
+ * When {@link #createContributingStatistics()} is used to create SummaryStatistics
+ * instances to be aggregated concurrently, the created instances'
+ * {@link SummaryStatistics#addValue(double)} methods must synchronize on the aggregating
+ * instance maintained by this class.  In multithreaded environments, if the functionality
+ * provided by {@link #aggregate(Collection)} is adequate, that method should be used
+ * to avoid unnecessary computation and synchronization delays.&lt;/p&gt;
+ *
+ * @since 2.0
+ *
+ */
+public class AggregateSummaryStatistics implements StatisticalSummary,
+        Serializable {
+
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = -8207112444016386906L;
+
+    /**
+     * A SummaryStatistics serving as a prototype for creating SummaryStatistics
+     * contributing to this aggregate
+     */
+    private final SummaryStatistics statisticsPrototype;
+
+    /**
+     * The SummaryStatistics in which aggregate statistics are accumulated.
+     */
+    private final SummaryStatistics statistics;
+
+    /**
+     * Initializes a new AggregateSummaryStatistics with default statistics
+     * implementations.
+     *
+     */
+    public AggregateSummaryStatistics() {
+        // No try-catch or throws NAE because arg is guaranteed non-null
+<span class="fc" id="L78">        this(new SummaryStatistics());</span>
+<span class="fc" id="L79">    }</span>
+
+    /**
+     * Initializes a new AggregateSummaryStatistics with the specified statistics
+     * object as a prototype for contributing statistics and for the internal
+     * aggregate statistics.  This provides for customized statistics implementations
+     * to be used by contributing and aggregate statistics.
+     *
+     * @param prototypeStatistics a {@code SummaryStatistics} serving as a
+     *      prototype both for the internal aggregate statistics and for
+     *      contributing statistics obtained via the
+     *      {@code createContributingStatistics()} method.  Being a prototype
+     *      means that other objects are initialized by copying this object's state.
+     *      If {@code null}, a new, default statistics object is used.  Any statistic
+     *      values in the prototype are propagated to contributing statistics
+     *      objects and (once) into these aggregate statistics.
+     * @throws NullArgumentException if prototypeStatistics is null
+     * @see #createContributingStatistics()
+     */
+    public AggregateSummaryStatistics(SummaryStatistics prototypeStatistics) throws NullArgumentException {
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        this(prototypeStatistics,</span>
+             prototypeStatistics == null ? null : new SummaryStatistics(prototypeStatistics));
+<span class="fc" id="L101">    }</span>
+
+    /**
+     * Initializes a new AggregateSummaryStatistics with the specified statistics
+     * object as a prototype for contributing statistics and for the internal
+     * aggregate statistics.  This provides for different statistics implementations
+     * to be used by contributing and aggregate statistics and for an initial
+     * state to be supplied for the aggregate statistics.
+     *
+     * @param prototypeStatistics a {@code SummaryStatistics} serving as a
+     *      prototype both for the internal aggregate statistics and for
+     *      contributing statistics obtained via the
+     *      {@code createContributingStatistics()} method.  Being a prototype
+     *      means that other objects are initialized by copying this object's state.
+     *      If {@code null}, a new, default statistics object is used.  Any statistic
+     *      values in the prototype are propagated to contributing statistics
+     *      objects, but not into these aggregate statistics.
+     * @param initialStatistics a {@code SummaryStatistics} to serve as the
+     *      internal aggregate statistics object.  If {@code null}, a new, default
+     *      statistics object is used.
+     * @see #createContributingStatistics()
+     */
+    public AggregateSummaryStatistics(SummaryStatistics prototypeStatistics,
+<span class="fc" id="L124">                                      SummaryStatistics initialStatistics) {</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">        this.statisticsPrototype =</span>
+            (prototypeStatistics == null) ? new SummaryStatistics() : prototypeStatistics;
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">        this.statistics =</span>
+            (initialStatistics == null) ? new SummaryStatistics() : initialStatistics;
+<span class="fc" id="L129">    }</span>
+
+    /**
+     * {@inheritDoc}.  This version returns the maximum over all the aggregated
+     * data.
+     *
+     * @see StatisticalSummary#getMax()
+     */
+    public double getMax() {
+<span class="fc" id="L138">        synchronized (statistics) {</span>
+<span class="fc" id="L139">            return statistics.getMax();</span>
+<span class="nc" id="L140">        }</span>
+    }
+
+    /**
+     * {@inheritDoc}.  This version returns the mean of all the aggregated data.
+     *
+     * @see StatisticalSummary#getMean()
+     */
+    public double getMean() {
+<span class="fc" id="L149">        synchronized (statistics) {</span>
+<span class="fc" id="L150">            return statistics.getMean();</span>
+<span class="nc" id="L151">        }</span>
+    }
+
+    /**
+     * {@inheritDoc}.  This version returns the minimum over all the aggregated
+     * data.
+     *
+     * @see StatisticalSummary#getMin()
+     */
+    public double getMin() {
+<span class="fc" id="L161">        synchronized (statistics) {</span>
+<span class="fc" id="L162">            return statistics.getMin();</span>
+<span class="nc" id="L163">        }</span>
+    }
+
+    /**
+     * {@inheritDoc}.  This version returns a count of all the aggregated data.
+     *
+     * @see StatisticalSummary#getN()
+     */
+    public long getN() {
+<span class="fc" id="L172">        synchronized (statistics) {</span>
+<span class="fc" id="L173">            return statistics.getN();</span>
+<span class="nc" id="L174">        }</span>
+    }
+
+    /**
+     * {@inheritDoc}.  This version returns the standard deviation of all the
+     * aggregated data.
+     *
+     * @see StatisticalSummary#getStandardDeviation()
+     */
+    public double getStandardDeviation() {
+<span class="nc" id="L184">        synchronized (statistics) {</span>
+<span class="nc" id="L185">            return statistics.getStandardDeviation();</span>
+<span class="nc" id="L186">        }</span>
+    }
+
+    /**
+     * {@inheritDoc}.  This version returns a sum of all the aggregated data.
+     *
+     * @see StatisticalSummary#getSum()
+     */
+    public double getSum() {
+<span class="fc" id="L195">        synchronized (statistics) {</span>
+<span class="fc" id="L196">            return statistics.getSum();</span>
+<span class="nc" id="L197">        }</span>
+    }
+
+    /**
+     * {@inheritDoc}.  This version returns the variance of all the aggregated
+     * data.
+     *
+     * @see StatisticalSummary#getVariance()
+     */
+    public double getVariance() {
+<span class="fc" id="L207">        synchronized (statistics) {</span>
+<span class="fc" id="L208">            return statistics.getVariance();</span>
+<span class="nc" id="L209">        }</span>
+    }
+
+    /**
+     * Returns the sum of the logs of all the aggregated data.
+     *
+     * @return the sum of logs
+     * @see SummaryStatistics#getSumOfLogs()
+     */
+    public double getSumOfLogs() {
+<span class="nc" id="L219">        synchronized (statistics) {</span>
+<span class="nc" id="L220">            return statistics.getSumOfLogs();</span>
+<span class="nc" id="L221">        }</span>
+    }
+
+    /**
+     * Returns the geometric mean of all the aggregated data.
+     *
+     * @return the geometric mean
+     * @see SummaryStatistics#getGeometricMean()
+     */
+    public double getGeometricMean() {
+<span class="nc" id="L231">        synchronized (statistics) {</span>
+<span class="nc" id="L232">            return statistics.getGeometricMean();</span>
+<span class="nc" id="L233">        }</span>
+    }
+
+    /**
+     * Returns the sum of the squares of all the aggregated data.
+     *
+     * @return The sum of squares
+     * @see SummaryStatistics#getSumsq()
+     */
+    public double getSumsq() {
+<span class="nc" id="L243">        synchronized (statistics) {</span>
+<span class="nc" id="L244">            return statistics.getSumsq();</span>
+<span class="nc" id="L245">        }</span>
+    }
+
+    /**
+     * Returns a statistic related to the Second Central Moment.  Specifically,
+     * what is returned is the sum of squared deviations from the sample mean
+     * among the all of the aggregated data.
+     *
+     * @return second central moment statistic
+     * @see SummaryStatistics#getSecondMoment()
+     */
+    public double getSecondMoment() {
+<span class="nc" id="L257">        synchronized (statistics) {</span>
+<span class="nc" id="L258">            return statistics.getSecondMoment();</span>
+<span class="nc" id="L259">        }</span>
+    }
+
+    /**
+     * Return a {@link StatisticalSummaryValues} instance reporting current
+     * aggregate statistics.
+     *
+     * @return Current values of aggregate statistics
+     */
+    public StatisticalSummary getSummary() {
+<span class="fc" id="L269">        synchronized (statistics) {</span>
+<span class="fc" id="L270">            return new StatisticalSummaryValues(getMean(), getVariance(), getN(),</span>
+                    getMax(), getMin(), getSum());
+<span class="nc" id="L272">        }</span>
+    }
+
+    /**
+     * Creates and returns a {@code SummaryStatistics} whose data will be
+     * aggregated with those of this {@code AggregateSummaryStatistics}.
+     *
+     * @return a {@code SummaryStatistics} whose data will be aggregated with
+     *      those of this {@code AggregateSummaryStatistics}.  The initial state
+     *      is a copy of the configured prototype statistics.
+     */
+    public SummaryStatistics createContributingStatistics() {
+<span class="fc" id="L284">        SummaryStatistics contributingStatistics</span>
+                = new AggregatingSummaryStatistics(statistics);
+
+        // No try - catch or advertising NAE because neither argument will ever be null
+<span class="fc" id="L288">        SummaryStatistics.copy(statisticsPrototype, contributingStatistics);</span>
+
+<span class="fc" id="L290">        return contributingStatistics;</span>
+    }
+
+    /**
+     * Computes aggregate summary statistics. This method can be used to combine statistics
+     * computed over partitions or subsamples - i.e., the StatisticalSummaryValues returned
+     * should contain the same values that would have been obtained by computing a single
+     * StatisticalSummary over the combined dataset.
+     * &lt;p&gt;
+     * Returns null if the collection is empty or null.
+     * &lt;/p&gt;
+     *
+     * @param statistics collection of SummaryStatistics to aggregate
+     * @return summary statistics for the combined dataset
+     */
+    public static StatisticalSummaryValues aggregate(Collection&lt;? extends StatisticalSummary&gt; statistics) {
+<span class="pc bpc" id="L306" title="1 of 2 branches missed.">        if (statistics == null) {</span>
+<span class="nc" id="L307">            return null;</span>
+        }
+<span class="fc" id="L309">        Iterator&lt;? extends StatisticalSummary&gt; iterator = statistics.iterator();</span>
+<span class="pc bpc" id="L310" title="1 of 2 branches missed.">        if (!iterator.hasNext()) {</span>
+<span class="nc" id="L311">            return null;</span>
+        }
+<span class="fc" id="L313">        StatisticalSummary current = iterator.next();</span>
+<span class="fc" id="L314">        long n = current.getN();</span>
+<span class="fc" id="L315">        double min = current.getMin();</span>
+<span class="fc" id="L316">        double sum = current.getSum();</span>
+<span class="fc" id="L317">        double max = current.getMax();</span>
+<span class="fc" id="L318">        double var = current.getVariance();</span>
+<span class="fc" id="L319">        double m2 = var * (n - 1d);</span>
+<span class="fc" id="L320">        double mean = current.getMean();</span>
+<span class="fc bfc" id="L321" title="All 2 branches covered.">        while (iterator.hasNext()) {</span>
+<span class="fc" id="L322">            current = iterator.next();</span>
+<span class="pc bpc" id="L323" title="1 of 4 branches missed.">            if (current.getMin() &lt; min || Double.isNaN(min)) {</span>
+<span class="fc" id="L324">                min = current.getMin();</span>
+            }
+<span class="pc bpc" id="L326" title="1 of 4 branches missed.">            if (current.getMax() &gt; max || Double.isNaN(max)) {</span>
+<span class="fc" id="L327">                max = current.getMax();</span>
+            }
+<span class="fc" id="L329">            sum += current.getSum();</span>
+<span class="fc" id="L330">            final double oldN = n;</span>
+<span class="fc" id="L331">            final double curN = current.getN();</span>
+<span class="fc" id="L332">            n += curN;</span>
+<span class="fc" id="L333">            final double meanDiff = current.getMean() - mean;</span>
+<span class="fc" id="L334">            mean = sum / n;</span>
+<span class="fc" id="L335">            final double curM2 = current.getVariance() * (curN - 1d);</span>
+<span class="fc" id="L336">            m2 = m2 + curM2 + meanDiff * meanDiff * oldN * curN / n;</span>
+<span class="fc" id="L337">        }</span>
+        final double variance;
+<span class="pc bpc" id="L339" title="1 of 2 branches missed.">        if (n == 0) {</span>
+<span class="nc" id="L340">            variance = Double.NaN;</span>
+<span class="pc bpc" id="L341" title="1 of 2 branches missed.">        } else if (n == 1) {</span>
+<span class="nc" id="L342">            variance = 0d;</span>
+        } else {
+<span class="fc" id="L344">            variance = m2 / (n - 1);</span>
+        }
+<span class="fc" id="L346">        return new StatisticalSummaryValues(mean, variance, n, max, min, sum);</span>
+    }
+
+    /**
+     * A SummaryStatistics that also forwards all values added to it to a second
+     * {@code SummaryStatistics} for aggregation.
+     *
+     * @since 2.0
+     */
+    private static class AggregatingSummaryStatistics extends SummaryStatistics {
+
+        /**
+         * The serialization version of this class
+         */
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * An additional SummaryStatistics into which values added to these
+         * statistics (and possibly others) are aggregated
+         */
+        private final SummaryStatistics aggregateStatistics;
+
+        /**
+         * Initializes a new AggregatingSummaryStatistics with the specified
+         * aggregate statistics object
+         *
+         * @param aggregateStatistics a {@code SummaryStatistics} into which
+         *      values added to this statistics object should be aggregated
+         */
+<span class="fc" id="L375">        AggregatingSummaryStatistics(SummaryStatistics aggregateStatistics) {</span>
+<span class="fc" id="L376">            this.aggregateStatistics = aggregateStatistics;</span>
+<span class="fc" id="L377">        }</span>
+
+        /**
+         * {@inheritDoc}.  This version adds the provided value to the configured
+         * aggregate after adding it to these statistics.
+         *
+         * @see SummaryStatistics#addValue(double)
+         */
+        @Override
+        public void addValue(double value) {
+<span class="fc" id="L387">            super.addValue(value);</span>
+<span class="fc" id="L388">            synchronized (aggregateStatistics) {</span>
+<span class="fc" id="L389">                aggregateStatistics.addValue(value);</span>
+<span class="pc" id="L390">            }</span>
+<span class="fc" id="L391">        }</span>
+
+        /**
+         * Returns true iff &lt;code&gt;object&lt;/code&gt; is a
+         * &lt;code&gt;SummaryStatistics&lt;/code&gt; instance and all statistics have the
+         * same values as this.
+         * @param object the object to test equality against.
+         * @return true if object equals this
+         */
+        @Override
+        public boolean equals(Object object) {
+<span class="nc bnc" id="L402" title="All 2 branches missed.">            if (object == this) {</span>
+<span class="nc" id="L403">                return true;</span>
+            }
+<span class="nc bnc" id="L405" title="All 2 branches missed.">            if (object instanceof AggregatingSummaryStatistics == false) {</span>
+<span class="nc" id="L406">                return false;</span>
+            }
+<span class="nc" id="L408">            AggregatingSummaryStatistics stat = (AggregatingSummaryStatistics)object;</span>
+<span class="nc bnc" id="L409" title="All 4 branches missed.">            return super.equals(stat) &amp;&amp;</span>
+                   aggregateStatistics.equals(stat.aggregateStatistics);
+        }
+
+        /**
+         * Returns hash code based on values of statistics
+         * @return hash code
+         */
+        @Override
+        public int hashCode() {
+<span class="nc" id="L419">            return 123 + super.hashCode() + aggregateStatistics.hashCode();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

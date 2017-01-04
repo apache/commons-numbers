@@ -1,0 +1,102 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<title>Apache Commons Math 3.6.1 Reference Package org.apache.commons.math3.exception</title>
+		<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="style" />
+	</head>
+	<body>
+
+		<h3>
+        	<a href="package-summary.html" target="classFrame">org.apache.commons.math3.exception</a>
+      	</h3>
+
+      	<h3>Classes</h3>
+
+      	<ul>
+      		          	<li>
+            	<a href="ConvergenceException.html" target="classFrame">ConvergenceException</a>
+          	</li>
+          	          	<li>
+            	<a href="DimensionMismatchException.html" target="classFrame">DimensionMismatchException</a>
+          	</li>
+          	          	<li>
+            	<a href="InsufficientDataException.html" target="classFrame">InsufficientDataException</a>
+          	</li>
+          	          	<li>
+            	<a href="MathArithmeticException.html" target="classFrame">MathArithmeticException</a>
+          	</li>
+          	          	<li>
+            	<a href="MathIllegalArgumentException.html" target="classFrame">MathIllegalArgumentException</a>
+          	</li>
+          	          	<li>
+            	<a href="MathIllegalNumberException.html" target="classFrame">MathIllegalNumberException</a>
+          	</li>
+          	          	<li>
+            	<a href="MathIllegalStateException.html" target="classFrame">MathIllegalStateException</a>
+          	</li>
+          	          	<li>
+            	<a href="MathInternalError.html" target="classFrame">MathInternalError</a>
+          	</li>
+          	          	<li>
+            	<a href="MathParseException.html" target="classFrame">MathParseException</a>
+          	</li>
+          	          	<li>
+            	<a href="MathRuntimeException.html" target="classFrame">MathRuntimeException</a>
+          	</li>
+          	          	<li>
+            	<a href="MathUnsupportedOperationException.html" target="classFrame">MathUnsupportedOperationException</a>
+          	</li>
+          	          	<li>
+            	<a href="MaxCountExceededException.html" target="classFrame">MaxCountExceededException</a>
+          	</li>
+          	          	<li>
+            	<a href="MultiDimensionMismatchException.html" target="classFrame">MultiDimensionMismatchException</a>
+          	</li>
+          	          	<li>
+            	<a href="NoBracketingException.html" target="classFrame">NoBracketingException</a>
+          	</li>
+          	          	<li>
+            	<a href="NoDataException.html" target="classFrame">NoDataException</a>
+          	</li>
+          	          	<li>
+            	<a href="NonMonotonicSequenceException.html" target="classFrame">NonMonotonicSequenceException</a>
+          	</li>
+          	          	<li>
+            	<a href="NotANumberException.html" target="classFrame">NotANumberException</a>
+          	</li>
+          	          	<li>
+            	<a href="NotFiniteNumberException.html" target="classFrame">NotFiniteNumberException</a>
+          	</li>
+          	          	<li>
+            	<a href="NotPositiveException.html" target="classFrame">NotPositiveException</a>
+          	</li>
+          	          	<li>
+            	<a href="NotStrictlyPositiveException.html" target="classFrame">NotStrictlyPositiveException</a>
+          	</li>
+          	          	<li>
+            	<a href="NullArgumentException.html" target="classFrame">NullArgumentException</a>
+          	</li>
+          	          	<li>
+            	<a href="NumberIsTooLargeException.html" target="classFrame">NumberIsTooLargeException</a>
+          	</li>
+          	          	<li>
+            	<a href="NumberIsTooSmallException.html" target="classFrame">NumberIsTooSmallException</a>
+          	</li>
+          	          	<li>
+            	<a href="OutOfRangeException.html" target="classFrame">OutOfRangeException</a>
+          	</li>
+          	          	<li>
+            	<a href="TooManyEvaluationsException.html" target="classFrame">TooManyEvaluationsException</a>
+          	</li>
+          	          	<li>
+            	<a href="TooManyIterationsException.html" target="classFrame">TooManyIterationsException</a>
+          	</li>
+          	          	<li>
+            	<a href="ZeroException.html" target="classFrame">ZeroException</a>
+          	</li>
+          	      	</ul>
+
+	</body>
+</html>

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>PointVectorValuePair.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optim</a> &gt; <span class="el_source">PointVectorValuePair.java</span></div><h1>PointVectorValuePair.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.optim;
+
+import java.io.Serializable;
+import org.apache.commons.math3.util.Pair;
+
+/**
+ * This class holds a point and the vectorial value of an objective function at
+ * that point.
+ *
+ * @see PointValuePair
+ * @see org.apache.commons.math3.analysis.MultivariateVectorFunction
+ * @since 3.0
+ */
+public class PointVectorValuePair extends Pair&lt;double[], double[]&gt; implements Serializable {
+    /** Serializable UID. */
+    private static final long serialVersionUID = 20120513L;
+
+    /**
+     * Builds a point/objective function value pair.
+     *
+     * @param point Point coordinates. This instance will store
+     * a copy of the array, not the array passed as argument.
+     * @param value Value of the objective function at the point.
+     */
+    public PointVectorValuePair(final double[] point,
+                                final double[] value) {
+<span class="fc" id="L43">        this(point, value, true);</span>
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * Build a point/objective function value pair.
+     *
+     * @param point Point coordinates.
+     * @param value Value of the objective function at the point.
+     * @param copyArray if {@code true}, the input arrays will be copied,
+     * otherwise they will be referenced.
+     */
+    public PointVectorValuePair(final double[] point,
+                                final double[] value,
+                                final boolean copyArray) {
+<span class="pc bpc" id="L57" title="1 of 8 branches missed.">        super(copyArray ?</span>
+              ((point == null) ? null :
+               point.clone()) :
+              point,
+              copyArray ?
+              ((value == null) ? null :
+               value.clone()) :
+              value);
+<span class="fc" id="L65">    }</span>
+
+    /**
+     * Gets the point.
+     *
+     * @return a copy of the stored point.
+     */
+    public double[] getPoint() {
+<span class="fc" id="L73">        final double[] p = getKey();</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        return p == null ? null : p.clone();</span>
+    }
+
+    /**
+     * Gets a reference to the point.
+     *
+     * @return a reference to the internal array storing the point.
+     */
+    public double[] getPointRef() {
+<span class="fc" id="L83">        return getKey();</span>
+    }
+
+    /**
+     * Gets the value of the objective function.
+     *
+     * @return a copy of the stored value of the objective function.
+     */
+    @Override
+    public double[] getValue() {
+<span class="fc" id="L93">        final double[] v = super.getValue();</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        return v == null ? null : v.clone();</span>
+    }
+
+    /**
+     * Gets a reference to the value of the objective function.
+     *
+     * @return a reference to the internal array storing the value of
+     * the objective function.
+     */
+    public double[] getValueRef() {
+<span class="fc" id="L104">        return super.getValue();</span>
+    }
+
+    /**
+     * Replace the instance with a data transfer object for serialization.
+     * @return data transfer object that will be serialized
+     */
+    private Object writeReplace() {
+<span class="fc" id="L112">        return new DataTransferObject(getKey(), getValue());</span>
+    }
+
+    /** Internal class used only for serialization. */
+    private static class DataTransferObject implements Serializable {
+        /** Serializable UID. */
+        private static final long serialVersionUID = 20120513L;
+        /**
+         * Point coordinates.
+         * @Serial
+         */
+        private final double[] point;
+        /**
+         * Value of the objective function at the point.
+         * @Serial
+         */
+        private final double[] value;
+
+        /** Simple constructor.
+         * @param point Point coordinates.
+         * @param value Value of the objective function at the point.
+         */
+<span class="fc" id="L134">        DataTransferObject(final double[] point, final double[] value) {</span>
+<span class="fc" id="L135">            this.point = point.clone();</span>
+<span class="fc" id="L136">            this.value = value.clone();</span>
+<span class="fc" id="L137">        }</span>
+
+        /** Replace the deserialized data transfer object with a {@link PointValuePair}.
+         * @return replacement {@link PointValuePair}
+         */
+        private Object readResolve() {
+<span class="fc" id="L143">            return new PointVectorValuePair(point, value, false);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

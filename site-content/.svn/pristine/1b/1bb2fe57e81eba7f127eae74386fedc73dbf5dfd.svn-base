@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MidPointIntegrator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.integration</a> &gt; <span class="el_source">MidPointIntegrator.java</span></div><h1>MidPointIntegrator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.analysis.integration;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.exception.TooManyEvaluationsException;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * Implements the &lt;a href=&quot;http://en.wikipedia.org/wiki/Midpoint_method&quot;&gt;
+ * Midpoint Rule&lt;/a&gt; for integration of real univariate functions. For
+ * reference, see &lt;b&gt;Numerical Mathematics&lt;/b&gt;, ISBN 0387989595,
+ * chapter 9.2.
+ * &lt;p&gt;
+ * The function should be integrable.&lt;/p&gt;
+ *
+ * @since 3.3
+ */
+public class MidPointIntegrator extends BaseAbstractUnivariateIntegrator {
+
+    /** Maximum number of iterations for midpoint. */
+    public static final int MIDPOINT_MAX_ITERATIONS_COUNT = 64;
+
+    /**
+     * Build a midpoint integrator with given accuracies and iterations counts.
+     * @param relativeAccuracy relative accuracy of the result
+     * @param absoluteAccuracy absolute accuracy of the result
+     * @param minimalIterationCount minimum number of iterations
+     * @param maximalIterationCount maximum number of iterations
+     * (must be less than or equal to {@link #MIDPOINT_MAX_ITERATIONS_COUNT}
+     * @exception NotStrictlyPositiveException if minimal number of iterations
+     * is not strictly positive
+     * @exception NumberIsTooSmallException if maximal number of iterations
+     * is lesser than or equal to the minimal number of iterations
+     * @exception NumberIsTooLargeException if maximal number of iterations
+     * is greater than {@link #MIDPOINT_MAX_ITERATIONS_COUNT}
+     */
+    public MidPointIntegrator(final double relativeAccuracy,
+                              final double absoluteAccuracy,
+                              final int minimalIterationCount,
+                              final int maximalIterationCount)
+        throws NotStrictlyPositiveException, NumberIsTooSmallException, NumberIsTooLargeException {
+<span class="fc" id="L61">        super(relativeAccuracy, absoluteAccuracy, minimalIterationCount, maximalIterationCount);</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">        if (maximalIterationCount &gt; MIDPOINT_MAX_ITERATIONS_COUNT) {</span>
+<span class="nc" id="L63">            throw new NumberIsTooLargeException(maximalIterationCount,</span>
+                                                MIDPOINT_MAX_ITERATIONS_COUNT, false);
+        }
+<span class="fc" id="L66">    }</span>
+
+    /**
+     * Build a midpoint integrator with given iteration counts.
+     * @param minimalIterationCount minimum number of iterations
+     * @param maximalIterationCount maximum number of iterations
+     * (must be less than or equal to {@link #MIDPOINT_MAX_ITERATIONS_COUNT}
+     * @exception NotStrictlyPositiveException if minimal number of iterations
+     * is not strictly positive
+     * @exception NumberIsTooSmallException if maximal number of iterations
+     * is lesser than or equal to the minimal number of iterations
+     * @exception NumberIsTooLargeException if maximal number of iterations
+     * is greater than {@link #MIDPOINT_MAX_ITERATIONS_COUNT}
+     */
+    public MidPointIntegrator(final int minimalIterationCount,
+                              final int maximalIterationCount)
+        throws NotStrictlyPositiveException, NumberIsTooSmallException, NumberIsTooLargeException {
+<span class="fc" id="L83">        super(minimalIterationCount, maximalIterationCount);</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        if (maximalIterationCount &gt; MIDPOINT_MAX_ITERATIONS_COUNT) {</span>
+<span class="fc" id="L85">            throw new NumberIsTooLargeException(maximalIterationCount,</span>
+                                                MIDPOINT_MAX_ITERATIONS_COUNT, false);
+        }
+<span class="nc" id="L88">    }</span>
+
+    /**
+     * Construct a midpoint integrator with default settings.
+     * (max iteration count set to {@link #MIDPOINT_MAX_ITERATIONS_COUNT})
+     */
+    public MidPointIntegrator() {
+<span class="fc" id="L95">        super(DEFAULT_MIN_ITERATIONS_COUNT, MIDPOINT_MAX_ITERATIONS_COUNT);</span>
+<span class="fc" id="L96">    }</span>
+
+    /**
+     * Compute the n-th stage integral of midpoint rule.
+     * This function should only be called by API &lt;code&gt;integrate()&lt;/code&gt; in the package.
+     * To save time it does not verify arguments - caller does.
+     * &lt;p&gt;
+     * The interval is divided equally into 2^n sections rather than an
+     * arbitrary m sections because this configuration can best utilize the
+     * already computed values.&lt;/p&gt;
+     *
+     * @param n the stage of 1/2 refinement. Must be larger than 0.
+     * @param previousStageResult Result from the previous call to the
+     * {@code stage} method.
+     * @param min Lower bound of the integration interval.
+     * @param diffMaxMin Difference between the lower bound and upper bound
+     * of the integration interval.
+     * @return the value of n-th stage integral
+     * @throws TooManyEvaluationsException if the maximal number of evaluations
+     * is exceeded.
+     */
+    private double stage(final int n,
+                         double previousStageResult,
+                         double min,
+                         double diffMaxMin)
+        throws TooManyEvaluationsException {
+
+        // number of new points in this stage
+<span class="fc" id="L124">        final long np = 1L &lt;&lt; (n - 1);</span>
+<span class="fc" id="L125">        double sum = 0;</span>
+
+        // spacing between adjacent new points
+<span class="fc" id="L128">        final double spacing = diffMaxMin / np;</span>
+
+        // the first new point
+<span class="fc" id="L131">        double x = min + 0.5 * spacing;</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">        for (long i = 0; i &lt; np; i++) {</span>
+<span class="fc" id="L133">            sum += computeObjectiveValue(x);</span>
+<span class="fc" id="L134">            x += spacing;</span>
+        }
+        // add the new sum to previously calculated result
+<span class="fc" id="L137">        return 0.5 * (previousStageResult + sum * spacing);</span>
+    }
+
+
+    /** {@inheritDoc} */
+    @Override
+    protected double doIntegrate()
+        throws MathIllegalArgumentException, TooManyEvaluationsException, MaxCountExceededException {
+
+<span class="fc" id="L146">        final double min = getMin();</span>
+<span class="fc" id="L147">        final double diff = getMax() - min;</span>
+<span class="fc" id="L148">        final double midPoint = min + 0.5 * diff;</span>
+
+<span class="fc" id="L150">        double oldt = diff * computeObjectiveValue(midPoint);</span>
+
+        while (true) {
+<span class="fc" id="L153">            incrementCount();</span>
+<span class="fc" id="L154">            final int i = getIterations();</span>
+<span class="fc" id="L155">            final double t = stage(i, oldt, min, diff);</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">            if (i &gt;= getMinimalIterationCount()) {</span>
+<span class="fc" id="L157">                final double delta = FastMath.abs(t - oldt);</span>
+<span class="fc" id="L158">                final double rLimit =</span>
+                        getRelativeAccuracy() * (FastMath.abs(oldt) + FastMath.abs(t)) * 0.5;
+<span class="pc bpc" id="L160" title="1 of 4 branches missed.">                if ((delta &lt;= rLimit) || (delta &lt;= getAbsoluteAccuracy())) {</span>
+<span class="fc" id="L161">                    return t;</span>
+                }
+            }
+<span class="fc" id="L164">            oldt = t;</span>
+<span class="fc" id="L165">        }</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>UnivariatePointValuePair.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optimization.univariate</a> &gt; <span class="el_source">UnivariatePointValuePair.java</span></div><h1>UnivariatePointValuePair.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.optimization.univariate;
+
+import java.io.Serializable;
+
+/**
+ * This class holds a point and the value of an objective function at this
+ * point.
+ * This is a simple immutable container.
+ *
+ * @deprecated As of 3.1 (to be removed in 4.0).
+ * @since 3.0
+ */
+@Deprecated
+public class UnivariatePointValuePair implements Serializable {
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 1003888396256744753L;
+    /** Point. */
+    private final double point;
+    /** Value of the objective function at the point. */
+    private final double value;
+
+    /**
+     * Build a point/objective function value pair.
+     *
+     * @param point Point.
+     * @param value Value of an objective function at the point
+     */
+    public UnivariatePointValuePair(final double point,
+<span class="fc" id="L46">                                    final double value) {</span>
+<span class="fc" id="L47">        this.point = point;</span>
+<span class="fc" id="L48">        this.value = value;</span>
+<span class="fc" id="L49">    }</span>
+
+    /**
+     * Get the point.
+     *
+     * @return the point.
+     */
+    public double getPoint() {
+<span class="fc" id="L57">        return point;</span>
+    }
+
+    /**
+     * Get the value of the objective function.
+     *
+     * @return the stored value of the objective function.
+     */
+    public double getValue() {
+<span class="fc" id="L66">        return value;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

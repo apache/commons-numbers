@@ -1,0 +1,741 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SingularValueDecomposition.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.linear</a> &gt; <span class="el_source">SingularValueDecomposition.java</span></div><h1>SingularValueDecomposition.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.linear;
+
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.Precision;
+
+/**
+ * Calculates the compact Singular Value Decomposition of a matrix.
+ * &lt;p&gt;
+ * The Singular Value Decomposition of matrix A is a set of three matrices: U,
+ * &amp;Sigma; and V such that A = U &amp;times; &amp;Sigma; &amp;times; V&lt;sup&gt;T&lt;/sup&gt;. Let A be
+ * a m &amp;times; n matrix, then U is a m &amp;times; p orthogonal matrix, &amp;Sigma; is a
+ * p &amp;times; p diagonal matrix with positive or null elements, V is a p &amp;times;
+ * n orthogonal matrix (hence V&lt;sup&gt;T&lt;/sup&gt; is also orthogonal) where
+ * p=min(m,n).
+ * &lt;/p&gt;
+ * &lt;p&gt;This class is similar to the class with similar name from the
+ * &lt;a href=&quot;http://math.nist.gov/javanumerics/jama/&quot;&gt;JAMA&lt;/a&gt; library, with the
+ * following changes:&lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;the {@code norm2} method which has been renamed as {@link #getNorm()
+ *   getNorm},&lt;/li&gt;
+ *   &lt;li&gt;the {@code cond} method which has been renamed as {@link
+ *   #getConditionNumber() getConditionNumber},&lt;/li&gt;
+ *   &lt;li&gt;the {@code rank} method which has been renamed as {@link #getRank()
+ *   getRank},&lt;/li&gt;
+ *   &lt;li&gt;a {@link #getUT() getUT} method has been added,&lt;/li&gt;
+ *   &lt;li&gt;a {@link #getVT() getVT} method has been added,&lt;/li&gt;
+ *   &lt;li&gt;a {@link #getSolver() getSolver} method has been added,&lt;/li&gt;
+ *   &lt;li&gt;a {@link #getCovariance(double) getCovariance} method has been added.&lt;/li&gt;
+ * &lt;/ul&gt;
+ * @see &lt;a href=&quot;http://mathworld.wolfram.com/SingularValueDecomposition.html&quot;&gt;MathWorld&lt;/a&gt;
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Singular_value_decomposition&quot;&gt;Wikipedia&lt;/a&gt;
+ * @since 2.0 (changed to concrete class in 3.0)
+ */
+public class SingularValueDecomposition {
+    /** Relative threshold for small singular values. */
+    private static final double EPS = 0x1.0p-52;
+    /** Absolute threshold for small singular values. */
+    private static final double TINY = 0x1.0p-966;
+    /** Computed singular values. */
+    private final double[] singularValues;
+    /** max(row dimension, column dimension). */
+    private final int m;
+    /** min(row dimension, column dimension). */
+    private final int n;
+    /** Indicator for transposed matrix. */
+    private final boolean transposed;
+    /** Cached value of U matrix. */
+    private final RealMatrix cachedU;
+    /** Cached value of transposed U matrix. */
+    private RealMatrix cachedUt;
+    /** Cached value of S (diagonal) matrix. */
+    private RealMatrix cachedS;
+    /** Cached value of V matrix. */
+    private final RealMatrix cachedV;
+    /** Cached value of transposed V matrix. */
+    private RealMatrix cachedVt;
+    /**
+     * Tolerance value for small singular values, calculated once we have
+     * populated &quot;singularValues&quot;.
+     **/
+    private final double tol;
+
+    /**
+     * Calculates the compact Singular Value Decomposition of the given matrix.
+     *
+     * @param matrix Matrix to decompose.
+     */
+<span class="fc" id="L87">    public SingularValueDecomposition(final RealMatrix matrix) {</span>
+        final double[][] A;
+
+         // &quot;m&quot; is always the largest dimension.
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (matrix.getRowDimension() &lt; matrix.getColumnDimension()) {</span>
+<span class="fc" id="L92">            transposed = true;</span>
+<span class="fc" id="L93">            A = matrix.transpose().getData();</span>
+<span class="fc" id="L94">            m = matrix.getColumnDimension();</span>
+<span class="fc" id="L95">            n = matrix.getRowDimension();</span>
+        } else {
+<span class="fc" id="L97">            transposed = false;</span>
+<span class="fc" id="L98">            A = matrix.getData();</span>
+<span class="fc" id="L99">            m = matrix.getRowDimension();</span>
+<span class="fc" id="L100">            n = matrix.getColumnDimension();</span>
+        }
+
+<span class="fc" id="L103">        singularValues = new double[n];</span>
+<span class="fc" id="L104">        final double[][] U = new double[m][n];</span>
+<span class="fc" id="L105">        final double[][] V = new double[n][n];</span>
+<span class="fc" id="L106">        final double[] e = new double[n];</span>
+<span class="fc" id="L107">        final double[] work = new double[m];</span>
+        // Reduce A to bidiagonal form, storing the diagonal elements
+        // in s and the super-diagonal elements in e.
+<span class="fc" id="L110">        final int nct = FastMath.min(m - 1, n);</span>
+<span class="fc" id="L111">        final int nrt = FastMath.max(0, n - 2);</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">        for (int k = 0; k &lt; FastMath.max(nct, nrt); k++) {</span>
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">            if (k &lt; nct) {</span>
+                // Compute the transformation for the k-th column and
+                // place the k-th diagonal in s[k].
+                // Compute 2-norm of k-th column without under/overflow.
+<span class="fc" id="L117">                singularValues[k] = 0;</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">                for (int i = k; i &lt; m; i++) {</span>
+<span class="fc" id="L119">                    singularValues[k] = FastMath.hypot(singularValues[k], A[i][k]);</span>
+                }
+<span class="fc bfc" id="L121" title="All 2 branches covered.">                if (singularValues[k] != 0) {</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">                    if (A[k][k] &lt; 0) {</span>
+<span class="fc" id="L123">                        singularValues[k] = -singularValues[k];</span>
+                    }
+<span class="fc bfc" id="L125" title="All 2 branches covered.">                    for (int i = k; i &lt; m; i++) {</span>
+<span class="fc" id="L126">                        A[i][k] /= singularValues[k];</span>
+                    }
+<span class="fc" id="L128">                    A[k][k] += 1;</span>
+                }
+<span class="fc" id="L130">                singularValues[k] = -singularValues[k];</span>
+            }
+<span class="fc bfc" id="L132" title="All 2 branches covered.">            for (int j = k + 1; j &lt; n; j++) {</span>
+<span class="pc bpc" id="L133" title="1 of 4 branches missed.">                if (k &lt; nct &amp;&amp;</span>
+                    singularValues[k] != 0) {
+                    // Apply the transformation.
+<span class="fc" id="L136">                    double t = 0;</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">                    for (int i = k; i &lt; m; i++) {</span>
+<span class="fc" id="L138">                        t += A[i][k] * A[i][j];</span>
+                    }
+<span class="fc" id="L140">                    t = -t / A[k][k];</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">                    for (int i = k; i &lt; m; i++) {</span>
+<span class="fc" id="L142">                        A[i][j] += t * A[i][k];</span>
+                    }
+                }
+                // Place the k-th row of A into e for the
+                // subsequent calculation of the row transformation.
+<span class="fc" id="L147">                e[j] = A[k][j];</span>
+            }
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">            if (k &lt; nct) {</span>
+                // Place the transformation in U for subsequent back
+                // multiplication.
+<span class="fc bfc" id="L152" title="All 2 branches covered.">                for (int i = k; i &lt; m; i++) {</span>
+<span class="fc" id="L153">                    U[i][k] = A[i][k];</span>
+                }
+            }
+<span class="fc bfc" id="L156" title="All 2 branches covered.">            if (k &lt; nrt) {</span>
+                // Compute the k-th row transformation and place the
+                // k-th super-diagonal in e[k].
+                // Compute 2-norm without under/overflow.
+<span class="fc" id="L160">                e[k] = 0;</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">                for (int i = k + 1; i &lt; n; i++) {</span>
+<span class="fc" id="L162">                    e[k] = FastMath.hypot(e[k], e[i]);</span>
+                }
+<span class="fc bfc" id="L164" title="All 2 branches covered.">                if (e[k] != 0) {</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">                    if (e[k + 1] &lt; 0) {</span>
+<span class="fc" id="L166">                        e[k] = -e[k];</span>
+                    }
+<span class="fc bfc" id="L168" title="All 2 branches covered.">                    for (int i = k + 1; i &lt; n; i++) {</span>
+<span class="fc" id="L169">                        e[i] /= e[k];</span>
+                    }
+<span class="fc" id="L171">                    e[k + 1] += 1;</span>
+                }
+<span class="fc" id="L173">                e[k] = -e[k];</span>
+<span class="pc bpc" id="L174" title="1 of 4 branches missed.">                if (k + 1 &lt; m &amp;&amp;</span>
+                    e[k] != 0) {
+                    // Apply the transformation.
+<span class="fc bfc" id="L177" title="All 2 branches covered.">                    for (int i = k + 1; i &lt; m; i++) {</span>
+<span class="fc" id="L178">                        work[i] = 0;</span>
+                    }
+<span class="fc bfc" id="L180" title="All 2 branches covered.">                    for (int j = k + 1; j &lt; n; j++) {</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">                        for (int i = k + 1; i &lt; m; i++) {</span>
+<span class="fc" id="L182">                            work[i] += e[j] * A[i][j];</span>
+                        }
+                    }
+<span class="fc bfc" id="L185" title="All 2 branches covered.">                    for (int j = k + 1; j &lt; n; j++) {</span>
+<span class="fc" id="L186">                        final double t = -e[j] / e[k + 1];</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">                        for (int i = k + 1; i &lt; m; i++) {</span>
+<span class="fc" id="L188">                            A[i][j] += t * work[i];</span>
+                        }
+                    }
+                }
+
+                // Place the transformation in V for subsequent
+                // back multiplication.
+<span class="fc bfc" id="L195" title="All 2 branches covered.">                for (int i = k + 1; i &lt; n; i++) {</span>
+<span class="fc" id="L196">                    V[i][k] = e[i];</span>
+                }
+            }
+        }
+        // Set up the final bidiagonal matrix or order p.
+<span class="fc" id="L201">        int p = n;</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">        if (nct &lt; n) {</span>
+<span class="fc" id="L203">            singularValues[nct] = A[nct][nct];</span>
+        }
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">        if (m &lt; p) {</span>
+<span class="nc" id="L206">            singularValues[p - 1] = 0;</span>
+        }
+<span class="fc bfc" id="L208" title="All 2 branches covered.">        if (nrt + 1 &lt; p) {</span>
+<span class="fc" id="L209">            e[nrt] = A[nrt][p - 1];</span>
+        }
+<span class="fc" id="L211">        e[p - 1] = 0;</span>
+
+        // Generate U.
+<span class="fc bfc" id="L214" title="All 2 branches covered.">        for (int j = nct; j &lt; n; j++) {</span>
+<span class="fc bfc" id="L215" title="All 2 branches covered.">            for (int i = 0; i &lt; m; i++) {</span>
+<span class="fc" id="L216">                U[i][j] = 0;</span>
+            }
+<span class="fc" id="L218">            U[j][j] = 1;</span>
+        }
+<span class="fc bfc" id="L220" title="All 2 branches covered.">        for (int k = nct - 1; k &gt;= 0; k--) {</span>
+<span class="fc bfc" id="L221" title="All 2 branches covered.">            if (singularValues[k] != 0) {</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">                for (int j = k + 1; j &lt; n; j++) {</span>
+<span class="fc" id="L223">                    double t = 0;</span>
+<span class="fc bfc" id="L224" title="All 2 branches covered.">                    for (int i = k; i &lt; m; i++) {</span>
+<span class="fc" id="L225">                        t += U[i][k] * U[i][j];</span>
+                    }
+<span class="fc" id="L227">                    t = -t / U[k][k];</span>
+<span class="fc bfc" id="L228" title="All 2 branches covered.">                    for (int i = k; i &lt; m; i++) {</span>
+<span class="fc" id="L229">                        U[i][j] += t * U[i][k];</span>
+                    }
+                }
+<span class="fc bfc" id="L232" title="All 2 branches covered.">                for (int i = k; i &lt; m; i++) {</span>
+<span class="fc" id="L233">                    U[i][k] = -U[i][k];</span>
+                }
+<span class="fc" id="L235">                U[k][k] = 1 + U[k][k];</span>
+<span class="fc bfc" id="L236" title="All 2 branches covered.">                for (int i = 0; i &lt; k - 1; i++) {</span>
+<span class="fc" id="L237">                    U[i][k] = 0;</span>
+                }
+            } else {
+<span class="fc bfc" id="L240" title="All 2 branches covered.">                for (int i = 0; i &lt; m; i++) {</span>
+<span class="fc" id="L241">                    U[i][k] = 0;</span>
+                }
+<span class="fc" id="L243">                U[k][k] = 1;</span>
+            }
+        }
+
+        // Generate V.
+<span class="fc bfc" id="L248" title="All 2 branches covered.">        for (int k = n - 1; k &gt;= 0; k--) {</span>
+<span class="fc bfc" id="L249" title="All 4 branches covered.">            if (k &lt; nrt &amp;&amp;</span>
+                e[k] != 0) {
+<span class="fc bfc" id="L251" title="All 2 branches covered.">                for (int j = k + 1; j &lt; n; j++) {</span>
+<span class="fc" id="L252">                    double t = 0;</span>
+<span class="fc bfc" id="L253" title="All 2 branches covered.">                    for (int i = k + 1; i &lt; n; i++) {</span>
+<span class="fc" id="L254">                        t += V[i][k] * V[i][j];</span>
+                    }
+<span class="fc" id="L256">                    t = -t / V[k + 1][k];</span>
+<span class="fc bfc" id="L257" title="All 2 branches covered.">                    for (int i = k + 1; i &lt; n; i++) {</span>
+<span class="fc" id="L258">                        V[i][j] += t * V[i][k];</span>
+                    }
+                }
+            }
+<span class="fc bfc" id="L262" title="All 2 branches covered.">            for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L263">                V[i][k] = 0;</span>
+            }
+<span class="fc" id="L265">            V[k][k] = 1;</span>
+        }
+
+        // Main iteration loop for the singular values.
+<span class="fc" id="L269">        final int pp = p - 1;</span>
+<span class="fc bfc" id="L270" title="All 2 branches covered.">        while (p &gt; 0) {</span>
+            int k;
+            int kase;
+            // Here is where a test for too many iterations would go.
+            // This section of the program inspects for
+            // negligible elements in the s and e arrays.  On
+            // completion the variables kase and k are set as follows.
+            // kase = 1     if s(p) and e[k-1] are negligible and k&lt;p
+            // kase = 2     if s(k) is negligible and k&lt;p
+            // kase = 3     if e[k-1] is negligible, k&lt;p, and
+            //              s(k), ..., s(p) are not negligible (qr step).
+            // kase = 4     if e(p-1) is negligible (convergence).
+<span class="fc bfc" id="L282" title="All 2 branches covered.">            for (k = p - 2; k &gt;= 0; k--) {</span>
+<span class="fc" id="L283">                final double threshold</span>
+                    = TINY + EPS * (FastMath.abs(singularValues[k]) +
+                                    FastMath.abs(singularValues[k + 1]));
+
+                // the following condition is written this way in order
+                // to break out of the loop when NaN occurs, writing it
+                // as &quot;if (FastMath.abs(e[k]) &lt;= threshold)&quot; would loop
+                // indefinitely in case of NaNs because comparison on NaNs
+                // always return false, regardless of what is checked
+                // see issue MATH-947
+<span class="fc bfc" id="L293" title="All 2 branches covered.">                if (!(FastMath.abs(e[k]) &gt; threshold)) {</span>
+<span class="fc" id="L294">                    e[k] = 0;</span>
+<span class="fc" id="L295">                    break;</span>
+                }
+
+            }
+
+<span class="fc bfc" id="L300" title="All 2 branches covered.">            if (k == p - 2) {</span>
+<span class="fc" id="L301">                kase = 4;</span>
+            } else {
+                int ks;
+<span class="pc bpc" id="L304" title="1 of 2 branches missed.">                for (ks = p - 1; ks &gt;= k; ks--) {</span>
+<span class="fc bfc" id="L305" title="All 2 branches covered.">                    if (ks == k) {</span>
+<span class="fc" id="L306">                        break;</span>
+                    }
+<span class="pc bpc" id="L308" title="1 of 4 branches missed.">                    final double t = (ks != p ? FastMath.abs(e[ks]) : 0) +</span>
+                        (ks != k + 1 ? FastMath.abs(e[ks - 1]) : 0);
+<span class="fc bfc" id="L310" title="All 2 branches covered.">                    if (FastMath.abs(singularValues[ks]) &lt;= TINY + EPS * t) {</span>
+<span class="fc" id="L311">                        singularValues[ks] = 0;</span>
+<span class="fc" id="L312">                        break;</span>
+                    }
+                }
+<span class="fc bfc" id="L315" title="All 2 branches covered.">                if (ks == k) {</span>
+<span class="fc" id="L316">                    kase = 3;</span>
+<span class="fc bfc" id="L317" title="All 2 branches covered.">                } else if (ks == p - 1) {</span>
+<span class="fc" id="L318">                    kase = 1;</span>
+                } else {
+<span class="fc" id="L320">                    kase = 2;</span>
+<span class="fc" id="L321">                    k = ks;</span>
+                }
+            }
+<span class="fc" id="L324">            k++;</span>
+            // Perform the task indicated by kase.
+<span class="fc bfc" id="L326" title="All 4 branches covered.">            switch (kase) {</span>
+                // Deflate negligible s(p).
+                case 1: {
+<span class="fc" id="L329">                    double f = e[p - 2];</span>
+<span class="fc" id="L330">                    e[p - 2] = 0;</span>
+<span class="fc bfc" id="L331" title="All 2 branches covered.">                    for (int j = p - 2; j &gt;= k; j--) {</span>
+<span class="fc" id="L332">                        double t = FastMath.hypot(singularValues[j], f);</span>
+<span class="fc" id="L333">                        final double cs = singularValues[j] / t;</span>
+<span class="fc" id="L334">                        final double sn = f / t;</span>
+<span class="fc" id="L335">                        singularValues[j] = t;</span>
+<span class="fc bfc" id="L336" title="All 2 branches covered.">                        if (j != k) {</span>
+<span class="fc" id="L337">                            f = -sn * e[j - 1];</span>
+<span class="fc" id="L338">                            e[j - 1] = cs * e[j - 1];</span>
+                        }
+
+<span class="fc bfc" id="L341" title="All 2 branches covered.">                        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L342">                            t = cs * V[i][j] + sn * V[i][p - 1];</span>
+<span class="fc" id="L343">                            V[i][p - 1] = -sn * V[i][j] + cs * V[i][p - 1];</span>
+<span class="fc" id="L344">                            V[i][j] = t;</span>
+                        }
+                    }
+                }
+<span class="fc" id="L348">                break;</span>
+                // Split at negligible s(k).
+                case 2: {
+<span class="fc" id="L351">                    double f = e[k - 1];</span>
+<span class="fc" id="L352">                    e[k - 1] = 0;</span>
+<span class="fc bfc" id="L353" title="All 2 branches covered.">                    for (int j = k; j &lt; p; j++) {</span>
+<span class="fc" id="L354">                        double t = FastMath.hypot(singularValues[j], f);</span>
+<span class="fc" id="L355">                        final double cs = singularValues[j] / t;</span>
+<span class="fc" id="L356">                        final double sn = f / t;</span>
+<span class="fc" id="L357">                        singularValues[j] = t;</span>
+<span class="fc" id="L358">                        f = -sn * e[j];</span>
+<span class="fc" id="L359">                        e[j] = cs * e[j];</span>
+
+<span class="fc bfc" id="L361" title="All 2 branches covered.">                        for (int i = 0; i &lt; m; i++) {</span>
+<span class="fc" id="L362">                            t = cs * U[i][j] + sn * U[i][k - 1];</span>
+<span class="fc" id="L363">                            U[i][k - 1] = -sn * U[i][j] + cs * U[i][k - 1];</span>
+<span class="fc" id="L364">                            U[i][j] = t;</span>
+                        }
+                    }
+                }
+<span class="fc" id="L368">                break;</span>
+                // Perform one qr step.
+                case 3: {
+                    // Calculate the shift.
+<span class="fc" id="L372">                    final double maxPm1Pm2 = FastMath.max(FastMath.abs(singularValues[p - 1]),</span>
+                                                          FastMath.abs(singularValues[p - 2]));
+<span class="fc" id="L374">                    final double scale = FastMath.max(FastMath.max(FastMath.max(maxPm1Pm2,</span>
+                                                                                FastMath.abs(e[p - 2])),
+                                                                   FastMath.abs(singularValues[k])),
+                                                      FastMath.abs(e[k]));
+<span class="fc" id="L378">                    final double sp = singularValues[p - 1] / scale;</span>
+<span class="fc" id="L379">                    final double spm1 = singularValues[p - 2] / scale;</span>
+<span class="fc" id="L380">                    final double epm1 = e[p - 2] / scale;</span>
+<span class="fc" id="L381">                    final double sk = singularValues[k] / scale;</span>
+<span class="fc" id="L382">                    final double ek = e[k] / scale;</span>
+<span class="fc" id="L383">                    final double b = ((spm1 + sp) * (spm1 - sp) + epm1 * epm1) / 2.0;</span>
+<span class="fc" id="L384">                    final double c = (sp * epm1) * (sp * epm1);</span>
+<span class="fc" id="L385">                    double shift = 0;</span>
+<span class="pc bpc" id="L386" title="1 of 4 branches missed.">                    if (b != 0 ||</span>
+                        c != 0) {
+<span class="fc" id="L388">                        shift = FastMath.sqrt(b * b + c);</span>
+<span class="fc bfc" id="L389" title="All 2 branches covered.">                        if (b &lt; 0) {</span>
+<span class="fc" id="L390">                            shift = -shift;</span>
+                        }
+<span class="fc" id="L392">                        shift = c / (b + shift);</span>
+                    }
+<span class="fc" id="L394">                    double f = (sk + sp) * (sk - sp) + shift;</span>
+<span class="fc" id="L395">                    double g = sk * ek;</span>
+                    // Chase zeros.
+<span class="fc bfc" id="L397" title="All 2 branches covered.">                    for (int j = k; j &lt; p - 1; j++) {</span>
+<span class="fc" id="L398">                        double t = FastMath.hypot(f, g);</span>
+<span class="fc" id="L399">                        double cs = f / t;</span>
+<span class="fc" id="L400">                        double sn = g / t;</span>
+<span class="fc bfc" id="L401" title="All 2 branches covered.">                        if (j != k) {</span>
+<span class="fc" id="L402">                            e[j - 1] = t;</span>
+                        }
+<span class="fc" id="L404">                        f = cs * singularValues[j] + sn * e[j];</span>
+<span class="fc" id="L405">                        e[j] = cs * e[j] - sn * singularValues[j];</span>
+<span class="fc" id="L406">                        g = sn * singularValues[j + 1];</span>
+<span class="fc" id="L407">                        singularValues[j + 1] = cs * singularValues[j + 1];</span>
+
+<span class="fc bfc" id="L409" title="All 2 branches covered.">                        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L410">                            t = cs * V[i][j] + sn * V[i][j + 1];</span>
+<span class="fc" id="L411">                            V[i][j + 1] = -sn * V[i][j] + cs * V[i][j + 1];</span>
+<span class="fc" id="L412">                            V[i][j] = t;</span>
+                        }
+<span class="fc" id="L414">                        t = FastMath.hypot(f, g);</span>
+<span class="fc" id="L415">                        cs = f / t;</span>
+<span class="fc" id="L416">                        sn = g / t;</span>
+<span class="fc" id="L417">                        singularValues[j] = t;</span>
+<span class="fc" id="L418">                        f = cs * e[j] + sn * singularValues[j + 1];</span>
+<span class="fc" id="L419">                        singularValues[j + 1] = -sn * e[j] + cs * singularValues[j + 1];</span>
+<span class="fc" id="L420">                        g = sn * e[j + 1];</span>
+<span class="fc" id="L421">                        e[j + 1] = cs * e[j + 1];</span>
+<span class="pc bpc" id="L422" title="1 of 2 branches missed.">                        if (j &lt; m - 1) {</span>
+<span class="fc bfc" id="L423" title="All 2 branches covered.">                            for (int i = 0; i &lt; m; i++) {</span>
+<span class="fc" id="L424">                                t = cs * U[i][j] + sn * U[i][j + 1];</span>
+<span class="fc" id="L425">                                U[i][j + 1] = -sn * U[i][j] + cs * U[i][j + 1];</span>
+<span class="fc" id="L426">                                U[i][j] = t;</span>
+                            }
+                        }
+                    }
+<span class="fc" id="L430">                    e[p - 2] = f;</span>
+                }
+<span class="fc" id="L432">                break;</span>
+                // Convergence.
+                default: {
+                    // Make the singular values positive.
+<span class="fc bfc" id="L436" title="All 2 branches covered.">                    if (singularValues[k] &lt;= 0) {</span>
+<span class="fc bfc" id="L437" title="All 2 branches covered.">                        singularValues[k] = singularValues[k] &lt; 0 ? -singularValues[k] : 0;</span>
+
+<span class="fc bfc" id="L439" title="All 2 branches covered.">                        for (int i = 0; i &lt;= pp; i++) {</span>
+<span class="fc" id="L440">                            V[i][k] = -V[i][k];</span>
+                        }
+                    }
+                    // Order the singular values.
+<span class="fc bfc" id="L444" title="All 2 branches covered.">                    while (k &lt; pp) {</span>
+<span class="fc bfc" id="L445" title="All 2 branches covered.">                        if (singularValues[k] &gt;= singularValues[k + 1]) {</span>
+<span class="fc" id="L446">                            break;</span>
+                        }
+<span class="fc" id="L448">                        double t = singularValues[k];</span>
+<span class="fc" id="L449">                        singularValues[k] = singularValues[k + 1];</span>
+<span class="fc" id="L450">                        singularValues[k + 1] = t;</span>
+<span class="pc bpc" id="L451" title="1 of 2 branches missed.">                        if (k &lt; n - 1) {</span>
+<span class="fc bfc" id="L452" title="All 2 branches covered.">                            for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L453">                                t = V[i][k + 1];</span>
+<span class="fc" id="L454">                                V[i][k + 1] = V[i][k];</span>
+<span class="fc" id="L455">                                V[i][k] = t;</span>
+                            }
+                        }
+<span class="pc bpc" id="L458" title="1 of 2 branches missed.">                        if (k &lt; m - 1) {</span>
+<span class="fc bfc" id="L459" title="All 2 branches covered.">                            for (int i = 0; i &lt; m; i++) {</span>
+<span class="fc" id="L460">                                t = U[i][k + 1];</span>
+<span class="fc" id="L461">                                U[i][k + 1] = U[i][k];</span>
+<span class="fc" id="L462">                                U[i][k] = t;</span>
+                            }
+                        }
+<span class="fc" id="L465">                        k++;</span>
+<span class="fc" id="L466">                    }</span>
+<span class="fc" id="L467">                    p--;</span>
+                }
+                break;
+            }
+<span class="fc" id="L471">        }</span>
+
+        // Set the small value tolerance used to calculate rank and pseudo-inverse
+<span class="fc" id="L474">        tol = FastMath.max(m * singularValues[0] * EPS,</span>
+                           FastMath.sqrt(Precision.SAFE_MIN));
+
+<span class="fc bfc" id="L477" title="All 2 branches covered.">        if (!transposed) {</span>
+<span class="fc" id="L478">            cachedU = MatrixUtils.createRealMatrix(U);</span>
+<span class="fc" id="L479">            cachedV = MatrixUtils.createRealMatrix(V);</span>
+        } else {
+<span class="fc" id="L481">            cachedU = MatrixUtils.createRealMatrix(V);</span>
+<span class="fc" id="L482">            cachedV = MatrixUtils.createRealMatrix(U);</span>
+        }
+<span class="fc" id="L484">    }</span>
+
+    /**
+     * Returns the matrix U of the decomposition.
+     * &lt;p&gt;U is an orthogonal matrix, i.e. its transpose is also its inverse.&lt;/p&gt;
+     * @return the U matrix
+     * @see #getUT()
+     */
+    public RealMatrix getU() {
+        // return the cached matrix
+<span class="fc" id="L494">        return cachedU;</span>
+
+    }
+
+    /**
+     * Returns the transpose of the matrix U of the decomposition.
+     * &lt;p&gt;U is an orthogonal matrix, i.e. its transpose is also its inverse.&lt;/p&gt;
+     * @return the U matrix (or null if decomposed matrix is singular)
+     * @see #getU()
+     */
+    public RealMatrix getUT() {
+<span class="pc bpc" id="L505" title="1 of 2 branches missed.">        if (cachedUt == null) {</span>
+<span class="fc" id="L506">            cachedUt = getU().transpose();</span>
+        }
+        // return the cached matrix
+<span class="fc" id="L509">        return cachedUt;</span>
+    }
+
+    /**
+     * Returns the diagonal matrix &amp;Sigma; of the decomposition.
+     * &lt;p&gt;&amp;Sigma; is a diagonal matrix. The singular values are provided in
+     * non-increasing order, for compatibility with Jama.&lt;/p&gt;
+     * @return the &amp;Sigma; matrix
+     */
+    public RealMatrix getS() {
+<span class="fc bfc" id="L519" title="All 2 branches covered.">        if (cachedS == null) {</span>
+            // cache the matrix for subsequent calls
+<span class="fc" id="L521">            cachedS = MatrixUtils.createRealDiagonalMatrix(singularValues);</span>
+        }
+<span class="fc" id="L523">        return cachedS;</span>
+    }
+
+    /**
+     * Returns the diagonal elements of the matrix &amp;Sigma; of the decomposition.
+     * &lt;p&gt;The singular values are provided in non-increasing order, for
+     * compatibility with Jama.&lt;/p&gt;
+     * @return the diagonal elements of the &amp;Sigma; matrix
+     */
+    public double[] getSingularValues() {
+<span class="fc" id="L533">        return singularValues.clone();</span>
+    }
+
+    /**
+     * Returns the matrix V of the decomposition.
+     * &lt;p&gt;V is an orthogonal matrix, i.e. its transpose is also its inverse.&lt;/p&gt;
+     * @return the V matrix (or null if decomposed matrix is singular)
+     * @see #getVT()
+     */
+    public RealMatrix getV() {
+        // return the cached matrix
+<span class="fc" id="L544">        return cachedV;</span>
+    }
+
+    /**
+     * Returns the transpose of the matrix V of the decomposition.
+     * &lt;p&gt;V is an orthogonal matrix, i.e. its transpose is also its inverse.&lt;/p&gt;
+     * @return the V matrix (or null if decomposed matrix is singular)
+     * @see #getV()
+     */
+    public RealMatrix getVT() {
+<span class="fc bfc" id="L554" title="All 2 branches covered.">        if (cachedVt == null) {</span>
+<span class="fc" id="L555">            cachedVt = getV().transpose();</span>
+        }
+        // return the cached matrix
+<span class="fc" id="L558">        return cachedVt;</span>
+    }
+
+    /**
+     * Returns the n &amp;times; n covariance matrix.
+     * &lt;p&gt;The covariance matrix is V &amp;times; J &amp;times; V&lt;sup&gt;T&lt;/sup&gt;
+     * where J is the diagonal matrix of the inverse of the squares of
+     * the singular values.&lt;/p&gt;
+     * @param minSingularValue value below which singular values are ignored
+     * (a 0 or negative value implies all singular value will be used)
+     * @return covariance matrix
+     * @exception IllegalArgumentException if minSingularValue is larger than
+     * the largest singular value, meaning all singular values are ignored
+     */
+    public RealMatrix getCovariance(final double minSingularValue) {
+        // get the number of singular values to consider
+<span class="fc" id="L574">        final int p = singularValues.length;</span>
+<span class="fc" id="L575">        int dimension = 0;</span>
+<span class="fc bfc" id="L576" title="All 4 branches covered.">        while (dimension &lt; p &amp;&amp;</span>
+               singularValues[dimension] &gt;= minSingularValue) {
+<span class="fc" id="L578">            ++dimension;</span>
+        }
+
+<span class="pc bpc" id="L581" title="1 of 2 branches missed.">        if (dimension == 0) {</span>
+<span class="nc" id="L582">            throw new NumberIsTooLargeException(LocalizedFormats.TOO_LARGE_CUTOFF_SINGULAR_VALUE,</span>
+                                                minSingularValue, singularValues[0], true);
+        }
+
+<span class="fc" id="L586">        final double[][] data = new double[dimension][p];</span>
+<span class="fc" id="L587">        getVT().walkInOptimizedOrder(new DefaultRealMatrixPreservingVisitor() {</span>
+            /** {@inheritDoc} */
+            @Override
+            public void visit(final int row, final int column,
+                    final double value) {
+<span class="fc" id="L592">                data[row][column] = value / singularValues[row];</span>
+<span class="fc" id="L593">            }</span>
+        }, 0, dimension - 1, 0, p - 1);
+
+<span class="fc" id="L596">        RealMatrix jv = new Array2DRowRealMatrix(data, false);</span>
+<span class="fc" id="L597">        return jv.transpose().multiply(jv);</span>
+    }
+
+    /**
+     * Returns the L&lt;sub&gt;2&lt;/sub&gt; norm of the matrix.
+     * &lt;p&gt;The L&lt;sub&gt;2&lt;/sub&gt; norm is max(|A &amp;times; u|&lt;sub&gt;2&lt;/sub&gt; /
+     * |u|&lt;sub&gt;2&lt;/sub&gt;), where |.|&lt;sub&gt;2&lt;/sub&gt; denotes the vectorial 2-norm
+     * (i.e. the traditional euclidian norm).&lt;/p&gt;
+     * @return norm
+     */
+    public double getNorm() {
+<span class="nc" id="L608">        return singularValues[0];</span>
+    }
+
+    /**
+     * Return the condition number of the matrix.
+     * @return condition number of the matrix
+     */
+    public double getConditionNumber() {
+<span class="fc" id="L616">        return singularValues[0] / singularValues[n - 1];</span>
+    }
+
+    /**
+     * Computes the inverse of the condition number.
+     * In cases of rank deficiency, the {@link #getConditionNumber() condition
+     * number} will become undefined.
+     *
+     * @return the inverse of the condition number.
+     */
+    public double getInverseConditionNumber() {
+<span class="fc" id="L627">        return singularValues[n - 1] / singularValues[0];</span>
+    }
+
+    /**
+     * Return the effective numerical matrix rank.
+     * &lt;p&gt;The effective numerical rank is the number of non-negligible
+     * singular values. The threshold used to identify non-negligible
+     * terms is max(m,n) &amp;times; ulp(s&lt;sub&gt;1&lt;/sub&gt;) where ulp(s&lt;sub&gt;1&lt;/sub&gt;)
+     * is the least significant bit of the largest singular value.&lt;/p&gt;
+     * @return effective numerical matrix rank
+     */
+    public int getRank() {
+<span class="fc" id="L639">        int r = 0;</span>
+<span class="fc bfc" id="L640" title="All 2 branches covered.">        for (int i = 0; i &lt; singularValues.length; i++) {</span>
+<span class="fc bfc" id="L641" title="All 2 branches covered.">            if (singularValues[i] &gt; tol) {</span>
+<span class="fc" id="L642">                r++;</span>
+            }
+        }
+<span class="fc" id="L645">        return r;</span>
+    }
+
+    /**
+     * Get a solver for finding the A &amp;times; X = B solution in least square sense.
+     * @return a solver
+     */
+    public DecompositionSolver getSolver() {
+<span class="fc bfc" id="L653" title="All 2 branches covered.">        return new Solver(singularValues, getUT(), getV(), getRank() == m, tol);</span>
+    }
+
+    /** Specialized solver. */
+    private static class Solver implements DecompositionSolver {
+        /** Pseudo-inverse of the initial matrix. */
+        private final RealMatrix pseudoInverse;
+        /** Singularity indicator. */
+        private boolean nonSingular;
+
+        /**
+         * Build a solver from decomposed matrix.
+         *
+         * @param singularValues Singular values.
+         * @param uT U&lt;sup&gt;T&lt;/sup&gt; matrix of the decomposition.
+         * @param v V matrix of the decomposition.
+         * @param nonSingular Singularity indicator.
+         * @param tol tolerance for singular values
+         */
+        private Solver(final double[] singularValues, final RealMatrix uT,
+<span class="fc" id="L673">                       final RealMatrix v, final boolean nonSingular, final double tol) {</span>
+<span class="fc" id="L674">            final double[][] suT = uT.getData();</span>
+<span class="fc bfc" id="L675" title="All 2 branches covered.">            for (int i = 0; i &lt; singularValues.length; ++i) {</span>
+                final double a;
+<span class="fc bfc" id="L677" title="All 2 branches covered.">                if (singularValues[i] &gt; tol) {</span>
+<span class="fc" id="L678">                    a = 1 / singularValues[i];</span>
+                } else {
+<span class="fc" id="L680">                    a = 0;</span>
+                }
+<span class="fc" id="L682">                final double[] suTi = suT[i];</span>
+<span class="fc bfc" id="L683" title="All 2 branches covered.">                for (int j = 0; j &lt; suTi.length; ++j) {</span>
+<span class="fc" id="L684">                    suTi[j] *= a;</span>
+                }
+            }
+<span class="fc" id="L687">            pseudoInverse = v.multiply(new Array2DRowRealMatrix(suT, false));</span>
+<span class="fc" id="L688">            this.nonSingular = nonSingular;</span>
+<span class="fc" id="L689">        }</span>
+
+        /**
+         * Solve the linear equation A &amp;times; X = B in least square sense.
+         * &lt;p&gt;
+         * The m&amp;times;n matrix A may not be square, the solution X is such that
+         * ||A &amp;times; X - B|| is minimal.
+         * &lt;/p&gt;
+         * @param b Right-hand side of the equation A &amp;times; X = B
+         * @return a vector X that minimizes the two norm of A &amp;times; X - B
+         * @throws org.apache.commons.math3.exception.DimensionMismatchException
+         * if the matrices dimensions do not match.
+         */
+        public RealVector solve(final RealVector b) {
+<span class="fc" id="L703">            return pseudoInverse.operate(b);</span>
+        }
+
+        /**
+         * Solve the linear equation A &amp;times; X = B in least square sense.
+         * &lt;p&gt;
+         * The m&amp;times;n matrix A may not be square, the solution X is such that
+         * ||A &amp;times; X - B|| is minimal.
+         * &lt;/p&gt;
+         *
+         * @param b Right-hand side of the equation A &amp;times; X = B
+         * @return a matrix X that minimizes the two norm of A &amp;times; X - B
+         * @throws org.apache.commons.math3.exception.DimensionMismatchException
+         * if the matrices dimensions do not match.
+         */
+        public RealMatrix solve(final RealMatrix b) {
+<span class="fc" id="L719">            return pseudoInverse.multiply(b);</span>
+        }
+
+        /**
+         * Check if the decomposed matrix is non-singular.
+         *
+         * @return {@code true} if the decomposed matrix is non-singular.
+         */
+        public boolean isNonSingular() {
+<span class="fc" id="L728">            return nonSingular;</span>
+        }
+
+        /**
+         * Get the pseudo-inverse of the decomposed matrix.
+         *
+         * @return the inverse matrix.
+         */
+        public RealMatrix getInverse() {
+<span class="fc" id="L737">            return pseudoInverse;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

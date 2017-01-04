@@ -1,0 +1,254 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.genetics;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.util.ArrayList;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.util.HashSet;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.util.List;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.util.Set;<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.exception.DimensionMismatchException;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.exception.MathIllegalArgumentException;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.exception.util.LocalizedFormats;<a name="line.26"></a>
+<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">028</span>/**<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * Cycle Crossover [CX] builds offspring from &lt;b&gt;ordered&lt;/b&gt; chromosomes by identifying cycles<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * between two parent chromosomes. To form the children, the cycles are copied from the<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * respective parents.<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * &lt;p&gt;<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * To form a cycle the following procedure is applied:<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * &lt;ol&gt;<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *   &lt;li&gt;start with the first gene of parent 1&lt;/li&gt;<a name="line.35"></a>
+<span class="sourceLineNo">036</span> *   &lt;li&gt;look at the gene at the same position of parent 2&lt;/li&gt;<a name="line.36"></a>
+<span class="sourceLineNo">037</span> *   &lt;li&gt;go to the position with the same gene in parent 1&lt;/li&gt;<a name="line.37"></a>
+<span class="sourceLineNo">038</span> *   &lt;li&gt;add this gene index to the cycle&lt;/li&gt;<a name="line.38"></a>
+<span class="sourceLineNo">039</span> *   &lt;li&gt;repeat the steps 2-5 until we arrive at the starting gene of this cycle&lt;/li&gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * &lt;/ol&gt;<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * The indices that form a cycle are then used to form the children in alternating order, i.e.<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * in cycle 1, the genes of parent 1 are copied to child 1, while in cycle 2 the genes of parent 1<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * are copied to child 2, and so forth ...<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * &lt;/p&gt;<a name="line.44"></a>
+<span class="sourceLineNo">045</span> *<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * Example (zero-start cycle):<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * &lt;pre&gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * p1 = (8 4 7 3 6 2 5 1 9 0)    X   c1 = (8 1 2 3 4 5 6 7 9 0)<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * p2 = (0 1 2 3 4 5 6 7 8 9)    X   c2 = (0 4 7 3 6 2 5 1 8 9)<a name="line.49"></a>
+<span class="sourceLineNo">050</span> *<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * cycle 1: 8 0 9<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * cycle 2: 4 1 7 2 5 6<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * cycle 3: 3<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * &lt;/pre&gt;<a name="line.54"></a>
+<span class="sourceLineNo">055</span> *<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * This policy works only on {@link AbstractListChromosome}, and therefore it<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * is parameterized by T. Moreover, the chromosomes must have same lengths.<a name="line.57"></a>
+<span class="sourceLineNo">058</span> *<a name="line.58"></a>
+<span class="sourceLineNo">059</span> * @see &lt;a href="http://www.rubicite.com/Tutorials/GeneticAlgorithms/CrossoverOperators/CycleCrossoverOperator.aspx"&gt;<a name="line.59"></a>
+<span class="sourceLineNo">060</span> * Cycle Crossover Operator&lt;/a&gt;<a name="line.60"></a>
+<span class="sourceLineNo">061</span> *<a name="line.61"></a>
+<span class="sourceLineNo">062</span> * @param &lt;T&gt; generic type of the {@link AbstractListChromosome}s for crossover<a name="line.62"></a>
+<span class="sourceLineNo">063</span> * @since 3.1<a name="line.63"></a>
+<span class="sourceLineNo">064</span> */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>public class CycleCrossover&lt;T&gt; implements CrossoverPolicy {<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>    /** If the start index shall be chosen randomly. */<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    private final boolean randomStart;<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>    /**<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * Creates a new {@link CycleCrossover} policy.<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     */<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    public CycleCrossover() {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        this(false);<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    }<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>    /**<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * Creates a new {@link CycleCrossover} policy using the given {@code randomStart} behavior.<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     *<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * @param randomStart whether the start index shall be chosen randomly or be set to 0<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     */<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    public CycleCrossover(final boolean randomStart) {<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        this.randomStart = randomStart;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    }<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span>    /**<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * Returns whether the starting index is chosen randomly or set to zero.<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     *<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * @return {@code true} if the starting index is chosen randomly, {@code false} otherwise<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     */<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    public boolean isRandomStart() {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        return randomStart;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    }<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>    /**<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * {@inheritDoc}<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     *<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * @throws MathIllegalArgumentException if the chromosomes are not an instance of {@link AbstractListChromosome}<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * @throws DimensionMismatchException if the length of the two chromosomes is different<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     */<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    @SuppressWarnings("unchecked")<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    public ChromosomePair crossover(final Chromosome first, final Chromosome second)<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        throws DimensionMismatchException, MathIllegalArgumentException {<a name="line.103"></a>
+<span class="sourceLineNo">104</span><a name="line.104"></a>
+<span class="sourceLineNo">105</span>        if (!(first instanceof AbstractListChromosome&lt;?&gt; &amp;&amp; second instanceof AbstractListChromosome&lt;?&gt;)) {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>            throw new MathIllegalArgumentException(LocalizedFormats.INVALID_FIXED_LENGTH_CHROMOSOME);<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        }<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        return mate((AbstractListChromosome&lt;T&gt;) first, (AbstractListChromosome&lt;T&gt;) second);<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    }<a name="line.109"></a>
+<span class="sourceLineNo">110</span><a name="line.110"></a>
+<span class="sourceLineNo">111</span>    /**<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     * Helper for {@link #crossover(Chromosome, Chromosome)}. Performs the actual crossover.<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     *<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     * @param first the first chromosome<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * @param second the second chromosome<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     * @return the pair of new chromosomes that resulted from the crossover<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * @throws DimensionMismatchException if the length of the two chromosomes is different<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     */<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    protected ChromosomePair mate(final AbstractListChromosome&lt;T&gt; first, final AbstractListChromosome&lt;T&gt; second)<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        throws DimensionMismatchException {<a name="line.120"></a>
+<span class="sourceLineNo">121</span><a name="line.121"></a>
+<span class="sourceLineNo">122</span>        final int length = first.getLength();<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        if (length != second.getLength()) {<a name="line.123"></a>
+<span class="sourceLineNo">124</span>            throw new DimensionMismatchException(second.getLength(), length);<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        }<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span>        // array representations of the parents<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        final List&lt;T&gt; parent1Rep = first.getRepresentation();<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        final List&lt;T&gt; parent2Rep = second.getRepresentation();<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        // and of the children: do a crossover copy to simplify the later processing<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        final List&lt;T&gt; child1Rep = new ArrayList&lt;T&gt;(second.getRepresentation());<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        final List&lt;T&gt; child2Rep = new ArrayList&lt;T&gt;(first.getRepresentation());<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>        // the set of all visited indices so far<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        final Set&lt;Integer&gt; visitedIndices = new HashSet&lt;Integer&gt;(length);<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        // the indices of the current cycle<a name="line.136"></a>
+<span class="sourceLineNo">137</span>        final List&lt;Integer&gt; indices = new ArrayList&lt;Integer&gt;(length);<a name="line.137"></a>
+<span class="sourceLineNo">138</span><a name="line.138"></a>
+<span class="sourceLineNo">139</span>        // determine the starting index<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        int idx = randomStart ? GeneticAlgorithm.getRandomGenerator().nextInt(length) : 0;<a name="line.140"></a>
+<span class="sourceLineNo">141</span>        int cycle = 1;<a name="line.141"></a>
+<span class="sourceLineNo">142</span><a name="line.142"></a>
+<span class="sourceLineNo">143</span>        while (visitedIndices.size() &lt; length) {<a name="line.143"></a>
+<span class="sourceLineNo">144</span>            indices.add(idx);<a name="line.144"></a>
+<span class="sourceLineNo">145</span><a name="line.145"></a>
+<span class="sourceLineNo">146</span>            T item = parent2Rep.get(idx);<a name="line.146"></a>
+<span class="sourceLineNo">147</span>            idx = parent1Rep.indexOf(item);<a name="line.147"></a>
+<span class="sourceLineNo">148</span><a name="line.148"></a>
+<span class="sourceLineNo">149</span>            while (idx != indices.get(0)) {<a name="line.149"></a>
+<span class="sourceLineNo">150</span>                // add that index to the cycle indices<a name="line.150"></a>
+<span class="sourceLineNo">151</span>                indices.add(idx);<a name="line.151"></a>
+<span class="sourceLineNo">152</span>                // get the item in the second parent at that index<a name="line.152"></a>
+<span class="sourceLineNo">153</span>                item = parent2Rep.get(idx);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>                // get the index of that item in the first parent<a name="line.154"></a>
+<span class="sourceLineNo">155</span>                idx = parent1Rep.indexOf(item);<a name="line.155"></a>
+<span class="sourceLineNo">156</span>            }<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>            // for even cycles: swap the child elements on the indices found in this cycle<a name="line.158"></a>
+<span class="sourceLineNo">159</span>            if (cycle++ % 2 != 0) {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>                for (int i : indices) {<a name="line.160"></a>
+<span class="sourceLineNo">161</span>                    T tmp = child1Rep.get(i);<a name="line.161"></a>
+<span class="sourceLineNo">162</span>                    child1Rep.set(i, child2Rep.get(i));<a name="line.162"></a>
+<span class="sourceLineNo">163</span>                    child2Rep.set(i, tmp);<a name="line.163"></a>
+<span class="sourceLineNo">164</span>                }<a name="line.164"></a>
+<span class="sourceLineNo">165</span>            }<a name="line.165"></a>
+<span class="sourceLineNo">166</span><a name="line.166"></a>
+<span class="sourceLineNo">167</span>            visitedIndices.addAll(indices);<a name="line.167"></a>
+<span class="sourceLineNo">168</span>            // find next starting index: last one + 1 until we find an unvisited index<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            idx = (indices.get(0) + 1) % length;<a name="line.169"></a>
+<span class="sourceLineNo">170</span>            while (visitedIndices.contains(idx) &amp;&amp; visitedIndices.size() &lt; length) {<a name="line.170"></a>
+<span class="sourceLineNo">171</span>                idx++;<a name="line.171"></a>
+<span class="sourceLineNo">172</span>                if (idx &gt;= length) {<a name="line.172"></a>
+<span class="sourceLineNo">173</span>                    idx = 0;<a name="line.173"></a>
+<span class="sourceLineNo">174</span>                }<a name="line.174"></a>
+<span class="sourceLineNo">175</span>            }<a name="line.175"></a>
+<span class="sourceLineNo">176</span>            indices.clear();<a name="line.176"></a>
+<span class="sourceLineNo">177</span>        }<a name="line.177"></a>
+<span class="sourceLineNo">178</span><a name="line.178"></a>
+<span class="sourceLineNo">179</span>        return new ChromosomePair(first.newFixedLengthChromosome(child1Rep),<a name="line.179"></a>
+<span class="sourceLineNo">180</span>                                  second.newFixedLengthChromosome(child2Rep));<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    }<a name="line.181"></a>
+<span class="sourceLineNo">182</span>}<a name="line.182"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

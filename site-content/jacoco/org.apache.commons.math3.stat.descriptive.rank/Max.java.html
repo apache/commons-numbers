@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Max.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive.rank</a> &gt; <span class="el_source">Max.java</span></div><h1>Max.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive.rank;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.stat.descriptive.AbstractStorelessUnivariateStatistic;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * Returns the maximum of the available values.
+ * &lt;p&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;The result is &lt;code&gt;NaN&lt;/code&gt; iff all values are &lt;code&gt;NaN&lt;/code&gt;
+ * (i.e. &lt;code&gt;NaN&lt;/code&gt; values have no impact on the value of the statistic).&lt;/li&gt;
+ * &lt;li&gt;If any of the values equals &lt;code&gt;Double.POSITIVE_INFINITY&lt;/code&gt;,
+ * the result is &lt;code&gt;Double.POSITIVE_INFINITY.&lt;/code&gt;&lt;/li&gt;
+ * &lt;/ul&gt;&lt;/p&gt;
+* &lt;p&gt;
+ * &lt;strong&gt;Note that this implementation is not synchronized.&lt;/strong&gt; If
+ * multiple threads access an instance of this class concurrently, and at least
+ * one of the threads invokes the &lt;code&gt;increment()&lt;/code&gt; or
+ * &lt;code&gt;clear()&lt;/code&gt; method, it must be synchronized externally.&lt;/p&gt;
+ *
+ */
+public class Max extends AbstractStorelessUnivariateStatistic implements Serializable {
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = -5593383832225844641L;
+
+    /** Number of values that have been added */
+    private long n;
+
+    /** Current value of the statistic */
+    private double value;
+
+    /**
+     * Create a Max instance
+     */
+<span class="fc" id="L56">    public Max() {</span>
+<span class="fc" id="L57">        n = 0;</span>
+<span class="fc" id="L58">        value = Double.NaN;</span>
+<span class="fc" id="L59">    }</span>
+
+    /**
+     * Copy constructor, creates a new {@code Max} identical
+     * to the {@code original}
+     *
+     * @param original the {@code Max} instance to copy
+     * @throws NullArgumentException if original is null
+     */
+<span class="nc" id="L68">    public Max(Max original) throws NullArgumentException {</span>
+<span class="nc" id="L69">        copy(original, this);</span>
+<span class="nc" id="L70">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void increment(final double d) {
+<span class="fc bfc" id="L77" title="All 4 branches covered.">        if (d &gt; value || Double.isNaN(value)) {</span>
+<span class="fc" id="L78">            value = d;</span>
+        }
+<span class="fc" id="L80">        n++;</span>
+<span class="fc" id="L81">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void clear() {
+<span class="fc" id="L88">        value = Double.NaN;</span>
+<span class="fc" id="L89">        n = 0;</span>
+<span class="fc" id="L90">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getResult() {
+<span class="fc" id="L97">        return value;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getN() {
+<span class="fc" id="L104">        return n;</span>
+    }
+
+    /**
+     * Returns the maximum of the entries in the specified portion of
+     * the input array, or &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray
+     * is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null or
+     * the array index parameters are not valid.&lt;/p&gt;
+     * &lt;p&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;The result is &lt;code&gt;NaN&lt;/code&gt; iff all values are &lt;code&gt;NaN&lt;/code&gt;
+     * (i.e. &lt;code&gt;NaN&lt;/code&gt; values have no impact on the value of the statistic).&lt;/li&gt;
+     * &lt;li&gt;If any of the values equals &lt;code&gt;Double.POSITIVE_INFINITY&lt;/code&gt;,
+     * the result is &lt;code&gt;Double.POSITIVE_INFINITY.&lt;/code&gt;&lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the maximum of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     *  parameters are not valid
+     */
+    @Override
+    public double evaluate(final double[] values, final int begin, final int length)
+    throws MathIllegalArgumentException {
+<span class="fc" id="L132">        double max = Double.NaN;</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (test(values, begin, length)) {</span>
+<span class="fc" id="L134">            max = values[begin];</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">            for (int i = begin; i &lt; begin + length; i++) {</span>
+<span class="fc bfc" id="L136" title="All 2 branches covered.">                if (!Double.isNaN(values[i])) {</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">                    max = (max &gt; values[i]) ? max : values[i];</span>
+                }
+            }
+        }
+<span class="fc" id="L141">        return max;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Max copy() {
+<span class="fc" id="L149">        Max result = new Max();</span>
+        // No try-catch or advertised exception because args are non-null
+<span class="fc" id="L151">        copy(this, result);</span>
+<span class="fc" id="L152">        return result;</span>
+    }
+
+    /**
+     * Copies source to dest.
+     * &lt;p&gt;Neither source nor dest can be null.&lt;/p&gt;
+     *
+     * @param source Max to copy
+     * @param dest Max to copy to
+     * @throws NullArgumentException if either source or dest is null
+     */
+    public static void copy(Max source, Max dest)
+        throws NullArgumentException {
+<span class="fc" id="L165">        MathUtils.checkNotNull(source);</span>
+<span class="fc" id="L166">        MathUtils.checkNotNull(dest);</span>
+<span class="fc" id="L167">        dest.setData(source.getDataRef());</span>
+<span class="fc" id="L168">        dest.n = source.n;</span>
+<span class="fc" id="L169">        dest.value = source.value;</span>
+<span class="fc" id="L170">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

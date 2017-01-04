@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FirstOrderConverter.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode</a> &gt; <span class="el_source">FirstOrderConverter.java</span></div><h1>FirstOrderConverter.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode;
+
+
+/** This class converts second order differential equations to first
+ * order ones.
+ *
+ * &lt;p&gt;This class is a wrapper around a {@link
+ * SecondOrderDifferentialEquations} which allow to use a {@link
+ * FirstOrderIntegrator} to integrate it.&lt;/p&gt;
+ *
+ * &lt;p&gt;The transformation is done by changing the n dimension state
+ * vector to a 2n dimension vector, where the first n components are
+ * the initial state variables and the n last components are their
+ * first time derivative. The first time derivative of this state
+ * vector then really contains both the first and second time
+ * derivative of the initial state vector, which can be handled by the
+ * underlying second order equations set.&lt;/p&gt;
+ *
+ * &lt;p&gt;One should be aware that the data is duplicated during the
+ * transformation process and that for each call to {@link
+ * #computeDerivatives computeDerivatives}, this wrapper does copy 4n
+ * scalars : 2n before the call to {@link
+ * SecondOrderDifferentialEquations#computeSecondDerivatives
+ * computeSecondDerivatives} in order to dispatch the y state vector
+ * into z and zDot, and 2n after the call to gather zDot and zDDot
+ * into yDot. Since the underlying problem by itself perhaps also
+ * needs to copy data and dispatch the arrays into domain objects,
+ * this has an impact on both memory and CPU usage. The only way to
+ * avoid this duplication is to perform the transformation at the
+ * problem level, i.e. to implement the problem as a first order one
+ * and then avoid using this class.&lt;/p&gt;
+ *
+ * @see FirstOrderIntegrator
+ * @see FirstOrderDifferentialEquations
+ * @see SecondOrderDifferentialEquations
+ * @since 1.2
+ */
+
+public class FirstOrderConverter implements FirstOrderDifferentialEquations {
+
+    /** Underlying second order equations set. */
+    private final SecondOrderDifferentialEquations equations;
+
+    /** second order problem dimension. */
+    private final int dimension;
+
+    /** state vector. */
+    private final double[] z;
+
+    /** first time derivative of the state vector. */
+    private final double[] zDot;
+
+    /** second time derivative of the state vector. */
+    private final double[] zDDot;
+
+  /** Simple constructor.
+   * Build a converter around a second order equations set.
+   * @param equations second order equations set to convert
+   */
+<span class="fc" id="L77">  public FirstOrderConverter (final SecondOrderDifferentialEquations equations) {</span>
+<span class="fc" id="L78">      this.equations = equations;</span>
+<span class="fc" id="L79">      dimension      = equations.getDimension();</span>
+<span class="fc" id="L80">      z              = new double[dimension];</span>
+<span class="fc" id="L81">      zDot           = new double[dimension];</span>
+<span class="fc" id="L82">      zDDot          = new double[dimension];</span>
+<span class="fc" id="L83">  }</span>
+
+  /** Get the dimension of the problem.
+   * &lt;p&gt;The dimension of the first order problem is twice the
+   * dimension of the underlying second order problem.&lt;/p&gt;
+   * @return dimension of the problem
+   */
+  public int getDimension() {
+<span class="fc" id="L91">    return 2 * dimension;</span>
+  }
+
+  /** Get the current time derivative of the state vector.
+   * @param t current value of the independent &lt;I&gt;time&lt;/I&gt; variable
+   * @param y array containing the current value of the state vector
+   * @param yDot placeholder array where to put the time derivative of the state vector
+   */
+  public void computeDerivatives(final double t, final double[] y, final double[] yDot) {
+
+    // split the state vector in two
+<span class="fc" id="L102">    System.arraycopy(y, 0,         z,    0, dimension);</span>
+<span class="fc" id="L103">    System.arraycopy(y, dimension, zDot, 0, dimension);</span>
+
+    // apply the underlying equations set
+<span class="fc" id="L106">    equations.computeSecondDerivatives(t, z, zDot, zDDot);</span>
+
+    // build the result state derivative
+<span class="fc" id="L109">    System.arraycopy(zDot,  0, yDot, 0,         dimension);</span>
+<span class="fc" id="L110">    System.arraycopy(zDDot, 0, yDot, dimension, dimension);</span>
+
+<span class="fc" id="L112">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

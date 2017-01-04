@@ -1,0 +1,283 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.apache.commons.math3.analysis.solvers;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.analysis.QuinticFunction;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.analysis.UnivariateFunction;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.exception.NumberIsTooSmallException;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.exception.TooManyEvaluationsException;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.junit.Assert;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.junit.Test;<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>/**<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * Test case for {@link BracketingNthOrderBrentSolver bracketing n&lt;sup&gt;th&lt;/sup&gt; order Brent} solver.<a name="line.30"></a>
+<span class="sourceLineNo">031</span> *<a name="line.31"></a>
+<span class="sourceLineNo">032</span> */<a name="line.32"></a>
+<span class="sourceLineNo">033</span>public final class BracketingNthOrderBrentSolverTest extends BaseSecantSolverAbstractTest {<a name="line.33"></a>
+<span class="sourceLineNo">034</span>    /** {@inheritDoc} */<a name="line.34"></a>
+<span class="sourceLineNo">035</span>    @Override<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    protected UnivariateSolver getSolver() {<a name="line.36"></a>
+<span class="sourceLineNo">037</span>        return new BracketingNthOrderBrentSolver();<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    }<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>    /** {@inheritDoc} */<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    @Override<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    protected int[] getQuinticEvalCounts() {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        return new int[] {1, 3, 8, 1, 9, 4, 8, 1, 12, 1, 16};<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    }<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>    @Test(expected=NumberIsTooSmallException.class)<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    public void testInsufficientOrder1() {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        new BracketingNthOrderBrentSolver(1.0e-10, 1);<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    }<a name="line.49"></a>
+<span class="sourceLineNo">050</span><a name="line.50"></a>
+<span class="sourceLineNo">051</span>    @Test(expected=NumberIsTooSmallException.class)<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    public void testInsufficientOrder2() {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        new BracketingNthOrderBrentSolver(1.0e-10, 1.0e-10, 1);<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    }<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>    @Test(expected=NumberIsTooSmallException.class)<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    public void testInsufficientOrder3() {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        new BracketingNthOrderBrentSolver(1.0e-10, 1.0e-10, 1.0e-10, 1);<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    }<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>    @Test<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    public void testConstructorsOK() {<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        Assert.assertEquals(2, new BracketingNthOrderBrentSolver(1.0e-10, 2).getMaximalOrder());<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        Assert.assertEquals(2, new BracketingNthOrderBrentSolver(1.0e-10, 1.0e-10, 2).getMaximalOrder());<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        Assert.assertEquals(2, new BracketingNthOrderBrentSolver(1.0e-10, 1.0e-10, 1.0e-10, 2).getMaximalOrder());<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    }<a name="line.66"></a>
+<span class="sourceLineNo">067</span><a name="line.67"></a>
+<span class="sourceLineNo">068</span>    @Test<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    public void testConvergenceOnFunctionAccuracy() {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        BracketingNthOrderBrentSolver solver =<a name="line.70"></a>
+<span class="sourceLineNo">071</span>                new BracketingNthOrderBrentSolver(1.0e-12, 1.0e-10, 0.001, 3);<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        QuinticFunction f = new QuinticFunction();<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        double result = solver.solve(20, f, 0.2, 0.9, 0.4, AllowedSolution.BELOW_SIDE);<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        Assert.assertEquals(0, f.value(result), solver.getFunctionValueAccuracy());<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        Assert.assertTrue(f.value(result) &lt;= 0);<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        Assert.assertTrue(result - 0.5 &gt; solver.getAbsoluteAccuracy());<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        result = solver.solve(20, f, -0.9, -0.2,  -0.4, AllowedSolution.ABOVE_SIDE);<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        Assert.assertEquals(0, f.value(result), solver.getFunctionValueAccuracy());<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        Assert.assertTrue(f.value(result) &gt;= 0);<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        Assert.assertTrue(result + 0.5 &lt; -solver.getAbsoluteAccuracy());<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    }<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>    @Test<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    public void testIssue716() {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        BracketingNthOrderBrentSolver solver =<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                new BracketingNthOrderBrentSolver(1.0e-12, 1.0e-10, 1.0e-22, 5);<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        UnivariateFunction sharpTurn = new UnivariateFunction() {<a name="line.87"></a>
+<span class="sourceLineNo">088</span>            public double value(double x) {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>                return (2 * x + 1) / (1.0e9 * (x + 1));<a name="line.89"></a>
+<span class="sourceLineNo">090</span>            }<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        };<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        double result = solver.solve(100, sharpTurn, -0.9999999, 30, 15, AllowedSolution.RIGHT_SIDE);<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        Assert.assertEquals(0, sharpTurn.value(result), solver.getFunctionValueAccuracy());<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        Assert.assertTrue(sharpTurn.value(result) &gt;= 0);<a name="line.94"></a>
+<span class="sourceLineNo">095</span>        Assert.assertEquals(-0.5, result, 1.0e-10);<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    }<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>    @Test<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    public void testFasterThanNewton() {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        // the following test functions come from Beny Neta's paper:<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        // "Several New Methods for solving Equations"<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        // intern J. Computer Math Vol 23 pp 265-282<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        // available here: http://www.math.nps.navy.mil/~bneta/SeveralNewMethods.PDF<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        // the reference roots have been computed by the Dfp solver to more than<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        // 80 digits and checked with emacs (only the first 20 digits are reproduced here)<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        compare(new TestFunction(0.0, -2, 2) {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>            @Override<a name="line.107"></a>
+<span class="sourceLineNo">108</span>            public DerivativeStructure value(DerivativeStructure x) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                return x.sin().subtract(x.multiply(0.5));<a name="line.109"></a>
+<span class="sourceLineNo">110</span>            }<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        });<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        compare(new TestFunction(6.3087771299726890947, -5, 10) {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>            @Override<a name="line.113"></a>
+<span class="sourceLineNo">114</span>            public DerivativeStructure value(DerivativeStructure x) {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>                return x.pow(5).add(x).subtract(10000);<a name="line.115"></a>
+<span class="sourceLineNo">116</span>            }<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        });<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        compare(new TestFunction(9.6335955628326951924, 0.001, 10) {<a name="line.118"></a>
+<span class="sourceLineNo">119</span>            @Override<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            public DerivativeStructure value(DerivativeStructure x) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>                return x.sqrt().subtract(x.reciprocal()).subtract(3);<a name="line.121"></a>
+<span class="sourceLineNo">122</span>            }<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        });<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        compare(new TestFunction(2.8424389537844470678, -5, 5) {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>            @Override<a name="line.125"></a>
+<span class="sourceLineNo">126</span>            public DerivativeStructure value(DerivativeStructure x) {<a name="line.126"></a>
+<span class="sourceLineNo">127</span>                return x.exp().add(x).subtract(20);<a name="line.127"></a>
+<span class="sourceLineNo">128</span>            }<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        });<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        compare(new TestFunction(8.3094326942315717953, 0.001, 10) {<a name="line.130"></a>
+<span class="sourceLineNo">131</span>            @Override<a name="line.131"></a>
+<span class="sourceLineNo">132</span>            public DerivativeStructure value(DerivativeStructure x) {<a name="line.132"></a>
+<span class="sourceLineNo">133</span>                return x.log().add(x.sqrt()).subtract(5);<a name="line.133"></a>
+<span class="sourceLineNo">134</span>            }<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        });<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        compare(new TestFunction(1.4655712318767680266, -0.5, 1.5) {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            @Override<a name="line.137"></a>
+<span class="sourceLineNo">138</span>            public DerivativeStructure value(DerivativeStructure x) {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                return x.subtract(1).multiply(x).multiply(x).subtract(1);<a name="line.139"></a>
+<span class="sourceLineNo">140</span>            }<a name="line.140"></a>
+<span class="sourceLineNo">141</span>        });<a name="line.141"></a>
+<span class="sourceLineNo">142</span><a name="line.142"></a>
+<span class="sourceLineNo">143</span>    }<a name="line.143"></a>
+<span class="sourceLineNo">144</span><a name="line.144"></a>
+<span class="sourceLineNo">145</span>    private void compare(TestFunction f) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        compare(f, f.getRoot(), f.getMin(), f.getMax());<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    }<a name="line.147"></a>
+<span class="sourceLineNo">148</span><a name="line.148"></a>
+<span class="sourceLineNo">149</span>    private void compare(final UnivariateDifferentiableFunction f,<a name="line.149"></a>
+<span class="sourceLineNo">150</span>                         double root, double min, double max) {<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        NewtonRaphsonSolver newton = new NewtonRaphsonSolver(1.0e-12);<a name="line.151"></a>
+<span class="sourceLineNo">152</span>        BracketingNthOrderBrentSolver bracketing =<a name="line.152"></a>
+<span class="sourceLineNo">153</span>                new BracketingNthOrderBrentSolver(1.0e-12, 1.0e-12, 1.0e-18, 5);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>        double resultN;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        try {<a name="line.155"></a>
+<span class="sourceLineNo">156</span>            resultN = newton.solve(100, f, min, max);<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        } catch (TooManyEvaluationsException tmee) {<a name="line.157"></a>
+<span class="sourceLineNo">158</span>            resultN = Double.NaN;<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        }<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        double resultB;<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        try {<a name="line.161"></a>
+<span class="sourceLineNo">162</span>            resultB = bracketing.solve(100, f, min, max);<a name="line.162"></a>
+<span class="sourceLineNo">163</span>        } catch (TooManyEvaluationsException tmee) {<a name="line.163"></a>
+<span class="sourceLineNo">164</span>            resultB = Double.NaN;<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        }<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        Assert.assertEquals(root, resultN, newton.getAbsoluteAccuracy());<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        Assert.assertEquals(root, resultB, bracketing.getAbsoluteAccuracy());<a name="line.167"></a>
+<span class="sourceLineNo">168</span><a name="line.168"></a>
+<span class="sourceLineNo">169</span>        // bracketing solver evaluates only function value, we set the weight to 1<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        final int weightedBracketingEvaluations = bracketing.getEvaluations();<a name="line.170"></a>
+<span class="sourceLineNo">171</span><a name="line.171"></a>
+<span class="sourceLineNo">172</span>        // Newton-Raphson solver evaluates both function value and derivative, we set the weight to 2<a name="line.172"></a>
+<span class="sourceLineNo">173</span>        final int weightedNewtonEvaluations = 2 * newton.getEvaluations();<a name="line.173"></a>
+<span class="sourceLineNo">174</span><a name="line.174"></a>
+<span class="sourceLineNo">175</span>        Assert.assertTrue(weightedBracketingEvaluations &lt; weightedNewtonEvaluations);<a name="line.175"></a>
+<span class="sourceLineNo">176</span><a name="line.176"></a>
+<span class="sourceLineNo">177</span>    }<a name="line.177"></a>
+<span class="sourceLineNo">178</span><a name="line.178"></a>
+<span class="sourceLineNo">179</span>    private static abstract class TestFunction implements UnivariateDifferentiableFunction {<a name="line.179"></a>
+<span class="sourceLineNo">180</span><a name="line.180"></a>
+<span class="sourceLineNo">181</span>        private final double root;<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        private final double min;<a name="line.182"></a>
+<span class="sourceLineNo">183</span>        private final double max;<a name="line.183"></a>
+<span class="sourceLineNo">184</span><a name="line.184"></a>
+<span class="sourceLineNo">185</span>        protected TestFunction(final double root, final double min, final double max) {<a name="line.185"></a>
+<span class="sourceLineNo">186</span>            this.root = root;<a name="line.186"></a>
+<span class="sourceLineNo">187</span>            this.min  = min;<a name="line.187"></a>
+<span class="sourceLineNo">188</span>            this.max  = max;<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        }<a name="line.189"></a>
+<span class="sourceLineNo">190</span><a name="line.190"></a>
+<span class="sourceLineNo">191</span>        public double getRoot() {<a name="line.191"></a>
+<span class="sourceLineNo">192</span>            return root;<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        }<a name="line.193"></a>
+<span class="sourceLineNo">194</span><a name="line.194"></a>
+<span class="sourceLineNo">195</span>        public double getMin() {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>            return min;<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        }<a name="line.197"></a>
+<span class="sourceLineNo">198</span><a name="line.198"></a>
+<span class="sourceLineNo">199</span>        public double getMax() {<a name="line.199"></a>
+<span class="sourceLineNo">200</span>            return max;<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        }<a name="line.201"></a>
+<span class="sourceLineNo">202</span><a name="line.202"></a>
+<span class="sourceLineNo">203</span>        public double value(final double x) {<a name="line.203"></a>
+<span class="sourceLineNo">204</span>            return value(new DerivativeStructure(0, 0, x)).getValue();<a name="line.204"></a>
+<span class="sourceLineNo">205</span>        }<a name="line.205"></a>
+<span class="sourceLineNo">206</span><a name="line.206"></a>
+<span class="sourceLineNo">207</span>        public abstract DerivativeStructure value(final DerivativeStructure t);<a name="line.207"></a>
+<span class="sourceLineNo">208</span><a name="line.208"></a>
+<span class="sourceLineNo">209</span>    }<a name="line.209"></a>
+<span class="sourceLineNo">210</span><a name="line.210"></a>
+<span class="sourceLineNo">211</span>}<a name="line.211"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

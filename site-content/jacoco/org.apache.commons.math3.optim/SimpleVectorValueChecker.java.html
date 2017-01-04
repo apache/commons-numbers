@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SimpleVectorValueChecker.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optim</a> &gt; <span class="el_source">SimpleVectorValueChecker.java</span></div><h1>SimpleVectorValueChecker.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.optim;
+
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+
+/**
+ * Simple implementation of the {@link ConvergenceChecker} interface using
+ * only objective function values.
+ *
+ * Convergence is considered to have been reached if either the relative
+ * difference between the objective function values is smaller than a
+ * threshold or if either the absolute difference between the objective
+ * function values is smaller than another threshold for all vectors elements.
+ * &lt;br/&gt;
+ * The {@link #converged(int,PointVectorValuePair,PointVectorValuePair) converged}
+ * method will also return {@code true} if the number of iterations has been set
+ * (see {@link #SimpleVectorValueChecker(double,double,int) this constructor}).
+ *
+ * @since 3.0
+ */
+public class SimpleVectorValueChecker
+    extends AbstractConvergenceChecker&lt;PointVectorValuePair&gt; {
+    /**
+     * If {@link #maxIterationCount} is set to this value, the number of
+     * iterations will never cause
+     * {@link #converged(int,PointVectorValuePair,PointVectorValuePair)}
+     * to return {@code true}.
+     */
+    private static final int ITERATION_CHECK_DISABLED = -1;
+    /**
+     * Number of iterations after which the
+     * {@link #converged(int,PointVectorValuePair,PointVectorValuePair)} method
+     * will return true (unless the check is disabled).
+     */
+    private final int maxIterationCount;
+
+    /**
+     * Build an instance with specified thresholds.
+     *
+     * In order to perform only relative checks, the absolute tolerance
+     * must be set to a negative value. In order to perform only absolute
+     * checks, the relative tolerance must be set to a negative value.
+     *
+     * @param relativeThreshold relative tolerance threshold
+     * @param absoluteThreshold absolute tolerance threshold
+     */
+    public SimpleVectorValueChecker(final double relativeThreshold,
+                                    final double absoluteThreshold) {
+<span class="fc" id="L66">        super(relativeThreshold, absoluteThreshold);</span>
+<span class="fc" id="L67">        maxIterationCount = ITERATION_CHECK_DISABLED;</span>
+<span class="fc" id="L68">    }</span>
+
+    /**
+     * Builds an instance with specified tolerance thresholds and
+     * iteration count.
+     *
+     * In order to perform only relative checks, the absolute tolerance
+     * must be set to a negative value. In order to perform only absolute
+     * checks, the relative tolerance must be set to a negative value.
+     *
+     * @param relativeThreshold Relative tolerance threshold.
+     * @param absoluteThreshold Absolute tolerance threshold.
+     * @param maxIter Maximum iteration count.
+     * @throws NotStrictlyPositiveException if {@code maxIter &lt;= 0}.
+     *
+     * @since 3.1
+     */
+    public SimpleVectorValueChecker(final double relativeThreshold,
+                                    final double absoluteThreshold,
+                                    final int maxIter) {
+<span class="fc" id="L88">        super(relativeThreshold, absoluteThreshold);</span>
+
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (maxIter &lt;= 0) {</span>
+<span class="fc" id="L91">            throw new NotStrictlyPositiveException(maxIter);</span>
+        }
+<span class="fc" id="L93">        maxIterationCount = maxIter;</span>
+<span class="fc" id="L94">    }</span>
+
+    /**
+     * Check if the optimization algorithm has converged considering the
+     * last two points.
+     * This method may be called several times from the same algorithm
+     * iteration with different points. This can be detected by checking the
+     * iteration number at each call if needed. Each time this method is
+     * called, the previous and current point correspond to points with the
+     * same role at each iteration, so they can be compared. As an example,
+     * simplex-based algorithms call this method for all points of the simplex,
+     * not only for the best or worst ones.
+     *
+     * @param iteration Index of current iteration
+     * @param previous Best point in the previous iteration.
+     * @param current Best point in the current iteration.
+     * @return {@code true} if the arguments satify the convergence criterion.
+     */
+    @Override
+    public boolean converged(final int iteration,
+                             final PointVectorValuePair previous,
+                             final PointVectorValuePair current) {
+<span class="fc bfc" id="L116" title="All 4 branches covered.">        if (maxIterationCount != ITERATION_CHECK_DISABLED &amp;&amp; iteration &gt;= maxIterationCount) {</span>
+<span class="fc" id="L117">            return true;</span>
+        }
+
+<span class="fc" id="L120">        final double[] p = previous.getValueRef();</span>
+<span class="fc" id="L121">        final double[] c = current.getValueRef();</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        for (int i = 0; i &lt; p.length; ++i) {</span>
+<span class="fc" id="L123">            final double pi         = p[i];</span>
+<span class="fc" id="L124">            final double ci         = c[i];</span>
+<span class="fc" id="L125">            final double difference = FastMath.abs(pi - ci);</span>
+<span class="fc" id="L126">            final double size       = FastMath.max(FastMath.abs(pi), FastMath.abs(ci));</span>
+<span class="fc bfc" id="L127" title="All 4 branches covered.">            if (difference &gt; size * getRelativeThreshold() &amp;&amp;</span>
+                difference &gt; getAbsoluteThreshold()) {
+<span class="fc" id="L129">                return false;</span>
+            }
+        }
+<span class="fc" id="L132">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

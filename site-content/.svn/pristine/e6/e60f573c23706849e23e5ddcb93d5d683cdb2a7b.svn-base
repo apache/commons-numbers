@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BoundaryProjection.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.partitioning</a> &gt; <span class="el_source">BoundaryProjection.java</span></div><h1>BoundaryProjection.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.partitioning;
+
+import org.apache.commons.math3.geometry.Point;
+import org.apache.commons.math3.geometry.Space;
+
+/** Class holding the result of point projection on region boundary.
+ * &lt;p&gt;This class is a simple placeholder, it does not provide any
+ * processing methods.&lt;/p&gt;
+ * &lt;p&gt;Instances of this class are guaranteed to be immutable&lt;/p&gt;
+ * @param &lt;S&gt; Type of the space.
+ * @since 3.3
+ * @see AbstractRegion#projectToBoundary(Point)
+ */
+public class BoundaryProjection&lt;S extends Space&gt; {
+
+    /** Original point. */
+    private final Point&lt;S&gt; original;
+
+    /** Projected point. */
+    private final Point&lt;S&gt; projected;
+
+    /** Offset of the point with respect to the boundary it is projected on. */
+    private final double offset;
+
+    /** Constructor from raw elements.
+     * @param original original point
+     * @param projected projected point
+     * @param offset offset of the point with respect to the boundary it is projected on
+     */
+<span class="fc" id="L46">    public BoundaryProjection(final Point&lt;S&gt; original, final Point&lt;S&gt; projected, final double offset) {</span>
+<span class="fc" id="L47">        this.original  = original;</span>
+<span class="fc" id="L48">        this.projected = projected;</span>
+<span class="fc" id="L49">        this.offset    = offset;</span>
+<span class="fc" id="L50">    }</span>
+
+    /** Get the original point.
+     * @return original point
+     */
+    public Point&lt;S&gt; getOriginal() {
+<span class="fc" id="L56">        return original;</span>
+    }
+
+    /** Projected point.
+     * @return projected point, or null if there are no boundary
+     */
+    public Point&lt;S&gt; getProjected() {
+<span class="fc" id="L63">        return projected;</span>
+    }
+
+    /** Offset of the point with respect to the boundary it is projected on.
+     * &lt;p&gt;
+     * The offset with respect to the boundary is negative if the {@link
+     * #getOriginal() original point} is inside the region, and positive otherwise.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * If there are no boundary, the value is set to either {@code
+     * Double.POSITIVE_INFINITY} if the region is empty (i.e. all points are
+     * outside of the region) or {@code Double.NEGATIVE_INFINITY} if the region
+     * covers the whole space (i.e. all points are inside of the region).
+     * &lt;/p&gt;
+     * @return offset of the point with respect to the boundary it is projected on
+     */
+    public double getOffset() {
+<span class="fc" id="L80">        return offset;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>HarmonicOscillator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.function</a> &gt; <span class="el_source">HarmonicOscillator.java</span></div><h1>HarmonicOscillator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.analysis.function;
+
+import org.apache.commons.math3.analysis.DifferentiableUnivariateFunction;
+import org.apache.commons.math3.analysis.FunctionUtils;
+import org.apache.commons.math3.analysis.ParametricUnivariateFunction;
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;
+import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * &lt;a href=&quot;http://en.wikipedia.org/wiki/Harmonic_oscillator&quot;&gt;
+ *  simple harmonic oscillator&lt;/a&gt; function.
+ *
+ * @since 3.0
+ */
+public class HarmonicOscillator implements UnivariateDifferentiableFunction, DifferentiableUnivariateFunction {
+    /** Amplitude. */
+    private final double amplitude;
+    /** Angular frequency. */
+    private final double omega;
+    /** Phase. */
+    private final double phase;
+
+    /**
+     * Harmonic oscillator function.
+     *
+     * @param amplitude Amplitude.
+     * @param omega Angular frequency.
+     * @param phase Phase.
+     */
+    public HarmonicOscillator(double amplitude,
+                              double omega,
+<span class="fc" id="L53">                              double phase) {</span>
+<span class="fc" id="L54">        this.amplitude = amplitude;</span>
+<span class="fc" id="L55">        this.omega = omega;</span>
+<span class="fc" id="L56">        this.phase = phase;</span>
+<span class="fc" id="L57">    }</span>
+
+    /** {@inheritDoc} */
+    public double value(double x) {
+<span class="fc" id="L61">        return value(omega * x + phase, amplitude);</span>
+    }
+
+    /** {@inheritDoc}
+     * @deprecated as of 3.1, replaced by {@link #value(DerivativeStructure)}
+     */
+    @Deprecated
+    public UnivariateFunction derivative() {
+<span class="nc" id="L69">        return FunctionUtils.toDifferentiableUnivariateFunction(this).derivative();</span>
+    }
+
+    /**
+     * Parametric function where the input array contains the parameters of
+     * the harmonic oscillator function, ordered as follows:
+     * &lt;ul&gt;
+     *  &lt;li&gt;Amplitude&lt;/li&gt;
+     *  &lt;li&gt;Angular frequency&lt;/li&gt;
+     *  &lt;li&gt;Phase&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+<span class="fc" id="L81">    public static class Parametric implements ParametricUnivariateFunction {</span>
+        /**
+         * Computes the value of the harmonic oscillator at {@code x}.
+         *
+         * @param x Value for which the function must be computed.
+         * @param param Values of norm, mean and standard deviation.
+         * @return the value of the function.
+         * @throws NullArgumentException if {@code param} is {@code null}.
+         * @throws DimensionMismatchException if the size of {@code param} is
+         * not 3.
+         */
+        public double value(double x, double ... param)
+            throws NullArgumentException,
+                   DimensionMismatchException {
+<span class="fc" id="L95">            validateParameters(param);</span>
+<span class="fc" id="L96">            return HarmonicOscillator.value(x * param[1] + param[2], param[0]);</span>
+        }
+
+        /**
+         * Computes the value of the gradient at {@code x}.
+         * The components of the gradient vector are the partial
+         * derivatives of the function with respect to each of the
+         * &lt;em&gt;parameters&lt;/em&gt; (amplitude, angular frequency and phase).
+         *
+         * @param x Value at which the gradient must be computed.
+         * @param param Values of amplitude, angular frequency and phase.
+         * @return the gradient vector at {@code x}.
+         * @throws NullArgumentException if {@code param} is {@code null}.
+         * @throws DimensionMismatchException if the size of {@code param} is
+         * not 3.
+         */
+        public double[] gradient(double x, double ... param)
+            throws NullArgumentException,
+                   DimensionMismatchException {
+<span class="fc" id="L115">            validateParameters(param);</span>
+
+<span class="fc" id="L117">            final double amplitude = param[0];</span>
+<span class="fc" id="L118">            final double omega = param[1];</span>
+<span class="fc" id="L119">            final double phase = param[2];</span>
+
+<span class="fc" id="L121">            final double xTimesOmegaPlusPhase = omega * x + phase;</span>
+<span class="fc" id="L122">            final double a = HarmonicOscillator.value(xTimesOmegaPlusPhase, 1);</span>
+<span class="fc" id="L123">            final double p = -amplitude * FastMath.sin(xTimesOmegaPlusPhase);</span>
+<span class="fc" id="L124">            final double w = p * x;</span>
+
+<span class="fc" id="L126">            return new double[] { a, w, p };</span>
+        }
+
+        /**
+         * Validates parameters to ensure they are appropriate for the evaluation of
+         * the {@link #value(double,double[])} and {@link #gradient(double,double[])}
+         * methods.
+         *
+         * @param param Values of norm, mean and standard deviation.
+         * @throws NullArgumentException if {@code param} is {@code null}.
+         * @throws DimensionMismatchException if the size of {@code param} is
+         * not 3.
+         */
+        private void validateParameters(double[] param)
+            throws NullArgumentException,
+                   DimensionMismatchException {
+<span class="fc bfc" id="L142" title="All 2 branches covered.">            if (param == null) {</span>
+<span class="fc" id="L143">                throw new NullArgumentException();</span>
+            }
+<span class="fc bfc" id="L145" title="All 2 branches covered.">            if (param.length != 3) {</span>
+<span class="fc" id="L146">                throw new DimensionMismatchException(param.length, 3);</span>
+            }
+<span class="fc" id="L148">        }</span>
+    }
+
+    /**
+     * @param xTimesOmegaPlusPhase {@code omega * x + phase}.
+     * @param amplitude Amplitude.
+     * @return the value of the harmonic oscillator function at {@code x}.
+     */
+    private static double value(double xTimesOmegaPlusPhase,
+                                double amplitude) {
+<span class="fc" id="L158">        return amplitude * FastMath.cos(xTimesOmegaPlusPhase);</span>
+    }
+
+    /** {@inheritDoc}
+     * @since 3.1
+     */
+    public DerivativeStructure value(final DerivativeStructure t)
+        throws DimensionMismatchException {
+<span class="fc" id="L166">        final double x = t.getValue();</span>
+<span class="fc" id="L167">        double[] f = new double[t.getOrder() + 1];</span>
+
+<span class="fc" id="L169">        final double alpha = omega * x + phase;</span>
+<span class="fc" id="L170">        f[0] = amplitude * FastMath.cos(alpha);</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">        if (f.length &gt; 1) {</span>
+<span class="fc" id="L172">            f[1] = -amplitude * omega * FastMath.sin(alpha);</span>
+<span class="fc" id="L173">            final double mo2 = - omega * omega;</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">            for (int i = 2; i &lt; f.length; ++i) {</span>
+<span class="fc" id="L175">                f[i] = mo2 * f[i - 2];</span>
+            }
+        }
+
+<span class="fc" id="L179">        return t.compose(f);</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

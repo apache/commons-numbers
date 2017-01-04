@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Covariance.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.correlation</a> &gt; <span class="el_source">Covariance.java</span></div><h1>Covariance.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.correlation;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.BlockRealMatrix;
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
+import org.apache.commons.math3.stat.descriptive.moment.Variance;
+
+/**
+ * Computes covariances for pairs of arrays or columns of a matrix.
+ *
+ * &lt;p&gt;The constructors that take &lt;code&gt;RealMatrix&lt;/code&gt; or
+ * &lt;code&gt;double[][]&lt;/code&gt; arguments generate covariance matrices.  The
+ * columns of the input matrices are assumed to represent variable values.&lt;/p&gt;
+ *
+ * &lt;p&gt;The constructor argument &lt;code&gt;biasCorrected&lt;/code&gt; determines whether or
+ * not computed covariances are bias-corrected.&lt;/p&gt;
+ *
+ * &lt;p&gt;Unbiased covariances are given by the formula&lt;/p&gt;
+ * &lt;code&gt;cov(X, Y) = &amp;Sigma;[(x&lt;sub&gt;i&lt;/sub&gt; - E(X))(y&lt;sub&gt;i&lt;/sub&gt; - E(Y))] / (n - 1)&lt;/code&gt;
+ * where &lt;code&gt;E(X)&lt;/code&gt; is the mean of &lt;code&gt;X&lt;/code&gt; and &lt;code&gt;E(Y)&lt;/code&gt;
+ * is the mean of the &lt;code&gt;Y&lt;/code&gt; values.
+ *
+ * &lt;p&gt;Non-bias-corrected estimates use &lt;code&gt;n&lt;/code&gt; in place of &lt;code&gt;n - 1&lt;/code&gt;
+ *
+ * @since 2.0
+ */
+public class Covariance {
+
+    /** covariance matrix */
+    private final RealMatrix covarianceMatrix;
+
+    /**
+     * Create an empty covariance matrix.
+     */
+    /** Number of observations (length of covariate vectors) */
+    private final int n;
+
+    /**
+     * Create a Covariance with no data
+     */
+    public Covariance() {
+<span class="fc" id="L61">        super();</span>
+<span class="fc" id="L62">        covarianceMatrix = null;</span>
+<span class="fc" id="L63">        n = 0;</span>
+<span class="fc" id="L64">    }</span>
+
+    /**
+     * Create a Covariance matrix from a rectangular array
+     * whose columns represent covariates.
+     *
+     * &lt;p&gt;The &lt;code&gt;biasCorrected&lt;/code&gt; parameter determines whether or not
+     * covariance estimates are bias-corrected.&lt;/p&gt;
+     *
+     * &lt;p&gt;The input array must be rectangular with at least one column
+     * and two rows.&lt;/p&gt;
+     *
+     * @param data rectangular array with columns representing covariates
+     * @param biasCorrected true means covariances are bias-corrected
+     * @throws MathIllegalArgumentException if the input data array is not
+     * rectangular with at least two rows and one column.
+     * @throws NotStrictlyPositiveException if the input data array is not
+     * rectangular with at least one row and one column.
+     */
+    public Covariance(double[][] data, boolean biasCorrected)
+    throws MathIllegalArgumentException, NotStrictlyPositiveException {
+<span class="fc" id="L85">        this(new BlockRealMatrix(data), biasCorrected);</span>
+<span class="fc" id="L86">    }</span>
+
+    /**
+     * Create a Covariance matrix from a rectangular array
+     * whose columns represent covariates.
+     *
+     * &lt;p&gt;The input array must be rectangular with at least one column
+     * and two rows&lt;/p&gt;
+     *
+     * @param data rectangular array with columns representing covariates
+     * @throws MathIllegalArgumentException if the input data array is not
+     * rectangular with at least two rows and one column.
+     * @throws NotStrictlyPositiveException if the input data array is not
+     * rectangular with at least one row and one column.
+     */
+    public Covariance(double[][] data)
+    throws MathIllegalArgumentException, NotStrictlyPositiveException {
+<span class="fc" id="L103">        this(data, true);</span>
+<span class="fc" id="L104">    }</span>
+
+    /**
+     * Create a covariance matrix from a matrix whose columns
+     * represent covariates.
+     *
+     * &lt;p&gt;The &lt;code&gt;biasCorrected&lt;/code&gt; parameter determines whether or not
+     * covariance estimates are bias-corrected.&lt;/p&gt;
+     *
+     * &lt;p&gt;The matrix must have at least one column and two rows&lt;/p&gt;
+     *
+     * @param matrix matrix with columns representing covariates
+     * @param biasCorrected true means covariances are bias-corrected
+     * @throws MathIllegalArgumentException if the input matrix does not have
+     * at least two rows and one column
+     */
+    public Covariance(RealMatrix matrix, boolean biasCorrected)
+<span class="fc" id="L121">    throws MathIllegalArgumentException {</span>
+<span class="fc" id="L122">       checkSufficientData(matrix);</span>
+<span class="fc" id="L123">       n = matrix.getRowDimension();</span>
+<span class="fc" id="L124">       covarianceMatrix = computeCovarianceMatrix(matrix, biasCorrected);</span>
+<span class="fc" id="L125">    }</span>
+
+    /**
+     * Create a covariance matrix from a matrix whose columns
+     * represent covariates.
+     *
+     * &lt;p&gt;The matrix must have at least one column and two rows&lt;/p&gt;
+     *
+     * @param matrix matrix with columns representing covariates
+     * @throws MathIllegalArgumentException if the input matrix does not have
+     * at least two rows and one column
+     */
+    public Covariance(RealMatrix matrix) throws MathIllegalArgumentException {
+<span class="fc" id="L138">        this(matrix, true);</span>
+<span class="fc" id="L139">    }</span>
+
+    /**
+     * Returns the covariance matrix
+     *
+     * @return covariance matrix
+     */
+    public RealMatrix getCovarianceMatrix() {
+<span class="fc" id="L147">        return covarianceMatrix;</span>
+    }
+
+    /**
+     * Returns the number of observations (length of covariate vectors)
+     *
+     * @return number of observations
+     */
+    public int getN() {
+<span class="fc" id="L156">        return n;</span>
+    }
+
+    /**
+     * Compute a covariance matrix from a matrix whose columns represent
+     * covariates.
+     * @param matrix input matrix (must have at least one column and two rows)
+     * @param biasCorrected determines whether or not covariance estimates are bias-corrected
+     * @return covariance matrix
+     * @throws MathIllegalArgumentException if the matrix does not contain sufficient data
+     */
+    protected RealMatrix computeCovarianceMatrix(RealMatrix matrix, boolean biasCorrected)
+    throws MathIllegalArgumentException {
+<span class="fc" id="L169">        int dimension = matrix.getColumnDimension();</span>
+<span class="fc" id="L170">        Variance variance = new Variance(biasCorrected);</span>
+<span class="fc" id="L171">        RealMatrix outMatrix = new BlockRealMatrix(dimension, dimension);</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">        for (int i = 0; i &lt; dimension; i++) {</span>
+<span class="fc bfc" id="L173" title="All 2 branches covered.">            for (int j = 0; j &lt; i; j++) {</span>
+<span class="fc" id="L174">              double cov = covariance(matrix.getColumn(i), matrix.getColumn(j), biasCorrected);</span>
+<span class="fc" id="L175">              outMatrix.setEntry(i, j, cov);</span>
+<span class="fc" id="L176">              outMatrix.setEntry(j, i, cov);</span>
+            }
+<span class="fc" id="L178">            outMatrix.setEntry(i, i, variance.evaluate(matrix.getColumn(i)));</span>
+        }
+<span class="fc" id="L180">        return outMatrix;</span>
+    }
+
+    /**
+     * Create a covariance matrix from a matrix whose columns represent
+     * covariates. Covariances are computed using the bias-corrected formula.
+     * @param matrix input matrix (must have at least one column and two rows)
+     * @return covariance matrix
+     * @throws MathIllegalArgumentException if matrix does not contain sufficient data
+     * @see #Covariance
+     */
+    protected RealMatrix computeCovarianceMatrix(RealMatrix matrix)
+    throws MathIllegalArgumentException {
+<span class="nc" id="L193">        return computeCovarianceMatrix(matrix, true);</span>
+    }
+
+    /**
+     * Compute a covariance matrix from a rectangular array whose columns represent
+     * covariates.
+     * @param data input array (must have at least one column and two rows)
+     * @param biasCorrected determines whether or not covariance estimates are bias-corrected
+     * @return covariance matrix
+     * @throws MathIllegalArgumentException if the data array does not contain sufficient
+     * data
+     * @throws NotStrictlyPositiveException if the input data array is not
+     * rectangular with at least one row and one column.
+     */
+    protected RealMatrix computeCovarianceMatrix(double[][] data, boolean biasCorrected)
+    throws MathIllegalArgumentException, NotStrictlyPositiveException {
+<span class="fc" id="L209">        return computeCovarianceMatrix(new BlockRealMatrix(data), biasCorrected);</span>
+    }
+
+    /**
+     * Create a covariance matrix from a rectangular array whose columns represent
+     * covariates. Covariances are computed using the bias-corrected formula.
+     * @param data input array (must have at least one column and two rows)
+     * @return covariance matrix
+     * @throws MathIllegalArgumentException if the data array does not contain sufficient data
+     * @throws NotStrictlyPositiveException if the input data array is not
+     * rectangular with at least one row and one column.
+     * @see #Covariance
+     */
+    protected RealMatrix computeCovarianceMatrix(double[][] data)
+    throws MathIllegalArgumentException, NotStrictlyPositiveException {
+<span class="fc" id="L224">        return computeCovarianceMatrix(data, true);</span>
+    }
+
+    /**
+     * Computes the covariance between the two arrays.
+     *
+     * &lt;p&gt;Array lengths must match and the common length must be at least 2.&lt;/p&gt;
+     *
+     * @param xArray first data array
+     * @param yArray second data array
+     * @param biasCorrected if true, returned value will be bias-corrected
+     * @return returns the covariance for the two arrays
+     * @throws  MathIllegalArgumentException if the arrays lengths do not match or
+     * there is insufficient data
+     */
+    public double covariance(final double[] xArray, final double[] yArray, boolean biasCorrected)
+        throws MathIllegalArgumentException {
+<span class="fc" id="L241">        Mean mean = new Mean();</span>
+<span class="fc" id="L242">        double result = 0d;</span>
+<span class="fc" id="L243">        int length = xArray.length;</span>
+<span class="pc bpc" id="L244" title="1 of 2 branches missed.">        if (length != yArray.length) {</span>
+<span class="nc" id="L245">            throw new MathIllegalArgumentException(</span>
+                  LocalizedFormats.DIMENSIONS_MISMATCH_SIMPLE, length, yArray.length);
+<span class="fc bfc" id="L247" title="All 2 branches covered.">        } else if (length &lt; 2) {</span>
+<span class="fc" id="L248">            throw new MathIllegalArgumentException(</span>
+                  LocalizedFormats.INSUFFICIENT_OBSERVED_POINTS_IN_SAMPLE, length, 2);
+        } else {
+<span class="fc" id="L251">            double xMean = mean.evaluate(xArray);</span>
+<span class="fc" id="L252">            double yMean = mean.evaluate(yArray);</span>
+<span class="fc bfc" id="L253" title="All 2 branches covered.">            for (int i = 0; i &lt; length; i++) {</span>
+<span class="fc" id="L254">                double xDev = xArray[i] - xMean;</span>
+<span class="fc" id="L255">                double yDev = yArray[i] - yMean;</span>
+<span class="fc" id="L256">                result += (xDev * yDev - result) / (i + 1);</span>
+            }
+        }
+<span class="pc bpc" id="L259" title="1 of 2 branches missed.">        return biasCorrected ? result * ((double) length / (double)(length - 1)) : result;</span>
+    }
+
+    /**
+     * Computes the covariance between the two arrays, using the bias-corrected
+     * formula.
+     *
+     * &lt;p&gt;Array lengths must match and the common length must be at least 2.&lt;/p&gt;
+     *
+     * @param xArray first data array
+     * @param yArray second data array
+     * @return returns the covariance for the two arrays
+     * @throws  MathIllegalArgumentException if the arrays lengths do not match or
+     * there is insufficient data
+     */
+    public double covariance(final double[] xArray, final double[] yArray)
+        throws MathIllegalArgumentException {
+<span class="fc" id="L276">        return covariance(xArray, yArray, true);</span>
+    }
+
+    /**
+     * Throws MathIllegalArgumentException if the matrix does not have at least
+     * one column and two rows.
+     * @param matrix matrix to check
+     * @throws MathIllegalArgumentException if the matrix does not contain sufficient data
+     * to compute covariance
+     */
+    private void checkSufficientData(final RealMatrix matrix) throws MathIllegalArgumentException {
+<span class="fc" id="L287">        int nRows = matrix.getRowDimension();</span>
+<span class="fc" id="L288">        int nCols = matrix.getColumnDimension();</span>
+<span class="pc bpc" id="L289" title="2 of 4 branches missed.">        if (nRows &lt; 2 || nCols &lt; 1) {</span>
+<span class="nc" id="L290">            throw new MathIllegalArgumentException(</span>
+                    LocalizedFormats.INSUFFICIENT_ROWS_AND_COLUMNS,
+                    nRows, nCols);
+        }
+<span class="fc" id="L294">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

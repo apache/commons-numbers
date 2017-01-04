@@ -1,0 +1,344 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.apache.commons.math3.ml.neuralnet;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.io.Serializable;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.io.ObjectInputStream;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.util.concurrent.atomic.AtomicReference;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import java.util.concurrent.atomic.AtomicLong;<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.exception.DimensionMismatchException;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.util.Precision;<a name="line.26"></a>
+<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>/**<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * Describes a neuron element of a neural network.<a name="line.30"></a>
+<span class="sourceLineNo">031</span> *<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * This class aims to be thread-safe.<a name="line.32"></a>
+<span class="sourceLineNo">033</span> *<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * @since 3.3<a name="line.34"></a>
+<span class="sourceLineNo">035</span> */<a name="line.35"></a>
+<span class="sourceLineNo">036</span>public class Neuron implements Serializable {<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    /** Serializable. */<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    private static final long serialVersionUID = 20130207L;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    /** Identifier. */<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    private final long identifier;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    /** Length of the feature set. */<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    private final int size;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    /** Neuron data. */<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    private final AtomicReference&lt;double[]&gt; features;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    /** Number of attempts to update a neuron. */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    private final AtomicLong numberOfAttemptedUpdates = new AtomicLong(0);<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    /** Number of successful updates  of a neuron. */<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    private final AtomicLong numberOfSuccessfulUpdates = new AtomicLong(0);<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>    /**<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     * Creates a neuron.<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     * The size of the feature set is fixed to the length of the given<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     * argument.<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * &lt;br/&gt;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * Constructor is package-private: Neurons must be<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * {@link Network#createNeuron(double[]) created} by the network<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * instance to which they will belong.<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     *<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * @param identifier Identifier (assigned by the {@link Network}).<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * @param features Initial values of the feature set.<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     */<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    Neuron(long identifier,<a name="line.62"></a>
+<span class="sourceLineNo">063</span>           double[] features) {<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        this.identifier = identifier;<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        this.size = features.length;<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        this.features = new AtomicReference&lt;double[]&gt;(features.clone());<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    }<a name="line.67"></a>
+<span class="sourceLineNo">068</span><a name="line.68"></a>
+<span class="sourceLineNo">069</span>    /**<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * Performs a deep copy of this instance.<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * Upon return, the copied and original instances will be independent:<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     * Updating one will not affect the other.<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     *<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * @return a new instance with the same state as this instance.<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * @since 3.6<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     */<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    public synchronized Neuron copy() {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        final Neuron copy = new Neuron(getIdentifier(),<a name="line.78"></a>
+<span class="sourceLineNo">079</span>                                       getFeatures());<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        copy.numberOfAttemptedUpdates.set(numberOfAttemptedUpdates.get());<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        copy.numberOfSuccessfulUpdates.set(numberOfSuccessfulUpdates.get());<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>        return copy;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    }<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span>    /**<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * Gets the neuron's identifier.<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     *<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * @return the identifier.<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     */<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    public long getIdentifier() {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        return identifier;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    }<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>    /**<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * Gets the length of the feature set.<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     *<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * @return the number of features.<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     */<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    public int getSize() {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        return size;<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    }<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>    /**<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     * Gets the neuron's features.<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     *<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     * @return a copy of the neuron's features.<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     */<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    public double[] getFeatures() {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        return features.get().clone();<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    }<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>    /**<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     * Tries to atomically update the neuron's features.<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * Update will be performed only if the expected values match the<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     * current values.&lt;br/&gt;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * In effect, when concurrent threads call this method, the state<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     * could be modified by one, so that it does not correspond to the<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * the state assumed by another.<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * Typically, a caller {@link #getFeatures() retrieves the current state},<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     * and uses it to compute the new state.<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     * During this computation, another thread might have done the same<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     * thing, and updated the state: If the current thread were to proceed<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     * with its own update, it would overwrite the new state (which might<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     * already have been used by yet other threads).<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * To prevent this, the method does not perform the update when a<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     * concurrent modification has been detected, and returns {@code false}.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     * When this happens, the caller should fetch the new current state,<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * redo its computation, and call this method again.<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     *<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * @param expect Current values of the features, as assumed by the caller.<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     * Update will never succeed if the contents of this array does not match<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     * the values returned by {@link #getFeatures()}.<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     * @param update Features's new values.<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     * @return {@code true} if the update was successful, {@code false}<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     * otherwise.<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     * @throws DimensionMismatchException if the length of {@code update} is<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     * not the same as specified in the {@link #Neuron(long,double[])<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * constructor}.<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     */<a name="line.140"></a>
+<span class="sourceLineNo">141</span>    public boolean compareAndSetFeatures(double[] expect,<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                                         double[] update) {<a name="line.142"></a>
+<span class="sourceLineNo">143</span>        if (update.length != size) {<a name="line.143"></a>
+<span class="sourceLineNo">144</span>            throw new DimensionMismatchException(update.length, size);<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        }<a name="line.145"></a>
+<span class="sourceLineNo">146</span><a name="line.146"></a>
+<span class="sourceLineNo">147</span>        // Get the internal reference. Note that this must not be a copy;<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        // otherwise the "compareAndSet" below will always fail.<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        final double[] current = features.get();<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        if (!containSameValues(current, expect)) {<a name="line.150"></a>
+<span class="sourceLineNo">151</span>            // Some other thread already modified the state.<a name="line.151"></a>
+<span class="sourceLineNo">152</span>            return false;<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        }<a name="line.153"></a>
+<span class="sourceLineNo">154</span><a name="line.154"></a>
+<span class="sourceLineNo">155</span>        // Increment attempt counter.<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        numberOfAttemptedUpdates.incrementAndGet();<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>        if (features.compareAndSet(current, update.clone())) {<a name="line.158"></a>
+<span class="sourceLineNo">159</span>            // The current thread could atomically update the state (attempt succeeded).<a name="line.159"></a>
+<span class="sourceLineNo">160</span>            numberOfSuccessfulUpdates.incrementAndGet();<a name="line.160"></a>
+<span class="sourceLineNo">161</span>            return true;<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        } else {<a name="line.162"></a>
+<span class="sourceLineNo">163</span>            // Some other thread came first (attempt failed).<a name="line.163"></a>
+<span class="sourceLineNo">164</span>            return false;<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        }<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    }<a name="line.166"></a>
+<span class="sourceLineNo">167</span><a name="line.167"></a>
+<span class="sourceLineNo">168</span>    /**<a name="line.168"></a>
+<span class="sourceLineNo">169</span>     * Retrieves the number of calls to the<a name="line.169"></a>
+<span class="sourceLineNo">170</span>     * {@link #compareAndSetFeatures(double[],double[]) compareAndSetFeatures}<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     * method.<a name="line.171"></a>
+<span class="sourceLineNo">172</span>     * Note that if the caller wants to use this method in combination with<a name="line.172"></a>
+<span class="sourceLineNo">173</span>     * {@link #getNumberOfSuccessfulUpdates()}, additional synchronization<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     * may be required to ensure consistency.<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     *<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     * @return the number of update attempts.<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     * @since 3.6<a name="line.177"></a>
+<span class="sourceLineNo">178</span>     */<a name="line.178"></a>
+<span class="sourceLineNo">179</span>    public long getNumberOfAttemptedUpdates() {<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        return numberOfAttemptedUpdates.get();<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    }<a name="line.181"></a>
+<span class="sourceLineNo">182</span><a name="line.182"></a>
+<span class="sourceLineNo">183</span>    /**<a name="line.183"></a>
+<span class="sourceLineNo">184</span>     * Retrieves the number of successful calls to the<a name="line.184"></a>
+<span class="sourceLineNo">185</span>     * {@link #compareAndSetFeatures(double[],double[]) compareAndSetFeatures}<a name="line.185"></a>
+<span class="sourceLineNo">186</span>     * method.<a name="line.186"></a>
+<span class="sourceLineNo">187</span>     * Note that if the caller wants to use this method in combination with<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     * {@link #getNumberOfAttemptedUpdates()}, additional synchronization<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     * may be required to ensure consistency.<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     *<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     * @return the number of successful updates.<a name="line.191"></a>
+<span class="sourceLineNo">192</span>     * @since 3.6<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     */<a name="line.193"></a>
+<span class="sourceLineNo">194</span>    public long getNumberOfSuccessfulUpdates() {<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        return numberOfSuccessfulUpdates.get();<a name="line.195"></a>
+<span class="sourceLineNo">196</span>    }<a name="line.196"></a>
+<span class="sourceLineNo">197</span><a name="line.197"></a>
+<span class="sourceLineNo">198</span>    /**<a name="line.198"></a>
+<span class="sourceLineNo">199</span>     * Checks whether the contents of both arrays is the same.<a name="line.199"></a>
+<span class="sourceLineNo">200</span>     *<a name="line.200"></a>
+<span class="sourceLineNo">201</span>     * @param current Current values.<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     * @param expect Expected values.<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     * @throws DimensionMismatchException if the length of {@code expected}<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     * is not the same as specified in the {@link #Neuron(long,double[])<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     * constructor}.<a name="line.205"></a>
+<span class="sourceLineNo">206</span>     * @return {@code true} if the arrays contain the same values.<a name="line.206"></a>
+<span class="sourceLineNo">207</span>     */<a name="line.207"></a>
+<span class="sourceLineNo">208</span>    private boolean containSameValues(double[] current,<a name="line.208"></a>
+<span class="sourceLineNo">209</span>                                      double[] expect) {<a name="line.209"></a>
+<span class="sourceLineNo">210</span>        if (expect.length != size) {<a name="line.210"></a>
+<span class="sourceLineNo">211</span>            throw new DimensionMismatchException(expect.length, size);<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        }<a name="line.212"></a>
+<span class="sourceLineNo">213</span><a name="line.213"></a>
+<span class="sourceLineNo">214</span>        for (int i = 0; i &lt; size; i++) {<a name="line.214"></a>
+<span class="sourceLineNo">215</span>            if (!Precision.equals(current[i], expect[i])) {<a name="line.215"></a>
+<span class="sourceLineNo">216</span>                return false;<a name="line.216"></a>
+<span class="sourceLineNo">217</span>            }<a name="line.217"></a>
+<span class="sourceLineNo">218</span>        }<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        return true;<a name="line.219"></a>
+<span class="sourceLineNo">220</span>    }<a name="line.220"></a>
+<span class="sourceLineNo">221</span><a name="line.221"></a>
+<span class="sourceLineNo">222</span>    /**<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     * Prevents proxy bypass.<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     *<a name="line.224"></a>
+<span class="sourceLineNo">225</span>     * @param in Input stream.<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     */<a name="line.226"></a>
+<span class="sourceLineNo">227</span>    private void readObject(ObjectInputStream in) {<a name="line.227"></a>
+<span class="sourceLineNo">228</span>        throw new IllegalStateException();<a name="line.228"></a>
+<span class="sourceLineNo">229</span>    }<a name="line.229"></a>
+<span class="sourceLineNo">230</span><a name="line.230"></a>
+<span class="sourceLineNo">231</span>    /**<a name="line.231"></a>
+<span class="sourceLineNo">232</span>     * Custom serialization.<a name="line.232"></a>
+<span class="sourceLineNo">233</span>     *<a name="line.233"></a>
+<span class="sourceLineNo">234</span>     * @return the proxy instance that will be actually serialized.<a name="line.234"></a>
+<span class="sourceLineNo">235</span>     */<a name="line.235"></a>
+<span class="sourceLineNo">236</span>    private Object writeReplace() {<a name="line.236"></a>
+<span class="sourceLineNo">237</span>        return new SerializationProxy(identifier,<a name="line.237"></a>
+<span class="sourceLineNo">238</span>                                      features.get());<a name="line.238"></a>
+<span class="sourceLineNo">239</span>    }<a name="line.239"></a>
+<span class="sourceLineNo">240</span><a name="line.240"></a>
+<span class="sourceLineNo">241</span>    /**<a name="line.241"></a>
+<span class="sourceLineNo">242</span>     * Serialization.<a name="line.242"></a>
+<span class="sourceLineNo">243</span>     */<a name="line.243"></a>
+<span class="sourceLineNo">244</span>    private static class SerializationProxy implements Serializable {<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        /** Serializable. */<a name="line.245"></a>
+<span class="sourceLineNo">246</span>        private static final long serialVersionUID = 20130207L;<a name="line.246"></a>
+<span class="sourceLineNo">247</span>        /** Features. */<a name="line.247"></a>
+<span class="sourceLineNo">248</span>        private final double[] features;<a name="line.248"></a>
+<span class="sourceLineNo">249</span>        /** Identifier. */<a name="line.249"></a>
+<span class="sourceLineNo">250</span>        private final long identifier;<a name="line.250"></a>
+<span class="sourceLineNo">251</span><a name="line.251"></a>
+<span class="sourceLineNo">252</span>        /**<a name="line.252"></a>
+<span class="sourceLineNo">253</span>         * @param identifier Identifier.<a name="line.253"></a>
+<span class="sourceLineNo">254</span>         * @param features Features.<a name="line.254"></a>
+<span class="sourceLineNo">255</span>         */<a name="line.255"></a>
+<span class="sourceLineNo">256</span>        SerializationProxy(long identifier,<a name="line.256"></a>
+<span class="sourceLineNo">257</span>                           double[] features) {<a name="line.257"></a>
+<span class="sourceLineNo">258</span>            this.identifier = identifier;<a name="line.258"></a>
+<span class="sourceLineNo">259</span>            this.features = features;<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        }<a name="line.260"></a>
+<span class="sourceLineNo">261</span><a name="line.261"></a>
+<span class="sourceLineNo">262</span>        /**<a name="line.262"></a>
+<span class="sourceLineNo">263</span>         * Custom serialization.<a name="line.263"></a>
+<span class="sourceLineNo">264</span>         *<a name="line.264"></a>
+<span class="sourceLineNo">265</span>         * @return the {@link Neuron} for which this instance is the proxy.<a name="line.265"></a>
+<span class="sourceLineNo">266</span>         */<a name="line.266"></a>
+<span class="sourceLineNo">267</span>        private Object readResolve() {<a name="line.267"></a>
+<span class="sourceLineNo">268</span>            return new Neuron(identifier,<a name="line.268"></a>
+<span class="sourceLineNo">269</span>                              features);<a name="line.269"></a>
+<span class="sourceLineNo">270</span>        }<a name="line.270"></a>
+<span class="sourceLineNo">271</span>    }<a name="line.271"></a>
+<span class="sourceLineNo">272</span>}<a name="line.272"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

@@ -1,0 +1,714 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SimplexTableau.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optim.linear</a> &gt; <span class="el_source">SimplexTableau.java</span></div><h1>SimplexTableau.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.optim.linear;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
+import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math3.util.Precision;
+
+/**
+ * A tableau for use in the Simplex method.
+ *
+ * &lt;p&gt;
+ * Example:
+ * &lt;pre&gt;
+ *   W |  Z |  x1 |  x2 |  x- | s1 |  s2 |  a1 |  RHS
+ * ---------------------------------------------------
+ *  -1    0    0     0     0     0     0     1     0   &amp;lt;= phase 1 objective
+ *   0    1   -15   -10    0     0     0     0     0   &amp;lt;= phase 2 objective
+ *   0    0    1     0     0     1     0     0     2   &amp;lt;= constraint 1
+ *   0    0    0     1     0     0     1     0     3   &amp;lt;= constraint 2
+ *   0    0    1     1     0     0     0     1     4   &amp;lt;= constraint 3
+ * &lt;/pre&gt;
+ * W: Phase 1 objective function&lt;/br&gt;
+ * Z: Phase 2 objective function&lt;/br&gt;
+ * x1 &amp;amp; x2: Decision variables&lt;/br&gt;
+ * x-: Extra decision variable to allow for negative values&lt;/br&gt;
+ * s1 &amp;amp; s2: Slack/Surplus variables&lt;/br&gt;
+ * a1: Artificial variable&lt;/br&gt;
+ * RHS: Right hand side&lt;/br&gt;
+ * &lt;/p&gt;
+ * @since 2.0
+ */
+class SimplexTableau implements Serializable {
+
+    /** Column label for negative vars. */
+    private static final String NEGATIVE_VAR_COLUMN_LABEL = &quot;x-&quot;;
+
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = -1369660067587938365L;
+
+    /** Linear objective function. */
+    private final LinearObjectiveFunction f;
+
+    /** Linear constraints. */
+    private final List&lt;LinearConstraint&gt; constraints;
+
+    /** Whether to restrict the variables to non-negative values. */
+    private final boolean restrictToNonNegative;
+
+    /** The variables each column represents */
+<span class="fc" id="L80">    private final List&lt;String&gt; columnLabels = new ArrayList&lt;String&gt;();</span>
+
+    /** Simple tableau. */
+    private transient Array2DRowRealMatrix tableau;
+
+    /** Number of decision variables. */
+    private final int numDecisionVariables;
+
+    /** Number of slack variables. */
+    private final int numSlackVariables;
+
+    /** Number of artificial variables. */
+    private int numArtificialVariables;
+
+    /** Amount of error to accept when checking for optimality. */
+    private final double epsilon;
+
+    /** Amount of error to accept in floating point comparisons. */
+    private final int maxUlps;
+
+    /** Maps basic variables to row they are basic in. */
+    private int[] basicVariables;
+
+    /** Maps rows to their corresponding basic variables. */
+    private int[] basicRows;
+
+    /**
+     * Builds a tableau for a linear problem.
+     *
+     * @param f Linear objective function.
+     * @param constraints Linear constraints.
+     * @param goalType Optimization goal: either {@link GoalType#MAXIMIZE}
+     * or {@link GoalType#MINIMIZE}.
+     * @param restrictToNonNegative Whether to restrict the variables to non-negative values.
+     * @param epsilon Amount of error to accept when checking for optimality.
+     */
+    SimplexTableau(final LinearObjectiveFunction f,
+                   final Collection&lt;LinearConstraint&gt; constraints,
+                   final GoalType goalType,
+                   final boolean restrictToNonNegative,
+                   final double epsilon) {
+<span class="fc" id="L121">        this(f, constraints, goalType, restrictToNonNegative, epsilon, SimplexSolver.DEFAULT_ULPS);</span>
+<span class="fc" id="L122">    }</span>
+
+    /**
+     * Build a tableau for a linear problem.
+     * @param f linear objective function
+     * @param constraints linear constraints
+     * @param goalType type of optimization goal: either {@link GoalType#MAXIMIZE} or {@link GoalType#MINIMIZE}
+     * @param restrictToNonNegative whether to restrict the variables to non-negative values
+     * @param epsilon amount of error to accept when checking for optimality
+     * @param maxUlps amount of error to accept in floating point comparisons
+     */
+    SimplexTableau(final LinearObjectiveFunction f,
+                   final Collection&lt;LinearConstraint&gt; constraints,
+                   final GoalType goalType,
+                   final boolean restrictToNonNegative,
+                   final double epsilon,
+<span class="fc" id="L138">                   final int maxUlps) {</span>
+<span class="fc" id="L139">        this.f                      = f;</span>
+<span class="fc" id="L140">        this.constraints            = normalizeConstraints(constraints);</span>
+<span class="fc" id="L141">        this.restrictToNonNegative  = restrictToNonNegative;</span>
+<span class="fc" id="L142">        this.epsilon                = epsilon;</span>
+<span class="fc" id="L143">        this.maxUlps                = maxUlps;</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">        this.numDecisionVariables   = f.getCoefficients().getDimension() + (restrictToNonNegative ? 0 : 1);</span>
+<span class="fc" id="L145">        this.numSlackVariables      = getConstraintTypeCounts(Relationship.LEQ) +</span>
+                                      getConstraintTypeCounts(Relationship.GEQ);
+<span class="fc" id="L147">        this.numArtificialVariables = getConstraintTypeCounts(Relationship.EQ) +</span>
+                                      getConstraintTypeCounts(Relationship.GEQ);
+<span class="fc bfc" id="L149" title="All 2 branches covered.">        this.tableau = createTableau(goalType == GoalType.MAXIMIZE);</span>
+        // initialize the basic variables for phase 1:
+        //   we know that only slack or artificial variables can be basic
+<span class="fc" id="L152">        initializeBasicVariables(getSlackVariableOffset());</span>
+<span class="fc" id="L153">        initializeColumnLabels();</span>
+<span class="fc" id="L154">    }</span>
+
+    /**
+     * Initialize the labels for the columns.
+     */
+    protected void initializeColumnLabels() {
+<span class="fc bfc" id="L160" title="All 2 branches covered.">      if (getNumObjectiveFunctions() == 2) {</span>
+<span class="fc" id="L161">        columnLabels.add(&quot;W&quot;);</span>
+      }
+<span class="fc" id="L163">      columnLabels.add(&quot;Z&quot;);</span>
+<span class="fc bfc" id="L164" title="All 2 branches covered.">      for (int i = 0; i &lt; getOriginalNumDecisionVariables(); i++) {</span>
+<span class="fc" id="L165">        columnLabels.add(&quot;x&quot; + i);</span>
+      }
+<span class="fc bfc" id="L167" title="All 2 branches covered.">      if (!restrictToNonNegative) {</span>
+<span class="fc" id="L168">        columnLabels.add(NEGATIVE_VAR_COLUMN_LABEL);</span>
+      }
+<span class="fc bfc" id="L170" title="All 2 branches covered.">      for (int i = 0; i &lt; getNumSlackVariables(); i++) {</span>
+<span class="fc" id="L171">        columnLabels.add(&quot;s&quot; + i);</span>
+      }
+<span class="fc bfc" id="L173" title="All 2 branches covered.">      for (int i = 0; i &lt; getNumArtificialVariables(); i++) {</span>
+<span class="fc" id="L174">        columnLabels.add(&quot;a&quot; + i);</span>
+      }
+<span class="fc" id="L176">      columnLabels.add(&quot;RHS&quot;);</span>
+<span class="fc" id="L177">    }</span>
+
+    /**
+     * Create the tableau by itself.
+     * @param maximize if true, goal is to maximize the objective function
+     * @return created tableau
+     */
+    protected Array2DRowRealMatrix createTableau(final boolean maximize) {
+
+        // create a matrix of the correct size
+<span class="fc" id="L187">        int width = numDecisionVariables + numSlackVariables +</span>
+        numArtificialVariables + getNumObjectiveFunctions() + 1; // + 1 is for RHS
+<span class="fc" id="L189">        int height = constraints.size() + getNumObjectiveFunctions();</span>
+<span class="fc" id="L190">        Array2DRowRealMatrix matrix = new Array2DRowRealMatrix(height, width);</span>
+
+        // initialize the objective function rows
+<span class="fc bfc" id="L193" title="All 2 branches covered.">        if (getNumObjectiveFunctions() == 2) {</span>
+<span class="fc" id="L194">            matrix.setEntry(0, 0, -1);</span>
+        }
+
+<span class="fc bfc" id="L197" title="All 2 branches covered.">        int zIndex = (getNumObjectiveFunctions() == 1) ? 0 : 1;</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        matrix.setEntry(zIndex, zIndex, maximize ? 1 : -1);</span>
+<span class="fc bfc" id="L199" title="All 2 branches covered.">        RealVector objectiveCoefficients = maximize ? f.getCoefficients().mapMultiply(-1) : f.getCoefficients();</span>
+<span class="fc" id="L200">        copyArray(objectiveCoefficients.toArray(), matrix.getDataRef()[zIndex]);</span>
+<span class="fc bfc" id="L201" title="All 2 branches covered.">        matrix.setEntry(zIndex, width - 1, maximize ? f.getConstantTerm() : -1 * f.getConstantTerm());</span>
+
+<span class="fc bfc" id="L203" title="All 2 branches covered.">        if (!restrictToNonNegative) {</span>
+<span class="fc" id="L204">            matrix.setEntry(zIndex, getSlackVariableOffset() - 1,</span>
+                            getInvertedCoefficientSum(objectiveCoefficients));
+        }
+
+        // initialize the constraint rows
+<span class="fc" id="L209">        int slackVar = 0;</span>
+<span class="fc" id="L210">        int artificialVar = 0;</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">        for (int i = 0; i &lt; constraints.size(); i++) {</span>
+<span class="fc" id="L212">            LinearConstraint constraint = constraints.get(i);</span>
+<span class="fc" id="L213">            int row = getNumObjectiveFunctions() + i;</span>
+
+            // decision variable coefficients
+<span class="fc" id="L216">            copyArray(constraint.getCoefficients().toArray(), matrix.getDataRef()[row]);</span>
+
+            // x-
+<span class="fc bfc" id="L219" title="All 2 branches covered.">            if (!restrictToNonNegative) {</span>
+<span class="fc" id="L220">                matrix.setEntry(row, getSlackVariableOffset() - 1,</span>
+                                getInvertedCoefficientSum(constraint.getCoefficients()));
+            }
+
+            // RHS
+<span class="fc" id="L225">            matrix.setEntry(row, width - 1, constraint.getValue());</span>
+
+            // slack variables
+<span class="fc bfc" id="L228" title="All 2 branches covered.">            if (constraint.getRelationship() == Relationship.LEQ) {</span>
+<span class="fc" id="L229">                matrix.setEntry(row, getSlackVariableOffset() + slackVar++, 1);  // slack</span>
+<span class="fc bfc" id="L230" title="All 2 branches covered.">            } else if (constraint.getRelationship() == Relationship.GEQ) {</span>
+<span class="fc" id="L231">                matrix.setEntry(row, getSlackVariableOffset() + slackVar++, -1); // excess</span>
+            }
+
+            // artificial variables
+<span class="fc bfc" id="L235" title="All 4 branches covered.">            if ((constraint.getRelationship() == Relationship.EQ) ||</span>
+                (constraint.getRelationship() == Relationship.GEQ)) {
+<span class="fc" id="L237">                matrix.setEntry(0, getArtificialVariableOffset() + artificialVar, 1);</span>
+<span class="fc" id="L238">                matrix.setEntry(row, getArtificialVariableOffset() + artificialVar++, 1);</span>
+<span class="fc" id="L239">                matrix.setRowVector(0, matrix.getRowVector(0).subtract(matrix.getRowVector(row)));</span>
+            }
+        }
+
+<span class="fc" id="L243">        return matrix;</span>
+    }
+
+    /**
+     * Get new versions of the constraints which have positive right hand sides.
+     * @param originalConstraints original (not normalized) constraints
+     * @return new versions of the constraints
+     */
+    public List&lt;LinearConstraint&gt; normalizeConstraints(Collection&lt;LinearConstraint&gt; originalConstraints) {
+<span class="fc" id="L252">        List&lt;LinearConstraint&gt; normalized = new ArrayList&lt;LinearConstraint&gt;(originalConstraints.size());</span>
+<span class="fc bfc" id="L253" title="All 2 branches covered.">        for (LinearConstraint constraint : originalConstraints) {</span>
+<span class="fc" id="L254">            normalized.add(normalize(constraint));</span>
+<span class="fc" id="L255">        }</span>
+<span class="fc" id="L256">        return normalized;</span>
+    }
+
+    /**
+     * Get a new equation equivalent to this one with a positive right hand side.
+     * @param constraint reference constraint
+     * @return new equation
+     */
+    private LinearConstraint normalize(final LinearConstraint constraint) {
+<span class="fc bfc" id="L265" title="All 2 branches covered.">        if (constraint.getValue() &lt; 0) {</span>
+<span class="fc" id="L266">            return new LinearConstraint(constraint.getCoefficients().mapMultiply(-1),</span>
+                                        constraint.getRelationship().oppositeRelationship(),
+                                        -1 * constraint.getValue());
+        }
+<span class="fc" id="L270">        return new LinearConstraint(constraint.getCoefficients(),</span>
+                                    constraint.getRelationship(), constraint.getValue());
+    }
+
+    /**
+     * Get the number of objective functions in this tableau.
+     * @return 2 for Phase 1.  1 for Phase 2.
+     */
+    protected final int getNumObjectiveFunctions() {
+<span class="fc bfc" id="L279" title="All 2 branches covered.">        return this.numArtificialVariables &gt; 0 ? 2 : 1;</span>
+    }
+
+    /**
+     * Get a count of constraints corresponding to a specified relationship.
+     * @param relationship relationship to count
+     * @return number of constraint with the specified relationship
+     */
+    private int getConstraintTypeCounts(final Relationship relationship) {
+<span class="fc" id="L288">        int count = 0;</span>
+<span class="fc bfc" id="L289" title="All 2 branches covered.">        for (final LinearConstraint constraint : constraints) {</span>
+<span class="fc bfc" id="L290" title="All 2 branches covered.">            if (constraint.getRelationship() == relationship) {</span>
+<span class="fc" id="L291">                ++count;</span>
+            }
+<span class="fc" id="L293">        }</span>
+<span class="fc" id="L294">        return count;</span>
+    }
+
+    /**
+     * Get the -1 times the sum of all coefficients in the given array.
+     * @param coefficients coefficients to sum
+     * @return the -1 times the sum of all coefficients in the given array.
+     */
+    protected static double getInvertedCoefficientSum(final RealVector coefficients) {
+<span class="fc" id="L303">        double sum = 0;</span>
+<span class="fc bfc" id="L304" title="All 2 branches covered.">        for (double coefficient : coefficients.toArray()) {</span>
+<span class="fc" id="L305">            sum -= coefficient;</span>
+        }
+<span class="fc" id="L307">        return sum;</span>
+    }
+
+    /**
+     * Checks whether the given column is basic.
+     * @param col index of the column to check
+     * @return the row that the variable is basic in.  null if the column is not basic
+     */
+    protected Integer getBasicRow(final int col) {
+<span class="fc" id="L316">        final int row = basicVariables[col];</span>
+<span class="fc bfc" id="L317" title="All 2 branches covered.">        return row == -1 ? null : row;</span>
+    }
+
+    /**
+     * Returns the variable that is basic in this row.
+     * @param row the index of the row to check
+     * @return the variable that is basic for this row.
+     */
+    protected int getBasicVariable(final int row) {
+<span class="fc" id="L326">        return basicRows[row];</span>
+    }
+
+    /**
+     * Initializes the basic variable / row mapping.
+     * @param startColumn the column to start
+     */
+    private void initializeBasicVariables(final int startColumn) {
+<span class="fc" id="L334">        basicVariables = new int[getWidth() - 1];</span>
+<span class="fc" id="L335">        basicRows = new int[getHeight()];</span>
+
+<span class="fc" id="L337">        Arrays.fill(basicVariables, -1);</span>
+
+<span class="fc bfc" id="L339" title="All 2 branches covered.">        for (int i = startColumn; i &lt; getWidth() - 1; i++) {</span>
+<span class="fc" id="L340">            Integer row = findBasicRow(i);</span>
+<span class="fc bfc" id="L341" title="All 2 branches covered.">            if (row != null) {</span>
+<span class="fc" id="L342">                basicVariables[i] = row;</span>
+<span class="fc" id="L343">                basicRows[row] = i;</span>
+            }
+        }
+<span class="fc" id="L346">    }</span>
+
+    /**
+     * Returns the row in which the given column is basic.
+     * @param col index of the column
+     * @return the row that the variable is basic in, or {@code null} if the variable is not basic.
+     */
+    private Integer findBasicRow(final int col) {
+<span class="fc" id="L354">        Integer row = null;</span>
+<span class="fc bfc" id="L355" title="All 2 branches covered.">        for (int i = 0; i &lt; getHeight(); i++) {</span>
+<span class="fc" id="L356">            final double entry = getEntry(i, col);</span>
+<span class="fc bfc" id="L357" title="All 4 branches covered.">            if (Precision.equals(entry, 1d, maxUlps) &amp;&amp; (row == null)) {</span>
+<span class="fc" id="L358">                row = i;</span>
+<span class="fc bfc" id="L359" title="All 2 branches covered.">            } else if (!Precision.equals(entry, 0d, maxUlps)) {</span>
+<span class="fc" id="L360">                return null;</span>
+            }
+        }
+<span class="fc" id="L363">        return row;</span>
+    }
+
+    /**
+     * Removes the phase 1 objective function, positive cost non-artificial variables,
+     * and the non-basic artificial variables from this tableau.
+     */
+    protected void dropPhase1Objective() {
+<span class="fc bfc" id="L371" title="All 2 branches covered.">        if (getNumObjectiveFunctions() == 1) {</span>
+<span class="fc" id="L372">            return;</span>
+        }
+
+<span class="fc" id="L375">        final Set&lt;Integer&gt; columnsToDrop = new TreeSet&lt;Integer&gt;();</span>
+<span class="fc" id="L376">        columnsToDrop.add(0);</span>
+
+        // positive cost non-artificial variables
+<span class="fc bfc" id="L379" title="All 2 branches covered.">        for (int i = getNumObjectiveFunctions(); i &lt; getArtificialVariableOffset(); i++) {</span>
+<span class="fc" id="L380">            final double entry = getEntry(0, i);</span>
+<span class="fc bfc" id="L381" title="All 2 branches covered.">            if (Precision.compareTo(entry, 0d, epsilon) &gt; 0) {</span>
+<span class="fc" id="L382">                columnsToDrop.add(i);</span>
+            }
+        }
+
+        // non-basic artificial variables
+<span class="fc bfc" id="L387" title="All 2 branches covered.">        for (int i = 0; i &lt; getNumArtificialVariables(); i++) {</span>
+<span class="fc" id="L388">            int col = i + getArtificialVariableOffset();</span>
+<span class="fc bfc" id="L389" title="All 2 branches covered.">            if (getBasicRow(col) == null) {</span>
+<span class="fc" id="L390">                columnsToDrop.add(col);</span>
+            }
+        }
+
+<span class="fc" id="L394">        final double[][] matrix = new double[getHeight() - 1][getWidth() - columnsToDrop.size()];</span>
+<span class="fc bfc" id="L395" title="All 2 branches covered.">        for (int i = 1; i &lt; getHeight(); i++) {</span>
+<span class="fc" id="L396">            int col = 0;</span>
+<span class="fc bfc" id="L397" title="All 2 branches covered.">            for (int j = 0; j &lt; getWidth(); j++) {</span>
+<span class="fc bfc" id="L398" title="All 2 branches covered.">                if (!columnsToDrop.contains(j)) {</span>
+<span class="fc" id="L399">                    matrix[i - 1][col++] = getEntry(i, j);</span>
+                }
+            }
+        }
+
+        // remove the columns in reverse order so the indices are correct
+<span class="fc" id="L405">        Integer[] drop = columnsToDrop.toArray(new Integer[columnsToDrop.size()]);</span>
+<span class="fc bfc" id="L406" title="All 2 branches covered.">        for (int i = drop.length - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L407">            columnLabels.remove((int) drop[i]);</span>
+        }
+
+<span class="fc" id="L410">        this.tableau = new Array2DRowRealMatrix(matrix);</span>
+<span class="fc" id="L411">        this.numArtificialVariables = 0;</span>
+        // need to update the basic variable mappings as row/columns have been dropped
+<span class="fc" id="L413">        initializeBasicVariables(getNumObjectiveFunctions());</span>
+<span class="fc" id="L414">    }</span>
+
+    /**
+     * @param src the source array
+     * @param dest the destination array
+     */
+    private void copyArray(final double[] src, final double[] dest) {
+<span class="fc" id="L421">        System.arraycopy(src, 0, dest, getNumObjectiveFunctions(), src.length);</span>
+<span class="fc" id="L422">    }</span>
+
+    /**
+     * Returns whether the problem is at an optimal state.
+     * @return whether the model has been solved
+     */
+    boolean isOptimal() {
+<span class="fc" id="L429">        final double[] objectiveFunctionRow = getRow(0);</span>
+<span class="fc" id="L430">        final int end = getRhsOffset();</span>
+<span class="fc bfc" id="L431" title="All 2 branches covered.">        for (int i = getNumObjectiveFunctions(); i &lt; end; i++) {</span>
+<span class="fc" id="L432">            final double entry = objectiveFunctionRow[i];</span>
+<span class="fc bfc" id="L433" title="All 2 branches covered.">            if (Precision.compareTo(entry, 0d, epsilon) &lt; 0) {</span>
+<span class="fc" id="L434">                return false;</span>
+            }
+        }
+<span class="fc" id="L437">        return true;</span>
+    }
+
+    /**
+     * Get the current solution.
+     * @return current solution
+     */
+    protected PointValuePair getSolution() {
+<span class="fc" id="L445">        int negativeVarColumn = columnLabels.indexOf(NEGATIVE_VAR_COLUMN_LABEL);</span>
+<span class="fc bfc" id="L446" title="All 2 branches covered.">        Integer negativeVarBasicRow = negativeVarColumn &gt; 0 ? getBasicRow(negativeVarColumn) : null;</span>
+<span class="fc bfc" id="L447" title="All 2 branches covered.">        double mostNegative = negativeVarBasicRow == null ? 0 : getEntry(negativeVarBasicRow, getRhsOffset());</span>
+
+<span class="fc" id="L449">        final Set&lt;Integer&gt; usedBasicRows = new HashSet&lt;Integer&gt;();</span>
+<span class="fc" id="L450">        final double[] coefficients = new double[getOriginalNumDecisionVariables()];</span>
+<span class="fc bfc" id="L451" title="All 2 branches covered.">        for (int i = 0; i &lt; coefficients.length; i++) {</span>
+<span class="fc" id="L452">            int colIndex = columnLabels.indexOf(&quot;x&quot; + i);</span>
+<span class="fc bfc" id="L453" title="All 2 branches covered.">            if (colIndex &lt; 0) {</span>
+<span class="fc" id="L454">                coefficients[i] = 0;</span>
+<span class="fc" id="L455">                continue;</span>
+            }
+<span class="fc" id="L457">            Integer basicRow = getBasicRow(colIndex);</span>
+<span class="fc bfc" id="L458" title="All 4 branches covered.">            if (basicRow != null &amp;&amp; basicRow == 0) {</span>
+                // if the basic row is found to be the objective function row
+                // set the coefficient to 0 -&gt; this case handles unconstrained
+                // variables that are still part of the objective function
+<span class="fc" id="L462">                coefficients[i] = 0;</span>
+<span class="fc bfc" id="L463" title="All 2 branches covered.">            } else if (usedBasicRows.contains(basicRow)) {</span>
+                // if multiple variables can take a given value
+                // then we choose the first and set the rest equal to 0
+<span class="fc bfc" id="L466" title="All 2 branches covered.">                coefficients[i] = 0 - (restrictToNonNegative ? 0 : mostNegative);</span>
+            } else {
+<span class="fc" id="L468">                usedBasicRows.add(basicRow);</span>
+<span class="fc bfc" id="L469" title="All 4 branches covered.">                coefficients[i] =</span>
+                    (basicRow == null ? 0 : getEntry(basicRow, getRhsOffset())) -
+                    (restrictToNonNegative ? 0 : mostNegative);
+            }
+        }
+<span class="fc" id="L474">        return new PointValuePair(coefficients, f.value(coefficients));</span>
+    }
+
+    /**
+     * Perform the row operations of the simplex algorithm with the selected
+     * pivot column and row.
+     * @param pivotCol the pivot column
+     * @param pivotRow the pivot row
+     */
+    protected void performRowOperations(int pivotCol, int pivotRow) {
+        // set the pivot element to 1
+<span class="fc" id="L485">        final double pivotVal = getEntry(pivotRow, pivotCol);</span>
+<span class="fc" id="L486">        divideRow(pivotRow, pivotVal);</span>
+
+        // set the rest of the pivot column to 0
+<span class="fc bfc" id="L489" title="All 2 branches covered.">        for (int i = 0; i &lt; getHeight(); i++) {</span>
+<span class="fc bfc" id="L490" title="All 2 branches covered.">            if (i != pivotRow) {</span>
+<span class="fc" id="L491">                final double multiplier = getEntry(i, pivotCol);</span>
+<span class="fc bfc" id="L492" title="All 2 branches covered.">                if (multiplier != 0.0) {</span>
+<span class="fc" id="L493">                    subtractRow(i, pivotRow, multiplier);</span>
+                }
+            }
+        }
+
+        // update the basic variable mappings
+<span class="fc" id="L499">        final int previousBasicVariable = getBasicVariable(pivotRow);</span>
+<span class="fc" id="L500">        basicVariables[previousBasicVariable] = -1;</span>
+<span class="fc" id="L501">        basicVariables[pivotCol] = pivotRow;</span>
+<span class="fc" id="L502">        basicRows[pivotRow] = pivotCol;</span>
+<span class="fc" id="L503">    }</span>
+
+    /**
+     * Divides one row by a given divisor.
+     * &lt;p&gt;
+     * After application of this operation, the following will hold:
+     * &lt;pre&gt;dividendRow = dividendRow / divisor&lt;/pre&gt;
+     *
+     * @param dividendRowIndex index of the row
+     * @param divisor value of the divisor
+     */
+    protected void divideRow(final int dividendRowIndex, final double divisor) {
+<span class="fc" id="L515">        final double[] dividendRow = getRow(dividendRowIndex);</span>
+<span class="fc bfc" id="L516" title="All 2 branches covered.">        for (int j = 0; j &lt; getWidth(); j++) {</span>
+<span class="fc" id="L517">            dividendRow[j] /= divisor;</span>
+        }
+<span class="fc" id="L519">    }</span>
+
+    /**
+     * Subtracts a multiple of one row from another.
+     * &lt;p&gt;
+     * After application of this operation, the following will hold:
+     * &lt;pre&gt;minuendRow = minuendRow - multiple * subtrahendRow&lt;/pre&gt;
+     *
+     * @param minuendRowIndex row index
+     * @param subtrahendRowIndex row index
+     * @param multiplier multiplication factor
+     */
+    protected void subtractRow(final int minuendRowIndex, final int subtrahendRowIndex, final double multiplier) {
+<span class="fc" id="L532">        final double[] minuendRow = getRow(minuendRowIndex);</span>
+<span class="fc" id="L533">        final double[] subtrahendRow = getRow(subtrahendRowIndex);</span>
+<span class="fc bfc" id="L534" title="All 2 branches covered.">        for (int i = 0; i &lt; getWidth(); i++) {</span>
+<span class="fc" id="L535">            minuendRow[i] -= subtrahendRow[i] * multiplier;</span>
+        }
+<span class="fc" id="L537">    }</span>
+
+    /**
+     * Get the width of the tableau.
+     * @return width of the tableau
+     */
+    protected final int getWidth() {
+<span class="fc" id="L544">        return tableau.getColumnDimension();</span>
+    }
+
+    /**
+     * Get the height of the tableau.
+     * @return height of the tableau
+     */
+    protected final int getHeight() {
+<span class="fc" id="L552">        return tableau.getRowDimension();</span>
+    }
+
+    /**
+     * Get an entry of the tableau.
+     * @param row row index
+     * @param column column index
+     * @return entry at (row, column)
+     */
+    protected final double getEntry(final int row, final int column) {
+<span class="fc" id="L562">        return tableau.getEntry(row, column);</span>
+    }
+
+    /**
+     * Set an entry of the tableau.
+     * @param row row index
+     * @param column column index
+     * @param value for the entry
+     */
+    protected final void setEntry(final int row, final int column, final double value) {
+<span class="nc" id="L572">        tableau.setEntry(row, column, value);</span>
+<span class="nc" id="L573">    }</span>
+
+    /**
+     * Get the offset of the first slack variable.
+     * @return offset of the first slack variable
+     */
+    protected final int getSlackVariableOffset() {
+<span class="fc" id="L580">        return getNumObjectiveFunctions() + numDecisionVariables;</span>
+    }
+
+    /**
+     * Get the offset of the first artificial variable.
+     * @return offset of the first artificial variable
+     */
+    protected final int getArtificialVariableOffset() {
+<span class="fc" id="L588">        return getNumObjectiveFunctions() + numDecisionVariables + numSlackVariables;</span>
+    }
+
+    /**
+     * Get the offset of the right hand side.
+     * @return offset of the right hand side
+     */
+    protected final int getRhsOffset() {
+<span class="fc" id="L596">        return getWidth() - 1;</span>
+    }
+
+    /**
+     * Get the number of decision variables.
+     * &lt;p&gt;
+     * If variables are not restricted to positive values, this will include 1 extra decision variable to represent
+     * the absolute value of the most negative variable.
+     *
+     * @return number of decision variables
+     * @see #getOriginalNumDecisionVariables()
+     */
+    protected final int getNumDecisionVariables() {
+<span class="nc" id="L609">        return numDecisionVariables;</span>
+    }
+
+    /**
+     * Get the original number of decision variables.
+     * @return original number of decision variables
+     * @see #getNumDecisionVariables()
+     */
+    protected final int getOriginalNumDecisionVariables() {
+<span class="fc" id="L618">        return f.getCoefficients().getDimension();</span>
+    }
+
+    /**
+     * Get the number of slack variables.
+     * @return number of slack variables
+     */
+    protected final int getNumSlackVariables() {
+<span class="fc" id="L626">        return numSlackVariables;</span>
+    }
+
+    /**
+     * Get the number of artificial variables.
+     * @return number of artificial variables
+     */
+    protected final int getNumArtificialVariables() {
+<span class="fc" id="L634">        return numArtificialVariables;</span>
+    }
+
+    /**
+     * Get the row from the tableau.
+     * @param row the row index
+     * @return the reference to the underlying row data
+     */
+    protected final double[] getRow(int row) {
+<span class="fc" id="L643">        return tableau.getDataRef()[row];</span>
+    }
+
+    /**
+     * Get the tableau data.
+     * @return tableau data
+     */
+    protected final double[][] getData() {
+<span class="fc" id="L651">        return tableau.getData();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(Object other) {
+
+<span class="pc bpc" id="L658" title="1 of 2 branches missed.">      if (this == other) {</span>
+<span class="nc" id="L659">        return true;</span>
+      }
+
+<span class="pc bpc" id="L662" title="1 of 2 branches missed.">      if (other instanceof SimplexTableau) {</span>
+<span class="fc" id="L663">          SimplexTableau rhs = (SimplexTableau) other;</span>
+<span class="pc bpc" id="L664" title="9 of 18 branches missed.">          return (restrictToNonNegative  == rhs.restrictToNonNegative) &amp;&amp;</span>
+                 (numDecisionVariables   == rhs.numDecisionVariables) &amp;&amp;
+                 (numSlackVariables      == rhs.numSlackVariables) &amp;&amp;
+                 (numArtificialVariables == rhs.numArtificialVariables) &amp;&amp;
+                 (epsilon                == rhs.epsilon) &amp;&amp;
+                 (maxUlps                == rhs.maxUlps) &amp;&amp;
+                 f.equals(rhs.f) &amp;&amp;
+                 constraints.equals(rhs.constraints) &amp;&amp;
+                 tableau.equals(rhs.tableau);
+      }
+<span class="nc" id="L674">      return false;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+<span class="nc" id="L680">        return Boolean.valueOf(restrictToNonNegative).hashCode() ^</span>
+               numDecisionVariables ^
+               numSlackVariables ^
+               numArtificialVariables ^
+               Double.valueOf(epsilon).hashCode() ^
+               maxUlps ^
+               f.hashCode() ^
+               constraints.hashCode() ^
+               tableau.hashCode();
+    }
+
+    /**
+     * Serialize the instance.
+     * @param oos stream where object should be written
+     * @throws IOException if object cannot be written to stream
+     */
+    private void writeObject(ObjectOutputStream oos)
+        throws IOException {
+<span class="fc" id="L698">        oos.defaultWriteObject();</span>
+<span class="fc" id="L699">        MatrixUtils.serializeRealMatrix(tableau, oos);</span>
+<span class="fc" id="L700">    }</span>
+
+    /**
+     * Deserialize the instance.
+     * @param ois stream from which the object should be read
+     * @throws ClassNotFoundException if a class in the stream cannot be found
+     * @throws IOException if object cannot be read from the stream
+     */
+    private void readObject(ObjectInputStream ois)
+      throws ClassNotFoundException, IOException {
+<span class="fc" id="L710">        ois.defaultReadObject();</span>
+<span class="fc" id="L711">        MatrixUtils.deserializeRealMatrix(this, &quot;tableau&quot;, ois);</span>
+<span class="fc" id="L712">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

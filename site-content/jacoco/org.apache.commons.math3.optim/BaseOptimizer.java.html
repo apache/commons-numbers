@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BaseOptimizer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optim</a> &gt; <span class="el_source">BaseOptimizer.java</span></div><h1>BaseOptimizer.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.optim;
+
+import org.apache.commons.math3.util.Incrementor;
+import org.apache.commons.math3.exception.TooManyEvaluationsException;
+import org.apache.commons.math3.exception.TooManyIterationsException;
+
+/**
+ * Base class for implementing optimizers.
+ * It contains the boiler-plate code for counting the number of evaluations
+ * of the objective function and the number of iterations of the algorithm,
+ * and storing the convergence checker.
+ * &lt;em&gt;It is not a &quot;user&quot; class.&lt;/em&gt;
+ *
+ * @param &lt;PAIR&gt; Type of the point/value pair returned by the optimization
+ * algorithm.
+ *
+ * @since 3.1
+ */
+public abstract class BaseOptimizer&lt;PAIR&gt; {
+    /** Evaluations counter. */
+    protected final Incrementor evaluations;
+    /** Iterations counter. */
+    protected final Incrementor iterations;
+    /** Convergence checker. */
+    private final ConvergenceChecker&lt;PAIR&gt; checker;
+
+    /**
+     * @param checker Convergence checker.
+     */
+    protected BaseOptimizer(ConvergenceChecker&lt;PAIR&gt; checker) {
+<span class="fc" id="L47">        this(checker, 0, Integer.MAX_VALUE);</span>
+<span class="fc" id="L48">    }</span>
+
+    /**
+     * @param checker Convergence checker.
+     * @param maxEval Maximum number of objective function evaluations.
+     * @param maxIter Maximum number of algorithm iterations.
+     */
+    protected BaseOptimizer(ConvergenceChecker&lt;PAIR&gt; checker,
+                            int maxEval,
+<span class="fc" id="L57">                            int maxIter) {</span>
+<span class="fc" id="L58">        this.checker = checker;</span>
+
+<span class="fc" id="L60">        evaluations = new Incrementor(maxEval, new MaxEvalCallback());</span>
+<span class="fc" id="L61">        iterations = new Incrementor(maxIter, new MaxIterCallback());</span>
+<span class="fc" id="L62">    }</span>
+
+    /**
+     * Gets the maximal number of function evaluations.
+     *
+     * @return the maximal number of function evaluations.
+     */
+    public int getMaxEvaluations() {
+<span class="fc" id="L70">        return evaluations.getMaximalCount();</span>
+    }
+
+    /**
+     * Gets the number of evaluations of the objective function.
+     * The number of evaluations corresponds to the last call to the
+     * {@code optimize} method. It is 0 if the method has not been
+     * called yet.
+     *
+     * @return the number of evaluations of the objective function.
+     */
+    public int getEvaluations() {
+<span class="fc" id="L82">        return evaluations.getCount();</span>
+    }
+
+    /**
+     * Gets the maximal number of iterations.
+     *
+     * @return the maximal number of iterations.
+     */
+    public int getMaxIterations() {
+<span class="nc" id="L91">        return iterations.getMaximalCount();</span>
+    }
+
+    /**
+     * Gets the number of iterations performed by the algorithm.
+     * The number iterations corresponds to the last call to the
+     * {@code optimize} method. It is 0 if the method has not been
+     * called yet.
+     *
+     * @return the number of evaluations of the objective function.
+     */
+    public int getIterations() {
+<span class="fc" id="L103">        return iterations.getCount();</span>
+    }
+
+    /**
+     * Gets the convergence checker.
+     *
+     * @return the object used to check for convergence.
+     */
+    public ConvergenceChecker&lt;PAIR&gt; getConvergenceChecker() {
+<span class="fc" id="L112">        return checker;</span>
+    }
+
+    /**
+     * Stores data and performs the optimization.
+     * &lt;p&gt;
+     * The list of parameters is open-ended so that sub-classes can extend it
+     * with arguments specific to their concrete implementations.
+     * &lt;p&gt;
+     * When the method is called multiple times, instance data is overwritten
+     * only when actually present in the list of arguments: when not specified,
+     * data set in a previous call is retained (and thus is optional in
+     * subsequent calls).
+     * &lt;p&gt;
+     * Important note: Subclasses &lt;em&gt;must&lt;/em&gt; override
+     * {@link #parseOptimizationData(OptimizationData[])} if they need to register
+     * their own options; but then, they &lt;em&gt;must&lt;/em&gt; also call
+     * {@code super.parseOptimizationData(optData)} within that method.
+     *
+     * @param optData Optimization data.
+     * This method will register the following data:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@link MaxEval}&lt;/li&gt;
+     *  &lt;li&gt;{@link MaxIter}&lt;/li&gt;
+     * &lt;/ul&gt;
+     * @return a point/value pair that satisfies the convergence criteria.
+     * @throws TooManyEvaluationsException if the maximal number of
+     * evaluations is exceeded.
+     * @throws TooManyIterationsException if the maximal number of
+     * iterations is exceeded.
+     */
+    public PAIR optimize(OptimizationData... optData)
+        throws TooManyEvaluationsException,
+               TooManyIterationsException {
+        // Parse options.
+<span class="fc" id="L147">        parseOptimizationData(optData);</span>
+
+        // Reset counters.
+<span class="fc" id="L150">        evaluations.resetCount();</span>
+<span class="fc" id="L151">        iterations.resetCount();</span>
+        // Perform optimization.
+<span class="fc" id="L153">        return doOptimize();</span>
+    }
+
+    /**
+     * Performs the optimization.
+     *
+     * @return a point/value pair that satisfies the convergence criteria.
+     * @throws TooManyEvaluationsException if the maximal number of
+     * evaluations is exceeded.
+     * @throws TooManyIterationsException if the maximal number of
+     * iterations is exceeded.
+     */
+    public PAIR optimize()
+        throws TooManyEvaluationsException,
+               TooManyIterationsException {
+        // Reset counters.
+<span class="nc" id="L169">        evaluations.resetCount();</span>
+<span class="nc" id="L170">        iterations.resetCount();</span>
+        // Perform optimization.
+<span class="nc" id="L172">        return doOptimize();</span>
+    }
+
+    /**
+     * Performs the bulk of the optimization algorithm.
+     *
+     * @return the point/value pair giving the optimal value of the
+     * objective function.
+     */
+    protected abstract PAIR doOptimize();
+
+    /**
+     * Increment the evaluation count.
+     *
+     * @throws TooManyEvaluationsException if the allowed evaluations
+     * have been exhausted.
+     */
+    protected void incrementEvaluationCount()
+        throws TooManyEvaluationsException {
+<span class="fc" id="L191">        evaluations.incrementCount();</span>
+<span class="fc" id="L192">    }</span>
+
+    /**
+     * Increment the iteration count.
+     *
+     * @throws TooManyIterationsException if the allowed iterations
+     * have been exhausted.
+     */
+    protected void incrementIterationCount()
+        throws TooManyIterationsException {
+<span class="fc" id="L202">        iterations.incrementCount();</span>
+<span class="fc" id="L203">    }</span>
+
+    /**
+     * Scans the list of (required and optional) optimization data that
+     * characterize the problem.
+     *
+     * @param optData Optimization data.
+     * The following data will be looked for:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@link MaxEval}&lt;/li&gt;
+     *  &lt;li&gt;{@link MaxIter}&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+    protected void parseOptimizationData(OptimizationData... optData) {
+        // The existing values (as set by the previous call) are reused if
+        // not provided in the argument list.
+<span class="fc bfc" id="L219" title="All 2 branches covered.">        for (OptimizationData data : optData) {</span>
+<span class="fc bfc" id="L220" title="All 2 branches covered.">            if (data instanceof MaxEval) {</span>
+<span class="fc" id="L221">                evaluations.setMaximalCount(((MaxEval) data).getMaxEval());</span>
+<span class="fc" id="L222">                continue;</span>
+            }
+<span class="fc bfc" id="L224" title="All 2 branches covered.">            if (data instanceof MaxIter) {</span>
+<span class="fc" id="L225">                iterations.setMaximalCount(((MaxIter) data).getMaxIter());</span>
+<span class="fc" id="L226">                continue;</span>
+            }
+        }
+<span class="fc" id="L229">    }</span>
+
+    /**
+     * Defines the action to perform when reaching the maximum number
+     * of evaluations.
+     */
+<span class="fc" id="L235">    private static class MaxEvalCallback</span>
+        implements  Incrementor.MaxCountExceededCallback {
+        /**
+         * {@inheritDoc}
+         * @throws TooManyEvaluationsException
+         */
+        public void trigger(int max) {
+<span class="fc" id="L242">            throw new TooManyEvaluationsException(max);</span>
+        }
+    }
+
+    /**
+     * Defines the action to perform when reaching the maximum number
+     * of evaluations.
+     */
+<span class="fc" id="L250">    private static class MaxIterCallback</span>
+        implements Incrementor.MaxCountExceededCallback {
+        /**
+         * {@inheritDoc}
+         * @throws TooManyIterationsException
+         */
+        public void trigger(int max) {
+<span class="fc" id="L257">            throw new TooManyIterationsException(max);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

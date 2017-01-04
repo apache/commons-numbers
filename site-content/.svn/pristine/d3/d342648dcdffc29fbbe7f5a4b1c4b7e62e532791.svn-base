@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>HighamHall54StepInterpolator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.nonstiff</a> &gt; <span class="el_source">HighamHall54StepInterpolator.java</span></div><h1>HighamHall54StepInterpolator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.nonstiff;
+
+import org.apache.commons.math3.ode.sampling.StepInterpolator;
+
+/**
+ * This class represents an interpolator over the last step during an
+ * ODE integration for the 5(4) Higham and Hall integrator.
+ *
+ * @see HighamHall54Integrator
+ *
+ * @since 1.2
+ */
+
+class HighamHall54StepInterpolator
+  extends RungeKuttaStepInterpolator {
+
+  /** Serializable version identifier */
+  private static final long serialVersionUID = 20111120L;
+
+  /** Simple constructor.
+   * This constructor builds an instance that is not usable yet, the
+   * {@link
+   * org.apache.commons.math3.ode.sampling.AbstractStepInterpolator#reinitialize}
+   * method should be called before using the instance in order to
+   * initialize the internal arrays. This constructor is used only
+   * in order to delay the initialization in some cases. The {@link
+   * EmbeddedRungeKuttaIntegrator} uses the prototyping design pattern
+   * to create the step interpolators by cloning an uninitialized model
+   * and later initializing the copy.
+   */
+  // CHECKSTYLE: stop RedundantModifier
+  // the public modifier here is needed for serialization
+  public HighamHall54StepInterpolator() {
+<span class="fc" id="L51">    super();</span>
+<span class="fc" id="L52">  }</span>
+  // CHECKSTYLE: resume RedundantModifier
+
+  /** Copy constructor.
+   * @param interpolator interpolator to copy from. The copy is a deep
+   * copy: its arrays are separated from the original arrays of the
+   * instance
+   */
+  HighamHall54StepInterpolator(final HighamHall54StepInterpolator interpolator) {
+<span class="fc" id="L61">    super(interpolator);</span>
+<span class="fc" id="L62">  }</span>
+
+  /** {@inheritDoc} */
+  @Override
+  protected StepInterpolator doCopy() {
+<span class="fc" id="L67">    return new HighamHall54StepInterpolator(this);</span>
+  }
+
+
+  /** {@inheritDoc} */
+  @Override
+  protected void computeInterpolatedStateAndDerivatives(final double theta,
+                                          final double oneMinusThetaH) {
+
+<span class="fc" id="L76">    final double bDot0 = 1 + theta * (-15.0/2.0 + theta * (16.0 - 10.0 * theta));</span>
+<span class="fc" id="L77">    final double bDot2 = theta * (459.0/16.0 + theta * (-729.0/8.0 + 135.0/2.0 * theta));</span>
+<span class="fc" id="L78">    final double bDot3 = theta * (-44.0 + theta * (152.0 - 120.0 * theta));</span>
+<span class="fc" id="L79">    final double bDot4 = theta * (375.0/16.0 + theta * (-625.0/8.0 + 125.0/2.0 * theta));</span>
+<span class="fc" id="L80">    final double bDot5 = theta * 5.0/8.0 * (2 * theta - 1);</span>
+
+<span class="pc bpc" id="L82" title="1 of 4 branches missed.">    if ((previousState != null) &amp;&amp; (theta &lt;= 0.5)) {</span>
+<span class="fc" id="L83">        final double hTheta = h * theta;</span>
+<span class="fc" id="L84">        final double b0 = hTheta * (1.0 + theta * (-15.0/4.0  + theta * (16.0/3.0 - 5.0/2.0 * theta)));</span>
+<span class="fc" id="L85">        final double b2 = hTheta * (      theta * (459.0/32.0 + theta * (-243.0/8.0 + theta * 135.0/8.0)));</span>
+<span class="fc" id="L86">        final double b3 = hTheta * (      theta * (-22.0      + theta * (152.0/3.0  + theta * -30.0)));</span>
+<span class="fc" id="L87">        final double b4 = hTheta * (      theta * (375.0/32.0 + theta * (-625.0/24.0 + theta * 125.0/8.0)));</span>
+<span class="fc" id="L88">        final double b5 = hTheta * (      theta * (-5.0/16.0  + theta *  5.0/12.0));</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        for (int i = 0; i &lt; interpolatedState.length; ++i) {</span>
+<span class="fc" id="L90">            final double yDot0 = yDotK[0][i];</span>
+<span class="fc" id="L91">            final double yDot2 = yDotK[2][i];</span>
+<span class="fc" id="L92">            final double yDot3 = yDotK[3][i];</span>
+<span class="fc" id="L93">            final double yDot4 = yDotK[4][i];</span>
+<span class="fc" id="L94">            final double yDot5 = yDotK[5][i];</span>
+<span class="fc" id="L95">            interpolatedState[i] =</span>
+                    previousState[i] + b0 * yDot0 + b2 * yDot2 + b3 * yDot3 + b4 * yDot4 + b5 * yDot5;
+<span class="fc" id="L97">            interpolatedDerivatives[i] =</span>
+                    bDot0 * yDot0 + bDot2 * yDot2 + bDot3 * yDot3 + bDot4 * yDot4 + bDot5 * yDot5;
+        }
+<span class="fc" id="L100">    } else {</span>
+<span class="fc" id="L101">        final double theta2 = theta * theta;</span>
+<span class="fc" id="L102">        final double b0 = h * (-1.0/12.0 + theta * (1.0 + theta * (-15.0/4.0 + theta * (16.0/3.0 + theta * -5.0/2.0))));</span>
+<span class="fc" id="L103">        final double b2 = h * (-27.0/32.0 + theta2 * (459.0/32.0 + theta * (-243.0/8.0 + theta * 135.0/8.0)));</span>
+<span class="fc" id="L104">        final double b3 = h * (4.0/3.0 + theta2 * (-22.0 + theta * (152.0/3.0  + theta * -30.0)));</span>
+<span class="fc" id="L105">        final double b4 = h * (-125.0/96.0 + theta2 * (375.0/32.0 + theta * (-625.0/24.0 + theta * 125.0/8.0)));</span>
+<span class="fc" id="L106">        final double b5 = h * (-5.0/48.0 + theta2 * (-5.0/16.0 + theta * 5.0/12.0));</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        for (int i = 0; i &lt; interpolatedState.length; ++i) {</span>
+<span class="fc" id="L108">            final double yDot0 = yDotK[0][i];</span>
+<span class="fc" id="L109">            final double yDot2 = yDotK[2][i];</span>
+<span class="fc" id="L110">            final double yDot3 = yDotK[3][i];</span>
+<span class="fc" id="L111">            final double yDot4 = yDotK[4][i];</span>
+<span class="fc" id="L112">            final double yDot5 = yDotK[5][i];</span>
+<span class="fc" id="L113">            interpolatedState[i] =</span>
+                    currentState[i] + b0 * yDot0 + b2 * yDot2 + b3 * yDot3 + b4 * yDot4 + b5 * yDot5;
+<span class="fc" id="L115">            interpolatedDerivatives[i] =</span>
+                    bDot0 * yDot0 + bDot2 * yDot2 + bDot3 * yDot3 + bDot4 * yDot4 + bDot5 * yDot5;
+        }
+    }
+
+<span class="fc" id="L120">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

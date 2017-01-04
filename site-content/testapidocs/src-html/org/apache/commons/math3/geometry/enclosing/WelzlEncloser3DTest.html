@@ -1,0 +1,256 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.geometry.enclosing;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.io.IOException;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.util.ArrayList;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.util.Arrays;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.util.List;<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.geometry.euclidean.threed.Euclidean3D;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.geometry.euclidean.threed.SphereGenerator;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.math3.random.RandomGenerator;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.commons.math3.random.UnitSphereRandomVectorGenerator;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.math3.random.Well1024a;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.junit.Assert;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.junit.Test;<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">034</span>public class WelzlEncloser3DTest {<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>    @Test<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    public void testNullList() {<a name="line.37"></a>
+<span class="sourceLineNo">038</span>        SphereGenerator generator = new SphereGenerator();<a name="line.38"></a>
+<span class="sourceLineNo">039</span>        WelzlEncloser&lt;Euclidean3D, Vector3D&gt; encloser =<a name="line.39"></a>
+<span class="sourceLineNo">040</span>                new WelzlEncloser&lt;Euclidean3D, Vector3D&gt;(1.0e-10, generator);<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        EnclosingBall&lt;Euclidean3D, Vector3D&gt; ball = encloser.enclose(null);<a name="line.41"></a>
+<span class="sourceLineNo">042</span>        Assert.assertTrue(ball.getRadius() &lt; 0);<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    }<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>    @Test<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    public void testNoPoints() {<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        SphereGenerator generator = new SphereGenerator();<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        WelzlEncloser&lt;Euclidean3D, Vector3D&gt; encloser =<a name="line.48"></a>
+<span class="sourceLineNo">049</span>                new WelzlEncloser&lt;Euclidean3D, Vector3D&gt;(1.0e-10, generator);<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        EnclosingBall&lt;Euclidean3D, Vector3D&gt; ball = encloser.enclose(new ArrayList&lt;Vector3D&gt;());<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        Assert.assertTrue(ball.getRadius() &lt; 0);<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    }<a name="line.52"></a>
+<span class="sourceLineNo">053</span><a name="line.53"></a>
+<span class="sourceLineNo">054</span>    @Test<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    public void testReducingBall() {<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        List&lt;Vector3D&gt; list =<a name="line.56"></a>
+<span class="sourceLineNo">057</span>                Arrays.asList(new Vector3D(-7.140397329568118, -16.571661242582177,  11.714458961735405),<a name="line.57"></a>
+<span class="sourceLineNo">058</span>                              new Vector3D(-7.137986707455888, -16.570767323375720,  11.708602108715928),<a name="line.58"></a>
+<span class="sourceLineNo">059</span>                              new Vector3D(-7.139185068549035, -16.570891204702250,  11.715554057357394),<a name="line.59"></a>
+<span class="sourceLineNo">060</span>                              new Vector3D(-7.142682716997507, -16.571609818234290,  11.710787934580328),<a name="line.60"></a>
+<span class="sourceLineNo">061</span>                              new Vector3D(-7.139018392423351, -16.574405614157020,  11.710518716711425),<a name="line.61"></a>
+<span class="sourceLineNo">062</span>                              new Vector3D(-7.140870659936730, -16.567993074240455,  11.710914678204503),<a name="line.62"></a>
+<span class="sourceLineNo">063</span>                              new Vector3D(-7.136350173659562, -16.570498228820930,  11.713965225900928),<a name="line.63"></a>
+<span class="sourceLineNo">064</span>                              new Vector3D(-7.141675762759172, -16.572852471407028,  11.714033471449508),<a name="line.64"></a>
+<span class="sourceLineNo">065</span>                              new Vector3D(-7.140453077221105, -16.570212820780647,  11.708624578004980),<a name="line.65"></a>
+<span class="sourceLineNo">066</span>                              new Vector3D(-7.140322188726825, -16.574152894557717,  11.710305611121410),<a name="line.66"></a>
+<span class="sourceLineNo">067</span>                              new Vector3D(-7.141116131477088, -16.574061164624560,  11.712938509321699));<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        WelzlEncloser&lt;Euclidean3D, Vector3D&gt; encloser =<a name="line.68"></a>
+<span class="sourceLineNo">069</span>                new WelzlEncloser&lt;Euclidean3D, Vector3D&gt;(1.0e-10, new SphereGenerator());<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        EnclosingBall&lt;Euclidean3D, Vector3D&gt; ball = encloser.enclose(list);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        Assert.assertTrue(ball.getRadius() &gt; 0);<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    }<a name="line.72"></a>
+<span class="sourceLineNo">073</span><a name="line.73"></a>
+<span class="sourceLineNo">074</span>    @Test<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    public void testInfiniteLoop() {<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        // this test used to generate an infinite loop<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        List&lt;Vector3D&gt; list =<a name="line.77"></a>
+<span class="sourceLineNo">078</span>                Arrays.asList(new Vector3D( -0.89227075512164380,  -2.89317694645713900,  14.84572323743355500),<a name="line.78"></a>
+<span class="sourceLineNo">079</span>                              new Vector3D( -0.92099498940693580,  -2.31086108263908940,  12.92071026467688300),<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                              new Vector3D( -0.85227999411005200,  -3.06314731441320730,  15.40163831651287000),<a name="line.80"></a>
+<span class="sourceLineNo">081</span>                              new Vector3D( -1.77399413020785970,  -3.65630391378114260,  14.13190097751873400),<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                              new Vector3D(  0.33157833272465354,  -2.22813591757792160,  14.21225234159008200),<a name="line.82"></a>
+<span class="sourceLineNo">083</span>                              new Vector3D( -1.53065579165484400,  -1.65692084770139570,  14.61483055714788500),<a name="line.83"></a>
+<span class="sourceLineNo">084</span>                              new Vector3D( -1.08457093941217140,  -1.96100325935602980,  13.09265170575555000),<a name="line.84"></a>
+<span class="sourceLineNo">085</span>                              new Vector3D(  0.30029469589708850,  -3.05470831395667370,  14.56352400426342600),<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                              new Vector3D( -0.95007443938638460,  -1.86810946486118360,  15.14491234340057000),<a name="line.86"></a>
+<span class="sourceLineNo">087</span>                              new Vector3D( -1.89661503804130830,  -2.17004080885185860,  14.81235128513927000),<a name="line.87"></a>
+<span class="sourceLineNo">088</span>                              new Vector3D( -0.72193328761607530,  -1.44513142833618270,  14.52355724218561800),<a name="line.88"></a>
+<span class="sourceLineNo">089</span>                              new Vector3D( -0.26895980939606550,  -3.69512371522084140,  14.72272846327652000),<a name="line.89"></a>
+<span class="sourceLineNo">090</span>                              new Vector3D( -1.53501693431786170,  -3.25055166611021900,  15.15509062584274800),<a name="line.90"></a>
+<span class="sourceLineNo">091</span>                              new Vector3D( -0.71727553535519410,  -3.62284279460799100,  13.26256700929380700),<a name="line.91"></a>
+<span class="sourceLineNo">092</span>                              new Vector3D( -0.30220950676137365,  -3.25410412500779070,  13.13682612771606000),<a name="line.92"></a>
+<span class="sourceLineNo">093</span>                              new Vector3D( -0.04543996608267075,  -1.93081853923797750,  14.79497997883171400),<a name="line.93"></a>
+<span class="sourceLineNo">094</span>                              new Vector3D( -1.53348892951571640,  -3.66688919703524900,  14.73095600812074200),<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                              new Vector3D( -0.98034899533935820,  -3.34004481162763960,  13.03245014017556800));<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>        WelzlEncloser&lt;Euclidean3D, Vector3D&gt; encloser =<a name="line.97"></a>
+<span class="sourceLineNo">098</span>                new WelzlEncloser&lt;Euclidean3D, Vector3D&gt;(1.0e-10, new SphereGenerator());<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        EnclosingBall&lt;Euclidean3D, Vector3D&gt; ball = encloser.enclose(list);<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        Assert.assertTrue(ball.getRadius() &gt; 0);<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    }<a name="line.101"></a>
+<span class="sourceLineNo">102</span><a name="line.102"></a>
+<span class="sourceLineNo">103</span>    @Test<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    public void testLargeSamples() throws IOException {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        RandomGenerator random = new Well1024a(0x35ddecfc78131e1dl);<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        final UnitSphereRandomVectorGenerator sr = new UnitSphereRandomVectorGenerator(3, random);<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        for (int k = 0; k &lt; 50; ++k) {<a name="line.107"></a>
+<span class="sourceLineNo">108</span><a name="line.108"></a>
+<span class="sourceLineNo">109</span>            // define the reference sphere we want to compute<a name="line.109"></a>
+<span class="sourceLineNo">110</span>            double d = 25 * random.nextDouble();<a name="line.110"></a>
+<span class="sourceLineNo">111</span>            double refRadius = 10 * random.nextDouble();<a name="line.111"></a>
+<span class="sourceLineNo">112</span>            Vector3D refCenter = new Vector3D(d, new Vector3D(sr.nextVector()));<a name="line.112"></a>
+<span class="sourceLineNo">113</span>            // set up a large sample inside the reference sphere<a name="line.113"></a>
+<span class="sourceLineNo">114</span>            int nbPoints = random.nextInt(1000);<a name="line.114"></a>
+<span class="sourceLineNo">115</span>            List&lt;Vector3D&gt; points = new ArrayList&lt;Vector3D&gt;();<a name="line.115"></a>
+<span class="sourceLineNo">116</span>            for (int i = 0; i &lt; nbPoints; ++i) {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>                double r = refRadius * random.nextDouble();<a name="line.117"></a>
+<span class="sourceLineNo">118</span>                points.add(new Vector3D(1.0, refCenter, r, new Vector3D(sr.nextVector())));<a name="line.118"></a>
+<span class="sourceLineNo">119</span>            }<a name="line.119"></a>
+<span class="sourceLineNo">120</span><a name="line.120"></a>
+<span class="sourceLineNo">121</span>            // test we find a sphere at most as large as the one used for random drawings<a name="line.121"></a>
+<span class="sourceLineNo">122</span>            checkSphere(points, refRadius);<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>        }<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    }<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span>    private void checkSphere(List&lt;Vector3D&gt; points, double refRadius) {<a name="line.127"></a>
+<span class="sourceLineNo">128</span><a name="line.128"></a>
+<span class="sourceLineNo">129</span>        EnclosingBall&lt;Euclidean3D, Vector3D&gt; sphere = checkSphere(points);<a name="line.129"></a>
+<span class="sourceLineNo">130</span><a name="line.130"></a>
+<span class="sourceLineNo">131</span>        // compare computed sphere with bounding sphere<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        Assert.assertTrue(sphere.getRadius() &lt;= refRadius);<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>        // check removing any point of the support Sphere fails to enclose the point<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        for (int i = 0; i &lt; sphere.getSupportSize(); ++i) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>            List&lt;Vector3D&gt; reducedSupport = new ArrayList&lt;Vector3D&gt;();<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            int count = 0;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>            for (Vector3D s : sphere.getSupport()) {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                if (count++ != i) {<a name="line.139"></a>
+<span class="sourceLineNo">140</span>                    reducedSupport.add(s);<a name="line.140"></a>
+<span class="sourceLineNo">141</span>                }<a name="line.141"></a>
+<span class="sourceLineNo">142</span>            }<a name="line.142"></a>
+<span class="sourceLineNo">143</span>            EnclosingBall&lt;Euclidean3D, Vector3D&gt; reducedSphere =<a name="line.143"></a>
+<span class="sourceLineNo">144</span>                    new SphereGenerator().ballOnSupport(reducedSupport);<a name="line.144"></a>
+<span class="sourceLineNo">145</span>            boolean foundOutside = false;<a name="line.145"></a>
+<span class="sourceLineNo">146</span>            for (int j = 0; j &lt; points.size() &amp;&amp; !foundOutside; ++j) {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>                if (!reducedSphere.contains(points.get(j), 1.0e-10)) {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>                    foundOutside = true;<a name="line.148"></a>
+<span class="sourceLineNo">149</span>                }<a name="line.149"></a>
+<span class="sourceLineNo">150</span>            }<a name="line.150"></a>
+<span class="sourceLineNo">151</span>            Assert.assertTrue(foundOutside);<a name="line.151"></a>
+<span class="sourceLineNo">152</span>        }<a name="line.152"></a>
+<span class="sourceLineNo">153</span><a name="line.153"></a>
+<span class="sourceLineNo">154</span>    }<a name="line.154"></a>
+<span class="sourceLineNo">155</span><a name="line.155"></a>
+<span class="sourceLineNo">156</span>    private EnclosingBall&lt;Euclidean3D, Vector3D&gt; checkSphere(List&lt;Vector3D&gt; points) {<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>        WelzlEncloser&lt;Euclidean3D, Vector3D&gt; encloser =<a name="line.158"></a>
+<span class="sourceLineNo">159</span>                new WelzlEncloser&lt;Euclidean3D, Vector3D&gt;(1.0e-10, new SphereGenerator());<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        EnclosingBall&lt;Euclidean3D, Vector3D&gt; Sphere = encloser.enclose(points);<a name="line.160"></a>
+<span class="sourceLineNo">161</span><a name="line.161"></a>
+<span class="sourceLineNo">162</span>        // all points are enclosed<a name="line.162"></a>
+<span class="sourceLineNo">163</span>        for (Vector3D v : points) {<a name="line.163"></a>
+<span class="sourceLineNo">164</span>            Assert.assertTrue(Sphere.contains(v, 1.0e-10));<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        }<a name="line.165"></a>
+<span class="sourceLineNo">166</span><a name="line.166"></a>
+<span class="sourceLineNo">167</span>        for (Vector3D v : points) {<a name="line.167"></a>
+<span class="sourceLineNo">168</span>            boolean inSupport = false;<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            for (Vector3D s : Sphere.getSupport()) {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>                if (v == s) {<a name="line.170"></a>
+<span class="sourceLineNo">171</span>                    inSupport = true;<a name="line.171"></a>
+<span class="sourceLineNo">172</span>                }<a name="line.172"></a>
+<span class="sourceLineNo">173</span>            }<a name="line.173"></a>
+<span class="sourceLineNo">174</span>            if (inSupport) {<a name="line.174"></a>
+<span class="sourceLineNo">175</span>                // points on the support should be outside of reduced ball<a name="line.175"></a>
+<span class="sourceLineNo">176</span>                Assert.assertFalse(Sphere.contains(v, -0.001));<a name="line.176"></a>
+<span class="sourceLineNo">177</span>            }<a name="line.177"></a>
+<span class="sourceLineNo">178</span>        }<a name="line.178"></a>
+<span class="sourceLineNo">179</span><a name="line.179"></a>
+<span class="sourceLineNo">180</span>        return Sphere;<a name="line.180"></a>
+<span class="sourceLineNo">181</span><a name="line.181"></a>
+<span class="sourceLineNo">182</span>    }<a name="line.182"></a>
+<span class="sourceLineNo">183</span><a name="line.183"></a>
+<span class="sourceLineNo">184</span>}<a name="line.184"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

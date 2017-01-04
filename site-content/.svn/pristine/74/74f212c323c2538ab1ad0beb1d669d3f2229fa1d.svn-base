@@ -1,0 +1,908 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ArithmeticUtils.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.util</a> &gt; <span class="el_source">ArithmeticUtils.java</span></div><h1>ArithmeticUtils.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.util;
+
+import java.math.BigInteger;
+
+import org.apache.commons.math3.exception.MathArithmeticException;
+import org.apache.commons.math3.exception.NotPositiveException;
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
+import org.apache.commons.math3.exception.util.Localizable;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+
+/**
+ * Some useful, arithmetics related, additions to the built-in functions in
+ * {@link Math}.
+ *
+ */
+public final class ArithmeticUtils {
+
+    /** Private constructor. */
+    private ArithmeticUtils() {
+<span class="nc" id="L36">        super();</span>
+<span class="nc" id="L37">    }</span>
+
+    /**
+     * Add two integers, checking for overflow.
+     *
+     * @param x an addend
+     * @param y an addend
+     * @return the sum {@code x+y}
+     * @throws MathArithmeticException if the result can not be represented
+     * as an {@code int}.
+     * @since 1.1
+     */
+    public static int addAndCheck(int x, int y)
+            throws MathArithmeticException {
+<span class="fc" id="L51">        long s = (long)x + (long)y;</span>
+<span class="fc bfc" id="L52" title="All 4 branches covered.">        if (s &lt; Integer.MIN_VALUE || s &gt; Integer.MAX_VALUE) {</span>
+<span class="fc" id="L53">            throw new MathArithmeticException(LocalizedFormats.OVERFLOW_IN_ADDITION, x, y);</span>
+        }
+<span class="fc" id="L55">        return (int)s;</span>
+    }
+
+    /**
+     * Add two long integers, checking for overflow.
+     *
+     * @param a an addend
+     * @param b an addend
+     * @return the sum {@code a+b}
+     * @throws MathArithmeticException if the result can not be represented as an long
+     * @since 1.2
+     */
+    public static long addAndCheck(long a, long b) throws MathArithmeticException {
+<span class="fc" id="L68">        return addAndCheck(a, b, LocalizedFormats.OVERFLOW_IN_ADDITION);</span>
+    }
+
+    /**
+     * Returns an exact representation of the &lt;a
+     * href=&quot;http://mathworld.wolfram.com/BinomialCoefficient.html&quot;&gt; Binomial
+     * Coefficient&lt;/a&gt;, &quot;{@code n choose k}&quot;, the number of
+     * {@code k}-element subsets that can be selected from an
+     * {@code n}-element set.
+     * &lt;p&gt;
+     * &lt;Strong&gt;Preconditions&lt;/strong&gt;:
+     * &lt;ul&gt;
+     * &lt;li&gt; {@code 0 &lt;= k &lt;= n } (otherwise
+     * {@code IllegalArgumentException} is thrown)&lt;/li&gt;
+     * &lt;li&gt; The result is small enough to fit into a {@code long}. The
+     * largest value of {@code n} for which all coefficients are
+     * {@code  &lt; Long.MAX_VALUE} is 66. If the computed value exceeds
+     * {@code Long.MAX_VALUE} an {@code ArithMeticException} is
+     * thrown.&lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     *
+     * @param n the size of the set
+     * @param k the size of the subsets to be counted
+     * @return {@code n choose k}
+     * @throws NotPositiveException if {@code n &lt; 0}.
+     * @throws NumberIsTooLargeException if {@code k &gt; n}.
+     * @throws MathArithmeticException if the result is too large to be
+     * represented by a long integer.
+     * @deprecated use {@link CombinatoricsUtils#binomialCoefficient(int, int)}
+     */
+    @Deprecated
+    public static long binomialCoefficient(final int n, final int k)
+        throws NotPositiveException, NumberIsTooLargeException, MathArithmeticException {
+<span class="nc" id="L101">       return CombinatoricsUtils.binomialCoefficient(n, k);</span>
+    }
+
+    /**
+     * Returns a {@code double} representation of the &lt;a
+     * href=&quot;http://mathworld.wolfram.com/BinomialCoefficient.html&quot;&gt; Binomial
+     * Coefficient&lt;/a&gt;, &quot;{@code n choose k}&quot;, the number of
+     * {@code k}-element subsets that can be selected from an
+     * {@code n}-element set.
+     * &lt;p&gt;
+     * &lt;Strong&gt;Preconditions&lt;/strong&gt;:
+     * &lt;ul&gt;
+     * &lt;li&gt; {@code 0 &lt;= k &lt;= n } (otherwise
+     * {@code IllegalArgumentException} is thrown)&lt;/li&gt;
+     * &lt;li&gt; The result is small enough to fit into a {@code double}. The
+     * largest value of {@code n} for which all coefficients are &lt;
+     * Double.MAX_VALUE is 1029. If the computed value exceeds Double.MAX_VALUE,
+     * Double.POSITIVE_INFINITY is returned&lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     *
+     * @param n the size of the set
+     * @param k the size of the subsets to be counted
+     * @return {@code n choose k}
+     * @throws NotPositiveException if {@code n &lt; 0}.
+     * @throws NumberIsTooLargeException if {@code k &gt; n}.
+     * @throws MathArithmeticException if the result is too large to be
+     * represented by a long integer.
+     * @deprecated use {@link CombinatoricsUtils#binomialCoefficientDouble(int, int)}
+     */
+    @Deprecated
+    public static double binomialCoefficientDouble(final int n, final int k)
+        throws NotPositiveException, NumberIsTooLargeException, MathArithmeticException {
+<span class="nc" id="L133">        return CombinatoricsUtils.binomialCoefficientDouble(n, k);</span>
+    }
+
+    /**
+     * Returns the natural {@code log} of the &lt;a
+     * href=&quot;http://mathworld.wolfram.com/BinomialCoefficient.html&quot;&gt; Binomial
+     * Coefficient&lt;/a&gt;, &quot;{@code n choose k}&quot;, the number of
+     * {@code k}-element subsets that can be selected from an
+     * {@code n}-element set.
+     * &lt;p&gt;
+     * &lt;Strong&gt;Preconditions&lt;/strong&gt;:
+     * &lt;ul&gt;
+     * &lt;li&gt; {@code 0 &lt;= k &lt;= n } (otherwise
+     * {@code IllegalArgumentException} is thrown)&lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     *
+     * @param n the size of the set
+     * @param k the size of the subsets to be counted
+     * @return {@code n choose k}
+     * @throws NotPositiveException if {@code n &lt; 0}.
+     * @throws NumberIsTooLargeException if {@code k &gt; n}.
+     * @throws MathArithmeticException if the result is too large to be
+     * represented by a long integer.
+     * @deprecated use {@link CombinatoricsUtils#binomialCoefficientLog(int, int)}
+     */
+    @Deprecated
+    public static double binomialCoefficientLog(final int n, final int k)
+        throws NotPositiveException, NumberIsTooLargeException, MathArithmeticException {
+<span class="nc" id="L161">        return CombinatoricsUtils.binomialCoefficientLog(n, k);</span>
+    }
+
+    /**
+     * Returns n!. Shorthand for {@code n} &lt;a
+     * href=&quot;http://mathworld.wolfram.com/Factorial.html&quot;&gt; Factorial&lt;/a&gt;, the
+     * product of the numbers {@code 1,...,n}.
+     * &lt;p&gt;
+     * &lt;Strong&gt;Preconditions&lt;/strong&gt;:
+     * &lt;ul&gt;
+     * &lt;li&gt; {@code n &gt;= 0} (otherwise
+     * {@code IllegalArgumentException} is thrown)&lt;/li&gt;
+     * &lt;li&gt; The result is small enough to fit into a {@code long}. The
+     * largest value of {@code n} for which {@code n!} &lt;
+     * Long.MAX_VALUE} is 20. If the computed value exceeds {@code Long.MAX_VALUE}
+     * an {@code ArithMeticException } is thrown.&lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;/p&gt;
+     *
+     * @param n argument
+     * @return {@code n!}
+     * @throws MathArithmeticException if the result is too large to be represented
+     * by a {@code long}.
+     * @throws NotPositiveException if {@code n &lt; 0}.
+     * @throws MathArithmeticException if {@code n &gt; 20}: The factorial value is too
+     * large to fit in a {@code long}.
+     * @deprecated use {@link CombinatoricsUtils#factorial(int)}
+     */
+    @Deprecated
+    public static long factorial(final int n) throws NotPositiveException, MathArithmeticException {
+<span class="nc" id="L191">        return CombinatoricsUtils.factorial(n);</span>
+    }
+
+    /**
+     * Compute n!, the&lt;a href=&quot;http://mathworld.wolfram.com/Factorial.html&quot;&gt;
+     * factorial&lt;/a&gt; of {@code n} (the product of the numbers 1 to n), as a
+     * {@code double}.
+     * The result should be small enough to fit into a {@code double}: The
+     * largest {@code n} for which {@code n! &lt; Double.MAX_VALUE} is 170.
+     * If the computed value exceeds {@code Double.MAX_VALUE},
+     * {@code Double.POSITIVE_INFINITY} is returned.
+     *
+     * @param n Argument.
+     * @return {@code n!}
+     * @throws NotPositiveException if {@code n &lt; 0}.
+     * @deprecated use {@link CombinatoricsUtils#factorialDouble(int)}
+     */
+    @Deprecated
+    public static double factorialDouble(final int n) throws NotPositiveException {
+<span class="nc" id="L210">         return CombinatoricsUtils.factorialDouble(n);</span>
+    }
+
+    /**
+     * Compute the natural logarithm of the factorial of {@code n}.
+     *
+     * @param n Argument.
+     * @return {@code n!}
+     * @throws NotPositiveException if {@code n &lt; 0}.
+     * @deprecated use {@link CombinatoricsUtils#factorialLog(int)}
+     */
+    @Deprecated
+    public static double factorialLog(final int n) throws NotPositiveException {
+<span class="nc" id="L223">        return CombinatoricsUtils.factorialLog(n);</span>
+    }
+
+    /**
+     * Computes the greatest common divisor of the absolute value of two
+     * numbers, using a modified version of the &quot;binary gcd&quot; method.
+     * See Knuth 4.5.2 algorithm B.
+     * The algorithm is due to Josef Stein (1961).
+     * &lt;br/&gt;
+     * Special cases:
+     * &lt;ul&gt;
+     *  &lt;li&gt;The invocations
+     *   {@code gcd(Integer.MIN_VALUE, Integer.MIN_VALUE)},
+     *   {@code gcd(Integer.MIN_VALUE, 0)} and
+     *   {@code gcd(0, Integer.MIN_VALUE)} throw an
+     *   {@code ArithmeticException}, because the result would be 2^31, which
+     *   is too large for an int value.&lt;/li&gt;
+     *  &lt;li&gt;The result of {@code gcd(x, x)}, {@code gcd(0, x)} and
+     *   {@code gcd(x, 0)} is the absolute value of {@code x}, except
+     *   for the special cases above.&lt;/li&gt;
+     *  &lt;li&gt;The invocation {@code gcd(0, 0)} is the only one which returns
+     *   {@code 0}.&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param p Number.
+     * @param q Number.
+     * @return the greatest common divisor (never negative).
+     * @throws MathArithmeticException if the result cannot be represented as
+     * a non-negative {@code int} value.
+     * @since 1.1
+     */
+    public static int gcd(int p, int q) throws MathArithmeticException {
+<span class="fc" id="L255">        int a = p;</span>
+<span class="fc" id="L256">        int b = q;</span>
+<span class="fc bfc" id="L257" title="All 4 branches covered.">        if (a == 0 ||</span>
+            b == 0) {
+<span class="fc bfc" id="L259" title="All 4 branches covered.">            if (a == Integer.MIN_VALUE ||</span>
+                b == Integer.MIN_VALUE) {
+<span class="fc" id="L261">                throw new MathArithmeticException(LocalizedFormats.GCD_OVERFLOW_32_BITS,</span>
+                                                  p, q);
+            }
+<span class="fc" id="L264">            return FastMath.abs(a + b);</span>
+        }
+
+<span class="fc" id="L267">        long al = a;</span>
+<span class="fc" id="L268">        long bl = b;</span>
+<span class="fc" id="L269">        boolean useLong = false;</span>
+<span class="fc bfc" id="L270" title="All 2 branches covered.">        if (a &lt; 0) {</span>
+<span class="fc bfc" id="L271" title="All 2 branches covered.">            if(Integer.MIN_VALUE == a) {</span>
+<span class="fc" id="L272">                useLong = true;</span>
+            } else {
+<span class="fc" id="L274">                a = -a;</span>
+            }
+<span class="fc" id="L276">            al = -al;</span>
+        }
+<span class="fc bfc" id="L278" title="All 2 branches covered.">        if (b &lt; 0) {</span>
+<span class="fc bfc" id="L279" title="All 2 branches covered.">            if (Integer.MIN_VALUE == b) {</span>
+<span class="fc" id="L280">                useLong = true;</span>
+            } else {
+<span class="fc" id="L282">                b = -b;</span>
+            }
+<span class="fc" id="L284">            bl = -bl;</span>
+        }
+<span class="fc bfc" id="L286" title="All 2 branches covered.">        if (useLong) {</span>
+<span class="fc bfc" id="L287" title="All 2 branches covered.">            if(al == bl) {</span>
+<span class="fc" id="L288">                throw new MathArithmeticException(LocalizedFormats.GCD_OVERFLOW_32_BITS,</span>
+                                                  p, q);
+            }
+<span class="fc" id="L291">            long blbu = bl;</span>
+<span class="fc" id="L292">            bl = al;</span>
+<span class="fc" id="L293">            al = blbu % al;</span>
+<span class="fc bfc" id="L294" title="All 2 branches covered.">            if (al == 0) {</span>
+<span class="pc bpc" id="L295" title="1 of 2 branches missed.">                if (bl &gt; Integer.MAX_VALUE) {</span>
+<span class="nc" id="L296">                    throw new MathArithmeticException(LocalizedFormats.GCD_OVERFLOW_32_BITS,</span>
+                                                      p, q);
+                }
+<span class="fc" id="L299">                return (int) bl;</span>
+            }
+<span class="fc" id="L301">            blbu = bl;</span>
+
+            // Now &quot;al&quot; and &quot;bl&quot; fit in an &quot;int&quot;.
+<span class="fc" id="L304">            b = (int) al;</span>
+<span class="fc" id="L305">            a = (int) (blbu % al);</span>
+        }
+
+<span class="fc" id="L308">        return gcdPositive(a, b);</span>
+    }
+
+    /**
+     * Computes the greatest common divisor of two &lt;em&gt;positive&lt;/em&gt; numbers
+     * (this precondition is &lt;em&gt;not&lt;/em&gt; checked and the result is undefined
+     * if not fulfilled) using the &quot;binary gcd&quot; method which avoids division
+     * and modulo operations.
+     * See Knuth 4.5.2 algorithm B.
+     * The algorithm is due to Josef Stein (1961).
+     * &lt;br/&gt;
+     * Special cases:
+     * &lt;ul&gt;
+     *  &lt;li&gt;The result of {@code gcd(x, x)}, {@code gcd(0, x)} and
+     *   {@code gcd(x, 0)} is the value of {@code x}.&lt;/li&gt;
+     *  &lt;li&gt;The invocation {@code gcd(0, 0)} is the only one which returns
+     *   {@code 0}.&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param a Positive number.
+     * @param b Positive number.
+     * @return the greatest common divisor.
+     */
+    private static int gcdPositive(int a, int b) {
+<span class="fc bfc" id="L332" title="All 2 branches covered.">        if (a == 0) {</span>
+<span class="fc" id="L333">            return b;</span>
+        }
+<span class="pc bpc" id="L335" title="1 of 2 branches missed.">        else if (b == 0) {</span>
+<span class="nc" id="L336">            return a;</span>
+        }
+
+        // Make &quot;a&quot; and &quot;b&quot; odd, keeping track of common power of 2.
+<span class="fc" id="L340">        final int aTwos = Integer.numberOfTrailingZeros(a);</span>
+<span class="fc" id="L341">        a &gt;&gt;= aTwos;</span>
+<span class="fc" id="L342">        final int bTwos = Integer.numberOfTrailingZeros(b);</span>
+<span class="fc" id="L343">        b &gt;&gt;= bTwos;</span>
+<span class="fc" id="L344">        final int shift = FastMath.min(aTwos, bTwos);</span>
+
+        // &quot;a&quot; and &quot;b&quot; are positive.
+        // If a &gt; b then &quot;gdc(a, b)&quot; is equal to &quot;gcd(a - b, b)&quot;.
+        // If a &lt; b then &quot;gcd(a, b)&quot; is equal to &quot;gcd(b - a, a)&quot;.
+        // Hence, in the successive iterations:
+        //  &quot;a&quot; becomes the absolute difference of the current values,
+        //  &quot;b&quot; becomes the minimum of the current values.
+<span class="fc bfc" id="L352" title="All 2 branches covered.">        while (a != b) {</span>
+<span class="fc" id="L353">            final int delta = a - b;</span>
+<span class="fc" id="L354">            b = Math.min(a, b);</span>
+<span class="fc" id="L355">            a = Math.abs(delta);</span>
+
+            // Remove any power of 2 in &quot;a&quot; (&quot;b&quot; is guaranteed to be odd).
+<span class="fc" id="L358">            a &gt;&gt;= Integer.numberOfTrailingZeros(a);</span>
+<span class="fc" id="L359">        }</span>
+
+        // Recover the common power of 2.
+<span class="fc" id="L362">        return a &lt;&lt; shift;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Gets the greatest common divisor of the absolute value of two numbers,
+     * using the &quot;binary gcd&quot; method which avoids division and modulo
+     * operations. See Knuth 4.5.2 algorithm B. This algorithm is due to Josef
+     * Stein (1961).
+     * &lt;/p&gt;
+     * Special cases:
+     * &lt;ul&gt;
+     * &lt;li&gt;The invocations
+     * {@code gcd(Long.MIN_VALUE, Long.MIN_VALUE)},
+     * {@code gcd(Long.MIN_VALUE, 0L)} and
+     * {@code gcd(0L, Long.MIN_VALUE)} throw an
+     * {@code ArithmeticException}, because the result would be 2^63, which
+     * is too large for a long value.&lt;/li&gt;
+     * &lt;li&gt;The result of {@code gcd(x, x)}, {@code gcd(0L, x)} and
+     * {@code gcd(x, 0L)} is the absolute value of {@code x}, except
+     * for the special cases above.
+     * &lt;li&gt;The invocation {@code gcd(0L, 0L)} is the only one which returns
+     * {@code 0L}.&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param p Number.
+     * @param q Number.
+     * @return the greatest common divisor, never negative.
+     * @throws MathArithmeticException if the result cannot be represented as
+     * a non-negative {@code long} value.
+     * @since 2.1
+     */
+    public static long gcd(final long p, final long q) throws MathArithmeticException {
+<span class="fc" id="L395">        long u = p;</span>
+<span class="fc" id="L396">        long v = q;</span>
+<span class="fc bfc" id="L397" title="All 4 branches covered.">        if ((u == 0) || (v == 0)) {</span>
+<span class="fc bfc" id="L398" title="All 4 branches covered.">            if ((u == Long.MIN_VALUE) || (v == Long.MIN_VALUE)){</span>
+<span class="fc" id="L399">                throw new MathArithmeticException(LocalizedFormats.GCD_OVERFLOW_64_BITS,</span>
+                                                  p, q);
+            }
+<span class="fc" id="L402">            return FastMath.abs(u) + FastMath.abs(v);</span>
+        }
+        // keep u and v negative, as negative integers range down to
+        // -2^63, while positive numbers can only be as large as 2^63-1
+        // (i.e. we can't necessarily negate a negative number without
+        // overflow)
+        /* assert u!=0 &amp;&amp; v!=0; */
+<span class="fc bfc" id="L409" title="All 2 branches covered.">        if (u &gt; 0) {</span>
+<span class="fc" id="L410">            u = -u;</span>
+        } // make u negative
+<span class="fc bfc" id="L412" title="All 2 branches covered.">        if (v &gt; 0) {</span>
+<span class="fc" id="L413">            v = -v;</span>
+        } // make v negative
+        // B1. [Find power of 2]
+<span class="fc" id="L416">        int k = 0;</span>
+<span class="pc bpc" id="L417" title="1 of 6 branches missed.">        while ((u &amp; 1) == 0 &amp;&amp; (v &amp; 1) == 0 &amp;&amp; k &lt; 63) { // while u and v are</span>
+                                                            // both even...
+<span class="fc" id="L419">            u /= 2;</span>
+<span class="fc" id="L420">            v /= 2;</span>
+<span class="fc" id="L421">            k++; // cast out twos.</span>
+        }
+<span class="fc bfc" id="L423" title="All 2 branches covered.">        if (k == 63) {</span>
+<span class="fc" id="L424">            throw new MathArithmeticException(LocalizedFormats.GCD_OVERFLOW_64_BITS,</span>
+                                              p, q);
+        }
+        // B2. Initialize: u and v have been divided by 2^k and at least
+        // one is odd.
+<span class="fc bfc" id="L429" title="All 2 branches covered.">        long t = ((u &amp; 1) == 1) ? v : -(u / 2)/* B3 */;</span>
+        // t negative: u was odd, v may be even (t replaces v)
+        // t positive: u was even, v is odd (t replaces u)
+        do {
+            /* assert u&lt;0 &amp;&amp; v&lt;0; */
+            // B4/B3: cast out twos from t.
+<span class="fc bfc" id="L435" title="All 2 branches covered.">            while ((t &amp; 1) == 0) { // while t is even..</span>
+<span class="fc" id="L436">                t /= 2; // cast out twos</span>
+            }
+            // B5 [reset max(u,v)]
+<span class="fc bfc" id="L439" title="All 2 branches covered.">            if (t &gt; 0) {</span>
+<span class="fc" id="L440">                u = -t;</span>
+            } else {
+<span class="fc" id="L442">                v = t;</span>
+            }
+            // B6/B3. at this point both u and v should be odd.
+<span class="fc" id="L445">            t = (v - u) / 2;</span>
+            // |u| larger: t positive (replace u)
+            // |v| larger: t negative (replace v)
+<span class="fc bfc" id="L448" title="All 2 branches covered.">        } while (t != 0);</span>
+<span class="fc" id="L449">        return -u * (1L &lt;&lt; k); // gcd is u*2^k</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Returns the least common multiple of the absolute value of two numbers,
+     * using the formula {@code lcm(a,b) = (a / gcd(a,b)) * b}.
+     * &lt;/p&gt;
+     * Special cases:
+     * &lt;ul&gt;
+     * &lt;li&gt;The invocations {@code lcm(Integer.MIN_VALUE, n)} and
+     * {@code lcm(n, Integer.MIN_VALUE)}, where {@code abs(n)} is a
+     * power of 2, throw an {@code ArithmeticException}, because the result
+     * would be 2^31, which is too large for an int value.&lt;/li&gt;
+     * &lt;li&gt;The result of {@code lcm(0, x)} and {@code lcm(x, 0)} is
+     * {@code 0} for any {@code x}.
+     * &lt;/ul&gt;
+     *
+     * @param a Number.
+     * @param b Number.
+     * @return the least common multiple, never negative.
+     * @throws MathArithmeticException if the result cannot be represented as
+     * a non-negative {@code int} value.
+     * @since 1.1
+     */
+    public static int lcm(int a, int b) throws MathArithmeticException {
+<span class="fc bfc" id="L475" title="All 4 branches covered.">        if (a == 0 || b == 0){</span>
+<span class="fc" id="L476">            return 0;</span>
+        }
+<span class="fc" id="L478">        int lcm = FastMath.abs(ArithmeticUtils.mulAndCheck(a / gcd(a, b), b));</span>
+<span class="fc bfc" id="L479" title="All 2 branches covered.">        if (lcm == Integer.MIN_VALUE) {</span>
+<span class="fc" id="L480">            throw new MathArithmeticException(LocalizedFormats.LCM_OVERFLOW_32_BITS,</span>
+                                              a, b);
+        }
+<span class="fc" id="L483">        return lcm;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Returns the least common multiple of the absolute value of two numbers,
+     * using the formula {@code lcm(a,b) = (a / gcd(a,b)) * b}.
+     * &lt;/p&gt;
+     * Special cases:
+     * &lt;ul&gt;
+     * &lt;li&gt;The invocations {@code lcm(Long.MIN_VALUE, n)} and
+     * {@code lcm(n, Long.MIN_VALUE)}, where {@code abs(n)} is a
+     * power of 2, throw an {@code ArithmeticException}, because the result
+     * would be 2^63, which is too large for an int value.&lt;/li&gt;
+     * &lt;li&gt;The result of {@code lcm(0L, x)} and {@code lcm(x, 0L)} is
+     * {@code 0L} for any {@code x}.
+     * &lt;/ul&gt;
+     *
+     * @param a Number.
+     * @param b Number.
+     * @return the least common multiple, never negative.
+     * @throws MathArithmeticException if the result cannot be represented
+     * as a non-negative {@code long} value.
+     * @since 2.1
+     */
+    public static long lcm(long a, long b) throws MathArithmeticException {
+<span class="fc bfc" id="L509" title="All 4 branches covered.">        if (a == 0 || b == 0){</span>
+<span class="fc" id="L510">            return 0;</span>
+        }
+<span class="fc" id="L512">        long lcm = FastMath.abs(ArithmeticUtils.mulAndCheck(a / gcd(a, b), b));</span>
+<span class="fc bfc" id="L513" title="All 2 branches covered.">        if (lcm == Long.MIN_VALUE){</span>
+<span class="fc" id="L514">            throw new MathArithmeticException(LocalizedFormats.LCM_OVERFLOW_64_BITS,</span>
+                                              a, b);
+        }
+<span class="fc" id="L517">        return lcm;</span>
+    }
+
+    /**
+     * Multiply two integers, checking for overflow.
+     *
+     * @param x Factor.
+     * @param y Factor.
+     * @return the product {@code x * y}.
+     * @throws MathArithmeticException if the result can not be
+     * represented as an {@code int}.
+     * @since 1.1
+     */
+    public static int mulAndCheck(int x, int y) throws MathArithmeticException {
+<span class="fc" id="L531">        long m = ((long)x) * ((long)y);</span>
+<span class="fc bfc" id="L532" title="All 4 branches covered.">        if (m &lt; Integer.MIN_VALUE || m &gt; Integer.MAX_VALUE) {</span>
+<span class="fc" id="L533">            throw new MathArithmeticException();</span>
+        }
+<span class="fc" id="L535">        return (int)m;</span>
+    }
+
+    /**
+     * Multiply two long integers, checking for overflow.
+     *
+     * @param a Factor.
+     * @param b Factor.
+     * @return the product {@code a * b}.
+     * @throws MathArithmeticException if the result can not be represented
+     * as a {@code long}.
+     * @since 1.2
+     */
+    public static long mulAndCheck(long a, long b) throws MathArithmeticException {
+        long ret;
+<span class="fc bfc" id="L550" title="All 2 branches covered.">        if (a &gt; b) {</span>
+            // use symmetry to reduce boundary cases
+<span class="fc" id="L552">            ret = mulAndCheck(b, a);</span>
+        } else {
+<span class="fc bfc" id="L554" title="All 2 branches covered.">            if (a &lt; 0) {</span>
+<span class="fc bfc" id="L555" title="All 2 branches covered.">                if (b &lt; 0) {</span>
+                    // check for positive overflow with negative a, negative b
+<span class="fc bfc" id="L557" title="All 2 branches covered.">                    if (a &gt;= Long.MAX_VALUE / b) {</span>
+<span class="fc" id="L558">                        ret = a * b;</span>
+                    } else {
+<span class="fc" id="L560">                        throw new MathArithmeticException();</span>
+                    }
+<span class="fc bfc" id="L562" title="All 2 branches covered.">                } else if (b &gt; 0) {</span>
+                    // check for negative overflow with negative a, positive b
+<span class="fc bfc" id="L564" title="All 2 branches covered.">                    if (Long.MIN_VALUE / b &lt;= a) {</span>
+<span class="fc" id="L565">                        ret = a * b;</span>
+                    } else {
+<span class="fc" id="L567">                        throw new MathArithmeticException();</span>
+
+                    }
+                } else {
+                    // assert b == 0
+<span class="fc" id="L572">                    ret = 0;</span>
+                }
+<span class="fc bfc" id="L574" title="All 2 branches covered.">            } else if (a &gt; 0) {</span>
+                // assert a &gt; 0
+                // assert b &gt; 0
+
+                // check for positive overflow with positive a, positive b
+<span class="fc bfc" id="L579" title="All 2 branches covered.">                if (a &lt;= Long.MAX_VALUE / b) {</span>
+<span class="fc" id="L580">                    ret = a * b;</span>
+                } else {
+<span class="fc" id="L582">                    throw new MathArithmeticException();</span>
+                }
+            } else {
+                // assert a == 0
+<span class="fc" id="L586">                ret = 0;</span>
+            }
+        }
+<span class="fc" id="L589">        return ret;</span>
+    }
+
+    /**
+     * Subtract two integers, checking for overflow.
+     *
+     * @param x Minuend.
+     * @param y Subtrahend.
+     * @return the difference {@code x - y}.
+     * @throws MathArithmeticException if the result can not be represented
+     * as an {@code int}.
+     * @since 1.1
+     */
+    public static int subAndCheck(int x, int y) throws MathArithmeticException {
+<span class="fc" id="L603">        long s = (long)x - (long)y;</span>
+<span class="fc bfc" id="L604" title="All 4 branches covered.">        if (s &lt; Integer.MIN_VALUE || s &gt; Integer.MAX_VALUE) {</span>
+<span class="fc" id="L605">            throw new MathArithmeticException(LocalizedFormats.OVERFLOW_IN_SUBTRACTION, x, y);</span>
+        }
+<span class="fc" id="L607">        return (int)s;</span>
+    }
+
+    /**
+     * Subtract two long integers, checking for overflow.
+     *
+     * @param a Value.
+     * @param b Value.
+     * @return the difference {@code a - b}.
+     * @throws MathArithmeticException if the result can not be represented as a
+     * {@code long}.
+     * @since 1.2
+     */
+    public static long subAndCheck(long a, long b) throws MathArithmeticException {
+        long ret;
+<span class="fc bfc" id="L622" title="All 2 branches covered.">        if (b == Long.MIN_VALUE) {</span>
+<span class="fc bfc" id="L623" title="All 2 branches covered.">            if (a &lt; 0) {</span>
+<span class="fc" id="L624">                ret = a - b;</span>
+            } else {
+<span class="fc" id="L626">                throw new MathArithmeticException(LocalizedFormats.OVERFLOW_IN_ADDITION, a, -b);</span>
+            }
+        } else {
+            // use additive inverse
+<span class="fc" id="L630">            ret = addAndCheck(a, -b, LocalizedFormats.OVERFLOW_IN_ADDITION);</span>
+        }
+<span class="fc" id="L632">        return ret;</span>
+    }
+
+    /**
+     * Raise an int to an int power.
+     *
+     * @param k Number to raise.
+     * @param e Exponent (must be positive or zero).
+     * @return \( k^e \)
+     * @throws NotPositiveException if {@code e &lt; 0}.
+     * @throws MathArithmeticException if the result would overflow.
+     */
+    public static int pow(final int k,
+                          final int e)
+        throws NotPositiveException,
+               MathArithmeticException {
+<span class="fc bfc" id="L648" title="All 2 branches covered.">        if (e &lt; 0) {</span>
+<span class="fc" id="L649">            throw new NotPositiveException(LocalizedFormats.EXPONENT, e);</span>
+        }
+
+        try {
+<span class="fc" id="L653">            int exp = e;</span>
+<span class="fc" id="L654">            int result = 1;</span>
+<span class="fc" id="L655">            int k2p    = k;</span>
+            while (true) {
+<span class="fc bfc" id="L657" title="All 2 branches covered.">                if ((exp &amp; 0x1) != 0) {</span>
+<span class="fc" id="L658">                    result = mulAndCheck(result, k2p);</span>
+                }
+
+<span class="fc" id="L661">                exp &gt;&gt;= 1;</span>
+<span class="fc bfc" id="L662" title="All 2 branches covered.">                if (exp == 0) {</span>
+<span class="fc" id="L663">                    break;</span>
+                }
+
+<span class="fc" id="L666">                k2p = mulAndCheck(k2p, k2p);</span>
+            }
+
+<span class="fc" id="L669">            return result;</span>
+<span class="fc" id="L670">        } catch (MathArithmeticException mae) {</span>
+            // Add context information.
+<span class="fc" id="L672">            mae.getContext().addMessage(LocalizedFormats.OVERFLOW);</span>
+<span class="fc" id="L673">            mae.getContext().addMessage(LocalizedFormats.BASE, k);</span>
+<span class="fc" id="L674">            mae.getContext().addMessage(LocalizedFormats.EXPONENT, e);</span>
+
+            // Rethrow.
+<span class="fc" id="L677">            throw mae;</span>
+        }
+    }
+
+    /**
+     * Raise an int to a long power.
+     *
+     * @param k Number to raise.
+     * @param e Exponent (must be positive or zero).
+     * @return k&lt;sup&gt;e&lt;/sup&gt;
+     * @throws NotPositiveException if {@code e &lt; 0}.
+     * @deprecated As of 3.3. Please use {@link #pow(int,int)} instead.
+     */
+    @Deprecated
+    public static int pow(final int k, long e) throws NotPositiveException {
+<span class="nc bnc" id="L692" title="All 2 branches missed.">        if (e &lt; 0) {</span>
+<span class="nc" id="L693">            throw new NotPositiveException(LocalizedFormats.EXPONENT, e);</span>
+        }
+
+<span class="nc" id="L696">        int result = 1;</span>
+<span class="nc" id="L697">        int k2p    = k;</span>
+<span class="nc bnc" id="L698" title="All 2 branches missed.">        while (e != 0) {</span>
+<span class="nc bnc" id="L699" title="All 2 branches missed.">            if ((e &amp; 0x1) != 0) {</span>
+<span class="nc" id="L700">                result *= k2p;</span>
+            }
+<span class="nc" id="L702">            k2p *= k2p;</span>
+<span class="nc" id="L703">            e &gt;&gt;= 1;</span>
+        }
+
+<span class="nc" id="L706">        return result;</span>
+    }
+
+    /**
+     * Raise a long to an int power.
+     *
+     * @param k Number to raise.
+     * @param e Exponent (must be positive or zero).
+     * @return \( k^e \)
+     * @throws NotPositiveException if {@code e &lt; 0}.
+     * @throws MathArithmeticException if the result would overflow.
+     */
+    public static long pow(final long k,
+                           final int e)
+        throws NotPositiveException,
+               MathArithmeticException {
+<span class="fc bfc" id="L722" title="All 2 branches covered.">        if (e &lt; 0) {</span>
+<span class="fc" id="L723">            throw new NotPositiveException(LocalizedFormats.EXPONENT, e);</span>
+        }
+
+        try {
+<span class="fc" id="L727">            int exp = e;</span>
+<span class="fc" id="L728">            long result = 1;</span>
+<span class="fc" id="L729">            long k2p    = k;</span>
+            while (true) {
+<span class="fc bfc" id="L731" title="All 2 branches covered.">                if ((exp &amp; 0x1) != 0) {</span>
+<span class="fc" id="L732">                    result = mulAndCheck(result, k2p);</span>
+                }
+
+<span class="fc" id="L735">                exp &gt;&gt;= 1;</span>
+<span class="fc bfc" id="L736" title="All 2 branches covered.">                if (exp == 0) {</span>
+<span class="fc" id="L737">                    break;</span>
+                }
+
+<span class="fc" id="L740">                k2p = mulAndCheck(k2p, k2p);</span>
+            }
+
+<span class="fc" id="L743">            return result;</span>
+<span class="fc" id="L744">        } catch (MathArithmeticException mae) {</span>
+            // Add context information.
+<span class="fc" id="L746">            mae.getContext().addMessage(LocalizedFormats.OVERFLOW);</span>
+<span class="fc" id="L747">            mae.getContext().addMessage(LocalizedFormats.BASE, k);</span>
+<span class="fc" id="L748">            mae.getContext().addMessage(LocalizedFormats.EXPONENT, e);</span>
+
+            // Rethrow.
+<span class="fc" id="L751">            throw mae;</span>
+        }
+    }
+
+    /**
+     * Raise a long to a long power.
+     *
+     * @param k Number to raise.
+     * @param e Exponent (must be positive or zero).
+     * @return k&lt;sup&gt;e&lt;/sup&gt;
+     * @throws NotPositiveException if {@code e &lt; 0}.
+     * @deprecated As of 3.3. Please use {@link #pow(long,int)} instead.
+     */
+    @Deprecated
+    public static long pow(final long k, long e) throws NotPositiveException {
+<span class="fc bfc" id="L766" title="All 2 branches covered.">        if (e &lt; 0) {</span>
+<span class="fc" id="L767">            throw new NotPositiveException(LocalizedFormats.EXPONENT, e);</span>
+        }
+
+<span class="fc" id="L770">        long result = 1l;</span>
+<span class="fc" id="L771">        long k2p    = k;</span>
+<span class="fc bfc" id="L772" title="All 2 branches covered.">        while (e != 0) {</span>
+<span class="pc bpc" id="L773" title="1 of 2 branches missed.">            if ((e &amp; 0x1) != 0) {</span>
+<span class="fc" id="L774">                result *= k2p;</span>
+            }
+<span class="fc" id="L776">            k2p *= k2p;</span>
+<span class="fc" id="L777">            e &gt;&gt;= 1;</span>
+        }
+
+<span class="fc" id="L780">        return result;</span>
+    }
+
+    /**
+     * Raise a BigInteger to an int power.
+     *
+     * @param k Number to raise.
+     * @param e Exponent (must be positive or zero).
+     * @return k&lt;sup&gt;e&lt;/sup&gt;
+     * @throws NotPositiveException if {@code e &lt; 0}.
+     */
+    public static BigInteger pow(final BigInteger k, int e) throws NotPositiveException {
+<span class="fc bfc" id="L792" title="All 2 branches covered.">        if (e &lt; 0) {</span>
+<span class="fc" id="L793">            throw new NotPositiveException(LocalizedFormats.EXPONENT, e);</span>
+        }
+
+<span class="fc" id="L796">        return k.pow(e);</span>
+    }
+
+    /**
+     * Raise a BigInteger to a long power.
+     *
+     * @param k Number to raise.
+     * @param e Exponent (must be positive or zero).
+     * @return k&lt;sup&gt;e&lt;/sup&gt;
+     * @throws NotPositiveException if {@code e &lt; 0}.
+     */
+    public static BigInteger pow(final BigInteger k, long e) throws NotPositiveException {
+<span class="fc bfc" id="L808" title="All 2 branches covered.">        if (e &lt; 0) {</span>
+<span class="fc" id="L809">            throw new NotPositiveException(LocalizedFormats.EXPONENT, e);</span>
+        }
+
+<span class="fc" id="L812">        BigInteger result = BigInteger.ONE;</span>
+<span class="fc" id="L813">        BigInteger k2p    = k;</span>
+<span class="fc bfc" id="L814" title="All 2 branches covered.">        while (e != 0) {</span>
+<span class="fc bfc" id="L815" title="All 2 branches covered.">            if ((e &amp; 0x1) != 0) {</span>
+<span class="fc" id="L816">                result = result.multiply(k2p);</span>
+            }
+<span class="fc" id="L818">            k2p = k2p.multiply(k2p);</span>
+<span class="fc" id="L819">            e &gt;&gt;= 1;</span>
+        }
+
+<span class="fc" id="L822">        return result;</span>
+
+    }
+
+    /**
+     * Raise a BigInteger to a BigInteger power.
+     *
+     * @param k Number to raise.
+     * @param e Exponent (must be positive or zero).
+     * @return k&lt;sup&gt;e&lt;/sup&gt;
+     * @throws NotPositiveException if {@code e &lt; 0}.
+     */
+    public static BigInteger pow(final BigInteger k, BigInteger e) throws NotPositiveException {
+<span class="fc bfc" id="L835" title="All 2 branches covered.">        if (e.compareTo(BigInteger.ZERO) &lt; 0) {</span>
+<span class="fc" id="L836">            throw new NotPositiveException(LocalizedFormats.EXPONENT, e);</span>
+        }
+
+<span class="fc" id="L839">        BigInteger result = BigInteger.ONE;</span>
+<span class="fc" id="L840">        BigInteger k2p    = k;</span>
+<span class="fc bfc" id="L841" title="All 2 branches covered.">        while (!BigInteger.ZERO.equals(e)) {</span>
+<span class="fc bfc" id="L842" title="All 2 branches covered.">            if (e.testBit(0)) {</span>
+<span class="fc" id="L843">                result = result.multiply(k2p);</span>
+            }
+<span class="fc" id="L845">            k2p = k2p.multiply(k2p);</span>
+<span class="fc" id="L846">            e = e.shiftRight(1);</span>
+        }
+
+<span class="fc" id="L849">        return result;</span>
+    }
+
+    /**
+     * Returns the &lt;a
+     * href=&quot;http://mathworld.wolfram.com/StirlingNumberoftheSecondKind.html&quot;&gt;
+     * Stirling number of the second kind&lt;/a&gt;, &quot;{@code S(n,k)}&quot;, the number of
+     * ways of partitioning an {@code n}-element set into {@code k} non-empty
+     * subsets.
+     * &lt;p&gt;
+     * The preconditions are {@code 0 &lt;= k &lt;= n } (otherwise
+     * {@code NotPositiveException} is thrown)
+     * &lt;/p&gt;
+     * @param n the size of the set
+     * @param k the number of non-empty subsets
+     * @return {@code S(n,k)}
+     * @throws NotPositiveException if {@code k &lt; 0}.
+     * @throws NumberIsTooLargeException if {@code k &gt; n}.
+     * @throws MathArithmeticException if some overflow happens, typically for n exceeding 25 and
+     * k between 20 and n-2 (S(n,n-1) is handled specifically and does not overflow)
+     * @since 3.1
+     * @deprecated use {@link CombinatoricsUtils#stirlingS2(int, int)}
+     */
+    @Deprecated
+    public static long stirlingS2(final int n, final int k)
+        throws NotPositiveException, NumberIsTooLargeException, MathArithmeticException {
+<span class="nc" id="L875">        return CombinatoricsUtils.stirlingS2(n, k);</span>
+
+    }
+
+    /**
+     * Add two long integers, checking for overflow.
+     *
+     * @param a Addend.
+     * @param b Addend.
+     * @param pattern Pattern to use for any thrown exception.
+     * @return the sum {@code a + b}.
+     * @throws MathArithmeticException if the result cannot be represented
+     * as a {@code long}.
+     * @since 1.2
+     */
+     private static long addAndCheck(long a, long b, Localizable pattern) throws MathArithmeticException {
+<span class="fc" id="L891">         final long result = a + b;</span>
+<span class="fc bfc" id="L892" title="All 6 branches covered.">         if (!((a ^ b) &lt; 0 | (a ^ result) &gt;= 0)) {</span>
+<span class="fc" id="L893">             throw new MathArithmeticException(pattern, a, b);</span>
+         }
+<span class="fc" id="L895">         return result;</span>
+    }
+
+    /**
+     * Returns true if the argument is a power of two.
+     *
+     * @param n the number to test
+     * @return true if the argument is a power of two
+     */
+    public static boolean isPowerOfTwo(long n) {
+<span class="fc bfc" id="L905" title="All 4 branches covered.">        return (n &gt; 0) &amp;&amp; ((n &amp; (n - 1)) == 0);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

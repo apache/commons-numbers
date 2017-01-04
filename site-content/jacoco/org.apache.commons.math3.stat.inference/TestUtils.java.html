@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TestUtils.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.inference</a> &gt; <span class="el_source">TestUtils.java</span></div><h1>TestUtils.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.inference;
+
+import java.util.Collection;
+
+import org.apache.commons.math3.distribution.RealDistribution;
+import org.apache.commons.math3.exception.ConvergenceException;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.InsufficientDataException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.NotPositiveException;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.ZeroException;
+import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
+
+/**
+ * A collection of static methods to create inference test instances or to
+ * perform inference tests.
+ *
+ * @since 1.1
+ */
+public class TestUtils  {
+
+    /** Singleton TTest instance. */
+<span class="fc" id="L44">    private static final TTest T_TEST = new TTest();</span>
+
+    /** Singleton ChiSquareTest instance. */
+<span class="fc" id="L47">    private static final ChiSquareTest CHI_SQUARE_TEST = new ChiSquareTest();</span>
+
+    /** Singleton OneWayAnova instance. */
+<span class="fc" id="L50">    private static final OneWayAnova ONE_WAY_ANANOVA = new OneWayAnova();</span>
+
+    /** Singleton G-Test instance. */
+<span class="fc" id="L53">    private static final GTest G_TEST = new GTest();</span>
+
+    /** Singleton K-S test instance */
+<span class="fc" id="L56">    private static final KolmogorovSmirnovTest KS_TEST = new KolmogorovSmirnovTest();</span>
+
+    /**
+     * Prevent instantiation.
+     */
+    private TestUtils() {
+<span class="nc" id="L62">        super();</span>
+<span class="nc" id="L63">    }</span>
+
+    // CHECKSTYLE: stop JavadocMethodCheck
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#homoscedasticT(double[], double[])
+     */
+    public static double homoscedasticT(final double[] sample1, final double[] sample2)
+        throws NullArgumentException, NumberIsTooSmallException {
+<span class="fc" id="L72">        return T_TEST.homoscedasticT(sample1, sample2);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#homoscedasticT(org.apache.commons.math3.stat.descriptive.StatisticalSummary, org.apache.commons.math3.stat.descriptive.StatisticalSummary)
+     */
+    public static double homoscedasticT(final StatisticalSummary sampleStats1,
+                                        final StatisticalSummary sampleStats2)
+        throws NullArgumentException, NumberIsTooSmallException {
+<span class="nc" id="L81">        return T_TEST.homoscedasticT(sampleStats1, sampleStats2);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#homoscedasticTTest(double[], double[], double)
+     */
+    public static boolean homoscedasticTTest(final double[] sample1, final double[] sample2,
+                                             final double alpha)
+        throws NullArgumentException, NumberIsTooSmallException,
+        OutOfRangeException, MaxCountExceededException {
+<span class="fc" id="L91">        return T_TEST.homoscedasticTTest(sample1, sample2, alpha);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#homoscedasticTTest(double[], double[])
+     */
+    public static double homoscedasticTTest(final double[] sample1, final double[] sample2)
+        throws NullArgumentException, NumberIsTooSmallException, MaxCountExceededException {
+<span class="nc" id="L99">        return T_TEST.homoscedasticTTest(sample1, sample2);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#homoscedasticTTest(org.apache.commons.math3.stat.descriptive.StatisticalSummary, org.apache.commons.math3.stat.descriptive.StatisticalSummary)
+     */
+    public static double homoscedasticTTest(final StatisticalSummary sampleStats1,
+                                            final StatisticalSummary sampleStats2)
+        throws NullArgumentException, NumberIsTooSmallException, MaxCountExceededException {
+<span class="fc" id="L108">        return T_TEST.homoscedasticTTest(sampleStats1, sampleStats2);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#pairedT(double[], double[])
+     */
+    public static double pairedT(final double[] sample1, final double[] sample2)
+        throws NullArgumentException, NoDataException,
+        DimensionMismatchException, NumberIsTooSmallException {
+<span class="fc" id="L117">        return T_TEST.pairedT(sample1, sample2);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#pairedTTest(double[], double[], double)
+     */
+    public static boolean pairedTTest(final double[] sample1, final double[] sample2,
+                                      final double alpha)
+        throws NullArgumentException, NoDataException, DimensionMismatchException,
+        NumberIsTooSmallException, OutOfRangeException, MaxCountExceededException {
+<span class="fc" id="L127">        return T_TEST.pairedTTest(sample1, sample2, alpha);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#pairedTTest(double[], double[])
+     */
+    public static double pairedTTest(final double[] sample1, final double[] sample2)
+        throws NullArgumentException, NoDataException, DimensionMismatchException,
+        NumberIsTooSmallException, MaxCountExceededException {
+<span class="fc" id="L136">        return T_TEST.pairedTTest(sample1, sample2);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#t(double, double[])
+     */
+    public static double t(final double mu, final double[] observed)
+        throws NullArgumentException, NumberIsTooSmallException {
+<span class="fc" id="L144">        return T_TEST.t(mu, observed);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#t(double, org.apache.commons.math3.stat.descriptive.StatisticalSummary)
+     */
+    public static double t(final double mu, final StatisticalSummary sampleStats)
+        throws NullArgumentException, NumberIsTooSmallException {
+<span class="fc" id="L152">        return T_TEST.t(mu, sampleStats);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#t(double[], double[])
+     */
+    public static double t(final double[] sample1, final double[] sample2)
+        throws NullArgumentException, NumberIsTooSmallException {
+<span class="fc" id="L160">        return T_TEST.t(sample1, sample2);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#t(org.apache.commons.math3.stat.descriptive.StatisticalSummary, org.apache.commons.math3.stat.descriptive.StatisticalSummary)
+     */
+    public static double t(final StatisticalSummary sampleStats1,
+                           final StatisticalSummary sampleStats2)
+        throws NullArgumentException, NumberIsTooSmallException {
+<span class="fc" id="L169">        return T_TEST.t(sampleStats1, sampleStats2);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#tTest(double, double[], double)
+     */
+    public static boolean tTest(final double mu, final double[] sample, final double alpha)
+        throws NullArgumentException, NumberIsTooSmallException,
+        OutOfRangeException, MaxCountExceededException {
+<span class="fc" id="L178">        return T_TEST.tTest(mu, sample, alpha);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#tTest(double, double[])
+     */
+    public static double tTest(final double mu, final double[] sample)
+        throws NullArgumentException, NumberIsTooSmallException,
+        MaxCountExceededException {
+<span class="fc" id="L187">        return T_TEST.tTest(mu, sample);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#tTest(double, org.apache.commons.math3.stat.descriptive.StatisticalSummary, double)
+     */
+    public static boolean tTest(final double mu, final StatisticalSummary sampleStats,
+                                final double alpha)
+        throws NullArgumentException, NumberIsTooSmallException,
+        OutOfRangeException, MaxCountExceededException {
+<span class="fc" id="L197">        return T_TEST.tTest(mu, sampleStats, alpha);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#tTest(double, org.apache.commons.math3.stat.descriptive.StatisticalSummary)
+     */
+    public static double tTest(final double mu, final StatisticalSummary sampleStats)
+        throws NullArgumentException, NumberIsTooSmallException,
+        MaxCountExceededException {
+<span class="fc" id="L206">        return T_TEST.tTest(mu, sampleStats);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#tTest(double[], double[], double)
+     */
+    public static boolean tTest(final double[] sample1, final double[] sample2,
+                                final double alpha)
+        throws NullArgumentException, NumberIsTooSmallException,
+        OutOfRangeException, MaxCountExceededException {
+<span class="fc" id="L216">        return T_TEST.tTest(sample1, sample2, alpha);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#tTest(double[], double[])
+     */
+    public static double tTest(final double[] sample1, final double[] sample2)
+        throws NullArgumentException, NumberIsTooSmallException,
+        MaxCountExceededException {
+<span class="fc" id="L225">        return T_TEST.tTest(sample1, sample2);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#tTest(org.apache.commons.math3.stat.descriptive.StatisticalSummary, org.apache.commons.math3.stat.descriptive.StatisticalSummary, double)
+     */
+    public static boolean tTest(final StatisticalSummary sampleStats1,
+                                final StatisticalSummary sampleStats2,
+                                final double alpha)
+        throws NullArgumentException, NumberIsTooSmallException,
+        OutOfRangeException, MaxCountExceededException {
+<span class="fc" id="L236">        return T_TEST.tTest(sampleStats1, sampleStats2, alpha);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.TTest#tTest(org.apache.commons.math3.stat.descriptive.StatisticalSummary, org.apache.commons.math3.stat.descriptive.StatisticalSummary)
+     */
+    public static double tTest(final StatisticalSummary sampleStats1,
+                               final StatisticalSummary sampleStats2)
+        throws NullArgumentException, NumberIsTooSmallException,
+        MaxCountExceededException {
+<span class="fc" id="L246">        return T_TEST.tTest(sampleStats1, sampleStats2);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.ChiSquareTest#chiSquare(double[], long[])
+     */
+    public static double chiSquare(final double[] expected, final long[] observed)
+        throws NotPositiveException, NotStrictlyPositiveException,
+        DimensionMismatchException {
+<span class="fc" id="L255">        return CHI_SQUARE_TEST.chiSquare(expected, observed);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.ChiSquareTest#chiSquare(long[][])
+     */
+    public static double chiSquare(final long[][] counts)
+        throws NullArgumentException, NotPositiveException,
+        DimensionMismatchException {
+<span class="fc" id="L264">        return CHI_SQUARE_TEST.chiSquare(counts);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.ChiSquareTest#chiSquareTest(double[], long[], double)
+     */
+    public static boolean chiSquareTest(final double[] expected, final long[] observed,
+                                        final double alpha)
+        throws NotPositiveException, NotStrictlyPositiveException,
+        DimensionMismatchException, OutOfRangeException, MaxCountExceededException {
+<span class="fc" id="L274">        return CHI_SQUARE_TEST.chiSquareTest(expected, observed, alpha);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.ChiSquareTest#chiSquareTest(double[], long[])
+     */
+    public static double chiSquareTest(final double[] expected, final long[] observed)
+        throws NotPositiveException, NotStrictlyPositiveException,
+        DimensionMismatchException, MaxCountExceededException {
+<span class="fc" id="L283">        return CHI_SQUARE_TEST.chiSquareTest(expected, observed);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.ChiSquareTest#chiSquareTest(long[][], double)
+     */
+    public static boolean chiSquareTest(final long[][] counts, final double alpha)
+        throws NullArgumentException, DimensionMismatchException,
+        NotPositiveException, OutOfRangeException, MaxCountExceededException {
+<span class="fc" id="L292">        return CHI_SQUARE_TEST.chiSquareTest(counts, alpha);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.ChiSquareTest#chiSquareTest(long[][])
+     */
+    public static double chiSquareTest(final long[][] counts)
+        throws NullArgumentException, DimensionMismatchException,
+        NotPositiveException, MaxCountExceededException {
+<span class="fc" id="L301">        return CHI_SQUARE_TEST.chiSquareTest(counts);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.ChiSquareTest#chiSquareDataSetsComparison(long[], long[])
+     *
+     * @since 1.2
+     */
+    public static double chiSquareDataSetsComparison(final long[] observed1,
+                                                     final long[] observed2)
+        throws DimensionMismatchException, NotPositiveException, ZeroException {
+<span class="nc" id="L312">        return CHI_SQUARE_TEST.chiSquareDataSetsComparison(observed1, observed2);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.ChiSquareTest#chiSquareTestDataSetsComparison(long[], long[])
+     *
+     * @since 1.2
+     */
+    public static double chiSquareTestDataSetsComparison(final long[] observed1,
+                                                         final long[] observed2)
+        throws DimensionMismatchException, NotPositiveException, ZeroException,
+        MaxCountExceededException {
+<span class="nc" id="L324">        return CHI_SQUARE_TEST.chiSquareTestDataSetsComparison(observed1, observed2);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.ChiSquareTest#chiSquareTestDataSetsComparison(long[], long[], double)
+     *
+     * @since 1.2
+     */
+    public static boolean chiSquareTestDataSetsComparison(final long[] observed1,
+                                                          final long[] observed2,
+                                                          final double alpha)
+        throws DimensionMismatchException, NotPositiveException,
+        ZeroException, OutOfRangeException, MaxCountExceededException {
+<span class="nc" id="L337">        return CHI_SQUARE_TEST.chiSquareTestDataSetsComparison(observed1, observed2, alpha);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.OneWayAnova#anovaFValue(Collection)
+     *
+     * @since 1.2
+     */
+    public static double oneWayAnovaFValue(final Collection&lt;double[]&gt; categoryData)
+        throws NullArgumentException, DimensionMismatchException {
+<span class="fc" id="L347">        return ONE_WAY_ANANOVA.anovaFValue(categoryData);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.OneWayAnova#anovaPValue(Collection)
+     *
+     * @since 1.2
+     */
+    public static double oneWayAnovaPValue(final Collection&lt;double[]&gt; categoryData)
+        throws NullArgumentException, DimensionMismatchException,
+        ConvergenceException, MaxCountExceededException {
+<span class="fc" id="L358">        return ONE_WAY_ANANOVA.anovaPValue(categoryData);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.OneWayAnova#anovaTest(Collection,double)
+     *
+     * @since 1.2
+     */
+    public static boolean oneWayAnovaTest(final Collection&lt;double[]&gt; categoryData,
+                                          final double alpha)
+        throws NullArgumentException, DimensionMismatchException,
+        OutOfRangeException, ConvergenceException, MaxCountExceededException {
+<span class="fc" id="L370">        return ONE_WAY_ANANOVA.anovaTest(categoryData, alpha);</span>
+    }
+
+     /**
+     * @see org.apache.commons.math3.stat.inference.GTest#g(double[], long[])
+     * @since 3.1
+     */
+    public static double g(final double[] expected, final long[] observed)
+        throws NotPositiveException, NotStrictlyPositiveException,
+        DimensionMismatchException {
+<span class="fc" id="L380">        return G_TEST.g(expected, observed);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.GTest#gTest( double[],  long[] )
+     * @since 3.1
+     */
+    public static double gTest(final double[] expected, final long[] observed)
+        throws NotPositiveException, NotStrictlyPositiveException,
+        DimensionMismatchException, MaxCountExceededException {
+<span class="fc" id="L390">        return G_TEST.gTest(expected, observed);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.GTest#gTestIntrinsic(double[], long[] )
+     * @since 3.1
+     */
+    public static double gTestIntrinsic(final double[] expected, final long[] observed)
+        throws NotPositiveException, NotStrictlyPositiveException,
+        DimensionMismatchException, MaxCountExceededException {
+<span class="nc" id="L400">        return G_TEST.gTestIntrinsic(expected, observed);</span>
+    }
+
+     /**
+     * @see org.apache.commons.math3.stat.inference.GTest#gTest( double[],long[],double)
+     * @since 3.1
+     */
+    public static boolean gTest(final double[] expected, final long[] observed,
+                                final double alpha)
+        throws NotPositiveException, NotStrictlyPositiveException,
+        DimensionMismatchException, OutOfRangeException, MaxCountExceededException {
+<span class="fc" id="L411">        return G_TEST.gTest(expected, observed, alpha);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.GTest#gDataSetsComparison(long[], long[])
+     * @since 3.1
+     */
+    public static double gDataSetsComparison(final long[] observed1,
+                                                  final long[] observed2)
+        throws DimensionMismatchException, NotPositiveException, ZeroException {
+<span class="fc" id="L421">        return G_TEST.gDataSetsComparison(observed1, observed2);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.GTest#rootLogLikelihoodRatio(long, long, long, long)
+     * @since 3.1
+     */
+    public static double rootLogLikelihoodRatio(final long k11, final long k12, final long k21, final long k22)
+        throws DimensionMismatchException, NotPositiveException, ZeroException {
+<span class="fc" id="L430">        return G_TEST.rootLogLikelihoodRatio(k11, k12, k21, k22);</span>
+    }
+
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.GTest#gTestDataSetsComparison(long[], long[])
+     * @since 3.1
+     */
+    public static double gTestDataSetsComparison(final long[] observed1,
+                                                        final long[] observed2)
+        throws DimensionMismatchException, NotPositiveException, ZeroException,
+        MaxCountExceededException {
+<span class="fc" id="L442">        return G_TEST.gTestDataSetsComparison(observed1, observed2);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.GTest#gTestDataSetsComparison(long[],long[],double)
+     * @since 3.1
+     */
+    public static boolean gTestDataSetsComparison(final long[] observed1,
+                                                  final long[] observed2,
+                                                  final double alpha)
+        throws DimensionMismatchException, NotPositiveException,
+        ZeroException, OutOfRangeException, MaxCountExceededException {
+<span class="fc" id="L454">        return G_TEST.gTestDataSetsComparison(observed1, observed2, alpha);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest#kolmogorovSmirnovStatistic(RealDistribution, double[])
+     * @since 3.3
+     */
+    public static double kolmogorovSmirnovStatistic(RealDistribution dist, double[] data)
+            throws InsufficientDataException, NullArgumentException {
+<span class="fc" id="L463">        return KS_TEST.kolmogorovSmirnovStatistic(dist, data);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest#kolmogorovSmirnovTest(RealDistribution, double[])
+     * @since 3.3
+     */
+    public static double kolmogorovSmirnovTest(RealDistribution dist, double[] data)
+            throws InsufficientDataException, NullArgumentException {
+<span class="fc" id="L472">        return KS_TEST.kolmogorovSmirnovTest(dist, data);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest#kolmogorovSmirnovTest(RealDistribution, double[], boolean)
+     * @since 3.3
+     */
+    public static double kolmogorovSmirnovTest(RealDistribution dist, double[] data, boolean strict)
+            throws InsufficientDataException, NullArgumentException {
+<span class="nc" id="L481">        return KS_TEST.kolmogorovSmirnovTest(dist, data, strict);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest#kolmogorovSmirnovTest(RealDistribution, double[], double)
+     * @since 3.3
+     */
+    public static boolean kolmogorovSmirnovTest(RealDistribution dist, double[] data, double alpha)
+            throws InsufficientDataException, NullArgumentException {
+<span class="nc" id="L490">        return KS_TEST.kolmogorovSmirnovTest(dist, data, alpha);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest#kolmogorovSmirnovStatistic(double[], double[])
+     * @since 3.3
+     */
+    public static double kolmogorovSmirnovStatistic(double[] x, double[] y)
+            throws InsufficientDataException, NullArgumentException {
+<span class="fc" id="L499">        return KS_TEST.kolmogorovSmirnovStatistic(x, y);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest#kolmogorovSmirnovTest(double[], double[])
+     * @since 3.3
+     */
+    public static double kolmogorovSmirnovTest(double[] x, double[] y)
+            throws InsufficientDataException, NullArgumentException {
+<span class="nc" id="L508">        return KS_TEST.kolmogorovSmirnovTest(x, y);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest#kolmogorovSmirnovTest(double[], double[], boolean)
+     * @since 3.3
+     */
+    public static double kolmogorovSmirnovTest(double[] x, double[] y, boolean strict)
+            throws InsufficientDataException, NullArgumentException  {
+<span class="fc" id="L517">        return KS_TEST.kolmogorovSmirnovTest(x, y, strict);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest#exactP(double, int, int, boolean)
+     * @since 3.3
+     */
+    public static double exactP(double d, int m, int n, boolean strict) {
+<span class="fc" id="L525">        return KS_TEST.exactP(d, n, m, strict);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest#approximateP(double, int, int)
+     * @since 3.3
+     */
+    public static double approximateP(double d, int n, int m) {
+<span class="nc" id="L533">        return KS_TEST.approximateP(d, n, m);</span>
+    }
+
+    /**
+     * @see org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest#monteCarloP(double, int, int, boolean, int)
+     * @since 3.3
+     */
+    public static double monteCarloP(double d, int n, int m, boolean strict, int iterations) {
+<span class="nc" id="L541">        return KS_TEST.monteCarloP(d, n, m, strict, iterations);</span>
+    }
+
+
+    // CHECKSTYLE: resume JavadocMethodCheck
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Skewness.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive.moment</a> &gt; <span class="el_source">Skewness.java</span></div><h1>Skewness.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive.moment;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.stat.descriptive.AbstractStorelessUnivariateStatistic;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * Computes the skewness of the available values.
+ * &lt;p&gt;
+ * We use the following (unbiased) formula to define skewness:&lt;/p&gt;
+ * &lt;p&gt;
+ * skewness = [n / (n -1) (n - 2)] sum[(x_i - mean)^3] / std^3 &lt;/p&gt;
+ * &lt;p&gt;
+ * where n is the number of values, mean is the {@link Mean} and std is the
+ * {@link StandardDeviation} &lt;/p&gt;
+ * &lt;p&gt;
+ * Note that this statistic is undefined for n &lt; 3.  &lt;code&gt;Double.Nan&lt;/code&gt;
+ * is returned when there is not sufficient data to compute the statistic.
+ * Double.NaN may also be returned if the input includes NaN and / or
+ * infinite values.&lt;/p&gt;
+ * &lt;p&gt;
+ * &lt;strong&gt;Note that this implementation is not synchronized.&lt;/strong&gt; If
+ * multiple threads access an instance of this class concurrently, and at least
+ * one of the threads invokes the &lt;code&gt;increment()&lt;/code&gt; or
+ * &lt;code&gt;clear()&lt;/code&gt; method, it must be synchronized externally. &lt;/p&gt;
+ *
+ */
+public class Skewness extends AbstractStorelessUnivariateStatistic implements Serializable {
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = 7101857578996691352L;
+
+    /** Third moment on which this statistic is based */
+<span class="pc" id="L54">    protected ThirdMoment moment = null;</span>
+
+     /**
+     * Determines whether or not this statistic can be incremented or cleared.
+     * &lt;p&gt;
+     * Statistics based on (constructed from) external moments cannot
+     * be incremented or cleared.&lt;/p&gt;
+    */
+    protected boolean incMoment;
+
+    /**
+     * Constructs a Skewness
+     */
+<span class="fc" id="L67">    public Skewness() {</span>
+<span class="fc" id="L68">        incMoment = true;</span>
+<span class="fc" id="L69">        moment = new ThirdMoment();</span>
+<span class="fc" id="L70">    }</span>
+
+    /**
+     * Constructs a Skewness with an external moment
+     * @param m3 external moment
+     */
+<span class="fc" id="L76">    public Skewness(final ThirdMoment m3) {</span>
+<span class="fc" id="L77">        incMoment = false;</span>
+<span class="fc" id="L78">        this.moment = m3;</span>
+<span class="fc" id="L79">    }</span>
+
+    /**
+     * Copy constructor, creates a new {@code Skewness} identical
+     * to the {@code original}
+     *
+     * @param original the {@code Skewness} instance to copy
+     * @throws NullArgumentException if original is null
+     */
+<span class="nc" id="L88">    public Skewness(Skewness original) throws NullArgumentException {</span>
+<span class="nc" id="L89">        copy(original, this);</span>
+<span class="nc" id="L90">    }</span>
+
+    /**
+     * {@inheritDoc}
+     * &lt;p&gt;Note that when {@link #Skewness(ThirdMoment)} is used to
+     * create a Skewness, this method does nothing. In that case, the
+     * ThirdMoment should be incremented directly.&lt;/p&gt;
+     */
+    @Override
+    public void increment(final double d) {
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        if (incMoment) {</span>
+<span class="fc" id="L101">            moment.increment(d);</span>
+        }
+<span class="fc" id="L103">    }</span>
+
+    /**
+     * Returns the value of the statistic based on the values that have been added.
+     * &lt;p&gt;
+     * See {@link Skewness} for the definition used in the computation.&lt;/p&gt;
+     *
+     * @return the skewness of the available values.
+     */
+    @Override
+    public double getResult() {
+
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (moment.n &lt; 3) {</span>
+<span class="fc" id="L116">            return Double.NaN;</span>
+        }
+<span class="fc" id="L118">        double variance = moment.m2 / (moment.n - 1);</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        if (variance &lt; 10E-20) {</span>
+<span class="fc" id="L120">            return 0.0d;</span>
+        } else {
+<span class="fc" id="L122">            double n0 = moment.getN();</span>
+<span class="fc" id="L123">            return  (n0 * moment.m3) /</span>
+            ((n0 - 1) * (n0 -2) * FastMath.sqrt(variance) * variance);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getN() {
+<span class="fc" id="L132">        return moment.getN();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void clear() {
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">        if (incMoment) {</span>
+<span class="fc" id="L141">            moment.clear();</span>
+        }
+<span class="fc" id="L143">    }</span>
+
+    /**
+     * Returns the Skewness of the entries in the specifed portion of the
+     * input array.
+     * &lt;p&gt;
+     * See {@link Skewness} for the definition used in the computation.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param begin the index of the first array element to include
+     * @param length the number of elements to include
+     * @return the skewness of the values or Double.NaN if length is less than
+     * 3
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     *  parameters are not valid
+     */
+    @Override
+    public double evaluate(final double[] values,final int begin,
+            final int length) throws MathIllegalArgumentException {
+
+        // Initialize the skewness
+<span class="fc" id="L166">        double skew = Double.NaN;</span>
+
+<span class="fc bfc" id="L168" title="All 4 branches covered.">        if (test(values, begin, length) &amp;&amp; length &gt; 2 ){</span>
+<span class="fc" id="L169">            Mean mean = new Mean();</span>
+            // Get the mean and the standard deviation
+<span class="fc" id="L171">            double m = mean.evaluate(values, begin, length);</span>
+
+            // Calc the std, this is implemented here instead
+            // of using the standardDeviation method eliminate
+            // a duplicate pass to get the mean
+<span class="fc" id="L176">            double accum = 0.0;</span>
+<span class="fc" id="L177">            double accum2 = 0.0;</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">            for (int i = begin; i &lt; begin + length; i++) {</span>
+<span class="fc" id="L179">                final double d = values[i] - m;</span>
+<span class="fc" id="L180">                accum  += d * d;</span>
+<span class="fc" id="L181">                accum2 += d;</span>
+            }
+<span class="fc" id="L183">            final double variance = (accum - (accum2 * accum2 / length)) / (length - 1);</span>
+
+<span class="fc" id="L185">            double accum3 = 0.0;</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">            for (int i = begin; i &lt; begin + length; i++) {</span>
+<span class="fc" id="L187">                final double d = values[i] - m;</span>
+<span class="fc" id="L188">                accum3 += d * d * d;</span>
+            }
+<span class="fc" id="L190">            accum3 /= variance * FastMath.sqrt(variance);</span>
+
+            // Get N
+<span class="fc" id="L193">            double n0 = length;</span>
+
+            // Calculate skewness
+<span class="fc" id="L196">            skew = (n0 / ((n0 - 1) * (n0 - 2))) * accum3;</span>
+        }
+<span class="fc" id="L198">        return skew;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Skewness copy() {
+<span class="fc" id="L206">        Skewness result = new Skewness();</span>
+        // No try-catch or advertised exception because args are guaranteed non-null
+<span class="fc" id="L208">        copy(this, result);</span>
+<span class="fc" id="L209">        return result;</span>
+    }
+
+    /**
+     * Copies source to dest.
+     * &lt;p&gt;Neither source nor dest can be null.&lt;/p&gt;
+     *
+     * @param source Skewness to copy
+     * @param dest Skewness to copy to
+     * @throws NullArgumentException if either source or dest is null
+     */
+    public static void copy(Skewness source, Skewness dest)
+        throws NullArgumentException {
+<span class="fc" id="L222">        MathUtils.checkNotNull(source);</span>
+<span class="fc" id="L223">        MathUtils.checkNotNull(dest);</span>
+<span class="fc" id="L224">        dest.setData(source.getDataRef());</span>
+<span class="fc" id="L225">        dest.moment = new ThirdMoment(source.moment.copy());</span>
+<span class="fc" id="L226">        dest.incMoment = source.incMoment;</span>
+<span class="fc" id="L227">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

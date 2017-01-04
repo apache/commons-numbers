@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SobolSequenceGenerator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.random</a> &gt; <span class="el_source">SobolSequenceGenerator.java</span></div><h1>SobolSequenceGenerator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.random;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
+
+import org.apache.commons.math3.exception.MathInternalError;
+import org.apache.commons.math3.exception.MathParseException;
+import org.apache.commons.math3.exception.NotPositiveException;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * Implementation of a Sobol sequence.
+ * &lt;p&gt;
+ * A Sobol sequence is a low-discrepancy sequence with the property that for all values of N,
+ * its subsequence (x1, ... xN) has a low discrepancy. It can be used to generate pseudo-random
+ * points in a space S, which are equi-distributed.
+ * &lt;p&gt;
+ * The implementation already comes with support for up to 1000 dimensions with direction numbers
+ * calculated from &lt;a href=&quot;http://web.maths.unsw.edu.au/~fkuo/sobol/&quot;&gt;Stephen Joe and Frances Kuo&lt;/a&gt;.
+ * &lt;p&gt;
+ * The generator supports two modes:
+ * &lt;ul&gt;
+ *   &lt;li&gt;sequential generation of points: {@link #nextVector()}&lt;/li&gt;
+ *   &lt;li&gt;random access to the i-th point in the sequence: {@link #skipTo(int)}&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Sobol_sequence&quot;&gt;Sobol sequence (Wikipedia)&lt;/a&gt;
+ * @see &lt;a href=&quot;http://web.maths.unsw.edu.au/~fkuo/sobol/&quot;&gt;Sobol sequence direction numbers&lt;/a&gt;
+ *
+ * @since 3.3
+ */
+public class SobolSequenceGenerator implements RandomVectorGenerator {
+
+    /** The number of bits to use. */
+    private static final int BITS = 52;
+
+    /** The scaling factor. */
+<span class="fc" id="L62">    private static final double SCALE = FastMath.pow(2, BITS);</span>
+
+    /** The maximum supported space dimension. */
+    private static final int MAX_DIMENSION = 1000;
+
+    /** The resource containing the direction numbers. */
+    private static final String RESOURCE_NAME = &quot;/assets/org/apache/commons/math3/random/new-joe-kuo-6.1000&quot;;
+
+    /** Character set for file input. */
+    private static final String FILE_CHARSET = &quot;US-ASCII&quot;;
+
+    /** Space dimension. */
+    private final int dimension;
+
+    /** The current index in the sequence. */
+<span class="fc" id="L77">    private int count = 0;</span>
+
+    /** The direction vector for each component. */
+    private final long[][] direction;
+
+    /** The current state. */
+    private final long[] x;
+
+    /**
+     * Construct a new Sobol sequence generator for the given space dimension.
+     *
+     * @param dimension the space dimension
+     * @throws OutOfRangeException if the space dimension is outside the allowed range of [1, 1000]
+     */
+<span class="fc" id="L91">    public SobolSequenceGenerator(final int dimension) throws OutOfRangeException {</span>
+<span class="fc bfc" id="L92" title="All 4 branches covered.">        if (dimension &lt; 1 || dimension &gt; MAX_DIMENSION) {</span>
+<span class="fc" id="L93">            throw new OutOfRangeException(dimension, 1, MAX_DIMENSION);</span>
+        }
+
+        // initialize the other dimensions with direction numbers from a resource
+<span class="fc" id="L97">        final InputStream is = getClass().getResourceAsStream(RESOURCE_NAME);</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">        if (is == null) {</span>
+<span class="nc" id="L99">            throw new MathInternalError();</span>
+        }
+
+<span class="fc" id="L102">        this.dimension = dimension;</span>
+
+        // init data structures
+<span class="fc" id="L105">        direction = new long[dimension][BITS + 1];</span>
+<span class="fc" id="L106">        x = new long[dimension];</span>
+
+        try {
+<span class="fc" id="L109">            initFromStream(is);</span>
+<span class="nc" id="L110">        } catch (IOException e) {</span>
+            // the internal resource file could not be read -&gt; should not happen
+<span class="nc" id="L112">            throw new MathInternalError();</span>
+<span class="nc" id="L113">        } catch (MathParseException e) {</span>
+            // the internal resource file could not be parsed -&gt; should not happen
+<span class="nc" id="L115">            throw new MathInternalError();</span>
+        } finally {
+<span class="nc" id="L117">            try {</span>
+<span class="pc" id="L118">                is.close();</span>
+<span class="nc" id="L119">            } catch (IOException e) { // NOPMD</span>
+                // ignore
+<span class="pc" id="L121">            }</span>
+<span class="nc" id="L122">        }</span>
+<span class="fc" id="L123">    }</span>
+
+    /**
+     * Construct a new Sobol sequence generator for the given space dimension with
+     * direction vectors loaded from the given stream.
+     * &lt;p&gt;
+     * The expected format is identical to the files available from
+     * &lt;a href=&quot;http://web.maths.unsw.edu.au/~fkuo/sobol/&quot;&gt;Stephen Joe and Frances Kuo&lt;/a&gt;.
+     * The first line will be ignored as it is assumed to contain only the column headers.
+     * The columns are:
+     * &lt;ul&gt;
+     *  &lt;li&gt;d: the dimension&lt;/li&gt;
+     *  &lt;li&gt;s: the degree of the primitive polynomial&lt;/li&gt;
+     *  &lt;li&gt;a: the number representing the coefficients&lt;/li&gt;
+     *  &lt;li&gt;m: the list of initial direction numbers&lt;/li&gt;
+     * &lt;/ul&gt;
+     * Example:
+     * &lt;pre&gt;
+     * d       s       a       m_i
+     * 2       1       0       1
+     * 3       2       1       1 3
+     * &lt;/pre&gt;
+     * &lt;p&gt;
+     * The input stream &lt;i&gt;must&lt;/i&gt; be an ASCII text containing one valid direction vector per line.
+     *
+     * @param dimension the space dimension
+     * @param is the stream to read the direction vectors from
+     * @throws NotStrictlyPositiveException if the space dimension is &amp;lt; 1
+     * @throws OutOfRangeException if the space dimension is outside the range [1, max], where
+     *   max refers to the maximum dimension found in the input stream
+     * @throws MathParseException if the content in the stream could not be parsed successfully
+     * @throws IOException if an error occurs while reading from the input stream
+     */
+    public SobolSequenceGenerator(final int dimension, final InputStream is)
+<span class="fc" id="L157">            throws NotStrictlyPositiveException, MathParseException, IOException {</span>
+
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">        if (dimension &lt; 1) {</span>
+<span class="nc" id="L160">            throw new NotStrictlyPositiveException(dimension);</span>
+        }
+
+<span class="fc" id="L163">        this.dimension = dimension;</span>
+
+        // init data structures
+<span class="fc" id="L166">        direction = new long[dimension][BITS + 1];</span>
+<span class="fc" id="L167">        x = new long[dimension];</span>
+
+        // initialize the other dimensions with direction numbers from the stream
+<span class="fc" id="L170">        int lastDimension = initFromStream(is);</span>
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">        if (lastDimension &lt; dimension) {</span>
+<span class="fc" id="L172">            throw new OutOfRangeException(dimension, 1, lastDimension);</span>
+        }
+<span class="nc" id="L174">    }</span>
+
+    /**
+     * Load the direction vector for each dimension from the given stream.
+     * &lt;p&gt;
+     * The input stream &lt;i&gt;must&lt;/i&gt; be an ASCII text containing one
+     * valid direction vector per line.
+     *
+     * @param is the input stream to read the direction vector from
+     * @return the last dimension that has been read from the input stream
+     * @throws IOException if the stream could not be read
+     * @throws MathParseException if the content could not be parsed successfully
+     */
+    private int initFromStream(final InputStream is) throws MathParseException, IOException {
+
+        // special case: dimension 1 -&gt; use unit initialization
+<span class="fc bfc" id="L190" title="All 2 branches covered.">        for (int i = 1; i &lt;= BITS; i++) {</span>
+<span class="fc" id="L191">            direction[0][i] = 1l &lt;&lt; (BITS - i);</span>
+        }
+
+<span class="fc" id="L194">        final Charset charset = Charset.forName(FILE_CHARSET);</span>
+<span class="fc" id="L195">        final BufferedReader reader = new BufferedReader(new InputStreamReader(is, charset));</span>
+<span class="fc" id="L196">        int dim = -1;</span>
+
+        try {
+            // ignore first line
+<span class="fc" id="L200">            reader.readLine();</span>
+
+<span class="fc" id="L202">            int lineNumber = 2;</span>
+<span class="fc" id="L203">            int index = 1;</span>
+<span class="fc" id="L204">            String line = null;</span>
+<span class="fc bfc" id="L205" title="All 2 branches covered.">            while ( (line = reader.readLine()) != null) {</span>
+<span class="fc" id="L206">                StringTokenizer st = new StringTokenizer(line, &quot; &quot;);</span>
+                try {
+<span class="fc" id="L208">                    dim = Integer.parseInt(st.nextToken());</span>
+<span class="pc bpc" id="L209" title="1 of 4 branches missed.">                    if (dim &gt;= 2 &amp;&amp; dim &lt;= dimension) { // we have found the right dimension</span>
+<span class="fc" id="L210">                        final int s = Integer.parseInt(st.nextToken());</span>
+<span class="fc" id="L211">                        final int a = Integer.parseInt(st.nextToken());</span>
+<span class="fc" id="L212">                        final int[] m = new int[s + 1];</span>
+<span class="fc bfc" id="L213" title="All 2 branches covered.">                        for (int i = 1; i &lt;= s; i++) {</span>
+<span class="fc" id="L214">                            m[i] = Integer.parseInt(st.nextToken());</span>
+                        }
+<span class="fc" id="L216">                        initDirectionVector(index++, a, m);</span>
+                    }
+
+<span class="fc bfc" id="L219" title="All 2 branches covered.">                    if (dim &gt; dimension) {</span>
+<span class="fc" id="L220">                        return dim;</span>
+                    }
+<span class="nc" id="L222">                } catch (NoSuchElementException e) {</span>
+<span class="nc" id="L223">                    throw new MathParseException(line, lineNumber);</span>
+<span class="nc" id="L224">                } catch (NumberFormatException e) {</span>
+<span class="nc" id="L225">                    throw new MathParseException(line, lineNumber);</span>
+<span class="fc" id="L226">                }</span>
+<span class="fc" id="L227">                lineNumber++;</span>
+<span class="fc" id="L228">            }</span>
+        } finally {
+<span class="pc" id="L230">            reader.close();</span>
+<span class="fc" id="L231">        }</span>
+
+<span class="fc" id="L233">        return dim;</span>
+    }
+
+    /**
+     * Calculate the direction numbers from the given polynomial.
+     *
+     * @param d the dimension, zero-based
+     * @param a the coefficients of the primitive polynomial
+     * @param m the initial direction numbers
+     */
+    private void initDirectionVector(final int d, final int a, final int[] m) {
+<span class="fc" id="L244">        final int s = m.length - 1;</span>
+<span class="fc bfc" id="L245" title="All 2 branches covered.">        for (int i = 1; i &lt;= s; i++) {</span>
+<span class="fc" id="L246">            direction[d][i] = ((long) m[i]) &lt;&lt; (BITS - i);</span>
+        }
+<span class="fc bfc" id="L248" title="All 2 branches covered.">        for (int i = s + 1; i &lt;= BITS; i++) {</span>
+<span class="fc" id="L249">            direction[d][i] = direction[d][i - s] ^ (direction[d][i - s] &gt;&gt; s);</span>
+<span class="fc bfc" id="L250" title="All 2 branches covered.">            for (int k = 1; k &lt;= s - 1; k++) {</span>
+<span class="fc" id="L251">                direction[d][i] ^= ((a &gt;&gt; (s - 1 - k)) &amp; 1) * direction[d][i - k];</span>
+            }
+        }
+<span class="fc" id="L254">    }</span>
+
+    /** {@inheritDoc} */
+    public double[] nextVector() {
+<span class="fc" id="L258">        final double[] v = new double[dimension];</span>
+<span class="fc bfc" id="L259" title="All 2 branches covered.">        if (count == 0) {</span>
+<span class="fc" id="L260">            count++;</span>
+<span class="fc" id="L261">            return v;</span>
+        }
+
+        // find the index c of the rightmost 0
+<span class="fc" id="L265">        int c = 1;</span>
+<span class="fc" id="L266">        int value = count - 1;</span>
+<span class="fc bfc" id="L267" title="All 2 branches covered.">        while ((value &amp; 1) == 1) {</span>
+<span class="fc" id="L268">            value &gt;&gt;= 1;</span>
+<span class="fc" id="L269">            c++;</span>
+        }
+
+<span class="fc bfc" id="L272" title="All 2 branches covered.">        for (int i = 0; i &lt; dimension; i++) {</span>
+<span class="fc" id="L273">            x[i] ^= direction[i][c];</span>
+<span class="fc" id="L274">            v[i] = (double) x[i] / SCALE;</span>
+        }
+<span class="fc" id="L276">        count++;</span>
+<span class="fc" id="L277">        return v;</span>
+    }
+
+    /**
+     * Skip to the i-th point in the Sobol sequence.
+     * &lt;p&gt;
+     * This operation can be performed in O(1).
+     *
+     * @param index the index in the sequence to skip to
+     * @return the i-th point in the Sobol sequence
+     * @throws NotPositiveException if index &amp;lt; 0
+     */
+    public double[] skipTo(final int index) throws NotPositiveException {
+<span class="pc bpc" id="L290" title="1 of 2 branches missed.">        if (index == 0) {</span>
+            // reset x vector
+<span class="nc" id="L292">            Arrays.fill(x, 0);</span>
+        } else {
+<span class="fc" id="L294">            final int i = index - 1;</span>
+<span class="fc" id="L295">            final long grayCode = i ^ (i &gt;&gt; 1); // compute the gray code of i = i XOR floor(i / 2)</span>
+<span class="fc bfc" id="L296" title="All 2 branches covered.">            for (int j = 0; j &lt; dimension; j++) {</span>
+<span class="fc" id="L297">                long result = 0;</span>
+<span class="pc bpc" id="L298" title="1 of 2 branches missed.">                for (int k = 1; k &lt;= BITS; k++) {</span>
+<span class="fc" id="L299">                    final long shift = grayCode &gt;&gt; (k - 1);</span>
+<span class="fc bfc" id="L300" title="All 2 branches covered.">                    if (shift == 0) {</span>
+                        // stop, as all remaining bits will be zero
+<span class="fc" id="L302">                        break;</span>
+                    }
+                    // the k-th bit of i
+<span class="fc" id="L305">                    final long ik = shift &amp; 1;</span>
+<span class="fc" id="L306">                    result ^= ik * direction[j][k];</span>
+                }
+<span class="fc" id="L308">                x[j] = result;</span>
+            }
+        }
+<span class="fc" id="L311">        count = index;</span>
+<span class="fc" id="L312">        return nextVector();</span>
+    }
+
+    /**
+     * Returns the index i of the next point in the Sobol sequence that will be returned
+     * by calling {@link #nextVector()}.
+     *
+     * @return the index of the next point
+     */
+    public int getNextIndex() {
+<span class="fc" id="L322">        return count;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

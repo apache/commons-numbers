@@ -1,0 +1,525 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.apache.commons.math3.ode;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.util.ArrayList;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.util.Collection;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.util.Collections;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import java.util.Comparator;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import java.util.Iterator;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import java.util.List;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import java.util.SortedSet;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import java.util.TreeSet;<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.math3.Field;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.math3.RealFieldElement;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.commons.math3.analysis.solvers.BracketedRealFieldUnivariateSolver;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.apache.commons.math3.analysis.solvers.FieldBracketingNthOrderBrentSolver;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.apache.commons.math3.exception.DimensionMismatchException;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.apache.commons.math3.exception.MaxCountExceededException;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.apache.commons.math3.exception.NoBracketingException;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.apache.commons.math3.exception.NumberIsTooSmallException;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.apache.commons.math3.exception.util.LocalizedFormats;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.apache.commons.math3.ode.events.FieldEventHandler;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import org.apache.commons.math3.ode.events.FieldEventState;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import org.apache.commons.math3.ode.sampling.AbstractFieldStepInterpolator;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import org.apache.commons.math3.ode.sampling.FieldStepHandler;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import org.apache.commons.math3.util.FastMath;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>import org.apache.commons.math3.util.IntegerSequence;<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>/**<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * Base class managing common boilerplate for all integrators.<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * @param &lt;T&gt; the type of the field elements<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * @since 3.6<a name="line.48"></a>
+<span class="sourceLineNo">049</span> */<a name="line.49"></a>
+<span class="sourceLineNo">050</span>public abstract class AbstractFieldIntegrator&lt;T extends RealFieldElement&lt;T&gt;&gt; implements FirstOrderFieldIntegrator&lt;T&gt; {<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>    /** Default relative accuracy. */<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    private static final double DEFAULT_RELATIVE_ACCURACY = 1e-14;<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>    /** Default function value accuracy. */<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    private static final double DEFAULT_FUNCTION_VALUE_ACCURACY = 1e-15;<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>    /** Step handler. */<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    private Collection&lt;FieldStepHandler&lt;T&gt;&gt; stepHandlers;<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>    /** Current step start. */<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    private FieldODEStateAndDerivative&lt;T&gt; stepStart;<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>    /** Current stepsize. */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    private T stepSize;<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>    /** Indicator for last step. */<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    private boolean isLastStep;<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>    /** Indicator that a state or derivative reset was triggered by some event. */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    private boolean resetOccurred;<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>    /** Field to which the time and state vector elements belong. */<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    private final Field&lt;T&gt; field;<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>    /** Events states. */<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    private Collection&lt;FieldEventState&lt;T&gt;&gt; eventsStates;<a name="line.77"></a>
+<span class="sourceLineNo">078</span><a name="line.78"></a>
+<span class="sourceLineNo">079</span>    /** Initialization indicator of events states. */<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    private boolean statesInitialized;<a name="line.80"></a>
+<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">082</span>    /** Name of the method. */<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    private final String name;<a name="line.83"></a>
+<span class="sourceLineNo">084</span><a name="line.84"></a>
+<span class="sourceLineNo">085</span>    /** Counter for number of evaluations. */<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    private IntegerSequence.Incrementor evaluations;<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>    /** Differential equations to integrate. */<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    private transient FieldExpandableODE&lt;T&gt; equations;<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>    /** Build an instance.<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     * @param field field to which the time and state vector elements belong<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * @param name name of the method<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     */<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    protected AbstractFieldIntegrator(final Field&lt;T&gt; field, final String name) {<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        this.field        = field;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        this.name         = name;<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        stepHandlers      = new ArrayList&lt;FieldStepHandler&lt;T&gt;&gt;();<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        stepStart         = null;<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        stepSize          = null;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        eventsStates      = new ArrayList&lt;FieldEventState&lt;T&gt;&gt;();<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        statesInitialized = false;<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        evaluations       = IntegerSequence.Incrementor.create().withMaximalCount(Integer.MAX_VALUE);<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    }<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>    /** Get the field to which state vector elements belong.<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     * @return field to which state vector elements belong<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     */<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    public Field&lt;T&gt; getField() {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        return field;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    }<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>    /** {@inheritDoc} */<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    public String getName() {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        return name;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    }<a name="line.116"></a>
+<span class="sourceLineNo">117</span><a name="line.117"></a>
+<span class="sourceLineNo">118</span>    /** {@inheritDoc} */<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    public void addStepHandler(final FieldStepHandler&lt;T&gt; handler) {<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        stepHandlers.add(handler);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    }<a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
+<span class="sourceLineNo">123</span>    /** {@inheritDoc} */<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    public Collection&lt;FieldStepHandler&lt;T&gt;&gt; getStepHandlers() {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        return Collections.unmodifiableCollection(stepHandlers);<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    }<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>    /** {@inheritDoc} */<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    public void clearStepHandlers() {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        stepHandlers.clear();<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    }<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>    /** {@inheritDoc} */<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    public void addEventHandler(final FieldEventHandler&lt;T&gt; handler,<a name="line.134"></a>
+<span class="sourceLineNo">135</span>                                final double maxCheckInterval,<a name="line.135"></a>
+<span class="sourceLineNo">136</span>                                final double convergence,<a name="line.136"></a>
+<span class="sourceLineNo">137</span>                                final int maxIterationCount) {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        addEventHandler(handler, maxCheckInterval, convergence,<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                        maxIterationCount,<a name="line.139"></a>
+<span class="sourceLineNo">140</span>                        new FieldBracketingNthOrderBrentSolver&lt;T&gt;(field.getZero().add(DEFAULT_RELATIVE_ACCURACY),<a name="line.140"></a>
+<span class="sourceLineNo">141</span>                                                                  field.getZero().add(convergence),<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                                                                  field.getZero().add(DEFAULT_FUNCTION_VALUE_ACCURACY),<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                                                                  5));<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    }<a name="line.144"></a>
+<span class="sourceLineNo">145</span><a name="line.145"></a>
+<span class="sourceLineNo">146</span>    /** {@inheritDoc} */<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    public void addEventHandler(final FieldEventHandler&lt;T&gt; handler,<a name="line.147"></a>
+<span class="sourceLineNo">148</span>                                final double maxCheckInterval,<a name="line.148"></a>
+<span class="sourceLineNo">149</span>                                final double convergence,<a name="line.149"></a>
+<span class="sourceLineNo">150</span>                                final int maxIterationCount,<a name="line.150"></a>
+<span class="sourceLineNo">151</span>                                final BracketedRealFieldUnivariateSolver&lt;T&gt; solver) {<a name="line.151"></a>
+<span class="sourceLineNo">152</span>        eventsStates.add(new FieldEventState&lt;T&gt;(handler, maxCheckInterval, field.getZero().add(convergence),<a name="line.152"></a>
+<span class="sourceLineNo">153</span>                                                maxIterationCount, solver));<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    }<a name="line.154"></a>
+<span class="sourceLineNo">155</span><a name="line.155"></a>
+<span class="sourceLineNo">156</span>    /** {@inheritDoc} */<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    public Collection&lt;FieldEventHandler&lt;T&gt;&gt; getEventHandlers() {<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        final List&lt;FieldEventHandler&lt;T&gt;&gt; list = new ArrayList&lt;FieldEventHandler&lt;T&gt;&gt;(eventsStates.size());<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        for (FieldEventState&lt;T&gt; state : eventsStates) {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>            list.add(state.getEventHandler());<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        }<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        return Collections.unmodifiableCollection(list);<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    }<a name="line.163"></a>
+<span class="sourceLineNo">164</span><a name="line.164"></a>
+<span class="sourceLineNo">165</span>    /** {@inheritDoc} */<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    public void clearEventHandlers() {<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        eventsStates.clear();<a name="line.167"></a>
+<span class="sourceLineNo">168</span>    }<a name="line.168"></a>
+<span class="sourceLineNo">169</span><a name="line.169"></a>
+<span class="sourceLineNo">170</span>    /** {@inheritDoc} */<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    public FieldODEStateAndDerivative&lt;T&gt; getCurrentStepStart() {<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        return stepStart;<a name="line.172"></a>
+<span class="sourceLineNo">173</span>    }<a name="line.173"></a>
+<span class="sourceLineNo">174</span><a name="line.174"></a>
+<span class="sourceLineNo">175</span>    /** {@inheritDoc} */<a name="line.175"></a>
+<span class="sourceLineNo">176</span>    public T getCurrentSignedStepsize() {<a name="line.176"></a>
+<span class="sourceLineNo">177</span>        return stepSize;<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    }<a name="line.178"></a>
+<span class="sourceLineNo">179</span><a name="line.179"></a>
+<span class="sourceLineNo">180</span>    /** {@inheritDoc} */<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    public void setMaxEvaluations(int maxEvaluations) {<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        evaluations = evaluations.withMaximalCount((maxEvaluations &lt; 0) ? Integer.MAX_VALUE : maxEvaluations);<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    }<a name="line.183"></a>
+<span class="sourceLineNo">184</span><a name="line.184"></a>
+<span class="sourceLineNo">185</span>    /** {@inheritDoc} */<a name="line.185"></a>
+<span class="sourceLineNo">186</span>    public int getMaxEvaluations() {<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        return evaluations.getMaximalCount();<a name="line.187"></a>
+<span class="sourceLineNo">188</span>    }<a name="line.188"></a>
+<span class="sourceLineNo">189</span><a name="line.189"></a>
+<span class="sourceLineNo">190</span>    /** {@inheritDoc} */<a name="line.190"></a>
+<span class="sourceLineNo">191</span>    public int getEvaluations() {<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        return evaluations.getCount();<a name="line.192"></a>
+<span class="sourceLineNo">193</span>    }<a name="line.193"></a>
+<span class="sourceLineNo">194</span><a name="line.194"></a>
+<span class="sourceLineNo">195</span>    /** Prepare the start of an integration.<a name="line.195"></a>
+<span class="sourceLineNo">196</span>     * @param eqn equations to integrate<a name="line.196"></a>
+<span class="sourceLineNo">197</span>     * @param t0 start value of the independent &lt;i&gt;time&lt;/i&gt; variable<a name="line.197"></a>
+<span class="sourceLineNo">198</span>     * @param y0 array containing the start value of the state vector<a name="line.198"></a>
+<span class="sourceLineNo">199</span>     * @param t target time for the integration<a name="line.199"></a>
+<span class="sourceLineNo">200</span>     * @return initial state with derivatives added<a name="line.200"></a>
+<span class="sourceLineNo">201</span>     */<a name="line.201"></a>
+<span class="sourceLineNo">202</span>    protected FieldODEStateAndDerivative&lt;T&gt; initIntegration(final FieldExpandableODE&lt;T&gt; eqn,<a name="line.202"></a>
+<span class="sourceLineNo">203</span>                                                            final T t0, final T[] y0, final T t) {<a name="line.203"></a>
+<span class="sourceLineNo">204</span><a name="line.204"></a>
+<span class="sourceLineNo">205</span>        this.equations = eqn;<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        evaluations    = evaluations.withStart(0);<a name="line.206"></a>
+<span class="sourceLineNo">207</span><a name="line.207"></a>
+<span class="sourceLineNo">208</span>        // initialize ODE<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        eqn.init(t0, y0, t);<a name="line.209"></a>
+<span class="sourceLineNo">210</span><a name="line.210"></a>
+<span class="sourceLineNo">211</span>        // set up derivatives of initial state<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        final T[] y0Dot = computeDerivatives(t0, y0);<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        final FieldODEStateAndDerivative&lt;T&gt; state0 = new FieldODEStateAndDerivative&lt;T&gt;(t0, y0, y0Dot);<a name="line.213"></a>
+<span class="sourceLineNo">214</span><a name="line.214"></a>
+<span class="sourceLineNo">215</span>        // initialize event handlers<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        for (final FieldEventState&lt;T&gt; state : eventsStates) {<a name="line.216"></a>
+<span class="sourceLineNo">217</span>            state.getEventHandler().init(state0, t);<a name="line.217"></a>
+<span class="sourceLineNo">218</span>        }<a name="line.218"></a>
+<span class="sourceLineNo">219</span><a name="line.219"></a>
+<span class="sourceLineNo">220</span>        // initialize step handlers<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        for (FieldStepHandler&lt;T&gt; handler : stepHandlers) {<a name="line.221"></a>
+<span class="sourceLineNo">222</span>            handler.init(state0, t);<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        }<a name="line.223"></a>
+<span class="sourceLineNo">224</span><a name="line.224"></a>
+<span class="sourceLineNo">225</span>        setStateInitialized(false);<a name="line.225"></a>
+<span class="sourceLineNo">226</span><a name="line.226"></a>
+<span class="sourceLineNo">227</span>        return state0;<a name="line.227"></a>
+<span class="sourceLineNo">228</span><a name="line.228"></a>
+<span class="sourceLineNo">229</span>    }<a name="line.229"></a>
+<span class="sourceLineNo">230</span><a name="line.230"></a>
+<span class="sourceLineNo">231</span>    /** Get the differential equations to integrate.<a name="line.231"></a>
+<span class="sourceLineNo">232</span>     * @return differential equations to integrate<a name="line.232"></a>
+<span class="sourceLineNo">233</span>     */<a name="line.233"></a>
+<span class="sourceLineNo">234</span>    protected FieldExpandableODE&lt;T&gt; getEquations() {<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        return equations;<a name="line.235"></a>
+<span class="sourceLineNo">236</span>    }<a name="line.236"></a>
+<span class="sourceLineNo">237</span><a name="line.237"></a>
+<span class="sourceLineNo">238</span>    /** Get the evaluations counter.<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     * @return evaluations counter<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     */<a name="line.240"></a>
+<span class="sourceLineNo">241</span>    protected IntegerSequence.Incrementor getEvaluationsCounter() {<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        return evaluations;<a name="line.242"></a>
+<span class="sourceLineNo">243</span>    }<a name="line.243"></a>
+<span class="sourceLineNo">244</span><a name="line.244"></a>
+<span class="sourceLineNo">245</span>    /** Compute the derivatives and check the number of evaluations.<a name="line.245"></a>
+<span class="sourceLineNo">246</span>     * @param t current value of the independent &lt;I&gt;time&lt;/I&gt; variable<a name="line.246"></a>
+<span class="sourceLineNo">247</span>     * @param y array containing the current value of the state vector<a name="line.247"></a>
+<span class="sourceLineNo">248</span>     * @return state completed with derivatives<a name="line.248"></a>
+<span class="sourceLineNo">249</span>     * @exception DimensionMismatchException if arrays dimensions do not match equations settings<a name="line.249"></a>
+<span class="sourceLineNo">250</span>     * @exception MaxCountExceededException if the number of functions evaluations is exceeded<a name="line.250"></a>
+<span class="sourceLineNo">251</span>     * @exception NullPointerException if the ODE equations have not been set (i.e. if this method<a name="line.251"></a>
+<span class="sourceLineNo">252</span>     * is called outside of a call to {@link #integrate(FieldExpandableODE, FieldODEState,<a name="line.252"></a>
+<span class="sourceLineNo">253</span>     * RealFieldElement) integrate}<a name="line.253"></a>
+<span class="sourceLineNo">254</span>     */<a name="line.254"></a>
+<span class="sourceLineNo">255</span>    public T[] computeDerivatives(final T t, final T[] y)<a name="line.255"></a>
+<span class="sourceLineNo">256</span>        throws DimensionMismatchException, MaxCountExceededException, NullPointerException {<a name="line.256"></a>
+<span class="sourceLineNo">257</span>        evaluations.increment();<a name="line.257"></a>
+<span class="sourceLineNo">258</span>        return equations.computeDerivatives(t, y);<a name="line.258"></a>
+<span class="sourceLineNo">259</span>    }<a name="line.259"></a>
+<span class="sourceLineNo">260</span><a name="line.260"></a>
+<span class="sourceLineNo">261</span>    /** Set the stateInitialized flag.<a name="line.261"></a>
+<span class="sourceLineNo">262</span>     * &lt;p&gt;This method must be called by integrators with the value<a name="line.262"></a>
+<span class="sourceLineNo">263</span>     * {@code false} before they start integration, so a proper lazy<a name="line.263"></a>
+<span class="sourceLineNo">264</span>     * initialization is done automatically on the first step.&lt;/p&gt;<a name="line.264"></a>
+<span class="sourceLineNo">265</span>     * @param stateInitialized new value for the flag<a name="line.265"></a>
+<span class="sourceLineNo">266</span>     */<a name="line.266"></a>
+<span class="sourceLineNo">267</span>    protected void setStateInitialized(final boolean stateInitialized) {<a name="line.267"></a>
+<span class="sourceLineNo">268</span>        this.statesInitialized = stateInitialized;<a name="line.268"></a>
+<span class="sourceLineNo">269</span>    }<a name="line.269"></a>
+<span class="sourceLineNo">270</span><a name="line.270"></a>
+<span class="sourceLineNo">271</span>    /** Accept a step, triggering events and step handlers.<a name="line.271"></a>
+<span class="sourceLineNo">272</span>     * @param interpolator step interpolator<a name="line.272"></a>
+<span class="sourceLineNo">273</span>     * @param tEnd final integration time<a name="line.273"></a>
+<span class="sourceLineNo">274</span>     * @return state at end of step<a name="line.274"></a>
+<span class="sourceLineNo">275</span>     * @exception MaxCountExceededException if the interpolator throws one because<a name="line.275"></a>
+<span class="sourceLineNo">276</span>     * the number of functions evaluations is exceeded<a name="line.276"></a>
+<span class="sourceLineNo">277</span>     * @exception NoBracketingException if the location of an event cannot be bracketed<a name="line.277"></a>
+<span class="sourceLineNo">278</span>     * @exception DimensionMismatchException if arrays dimensions do not match equations settings<a name="line.278"></a>
+<span class="sourceLineNo">279</span>     */<a name="line.279"></a>
+<span class="sourceLineNo">280</span>    protected FieldODEStateAndDerivative&lt;T&gt; acceptStep(final AbstractFieldStepInterpolator&lt;T&gt; interpolator,<a name="line.280"></a>
+<span class="sourceLineNo">281</span>                                                       final T tEnd)<a name="line.281"></a>
+<span class="sourceLineNo">282</span>        throws MaxCountExceededException, DimensionMismatchException, NoBracketingException {<a name="line.282"></a>
+<span class="sourceLineNo">283</span><a name="line.283"></a>
+<span class="sourceLineNo">284</span>            FieldODEStateAndDerivative&lt;T&gt; previousState = interpolator.getGlobalPreviousState();<a name="line.284"></a>
+<span class="sourceLineNo">285</span>            final FieldODEStateAndDerivative&lt;T&gt; currentState = interpolator.getGlobalCurrentState();<a name="line.285"></a>
+<span class="sourceLineNo">286</span><a name="line.286"></a>
+<span class="sourceLineNo">287</span>            // initialize the events states if needed<a name="line.287"></a>
+<span class="sourceLineNo">288</span>            if (! statesInitialized) {<a name="line.288"></a>
+<span class="sourceLineNo">289</span>                for (FieldEventState&lt;T&gt; state : eventsStates) {<a name="line.289"></a>
+<span class="sourceLineNo">290</span>                    state.reinitializeBegin(interpolator);<a name="line.290"></a>
+<span class="sourceLineNo">291</span>                }<a name="line.291"></a>
+<span class="sourceLineNo">292</span>                statesInitialized = true;<a name="line.292"></a>
+<span class="sourceLineNo">293</span>            }<a name="line.293"></a>
+<span class="sourceLineNo">294</span><a name="line.294"></a>
+<span class="sourceLineNo">295</span>            // search for next events that may occur during the step<a name="line.295"></a>
+<span class="sourceLineNo">296</span>            final int orderingSign = interpolator.isForward() ? +1 : -1;<a name="line.296"></a>
+<span class="sourceLineNo">297</span>            SortedSet&lt;FieldEventState&lt;T&gt;&gt; occurringEvents = new TreeSet&lt;FieldEventState&lt;T&gt;&gt;(new Comparator&lt;FieldEventState&lt;T&gt;&gt;() {<a name="line.297"></a>
+<span class="sourceLineNo">298</span><a name="line.298"></a>
+<span class="sourceLineNo">299</span>                /** {@inheritDoc} */<a name="line.299"></a>
+<span class="sourceLineNo">300</span>                public int compare(FieldEventState&lt;T&gt; es0, FieldEventState&lt;T&gt; es1) {<a name="line.300"></a>
+<span class="sourceLineNo">301</span>                    return orderingSign * Double.compare(es0.getEventTime().getReal(), es1.getEventTime().getReal());<a name="line.301"></a>
+<span class="sourceLineNo">302</span>                }<a name="line.302"></a>
+<span class="sourceLineNo">303</span><a name="line.303"></a>
+<span class="sourceLineNo">304</span>            });<a name="line.304"></a>
+<span class="sourceLineNo">305</span><a name="line.305"></a>
+<span class="sourceLineNo">306</span>            for (final FieldEventState&lt;T&gt; state : eventsStates) {<a name="line.306"></a>
+<span class="sourceLineNo">307</span>                if (state.evaluateStep(interpolator)) {<a name="line.307"></a>
+<span class="sourceLineNo">308</span>                    // the event occurs during the current step<a name="line.308"></a>
+<span class="sourceLineNo">309</span>                    occurringEvents.add(state);<a name="line.309"></a>
+<span class="sourceLineNo">310</span>                }<a name="line.310"></a>
+<span class="sourceLineNo">311</span>            }<a name="line.311"></a>
+<span class="sourceLineNo">312</span><a name="line.312"></a>
+<span class="sourceLineNo">313</span>            AbstractFieldStepInterpolator&lt;T&gt; restricted = interpolator;<a name="line.313"></a>
+<span class="sourceLineNo">314</span>            while (!occurringEvents.isEmpty()) {<a name="line.314"></a>
+<span class="sourceLineNo">315</span><a name="line.315"></a>
+<span class="sourceLineNo">316</span>                // handle the chronologically first event<a name="line.316"></a>
+<span class="sourceLineNo">317</span>                final Iterator&lt;FieldEventState&lt;T&gt;&gt; iterator = occurringEvents.iterator();<a name="line.317"></a>
+<span class="sourceLineNo">318</span>                final FieldEventState&lt;T&gt; currentEvent = iterator.next();<a name="line.318"></a>
+<span class="sourceLineNo">319</span>                iterator.remove();<a name="line.319"></a>
+<span class="sourceLineNo">320</span><a name="line.320"></a>
+<span class="sourceLineNo">321</span>                // get state at event time<a name="line.321"></a>
+<span class="sourceLineNo">322</span>                final FieldODEStateAndDerivative&lt;T&gt; eventState = restricted.getInterpolatedState(currentEvent.getEventTime());<a name="line.322"></a>
+<span class="sourceLineNo">323</span><a name="line.323"></a>
+<span class="sourceLineNo">324</span>                // restrict the interpolator to the first part of the step, up to the event<a name="line.324"></a>
+<span class="sourceLineNo">325</span>                restricted = restricted.restrictStep(previousState, eventState);<a name="line.325"></a>
+<span class="sourceLineNo">326</span><a name="line.326"></a>
+<span class="sourceLineNo">327</span>                // advance all event states to current time<a name="line.327"></a>
+<span class="sourceLineNo">328</span>                for (final FieldEventState&lt;T&gt; state : eventsStates) {<a name="line.328"></a>
+<span class="sourceLineNo">329</span>                    state.stepAccepted(eventState);<a name="line.329"></a>
+<span class="sourceLineNo">330</span>                    isLastStep = isLastStep || state.stop();<a name="line.330"></a>
+<span class="sourceLineNo">331</span>                }<a name="line.331"></a>
+<span class="sourceLineNo">332</span><a name="line.332"></a>
+<span class="sourceLineNo">333</span>                // handle the first part of the step, up to the event<a name="line.333"></a>
+<span class="sourceLineNo">334</span>                for (final FieldStepHandler&lt;T&gt; handler : stepHandlers) {<a name="line.334"></a>
+<span class="sourceLineNo">335</span>                    handler.handleStep(restricted, isLastStep);<a name="line.335"></a>
+<span class="sourceLineNo">336</span>                }<a name="line.336"></a>
+<span class="sourceLineNo">337</span><a name="line.337"></a>
+<span class="sourceLineNo">338</span>                if (isLastStep) {<a name="line.338"></a>
+<span class="sourceLineNo">339</span>                    // the event asked to stop integration<a name="line.339"></a>
+<span class="sourceLineNo">340</span>                    return eventState;<a name="line.340"></a>
+<span class="sourceLineNo">341</span>                }<a name="line.341"></a>
+<span class="sourceLineNo">342</span><a name="line.342"></a>
+<span class="sourceLineNo">343</span>                FieldODEState&lt;T&gt; newState = null;<a name="line.343"></a>
+<span class="sourceLineNo">344</span>                resetOccurred = false;<a name="line.344"></a>
+<span class="sourceLineNo">345</span>                for (final FieldEventState&lt;T&gt; state : eventsStates) {<a name="line.345"></a>
+<span class="sourceLineNo">346</span>                    newState = state.reset(eventState);<a name="line.346"></a>
+<span class="sourceLineNo">347</span>                    if (newState != null) {<a name="line.347"></a>
+<span class="sourceLineNo">348</span>                        // some event handler has triggered changes that<a name="line.348"></a>
+<span class="sourceLineNo">349</span>                        // invalidate the derivatives, we need to recompute them<a name="line.349"></a>
+<span class="sourceLineNo">350</span>                        final T[] y    = equations.getMapper().mapState(newState);<a name="line.350"></a>
+<span class="sourceLineNo">351</span>                        final T[] yDot = computeDerivatives(newState.getTime(), y);<a name="line.351"></a>
+<span class="sourceLineNo">352</span>                        resetOccurred = true;<a name="line.352"></a>
+<span class="sourceLineNo">353</span>                        return equations.getMapper().mapStateAndDerivative(newState.getTime(), y, yDot);<a name="line.353"></a>
+<span class="sourceLineNo">354</span>                    }<a name="line.354"></a>
+<span class="sourceLineNo">355</span>                }<a name="line.355"></a>
+<span class="sourceLineNo">356</span><a name="line.356"></a>
+<span class="sourceLineNo">357</span>                // prepare handling of the remaining part of the step<a name="line.357"></a>
+<span class="sourceLineNo">358</span>                previousState = eventState;<a name="line.358"></a>
+<span class="sourceLineNo">359</span>                restricted = restricted.restrictStep(eventState, currentState);<a name="line.359"></a>
+<span class="sourceLineNo">360</span><a name="line.360"></a>
+<span class="sourceLineNo">361</span>                // check if the same event occurs again in the remaining part of the step<a name="line.361"></a>
+<span class="sourceLineNo">362</span>                if (currentEvent.evaluateStep(restricted)) {<a name="line.362"></a>
+<span class="sourceLineNo">363</span>                    // the event occurs during the current step<a name="line.363"></a>
+<span class="sourceLineNo">364</span>                    occurringEvents.add(currentEvent);<a name="line.364"></a>
+<span class="sourceLineNo">365</span>                }<a name="line.365"></a>
+<span class="sourceLineNo">366</span><a name="line.366"></a>
+<span class="sourceLineNo">367</span>            }<a name="line.367"></a>
+<span class="sourceLineNo">368</span><a name="line.368"></a>
+<span class="sourceLineNo">369</span>            // last part of the step, after the last event<a name="line.369"></a>
+<span class="sourceLineNo">370</span>            for (final FieldEventState&lt;T&gt; state : eventsStates) {<a name="line.370"></a>
+<span class="sourceLineNo">371</span>                state.stepAccepted(currentState);<a name="line.371"></a>
+<span class="sourceLineNo">372</span>                isLastStep = isLastStep || state.stop();<a name="line.372"></a>
+<span class="sourceLineNo">373</span>            }<a name="line.373"></a>
+<span class="sourceLineNo">374</span>            isLastStep = isLastStep || currentState.getTime().subtract(tEnd).abs().getReal() &lt;= FastMath.ulp(tEnd.getReal());<a name="line.374"></a>
+<span class="sourceLineNo">375</span><a name="line.375"></a>
+<span class="sourceLineNo">376</span>            // handle the remaining part of the step, after all events if any<a name="line.376"></a>
+<span class="sourceLineNo">377</span>            for (FieldStepHandler&lt;T&gt; handler : stepHandlers) {<a name="line.377"></a>
+<span class="sourceLineNo">378</span>                handler.handleStep(restricted, isLastStep);<a name="line.378"></a>
+<span class="sourceLineNo">379</span>            }<a name="line.379"></a>
+<span class="sourceLineNo">380</span><a name="line.380"></a>
+<span class="sourceLineNo">381</span>            return currentState;<a name="line.381"></a>
+<span class="sourceLineNo">382</span><a name="line.382"></a>
+<span class="sourceLineNo">383</span>    }<a name="line.383"></a>
+<span class="sourceLineNo">384</span><a name="line.384"></a>
+<span class="sourceLineNo">385</span>    /** Check the integration span.<a name="line.385"></a>
+<span class="sourceLineNo">386</span>     * @param eqn set of differential equations<a name="line.386"></a>
+<span class="sourceLineNo">387</span>     * @param t target time for the integration<a name="line.387"></a>
+<span class="sourceLineNo">388</span>     * @exception NumberIsTooSmallException if integration span is too small<a name="line.388"></a>
+<span class="sourceLineNo">389</span>     * @exception DimensionMismatchException if adaptive step size integrators<a name="line.389"></a>
+<span class="sourceLineNo">390</span>     * tolerance arrays dimensions are not compatible with equations settings<a name="line.390"></a>
+<span class="sourceLineNo">391</span>     */<a name="line.391"></a>
+<span class="sourceLineNo">392</span>    protected void sanityChecks(final FieldODEState&lt;T&gt; eqn, final T t)<a name="line.392"></a>
+<span class="sourceLineNo">393</span>        throws NumberIsTooSmallException, DimensionMismatchException {<a name="line.393"></a>
+<span class="sourceLineNo">394</span><a name="line.394"></a>
+<span class="sourceLineNo">395</span>        final double threshold = 1000 * FastMath.ulp(FastMath.max(FastMath.abs(eqn.getTime().getReal()),<a name="line.395"></a>
+<span class="sourceLineNo">396</span>                                                                  FastMath.abs(t.getReal())));<a name="line.396"></a>
+<span class="sourceLineNo">397</span>        final double dt = eqn.getTime().subtract(t).abs().getReal();<a name="line.397"></a>
+<span class="sourceLineNo">398</span>        if (dt &lt;= threshold) {<a name="line.398"></a>
+<span class="sourceLineNo">399</span>            throw new NumberIsTooSmallException(LocalizedFormats.TOO_SMALL_INTEGRATION_INTERVAL,<a name="line.399"></a>
+<span class="sourceLineNo">400</span>                                                dt, threshold, false);<a name="line.400"></a>
+<span class="sourceLineNo">401</span>        }<a name="line.401"></a>
+<span class="sourceLineNo">402</span><a name="line.402"></a>
+<span class="sourceLineNo">403</span>    }<a name="line.403"></a>
+<span class="sourceLineNo">404</span><a name="line.404"></a>
+<span class="sourceLineNo">405</span>    /** Check if a reset occurred while last step was accepted.<a name="line.405"></a>
+<span class="sourceLineNo">406</span>     * @return true if a reset occurred while last step was accepted<a name="line.406"></a>
+<span class="sourceLineNo">407</span>     */<a name="line.407"></a>
+<span class="sourceLineNo">408</span>    protected boolean resetOccurred() {<a name="line.408"></a>
+<span class="sourceLineNo">409</span>        return resetOccurred;<a name="line.409"></a>
+<span class="sourceLineNo">410</span>    }<a name="line.410"></a>
+<span class="sourceLineNo">411</span><a name="line.411"></a>
+<span class="sourceLineNo">412</span>    /** Set the current step size.<a name="line.412"></a>
+<span class="sourceLineNo">413</span>     * @param stepSize step size to set<a name="line.413"></a>
+<span class="sourceLineNo">414</span>     */<a name="line.414"></a>
+<span class="sourceLineNo">415</span>    protected void setStepSize(final T stepSize) {<a name="line.415"></a>
+<span class="sourceLineNo">416</span>        this.stepSize = stepSize;<a name="line.416"></a>
+<span class="sourceLineNo">417</span>    }<a name="line.417"></a>
+<span class="sourceLineNo">418</span><a name="line.418"></a>
+<span class="sourceLineNo">419</span>    /** Get the current step size.<a name="line.419"></a>
+<span class="sourceLineNo">420</span>     * @return current step size<a name="line.420"></a>
+<span class="sourceLineNo">421</span>     */<a name="line.421"></a>
+<span class="sourceLineNo">422</span>    protected T getStepSize() {<a name="line.422"></a>
+<span class="sourceLineNo">423</span>        return stepSize;<a name="line.423"></a>
+<span class="sourceLineNo">424</span>    }<a name="line.424"></a>
+<span class="sourceLineNo">425</span>    /** Set current step start.<a name="line.425"></a>
+<span class="sourceLineNo">426</span>     * @param stepStart step start<a name="line.426"></a>
+<span class="sourceLineNo">427</span>     */<a name="line.427"></a>
+<span class="sourceLineNo">428</span>    protected void setStepStart(final FieldODEStateAndDerivative&lt;T&gt; stepStart) {<a name="line.428"></a>
+<span class="sourceLineNo">429</span>        this.stepStart = stepStart;<a name="line.429"></a>
+<span class="sourceLineNo">430</span>    }<a name="line.430"></a>
+<span class="sourceLineNo">431</span><a name="line.431"></a>
+<span class="sourceLineNo">432</span>    /** Getcurrent step start.<a name="line.432"></a>
+<span class="sourceLineNo">433</span>     * @return current step start<a name="line.433"></a>
+<span class="sourceLineNo">434</span>     */<a name="line.434"></a>
+<span class="sourceLineNo">435</span>    protected FieldODEStateAndDerivative&lt;T&gt; getStepStart() {<a name="line.435"></a>
+<span class="sourceLineNo">436</span>        return stepStart;<a name="line.436"></a>
+<span class="sourceLineNo">437</span>    }<a name="line.437"></a>
+<span class="sourceLineNo">438</span><a name="line.438"></a>
+<span class="sourceLineNo">439</span>    /** Set the last state flag.<a name="line.439"></a>
+<span class="sourceLineNo">440</span>     * @param isLastStep if true, this step is the last one<a name="line.440"></a>
+<span class="sourceLineNo">441</span>     */<a name="line.441"></a>
+<span class="sourceLineNo">442</span>    protected void setIsLastStep(final boolean isLastStep) {<a name="line.442"></a>
+<span class="sourceLineNo">443</span>        this.isLastStep = isLastStep;<a name="line.443"></a>
+<span class="sourceLineNo">444</span>    }<a name="line.444"></a>
+<span class="sourceLineNo">445</span><a name="line.445"></a>
+<span class="sourceLineNo">446</span>    /** Check if this step is the last one.<a name="line.446"></a>
+<span class="sourceLineNo">447</span>     * @return true if this step is the last one<a name="line.447"></a>
+<span class="sourceLineNo">448</span>     */<a name="line.448"></a>
+<span class="sourceLineNo">449</span>    protected boolean isLastStep() {<a name="line.449"></a>
+<span class="sourceLineNo">450</span>        return isLastStep;<a name="line.450"></a>
+<span class="sourceLineNo">451</span>    }<a name="line.451"></a>
+<span class="sourceLineNo">452</span><a name="line.452"></a>
+<span class="sourceLineNo">453</span>}<a name="line.453"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

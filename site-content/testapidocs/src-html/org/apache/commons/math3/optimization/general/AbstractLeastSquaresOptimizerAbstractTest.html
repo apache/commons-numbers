@@ -1,0 +1,595 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.optimization.general;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.io.IOException;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.io.Serializable;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.util.Arrays;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.analysis.differentiation.MultivariateDifferentiableVectorFunction;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.exception.ConvergenceException;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.exception.DimensionMismatchException;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.math3.exception.NumberIsTooSmallException;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.math3.linear.BlockRealMatrix;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.math3.linear.RealMatrix;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.commons.math3.optimization.PointVectorValuePair;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.apache.commons.math3.util.FastMath;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.junit.Assert;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.junit.Test;<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>/**<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * &lt;p&gt;Some of the unit tests are re-implementations of the MINPACK &lt;a<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * href="http://www.netlib.org/minpack/ex/file17"&gt;file17&lt;/a&gt; and &lt;a<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * href="http://www.netlib.org/minpack/ex/file22"&gt;file22&lt;/a&gt; test files.<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * The redistribution policy for MINPACK is available &lt;a<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * href="http://www.netlib.org/minpack/disclaimer"&gt;here&lt;/a&gt;, for<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * convenience, it is reproduced below.&lt;/p&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span> * &lt;table border="0" width="80%" cellpadding="10" align="center" bgcolor="#E0E0E0"&gt;<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * &lt;tr&gt;&lt;td&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span> *    Minpack Copyright Notice (1999) University of Chicago.<a name="line.46"></a>
+<span class="sourceLineNo">047</span> *    All rights reserved<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * &lt;/td&gt;&lt;/tr&gt;<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * &lt;tr&gt;&lt;td&gt;<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * Redistribution and use in source and binary forms, with or without<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * modification, are permitted provided that the following conditions<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * are met:<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * &lt;ol&gt;<a name="line.53"></a>
+<span class="sourceLineNo">054</span> *  &lt;li&gt;Redistributions of source code must retain the above copyright<a name="line.54"></a>
+<span class="sourceLineNo">055</span> *      notice, this list of conditions and the following disclaimer.&lt;/li&gt;<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * &lt;li&gt;Redistributions in binary form must reproduce the above<a name="line.56"></a>
+<span class="sourceLineNo">057</span> *     copyright notice, this list of conditions and the following<a name="line.57"></a>
+<span class="sourceLineNo">058</span> *     disclaimer in the documentation and/or other materials provided<a name="line.58"></a>
+<span class="sourceLineNo">059</span> *     with the distribution.&lt;/li&gt;<a name="line.59"></a>
+<span class="sourceLineNo">060</span> * &lt;li&gt;The end-user documentation included with the redistribution, if any,<a name="line.60"></a>
+<span class="sourceLineNo">061</span> *     must include the following acknowledgment:<a name="line.61"></a>
+<span class="sourceLineNo">062</span> *     &lt;code&gt;This product includes software developed by the University of<a name="line.62"></a>
+<span class="sourceLineNo">063</span> *           Chicago, as Operator of Argonne National Laboratory.&lt;/code&gt;<a name="line.63"></a>
+<span class="sourceLineNo">064</span> *     Alternately, this acknowledgment may appear in the software itself,<a name="line.64"></a>
+<span class="sourceLineNo">065</span> *     if and wherever such third-party acknowledgments normally appear.&lt;/li&gt;<a name="line.65"></a>
+<span class="sourceLineNo">066</span> * &lt;li&gt;&lt;strong&gt;WARRANTY DISCLAIMER. THE SOFTWARE IS SUPPLIED "AS IS"<a name="line.66"></a>
+<span class="sourceLineNo">067</span> *     WITHOUT WARRANTY OF ANY KIND. THE COPYRIGHT HOLDER, THE<a name="line.67"></a>
+<span class="sourceLineNo">068</span> *     UNITED STATES, THE UNITED STATES DEPARTMENT OF ENERGY, AND<a name="line.68"></a>
+<span class="sourceLineNo">069</span> *     THEIR EMPLOYEES: (1) DISCLAIM ANY WARRANTIES, EXPRESS OR<a name="line.69"></a>
+<span class="sourceLineNo">070</span> *     IMPLIED, INCLUDING BUT NOT LIMITED TO ANY IMPLIED WARRANTIES<a name="line.70"></a>
+<span class="sourceLineNo">071</span> *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE<a name="line.71"></a>
+<span class="sourceLineNo">072</span> *     OR NON-INFRINGEMENT, (2) DO NOT ASSUME ANY LEGAL LIABILITY<a name="line.72"></a>
+<span class="sourceLineNo">073</span> *     OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS, OR<a name="line.73"></a>
+<span class="sourceLineNo">074</span> *     USEFULNESS OF THE SOFTWARE, (3) DO NOT REPRESENT THAT USE OF<a name="line.74"></a>
+<span class="sourceLineNo">075</span> *     THE SOFTWARE WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS, (4)<a name="line.75"></a>
+<span class="sourceLineNo">076</span> *     DO NOT WARRANT THAT THE SOFTWARE WILL FUNCTION<a name="line.76"></a>
+<span class="sourceLineNo">077</span> *     UNINTERRUPTED, THAT IT IS ERROR-FREE OR THAT ANY ERRORS WILL<a name="line.77"></a>
+<span class="sourceLineNo">078</span> *     BE CORRECTED.&lt;/strong&gt;&lt;/li&gt;<a name="line.78"></a>
+<span class="sourceLineNo">079</span> * &lt;li&gt;&lt;strong&gt;LIMITATION OF LIABILITY. IN NO EVENT WILL THE COPYRIGHT<a name="line.79"></a>
+<span class="sourceLineNo">080</span> *     HOLDER, THE UNITED STATES, THE UNITED STATES DEPARTMENT OF<a name="line.80"></a>
+<span class="sourceLineNo">081</span> *     ENERGY, OR THEIR EMPLOYEES: BE LIABLE FOR ANY INDIRECT,<a name="line.81"></a>
+<span class="sourceLineNo">082</span> *     INCIDENTAL, CONSEQUENTIAL, SPECIAL OR PUNITIVE DAMAGES OF<a name="line.82"></a>
+<span class="sourceLineNo">083</span> *     ANY KIND OR NATURE, INCLUDING BUT NOT LIMITED TO LOSS OF<a name="line.83"></a>
+<span class="sourceLineNo">084</span> *     PROFITS OR LOSS OF DATA, FOR ANY REASON WHATSOEVER, WHETHER<a name="line.84"></a>
+<span class="sourceLineNo">085</span> *     SUCH LIABILITY IS ASSERTED ON THE BASIS OF CONTRACT, TORT<a name="line.85"></a>
+<span class="sourceLineNo">086</span> *     (INCLUDING NEGLIGENCE OR STRICT LIABILITY), OR OTHERWISE,<a name="line.86"></a>
+<span class="sourceLineNo">087</span> *     EVEN IF ANY OF SAID PARTIES HAS BEEN WARNED OF THE<a name="line.87"></a>
+<span class="sourceLineNo">088</span> *     POSSIBILITY OF SUCH LOSS OR DAMAGES.&lt;/strong&gt;&lt;/li&gt;<a name="line.88"></a>
+<span class="sourceLineNo">089</span> * &lt;ol&gt;&lt;/td&gt;&lt;/tr&gt;<a name="line.89"></a>
+<span class="sourceLineNo">090</span> * &lt;/table&gt;<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span> * @author Argonne National Laboratory. MINPACK project. March 1980 (original fortran minpack tests)<a name="line.92"></a>
+<span class="sourceLineNo">093</span> * @author Burton S. Garbow (original fortran minpack tests)<a name="line.93"></a>
+<span class="sourceLineNo">094</span> * @author Kenneth E. Hillstrom (original fortran minpack tests)<a name="line.94"></a>
+<span class="sourceLineNo">095</span> * @author Jorge J. More (original fortran minpack tests)<a name="line.95"></a>
+<span class="sourceLineNo">096</span> * @author Luc Maisonobe (non-minpack tests and minpack tests Java translation)<a name="line.96"></a>
+<span class="sourceLineNo">097</span> */<a name="line.97"></a>
+<span class="sourceLineNo">098</span>@Deprecated<a name="line.98"></a>
+<span class="sourceLineNo">099</span>public abstract class AbstractLeastSquaresOptimizerAbstractTest {<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>    public abstract AbstractLeastSquaresOptimizer createOptimizer();<a name="line.101"></a>
+<span class="sourceLineNo">102</span><a name="line.102"></a>
+<span class="sourceLineNo">103</span>    @Test<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    public void testTrivial() {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        LinearProblem problem =<a name="line.105"></a>
+<span class="sourceLineNo">106</span>            new LinearProblem(new double[][] { { 2 } }, new double[] { 3 });<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        AbstractLeastSquaresOptimizer optimizer = createOptimizer();<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        PointVectorValuePair optimum =<a name="line.108"></a>
+<span class="sourceLineNo">109</span>            optimizer.optimize(100, problem, problem.target, new double[] { 1 }, new double[] { 0 });<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        Assert.assertEquals(0, optimizer.getRMS(), 1.0e-10);<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        Assert.assertEquals(1.5, optimum.getPoint()[0], 1.0e-10);<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        Assert.assertEquals(3.0, optimum.getValue()[0], 1.0e-10);<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        try {<a name="line.113"></a>
+<span class="sourceLineNo">114</span>            optimizer.guessParametersErrors();<a name="line.114"></a>
+<span class="sourceLineNo">115</span>            Assert.fail("an exception should have been thrown");<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        } catch (NumberIsTooSmallException ee) {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>            // expected behavior<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        }<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    }<a name="line.119"></a>
+<span class="sourceLineNo">120</span><a name="line.120"></a>
+<span class="sourceLineNo">121</span>    @Test<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    public void testQRColumnsPermutation() {<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>        LinearProblem problem =<a name="line.124"></a>
+<span class="sourceLineNo">125</span>            new LinearProblem(new double[][] { { 1.0, -1.0 }, { 0.0, 2.0 }, { 1.0, -2.0 } },<a name="line.125"></a>
+<span class="sourceLineNo">126</span>                              new double[] { 4.0, 6.0, 1.0 });<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>        AbstractLeastSquaresOptimizer optimizer = createOptimizer();<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        PointVectorValuePair optimum =<a name="line.129"></a>
+<span class="sourceLineNo">130</span>            optimizer.optimize(100, problem, problem.target, new double[] { 1, 1, 1 }, new double[] { 0, 0 });<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        Assert.assertEquals(0, optimizer.getRMS(), 1.0e-10);<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        Assert.assertEquals(7.0, optimum.getPoint()[0], 1.0e-10);<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        Assert.assertEquals(3.0, optimum.getPoint()[1], 1.0e-10);<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        Assert.assertEquals(4.0, optimum.getValue()[0], 1.0e-10);<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        Assert.assertEquals(6.0, optimum.getValue()[1], 1.0e-10);<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        Assert.assertEquals(1.0, optimum.getValue()[2], 1.0e-10);<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    }<a name="line.137"></a>
+<span class="sourceLineNo">138</span><a name="line.138"></a>
+<span class="sourceLineNo">139</span>    @Test<a name="line.139"></a>
+<span class="sourceLineNo">140</span>    public void testNoDependency() {<a name="line.140"></a>
+<span class="sourceLineNo">141</span>        LinearProblem problem = new LinearProblem(new double[][] {<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                { 2, 0, 0, 0, 0, 0 },<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                { 0, 2, 0, 0, 0, 0 },<a name="line.143"></a>
+<span class="sourceLineNo">144</span>                { 0, 0, 2, 0, 0, 0 },<a name="line.144"></a>
+<span class="sourceLineNo">145</span>                { 0, 0, 0, 2, 0, 0 },<a name="line.145"></a>
+<span class="sourceLineNo">146</span>                { 0, 0, 0, 0, 2, 0 },<a name="line.146"></a>
+<span class="sourceLineNo">147</span>                { 0, 0, 0, 0, 0, 2 }<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        }, new double[] { 0.0, 1.1, 2.2, 3.3, 4.4, 5.5 });<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        AbstractLeastSquaresOptimizer optimizer = createOptimizer();<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        PointVectorValuePair optimum =<a name="line.150"></a>
+<span class="sourceLineNo">151</span>            optimizer.optimize(100, problem, problem.target, new double[] { 1, 1, 1, 1, 1, 1 },<a name="line.151"></a>
+<span class="sourceLineNo">152</span>                               new double[] { 0, 0, 0, 0, 0, 0 });<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        Assert.assertEquals(0, optimizer.getRMS(), 1.0e-10);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>        for (int i = 0; i &lt; problem.target.length; ++i) {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>            Assert.assertEquals(0.55 * i, optimum.getPoint()[i], 1.0e-10);<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        }<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    }<a name="line.157"></a>
+<span class="sourceLineNo">158</span><a name="line.158"></a>
+<span class="sourceLineNo">159</span>    @Test<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    public void testOneSet() {<a name="line.160"></a>
+<span class="sourceLineNo">161</span><a name="line.161"></a>
+<span class="sourceLineNo">162</span>        LinearProblem problem = new LinearProblem(new double[][] {<a name="line.162"></a>
+<span class="sourceLineNo">163</span>                {  1,  0, 0 },<a name="line.163"></a>
+<span class="sourceLineNo">164</span>                { -1,  1, 0 },<a name="line.164"></a>
+<span class="sourceLineNo">165</span>                {  0, -1, 1 }<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        }, new double[] { 1, 1, 1});<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        AbstractLeastSquaresOptimizer optimizer = createOptimizer();<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        PointVectorValuePair optimum =<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            optimizer.optimize(100, problem, problem.target, new double[] { 1, 1, 1 }, new double[] { 0, 0, 0 });<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        Assert.assertEquals(0, optimizer.getRMS(), 1.0e-10);<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        Assert.assertEquals(1.0, optimum.getPoint()[0], 1.0e-10);<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        Assert.assertEquals(2.0, optimum.getPoint()[1], 1.0e-10);<a name="line.172"></a>
+<span class="sourceLineNo">173</span>        Assert.assertEquals(3.0, optimum.getPoint()[2], 1.0e-10);<a name="line.173"></a>
+<span class="sourceLineNo">174</span>    }<a name="line.174"></a>
+<span class="sourceLineNo">175</span><a name="line.175"></a>
+<span class="sourceLineNo">176</span>    @Test<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    public void testTwoSets() {<a name="line.177"></a>
+<span class="sourceLineNo">178</span>        double epsilon = 1.0e-7;<a name="line.178"></a>
+<span class="sourceLineNo">179</span>        LinearProblem problem = new LinearProblem(new double[][] {<a name="line.179"></a>
+<span class="sourceLineNo">180</span>                {  2,  1,   0,  4,       0, 0 },<a name="line.180"></a>
+<span class="sourceLineNo">181</span>                { -4, -2,   3, -7,       0, 0 },<a name="line.181"></a>
+<span class="sourceLineNo">182</span>                {  4,  1,  -2,  8,       0, 0 },<a name="line.182"></a>
+<span class="sourceLineNo">183</span>                {  0, -3, -12, -1,       0, 0 },<a name="line.183"></a>
+<span class="sourceLineNo">184</span>                {  0,  0,   0,  0, epsilon, 1 },<a name="line.184"></a>
+<span class="sourceLineNo">185</span>                {  0,  0,   0,  0,       1, 1 }<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        }, new double[] { 2, -9, 2, 2, 1 + epsilon * epsilon, 2});<a name="line.186"></a>
+<span class="sourceLineNo">187</span><a name="line.187"></a>
+<span class="sourceLineNo">188</span>        AbstractLeastSquaresOptimizer optimizer = createOptimizer();<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        PointVectorValuePair optimum =<a name="line.189"></a>
+<span class="sourceLineNo">190</span>            optimizer.optimize(100, problem, problem.target, new double[] { 1, 1, 1, 1, 1, 1 },<a name="line.190"></a>
+<span class="sourceLineNo">191</span>                               new double[] { 0, 0, 0, 0, 0, 0 });<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        Assert.assertEquals(0, optimizer.getRMS(), 1.0e-10);<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        Assert.assertEquals( 3.0, optimum.getPoint()[0], 1.0e-10);<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        Assert.assertEquals( 4.0, optimum.getPoint()[1], 1.0e-10);<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        Assert.assertEquals(-1.0, optimum.getPoint()[2], 1.0e-10);<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        Assert.assertEquals(-2.0, optimum.getPoint()[3], 1.0e-10);<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        Assert.assertEquals( 1.0 + epsilon, optimum.getPoint()[4], 1.0e-10);<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        Assert.assertEquals( 1.0 - epsilon, optimum.getPoint()[5], 1.0e-10);<a name="line.198"></a>
+<span class="sourceLineNo">199</span>    }<a name="line.199"></a>
+<span class="sourceLineNo">200</span><a name="line.200"></a>
+<span class="sourceLineNo">201</span>    @Test(expected=ConvergenceException.class)<a name="line.201"></a>
+<span class="sourceLineNo">202</span>    public void testNonInvertible() throws Exception {<a name="line.202"></a>
+<span class="sourceLineNo">203</span><a name="line.203"></a>
+<span class="sourceLineNo">204</span>        LinearProblem problem = new LinearProblem(new double[][] {<a name="line.204"></a>
+<span class="sourceLineNo">205</span>                {  1, 2, -3 },<a name="line.205"></a>
+<span class="sourceLineNo">206</span>                {  2, 1,  3 },<a name="line.206"></a>
+<span class="sourceLineNo">207</span>                { -3, 0, -9 }<a name="line.207"></a>
+<span class="sourceLineNo">208</span>        }, new double[] { 1, 1, 1 });<a name="line.208"></a>
+<span class="sourceLineNo">209</span><a name="line.209"></a>
+<span class="sourceLineNo">210</span>        AbstractLeastSquaresOptimizer optimizer = createOptimizer();<a name="line.210"></a>
+<span class="sourceLineNo">211</span><a name="line.211"></a>
+<span class="sourceLineNo">212</span>        optimizer.optimize(100, problem, problem.target, new double[] { 1, 1, 1 }, new double[] { 0, 0, 0 });<a name="line.212"></a>
+<span class="sourceLineNo">213</span>    }<a name="line.213"></a>
+<span class="sourceLineNo">214</span><a name="line.214"></a>
+<span class="sourceLineNo">215</span>    @Test<a name="line.215"></a>
+<span class="sourceLineNo">216</span>    public void testIllConditioned() {<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        LinearProblem problem1 = new LinearProblem(new double[][] {<a name="line.217"></a>
+<span class="sourceLineNo">218</span>                { 10.0, 7.0,  8.0,  7.0 },<a name="line.218"></a>
+<span class="sourceLineNo">219</span>                {  7.0, 5.0,  6.0,  5.0 },<a name="line.219"></a>
+<span class="sourceLineNo">220</span>                {  8.0, 6.0, 10.0,  9.0 },<a name="line.220"></a>
+<span class="sourceLineNo">221</span>                {  7.0, 5.0,  9.0, 10.0 }<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        }, new double[] { 32, 23, 33, 31 });<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        AbstractLeastSquaresOptimizer optimizer = createOptimizer();<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        PointVectorValuePair optimum1 =<a name="line.224"></a>
+<span class="sourceLineNo">225</span>            optimizer.optimize(100, problem1, problem1.target, new double[] { 1, 1, 1, 1 },<a name="line.225"></a>
+<span class="sourceLineNo">226</span>                               new double[] { 0, 1, 2, 3 });<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        Assert.assertEquals(0, optimizer.getRMS(), 1.0e-10);<a name="line.227"></a>
+<span class="sourceLineNo">228</span>        Assert.assertEquals(1.0, optimum1.getPoint()[0], 1.0e-10);<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        Assert.assertEquals(1.0, optimum1.getPoint()[1], 1.0e-10);<a name="line.229"></a>
+<span class="sourceLineNo">230</span>        Assert.assertEquals(1.0, optimum1.getPoint()[2], 1.0e-10);<a name="line.230"></a>
+<span class="sourceLineNo">231</span>        Assert.assertEquals(1.0, optimum1.getPoint()[3], 1.0e-10);<a name="line.231"></a>
+<span class="sourceLineNo">232</span><a name="line.232"></a>
+<span class="sourceLineNo">233</span>        LinearProblem problem2 = new LinearProblem(new double[][] {<a name="line.233"></a>
+<span class="sourceLineNo">234</span>                { 10.00, 7.00, 8.10, 7.20 },<a name="line.234"></a>
+<span class="sourceLineNo">235</span>                {  7.08, 5.04, 6.00, 5.00 },<a name="line.235"></a>
+<span class="sourceLineNo">236</span>                {  8.00, 5.98, 9.89, 9.00 },<a name="line.236"></a>
+<span class="sourceLineNo">237</span>                {  6.99, 4.99, 9.00, 9.98 }<a name="line.237"></a>
+<span class="sourceLineNo">238</span>        }, new double[] { 32, 23, 33, 31 });<a name="line.238"></a>
+<span class="sourceLineNo">239</span>        PointVectorValuePair optimum2 =<a name="line.239"></a>
+<span class="sourceLineNo">240</span>            optimizer.optimize(100, problem2, problem2.target, new double[] { 1, 1, 1, 1 },<a name="line.240"></a>
+<span class="sourceLineNo">241</span>                               new double[] { 0, 1, 2, 3 });<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        Assert.assertEquals(0, optimizer.getRMS(), 1.0e-10);<a name="line.242"></a>
+<span class="sourceLineNo">243</span>        Assert.assertEquals(-81.0, optimum2.getPoint()[0], 1.0e-8);<a name="line.243"></a>
+<span class="sourceLineNo">244</span>        Assert.assertEquals(137.0, optimum2.getPoint()[1], 1.0e-8);<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        Assert.assertEquals(-34.0, optimum2.getPoint()[2], 1.0e-8);<a name="line.245"></a>
+<span class="sourceLineNo">246</span>        Assert.assertEquals( 22.0, optimum2.getPoint()[3], 1.0e-8);<a name="line.246"></a>
+<span class="sourceLineNo">247</span>    }<a name="line.247"></a>
+<span class="sourceLineNo">248</span><a name="line.248"></a>
+<span class="sourceLineNo">249</span>    @Test<a name="line.249"></a>
+<span class="sourceLineNo">250</span>    public void testMoreEstimatedParametersSimple() {<a name="line.250"></a>
+<span class="sourceLineNo">251</span><a name="line.251"></a>
+<span class="sourceLineNo">252</span>        LinearProblem problem = new LinearProblem(new double[][] {<a name="line.252"></a>
+<span class="sourceLineNo">253</span>                { 3.0, 2.0,  0.0, 0.0 },<a name="line.253"></a>
+<span class="sourceLineNo">254</span>                { 0.0, 1.0, -1.0, 1.0 },<a name="line.254"></a>
+<span class="sourceLineNo">255</span>                { 2.0, 0.0,  1.0, 0.0 }<a name="line.255"></a>
+<span class="sourceLineNo">256</span>        }, new double[] { 7.0, 3.0, 5.0 });<a name="line.256"></a>
+<span class="sourceLineNo">257</span><a name="line.257"></a>
+<span class="sourceLineNo">258</span>        AbstractLeastSquaresOptimizer optimizer = createOptimizer();<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        optimizer.optimize(100, problem, problem.target, new double[] { 1, 1, 1 },<a name="line.259"></a>
+<span class="sourceLineNo">260</span>                new double[] { 7, 6, 5, 4 });<a name="line.260"></a>
+<span class="sourceLineNo">261</span>        Assert.assertEquals(0, optimizer.getRMS(), 1.0e-10);<a name="line.261"></a>
+<span class="sourceLineNo">262</span>    }<a name="line.262"></a>
+<span class="sourceLineNo">263</span><a name="line.263"></a>
+<span class="sourceLineNo">264</span>    @Test<a name="line.264"></a>
+<span class="sourceLineNo">265</span>    public void testMoreEstimatedParametersUnsorted() {<a name="line.265"></a>
+<span class="sourceLineNo">266</span>        LinearProblem problem = new LinearProblem(new double[][] {<a name="line.266"></a>
+<span class="sourceLineNo">267</span>                { 1.0, 1.0,  0.0,  0.0, 0.0,  0.0 },<a name="line.267"></a>
+<span class="sourceLineNo">268</span>                { 0.0, 0.0,  1.0,  1.0, 1.0,  0.0 },<a name="line.268"></a>
+<span class="sourceLineNo">269</span>                { 0.0, 0.0,  0.0,  0.0, 1.0, -1.0 },<a name="line.269"></a>
+<span class="sourceLineNo">270</span>                { 0.0, 0.0, -1.0,  1.0, 0.0,  1.0 },<a name="line.270"></a>
+<span class="sourceLineNo">271</span>                { 0.0, 0.0,  0.0, -1.0, 1.0,  0.0 }<a name="line.271"></a>
+<span class="sourceLineNo">272</span>       }, new double[] { 3.0, 12.0, -1.0, 7.0, 1.0 });<a name="line.272"></a>
+<span class="sourceLineNo">273</span><a name="line.273"></a>
+<span class="sourceLineNo">274</span>        AbstractLeastSquaresOptimizer optimizer = createOptimizer();<a name="line.274"></a>
+<span class="sourceLineNo">275</span>        PointVectorValuePair optimum =<a name="line.275"></a>
+<span class="sourceLineNo">276</span>            optimizer.optimize(100, problem, problem.target, new double[] { 1, 1, 1, 1, 1 },<a name="line.276"></a>
+<span class="sourceLineNo">277</span>                               new double[] { 2, 2, 2, 2, 2, 2 });<a name="line.277"></a>
+<span class="sourceLineNo">278</span>        Assert.assertEquals(0, optimizer.getRMS(), 1.0e-10);<a name="line.278"></a>
+<span class="sourceLineNo">279</span>        Assert.assertEquals(3.0, optimum.getPointRef()[2], 1.0e-10);<a name="line.279"></a>
+<span class="sourceLineNo">280</span>        Assert.assertEquals(4.0, optimum.getPointRef()[3], 1.0e-10);<a name="line.280"></a>
+<span class="sourceLineNo">281</span>        Assert.assertEquals(5.0, optimum.getPointRef()[4], 1.0e-10);<a name="line.281"></a>
+<span class="sourceLineNo">282</span>        Assert.assertEquals(6.0, optimum.getPointRef()[5], 1.0e-10);<a name="line.282"></a>
+<span class="sourceLineNo">283</span>    }<a name="line.283"></a>
+<span class="sourceLineNo">284</span><a name="line.284"></a>
+<span class="sourceLineNo">285</span>    @Test<a name="line.285"></a>
+<span class="sourceLineNo">286</span>    public void testRedundantEquations() {<a name="line.286"></a>
+<span class="sourceLineNo">287</span>        LinearProblem problem = new LinearProblem(new double[][] {<a name="line.287"></a>
+<span class="sourceLineNo">288</span>                { 1.0,  1.0 },<a name="line.288"></a>
+<span class="sourceLineNo">289</span>                { 1.0, -1.0 },<a name="line.289"></a>
+<span class="sourceLineNo">290</span>                { 1.0,  3.0 }<a name="line.290"></a>
+<span class="sourceLineNo">291</span>        }, new double[] { 3.0, 1.0, 5.0 });<a name="line.291"></a>
+<span class="sourceLineNo">292</span><a name="line.292"></a>
+<span class="sourceLineNo">293</span>        AbstractLeastSquaresOptimizer optimizer = createOptimizer();<a name="line.293"></a>
+<span class="sourceLineNo">294</span>        PointVectorValuePair optimum =<a name="line.294"></a>
+<span class="sourceLineNo">295</span>            optimizer.optimize(100, problem, problem.target, new double[] { 1, 1, 1 },<a name="line.295"></a>
+<span class="sourceLineNo">296</span>                               new double[] { 1, 1 });<a name="line.296"></a>
+<span class="sourceLineNo">297</span>        Assert.assertEquals(0, optimizer.getRMS(), 1.0e-10);<a name="line.297"></a>
+<span class="sourceLineNo">298</span>        Assert.assertEquals(2.0, optimum.getPointRef()[0], 1.0e-10);<a name="line.298"></a>
+<span class="sourceLineNo">299</span>        Assert.assertEquals(1.0, optimum.getPointRef()[1], 1.0e-10);<a name="line.299"></a>
+<span class="sourceLineNo">300</span>    }<a name="line.300"></a>
+<span class="sourceLineNo">301</span><a name="line.301"></a>
+<span class="sourceLineNo">302</span>    @Test<a name="line.302"></a>
+<span class="sourceLineNo">303</span>    public void testInconsistentEquations() {<a name="line.303"></a>
+<span class="sourceLineNo">304</span>        LinearProblem problem = new LinearProblem(new double[][] {<a name="line.304"></a>
+<span class="sourceLineNo">305</span>                { 1.0,  1.0 },<a name="line.305"></a>
+<span class="sourceLineNo">306</span>                { 1.0, -1.0 },<a name="line.306"></a>
+<span class="sourceLineNo">307</span>                { 1.0,  3.0 }<a name="line.307"></a>
+<span class="sourceLineNo">308</span>        }, new double[] { 3.0, 1.0, 4.0 });<a name="line.308"></a>
+<span class="sourceLineNo">309</span><a name="line.309"></a>
+<span class="sourceLineNo">310</span>        AbstractLeastSquaresOptimizer optimizer = createOptimizer();<a name="line.310"></a>
+<span class="sourceLineNo">311</span>        optimizer.optimize(100, problem, problem.target, new double[] { 1, 1, 1 }, new double[] { 1, 1 });<a name="line.311"></a>
+<span class="sourceLineNo">312</span>        Assert.assertTrue(optimizer.getRMS() &gt; 0.1);<a name="line.312"></a>
+<span class="sourceLineNo">313</span>    }<a name="line.313"></a>
+<span class="sourceLineNo">314</span><a name="line.314"></a>
+<span class="sourceLineNo">315</span>    @Test(expected=DimensionMismatchException.class)<a name="line.315"></a>
+<span class="sourceLineNo">316</span>    public void testInconsistentSizes1() {<a name="line.316"></a>
+<span class="sourceLineNo">317</span>        LinearProblem problem =<a name="line.317"></a>
+<span class="sourceLineNo">318</span>            new LinearProblem(new double[][] { { 1, 0 }, { 0, 1 } }, new double[] { -1, 1 });<a name="line.318"></a>
+<span class="sourceLineNo">319</span>        AbstractLeastSquaresOptimizer optimizer = createOptimizer();<a name="line.319"></a>
+<span class="sourceLineNo">320</span>        PointVectorValuePair optimum =<a name="line.320"></a>
+<span class="sourceLineNo">321</span>            optimizer.optimize(100, problem, problem.target, new double[] { 1, 1 }, new double[] { 0, 0 });<a name="line.321"></a>
+<span class="sourceLineNo">322</span>        Assert.assertEquals(0, optimizer.getRMS(), 1.0e-10);<a name="line.322"></a>
+<span class="sourceLineNo">323</span>        Assert.assertEquals(-1, optimum.getPoint()[0], 1.0e-10);<a name="line.323"></a>
+<span class="sourceLineNo">324</span>        Assert.assertEquals(+1, optimum.getPoint()[1], 1.0e-10);<a name="line.324"></a>
+<span class="sourceLineNo">325</span><a name="line.325"></a>
+<span class="sourceLineNo">326</span>        optimizer.optimize(100, problem, problem.target,<a name="line.326"></a>
+<span class="sourceLineNo">327</span>                           new double[] { 1 },<a name="line.327"></a>
+<span class="sourceLineNo">328</span>                           new double[] { 0, 0 });<a name="line.328"></a>
+<span class="sourceLineNo">329</span>    }<a name="line.329"></a>
+<span class="sourceLineNo">330</span><a name="line.330"></a>
+<span class="sourceLineNo">331</span>    @Test(expected=DimensionMismatchException.class)<a name="line.331"></a>
+<span class="sourceLineNo">332</span>    public void testInconsistentSizes2() {<a name="line.332"></a>
+<span class="sourceLineNo">333</span>        LinearProblem problem =<a name="line.333"></a>
+<span class="sourceLineNo">334</span>            new LinearProblem(new double[][] { { 1, 0 }, { 0, 1 } }, new double[] { -1, 1 });<a name="line.334"></a>
+<span class="sourceLineNo">335</span>        AbstractLeastSquaresOptimizer optimizer = createOptimizer();<a name="line.335"></a>
+<span class="sourceLineNo">336</span>        PointVectorValuePair optimum =<a name="line.336"></a>
+<span class="sourceLineNo">337</span>            optimizer.optimize(100, problem, problem.target, new double[] { 1, 1 }, new double[] { 0, 0 });<a name="line.337"></a>
+<span class="sourceLineNo">338</span>        Assert.assertEquals(0, optimizer.getRMS(), 1.0e-10);<a name="line.338"></a>
+<span class="sourceLineNo">339</span>        Assert.assertEquals(-1, optimum.getPoint()[0], 1.0e-10);<a name="line.339"></a>
+<span class="sourceLineNo">340</span>        Assert.assertEquals(+1, optimum.getPoint()[1], 1.0e-10);<a name="line.340"></a>
+<span class="sourceLineNo">341</span><a name="line.341"></a>
+<span class="sourceLineNo">342</span>        optimizer.optimize(100, problem, new double[] { 1 },<a name="line.342"></a>
+<span class="sourceLineNo">343</span>                           new double[] { 1 },<a name="line.343"></a>
+<span class="sourceLineNo">344</span>                           new double[] { 0, 0 });<a name="line.344"></a>
+<span class="sourceLineNo">345</span>    }<a name="line.345"></a>
+<span class="sourceLineNo">346</span><a name="line.346"></a>
+<span class="sourceLineNo">347</span>    @Test<a name="line.347"></a>
+<span class="sourceLineNo">348</span>    public void testCircleFitting() {<a name="line.348"></a>
+<span class="sourceLineNo">349</span>        CircleVectorial circle = new CircleVectorial();<a name="line.349"></a>
+<span class="sourceLineNo">350</span>        circle.addPoint( 30.0,  68.0);<a name="line.350"></a>
+<span class="sourceLineNo">351</span>        circle.addPoint( 50.0,  -6.0);<a name="line.351"></a>
+<span class="sourceLineNo">352</span>        circle.addPoint(110.0, -20.0);<a name="line.352"></a>
+<span class="sourceLineNo">353</span>        circle.addPoint( 35.0,  15.0);<a name="line.353"></a>
+<span class="sourceLineNo">354</span>        circle.addPoint( 45.0,  97.0);<a name="line.354"></a>
+<span class="sourceLineNo">355</span>        AbstractLeastSquaresOptimizer optimizer = createOptimizer();<a name="line.355"></a>
+<span class="sourceLineNo">356</span>        PointVectorValuePair optimum<a name="line.356"></a>
+<span class="sourceLineNo">357</span>            = optimizer.optimize(100, circle, new double[] { 0, 0, 0, 0, 0 }, new double[] { 1, 1, 1, 1, 1 },<a name="line.357"></a>
+<span class="sourceLineNo">358</span>                                 new double[] { 98.680, 47.345 });<a name="line.358"></a>
+<span class="sourceLineNo">359</span>        Assert.assertTrue(optimizer.getEvaluations() &lt; 10);<a name="line.359"></a>
+<span class="sourceLineNo">360</span>        Assert.assertTrue(optimizer.getJacobianEvaluations() &lt; 10);<a name="line.360"></a>
+<span class="sourceLineNo">361</span>        double rms = optimizer.getRMS();<a name="line.361"></a>
+<span class="sourceLineNo">362</span>        Assert.assertEquals(1.768262623567235,  FastMath.sqrt(circle.getN()) * rms,  1.0e-10);<a name="line.362"></a>
+<span class="sourceLineNo">363</span>        Vector2D center = new Vector2D(optimum.getPointRef()[0], optimum.getPointRef()[1]);<a name="line.363"></a>
+<span class="sourceLineNo">364</span>        Assert.assertEquals(69.96016176931406, circle.getRadius(center), 1.0e-6);<a name="line.364"></a>
+<span class="sourceLineNo">365</span>        Assert.assertEquals(96.07590211815305, center.getX(),            1.0e-6);<a name="line.365"></a>
+<span class="sourceLineNo">366</span>        Assert.assertEquals(48.13516790438953, center.getY(),            1.0e-6);<a name="line.366"></a>
+<span class="sourceLineNo">367</span>        double[][] cov = optimizer.computeCovariances(optimum.getPoint(), 1e-14);<a name="line.367"></a>
+<span class="sourceLineNo">368</span>        Assert.assertEquals(1.839, cov[0][0], 0.001);<a name="line.368"></a>
+<span class="sourceLineNo">369</span>        Assert.assertEquals(0.731, cov[0][1], 0.001);<a name="line.369"></a>
+<span class="sourceLineNo">370</span>        Assert.assertEquals(cov[0][1], cov[1][0], 1.0e-14);<a name="line.370"></a>
+<span class="sourceLineNo">371</span>        Assert.assertEquals(0.786, cov[1][1], 0.001);<a name="line.371"></a>
+<span class="sourceLineNo">372</span><a name="line.372"></a>
+<span class="sourceLineNo">373</span>        // add perfect measurements and check errors are reduced<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        double  r = circle.getRadius(center);<a name="line.374"></a>
+<span class="sourceLineNo">375</span>        for (double d= 0; d &lt; 2 * FastMath.PI; d += 0.01) {<a name="line.375"></a>
+<span class="sourceLineNo">376</span>            circle.addPoint(center.getX() + r * FastMath.cos(d), center.getY() + r * FastMath.sin(d));<a name="line.376"></a>
+<span class="sourceLineNo">377</span>        }<a name="line.377"></a>
+<span class="sourceLineNo">378</span>        double[] target = new double[circle.getN()];<a name="line.378"></a>
+<span class="sourceLineNo">379</span>        Arrays.fill(target, 0.0);<a name="line.379"></a>
+<span class="sourceLineNo">380</span>        double[] weights = new double[circle.getN()];<a name="line.380"></a>
+<span class="sourceLineNo">381</span>        Arrays.fill(weights, 2.0);<a name="line.381"></a>
+<span class="sourceLineNo">382</span>        optimum = optimizer.optimize(100, circle, target, weights, new double[] { 98.680, 47.345 });<a name="line.382"></a>
+<span class="sourceLineNo">383</span>        cov = optimizer.computeCovariances(optimum.getPoint(), 1e-14);<a name="line.383"></a>
+<span class="sourceLineNo">384</span>        Assert.assertEquals(0.0016, cov[0][0], 0.001);<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        Assert.assertEquals(3.2e-7, cov[0][1], 1.0e-9);<a name="line.385"></a>
+<span class="sourceLineNo">386</span>        Assert.assertEquals(cov[0][1], cov[1][0], 1.0e-14);<a name="line.386"></a>
+<span class="sourceLineNo">387</span>        Assert.assertEquals(0.0016, cov[1][1], 0.001);<a name="line.387"></a>
+<span class="sourceLineNo">388</span>    }<a name="line.388"></a>
+<span class="sourceLineNo">389</span><a name="line.389"></a>
+<span class="sourceLineNo">390</span>    @Test<a name="line.390"></a>
+<span class="sourceLineNo">391</span>    public void testCircleFittingBadInit() {<a name="line.391"></a>
+<span class="sourceLineNo">392</span>        CircleVectorial circle = new CircleVectorial();<a name="line.392"></a>
+<span class="sourceLineNo">393</span>        double[][] points = circlePoints;<a name="line.393"></a>
+<span class="sourceLineNo">394</span>        double[] target = new double[points.length];<a name="line.394"></a>
+<span class="sourceLineNo">395</span>        Arrays.fill(target, 0.0);<a name="line.395"></a>
+<span class="sourceLineNo">396</span>        double[] weights = new double[points.length];<a name="line.396"></a>
+<span class="sourceLineNo">397</span>        Arrays.fill(weights, 2.0);<a name="line.397"></a>
+<span class="sourceLineNo">398</span>        for (int i = 0; i &lt; points.length; ++i) {<a name="line.398"></a>
+<span class="sourceLineNo">399</span>            circle.addPoint(points[i][0], points[i][1]);<a name="line.399"></a>
+<span class="sourceLineNo">400</span>        }<a name="line.400"></a>
+<span class="sourceLineNo">401</span>        AbstractLeastSquaresOptimizer optimizer = createOptimizer();<a name="line.401"></a>
+<span class="sourceLineNo">402</span>        PointVectorValuePair optimum<a name="line.402"></a>
+<span class="sourceLineNo">403</span>            = optimizer.optimize(100, circle, target, weights, new double[] { -12, -12 });<a name="line.403"></a>
+<span class="sourceLineNo">404</span>        Vector2D center = new Vector2D(optimum.getPointRef()[0], optimum.getPointRef()[1]);<a name="line.404"></a>
+<span class="sourceLineNo">405</span>        Assert.assertTrue(optimizer.getEvaluations() &lt; 25);<a name="line.405"></a>
+<span class="sourceLineNo">406</span>        Assert.assertTrue(optimizer.getJacobianEvaluations() &lt; 20);<a name="line.406"></a>
+<span class="sourceLineNo">407</span>        Assert.assertEquals( 0.043, optimizer.getRMS(), 1.0e-3);<a name="line.407"></a>
+<span class="sourceLineNo">408</span>        Assert.assertEquals( 0.292235,  circle.getRadius(center), 1.0e-6);<a name="line.408"></a>
+<span class="sourceLineNo">409</span>        Assert.assertEquals(-0.151738,  center.getX(),            1.0e-6);<a name="line.409"></a>
+<span class="sourceLineNo">410</span>        Assert.assertEquals( 0.2075001, center.getY(),            1.0e-6);<a name="line.410"></a>
+<span class="sourceLineNo">411</span>    }<a name="line.411"></a>
+<span class="sourceLineNo">412</span><a name="line.412"></a>
+<span class="sourceLineNo">413</span>    @Test<a name="line.413"></a>
+<span class="sourceLineNo">414</span>    public void testCircleFittingGoodInit() {<a name="line.414"></a>
+<span class="sourceLineNo">415</span>        CircleVectorial circle = new CircleVectorial();<a name="line.415"></a>
+<span class="sourceLineNo">416</span>        double[][] points = circlePoints;<a name="line.416"></a>
+<span class="sourceLineNo">417</span>        double[] target = new double[points.length];<a name="line.417"></a>
+<span class="sourceLineNo">418</span>        Arrays.fill(target, 0.0);<a name="line.418"></a>
+<span class="sourceLineNo">419</span>        double[] weights = new double[points.length];<a name="line.419"></a>
+<span class="sourceLineNo">420</span>        Arrays.fill(weights, 2.0);<a name="line.420"></a>
+<span class="sourceLineNo">421</span>        for (int i = 0; i &lt; points.length; ++i) {<a name="line.421"></a>
+<span class="sourceLineNo">422</span>            circle.addPoint(points[i][0], points[i][1]);<a name="line.422"></a>
+<span class="sourceLineNo">423</span>        }<a name="line.423"></a>
+<span class="sourceLineNo">424</span>        AbstractLeastSquaresOptimizer optimizer = createOptimizer();<a name="line.424"></a>
+<span class="sourceLineNo">425</span>        PointVectorValuePair optimum =<a name="line.425"></a>
+<span class="sourceLineNo">426</span>            optimizer.optimize(100, circle, target, weights, new double[] { 0, 0 });<a name="line.426"></a>
+<span class="sourceLineNo">427</span>        Assert.assertEquals(-0.1517383071957963, optimum.getPointRef()[0], 1.0e-6);<a name="line.427"></a>
+<span class="sourceLineNo">428</span>        Assert.assertEquals(0.2074999736353867,  optimum.getPointRef()[1], 1.0e-6);<a name="line.428"></a>
+<span class="sourceLineNo">429</span>        Assert.assertEquals(0.04268731682389561, optimizer.getRMS(),       1.0e-8);<a name="line.429"></a>
+<span class="sourceLineNo">430</span>    }<a name="line.430"></a>
+<span class="sourceLineNo">431</span><a name="line.431"></a>
+<span class="sourceLineNo">432</span>    private final double[][] circlePoints = new double[][] {<a name="line.432"></a>
+<span class="sourceLineNo">433</span>        {-0.312967,  0.072366}, {-0.339248,  0.132965}, {-0.379780,  0.202724},<a name="line.433"></a>
+<span class="sourceLineNo">434</span>        {-0.390426,  0.260487}, {-0.361212,  0.328325}, {-0.346039,  0.392619},<a name="line.434"></a>
+<span class="sourceLineNo">435</span>        {-0.280579,  0.444306}, {-0.216035,  0.470009}, {-0.149127,  0.493832},<a name="line.435"></a>
+<span class="sourceLineNo">436</span>        {-0.075133,  0.483271}, {-0.007759,  0.452680}, { 0.060071,  0.410235},<a name="line.436"></a>
+<span class="sourceLineNo">437</span>        { 0.103037,  0.341076}, { 0.118438,  0.273884}, { 0.131293,  0.192201},<a name="line.437"></a>
+<span class="sourceLineNo">438</span>        { 0.115869,  0.129797}, { 0.072223,  0.058396}, { 0.022884,  0.000718},<a name="line.438"></a>
+<span class="sourceLineNo">439</span>        {-0.053355, -0.020405}, {-0.123584, -0.032451}, {-0.216248, -0.032862},<a name="line.439"></a>
+<span class="sourceLineNo">440</span>        {-0.278592, -0.005008}, {-0.337655,  0.056658}, {-0.385899,  0.112526},<a name="line.440"></a>
+<span class="sourceLineNo">441</span>        {-0.405517,  0.186957}, {-0.415374,  0.262071}, {-0.387482,  0.343398},<a name="line.441"></a>
+<span class="sourceLineNo">442</span>        {-0.347322,  0.397943}, {-0.287623,  0.458425}, {-0.223502,  0.475513},<a name="line.442"></a>
+<span class="sourceLineNo">443</span>        {-0.135352,  0.478186}, {-0.061221,  0.483371}, { 0.003711,  0.422737},<a name="line.443"></a>
+<span class="sourceLineNo">444</span>        { 0.065054,  0.375830}, { 0.108108,  0.297099}, { 0.123882,  0.222850},<a name="line.444"></a>
+<span class="sourceLineNo">445</span>        { 0.117729,  0.134382}, { 0.085195,  0.056820}, { 0.029800, -0.019138},<a name="line.445"></a>
+<span class="sourceLineNo">446</span>        {-0.027520, -0.072374}, {-0.102268, -0.091555}, {-0.200299, -0.106578},<a name="line.446"></a>
+<span class="sourceLineNo">447</span>        {-0.292731, -0.091473}, {-0.356288, -0.051108}, {-0.420561,  0.014926},<a name="line.447"></a>
+<span class="sourceLineNo">448</span>        {-0.471036,  0.074716}, {-0.488638,  0.182508}, {-0.485990,  0.254068},<a name="line.448"></a>
+<span class="sourceLineNo">449</span>        {-0.463943,  0.338438}, {-0.406453,  0.404704}, {-0.334287,  0.466119},<a name="line.449"></a>
+<span class="sourceLineNo">450</span>        {-0.254244,  0.503188}, {-0.161548,  0.495769}, {-0.075733,  0.495560},<a name="line.450"></a>
+<span class="sourceLineNo">451</span>        { 0.001375,  0.434937}, { 0.082787,  0.385806}, { 0.115490,  0.323807},<a name="line.451"></a>
+<span class="sourceLineNo">452</span>        { 0.141089,  0.223450}, { 0.138693,  0.131703}, { 0.126415,  0.049174},<a name="line.452"></a>
+<span class="sourceLineNo">453</span>        { 0.066518, -0.010217}, {-0.005184, -0.070647}, {-0.080985, -0.103635},<a name="line.453"></a>
+<span class="sourceLineNo">454</span>        {-0.177377, -0.116887}, {-0.260628, -0.100258}, {-0.335756, -0.056251},<a name="line.454"></a>
+<span class="sourceLineNo">455</span>        {-0.405195, -0.000895}, {-0.444937,  0.085456}, {-0.484357,  0.175597},<a name="line.455"></a>
+<span class="sourceLineNo">456</span>        {-0.472453,  0.248681}, {-0.438580,  0.347463}, {-0.402304,  0.422428},<a name="line.456"></a>
+<span class="sourceLineNo">457</span>        {-0.326777,  0.479438}, {-0.247797,  0.505581}, {-0.152676,  0.519380},<a name="line.457"></a>
+<span class="sourceLineNo">458</span>        {-0.071754,  0.516264}, { 0.015942,  0.472802}, { 0.076608,  0.419077},<a name="line.458"></a>
+<span class="sourceLineNo">459</span>        { 0.127673,  0.330264}, { 0.159951,  0.262150}, { 0.153530,  0.172681},<a name="line.459"></a>
+<span class="sourceLineNo">460</span>        { 0.140653,  0.089229}, { 0.078666,  0.024981}, { 0.023807, -0.037022},<a name="line.460"></a>
+<span class="sourceLineNo">461</span>        {-0.048837, -0.077056}, {-0.127729, -0.075338}, {-0.221271, -0.067526}<a name="line.461"></a>
+<span class="sourceLineNo">462</span>    };<a name="line.462"></a>
+<span class="sourceLineNo">463</span><a name="line.463"></a>
+<span class="sourceLineNo">464</span>    public void doTestStRD(final StatisticalReferenceDataset dataset,<a name="line.464"></a>
+<span class="sourceLineNo">465</span>        final double errParams, final double errParamsSd) {<a name="line.465"></a>
+<span class="sourceLineNo">466</span>        final AbstractLeastSquaresOptimizer optimizer = createOptimizer();<a name="line.466"></a>
+<span class="sourceLineNo">467</span>        final double[] w = new double[dataset.getNumObservations()];<a name="line.467"></a>
+<span class="sourceLineNo">468</span>        Arrays.fill(w, 1.0);<a name="line.468"></a>
+<span class="sourceLineNo">469</span><a name="line.469"></a>
+<span class="sourceLineNo">470</span>        final double[][] data = dataset.getData();<a name="line.470"></a>
+<span class="sourceLineNo">471</span>        final double[] initial = dataset.getStartingPoint(0);<a name="line.471"></a>
+<span class="sourceLineNo">472</span>        final MultivariateDifferentiableVectorFunction problem;<a name="line.472"></a>
+<span class="sourceLineNo">473</span>        problem = dataset.getLeastSquaresProblem();<a name="line.473"></a>
+<span class="sourceLineNo">474</span>        final PointVectorValuePair optimum;<a name="line.474"></a>
+<span class="sourceLineNo">475</span>        optimum = optimizer.optimize(100, problem, data[1], w, initial);<a name="line.475"></a>
+<span class="sourceLineNo">476</span><a name="line.476"></a>
+<span class="sourceLineNo">477</span>        final double[] actual = optimum.getPoint();<a name="line.477"></a>
+<span class="sourceLineNo">478</span>        for (int i = 0; i &lt; actual.length; i++) {<a name="line.478"></a>
+<span class="sourceLineNo">479</span>            double expected = dataset.getParameter(i);<a name="line.479"></a>
+<span class="sourceLineNo">480</span>            double delta = FastMath.abs(errParams * expected);<a name="line.480"></a>
+<span class="sourceLineNo">481</span>            Assert.assertEquals(dataset.getName() + ", param #" + i,<a name="line.481"></a>
+<span class="sourceLineNo">482</span>                                expected, actual[i], delta);<a name="line.482"></a>
+<span class="sourceLineNo">483</span>        }<a name="line.483"></a>
+<span class="sourceLineNo">484</span>    }<a name="line.484"></a>
+<span class="sourceLineNo">485</span><a name="line.485"></a>
+<span class="sourceLineNo">486</span>    @Test<a name="line.486"></a>
+<span class="sourceLineNo">487</span>    public void testKirby2() throws IOException {<a name="line.487"></a>
+<span class="sourceLineNo">488</span>        doTestStRD(StatisticalReferenceDatasetFactory.createKirby2(), 1E-7, 1E-7);<a name="line.488"></a>
+<span class="sourceLineNo">489</span>    }<a name="line.489"></a>
+<span class="sourceLineNo">490</span><a name="line.490"></a>
+<span class="sourceLineNo">491</span>    @Test<a name="line.491"></a>
+<span class="sourceLineNo">492</span>    public void testHahn1() throws IOException {<a name="line.492"></a>
+<span class="sourceLineNo">493</span>        doTestStRD(StatisticalReferenceDatasetFactory.createHahn1(), 1E-7, 1E-4);<a name="line.493"></a>
+<span class="sourceLineNo">494</span>    }<a name="line.494"></a>
+<span class="sourceLineNo">495</span><a name="line.495"></a>
+<span class="sourceLineNo">496</span>    static class LinearProblem implements MultivariateDifferentiableVectorFunction, Serializable {<a name="line.496"></a>
+<span class="sourceLineNo">497</span><a name="line.497"></a>
+<span class="sourceLineNo">498</span>        private static final long serialVersionUID = 703247177355019415L;<a name="line.498"></a>
+<span class="sourceLineNo">499</span>        final RealMatrix factors;<a name="line.499"></a>
+<span class="sourceLineNo">500</span>        final double[] target;<a name="line.500"></a>
+<span class="sourceLineNo">501</span>        public LinearProblem(double[][] factors, double[] target) {<a name="line.501"></a>
+<span class="sourceLineNo">502</span>            this.factors = new BlockRealMatrix(factors);<a name="line.502"></a>
+<span class="sourceLineNo">503</span>            this.target  = target;<a name="line.503"></a>
+<span class="sourceLineNo">504</span>        }<a name="line.504"></a>
+<span class="sourceLineNo">505</span><a name="line.505"></a>
+<span class="sourceLineNo">506</span>        public double[] value(double[] variables) {<a name="line.506"></a>
+<span class="sourceLineNo">507</span>            return factors.operate(variables);<a name="line.507"></a>
+<span class="sourceLineNo">508</span>        }<a name="line.508"></a>
+<span class="sourceLineNo">509</span><a name="line.509"></a>
+<span class="sourceLineNo">510</span>        public DerivativeStructure[] value(DerivativeStructure[] variables) {<a name="line.510"></a>
+<span class="sourceLineNo">511</span>            DerivativeStructure[] value = new DerivativeStructure[factors.getRowDimension()];<a name="line.511"></a>
+<span class="sourceLineNo">512</span>            for (int i = 0; i &lt; value.length; ++i) {<a name="line.512"></a>
+<span class="sourceLineNo">513</span>                value[i] = variables[0].getField().getZero();<a name="line.513"></a>
+<span class="sourceLineNo">514</span>                for (int j = 0; j &lt; factors.getColumnDimension(); ++j) {<a name="line.514"></a>
+<span class="sourceLineNo">515</span>                    value[i] = value[i].add(variables[j].multiply(factors.getEntry(i, j)));<a name="line.515"></a>
+<span class="sourceLineNo">516</span>                }<a name="line.516"></a>
+<span class="sourceLineNo">517</span>                <a name="line.517"></a>
+<span class="sourceLineNo">518</span>            }<a name="line.518"></a>
+<span class="sourceLineNo">519</span>            return value;<a name="line.519"></a>
+<span class="sourceLineNo">520</span>        }<a name="line.520"></a>
+<span class="sourceLineNo">521</span><a name="line.521"></a>
+<span class="sourceLineNo">522</span>    }<a name="line.522"></a>
+<span class="sourceLineNo">523</span>}<a name="line.523"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

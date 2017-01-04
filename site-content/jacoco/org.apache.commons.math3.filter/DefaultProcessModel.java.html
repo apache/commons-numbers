@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DefaultProcessModel.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.filter</a> &gt; <span class="el_source">DefaultProcessModel.java</span></div><h1>DefaultProcessModel.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.filter;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealVector;
+
+/**
+ * Default implementation of a {@link ProcessModel} for the use with a {@link KalmanFilter}.
+ *
+ * @since 3.0
+ */
+public class DefaultProcessModel implements ProcessModel {
+    /**
+     * The state transition matrix, used to advance the internal state estimation each time-step.
+     */
+    private RealMatrix stateTransitionMatrix;
+
+    /**
+     * The control matrix, used to integrate a control input into the state estimation.
+     */
+    private RealMatrix controlMatrix;
+
+    /** The process noise covariance matrix. */
+    private RealMatrix processNoiseCovMatrix;
+
+    /** The initial state estimation of the observed process. */
+    private RealVector initialStateEstimateVector;
+
+    /** The initial error covariance matrix of the observed process. */
+    private RealMatrix initialErrorCovMatrix;
+
+    /**
+     * Create a new {@link ProcessModel}, taking double arrays as input parameters.
+     *
+     * @param stateTransition
+     *            the state transition matrix
+     * @param control
+     *            the control matrix
+     * @param processNoise
+     *            the process noise matrix
+     * @param initialStateEstimate
+     *            the initial state estimate vector
+     * @param initialErrorCovariance
+     *            the initial error covariance matrix
+     * @throws NullArgumentException
+     *             if any of the input arrays is {@code null}
+     * @throws NoDataException
+     *             if any row / column dimension of the input matrices is zero
+     * @throws DimensionMismatchException
+     *             if any of the input matrices is non-rectangular
+     */
+    public DefaultProcessModel(final double[][] stateTransition,
+                               final double[][] control,
+                               final double[][] processNoise,
+                               final double[] initialStateEstimate,
+                               final double[][] initialErrorCovariance)
+            throws NullArgumentException, NoDataException, DimensionMismatchException {
+
+<span class="nc" id="L79">        this(new Array2DRowRealMatrix(stateTransition),</span>
+                new Array2DRowRealMatrix(control),
+                new Array2DRowRealMatrix(processNoise),
+                new ArrayRealVector(initialStateEstimate),
+                new Array2DRowRealMatrix(initialErrorCovariance));
+<span class="nc" id="L84">    }</span>
+
+    /**
+     * Create a new {@link ProcessModel}, taking double arrays as input parameters.
+     * &lt;p&gt;
+     * The initial state estimate and error covariance are omitted and will be initialized by the
+     * {@link KalmanFilter} to default values.
+     *
+     * @param stateTransition
+     *            the state transition matrix
+     * @param control
+     *            the control matrix
+     * @param processNoise
+     *            the process noise matrix
+     * @throws NullArgumentException
+     *             if any of the input arrays is {@code null}
+     * @throws NoDataException
+     *             if any row / column dimension of the input matrices is zero
+     * @throws DimensionMismatchException
+     *             if any of the input matrices is non-rectangular
+     */
+    public DefaultProcessModel(final double[][] stateTransition,
+                               final double[][] control,
+                               final double[][] processNoise)
+            throws NullArgumentException, NoDataException, DimensionMismatchException {
+
+<span class="nc" id="L110">        this(new Array2DRowRealMatrix(stateTransition),</span>
+                new Array2DRowRealMatrix(control),
+                new Array2DRowRealMatrix(processNoise), null, null);
+<span class="nc" id="L113">    }</span>
+
+    /**
+     * Create a new {@link ProcessModel}, taking double arrays as input parameters.
+     *
+     * @param stateTransition
+     *            the state transition matrix
+     * @param control
+     *            the control matrix
+     * @param processNoise
+     *            the process noise matrix
+     * @param initialStateEstimate
+     *            the initial state estimate vector
+     * @param initialErrorCovariance
+     *            the initial error covariance matrix
+     */
+    public DefaultProcessModel(final RealMatrix stateTransition,
+                               final RealMatrix control,
+                               final RealMatrix processNoise,
+                               final RealVector initialStateEstimate,
+<span class="fc" id="L133">                               final RealMatrix initialErrorCovariance) {</span>
+<span class="fc" id="L134">        this.stateTransitionMatrix = stateTransition;</span>
+<span class="fc" id="L135">        this.controlMatrix = control;</span>
+<span class="fc" id="L136">        this.processNoiseCovMatrix = processNoise;</span>
+<span class="fc" id="L137">        this.initialStateEstimateVector = initialStateEstimate;</span>
+<span class="fc" id="L138">        this.initialErrorCovMatrix = initialErrorCovariance;</span>
+<span class="fc" id="L139">    }</span>
+
+    /** {@inheritDoc} */
+    public RealMatrix getStateTransitionMatrix() {
+<span class="fc" id="L143">        return stateTransitionMatrix;</span>
+    }
+
+    /** {@inheritDoc} */
+    public RealMatrix getControlMatrix() {
+<span class="fc" id="L148">        return controlMatrix;</span>
+    }
+
+    /** {@inheritDoc} */
+    public RealMatrix getProcessNoise() {
+<span class="fc" id="L153">        return processNoiseCovMatrix;</span>
+    }
+
+    /** {@inheritDoc} */
+    public RealVector getInitialStateEstimate() {
+<span class="fc" id="L158">        return initialStateEstimateVector;</span>
+    }
+
+    /** {@inheritDoc} */
+    public RealMatrix getInitialErrorCovariance() {
+<span class="fc" id="L163">        return initialErrorCovMatrix;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

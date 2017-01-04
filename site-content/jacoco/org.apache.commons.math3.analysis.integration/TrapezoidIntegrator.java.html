@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TrapezoidIntegrator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.integration</a> &gt; <span class="el_source">TrapezoidIntegrator.java</span></div><h1>TrapezoidIntegrator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.analysis.integration;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.exception.TooManyEvaluationsException;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * Implements the &lt;a href=&quot;http://mathworld.wolfram.com/TrapezoidalRule.html&quot;&gt;
+ * Trapezoid Rule&lt;/a&gt; for integration of real univariate functions. For
+ * reference, see &lt;b&gt;Introduction to Numerical Analysis&lt;/b&gt;, ISBN 038795452X,
+ * chapter 3.
+ * &lt;p&gt;
+ * The function should be integrable.&lt;/p&gt;
+ *
+ * @since 1.2
+ */
+public class TrapezoidIntegrator extends BaseAbstractUnivariateIntegrator {
+
+    /** Maximum number of iterations for trapezoid. */
+    public static final int TRAPEZOID_MAX_ITERATIONS_COUNT = 64;
+
+    /** Intermediate result. */
+    private double s;
+
+    /**
+     * Build a trapezoid integrator with given accuracies and iterations counts.
+     * @param relativeAccuracy relative accuracy of the result
+     * @param absoluteAccuracy absolute accuracy of the result
+     * @param minimalIterationCount minimum number of iterations
+     * @param maximalIterationCount maximum number of iterations
+     * (must be less than or equal to {@link #TRAPEZOID_MAX_ITERATIONS_COUNT}
+     * @exception NotStrictlyPositiveException if minimal number of iterations
+     * is not strictly positive
+     * @exception NumberIsTooSmallException if maximal number of iterations
+     * is lesser than or equal to the minimal number of iterations
+     * @exception NumberIsTooLargeException if maximal number of iterations
+     * is greater than {@link #TRAPEZOID_MAX_ITERATIONS_COUNT}
+     */
+    public TrapezoidIntegrator(final double relativeAccuracy,
+                               final double absoluteAccuracy,
+                               final int minimalIterationCount,
+                               final int maximalIterationCount)
+        throws NotStrictlyPositiveException, NumberIsTooSmallException, NumberIsTooLargeException {
+<span class="nc" id="L64">        super(relativeAccuracy, absoluteAccuracy, minimalIterationCount, maximalIterationCount);</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (maximalIterationCount &gt; TRAPEZOID_MAX_ITERATIONS_COUNT) {</span>
+<span class="nc" id="L66">            throw new NumberIsTooLargeException(maximalIterationCount,</span>
+                                                TRAPEZOID_MAX_ITERATIONS_COUNT, false);
+        }
+<span class="nc" id="L69">    }</span>
+
+    /**
+     * Build a trapezoid integrator with given iteration counts.
+     * @param minimalIterationCount minimum number of iterations
+     * @param maximalIterationCount maximum number of iterations
+     * (must be less than or equal to {@link #TRAPEZOID_MAX_ITERATIONS_COUNT}
+     * @exception NotStrictlyPositiveException if minimal number of iterations
+     * is not strictly positive
+     * @exception NumberIsTooSmallException if maximal number of iterations
+     * is lesser than or equal to the minimal number of iterations
+     * @exception NumberIsTooLargeException if maximal number of iterations
+     * is greater than {@link #TRAPEZOID_MAX_ITERATIONS_COUNT}
+     */
+    public TrapezoidIntegrator(final int minimalIterationCount,
+                               final int maximalIterationCount)
+        throws NotStrictlyPositiveException, NumberIsTooSmallException, NumberIsTooLargeException {
+<span class="fc" id="L86">        super(minimalIterationCount, maximalIterationCount);</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if (maximalIterationCount &gt; TRAPEZOID_MAX_ITERATIONS_COUNT) {</span>
+<span class="fc" id="L88">            throw new NumberIsTooLargeException(maximalIterationCount,</span>
+                                                TRAPEZOID_MAX_ITERATIONS_COUNT, false);
+        }
+<span class="nc" id="L91">    }</span>
+
+    /**
+     * Construct a trapezoid integrator with default settings.
+     * (max iteration count set to {@link #TRAPEZOID_MAX_ITERATIONS_COUNT})
+     */
+    public TrapezoidIntegrator() {
+<span class="fc" id="L98">        super(DEFAULT_MIN_ITERATIONS_COUNT, TRAPEZOID_MAX_ITERATIONS_COUNT);</span>
+<span class="fc" id="L99">    }</span>
+
+    /**
+     * Compute the n-th stage integral of trapezoid rule. This function
+     * should only be called by API &lt;code&gt;integrate()&lt;/code&gt; in the package.
+     * To save time it does not verify arguments - caller does.
+     * &lt;p&gt;
+     * The interval is divided equally into 2^n sections rather than an
+     * arbitrary m sections because this configuration can best utilize the
+     * already computed values.&lt;/p&gt;
+     *
+     * @param baseIntegrator integrator holding integration parameters
+     * @param n the stage of 1/2 refinement, n = 0 is no refinement
+     * @return the value of n-th stage integral
+     * @throws TooManyEvaluationsException if the maximal number of evaluations
+     * is exceeded.
+     */
+    double stage(final BaseAbstractUnivariateIntegrator baseIntegrator, final int n)
+        throws TooManyEvaluationsException {
+
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        if (n == 0) {</span>
+<span class="fc" id="L120">            final double max = baseIntegrator.getMax();</span>
+<span class="fc" id="L121">            final double min = baseIntegrator.getMin();</span>
+<span class="fc" id="L122">            s = 0.5 * (max - min) *</span>
+                      (baseIntegrator.computeObjectiveValue(min) +
+                       baseIntegrator.computeObjectiveValue(max));
+<span class="fc" id="L125">            return s;</span>
+        } else {
+<span class="fc" id="L127">            final long np = 1L &lt;&lt; (n-1);           // number of new points in this stage</span>
+<span class="fc" id="L128">            double sum = 0;</span>
+<span class="fc" id="L129">            final double max = baseIntegrator.getMax();</span>
+<span class="fc" id="L130">            final double min = baseIntegrator.getMin();</span>
+            // spacing between adjacent new points
+<span class="fc" id="L132">            final double spacing = (max - min) / np;</span>
+<span class="fc" id="L133">            double x = min + 0.5 * spacing;    // the first new point</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">            for (long i = 0; i &lt; np; i++) {</span>
+<span class="fc" id="L135">                sum += baseIntegrator.computeObjectiveValue(x);</span>
+<span class="fc" id="L136">                x += spacing;</span>
+            }
+            // add the new sum to previously calculated result
+<span class="fc" id="L139">            s = 0.5 * (s + sum * spacing);</span>
+<span class="fc" id="L140">            return s;</span>
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected double doIntegrate()
+        throws MathIllegalArgumentException, TooManyEvaluationsException, MaxCountExceededException {
+
+<span class="fc" id="L149">        double oldt = stage(this, 0);</span>
+<span class="fc" id="L150">        incrementCount();</span>
+        while (true) {
+<span class="fc" id="L152">            final int i = getIterations();</span>
+<span class="fc" id="L153">            final double t = stage(this, i);</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">            if (i &gt;= getMinimalIterationCount()) {</span>
+<span class="fc" id="L155">                final double delta = FastMath.abs(t - oldt);</span>
+<span class="fc" id="L156">                final double rLimit =</span>
+                    getRelativeAccuracy() * (FastMath.abs(oldt) + FastMath.abs(t)) * 0.5;
+<span class="pc bpc" id="L158" title="1 of 4 branches missed.">                if ((delta &lt;= rLimit) || (delta &lt;= getAbsoluteAccuracy())) {</span>
+<span class="fc" id="L159">                    return t;</span>
+                }
+            }
+<span class="fc" id="L162">            oldt = t;</span>
+<span class="fc" id="L163">            incrementCount();</span>
+<span class="fc" id="L164">        }</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

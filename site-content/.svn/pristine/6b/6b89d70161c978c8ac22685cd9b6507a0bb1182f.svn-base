@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DiagonalMatrix.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.linear</a> &gt; <span class="el_source">DiagonalMatrix.java</span></div><h1>DiagonalMatrix.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.linear;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
+
+/**
+ * Implementation of a diagonal matrix.
+ *
+ * @since 3.1.1
+ */
+public class DiagonalMatrix extends AbstractRealMatrix
+    implements Serializable {
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 20121229L;
+    /** Entries of the diagonal. */
+    private final double[] data;
+
+    /**
+     * Creates a matrix with the supplied dimension.
+     *
+     * @param dimension Number of rows and columns in the new matrix.
+     * @throws NotStrictlyPositiveException if the dimension is
+     * not positive.
+     */
+    public DiagonalMatrix(final int dimension)
+        throws NotStrictlyPositiveException {
+<span class="fc" id="L51">        super(dimension, dimension);</span>
+<span class="fc" id="L52">        data = new double[dimension];</span>
+<span class="fc" id="L53">    }</span>
+
+    /**
+     * Creates a matrix using the input array as the underlying data.
+     * &lt;br/&gt;
+     * The input array is copied, not referenced.
+     *
+     * @param d Data for the new matrix.
+     */
+    public DiagonalMatrix(final double[] d) {
+<span class="fc" id="L63">        this(d, true);</span>
+<span class="fc" id="L64">    }</span>
+
+    /**
+     * Creates a matrix using the input array as the underlying data.
+     * &lt;br/&gt;
+     * If an array is created specially in order to be embedded in a
+     * this instance and not used directly, the {@code copyArray} may be
+     * set to {@code false}.
+     * This will prevent the copying and improve performance as no new
+     * array will be built and no data will be copied.
+     *
+     * @param d Data for new matrix.
+     * @param copyArray if {@code true}, the input array will be copied,
+     * otherwise it will be referenced.
+     * @exception NullArgumentException if d is null
+     */
+    public DiagonalMatrix(final double[] d, final boolean copyArray)
+<span class="fc" id="L81">        throws NullArgumentException {</span>
+<span class="fc" id="L82">        MathUtils.checkNotNull(d);</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        data = copyArray ? d.clone() : d;</span>
+<span class="fc" id="L84">    }</span>
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws DimensionMismatchException if the requested dimensions are not equal.
+     */
+    @Override
+    public RealMatrix createMatrix(final int rowDimension,
+                                   final int columnDimension)
+        throws NotStrictlyPositiveException,
+               DimensionMismatchException {
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (rowDimension != columnDimension) {</span>
+<span class="fc" id="L97">            throw new DimensionMismatchException(rowDimension, columnDimension);</span>
+        }
+
+<span class="fc" id="L100">        return new DiagonalMatrix(rowDimension);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public RealMatrix copy() {
+<span class="fc" id="L106">        return new DiagonalMatrix(data);</span>
+    }
+
+    /**
+     * Compute the sum of {@code this} and {@code m}.
+     *
+     * @param m Matrix to be added.
+     * @return {@code this + m}.
+     * @throws MatrixDimensionMismatchException if {@code m} is not the same
+     * size as {@code this}.
+     */
+    public DiagonalMatrix add(final DiagonalMatrix m)
+        throws MatrixDimensionMismatchException {
+        // Safety check.
+<span class="fc" id="L120">        MatrixUtils.checkAdditionCompatible(this, m);</span>
+
+<span class="fc" id="L122">        final int dim = getRowDimension();</span>
+<span class="fc" id="L123">        final double[] outData = new double[dim];</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        for (int i = 0; i &lt; dim; i++) {</span>
+<span class="fc" id="L125">            outData[i] = data[i] + m.data[i];</span>
+        }
+
+<span class="fc" id="L128">        return new DiagonalMatrix(outData, false);</span>
+    }
+
+    /**
+     * Returns {@code this} minus {@code m}.
+     *
+     * @param m Matrix to be subtracted.
+     * @return {@code this - m}
+     * @throws MatrixDimensionMismatchException if {@code m} is not the same
+     * size as {@code this}.
+     */
+    public DiagonalMatrix subtract(final DiagonalMatrix m)
+        throws MatrixDimensionMismatchException {
+<span class="fc" id="L141">        MatrixUtils.checkSubtractionCompatible(this, m);</span>
+
+<span class="fc" id="L143">        final int dim = getRowDimension();</span>
+<span class="fc" id="L144">        final double[] outData = new double[dim];</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        for (int i = 0; i &lt; dim; i++) {</span>
+<span class="fc" id="L146">            outData[i] = data[i] - m.data[i];</span>
+        }
+
+<span class="fc" id="L149">        return new DiagonalMatrix(outData, false);</span>
+    }
+
+    /**
+     * Returns the result of postmultiplying {@code this} by {@code m}.
+     *
+     * @param m matrix to postmultiply by
+     * @return {@code this * m}
+     * @throws DimensionMismatchException if
+     * {@code columnDimension(this) != rowDimension(m)}
+     */
+    public DiagonalMatrix multiply(final DiagonalMatrix m)
+        throws DimensionMismatchException {
+<span class="fc" id="L162">        MatrixUtils.checkMultiplicationCompatible(this, m);</span>
+
+<span class="fc" id="L164">        final int dim = getRowDimension();</span>
+<span class="fc" id="L165">        final double[] outData = new double[dim];</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        for (int i = 0; i &lt; dim; i++) {</span>
+<span class="fc" id="L167">            outData[i] = data[i] * m.data[i];</span>
+        }
+
+<span class="fc" id="L170">        return new DiagonalMatrix(outData, false);</span>
+    }
+
+    /**
+     * Returns the result of postmultiplying {@code this} by {@code m}.
+     *
+     * @param m matrix to postmultiply by
+     * @return {@code this * m}
+     * @throws DimensionMismatchException if
+     * {@code columnDimension(this) != rowDimension(m)}
+     */
+    @Override
+    public RealMatrix multiply(final RealMatrix m)
+        throws DimensionMismatchException {
+<span class="fc bfc" id="L184" title="All 2 branches covered.">        if (m instanceof DiagonalMatrix) {</span>
+<span class="fc" id="L185">            return multiply((DiagonalMatrix) m);</span>
+        } else {
+<span class="fc" id="L187">            MatrixUtils.checkMultiplicationCompatible(this, m);</span>
+<span class="fc" id="L188">            final int nRows = m.getRowDimension();</span>
+<span class="fc" id="L189">            final int nCols = m.getColumnDimension();</span>
+<span class="fc" id="L190">            final double[][] product = new double[nRows][nCols];</span>
+<span class="fc bfc" id="L191" title="All 2 branches covered.">            for (int r = 0; r &lt; nRows; r++) {</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">                for (int c = 0; c &lt; nCols; c++) {</span>
+<span class="fc" id="L193">                    product[r][c] = data[r] * m.getEntry(r, c);</span>
+                }
+            }
+<span class="fc" id="L196">            return new Array2DRowRealMatrix(product, false);</span>
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double[][] getData() {
+<span class="fc" id="L203">        final int dim = getRowDimension();</span>
+<span class="fc" id="L204">        final double[][] out = new double[dim][dim];</span>
+
+<span class="fc bfc" id="L206" title="All 2 branches covered.">        for (int i = 0; i &lt; dim; i++) {</span>
+<span class="fc" id="L207">            out[i][i] = data[i];</span>
+        }
+
+<span class="fc" id="L210">        return out;</span>
+    }
+
+    /**
+     * Gets a reference to the underlying data array.
+     *
+     * @return 1-dimensional array of entries.
+     */
+    public double[] getDataRef() {
+<span class="fc" id="L219">        return data;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double getEntry(final int row, final int column)
+        throws OutOfRangeException {
+<span class="fc" id="L226">        MatrixUtils.checkMatrixIndex(this, row, column);</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">        return row == column ? data[row] : 0;</span>
+    }
+
+    /** {@inheritDoc}
+     * @throws NumberIsTooLargeException if {@code row != column} and value is non-zero.
+     */
+    @Override
+    public void setEntry(final int row, final int column, final double value)
+        throws OutOfRangeException, NumberIsTooLargeException {
+<span class="fc bfc" id="L236" title="All 2 branches covered.">        if (row == column) {</span>
+<span class="fc" id="L237">            MatrixUtils.checkRowIndex(this, row);</span>
+<span class="fc" id="L238">            data[row] = value;</span>
+        } else {
+<span class="fc" id="L240">            ensureZero(value);</span>
+        }
+<span class="fc" id="L242">    }</span>
+
+    /** {@inheritDoc}
+     * @throws NumberIsTooLargeException if {@code row != column} and increment is non-zero.
+     */
+    @Override
+    public void addToEntry(final int row,
+                           final int column,
+                           final double increment)
+        throws OutOfRangeException, NumberIsTooLargeException {
+<span class="fc bfc" id="L252" title="All 2 branches covered.">        if (row == column) {</span>
+<span class="fc" id="L253">            MatrixUtils.checkRowIndex(this, row);</span>
+<span class="fc" id="L254">            data[row] += increment;</span>
+        } else {
+<span class="fc" id="L256">            ensureZero(increment);</span>
+        }
+<span class="fc" id="L258">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public void multiplyEntry(final int row,
+                              final int column,
+                              final double factor)
+        throws OutOfRangeException {
+        // we don't care about non-diagonal elements for multiplication
+<span class="fc bfc" id="L267" title="All 2 branches covered.">        if (row == column) {</span>
+<span class="fc" id="L268">            MatrixUtils.checkRowIndex(this, row);</span>
+<span class="fc" id="L269">            data[row] *= factor;</span>
+        }
+<span class="fc" id="L271">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public int getRowDimension() {
+<span class="fc" id="L276">        return data.length;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int getColumnDimension() {
+<span class="fc" id="L282">        return data.length;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double[] operate(final double[] v)
+        throws DimensionMismatchException {
+<span class="fc" id="L289">        return multiply(new DiagonalMatrix(v, false)).getDataRef();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double[] preMultiply(final double[] v)
+        throws DimensionMismatchException {
+<span class="fc" id="L296">        return operate(v);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public RealVector preMultiply(final RealVector v) throws DimensionMismatchException {
+        final double[] vectorData;
+<span class="pc bpc" id="L303" title="1 of 2 branches missed.">        if (v instanceof ArrayRealVector) {</span>
+<span class="fc" id="L304">            vectorData = ((ArrayRealVector) v).getDataRef();</span>
+        } else {
+<span class="nc" id="L306">            vectorData = v.toArray();</span>
+        }
+<span class="fc" id="L308">        return MatrixUtils.createRealVector(preMultiply(vectorData));</span>
+    }
+
+    /** Ensure a value is zero.
+     * @param value value to check
+     * @exception NumberIsTooLargeException if value is not zero
+     */
+    private void ensureZero(final double value) throws NumberIsTooLargeException {
+<span class="fc bfc" id="L316" title="All 2 branches covered.">        if (!Precision.equals(0.0, value, 1)) {</span>
+<span class="fc" id="L317">            throw new NumberIsTooLargeException(FastMath.abs(value), 0, true);</span>
+        }
+<span class="fc" id="L319">    }</span>
+
+    /**
+     * Computes the inverse of this diagonal matrix.
+     * &lt;p&gt;
+     * Note: this method will use a singularity threshold of 0,
+     * use {@link #inverse(double)} if a different threshold is needed.
+     *
+     * @return the inverse of {@code m}
+     * @throws SingularMatrixException if the matrix is singular
+     * @since 3.3
+     */
+    public DiagonalMatrix inverse() throws SingularMatrixException {
+<span class="fc" id="L332">        return inverse(0);</span>
+    }
+
+    /**
+     * Computes the inverse of this diagonal matrix.
+     *
+     * @param threshold Singularity threshold.
+     * @return the inverse of {@code m}
+     * @throws SingularMatrixException if the matrix is singular
+     * @since 3.3
+     */
+    public DiagonalMatrix inverse(double threshold) throws SingularMatrixException {
+<span class="fc bfc" id="L344" title="All 2 branches covered.">        if (isSingular(threshold)) {</span>
+<span class="fc" id="L345">            throw new SingularMatrixException();</span>
+        }
+
+<span class="fc" id="L348">        final double[] result = new double[data.length];</span>
+<span class="fc bfc" id="L349" title="All 2 branches covered.">        for (int i = 0; i &lt; data.length; i++) {</span>
+<span class="fc" id="L350">            result[i] = 1.0 / data[i];</span>
+        }
+<span class="fc" id="L352">        return new DiagonalMatrix(result, false);</span>
+    }
+
+    /** Returns whether this diagonal matrix is singular, i.e. any diagonal entry
+     * is equal to {@code 0} within the given threshold.
+     *
+     * @param threshold Singularity threshold.
+     * @return {@code true} if the matrix is singular, {@code false} otherwise
+     * @since 3.3
+     */
+    public boolean isSingular(double threshold) {
+<span class="fc bfc" id="L363" title="All 2 branches covered.">        for (int i = 0; i &lt; data.length; i++) {</span>
+<span class="fc bfc" id="L364" title="All 2 branches covered.">            if (Precision.equals(data[i], 0.0, threshold)) {</span>
+<span class="fc" id="L365">                return true;</span>
+            }
+        }
+<span class="fc" id="L368">        return false;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

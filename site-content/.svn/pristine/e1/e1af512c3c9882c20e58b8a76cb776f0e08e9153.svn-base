@@ -1,0 +1,318 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.analysis.polynomials;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.util.Arrays;<a name="line.19"></a>
+<span class="sourceLineNo">020</span><a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.analysis.DifferentiableUnivariateFunction;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.analysis.UnivariateFunction;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.exception.DimensionMismatchException;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.exception.NonMonotonicSequenceException;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.math3.exception.NullArgumentException;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.commons.math3.exception.NumberIsTooSmallException;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.math3.exception.OutOfRangeException;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.math3.exception.util.LocalizedFormats;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.commons.math3.util.MathArrays;<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>/**<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * Represents a polynomial spline function.<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * &lt;p&gt;<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * A &lt;strong&gt;polynomial spline function&lt;/strong&gt; consists of a set of<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * &lt;i&gt;interpolating polynomials&lt;/i&gt; and an ascending array of domain<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * &lt;i&gt;knot points&lt;/i&gt;, determining the intervals over which the spline function<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * is defined by the constituent polynomials.  The polynomials are assumed to<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * have been computed to match the values of another function at the knot<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * points.  The value consistency constraints are not currently enforced by<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * &lt;code&gt;PolynomialSplineFunction&lt;/code&gt; itself, but are assumed to hold among<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * the polynomials and knot points passed to the constructor.&lt;/p&gt;<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * &lt;p&gt;<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * N.B.:  The polynomials in the &lt;code&gt;polynomials&lt;/code&gt; property must be<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * centered on the knot points to compute the spline function values.<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * See below.&lt;/p&gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * &lt;p&gt;<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * The domain of the polynomial spline function is<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * &lt;code&gt;[smallest knot, largest knot]&lt;/code&gt;.  Attempts to evaluate the<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * function at values outside of this range generate IllegalArgumentExceptions.<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * &lt;/p&gt;<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * &lt;p&gt;<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * The value of the polynomial spline function for an argument &lt;code&gt;x&lt;/code&gt;<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * is computed as follows:<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * &lt;ol&gt;<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * &lt;li&gt;The knot array is searched to find the segment to which &lt;code&gt;x&lt;/code&gt;<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * belongs.  If &lt;code&gt;x&lt;/code&gt; is less than the smallest knot point or greater<a name="line.58"></a>
+<span class="sourceLineNo">059</span> * than the largest one, an &lt;code&gt;IllegalArgumentException&lt;/code&gt;<a name="line.59"></a>
+<span class="sourceLineNo">060</span> * is thrown.&lt;/li&gt;<a name="line.60"></a>
+<span class="sourceLineNo">061</span> * &lt;li&gt; Let &lt;code&gt;j&lt;/code&gt; be the index of the largest knot point that is less<a name="line.61"></a>
+<span class="sourceLineNo">062</span> * than or equal to &lt;code&gt;x&lt;/code&gt;.  The value returned is<a name="line.62"></a>
+<span class="sourceLineNo">063</span> * {@code polynomials[j](x - knot[j])}&lt;/li&gt;&lt;/ol&gt;<a name="line.63"></a>
+<span class="sourceLineNo">064</span> *<a name="line.64"></a>
+<span class="sourceLineNo">065</span> */<a name="line.65"></a>
+<span class="sourceLineNo">066</span>public class PolynomialSplineFunction implements UnivariateDifferentiableFunction, DifferentiableUnivariateFunction {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    /**<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * Spline segment interval delimiters (knots).<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * Size is n + 1 for n segments.<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    private final double knots[];<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    /**<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * The polynomial functions that make up the spline.  The first element<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * determines the value of the spline over the first subinterval, the<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * second over the second, etc.   Spline function values are determined by<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * evaluating these functions at {@code (x - knot[i])} where i is the<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * knot segment to which x belongs.<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     */<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    private final PolynomialFunction polynomials[];<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    /**<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * Number of spline segments. It is equal to the number of polynomials and<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * to the number of partition points - 1.<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     */<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    private final int n;<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>    /**<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * Construct a polynomial spline function with the given segment delimiters<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * and interpolating polynomials.<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * The constructor copies both arrays and assigns the copies to the knots<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * and polynomials properties, respectively.<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     *<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * @param knots Spline segment interval delimiters.<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * @param polynomials Polynomial functions that make up the spline.<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * @throws NullArgumentException if either of the input arrays is {@code null}.<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * @throws NumberIsTooSmallException if knots has length less than 2.<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * @throws DimensionMismatchException if {@code polynomials.length != knots.length - 1}.<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * @throws NonMonotonicSequenceException if the {@code knots} array is not strictly increasing.<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     *<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     */<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    public PolynomialSplineFunction(double knots[], PolynomialFunction polynomials[])<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        throws NullArgumentException, NumberIsTooSmallException,<a name="line.102"></a>
+<span class="sourceLineNo">103</span>               DimensionMismatchException, NonMonotonicSequenceException{<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        if (knots == null ||<a name="line.104"></a>
+<span class="sourceLineNo">105</span>            polynomials == null) {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>            throw new NullArgumentException();<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        }<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        if (knots.length &lt; 2) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>            throw new NumberIsTooSmallException(LocalizedFormats.NOT_ENOUGH_POINTS_IN_SPLINE_PARTITION,<a name="line.109"></a>
+<span class="sourceLineNo">110</span>                                                2, knots.length, false);<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        }<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        if (knots.length - 1 != polynomials.length) {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>            throw new DimensionMismatchException(polynomials.length, knots.length);<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        }<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        MathArrays.checkOrder(knots);<a name="line.115"></a>
+<span class="sourceLineNo">116</span><a name="line.116"></a>
+<span class="sourceLineNo">117</span>        this.n = knots.length -1;<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        this.knots = new double[n + 1];<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        System.arraycopy(knots, 0, this.knots, 0, n + 1);<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        this.polynomials = new PolynomialFunction[n];<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        System.arraycopy(polynomials, 0, this.polynomials, 0, n);<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    }<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>    /**<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     * Compute the value for the function.<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * See {@link PolynomialSplineFunction} for details on the algorithm for<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     * computing the value of the function.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     *<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * @param v Point for which the function value should be computed.<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     * @return the value.<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * @throws OutOfRangeException if {@code v} is outside of the domain of the<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     * spline function (smaller than the smallest knot point or larger than the<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     * largest knot point).<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     */<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    public double value(double v) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        if (v &lt; knots[0] || v &gt; knots[n]) {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            throw new OutOfRangeException(v, knots[0], knots[n]);<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        }<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        int i = Arrays.binarySearch(knots, v);<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        if (i &lt; 0) {<a name="line.140"></a>
+<span class="sourceLineNo">141</span>            i = -i - 2;<a name="line.141"></a>
+<span class="sourceLineNo">142</span>        }<a name="line.142"></a>
+<span class="sourceLineNo">143</span>        // This will handle the case where v is the last knot value<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        // There are only n-1 polynomials, so if v is the last knot<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        // then we will use the last polynomial to calculate the value.<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        if ( i &gt;= polynomials.length ) {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>            i--;<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        }<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        return polynomials[i].value(v - knots[i]);<a name="line.149"></a>
+<span class="sourceLineNo">150</span>    }<a name="line.150"></a>
+<span class="sourceLineNo">151</span><a name="line.151"></a>
+<span class="sourceLineNo">152</span>    /**<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     * Get the derivative of the polynomial spline function.<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     *<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     * @return the derivative function.<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     */<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    public UnivariateFunction derivative() {<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        return polynomialSplineDerivative();<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    }<a name="line.159"></a>
+<span class="sourceLineNo">160</span><a name="line.160"></a>
+<span class="sourceLineNo">161</span>    /**<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     * Get the derivative of the polynomial spline function.<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     *<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     * @return the derivative function.<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     */<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    public PolynomialSplineFunction polynomialSplineDerivative() {<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        PolynomialFunction derivativePolynomials[] = new PolynomialFunction[n];<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        for (int i = 0; i &lt; n; i++) {<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            derivativePolynomials[i] = polynomials[i].polynomialDerivative();<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        }<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        return new PolynomialSplineFunction(knots, derivativePolynomials);<a name="line.171"></a>
+<span class="sourceLineNo">172</span>    }<a name="line.172"></a>
+<span class="sourceLineNo">173</span><a name="line.173"></a>
+<span class="sourceLineNo">174</span><a name="line.174"></a>
+<span class="sourceLineNo">175</span>    /** {@inheritDoc}<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     * @since 3.1<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     */<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    public DerivativeStructure value(final DerivativeStructure t) {<a name="line.178"></a>
+<span class="sourceLineNo">179</span>        final double t0 = t.getValue();<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        if (t0 &lt; knots[0] || t0 &gt; knots[n]) {<a name="line.180"></a>
+<span class="sourceLineNo">181</span>            throw new OutOfRangeException(t0, knots[0], knots[n]);<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        }<a name="line.182"></a>
+<span class="sourceLineNo">183</span>        int i = Arrays.binarySearch(knots, t0);<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        if (i &lt; 0) {<a name="line.184"></a>
+<span class="sourceLineNo">185</span>            i = -i - 2;<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        }<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        // This will handle the case where t is the last knot value<a name="line.187"></a>
+<span class="sourceLineNo">188</span>        // There are only n-1 polynomials, so if t is the last knot<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        // then we will use the last polynomial to calculate the value.<a name="line.189"></a>
+<span class="sourceLineNo">190</span>        if ( i &gt;= polynomials.length ) {<a name="line.190"></a>
+<span class="sourceLineNo">191</span>            i--;<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        }<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        return polynomials[i].value(t.subtract(knots[i]));<a name="line.193"></a>
+<span class="sourceLineNo">194</span>    }<a name="line.194"></a>
+<span class="sourceLineNo">195</span><a name="line.195"></a>
+<span class="sourceLineNo">196</span>    /**<a name="line.196"></a>
+<span class="sourceLineNo">197</span>     * Get the number of spline segments.<a name="line.197"></a>
+<span class="sourceLineNo">198</span>     * It is also the number of polynomials and the number of knot points - 1.<a name="line.198"></a>
+<span class="sourceLineNo">199</span>     *<a name="line.199"></a>
+<span class="sourceLineNo">200</span>     * @return the number of spline segments.<a name="line.200"></a>
+<span class="sourceLineNo">201</span>     */<a name="line.201"></a>
+<span class="sourceLineNo">202</span>    public int getN() {<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        return n;<a name="line.203"></a>
+<span class="sourceLineNo">204</span>    }<a name="line.204"></a>
+<span class="sourceLineNo">205</span><a name="line.205"></a>
+<span class="sourceLineNo">206</span>    /**<a name="line.206"></a>
+<span class="sourceLineNo">207</span>     * Get a copy of the interpolating polynomials array.<a name="line.207"></a>
+<span class="sourceLineNo">208</span>     * It returns a fresh copy of the array. Changes made to the copy will<a name="line.208"></a>
+<span class="sourceLineNo">209</span>     * not affect the polynomials property.<a name="line.209"></a>
+<span class="sourceLineNo">210</span>     *<a name="line.210"></a>
+<span class="sourceLineNo">211</span>     * @return the interpolating polynomials.<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     */<a name="line.212"></a>
+<span class="sourceLineNo">213</span>    public PolynomialFunction[] getPolynomials() {<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        PolynomialFunction p[] = new PolynomialFunction[n];<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        System.arraycopy(polynomials, 0, p, 0, n);<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        return p;<a name="line.216"></a>
+<span class="sourceLineNo">217</span>    }<a name="line.217"></a>
+<span class="sourceLineNo">218</span><a name="line.218"></a>
+<span class="sourceLineNo">219</span>    /**<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     * Get an array copy of the knot points.<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     * It returns a fresh copy of the array. Changes made to the copy<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     * will not affect the knots property.<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     *<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     * @return the knot points.<a name="line.224"></a>
+<span class="sourceLineNo">225</span>     */<a name="line.225"></a>
+<span class="sourceLineNo">226</span>    public double[] getKnots() {<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        double out[] = new double[n + 1];<a name="line.227"></a>
+<span class="sourceLineNo">228</span>        System.arraycopy(knots, 0, out, 0, n + 1);<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        return out;<a name="line.229"></a>
+<span class="sourceLineNo">230</span>    }<a name="line.230"></a>
+<span class="sourceLineNo">231</span><a name="line.231"></a>
+<span class="sourceLineNo">232</span>    /**<a name="line.232"></a>
+<span class="sourceLineNo">233</span>     * Indicates whether a point is within the interpolation range.<a name="line.233"></a>
+<span class="sourceLineNo">234</span>     *<a name="line.234"></a>
+<span class="sourceLineNo">235</span>     * @param x Point.<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     * @return {@code true} if {@code x} is a valid point.<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     */<a name="line.237"></a>
+<span class="sourceLineNo">238</span>    public boolean isValidPoint(double x) {<a name="line.238"></a>
+<span class="sourceLineNo">239</span>        if (x &lt; knots[0] ||<a name="line.239"></a>
+<span class="sourceLineNo">240</span>            x &gt; knots[n]) {<a name="line.240"></a>
+<span class="sourceLineNo">241</span>            return false;<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        } else {<a name="line.242"></a>
+<span class="sourceLineNo">243</span>            return true;<a name="line.243"></a>
+<span class="sourceLineNo">244</span>        }<a name="line.244"></a>
+<span class="sourceLineNo">245</span>    }<a name="line.245"></a>
+<span class="sourceLineNo">246</span>}<a name="line.246"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

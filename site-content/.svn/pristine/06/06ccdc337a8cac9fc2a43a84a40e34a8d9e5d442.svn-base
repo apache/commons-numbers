@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractParameterizable.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode</a> &gt; <span class="el_source">AbstractParameterizable.java</span></div><h1>AbstractParameterizable.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.ode;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+/** This abstract class provides boilerplate parameters list.
+ *
+ * @since 3.0
+ */
+
+public abstract class AbstractParameterizable implements Parameterizable {
+
+   /** List of the parameters names. */
+    private final Collection&lt;String&gt; parametersNames;
+
+    /** Simple constructor.
+     * @param names names of the supported parameters
+     */
+<span class="fc" id="L35">    protected AbstractParameterizable(final String ... names) {</span>
+<span class="fc" id="L36">        parametersNames = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        for (final String name : names) {</span>
+<span class="fc" id="L38">            parametersNames.add(name);</span>
+        }
+<span class="fc" id="L40">    }</span>
+
+    /** Simple constructor.
+     * @param names names of the supported parameters
+     */
+<span class="nc" id="L45">    protected AbstractParameterizable(final Collection&lt;String&gt; names) {</span>
+<span class="nc" id="L46">        parametersNames = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L47">        parametersNames.addAll(names);</span>
+<span class="nc" id="L48">    }</span>
+
+    /** {@inheritDoc} */
+    public Collection&lt;String&gt; getParametersNames() {
+<span class="nc" id="L52">        return parametersNames;</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isSupported(final String name) {
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        for (final String supportedName : parametersNames) {</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">            if (supportedName.equals(name)) {</span>
+<span class="fc" id="L59">                return true;</span>
+            }
+<span class="fc" id="L61">        }</span>
+<span class="fc" id="L62">        return false;</span>
+    }
+
+    /** Check if a parameter is supported and throw an IllegalArgumentException if not.
+     * @param name name of the parameter to check
+     * @exception UnknownParameterException if the parameter is not supported
+     * @see #isSupported(String)
+     */
+    public void complainIfNotSupported(final String name)
+        throws UnknownParameterException {
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (!isSupported(name)) {</span>
+<span class="fc" id="L73">            throw new UnknownParameterException(name);</span>
+        }
+<span class="fc" id="L75">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

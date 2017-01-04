@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ExponentialDecayFunction.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ml.neuralnet.sofm.util</a> &gt; <span class="el_source">ExponentialDecayFunction.java</span></div><h1>ExponentialDecayFunction.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ml.neuralnet.sofm.util;
+
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * Exponential decay function: &lt;code&gt;a e&lt;sup&gt;-x / b&lt;/sup&gt;&lt;/code&gt;,
+ * where {@code x} is the (integer) independent variable.
+ * &lt;br/&gt;
+ * Class is immutable.
+ *
+ * @since 3.3
+ */
+public class ExponentialDecayFunction {
+    /** Factor {@code a}. */
+    private final double a;
+    /** Factor {@code 1 / b}. */
+    private final double oneOverB;
+
+    /**
+     * Creates an instance. It will be such that
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@code a = initValue}&lt;/li&gt;
+     *  &lt;li&gt;{@code b = -numCall / ln(valueAtNumCall / initValue)}&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param initValue Initial value, i.e. {@link #value(long) value(0)}.
+     * @param valueAtNumCall Value of the function at {@code numCall}.
+     * @param numCall Argument for which the function returns
+     * {@code valueAtNumCall}.
+     * @throws NotStrictlyPositiveException if {@code initValue &lt;= 0}.
+     * @throws NotStrictlyPositiveException if {@code valueAtNumCall &lt;= 0}.
+     * @throws NumberIsTooLargeException if {@code valueAtNumCall &gt;= initValue}.
+     * @throws NotStrictlyPositiveException if {@code numCall &lt;= 0}.
+     */
+    public ExponentialDecayFunction(double initValue,
+                                    double valueAtNumCall,
+<span class="fc" id="L56">                                    long numCall) {</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        if (initValue &lt;= 0) {</span>
+<span class="fc" id="L58">            throw new NotStrictlyPositiveException(initValue);</span>
+        }
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (valueAtNumCall &lt;= 0) {</span>
+<span class="fc" id="L61">            throw new NotStrictlyPositiveException(valueAtNumCall);</span>
+        }
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        if (valueAtNumCall &gt;= initValue) {</span>
+<span class="fc" id="L64">            throw new NumberIsTooLargeException(valueAtNumCall, initValue, false);</span>
+        }
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        if (numCall &lt;= 0) {</span>
+<span class="fc" id="L67">            throw new NotStrictlyPositiveException(numCall);</span>
+        }
+
+<span class="fc" id="L70">        a = initValue;</span>
+<span class="fc" id="L71">        oneOverB = -FastMath.log(valueAtNumCall / initValue) / numCall;</span>
+<span class="fc" id="L72">    }</span>
+
+    /**
+     * Computes &lt;code&gt;a e&lt;sup&gt;-numCall / b&lt;/sup&gt;&lt;/code&gt;.
+     *
+     * @param numCall Current step of the training task.
+     * @return the value of the function at {@code numCall}.
+     */
+    public double value(long numCall) {
+<span class="fc" id="L81">        return a * FastMath.exp(-numCall * oneOverB);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

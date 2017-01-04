@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BitsStreamGenerator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.random</a> &gt; <span class="el_source">BitsStreamGenerator.java</span></div><h1>BitsStreamGenerator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.random;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.util.FastMath;
+
+/** Base class for random number generators that generates bits streams.
+ *
+ * @since 2.0
+ */
+public abstract class BitsStreamGenerator
+    implements RandomGenerator,
+               Serializable {
+    /** Serializable version identifier */
+    private static final long serialVersionUID = 20130104L;
+    /** Next gaussian. */
+    private double nextGaussian;
+
+    /**
+     * Creates a new random number generator.
+     */
+<span class="fc" id="L40">    public BitsStreamGenerator() {</span>
+<span class="fc" id="L41">        nextGaussian = Double.NaN;</span>
+<span class="fc" id="L42">    }</span>
+
+    /** {@inheritDoc} */
+    public abstract void setSeed(int seed);
+
+    /** {@inheritDoc} */
+    public abstract void setSeed(int[] seed);
+
+    /** {@inheritDoc} */
+    public abstract void setSeed(long seed);
+
+    /** Generate next pseudorandom number.
+     * &lt;p&gt;This method is the core generation algorithm. It is used by all the
+     * public generation methods for the various primitive types {@link
+     * #nextBoolean()}, {@link #nextBytes(byte[])}, {@link #nextDouble()},
+     * {@link #nextFloat()}, {@link #nextGaussian()}, {@link #nextInt()},
+     * {@link #next(int)} and {@link #nextLong()}.&lt;/p&gt;
+     * @param bits number of random bits to produce
+     * @return random bits generated
+     */
+    protected abstract int next(int bits);
+
+    /** {@inheritDoc} */
+    public boolean nextBoolean() {
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        return next(1) != 0;</span>
+    }
+
+    /** {@inheritDoc} */
+    public double nextDouble() {
+<span class="fc" id="L71">        final long high = ((long) next(26)) &lt;&lt; 26;</span>
+<span class="fc" id="L72">        final int  low  = next(26);</span>
+<span class="fc" id="L73">        return (high | low) * 0x1.0p-52d;</span>
+    }
+
+    /** {@inheritDoc} */
+    public float nextFloat() {
+<span class="fc" id="L78">        return next(23) * 0x1.0p-23f;</span>
+    }
+
+    /** {@inheritDoc} */
+    public double nextGaussian() {
+
+        final double random;
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (Double.isNaN(nextGaussian)) {</span>
+            // generate a new pair of gaussian numbers
+<span class="fc" id="L87">            final double x = nextDouble();</span>
+<span class="fc" id="L88">            final double y = nextDouble();</span>
+<span class="fc" id="L89">            final double alpha = 2 * FastMath.PI * x;</span>
+<span class="fc" id="L90">            final double r      = FastMath.sqrt(-2 * FastMath.log(y));</span>
+<span class="fc" id="L91">            random       = r * FastMath.cos(alpha);</span>
+<span class="fc" id="L92">            nextGaussian = r * FastMath.sin(alpha);</span>
+<span class="fc" id="L93">        } else {</span>
+            // use the second element of the pair already generated
+<span class="fc" id="L95">            random = nextGaussian;</span>
+<span class="fc" id="L96">            nextGaussian = Double.NaN;</span>
+        }
+
+<span class="fc" id="L99">        return random;</span>
+
+    }
+
+    /** {@inheritDoc} */
+    public int nextInt() {
+<span class="fc" id="L105">        return next(32);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     * &lt;p&gt;This default implementation is copied from Apache Harmony
+     * java.util.Random (r929253).&lt;/p&gt;
+     *
+     * &lt;p&gt;Implementation notes: &lt;ul&gt;
+     * &lt;li&gt;If n is a power of 2, this method returns
+     * {@code (int) ((n * (long) next(31)) &gt;&gt; 31)}.&lt;/li&gt;
+     *
+     * &lt;li&gt;If n is not a power of 2, what is returned is {@code next(31) % n}
+     * with {@code next(31)} values rejected (i.e. regenerated) until a
+     * value that is larger than the remainder of {@code Integer.MAX_VALUE / n}
+     * is generated. Rejection of this initial segment is necessary to ensure
+     * a uniform distribution.&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;
+     */
+    public int nextInt(int n) throws IllegalArgumentException {
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        if (n &gt; 0) {</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">            if ((n &amp; -n) == n) {</span>
+<span class="fc" id="L126">                return (int) ((n * (long) next(31)) &gt;&gt; 31);</span>
+            }
+            int bits;
+            int val;
+            do {
+<span class="fc" id="L131">                bits = next(31);</span>
+<span class="fc" id="L132">                val = bits % n;</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">            } while (bits - val + (n - 1) &lt; 0);</span>
+<span class="fc" id="L134">            return val;</span>
+        }
+<span class="fc" id="L136">        throw new NotStrictlyPositiveException(n);</span>
+    }
+
+    /** {@inheritDoc} */
+    public long nextLong() {
+<span class="fc" id="L141">        final long high  = ((long) next(32)) &lt;&lt; 32;</span>
+<span class="fc" id="L142">        final long  low  = ((long) next(32)) &amp; 0xffffffffL;</span>
+<span class="fc" id="L143">        return high | low;</span>
+    }
+
+    /**
+     * Returns a pseudorandom, uniformly distributed {@code long} value
+     * between 0 (inclusive) and the specified value (exclusive), drawn from
+     * this random number generator's sequence.
+     *
+     * @param n the bound on the random number to be returned.  Must be
+     * positive.
+     * @return  a pseudorandom, uniformly distributed {@code long}
+     * value between 0 (inclusive) and n (exclusive).
+     * @throws IllegalArgumentException  if n is not positive.
+     */
+    public long nextLong(long n) throws IllegalArgumentException {
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (n &gt; 0) {</span>
+            long bits;
+            long val;
+            do {
+<span class="nc" id="L162">                bits = ((long) next(31)) &lt;&lt; 32;</span>
+<span class="nc" id="L163">                bits |= ((long) next(32)) &amp; 0xffffffffL;</span>
+<span class="nc" id="L164">                val  = bits % n;</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">            } while (bits - val + (n - 1) &lt; 0);</span>
+<span class="nc" id="L166">            return val;</span>
+        }
+<span class="nc" id="L168">        throw new NotStrictlyPositiveException(n);</span>
+    }
+
+    /**
+     * Clears the cache used by the default implementation of
+     * {@link #nextGaussian}.
+     */
+    public void clear() {
+<span class="fc" id="L176">        nextGaussian = Double.NaN;</span>
+<span class="fc" id="L177">    }</span>
+
+    /**
+     * Generates random bytes and places them into a user-supplied array.
+     *
+     * &lt;p&gt;
+     * The array is filled with bytes extracted from random integers.
+     * This implies that the number of random bytes generated may be larger than
+     * the length of the byte array.
+     * &lt;/p&gt;
+     *
+     * @param bytes Array in which to put the generated bytes. Cannot be {@code null}.
+     */
+    public void nextBytes(byte[] bytes) {
+<span class="fc" id="L191">        nextBytesFill(bytes, 0, bytes.length);</span>
+<span class="fc" id="L192">    }</span>
+
+    /**
+     * Generates random bytes and places them into a user-supplied array.
+     *
+     * &lt;p&gt;
+     * The array is filled with bytes extracted from random integers.
+     * This implies that the number of random bytes generated may be larger than
+     * the length of the byte array.
+     * &lt;/p&gt;
+     *
+     * @param bytes Array in which to put the generated bytes. Cannot be {@code null}.
+     * @param start Index at which to start inserting the generated bytes.
+     * @param len Number of bytes to insert.
+     * @throws OutOfRangeException if {@code start &lt; 0} or {@code start &gt;= bytes.length}.
+     * @throws OutOfRangeException if {@code len &lt; 0} or {@code len &gt; bytes.length - start}.
+     */
+    public void nextBytes(byte[] bytes,
+                          int start,
+                          int len) {
+<span class="nc bnc" id="L212" title="All 4 branches missed.">        if (start &lt; 0 ||</span>
+            start &gt;= bytes.length) {
+<span class="nc" id="L214">            throw new OutOfRangeException(start, 0, bytes.length);</span>
+        }
+<span class="nc bnc" id="L216" title="All 4 branches missed.">        if (len &lt; 0 ||</span>
+            len &gt; bytes.length - start) {
+<span class="nc" id="L218">            throw new OutOfRangeException(len, 0, bytes.length - start);</span>
+        }
+
+<span class="nc" id="L221">        nextBytesFill(bytes, start, len);</span>
+<span class="nc" id="L222">    }</span>
+
+    /**
+     * Generates random bytes and places them into a user-supplied array.
+     *
+     * &lt;p&gt;
+     * The array is filled with bytes extracted from random integers.
+     * This implies that the number of random bytes generated may be larger than
+     * the length of the byte array.
+     * &lt;/p&gt;
+     *
+     * @param bytes Array in which to put the generated bytes. Cannot be {@code null}.
+     * @param start Index at which to start inserting the generated bytes.
+     * @param len Number of bytes to insert.
+     */
+    private void nextBytesFill(byte[] bytes,
+                               int start,
+                               int len) {
+<span class="fc" id="L240">        int index = start; // Index of first insertion.</span>
+
+        // Index of first insertion plus multiple 4 part of length (i.e. length
+        // with two least significant bits unset).
+<span class="fc" id="L244">        final int indexLoopLimit = index + (len &amp; 0x7ffffffc);</span>
+
+        // Start filling in the byte array, 4 bytes at a time.
+<span class="fc bfc" id="L247" title="All 2 branches covered.">        while (index &lt; indexLoopLimit) {</span>
+<span class="fc" id="L248">            final int random = next(32);</span>
+<span class="fc" id="L249">            bytes[index++] = (byte) random;</span>
+<span class="fc" id="L250">            bytes[index++] = (byte) (random &gt;&gt;&gt; 8);</span>
+<span class="fc" id="L251">            bytes[index++] = (byte) (random &gt;&gt;&gt; 16);</span>
+<span class="fc" id="L252">            bytes[index++] = (byte) (random &gt;&gt;&gt; 24);</span>
+<span class="fc" id="L253">        }</span>
+
+<span class="fc" id="L255">        final int indexLimit = start + len; // Index of last insertion + 1.</span>
+
+        // Fill in the remaining bytes.
+<span class="pc bpc" id="L258" title="1 of 2 branches missed.">        if (index &lt; indexLimit) {</span>
+<span class="fc" id="L259">            int random = next(32);</span>
+            while (true) {
+<span class="fc" id="L261">                bytes[index++] = (byte) random;</span>
+<span class="fc bfc" id="L262" title="All 2 branches covered.">                if (index &lt; indexLimit) {</span>
+<span class="fc" id="L263">                    random &gt;&gt;&gt;= 8;</span>
+                } else {
+                    break;
+                }
+            }
+        }
+<span class="fc" id="L269">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

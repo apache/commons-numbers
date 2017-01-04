@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MultiDirectionalSimplex.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optimization.direct</a> &gt; <span class="el_source">MultiDirectionalSimplex.java</span></div><h1>MultiDirectionalSimplex.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.optimization.direct;
+
+import java.util.Comparator;
+
+import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.optimization.PointValuePair;
+
+/**
+ * This class implements the multi-directional direct search method.
+ *
+ * @deprecated As of 3.1 (to be removed in 4.0).
+ * @since 3.0
+ */
+@Deprecated
+public class MultiDirectionalSimplex extends AbstractSimplex {
+    /** Default value for {@link #khi}: {@value}. */
+    private static final double DEFAULT_KHI = 2;
+    /** Default value for {@link #gamma}: {@value}. */
+    private static final double DEFAULT_GAMMA = 0.5;
+    /** Expansion coefficient. */
+    private final double khi;
+    /** Contraction coefficient. */
+    private final double gamma;
+
+    /**
+     * Build a multi-directional simplex with default coefficients.
+     * The default values are 2.0 for khi and 0.5 for gamma.
+     *
+     * @param n Dimension of the simplex.
+     */
+    public MultiDirectionalSimplex(final int n) {
+<span class="fc" id="L49">        this(n, 1d);</span>
+<span class="fc" id="L50">    }</span>
+
+    /**
+     * Build a multi-directional simplex with default coefficients.
+     * The default values are 2.0 for khi and 0.5 for gamma.
+     *
+     * @param n Dimension of the simplex.
+     * @param sideLength Length of the sides of the default (hypercube)
+     * simplex. See {@link AbstractSimplex#AbstractSimplex(int,double)}.
+     */
+    public MultiDirectionalSimplex(final int n, double sideLength) {
+<span class="fc" id="L61">        this(n, sideLength, DEFAULT_KHI, DEFAULT_GAMMA);</span>
+<span class="fc" id="L62">    }</span>
+
+    /**
+     * Build a multi-directional simplex with specified coefficients.
+     *
+     * @param n Dimension of the simplex. See
+     * {@link AbstractSimplex#AbstractSimplex(int,double)}.
+     * @param khi Expansion coefficient.
+     * @param gamma Contraction coefficient.
+     */
+    public MultiDirectionalSimplex(final int n,
+                                   final double khi, final double gamma) {
+<span class="nc" id="L74">        this(n, 1d, khi, gamma);</span>
+<span class="nc" id="L75">    }</span>
+
+    /**
+     * Build a multi-directional simplex with specified coefficients.
+     *
+     * @param n Dimension of the simplex. See
+     * {@link AbstractSimplex#AbstractSimplex(int,double)}.
+     * @param sideLength Length of the sides of the default (hypercube)
+     * simplex. See {@link AbstractSimplex#AbstractSimplex(int,double)}.
+     * @param khi Expansion coefficient.
+     * @param gamma Contraction coefficient.
+     */
+    public MultiDirectionalSimplex(final int n, double sideLength,
+                                   final double khi, final double gamma) {
+<span class="fc" id="L89">        super(n, sideLength);</span>
+
+<span class="fc" id="L91">        this.khi   = khi;</span>
+<span class="fc" id="L92">        this.gamma = gamma;</span>
+<span class="fc" id="L93">    }</span>
+
+    /**
+     * Build a multi-directional simplex with default coefficients.
+     * The default values are 2.0 for khi and 0.5 for gamma.
+     *
+     * @param steps Steps along the canonical axes representing box edges.
+     * They may be negative but not zero. See
+     */
+    public MultiDirectionalSimplex(final double[] steps) {
+<span class="fc" id="L103">        this(steps, DEFAULT_KHI, DEFAULT_GAMMA);</span>
+<span class="fc" id="L104">    }</span>
+
+    /**
+     * Build a multi-directional simplex with specified coefficients.
+     *
+     * @param steps Steps along the canonical axes representing box edges.
+     * They may be negative but not zero. See
+     * {@link AbstractSimplex#AbstractSimplex(double[])}.
+     * @param khi Expansion coefficient.
+     * @param gamma Contraction coefficient.
+     */
+    public MultiDirectionalSimplex(final double[] steps,
+                                   final double khi, final double gamma) {
+<span class="fc" id="L117">        super(steps);</span>
+
+<span class="fc" id="L119">        this.khi   = khi;</span>
+<span class="fc" id="L120">        this.gamma = gamma;</span>
+<span class="fc" id="L121">    }</span>
+
+    /**
+     * Build a multi-directional simplex with default coefficients.
+     * The default values are 2.0 for khi and 0.5 for gamma.
+     *
+     * @param referenceSimplex Reference simplex. See
+     * {@link AbstractSimplex#AbstractSimplex(double[][])}.
+     */
+    public MultiDirectionalSimplex(final double[][] referenceSimplex) {
+<span class="fc" id="L131">        this(referenceSimplex, DEFAULT_KHI, DEFAULT_GAMMA);</span>
+<span class="fc" id="L132">    }</span>
+
+    /**
+     * Build a multi-directional simplex with specified coefficients.
+     *
+     * @param referenceSimplex Reference simplex. See
+     * {@link AbstractSimplex#AbstractSimplex(double[][])}.
+     * @param khi Expansion coefficient.
+     * @param gamma Contraction coefficient.
+     * @throws org.apache.commons.math3.exception.NotStrictlyPositiveException
+     * if the reference simplex does not contain at least one point.
+     * @throws org.apache.commons.math3.exception.DimensionMismatchException
+     * if there is a dimension mismatch in the reference simplex.
+     */
+    public MultiDirectionalSimplex(final double[][] referenceSimplex,
+                                   final double khi, final double gamma) {
+<span class="fc" id="L148">        super(referenceSimplex);</span>
+
+<span class="fc" id="L150">        this.khi   = khi;</span>
+<span class="fc" id="L151">        this.gamma = gamma;</span>
+<span class="fc" id="L152">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public void iterate(final MultivariateFunction evaluationFunction,
+                        final Comparator&lt;PointValuePair&gt; comparator) {
+        // Save the original simplex.
+<span class="fc" id="L159">        final PointValuePair[] original = getPoints();</span>
+<span class="fc" id="L160">        final PointValuePair best = original[0];</span>
+
+        // Perform a reflection step.
+<span class="fc" id="L163">        final PointValuePair reflected = evaluateNewSimplex(evaluationFunction,</span>
+                                                                original, 1, comparator);
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        if (comparator.compare(reflected, best) &lt; 0) {</span>
+            // Compute the expanded simplex.
+<span class="fc" id="L167">            final PointValuePair[] reflectedSimplex = getPoints();</span>
+<span class="fc" id="L168">            final PointValuePair expanded = evaluateNewSimplex(evaluationFunction,</span>
+                                                                   original, khi, comparator);
+<span class="fc bfc" id="L170" title="All 2 branches covered.">            if (comparator.compare(reflected, expanded) &lt;= 0) {</span>
+                // Keep the reflected simplex.
+<span class="fc" id="L172">                setPoints(reflectedSimplex);</span>
+            }
+            // Keep the expanded simplex.
+<span class="fc" id="L175">            return;</span>
+        }
+
+        // Compute the contracted simplex.
+<span class="fc" id="L179">        evaluateNewSimplex(evaluationFunction, original, gamma, comparator);</span>
+
+<span class="fc" id="L181">    }</span>
+
+    /**
+     * Compute and evaluate a new simplex.
+     *
+     * @param evaluationFunction Evaluation function.
+     * @param original Original simplex (to be preserved).
+     * @param coeff Linear coefficient.
+     * @param comparator Comparator to use to sort simplex vertices from best
+     * to poorest.
+     * @return the best point in the transformed simplex.
+     * @throws org.apache.commons.math3.exception.TooManyEvaluationsException
+     * if the maximal number of evaluations is exceeded.
+     */
+    private PointValuePair evaluateNewSimplex(final MultivariateFunction evaluationFunction,
+                                                  final PointValuePair[] original,
+                                                  final double coeff,
+                                                  final Comparator&lt;PointValuePair&gt; comparator) {
+<span class="fc" id="L199">        final double[] xSmallest = original[0].getPointRef();</span>
+        // Perform a linear transformation on all the simplex points,
+        // except the first one.
+<span class="fc" id="L202">        setPoint(0, original[0]);</span>
+<span class="fc" id="L203">        final int dim = getDimension();</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">        for (int i = 1; i &lt; getSize(); i++) {</span>
+<span class="fc" id="L205">            final double[] xOriginal = original[i].getPointRef();</span>
+<span class="fc" id="L206">            final double[] xTransformed = new double[dim];</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">            for (int j = 0; j &lt; dim; j++) {</span>
+<span class="fc" id="L208">                xTransformed[j] = xSmallest[j] + coeff * (xSmallest[j] - xOriginal[j]);</span>
+            }
+<span class="fc" id="L210">            setPoint(i, new PointValuePair(xTransformed, Double.NaN, false));</span>
+        }
+
+        // Evaluate the simplex.
+<span class="fc" id="L214">        evaluate(evaluationFunction, comparator);</span>
+
+<span class="fc" id="L216">        return getPoint(0);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

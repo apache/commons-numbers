@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BaseAbstractMultivariateSimpleBoundsOptimizer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optimization.direct</a> &gt; <span class="el_source">BaseAbstractMultivariateSimpleBoundsOptimizer.java</span></div><h1>BaseAbstractMultivariateSimpleBoundsOptimizer.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.optimization.direct;
+
+import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.optimization.BaseMultivariateOptimizer;
+import org.apache.commons.math3.optimization.BaseMultivariateSimpleBoundsOptimizer;
+import org.apache.commons.math3.optimization.GoalType;
+import org.apache.commons.math3.optimization.InitialGuess;
+import org.apache.commons.math3.optimization.SimpleBounds;
+import org.apache.commons.math3.optimization.PointValuePair;
+import org.apache.commons.math3.optimization.ConvergenceChecker;
+
+/**
+ * Base class for implementing optimizers for multivariate scalar functions,
+ * subject to simple bounds: The valid range of the parameters is an interval.
+ * The interval can possibly be infinite (in one or both directions).
+ * This base class handles the boiler-plate methods associated to thresholds
+ * settings, iterations and evaluations counting.
+ *
+ * @param &lt;FUNC&gt; Type of the objective function to be optimized.
+ *
+ * @deprecated As of 3.1 (to be removed in 4.0).
+ * @since 3.0
+ * @deprecated As of 3.1 since the {@link BaseAbstractMultivariateOptimizer
+ * base class} contains similar functionality.
+ */
+@Deprecated
+public abstract class BaseAbstractMultivariateSimpleBoundsOptimizer&lt;FUNC extends MultivariateFunction&gt;
+    extends BaseAbstractMultivariateOptimizer&lt;FUNC&gt;
+    implements BaseMultivariateOptimizer&lt;FUNC&gt;,
+               BaseMultivariateSimpleBoundsOptimizer&lt;FUNC&gt; {
+    /**
+     * Simple constructor with default settings.
+     * The convergence checker is set to a
+     * {@link org.apache.commons.math3.optimization.SimpleValueChecker}.
+     *
+     * @see BaseAbstractMultivariateOptimizer#BaseAbstractMultivariateOptimizer()
+     * @deprecated See {@link org.apache.commons.math3.optimization.SimpleValueChecker#SimpleValueChecker()}
+     */
+    @Deprecated
+<span class="nc" id="L57">    protected BaseAbstractMultivariateSimpleBoundsOptimizer() {}</span>
+
+    /**
+     * @param checker Convergence checker.
+     */
+    protected BaseAbstractMultivariateSimpleBoundsOptimizer(ConvergenceChecker&lt;PointValuePair&gt; checker) {
+<span class="fc" id="L63">        super(checker);</span>
+<span class="fc" id="L64">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public PointValuePair optimize(int maxEval, FUNC f, GoalType goalType,
+                                   double[] startPoint) {
+<span class="fc" id="L70">        return super.optimizeInternal(maxEval, f, goalType,</span>
+                                      new InitialGuess(startPoint));
+    }
+
+    /** {@inheritDoc} */
+    public PointValuePair optimize(int maxEval, FUNC f, GoalType goalType,
+                                   double[] startPoint,
+                                   double[] lower, double[] upper) {
+<span class="fc" id="L78">        return super.optimizeInternal(maxEval, f, goalType,</span>
+                                      new InitialGuess(startPoint),
+                                      new SimpleBounds(lower, upper));
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

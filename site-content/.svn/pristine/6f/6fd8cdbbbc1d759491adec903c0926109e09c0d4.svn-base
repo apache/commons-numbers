@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FiniteDifferencesDifferentiator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.differentiation</a> &gt; <span class="el_source">FiniteDifferencesDifferentiator.java</span></div><h1>FiniteDifferencesDifferentiator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.analysis.differentiation;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.analysis.UnivariateMatrixFunction;
+import org.apache.commons.math3.analysis.UnivariateVectorFunction;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.NotPositiveException;
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.util.FastMath;
+
+/** Univariate functions differentiator using finite differences.
+ * &lt;p&gt;
+ * This class creates some wrapper objects around regular
+ * {@link UnivariateFunction univariate functions} (or {@link
+ * UnivariateVectorFunction univariate vector functions} or {@link
+ * UnivariateMatrixFunction univariate matrix functions}). These
+ * wrapper objects compute derivatives in addition to function
+ * values.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * The wrapper objects work by calling the underlying function on
+ * a sampling grid around the current point and performing polynomial
+ * interpolation. A finite differences scheme with n points is
+ * theoretically able to compute derivatives up to order n-1, but
+ * it is generally better to have a slight margin. The step size must
+ * also be small enough in order for the polynomial approximation to
+ * be good in the current point neighborhood, but it should not be too
+ * small because numerical instability appears quickly (there are several
+ * differences of close points). Choosing the number of points and
+ * the step size is highly problem dependent.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * As an example of good and bad settings, lets consider the quintic
+ * polynomial function {@code f(x) = (x-1)*(x-0.5)*x*(x+0.5)*(x+1)}.
+ * Since it is a polynomial, finite differences with at least 6 points
+ * should theoretically recover the exact same polynomial and hence
+ * compute accurate derivatives for any order. However, due to numerical
+ * errors, we get the following results for a 7 points finite differences
+ * for abscissae in the [-10, 10] range:
+ * &lt;ul&gt;
+ *   &lt;li&gt;step size = 0.25, second order derivative error about 9.97e-10&lt;/li&gt;
+ *   &lt;li&gt;step size = 0.25, fourth order derivative error about 5.43e-8&lt;/li&gt;
+ *   &lt;li&gt;step size = 1.0e-6, second order derivative error about 148&lt;/li&gt;
+ *   &lt;li&gt;step size = 1.0e-6, fourth order derivative error about 6.35e+14&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;p&gt;
+ * This example shows that the small step size is really bad, even simply
+ * for second order derivative!&lt;/p&gt;
+ *
+ * @since 3.1
+ */
+public class FiniteDifferencesDifferentiator
+    implements UnivariateFunctionDifferentiator, UnivariateVectorFunctionDifferentiator,
+               UnivariateMatrixFunctionDifferentiator, Serializable {
+
+    /** Serializable UID. */
+    private static final long serialVersionUID = 20120917L;
+
+    /** Number of points to use. */
+    private final int nbPoints;
+
+    /** Step size. */
+    private final double stepSize;
+
+    /** Half sample span. */
+    private final double halfSampleSpan;
+
+    /** Lower bound for independent variable. */
+    private final double tMin;
+
+    /** Upper bound for independent variable. */
+    private final double tMax;
+
+    /**
+     * Build a differentiator with number of points and step size when independent variable is unbounded.
+     * &lt;p&gt;
+     * Beware that wrong settings for the finite differences differentiator
+     * can lead to highly unstable and inaccurate results, especially for
+     * high derivation orders. Using very small step sizes is often a
+     * &lt;em&gt;bad&lt;/em&gt; idea.
+     * &lt;/p&gt;
+     * @param nbPoints number of points to use
+     * @param stepSize step size (gap between each point)
+     * @exception NotPositiveException if {@code stepsize &lt;= 0} (note that
+     * {@link NotPositiveException} extends {@link NumberIsTooSmallException})
+     * @exception NumberIsTooSmallException {@code nbPoint &lt;= 1}
+     */
+    public FiniteDifferencesDifferentiator(final int nbPoints, final double stepSize)
+        throws NotPositiveException, NumberIsTooSmallException {
+<span class="fc" id="L109">        this(nbPoints, stepSize, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);</span>
+<span class="fc" id="L110">    }</span>
+
+    /**
+     * Build a differentiator with number of points and step size when independent variable is bounded.
+     * &lt;p&gt;
+     * When the independent variable is bounded (tLower &amp;lt; t &amp;lt; tUpper), the sampling
+     * points used for differentiation will be adapted to ensure the constraint holds
+     * even near the boundaries. This means the sample will not be centered anymore in
+     * these cases. At an extreme case, computing derivatives exactly at the lower bound
+     * will lead the sample to be entirely on the right side of the derivation point.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * Note that the boundaries are considered to be excluded for function evaluation.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * Beware that wrong settings for the finite differences differentiator
+     * can lead to highly unstable and inaccurate results, especially for
+     * high derivation orders. Using very small step sizes is often a
+     * &lt;em&gt;bad&lt;/em&gt; idea.
+     * &lt;/p&gt;
+     * @param nbPoints number of points to use
+     * @param stepSize step size (gap between each point)
+     * @param tLower lower bound for independent variable (may be {@code Double.NEGATIVE_INFINITY}
+     * if there are no lower bounds)
+     * @param tUpper upper bound for independent variable (may be {@code Double.POSITIVE_INFINITY}
+     * if there are no upper bounds)
+     * @exception NotPositiveException if {@code stepsize &lt;= 0} (note that
+     * {@link NotPositiveException} extends {@link NumberIsTooSmallException})
+     * @exception NumberIsTooSmallException {@code nbPoint &lt;= 1}
+     * @exception NumberIsTooLargeException {@code stepSize * (nbPoints - 1) &gt;= tUpper - tLower}
+     */
+    public FiniteDifferencesDifferentiator(final int nbPoints, final double stepSize,
+                                           final double tLower, final double tUpper)
+<span class="fc" id="L143">            throws NotPositiveException, NumberIsTooSmallException, NumberIsTooLargeException {</span>
+
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        if (nbPoints &lt;= 1) {</span>
+<span class="fc" id="L146">            throw new NumberIsTooSmallException(stepSize, 1, false);</span>
+        }
+<span class="fc" id="L148">        this.nbPoints = nbPoints;</span>
+
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        if (stepSize &lt;= 0) {</span>
+<span class="fc" id="L151">            throw new NotPositiveException(stepSize);</span>
+        }
+<span class="fc" id="L153">        this.stepSize = stepSize;</span>
+
+<span class="fc" id="L155">        halfSampleSpan = 0.5 * stepSize * (nbPoints - 1);</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        if (2 * halfSampleSpan &gt;= tUpper - tLower) {</span>
+<span class="fc" id="L157">            throw new NumberIsTooLargeException(2 * halfSampleSpan, tUpper - tLower, false);</span>
+        }
+<span class="fc" id="L159">        final double safety = FastMath.ulp(halfSampleSpan);</span>
+<span class="fc" id="L160">        this.tMin = tLower + halfSampleSpan + safety;</span>
+<span class="fc" id="L161">        this.tMax = tUpper - halfSampleSpan - safety;</span>
+
+<span class="fc" id="L163">    }</span>
+
+    /**
+     * Get the number of points to use.
+     * @return number of points to use
+     */
+    public int getNbPoints() {
+<span class="fc" id="L170">        return nbPoints;</span>
+    }
+
+    /**
+     * Get the step size.
+     * @return step size
+     */
+    public double getStepSize() {
+<span class="fc" id="L178">        return stepSize;</span>
+    }
+
+    /**
+     * Evaluate derivatives from a sample.
+     * &lt;p&gt;
+     * Evaluation is done using divided differences.
+     * &lt;/p&gt;
+     * @param t evaluation abscissa value and derivatives
+     * @param t0 first sample point abscissa
+     * @param y function values sample {@code y[i] = f(t[i]) = f(t0 + i * stepSize)}
+     * @return value and derivatives at {@code t}
+     * @exception NumberIsTooLargeException if the requested derivation order
+     * is larger or equal to the number of points
+     */
+    private DerivativeStructure evaluate(final DerivativeStructure t, final double t0,
+                                         final double[] y)
+        throws NumberIsTooLargeException {
+
+        // create divided differences diagonal arrays
+<span class="fc" id="L198">        final double[] top    = new double[nbPoints];</span>
+<span class="fc" id="L199">        final double[] bottom = new double[nbPoints];</span>
+
+<span class="fc bfc" id="L201" title="All 2 branches covered.">        for (int i = 0; i &lt; nbPoints; ++i) {</span>
+
+            // update the bottom diagonal of the divided differences array
+<span class="fc" id="L204">            bottom[i] = y[i];</span>
+<span class="fc bfc" id="L205" title="All 2 branches covered.">            for (int j = 1; j &lt;= i; ++j) {</span>
+<span class="fc" id="L206">                bottom[i - j] = (bottom[i - j + 1] - bottom[i - j]) / (j * stepSize);</span>
+            }
+
+            // update the top diagonal of the divided differences array
+<span class="fc" id="L210">            top[i] = bottom[0];</span>
+
+        }
+
+        // evaluate interpolation polynomial (represented by top diagonal) at t
+<span class="fc" id="L215">        final int order            = t.getOrder();</span>
+<span class="fc" id="L216">        final int parameters       = t.getFreeParameters();</span>
+<span class="fc" id="L217">        final double[] derivatives = t.getAllDerivatives();</span>
+<span class="fc" id="L218">        final double dt0           = t.getValue() - t0;</span>
+<span class="fc" id="L219">        DerivativeStructure interpolation = new DerivativeStructure(parameters, order, 0.0);</span>
+<span class="fc" id="L220">        DerivativeStructure monomial = null;</span>
+<span class="fc bfc" id="L221" title="All 2 branches covered.">        for (int i = 0; i &lt; nbPoints; ++i) {</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">            if (i == 0) {</span>
+                // start with monomial(t) = 1
+<span class="fc" id="L224">                monomial = new DerivativeStructure(parameters, order, 1.0);</span>
+            } else {
+                // monomial(t) = (t - t0) * (t - t1) * ... * (t - t(i-1))
+<span class="fc" id="L227">                derivatives[0] = dt0 - (i - 1) * stepSize;</span>
+<span class="fc" id="L228">                final DerivativeStructure deltaX = new DerivativeStructure(parameters, order, derivatives);</span>
+<span class="fc" id="L229">                monomial = monomial.multiply(deltaX);</span>
+            }
+<span class="fc" id="L231">            interpolation = interpolation.add(monomial.multiply(top[i]));</span>
+        }
+
+<span class="fc" id="L234">        return interpolation;</span>
+
+    }
+
+    /** {@inheritDoc}
+     * &lt;p&gt;The returned object cannot compute derivatives to arbitrary orders. The
+     * value function will throw a {@link NumberIsTooLargeException} if the requested
+     * derivation order is larger or equal to the number of points.
+     * &lt;/p&gt;
+     */
+    public UnivariateDifferentiableFunction differentiate(final UnivariateFunction function) {
+<span class="fc" id="L245">        return new UnivariateDifferentiableFunction() {</span>
+
+            /** {@inheritDoc} */
+            public double value(final double x) throws MathIllegalArgumentException {
+<span class="fc" id="L249">                return function.value(x);</span>
+            }
+
+            /** {@inheritDoc} */
+            public DerivativeStructure value(final DerivativeStructure t)
+                throws MathIllegalArgumentException {
+
+                // check we can achieve the requested derivation order with the sample
+<span class="fc bfc" id="L257" title="All 2 branches covered.">                if (t.getOrder() &gt;= nbPoints) {</span>
+<span class="fc" id="L258">                    throw new NumberIsTooLargeException(t.getOrder(), nbPoints, false);</span>
+                }
+
+                // compute sample position, trying to be centered if possible
+<span class="fc" id="L262">                final double t0 = FastMath.max(FastMath.min(t.getValue(), tMax), tMin) - halfSampleSpan;</span>
+
+                // compute sample points
+<span class="fc" id="L265">                final double[] y = new double[nbPoints];</span>
+<span class="fc bfc" id="L266" title="All 2 branches covered.">                for (int i = 0; i &lt; nbPoints; ++i) {</span>
+<span class="fc" id="L267">                    y[i] = function.value(t0 + i * stepSize);</span>
+                }
+
+                // evaluate derivatives
+<span class="fc" id="L271">                return evaluate(t, t0, y);</span>
+
+            }
+
+        };
+    }
+
+    /** {@inheritDoc}
+     * &lt;p&gt;The returned object cannot compute derivatives to arbitrary orders. The
+     * value function will throw a {@link NumberIsTooLargeException} if the requested
+     * derivation order is larger or equal to the number of points.
+     * &lt;/p&gt;
+     */
+    public UnivariateDifferentiableVectorFunction differentiate(final UnivariateVectorFunction function) {
+<span class="fc" id="L285">        return new UnivariateDifferentiableVectorFunction() {</span>
+
+            /** {@inheritDoc} */
+            public double[]value(final double x) throws MathIllegalArgumentException {
+<span class="fc" id="L289">                return function.value(x);</span>
+            }
+
+            /** {@inheritDoc} */
+            public DerivativeStructure[] value(final DerivativeStructure t)
+                throws MathIllegalArgumentException {
+
+                // check we can achieve the requested derivation order with the sample
+<span class="fc bfc" id="L297" title="All 2 branches covered.">                if (t.getOrder() &gt;= nbPoints) {</span>
+<span class="fc" id="L298">                    throw new NumberIsTooLargeException(t.getOrder(), nbPoints, false);</span>
+                }
+
+                // compute sample position, trying to be centered if possible
+<span class="fc" id="L302">                final double t0 = FastMath.max(FastMath.min(t.getValue(), tMax), tMin) - halfSampleSpan;</span>
+
+                // compute sample points
+<span class="fc" id="L305">                double[][] y = null;</span>
+<span class="fc bfc" id="L306" title="All 2 branches covered.">                for (int i = 0; i &lt; nbPoints; ++i) {</span>
+<span class="fc" id="L307">                    final double[] v = function.value(t0 + i * stepSize);</span>
+<span class="fc bfc" id="L308" title="All 2 branches covered.">                    if (i == 0) {</span>
+<span class="fc" id="L309">                        y = new double[v.length][nbPoints];</span>
+                    }
+<span class="fc bfc" id="L311" title="All 2 branches covered.">                    for (int j = 0; j &lt; v.length; ++j) {</span>
+<span class="fc" id="L312">                        y[j][i] = v[j];</span>
+                    }
+                }
+
+                // evaluate derivatives
+<span class="fc" id="L317">                final DerivativeStructure[] value = new DerivativeStructure[y.length];</span>
+<span class="fc bfc" id="L318" title="All 2 branches covered.">                for (int j = 0; j &lt; value.length; ++j) {</span>
+<span class="fc" id="L319">                    value[j] = evaluate(t, t0, y[j]);</span>
+                }
+
+<span class="fc" id="L322">                return value;</span>
+
+            }
+
+        };
+    }
+
+    /** {@inheritDoc}
+     * &lt;p&gt;The returned object cannot compute derivatives to arbitrary orders. The
+     * value function will throw a {@link NumberIsTooLargeException} if the requested
+     * derivation order is larger or equal to the number of points.
+     * &lt;/p&gt;
+     */
+    public UnivariateDifferentiableMatrixFunction differentiate(final UnivariateMatrixFunction function) {
+<span class="fc" id="L336">        return new UnivariateDifferentiableMatrixFunction() {</span>
+
+            /** {@inheritDoc} */
+            public double[][]  value(final double x) throws MathIllegalArgumentException {
+<span class="fc" id="L340">                return function.value(x);</span>
+            }
+
+            /** {@inheritDoc} */
+            public DerivativeStructure[][]  value(final DerivativeStructure t)
+                throws MathIllegalArgumentException {
+
+                // check we can achieve the requested derivation order with the sample
+<span class="fc bfc" id="L348" title="All 2 branches covered.">                if (t.getOrder() &gt;= nbPoints) {</span>
+<span class="fc" id="L349">                    throw new NumberIsTooLargeException(t.getOrder(), nbPoints, false);</span>
+                }
+
+                // compute sample position, trying to be centered if possible
+<span class="fc" id="L353">                final double t0 = FastMath.max(FastMath.min(t.getValue(), tMax), tMin) - halfSampleSpan;</span>
+
+                // compute sample points
+<span class="fc" id="L356">                double[][][] y = null;</span>
+<span class="fc bfc" id="L357" title="All 2 branches covered.">                for (int i = 0; i &lt; nbPoints; ++i) {</span>
+<span class="fc" id="L358">                    final double[][] v = function.value(t0 + i * stepSize);</span>
+<span class="fc bfc" id="L359" title="All 2 branches covered.">                    if (i == 0) {</span>
+<span class="fc" id="L360">                        y = new double[v.length][v[0].length][nbPoints];</span>
+                    }
+<span class="fc bfc" id="L362" title="All 2 branches covered.">                    for (int j = 0; j &lt; v.length; ++j) {</span>
+<span class="fc bfc" id="L363" title="All 2 branches covered.">                        for (int k = 0; k &lt; v[j].length; ++k) {</span>
+<span class="fc" id="L364">                            y[j][k][i] = v[j][k];</span>
+                        }
+                    }
+                }
+
+                // evaluate derivatives
+<span class="fc" id="L370">                final DerivativeStructure[][] value = new DerivativeStructure[y.length][y[0].length];</span>
+<span class="fc bfc" id="L371" title="All 2 branches covered.">                for (int j = 0; j &lt; value.length; ++j) {</span>
+<span class="fc bfc" id="L372" title="All 2 branches covered.">                    for (int k = 0; k &lt; y[j].length; ++k) {</span>
+<span class="fc" id="L373">                        value[j][k] = evaluate(t, t0, y[j][k]);</span>
+                    }
+                }
+
+<span class="fc" id="L377">                return value;</span>
+
+            }
+
+        };
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,233 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.apache.commons.math3.ode.nonstiff;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.util.FastMath;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>/**<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * This class implements the 5(4) Dormand-Prince integrator for Ordinary<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * Differential Equations.<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span> * &lt;p&gt;This integrator is an embedded Runge-Kutta integrator<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * of order 5(4) used in local extrapolation mode (i.e. the solution<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * is computed using the high order formula) with stepsize control<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * (and automatic step initialization) and continuous output. This<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * method uses 7 functions evaluations per step. However, since this<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * is an &lt;i&gt;fsal&lt;/i&gt;, the last evaluation of one step is the same as<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * the first evaluation of the next step and hence can be avoided. So<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * the cost is really 6 functions evaluations per step.&lt;/p&gt;<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * &lt;p&gt;This method has been published (whithout the continuous output<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * that was added by Shampine in 1986) in the following article :<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * &lt;pre&gt;<a name="line.38"></a>
+<span class="sourceLineNo">039</span> *  A family of embedded Runge-Kutta formulae<a name="line.39"></a>
+<span class="sourceLineNo">040</span> *  J. R. Dormand and P. J. Prince<a name="line.40"></a>
+<span class="sourceLineNo">041</span> *  Journal of Computational and Applied Mathematics<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *  volume 6, no 1, 1980, pp. 19-26<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * &lt;/pre&gt;&lt;/p&gt;<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * @since 1.2<a name="line.45"></a>
+<span class="sourceLineNo">046</span> */<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>public class DormandPrince54Integrator extends EmbeddedRungeKuttaIntegrator {<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>  /** Integrator method name. */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>  private static final String METHOD_NAME = "Dormand-Prince 5(4)";<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>  /** Time steps Butcher array. */<a name="line.53"></a>
+<span class="sourceLineNo">054</span>  private static final double[] STATIC_C = {<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    1.0/5.0, 3.0/10.0, 4.0/5.0, 8.0/9.0, 1.0, 1.0<a name="line.55"></a>
+<span class="sourceLineNo">056</span>  };<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>  /** Internal weights Butcher array. */<a name="line.58"></a>
+<span class="sourceLineNo">059</span>  private static final double[][] STATIC_A = {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    {1.0/5.0},<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    {3.0/40.0, 9.0/40.0},<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    {44.0/45.0, -56.0/15.0, 32.0/9.0},<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    {19372.0/6561.0, -25360.0/2187.0, 64448.0/6561.0,  -212.0/729.0},<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    {9017.0/3168.0, -355.0/33.0, 46732.0/5247.0, 49.0/176.0, -5103.0/18656.0},<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    {35.0/384.0, 0.0, 500.0/1113.0, 125.0/192.0, -2187.0/6784.0, 11.0/84.0}<a name="line.65"></a>
+<span class="sourceLineNo">066</span>  };<a name="line.66"></a>
+<span class="sourceLineNo">067</span><a name="line.67"></a>
+<span class="sourceLineNo">068</span>  /** Propagation weights Butcher array. */<a name="line.68"></a>
+<span class="sourceLineNo">069</span>  private static final double[] STATIC_B = {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    35.0/384.0, 0.0, 500.0/1113.0, 125.0/192.0, -2187.0/6784.0, 11.0/84.0, 0.0<a name="line.70"></a>
+<span class="sourceLineNo">071</span>  };<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>  /** Error array, element 1. */<a name="line.73"></a>
+<span class="sourceLineNo">074</span>  private static final double E1 =     71.0 / 57600.0;<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>  // element 2 is zero, so it is neither stored nor used<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>  /** Error array, element 3. */<a name="line.78"></a>
+<span class="sourceLineNo">079</span>  private static final double E3 =    -71.0 / 16695.0;<a name="line.79"></a>
+<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">081</span>  /** Error array, element 4. */<a name="line.81"></a>
+<span class="sourceLineNo">082</span>  private static final double E4 =     71.0 / 1920.0;<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>  /** Error array, element 5. */<a name="line.84"></a>
+<span class="sourceLineNo">085</span>  private static final double E5 = -17253.0 / 339200.0;<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>  /** Error array, element 6. */<a name="line.87"></a>
+<span class="sourceLineNo">088</span>  private static final double E6 =     22.0 / 525.0;<a name="line.88"></a>
+<span class="sourceLineNo">089</span><a name="line.89"></a>
+<span class="sourceLineNo">090</span>  /** Error array, element 7. */<a name="line.90"></a>
+<span class="sourceLineNo">091</span>  private static final double E7 =     -1.0 / 40.0;<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>  /** Simple constructor.<a name="line.93"></a>
+<span class="sourceLineNo">094</span>   * Build a fifth order Dormand-Prince integrator with the given step bounds<a name="line.94"></a>
+<span class="sourceLineNo">095</span>   * @param minStep minimal step (sign is irrelevant, regardless of<a name="line.95"></a>
+<span class="sourceLineNo">096</span>   * integration direction, forward or backward), the last step can<a name="line.96"></a>
+<span class="sourceLineNo">097</span>   * be smaller than this<a name="line.97"></a>
+<span class="sourceLineNo">098</span>   * @param maxStep maximal step (sign is irrelevant, regardless of<a name="line.98"></a>
+<span class="sourceLineNo">099</span>   * integration direction, forward or backward), the last step can<a name="line.99"></a>
+<span class="sourceLineNo">100</span>   * be smaller than this<a name="line.100"></a>
+<span class="sourceLineNo">101</span>   * @param scalAbsoluteTolerance allowed absolute error<a name="line.101"></a>
+<span class="sourceLineNo">102</span>   * @param scalRelativeTolerance allowed relative error<a name="line.102"></a>
+<span class="sourceLineNo">103</span>   */<a name="line.103"></a>
+<span class="sourceLineNo">104</span>  public DormandPrince54Integrator(final double minStep, final double maxStep,<a name="line.104"></a>
+<span class="sourceLineNo">105</span>                                   final double scalAbsoluteTolerance,<a name="line.105"></a>
+<span class="sourceLineNo">106</span>                                   final double scalRelativeTolerance) {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    super(METHOD_NAME, true, STATIC_C, STATIC_A, STATIC_B, new DormandPrince54StepInterpolator(),<a name="line.107"></a>
+<span class="sourceLineNo">108</span>          minStep, maxStep, scalAbsoluteTolerance, scalRelativeTolerance);<a name="line.108"></a>
+<span class="sourceLineNo">109</span>  }<a name="line.109"></a>
+<span class="sourceLineNo">110</span><a name="line.110"></a>
+<span class="sourceLineNo">111</span>  /** Simple constructor.<a name="line.111"></a>
+<span class="sourceLineNo">112</span>   * Build a fifth order Dormand-Prince integrator with the given step bounds<a name="line.112"></a>
+<span class="sourceLineNo">113</span>   * @param minStep minimal step (sign is irrelevant, regardless of<a name="line.113"></a>
+<span class="sourceLineNo">114</span>   * integration direction, forward or backward), the last step can<a name="line.114"></a>
+<span class="sourceLineNo">115</span>   * be smaller than this<a name="line.115"></a>
+<span class="sourceLineNo">116</span>   * @param maxStep maximal step (sign is irrelevant, regardless of<a name="line.116"></a>
+<span class="sourceLineNo">117</span>   * integration direction, forward or backward), the last step can<a name="line.117"></a>
+<span class="sourceLineNo">118</span>   * be smaller than this<a name="line.118"></a>
+<span class="sourceLineNo">119</span>   * @param vecAbsoluteTolerance allowed absolute error<a name="line.119"></a>
+<span class="sourceLineNo">120</span>   * @param vecRelativeTolerance allowed relative error<a name="line.120"></a>
+<span class="sourceLineNo">121</span>   */<a name="line.121"></a>
+<span class="sourceLineNo">122</span>  public DormandPrince54Integrator(final double minStep, final double maxStep,<a name="line.122"></a>
+<span class="sourceLineNo">123</span>                                   final double[] vecAbsoluteTolerance,<a name="line.123"></a>
+<span class="sourceLineNo">124</span>                                   final double[] vecRelativeTolerance) {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    super(METHOD_NAME, true, STATIC_C, STATIC_A, STATIC_B, new DormandPrince54StepInterpolator(),<a name="line.125"></a>
+<span class="sourceLineNo">126</span>          minStep, maxStep, vecAbsoluteTolerance, vecRelativeTolerance);<a name="line.126"></a>
+<span class="sourceLineNo">127</span>  }<a name="line.127"></a>
+<span class="sourceLineNo">128</span><a name="line.128"></a>
+<span class="sourceLineNo">129</span>  /** {@inheritDoc} */<a name="line.129"></a>
+<span class="sourceLineNo">130</span>  @Override<a name="line.130"></a>
+<span class="sourceLineNo">131</span>  public int getOrder() {<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    return 5;<a name="line.132"></a>
+<span class="sourceLineNo">133</span>  }<a name="line.133"></a>
+<span class="sourceLineNo">134</span><a name="line.134"></a>
+<span class="sourceLineNo">135</span>  /** {@inheritDoc} */<a name="line.135"></a>
+<span class="sourceLineNo">136</span>  @Override<a name="line.136"></a>
+<span class="sourceLineNo">137</span>  protected double estimateError(final double[][] yDotK,<a name="line.137"></a>
+<span class="sourceLineNo">138</span>                                 final double[] y0, final double[] y1,<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                                 final double h) {<a name="line.139"></a>
+<span class="sourceLineNo">140</span><a name="line.140"></a>
+<span class="sourceLineNo">141</span>    double error = 0;<a name="line.141"></a>
+<span class="sourceLineNo">142</span><a name="line.142"></a>
+<span class="sourceLineNo">143</span>    for (int j = 0; j &lt; mainSetDimension; ++j) {<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        final double errSum = E1 * yDotK[0][j] +  E3 * yDotK[2][j] +<a name="line.144"></a>
+<span class="sourceLineNo">145</span>                              E4 * yDotK[3][j] +  E5 * yDotK[4][j] +<a name="line.145"></a>
+<span class="sourceLineNo">146</span>                              E6 * yDotK[5][j] +  E7 * yDotK[6][j];<a name="line.146"></a>
+<span class="sourceLineNo">147</span><a name="line.147"></a>
+<span class="sourceLineNo">148</span>        final double yScale = FastMath.max(FastMath.abs(y0[j]), FastMath.abs(y1[j]));<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        final double tol = (vecAbsoluteTolerance == null) ?<a name="line.149"></a>
+<span class="sourceLineNo">150</span>                           (scalAbsoluteTolerance + scalRelativeTolerance * yScale) :<a name="line.150"></a>
+<span class="sourceLineNo">151</span>                               (vecAbsoluteTolerance[j] + vecRelativeTolerance[j] * yScale);<a name="line.151"></a>
+<span class="sourceLineNo">152</span>        final double ratio  = h * errSum / tol;<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        error += ratio * ratio;<a name="line.153"></a>
+<span class="sourceLineNo">154</span><a name="line.154"></a>
+<span class="sourceLineNo">155</span>    }<a name="line.155"></a>
+<span class="sourceLineNo">156</span><a name="line.156"></a>
+<span class="sourceLineNo">157</span>    return FastMath.sqrt(error / mainSetDimension);<a name="line.157"></a>
+<span class="sourceLineNo">158</span><a name="line.158"></a>
+<span class="sourceLineNo">159</span>  }<a name="line.159"></a>
+<span class="sourceLineNo">160</span><a name="line.160"></a>
+<span class="sourceLineNo">161</span>}<a name="line.161"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

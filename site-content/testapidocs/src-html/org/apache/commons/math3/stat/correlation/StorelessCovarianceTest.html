@@ -1,0 +1,335 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.stat.correlation;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.apache.commons.math3.TestUtils;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.linear.Array2DRowRealMatrix;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.linear.RealMatrix;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.random.ISAACRandom;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.junit.Assert;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.junit.Test;<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>public class StorelessCovarianceTest {<a name="line.26"></a>
+<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">028</span>    protected final double[] longleyData = new double[] {<a name="line.28"></a>
+<span class="sourceLineNo">029</span>            60323,83.0,234289,2356,1590,107608,1947,<a name="line.29"></a>
+<span class="sourceLineNo">030</span>            61122,88.5,259426,2325,1456,108632,1948,<a name="line.30"></a>
+<span class="sourceLineNo">031</span>            60171,88.2,258054,3682,1616,109773,1949,<a name="line.31"></a>
+<span class="sourceLineNo">032</span>            61187,89.5,284599,3351,1650,110929,1950,<a name="line.32"></a>
+<span class="sourceLineNo">033</span>            63221,96.2,328975,2099,3099,112075,1951,<a name="line.33"></a>
+<span class="sourceLineNo">034</span>            63639,98.1,346999,1932,3594,113270,1952,<a name="line.34"></a>
+<span class="sourceLineNo">035</span>            64989,99.0,365385,1870,3547,115094,1953,<a name="line.35"></a>
+<span class="sourceLineNo">036</span>            63761,100.0,363112,3578,3350,116219,1954,<a name="line.36"></a>
+<span class="sourceLineNo">037</span>            66019,101.2,397469,2904,3048,117388,1955,<a name="line.37"></a>
+<span class="sourceLineNo">038</span>            67857,104.6,419180,2822,2857,118734,1956,<a name="line.38"></a>
+<span class="sourceLineNo">039</span>            68169,108.4,442769,2936,2798,120445,1957,<a name="line.39"></a>
+<span class="sourceLineNo">040</span>            66513,110.8,444546,4681,2637,121950,1958,<a name="line.40"></a>
+<span class="sourceLineNo">041</span>            68655,112.6,482704,3813,2552,123366,1959,<a name="line.41"></a>
+<span class="sourceLineNo">042</span>            69564,114.2,502601,3931,2514,125368,1960,<a name="line.42"></a>
+<span class="sourceLineNo">043</span>            69331,115.7,518173,4806,2572,127852,1961,<a name="line.43"></a>
+<span class="sourceLineNo">044</span>            70551,116.9,554894,4007,2827,130081,1962<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        };<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>    protected final double[] swissData = new double[] {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>            80.2,17.0,15,12,9.96,<a name="line.48"></a>
+<span class="sourceLineNo">049</span>            83.1,45.1,6,9,84.84,<a name="line.49"></a>
+<span class="sourceLineNo">050</span>            92.5,39.7,5,5,93.40,<a name="line.50"></a>
+<span class="sourceLineNo">051</span>            85.8,36.5,12,7,33.77,<a name="line.51"></a>
+<span class="sourceLineNo">052</span>            76.9,43.5,17,15,5.16,<a name="line.52"></a>
+<span class="sourceLineNo">053</span>            76.1,35.3,9,7,90.57,<a name="line.53"></a>
+<span class="sourceLineNo">054</span>            83.8,70.2,16,7,92.85,<a name="line.54"></a>
+<span class="sourceLineNo">055</span>            92.4,67.8,14,8,97.16,<a name="line.55"></a>
+<span class="sourceLineNo">056</span>            82.4,53.3,12,7,97.67,<a name="line.56"></a>
+<span class="sourceLineNo">057</span>            82.9,45.2,16,13,91.38,<a name="line.57"></a>
+<span class="sourceLineNo">058</span>            87.1,64.5,14,6,98.61,<a name="line.58"></a>
+<span class="sourceLineNo">059</span>            64.1,62.0,21,12,8.52,<a name="line.59"></a>
+<span class="sourceLineNo">060</span>            66.9,67.5,14,7,2.27,<a name="line.60"></a>
+<span class="sourceLineNo">061</span>            68.9,60.7,19,12,4.43,<a name="line.61"></a>
+<span class="sourceLineNo">062</span>            61.7,69.3,22,5,2.82,<a name="line.62"></a>
+<span class="sourceLineNo">063</span>            68.3,72.6,18,2,24.20,<a name="line.63"></a>
+<span class="sourceLineNo">064</span>            71.7,34.0,17,8,3.30,<a name="line.64"></a>
+<span class="sourceLineNo">065</span>            55.7,19.4,26,28,12.11,<a name="line.65"></a>
+<span class="sourceLineNo">066</span>            54.3,15.2,31,20,2.15,<a name="line.66"></a>
+<span class="sourceLineNo">067</span>            65.1,73.0,19,9,2.84,<a name="line.67"></a>
+<span class="sourceLineNo">068</span>            65.5,59.8,22,10,5.23,<a name="line.68"></a>
+<span class="sourceLineNo">069</span>            65.0,55.1,14,3,4.52,<a name="line.69"></a>
+<span class="sourceLineNo">070</span>            56.6,50.9,22,12,15.14,<a name="line.70"></a>
+<span class="sourceLineNo">071</span>            57.4,54.1,20,6,4.20,<a name="line.71"></a>
+<span class="sourceLineNo">072</span>            72.5,71.2,12,1,2.40,<a name="line.72"></a>
+<span class="sourceLineNo">073</span>            74.2,58.1,14,8,5.23,<a name="line.73"></a>
+<span class="sourceLineNo">074</span>            72.0,63.5,6,3,2.56,<a name="line.74"></a>
+<span class="sourceLineNo">075</span>            60.5,60.8,16,10,7.72,<a name="line.75"></a>
+<span class="sourceLineNo">076</span>            58.3,26.8,25,19,18.46,<a name="line.76"></a>
+<span class="sourceLineNo">077</span>            65.4,49.5,15,8,6.10,<a name="line.77"></a>
+<span class="sourceLineNo">078</span>            75.5,85.9,3,2,99.71,<a name="line.78"></a>
+<span class="sourceLineNo">079</span>            69.3,84.9,7,6,99.68,<a name="line.79"></a>
+<span class="sourceLineNo">080</span>            77.3,89.7,5,2,100.00,<a name="line.80"></a>
+<span class="sourceLineNo">081</span>            70.5,78.2,12,6,98.96,<a name="line.81"></a>
+<span class="sourceLineNo">082</span>            79.4,64.9,7,3,98.22,<a name="line.82"></a>
+<span class="sourceLineNo">083</span>            65.0,75.9,9,9,99.06,<a name="line.83"></a>
+<span class="sourceLineNo">084</span>            92.2,84.6,3,3,99.46,<a name="line.84"></a>
+<span class="sourceLineNo">085</span>            79.3,63.1,13,13,96.83,<a name="line.85"></a>
+<span class="sourceLineNo">086</span>            70.4,38.4,26,12,5.62,<a name="line.86"></a>
+<span class="sourceLineNo">087</span>            65.7,7.7,29,11,13.79,<a name="line.87"></a>
+<span class="sourceLineNo">088</span>            72.7,16.7,22,13,11.22,<a name="line.88"></a>
+<span class="sourceLineNo">089</span>            64.4,17.6,35,32,16.92,<a name="line.89"></a>
+<span class="sourceLineNo">090</span>            77.6,37.6,15,7,4.97,<a name="line.90"></a>
+<span class="sourceLineNo">091</span>            67.6,18.7,25,7,8.65,<a name="line.91"></a>
+<span class="sourceLineNo">092</span>            35.0,1.2,37,53,42.34,<a name="line.92"></a>
+<span class="sourceLineNo">093</span>            44.7,46.6,16,29,50.43,<a name="line.93"></a>
+<span class="sourceLineNo">094</span>            42.8,27.7,22,29,58.33<a name="line.94"></a>
+<span class="sourceLineNo">095</span>        };<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>    protected final double[][] longleyDataSimple = {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        {60323, 83.0},<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        {61122,88.5},<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        {60171, 88.2},<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        {61187, 89.5},<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        {63221, 96.2},<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        {63639, 98.1},<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        {64989, 99.0},<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        {63761, 100.0},<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        {66019, 101.2},<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        {67857, 104.6},<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        {68169, 108.4},<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        {66513, 110.8},<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        {68655, 112.6},<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        {69564, 114.2},<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        {69331, 115.7},<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        {70551, 116.9}<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    };<a name="line.114"></a>
+<span class="sourceLineNo">115</span><a name="line.115"></a>
+<span class="sourceLineNo">116</span>    @Test<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    public void testLonglySimpleVar(){<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        double rCov = 12333921.73333333246;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        StorelessBivariateCovariance cov = new StorelessBivariateCovariance();<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        for(int i=0;i&lt;longleyDataSimple.length;i++){<a name="line.120"></a>
+<span class="sourceLineNo">121</span>            cov.increment(longleyDataSimple[i][0],longleyDataSimple[i][0]);<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        }<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        TestUtils.assertEquals("simple covariance test", rCov, cov.getResult(), 10E-7);<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    }<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span>    @Test<a name="line.126"></a>
+<span class="sourceLineNo">127</span>    public void testLonglySimpleCov(){<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        double rCov = 36796.660000;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        StorelessBivariateCovariance cov = new StorelessBivariateCovariance();<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        for(int i=0;i&lt;longleyDataSimple.length;i++){<a name="line.130"></a>
+<span class="sourceLineNo">131</span>            cov.increment(longleyDataSimple[i][0], longleyDataSimple[i][1]);<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        }<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        TestUtils.assertEquals("simple covariance test", rCov, cov.getResult(), 10E-7);<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    }<a name="line.134"></a>
+<span class="sourceLineNo">135</span><a name="line.135"></a>
+<span class="sourceLineNo">136</span>    /**<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     * Test Longley dataset against R.<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     * Data Source: J. Longley (1967) "An Appraisal of Least Squares<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * Programs for the Electronic Computer from the Point of View of the User"<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     * Journal of the American Statistical Association, vol. 62. September,<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     * pp. 819-841.<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     *<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     * Data are from NIST:<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     * http://www.itl.nist.gov/div898/strd/lls/data/LINKS/DATA/Longley.dat<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     */<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    @Test<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    public void testLonglyByRow() {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        RealMatrix matrix = createRealMatrix(longleyData, 16, 7);<a name="line.148"></a>
+<span class="sourceLineNo">149</span><a name="line.149"></a>
+<span class="sourceLineNo">150</span>        double[] rData = new double[] {<a name="line.150"></a>
+<span class="sourceLineNo">151</span>         12333921.73333333246, 3.679666000000000e+04, 343330206.333333313,<a name="line.151"></a>
+<span class="sourceLineNo">152</span>         1649102.666666666744, 1117681.066666666651, 23461965.733333334, 16240.93333333333248,<a name="line.152"></a>
+<span class="sourceLineNo">153</span>         36796.66000000000, 1.164576250000000e+02, 1063604.115416667,<a name="line.153"></a>
+<span class="sourceLineNo">154</span>         6258.666250000000, 3490.253750000000, 73503.000000000, 50.92333333333334,<a name="line.154"></a>
+<span class="sourceLineNo">155</span>         343330206.33333331347, 1.063604115416667e+06, 9879353659.329166412,<a name="line.155"></a>
+<span class="sourceLineNo">156</span>         56124369.854166664183, 30880428.345833335072, 685240944.600000024, 470977.90000000002328,<a name="line.156"></a>
+<span class="sourceLineNo">157</span>         1649102.66666666674, 6.258666250000000e+03, 56124369.854166664,<a name="line.157"></a>
+<span class="sourceLineNo">158</span>         873223.429166666698, -115378.762499999997, 4462741.533333333, 2973.03333333333330,<a name="line.158"></a>
+<span class="sourceLineNo">159</span>         1117681.06666666665, 3.490253750000000e+03, 30880428.345833335,<a name="line.159"></a>
+<span class="sourceLineNo">160</span>         -115378.762499999997, 484304.095833333326, 1764098.133333333, 1382.43333333333339,<a name="line.160"></a>
+<span class="sourceLineNo">161</span>         23461965.73333333433, 7.350300000000000e+04, 685240944.600000024,<a name="line.161"></a>
+<span class="sourceLineNo">162</span>         4462741.533333333209, 1764098.133333333302, 48387348.933333330, 32917.40000000000146,<a name="line.162"></a>
+<span class="sourceLineNo">163</span>         16240.93333333333, 5.092333333333334e+01, 470977.900000000,<a name="line.163"></a>
+<span class="sourceLineNo">164</span>         2973.033333333333, 1382.433333333333, 32917.40000000, 22.66666666666667<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        };<a name="line.165"></a>
+<span class="sourceLineNo">166</span><a name="line.166"></a>
+<span class="sourceLineNo">167</span>        StorelessCovariance covMatrix = new StorelessCovariance(7);<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        for(int i=0;i&lt;matrix.getRowDimension();i++){<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            covMatrix.increment(matrix.getRow(i));<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        }<a name="line.170"></a>
+<span class="sourceLineNo">171</span><a name="line.171"></a>
+<span class="sourceLineNo">172</span>        RealMatrix covarianceMatrix = covMatrix.getCovarianceMatrix();<a name="line.172"></a>
+<span class="sourceLineNo">173</span><a name="line.173"></a>
+<span class="sourceLineNo">174</span>        TestUtils.assertEquals("covariance matrix", createRealMatrix(rData, 7, 7), covarianceMatrix, 10E-7);<a name="line.174"></a>
+<span class="sourceLineNo">175</span><a name="line.175"></a>
+<span class="sourceLineNo">176</span>    }<a name="line.176"></a>
+<span class="sourceLineNo">177</span><a name="line.177"></a>
+<span class="sourceLineNo">178</span>    /**<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     * Test R Swiss fertility dataset against R.<a name="line.179"></a>
+<span class="sourceLineNo">180</span>     * Data Source: R datasets package<a name="line.180"></a>
+<span class="sourceLineNo">181</span>     */<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    @Test<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    public void testSwissFertilityByRow() {<a name="line.183"></a>
+<span class="sourceLineNo">184</span>         RealMatrix matrix = createRealMatrix(swissData, 47, 5);<a name="line.184"></a>
+<span class="sourceLineNo">185</span><a name="line.185"></a>
+<span class="sourceLineNo">186</span>         double[] rData = new double[] {<a name="line.186"></a>
+<span class="sourceLineNo">187</span>           156.0424976873265, 100.1691489361702, -64.36692876965772, -79.7295097132285, 241.5632030527289,<a name="line.187"></a>
+<span class="sourceLineNo">188</span>           100.169148936170251, 515.7994172062905, -124.39283071230344, -139.6574005550416, 379.9043755781684,<a name="line.188"></a>
+<span class="sourceLineNo">189</span>           -64.3669287696577, -124.3928307123034, 63.64662349676226, 53.5758556891767, -190.5606105457909,<a name="line.189"></a>
+<span class="sourceLineNo">190</span>           -79.7295097132285, -139.6574005550416, 53.57585568917669, 92.4560592044403, -61.6988297872340,<a name="line.190"></a>
+<span class="sourceLineNo">191</span>            241.5632030527289, 379.9043755781684, -190.56061054579092, -61.6988297872340, 1739.2945371877890<a name="line.191"></a>
+<span class="sourceLineNo">192</span>         };<a name="line.192"></a>
+<span class="sourceLineNo">193</span><a name="line.193"></a>
+<span class="sourceLineNo">194</span>        StorelessCovariance covMatrix = new StorelessCovariance(5);<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        for(int i=0;i&lt;matrix.getRowDimension();i++){<a name="line.195"></a>
+<span class="sourceLineNo">196</span>            covMatrix.increment(matrix.getRow(i));<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        }<a name="line.197"></a>
+<span class="sourceLineNo">198</span><a name="line.198"></a>
+<span class="sourceLineNo">199</span>        RealMatrix covarianceMatrix = covMatrix.getCovarianceMatrix();<a name="line.199"></a>
+<span class="sourceLineNo">200</span><a name="line.200"></a>
+<span class="sourceLineNo">201</span>        TestUtils.assertEquals("covariance matrix", createRealMatrix(rData, 5, 5), covarianceMatrix, 10E-13);<a name="line.201"></a>
+<span class="sourceLineNo">202</span>    }<a name="line.202"></a>
+<span class="sourceLineNo">203</span><a name="line.203"></a>
+<span class="sourceLineNo">204</span>    /**<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     * Test symmetry of the covariance matrix<a name="line.205"></a>
+<span class="sourceLineNo">206</span>     */<a name="line.206"></a>
+<span class="sourceLineNo">207</span>    @Test<a name="line.207"></a>
+<span class="sourceLineNo">208</span>    public void testSymmetry() {<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        RealMatrix matrix = createRealMatrix(swissData, 47, 5);<a name="line.209"></a>
+<span class="sourceLineNo">210</span><a name="line.210"></a>
+<span class="sourceLineNo">211</span>        final int dimension = 5;<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        StorelessCovariance storelessCov = new StorelessCovariance(dimension);<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        for(int i=0;i&lt;matrix.getRowDimension();i++){<a name="line.213"></a>
+<span class="sourceLineNo">214</span>            storelessCov.increment(matrix.getRow(i));<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        }<a name="line.215"></a>
+<span class="sourceLineNo">216</span><a name="line.216"></a>
+<span class="sourceLineNo">217</span>        double[][] covMatrix = storelessCov.getData();<a name="line.217"></a>
+<span class="sourceLineNo">218</span>        for (int i = 0; i &lt; dimension; i++) {<a name="line.218"></a>
+<span class="sourceLineNo">219</span>            for (int j = i; j &lt; dimension; j++) {<a name="line.219"></a>
+<span class="sourceLineNo">220</span>                Assert.assertEquals(covMatrix[i][j], covMatrix[j][i], 10e-9);<a name="line.220"></a>
+<span class="sourceLineNo">221</span>            }<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        }<a name="line.222"></a>
+<span class="sourceLineNo">223</span>    }<a name="line.223"></a>
+<span class="sourceLineNo">224</span>    <a name="line.224"></a>
+<span class="sourceLineNo">225</span>    /**<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     * Test equality of covariance. chk: covariance of two<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     * samples separately and adds them together. cov: computes<a name="line.227"></a>
+<span class="sourceLineNo">228</span>     * covariance of the combined sample showing both are equal.<a name="line.228"></a>
+<span class="sourceLineNo">229</span>     */<a name="line.229"></a>
+<span class="sourceLineNo">230</span>    @Test<a name="line.230"></a>
+<span class="sourceLineNo">231</span>    public void testEquivalence() {<a name="line.231"></a>
+<span class="sourceLineNo">232</span>        int num_sets = 2;<a name="line.232"></a>
+<span class="sourceLineNo">233</span>        StorelessBivariateCovariance cov = new StorelessBivariateCovariance();// covariance of the superset<a name="line.233"></a>
+<span class="sourceLineNo">234</span>        StorelessBivariateCovariance chk = new StorelessBivariateCovariance();// check covariance made by appending covariance of subsets<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        <a name="line.235"></a>
+<span class="sourceLineNo">236</span>        ISAACRandom rand = new ISAACRandom(10L);// Seed can be changed<a name="line.236"></a>
+<span class="sourceLineNo">237</span>        for (int s = 0; s &lt; num_sets; s++) {// loop through sets of samlpes<a name="line.237"></a>
+<span class="sourceLineNo">238</span>            StorelessBivariateCovariance covs = new StorelessBivariateCovariance();<a name="line.238"></a>
+<span class="sourceLineNo">239</span>            for (int i = 0; i &lt; 5; i++) { // loop through individual samlpes.<a name="line.239"></a>
+<span class="sourceLineNo">240</span>                double x = rand.nextDouble();<a name="line.240"></a>
+<span class="sourceLineNo">241</span>                double y = rand.nextDouble();<a name="line.241"></a>
+<span class="sourceLineNo">242</span>                covs.increment(x, y);// add sample to the subset <a name="line.242"></a>
+<span class="sourceLineNo">243</span>                cov.increment(x, y);// add sample to the superset<a name="line.243"></a>
+<span class="sourceLineNo">244</span>            }<a name="line.244"></a>
+<span class="sourceLineNo">245</span>           chk.append(covs);<a name="line.245"></a>
+<span class="sourceLineNo">246</span>        }<a name="line.246"></a>
+<span class="sourceLineNo">247</span>        <a name="line.247"></a>
+<span class="sourceLineNo">248</span>        TestUtils.assertEquals("covariance subset test", chk.getResult(), cov.getResult(), 10E-7);<a name="line.248"></a>
+<span class="sourceLineNo">249</span>    }<a name="line.249"></a>
+<span class="sourceLineNo">250</span>  <a name="line.250"></a>
+<span class="sourceLineNo">251</span>    protected RealMatrix createRealMatrix(double[] data, int nRows, int nCols) {<a name="line.251"></a>
+<span class="sourceLineNo">252</span>        double[][] matrixData = new double[nRows][nCols];<a name="line.252"></a>
+<span class="sourceLineNo">253</span>        int ptr = 0;<a name="line.253"></a>
+<span class="sourceLineNo">254</span>        for (int i = 0; i &lt; nRows; i++) {<a name="line.254"></a>
+<span class="sourceLineNo">255</span>            System.arraycopy(data, ptr, matrixData[i], 0, nCols);<a name="line.255"></a>
+<span class="sourceLineNo">256</span>            ptr += nCols;<a name="line.256"></a>
+<span class="sourceLineNo">257</span>        }<a name="line.257"></a>
+<span class="sourceLineNo">258</span>        return new Array2DRowRealMatrix(matrixData);<a name="line.258"></a>
+<span class="sourceLineNo">259</span>    }<a name="line.259"></a>
+<span class="sourceLineNo">260</span><a name="line.260"></a>
+<span class="sourceLineNo">261</span><a name="line.261"></a>
+<span class="sourceLineNo">262</span>}<a name="line.262"></a>
+<span class="sourceLineNo">263</span><a name="line.263"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

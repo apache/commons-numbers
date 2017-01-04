@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CholeskyDecomposition.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.linear</a> &gt; <span class="el_source">CholeskyDecomposition.java</span></div><h1>CholeskyDecomposition.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.linear;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.util.FastMath;
+
+
+/**
+ * Calculates the Cholesky decomposition of a matrix.
+ * &lt;p&gt;The Cholesky decomposition of a real symmetric positive-definite
+ * matrix A consists of a lower triangular matrix L with same size such
+ * that: A = LL&lt;sup&gt;T&lt;/sup&gt;. In a sense, this is the square root of A.&lt;/p&gt;
+ * &lt;p&gt;This class is based on the class with similar name from the
+ * &lt;a href=&quot;http://math.nist.gov/javanumerics/jama/&quot;&gt;JAMA&lt;/a&gt; library, with the
+ * following changes:&lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;a {@link #getLT() getLT} method has been added,&lt;/li&gt;
+ *   &lt;li&gt;the {@code isspd} method has been removed, since the constructor of
+ *   this class throws a {@link NonPositiveDefiniteMatrixException} when a
+ *   matrix cannot be decomposed,&lt;/li&gt;
+ *   &lt;li&gt;a {@link #getDeterminant() getDeterminant} method has been added,&lt;/li&gt;
+ *   &lt;li&gt;the {@code solve} method has been replaced by a {@link #getSolver()
+ *   getSolver} method and the equivalent method provided by the returned
+ *   {@link DecompositionSolver}.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @see &lt;a href=&quot;http://mathworld.wolfram.com/CholeskyDecomposition.html&quot;&gt;MathWorld&lt;/a&gt;
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Cholesky_decomposition&quot;&gt;Wikipedia&lt;/a&gt;
+ * @since 2.0 (changed to concrete class in 3.0)
+ */
+public class CholeskyDecomposition {
+    /**
+     * Default threshold above which off-diagonal elements are considered too different
+     * and matrix not symmetric.
+     */
+    public static final double DEFAULT_RELATIVE_SYMMETRY_THRESHOLD = 1.0e-15;
+    /**
+     * Default threshold below which diagonal elements are considered null
+     * and matrix not positive definite.
+     */
+    public static final double DEFAULT_ABSOLUTE_POSITIVITY_THRESHOLD = 1.0e-10;
+    /** Row-oriented storage for L&lt;sup&gt;T&lt;/sup&gt; matrix data. */
+    private double[][] lTData;
+    /** Cached value of L. */
+    private RealMatrix cachedL;
+    /** Cached value of LT. */
+    private RealMatrix cachedLT;
+
+    /**
+     * Calculates the Cholesky decomposition of the given matrix.
+     * &lt;p&gt;
+     * Calling this constructor is equivalent to call {@link
+     * #CholeskyDecomposition(RealMatrix, double, double)} with the
+     * thresholds set to the default values {@link
+     * #DEFAULT_RELATIVE_SYMMETRY_THRESHOLD} and {@link
+     * #DEFAULT_ABSOLUTE_POSITIVITY_THRESHOLD}
+     * &lt;/p&gt;
+     * @param matrix the matrix to decompose
+     * @throws NonSquareMatrixException if the matrix is not square.
+     * @throws NonSymmetricMatrixException if the matrix is not symmetric.
+     * @throws NonPositiveDefiniteMatrixException if the matrix is not
+     * strictly positive definite.
+     * @see #CholeskyDecomposition(RealMatrix, double, double)
+     * @see #DEFAULT_RELATIVE_SYMMETRY_THRESHOLD
+     * @see #DEFAULT_ABSOLUTE_POSITIVITY_THRESHOLD
+     */
+    public CholeskyDecomposition(final RealMatrix matrix) {
+<span class="fc" id="L84">        this(matrix, DEFAULT_RELATIVE_SYMMETRY_THRESHOLD,</span>
+             DEFAULT_ABSOLUTE_POSITIVITY_THRESHOLD);
+<span class="fc" id="L86">    }</span>
+
+    /**
+     * Calculates the Cholesky decomposition of the given matrix.
+     * @param matrix the matrix to decompose
+     * @param relativeSymmetryThreshold threshold above which off-diagonal
+     * elements are considered too different and matrix not symmetric
+     * @param absolutePositivityThreshold threshold below which diagonal
+     * elements are considered null and matrix not positive definite
+     * @throws NonSquareMatrixException if the matrix is not square.
+     * @throws NonSymmetricMatrixException if the matrix is not symmetric.
+     * @throws NonPositiveDefiniteMatrixException if the matrix is not
+     * strictly positive definite.
+     * @see #CholeskyDecomposition(RealMatrix)
+     * @see #DEFAULT_RELATIVE_SYMMETRY_THRESHOLD
+     * @see #DEFAULT_ABSOLUTE_POSITIVITY_THRESHOLD
+     */
+    public CholeskyDecomposition(final RealMatrix matrix,
+                                     final double relativeSymmetryThreshold,
+<span class="fc" id="L105">                                     final double absolutePositivityThreshold) {</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        if (!matrix.isSquare()) {</span>
+<span class="fc" id="L107">            throw new NonSquareMatrixException(matrix.getRowDimension(),</span>
+                                               matrix.getColumnDimension());
+        }
+
+<span class="fc" id="L111">        final int order = matrix.getRowDimension();</span>
+<span class="fc" id="L112">        lTData   = matrix.getData();</span>
+<span class="fc" id="L113">        cachedL  = null;</span>
+<span class="fc" id="L114">        cachedLT = null;</span>
+
+        // check the matrix before transformation
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        for (int i = 0; i &lt; order; ++i) {</span>
+<span class="fc" id="L118">            final double[] lI = lTData[i];</span>
+
+            // check off-diagonal elements (and reset them to 0)
+<span class="fc bfc" id="L121" title="All 2 branches covered.">            for (int j = i + 1; j &lt; order; ++j) {</span>
+<span class="fc" id="L122">                final double[] lJ = lTData[j];</span>
+<span class="fc" id="L123">                final double lIJ = lI[j];</span>
+<span class="fc" id="L124">                final double lJI = lJ[i];</span>
+<span class="fc" id="L125">                final double maxDelta =</span>
+                    relativeSymmetryThreshold * FastMath.max(FastMath.abs(lIJ), FastMath.abs(lJI));
+<span class="fc bfc" id="L127" title="All 2 branches covered.">                if (FastMath.abs(lIJ - lJI) &gt; maxDelta) {</span>
+<span class="fc" id="L128">                    throw new NonSymmetricMatrixException(i, j, relativeSymmetryThreshold);</span>
+                }
+<span class="fc" id="L130">                lJ[i] = 0;</span>
+           }
+        }
+
+        // transform the matrix
+<span class="fc bfc" id="L135" title="All 2 branches covered.">        for (int i = 0; i &lt; order; ++i) {</span>
+
+<span class="fc" id="L137">            final double[] ltI = lTData[i];</span>
+
+            // check diagonal element
+<span class="fc bfc" id="L140" title="All 2 branches covered.">            if (ltI[i] &lt;= absolutePositivityThreshold) {</span>
+<span class="fc" id="L141">                throw new NonPositiveDefiniteMatrixException(ltI[i], i, absolutePositivityThreshold);</span>
+            }
+
+<span class="fc" id="L144">            ltI[i] = FastMath.sqrt(ltI[i]);</span>
+<span class="fc" id="L145">            final double inverse = 1.0 / ltI[i];</span>
+
+<span class="fc bfc" id="L147" title="All 2 branches covered.">            for (int q = order - 1; q &gt; i; --q) {</span>
+<span class="fc" id="L148">                ltI[q] *= inverse;</span>
+<span class="fc" id="L149">                final double[] ltQ = lTData[q];</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">                for (int p = q; p &lt; order; ++p) {</span>
+<span class="fc" id="L151">                    ltQ[p] -= ltI[q] * ltI[p];</span>
+                }
+            }
+        }
+<span class="fc" id="L155">    }</span>
+
+    /**
+     * Returns the matrix L of the decomposition.
+     * &lt;p&gt;L is an lower-triangular matrix&lt;/p&gt;
+     * @return the L matrix
+     */
+    public RealMatrix getL() {
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        if (cachedL == null) {</span>
+<span class="fc" id="L164">            cachedL = getLT().transpose();</span>
+        }
+<span class="fc" id="L166">        return cachedL;</span>
+    }
+
+    /**
+     * Returns the transpose of the matrix L of the decomposition.
+     * &lt;p&gt;L&lt;sup&gt;T&lt;/sup&gt; is an upper-triangular matrix&lt;/p&gt;
+     * @return the transpose of the matrix L of the decomposition
+     */
+    public RealMatrix getLT() {
+
+<span class="fc bfc" id="L176" title="All 2 branches covered.">        if (cachedLT == null) {</span>
+<span class="fc" id="L177">            cachedLT = MatrixUtils.createRealMatrix(lTData);</span>
+        }
+
+        // return the cached matrix
+<span class="fc" id="L181">        return cachedLT;</span>
+    }
+
+    /**
+     * Return the determinant of the matrix
+     * @return determinant of the matrix
+     */
+    public double getDeterminant() {
+<span class="fc" id="L189">        double determinant = 1.0;</span>
+<span class="fc bfc" id="L190" title="All 2 branches covered.">        for (int i = 0; i &lt; lTData.length; ++i) {</span>
+<span class="fc" id="L191">            double lTii = lTData[i][i];</span>
+<span class="fc" id="L192">            determinant *= lTii * lTii;</span>
+        }
+<span class="fc" id="L194">        return determinant;</span>
+    }
+
+    /**
+     * Get a solver for finding the A &amp;times; X = B solution in least square sense.
+     * @return a solver
+     */
+    public DecompositionSolver getSolver() {
+<span class="fc" id="L202">        return new Solver(lTData);</span>
+    }
+
+    /** Specialized solver. */
+    private static class Solver implements DecompositionSolver {
+        /** Row-oriented storage for L&lt;sup&gt;T&lt;/sup&gt; matrix data. */
+        private final double[][] lTData;
+
+        /**
+         * Build a solver from decomposed matrix.
+         * @param lTData row-oriented storage for L&lt;sup&gt;T&lt;/sup&gt; matrix data
+         */
+<span class="fc" id="L214">        private Solver(final double[][] lTData) {</span>
+<span class="fc" id="L215">            this.lTData = lTData;</span>
+<span class="fc" id="L216">        }</span>
+
+        /** {@inheritDoc} */
+        public boolean isNonSingular() {
+            // if we get this far, the matrix was positive definite, hence non-singular
+<span class="nc" id="L221">            return true;</span>
+        }
+
+        /** {@inheritDoc} */
+        public RealVector solve(final RealVector b) {
+<span class="fc" id="L226">            final int m = lTData.length;</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">            if (b.getDimension() != m) {</span>
+<span class="fc" id="L228">                throw new DimensionMismatchException(b.getDimension(), m);</span>
+            }
+
+<span class="fc" id="L231">            final double[] x = b.toArray();</span>
+
+            // Solve LY = b
+<span class="fc bfc" id="L234" title="All 2 branches covered.">            for (int j = 0; j &lt; m; j++) {</span>
+<span class="fc" id="L235">                final double[] lJ = lTData[j];</span>
+<span class="fc" id="L236">                x[j] /= lJ[j];</span>
+<span class="fc" id="L237">                final double xJ = x[j];</span>
+<span class="fc bfc" id="L238" title="All 2 branches covered.">                for (int i = j + 1; i &lt; m; i++) {</span>
+<span class="fc" id="L239">                    x[i] -= xJ * lJ[i];</span>
+                }
+            }
+
+            // Solve LTX = Y
+<span class="fc bfc" id="L244" title="All 2 branches covered.">            for (int j = m - 1; j &gt;= 0; j--) {</span>
+<span class="fc" id="L245">                x[j] /= lTData[j][j];</span>
+<span class="fc" id="L246">                final double xJ = x[j];</span>
+<span class="fc bfc" id="L247" title="All 2 branches covered.">                for (int i = 0; i &lt; j; i++) {</span>
+<span class="fc" id="L248">                    x[i] -= xJ * lTData[i][j];</span>
+                }
+            }
+
+<span class="fc" id="L252">            return new ArrayRealVector(x, false);</span>
+        }
+
+        /** {@inheritDoc} */
+        public RealMatrix solve(RealMatrix b) {
+<span class="fc" id="L257">            final int m = lTData.length;</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">            if (b.getRowDimension() != m) {</span>
+<span class="fc" id="L259">                throw new DimensionMismatchException(b.getRowDimension(), m);</span>
+            }
+
+<span class="fc" id="L262">            final int nColB = b.getColumnDimension();</span>
+<span class="fc" id="L263">            final double[][] x = b.getData();</span>
+
+            // Solve LY = b
+<span class="fc bfc" id="L266" title="All 2 branches covered.">            for (int j = 0; j &lt; m; j++) {</span>
+<span class="fc" id="L267">                final double[] lJ = lTData[j];</span>
+<span class="fc" id="L268">                final double lJJ = lJ[j];</span>
+<span class="fc" id="L269">                final double[] xJ = x[j];</span>
+<span class="fc bfc" id="L270" title="All 2 branches covered.">                for (int k = 0; k &lt; nColB; ++k) {</span>
+<span class="fc" id="L271">                    xJ[k] /= lJJ;</span>
+                }
+<span class="fc bfc" id="L273" title="All 2 branches covered.">                for (int i = j + 1; i &lt; m; i++) {</span>
+<span class="fc" id="L274">                    final double[] xI = x[i];</span>
+<span class="fc" id="L275">                    final double lJI = lJ[i];</span>
+<span class="fc bfc" id="L276" title="All 2 branches covered.">                    for (int k = 0; k &lt; nColB; ++k) {</span>
+<span class="fc" id="L277">                        xI[k] -= xJ[k] * lJI;</span>
+                    }
+                }
+            }
+
+            // Solve LTX = Y
+<span class="fc bfc" id="L283" title="All 2 branches covered.">            for (int j = m - 1; j &gt;= 0; j--) {</span>
+<span class="fc" id="L284">                final double lJJ = lTData[j][j];</span>
+<span class="fc" id="L285">                final double[] xJ = x[j];</span>
+<span class="fc bfc" id="L286" title="All 2 branches covered.">                for (int k = 0; k &lt; nColB; ++k) {</span>
+<span class="fc" id="L287">                    xJ[k] /= lJJ;</span>
+                }
+<span class="fc bfc" id="L289" title="All 2 branches covered.">                for (int i = 0; i &lt; j; i++) {</span>
+<span class="fc" id="L290">                    final double[] xI = x[i];</span>
+<span class="fc" id="L291">                    final double lIJ = lTData[i][j];</span>
+<span class="fc bfc" id="L292" title="All 2 branches covered.">                    for (int k = 0; k &lt; nColB; ++k) {</span>
+<span class="fc" id="L293">                        xI[k] -= xJ[k] * lIJ;</span>
+                    }
+                }
+            }
+
+<span class="fc" id="L298">            return new Array2DRowRealMatrix(x);</span>
+        }
+
+        /**
+         * Get the inverse of the decomposed matrix.
+         *
+         * @return the inverse matrix.
+         */
+        public RealMatrix getInverse() {
+<span class="nc" id="L307">            return solve(MatrixUtils.createRealIdentityMatrix(lTData.length));</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

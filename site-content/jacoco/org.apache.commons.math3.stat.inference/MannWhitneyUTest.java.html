@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MannWhitneyUTest.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.inference</a> &gt; <span class="el_source">MannWhitneyUTest.java</span></div><h1>MannWhitneyUTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.inference;
+
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.exception.ConvergenceException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.stat.ranking.NaNStrategy;
+import org.apache.commons.math3.stat.ranking.NaturalRanking;
+import org.apache.commons.math3.stat.ranking.TiesStrategy;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * An implementation of the Mann-Whitney U test (also called Wilcoxon rank-sum test).
+ *
+ */
+public class MannWhitneyUTest {
+
+    /** Ranking algorithm. */
+    private NaturalRanking naturalRanking;
+
+    /**
+     * Create a test instance using where NaN's are left in place and ties get
+     * the average of applicable ranks. Use this unless you are very sure of
+     * what you are doing.
+     */
+<span class="fc" id="L43">    public MannWhitneyUTest() {</span>
+<span class="fc" id="L44">        naturalRanking = new NaturalRanking(NaNStrategy.FIXED,</span>
+                TiesStrategy.AVERAGE);
+<span class="fc" id="L46">    }</span>
+
+    /**
+     * Create a test instance using the given strategies for NaN's and ties.
+     * Only use this if you are sure of what you are doing.
+     *
+     * @param nanStrategy
+     *            specifies the strategy that should be used for Double.NaN's
+     * @param tiesStrategy
+     *            specifies the strategy that should be used for ties
+     */
+    public MannWhitneyUTest(final NaNStrategy nanStrategy,
+<span class="nc" id="L58">                            final TiesStrategy tiesStrategy) {</span>
+<span class="nc" id="L59">        naturalRanking = new NaturalRanking(nanStrategy, tiesStrategy);</span>
+<span class="nc" id="L60">    }</span>
+
+    /**
+     * Ensures that the provided arrays fulfills the assumptions.
+     *
+     * @param x first sample
+     * @param y second sample
+     * @throws NullArgumentException if {@code x} or {@code y} are {@code null}.
+     * @throws NoDataException if {@code x} or {@code y} are zero-length.
+     */
+    private void ensureDataConformance(final double[] x, final double[] y)
+        throws NullArgumentException, NoDataException {
+
+<span class="fc bfc" id="L73" title="All 4 branches covered.">        if (x == null ||</span>
+            y == null) {
+<span class="fc" id="L75">            throw new NullArgumentException();</span>
+        }
+<span class="fc bfc" id="L77" title="All 4 branches covered.">        if (x.length == 0 ||</span>
+            y.length == 0) {
+<span class="fc" id="L79">            throw new NoDataException();</span>
+        }
+<span class="fc" id="L81">    }</span>
+
+    /** Concatenate the samples into one array.
+     * @param x first sample
+     * @param y second sample
+     * @return concatenated array
+     */
+    private double[] concatenateSamples(final double[] x, final double[] y) {
+<span class="fc" id="L89">        final double[] z = new double[x.length + y.length];</span>
+
+<span class="fc" id="L91">        System.arraycopy(x, 0, z, 0, x.length);</span>
+<span class="fc" id="L92">        System.arraycopy(y, 0, z, x.length, y.length);</span>
+
+<span class="fc" id="L94">        return z;</span>
+    }
+
+    /**
+     * Computes the &lt;a
+     * href=&quot;http://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U&quot;&gt; Mann-Whitney
+     * U statistic&lt;/a&gt; comparing mean for two independent samples possibly of
+     * different length.
+     * &lt;p&gt;
+     * This statistic can be used to perform a Mann-Whitney U test evaluating
+     * the null hypothesis that the two independent samples has equal mean.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * Let X&lt;sub&gt;i&lt;/sub&gt; denote the i'th individual of the first sample and
+     * Y&lt;sub&gt;j&lt;/sub&gt; the j'th individual in the second sample. Note that the
+     * samples would often have different length.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * &lt;strong&gt;Preconditions&lt;/strong&gt;:
+     * &lt;ul&gt;
+     * &lt;li&gt;All observations in the two samples are independent.&lt;/li&gt;
+     * &lt;li&gt;The observations are at least ordinal (continuous are also ordinal).&lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;/p&gt;
+     *
+     * @param x the first sample
+     * @param y the second sample
+     * @return Mann-Whitney U statistic (maximum of U&lt;sup&gt;x&lt;/sup&gt; and U&lt;sup&gt;y&lt;/sup&gt;)
+     * @throws NullArgumentException if {@code x} or {@code y} are {@code null}.
+     * @throws NoDataException if {@code x} or {@code y} are zero-length.
+     */
+    public double mannWhitneyU(final double[] x, final double[] y)
+        throws NullArgumentException, NoDataException {
+
+<span class="fc" id="L128">        ensureDataConformance(x, y);</span>
+
+<span class="fc" id="L130">        final double[] z = concatenateSamples(x, y);</span>
+<span class="fc" id="L131">        final double[] ranks = naturalRanking.rank(z);</span>
+
+<span class="fc" id="L133">        double sumRankX = 0;</span>
+
+        /*
+         * The ranks for x is in the first x.length entries in ranks because x
+         * is in the first x.length entries in z
+         */
+<span class="fc bfc" id="L139" title="All 2 branches covered.">        for (int i = 0; i &lt; x.length; ++i) {</span>
+<span class="fc" id="L140">            sumRankX += ranks[i];</span>
+        }
+
+        /*
+         * U1 = R1 - (n1 * (n1 + 1)) / 2 where R1 is sum of ranks for sample 1,
+         * e.g. x, n1 is the number of observations in sample 1.
+         */
+<span class="fc" id="L147">        final double U1 = sumRankX - ((long) x.length * (x.length + 1)) / 2;</span>
+
+        /*
+         * It can be shown that U1 + U2 = n1 * n2
+         */
+<span class="fc" id="L152">        final double U2 = (long) x.length * y.length - U1;</span>
+
+<span class="fc" id="L154">        return FastMath.max(U1, U2);</span>
+    }
+
+    /**
+     * @param Umin smallest Mann-Whitney U value
+     * @param n1 number of subjects in first sample
+     * @param n2 number of subjects in second sample
+     * @return two-sided asymptotic p-value
+     * @throws ConvergenceException if the p-value can not be computed
+     * due to a convergence error
+     * @throws MaxCountExceededException if the maximum number of
+     * iterations is exceeded
+     */
+    private double calculateAsymptoticPValue(final double Umin,
+                                             final int n1,
+                                             final int n2)
+        throws ConvergenceException, MaxCountExceededException {
+
+        /* long multiplication to avoid overflow (double not used due to efficiency
+         * and to avoid precision loss)
+         */
+<span class="fc" id="L175">        final long n1n2prod = (long) n1 * n2;</span>
+
+        // http://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U#Normal_approximation
+<span class="fc" id="L178">        final double EU = n1n2prod / 2.0;</span>
+<span class="fc" id="L179">        final double VarU = n1n2prod * (n1 + n2 + 1) / 12.0;</span>
+
+<span class="fc" id="L181">        final double z = (Umin - EU) / FastMath.sqrt(VarU);</span>
+
+        // No try-catch or advertised exception because args are valid
+        // pass a null rng to avoid unneeded overhead as we will not sample from this distribution
+<span class="fc" id="L185">        final NormalDistribution standardNormal = new NormalDistribution(null, 0, 1);</span>
+
+<span class="fc" id="L187">        return 2 * standardNormal.cumulativeProbability(z);</span>
+    }
+
+    /**
+     * Returns the asymptotic &lt;i&gt;observed significance level&lt;/i&gt;, or &lt;a href=
+     * &quot;http://www.cas.lancs.ac.uk/glossary_v1.1/hyptest.html#pvalue&quot;&gt;
+     * p-value&lt;/a&gt;, associated with a &lt;a
+     * href=&quot;http://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U&quot;&gt; Mann-Whitney
+     * U statistic&lt;/a&gt; comparing mean for two independent samples.
+     * &lt;p&gt;
+     * Let X&lt;sub&gt;i&lt;/sub&gt; denote the i'th individual of the first sample and
+     * Y&lt;sub&gt;j&lt;/sub&gt; the j'th individual in the second sample. Note that the
+     * samples would often have different length.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * &lt;strong&gt;Preconditions&lt;/strong&gt;:
+     * &lt;ul&gt;
+     * &lt;li&gt;All observations in the two samples are independent.&lt;/li&gt;
+     * &lt;li&gt;The observations are at least ordinal (continuous are also ordinal).&lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;/p&gt;&lt;p&gt;
+     * Ties give rise to biased variance at the moment. See e.g. &lt;a
+     * href=&quot;http://mlsc.lboro.ac.uk/resources/statistics/Mannwhitney.pdf&quot;
+     * &gt;http://mlsc.lboro.ac.uk/resources/statistics/Mannwhitney.pdf&lt;/a&gt;.&lt;/p&gt;
+     *
+     * @param x the first sample
+     * @param y the second sample
+     * @return asymptotic p-value
+     * @throws NullArgumentException if {@code x} or {@code y} are {@code null}.
+     * @throws NoDataException if {@code x} or {@code y} are zero-length.
+     * @throws ConvergenceException if the p-value can not be computed due to a
+     * convergence error
+     * @throws MaxCountExceededException if the maximum number of iterations
+     * is exceeded
+     */
+    public double mannWhitneyUTest(final double[] x, final double[] y)
+        throws NullArgumentException, NoDataException,
+        ConvergenceException, MaxCountExceededException {
+
+<span class="fc" id="L226">        ensureDataConformance(x, y);</span>
+
+<span class="fc" id="L228">        final double Umax = mannWhitneyU(x, y);</span>
+
+        /*
+         * It can be shown that U1 + U2 = n1 * n2
+         */
+<span class="fc" id="L233">        final double Umin = (long) x.length * y.length - Umax;</span>
+
+<span class="fc" id="L235">        return calculateAsymptoticPValue(Umin, x.length, y.length);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

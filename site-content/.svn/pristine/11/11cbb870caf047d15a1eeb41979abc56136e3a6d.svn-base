@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SemiVariance.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive.moment</a> &gt; <span class="el_source">SemiVariance.java</span></div><h1>SemiVariance.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.stat.descriptive.moment;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.stat.descriptive.AbstractUnivariateStatistic;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * &lt;p&gt;Computes the semivariance of a set of values with respect to a given cutoff value.
+ * We define the &lt;i&gt;downside semivariance&lt;/i&gt; of a set of values &lt;code&gt;x&lt;/code&gt;
+ * against the &lt;i&gt;cutoff value&lt;/i&gt; &lt;code&gt;cutoff&lt;/code&gt; to be &lt;br/&gt;
+ * &lt;code&gt;&amp;Sigma; (x[i] - target)&lt;sup&gt;2&lt;/sup&gt; / df&lt;/code&gt; &lt;br/&gt;
+ * where the sum is taken over all &lt;code&gt;i&lt;/code&gt; such that &lt;code&gt;x[i] &lt; cutoff&lt;/code&gt;
+ * and &lt;code&gt;df&lt;/code&gt; is the length of &lt;code&gt;x&lt;/code&gt; (non-bias-corrected) or
+ * one less than this number (bias corrected).  The &lt;i&gt;upside semivariance&lt;/i&gt;
+ * is defined similarly, with the sum taken over values of &lt;code&gt;x&lt;/code&gt; that
+ * exceed the cutoff value.&lt;/p&gt;
+ *
+ * &lt;p&gt;The cutoff value defaults to the mean, bias correction defaults to &lt;code&gt;true&lt;/code&gt;
+ * and the &quot;variance direction&quot; (upside or downside) defaults to downside.  The variance direction
+ * and bias correction may be set using property setters or their values can provided as
+ * parameters to {@link #evaluate(double[], double, Direction, boolean, int, int)}.&lt;/p&gt;
+ *
+ * &lt;p&gt;If the input array is null, &lt;code&gt;evaluate&lt;/code&gt; methods throw
+ * &lt;code&gt;IllegalArgumentException.&lt;/code&gt;  If the array has length 1, &lt;code&gt;0&lt;/code&gt;
+ * is returned, regardless of the value of the &lt;code&gt;cutoff.&lt;/code&gt;
+ *
+ * &lt;p&gt;&lt;strong&gt;Note that this class is not intended to be threadsafe.&lt;/strong&gt; If
+ * multiple threads access an instance of this class concurrently, and one or
+ * more of these threads invoke property setters, external synchronization must
+ * be provided to ensure correct results.&lt;/p&gt;
+ *
+ * @since 2.1
+ */
+public class SemiVariance extends AbstractUnivariateStatistic implements Serializable {
+
+    /**
+     * The UPSIDE Direction is used to specify that the observations above the
+     * cutoff point will be used to calculate SemiVariance.
+     */
+<span class="fc" id="L60">    public static final Direction UPSIDE_VARIANCE = Direction.UPSIDE;</span>
+
+    /**
+     * The DOWNSIDE Direction is used to specify that the observations below
+     * the cutoff point will be used to calculate SemiVariance
+     */
+<span class="fc" id="L66">    public static final Direction DOWNSIDE_VARIANCE = Direction.DOWNSIDE;</span>
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = -2653430366886024994L;
+
+    /**
+     * Determines whether or not bias correction is applied when computing the
+     * value of the statisic.  True means that bias is corrected.
+     */
+<span class="pc" id="L75">    private boolean biasCorrected = true;</span>
+
+    /**
+     * Determines whether to calculate downside or upside SemiVariance.
+     */
+<span class="pc" id="L80">    private Direction varianceDirection = Direction.DOWNSIDE;</span>
+
+    /**
+     * Constructs a SemiVariance with default (true) &lt;code&gt;biasCorrected&lt;/code&gt;
+     * property and default (Downside) &lt;code&gt;varianceDirection&lt;/code&gt; property.
+     */
+<span class="fc" id="L86">    public SemiVariance() {</span>
+<span class="fc" id="L87">    }</span>
+
+    /**
+     * Constructs a SemiVariance with the specified &lt;code&gt;biasCorrected&lt;/code&gt;
+     * property and default (Downside) &lt;code&gt;varianceDirection&lt;/code&gt; property.
+     *
+     * @param biasCorrected  setting for bias correction - true means
+     * bias will be corrected and is equivalent to using the argumentless
+     * constructor
+     */
+<span class="fc" id="L97">    public SemiVariance(final boolean biasCorrected) {</span>
+<span class="fc" id="L98">        this.biasCorrected = biasCorrected;</span>
+<span class="fc" id="L99">    }</span>
+
+
+    /**
+     * Constructs a SemiVariance with the specified &lt;code&gt;Direction&lt;/code&gt; property
+     * and default (true) &lt;code&gt;biasCorrected&lt;/code&gt; property
+     *
+     * @param direction  setting for the direction of the SemiVariance
+     * to calculate
+     */
+<span class="fc" id="L109">    public SemiVariance(final Direction direction) {</span>
+<span class="fc" id="L110">        this.varianceDirection = direction;</span>
+<span class="fc" id="L111">    }</span>
+
+
+    /**
+     * Constructs a SemiVariance with the specified &lt;code&gt;isBiasCorrected&lt;/code&gt;
+     * property and the specified &lt;code&gt;Direction&lt;/code&gt; property.
+     *
+     * @param corrected  setting for bias correction - true means
+     * bias will be corrected and is equivalent to using the argumentless
+     * constructor
+     *
+     * @param direction  setting for the direction of the SemiVariance
+     * to calculate
+     */
+<span class="nc" id="L125">    public SemiVariance(final boolean corrected, final Direction direction) {</span>
+<span class="nc" id="L126">        this.biasCorrected = corrected;</span>
+<span class="nc" id="L127">        this.varianceDirection = direction;</span>
+<span class="nc" id="L128">    }</span>
+
+
+    /**
+     * Copy constructor, creates a new {@code SemiVariance} identical
+     * to the {@code original}
+     *
+     * @param original the {@code SemiVariance} instance to copy
+     * @throws NullArgumentException  if original is null
+     */
+<span class="nc" id="L138">    public SemiVariance(final SemiVariance original) throws NullArgumentException {</span>
+<span class="nc" id="L139">        copy(original, this);</span>
+<span class="nc" id="L140">    }</span>
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SemiVariance copy() {
+<span class="nc" id="L148">        SemiVariance result = new SemiVariance();</span>
+        // No try-catch or advertised exception because args are guaranteed non-null
+<span class="nc" id="L150">        copy(this, result);</span>
+<span class="nc" id="L151">        return result;</span>
+    }
+
+
+    /**
+     * Copies source to dest.
+     * &lt;p&gt;Neither source nor dest can be null.&lt;/p&gt;
+     *
+     * @param source SemiVariance to copy
+     * @param dest SemiVariance to copy to
+     * @throws NullArgumentException if either source or dest is null
+     */
+    public static void copy(final SemiVariance source, SemiVariance dest)
+        throws NullArgumentException {
+<span class="nc" id="L165">        MathUtils.checkNotNull(source);</span>
+<span class="nc" id="L166">        MathUtils.checkNotNull(dest);</span>
+<span class="nc" id="L167">        dest.setData(source.getDataRef());</span>
+<span class="nc" id="L168">        dest.biasCorrected = source.biasCorrected;</span>
+<span class="nc" id="L169">        dest.varianceDirection = source.varianceDirection;</span>
+<span class="nc" id="L170">    }</span>
+
+    /**
+      * &lt;p&gt;Returns the {@link SemiVariance} of the designated values against the mean, using
+      * instance properties varianceDirection and biasCorrection.&lt;/p&gt;
+      *
+      * &lt;p&gt;Returns &lt;code&gt;NaN&lt;/code&gt; if the array is empty and throws
+      * &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+      *
+      * @param values the input array
+      * @param start index of the first array element to include
+      * @param length the number of elements to include
+      * @return the SemiVariance
+      * @throws MathIllegalArgumentException if the parameters are not valid
+      *
+      */
+      @Override
+      public double evaluate(final double[] values, final int start, final int length)
+      throws MathIllegalArgumentException {
+<span class="fc" id="L189">        double m = (new Mean()).evaluate(values, start, length);</span>
+<span class="fc" id="L190">        return evaluate(values, m, varianceDirection, biasCorrected, 0, values.length);</span>
+      }
+
+
+      /**
+       * This method calculates {@link SemiVariance} for the entire array against the mean, using
+       * the current value of the biasCorrection instance property.
+       *
+       * @param values the input array
+       * @param direction the {@link Direction} of the semivariance
+       * @return the SemiVariance
+       * @throws MathIllegalArgumentException if values is null
+       *
+       */
+      public double evaluate(final double[] values, Direction direction)
+      throws MathIllegalArgumentException {
+<span class="nc" id="L206">          double m = (new Mean()).evaluate(values);</span>
+<span class="nc" id="L207">          return evaluate (values, m, direction, biasCorrected, 0, values.length);</span>
+      }
+
+      /**
+       * &lt;p&gt;Returns the {@link SemiVariance} of the designated values against the cutoff, using
+       * instance properties variancDirection and biasCorrection.&lt;/p&gt;
+       *
+       * &lt;p&gt;Returns &lt;code&gt;NaN&lt;/code&gt; if the array is empty and throws
+       * &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+       *
+       * @param values the input array
+       * @param cutoff the reference point
+       * @return the SemiVariance
+       * @throws MathIllegalArgumentException if values is null
+       */
+      public double evaluate(final double[] values, final double cutoff)
+      throws MathIllegalArgumentException {
+<span class="fc" id="L224">          return evaluate(values, cutoff, varianceDirection, biasCorrected, 0, values.length);</span>
+      }
+
+      /**
+       * &lt;p&gt;Returns the {@link SemiVariance} of the designated values against the cutoff in the
+       * given direction, using the current value of the biasCorrection instance property.&lt;/p&gt;
+       *
+       * &lt;p&gt;Returns &lt;code&gt;NaN&lt;/code&gt; if the array is empty and throws
+       * &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+       *
+       * @param values the input array
+       * @param cutoff the reference point
+       * @param direction the {@link Direction} of the semivariance
+       * @return the SemiVariance
+       * @throws MathIllegalArgumentException if values is null
+       */
+      public double evaluate(final double[] values, final double cutoff, final Direction direction)
+      throws MathIllegalArgumentException {
+<span class="nc" id="L242">          return evaluate(values, cutoff, direction, biasCorrected, 0, values.length);</span>
+      }
+
+
+     /**
+      * &lt;p&gt;Returns the {@link SemiVariance} of the designated values against the cutoff
+      * in the given direction with the provided bias correction.&lt;/p&gt;
+      *
+      * &lt;p&gt;Returns &lt;code&gt;NaN&lt;/code&gt; if the array is empty and throws
+      * &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+      *
+      * @param values the input array
+      * @param cutoff the reference point
+      * @param direction the {@link Direction} of the semivariance
+      * @param corrected the BiasCorrection flag
+      * @param start index of the first array element to include
+      * @param length the number of elements to include
+      * @return the SemiVariance
+      * @throws MathIllegalArgumentException if the parameters are not valid
+      *
+      */
+    public double evaluate (final double[] values, final double cutoff, final Direction direction,
+            final boolean corrected, final int start, final int length) throws MathIllegalArgumentException {
+
+<span class="fc" id="L266">        test(values, start, length);</span>
+<span class="fc bfc" id="L267" title="All 2 branches covered.">        if (values.length == 0) {</span>
+<span class="fc" id="L268">            return Double.NaN;</span>
+        } else {
+<span class="fc bfc" id="L270" title="All 2 branches covered.">            if (values.length == 1) {</span>
+<span class="fc" id="L271">                return 0.0;</span>
+            } else {
+<span class="fc" id="L273">                final boolean booleanDirection = direction.getDirection();</span>
+
+<span class="fc" id="L275">                double dev = 0.0;</span>
+<span class="fc" id="L276">                double sumsq = 0.0;</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">                for (int i = start; i &lt; length; i++) {</span>
+<span class="fc bfc" id="L278" title="All 4 branches covered.">                    if ((values[i] &gt; cutoff) == booleanDirection) {</span>
+<span class="fc" id="L279">                       dev = values[i] - cutoff;</span>
+<span class="fc" id="L280">                       sumsq += dev * dev;</span>
+                    }
+                }
+
+<span class="fc bfc" id="L284" title="All 2 branches covered.">                if (corrected) {</span>
+<span class="fc" id="L285">                    return sumsq / (length - 1.0);</span>
+                } else {
+<span class="fc" id="L287">                    return sumsq / length;</span>
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns true iff biasCorrected property is set to true.
+     *
+     * @return the value of biasCorrected.
+     */
+    public boolean isBiasCorrected() {
+<span class="nc" id="L299">        return biasCorrected;</span>
+    }
+
+    /**
+     * Sets the biasCorrected property.
+     *
+     * @param biasCorrected new biasCorrected property value
+     */
+    public void setBiasCorrected(boolean biasCorrected) {
+<span class="nc" id="L308">        this.biasCorrected = biasCorrected;</span>
+<span class="nc" id="L309">    }</span>
+
+    /**
+     * Returns the varianceDirection property.
+     *
+     * @return the varianceDirection
+     */
+    public Direction getVarianceDirection () {
+<span class="nc" id="L317">        return varianceDirection;</span>
+    }
+
+    /**
+     * Sets the variance direction
+     *
+     * @param varianceDirection the direction of the semivariance
+     */
+    public void setVarianceDirection(Direction varianceDirection) {
+<span class="fc" id="L326">        this.varianceDirection = varianceDirection;</span>
+<span class="fc" id="L327">    }</span>
+
+    /**
+     * The direction of the semivariance - either upside or downside. The direction
+     * is represented by boolean, with true corresponding to UPSIDE semivariance.
+     */
+<span class="pc" id="L333">    public enum Direction {</span>
+        /**
+         * The UPSIDE Direction is used to specify that the observations above the
+         * cutoff point will be used to calculate SemiVariance
+         */
+<span class="fc" id="L338">        UPSIDE (true),</span>
+
+        /**
+         * The DOWNSIDE Direction is used to specify that the observations below
+         * the cutoff point will be used to calculate SemiVariance
+         */
+<span class="fc" id="L344">        DOWNSIDE (false);</span>
+
+        /**
+         *   boolean value  UPSIDE &lt;-&gt; true
+         */
+        private boolean direction;
+
+        /**
+         * Create a Direction with the given value.
+         *
+         * @param b boolean value representing the Direction. True corresponds to UPSIDE.
+         */
+<span class="fc" id="L356">        Direction (boolean b) {</span>
+<span class="fc" id="L357">            direction = b;</span>
+<span class="fc" id="L358">        }</span>
+
+        /**
+         * Returns the value of this Direction. True corresponds to UPSIDE.
+         *
+         * @return true if direction is UPSIDE; false otherwise
+         */
+        boolean getDirection () {
+<span class="fc" id="L366">            return direction;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

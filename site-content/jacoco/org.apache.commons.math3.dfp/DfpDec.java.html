@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DfpDec.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.dfp</a> &gt; <span class="el_source">DfpDec.java</span></div><h1>DfpDec.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.dfp;
+
+/** Subclass of {@link Dfp} which hides the radix-10000 artifacts of the superclass.
+ * This should give outward appearances of being a decimal number with DIGITS*4-3
+ * decimal digits. This class can be subclassed to appear to be an arbitrary number
+ * of decimal digits less than DIGITS*4-3.
+ * @since 2.2
+ */
+public class DfpDec extends Dfp {
+
+    /** Makes an instance with a value of zero.
+     * @param factory factory linked to this instance
+     */
+    protected DfpDec(final DfpField factory) {
+<span class="nc" id="L32">        super(factory);</span>
+<span class="nc" id="L33">    }</span>
+
+    /** Create an instance from a byte value.
+     * @param factory factory linked to this instance
+     * @param x value to convert to an instance
+     */
+    protected DfpDec(final DfpField factory, byte x) {
+<span class="fc" id="L40">        super(factory, x);</span>
+<span class="fc" id="L41">    }</span>
+
+    /** Create an instance from an int value.
+     * @param factory factory linked to this instance
+     * @param x value to convert to an instance
+     */
+    protected DfpDec(final DfpField factory, int x) {
+<span class="fc" id="L48">        super(factory, x);</span>
+<span class="fc" id="L49">    }</span>
+
+    /** Create an instance from a long value.
+     * @param factory factory linked to this instance
+     * @param x value to convert to an instance
+     */
+    protected DfpDec(final DfpField factory, long x) {
+<span class="fc" id="L56">        super(factory, x);</span>
+<span class="fc" id="L57">    }</span>
+
+    /** Create an instance from a double value.
+     * @param factory factory linked to this instance
+     * @param x value to convert to an instance
+     */
+    protected DfpDec(final DfpField factory, double x) {
+<span class="nc" id="L64">        super(factory, x);</span>
+<span class="nc" id="L65">        round(0);</span>
+<span class="nc" id="L66">    }</span>
+
+    /** Copy constructor.
+     * @param d instance to copy
+     */
+    public DfpDec(final Dfp d) {
+<span class="fc" id="L72">        super(d);</span>
+<span class="fc" id="L73">        round(0);</span>
+<span class="fc" id="L74">    }</span>
+
+    /** Create an instance from a String representation.
+     * @param factory factory linked to this instance
+     * @param s string representation of the instance
+     */
+    protected DfpDec(final DfpField factory, final String s) {
+<span class="fc" id="L81">        super(factory, s);</span>
+<span class="fc" id="L82">        round(0);</span>
+<span class="fc" id="L83">    }</span>
+
+    /** Creates an instance with a non-finite value.
+     * @param factory factory linked to this instance
+     * @param sign sign of the Dfp to create
+     * @param nans code of the value, must be one of {@link #INFINITE},
+     * {@link #SNAN},  {@link #QNAN}
+     */
+    protected DfpDec(final DfpField factory, final byte sign, final byte nans) {
+<span class="nc" id="L92">        super(factory, sign, nans);</span>
+<span class="nc" id="L93">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public Dfp newInstance() {
+<span class="nc" id="L98">        return new DfpDec(getField());</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Dfp newInstance(final byte x) {
+<span class="nc" id="L104">        return new DfpDec(getField(), x);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Dfp newInstance(final int x) {
+<span class="nc" id="L110">        return new DfpDec(getField(), x);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Dfp newInstance(final long x) {
+<span class="nc" id="L116">        return new DfpDec(getField(), x);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Dfp newInstance(final double x) {
+<span class="nc" id="L122">        return new DfpDec(getField(), x);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Dfp newInstance(final Dfp d) {
+
+        // make sure we don't mix number with different precision
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">        if (getField().getRadixDigits() != d.getField().getRadixDigits()) {</span>
+<span class="nc" id="L131">            getField().setIEEEFlagsBits(DfpField.FLAG_INVALID);</span>
+<span class="nc" id="L132">            final Dfp result = newInstance(getZero());</span>
+<span class="nc" id="L133">            result.nans = QNAN;</span>
+<span class="nc" id="L134">            return dotrap(DfpField.FLAG_INVALID, &quot;newInstance&quot;, d, result);</span>
+        }
+
+<span class="fc" id="L137">        return new DfpDec(d);</span>
+
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Dfp newInstance(final String s) {
+<span class="nc" id="L144">        return new DfpDec(getField(), s);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Dfp newInstance(final byte sign, final byte nans) {
+<span class="nc" id="L150">        return new DfpDec(getField(), sign, nans);</span>
+    }
+
+    /** Get the number of decimal digits this class is going to represent.
+     * Default implementation returns {@link #getRadixDigits()}*4-3. Subclasses can
+     * override this to return something less.
+     * @return number of decimal digits this class is going to represent
+     */
+    protected int getDecimalDigits() {
+<span class="fc" id="L159">        return getRadixDigits() * 4 - 3;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected int round(int in) {
+
+<span class="fc" id="L166">        int msb = mant[mant.length-1];</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">        if (msb == 0) {</span>
+            // special case -- this == zero
+<span class="fc" id="L169">            return 0;</span>
+        }
+
+<span class="fc" id="L172">        int cmaxdigits = mant.length * 4;</span>
+<span class="fc" id="L173">        int lsbthreshold = 1000;</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        while (lsbthreshold &gt; msb) {</span>
+<span class="fc" id="L175">            lsbthreshold /= 10;</span>
+<span class="fc" id="L176">            cmaxdigits --;</span>
+        }
+
+
+<span class="fc" id="L180">        final int digits = getDecimalDigits();</span>
+<span class="fc" id="L181">        final int lsbshift = cmaxdigits - digits;</span>
+<span class="fc" id="L182">        final int lsd = lsbshift / 4;</span>
+
+<span class="fc" id="L184">        lsbthreshold = 1;</span>
+<span class="fc bfc" id="L185" title="All 2 branches covered.">        for (int i = 0; i &lt; lsbshift % 4; i++) {</span>
+<span class="fc" id="L186">            lsbthreshold *= 10;</span>
+        }
+
+<span class="fc" id="L189">        final int lsb = mant[lsd];</span>
+
+<span class="fc bfc" id="L191" title="All 4 branches covered.">        if (lsbthreshold &lt;= 1 &amp;&amp; digits == 4 * mant.length - 3) {</span>
+<span class="fc" id="L192">            return super.round(in);</span>
+        }
+
+<span class="fc" id="L195">        int discarded = in;  // not looking at this after this point</span>
+        final int n;
+<span class="fc bfc" id="L197" title="All 2 branches covered.">        if (lsbthreshold == 1) {</span>
+            // look to the next digit for rounding
+<span class="fc" id="L199">            n = (mant[lsd-1] / 1000) % 10;</span>
+<span class="fc" id="L200">            mant[lsd-1] %= 1000;</span>
+<span class="fc" id="L201">            discarded |= mant[lsd-1];</span>
+        } else {
+<span class="fc" id="L203">            n = (lsb * 10 / lsbthreshold) % 10;</span>
+<span class="fc" id="L204">            discarded |= lsb % (lsbthreshold/10);</span>
+        }
+
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        for (int i = 0; i &lt; lsd; i++) {</span>
+<span class="fc" id="L208">            discarded |= mant[i];    // need to know if there are any discarded bits</span>
+<span class="fc" id="L209">            mant[i] = 0;</span>
+        }
+
+<span class="fc" id="L212">        mant[lsd] = lsb / lsbthreshold * lsbthreshold;</span>
+
+        final boolean inc;
+<span class="pc bfc" id="L215" title="All 8 branches covered.">        switch (getField().getRoundingMode()) {</span>
+            case ROUND_DOWN:
+<span class="fc" id="L217">                inc = false;</span>
+<span class="fc" id="L218">                break;</span>
+
+            case ROUND_UP:
+<span class="fc bfc" id="L221" title="All 4 branches covered.">                inc = (n != 0) || (discarded != 0); // round up if n!=0</span>
+<span class="fc" id="L222">                break;</span>
+
+            case ROUND_HALF_UP:
+<span class="fc bfc" id="L225" title="All 2 branches covered.">                inc = n &gt;= 5;  // round half up</span>
+<span class="fc" id="L226">                break;</span>
+
+            case ROUND_HALF_DOWN:
+<span class="fc bfc" id="L229" title="All 2 branches covered.">                inc = n &gt; 5;  // round half down</span>
+<span class="fc" id="L230">                break;</span>
+
+            case ROUND_HALF_EVEN:
+<span class="pc bpc" id="L233" title="1 of 12 branches missed.">                inc = (n &gt; 5) ||</span>
+                      (n == 5 &amp;&amp; discarded != 0) ||
+                      (n == 5 &amp;&amp; discarded == 0 &amp;&amp; ((lsb / lsbthreshold) &amp; 1) == 1);  // round half-even
+<span class="fc" id="L236">                break;</span>
+
+            case ROUND_HALF_ODD:
+<span class="pc bpc" id="L239" title="3 of 12 branches missed.">                inc = (n &gt; 5) ||</span>
+                      (n == 5 &amp;&amp; discarded != 0) ||
+                      (n == 5 &amp;&amp; discarded == 0 &amp;&amp; ((lsb / lsbthreshold) &amp; 1) == 0);  // round half-odd
+<span class="fc" id="L242">                break;</span>
+
+            case ROUND_CEIL:
+<span class="pc bpc" id="L245" title="1 of 6 branches missed.">                inc = (sign == 1) &amp;&amp; (n != 0 || discarded != 0);  // round ceil</span>
+<span class="fc" id="L246">                break;</span>
+
+            case ROUND_FLOOR:
+            default:
+<span class="pc bpc" id="L250" title="1 of 6 branches missed.">                inc = (sign == -1) &amp;&amp; (n != 0 || discarded != 0);  // round floor</span>
+                break;
+        }
+
+<span class="fc bfc" id="L254" title="All 2 branches covered.">        if (inc) {</span>
+            // increment if necessary
+<span class="fc" id="L256">            int rh = lsbthreshold;</span>
+<span class="fc bfc" id="L257" title="All 2 branches covered.">            for (int i = lsd; i &lt; mant.length; i++) {</span>
+<span class="fc" id="L258">                final int r = mant[i] + rh;</span>
+<span class="fc" id="L259">                rh = r / RADIX;</span>
+<span class="fc" id="L260">                mant[i] = r % RADIX;</span>
+            }
+
+<span class="pc bpc" id="L263" title="1 of 2 branches missed.">            if (rh != 0) {</span>
+<span class="nc" id="L264">                shiftRight();</span>
+<span class="nc" id="L265">                mant[mant.length-1]=rh;</span>
+            }
+        }
+
+        // Check for exceptional cases and raise signals if necessary
+<span class="fc bfc" id="L270" title="All 2 branches covered.">        if (exp &lt; MIN_EXP) {</span>
+            // Gradual Underflow
+<span class="fc" id="L272">            getField().setIEEEFlagsBits(DfpField.FLAG_UNDERFLOW);</span>
+<span class="fc" id="L273">            return DfpField.FLAG_UNDERFLOW;</span>
+        }
+
+<span class="fc bfc" id="L276" title="All 2 branches covered.">        if (exp &gt; MAX_EXP) {</span>
+            // Overflow
+<span class="fc" id="L278">            getField().setIEEEFlagsBits(DfpField.FLAG_OVERFLOW);</span>
+<span class="fc" id="L279">            return DfpField.FLAG_OVERFLOW;</span>
+        }
+
+<span class="fc bfc" id="L282" title="All 4 branches covered.">        if (n != 0 || discarded != 0) {</span>
+            // Inexact
+<span class="fc" id="L284">            getField().setIEEEFlagsBits(DfpField.FLAG_INEXACT);</span>
+<span class="fc" id="L285">            return DfpField.FLAG_INEXACT;</span>
+        }
+<span class="fc" id="L287">        return 0;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Dfp nextAfter(Dfp x) {
+
+<span class="fc" id="L294">        final String trapName = &quot;nextAfter&quot;;</span>
+
+        // make sure we don't mix number with different precision
+<span class="pc bpc" id="L297" title="1 of 2 branches missed.">        if (getField().getRadixDigits() != x.getField().getRadixDigits()) {</span>
+<span class="nc" id="L298">            getField().setIEEEFlagsBits(DfpField.FLAG_INVALID);</span>
+<span class="nc" id="L299">            final Dfp result = newInstance(getZero());</span>
+<span class="nc" id="L300">            result.nans = QNAN;</span>
+<span class="nc" id="L301">            return dotrap(DfpField.FLAG_INVALID, trapName, x, result);</span>
+        }
+
+<span class="fc" id="L304">        boolean up = false;</span>
+        Dfp result;
+        Dfp inc;
+
+        // if this is greater than x
+<span class="fc bfc" id="L309" title="All 2 branches covered.">        if (this.lessThan(x)) {</span>
+<span class="fc" id="L310">            up = true;</span>
+        }
+
+<span class="fc bfc" id="L313" title="All 2 branches covered.">        if (equals(x)) {</span>
+<span class="fc" id="L314">            return newInstance(x);</span>
+        }
+
+<span class="fc bfc" id="L317" title="All 2 branches covered.">        if (lessThan(getZero())) {</span>
+<span class="fc bfc" id="L318" title="All 2 branches covered.">            up = !up;</span>
+        }
+
+<span class="fc bfc" id="L321" title="All 2 branches covered.">        if (up) {</span>
+<span class="fc" id="L322">            inc = power10(intLog10() - getDecimalDigits() + 1);</span>
+<span class="fc" id="L323">            inc = copysign(inc, this);</span>
+
+<span class="fc bfc" id="L325" title="All 2 branches covered.">            if (this.equals(getZero())) {</span>
+<span class="fc" id="L326">                inc = power10K(MIN_EXP-mant.length-1);</span>
+            }
+
+<span class="pc bpc" id="L329" title="1 of 2 branches missed.">            if (inc.equals(getZero())) {</span>
+<span class="nc" id="L330">                result = copysign(newInstance(getZero()), this);</span>
+            } else {
+<span class="fc" id="L332">                result = add(inc);</span>
+            }
+        } else {
+<span class="fc" id="L335">            inc = power10(intLog10());</span>
+<span class="fc" id="L336">            inc = copysign(inc, this);</span>
+
+<span class="fc bfc" id="L338" title="All 2 branches covered.">            if (this.equals(inc)) {</span>
+<span class="fc" id="L339">                inc = inc.divide(power10(getDecimalDigits()));</span>
+            } else {
+<span class="fc" id="L341">                inc = inc.divide(power10(getDecimalDigits() - 1));</span>
+            }
+
+<span class="fc bfc" id="L344" title="All 2 branches covered.">            if (this.equals(getZero())) {</span>
+<span class="fc" id="L345">                inc = power10K(MIN_EXP-mant.length-1);</span>
+            }
+
+<span class="fc bfc" id="L348" title="All 2 branches covered.">            if (inc.equals(getZero())) {</span>
+<span class="fc" id="L349">                result = copysign(newInstance(getZero()), this);</span>
+            } else {
+<span class="fc" id="L351">                result = subtract(inc);</span>
+            }
+        }
+
+<span class="pc bpc" id="L355" title="1 of 4 branches missed.">        if (result.classify() == INFINITE &amp;&amp; this.classify() != INFINITE) {</span>
+<span class="fc" id="L356">            getField().setIEEEFlagsBits(DfpField.FLAG_INEXACT);</span>
+<span class="fc" id="L357">            result = dotrap(DfpField.FLAG_INEXACT, trapName, x, result);</span>
+        }
+
+<span class="pc bpc" id="L360" title="1 of 4 branches missed.">        if (result.equals(getZero()) &amp;&amp; this.equals(getZero()) == false) {</span>
+<span class="fc" id="L361">            getField().setIEEEFlagsBits(DfpField.FLAG_INEXACT);</span>
+<span class="fc" id="L362">            result = dotrap(DfpField.FLAG_INEXACT, trapName, x, result);</span>
+        }
+
+<span class="fc" id="L365">        return result;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

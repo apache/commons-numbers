@@ -1,0 +1,264 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<title>Apache Commons Math 3.6.1 Reference Package org.apache.commons.math3.fitting.leastsquares</title>
+		<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="style" />
+	</head>
+	<body>
+		      	<div class="overview">
+        	<ul>
+          		<li>
+            		<a href="../../../../../../overview-summary.html">Overview</a>
+          		</li>
+          		<li class="selected">Package</li>
+        	</ul>
+      	</div>
+      	<div class="framenoframe">
+        	<ul>
+          		<li>
+            		<a href="../../../../../../index.html" target="_top">FRAMES</a>
+          		</li>
+          		<li>
+            		<a href="package-summary.html" target="_top">NO FRAMES</a>
+          		</li>
+        	</ul>
+      	</div>
+		
+		      	<h2>Package org.apache.commons.math3.fitting.leastsquares</h2>
+
+		<table class="summary">
+        	<thead>
+          		<tr>
+            		<th>Class Summary</th>
+          		</tr>
+        	</thead>
+        	<tbody>
+        		            	<tr>
+              		<td>
+                		<a href="AbstractLeastSquaresOptimizerAbstractTest.html" target="classFrame">AbstractLeastSquaresOptimizerAbstractTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">BardFunction</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="LevenbergMarquardtOptimizerTest.html" target="classFrame">BevingtonProblem</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">Box3DimensionalFunction</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">BrownAlmostLinearFunction</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">BrownDennisFunction</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">ChebyquadFunction</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="CircleProblem.html" target="classFrame">CircleProblem</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="CircleVectorial.html" target="classFrame">CircleVectorial</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="EvaluationRmsCheckerTest.html" target="classFrame">EvaluationRmsCheckerTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="EvaluationTest.html" target="classFrame">EvaluationTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="EvaluationTestValidation.html" target="classFrame">EvaluationTestValidation</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">FreudensteinRothFunction</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="GaussNewtonOptimizerWithCholeskyTest.html" target="classFrame">GaussNewtonOptimizerWithCholeskyTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="GaussNewtonOptimizerWithLUTest.html" target="classFrame">GaussNewtonOptimizerWithLUTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="GaussNewtonOptimizerWithQRTest.html" target="classFrame">GaussNewtonOptimizerWithQRTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="GaussNewtonOptimizerWithSVDTest.html" target="classFrame">GaussNewtonOptimizerWithSVDTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">HelicalValleyFunction</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">JennrichSampsonFunction</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">KowalikOsborneFunction</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="StatisticalReferenceDataset.html" target="classFrame">LeastSquaresProblem</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="LevenbergMarquardtOptimizerTest.html" target="classFrame">LevenbergMarquardtOptimizerTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">LinearFullRankFunction</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="AbstractLeastSquaresOptimizerAbstractTest.html" target="classFrame">LinearProblem</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">LinearRank1Function</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">LinearRank1ZeroColsAndRowsFunction</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">MeyerFunction</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">MinpackFunction</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">MinpackTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="StraightLineProblem.html" target="classFrame">Model</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">Osborne1Function</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">Osborne2Function</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">PowellSingularFunction</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="RandomCirclePointGenerator.html" target="classFrame">RandomCirclePointGenerator</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="RandomStraightLinePointGenerator.html" target="classFrame">RandomStraightLinePointGenerator</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">RosenbrockFunction</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="StatisticalReferenceDataset.html" target="classFrame">StatisticalReferenceDataset</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="StatisticalReferenceDatasetFactory.html" target="classFrame">StatisticalReferenceDatasetFactory</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="StraightLineProblem.html" target="classFrame">StraightLineProblem</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MinpackTest.html" target="classFrame">WatsonFunction</a>
+              		</td>
+            	</tr>
+				        	</tbody>
+      	</table>
+		
+		      	<div class="overview">
+        	<ul>
+          		<li>
+            		<a href="../../../../../../overview-summary.html">Overview</a>
+          		</li>
+          		<li class="selected">Package</li>
+        	</ul>
+      	</div>
+      	<div class="framenoframe">
+        	<ul>
+          		<li>
+            		<a href="../../../../../../index.html" target="_top">FRAMES</a>
+          		</li>
+          		<li>
+            		<a href="package-summary.html" target="_top">NO FRAMES</a>
+          		</li>
+        	</ul>
+      	</div>
+				<hr />
+		<div id="footer">
+			Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.
+		</div>
+	</body>
+</html>

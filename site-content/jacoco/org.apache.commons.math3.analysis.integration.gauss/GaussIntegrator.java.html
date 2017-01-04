@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>GaussIntegrator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.integration.gauss</a> &gt; <span class="el_source">GaussIntegrator.java</span></div><h1>GaussIntegrator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.analysis.integration.gauss;
+
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NonMonotonicSequenceException;
+import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.math3.util.Pair;
+
+/**
+ * Class that implements the Gaussian rule for
+ * {@link #integrate(UnivariateFunction) integrating} a weighted
+ * function.
+ *
+ * @since 3.1
+ */
+public class GaussIntegrator {
+    /** Nodes. */
+    private final double[] points;
+    /** Nodes weights. */
+    private final double[] weights;
+
+    /**
+     * Creates an integrator from the given {@code points} and {@code weights}.
+     * The integration interval is defined by the first and last value of
+     * {@code points} which must be sorted in increasing order.
+     *
+     * @param points Integration points.
+     * @param weights Weights of the corresponding integration nodes.
+     * @throws NonMonotonicSequenceException if the {@code points} are not
+     * sorted in increasing order.
+     * @throws DimensionMismatchException if points and weights don't have the same length
+     */
+    public GaussIntegrator(double[] points,
+                           double[] weights)
+<span class="fc" id="L51">        throws NonMonotonicSequenceException, DimensionMismatchException {</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        if (points.length != weights.length) {</span>
+<span class="nc" id="L53">            throw new DimensionMismatchException(points.length,</span>
+                                                 weights.length);
+        }
+
+<span class="fc" id="L57">        MathArrays.checkOrder(points, MathArrays.OrderDirection.INCREASING, true, true);</span>
+
+<span class="fc" id="L59">        this.points = points.clone();</span>
+<span class="fc" id="L60">        this.weights = weights.clone();</span>
+<span class="fc" id="L61">    }</span>
+
+    /**
+     * Creates an integrator from the given pair of points (first element of
+     * the pair) and weights (second element of the pair.
+     *
+     * @param pointsAndWeights Integration points and corresponding weights.
+     * @throws NonMonotonicSequenceException if the {@code points} are not
+     * sorted in increasing order.
+     *
+     * @see #GaussIntegrator(double[], double[])
+     */
+    public GaussIntegrator(Pair&lt;double[], double[]&gt; pointsAndWeights)
+        throws NonMonotonicSequenceException {
+<span class="fc" id="L75">        this(pointsAndWeights.getFirst(), pointsAndWeights.getSecond());</span>
+<span class="fc" id="L76">    }</span>
+
+    /**
+     * Returns an estimate of the integral of {@code f(x) * w(x)},
+     * where {@code w} is a weight function that depends on the actual
+     * flavor of the Gauss integration scheme.
+     * The algorithm uses the points and associated weights, as passed
+     * to the {@link #GaussIntegrator(double[],double[]) constructor}.
+     *
+     * @param f Function to integrate.
+     * @return the integral of the weighted function.
+     */
+    public double integrate(UnivariateFunction f) {
+<span class="fc" id="L89">        double s = 0;</span>
+<span class="fc" id="L90">        double c = 0;</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        for (int i = 0; i &lt; points.length; i++) {</span>
+<span class="fc" id="L92">            final double x = points[i];</span>
+<span class="fc" id="L93">            final double w = weights[i];</span>
+<span class="fc" id="L94">            final double y = w * f.value(x) - c;</span>
+<span class="fc" id="L95">            final double t = s + y;</span>
+<span class="fc" id="L96">            c = (t - s) - y;</span>
+<span class="fc" id="L97">            s = t;</span>
+        }
+<span class="fc" id="L99">        return s;</span>
+    }
+
+    /**
+     * @return the order of the integration rule (the number of integration
+     * points).
+     */
+    public int getNumberOfPoints() {
+<span class="fc" id="L107">        return points.length;</span>
+    }
+
+    /**
+     * Gets the integration point at the given index.
+     * The index must be in the valid range but no check is performed.
+     * @param index index of the integration point
+     * @return the integration point.
+     */
+    public double getPoint(int index) {
+<span class="fc" id="L117">        return points[index];</span>
+    }
+
+    /**
+     * Gets the weight of the integration point at the given index.
+     * The index must be in the valid range but no check is performed.
+     * @param index index of the integration point
+     * @return the weight.
+     */
+    public double getWeight(int index) {
+<span class="fc" id="L127">        return weights[index];</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

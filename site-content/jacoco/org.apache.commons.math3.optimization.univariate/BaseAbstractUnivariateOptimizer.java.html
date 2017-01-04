@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BaseAbstractUnivariateOptimizer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optimization.univariate</a> &gt; <span class="el_source">BaseAbstractUnivariateOptimizer.java</span></div><h1>BaseAbstractUnivariateOptimizer.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.optimization.univariate;
+
+import org.apache.commons.math3.util.Incrementor;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.exception.TooManyEvaluationsException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.optimization.GoalType;
+import org.apache.commons.math3.optimization.ConvergenceChecker;
+
+/**
+ * Provide a default implementation for several functions useful to generic
+ * optimizers.
+ *
+ * @deprecated As of 3.1 (to be removed in 4.0).
+ * @since 2.0
+ */
+@Deprecated
+public abstract class BaseAbstractUnivariateOptimizer
+    implements UnivariateOptimizer {
+    /** Convergence checker. */
+    private final ConvergenceChecker&lt;UnivariatePointValuePair&gt; checker;
+    /** Evaluations counter. */
+<span class="fc" id="L41">    private final Incrementor evaluations = new Incrementor();</span>
+    /** Optimization type */
+    private GoalType goal;
+    /** Lower end of search interval. */
+    private double searchMin;
+    /** Higher end of search interval. */
+    private double searchMax;
+    /** Initial guess . */
+    private double searchStart;
+    /** Function to optimize. */
+    private UnivariateFunction function;
+
+    /**
+     * @param checker Convergence checking procedure.
+     */
+<span class="fc" id="L56">    protected BaseAbstractUnivariateOptimizer(ConvergenceChecker&lt;UnivariatePointValuePair&gt; checker) {</span>
+<span class="fc" id="L57">        this.checker = checker;</span>
+<span class="fc" id="L58">    }</span>
+
+    /** {@inheritDoc} */
+    public int getMaxEvaluations() {
+<span class="fc" id="L62">        return evaluations.getMaximalCount();</span>
+    }
+
+    /** {@inheritDoc} */
+    public int getEvaluations() {
+<span class="fc" id="L67">        return evaluations.getCount();</span>
+    }
+
+    /**
+     * @return the optimization type.
+     */
+    public GoalType getGoalType() {
+<span class="fc" id="L74">        return goal;</span>
+    }
+    /**
+     * @return the lower end of the search interval.
+     */
+    public double getMin() {
+<span class="fc" id="L80">        return searchMin;</span>
+    }
+    /**
+     * @return the higher end of the search interval.
+     */
+    public double getMax() {
+<span class="fc" id="L86">        return searchMax;</span>
+    }
+    /**
+     * @return the initial guess.
+     */
+    public double getStartValue() {
+<span class="fc" id="L92">        return searchStart;</span>
+    }
+
+    /**
+     * Compute the objective function value.
+     *
+     * @param point Point at which the objective function must be evaluated.
+     * @return the objective function value at specified point.
+     * @throws TooManyEvaluationsException if the maximal number of evaluations
+     * is exceeded.
+     */
+    protected double computeObjectiveValue(double point) {
+        try {
+<span class="fc" id="L105">            evaluations.incrementCount();</span>
+<span class="fc" id="L106">        } catch (MaxCountExceededException e) {</span>
+<span class="fc" id="L107">            throw new TooManyEvaluationsException(e.getMax());</span>
+<span class="fc" id="L108">        }</span>
+<span class="fc" id="L109">        return function.value(point);</span>
+    }
+
+    /** {@inheritDoc} */
+    public UnivariatePointValuePair optimize(int maxEval, UnivariateFunction f,
+                                             GoalType goalType,
+                                             double min, double max,
+                                             double startValue) {
+        // Checks.
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">        if (f == null) {</span>
+<span class="nc" id="L119">            throw new NullArgumentException();</span>
+        }
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">        if (goalType == null) {</span>
+<span class="nc" id="L122">            throw new NullArgumentException();</span>
+        }
+
+        // Reset.
+<span class="fc" id="L126">        searchMin = min;</span>
+<span class="fc" id="L127">        searchMax = max;</span>
+<span class="fc" id="L128">        searchStart = startValue;</span>
+<span class="fc" id="L129">        goal = goalType;</span>
+<span class="fc" id="L130">        function = f;</span>
+<span class="fc" id="L131">        evaluations.setMaximalCount(maxEval);</span>
+<span class="fc" id="L132">        evaluations.resetCount();</span>
+
+        // Perform computation.
+<span class="fc" id="L135">        return doOptimize();</span>
+    }
+
+    /** {@inheritDoc} */
+    public UnivariatePointValuePair optimize(int maxEval,
+                                             UnivariateFunction f,
+                                             GoalType goalType,
+                                             double min, double max){
+<span class="fc" id="L143">        return optimize(maxEval, f, goalType, min, max, min + 0.5 * (max - min));</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public ConvergenceChecker&lt;UnivariatePointValuePair&gt; getConvergenceChecker() {
+<span class="fc" id="L150">        return checker;</span>
+    }
+
+    /**
+     * Method for implementing actual optimization algorithms in derived
+     * classes.
+     *
+     * @return the optimum and its corresponding function value.
+     * @throws TooManyEvaluationsException if the maximal number of evaluations
+     * is exceeded.
+     */
+    protected abstract UnivariatePointValuePair doOptimize();
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

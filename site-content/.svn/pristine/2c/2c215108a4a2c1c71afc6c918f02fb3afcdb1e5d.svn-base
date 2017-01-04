@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DummyStepHandler.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.sampling</a> &gt; <span class="el_source">DummyStepHandler.java</span></div><h1>DummyStepHandler.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.sampling;
+
+/**
+ * This class is a step handler that does nothing.
+
+ * &lt;p&gt;This class is provided as a convenience for users who are only
+ * interested in the final state of an integration and not in the
+ * intermediate steps. Its handleStep method does nothing.&lt;/p&gt;
+ *
+ * &lt;p&gt;Since this class has no internal state, it is implemented using
+ * the Singleton design pattern. This means that only one instance is
+ * ever created, which can be retrieved using the getInstance
+ * method. This explains why there is no public constructor.&lt;/p&gt;
+ *
+ * @see StepHandler
+ * @since 1.2
+ */
+
+public class DummyStepHandler implements StepHandler {
+
+    /** Private constructor.
+     * The constructor is private to prevent users from creating
+     * instances (Singleton design-pattern).
+     */
+<span class="nc" id="L42">    private DummyStepHandler() {</span>
+<span class="nc" id="L43">    }</span>
+
+    /** Get the only instance.
+     * @return the only instance
+     */
+    public static DummyStepHandler getInstance() {
+<span class="nc" id="L49">        return LazyHolder.INSTANCE;</span>
+    }
+
+    /** {@inheritDoc} */
+    public void init(double t0, double[] y0, double t) {
+<span class="nc" id="L54">    }</span>
+
+    /**
+     * Handle the last accepted step.
+     * This method does nothing in this class.
+     * @param interpolator interpolator for the last accepted step. For
+     * efficiency purposes, the various integrators reuse the same
+     * object on each call, so if the instance wants to keep it across
+     * all calls (for example to provide at the end of the integration a
+     * continuous model valid throughout the integration range), it
+     * should build a local copy using the clone method and store this
+     * copy.
+     * @param isLast true if the step is the last one
+     */
+    public void handleStep(final StepInterpolator interpolator, final boolean isLast) {
+<span class="nc" id="L69">    }</span>
+
+    // CHECKSTYLE: stop HideUtilityClassConstructor
+    /** Holder for the instance.
+     * &lt;p&gt;We use here the Initialization On Demand Holder Idiom.&lt;/p&gt;
+     */
+<span class="nc" id="L75">    private static class LazyHolder {</span>
+        /** Cached field instance. */
+<span class="nc" id="L77">        private static final DummyStepHandler INSTANCE = new DummyStepHandler();</span>
+    }
+    // CHECKSTYLE: resume HideUtilityClassConstructor
+
+    /** Handle deserialization of the singleton.
+     * @return the singleton instance
+     */
+    private Object readResolve() {
+        // return the singleton instance
+<span class="nc" id="L86">        return LazyHolder.INSTANCE;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

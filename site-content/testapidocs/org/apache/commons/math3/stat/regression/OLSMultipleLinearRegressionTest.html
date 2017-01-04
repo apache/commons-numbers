@@ -1,0 +1,618 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+<title>OLSMultipleLinearRegressionTest (Apache Commons Math 3.5 Test API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="OLSMultipleLinearRegressionTest (Apache Commons Math 3.5 Test API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/OLSMultipleLinearRegressionTest.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+<div class="aboutLanguage"><em><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></em></div>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html" title="class in org.apache.commons.math3.stat.regression"><span class="strong">PREV CLASS</span></a></li>
+<li><a href="../../../../../../org/apache/commons/math3/stat/regression/SimpleRegressionTest.html" title="class in org.apache.commons.math3.stat.regression"><span class="strong">NEXT CLASS</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../../index.html?org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html" target="_top">FRAMES</a></li>
+<li><a href="OLSMultipleLinearRegressionTest.html" target="_top">NO FRAMES</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>SUMMARY:&nbsp;</li>
+<li>NESTED&nbsp;|&nbsp;</li>
+<li><a href="#fields_inherited_from_class_org.apache.commons.math3.stat.regression.MultipleLinearRegressionAbstractTest">FIELD</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">METHOD</a></li>
+</ul>
+<ul class="subNavList">
+<li>DETAIL:&nbsp;</li>
+<li>FIELD&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">METHOD</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<p class="subTitle">org.apache.commons.math3.stat.regression</p>
+<h2 title="Class OLSMultipleLinearRegressionTest" class="title">Class OLSMultipleLinearRegressionTest</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html" title="class in org.apache.commons.math3.stat.regression">org.apache.commons.math3.stat.regression.MultipleLinearRegressionAbstractTest</a></li>
+<li>
+<ul class="inheritance">
+<li>org.apache.commons.math3.stat.regression.OLSMultipleLinearRegressionTest</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<br>
+<pre>public class <a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.31">OLSMultipleLinearRegressionTest</a>
+extends <a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html" title="class in org.apache.commons.math3.stat.regression">MultipleLinearRegressionAbstractTest</a></pre>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.apache.commons.math3.stat.regression.MultipleLinearRegressionAbstractTest">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;org.apache.commons.math3.stat.regression.<a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html" title="class in org.apache.commons.math3.stat.regression">MultipleLinearRegressionAbstractTest</a></h3>
+<code><a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html#regression">regression</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#OLSMultipleLinearRegressionTest()">OLSMultipleLinearRegressionTest</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#cannotAddSampleDataWithSizeMismatch()">cannotAddSampleDataWithSizeMismatch</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#checkVarianceConsistency(org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression)">checkVarianceConsistency</a></strong>(<a href="../../../../../../../apidocs/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegression.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.regression">OLSMultipleLinearRegression</a>&nbsp;model)</code>
+<div class="block">Verifies that calculateYVariance and calculateResidualVariance return consistent
+ values with direct variance computation from Y, residuals, respectively.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegression.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.regression">OLSMultipleLinearRegression</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#createRegression()">createRegression</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#getNumberOfRegressors()">getNumberOfRegressors</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#getSampleSize()">getSampleSize</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#setUp()">setUp</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#testHat()">testHat</a></strong>()</code>
+<div class="block">Test hat matrix computation</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#testLongly()">testLongly</a></strong>()</code>
+<div class="block">Test Longley dataset against certified values provided by NIST.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#testNewSample2()">testNewSample2</a></strong>()</code>
+<div class="block">Verifies that setting X and Y separately has the same effect as newSample(X,Y).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#testNewSampleDataXNull()">testNewSampleDataXNull</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#testNewSampleDataYNull()">testNewSampleDataYNull</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#testNoDataNPECalculateBeta()">testNoDataNPECalculateBeta</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#testNoDataNPECalculateHat()">testNoDataNPECalculateHat</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#testNoDataNPESSTO()">testNoDataNPESSTO</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#testNoSSTOCalculateRsquare()">testNoSSTOCalculateRsquare</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#testPerfectFit()">testPerfectFit</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#testSingularCalculateBeta()">testSingularCalculateBeta</a></strong>()</code>
+<div class="block">Anything requiring beta calculation should advertise SME.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#testSwissFertility()">testSwissFertility</a></strong>()</code>
+<div class="block">Test R Swiss fertility dataset against R.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#testWampler1()">testWampler1</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#testWampler2()">testWampler2</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#testWampler3()">testWampler3</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#testWampler4()">testWampler4</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#testYVariance()">testYVariance</a></strong>()</code>
+<div class="block">test calculateYVariance</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.apache.commons.math3.stat.regression.MultipleLinearRegressionAbstractTest">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.apache.commons.math3.stat.regression.<a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html" title="class in org.apache.commons.math3.stat.regression">MultipleLinearRegressionAbstractTest</a></h3>
+<code><a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html#canEstimateRegressandVariance()">canEstimateRegressandVariance</a>, <a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html#canEstimateRegressionParameters()">canEstimateRegressionParameters</a>, <a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html#canEstimateRegressionParametersVariance()">canEstimateRegressionParametersVariance</a>, <a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html#canEstimateResiduals()">canEstimateResiduals</a>, <a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html#testNewSample()">testNewSample</a>, <a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html#testNewSampleInsufficientData()">testNewSampleInsufficientData</a>, <a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html#testNewSampleInvalidData()">testNewSampleInvalidData</a>, <a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html#testNewSampleNullData()">testNewSampleNullData</a>, <a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html#testXSampleDataNull()">testXSampleDataNull</a>, <a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html#testYSampleDataNull()">testYSampleDataNull</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="OLSMultipleLinearRegressionTest()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>OLSMultipleLinearRegressionTest</h4>
+<pre>public&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.31">OLSMultipleLinearRegressionTest</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="setUp()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUp</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.38">setUp</a>()</pre>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html#setUp()">setUp</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html" title="class in org.apache.commons.math3.stat.regression">MultipleLinearRegressionAbstractTest</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="createRegression()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createRegression</h4>
+<pre>protected&nbsp;<a href="../../../../../../../apidocs/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegression.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.regression">OLSMultipleLinearRegression</a>&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.51">createRegression</a>()</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html#createRegression()">createRegression</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html" title="class in org.apache.commons.math3.stat.regression">MultipleLinearRegressionAbstractTest</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="getNumberOfRegressors()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getNumberOfRegressors</h4>
+<pre>protected&nbsp;int&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.58">getNumberOfRegressors</a>()</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html#getNumberOfRegressors()">getNumberOfRegressors</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html" title="class in org.apache.commons.math3.stat.regression">MultipleLinearRegressionAbstractTest</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="getSampleSize()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSampleSize</h4>
+<pre>protected&nbsp;int&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.63">getSampleSize</a>()</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html#getSampleSize()">getSampleSize</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html" title="class in org.apache.commons.math3.stat.regression">MultipleLinearRegressionAbstractTest</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="cannotAddSampleDataWithSizeMismatch()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>cannotAddSampleDataWithSizeMismatch</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.68">cannotAddSampleDataWithSizeMismatch</a>()</pre>
+</li>
+</ul>
+<a name="testPerfectFit()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testPerfectFit</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.76">testPerfectFit</a>()</pre>
+</li>
+</ul>
+<a name="testLongly()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testLongly</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.116">testLongly</a>()</pre>
+<div class="block">Test Longley dataset against certified values provided by NIST.
+ Data Source: J. Longley (1967) "An Appraisal of Least Squares
+ Programs for the Electronic Computer from the Point of View of the User"
+ Journal of the American Statistical Association, vol. 62. September,
+ pp. 819-841.
+
+ Certified values (and data) are from NIST:
+ http://www.itl.nist.gov/div898/strd/lls/data/LINKS/DATA/Longley.dat</div>
+</li>
+</ul>
+<a name="testSwissFertility()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testSwissFertility</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.223">testSwissFertility</a>()</pre>
+<div class="block">Test R Swiss fertility dataset against R.
+ Data Source: R datasets package</div>
+</li>
+</ul>
+<a name="testHat()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testHat</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.376">testHat</a>()</pre>
+<div class="block">Test hat matrix computation</div>
+</li>
+</ul>
+<a name="testYVariance()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testYVariance</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.444">testYVariance</a>()</pre>
+<div class="block">test calculateYVariance</div>
+</li>
+</ul>
+<a name="checkVarianceConsistency(org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkVarianceConsistency</h4>
+<pre>protected&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.457">checkVarianceConsistency</a>(<a href="../../../../../../../apidocs/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegression.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.regression">OLSMultipleLinearRegression</a>&nbsp;model)</pre>
+<div class="block">Verifies that calculateYVariance and calculateResidualVariance return consistent
+ values with direct variance computation from Y, residuals, respectively.</div>
+</li>
+</ul>
+<a name="testNewSample2()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testNewSample2</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.474">testNewSample2</a>()</pre>
+<div class="block">Verifies that setting X and Y separately has the same effect as newSample(X,Y).</div>
+</li>
+</ul>
+<a name="testNewSampleDataYNull()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testNewSampleDataYNull</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.503">testNewSampleDataYNull</a>()</pre>
+</li>
+</ul>
+<a name="testNewSampleDataXNull()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testNewSampleDataXNull</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.508">testNewSampleDataXNull</a>()</pre>
+</li>
+</ul>
+<a name="testWampler1()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testWampler1</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.517">testWampler1</a>()</pre>
+</li>
+</ul>
+<a name="testWampler2()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testWampler2</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.585">testWampler2</a>()</pre>
+</li>
+</ul>
+<a name="testWampler3()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testWampler3</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.653">testWampler3</a>()</pre>
+</li>
+</ul>
+<a name="testWampler4()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testWampler4</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.722">testWampler4</a>()</pre>
+</li>
+</ul>
+<a name="testSingularCalculateBeta()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testSingularCalculateBeta</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.790">testSingularCalculateBeta</a>()</pre>
+<div class="block">Anything requiring beta calculation should advertise SME.</div>
+</li>
+</ul>
+<a name="testNoSSTOCalculateRsquare()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testNoSSTOCalculateRsquare</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.797">testNoSSTOCalculateRsquare</a>()</pre>
+</li>
+</ul>
+<a name="testNoDataNPECalculateBeta()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testNoDataNPECalculateBeta</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.804">testNoDataNPECalculateBeta</a>()</pre>
+</li>
+</ul>
+<a name="testNoDataNPECalculateHat()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testNoDataNPECalculateHat</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.810">testNoDataNPECalculateHat</a>()</pre>
+</li>
+</ul>
+<a name="testNoDataNPESSTO()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>testNoDataNPESSTO</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html#line.816">testNoDataNPESSTO</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/OLSMultipleLinearRegressionTest.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+<div class="aboutLanguage"><em><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></em></div>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../../org/apache/commons/math3/stat/regression/MultipleLinearRegressionAbstractTest.html" title="class in org.apache.commons.math3.stat.regression"><span class="strong">PREV CLASS</span></a></li>
+<li><a href="../../../../../../org/apache/commons/math3/stat/regression/SimpleRegressionTest.html" title="class in org.apache.commons.math3.stat.regression"><span class="strong">NEXT CLASS</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../../index.html?org/apache/commons/math3/stat/regression/OLSMultipleLinearRegressionTest.html" target="_top">FRAMES</a></li>
+<li><a href="OLSMultipleLinearRegressionTest.html" target="_top">NO FRAMES</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>SUMMARY:&nbsp;</li>
+<li>NESTED&nbsp;|&nbsp;</li>
+<li><a href="#fields_inherited_from_class_org.apache.commons.math3.stat.regression.MultipleLinearRegressionAbstractTest">FIELD</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">METHOD</a></li>
+</ul>
+<ul class="subNavList">
+<li>DETAIL:&nbsp;</li>
+<li>FIELD&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">METHOD</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+<p class="legalCopy"><small>Copyright &#169; 2003&#x2013;2015 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</small></p>
+</body>
+</html>

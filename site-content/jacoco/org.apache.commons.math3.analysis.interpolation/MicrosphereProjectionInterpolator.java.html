@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MicrosphereProjectionInterpolator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.interpolation</a> &gt; <span class="el_source">MicrosphereProjectionInterpolator.java</span></div><h1>MicrosphereProjectionInterpolator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.analysis.interpolation;
+
+import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.NotPositiveException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.random.UnitSphereRandomVectorGenerator;
+
+/**
+ * Interpolator that implements the algorithm described in
+ * &lt;em&gt;William Dudziak&lt;/em&gt;'s
+ * &lt;a href=&quot;http://www.dudziak.com/microsphere.pdf&quot;&gt;MS thesis&lt;/a&gt;.
+ *
+ * @since 3.6
+ */
+public class MicrosphereProjectionInterpolator
+    implements MultivariateInterpolator {
+    /** Brightness exponent. */
+    private final double exponent;
+    /** Microsphere. */
+    private final InterpolatingMicrosphere microsphere;
+    /** Whether to share the sphere. */
+    private final boolean sharedSphere;
+    /** Tolerance value below which no interpolation is necessary. */
+    private final double noInterpolationTolerance;
+
+    /**
+     * Create a microsphere interpolator.
+     *
+     * @param dimension Space dimension.
+     * @param elements Number of surface elements of the microsphere.
+     * @param exponent Exponent used in the power law that computes the
+     * @param maxDarkFraction Maximum fraction of the facets that can be dark.
+     * If the fraction of &quot;non-illuminated&quot; facets is larger, no estimation
+     * of the value will be performed, and the {@code background} value will
+     * be returned instead.
+     * @param darkThreshold Value of the illumination below which a facet is
+     * considered dark.
+     * @param background Value returned when the {@code maxDarkFraction}
+     * threshold is exceeded.
+     * @param sharedSphere Whether the sphere can be shared among the
+     * interpolating function instances.  If {@code true}, the instances
+     * will share the same data, and thus will &lt;em&gt;not&lt;/em&gt; be thread-safe.
+     * @param noInterpolationTolerance When the distance between an
+     * interpolated point and one of the sample points is less than this
+     * value, no interpolation will be performed (the value of the sample
+     * will be returned).
+     * @throws org.apache.commons.math3.exception.NotStrictlyPositiveException
+     * if {@code dimension &lt;= 0} or {@code elements &lt;= 0}.
+     * @throws NotPositiveException if {@code exponent &lt; 0}.
+     * @throws NotPositiveException if {@code darkThreshold &lt; 0}.
+     * @throws org.apache.commons.math3.exception.OutOfRangeException if
+     * {@code maxDarkFraction} does not belong to the interval {@code [0, 1]}.
+     */
+    public MicrosphereProjectionInterpolator(int dimension,
+                                             int elements,
+                                             double maxDarkFraction,
+                                             double darkThreshold,
+                                             double background,
+                                             double exponent,
+                                             boolean sharedSphere,
+                                             double noInterpolationTolerance) {
+<span class="fc" id="L80">        this(new InterpolatingMicrosphere(dimension,</span>
+                                          elements,
+                                          maxDarkFraction,
+                                          darkThreshold,
+                                          background,
+                                          new UnitSphereRandomVectorGenerator(dimension)),
+             exponent,
+             sharedSphere,
+             noInterpolationTolerance);
+<span class="fc" id="L89">    }</span>
+
+    /**
+     * Create a microsphere interpolator.
+     *
+     * @param microsphere Microsphere.
+     * @param exponent Exponent used in the power law that computes the
+     * weights (distance dimming factor) of the sample data.
+     * @param sharedSphere Whether the sphere can be shared among the
+     * interpolating function instances.  If {@code true}, the instances
+     * will share the same data, and thus will &lt;em&gt;not&lt;/em&gt; be thread-safe.
+     * @param noInterpolationTolerance When the distance between an
+     * interpolated point and one of the sample points is less than this
+     * value, no interpolation will be performed (the value of the sample
+     * will be returned).
+     * @throws NotPositiveException if {@code exponent &lt; 0}.
+     */
+    public MicrosphereProjectionInterpolator(InterpolatingMicrosphere microsphere,
+                                             double exponent,
+                                             boolean sharedSphere,
+                                             double noInterpolationTolerance)
+<span class="fc" id="L110">        throws NotPositiveException {</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        if (exponent &lt; 0) {</span>
+<span class="nc" id="L112">            throw new NotPositiveException(exponent);</span>
+        }
+
+<span class="fc" id="L115">        this.microsphere = microsphere;</span>
+<span class="fc" id="L116">        this.exponent = exponent;</span>
+<span class="fc" id="L117">        this.sharedSphere = sharedSphere;</span>
+<span class="fc" id="L118">        this.noInterpolationTolerance = noInterpolationTolerance;</span>
+<span class="fc" id="L119">    }</span>
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws DimensionMismatchException if the space dimension of the
+     * given samples does not match the space dimension of the microsphere.
+     */
+    public MultivariateFunction interpolate(final double[][] xval,
+                                            final double[] yval)
+        throws DimensionMismatchException,
+               NoDataException,
+               NullArgumentException {
+<span class="pc bpc" id="L132" title="2 of 4 branches missed.">        if (xval == null ||</span>
+            yval == null) {
+<span class="nc" id="L134">            throw new NullArgumentException();</span>
+        }
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">        if (xval.length == 0) {</span>
+<span class="nc" id="L137">            throw new NoDataException();</span>
+        }
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">        if (xval.length != yval.length) {</span>
+<span class="nc" id="L140">            throw new DimensionMismatchException(xval.length, yval.length);</span>
+        }
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">        if (xval[0] == null) {</span>
+<span class="nc" id="L143">            throw new NullArgumentException();</span>
+        }
+<span class="fc" id="L145">        final int dimension = microsphere.getDimension();</span>
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">        if (dimension != xval[0].length) {</span>
+<span class="nc" id="L147">            throw new DimensionMismatchException(xval[0].length, dimension);</span>
+        }
+
+        // Microsphere copy.
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">        final InterpolatingMicrosphere m = sharedSphere ? microsphere : microsphere.copy();</span>
+
+<span class="fc" id="L153">        return new MultivariateFunction() {</span>
+            /** {inheritDoc} */
+            public double value(double[] point) {
+<span class="fc" id="L156">                return m.value(point,</span>
+                               xval,
+                               yval,
+                               exponent,
+                               noInterpolationTolerance);
+            }
+        };
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

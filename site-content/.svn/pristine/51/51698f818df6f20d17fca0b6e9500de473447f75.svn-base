@@ -1,0 +1,339 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.analysis.solvers;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.apache.commons.math3.analysis.FunctionUtils;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.analysis.MonitoredFunction;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.analysis.QuinticFunction;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.analysis.UnivariateFunction;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.analysis.function.Constant;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.analysis.function.Inverse;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.math3.analysis.function.Sin;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.commons.math3.analysis.function.Sqrt;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.math3.exception.NoBracketingException;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.math3.exception.NumberIsTooLargeException;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.commons.math3.exception.TooManyEvaluationsException;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.apache.commons.math3.util.FastMath;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.junit.Assert;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.junit.Test;<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>/**<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * Test case for {@link BrentSolver Brent} solver.<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * Because Brent-Dekker is guaranteed to converge in less than the default<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * maximum iteration count due to bisection fallback, it is quite hard to<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * debug. I include measured iteration counts plus one in order to detect<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * regressions. On average Brent-Dekker should use 4..5 iterations for the<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * default absolute accuracy of 10E-8 for sinus and the quintic function around<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * zero, and 5..10 iterations for the other zeros.<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *<a name="line.44"></a>
+<span class="sourceLineNo">045</span> */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>public final class BrentSolverTest {<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    @Test<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    public void testSinZero() {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        // The sinus function is behaved well around the root at pi. The second<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        // order derivative is zero, which means linar approximating methods will<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        // still converge quadratically.<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        UnivariateFunction f = new Sin();<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        double result;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        UnivariateSolver solver = new BrentSolver();<a name="line.54"></a>
+<span class="sourceLineNo">055</span>        // Somewhat benign interval. The function is monotone.<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        result = solver.solve(100, f, 3, 4);<a name="line.56"></a>
+<span class="sourceLineNo">057</span>        // System.out.println(<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        //    "Root: " + result + " Evaluations: " + solver.getEvaluations());<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        Assert.assertEquals(result, FastMath.PI, solver.getAbsoluteAccuracy());<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        Assert.assertTrue(solver.getEvaluations() &lt;= 7);<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        // Larger and somewhat less benign interval. The function is grows first.<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        result = solver.solve(100, f, 1, 4);<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        // System.out.println(<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        //    "Root: " + result + " Evaluations: " + solver.getEvaluations());<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        Assert.assertEquals(result, FastMath.PI, solver.getAbsoluteAccuracy());<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        Assert.assertTrue(solver.getEvaluations() &lt;= 8);<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    }<a name="line.67"></a>
+<span class="sourceLineNo">068</span><a name="line.68"></a>
+<span class="sourceLineNo">069</span>    @Test<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    public void testQuinticZero() {<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        // The quintic function has zeros at 0, +-0.5 and +-1.<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        // Around the root of 0 the function is well behaved, with a second derivative<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        // of zero a 0.<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        // The other roots are less well to find, in particular the root at 1, because<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        // the function grows fast for x&gt;1.<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        // The function has extrema (first derivative is zero) at 0.27195613 and 0.82221643,<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        // intervals containing these values are harder for the solvers.<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        UnivariateFunction f = new QuinticFunction();<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        double result;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        // Brent-Dekker solver.<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        UnivariateSolver solver = new BrentSolver();<a name="line.81"></a>
+<span class="sourceLineNo">082</span>        // Symmetric bracket around 0. Test whether solvers can handle hitting<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        // the root in the first iteration.<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        result = solver.solve(100, f, -0.2, 0.2);<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        //System.out.println(<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        //    "Root: " + result + " Evaluations: " + solver.getEvaluations());<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        Assert.assertEquals(result, 0, solver.getAbsoluteAccuracy());<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        Assert.assertTrue(solver.getEvaluations() &lt;= 3);<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        // 1 iterations on i586 JDK 1.4.1.<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        // Asymmetric bracket around 0, just for fun. Contains extremum.<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        result = solver.solve(100, f, -0.1, 0.3);<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        //System.out.println(<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        //    "Root: " + result + " Evaluations: " + solver.getEvaluations());<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        Assert.assertEquals(result, 0, solver.getAbsoluteAccuracy());<a name="line.94"></a>
+<span class="sourceLineNo">095</span>        // 5 iterations on i586 JDK 1.4.1.<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        Assert.assertTrue(solver.getEvaluations() &lt;= 7);<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        // Large bracket around 0. Contains two extrema.<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        result = solver.solve(100, f, -0.3, 0.45);<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        //System.out.println(<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        //    "Root: " + result + " Evaluations: " + solver.getEvaluations());<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        Assert.assertEquals(result, 0, solver.getAbsoluteAccuracy());<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        // 6 iterations on i586 JDK 1.4.1.<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        Assert.assertTrue(solver.getEvaluations() &lt;= 8);<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        // Benign bracket around 0.5, function is monotonous.<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        result = solver.solve(100, f, 0.3, 0.7);<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        //System.out.println(<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        //    "Root: " + result + " Evaluations: " + solver.getEvaluations());<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        Assert.assertEquals(result, 0.5, solver.getAbsoluteAccuracy());<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        // 6 iterations on i586 JDK 1.4.1.<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        Assert.assertTrue(solver.getEvaluations() &lt;= 9);<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        // Less benign bracket around 0.5, contains one extremum.<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        result = solver.solve(100, f, 0.2, 0.6);<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        // System.out.println(<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        //    "Root: " + result + " Evaluations: " + solver.getEvaluations());<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        Assert.assertEquals(result, 0.5, solver.getAbsoluteAccuracy());<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        Assert.assertTrue(solver.getEvaluations() &lt;= 10);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        // Large, less benign bracket around 0.5, contains both extrema.<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        result = solver.solve(100, f, 0.05, 0.95);<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        //System.out.println(<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        //    "Root: " + result + " Evaluations: " + solver.getEvaluations());<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        Assert.assertEquals(result, 0.5, solver.getAbsoluteAccuracy());<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        Assert.assertTrue(solver.getEvaluations() &lt;= 11);<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        // Relatively benign bracket around 1, function is monotonous. Fast growth for x&gt;1<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        // is still a problem.<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        result = solver.solve(100, f, 0.85, 1.25);<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        //System.out.println(<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        //    "Root: " + result + " Evaluations: " + solver.getEvaluations());<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        Assert.assertEquals(result, 1.0, solver.getAbsoluteAccuracy());<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        Assert.assertTrue(solver.getEvaluations() &lt;= 11);<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        // Less benign bracket around 1 with extremum.<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        result = solver.solve(100, f, 0.8, 1.2);<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        //System.out.println(<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        //    "Root: " + result + " Evaluations: " + solver.getEvaluations());<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        Assert.assertEquals(result, 1.0, solver.getAbsoluteAccuracy());<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        Assert.assertTrue(solver.getEvaluations() &lt;= 11);<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        // Large bracket around 1. Monotonous.<a name="line.136"></a>
+<span class="sourceLineNo">137</span>        result = solver.solve(100, f, 0.85, 1.75);<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        //System.out.println(<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        //    "Root: " + result + " Evaluations: " + solver.getEvaluations());<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        Assert.assertEquals(result, 1.0, solver.getAbsoluteAccuracy());<a name="line.140"></a>
+<span class="sourceLineNo">141</span>        Assert.assertTrue(solver.getEvaluations() &lt;= 13);<a name="line.141"></a>
+<span class="sourceLineNo">142</span>        // Large bracket around 1. Interval contains extremum.<a name="line.142"></a>
+<span class="sourceLineNo">143</span>        result = solver.solve(100, f, 0.55, 1.45);<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        //System.out.println(<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        //    "Root: " + result + " Evaluations: " + solver.getEvaluations());<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        Assert.assertEquals(result, 1.0, solver.getAbsoluteAccuracy());<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        Assert.assertTrue(solver.getEvaluations() &lt;= 10);<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        // Very large bracket around 1 for testing fast growth behaviour.<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        result = solver.solve(100, f, 0.85, 5);<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        //System.out.println(<a name="line.150"></a>
+<span class="sourceLineNo">151</span>       //     "Root: " + result + " Evaluations: " + solver.getEvaluations());<a name="line.151"></a>
+<span class="sourceLineNo">152</span>        Assert.assertEquals(result, 1.0, solver.getAbsoluteAccuracy());<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        Assert.assertTrue(solver.getEvaluations() &lt;= 15);<a name="line.153"></a>
+<span class="sourceLineNo">154</span><a name="line.154"></a>
+<span class="sourceLineNo">155</span>        try {<a name="line.155"></a>
+<span class="sourceLineNo">156</span>            result = solver.solve(5, f, 0.85, 5);<a name="line.156"></a>
+<span class="sourceLineNo">157</span>            Assert.fail("Expected TooManyEvaluationsException");<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        } catch (TooManyEvaluationsException e) {<a name="line.158"></a>
+<span class="sourceLineNo">159</span>            // Expected.<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        }<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    }<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>    @Test<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    public void testRootEndpoints() {<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        UnivariateFunction f = new Sin();<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        BrentSolver solver = new BrentSolver();<a name="line.166"></a>
+<span class="sourceLineNo">167</span><a name="line.167"></a>
+<span class="sourceLineNo">168</span>        // endpoint is root<a name="line.168"></a>
+<span class="sourceLineNo">169</span>        double result = solver.solve(100, f, FastMath.PI, 4);<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        Assert.assertEquals(FastMath.PI, result, solver.getAbsoluteAccuracy());<a name="line.170"></a>
+<span class="sourceLineNo">171</span><a name="line.171"></a>
+<span class="sourceLineNo">172</span>        result = solver.solve(100, f, 3, FastMath.PI);<a name="line.172"></a>
+<span class="sourceLineNo">173</span>        Assert.assertEquals(FastMath.PI, result, solver.getAbsoluteAccuracy());<a name="line.173"></a>
+<span class="sourceLineNo">174</span><a name="line.174"></a>
+<span class="sourceLineNo">175</span>        result = solver.solve(100, f, FastMath.PI, 4, 3.5);<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        Assert.assertEquals(FastMath.PI, result, solver.getAbsoluteAccuracy());<a name="line.176"></a>
+<span class="sourceLineNo">177</span><a name="line.177"></a>
+<span class="sourceLineNo">178</span>        result = solver.solve(100, f, 3, FastMath.PI, 3.07);<a name="line.178"></a>
+<span class="sourceLineNo">179</span>        Assert.assertEquals(FastMath.PI, result, solver.getAbsoluteAccuracy());<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    }<a name="line.180"></a>
+<span class="sourceLineNo">181</span><a name="line.181"></a>
+<span class="sourceLineNo">182</span>    @Test<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    public void testBadEndpoints() {<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        UnivariateFunction f = new Sin();<a name="line.184"></a>
+<span class="sourceLineNo">185</span>        BrentSolver solver = new BrentSolver();<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        try {  // bad interval<a name="line.186"></a>
+<span class="sourceLineNo">187</span>            solver.solve(100, f, 1, -1);<a name="line.187"></a>
+<span class="sourceLineNo">188</span>            Assert.fail("Expecting NumberIsTooLargeException - bad interval");<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        } catch (NumberIsTooLargeException ex) {<a name="line.189"></a>
+<span class="sourceLineNo">190</span>            // expected<a name="line.190"></a>
+<span class="sourceLineNo">191</span>        }<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        try {  // no bracket<a name="line.192"></a>
+<span class="sourceLineNo">193</span>            solver.solve(100, f, 1, 1.5);<a name="line.193"></a>
+<span class="sourceLineNo">194</span>            Assert.fail("Expecting NoBracketingException - non-bracketing");<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        } catch (NoBracketingException ex) {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>            // expected<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        }<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        try {  // no bracket<a name="line.198"></a>
+<span class="sourceLineNo">199</span>            solver.solve(100, f, 1, 1.5, 1.2);<a name="line.199"></a>
+<span class="sourceLineNo">200</span>            Assert.fail("Expecting NoBracketingException - non-bracketing");<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        } catch (NoBracketingException ex) {<a name="line.201"></a>
+<span class="sourceLineNo">202</span>            // expected<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        }<a name="line.203"></a>
+<span class="sourceLineNo">204</span>    }<a name="line.204"></a>
+<span class="sourceLineNo">205</span><a name="line.205"></a>
+<span class="sourceLineNo">206</span>    @Test<a name="line.206"></a>
+<span class="sourceLineNo">207</span>    public void testInitialGuess() {<a name="line.207"></a>
+<span class="sourceLineNo">208</span>        MonitoredFunction f = new MonitoredFunction(new QuinticFunction());<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        BrentSolver solver = new BrentSolver();<a name="line.209"></a>
+<span class="sourceLineNo">210</span>        double result;<a name="line.210"></a>
+<span class="sourceLineNo">211</span><a name="line.211"></a>
+<span class="sourceLineNo">212</span>        // no guess<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        result = solver.solve(100, f, 0.6, 7.0);<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        Assert.assertEquals(result, 1.0, solver.getAbsoluteAccuracy());<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        int referenceCallsCount = f.getCallsCount();<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        Assert.assertTrue(referenceCallsCount &gt;= 13);<a name="line.216"></a>
+<span class="sourceLineNo">217</span><a name="line.217"></a>
+<span class="sourceLineNo">218</span>        // invalid guess (it *is* a root, but outside of the range)<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        try {<a name="line.219"></a>
+<span class="sourceLineNo">220</span>          result = solver.solve(100, f, 0.6, 7.0, 0.0);<a name="line.220"></a>
+<span class="sourceLineNo">221</span>          Assert.fail("a NumberIsTooLargeException was expected");<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        } catch (NumberIsTooLargeException iae) {<a name="line.222"></a>
+<span class="sourceLineNo">223</span>            // expected behaviour<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        }<a name="line.224"></a>
+<span class="sourceLineNo">225</span><a name="line.225"></a>
+<span class="sourceLineNo">226</span>        // bad guess<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        f.setCallsCount(0);<a name="line.227"></a>
+<span class="sourceLineNo">228</span>        result = solver.solve(100, f, 0.6, 7.0, 0.61);<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        Assert.assertEquals(result, 1.0, solver.getAbsoluteAccuracy());<a name="line.229"></a>
+<span class="sourceLineNo">230</span>        Assert.assertTrue(f.getCallsCount() &gt; referenceCallsCount);<a name="line.230"></a>
+<span class="sourceLineNo">231</span><a name="line.231"></a>
+<span class="sourceLineNo">232</span>        // good guess<a name="line.232"></a>
+<span class="sourceLineNo">233</span>        f.setCallsCount(0);<a name="line.233"></a>
+<span class="sourceLineNo">234</span>        result = solver.solve(100, f, 0.6, 7.0, 0.999999);<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        Assert.assertEquals(result, 1.0, solver.getAbsoluteAccuracy());<a name="line.235"></a>
+<span class="sourceLineNo">236</span>        Assert.assertTrue(f.getCallsCount() &lt; referenceCallsCount);<a name="line.236"></a>
+<span class="sourceLineNo">237</span><a name="line.237"></a>
+<span class="sourceLineNo">238</span>        // perfect guess<a name="line.238"></a>
+<span class="sourceLineNo">239</span>        f.setCallsCount(0);<a name="line.239"></a>
+<span class="sourceLineNo">240</span>        result = solver.solve(100, f, 0.6, 7.0, 1.0);<a name="line.240"></a>
+<span class="sourceLineNo">241</span>        Assert.assertEquals(result, 1.0, solver.getAbsoluteAccuracy());<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        Assert.assertEquals(1, solver.getEvaluations());<a name="line.242"></a>
+<span class="sourceLineNo">243</span>        Assert.assertEquals(1, f.getCallsCount());<a name="line.243"></a>
+<span class="sourceLineNo">244</span>    }<a name="line.244"></a>
+<span class="sourceLineNo">245</span><a name="line.245"></a>
+<span class="sourceLineNo">246</span>    @Test<a name="line.246"></a>
+<span class="sourceLineNo">247</span>    public void testMath832() {<a name="line.247"></a>
+<span class="sourceLineNo">248</span>        final UnivariateFunction f = new UnivariateFunction() {<a name="line.248"></a>
+<span class="sourceLineNo">249</span>                private final UnivariateDifferentiableFunction sqrt = new Sqrt();<a name="line.249"></a>
+<span class="sourceLineNo">250</span>                private final UnivariateDifferentiableFunction inv = new Inverse();<a name="line.250"></a>
+<span class="sourceLineNo">251</span>                private final UnivariateDifferentiableFunction func<a name="line.251"></a>
+<span class="sourceLineNo">252</span>                    = FunctionUtils.add(FunctionUtils.multiply(new Constant(1e2), sqrt),<a name="line.252"></a>
+<span class="sourceLineNo">253</span>                                        FunctionUtils.multiply(new Constant(1e6), inv),<a name="line.253"></a>
+<span class="sourceLineNo">254</span>                                        FunctionUtils.multiply(new Constant(1e4),<a name="line.254"></a>
+<span class="sourceLineNo">255</span>                                                               FunctionUtils.compose(inv, sqrt)));<a name="line.255"></a>
+<span class="sourceLineNo">256</span><a name="line.256"></a>
+<span class="sourceLineNo">257</span>                public double value(double x) {<a name="line.257"></a>
+<span class="sourceLineNo">258</span>                    return func.value(new DerivativeStructure(1, 1, 0, x)).getPartialDerivative(1);<a name="line.258"></a>
+<span class="sourceLineNo">259</span>                }<a name="line.259"></a>
+<span class="sourceLineNo">260</span><a name="line.260"></a>
+<span class="sourceLineNo">261</span>            };<a name="line.261"></a>
+<span class="sourceLineNo">262</span><a name="line.262"></a>
+<span class="sourceLineNo">263</span>        BrentSolver solver = new BrentSolver();<a name="line.263"></a>
+<span class="sourceLineNo">264</span>        final double result = solver.solve(99, f, 1, 1e30, 1 + 1e-10);<a name="line.264"></a>
+<span class="sourceLineNo">265</span>        Assert.assertEquals(804.93558250, result, 1e-8);<a name="line.265"></a>
+<span class="sourceLineNo">266</span>    }<a name="line.266"></a>
+<span class="sourceLineNo">267</span>}<a name="line.267"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

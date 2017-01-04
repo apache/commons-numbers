@@ -1,0 +1,670 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.util;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.util.ArrayList;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.util.Arrays;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.math.BigInteger;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.exception.MathArithmeticException;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.exception.MathIllegalArgumentException;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.random.RandomDataGenerator;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.junit.Assert;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.junit.Test;<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>/**<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * Test cases for the {@link ArithmeticUtils} class.<a name="line.30"></a>
+<span class="sourceLineNo">031</span> *<a name="line.31"></a>
+<span class="sourceLineNo">032</span> */<a name="line.32"></a>
+<span class="sourceLineNo">033</span>public class ArithmeticUtilsTest {<a name="line.33"></a>
+<span class="sourceLineNo">034</span><a name="line.34"></a>
+<span class="sourceLineNo">035</span>    @Test<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    public void testAddAndCheck() {<a name="line.36"></a>
+<span class="sourceLineNo">037</span>        int big = Integer.MAX_VALUE;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>        int bigNeg = Integer.MIN_VALUE;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>        Assert.assertEquals(big, ArithmeticUtils.addAndCheck(big, 0));<a name="line.39"></a>
+<span class="sourceLineNo">040</span>        try {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>            ArithmeticUtils.addAndCheck(big, 1);<a name="line.41"></a>
+<span class="sourceLineNo">042</span>            Assert.fail("Expecting MathArithmeticException");<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        } catch (MathArithmeticException ex) {<a name="line.43"></a>
+<span class="sourceLineNo">044</span>        }<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        try {<a name="line.45"></a>
+<span class="sourceLineNo">046</span>            ArithmeticUtils.addAndCheck(bigNeg, -1);<a name="line.46"></a>
+<span class="sourceLineNo">047</span>            Assert.fail("Expecting MathArithmeticException");<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        } catch (MathArithmeticException ex) {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        }<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    }<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>    @Test<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    public void testAddAndCheckLong() {<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        long max = Long.MAX_VALUE;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>        long min = Long.MIN_VALUE;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        Assert.assertEquals(max, ArithmeticUtils.addAndCheck(max, 0L));<a name="line.56"></a>
+<span class="sourceLineNo">057</span>        Assert.assertEquals(min, ArithmeticUtils.addAndCheck(min, 0L));<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        Assert.assertEquals(max, ArithmeticUtils.addAndCheck(0L, max));<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        Assert.assertEquals(min, ArithmeticUtils.addAndCheck(0L, min));<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        Assert.assertEquals(1, ArithmeticUtils.addAndCheck(-1L, 2L));<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        Assert.assertEquals(1, ArithmeticUtils.addAndCheck(2L, -1L));<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        Assert.assertEquals(-3, ArithmeticUtils.addAndCheck(-2L, -1L));<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        Assert.assertEquals(min, ArithmeticUtils.addAndCheck(min + 1, -1L));<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        Assert.assertEquals(-1, ArithmeticUtils.addAndCheck(min, max));<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        testAddAndCheckLongFailure(max, 1L);<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        testAddAndCheckLongFailure(min, -1L);<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        testAddAndCheckLongFailure(1L, max);<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        testAddAndCheckLongFailure(-1L, min);<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        testAddAndCheckLongFailure(max, max);<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        testAddAndCheckLongFailure(min, min);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    }<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>    @Test<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    public void testGcd() {<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        int a = 30;<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        int b = 50;<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        int c = 77;<a name="line.77"></a>
+<span class="sourceLineNo">078</span><a name="line.78"></a>
+<span class="sourceLineNo">079</span>        Assert.assertEquals(0, ArithmeticUtils.gcd(0, 0));<a name="line.79"></a>
+<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">081</span>        Assert.assertEquals(b, ArithmeticUtils.gcd(0, b));<a name="line.81"></a>
+<span class="sourceLineNo">082</span>        Assert.assertEquals(a, ArithmeticUtils.gcd(a, 0));<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        Assert.assertEquals(b, ArithmeticUtils.gcd(0, -b));<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        Assert.assertEquals(a, ArithmeticUtils.gcd(-a, 0));<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span>        Assert.assertEquals(10, ArithmeticUtils.gcd(a, b));<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        Assert.assertEquals(10, ArithmeticUtils.gcd(-a, b));<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        Assert.assertEquals(10, ArithmeticUtils.gcd(a, -b));<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        Assert.assertEquals(10, ArithmeticUtils.gcd(-a, -b));<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>        Assert.assertEquals(1, ArithmeticUtils.gcd(a, c));<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        Assert.assertEquals(1, ArithmeticUtils.gcd(-a, c));<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        Assert.assertEquals(1, ArithmeticUtils.gcd(a, -c));<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        Assert.assertEquals(1, ArithmeticUtils.gcd(-a, -c));<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>        Assert.assertEquals(3 * (1&lt;&lt;15), ArithmeticUtils.gcd(3 * (1&lt;&lt;20), 9 * (1&lt;&lt;15)));<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>        Assert.assertEquals(Integer.MAX_VALUE, ArithmeticUtils.gcd(Integer.MAX_VALUE, 0));<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        Assert.assertEquals(Integer.MAX_VALUE, ArithmeticUtils.gcd(-Integer.MAX_VALUE, 0));<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        Assert.assertEquals(1&lt;&lt;30, ArithmeticUtils.gcd(1&lt;&lt;30, -Integer.MIN_VALUE));<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        try {<a name="line.101"></a>
+<span class="sourceLineNo">102</span>            // gcd(Integer.MIN_VALUE, 0) &gt; Integer.MAX_VALUE<a name="line.102"></a>
+<span class="sourceLineNo">103</span>            ArithmeticUtils.gcd(Integer.MIN_VALUE, 0);<a name="line.103"></a>
+<span class="sourceLineNo">104</span>            Assert.fail("expecting MathArithmeticException");<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        } catch (MathArithmeticException expected) {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>            // expected<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        }<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        try {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>            // gcd(0, Integer.MIN_VALUE) &gt; Integer.MAX_VALUE<a name="line.109"></a>
+<span class="sourceLineNo">110</span>            ArithmeticUtils.gcd(0, Integer.MIN_VALUE);<a name="line.110"></a>
+<span class="sourceLineNo">111</span>            Assert.fail("expecting MathArithmeticException");<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        } catch (MathArithmeticException expected) {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>            // expected<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        }<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        try {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>            // gcd(Integer.MIN_VALUE, Integer.MIN_VALUE) &gt; Integer.MAX_VALUE<a name="line.116"></a>
+<span class="sourceLineNo">117</span>            ArithmeticUtils.gcd(Integer.MIN_VALUE, Integer.MIN_VALUE);<a name="line.117"></a>
+<span class="sourceLineNo">118</span>            Assert.fail("expecting MathArithmeticException");<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        } catch (MathArithmeticException expected) {<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            // expected<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        }<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    }<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>    @Test<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    public void testGcdConsistency() {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        int[] primeList = {19, 23, 53, 67, 73, 79, 101, 103, 111, 131};<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        ArrayList&lt;Integer&gt; primes = new ArrayList&lt;Integer&gt;();<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        for (int i = 0; i &lt; primeList.length; i++) {<a name="line.128"></a>
+<span class="sourceLineNo">129</span>            primes.add(Integer.valueOf(primeList[i]));<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        }<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        RandomDataGenerator randomData = new RandomDataGenerator();<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        for (int i = 0; i &lt; 20; i++) {<a name="line.132"></a>
+<span class="sourceLineNo">133</span>            Object[] sample = randomData.nextSample(primes, 4);<a name="line.133"></a>
+<span class="sourceLineNo">134</span>            int p1 = ((Integer) sample[0]).intValue();<a name="line.134"></a>
+<span class="sourceLineNo">135</span>            int p2 = ((Integer) sample[1]).intValue();<a name="line.135"></a>
+<span class="sourceLineNo">136</span>            int p3 = ((Integer) sample[2]).intValue();<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            int p4 = ((Integer) sample[3]).intValue();<a name="line.137"></a>
+<span class="sourceLineNo">138</span>            int i1 = p1 * p2 * p3;<a name="line.138"></a>
+<span class="sourceLineNo">139</span>            int i2 = p1 * p2 * p4;<a name="line.139"></a>
+<span class="sourceLineNo">140</span>            int gcd = p1 * p2;<a name="line.140"></a>
+<span class="sourceLineNo">141</span>            Assert.assertEquals(gcd, ArithmeticUtils.gcd(i1, i2));<a name="line.141"></a>
+<span class="sourceLineNo">142</span>            long l1 = i1;<a name="line.142"></a>
+<span class="sourceLineNo">143</span>            long l2 = i2;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>            Assert.assertEquals(gcd, ArithmeticUtils.gcd(l1, l2));<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        }<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    }<a name="line.146"></a>
+<span class="sourceLineNo">147</span><a name="line.147"></a>
+<span class="sourceLineNo">148</span>    @Test<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    public void  testGcdLong(){<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        long a = 30;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        long b = 50;<a name="line.151"></a>
+<span class="sourceLineNo">152</span>        long c = 77;<a name="line.152"></a>
+<span class="sourceLineNo">153</span><a name="line.153"></a>
+<span class="sourceLineNo">154</span>        Assert.assertEquals(0, ArithmeticUtils.gcd(0L, 0));<a name="line.154"></a>
+<span class="sourceLineNo">155</span><a name="line.155"></a>
+<span class="sourceLineNo">156</span>        Assert.assertEquals(b, ArithmeticUtils.gcd(0, b));<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        Assert.assertEquals(a, ArithmeticUtils.gcd(a, 0));<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        Assert.assertEquals(b, ArithmeticUtils.gcd(0, -b));<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        Assert.assertEquals(a, ArithmeticUtils.gcd(-a, 0));<a name="line.159"></a>
+<span class="sourceLineNo">160</span><a name="line.160"></a>
+<span class="sourceLineNo">161</span>        Assert.assertEquals(10, ArithmeticUtils.gcd(a, b));<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        Assert.assertEquals(10, ArithmeticUtils.gcd(-a, b));<a name="line.162"></a>
+<span class="sourceLineNo">163</span>        Assert.assertEquals(10, ArithmeticUtils.gcd(a, -b));<a name="line.163"></a>
+<span class="sourceLineNo">164</span>        Assert.assertEquals(10, ArithmeticUtils.gcd(-a, -b));<a name="line.164"></a>
+<span class="sourceLineNo">165</span><a name="line.165"></a>
+<span class="sourceLineNo">166</span>        Assert.assertEquals(1, ArithmeticUtils.gcd(a, c));<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        Assert.assertEquals(1, ArithmeticUtils.gcd(-a, c));<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        Assert.assertEquals(1, ArithmeticUtils.gcd(a, -c));<a name="line.168"></a>
+<span class="sourceLineNo">169</span>        Assert.assertEquals(1, ArithmeticUtils.gcd(-a, -c));<a name="line.169"></a>
+<span class="sourceLineNo">170</span><a name="line.170"></a>
+<span class="sourceLineNo">171</span>        Assert.assertEquals(3L * (1L&lt;&lt;45), ArithmeticUtils.gcd(3L * (1L&lt;&lt;50), 9L * (1L&lt;&lt;45)));<a name="line.171"></a>
+<span class="sourceLineNo">172</span><a name="line.172"></a>
+<span class="sourceLineNo">173</span>        Assert.assertEquals(1L&lt;&lt;45, ArithmeticUtils.gcd(1L&lt;&lt;45, Long.MIN_VALUE));<a name="line.173"></a>
+<span class="sourceLineNo">174</span><a name="line.174"></a>
+<span class="sourceLineNo">175</span>        Assert.assertEquals(Long.MAX_VALUE, ArithmeticUtils.gcd(Long.MAX_VALUE, 0L));<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        Assert.assertEquals(Long.MAX_VALUE, ArithmeticUtils.gcd(-Long.MAX_VALUE, 0L));<a name="line.176"></a>
+<span class="sourceLineNo">177</span>        Assert.assertEquals(1, ArithmeticUtils.gcd(60247241209L, 153092023L));<a name="line.177"></a>
+<span class="sourceLineNo">178</span>        try {<a name="line.178"></a>
+<span class="sourceLineNo">179</span>            // gcd(Long.MIN_VALUE, 0) &gt; Long.MAX_VALUE<a name="line.179"></a>
+<span class="sourceLineNo">180</span>            ArithmeticUtils.gcd(Long.MIN_VALUE, 0);<a name="line.180"></a>
+<span class="sourceLineNo">181</span>            Assert.fail("expecting MathArithmeticException");<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        } catch (MathArithmeticException expected) {<a name="line.182"></a>
+<span class="sourceLineNo">183</span>            // expected<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        }<a name="line.184"></a>
+<span class="sourceLineNo">185</span>        try {<a name="line.185"></a>
+<span class="sourceLineNo">186</span>            // gcd(0, Long.MIN_VALUE) &gt; Long.MAX_VALUE<a name="line.186"></a>
+<span class="sourceLineNo">187</span>            ArithmeticUtils.gcd(0, Long.MIN_VALUE);<a name="line.187"></a>
+<span class="sourceLineNo">188</span>            Assert.fail("expecting MathArithmeticException");<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        } catch (MathArithmeticException expected) {<a name="line.189"></a>
+<span class="sourceLineNo">190</span>            // expected<a name="line.190"></a>
+<span class="sourceLineNo">191</span>        }<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        try {<a name="line.192"></a>
+<span class="sourceLineNo">193</span>            // gcd(Long.MIN_VALUE, Long.MIN_VALUE) &gt; Long.MAX_VALUE<a name="line.193"></a>
+<span class="sourceLineNo">194</span>            ArithmeticUtils.gcd(Long.MIN_VALUE, Long.MIN_VALUE);<a name="line.194"></a>
+<span class="sourceLineNo">195</span>            Assert.fail("expecting MathArithmeticException");<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        } catch (MathArithmeticException expected) {<a name="line.196"></a>
+<span class="sourceLineNo">197</span>            // expected<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        }<a name="line.198"></a>
+<span class="sourceLineNo">199</span>    }<a name="line.199"></a>
+<span class="sourceLineNo">200</span><a name="line.200"></a>
+<span class="sourceLineNo">201</span><a name="line.201"></a>
+<span class="sourceLineNo">202</span>    @Test<a name="line.202"></a>
+<span class="sourceLineNo">203</span>    public void testLcm() {<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        int a = 30;<a name="line.204"></a>
+<span class="sourceLineNo">205</span>        int b = 50;<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        int c = 77;<a name="line.206"></a>
+<span class="sourceLineNo">207</span><a name="line.207"></a>
+<span class="sourceLineNo">208</span>        Assert.assertEquals(0, ArithmeticUtils.lcm(0, b));<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        Assert.assertEquals(0, ArithmeticUtils.lcm(a, 0));<a name="line.209"></a>
+<span class="sourceLineNo">210</span>        Assert.assertEquals(b, ArithmeticUtils.lcm(1, b));<a name="line.210"></a>
+<span class="sourceLineNo">211</span>        Assert.assertEquals(a, ArithmeticUtils.lcm(a, 1));<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        Assert.assertEquals(150, ArithmeticUtils.lcm(a, b));<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        Assert.assertEquals(150, ArithmeticUtils.lcm(-a, b));<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        Assert.assertEquals(150, ArithmeticUtils.lcm(a, -b));<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        Assert.assertEquals(150, ArithmeticUtils.lcm(-a, -b));<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        Assert.assertEquals(2310, ArithmeticUtils.lcm(a, c));<a name="line.216"></a>
+<span class="sourceLineNo">217</span><a name="line.217"></a>
+<span class="sourceLineNo">218</span>        // Assert that no intermediate value overflows:<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        // The naive implementation of lcm(a,b) would be (a*b)/gcd(a,b)<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        Assert.assertEquals((1&lt;&lt;20)*15, ArithmeticUtils.lcm((1&lt;&lt;20)*3, (1&lt;&lt;20)*5));<a name="line.220"></a>
+<span class="sourceLineNo">221</span><a name="line.221"></a>
+<span class="sourceLineNo">222</span>        // Special case<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        Assert.assertEquals(0, ArithmeticUtils.lcm(0, 0));<a name="line.223"></a>
+<span class="sourceLineNo">224</span><a name="line.224"></a>
+<span class="sourceLineNo">225</span>        try {<a name="line.225"></a>
+<span class="sourceLineNo">226</span>            // lcm == abs(MIN_VALUE) cannot be represented as a nonnegative int<a name="line.226"></a>
+<span class="sourceLineNo">227</span>            ArithmeticUtils.lcm(Integer.MIN_VALUE, 1);<a name="line.227"></a>
+<span class="sourceLineNo">228</span>            Assert.fail("Expecting MathArithmeticException");<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        } catch (MathArithmeticException expected) {<a name="line.229"></a>
+<span class="sourceLineNo">230</span>            // expected<a name="line.230"></a>
+<span class="sourceLineNo">231</span>        }<a name="line.231"></a>
+<span class="sourceLineNo">232</span><a name="line.232"></a>
+<span class="sourceLineNo">233</span>        try {<a name="line.233"></a>
+<span class="sourceLineNo">234</span>            // lcm == abs(MIN_VALUE) cannot be represented as a nonnegative int<a name="line.234"></a>
+<span class="sourceLineNo">235</span>            ArithmeticUtils.lcm(Integer.MIN_VALUE, 1&lt;&lt;20);<a name="line.235"></a>
+<span class="sourceLineNo">236</span>            Assert.fail("Expecting MathArithmeticException");<a name="line.236"></a>
+<span class="sourceLineNo">237</span>        } catch (MathArithmeticException expected) {<a name="line.237"></a>
+<span class="sourceLineNo">238</span>            // expected<a name="line.238"></a>
+<span class="sourceLineNo">239</span>        }<a name="line.239"></a>
+<span class="sourceLineNo">240</span><a name="line.240"></a>
+<span class="sourceLineNo">241</span>        try {<a name="line.241"></a>
+<span class="sourceLineNo">242</span>            ArithmeticUtils.lcm(Integer.MAX_VALUE, Integer.MAX_VALUE - 1);<a name="line.242"></a>
+<span class="sourceLineNo">243</span>            Assert.fail("Expecting MathArithmeticException");<a name="line.243"></a>
+<span class="sourceLineNo">244</span>        } catch (MathArithmeticException expected) {<a name="line.244"></a>
+<span class="sourceLineNo">245</span>            // expected<a name="line.245"></a>
+<span class="sourceLineNo">246</span>        }<a name="line.246"></a>
+<span class="sourceLineNo">247</span>    }<a name="line.247"></a>
+<span class="sourceLineNo">248</span><a name="line.248"></a>
+<span class="sourceLineNo">249</span>    @Test<a name="line.249"></a>
+<span class="sourceLineNo">250</span>    public void testLcmLong() {<a name="line.250"></a>
+<span class="sourceLineNo">251</span>        long a = 30;<a name="line.251"></a>
+<span class="sourceLineNo">252</span>        long b = 50;<a name="line.252"></a>
+<span class="sourceLineNo">253</span>        long c = 77;<a name="line.253"></a>
+<span class="sourceLineNo">254</span><a name="line.254"></a>
+<span class="sourceLineNo">255</span>        Assert.assertEquals(0, ArithmeticUtils.lcm(0, b));<a name="line.255"></a>
+<span class="sourceLineNo">256</span>        Assert.assertEquals(0, ArithmeticUtils.lcm(a, 0));<a name="line.256"></a>
+<span class="sourceLineNo">257</span>        Assert.assertEquals(b, ArithmeticUtils.lcm(1, b));<a name="line.257"></a>
+<span class="sourceLineNo">258</span>        Assert.assertEquals(a, ArithmeticUtils.lcm(a, 1));<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        Assert.assertEquals(150, ArithmeticUtils.lcm(a, b));<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        Assert.assertEquals(150, ArithmeticUtils.lcm(-a, b));<a name="line.260"></a>
+<span class="sourceLineNo">261</span>        Assert.assertEquals(150, ArithmeticUtils.lcm(a, -b));<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        Assert.assertEquals(150, ArithmeticUtils.lcm(-a, -b));<a name="line.262"></a>
+<span class="sourceLineNo">263</span>        Assert.assertEquals(2310, ArithmeticUtils.lcm(a, c));<a name="line.263"></a>
+<span class="sourceLineNo">264</span><a name="line.264"></a>
+<span class="sourceLineNo">265</span>        Assert.assertEquals(Long.MAX_VALUE, ArithmeticUtils.lcm(60247241209L, 153092023L));<a name="line.265"></a>
+<span class="sourceLineNo">266</span><a name="line.266"></a>
+<span class="sourceLineNo">267</span>        // Assert that no intermediate value overflows:<a name="line.267"></a>
+<span class="sourceLineNo">268</span>        // The naive implementation of lcm(a,b) would be (a*b)/gcd(a,b)<a name="line.268"></a>
+<span class="sourceLineNo">269</span>        Assert.assertEquals((1L&lt;&lt;50)*15, ArithmeticUtils.lcm((1L&lt;&lt;45)*3, (1L&lt;&lt;50)*5));<a name="line.269"></a>
+<span class="sourceLineNo">270</span><a name="line.270"></a>
+<span class="sourceLineNo">271</span>        // Special case<a name="line.271"></a>
+<span class="sourceLineNo">272</span>        Assert.assertEquals(0L, ArithmeticUtils.lcm(0L, 0L));<a name="line.272"></a>
+<span class="sourceLineNo">273</span><a name="line.273"></a>
+<span class="sourceLineNo">274</span>        try {<a name="line.274"></a>
+<span class="sourceLineNo">275</span>            // lcm == abs(MIN_VALUE) cannot be represented as a nonnegative int<a name="line.275"></a>
+<span class="sourceLineNo">276</span>            ArithmeticUtils.lcm(Long.MIN_VALUE, 1);<a name="line.276"></a>
+<span class="sourceLineNo">277</span>            Assert.fail("Expecting MathArithmeticException");<a name="line.277"></a>
+<span class="sourceLineNo">278</span>        } catch (MathArithmeticException expected) {<a name="line.278"></a>
+<span class="sourceLineNo">279</span>            // expected<a name="line.279"></a>
+<span class="sourceLineNo">280</span>        }<a name="line.280"></a>
+<span class="sourceLineNo">281</span><a name="line.281"></a>
+<span class="sourceLineNo">282</span>        try {<a name="line.282"></a>
+<span class="sourceLineNo">283</span>            // lcm == abs(MIN_VALUE) cannot be represented as a nonnegative int<a name="line.283"></a>
+<span class="sourceLineNo">284</span>            ArithmeticUtils.lcm(Long.MIN_VALUE, 1&lt;&lt;20);<a name="line.284"></a>
+<span class="sourceLineNo">285</span>            Assert.fail("Expecting MathArithmeticException");<a name="line.285"></a>
+<span class="sourceLineNo">286</span>        } catch (MathArithmeticException expected) {<a name="line.286"></a>
+<span class="sourceLineNo">287</span>            // expected<a name="line.287"></a>
+<span class="sourceLineNo">288</span>        }<a name="line.288"></a>
+<span class="sourceLineNo">289</span><a name="line.289"></a>
+<span class="sourceLineNo">290</span>        Assert.assertEquals((long) Integer.MAX_VALUE * (Integer.MAX_VALUE - 1),<a name="line.290"></a>
+<span class="sourceLineNo">291</span>            ArithmeticUtils.lcm((long)Integer.MAX_VALUE, Integer.MAX_VALUE - 1));<a name="line.291"></a>
+<span class="sourceLineNo">292</span>        try {<a name="line.292"></a>
+<span class="sourceLineNo">293</span>            ArithmeticUtils.lcm(Long.MAX_VALUE, Long.MAX_VALUE - 1);<a name="line.293"></a>
+<span class="sourceLineNo">294</span>            Assert.fail("Expecting MathArithmeticException");<a name="line.294"></a>
+<span class="sourceLineNo">295</span>        } catch (MathArithmeticException expected) {<a name="line.295"></a>
+<span class="sourceLineNo">296</span>            // expected<a name="line.296"></a>
+<span class="sourceLineNo">297</span>        }<a name="line.297"></a>
+<span class="sourceLineNo">298</span>    }<a name="line.298"></a>
+<span class="sourceLineNo">299</span><a name="line.299"></a>
+<span class="sourceLineNo">300</span>    @Test<a name="line.300"></a>
+<span class="sourceLineNo">301</span>    public void testMulAndCheck() {<a name="line.301"></a>
+<span class="sourceLineNo">302</span>        int big = Integer.MAX_VALUE;<a name="line.302"></a>
+<span class="sourceLineNo">303</span>        int bigNeg = Integer.MIN_VALUE;<a name="line.303"></a>
+<span class="sourceLineNo">304</span>        Assert.assertEquals(big, ArithmeticUtils.mulAndCheck(big, 1));<a name="line.304"></a>
+<span class="sourceLineNo">305</span>        try {<a name="line.305"></a>
+<span class="sourceLineNo">306</span>            ArithmeticUtils.mulAndCheck(big, 2);<a name="line.306"></a>
+<span class="sourceLineNo">307</span>            Assert.fail("Expecting MathArithmeticException");<a name="line.307"></a>
+<span class="sourceLineNo">308</span>        } catch (MathArithmeticException ex) {<a name="line.308"></a>
+<span class="sourceLineNo">309</span>        }<a name="line.309"></a>
+<span class="sourceLineNo">310</span>        try {<a name="line.310"></a>
+<span class="sourceLineNo">311</span>            ArithmeticUtils.mulAndCheck(bigNeg, 2);<a name="line.311"></a>
+<span class="sourceLineNo">312</span>            Assert.fail("Expecting MathArithmeticException");<a name="line.312"></a>
+<span class="sourceLineNo">313</span>        } catch (MathArithmeticException ex) {<a name="line.313"></a>
+<span class="sourceLineNo">314</span>        }<a name="line.314"></a>
+<span class="sourceLineNo">315</span>    }<a name="line.315"></a>
+<span class="sourceLineNo">316</span><a name="line.316"></a>
+<span class="sourceLineNo">317</span>    @Test<a name="line.317"></a>
+<span class="sourceLineNo">318</span>    public void testMulAndCheckLong() {<a name="line.318"></a>
+<span class="sourceLineNo">319</span>        long max = Long.MAX_VALUE;<a name="line.319"></a>
+<span class="sourceLineNo">320</span>        long min = Long.MIN_VALUE;<a name="line.320"></a>
+<span class="sourceLineNo">321</span>        Assert.assertEquals(max, ArithmeticUtils.mulAndCheck(max, 1L));<a name="line.321"></a>
+<span class="sourceLineNo">322</span>        Assert.assertEquals(min, ArithmeticUtils.mulAndCheck(min, 1L));<a name="line.322"></a>
+<span class="sourceLineNo">323</span>        Assert.assertEquals(0L, ArithmeticUtils.mulAndCheck(max, 0L));<a name="line.323"></a>
+<span class="sourceLineNo">324</span>        Assert.assertEquals(0L, ArithmeticUtils.mulAndCheck(min, 0L));<a name="line.324"></a>
+<span class="sourceLineNo">325</span>        Assert.assertEquals(max, ArithmeticUtils.mulAndCheck(1L, max));<a name="line.325"></a>
+<span class="sourceLineNo">326</span>        Assert.assertEquals(min, ArithmeticUtils.mulAndCheck(1L, min));<a name="line.326"></a>
+<span class="sourceLineNo">327</span>        Assert.assertEquals(0L, ArithmeticUtils.mulAndCheck(0L, max));<a name="line.327"></a>
+<span class="sourceLineNo">328</span>        Assert.assertEquals(0L, ArithmeticUtils.mulAndCheck(0L, min));<a name="line.328"></a>
+<span class="sourceLineNo">329</span>        Assert.assertEquals(1L, ArithmeticUtils.mulAndCheck(-1L, -1L));<a name="line.329"></a>
+<span class="sourceLineNo">330</span>        Assert.assertEquals(min, ArithmeticUtils.mulAndCheck(min / 2, 2));<a name="line.330"></a>
+<span class="sourceLineNo">331</span>        testMulAndCheckLongFailure(max, 2L);<a name="line.331"></a>
+<span class="sourceLineNo">332</span>        testMulAndCheckLongFailure(2L, max);<a name="line.332"></a>
+<span class="sourceLineNo">333</span>        testMulAndCheckLongFailure(min, 2L);<a name="line.333"></a>
+<span class="sourceLineNo">334</span>        testMulAndCheckLongFailure(2L, min);<a name="line.334"></a>
+<span class="sourceLineNo">335</span>        testMulAndCheckLongFailure(min, -1L);<a name="line.335"></a>
+<span class="sourceLineNo">336</span>        testMulAndCheckLongFailure(-1L, min);<a name="line.336"></a>
+<span class="sourceLineNo">337</span>    }<a name="line.337"></a>
+<span class="sourceLineNo">338</span><a name="line.338"></a>
+<span class="sourceLineNo">339</span>    @Test<a name="line.339"></a>
+<span class="sourceLineNo">340</span>    public void testSubAndCheck() {<a name="line.340"></a>
+<span class="sourceLineNo">341</span>        int big = Integer.MAX_VALUE;<a name="line.341"></a>
+<span class="sourceLineNo">342</span>        int bigNeg = Integer.MIN_VALUE;<a name="line.342"></a>
+<span class="sourceLineNo">343</span>        Assert.assertEquals(big, ArithmeticUtils.subAndCheck(big, 0));<a name="line.343"></a>
+<span class="sourceLineNo">344</span>        Assert.assertEquals(bigNeg + 1, ArithmeticUtils.subAndCheck(bigNeg, -1));<a name="line.344"></a>
+<span class="sourceLineNo">345</span>        Assert.assertEquals(-1, ArithmeticUtils.subAndCheck(bigNeg, -big));<a name="line.345"></a>
+<span class="sourceLineNo">346</span>        try {<a name="line.346"></a>
+<span class="sourceLineNo">347</span>            ArithmeticUtils.subAndCheck(big, -1);<a name="line.347"></a>
+<span class="sourceLineNo">348</span>            Assert.fail("Expecting MathArithmeticException");<a name="line.348"></a>
+<span class="sourceLineNo">349</span>        } catch (MathArithmeticException ex) {<a name="line.349"></a>
+<span class="sourceLineNo">350</span>        }<a name="line.350"></a>
+<span class="sourceLineNo">351</span>        try {<a name="line.351"></a>
+<span class="sourceLineNo">352</span>            ArithmeticUtils.subAndCheck(bigNeg, 1);<a name="line.352"></a>
+<span class="sourceLineNo">353</span>            Assert.fail("Expecting MathArithmeticException");<a name="line.353"></a>
+<span class="sourceLineNo">354</span>        } catch (MathArithmeticException ex) {<a name="line.354"></a>
+<span class="sourceLineNo">355</span>        }<a name="line.355"></a>
+<span class="sourceLineNo">356</span>    }<a name="line.356"></a>
+<span class="sourceLineNo">357</span><a name="line.357"></a>
+<span class="sourceLineNo">358</span>    @Test<a name="line.358"></a>
+<span class="sourceLineNo">359</span>    public void testSubAndCheckErrorMessage() {<a name="line.359"></a>
+<span class="sourceLineNo">360</span>        int big = Integer.MAX_VALUE;<a name="line.360"></a>
+<span class="sourceLineNo">361</span>        try {<a name="line.361"></a>
+<span class="sourceLineNo">362</span>            ArithmeticUtils.subAndCheck(big, -1);<a name="line.362"></a>
+<span class="sourceLineNo">363</span>            Assert.fail("Expecting MathArithmeticException");<a name="line.363"></a>
+<span class="sourceLineNo">364</span>        } catch (MathArithmeticException ex) {<a name="line.364"></a>
+<span class="sourceLineNo">365</span>            Assert.assertTrue(ex.getMessage().length() &gt; 1);<a name="line.365"></a>
+<span class="sourceLineNo">366</span>        }<a name="line.366"></a>
+<span class="sourceLineNo">367</span>    }<a name="line.367"></a>
+<span class="sourceLineNo">368</span><a name="line.368"></a>
+<span class="sourceLineNo">369</span>    @Test<a name="line.369"></a>
+<span class="sourceLineNo">370</span>    public void testSubAndCheckLong() {<a name="line.370"></a>
+<span class="sourceLineNo">371</span>        long max = Long.MAX_VALUE;<a name="line.371"></a>
+<span class="sourceLineNo">372</span>        long min = Long.MIN_VALUE;<a name="line.372"></a>
+<span class="sourceLineNo">373</span>        Assert.assertEquals(max, ArithmeticUtils.subAndCheck(max, 0));<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        Assert.assertEquals(min, ArithmeticUtils.subAndCheck(min, 0));<a name="line.374"></a>
+<span class="sourceLineNo">375</span>        Assert.assertEquals(-max, ArithmeticUtils.subAndCheck(0, max));<a name="line.375"></a>
+<span class="sourceLineNo">376</span>        Assert.assertEquals(min + 1, ArithmeticUtils.subAndCheck(min, -1));<a name="line.376"></a>
+<span class="sourceLineNo">377</span>        // min == -1-max<a name="line.377"></a>
+<span class="sourceLineNo">378</span>        Assert.assertEquals(-1, ArithmeticUtils.subAndCheck(-max - 1, -max));<a name="line.378"></a>
+<span class="sourceLineNo">379</span>        Assert.assertEquals(max, ArithmeticUtils.subAndCheck(-1, -1 - max));<a name="line.379"></a>
+<span class="sourceLineNo">380</span>        testSubAndCheckLongFailure(0L, min);<a name="line.380"></a>
+<span class="sourceLineNo">381</span>        testSubAndCheckLongFailure(max, -1L);<a name="line.381"></a>
+<span class="sourceLineNo">382</span>        testSubAndCheckLongFailure(min, 1L);<a name="line.382"></a>
+<span class="sourceLineNo">383</span>    }<a name="line.383"></a>
+<span class="sourceLineNo">384</span><a name="line.384"></a>
+<span class="sourceLineNo">385</span>    @Test<a name="line.385"></a>
+<span class="sourceLineNo">386</span>    public void testPow() {<a name="line.386"></a>
+<span class="sourceLineNo">387</span><a name="line.387"></a>
+<span class="sourceLineNo">388</span>        Assert.assertEquals(1801088541, ArithmeticUtils.pow(21, 7));<a name="line.388"></a>
+<span class="sourceLineNo">389</span>        Assert.assertEquals(1, ArithmeticUtils.pow(21, 0));<a name="line.389"></a>
+<span class="sourceLineNo">390</span>        try {<a name="line.390"></a>
+<span class="sourceLineNo">391</span>            ArithmeticUtils.pow(21, -7);<a name="line.391"></a>
+<span class="sourceLineNo">392</span>            Assert.fail("Expecting MathIllegalArgumentException");<a name="line.392"></a>
+<span class="sourceLineNo">393</span>        } catch (MathIllegalArgumentException e) {<a name="line.393"></a>
+<span class="sourceLineNo">394</span>            // expected behavior<a name="line.394"></a>
+<span class="sourceLineNo">395</span>        }<a name="line.395"></a>
+<span class="sourceLineNo">396</span><a name="line.396"></a>
+<span class="sourceLineNo">397</span>        Assert.assertEquals(1801088541, ArithmeticUtils.pow(21, 7));<a name="line.397"></a>
+<span class="sourceLineNo">398</span>        Assert.assertEquals(1, ArithmeticUtils.pow(21, 0));<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        try {<a name="line.399"></a>
+<span class="sourceLineNo">400</span>            ArithmeticUtils.pow(21, -7);<a name="line.400"></a>
+<span class="sourceLineNo">401</span>            Assert.fail("Expecting MathIllegalArgumentException");<a name="line.401"></a>
+<span class="sourceLineNo">402</span>        } catch (MathIllegalArgumentException e) {<a name="line.402"></a>
+<span class="sourceLineNo">403</span>            // expected behavior<a name="line.403"></a>
+<span class="sourceLineNo">404</span>        }<a name="line.404"></a>
+<span class="sourceLineNo">405</span><a name="line.405"></a>
+<span class="sourceLineNo">406</span>        Assert.assertEquals(1801088541l, ArithmeticUtils.pow(21l, 7));<a name="line.406"></a>
+<span class="sourceLineNo">407</span>        Assert.assertEquals(1l, ArithmeticUtils.pow(21l, 0));<a name="line.407"></a>
+<span class="sourceLineNo">408</span>        try {<a name="line.408"></a>
+<span class="sourceLineNo">409</span>            ArithmeticUtils.pow(21l, -7);<a name="line.409"></a>
+<span class="sourceLineNo">410</span>            Assert.fail("Expecting MathIllegalArgumentException");<a name="line.410"></a>
+<span class="sourceLineNo">411</span>        } catch (MathIllegalArgumentException e) {<a name="line.411"></a>
+<span class="sourceLineNo">412</span>            // expected behavior<a name="line.412"></a>
+<span class="sourceLineNo">413</span>        }<a name="line.413"></a>
+<span class="sourceLineNo">414</span><a name="line.414"></a>
+<span class="sourceLineNo">415</span>        Assert.assertEquals(1801088541l, ArithmeticUtils.pow(21l, 7l));<a name="line.415"></a>
+<span class="sourceLineNo">416</span>        Assert.assertEquals(1l, ArithmeticUtils.pow(21l, 0l));<a name="line.416"></a>
+<span class="sourceLineNo">417</span>        try {<a name="line.417"></a>
+<span class="sourceLineNo">418</span>            ArithmeticUtils.pow(21l, -7l);<a name="line.418"></a>
+<span class="sourceLineNo">419</span>            Assert.fail("Expecting MathIllegalArgumentException");<a name="line.419"></a>
+<span class="sourceLineNo">420</span>        } catch (MathIllegalArgumentException e) {<a name="line.420"></a>
+<span class="sourceLineNo">421</span>            // expected behavior<a name="line.421"></a>
+<span class="sourceLineNo">422</span>        }<a name="line.422"></a>
+<span class="sourceLineNo">423</span><a name="line.423"></a>
+<span class="sourceLineNo">424</span>        BigInteger twentyOne = BigInteger.valueOf(21l);<a name="line.424"></a>
+<span class="sourceLineNo">425</span>        Assert.assertEquals(BigInteger.valueOf(1801088541l), ArithmeticUtils.pow(twentyOne, 7));<a name="line.425"></a>
+<span class="sourceLineNo">426</span>        Assert.assertEquals(BigInteger.ONE, ArithmeticUtils.pow(twentyOne, 0));<a name="line.426"></a>
+<span class="sourceLineNo">427</span>        try {<a name="line.427"></a>
+<span class="sourceLineNo">428</span>            ArithmeticUtils.pow(twentyOne, -7);<a name="line.428"></a>
+<span class="sourceLineNo">429</span>            Assert.fail("Expecting MathIllegalArgumentException");<a name="line.429"></a>
+<span class="sourceLineNo">430</span>        } catch (MathIllegalArgumentException e) {<a name="line.430"></a>
+<span class="sourceLineNo">431</span>            // expected behavior<a name="line.431"></a>
+<span class="sourceLineNo">432</span>        }<a name="line.432"></a>
+<span class="sourceLineNo">433</span><a name="line.433"></a>
+<span class="sourceLineNo">434</span>        Assert.assertEquals(BigInteger.valueOf(1801088541l), ArithmeticUtils.pow(twentyOne, 7l));<a name="line.434"></a>
+<span class="sourceLineNo">435</span>        Assert.assertEquals(BigInteger.ONE, ArithmeticUtils.pow(twentyOne, 0l));<a name="line.435"></a>
+<span class="sourceLineNo">436</span>        try {<a name="line.436"></a>
+<span class="sourceLineNo">437</span>            ArithmeticUtils.pow(twentyOne, -7l);<a name="line.437"></a>
+<span class="sourceLineNo">438</span>            Assert.fail("Expecting MathIllegalArgumentException");<a name="line.438"></a>
+<span class="sourceLineNo">439</span>        } catch (MathIllegalArgumentException e) {<a name="line.439"></a>
+<span class="sourceLineNo">440</span>            // expected behavior<a name="line.440"></a>
+<span class="sourceLineNo">441</span>        }<a name="line.441"></a>
+<span class="sourceLineNo">442</span><a name="line.442"></a>
+<span class="sourceLineNo">443</span>        Assert.assertEquals(BigInteger.valueOf(1801088541l), ArithmeticUtils.pow(twentyOne, BigInteger.valueOf(7l)));<a name="line.443"></a>
+<span class="sourceLineNo">444</span>        Assert.assertEquals(BigInteger.ONE, ArithmeticUtils.pow(twentyOne, BigInteger.ZERO));<a name="line.444"></a>
+<span class="sourceLineNo">445</span>        try {<a name="line.445"></a>
+<span class="sourceLineNo">446</span>            ArithmeticUtils.pow(twentyOne, BigInteger.valueOf(-7l));<a name="line.446"></a>
+<span class="sourceLineNo">447</span>            Assert.fail("Expecting MathIllegalArgumentException");<a name="line.447"></a>
+<span class="sourceLineNo">448</span>        } catch (MathIllegalArgumentException e) {<a name="line.448"></a>
+<span class="sourceLineNo">449</span>            // expected behavior<a name="line.449"></a>
+<span class="sourceLineNo">450</span>        }<a name="line.450"></a>
+<span class="sourceLineNo">451</span><a name="line.451"></a>
+<span class="sourceLineNo">452</span>        BigInteger bigOne =<a name="line.452"></a>
+<span class="sourceLineNo">453</span>            new BigInteger("1543786922199448028351389769265814882661837148" +<a name="line.453"></a>
+<span class="sourceLineNo">454</span>                           "4763915343722775611762713982220306372888519211" +<a name="line.454"></a>
+<span class="sourceLineNo">455</span>                           "560905579993523402015636025177602059044911261");<a name="line.455"></a>
+<span class="sourceLineNo">456</span>        Assert.assertEquals(bigOne, ArithmeticUtils.pow(twentyOne, 103));<a name="line.456"></a>
+<span class="sourceLineNo">457</span>        Assert.assertEquals(bigOne, ArithmeticUtils.pow(twentyOne, 103l));<a name="line.457"></a>
+<span class="sourceLineNo">458</span>        Assert.assertEquals(bigOne, ArithmeticUtils.pow(twentyOne, BigInteger.valueOf(103l)));<a name="line.458"></a>
+<span class="sourceLineNo">459</span><a name="line.459"></a>
+<span class="sourceLineNo">460</span>    }<a name="line.460"></a>
+<span class="sourceLineNo">461</span><a name="line.461"></a>
+<span class="sourceLineNo">462</span>    @Test(expected=MathArithmeticException.class)<a name="line.462"></a>
+<span class="sourceLineNo">463</span>    public void testPowIntOverflow() {<a name="line.463"></a>
+<span class="sourceLineNo">464</span>        ArithmeticUtils.pow(21, 8);<a name="line.464"></a>
+<span class="sourceLineNo">465</span>    }<a name="line.465"></a>
+<span class="sourceLineNo">466</span><a name="line.466"></a>
+<span class="sourceLineNo">467</span>    @Test<a name="line.467"></a>
+<span class="sourceLineNo">468</span>    public void testPowInt() {<a name="line.468"></a>
+<span class="sourceLineNo">469</span>        final int base = 21;<a name="line.469"></a>
+<span class="sourceLineNo">470</span><a name="line.470"></a>
+<span class="sourceLineNo">471</span>        Assert.assertEquals(85766121L,<a name="line.471"></a>
+<span class="sourceLineNo">472</span>                            ArithmeticUtils.pow(base, 6));<a name="line.472"></a>
+<span class="sourceLineNo">473</span>        Assert.assertEquals(1801088541L,<a name="line.473"></a>
+<span class="sourceLineNo">474</span>                            ArithmeticUtils.pow(base, 7));<a name="line.474"></a>
+<span class="sourceLineNo">475</span>    }<a name="line.475"></a>
+<span class="sourceLineNo">476</span><a name="line.476"></a>
+<span class="sourceLineNo">477</span>    @Test(expected=MathArithmeticException.class)<a name="line.477"></a>
+<span class="sourceLineNo">478</span>    public void testPowNegativeIntOverflow() {<a name="line.478"></a>
+<span class="sourceLineNo">479</span>        ArithmeticUtils.pow(-21, 8);<a name="line.479"></a>
+<span class="sourceLineNo">480</span>    }<a name="line.480"></a>
+<span class="sourceLineNo">481</span><a name="line.481"></a>
+<span class="sourceLineNo">482</span>    @Test<a name="line.482"></a>
+<span class="sourceLineNo">483</span>    public void testPowNegativeInt() {<a name="line.483"></a>
+<span class="sourceLineNo">484</span>        final int base = -21;<a name="line.484"></a>
+<span class="sourceLineNo">485</span><a name="line.485"></a>
+<span class="sourceLineNo">486</span>        Assert.assertEquals(85766121,<a name="line.486"></a>
+<span class="sourceLineNo">487</span>                            ArithmeticUtils.pow(base, 6));<a name="line.487"></a>
+<span class="sourceLineNo">488</span>        Assert.assertEquals(-1801088541,<a name="line.488"></a>
+<span class="sourceLineNo">489</span>                            ArithmeticUtils.pow(base, 7));<a name="line.489"></a>
+<span class="sourceLineNo">490</span>    }<a name="line.490"></a>
+<span class="sourceLineNo">491</span><a name="line.491"></a>
+<span class="sourceLineNo">492</span>    @Test<a name="line.492"></a>
+<span class="sourceLineNo">493</span>    public void testPowMinusOneInt() {<a name="line.493"></a>
+<span class="sourceLineNo">494</span>        final int base = -1;<a name="line.494"></a>
+<span class="sourceLineNo">495</span>        for (int i = 0; i &lt; 100; i++) {<a name="line.495"></a>
+<span class="sourceLineNo">496</span>            final int pow = ArithmeticUtils.pow(base, i);<a name="line.496"></a>
+<span class="sourceLineNo">497</span>            Assert.assertEquals("i: " + i, i % 2 == 0 ? 1 : -1, pow);<a name="line.497"></a>
+<span class="sourceLineNo">498</span>        }<a name="line.498"></a>
+<span class="sourceLineNo">499</span>    }<a name="line.499"></a>
+<span class="sourceLineNo">500</span><a name="line.500"></a>
+<span class="sourceLineNo">501</span>    @Test<a name="line.501"></a>
+<span class="sourceLineNo">502</span>    public void testPowOneInt() {<a name="line.502"></a>
+<span class="sourceLineNo">503</span>        final int base = 1;<a name="line.503"></a>
+<span class="sourceLineNo">504</span>        for (int i = 0; i &lt; 100; i++) {<a name="line.504"></a>
+<span class="sourceLineNo">505</span>            final int pow = ArithmeticUtils.pow(base, i);<a name="line.505"></a>
+<span class="sourceLineNo">506</span>            Assert.assertEquals("i: " + i, 1, pow);<a name="line.506"></a>
+<span class="sourceLineNo">507</span>        }<a name="line.507"></a>
+<span class="sourceLineNo">508</span>    }<a name="line.508"></a>
+<span class="sourceLineNo">509</span><a name="line.509"></a>
+<span class="sourceLineNo">510</span>    @Test(expected=MathArithmeticException.class)<a name="line.510"></a>
+<span class="sourceLineNo">511</span>    public void testPowLongOverflow() {<a name="line.511"></a>
+<span class="sourceLineNo">512</span>        ArithmeticUtils.pow(21, 15);<a name="line.512"></a>
+<span class="sourceLineNo">513</span>    }<a name="line.513"></a>
+<span class="sourceLineNo">514</span><a name="line.514"></a>
+<span class="sourceLineNo">515</span>    @Test<a name="line.515"></a>
+<span class="sourceLineNo">516</span>    public void testPowLong() {<a name="line.516"></a>
+<span class="sourceLineNo">517</span>        final long base = 21;<a name="line.517"></a>
+<span class="sourceLineNo">518</span><a name="line.518"></a>
+<span class="sourceLineNo">519</span>        Assert.assertEquals(154472377739119461L,<a name="line.519"></a>
+<span class="sourceLineNo">520</span>                            ArithmeticUtils.pow(base, 13));<a name="line.520"></a>
+<span class="sourceLineNo">521</span>        Assert.assertEquals(3243919932521508681L,<a name="line.521"></a>
+<span class="sourceLineNo">522</span>                            ArithmeticUtils.pow(base, 14));<a name="line.522"></a>
+<span class="sourceLineNo">523</span>    }<a name="line.523"></a>
+<span class="sourceLineNo">524</span><a name="line.524"></a>
+<span class="sourceLineNo">525</span>    @Test(expected=MathArithmeticException.class)<a name="line.525"></a>
+<span class="sourceLineNo">526</span>    public void testPowNegativeLongOverflow() {<a name="line.526"></a>
+<span class="sourceLineNo">527</span>        ArithmeticUtils.pow(-21L, 15);<a name="line.527"></a>
+<span class="sourceLineNo">528</span>    }<a name="line.528"></a>
+<span class="sourceLineNo">529</span><a name="line.529"></a>
+<span class="sourceLineNo">530</span>    @Test<a name="line.530"></a>
+<span class="sourceLineNo">531</span>    public void testPowNegativeLong() {<a name="line.531"></a>
+<span class="sourceLineNo">532</span>        final long base = -21;<a name="line.532"></a>
+<span class="sourceLineNo">533</span><a name="line.533"></a>
+<span class="sourceLineNo">534</span>        Assert.assertEquals(-154472377739119461L,<a name="line.534"></a>
+<span class="sourceLineNo">535</span>                            ArithmeticUtils.pow(base, 13));<a name="line.535"></a>
+<span class="sourceLineNo">536</span>        Assert.assertEquals(3243919932521508681L,<a name="line.536"></a>
+<span class="sourceLineNo">537</span>                            ArithmeticUtils.pow(base, 14));<a name="line.537"></a>
+<span class="sourceLineNo">538</span>    }<a name="line.538"></a>
+<span class="sourceLineNo">539</span><a name="line.539"></a>
+<span class="sourceLineNo">540</span>    @Test<a name="line.540"></a>
+<span class="sourceLineNo">541</span>    public void testPowMinusOneLong() {<a name="line.541"></a>
+<span class="sourceLineNo">542</span>        final long base = -1;<a name="line.542"></a>
+<span class="sourceLineNo">543</span>        for (int i = 0; i &lt; 100; i++) {<a name="line.543"></a>
+<span class="sourceLineNo">544</span>            final long pow = ArithmeticUtils.pow(base, i);<a name="line.544"></a>
+<span class="sourceLineNo">545</span>            Assert.assertEquals("i: " + i, i % 2 == 0 ? 1 : -1, pow);<a name="line.545"></a>
+<span class="sourceLineNo">546</span>        }<a name="line.546"></a>
+<span class="sourceLineNo">547</span>    }<a name="line.547"></a>
+<span class="sourceLineNo">548</span><a name="line.548"></a>
+<span class="sourceLineNo">549</span>    @Test<a name="line.549"></a>
+<span class="sourceLineNo">550</span>    public void testPowOneLong() {<a name="line.550"></a>
+<span class="sourceLineNo">551</span>        final long base = 1;<a name="line.551"></a>
+<span class="sourceLineNo">552</span>        for (int i = 0; i &lt; 100; i++) {<a name="line.552"></a>
+<span class="sourceLineNo">553</span>            final long pow = ArithmeticUtils.pow(base, i);<a name="line.553"></a>
+<span class="sourceLineNo">554</span>            Assert.assertEquals("i: " + i, 1, pow);<a name="line.554"></a>
+<span class="sourceLineNo">555</span>        }<a name="line.555"></a>
+<span class="sourceLineNo">556</span>    }<a name="line.556"></a>
+<span class="sourceLineNo">557</span><a name="line.557"></a>
+<span class="sourceLineNo">558</span>    @Test<a name="line.558"></a>
+<span class="sourceLineNo">559</span>    public void testIsPowerOfTwo() {<a name="line.559"></a>
+<span class="sourceLineNo">560</span>        final int n = 1025;<a name="line.560"></a>
+<span class="sourceLineNo">561</span>        final boolean[] expected = new boolean[n];<a name="line.561"></a>
+<span class="sourceLineNo">562</span>        Arrays.fill(expected, false);<a name="line.562"></a>
+<span class="sourceLineNo">563</span>        for (int i = 1; i &lt; expected.length; i *= 2) {<a name="line.563"></a>
+<span class="sourceLineNo">564</span>            expected[i] = true;<a name="line.564"></a>
+<span class="sourceLineNo">565</span>        }<a name="line.565"></a>
+<span class="sourceLineNo">566</span>        for (int i = 0; i &lt; expected.length; i++) {<a name="line.566"></a>
+<span class="sourceLineNo">567</span>            final boolean actual = ArithmeticUtils.isPowerOfTwo(i);<a name="line.567"></a>
+<span class="sourceLineNo">568</span>            Assert.assertTrue(Integer.toString(i), actual == expected[i]);<a name="line.568"></a>
+<span class="sourceLineNo">569</span>        }<a name="line.569"></a>
+<span class="sourceLineNo">570</span>    }<a name="line.570"></a>
+<span class="sourceLineNo">571</span><a name="line.571"></a>
+<span class="sourceLineNo">572</span>    private void testAddAndCheckLongFailure(long a, long b) {<a name="line.572"></a>
+<span class="sourceLineNo">573</span>        try {<a name="line.573"></a>
+<span class="sourceLineNo">574</span>            ArithmeticUtils.addAndCheck(a, b);<a name="line.574"></a>
+<span class="sourceLineNo">575</span>            Assert.fail("Expecting MathArithmeticException");<a name="line.575"></a>
+<span class="sourceLineNo">576</span>        } catch (MathArithmeticException ex) {<a name="line.576"></a>
+<span class="sourceLineNo">577</span>            // success<a name="line.577"></a>
+<span class="sourceLineNo">578</span>        }<a name="line.578"></a>
+<span class="sourceLineNo">579</span>    }<a name="line.579"></a>
+<span class="sourceLineNo">580</span><a name="line.580"></a>
+<span class="sourceLineNo">581</span>    private void testMulAndCheckLongFailure(long a, long b) {<a name="line.581"></a>
+<span class="sourceLineNo">582</span>        try {<a name="line.582"></a>
+<span class="sourceLineNo">583</span>            ArithmeticUtils.mulAndCheck(a, b);<a name="line.583"></a>
+<span class="sourceLineNo">584</span>            Assert.fail("Expecting MathArithmeticException");<a name="line.584"></a>
+<span class="sourceLineNo">585</span>        } catch (MathArithmeticException ex) {<a name="line.585"></a>
+<span class="sourceLineNo">586</span>            // success<a name="line.586"></a>
+<span class="sourceLineNo">587</span>        }<a name="line.587"></a>
+<span class="sourceLineNo">588</span>    }<a name="line.588"></a>
+<span class="sourceLineNo">589</span><a name="line.589"></a>
+<span class="sourceLineNo">590</span>    private void testSubAndCheckLongFailure(long a, long b) {<a name="line.590"></a>
+<span class="sourceLineNo">591</span>        try {<a name="line.591"></a>
+<span class="sourceLineNo">592</span>            ArithmeticUtils.subAndCheck(a, b);<a name="line.592"></a>
+<span class="sourceLineNo">593</span>            Assert.fail("Expecting MathArithmeticException");<a name="line.593"></a>
+<span class="sourceLineNo">594</span>        } catch (MathArithmeticException ex) {<a name="line.594"></a>
+<span class="sourceLineNo">595</span>            // success<a name="line.595"></a>
+<span class="sourceLineNo">596</span>        }<a name="line.596"></a>
+<span class="sourceLineNo">597</span>    }<a name="line.597"></a>
+<span class="sourceLineNo">598</span>}<a name="line.598"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

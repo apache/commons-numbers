@@ -1,0 +1,1211 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ResizableDoubleArray.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.util</a> &gt; <span class="el_source">ResizableDoubleArray.java</span></div><h1>ResizableDoubleArray.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.util;
+
+import java.io.Serializable;
+import java.util.Arrays;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.MathIllegalStateException;
+import org.apache.commons.math3.exception.MathInternalError;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+
+/**
+ * &lt;p&gt;
+ * A variable length {@link DoubleArray} implementation that automatically
+ * handles expanding and contracting its internal storage array as elements
+ * are added and removed.
+ * &lt;/p&gt;
+ * &lt;h3&gt;Important note: Usage should not assume that this class is thread-safe
+ * even though some of the methods are {@code synchronized}.
+ * This qualifier will be dropped in the next major release (4.0).&lt;/h3&gt;
+ * &lt;p&gt;
+ * The internal storage array starts with capacity determined by the
+ * {@code initialCapacity} property, which can be set by the constructor.
+ * The default initial capacity is 16.  Adding elements using
+ * {@link #addElement(double)} appends elements to the end of the array.
+ * When there are no open entries at the end of the internal storage array,
+ * the array is expanded.  The size of the expanded array depends on the
+ * {@code expansionMode} and {@code expansionFactor} properties.
+ * The {@code expansionMode} determines whether the size of the array is
+ * multiplied by the {@code expansionFactor}
+ * ({@link ExpansionMode#MULTIPLICATIVE}) or if the expansion is additive
+ * ({@link ExpansionMode#ADDITIVE} -- {@code expansionFactor} storage
+ * locations added).
+ * The default {@code expansionMode} is {@code MULTIPLICATIVE} and the default
+ * {@code expansionFactor} is 2.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * The {@link #addElementRolling(double)} method adds a new element to the end
+ * of the internal storage array and adjusts the &quot;usable window&quot; of the
+ * internal array forward by one position (effectively making what was the
+ * second element the first, and so on).  Repeated activations of this method
+ * (or activation of {@link #discardFrontElements(int)}) will effectively orphan
+ * the storage locations at the beginning of the internal storage array.  To
+ * reclaim this storage, each time one of these methods is activated, the size
+ * of the internal storage array is compared to the number of addressable
+ * elements (the {@code numElements} property) and if the difference
+ * is too large, the internal array is contracted to size
+ * {@code numElements + 1}.  The determination of when the internal
+ * storage array is &quot;too large&quot; depends on the {@code expansionMode} and
+ * {@code contractionFactor} properties.  If  the {@code expansionMode}
+ * is {@code MULTIPLICATIVE}, contraction is triggered when the
+ * ratio between storage array length and {@code numElements} exceeds
+ * {@code contractionFactor.}  If the {@code expansionMode}
+ * is {@code ADDITIVE}, the number of excess storage locations
+ * is compared to {@code contractionFactor}.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * To avoid cycles of expansions and contractions, the
+ * {@code expansionFactor} must not exceed the {@code contractionFactor}.
+ * Constructors and mutators for both of these properties enforce this
+ * requirement, throwing a {@code MathIllegalArgumentException} if it is
+ * violated.
+ * &lt;/p&gt;
+ */
+public class ResizableDoubleArray implements DoubleArray, Serializable {
+    /** Additive expansion mode.
+     * @deprecated As of 3.1. Please use {@link ExpansionMode#ADDITIVE} instead.
+     */
+    @Deprecated
+    public static final int ADDITIVE_MODE = 1;
+    /** Multiplicative expansion mode.
+     * @deprecated As of 3.1. Please use {@link ExpansionMode#MULTIPLICATIVE} instead.
+     */
+    @Deprecated
+    public static final int MULTIPLICATIVE_MODE = 0;
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = -3485529955529426875L;
+
+    /** Default value for initial capacity. */
+    private static final int DEFAULT_INITIAL_CAPACITY = 16;
+    /** Default value for array size modifier. */
+    private static final double DEFAULT_EXPANSION_FACTOR = 2.0;
+    /**
+     * Default value for the difference between {@link #contractionCriterion}
+     * and {@link #expansionFactor}.
+     */
+    private static final double DEFAULT_CONTRACTION_DELTA = 0.5;
+
+    /**
+     * The contraction criteria determines when the internal array will be
+     * contracted to fit the number of elements contained in the element
+     *  array + 1.
+     */
+<span class="fc" id="L112">    private double contractionCriterion = 2.5;</span>
+
+    /**
+     * The expansion factor of the array.  When the array needs to be expanded,
+     * the new array size will be
+     * {@code internalArray.length * expansionFactor}
+     * if {@code expansionMode} is set to MULTIPLICATIVE_MODE, or
+     * {@code internalArray.length + expansionFactor} if
+     * {@code expansionMode} is set to ADDITIVE_MODE.
+     */
+<span class="fc" id="L122">    private double expansionFactor = 2.0;</span>
+
+    /**
+     * Determines whether array expansion by {@code expansionFactor}
+     * is additive or multiplicative.
+     */
+<span class="fc" id="L128">    private ExpansionMode expansionMode = ExpansionMode.MULTIPLICATIVE;</span>
+
+    /**
+     * The internal storage array.
+     */
+    private double[] internalArray;
+
+    /**
+     * The number of addressable elements in the array.  Note that this
+     * has nothing to do with the length of the internal storage array.
+     */
+<span class="fc" id="L139">    private int numElements = 0;</span>
+
+    /**
+     * The position of the first addressable element in the internal storage
+     * array.  The addressable elements in the array are
+     * {@code internalArray[startIndex],...,internalArray[startIndex + numElements - 1]}.
+     */
+<span class="fc" id="L146">    private int startIndex = 0;</span>
+
+    /**
+     * Specification of expansion algorithm.
+     * @since 3.1
+     */
+<span class="pc" id="L152">    public enum ExpansionMode {</span>
+        /** Multiplicative expansion mode. */
+<span class="fc" id="L154">        MULTIPLICATIVE,</span>
+        /** Additive expansion mode. */
+<span class="fc" id="L156">        ADDITIVE</span>
+    }
+
+    /**
+     * Creates an instance with default properties.
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@code initialCapacity = 16}&lt;/li&gt;
+     *  &lt;li&gt;{@code expansionMode = MULTIPLICATIVE}&lt;/li&gt;
+     *  &lt;li&gt;{@code expansionFactor = 2.0}&lt;/li&gt;
+     *  &lt;li&gt;{@code contractionCriterion = 2.5}&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+    public ResizableDoubleArray() {
+<span class="fc" id="L169">        this(DEFAULT_INITIAL_CAPACITY);</span>
+<span class="fc" id="L170">    }</span>
+
+    /**
+     * Creates an instance with the specified initial capacity.
+     * Other properties take default values:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@code expansionMode = MULTIPLICATIVE}&lt;/li&gt;
+     *  &lt;li&gt;{@code expansionFactor = 2.0}&lt;/li&gt;
+     *  &lt;li&gt;{@code contractionCriterion = 2.5}&lt;/li&gt;
+     * &lt;/ul&gt;
+     * @param initialCapacity Initial size of the internal storage array.
+     * @throws MathIllegalArgumentException if {@code initialCapacity &lt;= 0}.
+     */
+    public ResizableDoubleArray(int initialCapacity)
+        throws MathIllegalArgumentException {
+<span class="fc" id="L185">        this(initialCapacity, DEFAULT_EXPANSION_FACTOR);</span>
+<span class="fc" id="L186">    }</span>
+
+    /**
+     * Creates an instance from an existing {@code double[]} with the
+     * initial capacity and numElements corresponding to the size of
+     * the supplied {@code double[]} array.
+     * If the supplied array is null, a new empty array with the default
+     * initial capacity will be created.
+     * The input array is copied, not referenced.
+     * Other properties take default values:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@code initialCapacity = 16}&lt;/li&gt;
+     *  &lt;li&gt;{@code expansionMode = MULTIPLICATIVE}&lt;/li&gt;
+     *  &lt;li&gt;{@code expansionFactor = 2.0}&lt;/li&gt;
+     *  &lt;li&gt;{@code contractionCriterion = 2.5}&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param initialArray initial array
+     * @since 2.2
+     */
+    public ResizableDoubleArray(double[] initialArray) {
+<span class="fc" id="L207">        this(DEFAULT_INITIAL_CAPACITY,</span>
+             DEFAULT_EXPANSION_FACTOR,
+             DEFAULT_CONTRACTION_DELTA + DEFAULT_EXPANSION_FACTOR,
+             ExpansionMode.MULTIPLICATIVE,
+             initialArray);
+<span class="fc" id="L212">    }</span>
+
+    /**
+     * Creates an instance with the specified initial capacity
+     * and expansion factor.
+     * The remaining properties take default values:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@code expansionMode = MULTIPLICATIVE}&lt;/li&gt;
+     *  &lt;li&gt;{@code contractionCriterion = 0.5 + expansionFactor}&lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;br/&gt;
+     * Throws IllegalArgumentException if the following conditions are
+     * not met:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@code initialCapacity &gt; 0}&lt;/li&gt;
+     *  &lt;li&gt;{@code expansionFactor &gt; 1}&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param initialCapacity Initial size of the internal storage array.
+     * @param expansionFactor The array will be expanded based on this
+     * parameter.
+     * @throws MathIllegalArgumentException if parameters are not valid.
+     * @deprecated As of 3.1. Please use
+     * {@link #ResizableDoubleArray(int,double)} instead.
+     */
+    @Deprecated
+    public ResizableDoubleArray(int initialCapacity,
+                                float expansionFactor)
+        throws MathIllegalArgumentException {
+<span class="nc" id="L241">        this(initialCapacity,</span>
+             (double) expansionFactor);
+<span class="nc" id="L243">    }</span>
+
+    /**
+     * Creates an instance with the specified initial capacity
+     * and expansion factor.
+     * The remaining properties take default values:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@code expansionMode = MULTIPLICATIVE}&lt;/li&gt;
+     *  &lt;li&gt;{@code contractionCriterion = 0.5 + expansionFactor}&lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;br/&gt;
+     * Throws IllegalArgumentException if the following conditions are
+     * not met:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@code initialCapacity &gt; 0}&lt;/li&gt;
+     *  &lt;li&gt;{@code expansionFactor &gt; 1}&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param initialCapacity Initial size of the internal storage array.
+     * @param expansionFactor The array will be expanded based on this
+     * parameter.
+     * @throws MathIllegalArgumentException if parameters are not valid.
+     * @since 3.1
+     */
+    public ResizableDoubleArray(int initialCapacity,
+                                double expansionFactor)
+        throws MathIllegalArgumentException {
+<span class="fc" id="L270">        this(initialCapacity,</span>
+             expansionFactor,
+             DEFAULT_CONTRACTION_DELTA + expansionFactor);
+<span class="fc" id="L273">    }</span>
+
+    /**
+     * Creates an instance with the specified initialCapacity,
+     * expansionFactor, and contractionCriterion.
+     * The expansion mode will default to {@code MULTIPLICATIVE}.
+     * &lt;br/&gt;
+     * Throws IllegalArgumentException if the following conditions are
+     * not met:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@code initialCapacity &gt; 0}&lt;/li&gt;
+     *  &lt;li&gt;{@code expansionFactor &gt; 1}&lt;/li&gt;
+     *  &lt;li&gt;{@code contractionCriterion &gt;= expansionFactor}&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param initialCapacity Initial size of the internal storage array..
+     * @param expansionFactor The array will be expanded based on this
+     * parameter.
+     * @param contractionCriteria Contraction criteria.
+     * @throws MathIllegalArgumentException if parameters are not valid.
+     * @deprecated As of 3.1. Please use
+     * {@link #ResizableDoubleArray(int,double,double)} instead.
+     */
+    @Deprecated
+    public ResizableDoubleArray(int initialCapacity,
+                                float expansionFactor,
+                                float contractionCriteria)
+        throws MathIllegalArgumentException {
+<span class="nc" id="L301">        this(initialCapacity,</span>
+             (double) expansionFactor,
+             (double) contractionCriteria);
+<span class="nc" id="L304">    }</span>
+
+    /**
+     * Creates an instance with the specified initial capacity,
+     * expansion factor, and contraction criteria.
+     * The expansion mode will default to {@code MULTIPLICATIVE}.
+     * &lt;br/&gt;
+     * Throws IllegalArgumentException if the following conditions are
+     * not met:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@code initialCapacity &gt; 0}&lt;/li&gt;
+     *  &lt;li&gt;{@code expansionFactor &gt; 1}&lt;/li&gt;
+     *  &lt;li&gt;{@code contractionCriterion &gt;= expansionFactor}&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param initialCapacity Initial size of the internal storage array..
+     * @param expansionFactor The array will be expanded based on this
+     * parameter.
+     * @param contractionCriterion Contraction criterion.
+     * @throws MathIllegalArgumentException if the parameters are not valid.
+     * @since 3.1
+     */
+    public ResizableDoubleArray(int initialCapacity,
+                                double expansionFactor,
+                                double contractionCriterion)
+        throws MathIllegalArgumentException {
+<span class="fc" id="L330">        this(initialCapacity,</span>
+             expansionFactor,
+             contractionCriterion,
+             ExpansionMode.MULTIPLICATIVE,
+             null);
+<span class="fc" id="L335">    }</span>
+
+    /**
+     * &lt;p&gt;
+     * Create a ResizableArray with the specified properties.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws IllegalArgumentException if the following conditions are
+     * not met:
+     * &lt;ul&gt;
+     * &lt;li&gt;&lt;code&gt;initialCapacity &gt; 0&lt;/code&gt;&lt;/li&gt;
+     * &lt;li&gt;&lt;code&gt;expansionFactor &gt; 1&lt;/code&gt;&lt;/li&gt;
+     * &lt;li&gt;&lt;code&gt;contractionFactor &gt;= expansionFactor&lt;/code&gt;&lt;/li&gt;
+     * &lt;li&gt;&lt;code&gt;expansionMode in {MULTIPLICATIVE_MODE, ADDITIVE_MODE}&lt;/code&gt;
+     * &lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     *
+     * @param initialCapacity the initial size of the internal storage array
+     * @param expansionFactor the array will be expanded based on this
+     *                        parameter
+     * @param contractionCriteria the contraction Criteria
+     * @param expansionMode  the expansion mode
+     * @throws MathIllegalArgumentException if parameters are not valid
+     * @deprecated As of 3.1. Please use
+     * {@link #ResizableDoubleArray(int,double,double,ExpansionMode,double[])}
+     * instead.
+     */
+    @Deprecated
+    public ResizableDoubleArray(int initialCapacity, float expansionFactor,
+            float contractionCriteria, int expansionMode) throws MathIllegalArgumentException {
+<span class="pc bpc" id="L364" title="1 of 2 branches missed.">        this(initialCapacity,</span>
+             expansionFactor,
+             contractionCriteria,
+             expansionMode == ADDITIVE_MODE ?
+             ExpansionMode.ADDITIVE :
+             ExpansionMode.MULTIPLICATIVE,
+             null);
+        // XXX Just ot retain the expected failure in a unit test.
+        // With the new &quot;enum&quot;, that test will become obsolete.
+<span class="nc" id="L373">        setExpansionMode(expansionMode);</span>
+<span class="nc" id="L374">    }</span>
+
+    /**
+     * Creates an instance with the specified properties.
+     * &lt;br/&gt;
+     * Throws MathIllegalArgumentException if the following conditions are
+     * not met:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@code initialCapacity &gt; 0}&lt;/li&gt;
+     *  &lt;li&gt;{@code expansionFactor &gt; 1}&lt;/li&gt;
+     *  &lt;li&gt;{@code contractionCriterion &gt;= expansionFactor}&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param initialCapacity Initial size of the internal storage array.
+     * @param expansionFactor The array will be expanded based on this
+     * parameter.
+     * @param contractionCriterion Contraction criteria.
+     * @param expansionMode Expansion mode.
+     * @param data Initial contents of the array.
+     * @throws MathIllegalArgumentException if the parameters are not valid.
+     */
+    public ResizableDoubleArray(int initialCapacity,
+                                double expansionFactor,
+                                double contractionCriterion,
+                                ExpansionMode expansionMode,
+                                double ... data)
+<span class="fc" id="L400">        throws MathIllegalArgumentException {</span>
+<span class="fc bfc" id="L401" title="All 2 branches covered.">        if (initialCapacity &lt;= 0) {</span>
+<span class="fc" id="L402">            throw new NotStrictlyPositiveException(LocalizedFormats.INITIAL_CAPACITY_NOT_POSITIVE,</span>
+                                                   initialCapacity);
+        }
+<span class="fc" id="L405">        checkContractExpand(contractionCriterion, expansionFactor);</span>
+
+<span class="fc" id="L407">        this.expansionFactor = expansionFactor;</span>
+<span class="fc" id="L408">        this.contractionCriterion = contractionCriterion;</span>
+<span class="fc" id="L409">        this.expansionMode = expansionMode;</span>
+<span class="fc" id="L410">        internalArray = new double[initialCapacity];</span>
+<span class="fc" id="L411">        numElements = 0;</span>
+<span class="fc" id="L412">        startIndex = 0;</span>
+
+<span class="fc bfc" id="L414" title="All 4 branches covered.">        if (data != null &amp;&amp; data.length &gt; 0) {</span>
+<span class="fc" id="L415">            addElements(data);</span>
+        }
+<span class="fc" id="L417">    }</span>
+
+    /**
+     * Copy constructor.  Creates a new ResizableDoubleArray that is a deep,
+     * fresh copy of the original. Needs to acquire synchronization lock
+     * on original.  Original may not be null; otherwise a {@link NullArgumentException}
+     * is thrown.
+     *
+     * @param original array to copy
+     * @exception NullArgumentException if original is null
+     * @since 2.0
+     */
+    public ResizableDoubleArray(ResizableDoubleArray original)
+<span class="fc" id="L430">        throws NullArgumentException {</span>
+<span class="fc" id="L431">        MathUtils.checkNotNull(original);</span>
+<span class="fc" id="L432">        copy(original, this);</span>
+<span class="fc" id="L433">    }</span>
+
+    /**
+     * Adds an element to the end of this expandable array.
+     *
+     * @param value Value to be added to end of array.
+     */
+    public synchronized void addElement(double value) {
+<span class="fc bfc" id="L441" title="All 2 branches covered.">        if (internalArray.length &lt;= startIndex + numElements) {</span>
+<span class="fc" id="L442">            expand();</span>
+        }
+<span class="fc" id="L444">        internalArray[startIndex + numElements++] = value;</span>
+<span class="fc" id="L445">    }</span>
+
+    /**
+     * Adds several element to the end of this expandable array.
+     *
+     * @param values Values to be added to end of array.
+     * @since 2.2
+     */
+    public synchronized void addElements(double[] values) {
+<span class="fc" id="L454">        final double[] tempArray = new double[numElements + values.length + 1];</span>
+<span class="fc" id="L455">        System.arraycopy(internalArray, startIndex, tempArray, 0, numElements);</span>
+<span class="fc" id="L456">        System.arraycopy(values, 0, tempArray, numElements, values.length);</span>
+<span class="fc" id="L457">        internalArray = tempArray;</span>
+<span class="fc" id="L458">        startIndex = 0;</span>
+<span class="fc" id="L459">        numElements += values.length;</span>
+<span class="fc" id="L460">    }</span>
+
+    /**
+     * &lt;p&gt;
+     * Adds an element to the end of the array and removes the first
+     * element in the array.  Returns the discarded first element.
+     * The effect is similar to a push operation in a FIFO queue.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * Example: If the array contains the elements 1, 2, 3, 4 (in that order)
+     * and addElementRolling(5) is invoked, the result is an array containing
+     * the entries 2, 3, 4, 5 and the value returned is 1.
+     * &lt;/p&gt;
+     *
+     * @param value Value to be added to the array.
+     * @return the value which has been discarded or &quot;pushed&quot; out of the array
+     * by this rolling insert.
+     */
+    public synchronized double addElementRolling(double value) {
+<span class="fc" id="L479">        double discarded = internalArray[startIndex];</span>
+
+<span class="fc bfc" id="L481" title="All 2 branches covered.">        if ((startIndex + (numElements + 1)) &gt; internalArray.length) {</span>
+<span class="fc" id="L482">            expand();</span>
+        }
+        // Increment the start index
+<span class="fc" id="L485">        startIndex += 1;</span>
+
+        // Add the new value
+<span class="fc" id="L488">        internalArray[startIndex + (numElements - 1)] = value;</span>
+
+        // Check the contraction criterion.
+<span class="fc bfc" id="L491" title="All 2 branches covered.">        if (shouldContract()) {</span>
+<span class="fc" id="L492">            contract();</span>
+        }
+<span class="fc" id="L494">        return discarded;</span>
+    }
+
+    /**
+     * Substitutes &lt;code&gt;value&lt;/code&gt; for the most recently added value.
+     * Returns the value that has been replaced. If the array is empty (i.e.
+     * if {@link #numElements} is zero), an IllegalStateException is thrown.
+     *
+     * @param value New value to substitute for the most recently added value
+     * @return the value that has been replaced in the array.
+     * @throws MathIllegalStateException if the array is empty
+     * @since 2.0
+     */
+    public synchronized double substituteMostRecentElement(double value)
+        throws MathIllegalStateException {
+<span class="pc bpc" id="L509" title="1 of 2 branches missed.">        if (numElements &lt; 1) {</span>
+<span class="nc" id="L510">            throw new MathIllegalStateException(</span>
+                    LocalizedFormats.CANNOT_SUBSTITUTE_ELEMENT_FROM_EMPTY_ARRAY);
+        }
+
+<span class="fc" id="L514">        final int substIndex = startIndex + (numElements - 1);</span>
+<span class="fc" id="L515">        final double discarded = internalArray[substIndex];</span>
+
+<span class="fc" id="L517">        internalArray[substIndex] = value;</span>
+
+<span class="fc" id="L519">        return discarded;</span>
+    }
+
+    /**
+     * Checks the expansion factor and the contraction criterion and throws an
+     * IllegalArgumentException if the contractionCriteria is less than the
+     * expansionCriteria
+     *
+     * @param expansion factor to be checked
+     * @param contraction criteria to be checked
+     * @throws MathIllegalArgumentException if the contractionCriteria is less than
+     * the expansionCriteria.
+     * @deprecated As of 3.1. Please use
+     * {@link #checkContractExpand(double,double)} instead.
+     */
+    @Deprecated
+    protected void checkContractExpand(float contraction, float expansion)
+        throws MathIllegalArgumentException {
+<span class="fc" id="L537">        checkContractExpand((double) contraction,</span>
+                            (double) expansion);
+<span class="fc" id="L539">    }</span>
+
+    /**
+     * Checks the expansion factor and the contraction criterion and raises
+     * an exception if the contraction criterion is smaller than the
+     * expansion criterion.
+     *
+     * @param contraction Criterion to be checked.
+     * @param expansion Factor to be checked.
+     * @throws NumberIsTooSmallException if {@code contraction &lt; expansion}.
+     * @throws NumberIsTooSmallException if {@code contraction &lt;= 1}.
+     * @throws NumberIsTooSmallException if {@code expansion &lt;= 1 }.
+     * @since 3.1
+     */
+    protected void checkContractExpand(double contraction,
+                                       double expansion)
+        throws NumberIsTooSmallException {
+<span class="fc bfc" id="L556" title="All 2 branches covered.">        if (contraction &lt; expansion) {</span>
+<span class="fc" id="L557">            final NumberIsTooSmallException e = new NumberIsTooSmallException(contraction, 1, true);</span>
+<span class="fc" id="L558">            e.getContext().addMessage(LocalizedFormats.CONTRACTION_CRITERIA_SMALLER_THAN_EXPANSION_FACTOR,</span>
+                                      contraction, expansion);
+<span class="fc" id="L560">            throw e;</span>
+        }
+
+<span class="fc bfc" id="L563" title="All 2 branches covered.">        if (contraction &lt;= 1) {</span>
+<span class="fc" id="L564">            final NumberIsTooSmallException e = new NumberIsTooSmallException(contraction, 1, false);</span>
+<span class="fc" id="L565">            e.getContext().addMessage(LocalizedFormats.CONTRACTION_CRITERIA_SMALLER_THAN_ONE,</span>
+                                      contraction);
+<span class="fc" id="L567">            throw e;</span>
+        }
+
+<span class="pc bpc" id="L570" title="1 of 2 branches missed.">        if (expansion &lt;= 1) {</span>
+<span class="nc" id="L571">            final NumberIsTooSmallException e = new NumberIsTooSmallException(contraction, 1, false);</span>
+<span class="nc" id="L572">            e.getContext().addMessage(LocalizedFormats.EXPANSION_FACTOR_SMALLER_THAN_ONE,</span>
+                                      expansion);
+<span class="nc" id="L574">            throw e;</span>
+        }
+<span class="fc" id="L576">    }</span>
+
+    /**
+     * Clear the array contents, resetting the number of elements to zero.
+     */
+    public synchronized void clear() {
+<span class="fc" id="L582">        numElements = 0;</span>
+<span class="fc" id="L583">        startIndex = 0;</span>
+<span class="fc" id="L584">    }</span>
+
+    /**
+     * Contracts the storage array to the (size of the element set) + 1 - to
+     * avoid a zero length array. This function also resets the startIndex to
+     * zero.
+     */
+    public synchronized void contract() {
+<span class="fc" id="L592">        final double[] tempArray = new double[numElements + 1];</span>
+
+        // Copy and swap - copy only the element array from the src array.
+<span class="fc" id="L595">        System.arraycopy(internalArray, startIndex, tempArray, 0, numElements);</span>
+<span class="fc" id="L596">        internalArray = tempArray;</span>
+
+        // Reset the start index to zero
+<span class="fc" id="L599">        startIndex = 0;</span>
+<span class="fc" id="L600">    }</span>
+
+    /**
+     * Discards the &lt;code&gt;i&lt;/code&gt; initial elements of the array.  For example,
+     * if the array contains the elements 1,2,3,4, invoking
+     * &lt;code&gt;discardFrontElements(2)&lt;/code&gt; will cause the first two elements
+     * to be discarded, leaving 3,4 in the array.  Throws illegalArgumentException
+     * if i exceeds numElements.
+     *
+     * @param i  the number of elements to discard from the front of the array
+     * @throws MathIllegalArgumentException if i is greater than numElements.
+     * @since 2.0
+     */
+    public synchronized void discardFrontElements(int i)
+        throws MathIllegalArgumentException {
+<span class="fc" id="L615">        discardExtremeElements(i,true);</span>
+<span class="fc" id="L616">    }</span>
+
+    /**
+     * Discards the &lt;code&gt;i&lt;/code&gt; last elements of the array.  For example,
+     * if the array contains the elements 1,2,3,4, invoking
+     * &lt;code&gt;discardMostRecentElements(2)&lt;/code&gt; will cause the last two elements
+     * to be discarded, leaving 1,2 in the array.  Throws illegalArgumentException
+     * if i exceeds numElements.
+     *
+     * @param i  the number of elements to discard from the end of the array
+     * @throws MathIllegalArgumentException if i is greater than numElements.
+     * @since 2.0
+     */
+    public synchronized void discardMostRecentElements(int i)
+        throws MathIllegalArgumentException {
+<span class="fc" id="L631">        discardExtremeElements(i,false);</span>
+<span class="fc" id="L632">    }</span>
+
+    /**
+     * Discards the &lt;code&gt;i&lt;/code&gt; first or last elements of the array,
+     * depending on the value of &lt;code&gt;front&lt;/code&gt;.
+     * For example, if the array contains the elements 1,2,3,4, invoking
+     * &lt;code&gt;discardExtremeElements(2,false)&lt;/code&gt; will cause the last two elements
+     * to be discarded, leaving 1,2 in the array.
+     * For example, if the array contains the elements 1,2,3,4, invoking
+     * &lt;code&gt;discardExtremeElements(2,true)&lt;/code&gt; will cause the first two elements
+     * to be discarded, leaving 3,4 in the array.
+     * Throws illegalArgumentException
+     * if i exceeds numElements.
+     *
+     * @param i  the number of elements to discard from the front/end of the array
+     * @param front true if elements are to be discarded from the front
+     * of the array, false if elements are to be discarded from the end
+     * of the array
+     * @throws MathIllegalArgumentException if i is greater than numElements.
+     * @since 2.0
+     */
+    private synchronized void discardExtremeElements(int i,
+                                                     boolean front)
+        throws MathIllegalArgumentException {
+<span class="fc bfc" id="L656" title="All 2 branches covered.">        if (i &gt; numElements) {</span>
+<span class="fc" id="L657">            throw new MathIllegalArgumentException(</span>
+                    LocalizedFormats.TOO_MANY_ELEMENTS_TO_DISCARD_FROM_ARRAY,
+                    i, numElements);
+<span class="fc bfc" id="L660" title="All 2 branches covered.">       } else if (i &lt; 0) {</span>
+<span class="fc" id="L661">           throw new MathIllegalArgumentException(</span>
+                   LocalizedFormats.CANNOT_DISCARD_NEGATIVE_NUMBER_OF_ELEMENTS,
+                   i);
+        } else {
+            // &quot;Subtract&quot; this number of discarded from numElements
+<span class="fc" id="L666">            numElements -= i;</span>
+<span class="fc bfc" id="L667" title="All 2 branches covered.">            if (front) {</span>
+<span class="fc" id="L668">                startIndex += i;</span>
+            }
+        }
+<span class="fc bfc" id="L671" title="All 2 branches covered.">        if (shouldContract()) {</span>
+<span class="fc" id="L672">            contract();</span>
+        }
+<span class="fc" id="L674">    }</span>
+
+    /**
+     * Expands the internal storage array using the expansion factor.
+     * &lt;p&gt;
+     * if &lt;code&gt;expansionMode&lt;/code&gt; is set to MULTIPLICATIVE_MODE,
+     * the new array size will be &lt;code&gt;internalArray.length * expansionFactor.&lt;/code&gt;
+     * If &lt;code&gt;expansionMode&lt;/code&gt; is set to ADDITIVE_MODE,  the length
+     * after expansion will be &lt;code&gt;internalArray.length + expansionFactor&lt;/code&gt;
+     * &lt;/p&gt;
+     */
+    protected synchronized void expand() {
+        // notice the use of FastMath.ceil(), this guarantees that we will always
+        // have an array of at least currentSize + 1.   Assume that the
+        // current initial capacity is 1 and the expansion factor
+        // is 1.000000000000000001.  The newly calculated size will be
+        // rounded up to 2 after the multiplication is performed.
+<span class="fc" id="L691">        int newSize = 0;</span>
+<span class="fc bfc" id="L692" title="All 2 branches covered.">        if (expansionMode == ExpansionMode.MULTIPLICATIVE) {</span>
+<span class="fc" id="L693">            newSize = (int) FastMath.ceil(internalArray.length * expansionFactor);</span>
+        } else {
+<span class="fc" id="L695">            newSize = (int) (internalArray.length + FastMath.round(expansionFactor));</span>
+        }
+<span class="fc" id="L697">        final double[] tempArray = new double[newSize];</span>
+
+        // Copy and swap
+<span class="fc" id="L700">        System.arraycopy(internalArray, 0, tempArray, 0, internalArray.length);</span>
+<span class="fc" id="L701">        internalArray = tempArray;</span>
+<span class="fc" id="L702">    }</span>
+
+    /**
+     * Expands the internal storage array to the specified size.
+     *
+     * @param size Size of the new internal storage array.
+     */
+    private synchronized void expandTo(int size) {
+<span class="fc" id="L710">        final double[] tempArray = new double[size];</span>
+        // Copy and swap
+<span class="fc" id="L712">        System.arraycopy(internalArray, 0, tempArray, 0, internalArray.length);</span>
+<span class="fc" id="L713">        internalArray = tempArray;</span>
+<span class="fc" id="L714">    }</span>
+
+    /**
+     * The contraction criteria defines when the internal array will contract
+     * to store only the number of elements in the element array.
+     * If  the &lt;code&gt;expansionMode&lt;/code&gt; is &lt;code&gt;MULTIPLICATIVE_MODE&lt;/code&gt;,
+     * contraction is triggered when the ratio between storage array length
+     * and &lt;code&gt;numElements&lt;/code&gt; exceeds &lt;code&gt;contractionFactor&lt;/code&gt;.
+     * If the &lt;code&gt;expansionMode&lt;/code&gt; is &lt;code&gt;ADDITIVE_MODE&lt;/code&gt;, the
+     * number of excess storage locations is compared to
+     * &lt;code&gt;contractionFactor.&lt;/code&gt;
+     *
+     * @return the contraction criteria used to reclaim memory.
+     * @deprecated As of 3.1. Please use {@link #getContractionCriterion()}
+     * instead.
+     */
+    @Deprecated
+    public float getContractionCriteria() {
+<span class="nc" id="L732">        return (float) getContractionCriterion();</span>
+    }
+
+    /**
+     * The contraction criterion defines when the internal array will contract
+     * to store only the number of elements in the element array.
+     * If  the &lt;code&gt;expansionMode&lt;/code&gt; is &lt;code&gt;MULTIPLICATIVE_MODE&lt;/code&gt;,
+     * contraction is triggered when the ratio between storage array length
+     * and &lt;code&gt;numElements&lt;/code&gt; exceeds &lt;code&gt;contractionFactor&lt;/code&gt;.
+     * If the &lt;code&gt;expansionMode&lt;/code&gt; is &lt;code&gt;ADDITIVE_MODE&lt;/code&gt;, the
+     * number of excess storage locations is compared to
+     * &lt;code&gt;contractionFactor.&lt;/code&gt;
+     *
+     * @return the contraction criterion used to reclaim memory.
+     * @since 3.1
+     */
+    public double getContractionCriterion() {
+<span class="fc" id="L749">        return contractionCriterion;</span>
+    }
+
+    /**
+     * Returns the element at the specified index
+     *
+     * @param index index to fetch a value from
+     * @return value stored at the specified index
+     * @throws ArrayIndexOutOfBoundsException if &lt;code&gt;index&lt;/code&gt; is less than
+     * zero or is greater than &lt;code&gt;getNumElements() - 1&lt;/code&gt;.
+     */
+    public synchronized double getElement(int index) {
+<span class="fc bfc" id="L761" title="All 2 branches covered.">        if (index &gt;= numElements) {</span>
+<span class="fc" id="L762">            throw new ArrayIndexOutOfBoundsException(index);</span>
+<span class="fc bfc" id="L763" title="All 2 branches covered.">        } else if (index &gt;= 0) {</span>
+<span class="fc" id="L764">            return internalArray[startIndex + index];</span>
+        } else {
+<span class="fc" id="L766">            throw new ArrayIndexOutOfBoundsException(index);</span>
+        }
+    }
+
+     /**
+     * Returns a double array containing the elements of this
+     * &lt;code&gt;ResizableArray&lt;/code&gt;.  This method returns a copy, not a
+     * reference to the underlying array, so that changes made to the returned
+     *  array have no effect on this &lt;code&gt;ResizableArray.&lt;/code&gt;
+     * @return the double array.
+     */
+    public synchronized double[] getElements() {
+<span class="fc" id="L778">        final double[] elementArray = new double[numElements];</span>
+<span class="fc" id="L779">        System.arraycopy(internalArray, startIndex, elementArray, 0, numElements);</span>
+<span class="fc" id="L780">        return elementArray;</span>
+    }
+
+    /**
+     * The expansion factor controls the size of a new array when an array
+     * needs to be expanded.  The &lt;code&gt;expansionMode&lt;/code&gt;
+     * determines whether the size of the array is multiplied by the
+     * &lt;code&gt;expansionFactor&lt;/code&gt; (MULTIPLICATIVE_MODE) or if
+     * the expansion is additive (ADDITIVE_MODE -- &lt;code&gt;expansionFactor&lt;/code&gt;
+     * storage locations added).  The default &lt;code&gt;expansionMode&lt;/code&gt; is
+     * MULTIPLICATIVE_MODE and the default &lt;code&gt;expansionFactor&lt;/code&gt;
+     * is 2.0.
+     *
+     * @return the expansion factor of this expandable double array
+     * @deprecated As of 3.1. Return type will be changed to &quot;double&quot; in 4.0.
+     */
+    @Deprecated
+    public float getExpansionFactor() {
+<span class="fc" id="L798">        return (float) expansionFactor;</span>
+    }
+
+    /**
+     * The expansion mode determines whether the internal storage
+     * array grows additively or multiplicatively when it is expanded.
+     *
+     * @return the expansion mode.
+     * @deprecated As of 3.1. Return value to be changed to
+     * {@link ExpansionMode} in 4.0.
+     */
+    @Deprecated
+    public int getExpansionMode() {
+<span class="fc" id="L811">        synchronized (this) {</span>
+<span class="pc bpc" id="L812" title="1 of 3 branches missed.">            switch (expansionMode) {</span>
+                case MULTIPLICATIVE:
+<span class="fc" id="L814">                    return MULTIPLICATIVE_MODE;</span>
+                case ADDITIVE:
+<span class="fc" id="L816">                    return ADDITIVE_MODE;</span>
+                default:
+<span class="nc" id="L818">                    throw new MathInternalError(); // Should never happen.</span>
+            }
+<span class="nc" id="L820">        }</span>
+    }
+
+    /**
+     * Notice the package scope on this method.   This method is simply here
+     * for the JUnit test, it allows us check if the expansion is working
+     * properly after a number of expansions.  This is not meant to be a part
+     * of the public interface of this class.
+     *
+     * @return the length of the internal storage array.
+     * @deprecated As of 3.1. Please use {@link #getCapacity()} instead.
+     */
+    @Deprecated
+    synchronized int getInternalLength() {
+<span class="nc" id="L834">        return internalArray.length;</span>
+    }
+
+    /**
+     * Gets the currently allocated size of the internal data structure used
+     * for storing elements.
+     * This is not to be confused with {@link #getNumElements() the number of
+     * elements actually stored}.
+     *
+     * @return the length of the internal array.
+     * @since 3.1
+     */
+    public int getCapacity() {
+<span class="fc" id="L847">        return internalArray.length;</span>
+    }
+
+    /**
+     * Returns the number of elements currently in the array.  Please note
+     * that this is different from the length of the internal storage array.
+     *
+     * @return the number of elements.
+     */
+    public synchronized int getNumElements() {
+<span class="fc" id="L857">        return numElements;</span>
+    }
+
+    /**
+     * Returns the internal storage array.  Note that this method returns
+     * a reference to the internal storage array, not a copy, and to correctly
+     * address elements of the array, the &lt;code&gt;startIndex&lt;/code&gt; is
+     * required (available via the {@link #start} method).  This method should
+     * only be used in cases where copying the internal array is not practical.
+     * The {@link #getElements} method should be used in all other cases.
+     *
+     *
+     * @return the internal storage array used by this object
+     * @since 2.0
+     * @deprecated As of 3.1.
+     */
+    @Deprecated
+    public synchronized double[] getInternalValues() {
+<span class="nc" id="L875">        return internalArray;</span>
+    }
+
+    /**
+     * Provides &lt;em&gt;direct&lt;/em&gt; access to the internal storage array.
+     * Please note that this method returns a reference to this object's
+     * storage array, not a copy.
+     * &lt;br/&gt;
+     * To correctly address elements of the array, the &quot;start index&quot; is
+     * required (available via the {@link #getStartIndex() getStartIndex}
+     * method.
+     * &lt;br/&gt;
+     * This method should only be used to avoid copying the internal array.
+     * The returned value &lt;em&gt;must&lt;/em&gt; be used for reading only; other
+     * uses could lead to this object becoming inconsistent.
+     * &lt;br/&gt;
+     * The {@link #getElements} method has no such limitation since it
+     * returns a copy of this array's addressable elements.
+     *
+     * @return the internal storage array used by this object.
+     * @since 3.1
+     */
+    protected double[] getArrayRef() {
+<span class="fc" id="L898">        return internalArray;</span>
+    }
+
+    /**
+     * Returns the &quot;start index&quot; of the internal array.
+     * This index is the position of the first addressable element in the
+     * internal storage array.
+     * The addressable elements in the array are at indices contained in
+     * the interval [{@link #getStartIndex()},
+     *               {@link #getStartIndex()} + {@link #getNumElements()} - 1].
+     *
+     * @return the start index.
+     * @since 3.1
+     */
+    protected int getStartIndex() {
+<span class="fc" id="L913">        return startIndex;</span>
+    }
+
+    /**
+     * Sets the contraction criteria.
+     *
+     * @param contractionCriteria contraction criteria
+     * @throws MathIllegalArgumentException if the contractionCriteria is less than
+     *         the expansionCriteria.
+     * @deprecated As of 3.1 (to be removed in 4.0 as field will become &quot;final&quot;).
+     */
+    @Deprecated
+    public void setContractionCriteria(float contractionCriteria)
+        throws MathIllegalArgumentException {
+<span class="fc" id="L927">        checkContractExpand(contractionCriteria, getExpansionFactor());</span>
+<span class="fc" id="L928">        synchronized(this) {</span>
+<span class="fc" id="L929">            this.contractionCriterion = contractionCriteria;</span>
+<span class="pc" id="L930">        }</span>
+<span class="fc" id="L931">    }</span>
+
+    /**
+     * Performs an operation on the addressable elements of the array.
+     *
+     * @param f Function to be applied on this array.
+     * @return the result.
+     * @since 3.1
+     */
+    public double compute(MathArrays.Function f) {
+        final double[] array;
+        final int start;
+        final int num;
+<span class="fc" id="L944">        synchronized(this) {</span>
+<span class="fc" id="L945">            array = internalArray;</span>
+<span class="fc" id="L946">            start = startIndex;</span>
+<span class="fc" id="L947">            num   = numElements;</span>
+<span class="pc" id="L948">        }</span>
+<span class="fc" id="L949">        return f.evaluate(array, start, num);</span>
+    }
+
+    /**
+     * Sets the element at the specified index.  If the specified index is greater than
+     * &lt;code&gt;getNumElements() - 1&lt;/code&gt;, the &lt;code&gt;numElements&lt;/code&gt; property
+     * is increased to &lt;code&gt;index +1&lt;/code&gt; and additional storage is allocated
+     * (if necessary) for the new element and all  (uninitialized) elements
+     * between the new element and the previous end of the array).
+     *
+     * @param index index to store a value in
+     * @param value value to store at the specified index
+     * @throws ArrayIndexOutOfBoundsException if {@code index &lt; 0}.
+     */
+    public synchronized void setElement(int index, double value) {
+<span class="fc bfc" id="L964" title="All 2 branches covered.">        if (index &lt; 0) {</span>
+<span class="fc" id="L965">            throw new ArrayIndexOutOfBoundsException(index);</span>
+        }
+<span class="fc bfc" id="L967" title="All 2 branches covered.">        if (index + 1 &gt; numElements) {</span>
+<span class="fc" id="L968">            numElements = index + 1;</span>
+        }
+<span class="fc bfc" id="L970" title="All 2 branches covered.">        if ((startIndex + index) &gt;= internalArray.length) {</span>
+<span class="fc" id="L971">            expandTo(startIndex + (index + 1));</span>
+        }
+<span class="fc" id="L973">        internalArray[startIndex + index] = value;</span>
+<span class="fc" id="L974">    }</span>
+
+    /**
+     * Sets the expansionFactor.  Throws IllegalArgumentException if the
+     * the following conditions are not met:
+     * &lt;ul&gt;
+     * &lt;li&gt;&lt;code&gt;expansionFactor &gt; 1&lt;/code&gt;&lt;/li&gt;
+     * &lt;li&gt;&lt;code&gt;contractionFactor &gt;= expansionFactor&lt;/code&gt;&lt;/li&gt;
+     * &lt;/ul&gt;
+     * @param expansionFactor the new expansion factor value.
+     * @throws MathIllegalArgumentException if expansionFactor is &lt;= 1 or greater
+     * than contractionFactor
+     * @deprecated As of 3.1 (to be removed in 4.0 as field will become &quot;final&quot;).
+     */
+    @Deprecated
+    public void setExpansionFactor(float expansionFactor) throws MathIllegalArgumentException {
+<span class="fc" id="L990">        checkContractExpand(getContractionCriterion(), expansionFactor);</span>
+        // The check above verifies that the expansion factor is &gt; 1.0;
+<span class="fc" id="L992">        synchronized(this) {</span>
+<span class="fc" id="L993">            this.expansionFactor = expansionFactor;</span>
+<span class="pc" id="L994">        }</span>
+<span class="fc" id="L995">    }</span>
+
+    /**
+     * Sets the &lt;code&gt;expansionMode&lt;/code&gt;. The specified value must be one of
+     * ADDITIVE_MODE, MULTIPLICATIVE_MODE.
+     *
+     * @param expansionMode The expansionMode to set.
+     * @throws MathIllegalArgumentException if the specified mode value is not valid.
+     * @deprecated As of 3.1. Please use {@link #setExpansionMode(ExpansionMode)} instead.
+     */
+    @Deprecated
+    public void setExpansionMode(int expansionMode)
+        throws MathIllegalArgumentException {
+<span class="pc bpc" id="L1008" title="1 of 4 branches missed.">        if (expansionMode != MULTIPLICATIVE_MODE &amp;&amp;</span>
+            expansionMode != ADDITIVE_MODE) {
+<span class="fc" id="L1010">            throw new MathIllegalArgumentException(LocalizedFormats.UNSUPPORTED_EXPANSION_MODE, expansionMode,</span>
+                                                   MULTIPLICATIVE_MODE, &quot;MULTIPLICATIVE_MODE&quot;,
+                                                   ADDITIVE_MODE, &quot;ADDITIVE_MODE&quot;);
+        }
+<span class="fc" id="L1014">        synchronized(this) {</span>
+<span class="pc bpc" id="L1015" title="1 of 2 branches missed.">            if (expansionMode == MULTIPLICATIVE_MODE) {</span>
+<span class="nc" id="L1016">                setExpansionMode(ExpansionMode.MULTIPLICATIVE);</span>
+<span class="pc bpc" id="L1017" title="1 of 2 branches missed.">            } else if (expansionMode == ADDITIVE_MODE) {</span>
+<span class="fc" id="L1018">                setExpansionMode(ExpansionMode.ADDITIVE);</span>
+            }
+<span class="pc" id="L1020">        }</span>
+<span class="fc" id="L1021">    }</span>
+
+    /**
+     * Sets the {@link ExpansionMode expansion mode}.
+     *
+     * @param expansionMode Expansion mode to use for resizing the array.
+     * @deprecated As of 3.1 (to be removed in 4.0 as field will become &quot;final&quot;).
+     */
+    @Deprecated
+    public void setExpansionMode(ExpansionMode expansionMode) {
+<span class="fc" id="L1031">        synchronized(this) {</span>
+<span class="fc" id="L1032">            this.expansionMode = expansionMode;</span>
+<span class="pc" id="L1033">        }</span>
+<span class="fc" id="L1034">    }</span>
+
+    /**
+     * Sets the initial capacity.  Should only be invoked by constructors.
+     *
+     * @param initialCapacity of the array
+     * @throws MathIllegalArgumentException if &lt;code&gt;initialCapacity&lt;/code&gt; is not
+     * positive.
+     * @deprecated As of 3.1, this is a no-op.
+     */
+    @Deprecated
+    protected void setInitialCapacity(int initialCapacity)
+        throws MathIllegalArgumentException {
+        // Body removed in 3.1.
+<span class="nc" id="L1048">    }</span>
+
+    /**
+     * This function allows you to control the number of elements contained
+     * in this array, and can be used to &quot;throw out&quot; the last n values in an
+     * array. This function will also expand the internal array as needed.
+     *
+     * @param i a new number of elements
+     * @throws MathIllegalArgumentException if &lt;code&gt;i&lt;/code&gt; is negative.
+     */
+    public synchronized void setNumElements(int i)
+        throws MathIllegalArgumentException {
+        // If index is negative thrown an error.
+<span class="fc bfc" id="L1061" title="All 2 branches covered.">        if (i &lt; 0) {</span>
+<span class="fc" id="L1062">            throw new MathIllegalArgumentException(</span>
+                    LocalizedFormats.INDEX_NOT_POSITIVE,
+                    i);
+        }
+
+        // Test the new num elements, check to see if the array needs to be
+        // expanded to accommodate this new number of elements.
+<span class="fc" id="L1069">        final int newSize = startIndex + i;</span>
+<span class="fc bfc" id="L1070" title="All 2 branches covered.">        if (newSize &gt; internalArray.length) {</span>
+<span class="fc" id="L1071">            expandTo(newSize);</span>
+        }
+
+        // Set the new number of elements to new value.
+<span class="fc" id="L1075">        numElements = i;</span>
+<span class="fc" id="L1076">    }</span>
+
+    /**
+     * Returns true if the internal storage array has too many unused
+     * storage positions.
+     *
+     * @return true if array satisfies the contraction criteria
+     */
+    private synchronized boolean shouldContract() {
+<span class="fc bfc" id="L1085" title="All 2 branches covered.">        if (expansionMode == ExpansionMode.MULTIPLICATIVE) {</span>
+<span class="fc bfc" id="L1086" title="All 2 branches covered.">            return (internalArray.length / ((float) numElements)) &gt; contractionCriterion;</span>
+        } else {
+<span class="fc bfc" id="L1088" title="All 2 branches covered.">            return (internalArray.length - numElements) &gt; contractionCriterion;</span>
+        }
+    }
+
+    /**
+     * Returns the starting index of the internal array.  The starting index is
+     * the position of the first addressable element in the internal storage
+     * array.  The addressable elements in the array are &lt;code&gt;
+     * internalArray[startIndex],...,internalArray[startIndex + numElements -1]
+     * &lt;/code&gt;
+     *
+     * @return the starting index.
+     * @deprecated As of 3.1.
+     */
+    @Deprecated
+    public synchronized int start() {
+<span class="nc" id="L1104">        return startIndex;</span>
+    }
+
+    /**
+     * &lt;p&gt;Copies source to dest, copying the underlying data, so dest is
+     * a new, independent copy of source.  Does not contract before
+     * the copy.&lt;/p&gt;
+     *
+     * &lt;p&gt;Obtains synchronization locks on both source and dest
+     * (in that order) before performing the copy.&lt;/p&gt;
+     *
+     * &lt;p&gt;Neither source nor dest may be null; otherwise a {@link NullArgumentException}
+     * is thrown&lt;/p&gt;
+     *
+     * @param source ResizableDoubleArray to copy
+     * @param dest ResizableArray to replace with a copy of the source array
+     * @exception NullArgumentException if either source or dest is null
+     * @since 2.0
+     *
+     */
+    public static void copy(ResizableDoubleArray source,
+                            ResizableDoubleArray dest)
+        throws NullArgumentException {
+<span class="fc" id="L1127">        MathUtils.checkNotNull(source);</span>
+<span class="fc" id="L1128">        MathUtils.checkNotNull(dest);</span>
+<span class="fc" id="L1129">        synchronized(source) {</span>
+<span class="fc" id="L1130">           synchronized(dest) {</span>
+<span class="fc" id="L1131">               dest.contractionCriterion = source.contractionCriterion;</span>
+<span class="fc" id="L1132">               dest.expansionFactor = source.expansionFactor;</span>
+<span class="fc" id="L1133">               dest.expansionMode = source.expansionMode;</span>
+<span class="fc" id="L1134">               dest.internalArray = new double[source.internalArray.length];</span>
+<span class="fc" id="L1135">               System.arraycopy(source.internalArray, 0, dest.internalArray,</span>
+                       0, dest.internalArray.length);
+<span class="fc" id="L1137">               dest.numElements = source.numElements;</span>
+<span class="fc" id="L1138">               dest.startIndex = source.startIndex;</span>
+<span class="pc" id="L1139">           }</span>
+<span class="pc" id="L1140">       }</span>
+<span class="fc" id="L1141">    }</span>
+
+    /**
+     * Returns a copy of the ResizableDoubleArray.  Does not contract before
+     * the copy, so the returned object is an exact copy of this.
+     *
+     * @return a new ResizableDoubleArray with the same data and configuration
+     * properties as this
+     * @since 2.0
+     */
+    public synchronized ResizableDoubleArray copy() {
+<span class="fc" id="L1152">        final ResizableDoubleArray result = new ResizableDoubleArray();</span>
+<span class="fc" id="L1153">        copy(this, result);</span>
+<span class="fc" id="L1154">        return result;</span>
+    }
+
+    /**
+     * Returns true iff object is a ResizableDoubleArray with the same properties
+     * as this and an identical internal storage array.
+     *
+     * @param object object to be compared for equality with this
+     * @return true iff object is a ResizableDoubleArray with the same data and
+     * properties as this
+     * @since 2.0
+     */
+    @Override
+    public boolean equals(Object object) {
+<span class="fc bfc" id="L1168" title="All 2 branches covered.">        if (object == this ) {</span>
+<span class="fc" id="L1169">            return true;</span>
+        }
+<span class="fc bfc" id="L1171" title="All 2 branches covered.">        if (object instanceof ResizableDoubleArray == false) {</span>
+<span class="fc" id="L1172">            return false;</span>
+        }
+<span class="fc" id="L1174">        synchronized(this) {</span>
+<span class="fc" id="L1175">            synchronized(object) {</span>
+<span class="fc" id="L1176">                boolean result = true;</span>
+<span class="fc" id="L1177">                final ResizableDoubleArray other = (ResizableDoubleArray) object;</span>
+<span class="pc bpc" id="L1178" title="1 of 4 branches missed.">                result = result &amp;&amp; (other.contractionCriterion == contractionCriterion);</span>
+<span class="pc bpc" id="L1179" title="1 of 4 branches missed.">                result = result &amp;&amp; (other.expansionFactor == expansionFactor);</span>
+<span class="pc bpc" id="L1180" title="1 of 4 branches missed.">                result = result &amp;&amp; (other.expansionMode == expansionMode);</span>
+<span class="fc bfc" id="L1181" title="All 4 branches covered.">                result = result &amp;&amp; (other.numElements == numElements);</span>
+<span class="pc bpc" id="L1182" title="1 of 4 branches missed.">                result = result &amp;&amp; (other.startIndex == startIndex);</span>
+<span class="fc bfc" id="L1183" title="All 2 branches covered.">                if (!result) {</span>
+<span class="fc" id="L1184">                    return false;</span>
+                } else {
+<span class="fc" id="L1186">                    return Arrays.equals(internalArray, other.internalArray);</span>
+                }
+<span class="nc" id="L1188">            }</span>
+<span class="nc" id="L1189">        }</span>
+    }
+
+    /**
+     * Returns a hash code consistent with equals.
+     *
+     * @return the hash code representing this {@code ResizableDoubleArray}.
+     * @since 2.0
+     */
+    @Override
+    public synchronized int hashCode() {
+<span class="fc" id="L1200">        final int[] hashData = new int[6];</span>
+<span class="fc" id="L1201">        hashData[0] = Double.valueOf(expansionFactor).hashCode();</span>
+<span class="fc" id="L1202">        hashData[1] = Double.valueOf(contractionCriterion).hashCode();</span>
+<span class="fc" id="L1203">        hashData[2] = expansionMode.hashCode();</span>
+<span class="fc" id="L1204">        hashData[3] = Arrays.hashCode(internalArray);</span>
+<span class="fc" id="L1205">        hashData[4] = numElements;</span>
+<span class="fc" id="L1206">        hashData[5] = startIndex;</span>
+<span class="fc" id="L1207">        return Arrays.hashCode(hashData);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

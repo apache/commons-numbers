@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RegulaFalsiSolver.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.solvers</a> &gt; <span class="el_source">RegulaFalsiSolver.java</span></div><h1>RegulaFalsiSolver.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.analysis.solvers;
+
+/**
+ * Implements the &lt;em&gt;Regula Falsi&lt;/em&gt; or &lt;em&gt;False position&lt;/em&gt; method for
+ * root-finding (approximating a zero of a univariate real function). It is a
+ * modified {@link SecantSolver &lt;em&gt;Secant&lt;/em&gt;} method.
+ *
+ * &lt;p&gt;The &lt;em&gt;Regula Falsi&lt;/em&gt; method is included for completeness, for
+ * testing purposes, for educational purposes, for comparison to other
+ * algorithms, etc. It is however &lt;strong&gt;not&lt;/strong&gt; intended to be used
+ * for actual problems, as one of the bounds often remains fixed, resulting
+ * in very slow convergence. Instead, one of the well-known modified
+ * &lt;em&gt;Regula Falsi&lt;/em&gt; algorithms can be used ({@link IllinoisSolver
+ * &lt;em&gt;Illinois&lt;/em&gt;} or {@link PegasusSolver &lt;em&gt;Pegasus&lt;/em&gt;}). These two
+ * algorithms solve the fundamental issues of the original &lt;em&gt;Regula
+ * Falsi&lt;/em&gt; algorithm, and greatly out-performs it for most, if not all,
+ * (practical) functions.
+ *
+ * &lt;p&gt;Unlike the &lt;em&gt;Secant&lt;/em&gt; method, the &lt;em&gt;Regula Falsi&lt;/em&gt; guarantees
+ * convergence, by maintaining a bracketed solution. Note however, that due to
+ * the finite/limited precision of Java's {@link Double double} type, which is
+ * used in this implementation, the algorithm may get stuck in a situation
+ * where it no longer makes any progress. Such cases are detected and result
+ * in a {@code ConvergenceException} exception being thrown. In other words,
+ * the algorithm theoretically guarantees convergence, but the implementation
+ * does not.&lt;/p&gt;
+ *
+ * &lt;p&gt;The &lt;em&gt;Regula Falsi&lt;/em&gt; method assumes that the function is continuous,
+ * but not necessarily smooth.&lt;/p&gt;
+ *
+ * &lt;p&gt;Implementation based on the following article: M. Dowell and P. Jarratt,
+ * &lt;em&gt;A modified regula falsi method for computing the root of an
+ * equation&lt;/em&gt;, BIT Numerical Mathematics, volume 11, number 2,
+ * pages 168-174, Springer, 1971.&lt;/p&gt;
+ *
+ * @since 3.0
+ */
+public class RegulaFalsiSolver extends BaseSecantSolver {
+
+    /** Construct a solver with default accuracy (1e-6). */
+    public RegulaFalsiSolver() {
+<span class="fc" id="L59">        super(DEFAULT_ABSOLUTE_ACCURACY, Method.REGULA_FALSI);</span>
+<span class="fc" id="L60">    }</span>
+
+    /**
+     * Construct a solver.
+     *
+     * @param absoluteAccuracy Absolute accuracy.
+     */
+    public RegulaFalsiSolver(final double absoluteAccuracy) {
+<span class="nc" id="L68">        super(absoluteAccuracy, Method.REGULA_FALSI);</span>
+<span class="nc" id="L69">    }</span>
+
+    /**
+     * Construct a solver.
+     *
+     * @param relativeAccuracy Relative accuracy.
+     * @param absoluteAccuracy Absolute accuracy.
+     */
+    public RegulaFalsiSolver(final double relativeAccuracy,
+                             final double absoluteAccuracy) {
+<span class="nc" id="L79">        super(relativeAccuracy, absoluteAccuracy, Method.REGULA_FALSI);</span>
+<span class="nc" id="L80">    }</span>
+
+    /**
+     * Construct a solver.
+     *
+     * @param relativeAccuracy Relative accuracy.
+     * @param absoluteAccuracy Absolute accuracy.
+     * @param functionValueAccuracy Maximum function value error.
+     */
+    public RegulaFalsiSolver(final double relativeAccuracy,
+                             final double absoluteAccuracy,
+                             final double functionValueAccuracy) {
+<span class="nc" id="L92">        super(relativeAccuracy, absoluteAccuracy, functionValueAccuracy, Method.REGULA_FALSI);</span>
+<span class="nc" id="L93">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

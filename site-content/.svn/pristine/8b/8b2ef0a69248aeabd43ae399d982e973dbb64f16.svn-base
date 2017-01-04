@@ -1,0 +1,386 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.optim.univariate;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.apache.commons.math3.util.Precision;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.util.FastMath;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.exception.NumberIsTooSmallException;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.exception.NotStrictlyPositiveException;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.optim.ConvergenceChecker;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>/**<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * For a function defined on some interval {@code (lo, hi)}, this class<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * finds an approximation {@code x} to the point at which the function<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * attains its minimum.<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * It implements Richard Brent's algorithm (from his book "Algorithms for<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * Minimization without Derivatives", p. 79) for finding minima of real<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * univariate functions.<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * &lt;br/&gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * This code is an adaptation, partly based on the Python code from SciPy<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * (module "optimize.py" v0.5); the original algorithm is also modified<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * &lt;ul&gt;<a name="line.36"></a>
+<span class="sourceLineNo">037</span> *  &lt;li&gt;to use an initial guess provided by the user,&lt;/li&gt;<a name="line.37"></a>
+<span class="sourceLineNo">038</span> *  &lt;li&gt;to ensure that the best point encountered is the one returned.&lt;/li&gt;<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * &lt;/ul&gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span> *<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * @since 2.0<a name="line.41"></a>
+<span class="sourceLineNo">042</span> */<a name="line.42"></a>
+<span class="sourceLineNo">043</span>public class BrentOptimizer extends UnivariateOptimizer {<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    /**<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     * Golden section.<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     */<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    private static final double GOLDEN_SECTION = 0.5 * (3 - FastMath.sqrt(5));<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    /**<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * Minimum relative tolerance.<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    private static final double MIN_RELATIVE_TOLERANCE = 2 * FastMath.ulp(1d);<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    /**<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     * Relative threshold.<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     */<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    private final double relativeThreshold;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    /**<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * Absolute threshold.<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     */<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    private final double absoluteThreshold;<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>    /**<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     * The arguments are used implement the original stopping criterion<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * of Brent's algorithm.<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * {@code abs} and {@code rel} define a tolerance<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * {@code tol = rel |x| + abs}. {@code rel} should be no smaller than<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     * &lt;em&gt;2 macheps&lt;/em&gt; and preferably not much less than &lt;em&gt;sqrt(macheps)&lt;/em&gt;,<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * where &lt;em&gt;macheps&lt;/em&gt; is the relative machine precision. {@code abs} must<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * be positive.<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     *<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * @param rel Relative threshold.<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * @param abs Absolute threshold.<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     * @param checker Additional, user-defined, convergence checking<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * procedure.<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * @throws NotStrictlyPositiveException if {@code abs &lt;= 0}.<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * @throws NumberIsTooSmallException if {@code rel &lt; 2 * Math.ulp(1d)}.<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     */<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    public BrentOptimizer(double rel,<a name="line.77"></a>
+<span class="sourceLineNo">078</span>                          double abs,<a name="line.78"></a>
+<span class="sourceLineNo">079</span>                          ConvergenceChecker&lt;UnivariatePointValuePair&gt; checker) {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        super(checker);<a name="line.80"></a>
+<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">082</span>        if (rel &lt; MIN_RELATIVE_TOLERANCE) {<a name="line.82"></a>
+<span class="sourceLineNo">083</span>            throw new NumberIsTooSmallException(rel, MIN_RELATIVE_TOLERANCE, true);<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        }<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        if (abs &lt;= 0) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>            throw new NotStrictlyPositiveException(abs);<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        }<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>        relativeThreshold = rel;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        absoluteThreshold = abs;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    }<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>    /**<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * The arguments are used for implementing the original stopping criterion<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * of Brent's algorithm.<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * {@code abs} and {@code rel} define a tolerance<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * {@code tol = rel |x| + abs}. {@code rel} should be no smaller than<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * &lt;em&gt;2 macheps&lt;/em&gt; and preferably not much less than &lt;em&gt;sqrt(macheps)&lt;/em&gt;,<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * where &lt;em&gt;macheps&lt;/em&gt; is the relative machine precision. {@code abs} must<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * be positive.<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     *<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * @param rel Relative threshold.<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * @param abs Absolute threshold.<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * @throws NotStrictlyPositiveException if {@code abs &lt;= 0}.<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     * @throws NumberIsTooSmallException if {@code rel &lt; 2 * Math.ulp(1d)}.<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     */<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    public BrentOptimizer(double rel,<a name="line.107"></a>
+<span class="sourceLineNo">108</span>                          double abs) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        this(rel, abs, null);<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    }<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>    /** {@inheritDoc} */<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    @Override<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    protected UnivariatePointValuePair doOptimize() {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        final boolean isMinim = getGoalType() == GoalType.MINIMIZE;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        final double lo = getMin();<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        final double mid = getStartValue();<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        final double hi = getMax();<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
+<span class="sourceLineNo">120</span>        // Optional additional convergence criteria.<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        final ConvergenceChecker&lt;UnivariatePointValuePair&gt; checker<a name="line.121"></a>
+<span class="sourceLineNo">122</span>            = getConvergenceChecker();<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>        double a;<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        double b;<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        if (lo &lt; hi) {<a name="line.126"></a>
+<span class="sourceLineNo">127</span>            a = lo;<a name="line.127"></a>
+<span class="sourceLineNo">128</span>            b = hi;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        } else {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>            a = hi;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>            b = lo;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        }<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>        double x = mid;<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        double v = x;<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        double w = x;<a name="line.136"></a>
+<span class="sourceLineNo">137</span>        double d = 0;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        double e = 0;<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        double fx = computeObjectiveValue(x);<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        if (!isMinim) {<a name="line.140"></a>
+<span class="sourceLineNo">141</span>            fx = -fx;<a name="line.141"></a>
+<span class="sourceLineNo">142</span>        }<a name="line.142"></a>
+<span class="sourceLineNo">143</span>        double fv = fx;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        double fw = fx;<a name="line.144"></a>
+<span class="sourceLineNo">145</span><a name="line.145"></a>
+<span class="sourceLineNo">146</span>        UnivariatePointValuePair previous = null;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        UnivariatePointValuePair current<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            = new UnivariatePointValuePair(x, isMinim ? fx : -fx);<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        // Best point encountered so far (which is the initial guess).<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        UnivariatePointValuePair best = current;<a name="line.150"></a>
+<span class="sourceLineNo">151</span><a name="line.151"></a>
+<span class="sourceLineNo">152</span>        while (true) {<a name="line.152"></a>
+<span class="sourceLineNo">153</span>            final double m = 0.5 * (a + b);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>            final double tol1 = relativeThreshold * FastMath.abs(x) + absoluteThreshold;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>            final double tol2 = 2 * tol1;<a name="line.155"></a>
+<span class="sourceLineNo">156</span><a name="line.156"></a>
+<span class="sourceLineNo">157</span>            // Default stopping criterion.<a name="line.157"></a>
+<span class="sourceLineNo">158</span>            final boolean stop = FastMath.abs(x - m) &lt;= tol2 - 0.5 * (b - a);<a name="line.158"></a>
+<span class="sourceLineNo">159</span>            if (!stop) {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>                double p = 0;<a name="line.160"></a>
+<span class="sourceLineNo">161</span>                double q = 0;<a name="line.161"></a>
+<span class="sourceLineNo">162</span>                double r = 0;<a name="line.162"></a>
+<span class="sourceLineNo">163</span>                double u = 0;<a name="line.163"></a>
+<span class="sourceLineNo">164</span><a name="line.164"></a>
+<span class="sourceLineNo">165</span>                if (FastMath.abs(e) &gt; tol1) { // Fit parabola.<a name="line.165"></a>
+<span class="sourceLineNo">166</span>                    r = (x - w) * (fx - fv);<a name="line.166"></a>
+<span class="sourceLineNo">167</span>                    q = (x - v) * (fx - fw);<a name="line.167"></a>
+<span class="sourceLineNo">168</span>                    p = (x - v) * q - (x - w) * r;<a name="line.168"></a>
+<span class="sourceLineNo">169</span>                    q = 2 * (q - r);<a name="line.169"></a>
+<span class="sourceLineNo">170</span><a name="line.170"></a>
+<span class="sourceLineNo">171</span>                    if (q &gt; 0) {<a name="line.171"></a>
+<span class="sourceLineNo">172</span>                        p = -p;<a name="line.172"></a>
+<span class="sourceLineNo">173</span>                    } else {<a name="line.173"></a>
+<span class="sourceLineNo">174</span>                        q = -q;<a name="line.174"></a>
+<span class="sourceLineNo">175</span>                    }<a name="line.175"></a>
+<span class="sourceLineNo">176</span><a name="line.176"></a>
+<span class="sourceLineNo">177</span>                    r = e;<a name="line.177"></a>
+<span class="sourceLineNo">178</span>                    e = d;<a name="line.178"></a>
+<span class="sourceLineNo">179</span><a name="line.179"></a>
+<span class="sourceLineNo">180</span>                    if (p &gt; q * (a - x) &amp;&amp;<a name="line.180"></a>
+<span class="sourceLineNo">181</span>                        p &lt; q * (b - x) &amp;&amp;<a name="line.181"></a>
+<span class="sourceLineNo">182</span>                        FastMath.abs(p) &lt; FastMath.abs(0.5 * q * r)) {<a name="line.182"></a>
+<span class="sourceLineNo">183</span>                        // Parabolic interpolation step.<a name="line.183"></a>
+<span class="sourceLineNo">184</span>                        d = p / q;<a name="line.184"></a>
+<span class="sourceLineNo">185</span>                        u = x + d;<a name="line.185"></a>
+<span class="sourceLineNo">186</span><a name="line.186"></a>
+<span class="sourceLineNo">187</span>                        // f must not be evaluated too close to a or b.<a name="line.187"></a>
+<span class="sourceLineNo">188</span>                        if (u - a &lt; tol2 || b - u &lt; tol2) {<a name="line.188"></a>
+<span class="sourceLineNo">189</span>                            if (x &lt;= m) {<a name="line.189"></a>
+<span class="sourceLineNo">190</span>                                d = tol1;<a name="line.190"></a>
+<span class="sourceLineNo">191</span>                            } else {<a name="line.191"></a>
+<span class="sourceLineNo">192</span>                                d = -tol1;<a name="line.192"></a>
+<span class="sourceLineNo">193</span>                            }<a name="line.193"></a>
+<span class="sourceLineNo">194</span>                        }<a name="line.194"></a>
+<span class="sourceLineNo">195</span>                    } else {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>                        // Golden section step.<a name="line.196"></a>
+<span class="sourceLineNo">197</span>                        if (x &lt; m) {<a name="line.197"></a>
+<span class="sourceLineNo">198</span>                            e = b - x;<a name="line.198"></a>
+<span class="sourceLineNo">199</span>                        } else {<a name="line.199"></a>
+<span class="sourceLineNo">200</span>                            e = a - x;<a name="line.200"></a>
+<span class="sourceLineNo">201</span>                        }<a name="line.201"></a>
+<span class="sourceLineNo">202</span>                        d = GOLDEN_SECTION * e;<a name="line.202"></a>
+<span class="sourceLineNo">203</span>                    }<a name="line.203"></a>
+<span class="sourceLineNo">204</span>                } else {<a name="line.204"></a>
+<span class="sourceLineNo">205</span>                    // Golden section step.<a name="line.205"></a>
+<span class="sourceLineNo">206</span>                    if (x &lt; m) {<a name="line.206"></a>
+<span class="sourceLineNo">207</span>                        e = b - x;<a name="line.207"></a>
+<span class="sourceLineNo">208</span>                    } else {<a name="line.208"></a>
+<span class="sourceLineNo">209</span>                        e = a - x;<a name="line.209"></a>
+<span class="sourceLineNo">210</span>                    }<a name="line.210"></a>
+<span class="sourceLineNo">211</span>                    d = GOLDEN_SECTION * e;<a name="line.211"></a>
+<span class="sourceLineNo">212</span>                }<a name="line.212"></a>
+<span class="sourceLineNo">213</span><a name="line.213"></a>
+<span class="sourceLineNo">214</span>                // Update by at least "tol1".<a name="line.214"></a>
+<span class="sourceLineNo">215</span>                if (FastMath.abs(d) &lt; tol1) {<a name="line.215"></a>
+<span class="sourceLineNo">216</span>                    if (d &gt;= 0) {<a name="line.216"></a>
+<span class="sourceLineNo">217</span>                        u = x + tol1;<a name="line.217"></a>
+<span class="sourceLineNo">218</span>                    } else {<a name="line.218"></a>
+<span class="sourceLineNo">219</span>                        u = x - tol1;<a name="line.219"></a>
+<span class="sourceLineNo">220</span>                    }<a name="line.220"></a>
+<span class="sourceLineNo">221</span>                } else {<a name="line.221"></a>
+<span class="sourceLineNo">222</span>                    u = x + d;<a name="line.222"></a>
+<span class="sourceLineNo">223</span>                }<a name="line.223"></a>
+<span class="sourceLineNo">224</span><a name="line.224"></a>
+<span class="sourceLineNo">225</span>                double fu = computeObjectiveValue(u);<a name="line.225"></a>
+<span class="sourceLineNo">226</span>                if (!isMinim) {<a name="line.226"></a>
+<span class="sourceLineNo">227</span>                    fu = -fu;<a name="line.227"></a>
+<span class="sourceLineNo">228</span>                }<a name="line.228"></a>
+<span class="sourceLineNo">229</span><a name="line.229"></a>
+<span class="sourceLineNo">230</span>                // User-defined convergence checker.<a name="line.230"></a>
+<span class="sourceLineNo">231</span>                previous = current;<a name="line.231"></a>
+<span class="sourceLineNo">232</span>                current = new UnivariatePointValuePair(u, isMinim ? fu : -fu);<a name="line.232"></a>
+<span class="sourceLineNo">233</span>                best = best(best,<a name="line.233"></a>
+<span class="sourceLineNo">234</span>                            best(previous,<a name="line.234"></a>
+<span class="sourceLineNo">235</span>                                 current,<a name="line.235"></a>
+<span class="sourceLineNo">236</span>                                 isMinim),<a name="line.236"></a>
+<span class="sourceLineNo">237</span>                            isMinim);<a name="line.237"></a>
+<span class="sourceLineNo">238</span><a name="line.238"></a>
+<span class="sourceLineNo">239</span>                if (checker != null &amp;&amp; checker.converged(getIterations(), previous, current)) {<a name="line.239"></a>
+<span class="sourceLineNo">240</span>                    return best;<a name="line.240"></a>
+<span class="sourceLineNo">241</span>                }<a name="line.241"></a>
+<span class="sourceLineNo">242</span><a name="line.242"></a>
+<span class="sourceLineNo">243</span>                // Update a, b, v, w and x.<a name="line.243"></a>
+<span class="sourceLineNo">244</span>                if (fu &lt;= fx) {<a name="line.244"></a>
+<span class="sourceLineNo">245</span>                    if (u &lt; x) {<a name="line.245"></a>
+<span class="sourceLineNo">246</span>                        b = x;<a name="line.246"></a>
+<span class="sourceLineNo">247</span>                    } else {<a name="line.247"></a>
+<span class="sourceLineNo">248</span>                        a = x;<a name="line.248"></a>
+<span class="sourceLineNo">249</span>                    }<a name="line.249"></a>
+<span class="sourceLineNo">250</span>                    v = w;<a name="line.250"></a>
+<span class="sourceLineNo">251</span>                    fv = fw;<a name="line.251"></a>
+<span class="sourceLineNo">252</span>                    w = x;<a name="line.252"></a>
+<span class="sourceLineNo">253</span>                    fw = fx;<a name="line.253"></a>
+<span class="sourceLineNo">254</span>                    x = u;<a name="line.254"></a>
+<span class="sourceLineNo">255</span>                    fx = fu;<a name="line.255"></a>
+<span class="sourceLineNo">256</span>                } else {<a name="line.256"></a>
+<span class="sourceLineNo">257</span>                    if (u &lt; x) {<a name="line.257"></a>
+<span class="sourceLineNo">258</span>                        a = u;<a name="line.258"></a>
+<span class="sourceLineNo">259</span>                    } else {<a name="line.259"></a>
+<span class="sourceLineNo">260</span>                        b = u;<a name="line.260"></a>
+<span class="sourceLineNo">261</span>                    }<a name="line.261"></a>
+<span class="sourceLineNo">262</span>                    if (fu &lt;= fw ||<a name="line.262"></a>
+<span class="sourceLineNo">263</span>                        Precision.equals(w, x)) {<a name="line.263"></a>
+<span class="sourceLineNo">264</span>                        v = w;<a name="line.264"></a>
+<span class="sourceLineNo">265</span>                        fv = fw;<a name="line.265"></a>
+<span class="sourceLineNo">266</span>                        w = u;<a name="line.266"></a>
+<span class="sourceLineNo">267</span>                        fw = fu;<a name="line.267"></a>
+<span class="sourceLineNo">268</span>                    } else if (fu &lt;= fv ||<a name="line.268"></a>
+<span class="sourceLineNo">269</span>                               Precision.equals(v, x) ||<a name="line.269"></a>
+<span class="sourceLineNo">270</span>                               Precision.equals(v, w)) {<a name="line.270"></a>
+<span class="sourceLineNo">271</span>                        v = u;<a name="line.271"></a>
+<span class="sourceLineNo">272</span>                        fv = fu;<a name="line.272"></a>
+<span class="sourceLineNo">273</span>                    }<a name="line.273"></a>
+<span class="sourceLineNo">274</span>                }<a name="line.274"></a>
+<span class="sourceLineNo">275</span>            } else { // Default termination (Brent's criterion).<a name="line.275"></a>
+<span class="sourceLineNo">276</span>                return best(best,<a name="line.276"></a>
+<span class="sourceLineNo">277</span>                            best(previous,<a name="line.277"></a>
+<span class="sourceLineNo">278</span>                                 current,<a name="line.278"></a>
+<span class="sourceLineNo">279</span>                                 isMinim),<a name="line.279"></a>
+<span class="sourceLineNo">280</span>                            isMinim);<a name="line.280"></a>
+<span class="sourceLineNo">281</span>            }<a name="line.281"></a>
+<span class="sourceLineNo">282</span><a name="line.282"></a>
+<span class="sourceLineNo">283</span>            incrementIterationCount();<a name="line.283"></a>
+<span class="sourceLineNo">284</span>        }<a name="line.284"></a>
+<span class="sourceLineNo">285</span>    }<a name="line.285"></a>
+<span class="sourceLineNo">286</span><a name="line.286"></a>
+<span class="sourceLineNo">287</span>    /**<a name="line.287"></a>
+<span class="sourceLineNo">288</span>     * Selects the best of two points.<a name="line.288"></a>
+<span class="sourceLineNo">289</span>     *<a name="line.289"></a>
+<span class="sourceLineNo">290</span>     * @param a Point and value.<a name="line.290"></a>
+<span class="sourceLineNo">291</span>     * @param b Point and value.<a name="line.291"></a>
+<span class="sourceLineNo">292</span>     * @param isMinim {@code true} if the selected point must be the one with<a name="line.292"></a>
+<span class="sourceLineNo">293</span>     * the lowest value.<a name="line.293"></a>
+<span class="sourceLineNo">294</span>     * @return the best point, or {@code null} if {@code a} and {@code b} are<a name="line.294"></a>
+<span class="sourceLineNo">295</span>     * both {@code null}. When {@code a} and {@code b} have the same function<a name="line.295"></a>
+<span class="sourceLineNo">296</span>     * value, {@code a} is returned.<a name="line.296"></a>
+<span class="sourceLineNo">297</span>     */<a name="line.297"></a>
+<span class="sourceLineNo">298</span>    private UnivariatePointValuePair best(UnivariatePointValuePair a,<a name="line.298"></a>
+<span class="sourceLineNo">299</span>                                          UnivariatePointValuePair b,<a name="line.299"></a>
+<span class="sourceLineNo">300</span>                                          boolean isMinim) {<a name="line.300"></a>
+<span class="sourceLineNo">301</span>        if (a == null) {<a name="line.301"></a>
+<span class="sourceLineNo">302</span>            return b;<a name="line.302"></a>
+<span class="sourceLineNo">303</span>        }<a name="line.303"></a>
+<span class="sourceLineNo">304</span>        if (b == null) {<a name="line.304"></a>
+<span class="sourceLineNo">305</span>            return a;<a name="line.305"></a>
+<span class="sourceLineNo">306</span>        }<a name="line.306"></a>
+<span class="sourceLineNo">307</span><a name="line.307"></a>
+<span class="sourceLineNo">308</span>        if (isMinim) {<a name="line.308"></a>
+<span class="sourceLineNo">309</span>            return a.getValue() &lt;= b.getValue() ? a : b;<a name="line.309"></a>
+<span class="sourceLineNo">310</span>        } else {<a name="line.310"></a>
+<span class="sourceLineNo">311</span>            return a.getValue() &gt;= b.getValue() ? a : b;<a name="line.311"></a>
+<span class="sourceLineNo">312</span>        }<a name="line.312"></a>
+<span class="sourceLineNo">313</span>    }<a name="line.313"></a>
+<span class="sourceLineNo">314</span>}<a name="line.314"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

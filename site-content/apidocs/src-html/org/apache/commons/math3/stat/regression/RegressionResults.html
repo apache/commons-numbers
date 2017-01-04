@@ -1,0 +1,493 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.stat.regression;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.io.Serializable;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.util.Arrays;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.util.FastMath;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.util.MathArrays;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.exception.OutOfRangeException;<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>/**<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * Results of a Multiple Linear Regression model fit.<a name="line.26"></a>
+<span class="sourceLineNo">027</span> *<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * @since 3.0<a name="line.28"></a>
+<span class="sourceLineNo">029</span> */<a name="line.29"></a>
+<span class="sourceLineNo">030</span>public class RegressionResults implements Serializable {<a name="line.30"></a>
+<span class="sourceLineNo">031</span><a name="line.31"></a>
+<span class="sourceLineNo">032</span>    /** INDEX of Sum of Squared Errors */<a name="line.32"></a>
+<span class="sourceLineNo">033</span>    private static final int SSE_IDX = 0;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>    /** INDEX of Sum of Squares of Model */<a name="line.34"></a>
+<span class="sourceLineNo">035</span>    private static final int SST_IDX = 1;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    /** INDEX of R-Squared of regression */<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    private static final int RSQ_IDX = 2;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    /** INDEX of Mean Squared Error */<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    private static final int MSE_IDX = 3;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    /** INDEX of Adjusted R Squared */<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    private static final int ADJRSQ_IDX = 4;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    /** UID */<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    private static final long serialVersionUID = 1l;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    /** regression slope parameters */<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    private final double[] parameters;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    /** variance covariance matrix of parameters */<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    private final double[][] varCovData;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    /** boolean flag for variance covariance matrix in symm compressed storage */<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    private final boolean isSymmetricVCD;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    /** rank of the solution */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    @SuppressWarnings("unused")<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    private final int rank;<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    /** number of observations on which results are based */<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    private final long nobs;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    /** boolean flag indicator of whether a constant was included*/<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    private final boolean containsConstant;<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    /** array storing global results, SSE, MSE, RSQ, adjRSQ */<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    private final double[] globalFitInfo;<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>    /**<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     *  Set the default constructor to private access<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     *  to prevent inadvertent instantiation<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     */<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    @SuppressWarnings("unused")<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    private RegressionResults() {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        this.parameters = null;<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        this.varCovData = null;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        this.rank = -1;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        this.nobs = -1;<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        this.containsConstant = false;<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        this.isSymmetricVCD = false;<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        this.globalFitInfo = null;<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    }<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>    /**<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * Constructor for Regression Results.<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     *<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * @param parameters a double array with the regression slope estimates<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * @param varcov the variance covariance matrix, stored either in a square matrix<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * or as a compressed<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * @param isSymmetricCompressed a flag which denotes that the variance covariance<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * matrix is in symmetric compressed format<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     * @param nobs the number of observations of the regression estimation<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * @param rank the number of independent variables in the regression<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * @param sumy the sum of the independent variable<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * @param sumysq the sum of the squared independent variable<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * @param sse sum of squared errors<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * @param containsConstant true model has constant,  false model does not have constant<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * @param copyData if true a deep copy of all input data is made, if false only references<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * are copied and the RegressionResults become mutable<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     */<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    public RegressionResults(<a name="line.92"></a>
+<span class="sourceLineNo">093</span>            final double[] parameters, final double[][] varcov,<a name="line.93"></a>
+<span class="sourceLineNo">094</span>            final boolean isSymmetricCompressed,<a name="line.94"></a>
+<span class="sourceLineNo">095</span>            final long nobs, final int rank,<a name="line.95"></a>
+<span class="sourceLineNo">096</span>            final double sumy, final double sumysq, final double sse,<a name="line.96"></a>
+<span class="sourceLineNo">097</span>            final boolean containsConstant,<a name="line.97"></a>
+<span class="sourceLineNo">098</span>            final boolean copyData) {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        if (copyData) {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>            this.parameters = MathArrays.copyOf(parameters);<a name="line.100"></a>
+<span class="sourceLineNo">101</span>            this.varCovData = new double[varcov.length][];<a name="line.101"></a>
+<span class="sourceLineNo">102</span>            for (int i = 0; i &lt; varcov.length; i++) {<a name="line.102"></a>
+<span class="sourceLineNo">103</span>                this.varCovData[i] = MathArrays.copyOf(varcov[i]);<a name="line.103"></a>
+<span class="sourceLineNo">104</span>            }<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        } else {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>            this.parameters = parameters;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>            this.varCovData = varcov;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        }<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        this.isSymmetricVCD = isSymmetricCompressed;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        this.nobs = nobs;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        this.rank = rank;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        this.containsConstant = containsConstant;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        this.globalFitInfo = new double[5];<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        Arrays.fill(this.globalFitInfo, Double.NaN);<a name="line.114"></a>
+<span class="sourceLineNo">115</span><a name="line.115"></a>
+<span class="sourceLineNo">116</span>        if (rank &gt; 0) {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>            this.globalFitInfo[SST_IDX] = containsConstant ?<a name="line.117"></a>
+<span class="sourceLineNo">118</span>                    (sumysq - sumy * sumy / nobs) : sumysq;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        }<a name="line.119"></a>
+<span class="sourceLineNo">120</span><a name="line.120"></a>
+<span class="sourceLineNo">121</span>        this.globalFitInfo[SSE_IDX] = sse;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        this.globalFitInfo[MSE_IDX] = this.globalFitInfo[SSE_IDX] /<a name="line.122"></a>
+<span class="sourceLineNo">123</span>                (nobs - rank);<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        this.globalFitInfo[RSQ_IDX] = 1.0 -<a name="line.124"></a>
+<span class="sourceLineNo">125</span>                this.globalFitInfo[SSE_IDX] /<a name="line.125"></a>
+<span class="sourceLineNo">126</span>                this.globalFitInfo[SST_IDX];<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>        if (!containsConstant) {<a name="line.128"></a>
+<span class="sourceLineNo">129</span>            this.globalFitInfo[ADJRSQ_IDX] = 1.0-<a name="line.129"></a>
+<span class="sourceLineNo">130</span>                    (1.0 - this.globalFitInfo[RSQ_IDX]) *<a name="line.130"></a>
+<span class="sourceLineNo">131</span>                    ( (double) nobs / ( (double) (nobs - rank)));<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        } else {<a name="line.132"></a>
+<span class="sourceLineNo">133</span>            this.globalFitInfo[ADJRSQ_IDX] = 1.0 - (sse * (nobs - 1.0)) /<a name="line.133"></a>
+<span class="sourceLineNo">134</span>                    (globalFitInfo[SST_IDX] * (nobs - rank));<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        }<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
+<span class="sourceLineNo">137</span><a name="line.137"></a>
+<span class="sourceLineNo">138</span>    /**<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * &lt;p&gt;Returns the parameter estimate for the regressor at the given index.&lt;/p&gt;<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     *<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     * &lt;p&gt;A redundant regressor will have its redundancy flag set, as well as<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     *  a parameters estimated equal to {@code Double.NaN}&lt;/p&gt;<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     *<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     * @param index Index.<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     * @return the parameters estimated for regressor at index.<a name="line.145"></a>
+<span class="sourceLineNo">146</span>     * @throws OutOfRangeException if {@code index} is not in the interval<a name="line.146"></a>
+<span class="sourceLineNo">147</span>     * {@code [0, number of parameters)}.<a name="line.147"></a>
+<span class="sourceLineNo">148</span>     */<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    public double getParameterEstimate(int index) throws OutOfRangeException {<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        if (parameters == null) {<a name="line.150"></a>
+<span class="sourceLineNo">151</span>            return Double.NaN;<a name="line.151"></a>
+<span class="sourceLineNo">152</span>        }<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        if (index &lt; 0 || index &gt;= this.parameters.length) {<a name="line.153"></a>
+<span class="sourceLineNo">154</span>            throw new OutOfRangeException(index, 0, this.parameters.length - 1);<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        }<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        return this.parameters[index];<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    }<a name="line.157"></a>
+<span class="sourceLineNo">158</span><a name="line.158"></a>
+<span class="sourceLineNo">159</span>    /**<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     * &lt;p&gt;Returns a copy of the regression parameters estimates.&lt;/p&gt;<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     *<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     * &lt;p&gt;The parameter estimates are returned in the natural order of the data.&lt;/p&gt;<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     *<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     * &lt;p&gt;A redundant regressor will have its redundancy flag set, as will<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     *  a parameter estimate equal to {@code Double.NaN}.&lt;/p&gt;<a name="line.165"></a>
+<span class="sourceLineNo">166</span>     *<a name="line.166"></a>
+<span class="sourceLineNo">167</span>     * @return array of parameter estimates, null if no estimation occurred<a name="line.167"></a>
+<span class="sourceLineNo">168</span>     */<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    public double[] getParameterEstimates() {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        if (this.parameters == null) {<a name="line.170"></a>
+<span class="sourceLineNo">171</span>            return null;<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        }<a name="line.172"></a>
+<span class="sourceLineNo">173</span>        return MathArrays.copyOf(parameters);<a name="line.173"></a>
+<span class="sourceLineNo">174</span>    }<a name="line.174"></a>
+<span class="sourceLineNo">175</span><a name="line.175"></a>
+<span class="sourceLineNo">176</span>    /**<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     * Returns the &lt;a href="http://www.xycoon.com/standerrorb(1).htm"&gt;standard<a name="line.177"></a>
+<span class="sourceLineNo">178</span>     * error of the parameter estimate at index&lt;/a&gt;,<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     * usually denoted s(b&lt;sub&gt;index&lt;/sub&gt;).<a name="line.179"></a>
+<span class="sourceLineNo">180</span>     *<a name="line.180"></a>
+<span class="sourceLineNo">181</span>     * @param index Index.<a name="line.181"></a>
+<span class="sourceLineNo">182</span>     * @return the standard errors associated with parameters estimated at index.<a name="line.182"></a>
+<span class="sourceLineNo">183</span>     * @throws OutOfRangeException if {@code index} is not in the interval<a name="line.183"></a>
+<span class="sourceLineNo">184</span>     * {@code [0, number of parameters)}.<a name="line.184"></a>
+<span class="sourceLineNo">185</span>     */<a name="line.185"></a>
+<span class="sourceLineNo">186</span>    public double getStdErrorOfEstimate(int index) throws OutOfRangeException {<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        if (parameters == null) {<a name="line.187"></a>
+<span class="sourceLineNo">188</span>            return Double.NaN;<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        }<a name="line.189"></a>
+<span class="sourceLineNo">190</span>        if (index &lt; 0 || index &gt;= this.parameters.length) {<a name="line.190"></a>
+<span class="sourceLineNo">191</span>            throw new OutOfRangeException(index, 0, this.parameters.length - 1);<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        }<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        double var = this.getVcvElement(index, index);<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        if (!Double.isNaN(var) &amp;&amp; var &gt; Double.MIN_VALUE) {<a name="line.194"></a>
+<span class="sourceLineNo">195</span>            return FastMath.sqrt(var);<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        }<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        return Double.NaN;<a name="line.197"></a>
+<span class="sourceLineNo">198</span>    }<a name="line.198"></a>
+<span class="sourceLineNo">199</span><a name="line.199"></a>
+<span class="sourceLineNo">200</span>    /**<a name="line.200"></a>
+<span class="sourceLineNo">201</span>     * &lt;p&gt;Returns the &lt;a href="http://www.xycoon.com/standerrorb(1).htm"&gt;standard<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     * error of the parameter estimates&lt;/a&gt;,<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     * usually denoted s(b&lt;sub&gt;i&lt;/sub&gt;).&lt;/p&gt;<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     *<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     * &lt;p&gt;If there are problems with an ill conditioned design matrix then the regressor<a name="line.205"></a>
+<span class="sourceLineNo">206</span>     * which is redundant will be assigned &lt;code&gt;Double.NaN&lt;/code&gt;. &lt;/p&gt;<a name="line.206"></a>
+<span class="sourceLineNo">207</span>     *<a name="line.207"></a>
+<span class="sourceLineNo">208</span>     * @return an array standard errors associated with parameters estimates,<a name="line.208"></a>
+<span class="sourceLineNo">209</span>     *  null if no estimation occurred<a name="line.209"></a>
+<span class="sourceLineNo">210</span>     */<a name="line.210"></a>
+<span class="sourceLineNo">211</span>    public double[] getStdErrorOfEstimates() {<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        if (parameters == null) {<a name="line.212"></a>
+<span class="sourceLineNo">213</span>            return null;<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        }<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        double[] se = new double[this.parameters.length];<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        for (int i = 0; i &lt; this.parameters.length; i++) {<a name="line.216"></a>
+<span class="sourceLineNo">217</span>            double var = this.getVcvElement(i, i);<a name="line.217"></a>
+<span class="sourceLineNo">218</span>            if (!Double.isNaN(var) &amp;&amp; var &gt; Double.MIN_VALUE) {<a name="line.218"></a>
+<span class="sourceLineNo">219</span>                se[i] = FastMath.sqrt(var);<a name="line.219"></a>
+<span class="sourceLineNo">220</span>                continue;<a name="line.220"></a>
+<span class="sourceLineNo">221</span>            }<a name="line.221"></a>
+<span class="sourceLineNo">222</span>            se[i] = Double.NaN;<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        }<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        return se;<a name="line.224"></a>
+<span class="sourceLineNo">225</span>    }<a name="line.225"></a>
+<span class="sourceLineNo">226</span><a name="line.226"></a>
+<span class="sourceLineNo">227</span>    /**<a name="line.227"></a>
+<span class="sourceLineNo">228</span>     * &lt;p&gt;Returns the covariance between regression parameters i and j.&lt;/p&gt;<a name="line.228"></a>
+<span class="sourceLineNo">229</span>     *<a name="line.229"></a>
+<span class="sourceLineNo">230</span>     * &lt;p&gt;If there are problems with an ill conditioned design matrix then the covariance<a name="line.230"></a>
+<span class="sourceLineNo">231</span>     * which involves redundant columns will be assigned {@code Double.NaN}. &lt;/p&gt;<a name="line.231"></a>
+<span class="sourceLineNo">232</span>     *<a name="line.232"></a>
+<span class="sourceLineNo">233</span>     * @param i {@code i}th regression parameter.<a name="line.233"></a>
+<span class="sourceLineNo">234</span>     * @param j {@code j}th regression parameter.<a name="line.234"></a>
+<span class="sourceLineNo">235</span>     * @return the covariance of the parameter estimates.<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     * @throws OutOfRangeException if {@code i} or {@code j} is not in the<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     * interval {@code [0, number of parameters)}.<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     */<a name="line.238"></a>
+<span class="sourceLineNo">239</span>    public double getCovarianceOfParameters(int i, int j) throws OutOfRangeException {<a name="line.239"></a>
+<span class="sourceLineNo">240</span>        if (parameters == null) {<a name="line.240"></a>
+<span class="sourceLineNo">241</span>            return Double.NaN;<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        }<a name="line.242"></a>
+<span class="sourceLineNo">243</span>        if (i &lt; 0 || i &gt;= this.parameters.length) {<a name="line.243"></a>
+<span class="sourceLineNo">244</span>            throw new OutOfRangeException(i, 0, this.parameters.length - 1);<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        }<a name="line.245"></a>
+<span class="sourceLineNo">246</span>        if (j &lt; 0 || j &gt;= this.parameters.length) {<a name="line.246"></a>
+<span class="sourceLineNo">247</span>            throw new OutOfRangeException(j, 0, this.parameters.length - 1);<a name="line.247"></a>
+<span class="sourceLineNo">248</span>        }<a name="line.248"></a>
+<span class="sourceLineNo">249</span>        return this.getVcvElement(i, j);<a name="line.249"></a>
+<span class="sourceLineNo">250</span>    }<a name="line.250"></a>
+<span class="sourceLineNo">251</span><a name="line.251"></a>
+<span class="sourceLineNo">252</span>    /**<a name="line.252"></a>
+<span class="sourceLineNo">253</span>     * &lt;p&gt;Returns the number of parameters estimated in the model.&lt;/p&gt;<a name="line.253"></a>
+<span class="sourceLineNo">254</span>     *<a name="line.254"></a>
+<span class="sourceLineNo">255</span>     * &lt;p&gt;This is the maximum number of regressors, some techniques may drop<a name="line.255"></a>
+<span class="sourceLineNo">256</span>     * redundant parameters&lt;/p&gt;<a name="line.256"></a>
+<span class="sourceLineNo">257</span>     *<a name="line.257"></a>
+<span class="sourceLineNo">258</span>     * @return number of regressors, -1 if not estimated<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     */<a name="line.259"></a>
+<span class="sourceLineNo">260</span>    public int getNumberOfParameters() {<a name="line.260"></a>
+<span class="sourceLineNo">261</span>        if (this.parameters == null) {<a name="line.261"></a>
+<span class="sourceLineNo">262</span>            return -1;<a name="line.262"></a>
+<span class="sourceLineNo">263</span>        }<a name="line.263"></a>
+<span class="sourceLineNo">264</span>        return this.parameters.length;<a name="line.264"></a>
+<span class="sourceLineNo">265</span>    }<a name="line.265"></a>
+<span class="sourceLineNo">266</span><a name="line.266"></a>
+<span class="sourceLineNo">267</span>    /**<a name="line.267"></a>
+<span class="sourceLineNo">268</span>     * Returns the number of observations added to the regression model.<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     *<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     * @return Number of observations, -1 if an error condition prevents estimation<a name="line.270"></a>
+<span class="sourceLineNo">271</span>     */<a name="line.271"></a>
+<span class="sourceLineNo">272</span>    public long getN() {<a name="line.272"></a>
+<span class="sourceLineNo">273</span>        return this.nobs;<a name="line.273"></a>
+<span class="sourceLineNo">274</span>    }<a name="line.274"></a>
+<span class="sourceLineNo">275</span><a name="line.275"></a>
+<span class="sourceLineNo">276</span>    /**<a name="line.276"></a>
+<span class="sourceLineNo">277</span>     * &lt;p&gt;Returns the sum of squared deviations of the y values about their mean.&lt;/p&gt;<a name="line.277"></a>
+<span class="sourceLineNo">278</span>     *<a name="line.278"></a>
+<span class="sourceLineNo">279</span>     * &lt;p&gt;This is defined as SSTO<a name="line.279"></a>
+<span class="sourceLineNo">280</span>     * &lt;a href="http://www.xycoon.com/SumOfSquares.htm"&gt;here&lt;/a&gt;.&lt;/p&gt;<a name="line.280"></a>
+<span class="sourceLineNo">281</span>     *<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     * &lt;p&gt;If {@code n &lt; 2}, this returns {@code Double.NaN}.&lt;/p&gt;<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     *<a name="line.283"></a>
+<span class="sourceLineNo">284</span>     * @return sum of squared deviations of y values<a name="line.284"></a>
+<span class="sourceLineNo">285</span>     */<a name="line.285"></a>
+<span class="sourceLineNo">286</span>    public double getTotalSumSquares() {<a name="line.286"></a>
+<span class="sourceLineNo">287</span>        return this.globalFitInfo[SST_IDX];<a name="line.287"></a>
+<span class="sourceLineNo">288</span>    }<a name="line.288"></a>
+<span class="sourceLineNo">289</span><a name="line.289"></a>
+<span class="sourceLineNo">290</span>    /**<a name="line.290"></a>
+<span class="sourceLineNo">291</span>     * &lt;p&gt;Returns the sum of squared deviations of the predicted y values about<a name="line.291"></a>
+<span class="sourceLineNo">292</span>     * their mean (which equals the mean of y).&lt;/p&gt;<a name="line.292"></a>
+<span class="sourceLineNo">293</span>     *<a name="line.293"></a>
+<span class="sourceLineNo">294</span>     * &lt;p&gt;This is usually abbreviated SSR or SSM.  It is defined as SSM<a name="line.294"></a>
+<span class="sourceLineNo">295</span>     * &lt;a href="http://www.xycoon.com/SumOfSquares.htm"&gt;here&lt;/a&gt;&lt;/p&gt;<a name="line.295"></a>
+<span class="sourceLineNo">296</span>     *<a name="line.296"></a>
+<span class="sourceLineNo">297</span>     * &lt;p&gt;&lt;strong&gt;Preconditions&lt;/strong&gt;: &lt;ul&gt;<a name="line.297"></a>
+<span class="sourceLineNo">298</span>     * &lt;li&gt;At least two observations (with at least two different x values)<a name="line.298"></a>
+<span class="sourceLineNo">299</span>     * must have been added before invoking this method. If this method is<a name="line.299"></a>
+<span class="sourceLineNo">300</span>     * invoked before a model can be estimated, &lt;code&gt;Double.NaN&lt;/code&gt; is<a name="line.300"></a>
+<span class="sourceLineNo">301</span>     * returned.<a name="line.301"></a>
+<span class="sourceLineNo">302</span>     * &lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;<a name="line.302"></a>
+<span class="sourceLineNo">303</span>     *<a name="line.303"></a>
+<span class="sourceLineNo">304</span>     * @return sum of squared deviations of predicted y values<a name="line.304"></a>
+<span class="sourceLineNo">305</span>     */<a name="line.305"></a>
+<span class="sourceLineNo">306</span>    public double getRegressionSumSquares() {<a name="line.306"></a>
+<span class="sourceLineNo">307</span>        return this.globalFitInfo[SST_IDX] - this.globalFitInfo[SSE_IDX];<a name="line.307"></a>
+<span class="sourceLineNo">308</span>    }<a name="line.308"></a>
+<span class="sourceLineNo">309</span><a name="line.309"></a>
+<span class="sourceLineNo">310</span>    /**<a name="line.310"></a>
+<span class="sourceLineNo">311</span>     * &lt;p&gt;Returns the &lt;a href="http://www.xycoon.com/SumOfSquares.htm"&gt;<a name="line.311"></a>
+<span class="sourceLineNo">312</span>     * sum of squared errors&lt;/a&gt; (SSE) associated with the regression<a name="line.312"></a>
+<span class="sourceLineNo">313</span>     * model.&lt;/p&gt;<a name="line.313"></a>
+<span class="sourceLineNo">314</span>     *<a name="line.314"></a>
+<span class="sourceLineNo">315</span>     * &lt;p&gt;The return value is constrained to be non-negative - i.e., if due to<a name="line.315"></a>
+<span class="sourceLineNo">316</span>     * rounding errors the computational formula returns a negative result,<a name="line.316"></a>
+<span class="sourceLineNo">317</span>     * 0 is returned.&lt;/p&gt;<a name="line.317"></a>
+<span class="sourceLineNo">318</span>     *<a name="line.318"></a>
+<span class="sourceLineNo">319</span>     * &lt;p&gt;&lt;strong&gt;Preconditions&lt;/strong&gt;: &lt;ul&gt;<a name="line.319"></a>
+<span class="sourceLineNo">320</span>     * &lt;li&gt;numberOfParameters data pairs<a name="line.320"></a>
+<span class="sourceLineNo">321</span>     * must have been added before invoking this method. If this method is<a name="line.321"></a>
+<span class="sourceLineNo">322</span>     * invoked before a model can be estimated, &lt;code&gt;Double,NaN&lt;/code&gt; is<a name="line.322"></a>
+<span class="sourceLineNo">323</span>     * returned.<a name="line.323"></a>
+<span class="sourceLineNo">324</span>     * &lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;<a name="line.324"></a>
+<span class="sourceLineNo">325</span>     *<a name="line.325"></a>
+<span class="sourceLineNo">326</span>     * @return sum of squared errors associated with the regression model<a name="line.326"></a>
+<span class="sourceLineNo">327</span>     */<a name="line.327"></a>
+<span class="sourceLineNo">328</span>    public double getErrorSumSquares() {<a name="line.328"></a>
+<span class="sourceLineNo">329</span>        return this.globalFitInfo[ SSE_IDX];<a name="line.329"></a>
+<span class="sourceLineNo">330</span>    }<a name="line.330"></a>
+<span class="sourceLineNo">331</span><a name="line.331"></a>
+<span class="sourceLineNo">332</span>    /**<a name="line.332"></a>
+<span class="sourceLineNo">333</span>     * &lt;p&gt;Returns the sum of squared errors divided by the degrees of freedom,<a name="line.333"></a>
+<span class="sourceLineNo">334</span>     * usually abbreviated MSE.&lt;/p&gt;<a name="line.334"></a>
+<span class="sourceLineNo">335</span>     *<a name="line.335"></a>
+<span class="sourceLineNo">336</span>     * &lt;p&gt;If there are fewer than &lt;strong&gt;numberOfParameters + 1&lt;/strong&gt; data pairs in the model,<a name="line.336"></a>
+<span class="sourceLineNo">337</span>     * or if there is no variation in &lt;code&gt;x&lt;/code&gt;, this returns<a name="line.337"></a>
+<span class="sourceLineNo">338</span>     * &lt;code&gt;Double.NaN&lt;/code&gt;.&lt;/p&gt;<a name="line.338"></a>
+<span class="sourceLineNo">339</span>     *<a name="line.339"></a>
+<span class="sourceLineNo">340</span>     * @return sum of squared deviations of y values<a name="line.340"></a>
+<span class="sourceLineNo">341</span>     */<a name="line.341"></a>
+<span class="sourceLineNo">342</span>    public double getMeanSquareError() {<a name="line.342"></a>
+<span class="sourceLineNo">343</span>        return this.globalFitInfo[ MSE_IDX];<a name="line.343"></a>
+<span class="sourceLineNo">344</span>    }<a name="line.344"></a>
+<span class="sourceLineNo">345</span><a name="line.345"></a>
+<span class="sourceLineNo">346</span>    /**<a name="line.346"></a>
+<span class="sourceLineNo">347</span>     * &lt;p&gt;Returns the &lt;a href="http://www.xycoon.com/coefficient1.htm"&gt;<a name="line.347"></a>
+<span class="sourceLineNo">348</span>     * coefficient of multiple determination&lt;/a&gt;,<a name="line.348"></a>
+<span class="sourceLineNo">349</span>     * usually denoted r-square.&lt;/p&gt;<a name="line.349"></a>
+<span class="sourceLineNo">350</span>     *<a name="line.350"></a>
+<span class="sourceLineNo">351</span>     * &lt;p&gt;&lt;strong&gt;Preconditions&lt;/strong&gt;: &lt;ul&gt;<a name="line.351"></a>
+<span class="sourceLineNo">352</span>     * &lt;li&gt;At least numberOfParameters observations (with at least numberOfParameters different x values)<a name="line.352"></a>
+<span class="sourceLineNo">353</span>     * must have been added before invoking this method. If this method is<a name="line.353"></a>
+<span class="sourceLineNo">354</span>     * invoked before a model can be estimated, {@code Double,NaN} is<a name="line.354"></a>
+<span class="sourceLineNo">355</span>     * returned.<a name="line.355"></a>
+<span class="sourceLineNo">356</span>     * &lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;<a name="line.356"></a>
+<span class="sourceLineNo">357</span>     *<a name="line.357"></a>
+<span class="sourceLineNo">358</span>     * @return r-square, a double in the interval [0, 1]<a name="line.358"></a>
+<span class="sourceLineNo">359</span>     */<a name="line.359"></a>
+<span class="sourceLineNo">360</span>    public double getRSquared() {<a name="line.360"></a>
+<span class="sourceLineNo">361</span>        return this.globalFitInfo[ RSQ_IDX];<a name="line.361"></a>
+<span class="sourceLineNo">362</span>    }<a name="line.362"></a>
+<span class="sourceLineNo">363</span><a name="line.363"></a>
+<span class="sourceLineNo">364</span>    /**<a name="line.364"></a>
+<span class="sourceLineNo">365</span>     * &lt;p&gt;Returns the adjusted R-squared statistic, defined by the formula &lt;pre&gt;<a name="line.365"></a>
+<span class="sourceLineNo">366</span>     * R&lt;sup&gt;2&lt;/sup&gt;&lt;sub&gt;adj&lt;/sub&gt; = 1 - [SSR (n - 1)] / [SSTO (n - p)]<a name="line.366"></a>
+<span class="sourceLineNo">367</span>     * &lt;/pre&gt;<a name="line.367"></a>
+<span class="sourceLineNo">368</span>     * where SSR is the sum of squared residuals},<a name="line.368"></a>
+<span class="sourceLineNo">369</span>     * SSTO is the total sum of squares}, n is the number<a name="line.369"></a>
+<span class="sourceLineNo">370</span>     * of observations and p is the number of parameters estimated (including the intercept).&lt;/p&gt;<a name="line.370"></a>
+<span class="sourceLineNo">371</span>     *<a name="line.371"></a>
+<span class="sourceLineNo">372</span>     * &lt;p&gt;If the regression is estimated without an intercept term, what is returned is &lt;pre&gt;<a name="line.372"></a>
+<span class="sourceLineNo">373</span>     * &lt;code&gt; 1 - (1 - {@link #getRSquared()} ) * (n / (n - p)) &lt;/code&gt;<a name="line.373"></a>
+<span class="sourceLineNo">374</span>     * &lt;/pre&gt;&lt;/p&gt;<a name="line.374"></a>
+<span class="sourceLineNo">375</span>     *<a name="line.375"></a>
+<span class="sourceLineNo">376</span>     * @return adjusted R-Squared statistic<a name="line.376"></a>
+<span class="sourceLineNo">377</span>     */<a name="line.377"></a>
+<span class="sourceLineNo">378</span>    public double getAdjustedRSquared() {<a name="line.378"></a>
+<span class="sourceLineNo">379</span>        return this.globalFitInfo[ ADJRSQ_IDX];<a name="line.379"></a>
+<span class="sourceLineNo">380</span>    }<a name="line.380"></a>
+<span class="sourceLineNo">381</span><a name="line.381"></a>
+<span class="sourceLineNo">382</span>    /**<a name="line.382"></a>
+<span class="sourceLineNo">383</span>     * Returns true if the regression model has been computed including an intercept.<a name="line.383"></a>
+<span class="sourceLineNo">384</span>     * In this case, the coefficient of the intercept is the first element of the<a name="line.384"></a>
+<span class="sourceLineNo">385</span>     * {@link #getParameterEstimates() parameter estimates}.<a name="line.385"></a>
+<span class="sourceLineNo">386</span>     * @return true if the model has an intercept term<a name="line.386"></a>
+<span class="sourceLineNo">387</span>     */<a name="line.387"></a>
+<span class="sourceLineNo">388</span>    public boolean hasIntercept() {<a name="line.388"></a>
+<span class="sourceLineNo">389</span>        return this.containsConstant;<a name="line.389"></a>
+<span class="sourceLineNo">390</span>    }<a name="line.390"></a>
+<span class="sourceLineNo">391</span><a name="line.391"></a>
+<span class="sourceLineNo">392</span>    /**<a name="line.392"></a>
+<span class="sourceLineNo">393</span>     * Gets the i-jth element of the variance-covariance matrix.<a name="line.393"></a>
+<span class="sourceLineNo">394</span>     *<a name="line.394"></a>
+<span class="sourceLineNo">395</span>     * @param i first variable index<a name="line.395"></a>
+<span class="sourceLineNo">396</span>     * @param j second variable index<a name="line.396"></a>
+<span class="sourceLineNo">397</span>     * @return the requested variance-covariance matrix entry<a name="line.397"></a>
+<span class="sourceLineNo">398</span>     */<a name="line.398"></a>
+<span class="sourceLineNo">399</span>    private double getVcvElement(int i, int j) {<a name="line.399"></a>
+<span class="sourceLineNo">400</span>        if (this.isSymmetricVCD) {<a name="line.400"></a>
+<span class="sourceLineNo">401</span>            if (this.varCovData.length &gt; 1) {<a name="line.401"></a>
+<span class="sourceLineNo">402</span>                //could be stored in upper or lower triangular<a name="line.402"></a>
+<span class="sourceLineNo">403</span>                if (i == j) {<a name="line.403"></a>
+<span class="sourceLineNo">404</span>                    return varCovData[i][i];<a name="line.404"></a>
+<span class="sourceLineNo">405</span>                } else if (i &gt;= varCovData[j].length) {<a name="line.405"></a>
+<span class="sourceLineNo">406</span>                    return varCovData[i][j];<a name="line.406"></a>
+<span class="sourceLineNo">407</span>                } else {<a name="line.407"></a>
+<span class="sourceLineNo">408</span>                    return varCovData[j][i];<a name="line.408"></a>
+<span class="sourceLineNo">409</span>                }<a name="line.409"></a>
+<span class="sourceLineNo">410</span>            } else {//could be in single array<a name="line.410"></a>
+<span class="sourceLineNo">411</span>                if (i &gt; j) {<a name="line.411"></a>
+<span class="sourceLineNo">412</span>                    return varCovData[0][(i + 1) * i / 2 + j];<a name="line.412"></a>
+<span class="sourceLineNo">413</span>                } else {<a name="line.413"></a>
+<span class="sourceLineNo">414</span>                    return varCovData[0][(j + 1) * j / 2 + i];<a name="line.414"></a>
+<span class="sourceLineNo">415</span>                }<a name="line.415"></a>
+<span class="sourceLineNo">416</span>            }<a name="line.416"></a>
+<span class="sourceLineNo">417</span>        } else {<a name="line.417"></a>
+<span class="sourceLineNo">418</span>            return this.varCovData[i][j];<a name="line.418"></a>
+<span class="sourceLineNo">419</span>        }<a name="line.419"></a>
+<span class="sourceLineNo">420</span>    }<a name="line.420"></a>
+<span class="sourceLineNo">421</span>}<a name="line.421"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

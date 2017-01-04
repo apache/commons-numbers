@@ -1,0 +1,1109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+<title>FastMathTest (Apache Commons Math 3.5 Test API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="FastMathTest (Apache Commons Math 3.5 Test API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/FastMathTest.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+<div class="aboutLanguage"><em><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></em></div>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../org/apache/commons/math3/util/FastMathStrictComparisonTest.html" title="class in org.apache.commons.math3.util"><span class="strong">PREV CLASS</span></a></li>
+<li><a href="../../../../../org/apache/commons/math3/util/IncrementorTest.html" title="class in org.apache.commons.math3.util"><span class="strong">NEXT CLASS</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/apache/commons/math3/util/FastMathTest.html" target="_top">FRAMES</a></li>
+<li><a href="FastMathTest.html" target="_top">NO FRAMES</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>SUMMARY:&nbsp;</li>
+<li>NESTED&nbsp;|&nbsp;</li>
+<li>FIELD&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">METHOD</a></li>
+</ul>
+<ul class="subNavList">
+<li>DETAIL:&nbsp;</li>
+<li>FIELD&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">METHOD</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<p class="subTitle">org.apache.commons.math3.util</p>
+<h2 title="Class FastMathTest" class="title">Class FastMathTest</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>org.apache.commons.math3.util.FastMathTest</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<br>
+<pre>public class <a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.37">FastMathTest</a>
+extends <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#FastMathTest()">FastMathTest</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#checkExtraFastMathClasses()">checkExtraFastMathClasses</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#checkMissingFastMathClasses()">checkMissingFastMathClasses</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#setUp()">setUp</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testAcosAccuracy()">testAcosAccuracy</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testAcosSpecialCases()">testAcosSpecialCases</a></strong>()</code>
+<div class="block">Added tests for a 100% coverage of acos().</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testAddExactInt()">testAddExactInt</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testAddExactLong()">testAddExactLong</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testAsinAccuracy()">testAsinAccuracy</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testAsinSpecialCases()">testAsinSpecialCases</a></strong>()</code>
+<div class="block">Added tests for a 100% coverage of asin().</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testAtan2()">testAtan2</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testAtan2Accuracy()">testAtan2Accuracy</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testAtan2SpecialCases()">testAtan2SpecialCases</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testAtanAccuracy()">testAtanAccuracy</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testCbrtAccuracy()">testCbrtAccuracy</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testConstants()">testConstants</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testCosAccuracy()">testCosAccuracy</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testCoshAccuracy()">testCoshAccuracy</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testDecrementExactInt()">testDecrementExactInt</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testDoubleNextAfterSpecialCases()">testDoubleNextAfterSpecialCases</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testDoubleScalbSpecialCases()">testDoubleScalbSpecialCases</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testExpAccuracy()">testExpAccuracy</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testExpm1Accuracy()">testExpm1Accuracy</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testExpSpecialCases()">testExpSpecialCases</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testFloatNextAfterSpecialCases()">testFloatNextAfterSpecialCases</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testFloatScalbSpecialCases()">testFloatScalbSpecialCases</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testFloorDivInt()">testFloorDivInt</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testFloorDivLong()">testFloorDivLong</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testFloorDivModInt()">testFloorDivModInt</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testFloorDivModLong()">testFloorDivModLong</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testFloorModInt()">testFloorModInt</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testFloorModLong()">testFloorModLong</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testHyperbolic()">testHyperbolic</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testHyperbolicInverses()">testHyperbolicInverses</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testIncrementExactInt()">testIncrementExactInt</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testIndicatorDouble()">testIndicatorDouble</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testIndicatorFloat()">testIndicatorFloat</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testIntPow()">testIntPow</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testLog10Accuracy()">testLog10Accuracy</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testLog1pAccuracy()">testLog1pAccuracy</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testLog1pSpecialCases()">testLog1pSpecialCases</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testLogAccuracy()">testLogAccuracy</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testLogSpecialCases()">testLogSpecialCases</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testLogWithBase()">testLogWithBase</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testMath904()">testMath904</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testMath905LargeNegative()">testMath905LargeNegative</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testMath905LargePositive()">testMath905LargePositive</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testMinMaxDouble()">testMinMaxDouble</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testMinMaxFloat()">testMinMaxFloat</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testMultiplyExactInt()">testMultiplyExactInt</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testMultiplyExactLong()">testMultiplyExactLong</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testNextAfter()">testNextAfter</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testPowAccuracy()">testPowAccuracy</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testPowSpecialCases()">testPowSpecialCases</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testSignumDouble()">testSignumDouble</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testSignumFloat()">testSignumFloat</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testSinAccuracy()">testSinAccuracy</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testSinhAccuracy()">testSinhAccuracy</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testSubtractExactInt()">testSubtractExactInt</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testSubtractExactLong()">testSubtractExactLong</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testTanAccuracy()">testTanAccuracy</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testTanhAccuracy()">testTanhAccuracy</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testToDegrees()">testToDegrees</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testToIntExact()">testToIntExact</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testToIntExactTooHigh()">testToIntExactTooHigh</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testToIntExactTooLow()">testToIntExactTooLow</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/util/FastMathTest.html#testToRadians()">testToRadians</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="FastMathTest()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>FastMathTest</h4>
+<pre>public&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.37">FastMathTest</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="setUp()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUp</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.47">setUp</a>()</pre>
+</li>
+</ul>
+<a name="testMinMaxDouble()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testMinMaxDouble</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.53">testMinMaxDouble</a>()</pre>
+</li>
+</ul>
+<a name="testMinMaxFloat()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testMinMaxFloat</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.87">testMinMaxFloat</a>()</pre>
+</li>
+</ul>
+<a name="testConstants()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testConstants</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.120">testConstants</a>()</pre>
+</li>
+</ul>
+<a name="testAtan2()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testAtan2</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.126">testAtan2</a>()</pre>
+</li>
+</ul>
+<a name="testHyperbolic()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testHyperbolic</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.136">testHyperbolic</a>()</pre>
+</li>
+</ul>
+<a name="testMath904()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testMath904</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.164">testMath904</a>()</pre>
+</li>
+</ul>
+<a name="testMath905LargePositive()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testMath905LargePositive</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.174">testMath905LargePositive</a>()</pre>
+</li>
+</ul>
+<a name="testMath905LargeNegative()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testMath905LargeNegative</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.196">testMath905LargeNegative</a>()</pre>
+</li>
+</ul>
+<a name="testHyperbolicInverses()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testHyperbolicInverses</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.218">testHyperbolicInverses</a>()</pre>
+</li>
+</ul>
+<a name="testLogAccuracy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testLogAccuracy</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.240">testLogAccuracy</a>()</pre>
+</li>
+</ul>
+<a name="testLog10Accuracy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testLog10Accuracy</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.265">testLog10Accuracy</a>()</pre>
+</li>
+</ul>
+<a name="testLog1pAccuracy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testLog1pAccuracy</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.289">testLog1pAccuracy</a>()</pre>
+</li>
+</ul>
+<a name="testLog1pSpecialCases()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testLog1pSpecialCases</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.313">testLog1pSpecialCases</a>()</pre>
+</li>
+</ul>
+<a name="testLogSpecialCases()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testLogSpecialCases</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.320">testLogSpecialCases</a>()</pre>
+</li>
+</ul>
+<a name="testExpSpecialCases()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testExpSpecialCases</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.335">testExpSpecialCases</a>()</pre>
+</li>
+</ul>
+<a name="testPowSpecialCases()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testPowSpecialCases</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.352">testPowSpecialCases</a>()</pre>
+</li>
+</ul>
+<a name="testAtan2SpecialCases()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testAtan2SpecialCases</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.415">testAtan2SpecialCases</a>()</pre>
+</li>
+</ul>
+<a name="testPowAccuracy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testPowAccuracy</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.471">testPowAccuracy</a>()</pre>
+</li>
+</ul>
+<a name="testExpAccuracy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testExpAccuracy</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.504">testExpAccuracy</a>()</pre>
+</li>
+</ul>
+<a name="testSinAccuracy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testSinAccuracy</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.531">testSinAccuracy</a>()</pre>
+</li>
+</ul>
+<a name="testCosAccuracy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testCosAccuracy</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.560">testCosAccuracy</a>()</pre>
+</li>
+</ul>
+<a name="testTanAccuracy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testTanAccuracy</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.589">testTanAccuracy</a>()</pre>
+</li>
+</ul>
+<a name="testAtanAccuracy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testAtanAccuracy</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.618">testAtanAccuracy</a>()</pre>
+</li>
+</ul>
+<a name="testAtan2Accuracy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testAtan2Accuracy</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.649">testAtan2Accuracy</a>()</pre>
+</li>
+</ul>
+<a name="testExpm1Accuracy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testExpm1Accuracy</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.689">testExpm1Accuracy</a>()</pre>
+</li>
+</ul>
+<a name="testAsinAccuracy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testAsinAccuracy</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.716">testAsinAccuracy</a>()</pre>
+</li>
+</ul>
+<a name="testAcosAccuracy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testAcosAccuracy</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.739">testAcosAccuracy</a>()</pre>
+</li>
+</ul>
+<a name="testAcosSpecialCases()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testAcosSpecialCases</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.765">testAcosSpecialCases</a>()</pre>
+<div class="block">Added tests for a 100% coverage of acos().</div>
+</li>
+</ul>
+<a name="testAsinSpecialCases()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testAsinSpecialCases</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.784">testAsinSpecialCases</a>()</pre>
+<div class="block">Added tests for a 100% coverage of asin().</div>
+</li>
+</ul>
+<a name="testSinhAccuracy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testSinhAccuracy</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.812">testSinhAccuracy</a>()</pre>
+</li>
+</ul>
+<a name="testCoshAccuracy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testCoshAccuracy</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.834">testCoshAccuracy</a>()</pre>
+</li>
+</ul>
+<a name="testTanhAccuracy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testTanhAccuracy</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.856">testTanhAccuracy</a>()</pre>
+</li>
+</ul>
+<a name="testCbrtAccuracy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testCbrtAccuracy</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.878">testCbrtAccuracy</a>()</pre>
+</li>
+</ul>
+<a name="testToDegrees()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testToDegrees</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.917">testToDegrees</a>()</pre>
+</li>
+</ul>
+<a name="testToRadians()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testToRadians</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.939">testToRadians</a>()</pre>
+</li>
+</ul>
+<a name="testNextAfter()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testNextAfter</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.962">testNextAfter</a>()</pre>
+</li>
+</ul>
+<a name="testDoubleNextAfterSpecialCases()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testDoubleNextAfterSpecialCases</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1026">testDoubleNextAfterSpecialCases</a>()</pre>
+</li>
+</ul>
+<a name="testFloatNextAfterSpecialCases()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFloatNextAfterSpecialCases</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1039">testFloatNextAfterSpecialCases</a>()</pre>
+</li>
+</ul>
+<a name="testDoubleScalbSpecialCases()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testDoubleScalbSpecialCases</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1052">testDoubleScalbSpecialCases</a>()</pre>
+</li>
+</ul>
+<a name="testFloatScalbSpecialCases()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFloatScalbSpecialCases</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1076">testFloatScalbSpecialCases</a>()</pre>
+</li>
+</ul>
+<a name="checkMissingFastMathClasses()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkMissingFastMathClasses</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1110">checkMissingFastMathClasses</a>()</pre>
+</li>
+</ul>
+<a name="checkExtraFastMathClasses()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkExtraFastMathClasses</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1117">checkExtraFastMathClasses</a>()</pre>
+</li>
+</ul>
+<a name="testSignumDouble()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testSignumDouble</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1122">testSignumDouble</a>()</pre>
+</li>
+</ul>
+<a name="testSignumFloat()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testSignumFloat</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1131">testSignumFloat</a>()</pre>
+</li>
+</ul>
+<a name="testLogWithBase()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testLogWithBase</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1140">testLogWithBase</a>()</pre>
+</li>
+</ul>
+<a name="testIndicatorDouble()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testIndicatorDouble</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1151">testIndicatorDouble</a>()</pre>
+</li>
+</ul>
+<a name="testIndicatorFloat()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testIndicatorFloat</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1163">testIndicatorFloat</a>()</pre>
+</li>
+</ul>
+<a name="testIntPow()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testIntPow</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1175">testIntPow</a>()</pre>
+</li>
+</ul>
+<a name="testIncrementExactInt()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testIncrementExactInt</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1189">testIncrementExactInt</a>()</pre>
+</li>
+</ul>
+<a name="testDecrementExactInt()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testDecrementExactInt</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1215">testDecrementExactInt</a>()</pre>
+</li>
+</ul>
+<a name="testAddExactInt()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testAddExactInt</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1241">testAddExactInt</a>()</pre>
+</li>
+</ul>
+<a name="testAddExactLong()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testAddExactLong</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1270">testAddExactLong</a>()</pre>
+</li>
+</ul>
+<a name="testSubtractExactInt()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testSubtractExactInt</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1299">testSubtractExactInt</a>()</pre>
+</li>
+</ul>
+<a name="testSubtractExactLong()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testSubtractExactLong</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1328">testSubtractExactLong</a>()</pre>
+</li>
+</ul>
+<a name="testMultiplyExactInt()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testMultiplyExactInt</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1357">testMultiplyExactInt</a>()</pre>
+</li>
+</ul>
+<a name="testMultiplyExactLong()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testMultiplyExactLong</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1386">testMultiplyExactLong</a>()</pre>
+</li>
+</ul>
+<a name="testToIntExactTooLow()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testToIntExactTooLow</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1415">testToIntExactTooLow</a>()</pre>
+</li>
+</ul>
+<a name="testToIntExactTooHigh()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testToIntExactTooHigh</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1420">testToIntExactTooHigh</a>()</pre>
+</li>
+</ul>
+<a name="testToIntExact()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testToIntExact</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1425">testToIntExact</a>()</pre>
+</li>
+</ul>
+<a name="testFloorDivInt()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFloorDivInt</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1434">testFloorDivInt</a>()</pre>
+</li>
+</ul>
+<a name="testFloorModInt()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFloorModInt</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1455">testFloorModInt</a>()</pre>
+</li>
+</ul>
+<a name="testFloorDivModInt()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFloorDivModInt</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1476">testFloorDivModInt</a>()</pre>
+</li>
+</ul>
+<a name="testFloorDivLong()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFloorDivLong</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1506">testFloorDivLong</a>()</pre>
+</li>
+</ul>
+<a name="testFloorModLong()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFloorModLong</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1527">testFloorModLong</a>()</pre>
+</li>
+</ul>
+<a name="testFloorDivModLong()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>testFloorDivModLong</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/util/FastMathTest.html#line.1548">testFloorDivModLong</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/FastMathTest.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+<div class="aboutLanguage"><em><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></em></div>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../org/apache/commons/math3/util/FastMathStrictComparisonTest.html" title="class in org.apache.commons.math3.util"><span class="strong">PREV CLASS</span></a></li>
+<li><a href="../../../../../org/apache/commons/math3/util/IncrementorTest.html" title="class in org.apache.commons.math3.util"><span class="strong">NEXT CLASS</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/apache/commons/math3/util/FastMathTest.html" target="_top">FRAMES</a></li>
+<li><a href="FastMathTest.html" target="_top">NO FRAMES</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>SUMMARY:&nbsp;</li>
+<li>NESTED&nbsp;|&nbsp;</li>
+<li>FIELD&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">METHOD</a></li>
+</ul>
+<ul class="subNavList">
+<li>DETAIL:&nbsp;</li>
+<li>FIELD&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">METHOD</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+<p class="legalCopy"><small>Copyright &#169; 2003&#x2013;2015 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</small></p>
+</body>
+</html>

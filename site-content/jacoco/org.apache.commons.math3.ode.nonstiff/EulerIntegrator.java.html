@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>EulerIntegrator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.nonstiff</a> &gt; <span class="el_source">EulerIntegrator.java</span></div><h1>EulerIntegrator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.nonstiff;
+
+
+/**
+ * This class implements a simple Euler integrator for Ordinary
+ * Differential Equations.
+ *
+ * &lt;p&gt;The Euler algorithm is the simplest one that can be used to
+ * integrate ordinary differential equations. It is a simple inversion
+ * of the forward difference expression :
+ * &lt;code&gt;f'=(f(t+h)-f(t))/h&lt;/code&gt; which leads to
+ * &lt;code&gt;f(t+h)=f(t)+hf'&lt;/code&gt;. The interpolation scheme used for
+ * dense output is the linear scheme already used for integration.&lt;/p&gt;
+ *
+ * &lt;p&gt;This algorithm looks cheap because it needs only one function
+ * evaluation per step. However, as it uses linear estimates, it needs
+ * very small steps to achieve high accuracy, and small steps lead to
+ * numerical errors and instabilities.&lt;/p&gt;
+ *
+ * &lt;p&gt;This algorithm is almost never used and has been included in
+ * this package only as a comparison reference for more useful
+ * integrators.&lt;/p&gt;
+ *
+ * @see MidpointIntegrator
+ * @see ClassicalRungeKuttaIntegrator
+ * @see GillIntegrator
+ * @see ThreeEighthesIntegrator
+ * @see LutherIntegrator
+ * @since 1.2
+ */
+
+public class EulerIntegrator extends RungeKuttaIntegrator {
+
+  /** Time steps Butcher array. */
+<span class="fc" id="L52">  private static final double[] STATIC_C = {</span>
+  };
+
+  /** Internal weights Butcher array. */
+<span class="fc" id="L56">  private static final double[][] STATIC_A = {</span>
+  };
+
+  /** Propagation weights Butcher array. */
+<span class="fc" id="L60">  private static final double[] STATIC_B = {</span>
+    1.0
+  };
+
+  /** Simple constructor.
+   * Build an Euler integrator with the given step.
+   * @param step integration step
+   */
+  public EulerIntegrator(final double step) {
+<span class="fc" id="L69">    super(&quot;Euler&quot;, STATIC_C, STATIC_A, STATIC_B, new EulerStepInterpolator(), step);</span>
+<span class="fc" id="L70">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

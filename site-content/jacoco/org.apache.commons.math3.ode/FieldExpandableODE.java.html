@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FieldExpandableODE.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode</a> &gt; <span class="el_source">FieldExpandableODE.java</span></div><h1>FieldExpandableODE.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.ode;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.math3.RealFieldElement;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.util.MathArrays;
+
+
+/**
+ * This class represents a combined set of first order differential equations,
+ * with at least a primary set of equations expandable by some sets of secondary
+ * equations.
+ * &lt;p&gt;
+ * One typical use case is the computation of the Jacobian matrix for some ODE.
+ * In this case, the primary set of equations corresponds to the raw ODE, and we
+ * add to this set another bunch of secondary equations which represent the Jacobian
+ * matrix of the primary set.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * We want the integrator to use &lt;em&gt;only&lt;/em&gt; the primary set to estimate the
+ * errors and hence the step sizes. It should &lt;em&gt;not&lt;/em&gt; use the secondary
+ * equations in this computation. The {@link FirstOrderFieldIntegrator integrator} will
+ * be able to know where the primary set ends and so where the secondary sets begin.
+ * &lt;/p&gt;
+ *
+ * @see FirstOrderFieldDifferentialEquations
+ * @see FieldSecondaryEquations
+ *
+ * @param &lt;T&gt; the type of the field elements
+ * @since 3.6
+ */
+
+public class FieldExpandableODE&lt;T extends RealFieldElement&lt;T&gt;&gt; {
+
+    /** Primary differential equation. */
+    private final FirstOrderFieldDifferentialEquations&lt;T&gt; primary;
+
+    /** Components of the expandable ODE. */
+    private List&lt;FieldSecondaryEquations&lt;T&gt;&gt; components;
+
+    /** Mapper for all equations. */
+    private FieldEquationsMapper&lt;T&gt; mapper;
+
+    /** Build an expandable set from its primary ODE set.
+     * @param primary the primary set of differential equations to be integrated.
+     */
+<span class="fc" id="L66">    public FieldExpandableODE(final FirstOrderFieldDifferentialEquations&lt;T&gt; primary) {</span>
+<span class="fc" id="L67">        this.primary    = primary;</span>
+<span class="fc" id="L68">        this.components = new ArrayList&lt;FieldSecondaryEquations&lt;T&gt;&gt;();</span>
+<span class="fc" id="L69">        this.mapper     = new FieldEquationsMapper&lt;T&gt;(null, primary.getDimension());</span>
+<span class="fc" id="L70">    }</span>
+
+    /** Get the mapper for the set of equations.
+     * @return mapper for the set of equations
+     */
+    public FieldEquationsMapper&lt;T&gt; getMapper() {
+<span class="fc" id="L76">        return mapper;</span>
+    }
+
+    /** Add a set of secondary equations to be integrated along with the primary set.
+     * @param secondary secondary equations set
+     * @return index of the secondary equation in the expanded state, to be used
+     * as the parameter to {@link FieldODEState#getSecondaryState(int)} and
+     * {@link FieldODEStateAndDerivative#getSecondaryDerivative(int)} (beware index
+     * 0 corresponds to main state, additional states start at 1)
+     */
+    public int addSecondaryEquations(final FieldSecondaryEquations&lt;T&gt; secondary) {
+
+<span class="fc" id="L88">        components.add(secondary);</span>
+<span class="fc" id="L89">        mapper = new FieldEquationsMapper&lt;T&gt;(mapper, secondary.getDimension());</span>
+
+<span class="fc" id="L91">        return components.size();</span>
+
+    }
+
+    /** Initialize equations at the start of an ODE integration.
+     * @param t0 value of the independent &lt;I&gt;time&lt;/I&gt; variable at integration start
+     * @param y0 array containing the value of the state vector at integration start
+     * @param finalTime target time for the integration
+     * @exception MaxCountExceededException if the number of functions evaluations is exceeded
+     * @exception DimensionMismatchException if arrays dimensions do not match equations settings
+     */
+    public void init(final T t0, final T[] y0, final T finalTime) {
+
+        // initialize primary equations
+<span class="fc" id="L105">        int index = 0;</span>
+<span class="fc" id="L106">        final T[] primary0 = mapper.extractEquationData(index, y0);</span>
+<span class="fc" id="L107">        primary.init(t0, primary0, finalTime);</span>
+
+        // initialize secondary equations
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        while (++index &lt; mapper.getNumberOfEquations()) {</span>
+<span class="fc" id="L111">            final T[] secondary0 = mapper.extractEquationData(index, y0);</span>
+<span class="fc" id="L112">            components.get(index - 1).init(t0, primary0, secondary0, finalTime);</span>
+<span class="fc" id="L113">        }</span>
+
+<span class="fc" id="L115">    }</span>
+
+    /** Get the current time derivative of the complete state vector.
+     * @param t current value of the independent &lt;I&gt;time&lt;/I&gt; variable
+     * @param y array containing the current value of the complete state vector
+     * @return time derivative of the complete state vector
+     * @exception MaxCountExceededException if the number of functions evaluations is exceeded
+     * @exception DimensionMismatchException if arrays dimensions do not match equations settings
+     */
+    public T[] computeDerivatives(final T t, final T[] y)
+        throws MaxCountExceededException, DimensionMismatchException {
+
+<span class="fc" id="L127">        final T[] yDot = MathArrays.buildArray(t.getField(), mapper.getTotalDimension());</span>
+
+        // compute derivatives of the primary equations
+<span class="fc" id="L130">        int index = 0;</span>
+<span class="fc" id="L131">        final T[] primaryState    = mapper.extractEquationData(index, y);</span>
+<span class="fc" id="L132">        final T[] primaryStateDot = primary.computeDerivatives(t, primaryState);</span>
+<span class="fc" id="L133">        mapper.insertEquationData(index, primaryStateDot, yDot);</span>
+
+        // Add contribution for secondary equations
+<span class="fc bfc" id="L136" title="All 2 branches covered.">        while (++index &lt; mapper.getNumberOfEquations()) {</span>
+<span class="fc" id="L137">            final T[] componentState    = mapper.extractEquationData(index, y);</span>
+<span class="fc" id="L138">            final T[] componentStateDot = components.get(index - 1).computeDerivatives(t, primaryState, primaryStateDot,</span>
+                                                                                       componentState);
+<span class="fc" id="L140">            mapper.insertEquationData(index, componentStateDot, yDot);</span>
+<span class="fc" id="L141">        }</span>
+
+<span class="fc" id="L143">        return yDot;</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Median.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive.rank</a> &gt; <span class="el_source">Median.java</span></div><h1>Median.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive.rank;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.stat.ranking.NaNStrategy;
+import org.apache.commons.math3.util.KthSelector;
+
+
+/**
+ * Returns the median of the available values.  This is the same as the 50th percentile.
+ * See {@link Percentile} for a description of the algorithm used.
+ * &lt;p&gt;
+ * &lt;strong&gt;Note that this implementation is not synchronized.&lt;/strong&gt; If
+ * multiple threads access an instance of this class concurrently, and at least
+ * one of the threads invokes the &lt;code&gt;increment()&lt;/code&gt; or
+ * &lt;code&gt;clear()&lt;/code&gt; method, it must be synchronized externally.&lt;/p&gt;
+ *
+ */
+public class Median extends Percentile implements Serializable {
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = -3961477041290915687L;
+
+    /** Fixed quantile. */
+    private static final double FIXED_QUANTILE_50 = 50.0;
+
+    /**
+     * Default constructor.
+     */
+    public Median() {
+        // No try-catch or advertised exception - arg is valid
+<span class="fc" id="L50">        super(FIXED_QUANTILE_50);</span>
+<span class="fc" id="L51">    }</span>
+
+    /**
+     * Copy constructor, creates a new {@code Median} identical
+     * to the {@code original}
+     *
+     * @param original the {@code Median} instance to copy
+     * @throws NullArgumentException if original is null
+     */
+    public Median(Median original) throws NullArgumentException {
+<span class="nc" id="L61">        super(original);</span>
+<span class="nc" id="L62">    }</span>
+
+    /**
+     * Constructs a Median with the specific {@link EstimationType}, {@link NaNStrategy} and {@link PivotingStrategy}.
+     *
+     * @param estimationType one of the percentile {@link EstimationType  estimation types}
+     * @param nanStrategy one of {@link NaNStrategy} to handle with NaNs
+     * @param kthSelector {@link KthSelector} to use for pivoting during search
+     * @throws MathIllegalArgumentException if p is not within (0,100]
+     * @throws NullArgumentException if type or NaNStrategy passed is null
+     */
+    private Median(final EstimationType estimationType, final NaNStrategy nanStrategy,
+                   final KthSelector kthSelector)
+        throws MathIllegalArgumentException {
+<span class="fc" id="L76">        super(FIXED_QUANTILE_50, estimationType, nanStrategy, kthSelector);</span>
+<span class="fc" id="L77">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public Median withEstimationType(final EstimationType newEstimationType) {
+<span class="fc" id="L82">        return new Median(newEstimationType, getNaNStrategy(), getKthSelector());</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Median withNaNStrategy(final NaNStrategy newNaNStrategy) {
+<span class="fc" id="L88">        return new Median(getEstimationType(), newNaNStrategy, getKthSelector());</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Median withKthSelector(final KthSelector newKthSelector) {
+<span class="nc" id="L94">        return new Median(getEstimationType(), getNaNStrategy(), newKthSelector);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

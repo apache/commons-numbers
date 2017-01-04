@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>GTest.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.inference</a> &gt; <span class="el_source">GTest.java</span></div><h1>GTest.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.inference;
+
+import org.apache.commons.math3.distribution.ChiSquaredDistribution;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.exception.NotPositiveException;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.ZeroException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathArrays;
+
+/**
+ * Implements &lt;a href=&quot;http://en.wikipedia.org/wiki/G-test&quot;&gt;G Test&lt;/a&gt;
+ * statistics.
+ *
+ * &lt;p&gt;This is known in statistical genetics as the McDonald-Kreitman test.
+ * The implementation handles both known and unknown distributions.&lt;/p&gt;
+ *
+ * &lt;p&gt;Two samples tests can be used when the distribution is unknown &lt;i&gt;a priori&lt;/i&gt;
+ * but provided by one sample, or when the hypothesis under test is that the two
+ * samples come from the same underlying distribution.&lt;/p&gt;
+ *
+ * @since 3.1
+ */
+<span class="fc" id="L43">public class GTest {</span>
+
+    /**
+     * Computes the &lt;a href=&quot;http://en.wikipedia.org/wiki/G-test&quot;&gt;G statistic
+     * for Goodness of Fit&lt;/a&gt; comparing {@code observed} and {@code expected}
+     * frequency counts.
+     *
+     * &lt;p&gt;This statistic can be used to perform a G test (Log-Likelihood Ratio
+     * Test) evaluating the null hypothesis that the observed counts follow the
+     * expected distribution.&lt;/p&gt;
+     *
+     * &lt;p&gt;&lt;strong&gt;Preconditions&lt;/strong&gt;: &lt;ul&gt;
+     * &lt;li&gt;Expected counts must all be positive. &lt;/li&gt;
+     * &lt;li&gt;Observed counts must all be &amp;ge; 0. &lt;/li&gt;
+     * &lt;li&gt;The observed and expected arrays must have the same length and their
+     * common length must be at least 2. &lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;
+     *
+     * &lt;p&gt;If any of the preconditions are not met, a
+     * {@code MathIllegalArgumentException} is thrown.&lt;/p&gt;
+     *
+     * &lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt;This implementation rescales the
+     * {@code expected} array if necessary to ensure that the sum of the
+     * expected and observed counts are equal.&lt;/p&gt;
+     *
+     * @param observed array of observed frequency counts
+     * @param expected array of expected frequency counts
+     * @return G-Test statistic
+     * @throws NotPositiveException if {@code observed} has negative entries
+     * @throws NotStrictlyPositiveException if {@code expected} has entries that
+     * are not strictly positive
+     * @throws DimensionMismatchException if the array lengths do not match or
+     * are less than 2.
+     */
+    public double g(final double[] expected, final long[] observed)
+            throws NotPositiveException, NotStrictlyPositiveException,
+            DimensionMismatchException {
+
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        if (expected.length &lt; 2) {</span>
+<span class="nc" id="L81">            throw new DimensionMismatchException(expected.length, 2);</span>
+        }
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (expected.length != observed.length) {</span>
+<span class="fc" id="L84">            throw new DimensionMismatchException(expected.length, observed.length);</span>
+        }
+<span class="fc" id="L86">        MathArrays.checkPositive(expected);</span>
+<span class="fc" id="L87">        MathArrays.checkNonNegative(observed);</span>
+
+<span class="fc" id="L89">        double sumExpected = 0d;</span>
+<span class="fc" id="L90">        double sumObserved = 0d;</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        for (int i = 0; i &lt; observed.length; i++) {</span>
+<span class="fc" id="L92">            sumExpected += expected[i];</span>
+<span class="fc" id="L93">            sumObserved += observed[i];</span>
+        }
+<span class="fc" id="L95">        double ratio = 1d;</span>
+<span class="fc" id="L96">        boolean rescale = false;</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        if (FastMath.abs(sumExpected - sumObserved) &gt; 10E-6) {</span>
+<span class="fc" id="L98">            ratio = sumObserved / sumExpected;</span>
+<span class="fc" id="L99">            rescale = true;</span>
+        }
+<span class="fc" id="L101">        double sum = 0d;</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        for (int i = 0; i &lt; observed.length; i++) {</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">            final double dev = rescale ?</span>
+                    FastMath.log((double) observed[i] / (ratio * expected[i])) :
+                        FastMath.log((double) observed[i] / expected[i]);
+<span class="fc" id="L106">            sum += ((double) observed[i]) * dev;</span>
+        }
+<span class="fc" id="L108">        return 2d * sum;</span>
+    }
+
+    /**
+     * Returns the &lt;i&gt;observed significance level&lt;/i&gt;, or &lt;a href=
+     * &quot;http://www.cas.lancs.ac.uk/glossary_v1.1/hyptest.html#pvalue&quot;&gt; p-value&lt;/a&gt;,
+     * associated with a G-Test for goodness of fit&lt;/a&gt; comparing the
+     * {@code observed} frequency counts to those in the {@code expected} array.
+     *
+     * &lt;p&gt;The number returned is the smallest significance level at which one
+     * can reject the null hypothesis that the observed counts conform to the
+     * frequency distribution described by the expected counts.&lt;/p&gt;
+     *
+     * &lt;p&gt;The probability returned is the tail probability beyond
+     * {@link #g(double[], long[]) g(expected, observed)}
+     * in the ChiSquare distribution with degrees of freedom one less than the
+     * common length of {@code expected} and {@code observed}.&lt;/p&gt;
+     *
+     * &lt;p&gt; &lt;strong&gt;Preconditions&lt;/strong&gt;: &lt;ul&gt;
+     * &lt;li&gt;Expected counts must all be positive. &lt;/li&gt;
+     * &lt;li&gt;Observed counts must all be &amp;ge; 0. &lt;/li&gt;
+     * &lt;li&gt;The observed and expected arrays must have the
+     * same length and their common length must be at least 2.&lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     *
+     * &lt;p&gt;If any of the preconditions are not met, a
+     * {@code MathIllegalArgumentException} is thrown.&lt;/p&gt;
+     *
+     * &lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt;This implementation rescales the
+     * {@code expected} array if necessary to ensure that the sum of the
+     *  expected and observed counts are equal.&lt;/p&gt;
+     *
+     * @param observed array of observed frequency counts
+     * @param expected array of expected frequency counts
+     * @return p-value
+     * @throws NotPositiveException if {@code observed} has negative entries
+     * @throws NotStrictlyPositiveException if {@code expected} has entries that
+     * are not strictly positive
+     * @throws DimensionMismatchException if the array lengths do not match or
+     * are less than 2.
+     * @throws MaxCountExceededException if an error occurs computing the
+     * p-value.
+     */
+    public double gTest(final double[] expected, final long[] observed)
+            throws NotPositiveException, NotStrictlyPositiveException,
+            DimensionMismatchException, MaxCountExceededException {
+
+        // pass a null rng to avoid unneeded overhead as we will not sample from this distribution
+<span class="fc" id="L156">        final ChiSquaredDistribution distribution =</span>
+                new ChiSquaredDistribution(null, expected.length - 1.0);
+<span class="fc" id="L158">        return 1.0 - distribution.cumulativeProbability(g(expected, observed));</span>
+    }
+
+    /**
+     * Returns the intrinsic (Hardy-Weinberg proportions) p-Value, as described
+     * in p64-69 of McDonald, J.H. 2009. Handbook of Biological Statistics
+     * (2nd ed.). Sparky House Publishing, Baltimore, Maryland.
+     *
+     * &lt;p&gt; The probability returned is the tail probability beyond
+     * {@link #g(double[], long[]) g(expected, observed)}
+     * in the ChiSquare distribution with degrees of freedom two less than the
+     * common length of {@code expected} and {@code observed}.&lt;/p&gt;
+     *
+     * @param observed array of observed frequency counts
+     * @param expected array of expected frequency counts
+     * @return p-value
+     * @throws NotPositiveException if {@code observed} has negative entries
+     * @throws NotStrictlyPositiveException {@code expected} has entries that are
+     * not strictly positive
+     * @throws DimensionMismatchException if the array lengths do not match or
+     * are less than 2.
+     * @throws MaxCountExceededException if an error occurs computing the
+     * p-value.
+     */
+    public double gTestIntrinsic(final double[] expected, final long[] observed)
+            throws NotPositiveException, NotStrictlyPositiveException,
+            DimensionMismatchException, MaxCountExceededException {
+
+        // pass a null rng to avoid unneeded overhead as we will not sample from this distribution
+<span class="fc" id="L187">        final ChiSquaredDistribution distribution =</span>
+                new ChiSquaredDistribution(null, expected.length - 2.0);
+<span class="fc" id="L189">        return 1.0 - distribution.cumulativeProbability(g(expected, observed));</span>
+    }
+
+    /**
+     * Performs a G-Test (Log-Likelihood Ratio Test) for goodness of fit
+     * evaluating the null hypothesis that the observed counts conform to the
+     * frequency distribution described by the expected counts, with
+     * significance level {@code alpha}. Returns true iff the null
+     * hypothesis can be rejected with {@code 100 * (1 - alpha)} percent confidence.
+     *
+     * &lt;p&gt;&lt;strong&gt;Example:&lt;/strong&gt;&lt;br&gt; To test the hypothesis that
+     * {@code observed} follows {@code expected} at the 99% level,
+     * use &lt;/p&gt;&lt;p&gt;
+     * {@code gTest(expected, observed, 0.01)}&lt;/p&gt;
+     *
+     * &lt;p&gt;Returns true iff {@link #gTest(double[], long[])
+     *  gTestGoodnessOfFitPValue(expected, observed)} &lt; alpha&lt;/p&gt;
+     *
+     * &lt;p&gt;&lt;strong&gt;Preconditions&lt;/strong&gt;: &lt;ul&gt;
+     * &lt;li&gt;Expected counts must all be positive. &lt;/li&gt;
+     * &lt;li&gt;Observed counts must all be &amp;ge; 0. &lt;/li&gt;
+     * &lt;li&gt;The observed and expected arrays must have the same length and their
+     * common length must be at least 2.
+     * &lt;li&gt; {@code 0 &lt; alpha &lt; 0.5} &lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;
+     *
+     * &lt;p&gt;If any of the preconditions are not met, a
+     * {@code MathIllegalArgumentException} is thrown.&lt;/p&gt;
+     *
+     * &lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt;This implementation rescales the
+     * {@code expected} array if necessary to ensure that the sum of the
+     * expected and observed counts are equal.&lt;/p&gt;
+     *
+     * @param observed array of observed frequency counts
+     * @param expected array of expected frequency counts
+     * @param alpha significance level of the test
+     * @return true iff null hypothesis can be rejected with confidence 1 -
+     * alpha
+     * @throws NotPositiveException if {@code observed} has negative entries
+     * @throws NotStrictlyPositiveException if {@code expected} has entries that
+     * are not strictly positive
+     * @throws DimensionMismatchException if the array lengths do not match or
+     * are less than 2.
+     * @throws MaxCountExceededException if an error occurs computing the
+     * p-value.
+     * @throws OutOfRangeException if alpha is not strictly greater than zero
+     * and less than or equal to 0.5
+     */
+    public boolean gTest(final double[] expected, final long[] observed,
+            final double alpha)
+            throws NotPositiveException, NotStrictlyPositiveException,
+            DimensionMismatchException, OutOfRangeException, MaxCountExceededException {
+
+<span class="pc bpc" id="L241" title="1 of 4 branches missed.">        if ((alpha &lt;= 0) || (alpha &gt; 0.5)) {</span>
+<span class="fc" id="L242">            throw new OutOfRangeException(LocalizedFormats.OUT_OF_BOUND_SIGNIFICANCE_LEVEL,</span>
+                    alpha, 0, 0.5);
+        }
+<span class="fc bfc" id="L245" title="All 2 branches covered.">        return gTest(expected, observed) &lt; alpha;</span>
+    }
+
+    /**
+     * Calculates the &lt;a href=
+     * &quot;http://en.wikipedia.org/wiki/Entropy_%28information_theory%29&quot;&gt;Shannon
+     * entropy&lt;/a&gt; for 2 Dimensional Matrix.  The value returned is the entropy
+     * of the vector formed by concatenating the rows (or columns) of {@code k}
+     * to form a vector. See {@link #entropy(long[])}.
+     *
+     * @param k 2 Dimensional Matrix of long values (for ex. the counts of a
+     * trials)
+     * @return Shannon Entropy of the given Matrix
+     *
+     */
+    private double entropy(final long[][] k) {
+<span class="fc" id="L261">        double h = 0d;</span>
+<span class="fc" id="L262">        double sum_k = 0d;</span>
+<span class="fc bfc" id="L263" title="All 2 branches covered.">        for (int i = 0; i &lt; k.length; i++) {</span>
+<span class="fc bfc" id="L264" title="All 2 branches covered.">            for (int j = 0; j &lt; k[i].length; j++) {</span>
+<span class="fc" id="L265">                sum_k += (double) k[i][j];</span>
+            }
+        }
+<span class="fc bfc" id="L268" title="All 2 branches covered.">        for (int i = 0; i &lt; k.length; i++) {</span>
+<span class="fc bfc" id="L269" title="All 2 branches covered.">            for (int j = 0; j &lt; k[i].length; j++) {</span>
+<span class="fc bfc" id="L270" title="All 2 branches covered.">                if (k[i][j] != 0) {</span>
+<span class="fc" id="L271">                    final double p_ij = (double) k[i][j] / sum_k;</span>
+<span class="fc" id="L272">                    h += p_ij * FastMath.log(p_ij);</span>
+                }
+            }
+        }
+<span class="fc" id="L276">        return -h;</span>
+    }
+
+    /**
+     * Calculates the &lt;a href=&quot;http://en.wikipedia.org/wiki/Entropy_%28information_theory%29&quot;&gt;
+     * Shannon entropy&lt;/a&gt; for a vector.  The values of {@code k} are taken to be
+     * incidence counts of the values of a random variable. What is returned is &lt;br/&gt;
+     * &amp;sum;p&lt;sub&gt;i&lt;/sub&gt;log(p&lt;sub&gt;i&lt;/sub&gt;&lt;br/&gt;
+     * where p&lt;sub&gt;i&lt;/sub&gt; = k[i] / (sum of elements in k)
+     *
+     * @param k Vector (for ex. Row Sums of a trials)
+     * @return Shannon Entropy of the given Vector
+     *
+     */
+    private double entropy(final long[] k) {
+<span class="fc" id="L291">        double h = 0d;</span>
+<span class="fc" id="L292">        double sum_k = 0d;</span>
+<span class="fc bfc" id="L293" title="All 2 branches covered.">        for (int i = 0; i &lt; k.length; i++) {</span>
+<span class="fc" id="L294">            sum_k += (double) k[i];</span>
+        }
+<span class="fc bfc" id="L296" title="All 2 branches covered.">        for (int i = 0; i &lt; k.length; i++) {</span>
+<span class="pc bpc" id="L297" title="1 of 2 branches missed.">            if (k[i] != 0) {</span>
+<span class="fc" id="L298">                final double p_i = (double) k[i] / sum_k;</span>
+<span class="fc" id="L299">                h += p_i * FastMath.log(p_i);</span>
+            }
+        }
+<span class="fc" id="L302">        return -h;</span>
+    }
+
+    /**
+     * &lt;p&gt;Computes a G (Log-Likelihood Ratio) two sample test statistic for
+     * independence comparing frequency counts in
+     * {@code observed1} and {@code observed2}. The sums of frequency
+     * counts in the two samples are not required to be the same. The formula
+     * used to compute the test statistic is &lt;/p&gt;
+     *
+     * &lt;p&gt;{@code 2 * totalSum * [H(rowSums) + H(colSums) - H(k)]}&lt;/p&gt;
+     *
+     * &lt;p&gt; where {@code H} is the
+     * &lt;a href=&quot;http://en.wikipedia.org/wiki/Entropy_%28information_theory%29&quot;&gt;
+     * Shannon Entropy&lt;/a&gt; of the random variable formed by viewing the elements
+     * of the argument array as incidence counts; &lt;br/&gt;
+     * {@code k} is a matrix with rows {@code [observed1, observed2]}; &lt;br/&gt;
+     * {@code rowSums, colSums} are the row/col sums of {@code k}; &lt;br&gt;
+     * and {@code totalSum} is the overall sum of all entries in {@code k}.&lt;/p&gt;
+     *
+     * &lt;p&gt;This statistic can be used to perform a G test evaluating the null
+     * hypothesis that both observed counts are independent &lt;/p&gt;
+     *
+     * &lt;p&gt; &lt;strong&gt;Preconditions&lt;/strong&gt;: &lt;ul&gt;
+     * &lt;li&gt;Observed counts must be non-negative. &lt;/li&gt;
+     * &lt;li&gt;Observed counts for a specific bin must not both be zero. &lt;/li&gt;
+     * &lt;li&gt;Observed counts for a specific sample must not all be  0. &lt;/li&gt;
+     * &lt;li&gt;The arrays {@code observed1} and {@code observed2} must have
+     * the same length and their common length must be at least 2. &lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;
+     *
+     * &lt;p&gt;If any of the preconditions are not met, a
+     * {@code MathIllegalArgumentException} is thrown.&lt;/p&gt;
+     *
+     * @param observed1 array of observed frequency counts of the first data set
+     * @param observed2 array of observed frequency counts of the second data
+     * set
+     * @return G-Test statistic
+     * @throws DimensionMismatchException the the lengths of the arrays do not
+     * match or their common length is less than 2
+     * @throws NotPositiveException if any entry in {@code observed1} or
+     * {@code observed2} is negative
+     * @throws ZeroException if either all counts of
+     * {@code observed1} or {@code observed2} are zero, or if the count
+     * at the same index is zero for both arrays.
+     */
+    public double gDataSetsComparison(final long[] observed1, final long[] observed2)
+            throws DimensionMismatchException, NotPositiveException, ZeroException {
+
+        // Make sure lengths are same
+<span class="pc bpc" id="L351" title="1 of 2 branches missed.">        if (observed1.length &lt; 2) {</span>
+<span class="nc" id="L352">            throw new DimensionMismatchException(observed1.length, 2);</span>
+        }
+<span class="fc bfc" id="L354" title="All 2 branches covered.">        if (observed1.length != observed2.length) {</span>
+<span class="fc" id="L355">            throw new DimensionMismatchException(observed1.length, observed2.length);</span>
+        }
+
+        // Ensure non-negative counts
+<span class="fc" id="L359">        MathArrays.checkNonNegative(observed1);</span>
+<span class="fc" id="L360">        MathArrays.checkNonNegative(observed2);</span>
+
+        // Compute and compare count sums
+<span class="fc" id="L363">        long countSum1 = 0;</span>
+<span class="fc" id="L364">        long countSum2 = 0;</span>
+
+        // Compute and compare count sums
+<span class="fc" id="L367">        final long[] collSums = new long[observed1.length];</span>
+<span class="fc" id="L368">        final long[][] k = new long[2][observed1.length];</span>
+
+<span class="fc bfc" id="L370" title="All 2 branches covered.">        for (int i = 0; i &lt; observed1.length; i++) {</span>
+<span class="fc bfc" id="L371" title="All 4 branches covered.">            if (observed1[i] == 0 &amp;&amp; observed2[i] == 0) {</span>
+<span class="fc" id="L372">                throw new ZeroException(LocalizedFormats.OBSERVED_COUNTS_BOTTH_ZERO_FOR_ENTRY, i);</span>
+            } else {
+<span class="fc" id="L374">                countSum1 += observed1[i];</span>
+<span class="fc" id="L375">                countSum2 += observed2[i];</span>
+<span class="fc" id="L376">                collSums[i] = observed1[i] + observed2[i];</span>
+<span class="fc" id="L377">                k[0][i] = observed1[i];</span>
+<span class="fc" id="L378">                k[1][i] = observed2[i];</span>
+            }
+        }
+        // Ensure neither sample is uniformly 0
+<span class="pc bpc" id="L382" title="1 of 4 branches missed.">        if (countSum1 == 0 || countSum2 == 0) {</span>
+<span class="fc" id="L383">            throw new ZeroException();</span>
+        }
+<span class="fc" id="L385">        final long[] rowSums = {countSum1, countSum2};</span>
+<span class="fc" id="L386">        final double sum = (double) countSum1 + (double) countSum2;</span>
+<span class="fc" id="L387">        return 2 * sum * (entropy(rowSums) + entropy(collSums) - entropy(k));</span>
+    }
+
+    /**
+     * Calculates the root log-likelihood ratio for 2 state Datasets. See
+     * {@link #gDataSetsComparison(long[], long[] )}.
+     *
+     * &lt;p&gt;Given two events A and B, let k11 be the number of times both events
+     * occur, k12 the incidence of B without A, k21 the count of A without B,
+     * and k22 the number of times neither A nor B occurs.  What is returned
+     * by this method is &lt;/p&gt;
+     *
+     * &lt;p&gt;{@code (sgn) sqrt(gValueDataSetsComparison({k11, k12}, {k21, k22})}&lt;/p&gt;
+     *
+     * &lt;p&gt;where {@code sgn} is -1 if {@code k11 / (k11 + k12) &lt; k21 / (k21 + k22))};&lt;br/&gt;
+     * 1 otherwise.&lt;/p&gt;
+     *
+     * &lt;p&gt;Signed root LLR has two advantages over the basic LLR: a) it is positive
+     * where k11 is bigger than expected, negative where it is lower b) if there is
+     * no difference it is asymptotically normally distributed. This allows one
+     * to talk about &quot;number of standard deviations&quot; which is a more common frame
+     * of reference than the chi^2 distribution.&lt;/p&gt;
+     *
+     * @param k11 number of times the two events occurred together (AB)
+     * @param k12 number of times the second event occurred WITHOUT the
+     * first event (notA,B)
+     * @param k21 number of times the first event occurred WITHOUT the
+     * second event (A, notB)
+     * @param k22 number of times something else occurred (i.e. was neither
+     * of these events (notA, notB)
+     * @return root log-likelihood ratio
+     *
+     */
+    public double rootLogLikelihoodRatio(final long k11, long k12,
+            final long k21, final long k22) {
+<span class="fc" id="L422">        final double llr = gDataSetsComparison(</span>
+                new long[]{k11, k12}, new long[]{k21, k22});
+<span class="fc" id="L424">        double sqrt = FastMath.sqrt(llr);</span>
+<span class="fc bfc" id="L425" title="All 2 branches covered.">        if ((double) k11 / (k11 + k12) &lt; (double) k21 / (k21 + k22)) {</span>
+<span class="fc" id="L426">            sqrt = -sqrt;</span>
+        }
+<span class="fc" id="L428">        return sqrt;</span>
+    }
+
+    /**
+     * &lt;p&gt;Returns the &lt;i&gt;observed significance level&lt;/i&gt;, or &lt;a href=
+     * &quot;http://www.cas.lancs.ac.uk/glossary_v1.1/hyptest.html#pvalue&quot;&gt;
+     * p-value&lt;/a&gt;, associated with a G-Value (Log-Likelihood Ratio) for two
+     * sample test comparing bin frequency counts in {@code observed1} and
+     * {@code observed2}.&lt;/p&gt;
+     *
+     * &lt;p&gt;The number returned is the smallest significance level at which one
+     * can reject the null hypothesis that the observed counts conform to the
+     * same distribution. &lt;/p&gt;
+     *
+     * &lt;p&gt;See {@link #gTest(double[], long[])} for details
+     * on how the p-value is computed.  The degrees of of freedom used to
+     * perform the test is one less than the common length of the input observed
+     * count arrays.&lt;/p&gt;
+     *
+     * &lt;p&gt;&lt;strong&gt;Preconditions&lt;/strong&gt;:
+     * &lt;ul&gt; &lt;li&gt;Observed counts must be non-negative. &lt;/li&gt;
+     * &lt;li&gt;Observed counts for a specific bin must not both be zero. &lt;/li&gt;
+     * &lt;li&gt;Observed counts for a specific sample must not all be 0. &lt;/li&gt;
+     * &lt;li&gt;The arrays {@code observed1} and {@code observed2} must
+     * have the same length and their common length must be at least 2. &lt;/li&gt;
+     * &lt;/ul&gt;&lt;p&gt;
+     * &lt;p&gt; If any of the preconditions are not met, a
+     * {@code MathIllegalArgumentException} is thrown.&lt;/p&gt;
+     *
+     * @param observed1 array of observed frequency counts of the first data set
+     * @param observed2 array of observed frequency counts of the second data
+     * set
+     * @return p-value
+     * @throws DimensionMismatchException the the length of the arrays does not
+     * match or their common length is less than 2
+     * @throws NotPositiveException if any of the entries in {@code observed1} or
+     * {@code observed2} are negative
+     * @throws ZeroException if either all counts of {@code observed1} or
+     * {@code observed2} are zero, or if the count at some index is
+     * zero for both arrays
+     * @throws MaxCountExceededException if an error occurs computing the
+     * p-value.
+     */
+    public double gTestDataSetsComparison(final long[] observed1,
+            final long[] observed2)
+            throws DimensionMismatchException, NotPositiveException, ZeroException,
+            MaxCountExceededException {
+
+        // pass a null rng to avoid unneeded overhead as we will not sample from this distribution
+<span class="fc" id="L477">        final ChiSquaredDistribution distribution =</span>
+                new ChiSquaredDistribution(null, (double) observed1.length - 1);
+<span class="fc" id="L479">        return 1 - distribution.cumulativeProbability(</span>
+                gDataSetsComparison(observed1, observed2));
+    }
+
+    /**
+     * &lt;p&gt;Performs a G-Test (Log-Likelihood Ratio Test) comparing two binned
+     * data sets. The test evaluates the null hypothesis that the two lists
+     * of observed counts conform to the same frequency distribution, with
+     * significance level {@code alpha}. Returns true iff the null
+     * hypothesis can be rejected  with 100 * (1 - alpha) percent confidence.
+     * &lt;/p&gt;
+     * &lt;p&gt;See {@link #gDataSetsComparison(long[], long[])} for details
+     * on the formula used to compute the G (LLR) statistic used in the test and
+     * {@link #gTest(double[], long[])} for information on how
+     * the observed significance level is computed. The degrees of of freedom used
+     * to perform the test is one less than the common length of the input observed
+     * count arrays. &lt;/p&gt;
+     *
+     * &lt;strong&gt;Preconditions&lt;/strong&gt;: &lt;ul&gt;
+     * &lt;li&gt;Observed counts must be non-negative. &lt;/li&gt;
+     * &lt;li&gt;Observed counts for a specific bin must not both be zero. &lt;/li&gt;
+     * &lt;li&gt;Observed counts for a specific sample must not all be 0. &lt;/li&gt;
+     * &lt;li&gt;The arrays {@code observed1} and {@code observed2} must
+     * have the same length and their common length must be at least 2. &lt;/li&gt;
+     * &lt;li&gt;{@code 0 &lt; alpha &lt; 0.5} &lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;
+     *
+     * &lt;p&gt;If any of the preconditions are not met, a
+     * {@code MathIllegalArgumentException} is thrown.&lt;/p&gt;
+     *
+     * @param observed1 array of observed frequency counts of the first data set
+     * @param observed2 array of observed frequency counts of the second data
+     * set
+     * @param alpha significance level of the test
+     * @return true iff null hypothesis can be rejected with confidence 1 -
+     * alpha
+     * @throws DimensionMismatchException the the length of the arrays does not
+     * match
+     * @throws NotPositiveException if any of the entries in {@code observed1} or
+     * {@code observed2} are negative
+     * @throws ZeroException if either all counts of {@code observed1} or
+     * {@code observed2} are zero, or if the count at some index is
+     * zero for both arrays
+     * @throws OutOfRangeException if {@code alpha} is not in the range
+     * (0, 0.5]
+     * @throws MaxCountExceededException if an error occurs performing the test
+     */
+    public boolean gTestDataSetsComparison(
+            final long[] observed1,
+            final long[] observed2,
+            final double alpha)
+            throws DimensionMismatchException, NotPositiveException,
+            ZeroException, OutOfRangeException, MaxCountExceededException {
+
+<span class="pc bpc" id="L532" title="1 of 4 branches missed.">        if (alpha &lt;= 0 || alpha &gt; 0.5) {</span>
+<span class="fc" id="L533">            throw new OutOfRangeException(</span>
+                    LocalizedFormats.OUT_OF_BOUND_SIGNIFICANCE_LEVEL, alpha, 0, 0.5);
+        }
+<span class="fc bfc" id="L536" title="All 2 branches covered.">        return gTestDataSetsComparison(observed1, observed2) &lt; alpha;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

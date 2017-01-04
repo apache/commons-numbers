@@ -1,0 +1,1426 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.apache.commons.math3.optim.nonlinear.scalar.noderiv;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.util.ArrayList;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.util.Arrays;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.util.List;<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.exception.DimensionMismatchException;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.exception.NotPositiveException;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.exception.NotStrictlyPositiveException;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.math3.exception.OutOfRangeException;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.commons.math3.exception.TooManyEvaluationsException;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.math3.linear.Array2DRowRealMatrix;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.math3.linear.EigenDecomposition;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.commons.math3.linear.MatrixUtils;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.apache.commons.math3.linear.RealMatrix;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.apache.commons.math3.optim.ConvergenceChecker;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.apache.commons.math3.optim.OptimizationData;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.apache.commons.math3.optim.PointValuePair;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.apache.commons.math3.optim.nonlinear.scalar.MultivariateOptimizer;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.apache.commons.math3.random.RandomGenerator;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import org.apache.commons.math3.util.FastMath;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import org.apache.commons.math3.util.MathArrays;<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">042</span>/**<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * An implementation of the active Covariance Matrix Adaptation Evolution Strategy (CMA-ES)<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * for non-linear, non-convex, non-smooth, global function minimization.<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * &lt;p&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * The CMA-Evolution Strategy (CMA-ES) is a reliable stochastic optimization method<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * which should be applied if derivative-based methods, e.g. quasi-Newton BFGS or<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * conjugate gradient, fail due to a rugged search landscape (e.g. noise, local<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * optima, outlier, etc.) of the objective function. Like a<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * quasi-Newton method, the CMA-ES learns and applies a variable metric<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * on the underlying search space. Unlike a quasi-Newton method, the<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * CMA-ES neither estimates nor uses gradients, making it considerably more<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * reliable in terms of finding a good, or even close to optimal, solution.<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * &lt;p&gt;<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * In general, on smooth objective functions the CMA-ES is roughly ten times<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * slower than BFGS (counting objective function evaluations, no gradients provided).<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * For up to &lt;math&gt;N=10&lt;/math&gt; variables also the derivative-free simplex<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * direct search method (Nelder and Mead) can be faster, but it is<a name="line.58"></a>
+<span class="sourceLineNo">059</span> * far less reliable than CMA-ES.<a name="line.59"></a>
+<span class="sourceLineNo">060</span> * &lt;p&gt;<a name="line.60"></a>
+<span class="sourceLineNo">061</span> * The CMA-ES is particularly well suited for non-separable<a name="line.61"></a>
+<span class="sourceLineNo">062</span> * and/or badly conditioned problems. To observe the advantage of CMA compared<a name="line.62"></a>
+<span class="sourceLineNo">063</span> * to a conventional evolution strategy, it will usually take about<a name="line.63"></a>
+<span class="sourceLineNo">064</span> * &lt;math&gt;30 N&lt;/math&gt; function evaluations. On difficult problems the complete<a name="line.64"></a>
+<span class="sourceLineNo">065</span> * optimization (a single run) is expected to take &lt;em&gt;roughly&lt;/em&gt; between<a name="line.65"></a>
+<span class="sourceLineNo">066</span> * &lt;math&gt;30 N&lt;/math&gt; and &lt;math&gt;300 N&lt;sup&gt;2&lt;/sup&gt;&lt;/math&gt;<a name="line.66"></a>
+<span class="sourceLineNo">067</span> * function evaluations.<a name="line.67"></a>
+<span class="sourceLineNo">068</span> * &lt;p&gt;<a name="line.68"></a>
+<span class="sourceLineNo">069</span> * This implementation is translated and adapted from the Matlab version<a name="line.69"></a>
+<span class="sourceLineNo">070</span> * of the CMA-ES algorithm as implemented in module {@code cmaes.m} version 3.51.<a name="line.70"></a>
+<span class="sourceLineNo">071</span> * &lt;p&gt;<a name="line.71"></a>
+<span class="sourceLineNo">072</span> * For more information, please refer to the following links:<a name="line.72"></a>
+<span class="sourceLineNo">073</span> * &lt;ul&gt;<a name="line.73"></a>
+<span class="sourceLineNo">074</span> *  &lt;li&gt;&lt;a href="http://www.lri.fr/~hansen/cmaes.m"&gt;Matlab code&lt;/a&gt;&lt;/li&gt;<a name="line.74"></a>
+<span class="sourceLineNo">075</span> *  &lt;li&gt;&lt;a href="http://www.lri.fr/~hansen/cmaesintro.html"&gt;Introduction to CMA-ES&lt;/a&gt;&lt;/li&gt;<a name="line.75"></a>
+<span class="sourceLineNo">076</span> *  &lt;li&gt;&lt;a href="http://en.wikipedia.org/wiki/CMA-ES"&gt;Wikipedia&lt;/a&gt;&lt;/li&gt;<a name="line.76"></a>
+<span class="sourceLineNo">077</span> * &lt;/ul&gt;<a name="line.77"></a>
+<span class="sourceLineNo">078</span> *<a name="line.78"></a>
+<span class="sourceLineNo">079</span> * @since 3.0<a name="line.79"></a>
+<span class="sourceLineNo">080</span> */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>public class CMAESOptimizer<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    extends MultivariateOptimizer {<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    // global search parameters<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    /**<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * Population size, offspring number. The primary strategy parameter to play<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * with, which can be increased from its default value. Increasing the<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * population size improves global search properties in exchange to speed.<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * Speed decreases, as a rule, at most linearly with increasing population<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * size. It is advisable to begin with the default small population size.<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     */<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    private int lambda; // population size<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    /**<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * Covariance update mechanism, default is active CMA. isActiveCMA = true<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * turns on "active CMA" with a negative update of the covariance matrix and<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * checks for positive definiteness. OPTS.CMA.active = 2 does not check for<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * pos. def. and is numerically faster. Active CMA usually speeds up the<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * adaptation.<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     */<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    private final boolean isActiveCMA;<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    /**<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     * Determines how often a new random offspring is generated in case it is<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * not feasible / beyond the defined limits, default is 0.<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     */<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    private final int checkFeasableCount;<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    /**<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     * @see Sigma<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     */<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    private double[] inputSigma;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    /** Number of objective variables/problem dimension */<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    private int dimension;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    /**<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     * Defines the number of initial iterations, where the covariance matrix<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * remains diagonal and the algorithm has internally linear time complexity.<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     * diagonalOnly = 1 means keeping the covariance matrix always diagonal and<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * this setting also exhibits linear space complexity. This can be<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     * particularly useful for dimension &gt; 100.<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * @see &lt;a href="http://hal.archives-ouvertes.fr/inria-00287367/en"&gt;A Simple Modification in CMA-ES&lt;/a&gt;<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     */<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    private int diagonalOnly;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    /** Number of objective variables/problem dimension */<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    private boolean isMinimize = true;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    /** Indicates whether statistic data is collected. */<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    private final boolean generateStatistics;<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>    // termination criteria<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    /** Maximal number of iterations allowed. */<a name="line.126"></a>
+<span class="sourceLineNo">127</span>    private final int maxIterations;<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    /** Limit for fitness value. */<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    private final double stopFitness;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    /** Stop if x-changes larger stopTolUpX. */<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    private double stopTolUpX;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    /** Stop if x-change smaller stopTolX. */<a name="line.132"></a>
+<span class="sourceLineNo">133</span>    private double stopTolX;<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    /** Stop if fun-changes smaller stopTolFun. */<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    private double stopTolFun;<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    /** Stop if back fun-changes smaller stopTolHistFun. */<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    private double stopTolHistFun;<a name="line.137"></a>
+<span class="sourceLineNo">138</span><a name="line.138"></a>
+<span class="sourceLineNo">139</span>    // selection strategy parameters<a name="line.139"></a>
+<span class="sourceLineNo">140</span>    /** Number of parents/points for recombination. */<a name="line.140"></a>
+<span class="sourceLineNo">141</span>    private int mu; //<a name="line.141"></a>
+<span class="sourceLineNo">142</span>    /** log(mu + 0.5), stored for efficiency. */<a name="line.142"></a>
+<span class="sourceLineNo">143</span>    private double logMu2;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    /** Array for weighted recombination. */<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    private RealMatrix weights;<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    /** Variance-effectiveness of sum w_i x_i. */<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    private double mueff; //<a name="line.147"></a>
+<span class="sourceLineNo">148</span><a name="line.148"></a>
+<span class="sourceLineNo">149</span>    // dynamic strategy parameters and constants<a name="line.149"></a>
+<span class="sourceLineNo">150</span>    /** Overall standard deviation - search volume. */<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    private double sigma;<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    /** Cumulation constant. */<a name="line.152"></a>
+<span class="sourceLineNo">153</span>    private double cc;<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    /** Cumulation constant for step-size. */<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    private double cs;<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    /** Damping for step-size. */<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    private double damps;<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    /** Learning rate for rank-one update. */<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    private double ccov1;<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    /** Learning rate for rank-mu update' */<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    private double ccovmu;<a name="line.161"></a>
+<span class="sourceLineNo">162</span>    /** Expectation of ||N(0,I)|| == norm(randn(N,1)). */<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    private double chiN;<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    /** Learning rate for rank-one update - diagonalOnly */<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    private double ccov1Sep;<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    /** Learning rate for rank-mu update - diagonalOnly */<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    private double ccovmuSep;<a name="line.167"></a>
+<span class="sourceLineNo">168</span><a name="line.168"></a>
+<span class="sourceLineNo">169</span>    // CMA internal values - updated each generation<a name="line.169"></a>
+<span class="sourceLineNo">170</span>    /** Objective variables. */<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    private RealMatrix xmean;<a name="line.171"></a>
+<span class="sourceLineNo">172</span>    /** Evolution path. */<a name="line.172"></a>
+<span class="sourceLineNo">173</span>    private RealMatrix pc;<a name="line.173"></a>
+<span class="sourceLineNo">174</span>    /** Evolution path for sigma. */<a name="line.174"></a>
+<span class="sourceLineNo">175</span>    private RealMatrix ps;<a name="line.175"></a>
+<span class="sourceLineNo">176</span>    /** Norm of ps, stored for efficiency. */<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    private double normps;<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    /** Coordinate system. */<a name="line.178"></a>
+<span class="sourceLineNo">179</span>    private RealMatrix B;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    /** Scaling. */<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    private RealMatrix D;<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    /** B*D, stored for efficiency. */<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    private RealMatrix BD;<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    /** Diagonal of sqrt(D), stored for efficiency. */<a name="line.184"></a>
+<span class="sourceLineNo">185</span>    private RealMatrix diagD;<a name="line.185"></a>
+<span class="sourceLineNo">186</span>    /** Covariance matrix. */<a name="line.186"></a>
+<span class="sourceLineNo">187</span>    private RealMatrix C;<a name="line.187"></a>
+<span class="sourceLineNo">188</span>    /** Diagonal of C, used for diagonalOnly. */<a name="line.188"></a>
+<span class="sourceLineNo">189</span>    private RealMatrix diagC;<a name="line.189"></a>
+<span class="sourceLineNo">190</span>    /** Number of iterations already performed. */<a name="line.190"></a>
+<span class="sourceLineNo">191</span>    private int iterations;<a name="line.191"></a>
+<span class="sourceLineNo">192</span><a name="line.192"></a>
+<span class="sourceLineNo">193</span>    /** History queue of best values. */<a name="line.193"></a>
+<span class="sourceLineNo">194</span>    private double[] fitnessHistory;<a name="line.194"></a>
+<span class="sourceLineNo">195</span>    /** Size of history queue of best values. */<a name="line.195"></a>
+<span class="sourceLineNo">196</span>    private int historySize;<a name="line.196"></a>
+<span class="sourceLineNo">197</span><a name="line.197"></a>
+<span class="sourceLineNo">198</span>    /** Random generator. */<a name="line.198"></a>
+<span class="sourceLineNo">199</span>    private final RandomGenerator random;<a name="line.199"></a>
+<span class="sourceLineNo">200</span><a name="line.200"></a>
+<span class="sourceLineNo">201</span>    /** History of sigma values. */<a name="line.201"></a>
+<span class="sourceLineNo">202</span>    private final List&lt;Double&gt; statisticsSigmaHistory = new ArrayList&lt;Double&gt;();<a name="line.202"></a>
+<span class="sourceLineNo">203</span>    /** History of mean matrix. */<a name="line.203"></a>
+<span class="sourceLineNo">204</span>    private final List&lt;RealMatrix&gt; statisticsMeanHistory = new ArrayList&lt;RealMatrix&gt;();<a name="line.204"></a>
+<span class="sourceLineNo">205</span>    /** History of fitness values. */<a name="line.205"></a>
+<span class="sourceLineNo">206</span>    private final List&lt;Double&gt; statisticsFitnessHistory = new ArrayList&lt;Double&gt;();<a name="line.206"></a>
+<span class="sourceLineNo">207</span>    /** History of D matrix. */<a name="line.207"></a>
+<span class="sourceLineNo">208</span>    private final List&lt;RealMatrix&gt; statisticsDHistory = new ArrayList&lt;RealMatrix&gt;();<a name="line.208"></a>
+<span class="sourceLineNo">209</span><a name="line.209"></a>
+<span class="sourceLineNo">210</span>    /**<a name="line.210"></a>
+<span class="sourceLineNo">211</span>     * @param maxIterations Maximal number of iterations.<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     * @param stopFitness Whether to stop if objective function value is smaller than<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     * {@code stopFitness}.<a name="line.213"></a>
+<span class="sourceLineNo">214</span>     * @param isActiveCMA Chooses the covariance matrix update method.<a name="line.214"></a>
+<span class="sourceLineNo">215</span>     * @param diagonalOnly Number of initial iterations, where the covariance matrix<a name="line.215"></a>
+<span class="sourceLineNo">216</span>     * remains diagonal.<a name="line.216"></a>
+<span class="sourceLineNo">217</span>     * @param checkFeasableCount Determines how often new random objective variables are<a name="line.217"></a>
+<span class="sourceLineNo">218</span>     * generated in case they are out of bounds.<a name="line.218"></a>
+<span class="sourceLineNo">219</span>     * @param random Random generator.<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     * @param generateStatistics Whether statistic data is collected.<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     * @param checker Convergence checker.<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     *<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     * @since 3.1<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     */<a name="line.224"></a>
+<span class="sourceLineNo">225</span>    public CMAESOptimizer(int maxIterations,<a name="line.225"></a>
+<span class="sourceLineNo">226</span>                          double stopFitness,<a name="line.226"></a>
+<span class="sourceLineNo">227</span>                          boolean isActiveCMA,<a name="line.227"></a>
+<span class="sourceLineNo">228</span>                          int diagonalOnly,<a name="line.228"></a>
+<span class="sourceLineNo">229</span>                          int checkFeasableCount,<a name="line.229"></a>
+<span class="sourceLineNo">230</span>                          RandomGenerator random,<a name="line.230"></a>
+<span class="sourceLineNo">231</span>                          boolean generateStatistics,<a name="line.231"></a>
+<span class="sourceLineNo">232</span>                          ConvergenceChecker&lt;PointValuePair&gt; checker) {<a name="line.232"></a>
+<span class="sourceLineNo">233</span>        super(checker);<a name="line.233"></a>
+<span class="sourceLineNo">234</span>        this.maxIterations = maxIterations;<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        this.stopFitness = stopFitness;<a name="line.235"></a>
+<span class="sourceLineNo">236</span>        this.isActiveCMA = isActiveCMA;<a name="line.236"></a>
+<span class="sourceLineNo">237</span>        this.diagonalOnly = diagonalOnly;<a name="line.237"></a>
+<span class="sourceLineNo">238</span>        this.checkFeasableCount = checkFeasableCount;<a name="line.238"></a>
+<span class="sourceLineNo">239</span>        this.random = random;<a name="line.239"></a>
+<span class="sourceLineNo">240</span>        this.generateStatistics = generateStatistics;<a name="line.240"></a>
+<span class="sourceLineNo">241</span>    }<a name="line.241"></a>
+<span class="sourceLineNo">242</span><a name="line.242"></a>
+<span class="sourceLineNo">243</span>    /**<a name="line.243"></a>
+<span class="sourceLineNo">244</span>     * @return History of sigma values.<a name="line.244"></a>
+<span class="sourceLineNo">245</span>     */<a name="line.245"></a>
+<span class="sourceLineNo">246</span>    public List&lt;Double&gt; getStatisticsSigmaHistory() {<a name="line.246"></a>
+<span class="sourceLineNo">247</span>        return statisticsSigmaHistory;<a name="line.247"></a>
+<span class="sourceLineNo">248</span>    }<a name="line.248"></a>
+<span class="sourceLineNo">249</span><a name="line.249"></a>
+<span class="sourceLineNo">250</span>    /**<a name="line.250"></a>
+<span class="sourceLineNo">251</span>     * @return History of mean matrix.<a name="line.251"></a>
+<span class="sourceLineNo">252</span>     */<a name="line.252"></a>
+<span class="sourceLineNo">253</span>    public List&lt;RealMatrix&gt; getStatisticsMeanHistory() {<a name="line.253"></a>
+<span class="sourceLineNo">254</span>        return statisticsMeanHistory;<a name="line.254"></a>
+<span class="sourceLineNo">255</span>    }<a name="line.255"></a>
+<span class="sourceLineNo">256</span><a name="line.256"></a>
+<span class="sourceLineNo">257</span>    /**<a name="line.257"></a>
+<span class="sourceLineNo">258</span>     * @return History of fitness values.<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     */<a name="line.259"></a>
+<span class="sourceLineNo">260</span>    public List&lt;Double&gt; getStatisticsFitnessHistory() {<a name="line.260"></a>
+<span class="sourceLineNo">261</span>        return statisticsFitnessHistory;<a name="line.261"></a>
+<span class="sourceLineNo">262</span>    }<a name="line.262"></a>
+<span class="sourceLineNo">263</span><a name="line.263"></a>
+<span class="sourceLineNo">264</span>    /**<a name="line.264"></a>
+<span class="sourceLineNo">265</span>     * @return History of D matrix.<a name="line.265"></a>
+<span class="sourceLineNo">266</span>     */<a name="line.266"></a>
+<span class="sourceLineNo">267</span>    public List&lt;RealMatrix&gt; getStatisticsDHistory() {<a name="line.267"></a>
+<span class="sourceLineNo">268</span>        return statisticsDHistory;<a name="line.268"></a>
+<span class="sourceLineNo">269</span>    }<a name="line.269"></a>
+<span class="sourceLineNo">270</span><a name="line.270"></a>
+<span class="sourceLineNo">271</span>    /**<a name="line.271"></a>
+<span class="sourceLineNo">272</span>     * Input sigma values.<a name="line.272"></a>
+<span class="sourceLineNo">273</span>     * They define the initial coordinate-wise standard deviations for<a name="line.273"></a>
+<span class="sourceLineNo">274</span>     * sampling new search points around the initial guess.<a name="line.274"></a>
+<span class="sourceLineNo">275</span>     * It is suggested to set them to the estimated distance from the<a name="line.275"></a>
+<span class="sourceLineNo">276</span>     * initial to the desired optimum.<a name="line.276"></a>
+<span class="sourceLineNo">277</span>     * Small values induce the search to be more local (and very small<a name="line.277"></a>
+<span class="sourceLineNo">278</span>     * values are more likely to find a local optimum close to the initial<a name="line.278"></a>
+<span class="sourceLineNo">279</span>     * guess).<a name="line.279"></a>
+<span class="sourceLineNo">280</span>     * Too small values might however lead to early termination.<a name="line.280"></a>
+<span class="sourceLineNo">281</span>     */<a name="line.281"></a>
+<span class="sourceLineNo">282</span>    public static class Sigma implements OptimizationData {<a name="line.282"></a>
+<span class="sourceLineNo">283</span>        /** Sigma values. */<a name="line.283"></a>
+<span class="sourceLineNo">284</span>        private final double[] sigma;<a name="line.284"></a>
+<span class="sourceLineNo">285</span><a name="line.285"></a>
+<span class="sourceLineNo">286</span>        /**<a name="line.286"></a>
+<span class="sourceLineNo">287</span>         * @param s Sigma values.<a name="line.287"></a>
+<span class="sourceLineNo">288</span>         * @throws NotPositiveException if any of the array entries is smaller<a name="line.288"></a>
+<span class="sourceLineNo">289</span>         * than zero.<a name="line.289"></a>
+<span class="sourceLineNo">290</span>         */<a name="line.290"></a>
+<span class="sourceLineNo">291</span>        public Sigma(double[] s)<a name="line.291"></a>
+<span class="sourceLineNo">292</span>            throws NotPositiveException {<a name="line.292"></a>
+<span class="sourceLineNo">293</span>            for (int i = 0; i &lt; s.length; i++) {<a name="line.293"></a>
+<span class="sourceLineNo">294</span>                if (s[i] &lt; 0) {<a name="line.294"></a>
+<span class="sourceLineNo">295</span>                    throw new NotPositiveException(s[i]);<a name="line.295"></a>
+<span class="sourceLineNo">296</span>                }<a name="line.296"></a>
+<span class="sourceLineNo">297</span>            }<a name="line.297"></a>
+<span class="sourceLineNo">298</span><a name="line.298"></a>
+<span class="sourceLineNo">299</span>            sigma = s.clone();<a name="line.299"></a>
+<span class="sourceLineNo">300</span>        }<a name="line.300"></a>
+<span class="sourceLineNo">301</span><a name="line.301"></a>
+<span class="sourceLineNo">302</span>        /**<a name="line.302"></a>
+<span class="sourceLineNo">303</span>         * @return the sigma values.<a name="line.303"></a>
+<span class="sourceLineNo">304</span>         */<a name="line.304"></a>
+<span class="sourceLineNo">305</span>        public double[] getSigma() {<a name="line.305"></a>
+<span class="sourceLineNo">306</span>            return sigma.clone();<a name="line.306"></a>
+<span class="sourceLineNo">307</span>        }<a name="line.307"></a>
+<span class="sourceLineNo">308</span>    }<a name="line.308"></a>
+<span class="sourceLineNo">309</span><a name="line.309"></a>
+<span class="sourceLineNo">310</span>    /**<a name="line.310"></a>
+<span class="sourceLineNo">311</span>     * Population size.<a name="line.311"></a>
+<span class="sourceLineNo">312</span>     * The number of offspring is the primary strategy parameter.<a name="line.312"></a>
+<span class="sourceLineNo">313</span>     * In the absence of better clues, a good default could be an<a name="line.313"></a>
+<span class="sourceLineNo">314</span>     * integer close to {@code 4 + 3 ln(n)}, where {@code n} is the<a name="line.314"></a>
+<span class="sourceLineNo">315</span>     * number of optimized parameters.<a name="line.315"></a>
+<span class="sourceLineNo">316</span>     * Increasing the population size improves global search properties<a name="line.316"></a>
+<span class="sourceLineNo">317</span>     * at the expense of speed (which in general decreases at most<a name="line.317"></a>
+<span class="sourceLineNo">318</span>     * linearly with increasing population size).<a name="line.318"></a>
+<span class="sourceLineNo">319</span>     */<a name="line.319"></a>
+<span class="sourceLineNo">320</span>    public static class PopulationSize implements OptimizationData {<a name="line.320"></a>
+<span class="sourceLineNo">321</span>        /** Population size. */<a name="line.321"></a>
+<span class="sourceLineNo">322</span>        private final int lambda;<a name="line.322"></a>
+<span class="sourceLineNo">323</span><a name="line.323"></a>
+<span class="sourceLineNo">324</span>        /**<a name="line.324"></a>
+<span class="sourceLineNo">325</span>         * @param size Population size.<a name="line.325"></a>
+<span class="sourceLineNo">326</span>         * @throws NotStrictlyPositiveException if {@code size &lt;= 0}.<a name="line.326"></a>
+<span class="sourceLineNo">327</span>         */<a name="line.327"></a>
+<span class="sourceLineNo">328</span>        public PopulationSize(int size)<a name="line.328"></a>
+<span class="sourceLineNo">329</span>            throws NotStrictlyPositiveException {<a name="line.329"></a>
+<span class="sourceLineNo">330</span>            if (size &lt;= 0) {<a name="line.330"></a>
+<span class="sourceLineNo">331</span>                throw new NotStrictlyPositiveException(size);<a name="line.331"></a>
+<span class="sourceLineNo">332</span>            }<a name="line.332"></a>
+<span class="sourceLineNo">333</span>            lambda = size;<a name="line.333"></a>
+<span class="sourceLineNo">334</span>        }<a name="line.334"></a>
+<span class="sourceLineNo">335</span><a name="line.335"></a>
+<span class="sourceLineNo">336</span>        /**<a name="line.336"></a>
+<span class="sourceLineNo">337</span>         * @return the population size.<a name="line.337"></a>
+<span class="sourceLineNo">338</span>         */<a name="line.338"></a>
+<span class="sourceLineNo">339</span>        public int getPopulationSize() {<a name="line.339"></a>
+<span class="sourceLineNo">340</span>            return lambda;<a name="line.340"></a>
+<span class="sourceLineNo">341</span>        }<a name="line.341"></a>
+<span class="sourceLineNo">342</span>    }<a name="line.342"></a>
+<span class="sourceLineNo">343</span><a name="line.343"></a>
+<span class="sourceLineNo">344</span>    /**<a name="line.344"></a>
+<span class="sourceLineNo">345</span>     * {@inheritDoc}<a name="line.345"></a>
+<span class="sourceLineNo">346</span>     *<a name="line.346"></a>
+<span class="sourceLineNo">347</span>     * @param optData Optimization data. In addition to those documented in<a name="line.347"></a>
+<span class="sourceLineNo">348</span>     * {@link MultivariateOptimizer#parseOptimizationData(OptimizationData[])<a name="line.348"></a>
+<span class="sourceLineNo">349</span>     * MultivariateOptimizer}, this method will register the following data:<a name="line.349"></a>
+<span class="sourceLineNo">350</span>     * &lt;ul&gt;<a name="line.350"></a>
+<span class="sourceLineNo">351</span>     *  &lt;li&gt;{@link Sigma}&lt;/li&gt;<a name="line.351"></a>
+<span class="sourceLineNo">352</span>     *  &lt;li&gt;{@link PopulationSize}&lt;/li&gt;<a name="line.352"></a>
+<span class="sourceLineNo">353</span>     * &lt;/ul&gt;<a name="line.353"></a>
+<span class="sourceLineNo">354</span>     * @return {@inheritDoc}<a name="line.354"></a>
+<span class="sourceLineNo">355</span>     * @throws TooManyEvaluationsException if the maximal number of<a name="line.355"></a>
+<span class="sourceLineNo">356</span>     * evaluations is exceeded.<a name="line.356"></a>
+<span class="sourceLineNo">357</span>     * @throws DimensionMismatchException if the initial guess, target, and weight<a name="line.357"></a>
+<span class="sourceLineNo">358</span>     * arguments have inconsistent dimensions.<a name="line.358"></a>
+<span class="sourceLineNo">359</span>     */<a name="line.359"></a>
+<span class="sourceLineNo">360</span>    @Override<a name="line.360"></a>
+<span class="sourceLineNo">361</span>    public PointValuePair optimize(OptimizationData... optData)<a name="line.361"></a>
+<span class="sourceLineNo">362</span>        throws TooManyEvaluationsException,<a name="line.362"></a>
+<span class="sourceLineNo">363</span>               DimensionMismatchException {<a name="line.363"></a>
+<span class="sourceLineNo">364</span>        // Set up base class and perform computation.<a name="line.364"></a>
+<span class="sourceLineNo">365</span>        return super.optimize(optData);<a name="line.365"></a>
+<span class="sourceLineNo">366</span>    }<a name="line.366"></a>
+<span class="sourceLineNo">367</span><a name="line.367"></a>
+<span class="sourceLineNo">368</span>    /** {@inheritDoc} */<a name="line.368"></a>
+<span class="sourceLineNo">369</span>    @Override<a name="line.369"></a>
+<span class="sourceLineNo">370</span>    protected PointValuePair doOptimize() {<a name="line.370"></a>
+<span class="sourceLineNo">371</span>         // -------------------- Initialization --------------------------------<a name="line.371"></a>
+<span class="sourceLineNo">372</span>        isMinimize = getGoalType().equals(GoalType.MINIMIZE);<a name="line.372"></a>
+<span class="sourceLineNo">373</span>        final FitnessFunction fitfun = new FitnessFunction();<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        final double[] guess = getStartPoint();<a name="line.374"></a>
+<span class="sourceLineNo">375</span>        // number of objective variables/problem dimension<a name="line.375"></a>
+<span class="sourceLineNo">376</span>        dimension = guess.length;<a name="line.376"></a>
+<span class="sourceLineNo">377</span>        initializeCMA(guess);<a name="line.377"></a>
+<span class="sourceLineNo">378</span>        iterations = 0;<a name="line.378"></a>
+<span class="sourceLineNo">379</span>        ValuePenaltyPair valuePenalty = fitfun.value(guess);<a name="line.379"></a>
+<span class="sourceLineNo">380</span>        double bestValue = valuePenalty.value+valuePenalty.penalty;<a name="line.380"></a>
+<span class="sourceLineNo">381</span>        push(fitnessHistory, bestValue);<a name="line.381"></a>
+<span class="sourceLineNo">382</span>        PointValuePair optimum<a name="line.382"></a>
+<span class="sourceLineNo">383</span>            = new PointValuePair(getStartPoint(),<a name="line.383"></a>
+<span class="sourceLineNo">384</span>                                 isMinimize ? bestValue : -bestValue);<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        PointValuePair lastResult = null;<a name="line.385"></a>
+<span class="sourceLineNo">386</span><a name="line.386"></a>
+<span class="sourceLineNo">387</span>        // -------------------- Generation Loop --------------------------------<a name="line.387"></a>
+<span class="sourceLineNo">388</span><a name="line.388"></a>
+<span class="sourceLineNo">389</span>        generationLoop:<a name="line.389"></a>
+<span class="sourceLineNo">390</span>        for (iterations = 1; iterations &lt;= maxIterations; iterations++) {<a name="line.390"></a>
+<span class="sourceLineNo">391</span>            incrementIterationCount();<a name="line.391"></a>
+<span class="sourceLineNo">392</span><a name="line.392"></a>
+<span class="sourceLineNo">393</span>            // Generate and evaluate lambda offspring<a name="line.393"></a>
+<span class="sourceLineNo">394</span>            final RealMatrix arz = randn1(dimension, lambda);<a name="line.394"></a>
+<span class="sourceLineNo">395</span>            final RealMatrix arx = zeros(dimension, lambda);<a name="line.395"></a>
+<span class="sourceLineNo">396</span>            final double[] fitness = new double[lambda];<a name="line.396"></a>
+<span class="sourceLineNo">397</span>            final ValuePenaltyPair[] valuePenaltyPairs = new ValuePenaltyPair[lambda];<a name="line.397"></a>
+<span class="sourceLineNo">398</span>            // generate random offspring<a name="line.398"></a>
+<span class="sourceLineNo">399</span>            for (int k = 0; k &lt; lambda; k++) {<a name="line.399"></a>
+<span class="sourceLineNo">400</span>                RealMatrix arxk = null;<a name="line.400"></a>
+<span class="sourceLineNo">401</span>                for (int i = 0; i &lt; checkFeasableCount + 1; i++) {<a name="line.401"></a>
+<span class="sourceLineNo">402</span>                    if (diagonalOnly &lt;= 0) {<a name="line.402"></a>
+<span class="sourceLineNo">403</span>                        arxk = xmean.add(BD.multiply(arz.getColumnMatrix(k))<a name="line.403"></a>
+<span class="sourceLineNo">404</span>                                         .scalarMultiply(sigma)); // m + sig * Normal(0,C)<a name="line.404"></a>
+<span class="sourceLineNo">405</span>                    } else {<a name="line.405"></a>
+<span class="sourceLineNo">406</span>                        arxk = xmean.add(times(diagD,arz.getColumnMatrix(k))<a name="line.406"></a>
+<span class="sourceLineNo">407</span>                                         .scalarMultiply(sigma));<a name="line.407"></a>
+<span class="sourceLineNo">408</span>                    }<a name="line.408"></a>
+<span class="sourceLineNo">409</span>                    if (i &gt;= checkFeasableCount ||<a name="line.409"></a>
+<span class="sourceLineNo">410</span>                        fitfun.isFeasible(arxk.getColumn(0))) {<a name="line.410"></a>
+<span class="sourceLineNo">411</span>                        break;<a name="line.411"></a>
+<span class="sourceLineNo">412</span>                    }<a name="line.412"></a>
+<span class="sourceLineNo">413</span>                    // regenerate random arguments for row<a name="line.413"></a>
+<span class="sourceLineNo">414</span>                    arz.setColumn(k, randn(dimension));<a name="line.414"></a>
+<span class="sourceLineNo">415</span>                }<a name="line.415"></a>
+<span class="sourceLineNo">416</span>                copyColumn(arxk, 0, arx, k);<a name="line.416"></a>
+<span class="sourceLineNo">417</span>                try {<a name="line.417"></a>
+<span class="sourceLineNo">418</span>                    valuePenaltyPairs[k] = fitfun.value(arx.getColumn(k)); // compute fitness<a name="line.418"></a>
+<span class="sourceLineNo">419</span>                } catch (TooManyEvaluationsException e) {<a name="line.419"></a>
+<span class="sourceLineNo">420</span>                    break generationLoop;<a name="line.420"></a>
+<span class="sourceLineNo">421</span>                }<a name="line.421"></a>
+<span class="sourceLineNo">422</span>            }<a name="line.422"></a>
+<span class="sourceLineNo">423</span><a name="line.423"></a>
+<span class="sourceLineNo">424</span>            // Compute fitnesses by adding value and penalty after scaling by value range.<a name="line.424"></a>
+<span class="sourceLineNo">425</span>            double valueRange = valueRange(valuePenaltyPairs);<a name="line.425"></a>
+<span class="sourceLineNo">426</span>            for (int iValue=0;iValue&lt;valuePenaltyPairs.length;iValue++) {<a name="line.426"></a>
+<span class="sourceLineNo">427</span>                 fitness[iValue] = valuePenaltyPairs[iValue].value + valuePenaltyPairs[iValue].penalty*valueRange;<a name="line.427"></a>
+<span class="sourceLineNo">428</span>            }<a name="line.428"></a>
+<span class="sourceLineNo">429</span><a name="line.429"></a>
+<span class="sourceLineNo">430</span>            // Sort by fitness and compute weighted mean into xmean<a name="line.430"></a>
+<span class="sourceLineNo">431</span>            final int[] arindex = sortedIndices(fitness);<a name="line.431"></a>
+<span class="sourceLineNo">432</span>            // Calculate new xmean, this is selection and recombination<a name="line.432"></a>
+<span class="sourceLineNo">433</span>            final RealMatrix xold = xmean; // for speed up of Eq. (2) and (3)<a name="line.433"></a>
+<span class="sourceLineNo">434</span>            final RealMatrix bestArx = selectColumns(arx, MathArrays.copyOf(arindex, mu));<a name="line.434"></a>
+<span class="sourceLineNo">435</span>            xmean = bestArx.multiply(weights);<a name="line.435"></a>
+<span class="sourceLineNo">436</span>            final RealMatrix bestArz = selectColumns(arz, MathArrays.copyOf(arindex, mu));<a name="line.436"></a>
+<span class="sourceLineNo">437</span>            final RealMatrix zmean = bestArz.multiply(weights);<a name="line.437"></a>
+<span class="sourceLineNo">438</span>            final boolean hsig = updateEvolutionPaths(zmean, xold);<a name="line.438"></a>
+<span class="sourceLineNo">439</span>            if (diagonalOnly &lt;= 0) {<a name="line.439"></a>
+<span class="sourceLineNo">440</span>                updateCovariance(hsig, bestArx, arz, arindex, xold);<a name="line.440"></a>
+<span class="sourceLineNo">441</span>            } else {<a name="line.441"></a>
+<span class="sourceLineNo">442</span>                updateCovarianceDiagonalOnly(hsig, bestArz);<a name="line.442"></a>
+<span class="sourceLineNo">443</span>            }<a name="line.443"></a>
+<span class="sourceLineNo">444</span>            // Adapt step size sigma - Eq. (5)<a name="line.444"></a>
+<span class="sourceLineNo">445</span>            sigma *= FastMath.exp(FastMath.min(1, (normps/chiN - 1) * cs / damps));<a name="line.445"></a>
+<span class="sourceLineNo">446</span>            final double bestFitness = fitness[arindex[0]];<a name="line.446"></a>
+<span class="sourceLineNo">447</span>            final double worstFitness = fitness[arindex[arindex.length - 1]];<a name="line.447"></a>
+<span class="sourceLineNo">448</span>            if (bestValue &gt; bestFitness) {<a name="line.448"></a>
+<span class="sourceLineNo">449</span>                bestValue = bestFitness;<a name="line.449"></a>
+<span class="sourceLineNo">450</span>                lastResult = optimum;<a name="line.450"></a>
+<span class="sourceLineNo">451</span>                optimum = new PointValuePair(fitfun.repair(bestArx.getColumn(0)),<a name="line.451"></a>
+<span class="sourceLineNo">452</span>                                             isMinimize ? bestFitness : -bestFitness);<a name="line.452"></a>
+<span class="sourceLineNo">453</span>                if (getConvergenceChecker() != null &amp;&amp; lastResult != null &amp;&amp;<a name="line.453"></a>
+<span class="sourceLineNo">454</span>                    getConvergenceChecker().converged(iterations, optimum, lastResult)) {<a name="line.454"></a>
+<span class="sourceLineNo">455</span>                    break generationLoop;<a name="line.455"></a>
+<span class="sourceLineNo">456</span>                }<a name="line.456"></a>
+<span class="sourceLineNo">457</span>            }<a name="line.457"></a>
+<span class="sourceLineNo">458</span>            // handle termination criteria<a name="line.458"></a>
+<span class="sourceLineNo">459</span>            // Break, if fitness is good enough<a name="line.459"></a>
+<span class="sourceLineNo">460</span>            if (stopFitness != 0 &amp;&amp; bestFitness &lt; (isMinimize ? stopFitness : -stopFitness)) {<a name="line.460"></a>
+<span class="sourceLineNo">461</span>                break generationLoop;<a name="line.461"></a>
+<span class="sourceLineNo">462</span>            }<a name="line.462"></a>
+<span class="sourceLineNo">463</span>            final double[] sqrtDiagC = sqrt(diagC).getColumn(0);<a name="line.463"></a>
+<span class="sourceLineNo">464</span>            final double[] pcCol = pc.getColumn(0);<a name="line.464"></a>
+<span class="sourceLineNo">465</span>            for (int i = 0; i &lt; dimension; i++) {<a name="line.465"></a>
+<span class="sourceLineNo">466</span>                if (sigma * FastMath.max(FastMath.abs(pcCol[i]), sqrtDiagC[i]) &gt; stopTolX) {<a name="line.466"></a>
+<span class="sourceLineNo">467</span>                    break;<a name="line.467"></a>
+<span class="sourceLineNo">468</span>                }<a name="line.468"></a>
+<span class="sourceLineNo">469</span>                if (i &gt;= dimension - 1) {<a name="line.469"></a>
+<span class="sourceLineNo">470</span>                    break generationLoop;<a name="line.470"></a>
+<span class="sourceLineNo">471</span>                }<a name="line.471"></a>
+<span class="sourceLineNo">472</span>            }<a name="line.472"></a>
+<span class="sourceLineNo">473</span>            for (int i = 0; i &lt; dimension; i++) {<a name="line.473"></a>
+<span class="sourceLineNo">474</span>                if (sigma * sqrtDiagC[i] &gt; stopTolUpX) {<a name="line.474"></a>
+<span class="sourceLineNo">475</span>                    break generationLoop;<a name="line.475"></a>
+<span class="sourceLineNo">476</span>                }<a name="line.476"></a>
+<span class="sourceLineNo">477</span>            }<a name="line.477"></a>
+<span class="sourceLineNo">478</span>            final double historyBest = min(fitnessHistory);<a name="line.478"></a>
+<span class="sourceLineNo">479</span>            final double historyWorst = max(fitnessHistory);<a name="line.479"></a>
+<span class="sourceLineNo">480</span>            if (iterations &gt; 2 &amp;&amp;<a name="line.480"></a>
+<span class="sourceLineNo">481</span>                FastMath.max(historyWorst, worstFitness) -<a name="line.481"></a>
+<span class="sourceLineNo">482</span>                FastMath.min(historyBest, bestFitness) &lt; stopTolFun) {<a name="line.482"></a>
+<span class="sourceLineNo">483</span>                break generationLoop;<a name="line.483"></a>
+<span class="sourceLineNo">484</span>            }<a name="line.484"></a>
+<span class="sourceLineNo">485</span>            if (iterations &gt; fitnessHistory.length &amp;&amp;<a name="line.485"></a>
+<span class="sourceLineNo">486</span>                historyWorst - historyBest &lt; stopTolHistFun) {<a name="line.486"></a>
+<span class="sourceLineNo">487</span>                break generationLoop;<a name="line.487"></a>
+<span class="sourceLineNo">488</span>            }<a name="line.488"></a>
+<span class="sourceLineNo">489</span>            // condition number of the covariance matrix exceeds 1e14<a name="line.489"></a>
+<span class="sourceLineNo">490</span>            if (max(diagD) / min(diagD) &gt; 1e7) {<a name="line.490"></a>
+<span class="sourceLineNo">491</span>                break generationLoop;<a name="line.491"></a>
+<span class="sourceLineNo">492</span>            }<a name="line.492"></a>
+<span class="sourceLineNo">493</span>            // user defined termination<a name="line.493"></a>
+<span class="sourceLineNo">494</span>            if (getConvergenceChecker() != null) {<a name="line.494"></a>
+<span class="sourceLineNo">495</span>                final PointValuePair current<a name="line.495"></a>
+<span class="sourceLineNo">496</span>                    = new PointValuePair(bestArx.getColumn(0),<a name="line.496"></a>
+<span class="sourceLineNo">497</span>                                         isMinimize ? bestFitness : -bestFitness);<a name="line.497"></a>
+<span class="sourceLineNo">498</span>                if (lastResult != null &amp;&amp;<a name="line.498"></a>
+<span class="sourceLineNo">499</span>                    getConvergenceChecker().converged(iterations, current, lastResult)) {<a name="line.499"></a>
+<span class="sourceLineNo">500</span>                    break generationLoop;<a name="line.500"></a>
+<span class="sourceLineNo">501</span>                    }<a name="line.501"></a>
+<span class="sourceLineNo">502</span>                lastResult = current;<a name="line.502"></a>
+<span class="sourceLineNo">503</span>            }<a name="line.503"></a>
+<span class="sourceLineNo">504</span>            // Adjust step size in case of equal function values (flat fitness)<a name="line.504"></a>
+<span class="sourceLineNo">505</span>            if (bestValue == fitness[arindex[(int)(0.1+lambda/4.)]]) {<a name="line.505"></a>
+<span class="sourceLineNo">506</span>                sigma *= FastMath.exp(0.2 + cs / damps);<a name="line.506"></a>
+<span class="sourceLineNo">507</span>            }<a name="line.507"></a>
+<span class="sourceLineNo">508</span>            if (iterations &gt; 2 &amp;&amp; FastMath.max(historyWorst, bestFitness) -<a name="line.508"></a>
+<span class="sourceLineNo">509</span>                FastMath.min(historyBest, bestFitness) == 0) {<a name="line.509"></a>
+<span class="sourceLineNo">510</span>                sigma *= FastMath.exp(0.2 + cs / damps);<a name="line.510"></a>
+<span class="sourceLineNo">511</span>            }<a name="line.511"></a>
+<span class="sourceLineNo">512</span>            // store best in history<a name="line.512"></a>
+<span class="sourceLineNo">513</span>            push(fitnessHistory,bestFitness);<a name="line.513"></a>
+<span class="sourceLineNo">514</span>            if (generateStatistics) {<a name="line.514"></a>
+<span class="sourceLineNo">515</span>                statisticsSigmaHistory.add(sigma);<a name="line.515"></a>
+<span class="sourceLineNo">516</span>                statisticsFitnessHistory.add(bestFitness);<a name="line.516"></a>
+<span class="sourceLineNo">517</span>                statisticsMeanHistory.add(xmean.transpose());<a name="line.517"></a>
+<span class="sourceLineNo">518</span>                statisticsDHistory.add(diagD.transpose().scalarMultiply(1E5));<a name="line.518"></a>
+<span class="sourceLineNo">519</span>            }<a name="line.519"></a>
+<span class="sourceLineNo">520</span>        }<a name="line.520"></a>
+<span class="sourceLineNo">521</span>        return optimum;<a name="line.521"></a>
+<span class="sourceLineNo">522</span>    }<a name="line.522"></a>
+<span class="sourceLineNo">523</span><a name="line.523"></a>
+<span class="sourceLineNo">524</span>    /**<a name="line.524"></a>
+<span class="sourceLineNo">525</span>     * Scans the list of (required and optional) optimization data that<a name="line.525"></a>
+<span class="sourceLineNo">526</span>     * characterize the problem.<a name="line.526"></a>
+<span class="sourceLineNo">527</span>     *<a name="line.527"></a>
+<span class="sourceLineNo">528</span>     * @param optData Optimization data. The following data will be looked for:<a name="line.528"></a>
+<span class="sourceLineNo">529</span>     * &lt;ul&gt;<a name="line.529"></a>
+<span class="sourceLineNo">530</span>     *  &lt;li&gt;{@link Sigma}&lt;/li&gt;<a name="line.530"></a>
+<span class="sourceLineNo">531</span>     *  &lt;li&gt;{@link PopulationSize}&lt;/li&gt;<a name="line.531"></a>
+<span class="sourceLineNo">532</span>     * &lt;/ul&gt;<a name="line.532"></a>
+<span class="sourceLineNo">533</span>     */<a name="line.533"></a>
+<span class="sourceLineNo">534</span>    @Override<a name="line.534"></a>
+<span class="sourceLineNo">535</span>    protected void parseOptimizationData(OptimizationData... optData) {<a name="line.535"></a>
+<span class="sourceLineNo">536</span>        // Allow base class to register its own data.<a name="line.536"></a>
+<span class="sourceLineNo">537</span>        super.parseOptimizationData(optData);<a name="line.537"></a>
+<span class="sourceLineNo">538</span><a name="line.538"></a>
+<span class="sourceLineNo">539</span>        // The existing values (as set by the previous call) are reused if<a name="line.539"></a>
+<span class="sourceLineNo">540</span>        // not provided in the argument list.<a name="line.540"></a>
+<span class="sourceLineNo">541</span>        for (OptimizationData data : optData) {<a name="line.541"></a>
+<span class="sourceLineNo">542</span>            if (data instanceof Sigma) {<a name="line.542"></a>
+<span class="sourceLineNo">543</span>                inputSigma = ((Sigma) data).getSigma();<a name="line.543"></a>
+<span class="sourceLineNo">544</span>                continue;<a name="line.544"></a>
+<span class="sourceLineNo">545</span>            }<a name="line.545"></a>
+<span class="sourceLineNo">546</span>            if (data instanceof PopulationSize) {<a name="line.546"></a>
+<span class="sourceLineNo">547</span>                lambda = ((PopulationSize) data).getPopulationSize();<a name="line.547"></a>
+<span class="sourceLineNo">548</span>                continue;<a name="line.548"></a>
+<span class="sourceLineNo">549</span>            }<a name="line.549"></a>
+<span class="sourceLineNo">550</span>        }<a name="line.550"></a>
+<span class="sourceLineNo">551</span><a name="line.551"></a>
+<span class="sourceLineNo">552</span>        checkParameters();<a name="line.552"></a>
+<span class="sourceLineNo">553</span>    }<a name="line.553"></a>
+<span class="sourceLineNo">554</span><a name="line.554"></a>
+<span class="sourceLineNo">555</span>    /**<a name="line.555"></a>
+<span class="sourceLineNo">556</span>     * Checks dimensions and values of boundaries and inputSigma if defined.<a name="line.556"></a>
+<span class="sourceLineNo">557</span>     */<a name="line.557"></a>
+<span class="sourceLineNo">558</span>    private void checkParameters() {<a name="line.558"></a>
+<span class="sourceLineNo">559</span>        final double[] init = getStartPoint();<a name="line.559"></a>
+<span class="sourceLineNo">560</span>        final double[] lB = getLowerBound();<a name="line.560"></a>
+<span class="sourceLineNo">561</span>        final double[] uB = getUpperBound();<a name="line.561"></a>
+<span class="sourceLineNo">562</span><a name="line.562"></a>
+<span class="sourceLineNo">563</span>        if (inputSigma != null) {<a name="line.563"></a>
+<span class="sourceLineNo">564</span>            if (inputSigma.length != init.length) {<a name="line.564"></a>
+<span class="sourceLineNo">565</span>                throw new DimensionMismatchException(inputSigma.length, init.length);<a name="line.565"></a>
+<span class="sourceLineNo">566</span>            }<a name="line.566"></a>
+<span class="sourceLineNo">567</span>            for (int i = 0; i &lt; init.length; i++) {<a name="line.567"></a>
+<span class="sourceLineNo">568</span>                if (inputSigma[i] &gt; uB[i] - lB[i]) {<a name="line.568"></a>
+<span class="sourceLineNo">569</span>                    throw new OutOfRangeException(inputSigma[i], 0, uB[i] - lB[i]);<a name="line.569"></a>
+<span class="sourceLineNo">570</span>                }<a name="line.570"></a>
+<span class="sourceLineNo">571</span>            }<a name="line.571"></a>
+<span class="sourceLineNo">572</span>        }<a name="line.572"></a>
+<span class="sourceLineNo">573</span>    }<a name="line.573"></a>
+<span class="sourceLineNo">574</span><a name="line.574"></a>
+<span class="sourceLineNo">575</span>    /**<a name="line.575"></a>
+<span class="sourceLineNo">576</span>     * Initialization of the dynamic search parameters<a name="line.576"></a>
+<span class="sourceLineNo">577</span>     *<a name="line.577"></a>
+<span class="sourceLineNo">578</span>     * @param guess Initial guess for the arguments of the fitness function.<a name="line.578"></a>
+<span class="sourceLineNo">579</span>     */<a name="line.579"></a>
+<span class="sourceLineNo">580</span>    private void initializeCMA(double[] guess) {<a name="line.580"></a>
+<span class="sourceLineNo">581</span>        if (lambda &lt;= 0) {<a name="line.581"></a>
+<span class="sourceLineNo">582</span>            throw new NotStrictlyPositiveException(lambda);<a name="line.582"></a>
+<span class="sourceLineNo">583</span>        }<a name="line.583"></a>
+<span class="sourceLineNo">584</span>        // initialize sigma<a name="line.584"></a>
+<span class="sourceLineNo">585</span>        final double[][] sigmaArray = new double[guess.length][1];<a name="line.585"></a>
+<span class="sourceLineNo">586</span>        for (int i = 0; i &lt; guess.length; i++) {<a name="line.586"></a>
+<span class="sourceLineNo">587</span>            sigmaArray[i][0] = inputSigma[i];<a name="line.587"></a>
+<span class="sourceLineNo">588</span>        }<a name="line.588"></a>
+<span class="sourceLineNo">589</span>        final RealMatrix insigma = new Array2DRowRealMatrix(sigmaArray, false);<a name="line.589"></a>
+<span class="sourceLineNo">590</span>        sigma = max(insigma); // overall standard deviation<a name="line.590"></a>
+<span class="sourceLineNo">591</span><a name="line.591"></a>
+<span class="sourceLineNo">592</span>        // initialize termination criteria<a name="line.592"></a>
+<span class="sourceLineNo">593</span>        stopTolUpX = 1e3 * max(insigma);<a name="line.593"></a>
+<span class="sourceLineNo">594</span>        stopTolX = 1e-11 * max(insigma);<a name="line.594"></a>
+<span class="sourceLineNo">595</span>        stopTolFun = 1e-12;<a name="line.595"></a>
+<span class="sourceLineNo">596</span>        stopTolHistFun = 1e-13;<a name="line.596"></a>
+<span class="sourceLineNo">597</span><a name="line.597"></a>
+<span class="sourceLineNo">598</span>        // initialize selection strategy parameters<a name="line.598"></a>
+<span class="sourceLineNo">599</span>        mu = lambda / 2; // number of parents/points for recombination<a name="line.599"></a>
+<span class="sourceLineNo">600</span>        logMu2 = FastMath.log(mu + 0.5);<a name="line.600"></a>
+<span class="sourceLineNo">601</span>        weights = log(sequence(1, mu, 1)).scalarMultiply(-1).scalarAdd(logMu2);<a name="line.601"></a>
+<span class="sourceLineNo">602</span>        double sumw = 0;<a name="line.602"></a>
+<span class="sourceLineNo">603</span>        double sumwq = 0;<a name="line.603"></a>
+<span class="sourceLineNo">604</span>        for (int i = 0; i &lt; mu; i++) {<a name="line.604"></a>
+<span class="sourceLineNo">605</span>            double w = weights.getEntry(i, 0);<a name="line.605"></a>
+<span class="sourceLineNo">606</span>            sumw += w;<a name="line.606"></a>
+<span class="sourceLineNo">607</span>            sumwq += w * w;<a name="line.607"></a>
+<span class="sourceLineNo">608</span>        }<a name="line.608"></a>
+<span class="sourceLineNo">609</span>        weights = weights.scalarMultiply(1 / sumw);<a name="line.609"></a>
+<span class="sourceLineNo">610</span>        mueff = sumw * sumw / sumwq; // variance-effectiveness of sum w_i x_i<a name="line.610"></a>
+<span class="sourceLineNo">611</span><a name="line.611"></a>
+<span class="sourceLineNo">612</span>        // initialize dynamic strategy parameters and constants<a name="line.612"></a>
+<span class="sourceLineNo">613</span>        cc = (4 + mueff / dimension) /<a name="line.613"></a>
+<span class="sourceLineNo">614</span>                (dimension + 4 + 2 * mueff / dimension);<a name="line.614"></a>
+<span class="sourceLineNo">615</span>        cs = (mueff + 2) / (dimension + mueff + 3.);<a name="line.615"></a>
+<span class="sourceLineNo">616</span>        damps = (1 + 2 * FastMath.max(0, FastMath.sqrt((mueff - 1) /<a name="line.616"></a>
+<span class="sourceLineNo">617</span>                                                       (dimension + 1)) - 1)) *<a name="line.617"></a>
+<span class="sourceLineNo">618</span>            FastMath.max(0.3,<a name="line.618"></a>
+<span class="sourceLineNo">619</span>                         1 - dimension / (1e-6 + maxIterations)) + cs; // minor increment<a name="line.619"></a>
+<span class="sourceLineNo">620</span>        ccov1 = 2 / ((dimension + 1.3) * (dimension + 1.3) + mueff);<a name="line.620"></a>
+<span class="sourceLineNo">621</span>        ccovmu = FastMath.min(1 - ccov1, 2 * (mueff - 2 + 1 / mueff) /<a name="line.621"></a>
+<span class="sourceLineNo">622</span>                              ((dimension + 2) * (dimension + 2) + mueff));<a name="line.622"></a>
+<span class="sourceLineNo">623</span>        ccov1Sep = FastMath.min(1, ccov1 * (dimension + 1.5) / 3);<a name="line.623"></a>
+<span class="sourceLineNo">624</span>        ccovmuSep = FastMath.min(1 - ccov1, ccovmu * (dimension + 1.5) / 3);<a name="line.624"></a>
+<span class="sourceLineNo">625</span>        chiN = FastMath.sqrt(dimension) *<a name="line.625"></a>
+<span class="sourceLineNo">626</span>                (1 - 1 / ((double) 4 * dimension) + 1 / ((double) 21 * dimension * dimension));<a name="line.626"></a>
+<span class="sourceLineNo">627</span>        // intialize CMA internal values - updated each generation<a name="line.627"></a>
+<span class="sourceLineNo">628</span>        xmean = MatrixUtils.createColumnRealMatrix(guess); // objective variables<a name="line.628"></a>
+<span class="sourceLineNo">629</span>        diagD = insigma.scalarMultiply(1 / sigma);<a name="line.629"></a>
+<span class="sourceLineNo">630</span>        diagC = square(diagD);<a name="line.630"></a>
+<span class="sourceLineNo">631</span>        pc = zeros(dimension, 1); // evolution paths for C and sigma<a name="line.631"></a>
+<span class="sourceLineNo">632</span>        ps = zeros(dimension, 1); // B defines the coordinate system<a name="line.632"></a>
+<span class="sourceLineNo">633</span>        normps = ps.getFrobeniusNorm();<a name="line.633"></a>
+<span class="sourceLineNo">634</span><a name="line.634"></a>
+<span class="sourceLineNo">635</span>        B = eye(dimension, dimension);<a name="line.635"></a>
+<span class="sourceLineNo">636</span>        D = ones(dimension, 1); // diagonal D defines the scaling<a name="line.636"></a>
+<span class="sourceLineNo">637</span>        BD = times(B, repmat(diagD.transpose(), dimension, 1));<a name="line.637"></a>
+<span class="sourceLineNo">638</span>        C = B.multiply(diag(square(D)).multiply(B.transpose())); // covariance<a name="line.638"></a>
+<span class="sourceLineNo">639</span>        historySize = 10 + (int) (3 * 10 * dimension / (double) lambda);<a name="line.639"></a>
+<span class="sourceLineNo">640</span>        fitnessHistory = new double[historySize]; // history of fitness values<a name="line.640"></a>
+<span class="sourceLineNo">641</span>        for (int i = 0; i &lt; historySize; i++) {<a name="line.641"></a>
+<span class="sourceLineNo">642</span>            fitnessHistory[i] = Double.MAX_VALUE;<a name="line.642"></a>
+<span class="sourceLineNo">643</span>        }<a name="line.643"></a>
+<span class="sourceLineNo">644</span>    }<a name="line.644"></a>
+<span class="sourceLineNo">645</span><a name="line.645"></a>
+<span class="sourceLineNo">646</span>    /**<a name="line.646"></a>
+<span class="sourceLineNo">647</span>     * Update of the evolution paths ps and pc.<a name="line.647"></a>
+<span class="sourceLineNo">648</span>     *<a name="line.648"></a>
+<span class="sourceLineNo">649</span>     * @param zmean Weighted row matrix of the gaussian random numbers generating<a name="line.649"></a>
+<span class="sourceLineNo">650</span>     * the current offspring.<a name="line.650"></a>
+<span class="sourceLineNo">651</span>     * @param xold xmean matrix of the previous generation.<a name="line.651"></a>
+<span class="sourceLineNo">652</span>     * @return hsig flag indicating a small correction.<a name="line.652"></a>
+<span class="sourceLineNo">653</span>     */<a name="line.653"></a>
+<span class="sourceLineNo">654</span>    private boolean updateEvolutionPaths(RealMatrix zmean, RealMatrix xold) {<a name="line.654"></a>
+<span class="sourceLineNo">655</span>        ps = ps.scalarMultiply(1 - cs).add(<a name="line.655"></a>
+<span class="sourceLineNo">656</span>                B.multiply(zmean).scalarMultiply(<a name="line.656"></a>
+<span class="sourceLineNo">657</span>                        FastMath.sqrt(cs * (2 - cs) * mueff)));<a name="line.657"></a>
+<span class="sourceLineNo">658</span>        normps = ps.getFrobeniusNorm();<a name="line.658"></a>
+<span class="sourceLineNo">659</span>        final boolean hsig = normps /<a name="line.659"></a>
+<span class="sourceLineNo">660</span>            FastMath.sqrt(1 - FastMath.pow(1 - cs, 2 * iterations)) /<a name="line.660"></a>
+<span class="sourceLineNo">661</span>            chiN &lt; 1.4 + 2 / ((double) dimension + 1);<a name="line.661"></a>
+<span class="sourceLineNo">662</span>        pc = pc.scalarMultiply(1 - cc);<a name="line.662"></a>
+<span class="sourceLineNo">663</span>        if (hsig) {<a name="line.663"></a>
+<span class="sourceLineNo">664</span>            pc = pc.add(xmean.subtract(xold).scalarMultiply(FastMath.sqrt(cc * (2 - cc) * mueff) / sigma));<a name="line.664"></a>
+<span class="sourceLineNo">665</span>        }<a name="line.665"></a>
+<span class="sourceLineNo">666</span>        return hsig;<a name="line.666"></a>
+<span class="sourceLineNo">667</span>    }<a name="line.667"></a>
+<span class="sourceLineNo">668</span><a name="line.668"></a>
+<span class="sourceLineNo">669</span>    /**<a name="line.669"></a>
+<span class="sourceLineNo">670</span>     * Update of the covariance matrix C for diagonalOnly &gt; 0<a name="line.670"></a>
+<span class="sourceLineNo">671</span>     *<a name="line.671"></a>
+<span class="sourceLineNo">672</span>     * @param hsig Flag indicating a small correction.<a name="line.672"></a>
+<span class="sourceLineNo">673</span>     * @param bestArz Fitness-sorted matrix of the gaussian random values of the<a name="line.673"></a>
+<span class="sourceLineNo">674</span>     * current offspring.<a name="line.674"></a>
+<span class="sourceLineNo">675</span>     */<a name="line.675"></a>
+<span class="sourceLineNo">676</span>    private void updateCovarianceDiagonalOnly(boolean hsig,<a name="line.676"></a>
+<span class="sourceLineNo">677</span>                                              final RealMatrix bestArz) {<a name="line.677"></a>
+<span class="sourceLineNo">678</span>        // minor correction if hsig==false<a name="line.678"></a>
+<span class="sourceLineNo">679</span>        double oldFac = hsig ? 0 : ccov1Sep * cc * (2 - cc);<a name="line.679"></a>
+<span class="sourceLineNo">680</span>        oldFac += 1 - ccov1Sep - ccovmuSep;<a name="line.680"></a>
+<span class="sourceLineNo">681</span>        diagC = diagC.scalarMultiply(oldFac) // regard old matrix<a name="line.681"></a>
+<span class="sourceLineNo">682</span>            .add(square(pc).scalarMultiply(ccov1Sep)) // plus rank one update<a name="line.682"></a>
+<span class="sourceLineNo">683</span>            .add((times(diagC, square(bestArz).multiply(weights))) // plus rank mu update<a name="line.683"></a>
+<span class="sourceLineNo">684</span>                 .scalarMultiply(ccovmuSep));<a name="line.684"></a>
+<span class="sourceLineNo">685</span>        diagD = sqrt(diagC); // replaces eig(C)<a name="line.685"></a>
+<span class="sourceLineNo">686</span>        if (diagonalOnly &gt; 1 &amp;&amp;<a name="line.686"></a>
+<span class="sourceLineNo">687</span>            iterations &gt; diagonalOnly) {<a name="line.687"></a>
+<span class="sourceLineNo">688</span>            // full covariance matrix from now on<a name="line.688"></a>
+<span class="sourceLineNo">689</span>            diagonalOnly = 0;<a name="line.689"></a>
+<span class="sourceLineNo">690</span>            B = eye(dimension, dimension);<a name="line.690"></a>
+<span class="sourceLineNo">691</span>            BD = diag(diagD);<a name="line.691"></a>
+<span class="sourceLineNo">692</span>            C = diag(diagC);<a name="line.692"></a>
+<span class="sourceLineNo">693</span>        }<a name="line.693"></a>
+<span class="sourceLineNo">694</span>    }<a name="line.694"></a>
+<span class="sourceLineNo">695</span><a name="line.695"></a>
+<span class="sourceLineNo">696</span>    /**<a name="line.696"></a>
+<span class="sourceLineNo">697</span>     * Update of the covariance matrix C.<a name="line.697"></a>
+<span class="sourceLineNo">698</span>     *<a name="line.698"></a>
+<span class="sourceLineNo">699</span>     * @param hsig Flag indicating a small correction.<a name="line.699"></a>
+<span class="sourceLineNo">700</span>     * @param bestArx Fitness-sorted matrix of the argument vectors producing the<a name="line.700"></a>
+<span class="sourceLineNo">701</span>     * current offspring.<a name="line.701"></a>
+<span class="sourceLineNo">702</span>     * @param arz Unsorted matrix containing the gaussian random values of the<a name="line.702"></a>
+<span class="sourceLineNo">703</span>     * current offspring.<a name="line.703"></a>
+<span class="sourceLineNo">704</span>     * @param arindex Indices indicating the fitness-order of the current offspring.<a name="line.704"></a>
+<span class="sourceLineNo">705</span>     * @param xold xmean matrix of the previous generation.<a name="line.705"></a>
+<span class="sourceLineNo">706</span>     */<a name="line.706"></a>
+<span class="sourceLineNo">707</span>    private void updateCovariance(boolean hsig, final RealMatrix bestArx,<a name="line.707"></a>
+<span class="sourceLineNo">708</span>                                  final RealMatrix arz, final int[] arindex,<a name="line.708"></a>
+<span class="sourceLineNo">709</span>                                  final RealMatrix xold) {<a name="line.709"></a>
+<span class="sourceLineNo">710</span>        double negccov = 0;<a name="line.710"></a>
+<span class="sourceLineNo">711</span>        if (ccov1 + ccovmu &gt; 0) {<a name="line.711"></a>
+<span class="sourceLineNo">712</span>            final RealMatrix arpos = bestArx.subtract(repmat(xold, 1, mu))<a name="line.712"></a>
+<span class="sourceLineNo">713</span>                .scalarMultiply(1 / sigma); // mu difference vectors<a name="line.713"></a>
+<span class="sourceLineNo">714</span>            final RealMatrix roneu = pc.multiply(pc.transpose())<a name="line.714"></a>
+<span class="sourceLineNo">715</span>                .scalarMultiply(ccov1); // rank one update<a name="line.715"></a>
+<span class="sourceLineNo">716</span>            // minor correction if hsig==false<a name="line.716"></a>
+<span class="sourceLineNo">717</span>            double oldFac = hsig ? 0 : ccov1 * cc * (2 - cc);<a name="line.717"></a>
+<span class="sourceLineNo">718</span>            oldFac += 1 - ccov1 - ccovmu;<a name="line.718"></a>
+<span class="sourceLineNo">719</span>            if (isActiveCMA) {<a name="line.719"></a>
+<span class="sourceLineNo">720</span>                // Adapt covariance matrix C active CMA<a name="line.720"></a>
+<span class="sourceLineNo">721</span>                negccov = (1 - ccovmu) * 0.25 * mueff /<a name="line.721"></a>
+<span class="sourceLineNo">722</span>                    (FastMath.pow(dimension + 2, 1.5) + 2 * mueff);<a name="line.722"></a>
+<span class="sourceLineNo">723</span>                // keep at least 0.66 in all directions, small popsize are most<a name="line.723"></a>
+<span class="sourceLineNo">724</span>                // critical<a name="line.724"></a>
+<span class="sourceLineNo">725</span>                final double negminresidualvariance = 0.66;<a name="line.725"></a>
+<span class="sourceLineNo">726</span>                // where to make up for the variance loss<a name="line.726"></a>
+<span class="sourceLineNo">727</span>                final double negalphaold = 0.5;<a name="line.727"></a>
+<span class="sourceLineNo">728</span>                // prepare vectors, compute negative updating matrix Cneg<a name="line.728"></a>
+<span class="sourceLineNo">729</span>                final int[] arReverseIndex = reverse(arindex);<a name="line.729"></a>
+<span class="sourceLineNo">730</span>                RealMatrix arzneg = selectColumns(arz, MathArrays.copyOf(arReverseIndex, mu));<a name="line.730"></a>
+<span class="sourceLineNo">731</span>                RealMatrix arnorms = sqrt(sumRows(square(arzneg)));<a name="line.731"></a>
+<span class="sourceLineNo">732</span>                final int[] idxnorms = sortedIndices(arnorms.getRow(0));<a name="line.732"></a>
+<span class="sourceLineNo">733</span>                final RealMatrix arnormsSorted = selectColumns(arnorms, idxnorms);<a name="line.733"></a>
+<span class="sourceLineNo">734</span>                final int[] idxReverse = reverse(idxnorms);<a name="line.734"></a>
+<span class="sourceLineNo">735</span>                final RealMatrix arnormsReverse = selectColumns(arnorms, idxReverse);<a name="line.735"></a>
+<span class="sourceLineNo">736</span>                arnorms = divide(arnormsReverse, arnormsSorted);<a name="line.736"></a>
+<span class="sourceLineNo">737</span>                final int[] idxInv = inverse(idxnorms);<a name="line.737"></a>
+<span class="sourceLineNo">738</span>                final RealMatrix arnormsInv = selectColumns(arnorms, idxInv);<a name="line.738"></a>
+<span class="sourceLineNo">739</span>                // check and set learning rate negccov<a name="line.739"></a>
+<span class="sourceLineNo">740</span>                final double negcovMax = (1 - negminresidualvariance) /<a name="line.740"></a>
+<span class="sourceLineNo">741</span>                    square(arnormsInv).multiply(weights).getEntry(0, 0);<a name="line.741"></a>
+<span class="sourceLineNo">742</span>                if (negccov &gt; negcovMax) {<a name="line.742"></a>
+<span class="sourceLineNo">743</span>                    negccov = negcovMax;<a name="line.743"></a>
+<span class="sourceLineNo">744</span>                }<a name="line.744"></a>
+<span class="sourceLineNo">745</span>                arzneg = times(arzneg, repmat(arnormsInv, dimension, 1));<a name="line.745"></a>
+<span class="sourceLineNo">746</span>                final RealMatrix artmp = BD.multiply(arzneg);<a name="line.746"></a>
+<span class="sourceLineNo">747</span>                final RealMatrix Cneg = artmp.multiply(diag(weights)).multiply(artmp.transpose());<a name="line.747"></a>
+<span class="sourceLineNo">748</span>                oldFac += negalphaold * negccov;<a name="line.748"></a>
+<span class="sourceLineNo">749</span>                C = C.scalarMultiply(oldFac)<a name="line.749"></a>
+<span class="sourceLineNo">750</span>                    .add(roneu) // regard old matrix<a name="line.750"></a>
+<span class="sourceLineNo">751</span>                    .add(arpos.scalarMultiply( // plus rank one update<a name="line.751"></a>
+<span class="sourceLineNo">752</span>                                              ccovmu + (1 - negalphaold) * negccov) // plus rank mu update<a name="line.752"></a>
+<span class="sourceLineNo">753</span>                         .multiply(times(repmat(weights, 1, dimension),<a name="line.753"></a>
+<span class="sourceLineNo">754</span>                                         arpos.transpose())))<a name="line.754"></a>
+<span class="sourceLineNo">755</span>                    .subtract(Cneg.scalarMultiply(negccov));<a name="line.755"></a>
+<span class="sourceLineNo">756</span>            } else {<a name="line.756"></a>
+<span class="sourceLineNo">757</span>                // Adapt covariance matrix C - nonactive<a name="line.757"></a>
+<span class="sourceLineNo">758</span>                C = C.scalarMultiply(oldFac) // regard old matrix<a name="line.758"></a>
+<span class="sourceLineNo">759</span>                    .add(roneu) // plus rank one update<a name="line.759"></a>
+<span class="sourceLineNo">760</span>                    .add(arpos.scalarMultiply(ccovmu) // plus rank mu update<a name="line.760"></a>
+<span class="sourceLineNo">761</span>                         .multiply(times(repmat(weights, 1, dimension),<a name="line.761"></a>
+<span class="sourceLineNo">762</span>                                         arpos.transpose())));<a name="line.762"></a>
+<span class="sourceLineNo">763</span>            }<a name="line.763"></a>
+<span class="sourceLineNo">764</span>        }<a name="line.764"></a>
+<span class="sourceLineNo">765</span>        updateBD(negccov);<a name="line.765"></a>
+<span class="sourceLineNo">766</span>    }<a name="line.766"></a>
+<span class="sourceLineNo">767</span><a name="line.767"></a>
+<span class="sourceLineNo">768</span>    /**<a name="line.768"></a>
+<span class="sourceLineNo">769</span>     * Update B and D from C.<a name="line.769"></a>
+<span class="sourceLineNo">770</span>     *<a name="line.770"></a>
+<span class="sourceLineNo">771</span>     * @param negccov Negative covariance factor.<a name="line.771"></a>
+<span class="sourceLineNo">772</span>     */<a name="line.772"></a>
+<span class="sourceLineNo">773</span>    private void updateBD(double negccov) {<a name="line.773"></a>
+<span class="sourceLineNo">774</span>        if (ccov1 + ccovmu + negccov &gt; 0 &amp;&amp;<a name="line.774"></a>
+<span class="sourceLineNo">775</span>            (iterations % 1. / (ccov1 + ccovmu + negccov) / dimension / 10.) &lt; 1) {<a name="line.775"></a>
+<span class="sourceLineNo">776</span>            // to achieve O(N^2)<a name="line.776"></a>
+<span class="sourceLineNo">777</span>            C = triu(C, 0).add(triu(C, 1).transpose());<a name="line.777"></a>
+<span class="sourceLineNo">778</span>            // enforce symmetry to prevent complex numbers<a name="line.778"></a>
+<span class="sourceLineNo">779</span>            final EigenDecomposition eig = new EigenDecomposition(C);<a name="line.779"></a>
+<span class="sourceLineNo">780</span>            B = eig.getV(); // eigen decomposition, B==normalized eigenvectors<a name="line.780"></a>
+<span class="sourceLineNo">781</span>            D = eig.getD();<a name="line.781"></a>
+<span class="sourceLineNo">782</span>            diagD = diag(D);<a name="line.782"></a>
+<span class="sourceLineNo">783</span>            if (min(diagD) &lt;= 0) {<a name="line.783"></a>
+<span class="sourceLineNo">784</span>                for (int i = 0; i &lt; dimension; i++) {<a name="line.784"></a>
+<span class="sourceLineNo">785</span>                    if (diagD.getEntry(i, 0) &lt; 0) {<a name="line.785"></a>
+<span class="sourceLineNo">786</span>                        diagD.setEntry(i, 0, 0);<a name="line.786"></a>
+<span class="sourceLineNo">787</span>                    }<a name="line.787"></a>
+<span class="sourceLineNo">788</span>                }<a name="line.788"></a>
+<span class="sourceLineNo">789</span>                final double tfac = max(diagD) / 1e14;<a name="line.789"></a>
+<span class="sourceLineNo">790</span>                C = C.add(eye(dimension, dimension).scalarMultiply(tfac));<a name="line.790"></a>
+<span class="sourceLineNo">791</span>                diagD = diagD.add(ones(dimension, 1).scalarMultiply(tfac));<a name="line.791"></a>
+<span class="sourceLineNo">792</span>            }<a name="line.792"></a>
+<span class="sourceLineNo">793</span>            if (max(diagD) &gt; 1e14 * min(diagD)) {<a name="line.793"></a>
+<span class="sourceLineNo">794</span>                final double tfac = max(diagD) / 1e14 - min(diagD);<a name="line.794"></a>
+<span class="sourceLineNo">795</span>                C = C.add(eye(dimension, dimension).scalarMultiply(tfac));<a name="line.795"></a>
+<span class="sourceLineNo">796</span>                diagD = diagD.add(ones(dimension, 1).scalarMultiply(tfac));<a name="line.796"></a>
+<span class="sourceLineNo">797</span>            }<a name="line.797"></a>
+<span class="sourceLineNo">798</span>            diagC = diag(C);<a name="line.798"></a>
+<span class="sourceLineNo">799</span>            diagD = sqrt(diagD); // D contains standard deviations now<a name="line.799"></a>
+<span class="sourceLineNo">800</span>            BD = times(B, repmat(diagD.transpose(), dimension, 1)); // O(n^2)<a name="line.800"></a>
+<span class="sourceLineNo">801</span>        }<a name="line.801"></a>
+<span class="sourceLineNo">802</span>    }<a name="line.802"></a>
+<span class="sourceLineNo">803</span><a name="line.803"></a>
+<span class="sourceLineNo">804</span>    /**<a name="line.804"></a>
+<span class="sourceLineNo">805</span>     * Pushes the current best fitness value in a history queue.<a name="line.805"></a>
+<span class="sourceLineNo">806</span>     *<a name="line.806"></a>
+<span class="sourceLineNo">807</span>     * @param vals History queue.<a name="line.807"></a>
+<span class="sourceLineNo">808</span>     * @param val Current best fitness value.<a name="line.808"></a>
+<span class="sourceLineNo">809</span>     */<a name="line.809"></a>
+<span class="sourceLineNo">810</span>    private static void push(double[] vals, double val) {<a name="line.810"></a>
+<span class="sourceLineNo">811</span>        for (int i = vals.length-1; i &gt; 0; i--) {<a name="line.811"></a>
+<span class="sourceLineNo">812</span>            vals[i] = vals[i-1];<a name="line.812"></a>
+<span class="sourceLineNo">813</span>        }<a name="line.813"></a>
+<span class="sourceLineNo">814</span>        vals[0] = val;<a name="line.814"></a>
+<span class="sourceLineNo">815</span>    }<a name="line.815"></a>
+<span class="sourceLineNo">816</span><a name="line.816"></a>
+<span class="sourceLineNo">817</span>    /**<a name="line.817"></a>
+<span class="sourceLineNo">818</span>     * Sorts fitness values.<a name="line.818"></a>
+<span class="sourceLineNo">819</span>     *<a name="line.819"></a>
+<span class="sourceLineNo">820</span>     * @param doubles Array of values to be sorted.<a name="line.820"></a>
+<span class="sourceLineNo">821</span>     * @return a sorted array of indices pointing into doubles.<a name="line.821"></a>
+<span class="sourceLineNo">822</span>     */<a name="line.822"></a>
+<span class="sourceLineNo">823</span>    private int[] sortedIndices(final double[] doubles) {<a name="line.823"></a>
+<span class="sourceLineNo">824</span>        final DoubleIndex[] dis = new DoubleIndex[doubles.length];<a name="line.824"></a>
+<span class="sourceLineNo">825</span>        for (int i = 0; i &lt; doubles.length; i++) {<a name="line.825"></a>
+<span class="sourceLineNo">826</span>            dis[i] = new DoubleIndex(doubles[i], i);<a name="line.826"></a>
+<span class="sourceLineNo">827</span>        }<a name="line.827"></a>
+<span class="sourceLineNo">828</span>        Arrays.sort(dis);<a name="line.828"></a>
+<span class="sourceLineNo">829</span>        final int[] indices = new int[doubles.length];<a name="line.829"></a>
+<span class="sourceLineNo">830</span>        for (int i = 0; i &lt; doubles.length; i++) {<a name="line.830"></a>
+<span class="sourceLineNo">831</span>            indices[i] = dis[i].index;<a name="line.831"></a>
+<span class="sourceLineNo">832</span>        }<a name="line.832"></a>
+<span class="sourceLineNo">833</span>        return indices;<a name="line.833"></a>
+<span class="sourceLineNo">834</span>    }<a name="line.834"></a>
+<span class="sourceLineNo">835</span>   /**<a name="line.835"></a>
+<span class="sourceLineNo">836</span>     * Get range of values.<a name="line.836"></a>
+<span class="sourceLineNo">837</span>     *<a name="line.837"></a>
+<span class="sourceLineNo">838</span>     * @param vpPairs Array of valuePenaltyPairs to get range from.<a name="line.838"></a>
+<span class="sourceLineNo">839</span>     * @return a double equal to maximum value minus minimum value.<a name="line.839"></a>
+<span class="sourceLineNo">840</span>     */<a name="line.840"></a>
+<span class="sourceLineNo">841</span>    private double valueRange(final ValuePenaltyPair[] vpPairs) {<a name="line.841"></a>
+<span class="sourceLineNo">842</span>        double max = Double.NEGATIVE_INFINITY;<a name="line.842"></a>
+<span class="sourceLineNo">843</span>        double min = Double.MAX_VALUE;<a name="line.843"></a>
+<span class="sourceLineNo">844</span>        for (ValuePenaltyPair vpPair:vpPairs) {<a name="line.844"></a>
+<span class="sourceLineNo">845</span>            if (vpPair.value &gt; max) {<a name="line.845"></a>
+<span class="sourceLineNo">846</span>                max = vpPair.value;<a name="line.846"></a>
+<span class="sourceLineNo">847</span>            }<a name="line.847"></a>
+<span class="sourceLineNo">848</span>            if (vpPair.value &lt; min) {<a name="line.848"></a>
+<span class="sourceLineNo">849</span>                min = vpPair.value;<a name="line.849"></a>
+<span class="sourceLineNo">850</span>            }<a name="line.850"></a>
+<span class="sourceLineNo">851</span>        }<a name="line.851"></a>
+<span class="sourceLineNo">852</span>        return max-min;<a name="line.852"></a>
+<span class="sourceLineNo">853</span>    }<a name="line.853"></a>
+<span class="sourceLineNo">854</span><a name="line.854"></a>
+<span class="sourceLineNo">855</span>    /**<a name="line.855"></a>
+<span class="sourceLineNo">856</span>     * Used to sort fitness values. Sorting is always in lower value first<a name="line.856"></a>
+<span class="sourceLineNo">857</span>     * order.<a name="line.857"></a>
+<span class="sourceLineNo">858</span>     */<a name="line.858"></a>
+<span class="sourceLineNo">859</span>    private static class DoubleIndex implements Comparable&lt;DoubleIndex&gt; {<a name="line.859"></a>
+<span class="sourceLineNo">860</span>        /** Value to compare. */<a name="line.860"></a>
+<span class="sourceLineNo">861</span>        private final double value;<a name="line.861"></a>
+<span class="sourceLineNo">862</span>        /** Index into sorted array. */<a name="line.862"></a>
+<span class="sourceLineNo">863</span>        private final int index;<a name="line.863"></a>
+<span class="sourceLineNo">864</span><a name="line.864"></a>
+<span class="sourceLineNo">865</span>        /**<a name="line.865"></a>
+<span class="sourceLineNo">866</span>         * @param value Value to compare.<a name="line.866"></a>
+<span class="sourceLineNo">867</span>         * @param index Index into sorted array.<a name="line.867"></a>
+<span class="sourceLineNo">868</span>         */<a name="line.868"></a>
+<span class="sourceLineNo">869</span>        DoubleIndex(double value, int index) {<a name="line.869"></a>
+<span class="sourceLineNo">870</span>            this.value = value;<a name="line.870"></a>
+<span class="sourceLineNo">871</span>            this.index = index;<a name="line.871"></a>
+<span class="sourceLineNo">872</span>        }<a name="line.872"></a>
+<span class="sourceLineNo">873</span><a name="line.873"></a>
+<span class="sourceLineNo">874</span>        /** {@inheritDoc} */<a name="line.874"></a>
+<span class="sourceLineNo">875</span>        public int compareTo(DoubleIndex o) {<a name="line.875"></a>
+<span class="sourceLineNo">876</span>            return Double.compare(value, o.value);<a name="line.876"></a>
+<span class="sourceLineNo">877</span>        }<a name="line.877"></a>
+<span class="sourceLineNo">878</span><a name="line.878"></a>
+<span class="sourceLineNo">879</span>        /** {@inheritDoc} */<a name="line.879"></a>
+<span class="sourceLineNo">880</span>        @Override<a name="line.880"></a>
+<span class="sourceLineNo">881</span>        public boolean equals(Object other) {<a name="line.881"></a>
+<span class="sourceLineNo">882</span><a name="line.882"></a>
+<span class="sourceLineNo">883</span>            if (this == other) {<a name="line.883"></a>
+<span class="sourceLineNo">884</span>                return true;<a name="line.884"></a>
+<span class="sourceLineNo">885</span>            }<a name="line.885"></a>
+<span class="sourceLineNo">886</span><a name="line.886"></a>
+<span class="sourceLineNo">887</span>            if (other instanceof DoubleIndex) {<a name="line.887"></a>
+<span class="sourceLineNo">888</span>                return Double.compare(value, ((DoubleIndex) other).value) == 0;<a name="line.888"></a>
+<span class="sourceLineNo">889</span>            }<a name="line.889"></a>
+<span class="sourceLineNo">890</span><a name="line.890"></a>
+<span class="sourceLineNo">891</span>            return false;<a name="line.891"></a>
+<span class="sourceLineNo">892</span>        }<a name="line.892"></a>
+<span class="sourceLineNo">893</span><a name="line.893"></a>
+<span class="sourceLineNo">894</span>        /** {@inheritDoc} */<a name="line.894"></a>
+<span class="sourceLineNo">895</span>        @Override<a name="line.895"></a>
+<span class="sourceLineNo">896</span>        public int hashCode() {<a name="line.896"></a>
+<span class="sourceLineNo">897</span>            long bits = Double.doubleToLongBits(value);<a name="line.897"></a>
+<span class="sourceLineNo">898</span>            return (int) ((1438542 ^ (bits &gt;&gt;&gt; 32) ^ bits) &amp; 0xffffffff);<a name="line.898"></a>
+<span class="sourceLineNo">899</span>        }<a name="line.899"></a>
+<span class="sourceLineNo">900</span>    }<a name="line.900"></a>
+<span class="sourceLineNo">901</span>    /**<a name="line.901"></a>
+<span class="sourceLineNo">902</span>     * Stores the value and penalty (for repair of out of bounds point).<a name="line.902"></a>
+<span class="sourceLineNo">903</span>     */<a name="line.903"></a>
+<span class="sourceLineNo">904</span>    private static class ValuePenaltyPair {<a name="line.904"></a>
+<span class="sourceLineNo">905</span>        /** Objective function value. */<a name="line.905"></a>
+<span class="sourceLineNo">906</span>        private double value;<a name="line.906"></a>
+<span class="sourceLineNo">907</span>        /** Penalty value for repair of out out of bounds points. */<a name="line.907"></a>
+<span class="sourceLineNo">908</span>        private double penalty;<a name="line.908"></a>
+<span class="sourceLineNo">909</span><a name="line.909"></a>
+<span class="sourceLineNo">910</span>        /**<a name="line.910"></a>
+<span class="sourceLineNo">911</span>         * @param value Function value.<a name="line.911"></a>
+<span class="sourceLineNo">912</span>         * @param penalty Out-of-bounds penalty.<a name="line.912"></a>
+<span class="sourceLineNo">913</span>        */<a name="line.913"></a>
+<span class="sourceLineNo">914</span>        ValuePenaltyPair(final double value, final double penalty) {<a name="line.914"></a>
+<span class="sourceLineNo">915</span>            this.value   = value;<a name="line.915"></a>
+<span class="sourceLineNo">916</span>            this.penalty = penalty;<a name="line.916"></a>
+<span class="sourceLineNo">917</span>        }<a name="line.917"></a>
+<span class="sourceLineNo">918</span>    }<a name="line.918"></a>
+<span class="sourceLineNo">919</span><a name="line.919"></a>
+<span class="sourceLineNo">920</span><a name="line.920"></a>
+<span class="sourceLineNo">921</span>    /**<a name="line.921"></a>
+<span class="sourceLineNo">922</span>     * Normalizes fitness values to the range [0,1]. Adds a penalty to the<a name="line.922"></a>
+<span class="sourceLineNo">923</span>     * fitness value if out of range.<a name="line.923"></a>
+<span class="sourceLineNo">924</span>     */<a name="line.924"></a>
+<span class="sourceLineNo">925</span>    private class FitnessFunction {<a name="line.925"></a>
+<span class="sourceLineNo">926</span>        /**<a name="line.926"></a>
+<span class="sourceLineNo">927</span>         * Flag indicating whether the objective variables are forced into their<a name="line.927"></a>
+<span class="sourceLineNo">928</span>         * bounds if defined<a name="line.928"></a>
+<span class="sourceLineNo">929</span>         */<a name="line.929"></a>
+<span class="sourceLineNo">930</span>        private final boolean isRepairMode;<a name="line.930"></a>
+<span class="sourceLineNo">931</span><a name="line.931"></a>
+<span class="sourceLineNo">932</span>        /** Simple constructor.<a name="line.932"></a>
+<span class="sourceLineNo">933</span>         */<a name="line.933"></a>
+<span class="sourceLineNo">934</span>        FitnessFunction() {<a name="line.934"></a>
+<span class="sourceLineNo">935</span>            isRepairMode = true;<a name="line.935"></a>
+<span class="sourceLineNo">936</span>        }<a name="line.936"></a>
+<span class="sourceLineNo">937</span><a name="line.937"></a>
+<span class="sourceLineNo">938</span>        /**<a name="line.938"></a>
+<span class="sourceLineNo">939</span>         * @param point Normalized objective variables.<a name="line.939"></a>
+<span class="sourceLineNo">940</span>         * @return the objective value + penalty for violated bounds.<a name="line.940"></a>
+<span class="sourceLineNo">941</span>         */<a name="line.941"></a>
+<span class="sourceLineNo">942</span>        public ValuePenaltyPair value(final double[] point) {<a name="line.942"></a>
+<span class="sourceLineNo">943</span>            double value;<a name="line.943"></a>
+<span class="sourceLineNo">944</span>            double penalty=0.0;<a name="line.944"></a>
+<span class="sourceLineNo">945</span>            if (isRepairMode) {<a name="line.945"></a>
+<span class="sourceLineNo">946</span>                double[] repaired = repair(point);<a name="line.946"></a>
+<span class="sourceLineNo">947</span>                value = CMAESOptimizer.this.computeObjectiveValue(repaired);<a name="line.947"></a>
+<span class="sourceLineNo">948</span>                penalty =  penalty(point, repaired);<a name="line.948"></a>
+<span class="sourceLineNo">949</span>            } else {<a name="line.949"></a>
+<span class="sourceLineNo">950</span>                value = CMAESOptimizer.this.computeObjectiveValue(point);<a name="line.950"></a>
+<span class="sourceLineNo">951</span>            }<a name="line.951"></a>
+<span class="sourceLineNo">952</span>            value = isMinimize ? value : -value;<a name="line.952"></a>
+<span class="sourceLineNo">953</span>            penalty = isMinimize ? penalty : -penalty;<a name="line.953"></a>
+<span class="sourceLineNo">954</span>            return new ValuePenaltyPair(value,penalty);<a name="line.954"></a>
+<span class="sourceLineNo">955</span>        }<a name="line.955"></a>
+<span class="sourceLineNo">956</span><a name="line.956"></a>
+<span class="sourceLineNo">957</span>        /**<a name="line.957"></a>
+<span class="sourceLineNo">958</span>         * @param x Normalized objective variables.<a name="line.958"></a>
+<span class="sourceLineNo">959</span>         * @return {@code true} if in bounds.<a name="line.959"></a>
+<span class="sourceLineNo">960</span>         */<a name="line.960"></a>
+<span class="sourceLineNo">961</span>        public boolean isFeasible(final double[] x) {<a name="line.961"></a>
+<span class="sourceLineNo">962</span>            final double[] lB = CMAESOptimizer.this.getLowerBound();<a name="line.962"></a>
+<span class="sourceLineNo">963</span>            final double[] uB = CMAESOptimizer.this.getUpperBound();<a name="line.963"></a>
+<span class="sourceLineNo">964</span><a name="line.964"></a>
+<span class="sourceLineNo">965</span>            for (int i = 0; i &lt; x.length; i++) {<a name="line.965"></a>
+<span class="sourceLineNo">966</span>                if (x[i] &lt; lB[i]) {<a name="line.966"></a>
+<span class="sourceLineNo">967</span>                    return false;<a name="line.967"></a>
+<span class="sourceLineNo">968</span>                }<a name="line.968"></a>
+<span class="sourceLineNo">969</span>                if (x[i] &gt; uB[i]) {<a name="line.969"></a>
+<span class="sourceLineNo">970</span>                    return false;<a name="line.970"></a>
+<span class="sourceLineNo">971</span>                }<a name="line.971"></a>
+<span class="sourceLineNo">972</span>            }<a name="line.972"></a>
+<span class="sourceLineNo">973</span>            return true;<a name="line.973"></a>
+<span class="sourceLineNo">974</span>        }<a name="line.974"></a>
+<span class="sourceLineNo">975</span><a name="line.975"></a>
+<span class="sourceLineNo">976</span>        /**<a name="line.976"></a>
+<span class="sourceLineNo">977</span>         * @param x Normalized objective variables.<a name="line.977"></a>
+<span class="sourceLineNo">978</span>         * @return the repaired (i.e. all in bounds) objective variables.<a name="line.978"></a>
+<span class="sourceLineNo">979</span>         */<a name="line.979"></a>
+<span class="sourceLineNo">980</span>        private double[] repair(final double[] x) {<a name="line.980"></a>
+<span class="sourceLineNo">981</span>            final double[] lB = CMAESOptimizer.this.getLowerBound();<a name="line.981"></a>
+<span class="sourceLineNo">982</span>            final double[] uB = CMAESOptimizer.this.getUpperBound();<a name="line.982"></a>
+<span class="sourceLineNo">983</span><a name="line.983"></a>
+<span class="sourceLineNo">984</span>            final double[] repaired = new double[x.length];<a name="line.984"></a>
+<span class="sourceLineNo">985</span>            for (int i = 0; i &lt; x.length; i++) {<a name="line.985"></a>
+<span class="sourceLineNo">986</span>                if (x[i] &lt; lB[i]) {<a name="line.986"></a>
+<span class="sourceLineNo">987</span>                    repaired[i] = lB[i];<a name="line.987"></a>
+<span class="sourceLineNo">988</span>                } else if (x[i] &gt; uB[i]) {<a name="line.988"></a>
+<span class="sourceLineNo">989</span>                    repaired[i] = uB[i];<a name="line.989"></a>
+<span class="sourceLineNo">990</span>                } else {<a name="line.990"></a>
+<span class="sourceLineNo">991</span>                    repaired[i] = x[i];<a name="line.991"></a>
+<span class="sourceLineNo">992</span>                }<a name="line.992"></a>
+<span class="sourceLineNo">993</span>            }<a name="line.993"></a>
+<span class="sourceLineNo">994</span>            return repaired;<a name="line.994"></a>
+<span class="sourceLineNo">995</span>        }<a name="line.995"></a>
+<span class="sourceLineNo">996</span><a name="line.996"></a>
+<span class="sourceLineNo">997</span>        /**<a name="line.997"></a>
+<span class="sourceLineNo">998</span>         * @param x Normalized objective variables.<a name="line.998"></a>
+<span class="sourceLineNo">999</span>         * @param repaired Repaired objective variables.<a name="line.999"></a>
+<span class="sourceLineNo">1000</span>         * @return Penalty value according to the violation of the bounds.<a name="line.1000"></a>
+<span class="sourceLineNo">1001</span>         */<a name="line.1001"></a>
+<span class="sourceLineNo">1002</span>        private double penalty(final double[] x, final double[] repaired) {<a name="line.1002"></a>
+<span class="sourceLineNo">1003</span>            double penalty = 0;<a name="line.1003"></a>
+<span class="sourceLineNo">1004</span>            for (int i = 0; i &lt; x.length; i++) {<a name="line.1004"></a>
+<span class="sourceLineNo">1005</span>                double diff = FastMath.abs(x[i] - repaired[i]);<a name="line.1005"></a>
+<span class="sourceLineNo">1006</span>                penalty += diff;<a name="line.1006"></a>
+<span class="sourceLineNo">1007</span>            }<a name="line.1007"></a>
+<span class="sourceLineNo">1008</span>            return isMinimize ? penalty : -penalty;<a name="line.1008"></a>
+<span class="sourceLineNo">1009</span>        }<a name="line.1009"></a>
+<span class="sourceLineNo">1010</span>    }<a name="line.1010"></a>
+<span class="sourceLineNo">1011</span><a name="line.1011"></a>
+<span class="sourceLineNo">1012</span>    // -----Matrix utility functions similar to the Matlab build in functions------<a name="line.1012"></a>
+<span class="sourceLineNo">1013</span><a name="line.1013"></a>
+<span class="sourceLineNo">1014</span>    /**<a name="line.1014"></a>
+<span class="sourceLineNo">1015</span>     * @param m Input matrix<a name="line.1015"></a>
+<span class="sourceLineNo">1016</span>     * @return Matrix representing the element-wise logarithm of m.<a name="line.1016"></a>
+<span class="sourceLineNo">1017</span>     */<a name="line.1017"></a>
+<span class="sourceLineNo">1018</span>    private static RealMatrix log(final RealMatrix m) {<a name="line.1018"></a>
+<span class="sourceLineNo">1019</span>        final double[][] d = new double[m.getRowDimension()][m.getColumnDimension()];<a name="line.1019"></a>
+<span class="sourceLineNo">1020</span>        for (int r = 0; r &lt; m.getRowDimension(); r++) {<a name="line.1020"></a>
+<span class="sourceLineNo">1021</span>            for (int c = 0; c &lt; m.getColumnDimension(); c++) {<a name="line.1021"></a>
+<span class="sourceLineNo">1022</span>                d[r][c] = FastMath.log(m.getEntry(r, c));<a name="line.1022"></a>
+<span class="sourceLineNo">1023</span>            }<a name="line.1023"></a>
+<span class="sourceLineNo">1024</span>        }<a name="line.1024"></a>
+<span class="sourceLineNo">1025</span>        return new Array2DRowRealMatrix(d, false);<a name="line.1025"></a>
+<span class="sourceLineNo">1026</span>    }<a name="line.1026"></a>
+<span class="sourceLineNo">1027</span><a name="line.1027"></a>
+<span class="sourceLineNo">1028</span>    /**<a name="line.1028"></a>
+<span class="sourceLineNo">1029</span>     * @param m Input matrix.<a name="line.1029"></a>
+<span class="sourceLineNo">1030</span>     * @return Matrix representing the element-wise square root of m.<a name="line.1030"></a>
+<span class="sourceLineNo">1031</span>     */<a name="line.1031"></a>
+<span class="sourceLineNo">1032</span>    private static RealMatrix sqrt(final RealMatrix m) {<a name="line.1032"></a>
+<span class="sourceLineNo">1033</span>        final double[][] d = new double[m.getRowDimension()][m.getColumnDimension()];<a name="line.1033"></a>
+<span class="sourceLineNo">1034</span>        for (int r = 0; r &lt; m.getRowDimension(); r++) {<a name="line.1034"></a>
+<span class="sourceLineNo">1035</span>            for (int c = 0; c &lt; m.getColumnDimension(); c++) {<a name="line.1035"></a>
+<span class="sourceLineNo">1036</span>                d[r][c] = FastMath.sqrt(m.getEntry(r, c));<a name="line.1036"></a>
+<span class="sourceLineNo">1037</span>            }<a name="line.1037"></a>
+<span class="sourceLineNo">1038</span>        }<a name="line.1038"></a>
+<span class="sourceLineNo">1039</span>        return new Array2DRowRealMatrix(d, false);<a name="line.1039"></a>
+<span class="sourceLineNo">1040</span>    }<a name="line.1040"></a>
+<span class="sourceLineNo">1041</span><a name="line.1041"></a>
+<span class="sourceLineNo">1042</span>    /**<a name="line.1042"></a>
+<span class="sourceLineNo">1043</span>     * @param m Input matrix.<a name="line.1043"></a>
+<span class="sourceLineNo">1044</span>     * @return Matrix representing the element-wise square of m.<a name="line.1044"></a>
+<span class="sourceLineNo">1045</span>     */<a name="line.1045"></a>
+<span class="sourceLineNo">1046</span>    private static RealMatrix square(final RealMatrix m) {<a name="line.1046"></a>
+<span class="sourceLineNo">1047</span>        final double[][] d = new double[m.getRowDimension()][m.getColumnDimension()];<a name="line.1047"></a>
+<span class="sourceLineNo">1048</span>        for (int r = 0; r &lt; m.getRowDimension(); r++) {<a name="line.1048"></a>
+<span class="sourceLineNo">1049</span>            for (int c = 0; c &lt; m.getColumnDimension(); c++) {<a name="line.1049"></a>
+<span class="sourceLineNo">1050</span>                double e = m.getEntry(r, c);<a name="line.1050"></a>
+<span class="sourceLineNo">1051</span>                d[r][c] = e * e;<a name="line.1051"></a>
+<span class="sourceLineNo">1052</span>            }<a name="line.1052"></a>
+<span class="sourceLineNo">1053</span>        }<a name="line.1053"></a>
+<span class="sourceLineNo">1054</span>        return new Array2DRowRealMatrix(d, false);<a name="line.1054"></a>
+<span class="sourceLineNo">1055</span>    }<a name="line.1055"></a>
+<span class="sourceLineNo">1056</span><a name="line.1056"></a>
+<span class="sourceLineNo">1057</span>    /**<a name="line.1057"></a>
+<span class="sourceLineNo">1058</span>     * @param m Input matrix 1.<a name="line.1058"></a>
+<span class="sourceLineNo">1059</span>     * @param n Input matrix 2.<a name="line.1059"></a>
+<span class="sourceLineNo">1060</span>     * @return the matrix where the elements of m and n are element-wise multiplied.<a name="line.1060"></a>
+<span class="sourceLineNo">1061</span>     */<a name="line.1061"></a>
+<span class="sourceLineNo">1062</span>    private static RealMatrix times(final RealMatrix m, final RealMatrix n) {<a name="line.1062"></a>
+<span class="sourceLineNo">1063</span>        final double[][] d = new double[m.getRowDimension()][m.getColumnDimension()];<a name="line.1063"></a>
+<span class="sourceLineNo">1064</span>        for (int r = 0; r &lt; m.getRowDimension(); r++) {<a name="line.1064"></a>
+<span class="sourceLineNo">1065</span>            for (int c = 0; c &lt; m.getColumnDimension(); c++) {<a name="line.1065"></a>
+<span class="sourceLineNo">1066</span>                d[r][c] = m.getEntry(r, c) * n.getEntry(r, c);<a name="line.1066"></a>
+<span class="sourceLineNo">1067</span>            }<a name="line.1067"></a>
+<span class="sourceLineNo">1068</span>        }<a name="line.1068"></a>
+<span class="sourceLineNo">1069</span>        return new Array2DRowRealMatrix(d, false);<a name="line.1069"></a>
+<span class="sourceLineNo">1070</span>    }<a name="line.1070"></a>
+<span class="sourceLineNo">1071</span><a name="line.1071"></a>
+<span class="sourceLineNo">1072</span>    /**<a name="line.1072"></a>
+<span class="sourceLineNo">1073</span>     * @param m Input matrix 1.<a name="line.1073"></a>
+<span class="sourceLineNo">1074</span>     * @param n Input matrix 2.<a name="line.1074"></a>
+<span class="sourceLineNo">1075</span>     * @return Matrix where the elements of m and n are element-wise divided.<a name="line.1075"></a>
+<span class="sourceLineNo">1076</span>     */<a name="line.1076"></a>
+<span class="sourceLineNo">1077</span>    private static RealMatrix divide(final RealMatrix m, final RealMatrix n) {<a name="line.1077"></a>
+<span class="sourceLineNo">1078</span>        final double[][] d = new double[m.getRowDimension()][m.getColumnDimension()];<a name="line.1078"></a>
+<span class="sourceLineNo">1079</span>        for (int r = 0; r &lt; m.getRowDimension(); r++) {<a name="line.1079"></a>
+<span class="sourceLineNo">1080</span>            for (int c = 0; c &lt; m.getColumnDimension(); c++) {<a name="line.1080"></a>
+<span class="sourceLineNo">1081</span>                d[r][c] = m.getEntry(r, c) / n.getEntry(r, c);<a name="line.1081"></a>
+<span class="sourceLineNo">1082</span>            }<a name="line.1082"></a>
+<span class="sourceLineNo">1083</span>        }<a name="line.1083"></a>
+<span class="sourceLineNo">1084</span>        return new Array2DRowRealMatrix(d, false);<a name="line.1084"></a>
+<span class="sourceLineNo">1085</span>    }<a name="line.1085"></a>
+<span class="sourceLineNo">1086</span><a name="line.1086"></a>
+<span class="sourceLineNo">1087</span>    /**<a name="line.1087"></a>
+<span class="sourceLineNo">1088</span>     * @param m Input matrix.<a name="line.1088"></a>
+<span class="sourceLineNo">1089</span>     * @param cols Columns to select.<a name="line.1089"></a>
+<span class="sourceLineNo">1090</span>     * @return Matrix representing the selected columns.<a name="line.1090"></a>
+<span class="sourceLineNo">1091</span>     */<a name="line.1091"></a>
+<span class="sourceLineNo">1092</span>    private static RealMatrix selectColumns(final RealMatrix m, final int[] cols) {<a name="line.1092"></a>
+<span class="sourceLineNo">1093</span>        final double[][] d = new double[m.getRowDimension()][cols.length];<a name="line.1093"></a>
+<span class="sourceLineNo">1094</span>        for (int r = 0; r &lt; m.getRowDimension(); r++) {<a name="line.1094"></a>
+<span class="sourceLineNo">1095</span>            for (int c = 0; c &lt; cols.length; c++) {<a name="line.1095"></a>
+<span class="sourceLineNo">1096</span>                d[r][c] = m.getEntry(r, cols[c]);<a name="line.1096"></a>
+<span class="sourceLineNo">1097</span>            }<a name="line.1097"></a>
+<span class="sourceLineNo">1098</span>        }<a name="line.1098"></a>
+<span class="sourceLineNo">1099</span>        return new Array2DRowRealMatrix(d, false);<a name="line.1099"></a>
+<span class="sourceLineNo">1100</span>    }<a name="line.1100"></a>
+<span class="sourceLineNo">1101</span><a name="line.1101"></a>
+<span class="sourceLineNo">1102</span>    /**<a name="line.1102"></a>
+<span class="sourceLineNo">1103</span>     * @param m Input matrix.<a name="line.1103"></a>
+<span class="sourceLineNo">1104</span>     * @param k Diagonal position.<a name="line.1104"></a>
+<span class="sourceLineNo">1105</span>     * @return Upper triangular part of matrix.<a name="line.1105"></a>
+<span class="sourceLineNo">1106</span>     */<a name="line.1106"></a>
+<span class="sourceLineNo">1107</span>    private static RealMatrix triu(final RealMatrix m, int k) {<a name="line.1107"></a>
+<span class="sourceLineNo">1108</span>        final double[][] d = new double[m.getRowDimension()][m.getColumnDimension()];<a name="line.1108"></a>
+<span class="sourceLineNo">1109</span>        for (int r = 0; r &lt; m.getRowDimension(); r++) {<a name="line.1109"></a>
+<span class="sourceLineNo">1110</span>            for (int c = 0; c &lt; m.getColumnDimension(); c++) {<a name="line.1110"></a>
+<span class="sourceLineNo">1111</span>                d[r][c] = r &lt;= c - k ? m.getEntry(r, c) : 0;<a name="line.1111"></a>
+<span class="sourceLineNo">1112</span>            }<a name="line.1112"></a>
+<span class="sourceLineNo">1113</span>        }<a name="line.1113"></a>
+<span class="sourceLineNo">1114</span>        return new Array2DRowRealMatrix(d, false);<a name="line.1114"></a>
+<span class="sourceLineNo">1115</span>    }<a name="line.1115"></a>
+<span class="sourceLineNo">1116</span><a name="line.1116"></a>
+<span class="sourceLineNo">1117</span>    /**<a name="line.1117"></a>
+<span class="sourceLineNo">1118</span>     * @param m Input matrix.<a name="line.1118"></a>
+<span class="sourceLineNo">1119</span>     * @return Row matrix representing the sums of the rows.<a name="line.1119"></a>
+<span class="sourceLineNo">1120</span>     */<a name="line.1120"></a>
+<span class="sourceLineNo">1121</span>    private static RealMatrix sumRows(final RealMatrix m) {<a name="line.1121"></a>
+<span class="sourceLineNo">1122</span>        final double[][] d = new double[1][m.getColumnDimension()];<a name="line.1122"></a>
+<span class="sourceLineNo">1123</span>        for (int c = 0; c &lt; m.getColumnDimension(); c++) {<a name="line.1123"></a>
+<span class="sourceLineNo">1124</span>            double sum = 0;<a name="line.1124"></a>
+<span class="sourceLineNo">1125</span>            for (int r = 0; r &lt; m.getRowDimension(); r++) {<a name="line.1125"></a>
+<span class="sourceLineNo">1126</span>                sum += m.getEntry(r, c);<a name="line.1126"></a>
+<span class="sourceLineNo">1127</span>            }<a name="line.1127"></a>
+<span class="sourceLineNo">1128</span>            d[0][c] = sum;<a name="line.1128"></a>
+<span class="sourceLineNo">1129</span>        }<a name="line.1129"></a>
+<span class="sourceLineNo">1130</span>        return new Array2DRowRealMatrix(d, false);<a name="line.1130"></a>
+<span class="sourceLineNo">1131</span>    }<a name="line.1131"></a>
+<span class="sourceLineNo">1132</span><a name="line.1132"></a>
+<span class="sourceLineNo">1133</span>    /**<a name="line.1133"></a>
+<span class="sourceLineNo">1134</span>     * @param m Input matrix.<a name="line.1134"></a>
+<span class="sourceLineNo">1135</span>     * @return the diagonal n-by-n matrix if m is a column matrix or the column<a name="line.1135"></a>
+<span class="sourceLineNo">1136</span>     * matrix representing the diagonal if m is a n-by-n matrix.<a name="line.1136"></a>
+<span class="sourceLineNo">1137</span>     */<a name="line.1137"></a>
+<span class="sourceLineNo">1138</span>    private static RealMatrix diag(final RealMatrix m) {<a name="line.1138"></a>
+<span class="sourceLineNo">1139</span>        if (m.getColumnDimension() == 1) {<a name="line.1139"></a>
+<span class="sourceLineNo">1140</span>            final double[][] d = new double[m.getRowDimension()][m.getRowDimension()];<a name="line.1140"></a>
+<span class="sourceLineNo">1141</span>            for (int i = 0; i &lt; m.getRowDimension(); i++) {<a name="line.1141"></a>
+<span class="sourceLineNo">1142</span>                d[i][i] = m.getEntry(i, 0);<a name="line.1142"></a>
+<span class="sourceLineNo">1143</span>            }<a name="line.1143"></a>
+<span class="sourceLineNo">1144</span>            return new Array2DRowRealMatrix(d, false);<a name="line.1144"></a>
+<span class="sourceLineNo">1145</span>        } else {<a name="line.1145"></a>
+<span class="sourceLineNo">1146</span>            final double[][] d = new double[m.getRowDimension()][1];<a name="line.1146"></a>
+<span class="sourceLineNo">1147</span>            for (int i = 0; i &lt; m.getColumnDimension(); i++) {<a name="line.1147"></a>
+<span class="sourceLineNo">1148</span>                d[i][0] = m.getEntry(i, i);<a name="line.1148"></a>
+<span class="sourceLineNo">1149</span>            }<a name="line.1149"></a>
+<span class="sourceLineNo">1150</span>            return new Array2DRowRealMatrix(d, false);<a name="line.1150"></a>
+<span class="sourceLineNo">1151</span>        }<a name="line.1151"></a>
+<span class="sourceLineNo">1152</span>    }<a name="line.1152"></a>
+<span class="sourceLineNo">1153</span><a name="line.1153"></a>
+<span class="sourceLineNo">1154</span>    /**<a name="line.1154"></a>
+<span class="sourceLineNo">1155</span>     * Copies a column from m1 to m2.<a name="line.1155"></a>
+<span class="sourceLineNo">1156</span>     *<a name="line.1156"></a>
+<span class="sourceLineNo">1157</span>     * @param m1 Source matrix.<a name="line.1157"></a>
+<span class="sourceLineNo">1158</span>     * @param col1 Source column.<a name="line.1158"></a>
+<span class="sourceLineNo">1159</span>     * @param m2 Target matrix.<a name="line.1159"></a>
+<span class="sourceLineNo">1160</span>     * @param col2 Target column.<a name="line.1160"></a>
+<span class="sourceLineNo">1161</span>     */<a name="line.1161"></a>
+<span class="sourceLineNo">1162</span>    private static void copyColumn(final RealMatrix m1, int col1,<a name="line.1162"></a>
+<span class="sourceLineNo">1163</span>                                   RealMatrix m2, int col2) {<a name="line.1163"></a>
+<span class="sourceLineNo">1164</span>        for (int i = 0; i &lt; m1.getRowDimension(); i++) {<a name="line.1164"></a>
+<span class="sourceLineNo">1165</span>            m2.setEntry(i, col2, m1.getEntry(i, col1));<a name="line.1165"></a>
+<span class="sourceLineNo">1166</span>        }<a name="line.1166"></a>
+<span class="sourceLineNo">1167</span>    }<a name="line.1167"></a>
+<span class="sourceLineNo">1168</span><a name="line.1168"></a>
+<span class="sourceLineNo">1169</span>    /**<a name="line.1169"></a>
+<span class="sourceLineNo">1170</span>     * @param n Number of rows.<a name="line.1170"></a>
+<span class="sourceLineNo">1171</span>     * @param m Number of columns.<a name="line.1171"></a>
+<span class="sourceLineNo">1172</span>     * @return n-by-m matrix filled with 1.<a name="line.1172"></a>
+<span class="sourceLineNo">1173</span>     */<a name="line.1173"></a>
+<span class="sourceLineNo">1174</span>    private static RealMatrix ones(int n, int m) {<a name="line.1174"></a>
+<span class="sourceLineNo">1175</span>        final double[][] d = new double[n][m];<a name="line.1175"></a>
+<span class="sourceLineNo">1176</span>        for (int r = 0; r &lt; n; r++) {<a name="line.1176"></a>
+<span class="sourceLineNo">1177</span>            Arrays.fill(d[r], 1);<a name="line.1177"></a>
+<span class="sourceLineNo">1178</span>        }<a name="line.1178"></a>
+<span class="sourceLineNo">1179</span>        return new Array2DRowRealMatrix(d, false);<a name="line.1179"></a>
+<span class="sourceLineNo">1180</span>    }<a name="line.1180"></a>
+<span class="sourceLineNo">1181</span><a name="line.1181"></a>
+<span class="sourceLineNo">1182</span>    /**<a name="line.1182"></a>
+<span class="sourceLineNo">1183</span>     * @param n Number of rows.<a name="line.1183"></a>
+<span class="sourceLineNo">1184</span>     * @param m Number of columns.<a name="line.1184"></a>
+<span class="sourceLineNo">1185</span>     * @return n-by-m matrix of 0 values out of diagonal, and 1 values on<a name="line.1185"></a>
+<span class="sourceLineNo">1186</span>     * the diagonal.<a name="line.1186"></a>
+<span class="sourceLineNo">1187</span>     */<a name="line.1187"></a>
+<span class="sourceLineNo">1188</span>    private static RealMatrix eye(int n, int m) {<a name="line.1188"></a>
+<span class="sourceLineNo">1189</span>        final double[][] d = new double[n][m];<a name="line.1189"></a>
+<span class="sourceLineNo">1190</span>        for (int r = 0; r &lt; n; r++) {<a name="line.1190"></a>
+<span class="sourceLineNo">1191</span>            if (r &lt; m) {<a name="line.1191"></a>
+<span class="sourceLineNo">1192</span>                d[r][r] = 1;<a name="line.1192"></a>
+<span class="sourceLineNo">1193</span>            }<a name="line.1193"></a>
+<span class="sourceLineNo">1194</span>        }<a name="line.1194"></a>
+<span class="sourceLineNo">1195</span>        return new Array2DRowRealMatrix(d, false);<a name="line.1195"></a>
+<span class="sourceLineNo">1196</span>    }<a name="line.1196"></a>
+<span class="sourceLineNo">1197</span><a name="line.1197"></a>
+<span class="sourceLineNo">1198</span>    /**<a name="line.1198"></a>
+<span class="sourceLineNo">1199</span>     * @param n Number of rows.<a name="line.1199"></a>
+<span class="sourceLineNo">1200</span>     * @param m Number of columns.<a name="line.1200"></a>
+<span class="sourceLineNo">1201</span>     * @return n-by-m matrix of zero values.<a name="line.1201"></a>
+<span class="sourceLineNo">1202</span>     */<a name="line.1202"></a>
+<span class="sourceLineNo">1203</span>    private static RealMatrix zeros(int n, int m) {<a name="line.1203"></a>
+<span class="sourceLineNo">1204</span>        return new Array2DRowRealMatrix(n, m);<a name="line.1204"></a>
+<span class="sourceLineNo">1205</span>    }<a name="line.1205"></a>
+<span class="sourceLineNo">1206</span><a name="line.1206"></a>
+<span class="sourceLineNo">1207</span>    /**<a name="line.1207"></a>
+<span class="sourceLineNo">1208</span>     * @param mat Input matrix.<a name="line.1208"></a>
+<span class="sourceLineNo">1209</span>     * @param n Number of row replicates.<a name="line.1209"></a>
+<span class="sourceLineNo">1210</span>     * @param m Number of column replicates.<a name="line.1210"></a>
+<span class="sourceLineNo">1211</span>     * @return a matrix which replicates the input matrix in both directions.<a name="line.1211"></a>
+<span class="sourceLineNo">1212</span>     */<a name="line.1212"></a>
+<span class="sourceLineNo">1213</span>    private static RealMatrix repmat(final RealMatrix mat, int n, int m) {<a name="line.1213"></a>
+<span class="sourceLineNo">1214</span>        final int rd = mat.getRowDimension();<a name="line.1214"></a>
+<span class="sourceLineNo">1215</span>        final int cd = mat.getColumnDimension();<a name="line.1215"></a>
+<span class="sourceLineNo">1216</span>        final double[][] d = new double[n * rd][m * cd];<a name="line.1216"></a>
+<span class="sourceLineNo">1217</span>        for (int r = 0; r &lt; n * rd; r++) {<a name="line.1217"></a>
+<span class="sourceLineNo">1218</span>            for (int c = 0; c &lt; m * cd; c++) {<a name="line.1218"></a>
+<span class="sourceLineNo">1219</span>                d[r][c] = mat.getEntry(r % rd, c % cd);<a name="line.1219"></a>
+<span class="sourceLineNo">1220</span>            }<a name="line.1220"></a>
+<span class="sourceLineNo">1221</span>        }<a name="line.1221"></a>
+<span class="sourceLineNo">1222</span>        return new Array2DRowRealMatrix(d, false);<a name="line.1222"></a>
+<span class="sourceLineNo">1223</span>    }<a name="line.1223"></a>
+<span class="sourceLineNo">1224</span><a name="line.1224"></a>
+<span class="sourceLineNo">1225</span>    /**<a name="line.1225"></a>
+<span class="sourceLineNo">1226</span>     * @param start Start value.<a name="line.1226"></a>
+<span class="sourceLineNo">1227</span>     * @param end End value.<a name="line.1227"></a>
+<span class="sourceLineNo">1228</span>     * @param step Step size.<a name="line.1228"></a>
+<span class="sourceLineNo">1229</span>     * @return a sequence as column matrix.<a name="line.1229"></a>
+<span class="sourceLineNo">1230</span>     */<a name="line.1230"></a>
+<span class="sourceLineNo">1231</span>    private static RealMatrix sequence(double start, double end, double step) {<a name="line.1231"></a>
+<span class="sourceLineNo">1232</span>        final int size = (int) ((end - start) / step + 1);<a name="line.1232"></a>
+<span class="sourceLineNo">1233</span>        final double[][] d = new double[size][1];<a name="line.1233"></a>
+<span class="sourceLineNo">1234</span>        double value = start;<a name="line.1234"></a>
+<span class="sourceLineNo">1235</span>        for (int r = 0; r &lt; size; r++) {<a name="line.1235"></a>
+<span class="sourceLineNo">1236</span>            d[r][0] = value;<a name="line.1236"></a>
+<span class="sourceLineNo">1237</span>            value += step;<a name="line.1237"></a>
+<span class="sourceLineNo">1238</span>        }<a name="line.1238"></a>
+<span class="sourceLineNo">1239</span>        return new Array2DRowRealMatrix(d, false);<a name="line.1239"></a>
+<span class="sourceLineNo">1240</span>    }<a name="line.1240"></a>
+<span class="sourceLineNo">1241</span><a name="line.1241"></a>
+<span class="sourceLineNo">1242</span>    /**<a name="line.1242"></a>
+<span class="sourceLineNo">1243</span>     * @param m Input matrix.<a name="line.1243"></a>
+<span class="sourceLineNo">1244</span>     * @return the maximum of the matrix element values.<a name="line.1244"></a>
+<span class="sourceLineNo">1245</span>     */<a name="line.1245"></a>
+<span class="sourceLineNo">1246</span>    private static double max(final RealMatrix m) {<a name="line.1246"></a>
+<span class="sourceLineNo">1247</span>        double max = -Double.MAX_VALUE;<a name="line.1247"></a>
+<span class="sourceLineNo">1248</span>        for (int r = 0; r &lt; m.getRowDimension(); r++) {<a name="line.1248"></a>
+<span class="sourceLineNo">1249</span>            for (int c = 0; c &lt; m.getColumnDimension(); c++) {<a name="line.1249"></a>
+<span class="sourceLineNo">1250</span>                double e = m.getEntry(r, c);<a name="line.1250"></a>
+<span class="sourceLineNo">1251</span>                if (max &lt; e) {<a name="line.1251"></a>
+<span class="sourceLineNo">1252</span>                    max = e;<a name="line.1252"></a>
+<span class="sourceLineNo">1253</span>                }<a name="line.1253"></a>
+<span class="sourceLineNo">1254</span>            }<a name="line.1254"></a>
+<span class="sourceLineNo">1255</span>        }<a name="line.1255"></a>
+<span class="sourceLineNo">1256</span>        return max;<a name="line.1256"></a>
+<span class="sourceLineNo">1257</span>    }<a name="line.1257"></a>
+<span class="sourceLineNo">1258</span><a name="line.1258"></a>
+<span class="sourceLineNo">1259</span>    /**<a name="line.1259"></a>
+<span class="sourceLineNo">1260</span>     * @param m Input matrix.<a name="line.1260"></a>
+<span class="sourceLineNo">1261</span>     * @return the minimum of the matrix element values.<a name="line.1261"></a>
+<span class="sourceLineNo">1262</span>     */<a name="line.1262"></a>
+<span class="sourceLineNo">1263</span>    private static double min(final RealMatrix m) {<a name="line.1263"></a>
+<span class="sourceLineNo">1264</span>        double min = Double.MAX_VALUE;<a name="line.1264"></a>
+<span class="sourceLineNo">1265</span>        for (int r = 0; r &lt; m.getRowDimension(); r++) {<a name="line.1265"></a>
+<span class="sourceLineNo">1266</span>            for (int c = 0; c &lt; m.getColumnDimension(); c++) {<a name="line.1266"></a>
+<span class="sourceLineNo">1267</span>                double e = m.getEntry(r, c);<a name="line.1267"></a>
+<span class="sourceLineNo">1268</span>                if (min &gt; e) {<a name="line.1268"></a>
+<span class="sourceLineNo">1269</span>                    min = e;<a name="line.1269"></a>
+<span class="sourceLineNo">1270</span>                }<a name="line.1270"></a>
+<span class="sourceLineNo">1271</span>            }<a name="line.1271"></a>
+<span class="sourceLineNo">1272</span>        }<a name="line.1272"></a>
+<span class="sourceLineNo">1273</span>        return min;<a name="line.1273"></a>
+<span class="sourceLineNo">1274</span>    }<a name="line.1274"></a>
+<span class="sourceLineNo">1275</span><a name="line.1275"></a>
+<span class="sourceLineNo">1276</span>    /**<a name="line.1276"></a>
+<span class="sourceLineNo">1277</span>     * @param m Input array.<a name="line.1277"></a>
+<span class="sourceLineNo">1278</span>     * @return the maximum of the array values.<a name="line.1278"></a>
+<span class="sourceLineNo">1279</span>     */<a name="line.1279"></a>
+<span class="sourceLineNo">1280</span>    private static double max(final double[] m) {<a name="line.1280"></a>
+<span class="sourceLineNo">1281</span>        double max = -Double.MAX_VALUE;<a name="line.1281"></a>
+<span class="sourceLineNo">1282</span>        for (int r = 0; r &lt; m.length; r++) {<a name="line.1282"></a>
+<span class="sourceLineNo">1283</span>            if (max &lt; m[r]) {<a name="line.1283"></a>
+<span class="sourceLineNo">1284</span>                max = m[r];<a name="line.1284"></a>
+<span class="sourceLineNo">1285</span>            }<a name="line.1285"></a>
+<span class="sourceLineNo">1286</span>        }<a name="line.1286"></a>
+<span class="sourceLineNo">1287</span>        return max;<a name="line.1287"></a>
+<span class="sourceLineNo">1288</span>    }<a name="line.1288"></a>
+<span class="sourceLineNo">1289</span><a name="line.1289"></a>
+<span class="sourceLineNo">1290</span>    /**<a name="line.1290"></a>
+<span class="sourceLineNo">1291</span>     * @param m Input array.<a name="line.1291"></a>
+<span class="sourceLineNo">1292</span>     * @return the minimum of the array values.<a name="line.1292"></a>
+<span class="sourceLineNo">1293</span>     */<a name="line.1293"></a>
+<span class="sourceLineNo">1294</span>    private static double min(final double[] m) {<a name="line.1294"></a>
+<span class="sourceLineNo">1295</span>        double min = Double.MAX_VALUE;<a name="line.1295"></a>
+<span class="sourceLineNo">1296</span>        for (int r = 0; r &lt; m.length; r++) {<a name="line.1296"></a>
+<span class="sourceLineNo">1297</span>            if (min &gt; m[r]) {<a name="line.1297"></a>
+<span class="sourceLineNo">1298</span>                min = m[r];<a name="line.1298"></a>
+<span class="sourceLineNo">1299</span>            }<a name="line.1299"></a>
+<span class="sourceLineNo">1300</span>        }<a name="line.1300"></a>
+<span class="sourceLineNo">1301</span>        return min;<a name="line.1301"></a>
+<span class="sourceLineNo">1302</span>    }<a name="line.1302"></a>
+<span class="sourceLineNo">1303</span><a name="line.1303"></a>
+<span class="sourceLineNo">1304</span>    /**<a name="line.1304"></a>
+<span class="sourceLineNo">1305</span>     * @param indices Input index array.<a name="line.1305"></a>
+<span class="sourceLineNo">1306</span>     * @return the inverse of the mapping defined by indices.<a name="line.1306"></a>
+<span class="sourceLineNo">1307</span>     */<a name="line.1307"></a>
+<span class="sourceLineNo">1308</span>    private static int[] inverse(final int[] indices) {<a name="line.1308"></a>
+<span class="sourceLineNo">1309</span>        final int[] inverse = new int[indices.length];<a name="line.1309"></a>
+<span class="sourceLineNo">1310</span>        for (int i = 0; i &lt; indices.length; i++) {<a name="line.1310"></a>
+<span class="sourceLineNo">1311</span>            inverse[indices[i]] = i;<a name="line.1311"></a>
+<span class="sourceLineNo">1312</span>        }<a name="line.1312"></a>
+<span class="sourceLineNo">1313</span>        return inverse;<a name="line.1313"></a>
+<span class="sourceLineNo">1314</span>    }<a name="line.1314"></a>
+<span class="sourceLineNo">1315</span><a name="line.1315"></a>
+<span class="sourceLineNo">1316</span>    /**<a name="line.1316"></a>
+<span class="sourceLineNo">1317</span>     * @param indices Input index array.<a name="line.1317"></a>
+<span class="sourceLineNo">1318</span>     * @return the indices in inverse order (last is first).<a name="line.1318"></a>
+<span class="sourceLineNo">1319</span>     */<a name="line.1319"></a>
+<span class="sourceLineNo">1320</span>    private static int[] reverse(final int[] indices) {<a name="line.1320"></a>
+<span class="sourceLineNo">1321</span>        final int[] reverse = new int[indices.length];<a name="line.1321"></a>
+<span class="sourceLineNo">1322</span>        for (int i = 0; i &lt; indices.length; i++) {<a name="line.1322"></a>
+<span class="sourceLineNo">1323</span>            reverse[i] = indices[indices.length - i - 1];<a name="line.1323"></a>
+<span class="sourceLineNo">1324</span>        }<a name="line.1324"></a>
+<span class="sourceLineNo">1325</span>        return reverse;<a name="line.1325"></a>
+<span class="sourceLineNo">1326</span>    }<a name="line.1326"></a>
+<span class="sourceLineNo">1327</span><a name="line.1327"></a>
+<span class="sourceLineNo">1328</span>    /**<a name="line.1328"></a>
+<span class="sourceLineNo">1329</span>     * @param size Length of random array.<a name="line.1329"></a>
+<span class="sourceLineNo">1330</span>     * @return an array of Gaussian random numbers.<a name="line.1330"></a>
+<span class="sourceLineNo">1331</span>     */<a name="line.1331"></a>
+<span class="sourceLineNo">1332</span>    private double[] randn(int size) {<a name="line.1332"></a>
+<span class="sourceLineNo">1333</span>        final double[] randn = new double[size];<a name="line.1333"></a>
+<span class="sourceLineNo">1334</span>        for (int i = 0; i &lt; size; i++) {<a name="line.1334"></a>
+<span class="sourceLineNo">1335</span>            randn[i] = random.nextGaussian();<a name="line.1335"></a>
+<span class="sourceLineNo">1336</span>        }<a name="line.1336"></a>
+<span class="sourceLineNo">1337</span>        return randn;<a name="line.1337"></a>
+<span class="sourceLineNo">1338</span>    }<a name="line.1338"></a>
+<span class="sourceLineNo">1339</span><a name="line.1339"></a>
+<span class="sourceLineNo">1340</span>    /**<a name="line.1340"></a>
+<span class="sourceLineNo">1341</span>     * @param size Number of rows.<a name="line.1341"></a>
+<span class="sourceLineNo">1342</span>     * @param popSize Population size.<a name="line.1342"></a>
+<span class="sourceLineNo">1343</span>     * @return a 2-dimensional matrix of Gaussian random numbers.<a name="line.1343"></a>
+<span class="sourceLineNo">1344</span>     */<a name="line.1344"></a>
+<span class="sourceLineNo">1345</span>    private RealMatrix randn1(int size, int popSize) {<a name="line.1345"></a>
+<span class="sourceLineNo">1346</span>        final double[][] d = new double[size][popSize];<a name="line.1346"></a>
+<span class="sourceLineNo">1347</span>        for (int r = 0; r &lt; size; r++) {<a name="line.1347"></a>
+<span class="sourceLineNo">1348</span>            for (int c = 0; c &lt; popSize; c++) {<a name="line.1348"></a>
+<span class="sourceLineNo">1349</span>                d[r][c] = random.nextGaussian();<a name="line.1349"></a>
+<span class="sourceLineNo">1350</span>            }<a name="line.1350"></a>
+<span class="sourceLineNo">1351</span>        }<a name="line.1351"></a>
+<span class="sourceLineNo">1352</span>        return new Array2DRowRealMatrix(d, false);<a name="line.1352"></a>
+<span class="sourceLineNo">1353</span>    }<a name="line.1353"></a>
+<span class="sourceLineNo">1354</span>}<a name="line.1354"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

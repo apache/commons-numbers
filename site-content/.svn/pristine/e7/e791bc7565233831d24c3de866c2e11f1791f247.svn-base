@@ -1,0 +1,758 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DfpField.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.dfp</a> &gt; <span class="el_source">DfpField.java</span></div><h1>DfpField.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.dfp;
+
+import org.apache.commons.math3.Field;
+import org.apache.commons.math3.FieldElement;
+
+/** Field for Decimal floating point instances.
+ * @since 2.2
+ */
+public class DfpField implements Field&lt;Dfp&gt; {
+
+    /** Enumerate for rounding modes. */
+<span class="pc" id="L29">    public enum RoundingMode {</span>
+
+        /** Rounds toward zero (truncation). */
+<span class="fc" id="L32">        ROUND_DOWN,</span>
+
+        /** Rounds away from zero if discarded digit is non-zero. */
+<span class="fc" id="L35">        ROUND_UP,</span>
+
+        /** Rounds towards nearest unless both are equidistant in which case it rounds away from zero. */
+<span class="fc" id="L38">        ROUND_HALF_UP,</span>
+
+        /** Rounds towards nearest unless both are equidistant in which case it rounds toward zero. */
+<span class="fc" id="L41">        ROUND_HALF_DOWN,</span>
+
+        /** Rounds towards nearest unless both are equidistant in which case it rounds toward the even neighbor.
+         * This is the default as  specified by IEEE 854-1987
+         */
+<span class="fc" id="L46">        ROUND_HALF_EVEN,</span>
+
+        /** Rounds towards nearest unless both are equidistant in which case it rounds toward the odd neighbor.  */
+<span class="fc" id="L49">        ROUND_HALF_ODD,</span>
+
+        /** Rounds towards positive infinity. */
+<span class="fc" id="L52">        ROUND_CEIL,</span>
+
+        /** Rounds towards negative infinity. */
+<span class="fc" id="L55">        ROUND_FLOOR;</span>
+
+    }
+
+    /** IEEE 854-1987 flag for invalid operation. */
+    public static final int FLAG_INVALID   =  1;
+
+    /** IEEE 854-1987 flag for division by zero. */
+    public static final int FLAG_DIV_ZERO  =  2;
+
+    /** IEEE 854-1987 flag for overflow. */
+    public static final int FLAG_OVERFLOW  =  4;
+
+    /** IEEE 854-1987 flag for underflow. */
+    public static final int FLAG_UNDERFLOW =  8;
+
+    /** IEEE 854-1987 flag for inexact result. */
+    public static final int FLAG_INEXACT   = 16;
+
+    /** High precision string representation of &amp;radic;2. */
+    private static String sqr2String;
+
+    // Note: the static strings are set up (once) by the ctor and @GuardedBy(&quot;DfpField.class&quot;)
+
+    /** High precision string representation of &amp;radic;2 / 2. */
+    private static String sqr2ReciprocalString;
+
+    /** High precision string representation of &amp;radic;3. */
+    private static String sqr3String;
+
+    /** High precision string representation of &amp;radic;3 / 3. */
+    private static String sqr3ReciprocalString;
+
+    /** High precision string representation of &amp;pi;. */
+    private static String piString;
+
+    /** High precision string representation of e. */
+    private static String eString;
+
+    /** High precision string representation of ln(2). */
+    private static String ln2String;
+
+    /** High precision string representation of ln(5). */
+    private static String ln5String;
+
+    /** High precision string representation of ln(10). */
+    private static String ln10String;
+
+    /** The number of radix digits.
+     * Note these depend on the radix which is 10000 digits,
+     * so each one is equivalent to 4 decimal digits.
+     */
+    private final int radixDigits;
+
+    /** A {@link Dfp} with value 0. */
+    private final Dfp zero;
+
+    /** A {@link Dfp} with value 1. */
+    private final Dfp one;
+
+    /** A {@link Dfp} with value 2. */
+    private final Dfp two;
+
+    /** A {@link Dfp} with value &amp;radic;2. */
+    private final Dfp sqr2;
+
+    /** A two elements {@link Dfp} array with value &amp;radic;2 split in two pieces. */
+    private final Dfp[] sqr2Split;
+
+    /** A {@link Dfp} with value &amp;radic;2 / 2. */
+    private final Dfp sqr2Reciprocal;
+
+    /** A {@link Dfp} with value &amp;radic;3. */
+    private final Dfp sqr3;
+
+    /** A {@link Dfp} with value &amp;radic;3 / 3. */
+    private final Dfp sqr3Reciprocal;
+
+    /** A {@link Dfp} with value &amp;pi;. */
+    private final Dfp pi;
+
+    /** A two elements {@link Dfp} array with value &amp;pi; split in two pieces. */
+    private final Dfp[] piSplit;
+
+    /** A {@link Dfp} with value e. */
+    private final Dfp e;
+
+    /** A two elements {@link Dfp} array with value e split in two pieces. */
+    private final Dfp[] eSplit;
+
+    /** A {@link Dfp} with value ln(2). */
+    private final Dfp ln2;
+
+    /** A two elements {@link Dfp} array with value ln(2) split in two pieces. */
+    private final Dfp[] ln2Split;
+
+    /** A {@link Dfp} with value ln(5). */
+    private final Dfp ln5;
+
+    /** A two elements {@link Dfp} array with value ln(5) split in two pieces. */
+    private final Dfp[] ln5Split;
+
+    /** A {@link Dfp} with value ln(10). */
+    private final Dfp ln10;
+
+    /** Current rounding mode. */
+    private RoundingMode rMode;
+
+    /** IEEE 854-1987 signals. */
+    private int ieeeFlags;
+
+    /** Create a factory for the specified number of radix digits.
+     * &lt;p&gt;
+     * Note that since the {@link Dfp} class uses 10000 as its radix, each radix
+     * digit is equivalent to 4 decimal digits. This implies that asking for
+     * 13, 14, 15 or 16 decimal digits will really lead to a 4 radix 10000 digits in
+     * all cases.
+     * &lt;/p&gt;
+     * @param decimalDigits minimal number of decimal digits.
+     */
+    public DfpField(final int decimalDigits) {
+<span class="fc" id="L176">        this(decimalDigits, true);</span>
+<span class="fc" id="L177">    }</span>
+
+    /** Create a factory for the specified number of radix digits.
+     * &lt;p&gt;
+     * Note that since the {@link Dfp} class uses 10000 as its radix, each radix
+     * digit is equivalent to 4 decimal digits. This implies that asking for
+     * 13, 14, 15 or 16 decimal digits will really lead to a 4 radix 10000 digits in
+     * all cases.
+     * &lt;/p&gt;
+     * @param decimalDigits minimal number of decimal digits
+     * @param computeConstants if true, the transcendental constants for the given precision
+     * must be computed (setting this flag to false is RESERVED for the internal recursive call)
+     */
+<span class="fc" id="L190">    private DfpField(final int decimalDigits, final boolean computeConstants) {</span>
+
+<span class="fc bfc" id="L192" title="All 2 branches covered.">        this.radixDigits = (decimalDigits &lt; 13) ? 4 : (decimalDigits + 3) / 4;</span>
+<span class="fc" id="L193">        this.rMode       = RoundingMode.ROUND_HALF_EVEN;</span>
+<span class="fc" id="L194">        this.ieeeFlags   = 0;</span>
+<span class="fc" id="L195">        this.zero        = new Dfp(this, 0);</span>
+<span class="fc" id="L196">        this.one         = new Dfp(this, 1);</span>
+<span class="fc" id="L197">        this.two         = new Dfp(this, 2);</span>
+
+<span class="fc bfc" id="L199" title="All 2 branches covered.">        if (computeConstants) {</span>
+            // set up transcendental constants
+<span class="fc" id="L201">            synchronized (DfpField.class) {</span>
+
+                // as a heuristic to circumvent Table-Maker's Dilemma, we set the string
+                // representation of the constants to be at least 3 times larger than the
+                // number of decimal digits, also as an attempt to really compute these
+                // constants only once, we set a minimum number of digits
+<span class="fc bfc" id="L207" title="All 2 branches covered.">                computeStringConstants((decimalDigits &lt; 67) ? 200 : (3 * decimalDigits));</span>
+
+                // set up the constants at current field accuracy
+<span class="fc" id="L210">                sqr2           = new Dfp(this, sqr2String);</span>
+<span class="fc" id="L211">                sqr2Split      = split(sqr2String);</span>
+<span class="fc" id="L212">                sqr2Reciprocal = new Dfp(this, sqr2ReciprocalString);</span>
+<span class="fc" id="L213">                sqr3           = new Dfp(this, sqr3String);</span>
+<span class="fc" id="L214">                sqr3Reciprocal = new Dfp(this, sqr3ReciprocalString);</span>
+<span class="fc" id="L215">                pi             = new Dfp(this, piString);</span>
+<span class="fc" id="L216">                piSplit        = split(piString);</span>
+<span class="fc" id="L217">                e              = new Dfp(this, eString);</span>
+<span class="fc" id="L218">                eSplit         = split(eString);</span>
+<span class="fc" id="L219">                ln2            = new Dfp(this, ln2String);</span>
+<span class="fc" id="L220">                ln2Split       = split(ln2String);</span>
+<span class="fc" id="L221">                ln5            = new Dfp(this, ln5String);</span>
+<span class="fc" id="L222">                ln5Split       = split(ln5String);</span>
+<span class="fc" id="L223">                ln10           = new Dfp(this, ln10String);</span>
+
+<span class="pc" id="L225">            }</span>
+        } else {
+            // dummy settings for unused constants
+<span class="fc" id="L228">            sqr2           = null;</span>
+<span class="fc" id="L229">            sqr2Split      = null;</span>
+<span class="fc" id="L230">            sqr2Reciprocal = null;</span>
+<span class="fc" id="L231">            sqr3           = null;</span>
+<span class="fc" id="L232">            sqr3Reciprocal = null;</span>
+<span class="fc" id="L233">            pi             = null;</span>
+<span class="fc" id="L234">            piSplit        = null;</span>
+<span class="fc" id="L235">            e              = null;</span>
+<span class="fc" id="L236">            eSplit         = null;</span>
+<span class="fc" id="L237">            ln2            = null;</span>
+<span class="fc" id="L238">            ln2Split       = null;</span>
+<span class="fc" id="L239">            ln5            = null;</span>
+<span class="fc" id="L240">            ln5Split       = null;</span>
+<span class="fc" id="L241">            ln10           = null;</span>
+        }
+
+<span class="fc" id="L244">    }</span>
+
+    /** Get the number of radix digits of the {@link Dfp} instances built by this factory.
+     * @return number of radix digits
+     */
+    public int getRadixDigits() {
+<span class="fc" id="L250">        return radixDigits;</span>
+    }
+
+    /** Set the rounding mode.
+     *  If not set, the default value is {@link RoundingMode#ROUND_HALF_EVEN}.
+     * @param mode desired rounding mode
+     * Note that the rounding mode is common to all {@link Dfp} instances
+     * belonging to the current {@link DfpField} in the system and will
+     * affect all future calculations.
+     */
+    public void setRoundingMode(final RoundingMode mode) {
+<span class="fc" id="L261">        rMode = mode;</span>
+<span class="fc" id="L262">    }</span>
+
+    /** Get the current rounding mode.
+     * @return current rounding mode
+     */
+    public RoundingMode getRoundingMode() {
+<span class="fc" id="L268">        return rMode;</span>
+    }
+
+    /** Get the IEEE 854 status flags.
+     * @return IEEE 854 status flags
+     * @see #clearIEEEFlags()
+     * @see #setIEEEFlags(int)
+     * @see #setIEEEFlagsBits(int)
+     * @see #FLAG_INVALID
+     * @see #FLAG_DIV_ZERO
+     * @see #FLAG_OVERFLOW
+     * @see #FLAG_UNDERFLOW
+     * @see #FLAG_INEXACT
+     */
+    public int getIEEEFlags() {
+<span class="fc" id="L283">        return ieeeFlags;</span>
+    }
+
+    /** Clears the IEEE 854 status flags.
+     * @see #getIEEEFlags()
+     * @see #setIEEEFlags(int)
+     * @see #setIEEEFlagsBits(int)
+     * @see #FLAG_INVALID
+     * @see #FLAG_DIV_ZERO
+     * @see #FLAG_OVERFLOW
+     * @see #FLAG_UNDERFLOW
+     * @see #FLAG_INEXACT
+     */
+    public void clearIEEEFlags() {
+<span class="fc" id="L297">        ieeeFlags = 0;</span>
+<span class="fc" id="L298">    }</span>
+
+    /** Sets the IEEE 854 status flags.
+     * @param flags desired value for the flags
+     * @see #getIEEEFlags()
+     * @see #clearIEEEFlags()
+     * @see #setIEEEFlagsBits(int)
+     * @see #FLAG_INVALID
+     * @see #FLAG_DIV_ZERO
+     * @see #FLAG_OVERFLOW
+     * @see #FLAG_UNDERFLOW
+     * @see #FLAG_INEXACT
+     */
+    public void setIEEEFlags(final int flags) {
+<span class="nc" id="L312">        ieeeFlags = flags &amp; (FLAG_INVALID | FLAG_DIV_ZERO | FLAG_OVERFLOW | FLAG_UNDERFLOW | FLAG_INEXACT);</span>
+<span class="nc" id="L313">    }</span>
+
+    /** Sets some bits in the IEEE 854 status flags, without changing the already set bits.
+     * &lt;p&gt;
+     * Calling this method is equivalent to call {@code setIEEEFlags(getIEEEFlags() | bits)}
+     * &lt;/p&gt;
+     * @param bits bits to set
+     * @see #getIEEEFlags()
+     * @see #clearIEEEFlags()
+     * @see #setIEEEFlags(int)
+     * @see #FLAG_INVALID
+     * @see #FLAG_DIV_ZERO
+     * @see #FLAG_OVERFLOW
+     * @see #FLAG_UNDERFLOW
+     * @see #FLAG_INEXACT
+     */
+    public void setIEEEFlagsBits(final int bits) {
+<span class="fc" id="L330">        ieeeFlags |= bits &amp; (FLAG_INVALID | FLAG_DIV_ZERO | FLAG_OVERFLOW | FLAG_UNDERFLOW | FLAG_INEXACT);</span>
+<span class="fc" id="L331">    }</span>
+
+    /** Makes a {@link Dfp} with a value of 0.
+     * @return a new {@link Dfp} with a value of 0
+     */
+    public Dfp newDfp() {
+<span class="fc" id="L337">        return new Dfp(this);</span>
+    }
+
+    /** Create an instance from a byte value.
+     * @param x value to convert to an instance
+     * @return a new {@link Dfp} with the same value as x
+     */
+    public Dfp newDfp(final byte x) {
+<span class="nc" id="L345">        return new Dfp(this, x);</span>
+    }
+
+    /** Create an instance from an int value.
+     * @param x value to convert to an instance
+     * @return a new {@link Dfp} with the same value as x
+     */
+    public Dfp newDfp(final int x) {
+<span class="fc" id="L353">        return new Dfp(this, x);</span>
+    }
+
+    /** Create an instance from a long value.
+     * @param x value to convert to an instance
+     * @return a new {@link Dfp} with the same value as x
+     */
+    public Dfp newDfp(final long x) {
+<span class="fc" id="L361">        return new Dfp(this, x);</span>
+    }
+
+    /** Create an instance from a double value.
+     * @param x value to convert to an instance
+     * @return a new {@link Dfp} with the same value as x
+     */
+    public Dfp newDfp(final double x) {
+<span class="fc" id="L369">        return new Dfp(this, x);</span>
+    }
+
+    /** Copy constructor.
+     * @param d instance to copy
+     * @return a new {@link Dfp} with the same value as d
+     */
+    public Dfp newDfp(Dfp d) {
+<span class="nc" id="L377">        return new Dfp(d);</span>
+    }
+
+    /** Create a {@link Dfp} given a String representation.
+     * @param s string representation of the instance
+     * @return a new {@link Dfp} parsed from specified string
+     */
+    public Dfp newDfp(final String s) {
+<span class="fc" id="L385">        return new Dfp(this, s);</span>
+    }
+
+    /** Creates a {@link Dfp} with a non-finite value.
+     * @param sign sign of the Dfp to create
+     * @param nans code of the value, must be one of {@link Dfp#INFINITE},
+     * {@link Dfp#SNAN},  {@link Dfp#QNAN}
+     * @return a new {@link Dfp} with a non-finite value
+     */
+    public Dfp newDfp(final byte sign, final byte nans) {
+<span class="fc" id="L395">        return new Dfp(this, sign, nans);</span>
+    }
+
+    /** Get the constant 0.
+     * @return a {@link Dfp} with value 0
+     */
+    public Dfp getZero() {
+<span class="fc" id="L402">        return zero;</span>
+    }
+
+    /** Get the constant 1.
+     * @return a {@link Dfp} with value 1
+     */
+    public Dfp getOne() {
+<span class="fc" id="L409">        return one;</span>
+    }
+
+    /** {@inheritDoc} */
+    public Class&lt;? extends FieldElement&lt;Dfp&gt;&gt; getRuntimeClass() {
+<span class="fc" id="L414">        return Dfp.class;</span>
+    }
+
+    /** Get the constant 2.
+     * @return a {@link Dfp} with value 2
+     */
+    public Dfp getTwo() {
+<span class="fc" id="L421">        return two;</span>
+    }
+
+    /** Get the constant &amp;radic;2.
+     * @return a {@link Dfp} with value &amp;radic;2
+     */
+    public Dfp getSqr2() {
+<span class="nc" id="L428">        return sqr2;</span>
+    }
+
+    /** Get the constant &amp;radic;2 split in two pieces.
+     * @return a {@link Dfp} with value &amp;radic;2 split in two pieces
+     */
+    public Dfp[] getSqr2Split() {
+<span class="fc" id="L435">        return sqr2Split.clone();</span>
+    }
+
+    /** Get the constant &amp;radic;2 / 2.
+     * @return a {@link Dfp} with value &amp;radic;2 / 2
+     */
+    public Dfp getSqr2Reciprocal() {
+<span class="nc" id="L442">        return sqr2Reciprocal;</span>
+    }
+
+    /** Get the constant &amp;radic;3.
+     * @return a {@link Dfp} with value &amp;radic;3
+     */
+    public Dfp getSqr3() {
+<span class="nc" id="L449">        return sqr3;</span>
+    }
+
+    /** Get the constant &amp;radic;3 / 3.
+     * @return a {@link Dfp} with value &amp;radic;3 / 3
+     */
+    public Dfp getSqr3Reciprocal() {
+<span class="nc" id="L456">        return sqr3Reciprocal;</span>
+    }
+
+    /** Get the constant &amp;pi;.
+     * @return a {@link Dfp} with value &amp;pi;
+     */
+    public Dfp getPi() {
+<span class="fc" id="L463">        return pi;</span>
+    }
+
+    /** Get the constant &amp;pi; split in two pieces.
+     * @return a {@link Dfp} with value &amp;pi; split in two pieces
+     */
+    public Dfp[] getPiSplit() {
+<span class="fc" id="L470">        return piSplit.clone();</span>
+    }
+
+    /** Get the constant e.
+     * @return a {@link Dfp} with value e
+     */
+    public Dfp getE() {
+<span class="nc" id="L477">        return e;</span>
+    }
+
+    /** Get the constant e split in two pieces.
+     * @return a {@link Dfp} with value e split in two pieces
+     */
+    public Dfp[] getESplit() {
+<span class="fc" id="L484">        return eSplit.clone();</span>
+    }
+
+    /** Get the constant ln(2).
+     * @return a {@link Dfp} with value ln(2)
+     */
+    public Dfp getLn2() {
+<span class="fc" id="L491">        return ln2;</span>
+    }
+
+    /** Get the constant ln(2) split in two pieces.
+     * @return a {@link Dfp} with value ln(2) split in two pieces
+     */
+    public Dfp[] getLn2Split() {
+<span class="fc" id="L498">        return ln2Split.clone();</span>
+    }
+
+    /** Get the constant ln(5).
+     * @return a {@link Dfp} with value ln(5)
+     */
+    public Dfp getLn5() {
+<span class="nc" id="L505">        return ln5;</span>
+    }
+
+    /** Get the constant ln(5) split in two pieces.
+     * @return a {@link Dfp} with value ln(5) split in two pieces
+     */
+    public Dfp[] getLn5Split() {
+<span class="fc" id="L512">        return ln5Split.clone();</span>
+    }
+
+    /** Get the constant ln(10).
+     * @return a {@link Dfp} with value ln(10)
+     */
+    public Dfp getLn10() {
+<span class="nc" id="L519">        return ln10;</span>
+    }
+
+    /** Breaks a string representation up into two {@link Dfp}'s.
+     * The split is such that the sum of them is equivalent to the input string,
+     * but has higher precision than using a single Dfp.
+     * @param a string representation of the number to split
+     * @return an array of two {@link Dfp Dfp} instances which sum equals a
+     */
+    private Dfp[] split(final String a) {
+<span class="fc" id="L529">      Dfp result[] = new Dfp[2];</span>
+<span class="fc" id="L530">      boolean leading = true;</span>
+<span class="fc" id="L531">      int sp = 0;</span>
+<span class="fc" id="L532">      int sig = 0;</span>
+
+<span class="fc" id="L534">      char[] buf = new char[a.length()];</span>
+
+<span class="pc bpc" id="L536" title="1 of 2 branches missed.">      for (int i = 0; i &lt; buf.length; i++) {</span>
+<span class="fc" id="L537">        buf[i] = a.charAt(i);</span>
+
+<span class="pc bpc" id="L539" title="1 of 4 branches missed.">        if (buf[i] &gt;= '1' &amp;&amp; buf[i] &lt;= '9') {</span>
+<span class="fc" id="L540">            leading = false;</span>
+        }
+
+<span class="fc bfc" id="L543" title="All 2 branches covered.">        if (buf[i] == '.') {</span>
+<span class="fc" id="L544">          sig += (400 - sig) % 4;</span>
+<span class="fc" id="L545">          leading = false;</span>
+        }
+
+<span class="fc bfc" id="L548" title="All 2 branches covered.">        if (sig == (radixDigits / 2) * 4) {</span>
+<span class="fc" id="L549">          sp = i;</span>
+<span class="fc" id="L550">          break;</span>
+        }
+
+<span class="pc bpc" id="L553" title="1 of 6 branches missed.">        if (buf[i] &gt;= '0' &amp;&amp; buf[i] &lt;= '9' &amp;&amp; !leading) {</span>
+<span class="fc" id="L554">            sig ++;</span>
+        }
+      }
+
+<span class="fc" id="L558">      result[0] = new Dfp(this, new String(buf, 0, sp));</span>
+
+<span class="fc bfc" id="L560" title="All 2 branches covered.">      for (int i = 0; i &lt; buf.length; i++) {</span>
+<span class="fc" id="L561">        buf[i] = a.charAt(i);</span>
+<span class="pc bpc" id="L562" title="1 of 6 branches missed.">        if (buf[i] &gt;= '0' &amp;&amp; buf[i] &lt;= '9' &amp;&amp; i &lt; sp) {</span>
+<span class="fc" id="L563">            buf[i] = '0';</span>
+        }
+      }
+
+<span class="fc" id="L567">      result[1] = new Dfp(this, new String(buf));</span>
+
+<span class="fc" id="L569">      return result;</span>
+
+    }
+
+    /** Recompute the high precision string constants.
+     * @param highPrecisionDecimalDigits precision at which the string constants mus be computed
+     */
+    private static void computeStringConstants(final int highPrecisionDecimalDigits) {
+<span class="fc bfc" id="L577" title="All 4 branches covered.">        if (sqr2String == null || sqr2String.length() &lt; highPrecisionDecimalDigits - 3) {</span>
+
+            // recompute the string representation of the transcendental constants
+<span class="fc" id="L580">            final DfpField highPrecisionField = new DfpField(highPrecisionDecimalDigits, false);</span>
+<span class="fc" id="L581">            final Dfp highPrecisionOne        = new Dfp(highPrecisionField, 1);</span>
+<span class="fc" id="L582">            final Dfp highPrecisionTwo        = new Dfp(highPrecisionField, 2);</span>
+<span class="fc" id="L583">            final Dfp highPrecisionThree      = new Dfp(highPrecisionField, 3);</span>
+
+<span class="fc" id="L585">            final Dfp highPrecisionSqr2 = highPrecisionTwo.sqrt();</span>
+<span class="fc" id="L586">            sqr2String           = highPrecisionSqr2.toString();</span>
+<span class="fc" id="L587">            sqr2ReciprocalString = highPrecisionOne.divide(highPrecisionSqr2).toString();</span>
+
+<span class="fc" id="L589">            final Dfp highPrecisionSqr3 = highPrecisionThree.sqrt();</span>
+<span class="fc" id="L590">            sqr3String           = highPrecisionSqr3.toString();</span>
+<span class="fc" id="L591">            sqr3ReciprocalString = highPrecisionOne.divide(highPrecisionSqr3).toString();</span>
+
+<span class="fc" id="L593">            piString   = computePi(highPrecisionOne, highPrecisionTwo, highPrecisionThree).toString();</span>
+<span class="fc" id="L594">            eString    = computeExp(highPrecisionOne, highPrecisionOne).toString();</span>
+<span class="fc" id="L595">            ln2String  = computeLn(highPrecisionTwo, highPrecisionOne, highPrecisionTwo).toString();</span>
+<span class="fc" id="L596">            ln5String  = computeLn(new Dfp(highPrecisionField, 5),  highPrecisionOne, highPrecisionTwo).toString();</span>
+<span class="fc" id="L597">            ln10String = computeLn(new Dfp(highPrecisionField, 10), highPrecisionOne, highPrecisionTwo).toString();</span>
+
+        }
+<span class="fc" id="L600">    }</span>
+
+    /** Compute &amp;pi; using Jonathan and Peter Borwein quartic formula.
+     * @param one constant with value 1 at desired precision
+     * @param two constant with value 2 at desired precision
+     * @param three constant with value 3 at desired precision
+     * @return &amp;pi;
+     */
+    private static Dfp computePi(final Dfp one, final Dfp two, final Dfp three) {
+
+<span class="fc" id="L610">        Dfp sqrt2   = two.sqrt();</span>
+<span class="fc" id="L611">        Dfp yk      = sqrt2.subtract(one);</span>
+<span class="fc" id="L612">        Dfp four    = two.add(two);</span>
+<span class="fc" id="L613">        Dfp two2kp3 = two;</span>
+<span class="fc" id="L614">        Dfp ak      = two.multiply(three.subtract(two.multiply(sqrt2)));</span>
+
+        // The formula converges quartically. This means the number of correct
+        // digits is multiplied by 4 at each iteration! Five iterations are
+        // sufficient for about 160 digits, eight iterations give about
+        // 10000 digits (this has been checked) and 20 iterations more than
+        // 160 billions of digits (this has NOT been checked).
+        // So the limit here is considered sufficient for most purposes ...
+<span class="pc bpc" id="L622" title="1 of 2 branches missed.">        for (int i = 1; i &lt; 20; i++) {</span>
+<span class="fc" id="L623">            final Dfp ykM1 = yk;</span>
+
+<span class="fc" id="L625">            final Dfp y2         = yk.multiply(yk);</span>
+<span class="fc" id="L626">            final Dfp oneMinusY4 = one.subtract(y2.multiply(y2));</span>
+<span class="fc" id="L627">            final Dfp s          = oneMinusY4.sqrt().sqrt();</span>
+<span class="fc" id="L628">            yk = one.subtract(s).divide(one.add(s));</span>
+
+<span class="fc" id="L630">            two2kp3 = two2kp3.multiply(four);</span>
+
+<span class="fc" id="L632">            final Dfp p = one.add(yk);</span>
+<span class="fc" id="L633">            final Dfp p2 = p.multiply(p);</span>
+<span class="fc" id="L634">            ak = ak.multiply(p2.multiply(p2)).subtract(two2kp3.multiply(yk).multiply(one.add(yk).add(yk.multiply(yk))));</span>
+
+<span class="fc bfc" id="L636" title="All 2 branches covered.">            if (yk.equals(ykM1)) {</span>
+<span class="fc" id="L637">                break;</span>
+            }
+        }
+
+<span class="fc" id="L641">        return one.divide(ak);</span>
+
+    }
+
+    /** Compute exp(a).
+     * @param a number for which we want the exponential
+     * @param one constant with value 1 at desired precision
+     * @return exp(a)
+     */
+    public static Dfp computeExp(final Dfp a, final Dfp one) {
+
+<span class="fc" id="L652">        Dfp y  = new Dfp(one);</span>
+<span class="fc" id="L653">        Dfp py = new Dfp(one);</span>
+<span class="fc" id="L654">        Dfp f  = new Dfp(one);</span>
+<span class="fc" id="L655">        Dfp fi = new Dfp(one);</span>
+<span class="fc" id="L656">        Dfp x  = new Dfp(one);</span>
+
+<span class="pc bpc" id="L658" title="1 of 2 branches missed.">        for (int i = 0; i &lt; 10000; i++) {</span>
+<span class="fc" id="L659">            x = x.multiply(a);</span>
+<span class="fc" id="L660">            y = y.add(x.divide(f));</span>
+<span class="fc" id="L661">            fi = fi.add(one);</span>
+<span class="fc" id="L662">            f = f.multiply(fi);</span>
+<span class="fc bfc" id="L663" title="All 2 branches covered.">            if (y.equals(py)) {</span>
+<span class="fc" id="L664">                break;</span>
+            }
+<span class="fc" id="L666">            py = new Dfp(y);</span>
+        }
+
+<span class="fc" id="L669">        return y;</span>
+
+    }
+
+
+    /** Compute ln(a).
+     *
+     *  Let f(x) = ln(x),
+     *
+     *  We know that f'(x) = 1/x, thus from Taylor's theorem we have:
+     *
+     *           -----          n+1         n
+     *  f(x) =   \           (-1)    (x - 1)
+     *           /          ----------------    for 1 &lt;= n &lt;= infinity
+     *           -----             n
+     *
+     *  or
+     *                       2        3       4
+     *                   (x-1)   (x-1)    (x-1)
+     *  ln(x) =  (x-1) - ----- + ------ - ------ + ...
+     *                     2       3        4
+     *
+     *  alternatively,
+     *
+     *                  2    3   4
+     *                 x    x   x
+     *  ln(x+1) =  x - -  + - - - + ...
+     *                 2    3   4
+     *
+     *  This series can be used to compute ln(x), but it converges too slowly.
+     *
+     *  If we substitute -x for x above, we get
+     *
+     *                   2    3    4
+     *                  x    x    x
+     *  ln(1-x) =  -x - -  - -  - - + ...
+     *                  2    3    4
+     *
+     *  Note that all terms are now negative.  Because the even powered ones
+     *  absorbed the sign.  Now, subtract the series above from the previous
+     *  one to get ln(x+1) - ln(1-x).  Note the even terms cancel out leaving
+     *  only the odd ones
+     *
+     *                             3     5      7
+     *                           2x    2x     2x
+     *  ln(x+1) - ln(x-1) = 2x + --- + --- + ---- + ...
+     *                            3     5      7
+     *
+     *  By the property of logarithms that ln(a) - ln(b) = ln (a/b) we have:
+     *
+     *                                3        5        7
+     *      x+1           /          x        x        x          \
+     *  ln ----- =   2 *  |  x  +   ----  +  ----  +  ---- + ...  |
+     *      x-1           \          3        5        7          /
+     *
+     *  But now we want to find ln(a), so we need to find the value of x
+     *  such that a = (x+1)/(x-1).   This is easily solved to find that
+     *  x = (a-1)/(a+1).
+     * @param a number for which we want the exponential
+     * @param one constant with value 1 at desired precision
+     * @param two constant with value 2 at desired precision
+     * @return ln(a)
+     */
+
+    public static Dfp computeLn(final Dfp a, final Dfp one, final Dfp two) {
+
+<span class="fc" id="L735">        int den = 1;</span>
+<span class="fc" id="L736">        Dfp x = a.add(new Dfp(a.getField(), -1)).divide(a.add(one));</span>
+
+<span class="fc" id="L738">        Dfp y = new Dfp(x);</span>
+<span class="fc" id="L739">        Dfp num = new Dfp(x);</span>
+<span class="fc" id="L740">        Dfp py = new Dfp(y);</span>
+<span class="pc bpc" id="L741" title="1 of 2 branches missed.">        for (int i = 0; i &lt; 10000; i++) {</span>
+<span class="fc" id="L742">            num = num.multiply(x);</span>
+<span class="fc" id="L743">            num = num.multiply(x);</span>
+<span class="fc" id="L744">            den += 2;</span>
+<span class="fc" id="L745">            Dfp t = num.divide(den);</span>
+<span class="fc" id="L746">            y = y.add(t);</span>
+<span class="fc bfc" id="L747" title="All 2 branches covered.">            if (y.equals(py)) {</span>
+<span class="fc" id="L748">                break;</span>
+            }
+<span class="fc" id="L750">            py = new Dfp(y);</span>
+        }
+
+<span class="fc" id="L753">        return y.multiply(two);</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

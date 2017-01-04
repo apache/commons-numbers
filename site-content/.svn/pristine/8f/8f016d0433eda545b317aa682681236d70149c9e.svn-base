@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>StatisticalSummaryValues.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive</a> &gt; <span class="el_source">StatisticalSummaryValues.java</span></div><h1>StatisticalSummaryValues.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
+
+/**
+ *  Value object representing the results of a univariate statistical summary.
+ *
+ */
+public class StatisticalSummaryValues implements Serializable,
+    StatisticalSummary {
+
+    /** Serialization id */
+    private static final long serialVersionUID = -5108854841843722536L;
+
+    /** The sample mean */
+    private final double mean;
+
+    /** The sample variance */
+    private final double variance;
+
+    /** The number of observations in the sample */
+    private final long n;
+
+    /** The maximum value */
+    private final double max;
+
+    /** The minimum value */
+    private final double min;
+
+    /** The sum of the sample values */
+    private final double sum;
+
+    /**
+      * Constructor
+      *
+      * @param mean  the sample mean
+      * @param variance  the sample variance
+      * @param n  the number of observations in the sample
+      * @param max  the maximum value
+      * @param min  the minimum value
+      * @param sum  the sum of the values
+     */
+    public StatisticalSummaryValues(double mean, double variance, long n,
+        double max, double min, double sum) {
+<span class="fc" id="L65">        super();</span>
+<span class="fc" id="L66">        this.mean = mean;</span>
+<span class="fc" id="L67">        this.variance = variance;</span>
+<span class="fc" id="L68">        this.n = n;</span>
+<span class="fc" id="L69">        this.max = max;</span>
+<span class="fc" id="L70">        this.min = min;</span>
+<span class="fc" id="L71">        this.sum = sum;</span>
+<span class="fc" id="L72">    }</span>
+
+    /**
+     * @return Returns the max.
+     */
+    public double getMax() {
+<span class="fc" id="L78">        return max;</span>
+    }
+
+    /**
+     * @return Returns the mean.
+     */
+    public double getMean() {
+<span class="fc" id="L85">        return mean;</span>
+    }
+
+    /**
+     * @return Returns the min.
+     */
+    public double getMin() {
+<span class="fc" id="L92">        return min;</span>
+    }
+
+    /**
+     * @return Returns the number of values.
+     */
+    public long getN() {
+<span class="fc" id="L99">        return n;</span>
+    }
+
+    /**
+     * @return Returns the sum.
+     */
+    public double getSum() {
+<span class="fc" id="L106">        return sum;</span>
+    }
+
+    /**
+     * @return Returns the standard deviation
+     */
+    public double getStandardDeviation() {
+<span class="fc" id="L113">        return FastMath.sqrt(variance);</span>
+    }
+
+    /**
+     * @return Returns the variance.
+     */
+    public double getVariance() {
+<span class="fc" id="L120">        return variance;</span>
+    }
+
+    /**
+     * Returns true iff &lt;code&gt;object&lt;/code&gt; is a
+     * &lt;code&gt;StatisticalSummaryValues&lt;/code&gt; instance and all statistics have
+     *  the same values as this.
+     *
+     * @param object the object to test equality against.
+     * @return true if object equals this
+     */
+    @Override
+    public boolean equals(Object object) {
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (object == this ) {</span>
+<span class="fc" id="L134">            return true;</span>
+        }
+<span class="fc bfc" id="L136" title="All 2 branches covered.">        if (object instanceof StatisticalSummaryValues == false) {</span>
+<span class="fc" id="L137">            return false;</span>
+        }
+<span class="fc" id="L139">        StatisticalSummaryValues stat = (StatisticalSummaryValues) object;</span>
+<span class="pc bpc" id="L140" title="5 of 12 branches missed.">        return Precision.equalsIncludingNaN(stat.getMax(),      getMax())  &amp;&amp;</span>
+               Precision.equalsIncludingNaN(stat.getMean(),     getMean()) &amp;&amp;
+               Precision.equalsIncludingNaN(stat.getMin(),      getMin())  &amp;&amp;
+               Precision.equalsIncludingNaN(stat.getN(),        getN())    &amp;&amp;
+               Precision.equalsIncludingNaN(stat.getSum(),      getSum())  &amp;&amp;
+               Precision.equalsIncludingNaN(stat.getVariance(), getVariance());
+    }
+
+    /**
+     * Returns hash code based on values of statistics
+     *
+     * @return hash code
+     */
+    @Override
+    public int hashCode() {
+<span class="fc" id="L155">        int result = 31 + MathUtils.hash(getMax());</span>
+<span class="fc" id="L156">        result = result * 31 + MathUtils.hash(getMean());</span>
+<span class="fc" id="L157">        result = result * 31 + MathUtils.hash(getMin());</span>
+<span class="fc" id="L158">        result = result * 31 + MathUtils.hash(getN());</span>
+<span class="fc" id="L159">        result = result * 31 + MathUtils.hash(getSum());</span>
+<span class="fc" id="L160">        result = result * 31 + MathUtils.hash(getVariance());</span>
+<span class="fc" id="L161">        return result;</span>
+    }
+
+    /**
+     * Generates a text report displaying values of statistics.
+     * Each statistic is displayed on a separate line.
+     *
+     * @return String with line feeds displaying statistics
+     */
+    @Override
+    public String toString() {
+<span class="fc" id="L172">        StringBuffer outBuffer = new StringBuffer();</span>
+<span class="fc" id="L173">        String endl = &quot;\n&quot;;</span>
+<span class="fc" id="L174">        outBuffer.append(&quot;StatisticalSummaryValues:&quot;).append(endl);</span>
+<span class="fc" id="L175">        outBuffer.append(&quot;n: &quot;).append(getN()).append(endl);</span>
+<span class="fc" id="L176">        outBuffer.append(&quot;min: &quot;).append(getMin()).append(endl);</span>
+<span class="fc" id="L177">        outBuffer.append(&quot;max: &quot;).append(getMax()).append(endl);</span>
+<span class="fc" id="L178">        outBuffer.append(&quot;mean: &quot;).append(getMean()).append(endl);</span>
+<span class="fc" id="L179">        outBuffer.append(&quot;std dev: &quot;).append(getStandardDeviation())</span>
+            .append(endl);
+<span class="fc" id="L181">        outBuffer.append(&quot;variance: &quot;).append(getVariance()).append(endl);</span>
+<span class="fc" id="L182">        outBuffer.append(&quot;sum: &quot;).append(getSum()).append(endl);</span>
+<span class="fc" id="L183">        return outBuffer.toString();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

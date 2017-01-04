@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>S2Point.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.spherical.twod</a> &gt; <span class="el_source">S2Point.java</span></div><h1>S2Point.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.spherical.twod;
+
+import org.apache.commons.math3.exception.MathArithmeticException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.geometry.Point;
+import org.apache.commons.math3.geometry.Space;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathUtils;
+
+/** This class represents a point on the 2-sphere.
+ * &lt;p&gt;
+ * We use the mathematical convention to use the azimuthal angle \( \theta \)
+ * in the x-y plane as the first coordinate, and the polar angle \( \varphi \)
+ * as the second coordinate (see &lt;a
+ * href=&quot;http://mathworld.wolfram.com/SphericalCoordinates.html&quot;&gt;Spherical
+ * Coordinates&lt;/a&gt; in MathWorld).
+ * &lt;/p&gt;
+ * &lt;p&gt;Instances of this class are guaranteed to be immutable.&lt;/p&gt;
+ * @since 3.3
+ */
+public class S2Point implements Point&lt;Sphere2D&gt; {
+
+    /** +I (coordinates: \( \theta = 0, \varphi = \pi/2 \)). */
+<span class="fc" id="L41">    public static final S2Point PLUS_I = new S2Point(0, 0.5 * FastMath.PI, Vector3D.PLUS_I);</span>
+
+    /** +J (coordinates: \( \theta = \pi/2, \varphi = \pi/2 \))). */
+<span class="fc" id="L44">    public static final S2Point PLUS_J = new S2Point(0.5 * FastMath.PI, 0.5 * FastMath.PI, Vector3D.PLUS_J);</span>
+
+    /** +K (coordinates: \( \theta = any angle, \varphi = 0 \)). */
+<span class="fc" id="L47">    public static final S2Point PLUS_K = new S2Point(0, 0, Vector3D.PLUS_K);</span>
+
+    /** -I (coordinates: \( \theta = \pi, \varphi = \pi/2 \)). */
+<span class="fc" id="L50">    public static final S2Point MINUS_I = new S2Point(FastMath.PI, 0.5 * FastMath.PI, Vector3D.MINUS_I);</span>
+
+    /** -J (coordinates: \( \theta = 3\pi/2, \varphi = \pi/2 \)). */
+<span class="fc" id="L53">    public static final S2Point MINUS_J = new S2Point(1.5 * FastMath.PI, 0.5 * FastMath.PI, Vector3D.MINUS_J);</span>
+
+    /** -K (coordinates: \( \theta = any angle, \varphi = \pi \)). */
+<span class="fc" id="L56">    public static final S2Point MINUS_K = new S2Point(0, FastMath.PI, Vector3D.MINUS_K);</span>
+
+    // CHECKSTYLE: stop ConstantName
+    /** A vector with all coordinates set to NaN. */
+<span class="fc" id="L60">    public static final S2Point NaN = new S2Point(Double.NaN, Double.NaN, Vector3D.NaN);</span>
+    // CHECKSTYLE: resume ConstantName
+
+    /** Serializable UID. */
+    private static final long serialVersionUID = 20131218L;
+
+    /** Azimuthal angle \( \theta \) in the x-y plane. */
+    private final double theta;
+
+    /** Polar angle \( \varphi \). */
+    private final double phi;
+
+    /** Corresponding 3D normalized vector. */
+    private final Vector3D vector;
+
+    /** Simple constructor.
+     * Build a vector from its spherical coordinates
+     * @param theta azimuthal angle \( \theta \) in the x-y plane
+     * @param phi polar angle \( \varphi \)
+     * @see #getTheta()
+     * @see #getPhi()
+     * @exception OutOfRangeException if \( \varphi \) is not in the [\( 0; \pi \)] range
+     */
+    public S2Point(final double theta, final double phi)
+        throws OutOfRangeException {
+<span class="fc" id="L85">        this(theta, phi, vector(theta, phi));</span>
+<span class="fc" id="L86">    }</span>
+
+    /** Simple constructor.
+     * Build a vector from its underlying 3D vector
+     * @param vector 3D vector
+     * @exception MathArithmeticException if vector norm is zero
+     */
+    public S2Point(final Vector3D vector) throws MathArithmeticException {
+<span class="fc" id="L94">        this(FastMath.atan2(vector.getY(), vector.getX()), Vector3D.angle(Vector3D.PLUS_K, vector),</span>
+             vector.normalize());
+<span class="fc" id="L96">    }</span>
+
+    /** Build a point from its internal components.
+     * @param theta azimuthal angle \( \theta \) in the x-y plane
+     * @param phi polar angle \( \varphi \)
+     * @param vector corresponding vector
+     */
+<span class="fc" id="L103">    private S2Point(final double theta, final double phi, final Vector3D vector) {</span>
+<span class="fc" id="L104">        this.theta  = theta;</span>
+<span class="fc" id="L105">        this.phi    = phi;</span>
+<span class="fc" id="L106">        this.vector = vector;</span>
+<span class="fc" id="L107">    }</span>
+
+    /** Build the normalized vector corresponding to spherical coordinates.
+     * @param theta azimuthal angle \( \theta \) in the x-y plane
+     * @param phi polar angle \( \varphi \)
+     * @return normalized vector
+     * @exception OutOfRangeException if \( \varphi \) is not in the [\( 0; \pi \)] range
+     */
+    private static Vector3D vector(final double theta, final double phi)
+       throws OutOfRangeException {
+
+<span class="fc bfc" id="L118" title="All 4 branches covered.">        if (phi &lt; 0 || phi &gt; FastMath.PI) {</span>
+<span class="fc" id="L119">            throw new OutOfRangeException(phi, 0, FastMath.PI);</span>
+        }
+
+<span class="fc" id="L122">        final double cosTheta = FastMath.cos(theta);</span>
+<span class="fc" id="L123">        final double sinTheta = FastMath.sin(theta);</span>
+<span class="fc" id="L124">        final double cosPhi   = FastMath.cos(phi);</span>
+<span class="fc" id="L125">        final double sinPhi   = FastMath.sin(phi);</span>
+
+<span class="fc" id="L127">        return new Vector3D(cosTheta * sinPhi, sinTheta * sinPhi, cosPhi);</span>
+
+    }
+
+    /** Get the azimuthal angle \( \theta \) in the x-y plane.
+     * @return azimuthal angle \( \theta \) in the x-y plane
+     * @see #S2Point(double, double)
+     */
+    public double getTheta() {
+<span class="fc" id="L136">        return theta;</span>
+    }
+
+    /** Get the polar angle \( \varphi \).
+     * @return polar angle \( \varphi \)
+     * @see #S2Point(double, double)
+     */
+    public double getPhi() {
+<span class="fc" id="L144">        return phi;</span>
+    }
+
+    /** Get the corresponding normalized vector in the 3D euclidean space.
+     * @return normalized vector
+     */
+    public Vector3D getVector() {
+<span class="fc" id="L151">        return vector;</span>
+    }
+
+    /** {@inheritDoc} */
+    public Space getSpace() {
+<span class="fc" id="L156">        return Sphere2D.getInstance();</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isNaN() {
+<span class="pc bpc" id="L161" title="1 of 4 branches missed.">        return Double.isNaN(theta) || Double.isNaN(phi);</span>
+    }
+
+    /** Get the opposite of the instance.
+     * @return a new vector which is opposite to the instance
+     */
+    public S2Point negate() {
+<span class="fc" id="L168">        return new S2Point(-theta, FastMath.PI - phi, vector.negate());</span>
+    }
+
+    /** {@inheritDoc} */
+    public double distance(final Point&lt;Sphere2D&gt; point) {
+<span class="fc" id="L173">        return distance(this, (S2Point) point);</span>
+    }
+
+    /** Compute the distance (angular separation) between two points.
+     * @param p1 first vector
+     * @param p2 second vector
+     * @return the angular separation between p1 and p2
+     */
+    public static double distance(S2Point p1, S2Point p2) {
+<span class="fc" id="L182">        return Vector3D.angle(p1.vector, p2.vector);</span>
+    }
+
+    /**
+     * Test for the equality of two points on the 2-sphere.
+     * &lt;p&gt;
+     * If all coordinates of two points are exactly the same, and none are
+     * &lt;code&gt;Double.NaN&lt;/code&gt;, the two points are considered to be equal.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * &lt;code&gt;NaN&lt;/code&gt; coordinates are considered to affect globally the vector
+     * and be equals to each other - i.e, if either (or all) coordinates of the
+     * 2D vector are equal to &lt;code&gt;Double.NaN&lt;/code&gt;, the 2D vector is equal to
+     * {@link #NaN}.
+     * &lt;/p&gt;
+     *
+     * @param other Object to test for equality to this
+     * @return true if two points on the 2-sphere objects are equal, false if
+     *         object is null, not an instance of S2Point, or
+     *         not equal to this S2Point instance
+     *
+     */
+    @Override
+    public boolean equals(Object other) {
+
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        if (this == other) {</span>
+<span class="fc" id="L208">            return true;</span>
+        }
+
+<span class="fc bfc" id="L211" title="All 2 branches covered.">        if (other instanceof S2Point) {</span>
+<span class="fc" id="L212">            final S2Point rhs = (S2Point) other;</span>
+<span class="fc bfc" id="L213" title="All 2 branches covered.">            if (rhs.isNaN()) {</span>
+<span class="fc" id="L214">                return this.isNaN();</span>
+            }
+
+<span class="pc bpc" id="L217" title="2 of 4 branches missed.">            return (theta == rhs.theta) &amp;&amp; (phi == rhs.phi);</span>
+        }
+<span class="fc" id="L219">        return false;</span>
+    }
+
+    /**
+     * Get a hashCode for the 2D vector.
+     * &lt;p&gt;
+     * All NaN values have the same hash code.&lt;/p&gt;
+     *
+     * @return a hash code value for this object
+     */
+    @Override
+    public int hashCode() {
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">        if (isNaN()) {</span>
+<span class="nc" id="L232">            return 542;</span>
+        }
+<span class="fc" id="L234">        return 134 * (37 * MathUtils.hash(theta) +  MathUtils.hash(phi));</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>OrderedTuple.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.partitioning.utilities</a> &gt; <span class="el_source">OrderedTuple.java</span></div><h1>OrderedTuple.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.partitioning.utilities;
+
+import java.util.Arrays;
+
+import org.apache.commons.math3.util.FastMath;
+
+/** This class implements an ordering operation for T-uples.
+ *
+ * &lt;p&gt;Ordering is done by encoding all components of the T-uple into a
+ * single scalar value and using this value as the sorting
+ * key. Encoding is performed using the method invented by Georg
+ * Cantor in 1877 when he proved it was possible to establish a
+ * bijection between a line and a plane. The binary representations of
+ * the components of the T-uple are mixed together to form a single
+ * scalar. This means that the 2&lt;sup&gt;k&lt;/sup&gt; bit of component 0 is
+ * followed by the 2&lt;sup&gt;k&lt;/sup&gt; bit of component 1, then by the
+ * 2&lt;sup&gt;k&lt;/sup&gt; bit of component 2 up to the 2&lt;sup&gt;k&lt;/sup&gt; bit of
+ * component {@code t}, which is followed by the 2&lt;sup&gt;k-1&lt;/sup&gt;
+ * bit of component 0, followed by the 2&lt;sup&gt;k-1&lt;/sup&gt; bit of
+ * component 1 ... The binary representations are extended as needed
+ * to handle numbers with different scales and a suitable
+ * 2&lt;sup&gt;p&lt;/sup&gt; offset is added to the components in order to avoid
+ * negative numbers (this offset is adjusted as needed during the
+ * comparison operations).&lt;/p&gt;
+ *
+ * &lt;p&gt;The more interesting property of the encoding method for our
+ * purpose is that it allows to select all the points that are in a
+ * given range. This is depicted in dimension 2 by the following
+ * picture:&lt;/p&gt;
+ *
+ * &lt;img src=&quot;doc-files/OrderedTuple.png&quot; /&gt;
+ *
+ * &lt;p&gt;This picture shows a set of 100000 random 2-D pairs having their
+ * first component between -50 and +150 and their second component
+ * between -350 and +50. We wanted to extract all pairs having their
+ * first component between +30 and +70 and their second component
+ * between -120 and -30. We built the lower left point at coordinates
+ * (30, -120) and the upper right point at coordinates (70, -30). All
+ * points smaller than the lower left point are drawn in red and all
+ * points larger than the upper right point are drawn in blue. The
+ * green points are between the two limits. This picture shows that
+ * all the desired points are selected, along with spurious points. In
+ * this case, we get 15790 points, 4420 of which really belonging to
+ * the desired rectangle. It is possible to extract very small
+ * subsets. As an example extracting from the same 100000 points set
+ * the points having their first component between +30 and +31 and
+ * their second component between -91 and -90, we get a subset of 11
+ * points, 2 of which really belonging to the desired rectangle.&lt;/p&gt;
+ *
+ * &lt;p&gt;the previous selection technique can be applied in all
+ * dimensions, still using two points to define the interval. The
+ * first point will have all its components set to their lower bounds
+ * while the second point will have all its components set to their
+ * upper bounds.&lt;/p&gt;
+ *
+ * &lt;p&gt;T-uples with negative infinite or positive infinite components
+ * are sorted logically.&lt;/p&gt;
+ *
+ * &lt;p&gt;Since the specification of the {@code Comparator} interface
+ * allows only {@code ClassCastException} errors, some arbitrary
+ * choices have been made to handle specific cases. The rationale for
+ * these choices is to keep &lt;em&gt;regular&lt;/em&gt; and consistent T-uples
+ * together.&lt;/p&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;instances with different dimensions are sorted according to
+ * their dimension regardless of their components values&lt;/li&gt;
+ * &lt;li&gt;instances with {@code Double.NaN} components are sorted
+ * after all other ones (even after instances with positive infinite
+ * components&lt;/li&gt;
+ * &lt;li&gt;instances with both positive and negative infinite components
+ * are considered as if they had {@code Double.NaN}
+ * components&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @since 3.0
+ * @deprecated as of 3.4, this class is not used anymore and considered
+ * to be out of scope of Apache Commons Math
+ */
+@Deprecated
+public class OrderedTuple implements Comparable&lt;OrderedTuple&gt; {
+
+    /** Sign bit mask. */
+    private static final long SIGN_MASK     = 0x8000000000000000L;
+
+    /** Exponent bits mask. */
+    private static final long EXPONENT_MASK = 0x7ff0000000000000L;
+
+    /** Mantissa bits mask. */
+    private static final long MANTISSA_MASK = 0x000fffffffffffffL;
+
+    /** Implicit MSB for normalized numbers. */
+    private static final long IMPLICIT_ONE  = 0x0010000000000000L;
+
+    /** Double components of the T-uple. */
+    private double[] components;
+
+    /** Offset scale. */
+    private int offset;
+
+    /** Least Significant Bit scale. */
+    private int lsb;
+
+    /** Ordering encoding of the double components. */
+    private long[] encoding;
+
+    /** Positive infinity marker. */
+    private boolean posInf;
+
+    /** Negative infinity marker. */
+    private boolean negInf;
+
+    /** Not A Number marker. */
+    private boolean nan;
+
+    /** Build an ordered T-uple from its components.
+     * @param components double components of the T-uple
+     */
+<span class="nc" id="L134">    public OrderedTuple(final double ... components) {</span>
+<span class="nc" id="L135">        this.components = components.clone();</span>
+<span class="nc" id="L136">        int msb = Integer.MIN_VALUE;</span>
+<span class="nc" id="L137">        lsb     = Integer.MAX_VALUE;</span>
+<span class="nc" id="L138">        posInf  = false;</span>
+<span class="nc" id="L139">        negInf  = false;</span>
+<span class="nc" id="L140">        nan     = false;</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        for (int i = 0; i &lt; components.length; ++i) {</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">            if (Double.isInfinite(components[i])) {</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">                if (components[i] &lt; 0) {</span>
+<span class="nc" id="L144">                    negInf = true;</span>
+                } else {
+<span class="nc" id="L146">                    posInf = true;</span>
+                }
+<span class="nc bnc" id="L148" title="All 2 branches missed.">            } else if (Double.isNaN(components[i])) {</span>
+<span class="nc" id="L149">                nan = true;</span>
+            } else {
+<span class="nc" id="L151">                final long b = Double.doubleToLongBits(components[i]);</span>
+<span class="nc" id="L152">                final long m = mantissa(b);</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">                if (m != 0) {</span>
+<span class="nc" id="L154">                    final int e = exponent(b);</span>
+<span class="nc" id="L155">                    msb = FastMath.max(msb, e + computeMSB(m));</span>
+<span class="nc" id="L156">                    lsb = FastMath.min(lsb, e + computeLSB(m));</span>
+                }
+            }
+        }
+
+<span class="nc bnc" id="L161" title="All 4 branches missed.">        if (posInf &amp;&amp; negInf) {</span>
+            // instance cannot be sorted logically
+<span class="nc" id="L163">            posInf = false;</span>
+<span class="nc" id="L164">            negInf = false;</span>
+<span class="nc" id="L165">            nan    = true;</span>
+        }
+
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        if (lsb &lt;= msb) {</span>
+            // encode the T-upple with the specified offset
+<span class="nc" id="L170">            encode(msb + 16);</span>
+        } else {
+<span class="nc" id="L172">            encoding = new long[] {</span>
+                0x0L
+            };
+        }
+
+<span class="nc" id="L177">    }</span>
+
+    /** Encode the T-uple with a given offset.
+     * @param minOffset minimal scale of the offset to add to all
+     * components (must be greater than the MSBs of all components)
+     */
+    private void encode(final int minOffset) {
+
+        // choose an offset with some margins
+<span class="nc" id="L186">        offset  = minOffset + 31;</span>
+<span class="nc" id="L187">        offset -= offset % 32;</span>
+
+<span class="nc bnc" id="L189" title="All 6 branches missed.">        if ((encoding != null) &amp;&amp; (encoding.length == 1) &amp;&amp; (encoding[0] == 0x0L)) {</span>
+            // the components are all zeroes
+<span class="nc" id="L191">            return;</span>
+        }
+
+        // allocate an integer array to encode the components (we use only
+        // 63 bits per element because there is no unsigned long in Java)
+<span class="nc" id="L196">        final int neededBits  = offset + 1 - lsb;</span>
+<span class="nc" id="L197">        final int neededLongs = (neededBits + 62) / 63;</span>
+<span class="nc" id="L198">        encoding = new long[components.length * neededLongs];</span>
+
+        // mix the bits from all components
+<span class="nc" id="L201">        int  eIndex = 0;</span>
+<span class="nc" id="L202">        int  shift  = 62;</span>
+<span class="nc" id="L203">        long word   = 0x0L;</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">        for (int k = offset; eIndex &lt; encoding.length; --k) {</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">            for (int vIndex = 0; vIndex &lt; components.length; ++vIndex) {</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">                if (getBit(vIndex, k) != 0) {</span>
+<span class="nc" id="L207">                    word |= 0x1L &lt;&lt; shift;</span>
+                }
+<span class="nc bnc" id="L209" title="All 2 branches missed.">                if (shift-- == 0) {</span>
+<span class="nc" id="L210">                    encoding[eIndex++] = word;</span>
+<span class="nc" id="L211">                    word  = 0x0L;</span>
+<span class="nc" id="L212">                    shift = 62;</span>
+                }
+            }
+        }
+
+<span class="nc" id="L217">    }</span>
+
+    /** Compares this ordered T-uple with the specified object.
+
+     * &lt;p&gt;The ordering method is detailed in the general description of
+     * the class. Its main property is to be consistent with distance:
+     * geometrically close T-uples stay close to each other when stored
+     * in a sorted collection using this comparison method.&lt;/p&gt;
+
+     * &lt;p&gt;T-uples with negative infinite, positive infinite are sorted
+     * logically.&lt;/p&gt;
+
+     * &lt;p&gt;Some arbitrary choices have been made to handle specific
+     * cases. The rationale for these choices is to keep
+     * &lt;em&gt;normal&lt;/em&gt; and consistent T-uples together.&lt;/p&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;instances with different dimensions are sorted according to
+     * their dimension regardless of their components values&lt;/li&gt;
+     * &lt;li&gt;instances with {@code Double.NaN} components are sorted
+     * after all other ones (evan after instances with positive infinite
+     * components&lt;/li&gt;
+     * &lt;li&gt;instances with both positive and negative infinite components
+     * are considered as if they had {@code Double.NaN}
+     * components&lt;/li&gt;
+     * &lt;/ul&gt;
+
+     * @param ot T-uple to compare instance with
+     * @return a negative integer if the instance is less than the
+     * object, zero if they are equal, or a positive integer if the
+     * instance is greater than the object
+
+     */
+    public int compareTo(final OrderedTuple ot) {
+<span class="nc bnc" id="L250" title="All 2 branches missed.">        if (components.length == ot.components.length) {</span>
+<span class="nc bnc" id="L251" title="All 2 branches missed.">            if (nan) {</span>
+<span class="nc" id="L252">                return +1;</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">            } else if (ot.nan) {</span>
+<span class="nc" id="L254">                return -1;</span>
+<span class="nc bnc" id="L255" title="All 4 branches missed.">            } else if (negInf || ot.posInf) {</span>
+<span class="nc" id="L256">                return -1;</span>
+<span class="nc bnc" id="L257" title="All 4 branches missed.">            } else if (posInf || ot.negInf) {</span>
+<span class="nc" id="L258">                return +1;</span>
+            } else {
+
+<span class="nc bnc" id="L261" title="All 2 branches missed.">                if (offset &lt; ot.offset) {</span>
+<span class="nc" id="L262">                    encode(ot.offset);</span>
+<span class="nc bnc" id="L263" title="All 2 branches missed.">                } else if (offset &gt; ot.offset) {</span>
+<span class="nc" id="L264">                    ot.encode(offset);</span>
+                }
+
+<span class="nc" id="L267">                final int limit = FastMath.min(encoding.length, ot.encoding.length);</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">                for (int i = 0; i &lt; limit; ++i) {</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">                    if (encoding[i] &lt; ot.encoding[i]) {</span>
+<span class="nc" id="L270">                        return -1;</span>
+<span class="nc bnc" id="L271" title="All 2 branches missed.">                    } else if (encoding[i] &gt; ot.encoding[i]) {</span>
+<span class="nc" id="L272">                        return +1;</span>
+                    }
+                }
+
+<span class="nc bnc" id="L276" title="All 2 branches missed.">                if (encoding.length &lt; ot.encoding.length) {</span>
+<span class="nc" id="L277">                    return -1;</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">                } else if (encoding.length &gt; ot.encoding.length) {</span>
+<span class="nc" id="L279">                    return +1;</span>
+                } else {
+<span class="nc" id="L281">                    return 0;</span>
+                }
+
+            }
+        }
+
+<span class="nc" id="L287">        return components.length - ot.components.length;</span>
+
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(final Object other) {
+<span class="nc bnc" id="L294" title="All 2 branches missed.">        if (this == other) {</span>
+<span class="nc" id="L295">            return true;</span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">        } else if (other instanceof OrderedTuple) {</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">            return compareTo((OrderedTuple) other) == 0;</span>
+        } else {
+<span class="nc" id="L299">            return false;</span>
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+        // the following constants are arbitrary small primes
+<span class="nc" id="L307">        final int multiplier = 37;</span>
+<span class="nc" id="L308">        final int trueHash   = 97;</span>
+<span class="nc" id="L309">        final int falseHash  = 71;</span>
+
+        // hash fields and combine them
+        // (we rely on the multiplier to have different combined weights
+        //  for all int fields and all boolean fields)
+<span class="nc" id="L314">        int hash = Arrays.hashCode(components);</span>
+<span class="nc" id="L315">        hash = hash * multiplier + offset;</span>
+<span class="nc" id="L316">        hash = hash * multiplier + lsb;</span>
+<span class="nc bnc" id="L317" title="All 2 branches missed.">        hash = hash * multiplier + (posInf ? trueHash : falseHash);</span>
+<span class="nc bnc" id="L318" title="All 2 branches missed.">        hash = hash * multiplier + (negInf ? trueHash : falseHash);</span>
+<span class="nc bnc" id="L319" title="All 2 branches missed.">        hash = hash * multiplier + (nan    ? trueHash : falseHash);</span>
+
+<span class="nc" id="L321">        return hash;</span>
+
+    }
+
+    /** Get the components array.
+     * @return array containing the T-uple components
+     */
+    public double[] getComponents() {
+<span class="nc" id="L329">        return components.clone();</span>
+    }
+
+    /** Extract the sign from the bits of a double.
+     * @param bits binary representation of the double
+     * @return sign bit (zero if positive, non zero if negative)
+     */
+    private static long sign(final long bits) {
+<span class="nc" id="L337">        return bits &amp; SIGN_MASK;</span>
+    }
+
+    /** Extract the exponent from the bits of a double.
+     * @param bits binary representation of the double
+     * @return exponent
+     */
+    private static int exponent(final long bits) {
+<span class="nc" id="L345">        return ((int) ((bits &amp; EXPONENT_MASK) &gt;&gt; 52)) - 1075;</span>
+    }
+
+    /** Extract the mantissa from the bits of a double.
+     * @param bits binary representation of the double
+     * @return mantissa
+     */
+    private static long mantissa(final long bits) {
+<span class="nc bnc" id="L353" title="All 2 branches missed.">        return ((bits &amp; EXPONENT_MASK) == 0) ?</span>
+               ((bits &amp; MANTISSA_MASK) &lt;&lt; 1) :          // subnormal number
+               (IMPLICIT_ONE | (bits &amp; MANTISSA_MASK)); // normal number
+    }
+
+    /** Compute the most significant bit of a long.
+     * @param l long from which the most significant bit is requested
+     * @return scale of the most significant bit of {@code l},
+     * or 0 if {@code l} is zero
+     * @see #computeLSB
+     */
+    private static int computeMSB(final long l) {
+
+<span class="nc" id="L366">        long ll = l;</span>
+<span class="nc" id="L367">        long mask  = 0xffffffffL;</span>
+<span class="nc" id="L368">        int  scale = 32;</span>
+<span class="nc" id="L369">        int  msb   = 0;</span>
+
+<span class="nc bnc" id="L371" title="All 2 branches missed.">        while (scale != 0) {</span>
+<span class="nc bnc" id="L372" title="All 2 branches missed.">            if ((ll &amp; mask) != ll) {</span>
+<span class="nc" id="L373">                msb |= scale;</span>
+<span class="nc" id="L374">                ll &gt;&gt;= scale;</span>
+            }
+<span class="nc" id="L376">            scale &gt;&gt;= 1;</span>
+<span class="nc" id="L377">            mask &gt;&gt;= scale;</span>
+        }
+
+<span class="nc" id="L380">        return msb;</span>
+
+    }
+
+    /** Compute the least significant bit of a long.
+     * @param l long from which the least significant bit is requested
+     * @return scale of the least significant bit of {@code l},
+     * or 63 if {@code l} is zero
+     * @see #computeMSB
+     */
+    private static int computeLSB(final long l) {
+
+<span class="nc" id="L392">        long ll = l;</span>
+<span class="nc" id="L393">        long mask  = 0xffffffff00000000L;</span>
+<span class="nc" id="L394">        int  scale = 32;</span>
+<span class="nc" id="L395">        int  lsb   = 0;</span>
+
+<span class="nc bnc" id="L397" title="All 2 branches missed.">        while (scale != 0) {</span>
+<span class="nc bnc" id="L398" title="All 2 branches missed.">            if ((ll &amp; mask) == ll) {</span>
+<span class="nc" id="L399">                lsb |= scale;</span>
+<span class="nc" id="L400">                ll &gt;&gt;= scale;</span>
+            }
+<span class="nc" id="L402">            scale &gt;&gt;= 1;</span>
+<span class="nc" id="L403">            mask &gt;&gt;= scale;</span>
+        }
+
+<span class="nc" id="L406">        return lsb;</span>
+
+    }
+
+    /** Get a bit from the mantissa of a double.
+     * @param i index of the component
+     * @param k scale of the requested bit
+     * @return the specified bit (either 0 or 1), after the offset has
+     * been added to the double
+     */
+    private int getBit(final int i, final int k) {
+<span class="nc" id="L417">        final long bits = Double.doubleToLongBits(components[i]);</span>
+<span class="nc" id="L418">        final int e = exponent(bits);</span>
+<span class="nc bnc" id="L419" title="All 4 branches missed.">        if ((k &lt; e) || (k &gt; offset)) {</span>
+<span class="nc" id="L420">            return 0;</span>
+<span class="nc bnc" id="L421" title="All 2 branches missed.">        } else if (k == offset) {</span>
+<span class="nc bnc" id="L422" title="All 2 branches missed.">            return (sign(bits) == 0L) ? 1 : 0;</span>
+<span class="nc bnc" id="L423" title="All 2 branches missed.">        } else if (k &gt; (e + 52)) {</span>
+<span class="nc bnc" id="L424" title="All 2 branches missed.">            return (sign(bits) == 0L) ? 0 : 1;</span>
+        } else {
+<span class="nc bnc" id="L426" title="All 2 branches missed.">            final long m = (sign(bits) == 0L) ? mantissa(bits) : -mantissa(bits);</span>
+<span class="nc" id="L427">            return (int) ((m &gt;&gt; (k - e)) &amp; 0x1L);</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

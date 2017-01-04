@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BaseMultiStartMultivariateOptimizer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optim</a> &gt; <span class="el_source">BaseMultiStartMultivariateOptimizer.java</span></div><h1>BaseMultiStartMultivariateOptimizer.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.optim;
+
+import org.apache.commons.math3.exception.MathIllegalStateException;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.TooManyEvaluationsException;
+import org.apache.commons.math3.random.RandomVectorGenerator;
+
+/**
+ * Base class multi-start optimizer for a multivariate function.
+ * &lt;br/&gt;
+ * This class wraps an optimizer in order to use it several times in
+ * turn with different starting points (trying to avoid being trapped
+ * in a local extremum when looking for a global one).
+ * &lt;em&gt;It is not a &quot;user&quot; class.&lt;/em&gt;
+ *
+ * @param &lt;PAIR&gt; Type of the point/value pair returned by the optimization
+ * algorithm.
+ *
+ * @since 3.0
+ */
+public abstract class BaseMultiStartMultivariateOptimizer&lt;PAIR&gt;
+    extends BaseMultivariateOptimizer&lt;PAIR&gt; {
+    /** Underlying classical optimizer. */
+    private final BaseMultivariateOptimizer&lt;PAIR&gt; optimizer;
+    /** Number of evaluations already performed for all starts. */
+    private int totalEvaluations;
+    /** Number of starts to go. */
+    private int starts;
+    /** Random generator for multi-start. */
+    private RandomVectorGenerator generator;
+    /** Optimization data. */
+    private OptimizationData[] optimData;
+    /**
+     * Location in {@link #optimData} where the updated maximum
+     * number of evaluations will be stored.
+     */
+<span class="fc" id="L53">    private int maxEvalIndex = -1;</span>
+    /**
+     * Location in {@link #optimData} where the updated start value
+     * will be stored.
+     */
+<span class="fc" id="L58">    private int initialGuessIndex = -1;</span>
+
+    /**
+     * Create a multi-start optimizer from a single-start optimizer.
+     * &lt;p&gt;
+     * Note that if there are bounds constraints (see {@link #getLowerBound()}
+     * and {@link #getUpperBound()}), then a simple rejection algorithm is used
+     * at each restart. This implies that the random vector generator should have
+     * a good probability to generate vectors in the bounded domain, otherwise the
+     * rejection algorithm will hit the {@link #getMaxEvaluations()} count without
+     * generating a proper restart point. Users must be take great care of the &lt;a
+     * href=&quot;http://en.wikipedia.org/wiki/Curse_of_dimensionality&quot;&gt;curse of dimensionality&lt;/a&gt;.
+     * &lt;/p&gt;
+     * @param optimizer Single-start optimizer to wrap.
+     * @param starts Number of starts to perform. If {@code starts == 1},
+     * the {@link #optimize(OptimizationData[]) optimize} will return the
+     * same solution as the given {@code optimizer} would return.
+     * @param generator Random vector generator to use for restarts.
+     * @throws NotStrictlyPositiveException if {@code starts &lt; 1}.
+     */
+    public BaseMultiStartMultivariateOptimizer(final BaseMultivariateOptimizer&lt;PAIR&gt; optimizer,
+                                               final int starts,
+                                               final RandomVectorGenerator generator) {
+<span class="fc" id="L81">        super(optimizer.getConvergenceChecker());</span>
+
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (starts &lt; 1) {</span>
+<span class="nc" id="L84">            throw new NotStrictlyPositiveException(starts);</span>
+        }
+
+<span class="fc" id="L87">        this.optimizer = optimizer;</span>
+<span class="fc" id="L88">        this.starts = starts;</span>
+<span class="fc" id="L89">        this.generator = generator;</span>
+<span class="fc" id="L90">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public int getEvaluations() {
+<span class="fc" id="L95">        return totalEvaluations;</span>
+    }
+
+    /**
+     * Gets all the optima found during the last call to {@code optimize}.
+     * The optimizer stores all the optima found during a set of
+     * restarts. The {@code optimize} method returns the best point only.
+     * This method returns all the points found at the end of each starts,
+     * including the best one already returned by the {@code optimize} method.
+     * &lt;br/&gt;
+     * The returned array as one element for each start as specified
+     * in the constructor. It is ordered with the results from the
+     * runs that did converge first, sorted from best to worst
+     * objective value (i.e in ascending order if minimizing and in
+     * descending order if maximizing), followed by {@code null} elements
+     * corresponding to the runs that did not converge. This means all
+     * elements will be {@code null} if the {@code optimize} method did throw
+     * an exception.
+     * This also means that if the first element is not {@code null}, it is
+     * the best point found across all starts.
+     * &lt;br/&gt;
+     * The behaviour is undefined if this method is called before
+     * {@code optimize}; it will likely throw {@code NullPointerException}.
+     *
+     * @return an array containing the optima sorted from best to worst.
+     */
+    public abstract PAIR[] getOptima();
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws MathIllegalStateException if {@code optData} does not contain an
+     * instance of {@link MaxEval} or {@link InitialGuess}.
+     */
+    @Override
+    public PAIR optimize(OptimizationData... optData) {
+        // Store arguments in order to pass them to the internal optimizer.
+<span class="fc" id="L132">       optimData = optData;</span>
+        // Set up base class and perform computations.
+<span class="fc" id="L134">        return super.optimize(optData);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected PAIR doOptimize() {
+        // Remove all instances of &quot;MaxEval&quot; and &quot;InitialGuess&quot; from the
+        // array that will be passed to the internal optimizer.
+        // The former is to enforce smaller numbers of allowed evaluations
+        // (according to how many have been used up already), and the latter
+        // to impose a different start value for each start.
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        for (int i = 0; i &lt; optimData.length; i++) {</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">            if (optimData[i] instanceof MaxEval) {</span>
+<span class="fc" id="L147">                optimData[i] = null;</span>
+<span class="fc" id="L148">                maxEvalIndex = i;</span>
+            }
+<span class="fc bfc" id="L150" title="All 2 branches covered.">            if (optimData[i] instanceof InitialGuess) {</span>
+<span class="fc" id="L151">                optimData[i] = null;</span>
+<span class="fc" id="L152">                initialGuessIndex = i;</span>
+                continue;
+            }
+        }
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">        if (maxEvalIndex == -1) {</span>
+<span class="nc" id="L157">            throw new MathIllegalStateException();</span>
+        }
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">        if (initialGuessIndex == -1) {</span>
+<span class="nc" id="L160">            throw new MathIllegalStateException();</span>
+        }
+
+<span class="fc" id="L163">        RuntimeException lastException = null;</span>
+<span class="fc" id="L164">        totalEvaluations = 0;</span>
+<span class="fc" id="L165">        clear();</span>
+
+<span class="fc" id="L167">        final int maxEval = getMaxEvaluations();</span>
+<span class="fc" id="L168">        final double[] min = getLowerBound();</span>
+<span class="fc" id="L169">        final double[] max = getUpperBound();</span>
+<span class="fc" id="L170">        final double[] startPoint = getStartPoint();</span>
+
+        // Multi-start loop.
+<span class="fc bfc" id="L173" title="All 2 branches covered.">        for (int i = 0; i &lt; starts; i++) {</span>
+            // CHECKSTYLE: stop IllegalCatch
+            try {
+                // Decrease number of allowed evaluations.
+<span class="fc" id="L177">                optimData[maxEvalIndex] = new MaxEval(maxEval - totalEvaluations);</span>
+                // New start value.
+<span class="fc" id="L179">                double[] s = null;</span>
+<span class="fc bfc" id="L180" title="All 2 branches covered.">                if (i == 0) {</span>
+<span class="fc" id="L181">                    s = startPoint;</span>
+                } else {
+<span class="fc" id="L183">                    int attempts = 0;</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">                    while (s == null) {</span>
+<span class="fc bfc" id="L185" title="All 2 branches covered.">                        if (attempts++ &gt;= getMaxEvaluations()) {</span>
+<span class="fc" id="L186">                            throw new TooManyEvaluationsException(getMaxEvaluations());</span>
+                        }
+<span class="fc" id="L188">                        s = generator.nextVector();</span>
+<span class="fc bfc" id="L189" title="All 4 branches covered.">                        for (int k = 0; s != null &amp;&amp; k &lt; s.length; ++k) {</span>
+<span class="pc bpc" id="L190" title="1 of 8 branches missed.">                            if ((min != null &amp;&amp; s[k] &lt; min[k]) || (max != null &amp;&amp; s[k] &gt; max[k])) {</span>
+                                // reject the vector
+<span class="fc" id="L192">                                s = null;</span>
+                            }
+                        }
+                    }
+                }
+<span class="fc" id="L197">                optimData[initialGuessIndex] = new InitialGuess(s);</span>
+                // Optimize.
+<span class="fc" id="L199">                final PAIR result = optimizer.optimize(optimData);</span>
+<span class="fc" id="L200">                store(result);</span>
+<span class="fc" id="L201">            } catch (RuntimeException mue) {</span>
+<span class="fc" id="L202">                lastException = mue;</span>
+<span class="fc" id="L203">            }</span>
+            // CHECKSTYLE: resume IllegalCatch
+
+<span class="fc" id="L206">            totalEvaluations += optimizer.getEvaluations();</span>
+        }
+
+<span class="fc" id="L209">        final PAIR[] optima = getOptima();</span>
+<span class="fc bfc" id="L210" title="All 2 branches covered.">        if (optima.length == 0) {</span>
+            // All runs failed.
+<span class="fc" id="L212">            throw lastException; // Cannot be null if starts &gt;= 1.</span>
+        }
+
+        // Return the best optimum.
+<span class="fc" id="L216">        return optima[0];</span>
+    }
+
+    /**
+     * Method that will be called in order to store each found optimum.
+     *
+     * @param optimum Result of an optimization run.
+     */
+    protected abstract void store(PAIR optimum);
+    /**
+     * Method that will called in order to clear all stored optima.
+     */
+    protected abstract void clear();
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

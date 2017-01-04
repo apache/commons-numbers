@@ -1,0 +1,586 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RandomDataImpl.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.random</a> &gt; <span class="el_source">RandomDataImpl.java</span></div><h1>RandomDataImpl.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.random;
+
+import java.io.Serializable;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.util.Collection;
+
+import org.apache.commons.math3.distribution.IntegerDistribution;
+import org.apache.commons.math3.distribution.RealDistribution;
+import org.apache.commons.math3.exception.NotANumberException;
+import org.apache.commons.math3.exception.NotFiniteNumberException;
+import org.apache.commons.math3.exception.NotPositiveException;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+
+/**
+ * Generates random deviates and other random data using a {@link RandomGenerator}
+ * instance to generate non-secure data and a {@link java.security.SecureRandom}
+ * instance to provide data for the &lt;code&gt;nextSecureXxx&lt;/code&gt; methods. If no
+ * &lt;code&gt;RandomGenerator&lt;/code&gt; is provided in the constructor, the default is
+ * to use a {@link Well19937c} generator. To plug in a different
+ * implementation, either implement &lt;code&gt;RandomGenerator&lt;/code&gt; directly or
+ * extend {@link AbstractRandomGenerator}.
+ * &lt;p&gt;
+ * Supports reseeding the underlying pseudo-random number generator (PRNG). The
+ * &lt;code&gt;SecurityProvider&lt;/code&gt; and &lt;code&gt;Algorithm&lt;/code&gt; used by the
+ * &lt;code&gt;SecureRandom&lt;/code&gt; instance can also be reset.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * For details on the default PRNGs, see {@link java.util.Random} and
+ * {@link java.security.SecureRandom}.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * &lt;strong&gt;Usage Notes&lt;/strong&gt;:
+ * &lt;ul&gt;
+ * &lt;li&gt;
+ * Instance variables are used to maintain &lt;code&gt;RandomGenerator&lt;/code&gt; and
+ * &lt;code&gt;SecureRandom&lt;/code&gt; instances used in data generation. Therefore, to
+ * generate a random sequence of values or strings, you should use just
+ * &lt;strong&gt;one&lt;/strong&gt; &lt;code&gt;RandomDataGenerator&lt;/code&gt; instance repeatedly.&lt;/li&gt;
+ * &lt;li&gt;
+ * The &quot;secure&quot; methods are *much* slower. These should be used only when a
+ * cryptographically secure random sequence is required. A secure random
+ * sequence is a sequence of pseudo-random values which, in addition to being
+ * well-dispersed (so no subsequence of values is an any more likely than other
+ * subsequence of the the same length), also has the additional property that
+ * knowledge of values generated up to any point in the sequence does not make
+ * it any easier to predict subsequent values.&lt;/li&gt;
+ * &lt;li&gt;
+ * When a new &lt;code&gt;RandomDataGenerator&lt;/code&gt; is created, the underlying random
+ * number generators are &lt;strong&gt;not&lt;/strong&gt; initialized. If you do not
+ * explicitly seed the default non-secure generator, it is seeded with the
+ * current time in milliseconds plus the system identity hash code on first use.
+ * The same holds for the secure generator. If you provide a &lt;code&gt;RandomGenerator&lt;/code&gt;
+ * to the constructor, however, this generator is not reseeded by the constructor
+ * nor is it reseeded on first use.&lt;/li&gt;
+ * &lt;li&gt;
+ * The &lt;code&gt;reSeed&lt;/code&gt; and &lt;code&gt;reSeedSecure&lt;/code&gt; methods delegate to the
+ * corresponding methods on the underlying &lt;code&gt;RandomGenerator&lt;/code&gt; and
+ * &lt;code&gt;SecureRandom&lt;/code&gt; instances. Therefore, &lt;code&gt;reSeed(long)&lt;/code&gt;
+ * fully resets the initial state of the non-secure random number generator (so
+ * that reseeding with a specific value always results in the same subsequent
+ * random sequence); whereas reSeedSecure(long) does &lt;strong&gt;not&lt;/strong&gt;
+ * reinitialize the secure random number generator (so secure sequences started
+ * with calls to reseedSecure(long) won't be identical).&lt;/li&gt;
+ * &lt;li&gt;
+ * This implementation is not synchronized. The underlying &lt;code&gt;RandomGenerator&lt;/code&gt;
+ * or &lt;code&gt;SecureRandom&lt;/code&gt; instances are not protected by synchronization and
+ * are not guaranteed to be thread-safe.  Therefore, if an instance of this class
+ * is concurrently utilized by multiple threads, it is the responsibility of
+ * client code to synchronize access to seeding and data generation methods.
+ * &lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;/p&gt;
+ * @deprecated to be removed in 4.0.  Use {@link RandomDataGenerator} instead
+ */
+@Deprecated
+public class RandomDataImpl implements RandomData, Serializable {
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = -626730818244969716L;
+
+    /** RandomDataGenerator delegate */
+    private final RandomDataGenerator delegate;
+
+    /**
+     * Construct a RandomDataImpl, using a default random generator as the source
+     * of randomness.
+     *
+     * &lt;p&gt;The default generator is a {@link Well19937c} seeded
+     * with {@code System.currentTimeMillis() + System.identityHashCode(this))}.
+     * The generator is initialized and seeded on first use.&lt;/p&gt;
+     */
+<span class="fc" id="L113">    public RandomDataImpl() {</span>
+<span class="fc" id="L114">        delegate = new RandomDataGenerator();</span>
+<span class="fc" id="L115">    }</span>
+
+    /**
+     * Construct a RandomDataImpl using the supplied {@link RandomGenerator} as
+     * the source of (non-secure) random data.
+     *
+     * @param rand the source of (non-secure) random data
+     * (may be null, resulting in the default generator)
+     * @since 1.1
+     */
+<span class="nc" id="L125">    public RandomDataImpl(RandomGenerator rand) {</span>
+<span class="nc" id="L126">        delegate = new RandomDataGenerator(rand);</span>
+<span class="nc" id="L127">    }</span>
+
+    /**
+     * @return the delegate object.
+     * @deprecated To be removed in 4.0.
+     */
+    @Deprecated
+    RandomDataGenerator getDelegate() {
+<span class="nc" id="L135">        return delegate;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     * &lt;p&gt;
+     * &lt;strong&gt;Algorithm Description:&lt;/strong&gt; hex strings are generated using a
+     * 2-step process.
+     * &lt;ol&gt;
+     * &lt;li&gt;{@code len / 2 + 1} binary bytes are generated using the underlying
+     * Random&lt;/li&gt;
+     * &lt;li&gt;Each binary byte is translated into 2 hex digits&lt;/li&gt;
+     * &lt;/ol&gt;
+     * &lt;/p&gt;
+     *
+     * @param len the desired string length.
+     * @return the random string.
+     * @throws NotStrictlyPositiveException if {@code len &lt;= 0}.
+     */
+    public String nextHexString(int len) throws NotStrictlyPositiveException {
+<span class="nc" id="L155">        return delegate.nextHexString(len);</span>
+    }
+
+    /** {@inheritDoc} */
+    public int nextInt(int lower, int upper) throws NumberIsTooLargeException {
+<span class="nc" id="L160">       return delegate.nextInt(lower, upper);</span>
+    }
+
+    /** {@inheritDoc} */
+    public long nextLong(long lower, long upper) throws NumberIsTooLargeException {
+<span class="nc" id="L165">        return delegate.nextLong(lower, upper);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     * &lt;p&gt;
+     * &lt;strong&gt;Algorithm Description:&lt;/strong&gt; hex strings are generated in
+     * 40-byte segments using a 3-step process.
+     * &lt;ol&gt;
+     * &lt;li&gt;
+     * 20 random bytes are generated using the underlying
+     * &lt;code&gt;SecureRandom&lt;/code&gt;.&lt;/li&gt;
+     * &lt;li&gt;
+     * SHA-1 hash is applied to yield a 20-byte binary digest.&lt;/li&gt;
+     * &lt;li&gt;
+     * Each byte of the binary digest is converted to 2 hex digits.&lt;/li&gt;
+     * &lt;/ol&gt;
+     * &lt;/p&gt;
+     */
+    public String nextSecureHexString(int len) throws NotStrictlyPositiveException {
+<span class="nc" id="L185">        return delegate.nextSecureHexString(len);</span>
+    }
+
+    /**  {@inheritDoc} */
+    public int nextSecureInt(int lower, int upper) throws NumberIsTooLargeException {
+<span class="nc" id="L190">        return delegate.nextSecureInt(lower, upper);</span>
+    }
+
+    /** {@inheritDoc} */
+    public long nextSecureLong(long lower, long upper) throws NumberIsTooLargeException {
+<span class="nc" id="L195">        return delegate.nextSecureLong(lower,upper);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     * &lt;p&gt;
+     * &lt;strong&gt;Algorithm Description&lt;/strong&gt;:
+     * &lt;ul&gt;&lt;li&gt; For small means, uses simulation of a Poisson process
+     * using Uniform deviates, as described
+     * &lt;a href=&quot;http://irmi.epfl.ch/cmos/Pmmi/interactive/rng7.htm&quot;&gt; here.&lt;/a&gt;
+     * The Poisson process (and hence value returned) is bounded by 1000 * mean.&lt;/li&gt;
+     *
+     * &lt;li&gt; For large means, uses the rejection algorithm described in &lt;br/&gt;
+     * Devroye, Luc. (1981).&lt;i&gt;The Computer Generation of Poisson Random Variables&lt;/i&gt;
+     * &lt;strong&gt;Computing&lt;/strong&gt; vol. 26 pp. 197-207.&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;
+     */
+    public long nextPoisson(double mean) throws NotStrictlyPositiveException {
+<span class="nc" id="L212">        return delegate.nextPoisson(mean);</span>
+    }
+
+    /** {@inheritDoc} */
+    public double nextGaussian(double mu, double sigma) throws NotStrictlyPositiveException {
+<span class="nc" id="L217">        return delegate.nextGaussian(mu,sigma);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * &lt;p&gt;
+     * &lt;strong&gt;Algorithm Description&lt;/strong&gt;: Uses the Algorithm SA (Ahrens)
+     * from p. 876 in:
+     * [1]: Ahrens, J. H. and Dieter, U. (1972). Computer methods for
+     * sampling from the exponential and normal distributions.
+     * Communications of the ACM, 15, 873-882.
+     * &lt;/p&gt;
+     */
+    public double nextExponential(double mean) throws NotStrictlyPositiveException {
+<span class="nc" id="L232">        return delegate.nextExponential(mean);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * &lt;p&gt;
+     * &lt;strong&gt;Algorithm Description&lt;/strong&gt;: scales the output of
+     * Random.nextDouble(), but rejects 0 values (i.e., will generate another
+     * random double if Random.nextDouble() returns 0). This is necessary to
+     * provide a symmetric output interval (both endpoints excluded).
+     * &lt;/p&gt;
+     */
+    public double nextUniform(double lower, double upper)
+        throws NumberIsTooLargeException, NotFiniteNumberException, NotANumberException {
+<span class="nc" id="L247">        return delegate.nextUniform(lower, upper);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * &lt;p&gt;
+     * &lt;strong&gt;Algorithm Description&lt;/strong&gt;: if the lower bound is excluded,
+     * scales the output of Random.nextDouble(), but rejects 0 values (i.e.,
+     * will generate another random double if Random.nextDouble() returns 0).
+     * This is necessary to provide a symmetric output interval (both
+     * endpoints excluded).
+     * &lt;/p&gt;
+     * @since 3.0
+     */
+    public double nextUniform(double lower, double upper, boolean lowerInclusive)
+        throws NumberIsTooLargeException, NotFiniteNumberException, NotANumberException {
+<span class="nc" id="L264">        return delegate.nextUniform(lower, upper, lowerInclusive);</span>
+    }
+
+    /**
+     * Generates a random value from the {@link org.apache.commons.math3.distribution.BetaDistribution Beta Distribution}.
+     * This implementation uses {@link #nextInversionDeviate(RealDistribution) inversion}
+     * to generate random values.
+     *
+     * @param alpha first distribution shape parameter
+     * @param beta second distribution shape parameter
+     * @return random value sampled from the beta(alpha, beta) distribution
+     * @since 2.2
+     */
+    public double nextBeta(double alpha, double beta) {
+<span class="nc" id="L278">        return delegate.nextBeta(alpha, beta);</span>
+    }
+
+    /**
+     * Generates a random value from the {@link org.apache.commons.math3.distribution.BinomialDistribution Binomial Distribution}.
+     * This implementation uses {@link #nextInversionDeviate(RealDistribution) inversion}
+     * to generate random values.
+     *
+     * @param numberOfTrials number of trials of the Binomial distribution
+     * @param probabilityOfSuccess probability of success of the Binomial distribution
+     * @return random value sampled from the Binomial(numberOfTrials, probabilityOfSuccess) distribution
+     * @since 2.2
+     */
+    public int nextBinomial(int numberOfTrials, double probabilityOfSuccess) {
+<span class="nc" id="L292">        return delegate.nextBinomial(numberOfTrials, probabilityOfSuccess);</span>
+    }
+
+    /**
+     * Generates a random value from the {@link org.apache.commons.math3.distribution.CauchyDistribution Cauchy Distribution}.
+     * This implementation uses {@link #nextInversionDeviate(RealDistribution) inversion}
+     * to generate random values.
+     *
+     * @param median the median of the Cauchy distribution
+     * @param scale the scale parameter of the Cauchy distribution
+     * @return random value sampled from the Cauchy(median, scale) distribution
+     * @since 2.2
+     */
+    public double nextCauchy(double median, double scale) {
+<span class="nc" id="L306">        return delegate.nextCauchy(median, scale);</span>
+    }
+
+    /**
+     * Generates a random value from the {@link org.apache.commons.math3.distribution.ChiSquaredDistribution ChiSquare Distribution}.
+     * This implementation uses {@link #nextInversionDeviate(RealDistribution) inversion}
+     * to generate random values.
+     *
+     * @param df the degrees of freedom of the ChiSquare distribution
+     * @return random value sampled from the ChiSquare(df) distribution
+     * @since 2.2
+     */
+    public double nextChiSquare(double df) {
+<span class="nc" id="L319">       return delegate.nextChiSquare(df);</span>
+    }
+
+    /**
+     * Generates a random value from the {@link org.apache.commons.math3.distribution.FDistribution F Distribution}.
+     * This implementation uses {@link #nextInversionDeviate(RealDistribution) inversion}
+     * to generate random values.
+     *
+     * @param numeratorDf the numerator degrees of freedom of the F distribution
+     * @param denominatorDf the denominator degrees of freedom of the F distribution
+     * @return random value sampled from the F(numeratorDf, denominatorDf) distribution
+     * @throws NotStrictlyPositiveException if
+     * {@code numeratorDf &lt;= 0} or {@code denominatorDf &lt;= 0}.
+     * @since 2.2
+     */
+    public double nextF(double numeratorDf, double denominatorDf) throws NotStrictlyPositiveException {
+<span class="nc" id="L335">        return delegate.nextF(numeratorDf, denominatorDf);</span>
+    }
+
+    /**
+     * &lt;p&gt;Generates a random value from the
+     * {@link org.apache.commons.math3.distribution.GammaDistribution Gamma Distribution}.&lt;/p&gt;
+     *
+     * &lt;p&gt;This implementation uses the following algorithms: &lt;/p&gt;
+     *
+     * &lt;p&gt;For 0 &lt; shape &lt; 1: &lt;br/&gt;
+     * Ahrens, J. H. and Dieter, U., &lt;i&gt;Computer methods for
+     * sampling from gamma, beta, Poisson and binomial distributions.&lt;/i&gt;
+     * Computing, 12, 223-246, 1974.&lt;/p&gt;
+     *
+     * &lt;p&gt;For shape &gt;= 1: &lt;br/&gt;
+     * Marsaglia and Tsang, &lt;i&gt;A Simple Method for Generating
+     * Gamma Variables.&lt;/i&gt; ACM Transactions on Mathematical Software,
+     * Volume 26 Issue 3, September, 2000.&lt;/p&gt;
+     *
+     * @param shape the median of the Gamma distribution
+     * @param scale the scale parameter of the Gamma distribution
+     * @return random value sampled from the Gamma(shape, scale) distribution
+     * @throws NotStrictlyPositiveException if {@code shape &lt;= 0} or
+     * {@code scale &lt;= 0}.
+     * @since 2.2
+     */
+    public double nextGamma(double shape, double scale) throws NotStrictlyPositiveException {
+<span class="nc" id="L362">        return delegate.nextGamma(shape, scale);</span>
+    }
+
+    /**
+     * Generates a random value from the {@link org.apache.commons.math3.distribution.HypergeometricDistribution Hypergeometric Distribution}.
+     * This implementation uses {@link #nextInversionDeviate(IntegerDistribution) inversion}
+     * to generate random values.
+     *
+     * @param populationSize the population size of the Hypergeometric distribution
+     * @param numberOfSuccesses number of successes in the population of the Hypergeometric distribution
+     * @param sampleSize the sample size of the Hypergeometric distribution
+     * @return random value sampled from the Hypergeometric(numberOfSuccesses, sampleSize) distribution
+     * @throws NumberIsTooLargeException  if {@code numberOfSuccesses &gt; populationSize},
+     * or {@code sampleSize &gt; populationSize}.
+     * @throws NotStrictlyPositiveException if {@code populationSize &lt;= 0}.
+     * @throws NotPositiveException  if {@code numberOfSuccesses &lt; 0}.
+     * @since 2.2
+     */
+    public int nextHypergeometric(int populationSize, int numberOfSuccesses, int sampleSize)
+        throws NotPositiveException, NotStrictlyPositiveException, NumberIsTooLargeException {
+<span class="nc" id="L382">        return delegate.nextHypergeometric(populationSize, numberOfSuccesses, sampleSize);</span>
+    }
+
+    /**
+     * Generates a random value from the {@link org.apache.commons.math3.distribution.PascalDistribution Pascal Distribution}.
+     * This implementation uses {@link #nextInversionDeviate(IntegerDistribution) inversion}
+     * to generate random values.
+     *
+     * @param r the number of successes of the Pascal distribution
+     * @param p the probability of success of the Pascal distribution
+     * @return random value sampled from the Pascal(r, p) distribution
+     * @since 2.2
+     * @throws NotStrictlyPositiveException if the number of successes is not positive
+     * @throws OutOfRangeException if the probability of success is not in the
+     * range {@code [0, 1]}.
+     */
+    public int nextPascal(int r, double p)
+        throws NotStrictlyPositiveException, OutOfRangeException {
+<span class="nc" id="L400">        return delegate.nextPascal(r, p);</span>
+    }
+
+    /**
+     * Generates a random value from the {@link org.apache.commons.math3.distribution.TDistribution T Distribution}.
+     * This implementation uses {@link #nextInversionDeviate(RealDistribution) inversion}
+     * to generate random values.
+     *
+     * @param df the degrees of freedom of the T distribution
+     * @return random value from the T(df) distribution
+     * @since 2.2
+     * @throws NotStrictlyPositiveException if {@code df &lt;= 0}
+     */
+    public double nextT(double df) throws NotStrictlyPositiveException {
+<span class="nc" id="L414">        return delegate.nextT(df);</span>
+    }
+
+    /**
+     * Generates a random value from the {@link org.apache.commons.math3.distribution.WeibullDistribution Weibull Distribution}.
+     * This implementation uses {@link #nextInversionDeviate(RealDistribution) inversion}
+     * to generate random values.
+     *
+     * @param shape the shape parameter of the Weibull distribution
+     * @param scale the scale parameter of the Weibull distribution
+     * @return random value sampled from the Weibull(shape, size) distribution
+     * @since 2.2
+     * @throws NotStrictlyPositiveException if {@code shape &lt;= 0} or
+     * {@code scale &lt;= 0}.
+     */
+    public double nextWeibull(double shape, double scale) throws NotStrictlyPositiveException {
+<span class="nc" id="L430">        return delegate.nextWeibull(shape, scale);</span>
+    }
+
+    /**
+     * Generates a random value from the {@link org.apache.commons.math3.distribution.ZipfDistribution Zipf Distribution}.
+     * This implementation uses {@link #nextInversionDeviate(IntegerDistribution) inversion}
+     * to generate random values.
+     *
+     * @param numberOfElements the number of elements of the ZipfDistribution
+     * @param exponent the exponent of the ZipfDistribution
+     * @return random value sampled from the Zipf(numberOfElements, exponent) distribution
+     * @since 2.2
+     * @exception NotStrictlyPositiveException if {@code numberOfElements &lt;= 0}
+     * or {@code exponent &lt;= 0}.
+     */
+    public int nextZipf(int numberOfElements, double exponent) throws NotStrictlyPositiveException {
+<span class="nc" id="L446">        return delegate.nextZipf(numberOfElements, exponent);</span>
+    }
+
+
+    /**
+     * Reseeds the random number generator with the supplied seed.
+     * &lt;p&gt;
+     * Will create and initialize if null.
+     * &lt;/p&gt;
+     *
+     * @param seed
+     *            the seed value to use
+     */
+    public void reSeed(long seed) {
+<span class="fc" id="L460">        delegate.reSeed(seed);</span>
+<span class="fc" id="L461">    }</span>
+
+    /**
+     * Reseeds the secure random number generator with the current time in
+     * milliseconds.
+     * &lt;p&gt;
+     * Will create and initialize if null.
+     * &lt;/p&gt;
+     */
+    public void reSeedSecure() {
+<span class="nc" id="L471">        delegate.reSeedSecure();</span>
+<span class="nc" id="L472">    }</span>
+
+    /**
+     * Reseeds the secure random number generator with the supplied seed.
+     * &lt;p&gt;
+     * Will create and initialize if null.
+     * &lt;/p&gt;
+     *
+     * @param seed
+     *            the seed value to use
+     */
+    public void reSeedSecure(long seed) {
+<span class="nc" id="L484">        delegate.reSeedSecure(seed);</span>
+<span class="nc" id="L485">    }</span>
+
+    /**
+     * Reseeds the random number generator with
+     * {@code System.currentTimeMillis() + System.identityHashCode(this))}.
+     */
+    public void reSeed() {
+<span class="nc" id="L492">        delegate.reSeed();</span>
+<span class="nc" id="L493">    }</span>
+
+    /**
+     * Sets the PRNG algorithm for the underlying SecureRandom instance using
+     * the Security Provider API. The Security Provider API is defined in &lt;a
+     * href =
+     * &quot;http://java.sun.com/j2se/1.3/docs/guide/security/CryptoSpec.html#AppA&quot;&gt;
+     * Java Cryptography Architecture API Specification &amp; Reference.&lt;/a&gt;
+     * &lt;p&gt;
+     * &lt;strong&gt;USAGE NOTE:&lt;/strong&gt; This method carries &lt;i&gt;significant&lt;/i&gt;
+     * overhead and may take several seconds to execute.
+     * &lt;/p&gt;
+     *
+     * @param algorithm
+     *            the name of the PRNG algorithm
+     * @param provider
+     *            the name of the provider
+     * @throws NoSuchAlgorithmException
+     *             if the specified algorithm is not available
+     * @throws NoSuchProviderException
+     *             if the specified provider is not installed
+     */
+    public void setSecureAlgorithm(String algorithm, String provider)
+            throws NoSuchAlgorithmException, NoSuchProviderException {
+<span class="nc" id="L517">       delegate.setSecureAlgorithm(algorithm, provider);</span>
+<span class="nc" id="L518">    }</span>
+
+    /**
+     * {@inheritDoc}
+     *
+     * &lt;p&gt;
+     * Uses a 2-cycle permutation shuffle. The shuffling process is described &lt;a
+     * href=&quot;http://www.maths.abdn.ac.uk/~igc/tch/mx4002/notes/node83.html&quot;&gt;
+     * here&lt;/a&gt;.
+     * &lt;/p&gt;
+     */
+    public int[] nextPermutation(int n, int k)
+        throws NotStrictlyPositiveException, NumberIsTooLargeException {
+<span class="nc" id="L531">        return delegate.nextPermutation(n, k);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * &lt;p&gt;
+     * &lt;strong&gt;Algorithm Description&lt;/strong&gt;: Uses a 2-cycle permutation
+     * shuffle to generate a random permutation of &lt;code&gt;c.size()&lt;/code&gt; and
+     * then returns the elements whose indexes correspond to the elements of the
+     * generated permutation. This technique is described, and proven to
+     * generate random samples &lt;a
+     * href=&quot;http://www.maths.abdn.ac.uk/~igc/tch/mx4002/notes/node83.html&quot;&gt;
+     * here&lt;/a&gt;
+     * &lt;/p&gt;
+     */
+    public Object[] nextSample(Collection&lt;?&gt; c, int k)
+        throws NotStrictlyPositiveException, NumberIsTooLargeException {
+<span class="nc" id="L549">        return delegate.nextSample(c, k);</span>
+    }
+
+    /**
+     * Generate a random deviate from the given distribution using the
+     * &lt;a href=&quot;http://en.wikipedia.org/wiki/Inverse_transform_sampling&quot;&gt; inversion method.&lt;/a&gt;
+     *
+     * @param distribution Continuous distribution to generate a random value from
+     * @return a random value sampled from the given distribution
+     * @throws MathIllegalArgumentException if the underlynig distribution throws one
+     * @since 2.2
+     * @deprecated use the distribution's sample() method
+     */
+    @Deprecated
+    public double nextInversionDeviate(RealDistribution distribution)
+        throws MathIllegalArgumentException {
+<span class="nc" id="L565">        return distribution.inverseCumulativeProbability(nextUniform(0, 1));</span>
+
+    }
+
+    /**
+     * Generate a random deviate from the given distribution using the
+     * &lt;a href=&quot;http://en.wikipedia.org/wiki/Inverse_transform_sampling&quot;&gt; inversion method.&lt;/a&gt;
+     *
+     * @param distribution Integer distribution to generate a random value from
+     * @return a random value sampled from the given distribution
+     * @throws MathIllegalArgumentException if the underlynig distribution throws one
+     * @since 2.2
+     * @deprecated use the distribution's sample() method
+     */
+    @Deprecated
+    public int nextInversionDeviate(IntegerDistribution distribution)
+        throws MathIllegalArgumentException {
+<span class="nc" id="L582">        return distribution.inverseCumulativeProbability(nextUniform(0, 1));</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

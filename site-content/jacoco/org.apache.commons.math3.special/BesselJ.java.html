@@ -1,0 +1,649 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BesselJ.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.special</a> &gt; <span class="el_source">BesselJ.java</span></div><h1>BesselJ.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.special;
+
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.exception.ConvergenceException;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathArrays;
+
+/**
+ * This class provides computation methods related to Bessel
+ * functions of the first kind. Detailed descriptions of these functions are
+ * available in &lt;a
+ * href=&quot;http://en.wikipedia.org/wiki/Bessel_function&quot;&gt;Wikipedia&lt;/a&gt;, &lt;a
+ * href=&quot;http://en.wikipedia.org/wiki/Abramowitz_and_Stegun&quot;&gt;Abrabowitz and
+ * Stegun&lt;/a&gt; (Ch. 9-11), and &lt;a href=&quot;http://dlmf.nist.gov/&quot;&gt;DLMF&lt;/a&gt; (Ch. 10).
+ * &lt;p&gt;
+ * This implementation is based on the rjbesl Fortran routine at
+ * &lt;a href=&quot;http://www.netlib.org/specfun/rjbesl&quot;&gt;Netlib&lt;/a&gt;.&lt;/p&gt;
+ * &lt;p&gt;
+ * From the Fortran code: &lt;/p&gt;
+ * &lt;p&gt;
+ * This program is based on a program written by David J. Sookne (2) that
+ * computes values of the Bessel functions J or I of real argument and integer
+ * order. Modifications include the restriction of the computation to the J
+ * Bessel function of non-negative real argument, the extension of the
+ * computation to arbitrary positive order, and the elimination of most
+ * underflow.&lt;/p&gt;
+ * &lt;p&gt;
+ * References:&lt;/p&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;&quot;A Note on Backward Recurrence Algorithms,&quot; Olver, F. W. J., and Sookne,
+ * D. J., Math. Comp. 26, 1972, pp 941-947.&lt;/li&gt;
+ * &lt;li&gt;&quot;Bessel Functions of Real Argument and Integer Order,&quot; Sookne, D. J., NBS
+ * Jour. of Res. B. 77B, 1973, pp 125-132.&lt;/li&gt;
+ * &lt;/ul&gt; &lt;/p&gt;
+ * @since 3.4
+ */
+public class BesselJ
+    implements UnivariateFunction {
+
+    // ---------------------------------------------------------------------
+    // Mathematical constants
+    // ---------------------------------------------------------------------
+
+    /** -2 / pi */
+    private static final double PI2 = 0.636619772367581343075535;
+
+    /** first few significant digits of 2pi */
+    private static final double TOWPI1 = 6.28125;
+
+    /** 2pi - TWOPI1 to working precision */
+    private static final double TWOPI2 = 1.935307179586476925286767e-3;
+
+    /** TOWPI1 + TWOPI2 */
+    private static final double TWOPI = TOWPI1 + TWOPI2;
+
+    // ---------------------------------------------------------------------
+    // Machine-dependent parameters
+    // ---------------------------------------------------------------------
+
+    /**
+     * 10.0^K, where K is the largest integer such that ENTEN is
+     * machine-representable in working precision
+     */
+    private static final double ENTEN = 1.0e308;
+
+    /**
+     * Decimal significance desired. Should be set to (INT(log_{10}(2) * (it)+1)).
+     * Setting NSIG lower will result in decreased accuracy while setting
+     * NSIG higher will increase CPU time without increasing accuracy.
+     * The truncation error is limited to a relative error of
+     * T=.5(10^(-NSIG)).
+     */
+    private static final double ENSIG = 1.0e16;
+
+    /** 10.0 ** (-K) for the smallest integer K such that K &gt;= NSIG/4 */
+    private static final double RTNSIG = 1.0e-4;
+
+    /** Smallest ABS(X) such that X/4 does not underflow */
+    private static final double ENMTEN = 8.90e-308;
+
+    /** Minimum acceptable value for x */
+    private static final double X_MIN = 0.0;
+
+    /**
+     * Upper limit on the magnitude of x. If abs(x) = n, then at least
+     * n iterations of the backward recursion will be executed. The value of
+     * 10.0 ** 4 is used on every machine.
+     */
+    private static final double X_MAX = 1.0e4;
+
+    /** First 25 factorials as doubles */
+<span class="fc" id="L111">    private static final double[] FACT = {</span>
+        1.0, 1.0, 2.0, 6.0, 24.0, 120.0, 720.0, 5040.0, 40320.0, 362880.0,
+        3628800.0, 39916800.0, 479001600.0, 6227020800.0, 87178291200.0,
+        1.307674368e12, 2.0922789888e13, 3.55687428096e14, 6.402373705728e15,
+        1.21645100408832e17, 2.43290200817664e18, 5.109094217170944e19,
+        1.12400072777760768e21, 2.585201673888497664e22,
+        6.2044840173323943936e23
+    };
+
+    /** Order of the function computed when {@link #value(double)} is used */
+    private final double order;
+
+    /**
+     * Create a new BesselJ with the given order.
+     *
+     * @param order order of the function computed when using {@link #value(double)}.
+     */
+<span class="nc" id="L128">    public BesselJ(double order) {</span>
+<span class="nc" id="L129">        this.order = order;</span>
+<span class="nc" id="L130">    }</span>
+
+    /**
+     * Returns the value of the constructed Bessel function of the first kind,
+     * for the passed argument.
+     *
+     * @param x Argument
+     * @return Value of the Bessel function at x
+     * @throws MathIllegalArgumentException if {@code x} is too large relative to {@code order}
+     * @throws ConvergenceException if the algorithm fails to converge
+     */
+    public double value(double x)
+        throws MathIllegalArgumentException, ConvergenceException {
+<span class="nc" id="L143">        return BesselJ.value(order, x);</span>
+    }
+
+    /**
+     * Returns the first Bessel function, \(J_{order}(x)\).
+     *
+     * @param order Order of the Bessel function
+     * @param x Argument
+     * @return Value of the Bessel function of the first kind, \(J_{order}(x)\)
+     * @throws MathIllegalArgumentException if {@code x} is too large relative to {@code order}
+     * @throws ConvergenceException if the algorithm fails to converge
+     */
+    public static double value(double order, double x)
+        throws MathIllegalArgumentException, ConvergenceException {
+<span class="fc" id="L157">        final int n = (int) order;</span>
+<span class="fc" id="L158">        final double alpha = order - n;</span>
+<span class="fc" id="L159">        final int nb = n + 1;</span>
+<span class="fc" id="L160">        final BesselJResult res = rjBesl(x, alpha, nb);</span>
+
+<span class="fc bfc" id="L162" title="All 2 branches covered.">        if (res.nVals &gt;= nb) {</span>
+<span class="fc" id="L163">            return res.vals[n];</span>
+<span class="fc bfc" id="L164" title="All 2 branches covered.">        } else if (res.nVals &lt; 0) {</span>
+<span class="fc" id="L165">            throw new MathIllegalArgumentException(LocalizedFormats.BESSEL_FUNCTION_BAD_ARGUMENT,order, x);</span>
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">        } else if (FastMath.abs(res.vals[res.nVals - 1]) &lt; 1e-100) {</span>
+<span class="fc" id="L167">            return res.vals[n]; // underflow; return value (will be zero)</span>
+        }
+<span class="nc" id="L169">        throw new ConvergenceException(LocalizedFormats.BESSEL_FUNCTION_FAILED_CONVERGENCE, order, x);</span>
+    }
+
+    /**
+     * Encapsulates the results returned by {@link BesselJ#rjBesl(double, double, int)}.
+     * &lt;p&gt;
+     * {@link #getVals()} returns the computed function values.
+     * {@link #getnVals()} is the number of values among those returned by {@link #getnVals()}
+     * that can be considered accurate.
+     * &lt;/p&gt;&lt;p&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;nVals &lt; 0: An argument is out of range. For example, nb &lt;= 0, alpha
+     * &lt; 0 or &gt; 1, or x is too large. In this case, b(0) is set to zero, the
+     * remainder of the b-vector is not calculated, and nVals is set to
+     * MIN(nb,0) - 1 so that nVals != nb.&lt;/li&gt;
+     * &lt;li&gt;nb &gt; nVals &gt; 0: Not all requested function values could be calculated
+     * accurately. This usually occurs because nb is much larger than abs(x). In
+     * this case, b(n) is calculated to the desired accuracy for n &lt; nVals, but
+     * precision is lost for nVals &lt; n &lt;= nb. If b(n) does not vanish for n &gt;
+     * nVals (because it is too small to be represented), and b(n)/b(nVals) =
+     * \(10^{-k}\), then only the first NSIG-k significant figures of b(n) can be
+     * trusted.&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;
+     */
+    public static class BesselJResult {
+
+        /** Bessel function values */
+        private final double[] vals;
+
+        /** Valid value count */
+        private final int nVals;
+
+        /**
+         * Create a new BesselJResult with the given values and valid value count.
+         *
+         * @param b values
+         * @param n count of valid values
+         */
+<span class="fc" id="L206">        public BesselJResult(double[] b, int n) {</span>
+<span class="fc" id="L207">            vals = MathArrays.copyOf(b, b.length);</span>
+<span class="fc" id="L208">            nVals = n;</span>
+<span class="fc" id="L209">        }</span>
+
+        /**
+         * @return the computed function values
+         */
+        public double[] getVals() {
+<span class="nc" id="L215">            return MathArrays.copyOf(vals, vals.length);</span>
+        }
+
+        /**
+         * @return the number of valid function values (normally the same as the
+         *         length of the array returned by {@link #getnVals()})
+         */
+        public int getnVals() {
+<span class="nc" id="L223">            return nVals;</span>
+        }
+    }
+
+    /**
+     * Calculates Bessel functions \(J_{n+alpha}(x)\) for
+     * non-negative argument x, and non-negative order n + alpha.
+     * &lt;p&gt;
+     * Before using the output vector, the user should check that
+     * nVals = nb, i.e., all orders have been calculated to the desired accuracy.
+     * See BesselResult class javadoc for details on return values.
+     * &lt;/p&gt;
+     * @param x non-negative real argument for which J's are to be calculated
+     * @param alpha fractional part of order for which J's or exponentially
+     * scaled J's (\(J\cdot e^{x}\)) are to be calculated. 0 &lt;= alpha &lt; 1.0.
+     * @param nb integer number of functions to be calculated, nb &gt; 0. The first
+     * function calculated is of order alpha, and the last is of order
+     * nb - 1 + alpha.
+     * @return BesselJResult a vector of the functions
+     * \(J_{alpha}(x)\) through \(J_{nb-1+alpha}(x)\), or the corresponding exponentially
+     * scaled functions and an integer output variable indicating possible errors
+     */
+    public static BesselJResult rjBesl(double x, double alpha, int nb) {
+<span class="fc" id="L246">        final double[] b = new double[nb];</span>
+
+<span class="fc" id="L248">        int ncalc = 0;</span>
+<span class="fc" id="L249">        double alpem = 0;</span>
+<span class="fc" id="L250">        double alp2em = 0;</span>
+
+        // ---------------------------------------------------------------------
+        // Check for out of range arguments.
+        // ---------------------------------------------------------------------
+<span class="fc" id="L255">        final int magx = (int) x;</span>
+<span class="pc bpc" id="L256" title="3 of 10 branches missed.">        if ((nb &gt; 0) &amp;&amp; (x &gt;= X_MIN) &amp;&amp; (x &lt;= X_MAX) &amp;&amp; (alpha &gt;= 0) &amp;&amp;</span>
+            (alpha &lt; 1)) {
+            // ---------------------------------------------------------------------
+            // Initialize result array to zero.
+            // ---------------------------------------------------------------------
+<span class="fc" id="L261">            ncalc = nb;</span>
+<span class="fc bfc" id="L262" title="All 2 branches covered.">            for (int i = 0; i &lt; nb; ++i) {</span>
+<span class="fc" id="L263">                b[i] = 0;</span>
+            }
+
+            // ---------------------------------------------------------------------
+            // Branch to use 2-term ascending series for small X and asymptotic
+            // form for large X when NB is not too large.
+            // ---------------------------------------------------------------------
+            double tempa;
+            double tempb;
+            double tempc;
+            double tover;
+<span class="fc bfc" id="L274" title="All 2 branches covered.">            if (x &lt; RTNSIG) {</span>
+                // ---------------------------------------------------------------------
+                // Two-term ascending series for small X.
+                // ---------------------------------------------------------------------
+<span class="fc" id="L278">                tempa = 1;</span>
+<span class="fc" id="L279">                alpem = 1 + alpha;</span>
+<span class="fc" id="L280">                double halfx = 0;</span>
+<span class="pc bpc" id="L281" title="1 of 2 branches missed.">                if (x &gt; ENMTEN) {</span>
+<span class="fc" id="L282">                    halfx = 0.5 * x;</span>
+                }
+<span class="pc bpc" id="L284" title="1 of 2 branches missed.">                if (alpha != 0) {</span>
+<span class="nc" id="L285">                    tempa = FastMath.pow(halfx, alpha) /</span>
+                            (alpha * Gamma.gamma(alpha));
+                }
+<span class="fc" id="L288">                tempb = 0;</span>
+<span class="pc bpc" id="L289" title="1 of 2 branches missed.">                if (x + 1 &gt; 1) {</span>
+<span class="fc" id="L290">                    tempb = -halfx * halfx;</span>
+                }
+<span class="fc" id="L292">                b[0] = tempa + (tempa * tempb / alpem);</span>
+<span class="pc bpc" id="L293" title="2 of 4 branches missed.">                if ((x != 0) &amp;&amp; (b[0] == 0)) {</span>
+<span class="nc" id="L294">                    ncalc = 0;</span>
+                }
+<span class="fc bfc" id="L296" title="All 2 branches covered.">                if (nb != 1) {</span>
+<span class="pc bpc" id="L297" title="1 of 2 branches missed.">                    if (x &lt;= 0) {</span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">                        for (int n = 1; n &lt; nb; ++n) {</span>
+<span class="nc" id="L299">                            b[n] = 0;</span>
+                        }
+                    } else {
+                        // ---------------------------------------------------------------------
+                        // Calculate higher order functions.
+                        // ---------------------------------------------------------------------
+<span class="fc" id="L305">                        tempc = halfx;</span>
+<span class="pc bpc" id="L306" title="1 of 2 branches missed.">                        tover = tempb != 0 ? ENMTEN / tempb :  2 * ENMTEN / x;</span>
+<span class="fc bfc" id="L307" title="All 2 branches covered.">                        for (int n = 1; n &lt; nb; ++n) {</span>
+<span class="fc" id="L308">                            tempa /= alpem;</span>
+<span class="fc" id="L309">                            alpem += 1;</span>
+<span class="fc" id="L310">                            tempa *= tempc;</span>
+<span class="pc bpc" id="L311" title="1 of 2 branches missed.">                            if (tempa &lt;= tover * alpem) {</span>
+<span class="nc" id="L312">                                tempa = 0;</span>
+                            }
+<span class="fc" id="L314">                            b[n] = tempa + (tempa * tempb / alpem);</span>
+<span class="fc bfc" id="L315" title="All 4 branches covered.">                            if ((b[n] == 0) &amp;&amp; (ncalc &gt; n)) {</span>
+<span class="fc" id="L316">                                ncalc = n;</span>
+                            }
+                        }
+                    }
+                }
+<span class="fc bfc" id="L321" title="All 4 branches covered.">            } else if ((x &gt; 25.0) &amp;&amp; (nb &lt;= magx + 1)) {</span>
+                // ---------------------------------------------------------------------
+                // Asymptotic series for X &gt; 25
+                // ---------------------------------------------------------------------
+<span class="fc" id="L325">                final double xc = FastMath.sqrt(PI2 / x);</span>
+<span class="fc" id="L326">                final double mul = 0.125 / x;</span>
+<span class="fc" id="L327">                final double xin = mul * mul;</span>
+<span class="fc" id="L328">                int m = 0;</span>
+<span class="fc bfc" id="L329" title="All 2 branches covered.">                if (x &gt;= 130.0) {</span>
+<span class="fc" id="L330">                    m = 4;</span>
+<span class="fc bfc" id="L331" title="All 2 branches covered.">                } else if (x &gt;= 35.0) {</span>
+<span class="fc" id="L332">                    m = 8;</span>
+                } else {
+<span class="fc" id="L334">                    m = 11;</span>
+                }
+
+<span class="fc" id="L337">                final double xm = 4.0 * m;</span>
+                // ---------------------------------------------------------------------
+                // Argument reduction for SIN and COS routines.
+                // ---------------------------------------------------------------------
+<span class="fc" id="L341">                double t = (double) ((int) ((x / TWOPI) + 0.5));</span>
+<span class="fc" id="L342">                final double z = x - t * TOWPI1 - t * TWOPI2 - (alpha + 0.5) / PI2;</span>
+<span class="fc" id="L343">                double vsin = FastMath.sin(z);</span>
+<span class="fc" id="L344">                double vcos = FastMath.cos(z);</span>
+<span class="fc" id="L345">                double gnu = 2 * alpha;</span>
+                double capq;
+                double capp;
+                double s;
+                double t1;
+                double xk;
+<span class="fc bfc" id="L351" title="All 2 branches covered.">                for (int i = 1; i &lt;= 2; i++) {</span>
+<span class="fc" id="L352">                    s = (xm - 1 - gnu) * (xm - 1 + gnu) * xin * 0.5;</span>
+<span class="fc" id="L353">                    t = (gnu - (xm - 3.0)) * (gnu + (xm - 3.0));</span>
+<span class="fc" id="L354">                    capp = (s * t) / FACT[2 * m];</span>
+<span class="fc" id="L355">                    t1 = (gnu - (xm + 1)) * (gnu + (xm + 1));</span>
+<span class="fc" id="L356">                    capq = (s * t1) / FACT[2 * m + 1];</span>
+<span class="fc" id="L357">                    xk = xm;</span>
+<span class="fc" id="L358">                    int k = 2 * m;</span>
+<span class="fc" id="L359">                    t1 = t;</span>
+
+<span class="fc bfc" id="L361" title="All 2 branches covered.">                    for (int j = 2; j &lt;= m; j++) {</span>
+<span class="fc" id="L362">                        xk -= 4.0;</span>
+<span class="fc" id="L363">                        s = (xk - 1 - gnu) * (xk - 1 + gnu);</span>
+<span class="fc" id="L364">                        t = (gnu - (xk - 3.0)) * (gnu + (xk - 3.0));</span>
+<span class="fc" id="L365">                        capp = (capp + 1 / FACT[k - 2]) * s * t * xin;</span>
+<span class="fc" id="L366">                        capq = (capq + 1 / FACT[k - 1]) * s * t1 * xin;</span>
+<span class="fc" id="L367">                        k -= 2;</span>
+<span class="fc" id="L368">                        t1 = t;</span>
+                    }
+
+<span class="fc" id="L371">                    capp += 1;</span>
+<span class="fc" id="L372">                    capq = (capq + 1) * ((gnu * gnu) - 1) * (0.125 / x);</span>
+<span class="fc" id="L373">                    b[i - 1] = xc * (capp * vcos - capq * vsin);</span>
+<span class="fc bfc" id="L374" title="All 2 branches covered.">                    if (nb == 1) {</span>
+<span class="fc" id="L375">                        return new BesselJResult(MathArrays.copyOf(b, b.length),</span>
+                                                 ncalc);
+                    }
+<span class="fc" id="L378">                    t = vsin;</span>
+<span class="fc" id="L379">                    vsin = -vcos;</span>
+<span class="fc" id="L380">                    vcos = t;</span>
+<span class="fc" id="L381">                    gnu += 2.0;</span>
+                }
+
+                // ---------------------------------------------------------------------
+                // If NB &gt; 2, compute J(X,ORDER+I) I = 2, NB-1
+                // ---------------------------------------------------------------------
+<span class="fc bfc" id="L387" title="All 2 branches covered.">                if (nb &gt; 2) {</span>
+<span class="fc" id="L388">                    gnu = 2 * alpha + 2.0;</span>
+<span class="fc bfc" id="L389" title="All 2 branches covered.">                    for (int j = 2; j &lt; nb; ++j) {</span>
+<span class="fc" id="L390">                        b[j] = gnu * b[j - 1] / x - b[j - 2];</span>
+<span class="fc" id="L391">                        gnu += 2.0;</span>
+                    }
+                }
+<span class="fc" id="L394">            } else {</span>
+                // ---------------------------------------------------------------------
+                // Use recurrence to generate results. First initialize the
+                // calculation of P*S.
+                // ---------------------------------------------------------------------
+<span class="fc" id="L399">                final int nbmx = nb - magx;</span>
+<span class="fc" id="L400">                int n = magx + 1;</span>
+<span class="fc" id="L401">                int nstart = 0;</span>
+<span class="fc" id="L402">                int nend = 0;</span>
+<span class="fc" id="L403">                double en = 2 * (n + alpha);</span>
+<span class="fc" id="L404">                double plast = 1;</span>
+<span class="fc" id="L405">                double p = en / x;</span>
+                double pold;
+                // ---------------------------------------------------------------------
+                // Calculate general significance test.
+                // ---------------------------------------------------------------------
+<span class="fc" id="L410">                double test = 2 * ENSIG;</span>
+<span class="fc" id="L411">                boolean readyToInitialize = false;</span>
+<span class="fc bfc" id="L412" title="All 2 branches covered.">                if (nbmx &gt;= 3) {</span>
+                    // ---------------------------------------------------------------------
+                    // Calculate P*S until N = NB-1. Check for possible
+                    // overflow.
+                    // ---------------------------------------------------------------------
+<span class="fc" id="L417">                    tover = ENTEN / ENSIG;</span>
+<span class="fc" id="L418">                    nstart = magx + 2;</span>
+<span class="fc" id="L419">                    nend = nb - 1;</span>
+<span class="fc" id="L420">                    en = 2 * (nstart - 1 + alpha);</span>
+                    double psave;
+                    double psavel;
+<span class="fc bfc" id="L423" title="All 2 branches covered.">                    for (int k = nstart; k &lt;= nend; k++) {</span>
+<span class="fc" id="L424">                        n = k;</span>
+<span class="fc" id="L425">                        en += 2.0;</span>
+<span class="fc" id="L426">                        pold = plast;</span>
+<span class="fc" id="L427">                        plast = p;</span>
+<span class="fc" id="L428">                        p = (en * plast / x) - pold;</span>
+<span class="fc bfc" id="L429" title="All 2 branches covered.">                        if (p &gt; tover) {</span>
+                            // ---------------------------------------------------------------------
+                            // To avoid overflow, divide P*S by TOVER. Calculate
+                            // P*S until
+                            // ABS(P) &gt; 1.
+                            // ---------------------------------------------------------------------
+<span class="fc" id="L435">                            tover = ENTEN;</span>
+<span class="fc" id="L436">                            p /= tover;</span>
+<span class="fc" id="L437">                            plast /= tover;</span>
+<span class="fc" id="L438">                            psave = p;</span>
+<span class="fc" id="L439">                            psavel = plast;</span>
+<span class="fc" id="L440">                            nstart = n + 1;</span>
+                            do {
+<span class="fc" id="L442">                                n += 1;</span>
+<span class="fc" id="L443">                                en += 2.0;</span>
+<span class="fc" id="L444">                                pold = plast;</span>
+<span class="fc" id="L445">                                plast = p;</span>
+<span class="fc" id="L446">                                p = (en * plast / x) - pold;</span>
+<span class="fc bfc" id="L447" title="All 2 branches covered.">                            } while (p &lt;= 1);</span>
+<span class="fc" id="L448">                            tempb = en / x;</span>
+                            // ---------------------------------------------------------------------
+                            // Calculate backward test and find NCALC, the
+                            // highest N such that
+                            // the test is passed.
+                            // ---------------------------------------------------------------------
+<span class="fc" id="L454">                            test = pold * plast * (0.5 - 0.5 / (tempb * tempb));</span>
+<span class="fc" id="L455">                            test /= ENSIG;</span>
+<span class="fc" id="L456">                            p = plast * tover;</span>
+<span class="fc" id="L457">                            n -= 1;</span>
+<span class="fc" id="L458">                            en -= 2.0;</span>
+<span class="fc" id="L459">                            nend = FastMath.min(nb, n);</span>
+<span class="pc bpc" id="L460" title="1 of 2 branches missed.">                            for (int l = nstart; l &lt;= nend; l++) {</span>
+<span class="fc" id="L461">                                pold = psavel;</span>
+<span class="fc" id="L462">                                psavel = psave;</span>
+<span class="fc" id="L463">                                psave = (en * psavel / x) - pold;</span>
+<span class="fc bfc" id="L464" title="All 2 branches covered.">                                if (psave * psavel &gt; test) {</span>
+<span class="fc" id="L465">                                    ncalc = l - 1;</span>
+<span class="fc" id="L466">                                    readyToInitialize = true;</span>
+<span class="fc" id="L467">                                    break;</span>
+                                }
+                            }
+<span class="fc" id="L470">                            ncalc = nend;</span>
+<span class="fc" id="L471">                            readyToInitialize = true;</span>
+<span class="fc" id="L472">                            break;</span>
+                        }
+                    }
+<span class="fc bfc" id="L475" title="All 2 branches covered.">                    if (!readyToInitialize) {</span>
+<span class="fc" id="L476">                        n = nend;</span>
+<span class="fc" id="L477">                        en = 2 * (n + alpha);</span>
+                        // ---------------------------------------------------------------------
+                        // Calculate special significance test for NBMX &gt; 2.
+                        // ---------------------------------------------------------------------
+<span class="fc" id="L481">                        test = FastMath.max(test, FastMath.sqrt(plast * ENSIG) *</span>
+                                                  FastMath.sqrt(2 * p));
+                    }
+                }
+                // ---------------------------------------------------------------------
+                // Calculate P*S until significance test passes.
+                // ---------------------------------------------------------------------
+<span class="fc bfc" id="L488" title="All 2 branches covered.">                if (!readyToInitialize) {</span>
+                    do {
+<span class="fc" id="L490">                        n += 1;</span>
+<span class="fc" id="L491">                        en += 2.0;</span>
+<span class="fc" id="L492">                        pold = plast;</span>
+<span class="fc" id="L493">                        plast = p;</span>
+<span class="fc" id="L494">                        p = (en * plast / x) - pold;</span>
+<span class="fc bfc" id="L495" title="All 2 branches covered.">                    } while (p &lt; test);</span>
+                }
+                // ---------------------------------------------------------------------
+                // Initialize the backward recursion and the normalization sum.
+                // ---------------------------------------------------------------------
+<span class="fc" id="L500">                n += 1;</span>
+<span class="fc" id="L501">                en += 2.0;</span>
+<span class="fc" id="L502">                tempb = 0;</span>
+<span class="fc" id="L503">                tempa = 1 / p;</span>
+<span class="fc" id="L504">                int m = (2 * n) - 4 * (n / 2);</span>
+<span class="fc" id="L505">                double sum = 0;</span>
+<span class="fc" id="L506">                double em = (double) (n / 2);</span>
+<span class="fc" id="L507">                alpem = em - 1 + alpha;</span>
+<span class="fc" id="L508">                alp2em = 2 * em + alpha;</span>
+<span class="fc bfc" id="L509" title="All 2 branches covered.">                if (m != 0) {</span>
+<span class="fc" id="L510">                    sum = tempa * alpem * alp2em / em;</span>
+                }
+<span class="fc" id="L512">                nend = n - nb;</span>
+
+<span class="fc" id="L514">                boolean readyToNormalize = false;</span>
+<span class="fc" id="L515">                boolean calculatedB0 = false;</span>
+
+                // ---------------------------------------------------------------------
+                // Recur backward via difference equation, calculating (but not
+                // storing) B(N), until N = NB.
+                // ---------------------------------------------------------------------
+<span class="fc bfc" id="L521" title="All 2 branches covered.">                for (int l = 1; l &lt;= nend; l++) {</span>
+<span class="fc" id="L522">                    n -= 1;</span>
+<span class="fc" id="L523">                    en -= 2.0;</span>
+<span class="fc" id="L524">                    tempc = tempb;</span>
+<span class="fc" id="L525">                    tempb = tempa;</span>
+<span class="fc" id="L526">                    tempa = (en * tempb / x) - tempc;</span>
+<span class="fc" id="L527">                    m = 2 - m;</span>
+<span class="fc bfc" id="L528" title="All 2 branches covered.">                    if (m != 0) {</span>
+<span class="fc" id="L529">                        em -= 1;</span>
+<span class="fc" id="L530">                        alp2em = 2 * em + alpha;</span>
+<span class="fc bfc" id="L531" title="All 2 branches covered.">                        if (n == 1) {</span>
+<span class="fc" id="L532">                            break;</span>
+                        }
+<span class="fc" id="L534">                        alpem = em - 1 + alpha;</span>
+<span class="fc bfc" id="L535" title="All 2 branches covered.">                        if (alpem == 0) {</span>
+<span class="fc" id="L536">                            alpem = 1;</span>
+                        }
+<span class="fc" id="L538">                        sum = (sum + tempa * alp2em) * alpem / em;</span>
+                    }
+                }
+
+                // ---------------------------------------------------------------------
+                // Store B(NB).
+                // ---------------------------------------------------------------------
+<span class="fc" id="L545">                b[n - 1] = tempa;</span>
+<span class="fc bfc" id="L546" title="All 2 branches covered.">                if (nend &gt;= 0) {</span>
+<span class="fc bfc" id="L547" title="All 2 branches covered.">                    if (nb &lt;= 1) {</span>
+<span class="fc" id="L548">                        alp2em = alpha;</span>
+<span class="pc bpc" id="L549" title="1 of 2 branches missed.">                        if (alpha + 1 == 1) {</span>
+<span class="fc" id="L550">                            alp2em = 1;</span>
+                        }
+<span class="fc" id="L552">                        sum += b[0] * alp2em;</span>
+<span class="fc" id="L553">                        readyToNormalize = true;</span>
+                    } else {
+                        // ---------------------------------------------------------------------
+                        // Calculate and store B(NB-1).
+                        // ---------------------------------------------------------------------
+<span class="fc" id="L558">                        n -= 1;</span>
+<span class="fc" id="L559">                        en -= 2.0;</span>
+<span class="fc" id="L560">                        b[n - 1] = (en * tempa / x) - tempb;</span>
+<span class="fc bfc" id="L561" title="All 2 branches covered.">                        if (n == 1) {</span>
+<span class="fc" id="L562">                            calculatedB0 = true;</span>
+                        } else {
+<span class="fc" id="L564">                            m = 2 - m;</span>
+<span class="fc bfc" id="L565" title="All 2 branches covered.">                            if (m != 0) {</span>
+<span class="fc" id="L566">                                em -= 1;</span>
+<span class="fc" id="L567">                                alp2em = 2 * em + alpha;</span>
+<span class="fc" id="L568">                                alpem = em - 1 + alpha;</span>
+<span class="fc bfc" id="L569" title="All 2 branches covered.">                                if (alpem == 0) {</span>
+<span class="fc" id="L570">                                    alpem = 1;</span>
+                                }
+
+<span class="fc" id="L573">                                sum = (sum + (b[n - 1] * alp2em)) * alpem / em;</span>
+                            }
+                        }
+                    }
+                }
+<span class="fc bfc" id="L578" title="All 4 branches covered.">                if (!readyToNormalize &amp;&amp; !calculatedB0) {</span>
+<span class="fc" id="L579">                    nend = n - 2;</span>
+<span class="fc bfc" id="L580" title="All 2 branches covered.">                    if (nend != 0) {</span>
+                        // ---------------------------------------------------------------------
+                        // Calculate via difference equation and store B(N),
+                        // until N = 2.
+                        // ---------------------------------------------------------------------
+
+<span class="fc bfc" id="L586" title="All 2 branches covered.">                        for (int l = 1; l &lt;= nend; l++) {</span>
+<span class="fc" id="L587">                            n -= 1;</span>
+<span class="fc" id="L588">                            en -= 2.0;</span>
+<span class="fc" id="L589">                            b[n - 1] = (en * b[n] / x) - b[n + 1];</span>
+<span class="fc" id="L590">                            m = 2 - m;</span>
+<span class="fc bfc" id="L591" title="All 2 branches covered.">                            if (m != 0) {</span>
+<span class="fc" id="L592">                                em -= 1;</span>
+<span class="fc" id="L593">                                alp2em = 2 * em + alpha;</span>
+<span class="fc" id="L594">                                alpem = em - 1 + alpha;</span>
+<span class="fc bfc" id="L595" title="All 2 branches covered.">                                if (alpem == 0) {</span>
+<span class="fc" id="L596">                                    alpem = 1;</span>
+                                }
+
+<span class="fc" id="L599">                                sum = (sum + b[n - 1] * alp2em) * alpem / em;</span>
+                            }
+                        }
+                    }
+                }
+                // ---------------------------------------------------------------------
+                // Calculate b[0]
+                // ---------------------------------------------------------------------
+<span class="fc bfc" id="L607" title="All 2 branches covered.">                if (!readyToNormalize) {</span>
+<span class="fc bfc" id="L608" title="All 2 branches covered.">                    if (!calculatedB0) {</span>
+<span class="fc" id="L609">                        b[0] = 2.0 * (alpha + 1) * b[1] / x - b[2];</span>
+                    }
+<span class="fc" id="L611">                    em -= 1;</span>
+<span class="fc" id="L612">                    alp2em = 2 * em + alpha;</span>
+<span class="pc bpc" id="L613" title="1 of 2 branches missed.">                    if (alp2em == 0) {</span>
+<span class="fc" id="L614">                        alp2em = 1;</span>
+                    }
+<span class="fc" id="L616">                    sum += b[0] * alp2em;</span>
+                }
+                // ---------------------------------------------------------------------
+                // Normalize. Divide all B(N) by sum.
+                // ---------------------------------------------------------------------
+
+<span class="pc bpc" id="L622" title="1 of 2 branches missed.">                if (FastMath.abs(alpha) &gt; 1e-16) {</span>
+<span class="nc" id="L623">                    sum *= Gamma.gamma(alpha) * FastMath.pow(x * 0.5, -alpha);</span>
+                }
+<span class="fc" id="L625">                tempa = ENMTEN;</span>
+<span class="pc bpc" id="L626" title="1 of 2 branches missed.">                if (sum &gt; 1) {</span>
+<span class="fc" id="L627">                    tempa *= sum;</span>
+                }
+
+<span class="fc bfc" id="L630" title="All 2 branches covered.">                for (n = 0; n &lt; nb; n++) {</span>
+<span class="fc bfc" id="L631" title="All 2 branches covered.">                    if (FastMath.abs(b[n]) &lt; tempa) {</span>
+<span class="fc" id="L632">                        b[n] = 0;</span>
+                    }
+<span class="fc" id="L634">                    b[n] /= sum;</span>
+                }
+            }
+            // ---------------------------------------------------------------------
+            // Error return -- X, NB, or ALPHA is out of range.
+            // ---------------------------------------------------------------------
+<span class="fc" id="L640">        } else {</span>
+<span class="fc bfc" id="L641" title="All 2 branches covered.">            if (b.length &gt; 0) {</span>
+<span class="fc" id="L642">                b[0] = 0;</span>
+            }
+<span class="fc" id="L644">            ncalc = FastMath.min(nb, 0) - 1;</span>
+        }
+<span class="fc" id="L646">        return new BesselJResult(MathArrays.copyOf(b, b.length), ncalc);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

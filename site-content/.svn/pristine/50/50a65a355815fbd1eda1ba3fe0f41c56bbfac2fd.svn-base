@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BaseMultivariateOptimizer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optim</a> &gt; <span class="el_source">BaseMultivariateOptimizer.java</span></div><h1>BaseMultivariateOptimizer.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.optim;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
+
+/**
+ * Base class for implementing optimizers for multivariate functions.
+ * It contains the boiler-plate code for initial guess and bounds
+ * specifications.
+ * &lt;em&gt;It is not a &quot;user&quot; class.&lt;/em&gt;
+ *
+ * @param &lt;PAIR&gt; Type of the point/value pair returned by the optimization
+ * algorithm.
+ *
+ * @since 3.1
+ */
+public abstract class BaseMultivariateOptimizer&lt;PAIR&gt;
+    extends BaseOptimizer&lt;PAIR&gt; {
+    /** Initial guess. */
+    private double[] start;
+    /** Lower bounds. */
+    private double[] lowerBound;
+    /** Upper bounds. */
+    private double[] upperBound;
+
+    /**
+     * @param checker Convergence checker.
+     */
+    protected BaseMultivariateOptimizer(ConvergenceChecker&lt;PAIR&gt; checker) {
+<span class="fc" id="L47">        super(checker);</span>
+<span class="fc" id="L48">    }</span>
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param optData Optimization data. In addition to those documented in
+     * {@link BaseOptimizer#parseOptimizationData(OptimizationData[]) BaseOptimizer},
+     * this method will register the following data:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@link InitialGuess}&lt;/li&gt;
+     *  &lt;li&gt;{@link SimpleBounds}&lt;/li&gt;
+     * &lt;/ul&gt;
+     * @return {@inheritDoc}
+     */
+    @Override
+    public PAIR optimize(OptimizationData... optData) {
+        // Perform optimization.
+<span class="fc" id="L65">        return super.optimize(optData);</span>
+    }
+
+    /**
+     * Scans the list of (required and optional) optimization data that
+     * characterize the problem.
+     *
+     * @param optData Optimization data. The following data will be looked for:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@link InitialGuess}&lt;/li&gt;
+     *  &lt;li&gt;{@link SimpleBounds}&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+    @Override
+    protected void parseOptimizationData(OptimizationData... optData) {
+        // Allow base class to register its own data.
+<span class="fc" id="L81">        super.parseOptimizationData(optData);</span>
+
+        // The existing values (as set by the previous call) are reused if
+        // not provided in the argument list.
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        for (OptimizationData data : optData) {</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">            if (data instanceof InitialGuess) {</span>
+<span class="fc" id="L87">                start = ((InitialGuess) data).getInitialGuess();</span>
+<span class="fc" id="L88">                continue;</span>
+            }
+<span class="fc bfc" id="L90" title="All 2 branches covered.">            if (data instanceof SimpleBounds) {</span>
+<span class="fc" id="L91">                final SimpleBounds bounds = (SimpleBounds) data;</span>
+<span class="fc" id="L92">                lowerBound = bounds.getLower();</span>
+<span class="fc" id="L93">                upperBound = bounds.getUpper();</span>
+<span class="fc" id="L94">                continue;</span>
+            }
+        }
+
+        // Check input consistency.
+<span class="fc" id="L99">        checkParameters();</span>
+<span class="fc" id="L100">    }</span>
+
+    /**
+     * Gets the initial guess.
+     *
+     * @return the initial guess, or {@code null} if not set.
+     */
+    public double[] getStartPoint() {
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">        return start == null ? null : start.clone();</span>
+    }
+    /**
+     * @return the lower bounds, or {@code null} if not set.
+     */
+    public double[] getLowerBound() {
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        return lowerBound == null ? null : lowerBound.clone();</span>
+    }
+    /**
+     * @return the upper bounds, or {@code null} if not set.
+     */
+    public double[] getUpperBound() {
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        return upperBound == null ? null : upperBound.clone();</span>
+    }
+
+    /**
+     * Check parameters consistency.
+     */
+    private void checkParameters() {
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        if (start != null) {</span>
+<span class="fc" id="L128">            final int dim = start.length;</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">            if (lowerBound != null) {</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">                if (lowerBound.length != dim) {</span>
+<span class="fc" id="L131">                    throw new DimensionMismatchException(lowerBound.length, dim);</span>
+                }
+<span class="fc bfc" id="L133" title="All 2 branches covered.">                for (int i = 0; i &lt; dim; i++) {</span>
+<span class="fc" id="L134">                    final double v = start[i];</span>
+<span class="fc" id="L135">                    final double lo = lowerBound[i];</span>
+<span class="fc bfc" id="L136" title="All 2 branches covered.">                    if (v &lt; lo) {</span>
+<span class="fc" id="L137">                        throw new NumberIsTooSmallException(v, lo, true);</span>
+                    }
+                }
+            }
+<span class="fc bfc" id="L141" title="All 2 branches covered.">            if (upperBound != null) {</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">                if (upperBound.length != dim) {</span>
+<span class="nc" id="L143">                    throw new DimensionMismatchException(upperBound.length, dim);</span>
+                }
+<span class="fc bfc" id="L145" title="All 2 branches covered.">                for (int i = 0; i &lt; dim; i++) {</span>
+<span class="fc" id="L146">                    final double v = start[i];</span>
+<span class="fc" id="L147">                    final double hi = upperBound[i];</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">                    if (v &gt; hi) {</span>
+<span class="fc" id="L149">                        throw new NumberIsTooLargeException(v, hi, true);</span>
+                    }
+                }
+            }
+        }
+<span class="fc" id="L154">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

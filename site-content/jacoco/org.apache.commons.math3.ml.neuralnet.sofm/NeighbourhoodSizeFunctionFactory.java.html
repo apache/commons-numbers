@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>NeighbourhoodSizeFunctionFactory.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ml.neuralnet.sofm</a> &gt; <span class="el_source">NeighbourhoodSizeFunctionFactory.java</span></div><h1>NeighbourhoodSizeFunctionFactory.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ml.neuralnet.sofm;
+
+import org.apache.commons.math3.ml.neuralnet.sofm.util.ExponentialDecayFunction;
+import org.apache.commons.math3.ml.neuralnet.sofm.util.QuasiSigmoidDecayFunction;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * Factory for creating instances of {@link NeighbourhoodSizeFunction}.
+ *
+ * @since 3.3
+ */
+public class NeighbourhoodSizeFunctionFactory {
+    /** Class contains only static methods. */
+<span class="nc" id="L31">    private NeighbourhoodSizeFunctionFactory() {}</span>
+
+    /**
+     * Creates an exponential decay {@link NeighbourhoodSizeFunction function}.
+     * It will compute &lt;code&gt;a e&lt;sup&gt;-x / b&lt;/sup&gt;&lt;/code&gt;,
+     * where {@code x} is the (integer) independent variable and
+     * &lt;ul&gt;
+     *  &lt;li&gt;&lt;code&gt;a = initValue&lt;/code&gt;
+     *  &lt;li&gt;&lt;code&gt;b = -numCall / ln(valueAtNumCall / initValue)&lt;/code&gt;
+     * &lt;/ul&gt;
+     *
+     * @param initValue Initial value, i.e.
+     * {@link NeighbourhoodSizeFunction#value(long) value(0)}.
+     * @param valueAtNumCall Value of the function at {@code numCall}.
+     * @param numCall Argument for which the function returns
+     * {@code valueAtNumCall}.
+     * @return the neighbourhood size function.
+     * @throws org.apache.commons.math3.exception.NotStrictlyPositiveException
+     * if {@code initValue &lt;= 0}.
+     * @throws org.apache.commons.math3.exception.NotStrictlyPositiveException
+     * if {@code valueAtNumCall &lt;= 0}.
+     * @throws org.apache.commons.math3.exception.NumberIsTooLargeException
+     * if {@code valueAtNumCall &gt;= initValue}.
+     * @throws org.apache.commons.math3.exception.NotStrictlyPositiveException
+     * if {@code numCall &lt;= 0}.
+     */
+    public static NeighbourhoodSizeFunction exponentialDecay(final double initValue,
+                                                             final double valueAtNumCall,
+                                                             final long numCall) {
+<span class="fc" id="L60">        return new NeighbourhoodSizeFunction() {</span>
+            /** DecayFunction. */
+<span class="fc" id="L62">            private final ExponentialDecayFunction decay</span>
+                = new ExponentialDecayFunction(initValue, valueAtNumCall, numCall);
+
+            /** {@inheritDoc} */
+            public int value(long n) {
+<span class="fc" id="L67">                return (int) FastMath.rint(decay.value(n));</span>
+            }
+        };
+    }
+
+    /**
+     * Creates an sigmoid-like {@code NeighbourhoodSizeFunction function}.
+     * The function {@code f} will have the following properties:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@code f(0) = initValue}&lt;/li&gt;
+     *  &lt;li&gt;{@code numCall} is the inflexion point&lt;/li&gt;
+     *  &lt;li&gt;{@code slope = f'(numCall)}&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param initValue Initial value, i.e.
+     * {@link NeighbourhoodSizeFunction#value(long) value(0)}.
+     * @param slope Value of the function derivative at {@code numCall}.
+     * @param numCall Inflexion point.
+     * @return the neighbourhood size function.
+     * @throws org.apache.commons.math3.exception.NotStrictlyPositiveException
+     * if {@code initValue &lt;= 0}.
+     * @throws org.apache.commons.math3.exception.NumberIsTooLargeException
+     * if {@code slope &gt;= 0}.
+     * @throws org.apache.commons.math3.exception.NotStrictlyPositiveException
+     * if {@code numCall &lt;= 0}.
+     */
+    public static NeighbourhoodSizeFunction quasiSigmoidDecay(final double initValue,
+                                                              final double slope,
+                                                              final long numCall) {
+<span class="fc" id="L96">        return new NeighbourhoodSizeFunction() {</span>
+            /** DecayFunction. */
+<span class="fc" id="L98">            private final QuasiSigmoidDecayFunction decay</span>
+                = new QuasiSigmoidDecayFunction(initValue, slope, numCall);
+
+            /** {@inheritDoc} */
+            public int value(long n) {
+<span class="fc" id="L103">                return (int) FastMath.rint(decay.value(n));</span>
+            }
+        };
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

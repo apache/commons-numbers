@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ContinuousOutputFieldModel.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode</a> &gt; <span class="el_source">ContinuousOutputFieldModel.java</span></div><h1>ContinuousOutputFieldModel.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.math3.RealFieldElement;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.ode.sampling.FieldStepHandler;
+import org.apache.commons.math3.ode.sampling.FieldStepInterpolator;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * This class stores all information provided by an ODE integrator
+ * during the integration process and build a continuous model of the
+ * solution from this.
+ *
+ * &lt;p&gt;This class act as a step handler from the integrator point of
+ * view. It is called iteratively during the integration process and
+ * stores a copy of all steps information in a sorted collection for
+ * later use. Once the integration process is over, the user can use
+ * the {@link #getInterpolatedState(RealFieldElement) getInterpolatedState}
+ * method to retrieve this information at any time. It is important to wait
+ * for the integration to be over before attempting to call {@link
+ * #getInterpolatedState(RealFieldElement)} because some internal
+ * variables are set only once the last step has been handled.&lt;/p&gt;
+ *
+ * &lt;p&gt;This is useful for example if the main loop of the user
+ * application should remain independent from the integration process
+ * or if one needs to mimic the behaviour of an analytical model
+ * despite a numerical model is used (i.e. one needs the ability to
+ * get the model value at any time or to navigate through the
+ * data).&lt;/p&gt;
+ *
+ * &lt;p&gt;If problem modeling is done with several separate
+ * integration phases for contiguous intervals, the same
+ * ContinuousOutputModel can be used as step handler for all
+ * integration phases as long as they are performed in order and in
+ * the same direction. As an example, one can extrapolate the
+ * trajectory of a satellite with one model (i.e. one set of
+ * differential equations) up to the beginning of a maneuver, use
+ * another more complex model including thrusters modeling and
+ * accurate attitude control during the maneuver, and revert to the
+ * first model after the end of the maneuver. If the same continuous
+ * output model handles the steps of all integration phases, the user
+ * do not need to bother when the maneuver begins or ends, he has all
+ * the data available in a transparent manner.&lt;/p&gt;
+ *
+ * &lt;p&gt;One should be aware that the amount of data stored in a
+ * ContinuousOutputFieldModel instance can be important if the state vector
+ * is large, if the integration interval is long or if the steps are
+ * small (which can result from small tolerance settings in {@link
+ * org.apache.commons.math3.ode.nonstiff.AdaptiveStepsizeFieldIntegrator adaptive
+ * step size integrators}).&lt;/p&gt;
+ *
+ * @see FieldStepHandler
+ * @see FieldStepInterpolator
+ * @param &lt;T&gt; the type of the field elements
+ * @since 3.6
+ */
+
+public class ContinuousOutputFieldModel&lt;T extends RealFieldElement&lt;T&gt;&gt;
+    implements FieldStepHandler&lt;T&gt; {
+
+    /** Initial integration time. */
+    private T initialTime;
+
+    /** Final integration time. */
+    private T finalTime;
+
+    /** Integration direction indicator. */
+    private boolean forward;
+
+    /** Current interpolator index. */
+    private int index;
+
+    /** Steps table. */
+    private List&lt;FieldStepInterpolator&lt;T&gt;&gt; steps;
+
+    /** Simple constructor.
+     * Build an empty continuous output model.
+     */
+<span class="fc" id="L102">    public ContinuousOutputFieldModel() {</span>
+<span class="fc" id="L103">        steps       = new ArrayList&lt;FieldStepInterpolator&lt;T&gt;&gt;();</span>
+<span class="fc" id="L104">        initialTime = null;</span>
+<span class="fc" id="L105">        finalTime   = null;</span>
+<span class="fc" id="L106">        forward     = true;</span>
+<span class="fc" id="L107">        index       = 0;</span>
+<span class="fc" id="L108">    }</span>
+
+    /** Append another model at the end of the instance.
+     * @param model model to add at the end of the instance
+     * @exception MathIllegalArgumentException if the model to append is not
+     * compatible with the instance (dimension of the state vector,
+     * propagation direction, hole between the dates)
+     * @exception DimensionMismatchException if the dimensions of the states or
+     * the number of secondary states do not match
+     * @exception MaxCountExceededException if the number of functions evaluations is exceeded
+     * during step finalization
+     */
+    public void append(final ContinuousOutputFieldModel&lt;T&gt; model)
+        throws MathIllegalArgumentException, MaxCountExceededException {
+
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        if (model.steps.size() == 0) {</span>
+<span class="fc" id="L124">            return;</span>
+        }
+
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        if (steps.size() == 0) {</span>
+<span class="fc" id="L128">            initialTime = model.initialTime;</span>
+<span class="fc" id="L129">            forward     = model.forward;</span>
+        } else {
+
+            // safety checks
+<span class="fc" id="L133">            final FieldODEStateAndDerivative&lt;T&gt; s1 = steps.get(0).getPreviousState();</span>
+<span class="fc" id="L134">            final FieldODEStateAndDerivative&lt;T&gt; s2 = model.steps.get(0).getPreviousState();</span>
+<span class="fc" id="L135">            checkDimensionsEquality(s1.getStateDimension(), s2.getStateDimension());</span>
+<span class="fc" id="L136">            checkDimensionsEquality(s1.getNumberOfSecondaryStates(), s2.getNumberOfSecondaryStates());</span>
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">            for (int i = 0; i &lt; s1.getNumberOfSecondaryStates(); ++i) {</span>
+<span class="nc" id="L138">                checkDimensionsEquality(s1.getSecondaryStateDimension(i), s2.getSecondaryStateDimension(i));</span>
+            }
+
+<span class="fc bfc" id="L141" title="All 2 branches covered.">            if (forward ^ model.forward) {</span>
+<span class="fc" id="L142">                throw new MathIllegalArgumentException(LocalizedFormats.PROPAGATION_DIRECTION_MISMATCH);</span>
+            }
+
+<span class="fc" id="L145">            final FieldStepInterpolator&lt;T&gt; lastInterpolator = steps.get(index);</span>
+<span class="fc" id="L146">            final T current  = lastInterpolator.getCurrentState().getTime();</span>
+<span class="fc" id="L147">            final T previous = lastInterpolator.getPreviousState().getTime();</span>
+<span class="fc" id="L148">            final T step = current.subtract(previous);</span>
+<span class="fc" id="L149">            final T gap = model.getInitialTime().subtract(current);</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">            if (gap.abs().subtract(step.abs().multiply(1.0e-3)).getReal() &gt; 0) {</span>
+<span class="fc" id="L151">                throw new MathIllegalArgumentException(LocalizedFormats.HOLE_BETWEEN_MODELS_TIME_RANGES,</span>
+                                                       gap.abs().getReal());
+            }
+
+        }
+
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        for (FieldStepInterpolator&lt;T&gt; interpolator : model.steps) {</span>
+<span class="fc" id="L158">            steps.add(interpolator);</span>
+<span class="fc" id="L159">        }</span>
+
+<span class="fc" id="L161">        index = steps.size() - 1;</span>
+<span class="fc" id="L162">        finalTime = (steps.get(index)).getCurrentState().getTime();</span>
+
+<span class="fc" id="L164">    }</span>
+
+    /** Check dimensions equality.
+     * @param d1 first dimension
+     * @param d2 second dimansion
+     * @exception DimensionMismatchException if dimensions do not match
+     */
+    private void checkDimensionsEquality(final int d1, final int d2)
+        throws DimensionMismatchException {
+<span class="fc bfc" id="L173" title="All 2 branches covered.">        if (d1 != d2) {</span>
+<span class="fc" id="L174">            throw new DimensionMismatchException(d2, d1);</span>
+        }
+<span class="fc" id="L176">    }</span>
+
+    /** {@inheritDoc} */
+    public void init(final FieldODEStateAndDerivative&lt;T&gt; initialState, final T t) {
+<span class="fc" id="L180">        initialTime = initialState.getTime();</span>
+<span class="fc" id="L181">        finalTime   = t;</span>
+<span class="fc" id="L182">        forward     = true;</span>
+<span class="fc" id="L183">        index       = 0;</span>
+<span class="fc" id="L184">        steps.clear();</span>
+<span class="fc" id="L185">    }</span>
+
+    /** Handle the last accepted step.
+     * A copy of the information provided by the last step is stored in
+     * the instance for later use.
+     * @param interpolator interpolator for the last accepted step.
+     * @param isLast true if the step is the last one
+     * @exception MaxCountExceededException if the number of functions evaluations is exceeded
+     * during step finalization
+     */
+    public void handleStep(final FieldStepInterpolator&lt;T&gt; interpolator, final boolean isLast)
+        throws MaxCountExceededException {
+
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        if (steps.size() == 0) {</span>
+<span class="fc" id="L199">            initialTime = interpolator.getPreviousState().getTime();</span>
+<span class="fc" id="L200">            forward     = interpolator.isForward();</span>
+        }
+
+<span class="fc" id="L203">        steps.add(interpolator);</span>
+
+<span class="fc bfc" id="L205" title="All 2 branches covered.">        if (isLast) {</span>
+<span class="fc" id="L206">            finalTime = interpolator.getCurrentState().getTime();</span>
+<span class="fc" id="L207">            index     = steps.size() - 1;</span>
+        }
+
+<span class="fc" id="L210">    }</span>
+
+    /**
+     * Get the initial integration time.
+     * @return initial integration time
+     */
+    public T getInitialTime() {
+<span class="fc" id="L217">        return initialTime;</span>
+    }
+
+    /**
+     * Get the final integration time.
+     * @return final integration time
+     */
+    public T getFinalTime() {
+<span class="fc" id="L225">        return finalTime;</span>
+    }
+
+    /**
+     * Get the state at interpolated time.
+     * @param time time of the interpolated point
+     * @return state at interpolated time
+     */
+    public FieldODEStateAndDerivative&lt;T&gt; getInterpolatedState(final T time) {
+
+        // initialize the search with the complete steps table
+<span class="fc" id="L236">        int iMin = 0;</span>
+<span class="fc" id="L237">        final FieldStepInterpolator&lt;T&gt; sMin = steps.get(iMin);</span>
+<span class="fc" id="L238">        T tMin = sMin.getPreviousState().getTime().add(sMin.getCurrentState().getTime()).multiply(0.5);</span>
+
+<span class="fc" id="L240">        int iMax = steps.size() - 1;</span>
+<span class="fc" id="L241">        final FieldStepInterpolator&lt;T&gt; sMax = steps.get(iMax);</span>
+<span class="fc" id="L242">        T tMax = sMax.getPreviousState().getTime().add(sMax.getCurrentState().getTime()).multiply(0.5);</span>
+
+        // handle points outside of the integration interval
+        // or in the first and last step
+<span class="fc bfc" id="L246" title="All 2 branches covered.">        if (locatePoint(time, sMin) &lt;= 0) {</span>
+<span class="fc" id="L247">            index = iMin;</span>
+<span class="fc" id="L248">            return sMin.getInterpolatedState(time);</span>
+        }
+<span class="fc bfc" id="L250" title="All 2 branches covered.">        if (locatePoint(time, sMax) &gt;= 0) {</span>
+<span class="fc" id="L251">            index = iMax;</span>
+<span class="fc" id="L252">            return sMax.getInterpolatedState(time);</span>
+        }
+
+        // reduction of the table slice size
+<span class="fc bfc" id="L256" title="All 2 branches covered.">        while (iMax - iMin &gt; 5) {</span>
+
+            // use the last estimated index as the splitting index
+<span class="fc" id="L259">            final FieldStepInterpolator&lt;T&gt; si = steps.get(index);</span>
+<span class="fc" id="L260">            final int location = locatePoint(time, si);</span>
+<span class="fc bfc" id="L261" title="All 2 branches covered.">            if (location &lt; 0) {</span>
+<span class="fc" id="L262">                iMax = index;</span>
+<span class="fc" id="L263">                tMax = si.getPreviousState().getTime().add(si.getCurrentState().getTime()).multiply(0.5);</span>
+<span class="fc bfc" id="L264" title="All 2 branches covered.">            } else if (location &gt; 0) {</span>
+<span class="fc" id="L265">                iMin = index;</span>
+<span class="fc" id="L266">                tMin = si.getPreviousState().getTime().add(si.getCurrentState().getTime()).multiply(0.5);</span>
+            } else {
+                // we have found the target step, no need to continue searching
+<span class="fc" id="L269">                return si.getInterpolatedState(time);</span>
+            }
+
+            // compute a new estimate of the index in the reduced table slice
+<span class="fc" id="L273">            final int iMed = (iMin + iMax) / 2;</span>
+<span class="fc" id="L274">            final FieldStepInterpolator&lt;T&gt; sMed = steps.get(iMed);</span>
+<span class="fc" id="L275">            final T tMed = sMed.getPreviousState().getTime().add(sMed.getCurrentState().getTime()).multiply(0.5);</span>
+
+<span class="pc bpc" id="L277" title="2 of 4 branches missed.">            if (tMed.subtract(tMin).abs().subtract(1.0e-6).getReal() &lt; 0 ||</span>
+                tMax.subtract(tMed).abs().subtract(1.0e-6).getReal() &lt; 0) {
+                // too close to the bounds, we estimate using a simple dichotomy
+<span class="nc" id="L280">                index = iMed;</span>
+            } else {
+                // estimate the index using a reverse quadratic polynomial
+                // (reverse means we have i = P(t), thus allowing to simply
+                // compute index = P(time) rather than solving a quadratic equation)
+<span class="fc" id="L285">                final T d12 = tMax.subtract(tMed);</span>
+<span class="fc" id="L286">                final T d23 = tMed.subtract(tMin);</span>
+<span class="fc" id="L287">                final T d13 = tMax.subtract(tMin);</span>
+<span class="fc" id="L288">                final T dt1 = time.subtract(tMax);</span>
+<span class="fc" id="L289">                final T dt2 = time.subtract(tMed);</span>
+<span class="fc" id="L290">                final T dt3 = time.subtract(tMin);</span>
+<span class="fc" id="L291">                final T iLagrange =           dt2.multiply(dt3).multiply(d23).multiply(iMax).</span>
+                                     subtract(dt1.multiply(dt3).multiply(d13).multiply(iMed)).
+                                     add(     dt1.multiply(dt2).multiply(d12).multiply(iMin)).
+                                     divide(d12.multiply(d23).multiply(d13));
+<span class="fc" id="L295">                index = (int) FastMath.rint(iLagrange.getReal());</span>
+            }
+
+            // force the next size reduction to be at least one tenth
+<span class="fc" id="L299">            final int low  = FastMath.max(iMin + 1, (9 * iMin + iMax) / 10);</span>
+<span class="fc" id="L300">            final int high = FastMath.min(iMax - 1, (iMin + 9 * iMax) / 10);</span>
+<span class="fc bfc" id="L301" title="All 2 branches covered.">            if (index &lt; low) {</span>
+<span class="fc" id="L302">                index = low;</span>
+<span class="fc bfc" id="L303" title="All 2 branches covered.">            } else if (index &gt; high) {</span>
+<span class="fc" id="L304">                index = high;</span>
+            }
+
+<span class="fc" id="L307">        }</span>
+
+        // now the table slice is very small, we perform an iterative search
+<span class="fc" id="L310">        index = iMin;</span>
+<span class="pc bpc" id="L311" title="1 of 4 branches missed.">        while (index &lt;= iMax &amp;&amp; locatePoint(time, steps.get(index)) &gt; 0) {</span>
+<span class="fc" id="L312">            ++index;</span>
+        }
+
+<span class="fc" id="L315">        return steps.get(index).getInterpolatedState(time);</span>
+
+    }
+
+    /** Compare a step interval and a double.
+     * @param time point to locate
+     * @param interval step interval
+     * @return -1 if the double is before the interval, 0 if it is in
+     * the interval, and +1 if it is after the interval, according to
+     * the interval direction
+     */
+    private int locatePoint(final T time, final FieldStepInterpolator&lt;T&gt; interval) {
+<span class="fc bfc" id="L327" title="All 2 branches covered.">        if (forward) {</span>
+<span class="fc bfc" id="L328" title="All 2 branches covered.">            if (time.subtract(interval.getPreviousState().getTime()).getReal() &lt; 0) {</span>
+<span class="fc" id="L329">                return -1;</span>
+<span class="fc bfc" id="L330" title="All 2 branches covered.">            } else if (time.subtract(interval.getCurrentState().getTime()).getReal() &gt; 0) {</span>
+<span class="fc" id="L331">                return +1;</span>
+            } else {
+<span class="fc" id="L333">                return 0;</span>
+            }
+        }
+<span class="fc bfc" id="L336" title="All 2 branches covered.">        if (time.subtract(interval.getPreviousState().getTime()).getReal() &gt; 0) {</span>
+<span class="fc" id="L337">            return -1;</span>
+<span class="fc bfc" id="L338" title="All 2 branches covered.">        } else if (time.subtract(interval.getCurrentState().getTime()).getReal() &lt; 0) {</span>
+<span class="fc" id="L339">            return +1;</span>
+        } else {
+<span class="fc" id="L341">            return 0;</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

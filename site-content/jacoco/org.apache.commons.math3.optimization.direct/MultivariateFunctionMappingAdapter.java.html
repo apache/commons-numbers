@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MultivariateFunctionMappingAdapter.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optimization.direct</a> &gt; <span class="el_source">MultivariateFunctionMappingAdapter.java</span></div><h1>MultivariateFunctionMappingAdapter.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.optimization.direct;
+
+import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.analysis.function.Logit;
+import org.apache.commons.math3.analysis.function.Sigmoid;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * &lt;p&gt;Adapter for mapping bounded {@link MultivariateFunction} to unbounded ones.&lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This adapter can be used to wrap functions subject to simple bounds on
+ * parameters so they can be used by optimizers that do &lt;em&gt;not&lt;/em&gt; directly
+ * support simple bounds.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * The principle is that the user function that will be wrapped will see its
+ * parameters bounded as required, i.e when its {@code value} method is called
+ * with argument array {@code point}, the elements array will fulfill requirement
+ * {@code lower[i] &lt;= point[i] &lt;= upper[i]} for all i. Some of the components
+ * may be unbounded or bounded only on one side if the corresponding bound is
+ * set to an infinite value. The optimizer will not manage the user function by
+ * itself, but it will handle this adapter and it is this adapter that will take
+ * care the bounds are fulfilled. The adapter {@link #value(double[])} method will
+ * be called by the optimizer with unbound parameters, and the adapter will map
+ * the unbounded value to the bounded range using appropriate functions like
+ * {@link Sigmoid} for double bounded elements for example.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * As the optimizer sees only unbounded parameters, it should be noted that the
+ * start point or simplex expected by the optimizer should be unbounded, so the
+ * user is responsible for converting his bounded point to unbounded by calling
+ * {@link #boundedToUnbounded(double[])} before providing them to the optimizer.
+ * For the same reason, the point returned by the {@link
+ * org.apache.commons.math3.optimization.BaseMultivariateOptimizer#optimize(int,
+ * MultivariateFunction, org.apache.commons.math3.optimization.GoalType, double[])}
+ * method is unbounded. So to convert this point to bounded, users must call
+ * {@link #unboundedToBounded(double[])} by themselves!&lt;/p&gt;
+ * &lt;p&gt;
+ * This adapter is only a poor man solution to simple bounds optimization constraints
+ * that can be used with simple optimizers like {@link SimplexOptimizer} with {@link
+ * NelderMeadSimplex} or {@link MultiDirectionalSimplex}. A better solution is to use
+ * an optimizer that directly supports simple bounds like {@link CMAESOptimizer} or
+ * {@link BOBYQAOptimizer}. One caveat of this poor man solution is that behavior near
+ * the bounds may be numerically unstable as bounds are mapped from infinite values.
+ * Another caveat is that convergence values are evaluated by the optimizer with respect
+ * to unbounded variables, so there will be scales differences when converted to bounded
+ * variables.
+ * &lt;/p&gt;
+ *
+ * @see MultivariateFunctionPenaltyAdapter
+ *
+ * @deprecated As of 3.1 (to be removed in 4.0).
+ * @since 3.0
+ */
+
+@Deprecated
+public class MultivariateFunctionMappingAdapter implements MultivariateFunction {
+
+    /** Underlying bounded function. */
+    private final MultivariateFunction bounded;
+
+    /** Mapping functions. */
+    private final Mapper[] mappers;
+
+    /** Simple constructor.
+     * @param bounded bounded function
+     * @param lower lower bounds for each element of the input parameters array
+     * (some elements may be set to {@code Double.NEGATIVE_INFINITY} for
+     * unbounded values)
+     * @param upper upper bounds for each element of the input parameters array
+     * (some elements may be set to {@code Double.POSITIVE_INFINITY} for
+     * unbounded values)
+     * @exception DimensionMismatchException if lower and upper bounds are not
+     * consistent, either according to dimension or to values
+     */
+    public MultivariateFunctionMappingAdapter(final MultivariateFunction bounded,
+<span class="fc" id="L99">                                                  final double[] lower, final double[] upper) {</span>
+
+        // safety checks
+<span class="fc" id="L102">        MathUtils.checkNotNull(lower);</span>
+<span class="fc" id="L103">        MathUtils.checkNotNull(upper);</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">        if (lower.length != upper.length) {</span>
+<span class="nc" id="L105">            throw new DimensionMismatchException(lower.length, upper.length);</span>
+        }
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        for (int i = 0; i &lt; lower.length; ++i) {</span>
+            // note the following test is written in such a way it also fails for NaN
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">            if (!(upper[i] &gt;= lower[i])) {</span>
+<span class="nc" id="L110">                throw new NumberIsTooSmallException(upper[i], lower[i], true);</span>
+            }
+        }
+
+<span class="fc" id="L114">        this.bounded = bounded;</span>
+<span class="fc" id="L115">        this.mappers = new Mapper[lower.length];</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        for (int i = 0; i &lt; mappers.length; ++i) {</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">            if (Double.isInfinite(lower[i])) {</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">                if (Double.isInfinite(upper[i])) {</span>
+                    // element is unbounded, no transformation is needed
+<span class="fc" id="L120">                    mappers[i] = new NoBoundsMapper();</span>
+                } else {
+                    // element is simple-bounded on the upper side
+<span class="fc" id="L123">                    mappers[i] = new UpperBoundMapper(upper[i]);</span>
+                }
+            } else {
+<span class="fc bfc" id="L126" title="All 2 branches covered.">                if (Double.isInfinite(upper[i])) {</span>
+                    // element is simple-bounded on the lower side
+<span class="fc" id="L128">                    mappers[i] = new LowerBoundMapper(lower[i]);</span>
+                } else {
+                    // element is double-bounded
+<span class="fc" id="L131">                    mappers[i] = new LowerUpperBoundMapper(lower[i], upper[i]);</span>
+                }
+            }
+        }
+
+<span class="fc" id="L136">    }</span>
+
+    /** Map an array from unbounded to bounded.
+     * @param point unbounded value
+     * @return bounded value
+     */
+    public double[] unboundedToBounded(double[] point) {
+
+        // map unbounded input point to bounded point
+<span class="fc" id="L145">        final double[] mapped = new double[mappers.length];</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        for (int i = 0; i &lt; mappers.length; ++i) {</span>
+<span class="fc" id="L147">            mapped[i] = mappers[i].unboundedToBounded(point[i]);</span>
+        }
+
+<span class="fc" id="L150">        return mapped;</span>
+
+    }
+
+    /** Map an array from bounded to unbounded.
+     * @param point bounded value
+     * @return unbounded value
+     */
+    public double[] boundedToUnbounded(double[] point) {
+
+        // map bounded input point to unbounded point
+<span class="fc" id="L161">        final double[] mapped = new double[mappers.length];</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">        for (int i = 0; i &lt; mappers.length; ++i) {</span>
+<span class="fc" id="L163">            mapped[i] = mappers[i].boundedToUnbounded(point[i]);</span>
+        }
+
+<span class="fc" id="L166">        return mapped;</span>
+
+    }
+
+    /** Compute the underlying function value from an unbounded point.
+     * &lt;p&gt;
+     * This method simply bounds the unbounded point using the mappings
+     * set up at construction and calls the underlying function using
+     * the bounded point.
+     * &lt;/p&gt;
+     * @param point unbounded value
+     * @return underlying function value
+     * @see #unboundedToBounded(double[])
+     */
+    public double value(double[] point) {
+<span class="fc" id="L181">        return bounded.value(unboundedToBounded(point));</span>
+    }
+
+    /** Mapping interface. */
+    private interface Mapper {
+
+        /** Map a value from unbounded to bounded.
+         * @param y unbounded value
+         * @return bounded value
+         */
+        double unboundedToBounded(double y);
+
+        /** Map a value from bounded to unbounded.
+         * @param x bounded value
+         * @return unbounded value
+         */
+        double boundedToUnbounded(double x);
+
+    }
+
+    /** Local class for no bounds mapping. */
+    private static class NoBoundsMapper implements Mapper {
+
+        /** Simple constructor.
+         */
+<span class="fc" id="L206">        NoBoundsMapper() {</span>
+<span class="fc" id="L207">        }</span>
+
+        /** {@inheritDoc} */
+        public double unboundedToBounded(final double y) {
+<span class="fc" id="L211">            return y;</span>
+        }
+
+        /** {@inheritDoc} */
+        public double boundedToUnbounded(final double x) {
+<span class="fc" id="L216">            return x;</span>
+        }
+
+    }
+
+    /** Local class for lower bounds mapping. */
+    private static class LowerBoundMapper implements Mapper {
+
+        /** Low bound. */
+        private final double lower;
+
+        /** Simple constructor.
+         * @param lower lower bound
+         */
+<span class="fc" id="L230">        LowerBoundMapper(final double lower) {</span>
+<span class="fc" id="L231">            this.lower = lower;</span>
+<span class="fc" id="L232">        }</span>
+
+        /** {@inheritDoc} */
+        public double unboundedToBounded(final double y) {
+<span class="fc" id="L236">            return lower + FastMath.exp(y);</span>
+        }
+
+        /** {@inheritDoc} */
+        public double boundedToUnbounded(final double x) {
+<span class="fc" id="L241">            return FastMath.log(x - lower);</span>
+        }
+
+    }
+
+    /** Local class for upper bounds mapping. */
+    private static class UpperBoundMapper implements Mapper {
+
+        /** Upper bound. */
+        private final double upper;
+
+        /** Simple constructor.
+         * @param upper upper bound
+         */
+<span class="fc" id="L255">        UpperBoundMapper(final double upper) {</span>
+<span class="fc" id="L256">            this.upper = upper;</span>
+<span class="fc" id="L257">        }</span>
+
+        /** {@inheritDoc} */
+        public double unboundedToBounded(final double y) {
+<span class="fc" id="L261">            return upper - FastMath.exp(-y);</span>
+        }
+
+        /** {@inheritDoc} */
+        public double boundedToUnbounded(final double x) {
+<span class="fc" id="L266">            return -FastMath.log(upper - x);</span>
+        }
+
+    }
+
+    /** Local class for lower and bounds mapping. */
+    private static class LowerUpperBoundMapper implements Mapper {
+
+        /** Function from unbounded to bounded. */
+        private final UnivariateFunction boundingFunction;
+
+        /** Function from bounded to unbounded. */
+        private final UnivariateFunction unboundingFunction;
+
+        /** Simple constructor.
+         * @param lower lower bound
+         * @param upper upper bound
+         */
+<span class="fc" id="L284">        LowerUpperBoundMapper(final double lower, final double upper) {</span>
+<span class="fc" id="L285">            boundingFunction   = new Sigmoid(lower, upper);</span>
+<span class="fc" id="L286">            unboundingFunction = new Logit(lower, upper);</span>
+<span class="fc" id="L287">        }</span>
+
+        /** {@inheritDoc} */
+        public double unboundedToBounded(final double y) {
+<span class="fc" id="L291">            return boundingFunction.value(y);</span>
+        }
+
+        /** {@inheritDoc} */
+        public double boundedToUnbounded(final double x) {
+<span class="fc" id="L296">            return unboundingFunction.value(x);</span>
+        }
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

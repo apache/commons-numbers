@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Vector1DFormat.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.euclidean.oned</a> &gt; <span class="el_source">Vector1DFormat.java</span></div><h1>Vector1DFormat.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.geometry.euclidean.oned;
+
+import java.text.FieldPosition;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+import java.util.Locale;
+
+import org.apache.commons.math3.exception.MathParseException;
+import org.apache.commons.math3.geometry.Vector;
+import org.apache.commons.math3.geometry.VectorFormat;
+import org.apache.commons.math3.util.CompositeFormat;
+
+/**
+ * Formats a 1D vector in components list format &quot;{x}&quot;.
+ * &lt;p&gt;The prefix and suffix &quot;{&quot; and &quot;}&quot; can be replaced by
+ * any user-defined strings. The number format for components can be configured.&lt;/p&gt;
+ * &lt;p&gt;White space is ignored at parse time, even if it is in the prefix, suffix
+ * or separator specifications. So even if the default separator does include a space
+ * character that is used at format time, both input string &quot;{1}&quot; and
+ * &quot; { 1 } &quot; will be parsed without error and the same vector will be
+ * returned. In the second case, however, the parse position after parsing will be
+ * just after the closing curly brace, i.e. just before the trailing space.&lt;/p&gt;
+ * &lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; using &quot;,&quot; as a separator may interfere with the grouping separator
+ * of the default {@link NumberFormat} for the current locale. Thus it is advised
+ * to use a {@link NumberFormat} instance with disabled grouping in such a case.&lt;/p&gt;
+ *
+ * @since 3.0
+ */
+public class Vector1DFormat extends VectorFormat&lt;Euclidean1D&gt; {
+
+    /**
+     * Create an instance with default settings.
+     * &lt;p&gt;The instance uses the default prefix, suffix and separator:
+     * &quot;{&quot;, &quot;}&quot;, and &quot;; &quot; and the default number format for components.&lt;/p&gt;
+     */
+    public Vector1DFormat() {
+<span class="fc" id="L54">        super(DEFAULT_PREFIX, DEFAULT_SUFFIX, DEFAULT_SEPARATOR,</span>
+              CompositeFormat.getDefaultNumberFormat());
+<span class="fc" id="L56">    }</span>
+
+    /**
+     * Create an instance with a custom number format for components.
+     * @param format the custom format for components.
+     */
+    public Vector1DFormat(final NumberFormat format) {
+<span class="fc" id="L63">        super(DEFAULT_PREFIX, DEFAULT_SUFFIX, DEFAULT_SEPARATOR, format);</span>
+<span class="fc" id="L64">    }</span>
+
+    /**
+     * Create an instance with custom prefix, suffix and separator.
+     * @param prefix prefix to use instead of the default &quot;{&quot;
+     * @param suffix suffix to use instead of the default &quot;}&quot;
+     */
+    public Vector1DFormat(final String prefix, final String suffix) {
+<span class="nc" id="L72">        super(prefix, suffix, DEFAULT_SEPARATOR, CompositeFormat.getDefaultNumberFormat());</span>
+<span class="nc" id="L73">    }</span>
+
+    /**
+     * Create an instance with custom prefix, suffix, separator and format
+     * for components.
+     * @param prefix prefix to use instead of the default &quot;{&quot;
+     * @param suffix suffix to use instead of the default &quot;}&quot;
+     * @param format the custom format for components.
+     */
+    public Vector1DFormat(final String prefix, final String suffix,
+                         final NumberFormat format) {
+<span class="fc" id="L84">        super(prefix, suffix, DEFAULT_SEPARATOR, format);</span>
+<span class="fc" id="L85">    }</span>
+
+    /**
+     * Returns the default 1D vector format for the current locale.
+     * @return the default 1D vector format.
+     */
+    public static Vector1DFormat getInstance() {
+<span class="fc" id="L92">        return getInstance(Locale.getDefault());</span>
+    }
+
+    /**
+     * Returns the default 1D vector format for the given locale.
+     * @param locale the specific locale used by the format.
+     * @return the 1D vector format specific to the given locale.
+     */
+    public static Vector1DFormat getInstance(final Locale locale) {
+<span class="fc" id="L101">        return new Vector1DFormat(CompositeFormat.getDefaultNumberFormat(locale));</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public StringBuffer format(final Vector&lt;Euclidean1D&gt; vector, final StringBuffer toAppendTo,
+                               final FieldPosition pos) {
+<span class="fc" id="L108">        final Vector1D p1 = (Vector1D) vector;</span>
+<span class="fc" id="L109">        return format(toAppendTo, pos, p1.getX());</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Vector1D parse(final String source) throws MathParseException {
+<span class="fc" id="L115">        ParsePosition parsePosition = new ParsePosition(0);</span>
+<span class="fc" id="L116">        Vector1D result = parse(source, parsePosition);</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">        if (parsePosition.getIndex() == 0) {</span>
+<span class="nc" id="L118">            throw new MathParseException(source,</span>
+                                         parsePosition.getErrorIndex(),
+                                         Vector1D.class);
+        }
+<span class="fc" id="L122">        return result;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Vector1D parse(final String source, final ParsePosition pos) {
+<span class="fc" id="L128">        final double[] coordinates = parseCoordinates(1, source, pos);</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        if (coordinates == null) {</span>
+<span class="fc" id="L130">            return null;</span>
+        }
+<span class="fc" id="L132">        return new Vector1D(coordinates[0]);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

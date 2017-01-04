@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ElitisticListPopulation.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.genetics</a> &gt; <span class="el_source">ElitisticListPopulation.java</span></div><h1>ElitisticListPopulation.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.genetics;
+
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.commons.math3.exception.NotPositiveException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * Population of chromosomes which uses elitism (certain percentage of the best
+ * chromosomes is directly copied to the next generation).
+ *
+ * @since 2.0
+ */
+public class ElitisticListPopulation extends ListPopulation {
+
+    /** percentage of chromosomes copied to the next generation */
+<span class="fc" id="L38">    private double elitismRate = 0.9;</span>
+
+    /**
+     * Creates a new {@link ElitisticListPopulation} instance.
+     *
+     * @param chromosomes list of chromosomes in the population
+     * @param populationLimit maximal size of the population
+     * @param elitismRate how many best chromosomes will be directly transferred to the next generation [in %]
+     * @throws NullArgumentException if the list of chromosomes is {@code null}
+     * @throws NotPositiveException if the population limit is not a positive number (&amp;lt; 1)
+     * @throws NumberIsTooLargeException if the list of chromosomes exceeds the population limit
+     * @throws OutOfRangeException if the elitism rate is outside the [0, 1] range
+     */
+    public ElitisticListPopulation(final List&lt;Chromosome&gt; chromosomes, final int populationLimit,
+                                   final double elitismRate)
+        throws NullArgumentException, NotPositiveException, NumberIsTooLargeException, OutOfRangeException {
+
+<span class="fc" id="L55">        super(chromosomes, populationLimit);</span>
+<span class="fc" id="L56">        setElitismRate(elitismRate);</span>
+<span class="fc" id="L57">    }</span>
+
+    /**
+     * Creates a new {@link ElitisticListPopulation} instance and initializes its inner chromosome list.
+     *
+     * @param populationLimit maximal size of the population
+     * @param elitismRate how many best chromosomes will be directly transferred to the next generation [in %]
+     * @throws NotPositiveException if the population limit is not a positive number (&amp;lt; 1)
+     * @throws OutOfRangeException if the elitism rate is outside the [0, 1] range
+     */
+    public ElitisticListPopulation(final int populationLimit, final double elitismRate)
+        throws NotPositiveException, OutOfRangeException {
+
+<span class="fc" id="L70">        super(populationLimit);</span>
+<span class="fc" id="L71">        setElitismRate(elitismRate);</span>
+<span class="fc" id="L72">    }</span>
+
+    /**
+     * Start the population for the next generation. The &lt;code&gt;{@link #elitismRate}&lt;/code&gt;
+     * percents of the best chromosomes are directly copied to the next generation.
+     *
+     * @return the beginnings of the next generation.
+     */
+    public Population nextGeneration() {
+        // initialize a new generation with the same parameters
+<span class="fc" id="L82">        ElitisticListPopulation nextGeneration =</span>
+                new ElitisticListPopulation(getPopulationLimit(), getElitismRate());
+
+<span class="fc" id="L85">        final List&lt;Chromosome&gt; oldChromosomes = getChromosomeList();</span>
+<span class="fc" id="L86">        Collections.sort(oldChromosomes);</span>
+
+        // index of the last &quot;not good enough&quot; chromosome
+<span class="fc" id="L89">        int boundIndex = (int) FastMath.ceil((1.0 - getElitismRate()) * oldChromosomes.size());</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        for (int i = boundIndex; i &lt; oldChromosomes.size(); i++) {</span>
+<span class="fc" id="L91">            nextGeneration.addChromosome(oldChromosomes.get(i));</span>
+        }
+<span class="fc" id="L93">        return nextGeneration;</span>
+    }
+
+    /**
+     * Sets the elitism rate, i.e. how many best chromosomes will be directly transferred to the next generation [in %].
+     *
+     * @param elitismRate how many best chromosomes will be directly transferred to the next generation [in %]
+     * @throws OutOfRangeException if the elitism rate is outside the [0, 1] range
+     */
+    public void setElitismRate(final double elitismRate) throws OutOfRangeException {
+<span class="fc bfc" id="L103" title="All 4 branches covered.">        if (elitismRate &lt; 0 || elitismRate &gt; 1) {</span>
+<span class="fc" id="L104">            throw new OutOfRangeException(LocalizedFormats.ELITISM_RATE, elitismRate, 0, 1);</span>
+        }
+<span class="fc" id="L106">        this.elitismRate = elitismRate;</span>
+<span class="fc" id="L107">    }</span>
+
+    /**
+     * Access the elitism rate.
+     * @return the elitism rate
+     */
+    public double getElitismRate() {
+<span class="fc" id="L114">        return this.elitismRate;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Combinations.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.util</a> &gt; <span class="el_source">Combinations.java</span></div><h1>Combinations.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.util;
+
+import java.util.Iterator;
+import java.util.Comparator;
+import java.util.Arrays;
+import java.util.NoSuchElementException;
+import java.io.Serializable;
+import org.apache.commons.math3.exception.MathInternalError;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+
+/**
+ * Utility to create &lt;a href=&quot;http://en.wikipedia.org/wiki/Combination&quot;&gt;
+ * combinations&lt;/a&gt; {@code (n, k)} of {@code k} elements in a set of
+ * {@code n} elements.
+ *
+ * @since 3.3
+ */
+public class Combinations implements Iterable&lt;int[]&gt; {
+    /** Size of the set from which combinations are drawn. */
+    private final int n;
+    /** Number of elements in each combination. */
+    private final int k;
+    /** Iteration order. */
+    private final IterationOrder iterationOrder;
+
+    /**
+     * Describes the type of iteration performed by the
+     * {@link #iterator() iterator}.
+     */
+<span class="pc" id="L47">    private enum IterationOrder {</span>
+        /** Lexicographic order. */
+<span class="fc" id="L49">        LEXICOGRAPHIC</span>
+    }
+
+   /**
+     * Creates an instance whose range is the k-element subsets of
+     * {0, ..., n - 1} represented as {@code int[]} arrays.
+     * &lt;p&gt;
+     * The iteration order is lexicographic: the arrays returned by the
+     * {@link #iterator() iterator} are sorted in descending order and
+     * they are visited in lexicographic order with significance from
+     * right to left.
+     * For example, {@code new Combinations(4, 2).iterator()} returns
+     * an iterator that will generate the following sequence of arrays
+     * on successive calls to
+     * {@code next()}:&lt;br/&gt;
+     * {@code [0, 1], [0, 2], [1, 2], [0, 3], [1, 3], [2, 3]}
+     * &lt;/p&gt;
+     * If {@code k == 0} an iterator containing an empty array is returned;
+     * if {@code k == n} an iterator containing [0, ..., n - 1] is returned.
+     *
+     * @param n Size of the set from which subsets are selected.
+     * @param k Size of the subsets to be enumerated.
+     * @throws org.apache.commons.math3.exception.NotPositiveException if {@code n &lt; 0}.
+     * @throws org.apache.commons.math3.exception.NumberIsTooLargeException if {@code k &gt; n}.
+     */
+    public Combinations(int n,
+                        int k) {
+<span class="fc" id="L76">        this(n, k, IterationOrder.LEXICOGRAPHIC);</span>
+<span class="fc" id="L77">    }</span>
+
+    /**
+     * Creates an instance whose range is the k-element subsets of
+     * {0, ..., n - 1} represented as {@code int[]} arrays.
+     * &lt;p&gt;
+     * If the {@code iterationOrder} argument is set to
+     * {@link IterationOrder#LEXICOGRAPHIC}, the arrays returned by the
+     * {@link #iterator() iterator} are sorted in descending order and
+     * they are visited in lexicographic order with significance from
+     * right to left.
+     * For example, {@code new Combinations(4, 2).iterator()} returns
+     * an iterator that will generate the following sequence of arrays
+     * on successive calls to
+     * {@code next()}:&lt;br/&gt;
+     * {@code [0, 1], [0, 2], [1, 2], [0, 3], [1, 3], [2, 3]}
+     * &lt;/p&gt;
+     * If {@code k == 0} an iterator containing an empty array is returned;
+     * if {@code k == n} an iterator containing [0, ..., n - 1] is returned.
+     *
+     * @param n Size of the set from which subsets are selected.
+     * @param k Size of the subsets to be enumerated.
+     * @param iterationOrder Specifies the {@link #iterator() iteration order}.
+     * @throws org.apache.commons.math3.exception.NotPositiveException if {@code n &lt; 0}.
+     * @throws org.apache.commons.math3.exception.NumberIsTooLargeException if {@code k &gt; n}.
+     */
+    private Combinations(int n,
+                         int k,
+<span class="fc" id="L105">                         IterationOrder iterationOrder) {</span>
+<span class="fc" id="L106">        CombinatoricsUtils.checkBinomial(n, k);</span>
+<span class="fc" id="L107">        this.n = n;</span>
+<span class="fc" id="L108">        this.k = k;</span>
+<span class="fc" id="L109">        this.iterationOrder = iterationOrder;</span>
+<span class="fc" id="L110">    }</span>
+
+    /**
+     * Gets the size of the set from which combinations are drawn.
+     *
+     * @return the size of the universe.
+     */
+    public int getN() {
+<span class="fc" id="L118">        return n;</span>
+    }
+
+    /**
+     * Gets the number of elements in each combination.
+     *
+     * @return the size of the subsets to be enumerated.
+     */
+    public int getK() {
+<span class="fc" id="L127">        return k;</span>
+    }
+
+    /** {@inheritDoc} */
+    public Iterator&lt;int[]&gt; iterator() {
+<span class="fc bfc" id="L132" title="All 4 branches covered.">        if (k == 0 ||</span>
+            k == n) {
+<span class="fc" id="L134">            return new SingletonIterator(MathArrays.natural(k));</span>
+        }
+
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">        switch (iterationOrder) {</span>
+        case LEXICOGRAPHIC:
+<span class="fc" id="L139">            return new LexicographicIterator(n, k);</span>
+        default:
+<span class="nc" id="L141">            throw new MathInternalError(); // Should never happen.</span>
+        }
+    }
+
+    /**
+     * Defines a lexicographic ordering of combinations.
+     * The returned comparator allows to compare any two combinations
+     * that can be produced by this instance's {@link #iterator() iterator}.
+     * Its {@code compare(int[],int[])} method will throw exceptions if
+     * passed combinations that are inconsistent with this instance:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@code DimensionMismatchException} if the array lengths are not
+     *      equal to {@code k},&lt;/li&gt;
+     *  &lt;li&gt;{@code OutOfRangeException} if an element of the array is not
+     *      within the interval [0, {@code n}).&lt;/li&gt;
+     * &lt;/ul&gt;
+     * @return a lexicographic comparator.
+     */
+    public Comparator&lt;int[]&gt; comparator() {
+<span class="fc" id="L160">        return new LexicographicComparator(n, k);</span>
+    }
+
+    /**
+     * Lexicographic combinations iterator.
+     * &lt;p&gt;
+     * Implementation follows Algorithm T in &lt;i&gt;The Art of Computer Programming&lt;/i&gt;
+     * Internet Draft (PRE-FASCICLE 3A), &quot;A Draft of Section 7.2.1.3 Generating All
+     * Combinations&lt;/a&gt;, D. Knuth, 2004.&lt;/p&gt;
+     * &lt;p&gt;
+     * The degenerate cases {@code k == 0} and {@code k == n} are NOT handled by this
+     * implementation.  If constructor arguments satisfy {@code k == 0}
+     * or {@code k &gt;= n}, no exception is generated, but the iterator is empty.
+     * &lt;/p&gt;
+     *
+     */
+    private static class LexicographicIterator implements Iterator&lt;int[]&gt; {
+        /** Size of subsets returned by the iterator */
+        private final int k;
+
+        /**
+         * c[1], ..., c[k] stores the next combination; c[k + 1], c[k + 2] are
+         * sentinels.
+         * &lt;p&gt;
+         * Note that c[0] is &quot;wasted&quot; but this makes it a little easier to
+         * follow the code.
+         * &lt;/p&gt;
+         */
+        private final int[] c;
+
+        /** Return value for {@link #hasNext()} */
+<span class="fc" id="L191">        private boolean more = true;</span>
+
+        /** Marker: smallest index such that c[j + 1] &gt; j */
+        private int j;
+
+        /**
+         * Construct a CombinationIterator to enumerate k-sets from n.
+         * &lt;p&gt;
+         * NOTE: If {@code k === 0} or {@code k &gt;= n}, the Iterator will be empty
+         * (that is, {@link #hasNext()} will return {@code false} immediately.
+         * &lt;/p&gt;
+         *
+         * @param n size of the set from which subsets are enumerated
+         * @param k size of the subsets to enumerate
+         */
+<span class="fc" id="L206">        LexicographicIterator(int n, int k) {</span>
+<span class="fc" id="L207">            this.k = k;</span>
+<span class="fc" id="L208">            c = new int[k + 3];</span>
+<span class="pc bpc" id="L209" title="2 of 4 branches missed.">            if (k == 0 || k &gt;= n) {</span>
+<span class="nc" id="L210">                more = false;</span>
+<span class="nc" id="L211">                return;</span>
+            }
+            // Initialize c to start with lexicographically first k-set
+<span class="fc bfc" id="L214" title="All 2 branches covered.">            for (int i = 1; i &lt;= k; i++) {</span>
+<span class="fc" id="L215">                c[i] = i - 1;</span>
+            }
+            // Initialize sentinels
+<span class="fc" id="L218">            c[k + 1] = n;</span>
+<span class="fc" id="L219">            c[k + 2] = 0;</span>
+<span class="fc" id="L220">            j = k; // Set up invariant: j is smallest index such that c[j + 1] &gt; j</span>
+<span class="fc" id="L221">        }</span>
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean hasNext() {
+<span class="fc" id="L227">            return more;</span>
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public int[] next() {
+<span class="pc bpc" id="L234" title="1 of 2 branches missed.">            if (!more) {</span>
+<span class="nc" id="L235">                throw new NoSuchElementException();</span>
+            }
+            // Copy return value (prepared by last activation)
+<span class="fc" id="L238">            final int[] ret = new int[k];</span>
+<span class="fc" id="L239">            System.arraycopy(c, 1, ret, 0, k);</span>
+
+            // Prepare next iteration
+            // T2 and T6 loop
+<span class="fc" id="L243">            int x = 0;</span>
+<span class="fc bfc" id="L244" title="All 2 branches covered.">            if (j &gt; 0) {</span>
+<span class="fc" id="L245">                x = j;</span>
+<span class="fc" id="L246">                c[j] = x;</span>
+<span class="fc" id="L247">                j--;</span>
+<span class="fc" id="L248">                return ret;</span>
+            }
+            // T3
+<span class="fc bfc" id="L251" title="All 2 branches covered.">            if (c[1] + 1 &lt; c[2]) {</span>
+<span class="fc" id="L252">                c[1]++;</span>
+<span class="fc" id="L253">                return ret;</span>
+            } else {
+<span class="fc" id="L255">                j = 2;</span>
+            }
+            // T4
+<span class="fc" id="L258">            boolean stepDone = false;</span>
+<span class="fc bfc" id="L259" title="All 2 branches covered.">            while (!stepDone) {</span>
+<span class="fc" id="L260">                c[j - 1] = j - 2;</span>
+<span class="fc" id="L261">                x = c[j] + 1;</span>
+<span class="fc bfc" id="L262" title="All 2 branches covered.">                if (x == c[j + 1]) {</span>
+<span class="fc" id="L263">                    j++;</span>
+                } else {
+<span class="fc" id="L265">                    stepDone = true;</span>
+                }
+            }
+            // T5
+<span class="fc bfc" id="L269" title="All 2 branches covered.">            if (j &gt; k) {</span>
+<span class="fc" id="L270">                more = false;</span>
+<span class="fc" id="L271">                return ret;</span>
+            }
+            // T6
+<span class="fc" id="L274">            c[j] = x;</span>
+<span class="fc" id="L275">            j--;</span>
+<span class="fc" id="L276">            return ret;</span>
+        }
+
+        /**
+         * Not supported.
+         */
+        public void remove() {
+<span class="nc" id="L283">            throw new UnsupportedOperationException();</span>
+        }
+    }
+
+    /**
+     * Iterator with just one element to handle degenerate cases (full array,
+     * empty array) for combination iterator.
+     */
+    private static class SingletonIterator implements Iterator&lt;int[]&gt; {
+        /** Singleton array */
+        private final int[] singleton;
+        /** True on initialization, false after first call to next */
+<span class="fc" id="L295">        private boolean more = true;</span>
+        /**
+         * Create a singleton iterator providing the given array.
+         * @param singleton array returned by the iterator
+         */
+<span class="fc" id="L300">        SingletonIterator(final int[] singleton) {</span>
+<span class="fc" id="L301">            this.singleton = singleton;</span>
+<span class="fc" id="L302">        }</span>
+        /** @return True until next is called the first time, then false */
+        public boolean hasNext() {
+<span class="fc" id="L305">            return more;</span>
+        }
+        /** @return the singleton in first activation; throws NSEE thereafter */
+        public int[] next() {
+<span class="pc bpc" id="L309" title="1 of 2 branches missed.">            if (more) {</span>
+<span class="fc" id="L310">                more = false;</span>
+<span class="fc" id="L311">                return singleton;</span>
+            } else {
+<span class="nc" id="L313">                throw new NoSuchElementException();</span>
+            }
+        }
+        /** Not supported */
+        public void remove() {
+<span class="nc" id="L318">            throw new UnsupportedOperationException();</span>
+        }
+    }
+
+    /**
+     * Defines the lexicographic ordering of combinations, using
+     * the {@link #lexNorm(int[])} method.
+     */
+    private static class LexicographicComparator
+        implements Comparator&lt;int[]&gt;, Serializable {
+        /** Serializable version identifier. */
+        private static final long serialVersionUID = 20130906L;
+        /** Size of the set from which combinations are drawn. */
+        private final int n;
+        /** Number of elements in each combination. */
+        private final int k;
+
+        /**
+         * @param n Size of the set from which subsets are selected.
+         * @param k Size of the subsets to be enumerated.
+         */
+<span class="fc" id="L339">        LexicographicComparator(int n, int k) {</span>
+<span class="fc" id="L340">            this.n = n;</span>
+<span class="fc" id="L341">            this.k = k;</span>
+<span class="fc" id="L342">        }</span>
+
+        /**
+         * {@inheritDoc}
+         *
+         * @throws DimensionMismatchException if the array lengths are not
+         * equal to {@code k}.
+         * @throws OutOfRangeException if an element of the array is not
+         * within the interval [0, {@code n}).
+         */
+        public int compare(int[] c1,
+                           int[] c2) {
+<span class="fc bfc" id="L354" title="All 2 branches covered.">            if (c1.length != k) {</span>
+<span class="fc" id="L355">                throw new DimensionMismatchException(c1.length, k);</span>
+            }
+<span class="fc bfc" id="L357" title="All 2 branches covered.">            if (c2.length != k) {</span>
+<span class="fc" id="L358">                throw new DimensionMismatchException(c2.length, k);</span>
+            }
+
+            // Method &quot;lexNorm&quot; works with ordered arrays.
+<span class="fc" id="L362">            final int[] c1s = MathArrays.copyOf(c1);</span>
+<span class="fc" id="L363">            Arrays.sort(c1s);</span>
+<span class="fc" id="L364">            final int[] c2s = MathArrays.copyOf(c2);</span>
+<span class="fc" id="L365">            Arrays.sort(c2s);</span>
+
+<span class="fc" id="L367">            final long v1 = lexNorm(c1s);</span>
+<span class="fc" id="L368">            final long v2 = lexNorm(c2s);</span>
+
+<span class="fc bfc" id="L370" title="All 2 branches covered.">            if (v1 &lt; v2) {</span>
+<span class="fc" id="L371">                return -1;</span>
+<span class="fc bfc" id="L372" title="All 2 branches covered.">            } else if (v1 &gt; v2) {</span>
+<span class="fc" id="L373">                return 1;</span>
+            } else {
+<span class="fc" id="L375">                return 0;</span>
+            }
+        }
+
+        /**
+         * Computes the value (in base 10) represented by the digit
+         * (interpreted in base {@code n}) in the input array in reverse
+         * order.
+         * For example if {@code c} is {@code {3, 2, 1}}, and {@code n}
+         * is 3, the method will return 18.
+         *
+         * @param c Input array.
+         * @return the lexicographic norm.
+         * @throws OutOfRangeException if an element of the array is not
+         * within the interval [0, {@code n}).
+         */
+        private long lexNorm(int[] c) {
+<span class="fc" id="L392">            long ret = 0;</span>
+<span class="fc bfc" id="L393" title="All 2 branches covered.">            for (int i = 0; i &lt; c.length; i++) {</span>
+<span class="fc" id="L394">                final int digit = c[i];</span>
+<span class="fc bfc" id="L395" title="All 4 branches covered.">                if (digit &lt; 0 ||</span>
+                    digit &gt;= n) {
+<span class="fc" id="L397">                    throw new OutOfRangeException(digit, 0, n - 1);</span>
+                }
+
+<span class="fc" id="L400">                ret += c[i] * ArithmeticUtils.pow(n, i);</span>
+            }
+<span class="fc" id="L402">            return ret;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

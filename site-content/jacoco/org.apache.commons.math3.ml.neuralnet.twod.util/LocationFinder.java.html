@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LocationFinder.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ml.neuralnet.twod.util</a> &gt; <span class="el_source">LocationFinder.java</span></div><h1>LocationFinder.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ml.neuralnet.twod.util;
+
+import java.util.Map;
+import java.util.HashMap;
+import org.apache.commons.math3.ml.neuralnet.Neuron;
+import org.apache.commons.math3.ml.neuralnet.twod.NeuronSquareMesh2D;
+import org.apache.commons.math3.exception.MathIllegalStateException;
+
+/**
+ * Helper class to find the grid coordinates of a neuron.
+ * @since 3.6
+ */
+public class LocationFinder {
+    /** Identifier to location mapping. */
+<span class="fc" id="L32">    private final Map&lt;Long, Location&gt; locations = new HashMap&lt;Long, Location&gt;();</span>
+
+    /**
+     * Container holding a (row, column) pair.
+     */
+    public static class Location {
+        /** Row index. */
+        private final int row;
+        /** Column index. */
+        private final int column;
+
+        /**
+         * @param row Row index.
+         * @param column Column index.
+         */
+        public Location(int row,
+<span class="fc" id="L48">                        int column) {</span>
+<span class="fc" id="L49">            this.row = row;</span>
+<span class="fc" id="L50">            this.column = column;</span>
+<span class="fc" id="L51">        }</span>
+
+        /**
+         * @return the row index.
+         */
+        public int getRow() {
+<span class="fc" id="L57">            return row;</span>
+        }
+
+        /**
+         * @return the column index.
+         */
+        public int getColumn() {
+<span class="fc" id="L64">            return column;</span>
+        }
+    }
+
+    /**
+     * Builds a finder to retrieve the locations of neurons that
+     * belong to the given {@code map}.
+     *
+     * @param map Map.
+     *
+     * @throws MathIllegalStateException if the network contains non-unique
+     * identifiers.  This indicates an inconsistent state due to a bug in
+     * the construction code of the underlying
+     * {@link org.apache.commons.math3.ml.neuralnet.Network network}.
+     */
+<span class="fc" id="L79">    public LocationFinder(NeuronSquareMesh2D map) {</span>
+<span class="fc" id="L80">        final int nR = map.getNumberOfRows();</span>
+<span class="fc" id="L81">        final int nC = map.getNumberOfColumns();</span>
+
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        for (int r = 0; r &lt; nR; r++) {</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">            for (int c = 0; c &lt; nC; c++) {</span>
+<span class="fc" id="L85">                final Long id = map.getNeuron(r, c).getIdentifier();</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">                if (locations.get(id) != null) {</span>
+<span class="nc" id="L87">                    throw new MathIllegalStateException();</span>
+                }
+<span class="fc" id="L89">                locations.put(id, new Location(r, c));</span>
+            }
+        }
+<span class="fc" id="L92">    }</span>
+
+    /**
+     * Retrieves a neuron's grid coordinates.
+     *
+     * @param n Neuron.
+     * @return the (row, column) coordinates of {@code n}, or {@code null}
+     * if no such neuron belongs to the {@link #LocationFinder(NeuronSquareMesh2D)
+     * map used to build this instance}.
+     */
+    public Location getLocation(Neuron n) {
+<span class="fc" id="L103">        return locations.get(n.getIdentifier());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

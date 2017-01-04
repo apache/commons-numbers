@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>NonPositiveDefiniteMatrixException.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.linear</a> &gt; <span class="el_source">NonPositiveDefiniteMatrixException.java</span></div><h1>NonPositiveDefiniteMatrixException.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.linear;
+
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.exception.util.ExceptionContext;
+
+/**
+ * Exception to be thrown when a positive definite matrix is expected.
+ *
+ * @since 3.0
+ */
+public class NonPositiveDefiniteMatrixException extends NumberIsTooSmallException {
+    /** Serializable version Id. */
+    private static final long serialVersionUID = 1641613838113738061L;
+    /** Index (diagonal element). */
+    private final int index;
+    /** Threshold. */
+    private final double threshold;
+
+    /**
+     * Construct an exception.
+     *
+     * @param wrong Value that fails the positivity check.
+     * @param index Row (and column) index.
+     * @param threshold Absolute positivity threshold.
+     */
+    public NonPositiveDefiniteMatrixException(double wrong,
+                                              int index,
+                                              double threshold) {
+<span class="fc" id="L46">        super(wrong, threshold, false);</span>
+<span class="fc" id="L47">        this.index = index;</span>
+<span class="fc" id="L48">        this.threshold = threshold;</span>
+
+<span class="fc" id="L50">        final ExceptionContext context = getContext();</span>
+<span class="fc" id="L51">        context.addMessage(LocalizedFormats.NOT_POSITIVE_DEFINITE_MATRIX);</span>
+<span class="fc" id="L52">        context.addMessage(LocalizedFormats.ARRAY_ELEMENT, wrong, index);</span>
+<span class="fc" id="L53">    }</span>
+
+    /**
+     * @return the row index.
+     */
+    public int getRow() {
+<span class="nc" id="L59">        return index;</span>
+    }
+    /**
+     * @return the column index.
+     */
+    public int getColumn() {
+<span class="nc" id="L65">        return index;</span>
+    }
+    /**
+     * @return the absolute positivity threshold.
+     */
+    public double getThreshold() {
+<span class="nc" id="L71">        return threshold;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

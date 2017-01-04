@@ -1,0 +1,635 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AVLTree.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.partitioning.utilities</a> &gt; <span class="el_source">AVLTree.java</span></div><h1>AVLTree.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.partitioning.utilities;
+
+/** This class implements AVL trees.
+ *
+ * &lt;p&gt;The purpose of this class is to sort elements while allowing
+ * duplicate elements (i.e. such that {@code a.equals(b)} is
+ * true). The {@code SortedSet} interface does not allow this, so
+ * a specific class is needed. Null elements are not allowed.&lt;/p&gt;
+ *
+ * &lt;p&gt;Since the {@code equals} method is not sufficient to
+ * differentiate elements, the {@link #delete delete} method is
+ * implemented using the equality operator.&lt;/p&gt;
+ *
+ * &lt;p&gt;In order to clearly mark the methods provided here do not have
+ * the same semantics as the ones specified in the
+ * {@code SortedSet} interface, different names are used
+ * ({@code add} has been replaced by {@link #insert insert} and
+ * {@code remove} has been replaced by {@link #delete
+ * delete}).&lt;/p&gt;
+ *
+ * &lt;p&gt;This class is based on the C implementation Georg Kraml has put
+ * in the public domain. Unfortunately, his &lt;a
+ * href=&quot;www.purists.org/georg/avltree/index.html&quot;&gt;page&lt;/a&gt; seems not
+ * to exist any more.&lt;/p&gt;
+ *
+ * @param &lt;T&gt; the type of the elements
+ *
+ * @since 3.0
+ * @deprecated as of 3.4, this class is not used anymore and considered
+ * to be out of scope of Apache Commons Math
+ */
+@Deprecated
+public class AVLTree&lt;T extends Comparable&lt;T&gt;&gt; {
+
+    /** Top level node. */
+    private Node top;
+
+    /** Build an empty tree.
+     */
+<span class="fc" id="L56">    public AVLTree() {</span>
+<span class="fc" id="L57">        top = null;</span>
+<span class="fc" id="L58">    }</span>
+
+    /** Insert an element in the tree.
+     * @param element element to insert (silently ignored if null)
+     */
+    public void insert(final T element) {
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (element != null) {</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">            if (top == null) {</span>
+<span class="fc" id="L66">                top = new Node(element, null);</span>
+            } else {
+<span class="fc" id="L68">                top.insert(element);</span>
+            }
+        }
+<span class="fc" id="L71">    }</span>
+
+    /** Delete an element from the tree.
+     * &lt;p&gt;The element is deleted only if there is a node {@code n}
+     * containing exactly the element instance specified, i.e. for which
+     * {@code n.getElement() == element}. This is purposely
+     * &lt;em&gt;different&lt;/em&gt; from the specification of the
+     * {@code java.util.Set} {@code remove} method (in fact,
+     * this is the reason why a specific class has been developed).&lt;/p&gt;
+     * @param element element to delete (silently ignored if null)
+     * @return true if the element was deleted from the tree
+     */
+    public boolean delete(final T element) {
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        if (element != null) {</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">            for (Node node = getNotSmaller(element); node != null; node = node.getNext()) {</span>
+                // loop over all elements neither smaller nor larger
+                // than the specified one
+<span class="fc bfc" id="L88" title="All 2 branches covered.">                if (node.element == element) {</span>
+<span class="fc" id="L89">                    node.delete();</span>
+<span class="fc" id="L90">                    return true;</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">                } else if (node.element.compareTo(element) &gt; 0) {</span>
+                    // all the remaining elements are known to be larger,
+                    // the element is not in the tree
+<span class="fc" id="L94">                    return false;</span>
+                }
+            }
+        }
+<span class="nc" id="L98">        return false;</span>
+    }
+
+    /** Check if the tree is empty.
+     * @return true if the tree is empty
+     */
+    public boolean isEmpty() {
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        return top == null;</span>
+    }
+
+
+    /** Get the number of elements of the tree.
+     * @return number of elements contained in the tree
+     */
+    public int size() {
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        return (top == null) ? 0 : top.size();</span>
+    }
+
+    /** Get the node whose element is the smallest one in the tree.
+     * @return the tree node containing the smallest element in the tree
+     * or null if the tree is empty
+     * @see #getLargest
+     * @see #getNotSmaller
+     * @see #getNotLarger
+     * @see Node#getPrevious
+     * @see Node#getNext
+     */
+    public Node getSmallest() {
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        return (top == null) ? null : top.getSmallest();</span>
+    }
+
+    /** Get the node whose element is the largest one in the tree.
+     * @return the tree node containing the largest element in the tree
+     * or null if the tree is empty
+     * @see #getSmallest
+     * @see #getNotSmaller
+     * @see #getNotLarger
+     * @see Node#getPrevious
+     * @see Node#getNext
+     */
+    public Node getLargest() {
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">        return (top == null) ? null : top.getLargest();</span>
+    }
+
+    /** Get the node whose element is not smaller than the reference object.
+     * @param reference reference object (may not be in the tree)
+     * @return the tree node containing the smallest element not smaller
+     * than the reference object or null if either the tree is empty or
+     * all its elements are smaller than the reference object
+     * @see #getSmallest
+     * @see #getLargest
+     * @see #getNotLarger
+     * @see Node#getPrevious
+     * @see Node#getNext
+     */
+    public Node getNotSmaller(final T reference) {
+<span class="fc" id="L154">        Node candidate = null;</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">        for (Node node = top; node != null;) {</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">            if (node.element.compareTo(reference) &lt; 0) {</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">                if (node.right == null) {</span>
+<span class="fc" id="L158">                    return candidate;</span>
+                }
+<span class="fc" id="L160">                node = node.right;</span>
+            } else {
+<span class="fc" id="L162">                candidate = node;</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">                if (node.left == null) {</span>
+<span class="fc" id="L164">                    return candidate;</span>
+                }
+<span class="fc" id="L166">                node = node.left;</span>
+            }
+        }
+<span class="nc" id="L169">        return null;</span>
+    }
+
+    /** Get the node whose element is not larger than the reference object.
+     * @param reference reference object (may not be in the tree)
+     * @return the tree node containing the largest element not larger
+     * than the reference object (in which case the node is guaranteed
+     * not to be empty) or null if either the tree is empty or all its
+     * elements are larger than the reference object
+     * @see #getSmallest
+     * @see #getLargest
+     * @see #getNotSmaller
+     * @see Node#getPrevious
+     * @see Node#getNext
+     */
+    public Node getNotLarger(final T reference) {
+<span class="fc" id="L185">        Node candidate = null;</span>
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">        for (Node node = top; node != null;) {</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">            if (node.element.compareTo(reference) &gt; 0) {</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">                if (node.left == null) {</span>
+<span class="fc" id="L189">                    return candidate;</span>
+                }
+<span class="fc" id="L191">                node = node.left;</span>
+            } else {
+<span class="fc" id="L193">                candidate = node;</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">                if (node.right == null) {</span>
+<span class="fc" id="L195">                    return candidate;</span>
+                }
+<span class="fc" id="L197">                node = node.right;</span>
+            }
+        }
+<span class="nc" id="L200">        return null;</span>
+    }
+
+    /** Enum for tree skew factor. */
+<span class="pc" id="L204">    private enum Skew {</span>
+        /** Code for left high trees. */
+<span class="fc" id="L206">        LEFT_HIGH,</span>
+
+        /** Code for right high trees. */
+<span class="fc" id="L209">        RIGHT_HIGH,</span>
+
+        /** Code for Skew.BALANCED trees. */
+<span class="fc" id="L212">        BALANCED;</span>
+    }
+
+    /** This class implements AVL trees nodes.
+     * &lt;p&gt;AVL tree nodes implement all the logical structure of the
+     * tree. Nodes are created by the {@link AVLTree AVLTree} class.&lt;/p&gt;
+     * &lt;p&gt;The nodes are not independant from each other but must obey
+     * specific balancing constraints and the tree structure is
+     * rearranged as elements are inserted or deleted from the tree. The
+     * creation, modification and tree-related navigation methods have
+     * therefore restricted access. Only the order-related navigation,
+     * reading and delete methods are public.&lt;/p&gt;
+     * @see AVLTree
+     */
+    public class Node {
+
+        /** Element contained in the current node. */
+        private T element;
+
+        /** Left sub-tree. */
+        private Node left;
+
+        /** Right sub-tree. */
+        private Node right;
+
+        /** Parent tree. */
+        private Node parent;
+
+        /** Skew factor. */
+        private Skew skew;
+
+        /** Build a node for a specified element.
+         * @param element element
+         * @param parent parent node
+         */
+<span class="fc" id="L247">        Node(final T element, final Node parent) {</span>
+<span class="fc" id="L248">            this.element = element;</span>
+<span class="fc" id="L249">            left         = null;</span>
+<span class="fc" id="L250">            right        = null;</span>
+<span class="fc" id="L251">            this.parent  = parent;</span>
+<span class="fc" id="L252">            skew         = Skew.BALANCED;</span>
+<span class="fc" id="L253">        }</span>
+
+        /** Get the contained element.
+         * @return element contained in the node
+         */
+        public T getElement() {
+<span class="fc" id="L259">            return element;</span>
+        }
+
+        /** Get the number of elements of the tree rooted at this node.
+         * @return number of elements contained in the tree rooted at this node
+         */
+        int size() {
+<span class="fc bfc" id="L266" title="All 4 branches covered.">            return 1 + ((left  == null) ? 0 : left.size()) + ((right == null) ? 0 : right.size());</span>
+        }
+
+        /** Get the node whose element is the smallest one in the tree
+         * rooted at this node.
+         * @return the tree node containing the smallest element in the
+         * tree rooted at this node or null if the tree is empty
+         * @see #getLargest
+         */
+        Node getSmallest() {
+<span class="fc" id="L276">            Node node = this;</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">            while (node.left != null) {</span>
+<span class="fc" id="L278">                node = node.left;</span>
+            }
+<span class="fc" id="L280">            return node;</span>
+        }
+
+        /** Get the node whose element is the largest one in the tree
+         * rooted at this node.
+         * @return the tree node containing the largest element in the
+         * tree rooted at this node or null if the tree is empty
+         * @see #getSmallest
+         */
+        Node getLargest() {
+<span class="fc" id="L290">            Node node = this;</span>
+<span class="fc bfc" id="L291" title="All 2 branches covered.">            while (node.right != null) {</span>
+<span class="fc" id="L292">                node = node.right;</span>
+            }
+<span class="fc" id="L294">            return node;</span>
+        }
+
+        /** Get the node containing the next smaller or equal element.
+         * @return node containing the next smaller or equal element or
+         * null if there is no smaller or equal element in the tree
+         * @see #getNext
+         */
+        public Node getPrevious() {
+
+<span class="fc bfc" id="L304" title="All 2 branches covered.">            if (left != null) {</span>
+<span class="fc" id="L305">                final Node node = left.getLargest();</span>
+<span class="pc bpc" id="L306" title="1 of 2 branches missed.">                if (node != null) {</span>
+<span class="fc" id="L307">                    return node;</span>
+                }
+            }
+
+<span class="fc bfc" id="L311" title="All 2 branches covered.">            for (Node node = this; node.parent != null; node = node.parent) {</span>
+<span class="fc bfc" id="L312" title="All 2 branches covered.">                if (node != node.parent.left) {</span>
+<span class="fc" id="L313">                    return node.parent;</span>
+                }
+            }
+
+<span class="fc" id="L317">            return null;</span>
+
+        }
+
+        /** Get the node containing the next larger or equal element.
+         * @return node containing the next larger or equal element (in
+         * which case the node is guaranteed not to be empty) or null if
+         * there is no larger or equal element in the tree
+         * @see #getPrevious
+         */
+        public Node getNext() {
+
+<span class="fc bfc" id="L329" title="All 2 branches covered.">            if (right != null) {</span>
+<span class="fc" id="L330">                final Node node = right.getSmallest();</span>
+<span class="pc bpc" id="L331" title="1 of 2 branches missed.">                if (node != null) {</span>
+<span class="fc" id="L332">                    return node;</span>
+                }
+            }
+
+<span class="fc bfc" id="L336" title="All 2 branches covered.">            for (Node node = this; node.parent != null; node = node.parent) {</span>
+<span class="fc bfc" id="L337" title="All 2 branches covered.">                if (node != node.parent.right) {</span>
+<span class="fc" id="L338">                    return node.parent;</span>
+                }
+            }
+
+<span class="fc" id="L342">            return null;</span>
+
+        }
+
+        /** Insert an element in a sub-tree.
+         * @param newElement element to insert
+         * @return true if the parent tree should be re-Skew.BALANCED
+         */
+        boolean insert(final T newElement) {
+<span class="fc bfc" id="L351" title="All 2 branches covered.">            if (newElement.compareTo(this.element) &lt; 0) {</span>
+                // the inserted element is smaller than the node
+<span class="fc bfc" id="L353" title="All 2 branches covered.">                if (left == null) {</span>
+<span class="fc" id="L354">                    left = new Node(newElement, this);</span>
+<span class="fc" id="L355">                    return rebalanceLeftGrown();</span>
+                }
+<span class="fc bfc" id="L357" title="All 2 branches covered.">                return left.insert(newElement) ? rebalanceLeftGrown() : false;</span>
+            }
+
+            // the inserted element is equal to or greater than the node
+<span class="fc bfc" id="L361" title="All 2 branches covered.">            if (right == null) {</span>
+<span class="fc" id="L362">                right = new Node(newElement, this);</span>
+<span class="fc" id="L363">                return rebalanceRightGrown();</span>
+            }
+<span class="fc bfc" id="L365" title="All 2 branches covered.">            return right.insert(newElement) ? rebalanceRightGrown() : false;</span>
+
+        }
+
+        /** Delete the node from the tree.
+         */
+        public void delete() {
+<span class="pc bpc" id="L372" title="1 of 6 branches missed.">            if ((parent == null) &amp;&amp; (left == null) &amp;&amp; (right == null)) {</span>
+                // this was the last node, the tree is now empty
+<span class="fc" id="L374">                element = null;</span>
+<span class="fc" id="L375">                top     = null;</span>
+            } else {
+
+                Node node;
+                Node child;
+                boolean leftShrunk;
+<span class="fc bfc" id="L381" title="All 4 branches covered.">                if ((left == null) &amp;&amp; (right == null)) {</span>
+<span class="fc" id="L382">                    node       = this;</span>
+<span class="fc" id="L383">                    element    = null;</span>
+<span class="fc bfc" id="L384" title="All 2 branches covered.">                    leftShrunk = node == node.parent.left;</span>
+<span class="fc" id="L385">                    child      = null;</span>
+                } else {
+<span class="fc bfc" id="L387" title="All 2 branches covered.">                    node       = (left != null) ? left.getLargest() : right.getSmallest();</span>
+<span class="fc" id="L388">                    element    = node.element;</span>
+<span class="fc bfc" id="L389" title="All 2 branches covered.">                    leftShrunk = node == node.parent.left;</span>
+<span class="fc bfc" id="L390" title="All 2 branches covered.">                    child      = (node.left != null) ? node.left : node.right;</span>
+                }
+
+<span class="fc" id="L393">                node = node.parent;</span>
+<span class="fc bfc" id="L394" title="All 2 branches covered.">                if (leftShrunk) {</span>
+<span class="fc" id="L395">                    node.left = child;</span>
+                } else {
+<span class="fc" id="L397">                    node.right = child;</span>
+                }
+<span class="fc bfc" id="L399" title="All 2 branches covered.">                if (child != null) {</span>
+<span class="fc" id="L400">                    child.parent = node;</span>
+                }
+
+<span class="fc bfc" id="L403" title="All 6 branches covered.">                while (leftShrunk ? node.rebalanceLeftShrunk() : node.rebalanceRightShrunk()) {</span>
+<span class="fc bfc" id="L404" title="All 2 branches covered.">                    if (node.parent == null) {</span>
+<span class="fc" id="L405">                        return;</span>
+                    }
+<span class="fc bfc" id="L407" title="All 2 branches covered.">                    leftShrunk = node == node.parent.left;</span>
+<span class="fc" id="L408">                    node = node.parent;</span>
+                }
+
+            }
+<span class="fc" id="L412">        }</span>
+
+        /** Re-balance the instance as left sub-tree has grown.
+         * @return true if the parent tree should be reSkew.BALANCED too
+         */
+        private boolean rebalanceLeftGrown() {
+<span class="fc bfc" id="L418" title="All 3 branches covered.">            switch (skew) {</span>
+            case LEFT_HIGH:
+<span class="fc bfc" id="L420" title="All 2 branches covered.">                if (left.skew == Skew.LEFT_HIGH) {</span>
+<span class="fc" id="L421">                    rotateCW();</span>
+<span class="fc" id="L422">                    skew       = Skew.BALANCED;</span>
+<span class="fc" id="L423">                    right.skew = Skew.BALANCED;</span>
+                } else {
+<span class="fc" id="L425">                    final Skew s = left.right.skew;</span>
+<span class="fc" id="L426">                    left.rotateCCW();</span>
+<span class="fc" id="L427">                    rotateCW();</span>
+<span class="pc bfc" id="L428" title="All 3 branches covered.">                    switch(s) {</span>
+                    case LEFT_HIGH:
+<span class="fc" id="L430">                        left.skew  = Skew.BALANCED;</span>
+<span class="fc" id="L431">                        right.skew = Skew.RIGHT_HIGH;</span>
+<span class="fc" id="L432">                        break;</span>
+                    case RIGHT_HIGH:
+<span class="fc" id="L434">                        left.skew  = Skew.LEFT_HIGH;</span>
+<span class="fc" id="L435">                        right.skew = Skew.BALANCED;</span>
+<span class="fc" id="L436">                        break;</span>
+                    default:
+<span class="fc" id="L438">                        left.skew  = Skew.BALANCED;</span>
+<span class="fc" id="L439">                        right.skew = Skew.BALANCED;</span>
+                    }
+<span class="fc" id="L441">                    skew = Skew.BALANCED;</span>
+                }
+<span class="fc" id="L443">                return false;</span>
+            case RIGHT_HIGH:
+<span class="fc" id="L445">                skew = Skew.BALANCED;</span>
+<span class="fc" id="L446">                return false;</span>
+            default:
+<span class="fc" id="L448">                skew = Skew.LEFT_HIGH;</span>
+<span class="fc" id="L449">                return true;</span>
+            }
+        }
+
+        /** Re-balance the instance as right sub-tree has grown.
+         * @return true if the parent tree should be reSkew.BALANCED too
+         */
+        private boolean rebalanceRightGrown() {
+<span class="fc bfc" id="L457" title="All 3 branches covered.">            switch (skew) {</span>
+            case LEFT_HIGH:
+<span class="fc" id="L459">                skew = Skew.BALANCED;</span>
+<span class="fc" id="L460">                return false;</span>
+            case RIGHT_HIGH:
+<span class="fc bfc" id="L462" title="All 2 branches covered.">                if (right.skew == Skew.RIGHT_HIGH) {</span>
+<span class="fc" id="L463">                    rotateCCW();</span>
+<span class="fc" id="L464">                    skew      = Skew.BALANCED;</span>
+<span class="fc" id="L465">                    left.skew = Skew.BALANCED;</span>
+                } else {
+<span class="fc" id="L467">                    final Skew s = right.left.skew;</span>
+<span class="fc" id="L468">                    right.rotateCW();</span>
+<span class="fc" id="L469">                    rotateCCW();</span>
+<span class="fc bfc" id="L470" title="All 3 branches covered.">                    switch (s) {</span>
+                    case LEFT_HIGH:
+<span class="fc" id="L472">                        left.skew  = Skew.BALANCED;</span>
+<span class="fc" id="L473">                        right.skew = Skew.RIGHT_HIGH;</span>
+<span class="fc" id="L474">                        break;</span>
+                    case RIGHT_HIGH:
+<span class="fc" id="L476">                        left.skew  = Skew.LEFT_HIGH;</span>
+<span class="fc" id="L477">                        right.skew = Skew.BALANCED;</span>
+<span class="fc" id="L478">                        break;</span>
+                    default:
+<span class="fc" id="L480">                        left.skew  = Skew.BALANCED;</span>
+<span class="fc" id="L481">                        right.skew = Skew.BALANCED;</span>
+                    }
+<span class="fc" id="L483">                    skew = Skew.BALANCED;</span>
+                }
+<span class="fc" id="L485">                return false;</span>
+            default:
+<span class="fc" id="L487">                skew = Skew.RIGHT_HIGH;</span>
+<span class="fc" id="L488">                return true;</span>
+            }
+        }
+
+        /** Re-balance the instance as left sub-tree has shrunk.
+         * @return true if the parent tree should be reSkew.BALANCED too
+         */
+        private boolean rebalanceLeftShrunk() {
+<span class="fc bfc" id="L496" title="All 3 branches covered.">            switch (skew) {</span>
+            case LEFT_HIGH:
+<span class="fc" id="L498">                skew = Skew.BALANCED;</span>
+<span class="fc" id="L499">                return true;</span>
+            case RIGHT_HIGH:
+<span class="fc bfc" id="L501" title="All 2 branches covered.">                if (right.skew == Skew.RIGHT_HIGH) {</span>
+<span class="fc" id="L502">                    rotateCCW();</span>
+<span class="fc" id="L503">                    skew      = Skew.BALANCED;</span>
+<span class="fc" id="L504">                    left.skew = Skew.BALANCED;</span>
+<span class="fc" id="L505">                    return true;</span>
+<span class="fc bfc" id="L506" title="All 2 branches covered.">                } else if (right.skew == Skew.BALANCED) {</span>
+<span class="fc" id="L507">                    rotateCCW();</span>
+<span class="fc" id="L508">                    skew      = Skew.LEFT_HIGH;</span>
+<span class="fc" id="L509">                    left.skew = Skew.RIGHT_HIGH;</span>
+<span class="fc" id="L510">                    return false;</span>
+                } else {
+<span class="fc" id="L512">                    final Skew s = right.left.skew;</span>
+<span class="fc" id="L513">                    right.rotateCW();</span>
+<span class="fc" id="L514">                    rotateCCW();</span>
+<span class="fc bfc" id="L515" title="All 3 branches covered.">                    switch (s) {</span>
+                    case LEFT_HIGH:
+<span class="fc" id="L517">                        left.skew  = Skew.BALANCED;</span>
+<span class="fc" id="L518">                        right.skew = Skew.RIGHT_HIGH;</span>
+<span class="fc" id="L519">                        break;</span>
+                    case RIGHT_HIGH:
+<span class="fc" id="L521">                        left.skew  = Skew.LEFT_HIGH;</span>
+<span class="fc" id="L522">                        right.skew = Skew.BALANCED;</span>
+<span class="fc" id="L523">                        break;</span>
+                    default:
+<span class="fc" id="L525">                        left.skew  = Skew.BALANCED;</span>
+<span class="fc" id="L526">                        right.skew = Skew.BALANCED;</span>
+                    }
+<span class="fc" id="L528">                    skew = Skew.BALANCED;</span>
+<span class="fc" id="L529">                    return true;</span>
+                }
+            default:
+<span class="fc" id="L532">                skew = Skew.RIGHT_HIGH;</span>
+<span class="fc" id="L533">                return false;</span>
+            }
+        }
+
+        /** Re-balance the instance as right sub-tree has shrunk.
+         * @return true if the parent tree should be reSkew.BALANCED too
+         */
+        private boolean rebalanceRightShrunk() {
+<span class="fc bfc" id="L541" title="All 3 branches covered.">            switch (skew) {</span>
+            case RIGHT_HIGH:
+<span class="fc" id="L543">                skew = Skew.BALANCED;</span>
+<span class="fc" id="L544">                return true;</span>
+            case LEFT_HIGH:
+<span class="fc bfc" id="L546" title="All 2 branches covered.">                if (left.skew == Skew.LEFT_HIGH) {</span>
+<span class="fc" id="L547">                    rotateCW();</span>
+<span class="fc" id="L548">                    skew       = Skew.BALANCED;</span>
+<span class="fc" id="L549">                    right.skew = Skew.BALANCED;</span>
+<span class="fc" id="L550">                    return true;</span>
+<span class="fc bfc" id="L551" title="All 2 branches covered.">                } else if (left.skew == Skew.BALANCED) {</span>
+<span class="fc" id="L552">                    rotateCW();</span>
+<span class="fc" id="L553">                    skew       = Skew.RIGHT_HIGH;</span>
+<span class="fc" id="L554">                    right.skew = Skew.LEFT_HIGH;</span>
+<span class="fc" id="L555">                    return false;</span>
+                } else {
+<span class="fc" id="L557">                    final Skew s = left.right.skew;</span>
+<span class="fc" id="L558">                    left.rotateCCW();</span>
+<span class="fc" id="L559">                    rotateCW();</span>
+<span class="fc bfc" id="L560" title="All 3 branches covered.">                    switch (s) {</span>
+                    case LEFT_HIGH:
+<span class="fc" id="L562">                        left.skew  = Skew.BALANCED;</span>
+<span class="fc" id="L563">                        right.skew = Skew.RIGHT_HIGH;</span>
+<span class="fc" id="L564">                        break;</span>
+                    case RIGHT_HIGH:
+<span class="fc" id="L566">                        left.skew  = Skew.LEFT_HIGH;</span>
+<span class="fc" id="L567">                        right.skew = Skew.BALANCED;</span>
+<span class="fc" id="L568">                        break;</span>
+                    default:
+<span class="fc" id="L570">                        left.skew  = Skew.BALANCED;</span>
+<span class="fc" id="L571">                        right.skew = Skew.BALANCED;</span>
+                    }
+<span class="fc" id="L573">                    skew = Skew.BALANCED;</span>
+<span class="fc" id="L574">                    return true;</span>
+                }
+            default:
+<span class="fc" id="L577">                skew = Skew.LEFT_HIGH;</span>
+<span class="fc" id="L578">                return false;</span>
+            }
+        }
+
+        /** Perform a clockwise rotation rooted at the instance.
+         * &lt;p&gt;The skew factor are not updated by this method, they
+         * &lt;em&gt;must&lt;/em&gt; be updated by the caller&lt;/p&gt;
+         */
+        private void rotateCW() {
+
+<span class="fc" id="L588">            final T tmpElt       = element;</span>
+<span class="fc" id="L589">            element              = left.element;</span>
+<span class="fc" id="L590">            left.element         = tmpElt;</span>
+
+<span class="fc" id="L592">            final Node tmpNode   = left;</span>
+<span class="fc" id="L593">            left                 = tmpNode.left;</span>
+<span class="fc" id="L594">            tmpNode.left         = tmpNode.right;</span>
+<span class="fc" id="L595">            tmpNode.right        = right;</span>
+<span class="fc" id="L596">            right                = tmpNode;</span>
+
+<span class="fc bfc" id="L598" title="All 2 branches covered.">            if (left != null) {</span>
+<span class="fc" id="L599">                left.parent = this;</span>
+            }
+<span class="fc bfc" id="L601" title="All 2 branches covered.">            if (right.right != null) {</span>
+<span class="fc" id="L602">                right.right.parent = right;</span>
+            }
+
+<span class="fc" id="L605">        }</span>
+
+        /** Perform a counter-clockwise rotation rooted at the instance.
+         * &lt;p&gt;The skew factor are not updated by this method, they
+         * &lt;em&gt;must&lt;/em&gt; be updated by the caller&lt;/p&gt;
+         */
+        private void rotateCCW() {
+
+<span class="fc" id="L613">            final T tmpElt        = element;</span>
+<span class="fc" id="L614">            element               = right.element;</span>
+<span class="fc" id="L615">            right.element         = tmpElt;</span>
+
+<span class="fc" id="L617">            final Node tmpNode    = right;</span>
+<span class="fc" id="L618">            right                 = tmpNode.right;</span>
+<span class="fc" id="L619">            tmpNode.right         = tmpNode.left;</span>
+<span class="fc" id="L620">            tmpNode.left          = left;</span>
+<span class="fc" id="L621">            left                  = tmpNode;</span>
+
+<span class="fc bfc" id="L623" title="All 2 branches covered.">            if (right != null) {</span>
+<span class="fc" id="L624">                right.parent = this;</span>
+            }
+<span class="fc bfc" id="L626" title="All 2 branches covered.">            if (left.left != null) {</span>
+<span class="fc" id="L627">                left.left.parent = left;</span>
+            }
+
+<span class="fc" id="L630">        }</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,159 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<title>Apache Commons Math 3.6.1 Reference Package org.apache.commons.math3.geometry.euclidean.threed</title>
+		<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="style" />
+	</head>
+	<body>
+		      	<div class="overview">
+        	<ul>
+          		<li>
+            		<a href="../../../../../../../overview-summary.html">Overview</a>
+          		</li>
+          		<li class="selected">Package</li>
+        	</ul>
+      	</div>
+      	<div class="framenoframe">
+        	<ul>
+          		<li>
+            		<a href="../../../../../../../index.html" target="_top">FRAMES</a>
+          		</li>
+          		<li>
+            		<a href="package-summary.html" target="_top">NO FRAMES</a>
+          		</li>
+        	</ul>
+      	</div>
+		
+		      	<h2>Package org.apache.commons.math3.geometry.euclidean.threed</h2>
+
+		<table class="summary">
+        	<thead>
+          		<tr>
+            		<th>Class Summary</th>
+          		</tr>
+        	</thead>
+        	<tbody>
+        		            	<tr>
+              		<td>
+                		<a href="Euclidean3DTest.html" target="classFrame">Euclidean3DTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="PLYParser.html" target="classFrame">Field</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="FieldRotationDSTest.html" target="classFrame">FieldRotationDSTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="FieldRotationDfpTest.html" target="classFrame">FieldRotationDfpTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="FieldVector3DTest.html" target="classFrame">FieldVector3DTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="FrenchVector3DFormatTest.html" target="classFrame">FrenchVector3DFormatTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="LineTest.html" target="classFrame">LineTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="PLYParser.html" target="classFrame">PLYParser</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="PlaneTest.html" target="classFrame">PlaneTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="PolyhedronsSetTest.html" target="classFrame">PolyhedronsSetTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="RotationOrderTest.html" target="classFrame">RotationOrderTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="RotationTest.html" target="classFrame">RotationTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="SphereGeneratorTest.html" target="classFrame">SphereGeneratorTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="SphericalCoordinatesTest.html" target="classFrame">SphericalCoordinatesTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="SubLineTest.html" target="classFrame">SubLineTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="PLYParser.html" target="classFrame">Token</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="Vector3DFormatAbstractTest.html" target="classFrame">Vector3DFormatAbstractTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="Vector3DFormatTest.html" target="classFrame">Vector3DFormatTest</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="Vector3DTest.html" target="classFrame">Vector3DTest</a>
+              		</td>
+            	</tr>
+				        	</tbody>
+      	</table>
+		
+		      	<div class="overview">
+        	<ul>
+          		<li>
+            		<a href="../../../../../../../overview-summary.html">Overview</a>
+          		</li>
+          		<li class="selected">Package</li>
+        	</ul>
+      	</div>
+      	<div class="framenoframe">
+        	<ul>
+          		<li>
+            		<a href="../../../../../../../index.html" target="_top">FRAMES</a>
+          		</li>
+          		<li>
+            		<a href="package-summary.html" target="_top">NO FRAMES</a>
+          		</li>
+        	</ul>
+      	</div>
+				<hr />
+		<div id="footer">
+			Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.
+		</div>
+	</body>
+</html>

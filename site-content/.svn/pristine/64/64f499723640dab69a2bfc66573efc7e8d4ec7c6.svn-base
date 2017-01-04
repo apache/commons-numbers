@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>OLSMultipleLinearRegression.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.regression</a> &gt; <span class="el_source">OLSMultipleLinearRegression.java</span></div><h1>OLSMultipleLinearRegression.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.regression;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.LUDecomposition;
+import org.apache.commons.math3.linear.QRDecomposition;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.stat.StatUtils;
+import org.apache.commons.math3.stat.descriptive.moment.SecondMoment;
+
+/**
+ * &lt;p&gt;Implements ordinary least squares (OLS) to estimate the parameters of a
+ * multiple linear regression model.&lt;/p&gt;
+ *
+ * &lt;p&gt;The regression coefficients, &lt;code&gt;b&lt;/code&gt;, satisfy the normal equations:
+ * &lt;pre&gt;&lt;code&gt; X&lt;sup&gt;T&lt;/sup&gt; X b = X&lt;sup&gt;T&lt;/sup&gt; y &lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;
+ *
+ * &lt;p&gt;To solve the normal equations, this implementation uses QR decomposition
+ * of the &lt;code&gt;X&lt;/code&gt; matrix. (See {@link QRDecomposition} for details on the
+ * decomposition algorithm.) The &lt;code&gt;X&lt;/code&gt; matrix, also known as the &lt;i&gt;design matrix,&lt;/i&gt;
+ * has rows corresponding to sample observations and columns corresponding to independent
+ * variables.  When the model is estimated using an intercept term (i.e. when
+ * {@link #isNoIntercept() isNoIntercept} is false as it is by default), the &lt;code&gt;X&lt;/code&gt;
+ * matrix includes an initial column identically equal to 1.  We solve the normal equations
+ * as follows:
+ * &lt;pre&gt;&lt;code&gt; X&lt;sup&gt;T&lt;/sup&gt;X b = X&lt;sup&gt;T&lt;/sup&gt; y
+ * (QR)&lt;sup&gt;T&lt;/sup&gt; (QR) b = (QR)&lt;sup&gt;T&lt;/sup&gt;y
+ * R&lt;sup&gt;T&lt;/sup&gt; (Q&lt;sup&gt;T&lt;/sup&gt;Q) R b = R&lt;sup&gt;T&lt;/sup&gt; Q&lt;sup&gt;T&lt;/sup&gt; y
+ * R&lt;sup&gt;T&lt;/sup&gt; R b = R&lt;sup&gt;T&lt;/sup&gt; Q&lt;sup&gt;T&lt;/sup&gt; y
+ * (R&lt;sup&gt;T&lt;/sup&gt;)&lt;sup&gt;-1&lt;/sup&gt; R&lt;sup&gt;T&lt;/sup&gt; R b = (R&lt;sup&gt;T&lt;/sup&gt;)&lt;sup&gt;-1&lt;/sup&gt; R&lt;sup&gt;T&lt;/sup&gt; Q&lt;sup&gt;T&lt;/sup&gt; y
+ * R b = Q&lt;sup&gt;T&lt;/sup&gt; y &lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;
+ *
+ * &lt;p&gt;Given &lt;code&gt;Q&lt;/code&gt; and &lt;code&gt;R&lt;/code&gt;, the last equation is solved by back-substitution.&lt;/p&gt;
+ *
+ * @since 2.0
+ */
+public class OLSMultipleLinearRegression extends AbstractMultipleLinearRegression {
+
+    /** Cached QR decomposition of X matrix */
+<span class="fc" id="L57">    private QRDecomposition qr = null;</span>
+
+    /** Singularity threshold for QR decomposition */
+    private final double threshold;
+
+    /**
+     * Create an empty OLSMultipleLinearRegression instance.
+     */
+    public OLSMultipleLinearRegression() {
+<span class="fc" id="L66">        this(0d);</span>
+<span class="fc" id="L67">    }</span>
+
+    /**
+     * Create an empty OLSMultipleLinearRegression instance, using the given
+     * singularity threshold for the QR decomposition.
+     *
+     * @param threshold the singularity threshold
+     * @since 3.3
+     */
+<span class="fc" id="L76">    public OLSMultipleLinearRegression(final double threshold) {</span>
+<span class="fc" id="L77">        this.threshold = threshold;</span>
+<span class="fc" id="L78">    }</span>
+
+    /**
+     * Loads model x and y sample data, overriding any previous sample.
+     *
+     * Computes and caches QR decomposition of the X matrix.
+     * @param y the [n,1] array representing the y sample
+     * @param x the [n,k] array representing the x sample
+     * @throws MathIllegalArgumentException if the x and y array data are not
+     *             compatible for the regression
+     */
+    public void newSampleData(double[] y, double[][] x) throws MathIllegalArgumentException {
+<span class="fc" id="L90">        validateSampleData(x, y);</span>
+<span class="fc" id="L91">        newYSampleData(y);</span>
+<span class="fc" id="L92">        newXSampleData(x);</span>
+<span class="fc" id="L93">    }</span>
+
+    /**
+     * {@inheritDoc}
+     * &lt;p&gt;This implementation computes and caches the QR decomposition of the X matrix.&lt;/p&gt;
+     */
+    @Override
+    public void newSampleData(double[] data, int nobs, int nvars) {
+<span class="fc" id="L101">        super.newSampleData(data, nobs, nvars);</span>
+<span class="fc" id="L102">        qr = new QRDecomposition(getX(), threshold);</span>
+<span class="fc" id="L103">    }</span>
+
+    /**
+     * &lt;p&gt;Compute the &quot;hat&quot; matrix.
+     * &lt;/p&gt;
+     * &lt;p&gt;The hat matrix is defined in terms of the design matrix X
+     *  by X(X&lt;sup&gt;T&lt;/sup&gt;X)&lt;sup&gt;-1&lt;/sup&gt;X&lt;sup&gt;T&lt;/sup&gt;
+     * &lt;/p&gt;
+     * &lt;p&gt;The implementation here uses the QR decomposition to compute the
+     * hat matrix as Q I&lt;sub&gt;p&lt;/sub&gt;Q&lt;sup&gt;T&lt;/sup&gt; where I&lt;sub&gt;p&lt;/sub&gt; is the
+     * p-dimensional identity matrix augmented by 0's.  This computational
+     * formula is from &quot;The Hat Matrix in Regression and ANOVA&quot;,
+     * David C. Hoaglin and Roy E. Welsch,
+     * &lt;i&gt;The American Statistician&lt;/i&gt;, Vol. 32, No. 1 (Feb., 1978), pp. 17-22.
+     * &lt;/p&gt;
+     * &lt;p&gt;Data for the model must have been successfully loaded using one of
+     * the {@code newSampleData} methods before invoking this method; otherwise
+     * a {@code NullPointerException} will be thrown.&lt;/p&gt;
+     *
+     * @return the hat matrix
+     * @throws NullPointerException unless method {@code newSampleData} has been
+     * called beforehand.
+     */
+    public RealMatrix calculateHat() {
+        // Create augmented identity matrix
+<span class="fc" id="L128">        RealMatrix Q = qr.getQ();</span>
+<span class="fc" id="L129">        final int p = qr.getR().getColumnDimension();</span>
+<span class="fc" id="L130">        final int n = Q.getColumnDimension();</span>
+        // No try-catch or advertised NotStrictlyPositiveException - NPE above if n &lt; 3
+<span class="fc" id="L132">        Array2DRowRealMatrix augI = new Array2DRowRealMatrix(n, n);</span>
+<span class="fc" id="L133">        double[][] augIData = augI.getDataRef();</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">            for (int j =0; j &lt; n; j++) {</span>
+<span class="fc bfc" id="L136" title="All 4 branches covered.">                if (i == j &amp;&amp; i &lt; p) {</span>
+<span class="fc" id="L137">                    augIData[i][j] = 1d;</span>
+                } else {
+<span class="fc" id="L139">                    augIData[i][j] = 0d;</span>
+                }
+            }
+        }
+
+        // Compute and return Hat matrix
+        // No DME advertised - args valid if we get here
+<span class="fc" id="L146">        return Q.multiply(augI).multiply(Q.transpose());</span>
+    }
+
+    /**
+     * &lt;p&gt;Returns the sum of squared deviations of Y from its mean.&lt;/p&gt;
+     *
+     * &lt;p&gt;If the model has no intercept term, &lt;code&gt;0&lt;/code&gt; is used for the
+     * mean of Y - i.e., what is returned is the sum of the squared Y values.&lt;/p&gt;
+     *
+     * &lt;p&gt;The value returned by this method is the SSTO value used in
+     * the {@link #calculateRSquared() R-squared} computation.&lt;/p&gt;
+     *
+     * @return SSTO - the total sum of squares
+     * @throws NullPointerException if the sample has not been set
+     * @see #isNoIntercept()
+     * @since 2.2
+     */
+    public double calculateTotalSumOfSquares() {
+<span class="fc bfc" id="L164" title="All 2 branches covered.">        if (isNoIntercept()) {</span>
+<span class="fc" id="L165">            return StatUtils.sumSq(getY().toArray());</span>
+        } else {
+<span class="fc" id="L167">            return new SecondMoment().evaluate(getY().toArray());</span>
+        }
+    }
+
+    /**
+     * Returns the sum of squared residuals.
+     *
+     * @return residual sum of squares
+     * @since 2.2
+     * @throws org.apache.commons.math3.linear.SingularMatrixException if the design matrix is singular
+     * @throws NullPointerException if the data for the model have not been loaded
+     */
+    public double calculateResidualSumOfSquares() {
+<span class="fc" id="L180">        final RealVector residuals = calculateResiduals();</span>
+        // No advertised DME, args are valid
+<span class="fc" id="L182">        return residuals.dotProduct(residuals);</span>
+    }
+
+    /**
+     * Returns the R-Squared statistic, defined by the formula &lt;pre&gt;
+     * R&lt;sup&gt;2&lt;/sup&gt; = 1 - SSR / SSTO
+     * &lt;/pre&gt;
+     * where SSR is the {@link #calculateResidualSumOfSquares() sum of squared residuals}
+     * and SSTO is the {@link #calculateTotalSumOfSquares() total sum of squares}
+     *
+     * &lt;p&gt;If there is no variance in y, i.e., SSTO = 0, NaN is returned.&lt;/p&gt;
+     *
+     * @return R-square statistic
+     * @throws NullPointerException if the sample has not been set
+     * @throws org.apache.commons.math3.linear.SingularMatrixException if the design matrix is singular
+     * @since 2.2
+     */
+    public double calculateRSquared() {
+<span class="fc" id="L200">        return 1 - calculateResidualSumOfSquares() / calculateTotalSumOfSquares();</span>
+    }
+
+    /**
+     * &lt;p&gt;Returns the adjusted R-squared statistic, defined by the formula &lt;pre&gt;
+     * R&lt;sup&gt;2&lt;/sup&gt;&lt;sub&gt;adj&lt;/sub&gt; = 1 - [SSR (n - 1)] / [SSTO (n - p)]
+     * &lt;/pre&gt;
+     * where SSR is the {@link #calculateResidualSumOfSquares() sum of squared residuals},
+     * SSTO is the {@link #calculateTotalSumOfSquares() total sum of squares}, n is the number
+     * of observations and p is the number of parameters estimated (including the intercept).&lt;/p&gt;
+     *
+     * &lt;p&gt;If the regression is estimated without an intercept term, what is returned is &lt;pre&gt;
+     * &lt;code&gt; 1 - (1 - {@link #calculateRSquared()}) * (n / (n - p)) &lt;/code&gt;
+     * &lt;/pre&gt;&lt;/p&gt;
+     *
+     * &lt;p&gt;If there is no variance in y, i.e., SSTO = 0, NaN is returned.&lt;/p&gt;
+     *
+     * @return adjusted R-Squared statistic
+     * @throws NullPointerException if the sample has not been set
+     * @throws org.apache.commons.math3.linear.SingularMatrixException if the design matrix is singular
+     * @see #isNoIntercept()
+     * @since 2.2
+     */
+    public double calculateAdjustedRSquared() {
+<span class="fc" id="L224">        final double n = getX().getRowDimension();</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">        if (isNoIntercept()) {</span>
+<span class="fc" id="L226">            return 1 - (1 - calculateRSquared()) * (n / (n - getX().getColumnDimension()));</span>
+        } else {
+<span class="fc" id="L228">            return 1 - (calculateResidualSumOfSquares() * (n - 1)) /</span>
+                (calculateTotalSumOfSquares() * (n - getX().getColumnDimension()));
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * &lt;p&gt;This implementation computes and caches the QR decomposition of the X matrix
+     * once it is successfully loaded.&lt;/p&gt;
+     */
+    @Override
+    protected void newXSampleData(double[][] x) {
+<span class="fc" id="L240">        super.newXSampleData(x);</span>
+<span class="fc" id="L241">        qr = new QRDecomposition(getX(), threshold);</span>
+<span class="fc" id="L242">    }</span>
+
+    /**
+     * Calculates the regression coefficients using OLS.
+     *
+     * &lt;p&gt;Data for the model must have been successfully loaded using one of
+     * the {@code newSampleData} methods before invoking this method; otherwise
+     * a {@code NullPointerException} will be thrown.&lt;/p&gt;
+     *
+     * @return beta
+     * @throws org.apache.commons.math3.linear.SingularMatrixException if the design matrix is singular
+     * @throws NullPointerException if the data for the model have not been loaded
+     */
+    @Override
+    protected RealVector calculateBeta() {
+<span class="fc" id="L257">        return qr.getSolver().solve(getY());</span>
+    }
+
+    /**
+     * &lt;p&gt;Calculates the variance-covariance matrix of the regression parameters.
+     * &lt;/p&gt;
+     * &lt;p&gt;Var(b) = (X&lt;sup&gt;T&lt;/sup&gt;X)&lt;sup&gt;-1&lt;/sup&gt;
+     * &lt;/p&gt;
+     * &lt;p&gt;Uses QR decomposition to reduce (X&lt;sup&gt;T&lt;/sup&gt;X)&lt;sup&gt;-1&lt;/sup&gt;
+     * to (R&lt;sup&gt;T&lt;/sup&gt;R)&lt;sup&gt;-1&lt;/sup&gt;, with only the top p rows of
+     * R included, where p = the length of the beta vector.&lt;/p&gt;
+     *
+     * &lt;p&gt;Data for the model must have been successfully loaded using one of
+     * the {@code newSampleData} methods before invoking this method; otherwise
+     * a {@code NullPointerException} will be thrown.&lt;/p&gt;
+     *
+     * @return The beta variance-covariance matrix
+     * @throws org.apache.commons.math3.linear.SingularMatrixException if the design matrix is singular
+     * @throws NullPointerException if the data for the model have not been loaded
+     */
+    @Override
+    protected RealMatrix calculateBetaVariance() {
+<span class="fc" id="L279">        int p = getX().getColumnDimension();</span>
+<span class="fc" id="L280">        RealMatrix Raug = qr.getR().getSubMatrix(0, p - 1 , 0, p - 1);</span>
+<span class="fc" id="L281">        RealMatrix Rinv = new LUDecomposition(Raug).getSolver().getInverse();</span>
+<span class="fc" id="L282">        return Rinv.multiply(Rinv.transpose());</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

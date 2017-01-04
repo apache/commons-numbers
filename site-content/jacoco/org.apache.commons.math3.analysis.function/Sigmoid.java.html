@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Sigmoid.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.function</a> &gt; <span class="el_source">Sigmoid.java</span></div><h1>Sigmoid.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.analysis.function;
+
+import java.util.Arrays;
+
+import org.apache.commons.math3.analysis.FunctionUtils;
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.analysis.DifferentiableUnivariateFunction;
+import org.apache.commons.math3.analysis.ParametricUnivariateFunction;
+import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;
+import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * &lt;a href=&quot;http://en.wikipedia.org/wiki/Sigmoid_function&quot;&gt;
+ *  Sigmoid&lt;/a&gt; function.
+ * It is the inverse of the {@link Logit logit} function.
+ * A more flexible version, the generalised logistic, is implemented
+ * by the {@link Logistic} class.
+ *
+ * @since 3.0
+ */
+public class Sigmoid implements UnivariateDifferentiableFunction, DifferentiableUnivariateFunction {
+    /** Lower asymptote. */
+    private final double lo;
+    /** Higher asymptote. */
+    private final double hi;
+
+    /**
+     * Usual sigmoid function, where the lower asymptote is 0 and the higher
+     * asymptote is 1.
+     */
+    public Sigmoid() {
+<span class="fc" id="L52">        this(0, 1);</span>
+<span class="fc" id="L53">    }</span>
+
+    /**
+     * Sigmoid function.
+     *
+     * @param lo Lower asymptote.
+     * @param hi Higher asymptote.
+     */
+    public Sigmoid(double lo,
+<span class="fc" id="L62">                   double hi) {</span>
+<span class="fc" id="L63">        this.lo = lo;</span>
+<span class="fc" id="L64">        this.hi = hi;</span>
+<span class="fc" id="L65">    }</span>
+
+    /** {@inheritDoc}
+     * @deprecated as of 3.1, replaced by {@link #value(DerivativeStructure)}
+     */
+    @Deprecated
+    public UnivariateFunction derivative() {
+<span class="nc" id="L72">        return FunctionUtils.toDifferentiableUnivariateFunction(this).derivative();</span>
+    }
+
+    /** {@inheritDoc} */
+    public double value(double x) {
+<span class="fc" id="L77">        return value(x, lo, hi);</span>
+    }
+
+    /**
+     * Parametric function where the input array contains the parameters of
+     * the {@link Sigmoid#Sigmoid(double,double) sigmoid function}, ordered
+     * as follows:
+     * &lt;ul&gt;
+     *  &lt;li&gt;Lower asymptote&lt;/li&gt;
+     *  &lt;li&gt;Higher asymptote&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+<span class="fc" id="L89">    public static class Parametric implements ParametricUnivariateFunction {</span>
+        /**
+         * Computes the value of the sigmoid at {@code x}.
+         *
+         * @param x Value for which the function must be computed.
+         * @param param Values of lower asymptote and higher asymptote.
+         * @return the value of the function.
+         * @throws NullArgumentException if {@code param} is {@code null}.
+         * @throws DimensionMismatchException if the size of {@code param} is
+         * not 2.
+         */
+        public double value(double x, double ... param)
+            throws NullArgumentException,
+                   DimensionMismatchException {
+<span class="fc" id="L103">            validateParameters(param);</span>
+<span class="fc" id="L104">            return Sigmoid.value(x, param[0], param[1]);</span>
+        }
+
+        /**
+         * Computes the value of the gradient at {@code x}.
+         * The components of the gradient vector are the partial
+         * derivatives of the function with respect to each of the
+         * &lt;em&gt;parameters&lt;/em&gt; (lower asymptote and higher asymptote).
+         *
+         * @param x Value at which the gradient must be computed.
+         * @param param Values for lower asymptote and higher asymptote.
+         * @return the gradient vector at {@code x}.
+         * @throws NullArgumentException if {@code param} is {@code null}.
+         * @throws DimensionMismatchException if the size of {@code param} is
+         * not 2.
+         */
+        public double[] gradient(double x, double ... param)
+            throws NullArgumentException,
+                   DimensionMismatchException {
+<span class="fc" id="L123">            validateParameters(param);</span>
+
+<span class="fc" id="L125">            final double invExp1 = 1 / (1 + FastMath.exp(-x));</span>
+
+<span class="fc" id="L127">            return new double[] { 1 - invExp1, invExp1 };</span>
+        }
+
+        /**
+         * Validates parameters to ensure they are appropriate for the evaluation of
+         * the {@link #value(double,double[])} and {@link #gradient(double,double[])}
+         * methods.
+         *
+         * @param param Values for lower and higher asymptotes.
+         * @throws NullArgumentException if {@code param} is {@code null}.
+         * @throws DimensionMismatchException if the size of {@code param} is
+         * not 2.
+         */
+        private void validateParameters(double[] param)
+            throws NullArgumentException,
+                   DimensionMismatchException {
+<span class="fc bfc" id="L143" title="All 2 branches covered.">            if (param == null) {</span>
+<span class="fc" id="L144">                throw new NullArgumentException();</span>
+            }
+<span class="fc bfc" id="L146" title="All 2 branches covered.">            if (param.length != 2) {</span>
+<span class="fc" id="L147">                throw new DimensionMismatchException(param.length, 2);</span>
+            }
+<span class="fc" id="L149">        }</span>
+    }
+
+    /**
+     * @param x Value at which to compute the sigmoid.
+     * @param lo Lower asymptote.
+     * @param hi Higher asymptote.
+     * @return the value of the sigmoid function at {@code x}.
+     */
+    private static double value(double x,
+                                double lo,
+                                double hi) {
+<span class="fc" id="L161">        return lo + (hi - lo) / (1 + FastMath.exp(-x));</span>
+    }
+
+    /** {@inheritDoc}
+     * @since 3.1
+     */
+    public DerivativeStructure value(final DerivativeStructure t)
+        throws DimensionMismatchException {
+
+<span class="fc" id="L170">        double[] f = new double[t.getOrder() + 1];</span>
+<span class="fc" id="L171">        final double exp = FastMath.exp(-t.getValue());</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">        if (Double.isInfinite(exp)) {</span>
+
+            // special handling near lower boundary, to avoid NaN
+<span class="fc" id="L175">            f[0] = lo;</span>
+<span class="fc" id="L176">            Arrays.fill(f, 1, f.length, 0.0);</span>
+
+        } else {
+
+            // the nth order derivative of sigmoid has the form:
+            // dn(sigmoid(x)/dxn = P_n(exp(-x)) / (1+exp(-x))^(n+1)
+            // where P_n(t) is a degree n polynomial with normalized higher term
+            // P_0(t) = 1, P_1(t) = t, P_2(t) = t^2 - t, P_3(t) = t^3 - 4 t^2 + t...
+            // the general recurrence relation for P_n is:
+            // P_n(x) = n t P_(n-1)(t) - t (1 + t) P_(n-1)'(t)
+<span class="fc" id="L186">            final double[] p = new double[f.length];</span>
+
+<span class="fc" id="L188">            final double inv   = 1 / (1 + exp);</span>
+<span class="fc" id="L189">            double coeff = hi - lo;</span>
+<span class="fc bfc" id="L190" title="All 2 branches covered.">            for (int n = 0; n &lt; f.length; ++n) {</span>
+
+                // update and evaluate polynomial P_n(t)
+<span class="fc" id="L193">                double v = 0;</span>
+<span class="fc" id="L194">                p[n] = 1;</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">                for (int k = n; k &gt;= 0; --k) {</span>
+<span class="fc" id="L196">                    v = v * exp + p[k];</span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">                    if (k &gt; 1) {</span>
+<span class="fc" id="L198">                        p[k - 1] = (n - k + 2) * p[k - 2] - (k - 1) * p[k - 1];</span>
+                    } else {
+<span class="fc" id="L200">                        p[0] = 0;</span>
+                    }
+                }
+
+<span class="fc" id="L204">                coeff *= inv;</span>
+<span class="fc" id="L205">                f[n]   = coeff * v;</span>
+
+            }
+
+            // fix function value
+<span class="fc" id="L210">            f[0] += lo;</span>
+
+        }
+
+<span class="fc" id="L214">        return t.compose(f);</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

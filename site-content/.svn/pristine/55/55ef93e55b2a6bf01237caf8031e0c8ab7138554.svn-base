@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MultiKMeansPlusPlusClusterer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ml.clustering</a> &gt; <span class="el_source">MultiKMeansPlusPlusClusterer.java</span></div><h1>MultiKMeansPlusPlusClusterer.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ml.clustering;
+
+import java.util.Collection;
+import java.util.List;
+
+import org.apache.commons.math3.exception.ConvergenceException;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.ml.clustering.evaluation.ClusterEvaluator;
+import org.apache.commons.math3.ml.clustering.evaluation.SumOfClusterVariances;
+
+/**
+ * A wrapper around a k-means++ clustering algorithm which performs multiple trials
+ * and returns the best solution.
+ * @param &lt;T&gt; type of the points to cluster
+ * @since 3.2
+ */
+public class MultiKMeansPlusPlusClusterer&lt;T extends Clusterable&gt; extends Clusterer&lt;T&gt; {
+
+    /** The underlying k-means clusterer. */
+    private final KMeansPlusPlusClusterer&lt;T&gt; clusterer;
+
+    /** The number of trial runs. */
+    private final int numTrials;
+
+    /** The cluster evaluator to use. */
+    private final ClusterEvaluator&lt;T&gt; evaluator;
+
+    /** Build a clusterer.
+     * @param clusterer the k-means clusterer to use
+     * @param numTrials number of trial runs
+     */
+    public MultiKMeansPlusPlusClusterer(final KMeansPlusPlusClusterer&lt;T&gt; clusterer,
+                                        final int numTrials) {
+<span class="fc" id="L51">        this(clusterer, numTrials, new SumOfClusterVariances&lt;T&gt;(clusterer.getDistanceMeasure()));</span>
+<span class="fc" id="L52">    }</span>
+
+    /** Build a clusterer.
+     * @param clusterer the k-means clusterer to use
+     * @param numTrials number of trial runs
+     * @param evaluator the cluster evaluator to use
+     * @since 3.3
+     */
+    public MultiKMeansPlusPlusClusterer(final KMeansPlusPlusClusterer&lt;T&gt; clusterer,
+                                        final int numTrials,
+                                        final ClusterEvaluator&lt;T&gt; evaluator) {
+<span class="fc" id="L63">        super(clusterer.getDistanceMeasure());</span>
+<span class="fc" id="L64">        this.clusterer = clusterer;</span>
+<span class="fc" id="L65">        this.numTrials = numTrials;</span>
+<span class="fc" id="L66">        this.evaluator = evaluator;</span>
+<span class="fc" id="L67">    }</span>
+
+    /**
+     * Returns the embedded k-means clusterer used by this instance.
+     * @return the embedded clusterer
+     */
+    public KMeansPlusPlusClusterer&lt;T&gt; getClusterer() {
+<span class="nc" id="L74">        return clusterer;</span>
+    }
+
+    /**
+     * Returns the number of trials this instance will do.
+     * @return the number of trials
+     */
+    public int getNumTrials() {
+<span class="nc" id="L82">        return numTrials;</span>
+    }
+
+    /**
+     * Returns the {@link ClusterEvaluator} used to determine the &quot;best&quot; clustering.
+     * @return the used {@link ClusterEvaluator}
+     * @since 3.3
+     */
+    public ClusterEvaluator&lt;T&gt; getClusterEvaluator() {
+<span class="nc" id="L91">       return evaluator;</span>
+    }
+
+    /**
+     * Runs the K-means++ clustering algorithm.
+     *
+     * @param points the points to cluster
+     * @return a list of clusters containing the points
+     * @throws MathIllegalArgumentException if the data points are null or the number
+     *   of clusters is larger than the number of data points
+     * @throws ConvergenceException if an empty cluster is encountered and the
+     *   underlying {@link KMeansPlusPlusClusterer} has its
+     *   {@link KMeansPlusPlusClusterer.EmptyClusterStrategy} is set to {@code ERROR}.
+     */
+    @Override
+    public List&lt;CentroidCluster&lt;T&gt;&gt; cluster(final Collection&lt;T&gt; points)
+        throws MathIllegalArgumentException, ConvergenceException {
+
+        // at first, we have not found any clusters list yet
+<span class="fc" id="L110">        List&lt;CentroidCluster&lt;T&gt;&gt; best = null;</span>
+<span class="fc" id="L111">        double bestVarianceSum = Double.POSITIVE_INFINITY;</span>
+
+        // do several clustering trials
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        for (int i = 0; i &lt; numTrials; ++i) {</span>
+
+            // compute a clusters list
+<span class="fc" id="L117">            List&lt;CentroidCluster&lt;T&gt;&gt; clusters = clusterer.cluster(points);</span>
+
+            // compute the variance of the current list
+<span class="fc" id="L120">            final double varianceSum = evaluator.score(clusters);</span>
+
+<span class="fc bfc" id="L122" title="All 2 branches covered.">            if (evaluator.isBetterScore(varianceSum, bestVarianceSum)) {</span>
+                // this one is the best we have found so far, remember it
+<span class="fc" id="L124">                best            = clusters;</span>
+<span class="fc" id="L125">                bestVarianceSum = varianceSum;</span>
+            }
+
+        }
+
+        // return the best clusters list found
+<span class="fc" id="L131">        return best;</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

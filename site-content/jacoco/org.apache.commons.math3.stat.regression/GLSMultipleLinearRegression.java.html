@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>GLSMultipleLinearRegression.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.regression</a> &gt; <span class="el_source">GLSMultipleLinearRegression.java</span></div><h1>GLSMultipleLinearRegression.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.regression;
+
+import org.apache.commons.math3.linear.LUDecomposition;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealVector;
+
+/**
+ * The GLS implementation of multiple linear regression.
+ *
+ * GLS assumes a general covariance matrix Omega of the error
+ * &lt;pre&gt;
+ * u ~ N(0, Omega)
+ * &lt;/pre&gt;
+ *
+ * Estimated by GLS,
+ * &lt;pre&gt;
+ * b=(X' Omega^-1 X)^-1X'Omega^-1 y
+ * &lt;/pre&gt;
+ * whose variance is
+ * &lt;pre&gt;
+ * Var(b)=(X' Omega^-1 X)^-1
+ * &lt;/pre&gt;
+ * @since 2.0
+ */
+<span class="fc" id="L42">public class GLSMultipleLinearRegression extends AbstractMultipleLinearRegression {</span>
+
+    /** Covariance matrix. */
+    private RealMatrix Omega;
+
+    /** Inverse of covariance matrix. */
+    private RealMatrix OmegaInverse;
+
+    /** Replace sample data, overriding any previous sample.
+     * @param y y values of the sample
+     * @param x x values of the sample
+     * @param covariance array representing the covariance matrix
+     */
+    public void newSampleData(double[] y, double[][] x, double[][] covariance) {
+<span class="fc" id="L56">        validateSampleData(x, y);</span>
+<span class="fc" id="L57">        newYSampleData(y);</span>
+<span class="fc" id="L58">        newXSampleData(x);</span>
+<span class="fc" id="L59">        validateCovarianceData(x, covariance);</span>
+<span class="fc" id="L60">        newCovarianceData(covariance);</span>
+<span class="fc" id="L61">    }</span>
+
+    /**
+     * Add the covariance data.
+     *
+     * @param omega the [n,n] array representing the covariance
+     */
+    protected void newCovarianceData(double[][] omega){
+<span class="fc" id="L69">        this.Omega = new Array2DRowRealMatrix(omega);</span>
+<span class="fc" id="L70">        this.OmegaInverse = null;</span>
+<span class="fc" id="L71">    }</span>
+
+    /**
+     * Get the inverse of the covariance.
+     * &lt;p&gt;The inverse of the covariance matrix is lazily evaluated and cached.&lt;/p&gt;
+     * @return inverse of the covariance
+     */
+    protected RealMatrix getOmegaInverse() {
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (OmegaInverse == null) {</span>
+<span class="fc" id="L80">            OmegaInverse = new LUDecomposition(Omega).getSolver().getInverse();</span>
+        }
+<span class="fc" id="L82">        return OmegaInverse;</span>
+    }
+
+    /**
+     * Calculates beta by GLS.
+     * &lt;pre&gt;
+     *  b=(X' Omega^-1 X)^-1X'Omega^-1 y
+     * &lt;/pre&gt;
+     * @return beta
+     */
+    @Override
+    protected RealVector calculateBeta() {
+<span class="fc" id="L94">        RealMatrix OI = getOmegaInverse();</span>
+<span class="fc" id="L95">        RealMatrix XT = getX().transpose();</span>
+<span class="fc" id="L96">        RealMatrix XTOIX = XT.multiply(OI).multiply(getX());</span>
+<span class="fc" id="L97">        RealMatrix inverse = new LUDecomposition(XTOIX).getSolver().getInverse();</span>
+<span class="fc" id="L98">        return inverse.multiply(XT).multiply(OI).operate(getY());</span>
+    }
+
+    /**
+     * Calculates the variance on the beta.
+     * &lt;pre&gt;
+     *  Var(b)=(X' Omega^-1 X)^-1
+     * &lt;/pre&gt;
+     * @return The beta variance matrix
+     */
+    @Override
+    protected RealMatrix calculateBetaVariance() {
+<span class="fc" id="L110">        RealMatrix OI = getOmegaInverse();</span>
+<span class="fc" id="L111">        RealMatrix XTOIX = getX().transpose().multiply(OI).multiply(getX());</span>
+<span class="fc" id="L112">        return new LUDecomposition(XTOIX).getSolver().getInverse();</span>
+    }
+
+
+    /**
+     * Calculates the estimated variance of the error term using the formula
+     * &lt;pre&gt;
+     *  Var(u) = Tr(u' Omega^-1 u)/(n-k)
+     * &lt;/pre&gt;
+     * where n and k are the row and column dimensions of the design
+     * matrix X.
+     *
+     * @return error variance
+     * @since 2.2
+     */
+    @Override
+    protected double calculateErrorVariance() {
+<span class="nc" id="L129">        RealVector residuals = calculateResiduals();</span>
+<span class="nc" id="L130">        double t = residuals.dotProduct(getOmegaInverse().operate(residuals));</span>
+<span class="nc" id="L131">        return t / (getX().getRowDimension() - getX().getColumnDimension());</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

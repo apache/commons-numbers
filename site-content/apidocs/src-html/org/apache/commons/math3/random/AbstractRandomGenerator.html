@@ -1,0 +1,343 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.random;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.apache.commons.math3.exception.NotStrictlyPositiveException;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.util.FastMath;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>/**<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * Abstract class implementing the {@link  RandomGenerator} interface.<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * Default implementations for all methods other than {@link #nextDouble()} and<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * {@link #setSeed(long)} are provided.<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * &lt;p&gt;<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * All data generation methods are based on {@code code nextDouble()}.<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * Concrete implementations &lt;strong&gt;must&lt;/strong&gt; override<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * this method and &lt;strong&gt;should&lt;/strong&gt; provide better / more<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * performant implementations of the other methods if the underlying PRNG<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * supplies them.&lt;/p&gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * @since 1.1<a name="line.33"></a>
+<span class="sourceLineNo">034</span> */<a name="line.34"></a>
+<span class="sourceLineNo">035</span>public abstract class AbstractRandomGenerator implements RandomGenerator {<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span>    /**<a name="line.37"></a>
+<span class="sourceLineNo">038</span>     * Cached random normal value.  The default implementation for<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * {@link #nextGaussian} generates pairs of values and this field caches the<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     * second value so that the full algorithm is not executed for every<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     * activation.  The value {@code Double.NaN} signals that there is<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * no cached value.  Use {@link #clear} to clear the cached value.<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     */<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    private double cachedNormalDeviate = Double.NaN;<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>    /**<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * Construct a RandomGenerator.<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     */<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    public AbstractRandomGenerator() {<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        super();<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>    }<a name="line.52"></a>
+<span class="sourceLineNo">053</span><a name="line.53"></a>
+<span class="sourceLineNo">054</span>    /**<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * Clears the cache used by the default implementation of<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * {@link #nextGaussian}. Implementations that do not override the<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * default implementation of {@code nextGaussian} should call this<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     * method in the implementation of {@link #setSeed(long)}<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     */<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    public void clear() {<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        cachedNormalDeviate = Double.NaN;<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    }<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>    /** {@inheritDoc} */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    public void setSeed(int seed) {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        setSeed((long) seed);<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    }<a name="line.67"></a>
+<span class="sourceLineNo">068</span><a name="line.68"></a>
+<span class="sourceLineNo">069</span>    /** {@inheritDoc} */<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    public void setSeed(int[] seed) {<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        // the following number is the largest prime that fits in 32 bits (it is 2^32 - 5)<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        final long prime = 4294967291l;<a name="line.72"></a>
+<span class="sourceLineNo">073</span><a name="line.73"></a>
+<span class="sourceLineNo">074</span>        long combined = 0l;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        for (int s : seed) {<a name="line.75"></a>
+<span class="sourceLineNo">076</span>            combined = combined * prime + s;<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        }<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        setSeed(combined);<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    }<a name="line.79"></a>
+<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">081</span>    /**<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * Sets the seed of the underlying random number generator using a<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     * {@code long} seed.  Sequences of values generated starting with the<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * same seeds should be identical.<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * &lt;p&gt;<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * Implementations that do not override the default implementation of<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * {@code nextGaussian} should include a call to {@link #clear} in the<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * implementation of this method.&lt;/p&gt;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     *<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * @param seed the seed value<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     */<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    public abstract void setSeed(long seed);<a name="line.92"></a>
+<span class="sourceLineNo">093</span><a name="line.93"></a>
+<span class="sourceLineNo">094</span>    /**<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * Generates random bytes and places them into a user-supplied<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * byte array.  The number of random bytes produced is equal to<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * the length of the byte array.<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * &lt;p&gt;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * The default implementation fills the array with bytes extracted from<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * random integers generated using {@link #nextInt}.&lt;/p&gt;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     *<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * @param bytes the non-null byte array in which to put the<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * random bytes<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     */<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    public void nextBytes(byte[] bytes) {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        int bytesOut = 0;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        while (bytesOut &lt; bytes.length) {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>          int randInt = nextInt();<a name="line.108"></a>
+<span class="sourceLineNo">109</span>          for (int i = 0; i &lt; 3; i++) {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>              if ( i &gt; 0) {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>                  randInt &gt;&gt;= 8;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>              }<a name="line.112"></a>
+<span class="sourceLineNo">113</span>              bytes[bytesOut++] = (byte) randInt;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>              if (bytesOut == bytes.length) {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>                  return;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>              }<a name="line.116"></a>
+<span class="sourceLineNo">117</span>          }<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        }<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    }<a name="line.119"></a>
+<span class="sourceLineNo">120</span><a name="line.120"></a>
+<span class="sourceLineNo">121</span>     /**<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     * Returns the next pseudorandom, uniformly distributed {@code int}<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     * value from this random number generator's sequence.<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     * All 2&lt;font size="-1"&gt;&lt;sup&gt;32&lt;/sup&gt;&lt;/font&gt; possible {@code int} values<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     * should be produced with  (approximately) equal probability.<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * &lt;p&gt;<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     * The default implementation provided here returns<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     * &lt;pre&gt;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * &lt;code&gt;(int) (nextDouble() * Integer.MAX_VALUE)&lt;/code&gt;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     * &lt;/pre&gt;&lt;/p&gt;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     *<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     * @return the next pseudorandom, uniformly distributed {@code int}<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     *  value from this random number generator's sequence<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     */<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    public int nextInt() {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        return (int) ((2d * nextDouble() - 1d) * Integer.MAX_VALUE);<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    }<a name="line.137"></a>
+<span class="sourceLineNo">138</span><a name="line.138"></a>
+<span class="sourceLineNo">139</span>    /**<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     * Returns a pseudorandom, uniformly distributed {@code int} value<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     * between 0 (inclusive) and the specified value (exclusive), drawn from<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     * this random number generator's sequence.<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     * &lt;p&gt;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     * The default implementation returns<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     * &lt;pre&gt;<a name="line.145"></a>
+<span class="sourceLineNo">146</span>     * &lt;code&gt;(int) (nextDouble() * n&lt;/code&gt;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>     * &lt;/pre&gt;&lt;/p&gt;<a name="line.147"></a>
+<span class="sourceLineNo">148</span>     *<a name="line.148"></a>
+<span class="sourceLineNo">149</span>     * @param n the bound on the random number to be returned.  Must be<a name="line.149"></a>
+<span class="sourceLineNo">150</span>     * positive.<a name="line.150"></a>
+<span class="sourceLineNo">151</span>     * @return  a pseudorandom, uniformly distributed {@code int}<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     * value between 0 (inclusive) and n (exclusive).<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     * @throws NotStrictlyPositiveException if {@code n &lt;= 0}.<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     */<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    public int nextInt(int n) {<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        if (n &lt;= 0 ) {<a name="line.156"></a>
+<span class="sourceLineNo">157</span>            throw new NotStrictlyPositiveException(n);<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        }<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        int result = (int) (nextDouble() * n);<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        return result &lt; n ? result : n - 1;<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    }<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>     /**<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     * Returns the next pseudorandom, uniformly distributed {@code long}<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     * value from this random number generator's sequence.  All<a name="line.165"></a>
+<span class="sourceLineNo">166</span>     * 2&lt;font size="-1"&gt;&lt;sup&gt;64&lt;/sup&gt;&lt;/font&gt; possible {@code long} values<a name="line.166"></a>
+<span class="sourceLineNo">167</span>     * should be produced with (approximately) equal probability.<a name="line.167"></a>
+<span class="sourceLineNo">168</span>     * &lt;p&gt;<a name="line.168"></a>
+<span class="sourceLineNo">169</span>     * The default implementation returns<a name="line.169"></a>
+<span class="sourceLineNo">170</span>     * &lt;pre&gt;<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     * &lt;code&gt;(long) (nextDouble() * Long.MAX_VALUE)&lt;/code&gt;<a name="line.171"></a>
+<span class="sourceLineNo">172</span>     * &lt;/pre&gt;&lt;/p&gt;<a name="line.172"></a>
+<span class="sourceLineNo">173</span>     *<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     * @return  the next pseudorandom, uniformly distributed {@code long}<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     *value from this random number generator's sequence<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     */<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    public long nextLong() {<a name="line.177"></a>
+<span class="sourceLineNo">178</span>        return (long) ((2d * nextDouble() - 1d) * Long.MAX_VALUE);<a name="line.178"></a>
+<span class="sourceLineNo">179</span>    }<a name="line.179"></a>
+<span class="sourceLineNo">180</span><a name="line.180"></a>
+<span class="sourceLineNo">181</span>    /**<a name="line.181"></a>
+<span class="sourceLineNo">182</span>     * Returns the next pseudorandom, uniformly distributed<a name="line.182"></a>
+<span class="sourceLineNo">183</span>     * {@code boolean} value from this random number generator's<a name="line.183"></a>
+<span class="sourceLineNo">184</span>     * sequence.<a name="line.184"></a>
+<span class="sourceLineNo">185</span>     * &lt;p&gt;<a name="line.185"></a>
+<span class="sourceLineNo">186</span>     * The default implementation returns<a name="line.186"></a>
+<span class="sourceLineNo">187</span>     * &lt;pre&gt;<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     * &lt;code&gt;nextDouble() &lt;= 0.5&lt;/code&gt;<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     * &lt;/pre&gt;&lt;/p&gt;<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     *<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     * @return  the next pseudorandom, uniformly distributed<a name="line.191"></a>
+<span class="sourceLineNo">192</span>     * {@code boolean} value from this random number generator's<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     * sequence<a name="line.193"></a>
+<span class="sourceLineNo">194</span>     */<a name="line.194"></a>
+<span class="sourceLineNo">195</span>    public boolean nextBoolean() {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        return nextDouble() &lt;= 0.5;<a name="line.196"></a>
+<span class="sourceLineNo">197</span>    }<a name="line.197"></a>
+<span class="sourceLineNo">198</span><a name="line.198"></a>
+<span class="sourceLineNo">199</span>     /**<a name="line.199"></a>
+<span class="sourceLineNo">200</span>     * Returns the next pseudorandom, uniformly distributed {@code float}<a name="line.200"></a>
+<span class="sourceLineNo">201</span>     * value between {@code 0.0} and {@code 1.0} from this random<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     * number generator's sequence.<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     * &lt;p&gt;<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     * The default implementation returns<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     * &lt;pre&gt;<a name="line.205"></a>
+<span class="sourceLineNo">206</span>     * &lt;code&gt;(float) nextDouble() &lt;/code&gt;<a name="line.206"></a>
+<span class="sourceLineNo">207</span>     * &lt;/pre&gt;&lt;/p&gt;<a name="line.207"></a>
+<span class="sourceLineNo">208</span>     *<a name="line.208"></a>
+<span class="sourceLineNo">209</span>     * @return  the next pseudorandom, uniformly distributed {@code float}<a name="line.209"></a>
+<span class="sourceLineNo">210</span>     * value between {@code 0.0} and {@code 1.0} from this<a name="line.210"></a>
+<span class="sourceLineNo">211</span>     * random number generator's sequence<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     */<a name="line.212"></a>
+<span class="sourceLineNo">213</span>    public float nextFloat() {<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        return (float) nextDouble();<a name="line.214"></a>
+<span class="sourceLineNo">215</span>    }<a name="line.215"></a>
+<span class="sourceLineNo">216</span><a name="line.216"></a>
+<span class="sourceLineNo">217</span>    /**<a name="line.217"></a>
+<span class="sourceLineNo">218</span>     * Returns the next pseudorandom, uniformly distributed<a name="line.218"></a>
+<span class="sourceLineNo">219</span>     * {@code double} value between {@code 0.0} and<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     * {@code 1.0} from this random number generator's sequence.<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     * &lt;p&gt;<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     * This method provides the underlying source of random data used by the<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     * other methods.&lt;/p&gt;<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     *<a name="line.224"></a>
+<span class="sourceLineNo">225</span>     * @return  the next pseudorandom, uniformly distributed<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     *  {@code double} value between {@code 0.0} and<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     *  {@code 1.0} from this random number generator's sequence<a name="line.227"></a>
+<span class="sourceLineNo">228</span>     */<a name="line.228"></a>
+<span class="sourceLineNo">229</span>    public abstract double nextDouble();<a name="line.229"></a>
+<span class="sourceLineNo">230</span><a name="line.230"></a>
+<span class="sourceLineNo">231</span>    /**<a name="line.231"></a>
+<span class="sourceLineNo">232</span>     * Returns the next pseudorandom, Gaussian ("normally") distributed<a name="line.232"></a>
+<span class="sourceLineNo">233</span>     * {@code double} value with mean {@code 0.0} and standard<a name="line.233"></a>
+<span class="sourceLineNo">234</span>     * deviation {@code 1.0} from this random number generator's sequence.<a name="line.234"></a>
+<span class="sourceLineNo">235</span>     * &lt;p&gt;<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     * The default implementation uses the &lt;em&gt;Polar Method&lt;/em&gt;<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     * due to G.E.P. Box, M.E. Muller and G. Marsaglia, as described in<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     * D. Knuth, &lt;u&gt;The Art of Computer Programming&lt;/u&gt;, 3.4.1C.&lt;/p&gt;<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     * &lt;p&gt;<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     * The algorithm generates a pair of independent random values.  One of<a name="line.240"></a>
+<span class="sourceLineNo">241</span>     * these is cached for reuse, so the full algorithm is not executed on each<a name="line.241"></a>
+<span class="sourceLineNo">242</span>     * activation.  Implementations that do not override this method should<a name="line.242"></a>
+<span class="sourceLineNo">243</span>     * make sure to call {@link #clear} to clear the cached value in the<a name="line.243"></a>
+<span class="sourceLineNo">244</span>     * implementation of {@link #setSeed(long)}.&lt;/p&gt;<a name="line.244"></a>
+<span class="sourceLineNo">245</span>     *<a name="line.245"></a>
+<span class="sourceLineNo">246</span>     * @return  the next pseudorandom, Gaussian ("normally") distributed<a name="line.246"></a>
+<span class="sourceLineNo">247</span>     * {@code double} value with mean {@code 0.0} and<a name="line.247"></a>
+<span class="sourceLineNo">248</span>     * standard deviation {@code 1.0} from this random number<a name="line.248"></a>
+<span class="sourceLineNo">249</span>     *  generator's sequence<a name="line.249"></a>
+<span class="sourceLineNo">250</span>     */<a name="line.250"></a>
+<span class="sourceLineNo">251</span>    public double nextGaussian() {<a name="line.251"></a>
+<span class="sourceLineNo">252</span>        if (!Double.isNaN(cachedNormalDeviate)) {<a name="line.252"></a>
+<span class="sourceLineNo">253</span>            double dev = cachedNormalDeviate;<a name="line.253"></a>
+<span class="sourceLineNo">254</span>            cachedNormalDeviate = Double.NaN;<a name="line.254"></a>
+<span class="sourceLineNo">255</span>            return dev;<a name="line.255"></a>
+<span class="sourceLineNo">256</span>        }<a name="line.256"></a>
+<span class="sourceLineNo">257</span>        double v1 = 0;<a name="line.257"></a>
+<span class="sourceLineNo">258</span>        double v2 = 0;<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        double s = 1;<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        while (s &gt;=1 ) {<a name="line.260"></a>
+<span class="sourceLineNo">261</span>            v1 = 2 * nextDouble() - 1;<a name="line.261"></a>
+<span class="sourceLineNo">262</span>            v2 = 2 * nextDouble() - 1;<a name="line.262"></a>
+<span class="sourceLineNo">263</span>            s = v1 * v1 + v2 * v2;<a name="line.263"></a>
+<span class="sourceLineNo">264</span>        }<a name="line.264"></a>
+<span class="sourceLineNo">265</span>        if (s != 0) {<a name="line.265"></a>
+<span class="sourceLineNo">266</span>            s = FastMath.sqrt(-2 * FastMath.log(s) / s);<a name="line.266"></a>
+<span class="sourceLineNo">267</span>        }<a name="line.267"></a>
+<span class="sourceLineNo">268</span>        cachedNormalDeviate = v2 * s;<a name="line.268"></a>
+<span class="sourceLineNo">269</span>        return v1 * s;<a name="line.269"></a>
+<span class="sourceLineNo">270</span>    }<a name="line.270"></a>
+<span class="sourceLineNo">271</span>}<a name="line.271"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

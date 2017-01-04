@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MultivariateOptimizer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optim.nonlinear.scalar</a> &gt; <span class="el_source">MultivariateOptimizer.java</span></div><h1>MultivariateOptimizer.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.optim.nonlinear.scalar;
+
+import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.optim.BaseMultivariateOptimizer;
+import org.apache.commons.math3.optim.OptimizationData;
+import org.apache.commons.math3.optim.ConvergenceChecker;
+import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math3.exception.TooManyEvaluationsException;
+
+/**
+ * Base class for a multivariate scalar function optimizer.
+ *
+ * @since 3.1
+ */
+public abstract class MultivariateOptimizer
+    extends BaseMultivariateOptimizer&lt;PointValuePair&gt; {
+    /** Objective function. */
+    private MultivariateFunction function;
+    /** Type of optimization. */
+    private GoalType goal;
+
+    /**
+     * @param checker Convergence checker.
+     */
+    protected MultivariateOptimizer(ConvergenceChecker&lt;PointValuePair&gt; checker) {
+<span class="fc" id="L42">        super(checker);</span>
+<span class="fc" id="L43">    }</span>
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param optData Optimization data. In addition to those documented in
+     * {@link BaseMultivariateOptimizer#parseOptimizationData(OptimizationData[])
+     * BaseMultivariateOptimizer}, this method will register the following data:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@link ObjectiveFunction}&lt;/li&gt;
+     *  &lt;li&gt;{@link GoalType}&lt;/li&gt;
+     * &lt;/ul&gt;
+     * @return {@inheritDoc}
+     * @throws TooManyEvaluationsException if the maximal number of
+     * evaluations is exceeded.
+     */
+    @Override
+    public PointValuePair optimize(OptimizationData... optData)
+        throws TooManyEvaluationsException {
+        // Set up base class and perform computation.
+<span class="fc" id="L63">        return super.optimize(optData);</span>
+    }
+
+    /**
+     * Scans the list of (required and optional) optimization data that
+     * characterize the problem.
+     *
+     * @param optData Optimization data.
+     * The following data will be looked for:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@link ObjectiveFunction}&lt;/li&gt;
+     *  &lt;li&gt;{@link GoalType}&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+    @Override
+    protected void parseOptimizationData(OptimizationData... optData) {
+        // Allow base class to register its own data.
+<span class="fc" id="L80">        super.parseOptimizationData(optData);</span>
+
+        // The existing values (as set by the previous call) are reused if
+        // not provided in the argument list.
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        for (OptimizationData data : optData) {</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">            if (data instanceof GoalType) {</span>
+<span class="fc" id="L86">                goal = (GoalType) data;</span>
+<span class="fc" id="L87">                continue;</span>
+            }
+<span class="fc bfc" id="L89" title="All 2 branches covered.">            if (data instanceof ObjectiveFunction) {</span>
+<span class="fc" id="L90">                function = ((ObjectiveFunction) data).getObjectiveFunction();</span>
+<span class="fc" id="L91">                continue;</span>
+            }
+        }
+<span class="fc" id="L94">    }</span>
+
+    /**
+     * @return the optimization type.
+     */
+    public GoalType getGoalType() {
+<span class="fc" id="L100">        return goal;</span>
+    }
+
+    /**
+     * Computes the objective function value.
+     * This method &lt;em&gt;must&lt;/em&gt; be called by subclasses to enforce the
+     * evaluation counter limit.
+     *
+     * @param params Point at which the objective function must be evaluated.
+     * @return the objective function value at the specified point.
+     * @throws TooManyEvaluationsException if the maximal number of
+     * evaluations is exceeded.
+     */
+    public double computeObjectiveValue(double[] params) {
+<span class="fc" id="L114">        super.incrementEvaluationCount();</span>
+<span class="fc" id="L115">        return function.value(params);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

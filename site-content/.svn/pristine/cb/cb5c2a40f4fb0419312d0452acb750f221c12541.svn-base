@@ -1,0 +1,570 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+<title>GammaTest (Apache Commons Math 3.5 Test API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="GammaTest (Apache Commons Math 3.5 Test API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/GammaTest.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+<div class="aboutLanguage"><em><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></em></div>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../org/apache/commons/math3/special/ErfTest.html" title="class in org.apache.commons.math3.special"><span class="strong">PREV CLASS</span></a></li>
+<li>NEXT CLASS</li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/apache/commons/math3/special/GammaTest.html" target="_top">FRAMES</a></li>
+<li><a href="GammaTest.html" target="_top">NO FRAMES</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>SUMMARY:&nbsp;</li>
+<li>NESTED&nbsp;|&nbsp;</li>
+<li>FIELD&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">METHOD</a></li>
+</ul>
+<ul class="subNavList">
+<li>DETAIL:&nbsp;</li>
+<li>FIELD&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">METHOD</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<p class="subTitle">org.apache.commons.math3.special</p>
+<h2 title="Class GammaTest" class="title">Class GammaTest</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>org.apache.commons.math3.special.GammaTest</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<br>
+<pre>public class <a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.28">GammaTest</a>
+extends <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#GammaTest()">GammaTest</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testDigammaLargeArgs()">testDigammaLargeArgs</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testDigammaSmallArgs()">testDigammaSmallArgs</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testGamma()">testGamma</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testGammaNegativeInteger()">testGammaNegativeInteger</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testInvGamma1pm1()">testInvGamma1pm1</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testInvGamma1pm1Precondition1()">testInvGamma1pm1Precondition1</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testInvGamma1pm1Precondition2()">testInvGamma1pm1Precondition2</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testLogGamma()">testLogGamma</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testLogGamma1p()">testLogGamma1p</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testLogGamma1pPrecondition1()">testLogGamma1pPrecondition1</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testLogGamma1pPrecondition2()">testLogGamma1pPrecondition2</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testLogGammaNan()">testLogGammaNan</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testLogGammaNegative()">testLogGammaNegative</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testLogGammaPositive()">testLogGammaPositive</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testLogGammaPrecondition1()">testLogGammaPrecondition1</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testLogGammaPrecondition2()">testLogGammaPrecondition2</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testLogGammaZero()">testLogGammaZero</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testRegularizedGammaNanPositive()">testRegularizedGammaNanPositive</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testRegularizedGammaNegativePositive()">testRegularizedGammaNegativePositive</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testRegularizedGammaPositiveNan()">testRegularizedGammaPositiveNan</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testRegularizedGammaPositiveNegative()">testRegularizedGammaPositiveNegative</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testRegularizedGammaPositivePositive()">testRegularizedGammaPositivePositive</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testRegularizedGammaPositiveZero()">testRegularizedGammaPositiveZero</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testRegularizedGammaZeroPositive()">testRegularizedGammaZeroPositive</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/special/GammaTest.html#testTrigamma()">testTrigamma</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="GammaTest()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>GammaTest</h4>
+<pre>public&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.28">GammaTest</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="testRegularizedGammaNanPositive()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testRegularizedGammaNanPositive</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.42">testRegularizedGammaNanPositive</a>()</pre>
+</li>
+</ul>
+<a name="testRegularizedGammaPositiveNan()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testRegularizedGammaPositiveNan</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.47">testRegularizedGammaPositiveNan</a>()</pre>
+</li>
+</ul>
+<a name="testRegularizedGammaNegativePositive()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testRegularizedGammaNegativePositive</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.52">testRegularizedGammaNegativePositive</a>()</pre>
+</li>
+</ul>
+<a name="testRegularizedGammaPositiveNegative()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testRegularizedGammaPositiveNegative</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.57">testRegularizedGammaPositiveNegative</a>()</pre>
+</li>
+</ul>
+<a name="testRegularizedGammaZeroPositive()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testRegularizedGammaZeroPositive</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.62">testRegularizedGammaZeroPositive</a>()</pre>
+</li>
+</ul>
+<a name="testRegularizedGammaPositiveZero()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testRegularizedGammaPositiveZero</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.67">testRegularizedGammaPositiveZero</a>()</pre>
+</li>
+</ul>
+<a name="testRegularizedGammaPositivePositive()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testRegularizedGammaPositivePositive</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.72">testRegularizedGammaPositivePositive</a>()</pre>
+</li>
+</ul>
+<a name="testLogGammaNan()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testLogGammaNan</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.77">testLogGammaNan</a>()</pre>
+</li>
+</ul>
+<a name="testLogGammaNegative()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testLogGammaNegative</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.82">testLogGammaNegative</a>()</pre>
+</li>
+</ul>
+<a name="testLogGammaZero()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testLogGammaZero</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.87">testLogGammaZero</a>()</pre>
+</li>
+</ul>
+<a name="testLogGammaPositive()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testLogGammaPositive</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.92">testLogGammaPositive</a>()</pre>
+</li>
+</ul>
+<a name="testDigammaLargeArgs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testDigammaLargeArgs</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.97">testDigammaLargeArgs</a>()</pre>
+</li>
+</ul>
+<a name="testDigammaSmallArgs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testDigammaSmallArgs</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.113">testDigammaSmallArgs</a>()</pre>
+</li>
+</ul>
+<a name="testTrigamma()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testTrigamma</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.128">testTrigamma</a>()</pre>
+</li>
+</ul>
+<a name="testLogGamma()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testLogGamma</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.306">testLogGamma</a>()</pre>
+</li>
+</ul>
+<a name="testLogGammaPrecondition1()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testLogGammaPrecondition1</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.324">testLogGammaPrecondition1</a>()</pre>
+</li>
+</ul>
+<a name="testLogGammaPrecondition2()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testLogGammaPrecondition2</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.329">testLogGammaPrecondition2</a>()</pre>
+</li>
+</ul>
+<a name="testInvGamma1pm1()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testInvGamma1pm1</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.375">testInvGamma1pm1</a>()</pre>
+</li>
+</ul>
+<a name="testInvGamma1pm1Precondition1()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testInvGamma1pm1Precondition1</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.389">testInvGamma1pm1Precondition1</a>()</pre>
+</li>
+</ul>
+<a name="testInvGamma1pm1Precondition2()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testInvGamma1pm1Precondition2</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.395">testInvGamma1pm1Precondition2</a>()</pre>
+</li>
+</ul>
+<a name="testLogGamma1p()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testLogGamma1p</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.421">testLogGamma1p</a>()</pre>
+</li>
+</ul>
+<a name="testLogGamma1pPrecondition1()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testLogGamma1pPrecondition1</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.435">testLogGamma1pPrecondition1</a>()</pre>
+</li>
+</ul>
+<a name="testLogGamma1pPrecondition2()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testLogGamma1pPrecondition2</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.441">testLogGamma1pPrecondition2</a>()</pre>
+</li>
+</ul>
+<a name="testGamma()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testGamma</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.930">testGamma</a>()</pre>
+</li>
+</ul>
+<a name="testGammaNegativeInteger()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>testGammaNegativeInteger</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/special/GammaTest.html#line.956">testGammaNegativeInteger</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/GammaTest.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+<div class="aboutLanguage"><em><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></em></div>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../org/apache/commons/math3/special/ErfTest.html" title="class in org.apache.commons.math3.special"><span class="strong">PREV CLASS</span></a></li>
+<li>NEXT CLASS</li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/apache/commons/math3/special/GammaTest.html" target="_top">FRAMES</a></li>
+<li><a href="GammaTest.html" target="_top">NO FRAMES</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>SUMMARY:&nbsp;</li>
+<li>NESTED&nbsp;|&nbsp;</li>
+<li>FIELD&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">METHOD</a></li>
+</ul>
+<ul class="subNavList">
+<li>DETAIL:&nbsp;</li>
+<li>FIELD&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">METHOD</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+<p class="legalCopy"><small>Copyright &#169; 2003&#x2013;2015 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</small></p>
+</body>
+</html>

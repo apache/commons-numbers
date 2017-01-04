@@ -1,0 +1,1073 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Percentile.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive.rank</a> &gt; <span class="el_source">Percentile.java</span></div><h1>Percentile.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive.rank;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.BitSet;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.MathUnsupportedOperationException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.stat.descriptive.AbstractUnivariateStatistic;
+import org.apache.commons.math3.stat.ranking.NaNStrategy;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.KthSelector;
+import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.math3.util.MathUtils;
+import org.apache.commons.math3.util.MedianOf3PivotingStrategy;
+import org.apache.commons.math3.util.PivotingStrategyInterface;
+import org.apache.commons.math3.util.Precision;
+
+/**
+ * Provides percentile computation.
+ * &lt;p&gt;
+ * There are several commonly used methods for estimating percentiles (a.k.a.
+ * quantiles) based on sample data.  For large samples, the different methods
+ * agree closely, but when sample sizes are small, different methods will give
+ * significantly different results.  The algorithm implemented here works as follows:
+ * &lt;ol&gt;
+ * &lt;li&gt;Let &lt;code&gt;n&lt;/code&gt; be the length of the (sorted) array and
+ * &lt;code&gt;0 &lt; p &lt;= 100&lt;/code&gt; be the desired percentile.&lt;/li&gt;
+ * &lt;li&gt;If &lt;code&gt; n = 1 &lt;/code&gt; return the unique array element (regardless of
+ * the value of &lt;code&gt;p&lt;/code&gt;); otherwise &lt;/li&gt;
+ * &lt;li&gt;Compute the estimated percentile position
+ * &lt;code&gt; pos = p * (n + 1) / 100&lt;/code&gt; and the difference, &lt;code&gt;d&lt;/code&gt;
+ * between &lt;code&gt;pos&lt;/code&gt; and &lt;code&gt;floor(pos)&lt;/code&gt; (i.e. the fractional
+ * part of &lt;code&gt;pos&lt;/code&gt;).&lt;/li&gt;
+ * &lt;li&gt; If &lt;code&gt;pos &lt; 1&lt;/code&gt; return the smallest element in the array.&lt;/li&gt;
+ * &lt;li&gt; Else if &lt;code&gt;pos &gt;= n&lt;/code&gt; return the largest element in the array.&lt;/li&gt;
+ * &lt;li&gt; Else let &lt;code&gt;lower&lt;/code&gt; be the element in position
+ * &lt;code&gt;floor(pos)&lt;/code&gt; in the array and let &lt;code&gt;upper&lt;/code&gt; be the
+ * next element in the array.  Return &lt;code&gt;lower + d * (upper - lower)&lt;/code&gt;
+ * &lt;/li&gt;
+ * &lt;/ol&gt;&lt;/p&gt;
+ * &lt;p&gt;
+ * To compute percentiles, the data must be at least partially ordered.  Input
+ * arrays are copied and recursively partitioned using an ordering definition.
+ * The ordering used by &lt;code&gt;Arrays.sort(double[])&lt;/code&gt; is the one determined
+ * by {@link java.lang.Double#compareTo(Double)}.  This ordering makes
+ * &lt;code&gt;Double.NaN&lt;/code&gt; larger than any other value (including
+ * &lt;code&gt;Double.POSITIVE_INFINITY&lt;/code&gt;).  Therefore, for example, the median
+ * (50th percentile) of
+ * &lt;code&gt;{0, 1, 2, 3, 4, Double.NaN}&lt;/code&gt; evaluates to &lt;code&gt;2.5.&lt;/code&gt;&lt;/p&gt;
+ * &lt;p&gt;
+ * Since percentile estimation usually involves interpolation between array
+ * elements, arrays containing  &lt;code&gt;NaN&lt;/code&gt; or infinite values will often
+ * result in &lt;code&gt;NaN&lt;/code&gt; or infinite values returned.&lt;/p&gt;
+ * &lt;p&gt;
+ * Further, to include different estimation types such as R1, R2 as mentioned in
+ * &lt;a href=&quot;http://en.wikipedia.org/wiki/Quantile&quot;&gt;Quantile page(wikipedia)&lt;/a&gt;,
+ * a type specific NaN handling strategy is used to closely match with the
+ * typically observed results from popular tools like R(R1-R9), Excel(R7).&lt;/p&gt;
+ * &lt;p&gt;
+ * Since 2.2, Percentile uses only selection instead of complete sorting
+ * and caches selection algorithm state between calls to the various
+ * {@code evaluate} methods. This greatly improves efficiency, both for a single
+ * percentile and multiple percentile computations. To maximize performance when
+ * multiple percentiles are computed based on the same data, users should set the
+ * data array once using either one of the {@link #evaluate(double[], double)} or
+ * {@link #setData(double[])} methods and thereafter {@link #evaluate(double)}
+ * with just the percentile provided.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * &lt;strong&gt;Note that this implementation is not synchronized.&lt;/strong&gt; If
+ * multiple threads access an instance of this class concurrently, and at least
+ * one of the threads invokes the &lt;code&gt;increment()&lt;/code&gt; or
+ * &lt;code&gt;clear()&lt;/code&gt; method, it must be synchronized externally.&lt;/p&gt;
+ *
+ */
+public class Percentile extends AbstractUnivariateStatistic implements Serializable {
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = -8091216485095130416L;
+
+    /** Maximum number of partitioning pivots cached (each level double the number of pivots). */
+    private static final int MAX_CACHED_LEVELS = 10;
+
+    /** Maximum number of cached pivots in the pivots cached array */
+    private static final int PIVOTS_HEAP_LENGTH = 0x1 &lt;&lt; MAX_CACHED_LEVELS - 1;
+
+    /** Default KthSelector used with default pivoting strategy */
+    private final KthSelector kthSelector;
+
+    /** Any of the {@link EstimationType}s such as {@link EstimationType#LEGACY CM} can be used. */
+    private final EstimationType estimationType;
+
+    /** NaN Handling of the input as defined by {@link NaNStrategy} */
+    private final NaNStrategy nanStrategy;
+
+    /** Determines what percentile is computed when evaluate() is activated
+     * with no quantile argument */
+    private double quantile;
+
+    /** Cached pivots. */
+    private int[] cachedPivots;
+
+    /**
+     * Constructs a Percentile with the following defaults.
+     * &lt;ul&gt;
+     *   &lt;li&gt;default quantile: 50.0, can be reset with {@link #setQuantile(double)}&lt;/li&gt;
+     *   &lt;li&gt;default estimation type: {@link EstimationType#LEGACY},
+     *   can be reset with {@link #withEstimationType(EstimationType)}&lt;/li&gt;
+     *   &lt;li&gt;default NaN strategy: {@link NaNStrategy#REMOVED},
+     *   can be reset with {@link #withNaNStrategy(NaNStrategy)}&lt;/li&gt;
+     *   &lt;li&gt;a KthSelector that makes use of {@link MedianOf3PivotingStrategy},
+     *   can be reset with {@link #withKthSelector(KthSelector)}&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+    public Percentile() {
+        // No try-catch or advertised exception here - arg is valid
+<span class="fc" id="L137">        this(50.0);</span>
+<span class="fc" id="L138">    }</span>
+
+    /**
+     * Constructs a Percentile with the specific quantile value and the following
+     * &lt;ul&gt;
+     *   &lt;li&gt;default method type: {@link EstimationType#LEGACY}&lt;/li&gt;
+     *   &lt;li&gt;default NaN strategy: {@link NaNStrategy#REMOVED}&lt;/li&gt;
+     *   &lt;li&gt;a Kth Selector : {@link KthSelector}&lt;/li&gt;
+     * &lt;/ul&gt;
+     * @param quantile the quantile
+     * @throws MathIllegalArgumentException  if p is not greater than 0 and less
+     * than or equal to 100
+     */
+    public Percentile(final double quantile) throws MathIllegalArgumentException {
+<span class="fc" id="L152">        this(quantile, EstimationType.LEGACY, NaNStrategy.REMOVED,</span>
+             new KthSelector(new MedianOf3PivotingStrategy()));
+<span class="fc" id="L154">    }</span>
+
+    /**
+     * Copy constructor, creates a new {@code Percentile} identical
+     * to the {@code original}
+     *
+     * @param original the {@code Percentile} instance to copy
+     * @throws NullArgumentException if original is null
+     */
+<span class="fc" id="L163">    public Percentile(final Percentile original) throws NullArgumentException {</span>
+
+<span class="fc" id="L165">        MathUtils.checkNotNull(original);</span>
+<span class="fc" id="L166">        estimationType   = original.getEstimationType();</span>
+<span class="fc" id="L167">        nanStrategy      = original.getNaNStrategy();</span>
+<span class="fc" id="L168">        kthSelector      = original.getKthSelector();</span>
+
+<span class="fc" id="L170">        setData(original.getDataRef());</span>
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">        if (original.cachedPivots != null) {</span>
+<span class="nc" id="L172">            System.arraycopy(original.cachedPivots, 0, cachedPivots, 0, original.cachedPivots.length);</span>
+        }
+<span class="fc" id="L174">        setQuantile(original.quantile);</span>
+
+<span class="fc" id="L176">    }</span>
+
+    /**
+     * Constructs a Percentile with the specific quantile value,
+     * {@link EstimationType}, {@link NaNStrategy} and {@link KthSelector}.
+     *
+     * @param quantile the quantile to be computed
+     * @param estimationType one of the percentile {@link EstimationType  estimation types}
+     * @param nanStrategy one of {@link NaNStrategy} to handle with NaNs
+     * @param kthSelector a {@link KthSelector} to use for pivoting during search
+     * @throws MathIllegalArgumentException if p is not within (0,100]
+     * @throws NullArgumentException if type or NaNStrategy passed is null
+     */
+    protected Percentile(final double quantile,
+                         final EstimationType estimationType,
+                         final NaNStrategy nanStrategy,
+                         final KthSelector kthSelector)
+<span class="fc" id="L193">        throws MathIllegalArgumentException {</span>
+<span class="fc" id="L194">        setQuantile(quantile);</span>
+<span class="fc" id="L195">        cachedPivots = null;</span>
+<span class="fc" id="L196">        MathUtils.checkNotNull(estimationType);</span>
+<span class="fc" id="L197">        MathUtils.checkNotNull(nanStrategy);</span>
+<span class="fc" id="L198">        MathUtils.checkNotNull(kthSelector);</span>
+<span class="fc" id="L199">        this.estimationType = estimationType;</span>
+<span class="fc" id="L200">        this.nanStrategy = nanStrategy;</span>
+<span class="fc" id="L201">        this.kthSelector = kthSelector;</span>
+<span class="fc" id="L202">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public void setData(final double[] values) {
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        if (values == null) {</span>
+<span class="fc" id="L208">            cachedPivots = null;</span>
+        } else {
+<span class="fc" id="L210">            cachedPivots = new int[PIVOTS_HEAP_LENGTH];</span>
+<span class="fc" id="L211">            Arrays.fill(cachedPivots, -1);</span>
+        }
+<span class="fc" id="L213">        super.setData(values);</span>
+<span class="fc" id="L214">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public void setData(final double[] values, final int begin, final int length)
+    throws MathIllegalArgumentException {
+<span class="nc bnc" id="L220" title="All 2 branches missed.">        if (values == null) {</span>
+<span class="nc" id="L221">            cachedPivots = null;</span>
+        } else {
+<span class="nc" id="L223">            cachedPivots = new int[PIVOTS_HEAP_LENGTH];</span>
+<span class="nc" id="L224">            Arrays.fill(cachedPivots, -1);</span>
+        }
+<span class="nc" id="L226">        super.setData(values, begin, length);</span>
+<span class="nc" id="L227">    }</span>
+
+    /**
+     * Returns the result of evaluating the statistic over the stored data.
+     * &lt;p&gt;
+     * The stored array is the one which was set by previous calls to
+     * {@link #setData(double[])}
+     * &lt;/p&gt;
+     * @param p the percentile value to compute
+     * @return the value of the statistic applied to the stored data
+     * @throws MathIllegalArgumentException if p is not a valid quantile value
+     * (p must be greater than 0 and less than or equal to 100)
+     */
+    public double evaluate(final double p) throws MathIllegalArgumentException {
+<span class="fc" id="L241">        return evaluate(getDataRef(), p);</span>
+    }
+
+    /**
+     * Returns an estimate of the &lt;code&gt;p&lt;/code&gt;th percentile of the values
+     * in the &lt;code&gt;values&lt;/code&gt; array.
+     * &lt;p&gt;
+     * Calls to this method do not modify the internal &lt;code&gt;quantile&lt;/code&gt;
+     * state of this statistic.&lt;/p&gt;
+     * &lt;p&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;Returns &lt;code&gt;Double.NaN&lt;/code&gt; if &lt;code&gt;values&lt;/code&gt; has length
+     * &lt;code&gt;0&lt;/code&gt;&lt;/li&gt;
+     * &lt;li&gt;Returns (for any value of &lt;code&gt;p&lt;/code&gt;) &lt;code&gt;values[0]&lt;/code&gt;
+     *  if &lt;code&gt;values&lt;/code&gt; has length &lt;code&gt;1&lt;/code&gt;&lt;/li&gt;
+     * &lt;li&gt;Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if &lt;code&gt;values&lt;/code&gt;
+     * is null or p is not a valid quantile value (p must be greater than 0
+     * and less than or equal to 100) &lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     * &lt;p&gt;
+     * See {@link Percentile} for a description of the percentile estimation
+     * algorithm used.&lt;/p&gt;
+     *
+     * @param values input array of values
+     * @param p the percentile value to compute
+     * @return the percentile value or Double.NaN if the array is empty
+     * @throws MathIllegalArgumentException if &lt;code&gt;values&lt;/code&gt; is null
+     *     or p is invalid
+     */
+    public double evaluate(final double[] values, final double p)
+    throws MathIllegalArgumentException {
+<span class="fc" id="L272">        test(values, 0, 0);</span>
+<span class="fc" id="L273">        return evaluate(values, 0, values.length, p);</span>
+    }
+
+    /**
+     * Returns an estimate of the &lt;code&gt;quantile&lt;/code&gt;th percentile of the
+     * designated values in the &lt;code&gt;values&lt;/code&gt; array.  The quantile
+     * estimated is determined by the &lt;code&gt;quantile&lt;/code&gt; property.
+     * &lt;p&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;Returns &lt;code&gt;Double.NaN&lt;/code&gt; if &lt;code&gt;length = 0&lt;/code&gt;&lt;/li&gt;
+     * &lt;li&gt;Returns (for any value of &lt;code&gt;quantile&lt;/code&gt;)
+     * &lt;code&gt;values[begin]&lt;/code&gt; if &lt;code&gt;length = 1 &lt;/code&gt;&lt;/li&gt;
+     * &lt;li&gt;Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if &lt;code&gt;values&lt;/code&gt;
+     * is null, or &lt;code&gt;start&lt;/code&gt; or &lt;code&gt;length&lt;/code&gt; is invalid&lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     * &lt;p&gt;
+     * See {@link Percentile} for a description of the percentile estimation
+     * algorithm used.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param start index of the first array element to include
+     * @param length the number of elements to include
+     * @return the percentile value
+     * @throws MathIllegalArgumentException if the parameters are not valid
+     *
+     */
+    @Override
+    public double evaluate(final double[] values, final int start, final int length)
+    throws MathIllegalArgumentException {
+<span class="fc" id="L302">        return evaluate(values, start, length, quantile);</span>
+    }
+
+     /**
+     * Returns an estimate of the &lt;code&gt;p&lt;/code&gt;th percentile of the values
+     * in the &lt;code&gt;values&lt;/code&gt; array, starting with the element in (0-based)
+     * position &lt;code&gt;begin&lt;/code&gt; in the array and including &lt;code&gt;length&lt;/code&gt;
+     * values.
+     * &lt;p&gt;
+     * Calls to this method do not modify the internal &lt;code&gt;quantile&lt;/code&gt;
+     * state of this statistic.&lt;/p&gt;
+     * &lt;p&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;Returns &lt;code&gt;Double.NaN&lt;/code&gt; if &lt;code&gt;length = 0&lt;/code&gt;&lt;/li&gt;
+     * &lt;li&gt;Returns (for any value of &lt;code&gt;p&lt;/code&gt;) &lt;code&gt;values[begin]&lt;/code&gt;
+     *  if &lt;code&gt;length = 1 &lt;/code&gt;&lt;/li&gt;
+     * &lt;li&gt;Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if &lt;code&gt;values&lt;/code&gt;
+     *  is null , &lt;code&gt;begin&lt;/code&gt; or &lt;code&gt;length&lt;/code&gt; is invalid, or
+     * &lt;code&gt;p&lt;/code&gt; is not a valid quantile value (p must be greater than 0
+     * and less than or equal to 100)&lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     * &lt;p&gt;
+     * See {@link Percentile} for a description of the percentile estimation
+     * algorithm used.&lt;/p&gt;
+     *
+     * @param values array of input values
+     * @param p  the percentile to compute
+     * @param begin  the first (0-based) element to include in the computation
+     * @param length  the number of array elements to include
+     * @return  the percentile value
+     * @throws MathIllegalArgumentException if the parameters are not valid or the
+     * input array is null
+     */
+    public double evaluate(final double[] values, final int begin,
+                           final int length, final double p)
+        throws MathIllegalArgumentException {
+
+<span class="fc" id="L339">        test(values, begin, length);</span>
+<span class="fc bfc" id="L340" title="All 4 branches covered.">        if (p &gt; 100 || p &lt;= 0) {</span>
+<span class="fc" id="L341">            throw new OutOfRangeException(</span>
+                    LocalizedFormats.OUT_OF_BOUNDS_QUANTILE_VALUE, p, 0, 100);
+        }
+<span class="fc bfc" id="L344" title="All 2 branches covered.">        if (length == 0) {</span>
+<span class="fc" id="L345">            return Double.NaN;</span>
+        }
+<span class="fc bfc" id="L347" title="All 2 branches covered.">        if (length == 1) {</span>
+<span class="fc" id="L348">            return values[begin]; // always return single value for n = 1</span>
+        }
+
+<span class="fc" id="L351">        final double[] work = getWorkArray(values, begin, length);</span>
+<span class="fc" id="L352">        final int[] pivotsHeap = getPivots(values);</span>
+<span class="fc bfc" id="L353" title="All 2 branches covered.">        return work.length == 0 ? Double.NaN :</span>
+                    estimationType.evaluate(work, pivotsHeap, p, kthSelector);
+    }
+
+    /** Select a pivot index as the median of three
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; With the effect of allowing {@link KthSelector} to be set on
+     * {@link Percentile} instances(thus indirectly {@link PivotingStrategy})
+     * this method wont take effect any more and hence is unsupported.
+     * @param work data array
+     * @param begin index of the first element of the slice
+     * @param end index after the last element of the slice
+     * @return the index of the median element chosen between the
+     * first, the middle and the last element of the array slice
+     * @deprecated Please refrain from using this method (as it wont take effect)
+     * and instead use {@link Percentile#withKthSelector(newKthSelector)} if
+     * required.
+     *
+     */
+    @Deprecated
+    int medianOf3(final double[] work, final int begin, final int end) {
+<span class="fc" id="L374">        return new MedianOf3PivotingStrategy().pivotIndex(work, begin, end);</span>
+        //throw new MathUnsupportedOperationException();
+    }
+
+    /**
+     * Returns the value of the quantile field (determines what percentile is
+     * computed when evaluate() is called with no quantile argument).
+     *
+     * @return quantile set while construction or {@link #setQuantile(double)}
+     */
+    public double getQuantile() {
+<span class="fc" id="L385">        return quantile;</span>
+    }
+
+    /**
+     * Sets the value of the quantile field (determines what percentile is
+     * computed when evaluate() is called with no quantile argument).
+     *
+     * @param p a value between 0 &lt; p &lt;= 100
+     * @throws MathIllegalArgumentException  if p is not greater than 0 and less
+     * than or equal to 100
+     */
+    public void setQuantile(final double p) throws MathIllegalArgumentException {
+<span class="fc bfc" id="L397" title="All 4 branches covered.">        if (p &lt;= 0 || p &gt; 100) {</span>
+<span class="fc" id="L398">            throw new OutOfRangeException(</span>
+                    LocalizedFormats.OUT_OF_BOUNDS_QUANTILE_VALUE, p, 0, 100);
+        }
+<span class="fc" id="L401">        quantile = p;</span>
+<span class="fc" id="L402">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Percentile copy() {
+<span class="fc" id="L409">        return new Percentile(this);</span>
+    }
+
+    /**
+     * Copies source to dest.
+     * @param source Percentile to copy
+     * @param dest Percentile to copy to
+     * @exception MathUnsupportedOperationException always thrown since 3.4
+     * @deprecated as of 3.4 this method does not work anymore, as it fails to
+     * copy internal states between instances configured with different
+     * {@link EstimationType estimation type}, {@link NaNStrategy NaN handling strategies}
+     * and {@link KthSelector kthSelector}, it therefore always
+     * throw {@link MathUnsupportedOperationException}
+      */
+    @Deprecated
+    public static void copy(final Percentile source, final Percentile dest)
+        throws MathUnsupportedOperationException {
+<span class="nc" id="L426">        throw new MathUnsupportedOperationException();</span>
+    }
+
+    /**
+     * Get the work array to operate. Makes use of prior {@code storedData} if
+     * it exists or else do a check on NaNs and copy a subset of the array
+     * defined by begin and length parameters. The set {@link #nanStrategy} will
+     * be used to either retain/remove/replace any NaNs present before returning
+     * the resultant array.
+     *
+     * @param values the array of numbers
+     * @param begin index to start reading the array
+     * @param length the length of array to be read from the begin index
+     * @return work array sliced from values in the range [begin,begin+length)
+     * @throws MathIllegalArgumentException if values or indices are invalid
+     */
+    protected double[] getWorkArray(final double[] values, final int begin, final int length) {
+            final double[] work;
+<span class="fc bfc" id="L444" title="All 2 branches covered.">            if (values == getDataRef()) {</span>
+<span class="fc" id="L445">                work = getDataRef();</span>
+            } else {
+<span class="pc bfc" id="L447" title="All 5 branches covered.">                switch (nanStrategy) {</span>
+                case MAXIMAL:// Replace NaNs with +INFs
+<span class="fc" id="L449">                    work = replaceAndSlice(values, begin, length, Double.NaN, Double.POSITIVE_INFINITY);</span>
+<span class="fc" id="L450">                    break;</span>
+                case MINIMAL:// Replace NaNs with -INFs
+<span class="fc" id="L452">                    work = replaceAndSlice(values, begin, length, Double.NaN, Double.NEGATIVE_INFINITY);</span>
+<span class="fc" id="L453">                    break;</span>
+                case REMOVED:// Drop NaNs from data
+<span class="fc" id="L455">                    work = removeAndSlice(values, begin, length, Double.NaN);</span>
+<span class="fc" id="L456">                    break;</span>
+                case FAILED:// just throw exception as NaN is un-acceptable
+<span class="fc" id="L458">                    work = copyOf(values, begin, length);</span>
+<span class="nc" id="L459">                    MathArrays.checkNotNaN(work);</span>
+<span class="nc" id="L460">                    break;</span>
+                default: //FIXED
+<span class="fc" id="L462">                    work = copyOf(values,begin,length);</span>
+                    break;
+                }
+            }
+<span class="fc" id="L466">            return work;</span>
+    }
+
+    /**
+     * Make a copy of the array for the slice defined by array part from
+     * [begin, begin+length)
+     * @param values the input array
+     * @param begin start index of the array to include
+     * @param length number of elements to include from begin
+     * @return copy of a slice of the original array
+     */
+    private static double[] copyOf(final double[] values, final int begin, final int length) {
+<span class="fc" id="L478">        MathArrays.verifyValues(values, begin, length);</span>
+<span class="fc" id="L479">        return MathArrays.copyOfRange(values, begin, begin + length);</span>
+    }
+
+    /**
+     * Replace every occurrence of a given value with a replacement value in a
+     * copied slice of array defined by array part from [begin, begin+length).
+     * @param values the input array
+     * @param begin start index of the array to include
+     * @param length number of elements to include from begin
+     * @param original the value to be replaced with
+     * @param replacement the value to be used for replacement
+     * @return the copy of sliced array with replaced values
+     */
+    private static double[] replaceAndSlice(final double[] values,
+                                            final int begin, final int length,
+                                            final double original,
+                                            final double replacement) {
+<span class="fc" id="L496">        final double[] temp = copyOf(values, begin, length);</span>
+<span class="fc bfc" id="L497" title="All 2 branches covered.">        for(int i = 0; i &lt; length; i++) {</span>
+<span class="fc bfc" id="L498" title="All 2 branches covered.">            temp[i] = Precision.equalsIncludingNaN(original, temp[i]) ?</span>
+                      replacement : temp[i];
+        }
+<span class="fc" id="L501">        return temp;</span>
+    }
+
+    /**
+     * Remove the occurrence of a given value in a copied slice of array
+     * defined by the array part from [begin, begin+length).
+     * @param values the input array
+     * @param begin start index of the array to include
+     * @param length number of elements to include from begin
+     * @param removedValue the value to be removed from the sliced array
+     * @return the copy of the sliced array after removing the removedValue
+     */
+    private static double[] removeAndSlice(final double[] values,
+                                           final int begin, final int length,
+                                           final double removedValue) {
+<span class="fc" id="L516">        MathArrays.verifyValues(values, begin, length);</span>
+        final double[] temp;
+        //BitSet(length) to indicate where the removedValue is located
+<span class="fc" id="L519">        final BitSet bits = new BitSet(length);</span>
+<span class="fc bfc" id="L520" title="All 2 branches covered.">        for (int i = begin; i &lt; begin+length; i++) {</span>
+<span class="fc bfc" id="L521" title="All 2 branches covered.">            if (Precision.equalsIncludingNaN(removedValue, values[i])) {</span>
+<span class="fc" id="L522">                bits.set(i - begin);</span>
+            }
+        }
+        //Check if empty then create a new copy
+<span class="fc bfc" id="L526" title="All 2 branches covered.">        if (bits.isEmpty()) {</span>
+<span class="fc" id="L527">            temp = copyOf(values, begin, length); // Nothing removed, just copy</span>
+<span class="fc bfc" id="L528" title="All 2 branches covered.">        } else if(bits.cardinality() == length){</span>
+<span class="fc" id="L529">            temp = new double[0];                 // All removed, just empty</span>
+        }else {                                   // Some removable, so new
+<span class="fc" id="L531">            temp = new double[length - bits.cardinality()];</span>
+<span class="fc" id="L532">            int start = begin;  //start index from source array (i.e values)</span>
+<span class="fc" id="L533">            int dest = 0;       //dest index in destination array(i.e temp)</span>
+<span class="fc" id="L534">            int nextOne = -1;   //nextOne is the index of bit set of next one</span>
+<span class="fc" id="L535">            int bitSetPtr = 0;  //bitSetPtr is start index pointer of bitset</span>
+<span class="fc bfc" id="L536" title="All 2 branches covered.">            while ((nextOne = bits.nextSetBit(bitSetPtr)) != -1) {</span>
+<span class="fc" id="L537">                final int lengthToCopy = nextOne - bitSetPtr;</span>
+<span class="fc" id="L538">                System.arraycopy(values, start, temp, dest, lengthToCopy);</span>
+<span class="fc" id="L539">                dest += lengthToCopy;</span>
+<span class="fc" id="L540">                start = begin + (bitSetPtr = bits.nextClearBit(nextOne));</span>
+<span class="fc" id="L541">            }</span>
+            //Copy any residue past start index till begin+length
+<span class="fc bfc" id="L543" title="All 2 branches covered.">            if (start &lt; begin + length) {</span>
+<span class="fc" id="L544">                System.arraycopy(values,start,temp,dest,begin + length - start);</span>
+            }
+        }
+<span class="fc" id="L547">        return temp;</span>
+    }
+
+    /**
+     * Get pivots which is either cached or a newly created one
+     *
+     * @param values array containing the input numbers
+     * @return cached pivots or a newly created one
+     */
+    private int[] getPivots(final double[] values) {
+        final int[] pivotsHeap;
+<span class="fc bfc" id="L558" title="All 2 branches covered.">        if (values == getDataRef()) {</span>
+<span class="fc" id="L559">            pivotsHeap = cachedPivots;</span>
+        } else {
+<span class="fc" id="L561">            pivotsHeap = new int[PIVOTS_HEAP_LENGTH];</span>
+<span class="fc" id="L562">            Arrays.fill(pivotsHeap, -1);</span>
+        }
+<span class="fc" id="L564">        return pivotsHeap;</span>
+    }
+
+    /**
+     * Get the estimation {@link EstimationType type} used for computation.
+     *
+     * @return the {@code estimationType} set
+     */
+    public EstimationType getEstimationType() {
+<span class="fc" id="L573">        return estimationType;</span>
+    }
+
+    /**
+     * Build a new instance similar to the current one except for the
+     * {@link EstimationType estimation type}.
+     * &lt;p&gt;
+     * This method is intended to be used as part of a fluent-type builder
+     * pattern. Building finely tune instances should be done as follows:
+     * &lt;/p&gt;
+     * &lt;pre&gt;
+     *   Percentile customized = new Percentile(quantile).
+     *                           withEstimationType(estimationType).
+     *                           withNaNStrategy(nanStrategy).
+     *                           withKthSelector(kthSelector);
+     * &lt;/pre&gt;
+     * &lt;p&gt;
+     * If any of the {@code withXxx} method is omitted, the default value for
+     * the corresponding customization parameter will be used.
+     * &lt;/p&gt;
+     * @param newEstimationType estimation type for the new instance
+     * @return a new instance, with changed estimation type
+     * @throws NullArgumentException when newEstimationType is null
+     */
+    public Percentile withEstimationType(final EstimationType newEstimationType) {
+<span class="fc" id="L598">        return new Percentile(quantile, newEstimationType, nanStrategy, kthSelector);</span>
+    }
+
+    /**
+     * Get the {@link NaNStrategy NaN Handling} strategy used for computation.
+     * @return {@code NaN Handling} strategy set during construction
+     */
+    public NaNStrategy getNaNStrategy() {
+<span class="fc" id="L606">        return nanStrategy;</span>
+    }
+
+    /**
+     * Build a new instance similar to the current one except for the
+     * {@link NaNStrategy NaN handling} strategy.
+     * &lt;p&gt;
+     * This method is intended to be used as part of a fluent-type builder
+     * pattern. Building finely tune instances should be done as follows:
+     * &lt;/p&gt;
+     * &lt;pre&gt;
+     *   Percentile customized = new Percentile(quantile).
+     *                           withEstimationType(estimationType).
+     *                           withNaNStrategy(nanStrategy).
+     *                           withKthSelector(kthSelector);
+     * &lt;/pre&gt;
+     * &lt;p&gt;
+     * If any of the {@code withXxx} method is omitted, the default value for
+     * the corresponding customization parameter will be used.
+     * &lt;/p&gt;
+     * @param newNaNStrategy NaN strategy for the new instance
+     * @return a new instance, with changed NaN handling strategy
+     * @throws NullArgumentException when newNaNStrategy is null
+     */
+    public Percentile withNaNStrategy(final NaNStrategy newNaNStrategy) {
+<span class="fc" id="L631">        return new Percentile(quantile, estimationType, newNaNStrategy, kthSelector);</span>
+    }
+
+    /**
+     * Get the {@link KthSelector kthSelector} used for computation.
+     * @return the {@code kthSelector} set
+     */
+    public KthSelector getKthSelector() {
+<span class="fc" id="L639">        return kthSelector;</span>
+    }
+
+    /**
+     * Get the {@link PivotingStrategyInterface} used in KthSelector for computation.
+     * @return the pivoting strategy set
+     */
+    public PivotingStrategyInterface getPivotingStrategy() {
+<span class="fc" id="L647">        return kthSelector.getPivotingStrategy();</span>
+    }
+
+    /**
+     * Build a new instance similar to the current one except for the
+     * {@link KthSelector kthSelector} instance specifically set.
+     * &lt;p&gt;
+     * This method is intended to be used as part of a fluent-type builder
+     * pattern. Building finely tune instances should be done as follows:
+     * &lt;/p&gt;
+     * &lt;pre&gt;
+     *   Percentile customized = new Percentile(quantile).
+     *                           withEstimationType(estimationType).
+     *                           withNaNStrategy(nanStrategy).
+     *                           withKthSelector(newKthSelector);
+     * &lt;/pre&gt;
+     * &lt;p&gt;
+     * If any of the {@code withXxx} method is omitted, the default value for
+     * the corresponding customization parameter will be used.
+     * &lt;/p&gt;
+     * @param newKthSelector KthSelector for the new instance
+     * @return a new instance, with changed KthSelector
+     * @throws NullArgumentException when newKthSelector is null
+     */
+    public Percentile withKthSelector(final KthSelector newKthSelector) {
+<span class="fc" id="L672">        return new Percentile(quantile, estimationType, nanStrategy,</span>
+                                newKthSelector);
+    }
+
+    /**
+     * An enum for various estimation strategies of a percentile referred in
+     * &lt;a href=&quot;http://en.wikipedia.org/wiki/Quantile&quot;&gt;wikipedia on quantile&lt;/a&gt;
+     * with the names of enum matching those of types mentioned in
+     * wikipedia.
+     * &lt;p&gt;
+     * Each enum corresponding to the specific type of estimation in wikipedia
+     * implements  the respective formulae that specializes in the below aspects
+     * &lt;ul&gt;
+     * &lt;li&gt;An &lt;b&gt;index method&lt;/b&gt; to calculate approximate index of the
+     * estimate&lt;/li&gt;
+     * &lt;li&gt;An &lt;b&gt;estimate method&lt;/b&gt; to estimate a value found at the earlier
+     * computed index&lt;/li&gt;
+     * &lt;li&gt;A &lt;b&gt; minLimit&lt;/b&gt; on the quantile for which first element of sorted
+     * input is returned as an estimate &lt;/li&gt;
+     * &lt;li&gt;A &lt;b&gt; maxLimit&lt;/b&gt; on the quantile for which last element of sorted
+     * input is returned as an estimate &lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;p&gt;
+     * Users can now create {@link Percentile} by explicitly passing this enum;
+     * such as by invoking {@link Percentile#withEstimationType(EstimationType)}
+     * &lt;p&gt;
+     * References:
+     * &lt;ol&gt;
+     * &lt;li&gt;
+     * &lt;a href=&quot;http://en.wikipedia.org/wiki/Quantile&quot;&gt;Wikipedia on quantile&lt;/a&gt;
+     * &lt;/li&gt;
+     * &lt;li&gt;
+     * &lt;a href=&quot;https://www.amherst.edu/media/view/129116/.../Sample+Quantiles.pdf&quot;&gt;
+     * Hyndman, R. J. and Fan, Y. (1996) Sample quantiles in statistical
+     * packages, American Statistician 50, 361–365&lt;/a&gt; &lt;/li&gt;
+     * &lt;li&gt;
+     * &lt;a href=&quot;http://stat.ethz.ch/R-manual/R-devel/library/stats/html/quantile.html&quot;&gt;
+     * R-Manual &lt;/a&gt;&lt;/li&gt;
+     * &lt;/ol&gt;
+     *
+     */
+<span class="pc" id="L713">    public enum EstimationType {</span>
+        /**
+         * This is the default type used in the {@link Percentile}.This method
+         * has the following formulae for index and estimates&lt;br&gt;
+         * \( \begin{align}
+         * &amp;amp;index    = (N+1)p\ \\
+         * &amp;amp;estimate = x_{\lceil h\,-\,1/2 \rceil} \\
+         * &amp;amp;minLimit = 0 \\
+         * &amp;amp;maxLimit = 1 \\
+         * \end{align}\)
+         */
+<span class="fc" id="L724">        LEGACY(&quot;Legacy Apache Commons Math&quot;) {</span>
+            /**
+             * {@inheritDoc}.This method in particular makes use of existing
+             * Apache Commons Math style of picking up the index.
+             */
+            @Override
+            protected double index(final double p, final int length) {
+<span class="fc" id="L731">                final double minLimit = 0d;</span>
+<span class="fc" id="L732">                final double maxLimit = 1d;</span>
+<span class="fc bfc" id="L733" title="All 4 branches covered.">                return Double.compare(p, minLimit) == 0 ? 0 :</span>
+                       Double.compare(p, maxLimit) == 0 ?
+                               length : p * (length + 1);
+            }
+        },
+        /**
+         * The method R_1 has the following formulae for index and estimates&lt;br&gt;
+         * \( \begin{align}
+         * &amp;amp;index= Np + 1/2\,  \\
+         * &amp;amp;estimate= x_{\lceil h\,-\,1/2 \rceil} \\
+         * &amp;amp;minLimit = 0 \\
+         * \end{align}\)
+         */
+<span class="fc" id="L746">        R_1(&quot;R-1&quot;) {</span>
+
+            @Override
+            protected double index(final double p, final int length) {
+<span class="fc" id="L750">                final double minLimit = 0d;</span>
+<span class="fc bfc" id="L751" title="All 2 branches covered.">                return Double.compare(p, minLimit) == 0 ? 0 : length * p + 0.5;</span>
+            }
+
+            /**
+             * {@inheritDoc}This method in particular for R_1 uses ceil(pos-0.5)
+             */
+            @Override
+            protected double estimate(final double[] values,
+                                      final int[] pivotsHeap, final double pos,
+                                      final int length, final KthSelector selector) {
+<span class="fc" id="L761">                return super.estimate(values, pivotsHeap, FastMath.ceil(pos - 0.5), length, selector);</span>
+            }
+
+        },
+        /**
+         * The method R_2 has the following formulae for index and estimates&lt;br&gt;
+         * \( \begin{align}
+         * &amp;amp;index= Np + 1/2\, \\
+         * &amp;amp;estimate=\frac{x_{\lceil h\,-\,1/2 \rceil} +
+         * x_{\lfloor h\,+\,1/2 \rfloor}}{2} \\
+         * &amp;amp;minLimit = 0 \\
+         * &amp;amp;maxLimit = 1 \\
+         * \end{align}\)
+         */
+<span class="fc" id="L775">        R_2(&quot;R-2&quot;) {</span>
+
+            @Override
+            protected double index(final double p, final int length) {
+<span class="fc" id="L779">                final double minLimit = 0d;</span>
+<span class="fc" id="L780">                final double maxLimit = 1d;</span>
+<span class="fc bfc" id="L781" title="All 4 branches covered.">                return Double.compare(p, maxLimit) == 0 ? length :</span>
+                       Double.compare(p, minLimit) == 0 ? 0 : length * p + 0.5;
+            }
+
+            /**
+             * {@inheritDoc}This method in particular for R_2 averages the
+             * values at ceil(p+0.5) and floor(p-0.5).
+             */
+            @Override
+            protected double estimate(final double[] values,
+                                      final int[] pivotsHeap, final double pos,
+                                      final int length, final KthSelector selector) {
+<span class="fc" id="L793">                final double low =</span>
+                        super.estimate(values, pivotsHeap, FastMath.ceil(pos - 0.5), length, selector);
+<span class="fc" id="L795">                final double high =</span>
+                        super.estimate(values, pivotsHeap,FastMath.floor(pos + 0.5), length, selector);
+<span class="fc" id="L797">                return (low + high) / 2;</span>
+            }
+
+        },
+        /**
+         * The method R_3 has the following formulae for index and estimates&lt;br&gt;
+         * \( \begin{align}
+         * &amp;amp;index= Np \\
+         * &amp;amp;estimate= x_{\lfloor h \rceil}\, \\
+         * &amp;amp;minLimit = 0.5/N \\
+         * \end{align}\)
+         */
+<span class="fc" id="L809">        R_3(&quot;R-3&quot;) {</span>
+            @Override
+            protected double index(final double p, final int length) {
+<span class="fc" id="L812">                final double minLimit = 1d/2 / length;</span>
+<span class="fc bfc" id="L813" title="All 2 branches covered.">                return Double.compare(p, minLimit) &lt;= 0 ?</span>
+                        0 : FastMath.rint(length * p);
+            }
+
+        },
+        /**
+         * The method R_4 has the following formulae for index and estimates&lt;br&gt;
+         * \( \begin{align}
+         * &amp;amp;index= Np\, \\
+         * &amp;amp;estimate= x_{\lfloor h \rfloor} + (h -
+         * \lfloor h \rfloor) (x_{\lfloor h \rfloor + 1} - x_{\lfloor h
+         * \rfloor}) \\
+         * &amp;amp;minLimit = 1/N \\
+         * &amp;amp;maxLimit = 1 \\
+         * \end{align}\)
+         */
+<span class="fc" id="L829">        R_4(&quot;R-4&quot;) {</span>
+            @Override
+            protected double index(final double p, final int length) {
+<span class="fc" id="L832">                final double minLimit = 1d / length;</span>
+<span class="fc" id="L833">                final double maxLimit = 1d;</span>
+<span class="fc bfc" id="L834" title="All 4 branches covered.">                return Double.compare(p, minLimit) &lt; 0 ? 0 :</span>
+                       Double.compare(p, maxLimit) == 0 ? length : length * p;
+            }
+
+        },
+        /**
+         * The method R_5 has the following formulae for index and estimates&lt;br&gt;
+         * \( \begin{align}
+         * &amp;amp;index= Np + 1/2\\
+         * &amp;amp;estimate= x_{\lfloor h \rfloor} + (h -
+         * \lfloor h \rfloor) (x_{\lfloor h \rfloor + 1} - x_{\lfloor h
+         * \rfloor}) \\
+         * &amp;amp;minLimit = 0.5/N \\
+         * &amp;amp;maxLimit = (N-0.5)/N
+         * \end{align}\)
+         */
+<span class="fc" id="L850">        R_5(&quot;R-5&quot;){</span>
+
+            @Override
+            protected double index(final double p, final int length) {
+<span class="fc" id="L854">                final double minLimit = 1d/2 / length;</span>
+<span class="fc" id="L855">                final double maxLimit = (length - 0.5) / length;</span>
+<span class="fc bfc" id="L856" title="All 4 branches covered.">                return Double.compare(p, minLimit) &lt; 0 ? 0 :</span>
+                       Double.compare(p, maxLimit) &gt;= 0 ?
+                               length : length * p + 0.5;
+            }
+        },
+        /**
+         * The method R_6 has the following formulae for index and estimates&lt;br&gt;
+         * \( \begin{align}
+         * &amp;amp;index= (N + 1)p \\
+         * &amp;amp;estimate= x_{\lfloor h \rfloor} + (h -
+         * \lfloor h \rfloor) (x_{\lfloor h \rfloor + 1} - x_{\lfloor h
+         * \rfloor}) \\
+         * &amp;amp;minLimit = 1/(N+1) \\
+         * &amp;amp;maxLimit = N/(N+1) \\
+         * \end{align}\)
+         * &lt;p&gt;
+         * &lt;b&gt;Note:&lt;/b&gt; This method computes the index in a manner very close to
+         * the default Commons Math Percentile existing implementation. However
+         * the difference to be noted is in picking up the limits with which
+         * first element (p&amp;lt;1(N+1)) and last elements (p&amp;gt;N/(N+1))are done.
+         * While in default case; these are done with p=0 and p=1 respectively.
+         */
+<span class="fc" id="L878">        R_6(&quot;R-6&quot;){</span>
+
+            @Override
+            protected double index(final double p, final int length) {
+<span class="fc" id="L882">                final double minLimit = 1d / (length + 1);</span>
+<span class="fc" id="L883">                final double maxLimit = 1d * length / (length + 1);</span>
+<span class="fc bfc" id="L884" title="All 4 branches covered.">                return Double.compare(p, minLimit) &lt; 0 ? 0 :</span>
+                       Double.compare(p, maxLimit) &gt;= 0 ?
+                               length : (length + 1) * p;
+            }
+        },
+
+        /**
+         * The method R_7 implements Microsoft Excel style computation has the
+         * following formulae for index and estimates.&lt;br&gt;
+         * \( \begin{align}
+         * &amp;amp;index = (N-1)p + 1 \\
+         * &amp;amp;estimate = x_{\lfloor h \rfloor} + (h -
+         * \lfloor h \rfloor) (x_{\lfloor h \rfloor + 1} - x_{\lfloor h
+         * \rfloor}) \\
+         * &amp;amp;minLimit = 0 \\
+         * &amp;amp;maxLimit = 1 \\
+         * \end{align}\)
+         */
+<span class="fc" id="L902">        R_7(&quot;R-7&quot;) {</span>
+            @Override
+            protected double index(final double p, final int length) {
+<span class="fc" id="L905">                final double minLimit = 0d;</span>
+<span class="fc" id="L906">                final double maxLimit = 1d;</span>
+<span class="fc bfc" id="L907" title="All 4 branches covered.">                return Double.compare(p, minLimit) == 0 ? 0 :</span>
+                       Double.compare(p, maxLimit) == 0 ?
+                               length : 1 + (length - 1) * p;
+            }
+
+        },
+
+        /**
+         * The method R_8 has the following formulae for index and estimates&lt;br&gt;
+         * \( \begin{align}
+         * &amp;amp;index = (N + 1/3)p + 1/3  \\
+         * &amp;amp;estimate = x_{\lfloor h \rfloor} + (h -
+           \lfloor h \rfloor) (x_{\lfloor h \rfloor + 1} - x_{\lfloor h
+         * \rfloor}) \\
+         * &amp;amp;minLimit = (2/3)/(N+1/3) \\
+         * &amp;amp;maxLimit = (N-1/3)/(N+1/3) \\
+         * \end{align}\)
+         * &lt;p&gt;
+         * As per Ref [2,3] this approach is most recommended as it provides
+         * an approximate median-unbiased estimate regardless of distribution.
+         */
+<span class="fc" id="L928">        R_8(&quot;R-8&quot;) {</span>
+            @Override
+            protected double index(final double p, final int length) {
+<span class="fc" id="L931">                final double minLimit = 2 * (1d / 3) / (length + 1d / 3);</span>
+<span class="fc" id="L932">                final double maxLimit =</span>
+                        (length - 1d / 3) / (length + 1d / 3);
+<span class="fc bfc" id="L934" title="All 4 branches covered.">                return Double.compare(p, minLimit) &lt; 0 ? 0 :</span>
+                       Double.compare(p, maxLimit) &gt;= 0 ? length :
+                           (length + 1d / 3) * p + 1d / 3;
+            }
+        },
+
+        /**
+         * The method R_9 has the following formulae for index and estimates&lt;br&gt;
+         * \( \begin{align}
+         * &amp;amp;index = (N + 1/4)p + 3/8\\
+         * &amp;amp;estimate = x_{\lfloor h \rfloor} + (h -
+           \lfloor h \rfloor) (x_{\lfloor h \rfloor + 1} - x_{\lfloor h
+         * \rfloor}) \\
+         * &amp;amp;minLimit = (5/8)/(N+1/4) \\
+         * &amp;amp;maxLimit = (N-3/8)/(N+1/4) \\
+         * \end{align}\)
+         */
+<span class="fc" id="L951">        R_9(&quot;R-9&quot;) {</span>
+            @Override
+            protected double index(final double p, final int length) {
+<span class="fc" id="L954">                final double minLimit = 5d/8 / (length + 0.25);</span>
+<span class="fc" id="L955">                final double maxLimit = (length - 3d/8) / (length + 0.25);</span>
+<span class="fc bfc" id="L956" title="All 4 branches covered.">                return Double.compare(p, minLimit) &lt; 0 ? 0 :</span>
+                       Double.compare(p, maxLimit) &gt;= 0 ? length :
+                               (length + 0.25) * p + 3d/8;
+            }
+
+        },
+        ;
+
+        /** Simple name such as R-1, R-2 corresponding to those in wikipedia. */
+        private final String name;
+
+        /**
+         * Constructor
+         *
+         * @param type name of estimation type as per wikipedia
+         */
+<span class="fc" id="L972">        EstimationType(final String type) {</span>
+<span class="fc" id="L973">            this.name = type;</span>
+<span class="fc" id="L974">        }</span>
+
+        /**
+         * Finds the index of array that can be used as starting index to
+         * {@link #estimate(double[], int[], double, int, KthSelector) estimate}
+         * percentile. The calculation of index calculation is specific to each
+         * {@link EstimationType}.
+         *
+         * @param p the p&lt;sup&gt;th&lt;/sup&gt; quantile
+         * @param length the total number of array elements in the work array
+         * @return a computed real valued index as explained in the wikipedia
+         */
+        protected abstract double index(final double p, final int length);
+
+        /**
+         * Estimation based on K&lt;sup&gt;th&lt;/sup&gt; selection. This may be overridden
+         * in specific enums to compute slightly different estimations.
+         *
+         * @param work array of numbers to be used for finding the percentile
+         * @param pos indicated positional index prior computed from calling
+         *            {@link #index(double, int)}
+         * @param pivotsHeap an earlier populated cache if exists; will be used
+         * @param length size of array considered
+         * @param selector a {@link KthSelector} used for pivoting during search
+         * @return estimated percentile
+         */
+        protected double estimate(final double[] work, final int[] pivotsHeap,
+                                  final double pos, final int length,
+                                  final KthSelector selector) {
+
+<span class="fc" id="L1004">            final double fpos = FastMath.floor(pos);</span>
+<span class="fc" id="L1005">            final int intPos = (int) fpos;</span>
+<span class="fc" id="L1006">            final double dif = pos - fpos;</span>
+
+<span class="fc bfc" id="L1008" title="All 2 branches covered.">            if (pos &lt; 1) {</span>
+<span class="fc" id="L1009">                return selector.select(work, pivotsHeap, 0);</span>
+            }
+<span class="fc bfc" id="L1011" title="All 2 branches covered.">            if (pos &gt;= length) {</span>
+<span class="fc" id="L1012">                return selector.select(work, pivotsHeap, length - 1);</span>
+            }
+
+<span class="fc" id="L1015">            final double lower = selector.select(work, pivotsHeap, intPos - 1);</span>
+<span class="fc" id="L1016">            final double upper = selector.select(work, pivotsHeap, intPos);</span>
+<span class="fc" id="L1017">            return lower + dif * (upper - lower);</span>
+        }
+
+        /**
+         * Evaluate method to compute the percentile for a given bounded array
+         * using earlier computed pivots heap.&lt;br&gt;
+         * This basically calls the {@link #index(double, int) index} and then
+         * {@link #estimate(double[], int[], double, int, KthSelector) estimate}
+         * functions to return the estimated percentile value.
+         *
+         * @param work array of numbers to be used for finding the percentile
+         * @param pivotsHeap a prior cached heap which can speed up estimation
+         * @param p the p&lt;sup&gt;th&lt;/sup&gt; quantile to be computed
+         * @param selector a {@link KthSelector} used for pivoting during search
+         * @return estimated percentile
+         * @throws OutOfRangeException if p is out of range
+         * @throws NullArgumentException if work array is null
+         */
+        protected double evaluate(final double[] work, final int[] pivotsHeap, final double p,
+                                  final KthSelector selector) {
+<span class="fc" id="L1037">            MathUtils.checkNotNull(work);</span>
+<span class="fc bfc" id="L1038" title="All 4 branches covered.">            if (p &gt; 100 || p &lt;= 0) {</span>
+<span class="fc" id="L1039">                throw new OutOfRangeException(LocalizedFormats.OUT_OF_BOUNDS_QUANTILE_VALUE,</span>
+                                              p, 0, 100);
+            }
+<span class="fc" id="L1042">            return estimate(work, pivotsHeap, index(p/100d, work.length), work.length, selector);</span>
+        }
+
+        /**
+         * Evaluate method to compute the percentile for a given bounded array.
+         * This basically calls the {@link #index(double, int) index} and then
+         * {@link #estimate(double[], int[], double, int, KthSelector) estimate}
+         * functions to return the estimated percentile value. Please
+         * note that this method does not make use of cached pivots.
+         *
+         * @param work array of numbers to be used for finding the percentile
+         * @param p the p&lt;sup&gt;th&lt;/sup&gt; quantile to be computed
+         * @return estimated percentile
+         * @param selector a {@link KthSelector} used for pivoting during search
+         * @throws OutOfRangeException if length or p is out of range
+         * @throws NullArgumentException if work array is null
+         */
+        public double evaluate(final double[] work, final double p, final KthSelector selector) {
+<span class="fc" id="L1060">            return this.evaluate(work, null, p, selector);</span>
+        }
+
+        /**
+         * Gets the name of the enum
+         *
+         * @return the name
+         */
+        String getName() {
+<span class="fc" id="L1069">            return name;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

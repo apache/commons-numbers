@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractConvexHullGenerator2D.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.euclidean.twod.hull</a> &gt; <span class="el_source">AbstractConvexHullGenerator2D.java</span></div><h1>AbstractConvexHullGenerator2D.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.euclidean.twod.hull;
+
+import java.util.Collection;
+
+import org.apache.commons.math3.exception.ConvergenceException;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * Abstract base class for convex hull generators in the two-dimensional euclidean space.
+ *
+ * @since 3.3
+ */
+abstract class AbstractConvexHullGenerator2D implements ConvexHullGenerator2D {
+
+    /** Default value for tolerance. */
+    private static final double DEFAULT_TOLERANCE = 1e-10;
+
+    /** Tolerance below which points are considered identical. */
+    private final double tolerance;
+
+    /**
+     * Indicates if collinear points on the hull shall be present in the output.
+     * If {@code false}, only the extreme points are added to the hull.
+     */
+    private final boolean includeCollinearPoints;
+
+    /**
+     * Simple constructor.
+     * &lt;p&gt;
+     * The default tolerance (1e-10) will be used to determine identical points.
+     *
+     * @param includeCollinearPoints indicates if collinear points on the hull shall be
+     * added as hull vertices
+     */
+    protected AbstractConvexHullGenerator2D(final boolean includeCollinearPoints) {
+<span class="fc" id="L55">        this(includeCollinearPoints, DEFAULT_TOLERANCE);</span>
+<span class="fc" id="L56">    }</span>
+
+    /**
+     * Simple constructor.
+     *
+     * @param includeCollinearPoints indicates if collinear points on the hull shall be
+     * added as hull vertices
+     * @param tolerance tolerance below which points are considered identical
+     */
+<span class="fc" id="L65">    protected AbstractConvexHullGenerator2D(final boolean includeCollinearPoints, final double tolerance) {</span>
+<span class="fc" id="L66">        this.includeCollinearPoints = includeCollinearPoints;</span>
+<span class="fc" id="L67">        this.tolerance = tolerance;</span>
+<span class="fc" id="L68">    }</span>
+
+    /**
+     * Get the tolerance below which points are considered identical.
+     * @return the tolerance below which points are considered identical
+     */
+    public double getTolerance() {
+<span class="fc" id="L75">        return tolerance;</span>
+    }
+
+    /**
+     * Returns if collinear points on the hull will be added as hull vertices.
+     * @return {@code true} if collinear points are added as hull vertices, or {@code false}
+     * if only extreme points are present.
+     */
+    public boolean isIncludeCollinearPoints() {
+<span class="fc" id="L84">        return includeCollinearPoints;</span>
+    }
+
+    /** {@inheritDoc} */
+    public ConvexHull2D generate(final Collection&lt;Vector2D&gt; points)
+            throws NullArgumentException, ConvergenceException {
+        // check for null points
+<span class="fc" id="L91">        MathUtils.checkNotNull(points);</span>
+
+<span class="fc" id="L93">        Collection&lt;Vector2D&gt; hullVertices = null;</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        if (points.size() &lt; 2) {</span>
+<span class="fc" id="L95">            hullVertices = points;</span>
+        } else {
+<span class="fc" id="L97">            hullVertices = findHullVertices(points);</span>
+        }
+
+        try {
+<span class="fc" id="L101">            return new ConvexHull2D(hullVertices.toArray(new Vector2D[hullVertices.size()]),</span>
+                                    tolerance);
+<span class="fc" id="L103">        } catch (MathIllegalArgumentException e) {</span>
+            // the hull vertices may not form a convex hull if the tolerance value is to large
+<span class="fc" id="L105">            throw new ConvergenceException();</span>
+        }
+    }
+
+    /**
+     * Find the convex hull vertices from the set of input points.
+     * @param points the set of input points
+     * @return the convex hull vertices in CCW winding
+     */
+    protected abstract Collection&lt;Vector2D&gt; findHullVertices(Collection&lt;Vector2D&gt; points);
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

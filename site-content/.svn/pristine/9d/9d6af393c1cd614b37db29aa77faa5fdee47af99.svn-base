@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractListChromosome.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.genetics</a> &gt; <span class="el_source">AbstractListChromosome.java</span></div><h1>AbstractListChromosome.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.genetics;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * Chromosome represented by an immutable list of a fixed length.
+ *
+ * @param &lt;T&gt; type of the representation list
+ * @since 2.0
+ */
+public abstract class AbstractListChromosome&lt;T&gt; extends Chromosome {
+
+    /** List representing the chromosome */
+    private final List&lt;T&gt; representation;
+
+    /**
+     * Constructor, copying the input representation.
+     * @param representation inner representation of the chromosome
+     * @throws InvalidRepresentationException iff the &lt;code&gt;representation&lt;/code&gt; can not represent a valid chromosome
+     */
+    public AbstractListChromosome(final List&lt;T&gt; representation) throws InvalidRepresentationException {
+<span class="fc" id="L41">        this(representation, true);</span>
+<span class="fc" id="L42">    }</span>
+
+    /**
+     * Constructor, copying the input representation.
+     * @param representation inner representation of the chromosome
+     * @throws InvalidRepresentationException iff the &lt;code&gt;representation&lt;/code&gt; can not represent a valid chromosome
+     */
+    public AbstractListChromosome(final T[] representation) throws InvalidRepresentationException {
+<span class="fc" id="L50">        this(Arrays.asList(representation));</span>
+<span class="fc" id="L51">    }</span>
+
+    /**
+     * Constructor.
+     * @param representation inner representation of the chromosome
+     * @param copyList if {@code true}, the representation will be copied, otherwise it will be referenced.
+     * @since 3.3
+     */
+<span class="fc" id="L59">    public AbstractListChromosome(final List&lt;T&gt; representation, final boolean copyList) {</span>
+<span class="fc" id="L60">        checkValidity(representation);</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        this.representation =</span>
+                Collections.unmodifiableList(copyList ? new ArrayList&lt;T&gt;(representation) : representation);
+<span class="fc" id="L63">    }</span>
+
+    /**
+     * Asserts that &lt;code&gt;representation&lt;/code&gt; can represent a valid chromosome.
+     *
+     * @param chromosomeRepresentation representation of the chromosome
+     * @throws InvalidRepresentationException iff the &lt;code&gt;representation&lt;/code&gt; can not represent a valid chromosome
+     */
+    protected abstract void checkValidity(List&lt;T&gt; chromosomeRepresentation) throws InvalidRepresentationException;
+
+    /**
+     * Returns the (immutable) inner representation of the chromosome.
+     * @return the representation of the chromosome
+     */
+    protected List&lt;T&gt; getRepresentation() {
+<span class="fc" id="L78">        return representation;</span>
+    }
+
+    /**
+     * Returns the length of the chromosome.
+     * @return the length of the chromosome
+     */
+    public int getLength() {
+<span class="fc" id="L86">        return getRepresentation().size();</span>
+    }
+
+    /**
+     * Creates a new instance of the same class as &lt;code&gt;this&lt;/code&gt; is, with a given &lt;code&gt;arrayRepresentation&lt;/code&gt;.
+     * This is needed in crossover and mutation operators, where we need a new instance of the same class, but with
+     * different array representation.
+     * &lt;p&gt;
+     * Usually, this method just calls a constructor of the class.
+     *
+     * @param chromosomeRepresentation the inner array representation of the new chromosome.
+     * @return new instance extended from FixedLengthChromosome with the given arrayRepresentation
+     */
+    public abstract AbstractListChromosome&lt;T&gt; newFixedLengthChromosome(final List&lt;T&gt; chromosomeRepresentation);
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+<span class="fc" id="L104">        return String.format(&quot;(f=%s %s)&quot;, getFitness(), getRepresentation());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

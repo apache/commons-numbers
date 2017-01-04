@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BetaDistribution.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.distribution</a> &gt; <span class="el_source">BetaDistribution.java</span></div><h1>BetaDistribution.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.distribution;
+
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.Well19937c;
+import org.apache.commons.math3.special.Beta;
+import org.apache.commons.math3.special.Gamma;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.Precision;
+
+/**
+ * Implements the Beta distribution.
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Beta_distribution&quot;&gt;Beta distribution&lt;/a&gt;
+ * @since 2.0 (changed to concrete class in 3.0)
+ */
+public class BetaDistribution extends AbstractRealDistribution {
+    /**
+     * Default inverse cumulative probability accuracy.
+     * @since 2.1
+     */
+    public static final double DEFAULT_INVERSE_ABSOLUTE_ACCURACY = 1e-9;
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = -1221965979403477668L;
+    /** First shape parameter. */
+    private final double alpha;
+    /** Second shape parameter. */
+    private final double beta;
+    /** Normalizing factor used in density computations.
+     * updated whenever alpha or beta are changed.
+     */
+    private double z;
+    /** Inverse cumulative probability accuracy. */
+    private final double solverAbsoluteAccuracy;
+
+    /**
+     * Build a new instance.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; this constructor will implicitly create an instance of
+     * {@link Well19937c} as random generator to be used for sampling only (see
+     * {@link #sample()} and {@link #sample(int)}). In case no sampling is
+     * needed for the created distribution, it is advised to pass {@code null}
+     * as random generator via the appropriate constructors to avoid the
+     * additional initialisation overhead.
+     *
+     * @param alpha First shape parameter (must be positive).
+     * @param beta Second shape parameter (must be positive).
+     */
+    public BetaDistribution(double alpha, double beta) {
+<span class="fc" id="L67">        this(alpha, beta, DEFAULT_INVERSE_ABSOLUTE_ACCURACY);</span>
+<span class="fc" id="L68">    }</span>
+
+    /**
+     * Build a new instance.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; this constructor will implicitly create an instance of
+     * {@link Well19937c} as random generator to be used for sampling only (see
+     * {@link #sample()} and {@link #sample(int)}). In case no sampling is
+     * needed for the created distribution, it is advised to pass {@code null}
+     * as random generator via the appropriate constructors to avoid the
+     * additional initialisation overhead.
+     *
+     * @param alpha First shape parameter (must be positive).
+     * @param beta Second shape parameter (must be positive).
+     * @param inverseCumAccuracy Maximum absolute error in inverse
+     * cumulative probability estimates (defaults to
+     * {@link #DEFAULT_INVERSE_ABSOLUTE_ACCURACY}).
+     * @since 2.1
+     */
+    public BetaDistribution(double alpha, double beta, double inverseCumAccuracy) {
+<span class="fc" id="L88">        this(new Well19937c(), alpha, beta, inverseCumAccuracy);</span>
+<span class="fc" id="L89">    }</span>
+
+    /**
+     * Creates a &amp;beta; distribution.
+     *
+     * @param rng Random number generator.
+     * @param alpha First shape parameter (must be positive).
+     * @param beta Second shape parameter (must be positive).
+     * @since 3.3
+     */
+    public BetaDistribution(RandomGenerator rng, double alpha, double beta) {
+<span class="fc" id="L100">        this(rng, alpha, beta, DEFAULT_INVERSE_ABSOLUTE_ACCURACY);</span>
+<span class="fc" id="L101">    }</span>
+
+    /**
+     * Creates a &amp;beta; distribution.
+     *
+     * @param rng Random number generator.
+     * @param alpha First shape parameter (must be positive).
+     * @param beta Second shape parameter (must be positive).
+     * @param inverseCumAccuracy Maximum absolute error in inverse
+     * cumulative probability estimates (defaults to
+     * {@link #DEFAULT_INVERSE_ABSOLUTE_ACCURACY}).
+     * @since 3.1
+     */
+    public BetaDistribution(RandomGenerator rng,
+                            double alpha,
+                            double beta,
+                            double inverseCumAccuracy) {
+<span class="fc" id="L118">        super(rng);</span>
+
+<span class="fc" id="L120">        this.alpha = alpha;</span>
+<span class="fc" id="L121">        this.beta = beta;</span>
+<span class="fc" id="L122">        z = Double.NaN;</span>
+<span class="fc" id="L123">        solverAbsoluteAccuracy = inverseCumAccuracy;</span>
+<span class="fc" id="L124">    }</span>
+
+    /**
+     * Access the first shape parameter, {@code alpha}.
+     *
+     * @return the first shape parameter.
+     */
+    public double getAlpha() {
+<span class="fc" id="L132">        return alpha;</span>
+    }
+
+    /**
+     * Access the second shape parameter, {@code beta}.
+     *
+     * @return the second shape parameter.
+     */
+    public double getBeta() {
+<span class="fc" id="L141">        return beta;</span>
+    }
+
+    /** Recompute the normalization factor. */
+    private void recomputeZ() {
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        if (Double.isNaN(z)) {</span>
+<span class="fc" id="L147">            z = Gamma.logGamma(alpha) + Gamma.logGamma(beta) - Gamma.logGamma(alpha + beta);</span>
+        }
+<span class="fc" id="L149">    }</span>
+
+    /** {@inheritDoc} */
+    public double density(double x) {
+<span class="fc" id="L153">        final double logDensity = logDensity(x);</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        return logDensity == Double.NEGATIVE_INFINITY ? 0 : FastMath.exp(logDensity);</span>
+    }
+
+    /** {@inheritDoc} **/
+    @Override
+    public double logDensity(double x) {
+<span class="fc" id="L160">        recomputeZ();</span>
+<span class="pc bpc" id="L161" title="2 of 4 branches missed.">        if (x &lt; 0 || x &gt; 1) {</span>
+<span class="nc" id="L162">            return Double.NEGATIVE_INFINITY;</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">        } else if (x == 0) {</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">            if (alpha &lt; 1) {</span>
+<span class="nc" id="L165">                throw new NumberIsTooSmallException(LocalizedFormats.CANNOT_COMPUTE_BETA_DENSITY_AT_0_FOR_SOME_ALPHA, alpha, 1, false);</span>
+            }
+<span class="nc" id="L167">            return Double.NEGATIVE_INFINITY;</span>
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">        } else if (x == 1) {</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">            if (beta &lt; 1) {</span>
+<span class="nc" id="L170">                throw new NumberIsTooSmallException(LocalizedFormats.CANNOT_COMPUTE_BETA_DENSITY_AT_1_FOR_SOME_BETA, beta, 1, false);</span>
+            }
+<span class="nc" id="L172">            return Double.NEGATIVE_INFINITY;</span>
+        } else {
+<span class="fc" id="L174">            double logX = FastMath.log(x);</span>
+<span class="fc" id="L175">            double log1mX = FastMath.log1p(-x);</span>
+<span class="fc" id="L176">            return (alpha - 1) * logX + (beta - 1) * log1mX - z;</span>
+        }
+    }
+
+    /** {@inheritDoc} */
+    public double cumulativeProbability(double x)  {
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        if (x &lt;= 0) {</span>
+<span class="fc" id="L183">            return 0;</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">        } else if (x &gt;= 1) {</span>
+<span class="fc" id="L185">            return 1;</span>
+        } else {
+<span class="fc" id="L187">            return Beta.regularizedBeta(x, alpha, beta);</span>
+        }
+    }
+
+    /**
+     * Return the absolute accuracy setting of the solver used to estimate
+     * inverse cumulative probabilities.
+     *
+     * @return the solver absolute accuracy.
+     * @since 2.1
+     */
+    @Override
+    protected double getSolverAbsoluteAccuracy() {
+<span class="fc" id="L200">        return solverAbsoluteAccuracy;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For first shape parameter {@code alpha} and second shape parameter
+     * {@code beta}, the mean is {@code alpha / (alpha + beta)}.
+     */
+    public double getNumericalMean() {
+<span class="fc" id="L210">        final double a = getAlpha();</span>
+<span class="fc" id="L211">        return a / (a + getBeta());</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For first shape parameter {@code alpha} and second shape parameter
+     * {@code beta}, the variance is
+     * {@code (alpha * beta) / [(alpha + beta)^2 * (alpha + beta + 1)]}.
+     */
+    public double getNumericalVariance() {
+<span class="fc" id="L222">        final double a = getAlpha();</span>
+<span class="fc" id="L223">        final double b = getBeta();</span>
+<span class="fc" id="L224">        final double alphabetasum = a + b;</span>
+<span class="fc" id="L225">        return (a * b) / ((alphabetasum * alphabetasum) * (alphabetasum + 1));</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The lower bound of the support is always 0 no matter the parameters.
+     *
+     * @return lower bound of the support (always 0)
+     */
+    public double getSupportLowerBound() {
+<span class="fc" id="L236">        return 0;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The upper bound of the support is always 1 no matter the parameters.
+     *
+     * @return upper bound of the support (always 1)
+     */
+    public double getSupportUpperBound() {
+<span class="fc" id="L247">        return 1;</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isSupportLowerBoundInclusive() {
+<span class="nc" id="L252">        return false;</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isSupportUpperBoundInclusive() {
+<span class="nc" id="L257">        return false;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The support of this distribution is connected.
+     *
+     * @return {@code true}
+     */
+    public boolean isSupportConnected() {
+<span class="fc" id="L268">        return true;</span>
+    }
+
+
+    /** {@inheritDoc}
+    * &lt;p&gt;
+    * Sampling is performed using Cheng algorithms:
+    * &lt;/p&gt;
+    * &lt;p&gt;
+    * R. C. H. Cheng, &quot;Generating beta variates with nonintegral shape parameters.&quot;.
+    *                 Communications of the ACM, 21, 317â€“322, 1978.
+    * &lt;/p&gt;
+    */
+    @Override
+    public double sample() {
+<span class="fc" id="L283">        return ChengBetaSampler.sample(random, alpha, beta);</span>
+    }
+
+    /** Utility class implementing Cheng's algorithms for beta distribution sampling.
+     * &lt;p&gt;
+     * R. C. H. Cheng, &quot;Generating beta variates with nonintegral shape parameters.&quot;.
+     *                 Communications of the ACM, 21, 317â€“322, 1978.
+     * &lt;/p&gt;
+     * @since 3.6
+     */
+<span class="nc" id="L293">    private static final class ChengBetaSampler {</span>
+
+        /**
+         * Returns one sample using Cheng's sampling algorithm.
+         * @param random random generator to use
+         * @param alpha distribution first shape parameter
+         * @param beta distribution second shape parameter
+         * @return sampled value
+         */
+        static double sample(RandomGenerator random, final double alpha, final double beta) {
+<span class="fc" id="L303">            final double a = FastMath.min(alpha, beta);</span>
+<span class="fc" id="L304">            final double b = FastMath.max(alpha, beta);</span>
+
+<span class="fc bfc" id="L306" title="All 2 branches covered.">            if (a &gt; 1) {</span>
+<span class="fc" id="L307">                return algorithmBB(random, alpha, a, b);</span>
+            } else {
+<span class="fc" id="L309">                return algorithmBC(random, alpha, b, a);</span>
+            }
+        }
+
+        /**
+         * Returns one sample using Cheng's BB algorithm, when both &amp;alpha; and &amp;beta; are greater than 1.
+         * @param random random generator to use
+         * @param a0 distribution first shape parameter (&amp;alpha;)
+         * @param a min(&amp;alpha;, &amp;beta;) where &amp;alpha;, &amp;beta; are the two distribution shape parameters
+         * @param b max(&amp;alpha;, &amp;beta;) where &amp;alpha;, &amp;beta; are the two distribution shape parameters
+         * @return sampled value
+         */
+        private static double algorithmBB(RandomGenerator random,
+                                          final double a0,
+                                          final double a,
+                                          final double b) {
+<span class="fc" id="L325">            final double alpha = a + b;</span>
+<span class="fc" id="L326">            final double beta = FastMath.sqrt((alpha - 2.) / (2. * a * b - alpha));</span>
+<span class="fc" id="L327">            final double gamma = a + 1. / beta;</span>
+
+            double r;
+            double w;
+            double t;
+            do {
+<span class="fc" id="L333">                final double u1 = random.nextDouble();</span>
+<span class="fc" id="L334">                final double u2 = random.nextDouble();</span>
+<span class="fc" id="L335">                final double v = beta * (FastMath.log(u1) - FastMath.log1p(-u1));</span>
+<span class="fc" id="L336">                w = a * FastMath.exp(v);</span>
+<span class="fc" id="L337">                final double z = u1 * u1 * u2;</span>
+<span class="fc" id="L338">                r = gamma * v - 1.3862944;</span>
+<span class="fc" id="L339">                final double s = a + r - w;</span>
+<span class="fc bfc" id="L340" title="All 2 branches covered.">                if (s + 2.609438 &gt;= 5 * z) {</span>
+<span class="fc" id="L341">                    break;</span>
+                }
+
+<span class="fc" id="L344">                t = FastMath.log(z);</span>
+<span class="fc bfc" id="L345" title="All 2 branches covered.">                if (s &gt;= t) {</span>
+<span class="fc" id="L346">                    break;</span>
+                }
+<span class="fc bfc" id="L348" title="All 2 branches covered.">            } while (r + alpha * (FastMath.log(alpha) - FastMath.log(b + w)) &lt; t);</span>
+
+<span class="fc" id="L350">            w = FastMath.min(w, Double.MAX_VALUE);</span>
+<span class="fc bfc" id="L351" title="All 2 branches covered.">            return Precision.equals(a, a0) ? w / (b + w) : b / (b + w);</span>
+        }
+
+        /**
+         * Returns one sample using Cheng's BC algorithm, when at least one of &amp;alpha; and &amp;beta; is smaller than 1.
+         * @param random random generator to use
+         * @param a0 distribution first shape parameter (&amp;alpha;)
+         * @param a max(&amp;alpha;, &amp;beta;) where &amp;alpha;, &amp;beta; are the two distribution shape parameters
+         * @param b min(&amp;alpha;, &amp;beta;) where &amp;alpha;, &amp;beta; are the two distribution shape parameters
+         * @return sampled value
+         */
+        private static double algorithmBC(RandomGenerator random,
+                                          final double a0,
+                                          final double a,
+                                          final double b) {
+<span class="fc" id="L366">            final double alpha = a + b;</span>
+<span class="fc" id="L367">            final double beta = 1. / b;</span>
+<span class="fc" id="L368">            final double delta = 1. + a - b;</span>
+<span class="fc" id="L369">            final double k1 = delta * (0.0138889 + 0.0416667 * b) / (a * beta - 0.777778);</span>
+<span class="fc" id="L370">            final double k2 = 0.25 + (0.5 + 0.25 / delta) * b;</span>
+
+            double w;
+            for (;;) {
+<span class="fc" id="L374">                final double u1 = random.nextDouble();</span>
+<span class="fc" id="L375">                final double u2 = random.nextDouble();</span>
+<span class="fc" id="L376">                final double y = u1 * u2;</span>
+<span class="fc" id="L377">                final double z = u1 * y;</span>
+<span class="fc bfc" id="L378" title="All 2 branches covered.">                if (u1 &lt; 0.5) {</span>
+<span class="fc bfc" id="L379" title="All 2 branches covered.">                    if (0.25 * u2 + z - y &gt;= k1) {</span>
+<span class="fc" id="L380">                        continue;</span>
+                    }
+                } else {
+<span class="fc bfc" id="L383" title="All 2 branches covered.">                    if (z &lt;= 0.25) {</span>
+<span class="fc" id="L384">                        final double v = beta * (FastMath.log(u1) - FastMath.log1p(-u1));</span>
+<span class="fc" id="L385">                        w = a * FastMath.exp(v);</span>
+<span class="fc" id="L386">                        break;</span>
+                    }
+
+<span class="fc bfc" id="L389" title="All 2 branches covered.">                    if (z &gt;= k2) {</span>
+<span class="fc" id="L390">                        continue;</span>
+                    }
+                }
+
+<span class="fc" id="L394">                final double v = beta * (FastMath.log(u1) - FastMath.log1p(-u1));</span>
+<span class="fc" id="L395">                w = a * FastMath.exp(v);</span>
+<span class="fc bfc" id="L396" title="All 2 branches covered.">                if (alpha * (FastMath.log(alpha) - FastMath.log(b + w) + v) - 1.3862944 &gt;= FastMath.log(z)) {</span>
+<span class="fc" id="L397">                    break;</span>
+                }
+<span class="fc" id="L399">            }</span>
+
+<span class="fc" id="L401">            w = FastMath.min(w, Double.MAX_VALUE);</span>
+<span class="fc bfc" id="L402" title="All 2 branches covered.">            return Precision.equals(a, a0) ? w / (b + w) : b / (b + w);</span>
+        }
+
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

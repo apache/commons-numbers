@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SaddlePointExpansion.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.distribution</a> &gt; <span class="el_source">SaddlePointExpansion.java</span></div><h1>SaddlePointExpansion.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.distribution;
+
+import org.apache.commons.math3.special.Gamma;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * &lt;p&gt;
+ * Utility class used by various distributions to accurately compute their
+ * respective probability mass functions. The implementation for this class is
+ * based on the Catherine Loader's &lt;a target=&quot;_blank&quot;
+ * href=&quot;http://www.herine.net/stat/software/dbinom.html&quot;&gt;dbinom&lt;/a&gt; routines.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * This class is not intended to be called directly.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * References:
+ * &lt;ol&gt;
+ * &lt;li&gt;Catherine Loader (2000). &quot;Fast and Accurate Computation of Binomial
+ * Probabilities.&quot;. &lt;a target=&quot;_blank&quot;
+ * href=&quot;http://www.herine.net/stat/papers/dbinom.pdf&quot;&gt;
+ * http://www.herine.net/stat/papers/dbinom.pdf&lt;/a&gt;&lt;/li&gt;
+ * &lt;/ol&gt;
+ * &lt;/p&gt;
+ *
+ * @since 2.1
+ */
+final class SaddlePointExpansion {
+
+    /** 1/2 * log(2 &amp;#960;). */
+<span class="fc" id="L48">    private static final double HALF_LOG_2_PI = 0.5 * FastMath.log(MathUtils.TWO_PI);</span>
+
+    /** exact Stirling expansion error for certain values. */
+<span class="fc" id="L51">    private static final double[] EXACT_STIRLING_ERRORS = { 0.0, /* 0.0 */</span>
+    0.1534264097200273452913848, /* 0.5 */
+    0.0810614667953272582196702, /* 1.0 */
+    0.0548141210519176538961390, /* 1.5 */
+    0.0413406959554092940938221, /* 2.0 */
+    0.03316287351993628748511048, /* 2.5 */
+    0.02767792568499833914878929, /* 3.0 */
+    0.02374616365629749597132920, /* 3.5 */
+    0.02079067210376509311152277, /* 4.0 */
+    0.01848845053267318523077934, /* 4.5 */
+    0.01664469118982119216319487, /* 5.0 */
+    0.01513497322191737887351255, /* 5.5 */
+    0.01387612882307074799874573, /* 6.0 */
+    0.01281046524292022692424986, /* 6.5 */
+    0.01189670994589177009505572, /* 7.0 */
+    0.01110455975820691732662991, /* 7.5 */
+    0.010411265261972096497478567, /* 8.0 */
+    0.009799416126158803298389475, /* 8.5 */
+    0.009255462182712732917728637, /* 9.0 */
+    0.008768700134139385462952823, /* 9.5 */
+    0.008330563433362871256469318, /* 10.0 */
+    0.007934114564314020547248100, /* 10.5 */
+    0.007573675487951840794972024, /* 11.0 */
+    0.007244554301320383179543912, /* 11.5 */
+    0.006942840107209529865664152, /* 12.0 */
+    0.006665247032707682442354394, /* 12.5 */
+    0.006408994188004207068439631, /* 13.0 */
+    0.006171712263039457647532867, /* 13.5 */
+    0.005951370112758847735624416, /* 14.0 */
+    0.005746216513010115682023589, /* 14.5 */
+    0.005554733551962801371038690 /* 15.0 */
+    };
+
+    /**
+     * Default constructor.
+     */
+    private SaddlePointExpansion() {
+<span class="nc" id="L88">        super();</span>
+<span class="nc" id="L89">    }</span>
+
+    /**
+     * Compute the error of Stirling's series at the given value.
+     * &lt;p&gt;
+     * References:
+     * &lt;ol&gt;
+     * &lt;li&gt;Eric W. Weisstein. &quot;Stirling's Series.&quot; From MathWorld--A Wolfram Web
+     * Resource. &lt;a target=&quot;_blank&quot;
+     * href=&quot;http://mathworld.wolfram.com/StirlingsSeries.html&quot;&gt;
+     * http://mathworld.wolfram.com/StirlingsSeries.html&lt;/a&gt;&lt;/li&gt;
+     * &lt;/ol&gt;
+     * &lt;/p&gt;
+     *
+     * @param z the value.
+     * @return the Striling's series error.
+     */
+    static double getStirlingError(double z) {
+        double ret;
+<span class="fc bfc" id="L108" title="All 2 branches covered.">        if (z &lt; 15.0) {</span>
+<span class="fc" id="L109">            double z2 = 2.0 * z;</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">            if (FastMath.floor(z2) == z2) {</span>
+<span class="fc" id="L111">                ret = EXACT_STIRLING_ERRORS[(int) z2];</span>
+            } else {
+<span class="nc" id="L113">                ret = Gamma.logGamma(z + 1.0) - (z + 0.5) * FastMath.log(z) +</span>
+                      z - HALF_LOG_2_PI;
+            }
+<span class="fc" id="L116">        } else {</span>
+<span class="fc" id="L117">            double z2 = z * z;</span>
+<span class="fc" id="L118">            ret = (0.083333333333333333333 -</span>
+                    (0.00277777777777777777778 -
+                            (0.00079365079365079365079365 -
+                                    (0.000595238095238095238095238 -
+                                            0.0008417508417508417508417508 /
+                                            z2) / z2) / z2) / z2) / z;
+        }
+<span class="fc" id="L125">        return ret;</span>
+    }
+
+    /**
+     * A part of the deviance portion of the saddle point approximation.
+     * &lt;p&gt;
+     * References:
+     * &lt;ol&gt;
+     * &lt;li&gt;Catherine Loader (2000). &quot;Fast and Accurate Computation of Binomial
+     * Probabilities.&quot;. &lt;a target=&quot;_blank&quot;
+     * href=&quot;http://www.herine.net/stat/papers/dbinom.pdf&quot;&gt;
+     * http://www.herine.net/stat/papers/dbinom.pdf&lt;/a&gt;&lt;/li&gt;
+     * &lt;/ol&gt;
+     * &lt;/p&gt;
+     *
+     * @param x the x value.
+     * @param mu the average.
+     * @return a part of the deviance.
+     */
+    static double getDeviancePart(double x, double mu) {
+        double ret;
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        if (FastMath.abs(x - mu) &lt; 0.1 * (x + mu)) {</span>
+<span class="fc" id="L147">            double d = x - mu;</span>
+<span class="fc" id="L148">            double v = d / (x + mu);</span>
+<span class="fc" id="L149">            double s1 = v * d;</span>
+<span class="fc" id="L150">            double s = Double.NaN;</span>
+<span class="fc" id="L151">            double ej = 2.0 * x * v;</span>
+<span class="fc" id="L152">            v *= v;</span>
+<span class="fc" id="L153">            int j = 1;</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">            while (s1 != s) {</span>
+<span class="fc" id="L155">                s = s1;</span>
+<span class="fc" id="L156">                ej *= v;</span>
+<span class="fc" id="L157">                s1 = s + ej / ((j * 2) + 1);</span>
+<span class="fc" id="L158">                ++j;</span>
+            }
+<span class="fc" id="L160">            ret = s1;</span>
+<span class="fc" id="L161">        } else {</span>
+<span class="fc" id="L162">            ret = x * FastMath.log(x / mu) + mu - x;</span>
+        }
+<span class="fc" id="L164">        return ret;</span>
+    }
+
+    /**
+     * Compute the logarithm of the PMF for a binomial distribution
+     * using the saddle point expansion.
+     *
+     * @param x the value at which the probability is evaluated.
+     * @param n the number of trials.
+     * @param p the probability of success.
+     * @param q the probability of failure (1 - p).
+     * @return log(p(x)).
+     */
+    static double logBinomialProbability(int x, int n, double p, double q) {
+        double ret;
+<span class="fc bfc" id="L179" title="All 2 branches covered.">        if (x == 0) {</span>
+<span class="fc bfc" id="L180" title="All 2 branches covered.">            if (p &lt; 0.1) {</span>
+<span class="fc" id="L181">                ret = -getDeviancePart(n, n * q) - n * p;</span>
+            } else {
+<span class="fc" id="L183">                ret = n * FastMath.log(q);</span>
+            }
+<span class="fc bfc" id="L185" title="All 2 branches covered.">        } else if (x == n) {</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">            if (q &lt; 0.1) {</span>
+<span class="fc" id="L187">                ret = -getDeviancePart(n, n * p) - n * q;</span>
+            } else {
+<span class="fc" id="L189">                ret = n * FastMath.log(p);</span>
+            }
+        } else {
+<span class="fc" id="L192">            ret = getStirlingError(n) - getStirlingError(x) -</span>
+                  getStirlingError(n - x) - getDeviancePart(x, n * p) -
+                  getDeviancePart(n - x, n * q);
+<span class="fc" id="L195">            double f = (MathUtils.TWO_PI * x * (n - x)) / n;</span>
+<span class="fc" id="L196">            ret = -0.5 * FastMath.log(f) + ret;</span>
+        }
+<span class="fc" id="L198">        return ret;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.apache.commons.math3.linear;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.exception.DimensionMismatchException;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>/**<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * This class defines a linear operator operating on real ({@code double})<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * vector spaces. No direct access to the coefficients of the underlying matrix<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * is provided.<a name="line.25"></a>
+<span class="sourceLineNo">026</span> *<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * The motivation for such an interface is well stated by<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * &lt;a href="#BARR1994"&gt;Barrett et al. (1994)&lt;/a&gt;:<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * &lt;blockquote&gt;<a name="line.29"></a>
+<span class="sourceLineNo">030</span> *  We restrict ourselves to iterative methods, which work by repeatedly<a name="line.30"></a>
+<span class="sourceLineNo">031</span> *  improving an approximate solution until it is accurate enough. These<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *  methods access the coefficient matrix A of the linear system only via the<a name="line.32"></a>
+<span class="sourceLineNo">033</span> *  matrix-vector product y = A &amp;middot; x<a name="line.33"></a>
+<span class="sourceLineNo">034</span> *  (and perhaps z = A&lt;sup&gt;T&lt;/sup&gt; &amp;middot; x). Thus the user need only<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *  supply a subroutine for computing y (and perhaps z) given x, which permits<a name="line.35"></a>
+<span class="sourceLineNo">036</span> *  full exploitation of the sparsity or other special structure of A.<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * &lt;/blockquote&gt;<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * &lt;br/&gt;<a name="line.38"></a>
+<span class="sourceLineNo">039</span> *<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * &lt;dl&gt;<a name="line.40"></a>
+<span class="sourceLineNo">041</span> *  &lt;dt&gt;&lt;a name="BARR1994"&gt;Barret et al. (1994)&lt;/a&gt;&lt;/dt&gt;<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *  &lt;dd&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span> *   R. Barrett, M. Berry, T. F. Chan, J. Demmel, J. M. Donato, J. Dongarra,<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *   V. Eijkhout, R. Pozo, C. Romine and H. Van der Vorst,<a name="line.44"></a>
+<span class="sourceLineNo">045</span> *   &lt;em&gt;Templates for the Solution of Linear Systems: Building Blocks for<a name="line.45"></a>
+<span class="sourceLineNo">046</span> *   Iterative Methods&lt;/em&gt;, SIAM<a name="line.46"></a>
+<span class="sourceLineNo">047</span> *  &lt;/dd&gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * &lt;/dl&gt;<a name="line.48"></a>
+<span class="sourceLineNo">049</span> *<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * @since 3.0<a name="line.50"></a>
+<span class="sourceLineNo">051</span> */<a name="line.51"></a>
+<span class="sourceLineNo">052</span>public abstract class RealLinearOperator {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    /**<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * Returns the dimension of the codomain of this operator.<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     *<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * @return the number of rows of the underlying matrix<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     */<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    public abstract int getRowDimension();<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>    /**<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * Returns the dimension of the domain of this operator.<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     *<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * @return the number of columns of the underlying matrix<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    public abstract int getColumnDimension();<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>    /**<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * Returns the result of multiplying {@code this} by the vector {@code x}.<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     *<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * @param x the vector to operate on<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * @return the product of {@code this} instance with {@code x}<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     * @throws DimensionMismatchException if the column dimension does not match<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * the size of {@code x}<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     */<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    public abstract RealVector operate(final RealVector x)<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        throws DimensionMismatchException;<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>    /**<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * Returns the result of multiplying the transpose of {@code this} operator<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * by the vector {@code x} (optional operation). The default implementation<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * throws an {@link UnsupportedOperationException}. Users overriding this<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * method must also override {@link #isTransposable()}.<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     *<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * @param x the vector to operate on<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * @return the product of the transpose of {@code this} instance with<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * {@code x}<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * @throws org.apache.commons.math3.exception.DimensionMismatchException<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * if the row dimension does not match the size of {@code x}<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * @throws UnsupportedOperationException if this operation is not supported<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * by {@code this} operator<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     */<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    public RealVector operateTranspose(final RealVector x)<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        throws DimensionMismatchException, UnsupportedOperationException {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        throw new UnsupportedOperationException();<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    }<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>    /**<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * Returns {@code true} if this operator supports<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * {@link #operateTranspose(RealVector)}. If {@code true} is returned,<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * {@link #operateTranspose(RealVector)} should not throw<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     * {@code UnsupportedOperationException}. The default implementation returns<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * {@code false}.<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     *<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * @return {@code false}<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     */<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    public boolean isTransposable() {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        return false;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    }<a name="line.108"></a>
+<span class="sourceLineNo">109</span>}<a name="line.109"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

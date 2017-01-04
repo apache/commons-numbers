@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Line.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.euclidean.threed</a> &gt; <span class="el_source">Line.java</span></div><h1>Line.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.euclidean.threed;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.geometry.Point;
+import org.apache.commons.math3.geometry.Vector;
+import org.apache.commons.math3.geometry.euclidean.oned.Euclidean1D;
+import org.apache.commons.math3.geometry.euclidean.oned.IntervalsSet;
+import org.apache.commons.math3.geometry.euclidean.oned.Vector1D;
+import org.apache.commons.math3.geometry.partitioning.Embedding;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.Precision;
+
+/** The class represent lines in a three dimensional space.
+
+ * &lt;p&gt;Each oriented line is intrinsically associated with an abscissa
+ * which is a coordinate on the line. The point at abscissa 0 is the
+ * orthogonal projection of the origin on the line, another equivalent
+ * way to express this is to say that it is the point of the line
+ * which is closest to the origin. Abscissa increases in the line
+ * direction.&lt;/p&gt;
+
+ * @since 3.0
+ */
+public class Line implements Embedding&lt;Euclidean3D, Euclidean1D&gt; {
+
+    /** Default value for tolerance. */
+    private static final double DEFAULT_TOLERANCE = 1.0e-10;
+
+    /** Line direction. */
+    private Vector3D direction;
+
+    /** Line point closest to the origin. */
+    private Vector3D zero;
+
+    /** Tolerance below which points are considered identical. */
+    private final double tolerance;
+
+    /** Build a line from two points.
+     * @param p1 first point belonging to the line (this can be any point)
+     * @param p2 second point belonging to the line (this can be any point, different from p1)
+     * @param tolerance tolerance below which points are considered identical
+     * @exception MathIllegalArgumentException if the points are equal
+     * @since 3.3
+     */
+    public Line(final Vector3D p1, final Vector3D p2, final double tolerance)
+<span class="fc" id="L63">        throws MathIllegalArgumentException {</span>
+<span class="fc" id="L64">        reset(p1, p2);</span>
+<span class="fc" id="L65">        this.tolerance = tolerance;</span>
+<span class="fc" id="L66">    }</span>
+
+    /** Copy constructor.
+     * &lt;p&gt;The created instance is completely independent from the
+     * original instance, it is a deep copy.&lt;/p&gt;
+     * @param line line to copy
+     */
+<span class="fc" id="L73">    public Line(final Line line) {</span>
+<span class="fc" id="L74">        this.direction = line.direction;</span>
+<span class="fc" id="L75">        this.zero      = line.zero;</span>
+<span class="fc" id="L76">        this.tolerance = line.tolerance;</span>
+<span class="fc" id="L77">    }</span>
+
+    /** Build a line from two points.
+     * @param p1 first point belonging to the line (this can be any point)
+     * @param p2 second point belonging to the line (this can be any point, different from p1)
+     * @exception MathIllegalArgumentException if the points are equal
+     * @deprecated as of 3.3, replaced with {@link #Line(Vector3D, Vector3D, double)}
+     */
+    @Deprecated
+    public Line(final Vector3D p1, final Vector3D p2) throws MathIllegalArgumentException {
+<span class="nc" id="L87">        this(p1, p2, DEFAULT_TOLERANCE);</span>
+<span class="nc" id="L88">    }</span>
+
+    /** Reset the instance as if built from two points.
+     * @param p1 first point belonging to the line (this can be any point)
+     * @param p2 second point belonging to the line (this can be any point, different from p1)
+     * @exception MathIllegalArgumentException if the points are equal
+     */
+    public void reset(final Vector3D p1, final Vector3D p2) throws MathIllegalArgumentException {
+<span class="fc" id="L96">        final Vector3D delta = p2.subtract(p1);</span>
+<span class="fc" id="L97">        final double norm2 = delta.getNormSq();</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">        if (norm2 == 0.0) {</span>
+<span class="nc" id="L99">            throw new MathIllegalArgumentException(LocalizedFormats.ZERO_NORM);</span>
+        }
+<span class="fc" id="L101">        this.direction = new Vector3D(1.0 / FastMath.sqrt(norm2), delta);</span>
+<span class="fc" id="L102">        zero = new Vector3D(1.0, p1, -p1.dotProduct(delta) / norm2, delta);</span>
+<span class="fc" id="L103">    }</span>
+
+    /** Get the tolerance below which points are considered identical.
+     * @return tolerance below which points are considered identical
+     * @since 3.3
+     */
+    public double getTolerance() {
+<span class="fc" id="L110">        return tolerance;</span>
+    }
+
+    /** Get a line with reversed direction.
+     * @return a new instance, with reversed direction
+     */
+    public Line revert() {
+<span class="fc" id="L117">        final Line reverted = new Line(this);</span>
+<span class="fc" id="L118">        reverted.direction = reverted.direction.negate();</span>
+<span class="fc" id="L119">        return reverted;</span>
+    }
+
+    /** Get the normalized direction vector.
+     * @return normalized direction vector
+     */
+    public Vector3D getDirection() {
+<span class="fc" id="L126">        return direction;</span>
+    }
+
+    /** Get the line point closest to the origin.
+     * @return line point closest to the origin
+     */
+    public Vector3D getOrigin() {
+<span class="nc" id="L133">        return zero;</span>
+    }
+
+    /** Get the abscissa of a point with respect to the line.
+     * &lt;p&gt;The abscissa is 0 if the projection of the point and the
+     * projection of the frame origin on the line are the same
+     * point.&lt;/p&gt;
+     * @param point point to check
+     * @return abscissa of the point
+     */
+    public double getAbscissa(final Vector3D point) {
+<span class="fc" id="L144">        return point.subtract(zero).dotProduct(direction);</span>
+    }
+
+    /** Get one point from the line.
+     * @param abscissa desired abscissa for the point
+     * @return one point belonging to the line, at specified abscissa
+     */
+    public Vector3D pointAt(final double abscissa) {
+<span class="fc" id="L152">        return new Vector3D(1.0, zero, abscissa, direction);</span>
+    }
+
+    /** Transform a space point into a sub-space point.
+     * @param vector n-dimension point of the space
+     * @return (n-1)-dimension point of the sub-space corresponding to
+     * the specified space point
+     */
+    public Vector1D toSubSpace(Vector&lt;Euclidean3D&gt; vector) {
+<span class="nc" id="L161">        return toSubSpace((Point&lt;Euclidean3D&gt;) vector);</span>
+    }
+
+    /** Transform a sub-space point into a space point.
+     * @param vector (n-1)-dimension point of the sub-space
+     * @return n-dimension point of the space corresponding to the
+     * specified sub-space point
+     */
+    public Vector3D toSpace(Vector&lt;Euclidean1D&gt; vector) {
+<span class="nc" id="L170">        return toSpace((Point&lt;Euclidean1D&gt;) vector);</span>
+    }
+
+    /** {@inheritDoc}
+     * @see #getAbscissa(Vector3D)
+     */
+    public Vector1D toSubSpace(final Point&lt;Euclidean3D&gt; point) {
+<span class="fc" id="L177">        return new Vector1D(getAbscissa((Vector3D) point));</span>
+    }
+
+    /** {@inheritDoc}
+     * @see #pointAt(double)
+     */
+    public Vector3D toSpace(final Point&lt;Euclidean1D&gt; point) {
+<span class="fc" id="L184">        return pointAt(((Vector1D) point).getX());</span>
+    }
+
+    /** Check if the instance is similar to another line.
+     * &lt;p&gt;Lines are considered similar if they contain the same
+     * points. This does not mean they are equal since they can have
+     * opposite directions.&lt;/p&gt;
+     * @param line line to which instance should be compared
+     * @return true if the lines are similar
+     */
+    public boolean isSimilarTo(final Line line) {
+<span class="fc" id="L195">        final double angle = Vector3D.angle(direction, line.direction);</span>
+<span class="pc bpc" id="L196" title="2 of 6 branches missed.">        return ((angle &lt; tolerance) || (angle &gt; (FastMath.PI - tolerance))) &amp;&amp; contains(line.zero);</span>
+    }
+
+    /** Check if the instance contains a point.
+     * @param p point to check
+     * @return true if p belongs to the line
+     */
+    public boolean contains(final Vector3D p) {
+<span class="fc bfc" id="L204" title="All 2 branches covered.">        return distance(p) &lt; tolerance;</span>
+    }
+
+    /** Compute the distance between the instance and a point.
+     * @param p to check
+     * @return distance between the instance and the point
+     */
+    public double distance(final Vector3D p) {
+<span class="fc" id="L212">        final Vector3D d = p.subtract(zero);</span>
+<span class="fc" id="L213">        final Vector3D n = new Vector3D(1.0, d, -d.dotProduct(direction), direction);</span>
+<span class="fc" id="L214">        return n.getNorm();</span>
+    }
+
+    /** Compute the shortest distance between the instance and another line.
+     * @param line line to check against the instance
+     * @return shortest distance between the instance and the line
+     */
+    public double distance(final Line line) {
+
+<span class="fc" id="L223">        final Vector3D normal = Vector3D.crossProduct(direction, line.direction);</span>
+<span class="fc" id="L224">        final double n = normal.getNorm();</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">        if (n &lt; Precision.SAFE_MIN) {</span>
+            // lines are parallel
+<span class="fc" id="L227">            return distance(line.zero);</span>
+        }
+
+        // signed separation of the two parallel planes that contains the lines
+<span class="fc" id="L231">        final double offset = line.zero.subtract(zero).dotProduct(normal) / n;</span>
+
+<span class="fc" id="L233">        return FastMath.abs(offset);</span>
+
+    }
+
+    /** Compute the point of the instance closest to another line.
+     * @param line line to check against the instance
+     * @return point of the instance closest to another line
+     */
+    public Vector3D closestPoint(final Line line) {
+
+<span class="fc" id="L243">        final double cos = direction.dotProduct(line.direction);</span>
+<span class="fc" id="L244">        final double n = 1 - cos * cos;</span>
+<span class="pc bpc" id="L245" title="1 of 2 branches missed.">        if (n &lt; Precision.EPSILON) {</span>
+            // the lines are parallel
+<span class="nc" id="L247">            return zero;</span>
+        }
+
+<span class="fc" id="L250">        final Vector3D delta0 = line.zero.subtract(zero);</span>
+<span class="fc" id="L251">        final double a        = delta0.dotProduct(direction);</span>
+<span class="fc" id="L252">        final double b        = delta0.dotProduct(line.direction);</span>
+
+<span class="fc" id="L254">        return new Vector3D(1, zero, (a - b * cos) / n, direction);</span>
+
+    }
+
+    /** Get the intersection point of the instance and another line.
+     * @param line other line
+     * @return intersection point of the instance and the other line
+     * or null if there are no intersection points
+     */
+    public Vector3D intersection(final Line line) {
+<span class="fc" id="L264">        final Vector3D closest = closestPoint(line);</span>
+<span class="fc bfc" id="L265" title="All 2 branches covered.">        return line.contains(closest) ? closest : null;</span>
+    }
+
+    /** Build a sub-line covering the whole line.
+     * @return a sub-line covering the whole line
+     */
+    public SubLine wholeLine() {
+<span class="fc" id="L272">        return new SubLine(this, new IntervalsSet(tolerance));</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

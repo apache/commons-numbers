@@ -1,0 +1,608 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.geometry.spherical.twod;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.util.ArrayList;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.util.List;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.geometry.enclosing.EnclosingBall;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.geometry.euclidean.threed.Rotation;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.geometry.partitioning.Region.Location;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.geometry.partitioning.RegionFactory;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.math3.geometry.partitioning.SubHyperplane;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.commons.math3.geometry.spherical.oned.ArcsSet;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.math3.geometry.spherical.oned.Sphere1D;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.math3.random.UnitSphereRandomVectorGenerator;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.commons.math3.random.Well1024a;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.apache.commons.math3.util.FastMath;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.apache.commons.math3.util.MathUtils;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.junit.Assert;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.junit.Test;<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span>public class SphericalPolygonsSetTest {<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">039</span>    @Test<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    public void testFullSphere() {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        SphericalPolygonsSet full = new SphericalPolygonsSet(1.0e-10);<a name="line.41"></a>
+<span class="sourceLineNo">042</span>        UnitSphereRandomVectorGenerator random =<a name="line.42"></a>
+<span class="sourceLineNo">043</span>                new UnitSphereRandomVectorGenerator(3, new Well1024a(0x852fd2a0ed8d2f6dl));<a name="line.43"></a>
+<span class="sourceLineNo">044</span>        for (int i = 0; i &lt; 1000; ++i) {<a name="line.44"></a>
+<span class="sourceLineNo">045</span>            Vector3D v = new Vector3D(random.nextVector());<a name="line.45"></a>
+<span class="sourceLineNo">046</span>            Assert.assertEquals(Location.INSIDE, full.checkPoint(new S2Point(v)));<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        }<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        Assert.assertEquals(4 * FastMath.PI, new SphericalPolygonsSet(0.01, new S2Point[0]).getSize(), 1.0e-10);<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        Assert.assertEquals(0, new SphericalPolygonsSet(0.01, new S2Point[0]).getBoundarySize(), 1.0e-10);<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        Assert.assertEquals(0, full.getBoundaryLoops().size());<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        Assert.assertTrue(full.getEnclosingCap().getRadius() &gt; 0);<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        Assert.assertTrue(Double.isInfinite(full.getEnclosingCap().getRadius()));<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    }<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>    @Test<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    public void testEmpty() {<a name="line.56"></a>
+<span class="sourceLineNo">057</span>        SphericalPolygonsSet empty =<a name="line.57"></a>
+<span class="sourceLineNo">058</span>            (SphericalPolygonsSet) new RegionFactory&lt;Sphere2D&gt;().getComplement(new SphericalPolygonsSet(1.0e-10));<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        UnitSphereRandomVectorGenerator random =<a name="line.59"></a>
+<span class="sourceLineNo">060</span>                new UnitSphereRandomVectorGenerator(3, new Well1024a(0x76d9205d6167b6ddl));<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        for (int i = 0; i &lt; 1000; ++i) {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>            Vector3D v = new Vector3D(random.nextVector());<a name="line.62"></a>
+<span class="sourceLineNo">063</span>            Assert.assertEquals(Location.OUTSIDE, empty.checkPoint(new S2Point(v)));<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        }<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        Assert.assertEquals(0, empty.getSize(), 1.0e-10);<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        Assert.assertEquals(0, empty.getBoundarySize(), 1.0e-10);<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        Assert.assertEquals(0, empty.getBoundaryLoops().size());<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        Assert.assertTrue(empty.getEnclosingCap().getRadius() &lt; 0);<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        Assert.assertTrue(Double.isInfinite(empty.getEnclosingCap().getRadius()));<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    }<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>    @Test<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    public void testSouthHemisphere() {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        double tol = 0.01;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        double sinTol = FastMath.sin(tol);<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        SphericalPolygonsSet south = new SphericalPolygonsSet(Vector3D.MINUS_K, tol);<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        UnitSphereRandomVectorGenerator random =<a name="line.77"></a>
+<span class="sourceLineNo">078</span>                new UnitSphereRandomVectorGenerator(3, new Well1024a(0x6b9d4a6ad90d7b0bl));<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        for (int i = 0; i &lt; 1000; ++i) {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>            Vector3D v = new Vector3D(random.nextVector());<a name="line.80"></a>
+<span class="sourceLineNo">081</span>            if (v.getZ() &lt; -sinTol) {<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                Assert.assertEquals(Location.INSIDE, south.checkPoint(new S2Point(v)));<a name="line.82"></a>
+<span class="sourceLineNo">083</span>            } else if (v.getZ() &gt; sinTol) {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>                Assert.assertEquals(Location.OUTSIDE, south.checkPoint(new S2Point(v)));<a name="line.84"></a>
+<span class="sourceLineNo">085</span>            } else {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                Assert.assertEquals(Location.BOUNDARY, south.checkPoint(new S2Point(v)));<a name="line.86"></a>
+<span class="sourceLineNo">087</span>            }<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        }<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        Assert.assertEquals(1, south.getBoundaryLoops().size());<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>        EnclosingBall&lt;Sphere2D, S2Point&gt; southCap = south.getEnclosingCap();<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        Assert.assertEquals(0.0, S2Point.MINUS_K.distance(southCap.getCenter()), 1.0e-10);<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        Assert.assertEquals(0.5 * FastMath.PI, southCap.getRadius(), 1.0e-10);<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>        EnclosingBall&lt;Sphere2D, S2Point&gt; northCap =<a name="line.95"></a>
+<span class="sourceLineNo">096</span>                ((SphericalPolygonsSet) new RegionFactory&lt;Sphere2D&gt;().getComplement(south)).getEnclosingCap();<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        Assert.assertEquals(0.0, S2Point.PLUS_K.distance(northCap.getCenter()), 1.0e-10);<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        Assert.assertEquals(0.5 * FastMath.PI, northCap.getRadius(), 1.0e-10);<a name="line.98"></a>
+<span class="sourceLineNo">099</span><a name="line.99"></a>
+<span class="sourceLineNo">100</span>    }<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>    @Test<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    public void testPositiveOctantByIntersection() {<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        double tol = 0.01;<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        double sinTol = FastMath.sin(tol);<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        RegionFactory&lt;Sphere2D&gt; factory = new RegionFactory&lt;Sphere2D&gt;();<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        SphericalPolygonsSet plusX = new SphericalPolygonsSet(Vector3D.PLUS_I, tol);<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        SphericalPolygonsSet plusY = new SphericalPolygonsSet(Vector3D.PLUS_J, tol);<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        SphericalPolygonsSet plusZ = new SphericalPolygonsSet(Vector3D.PLUS_K, tol);<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        SphericalPolygonsSet octant =<a name="line.110"></a>
+<span class="sourceLineNo">111</span>                (SphericalPolygonsSet) factory.intersection(factory.intersection(plusX, plusY), plusZ);<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        UnitSphereRandomVectorGenerator random =<a name="line.112"></a>
+<span class="sourceLineNo">113</span>                new UnitSphereRandomVectorGenerator(3, new Well1024a(0x9c9802fde3cbcf25l));<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        for (int i = 0; i &lt; 1000; ++i) {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>            Vector3D v = new Vector3D(random.nextVector());<a name="line.115"></a>
+<span class="sourceLineNo">116</span>            if ((v.getX() &gt; sinTol) &amp;&amp; (v.getY() &gt; sinTol) &amp;&amp; (v.getZ() &gt; sinTol)) {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>                Assert.assertEquals(Location.INSIDE, octant.checkPoint(new S2Point(v)));<a name="line.117"></a>
+<span class="sourceLineNo">118</span>            } else if ((v.getX() &lt; -sinTol) || (v.getY() &lt; -sinTol) || (v.getZ() &lt; -sinTol)) {<a name="line.118"></a>
+<span class="sourceLineNo">119</span>                Assert.assertEquals(Location.OUTSIDE, octant.checkPoint(new S2Point(v)));<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            } else {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>                Assert.assertEquals(Location.BOUNDARY, octant.checkPoint(new S2Point(v)));<a name="line.121"></a>
+<span class="sourceLineNo">122</span>            }<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        }<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>        List&lt;Vertex&gt; loops = octant.getBoundaryLoops();<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        Assert.assertEquals(1, loops.size());<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        boolean xPFound = false;<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        boolean yPFound = false;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        boolean zPFound = false;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        boolean xVFound = false;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        boolean yVFound = false;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        boolean zVFound = false;<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        Vertex first = loops.get(0);<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        int count = 0;<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        for (Vertex v = first; count == 0 || v != first; v = v.getOutgoing().getEnd()) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>            ++count;<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            Edge e = v.getIncoming();<a name="line.137"></a>
+<span class="sourceLineNo">138</span>            Assert.assertTrue(v == e.getStart().getOutgoing().getEnd());<a name="line.138"></a>
+<span class="sourceLineNo">139</span>            xPFound = xPFound || e.getCircle().getPole().distance(Vector3D.PLUS_I) &lt; 1.0e-10;<a name="line.139"></a>
+<span class="sourceLineNo">140</span>            yPFound = yPFound || e.getCircle().getPole().distance(Vector3D.PLUS_J) &lt; 1.0e-10;<a name="line.140"></a>
+<span class="sourceLineNo">141</span>            zPFound = zPFound || e.getCircle().getPole().distance(Vector3D.PLUS_K) &lt; 1.0e-10;<a name="line.141"></a>
+<span class="sourceLineNo">142</span>            Assert.assertEquals(0.5 * FastMath.PI, e.getLength(), 1.0e-10);<a name="line.142"></a>
+<span class="sourceLineNo">143</span>            xVFound = xVFound || v.getLocation().getVector().distance(Vector3D.PLUS_I) &lt; 1.0e-10;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>            yVFound = yVFound || v.getLocation().getVector().distance(Vector3D.PLUS_J) &lt; 1.0e-10;<a name="line.144"></a>
+<span class="sourceLineNo">145</span>            zVFound = zVFound || v.getLocation().getVector().distance(Vector3D.PLUS_K) &lt; 1.0e-10;<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        }<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        Assert.assertTrue(xPFound);<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        Assert.assertTrue(yPFound);<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        Assert.assertTrue(zPFound);<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        Assert.assertTrue(xVFound);<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        Assert.assertTrue(yVFound);<a name="line.151"></a>
+<span class="sourceLineNo">152</span>        Assert.assertTrue(zVFound);<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        Assert.assertEquals(3, count);<a name="line.153"></a>
+<span class="sourceLineNo">154</span><a name="line.154"></a>
+<span class="sourceLineNo">155</span>        Assert.assertEquals(0.0,<a name="line.155"></a>
+<span class="sourceLineNo">156</span>                            ((S2Point) octant.getBarycenter()).distance(new S2Point(new Vector3D(1, 1, 1))),<a name="line.156"></a>
+<span class="sourceLineNo">157</span>                            1.0e-10);<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        Assert.assertEquals(0.5 * FastMath.PI, octant.getSize(), 1.0e-10);<a name="line.158"></a>
+<span class="sourceLineNo">159</span><a name="line.159"></a>
+<span class="sourceLineNo">160</span>        EnclosingBall&lt;Sphere2D, S2Point&gt; cap = octant.getEnclosingCap();<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        Assert.assertEquals(0.0, octant.getBarycenter().distance(cap.getCenter()), 1.0e-10);<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        Assert.assertEquals(FastMath.acos(1.0 / FastMath.sqrt(3)), cap.getRadius(), 1.0e-10);<a name="line.162"></a>
+<span class="sourceLineNo">163</span><a name="line.163"></a>
+<span class="sourceLineNo">164</span>        EnclosingBall&lt;Sphere2D, S2Point&gt; reversedCap =<a name="line.164"></a>
+<span class="sourceLineNo">165</span>                ((SphericalPolygonsSet) factory.getComplement(octant)).getEnclosingCap();<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        Assert.assertEquals(0, reversedCap.getCenter().distance(new S2Point(new Vector3D(-1, -1, -1))), 1.0e-10);<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        Assert.assertEquals(FastMath.PI - FastMath.asin(1.0 / FastMath.sqrt(3)), reversedCap.getRadius(), 1.0e-10);<a name="line.167"></a>
+<span class="sourceLineNo">168</span><a name="line.168"></a>
+<span class="sourceLineNo">169</span>    }<a name="line.169"></a>
+<span class="sourceLineNo">170</span><a name="line.170"></a>
+<span class="sourceLineNo">171</span>    @Test<a name="line.171"></a>
+<span class="sourceLineNo">172</span>    public void testPositiveOctantByVertices() {<a name="line.172"></a>
+<span class="sourceLineNo">173</span>        double tol = 0.01;<a name="line.173"></a>
+<span class="sourceLineNo">174</span>        double sinTol = FastMath.sin(tol);<a name="line.174"></a>
+<span class="sourceLineNo">175</span>        SphericalPolygonsSet octant = new SphericalPolygonsSet(tol, S2Point.PLUS_I, S2Point.PLUS_J, S2Point.PLUS_K);<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        UnitSphereRandomVectorGenerator random =<a name="line.176"></a>
+<span class="sourceLineNo">177</span>                new UnitSphereRandomVectorGenerator(3, new Well1024a(0xb8fc5acc91044308l));<a name="line.177"></a>
+<span class="sourceLineNo">178</span>        for (int i = 0; i &lt; 1000; ++i) {<a name="line.178"></a>
+<span class="sourceLineNo">179</span>            Vector3D v = new Vector3D(random.nextVector());<a name="line.179"></a>
+<span class="sourceLineNo">180</span>            if ((v.getX() &gt; sinTol) &amp;&amp; (v.getY() &gt; sinTol) &amp;&amp; (v.getZ() &gt; sinTol)) {<a name="line.180"></a>
+<span class="sourceLineNo">181</span>                Assert.assertEquals(Location.INSIDE, octant.checkPoint(new S2Point(v)));<a name="line.181"></a>
+<span class="sourceLineNo">182</span>            } else if ((v.getX() &lt; -sinTol) || (v.getY() &lt; -sinTol) || (v.getZ() &lt; -sinTol)) {<a name="line.182"></a>
+<span class="sourceLineNo">183</span>                Assert.assertEquals(Location.OUTSIDE, octant.checkPoint(new S2Point(v)));<a name="line.183"></a>
+<span class="sourceLineNo">184</span>            } else {<a name="line.184"></a>
+<span class="sourceLineNo">185</span>                Assert.assertEquals(Location.BOUNDARY, octant.checkPoint(new S2Point(v)));<a name="line.185"></a>
+<span class="sourceLineNo">186</span>            }<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        }<a name="line.187"></a>
+<span class="sourceLineNo">188</span>    }<a name="line.188"></a>
+<span class="sourceLineNo">189</span><a name="line.189"></a>
+<span class="sourceLineNo">190</span>    @Test<a name="line.190"></a>
+<span class="sourceLineNo">191</span>    public void testNonConvex() {<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        double tol = 0.01;<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        double sinTol = FastMath.sin(tol);<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        RegionFactory&lt;Sphere2D&gt; factory = new RegionFactory&lt;Sphere2D&gt;();<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        SphericalPolygonsSet plusX = new SphericalPolygonsSet(Vector3D.PLUS_I, tol);<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        SphericalPolygonsSet plusY = new SphericalPolygonsSet(Vector3D.PLUS_J, tol);<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        SphericalPolygonsSet plusZ = new SphericalPolygonsSet(Vector3D.PLUS_K, tol);<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        SphericalPolygonsSet threeOctants =<a name="line.198"></a>
+<span class="sourceLineNo">199</span>                (SphericalPolygonsSet) factory.difference(plusZ, factory.intersection(plusX, plusY));<a name="line.199"></a>
+<span class="sourceLineNo">200</span><a name="line.200"></a>
+<span class="sourceLineNo">201</span>        UnitSphereRandomVectorGenerator random =<a name="line.201"></a>
+<span class="sourceLineNo">202</span>                new UnitSphereRandomVectorGenerator(3, new Well1024a(0x9c9802fde3cbcf25l));<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        for (int i = 0; i &lt; 1000; ++i) {<a name="line.203"></a>
+<span class="sourceLineNo">204</span>            Vector3D v = new Vector3D(random.nextVector());<a name="line.204"></a>
+<span class="sourceLineNo">205</span>            if (((v.getX() &lt; -sinTol) || (v.getY() &lt; -sinTol)) &amp;&amp; (v.getZ() &gt; sinTol)) {<a name="line.205"></a>
+<span class="sourceLineNo">206</span>                Assert.assertEquals(Location.INSIDE, threeOctants.checkPoint(new S2Point(v)));<a name="line.206"></a>
+<span class="sourceLineNo">207</span>            } else if (((v.getX() &gt; sinTol) &amp;&amp; (v.getY() &gt; sinTol)) || (v.getZ() &lt; -sinTol)) {<a name="line.207"></a>
+<span class="sourceLineNo">208</span>                Assert.assertEquals(Location.OUTSIDE, threeOctants.checkPoint(new S2Point(v)));<a name="line.208"></a>
+<span class="sourceLineNo">209</span>            } else {<a name="line.209"></a>
+<span class="sourceLineNo">210</span>                Assert.assertEquals(Location.BOUNDARY, threeOctants.checkPoint(new S2Point(v)));<a name="line.210"></a>
+<span class="sourceLineNo">211</span>            }<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        }<a name="line.212"></a>
+<span class="sourceLineNo">213</span><a name="line.213"></a>
+<span class="sourceLineNo">214</span>        List&lt;Vertex&gt; loops = threeOctants.getBoundaryLoops();<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        Assert.assertEquals(1, loops.size());<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        boolean xPFound = false;<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        boolean yPFound = false;<a name="line.217"></a>
+<span class="sourceLineNo">218</span>        boolean zPFound = false;<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        boolean xVFound = false;<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        boolean yVFound = false;<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        boolean zVFound = false;<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        Vertex first = loops.get(0);<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        int count = 0;<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        for (Vertex v = first; count == 0 || v != first; v = v.getOutgoing().getEnd()) {<a name="line.224"></a>
+<span class="sourceLineNo">225</span>            ++count;<a name="line.225"></a>
+<span class="sourceLineNo">226</span>            Edge e = v.getIncoming();<a name="line.226"></a>
+<span class="sourceLineNo">227</span>            Assert.assertTrue(v == e.getStart().getOutgoing().getEnd());<a name="line.227"></a>
+<span class="sourceLineNo">228</span>            xPFound = xPFound || e.getCircle().getPole().distance(Vector3D.MINUS_I) &lt; 1.0e-10;<a name="line.228"></a>
+<span class="sourceLineNo">229</span>            yPFound = yPFound || e.getCircle().getPole().distance(Vector3D.MINUS_J) &lt; 1.0e-10;<a name="line.229"></a>
+<span class="sourceLineNo">230</span>            zPFound = zPFound || e.getCircle().getPole().distance(Vector3D.PLUS_K)  &lt; 1.0e-10;<a name="line.230"></a>
+<span class="sourceLineNo">231</span>            if (Vector3D.PLUS_K.distance(e.getCircle().getPole()) &lt; 1.0e-10) {<a name="line.231"></a>
+<span class="sourceLineNo">232</span>                Assert.assertEquals(1.5 * FastMath.PI, e.getLength(), 1.0e-10);<a name="line.232"></a>
+<span class="sourceLineNo">233</span>            } else {<a name="line.233"></a>
+<span class="sourceLineNo">234</span>                Assert.assertEquals(0.5 * FastMath.PI, e.getLength(), 1.0e-10);<a name="line.234"></a>
+<span class="sourceLineNo">235</span>            }<a name="line.235"></a>
+<span class="sourceLineNo">236</span>            xVFound = xVFound || v.getLocation().getVector().distance(Vector3D.PLUS_I) &lt; 1.0e-10;<a name="line.236"></a>
+<span class="sourceLineNo">237</span>            yVFound = yVFound || v.getLocation().getVector().distance(Vector3D.PLUS_J) &lt; 1.0e-10;<a name="line.237"></a>
+<span class="sourceLineNo">238</span>            zVFound = zVFound || v.getLocation().getVector().distance(Vector3D.PLUS_K) &lt; 1.0e-10;<a name="line.238"></a>
+<span class="sourceLineNo">239</span>        }<a name="line.239"></a>
+<span class="sourceLineNo">240</span>        Assert.assertTrue(xPFound);<a name="line.240"></a>
+<span class="sourceLineNo">241</span>        Assert.assertTrue(yPFound);<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        Assert.assertTrue(zPFound);<a name="line.242"></a>
+<span class="sourceLineNo">243</span>        Assert.assertTrue(xVFound);<a name="line.243"></a>
+<span class="sourceLineNo">244</span>        Assert.assertTrue(yVFound);<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        Assert.assertTrue(zVFound);<a name="line.245"></a>
+<span class="sourceLineNo">246</span>        Assert.assertEquals(3, count);<a name="line.246"></a>
+<span class="sourceLineNo">247</span><a name="line.247"></a>
+<span class="sourceLineNo">248</span>        Assert.assertEquals(1.5 * FastMath.PI, threeOctants.getSize(), 1.0e-10);<a name="line.248"></a>
+<span class="sourceLineNo">249</span><a name="line.249"></a>
+<span class="sourceLineNo">250</span>    }<a name="line.250"></a>
+<span class="sourceLineNo">251</span><a name="line.251"></a>
+<span class="sourceLineNo">252</span>    @Test<a name="line.252"></a>
+<span class="sourceLineNo">253</span>    public void testModeratlyComplexShape() {<a name="line.253"></a>
+<span class="sourceLineNo">254</span>        double tol = 0.01;<a name="line.254"></a>
+<span class="sourceLineNo">255</span>        List&lt;SubHyperplane&lt;Sphere2D&gt;&gt; boundary = new ArrayList&lt;SubHyperplane&lt;Sphere2D&gt;&gt;();<a name="line.255"></a>
+<span class="sourceLineNo">256</span>        boundary.add(create(Vector3D.MINUS_J, Vector3D.PLUS_I,  Vector3D.PLUS_K,  tol, 0.0, 0.5 * FastMath.PI));<a name="line.256"></a>
+<span class="sourceLineNo">257</span>        boundary.add(create(Vector3D.MINUS_I, Vector3D.PLUS_K,  Vector3D.PLUS_J,  tol, 0.0, 0.5 * FastMath.PI));<a name="line.257"></a>
+<span class="sourceLineNo">258</span>        boundary.add(create(Vector3D.PLUS_K,  Vector3D.PLUS_J,  Vector3D.MINUS_I, tol, 0.0, 0.5 * FastMath.PI));<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        boundary.add(create(Vector3D.MINUS_J, Vector3D.MINUS_I, Vector3D.MINUS_K, tol, 0.0, 0.5 * FastMath.PI));<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        boundary.add(create(Vector3D.MINUS_I, Vector3D.MINUS_K, Vector3D.MINUS_J, tol, 0.0, 0.5 * FastMath.PI));<a name="line.260"></a>
+<span class="sourceLineNo">261</span>        boundary.add(create(Vector3D.PLUS_K,  Vector3D.MINUS_J, Vector3D.PLUS_I,  tol, 0.0, 0.5 * FastMath.PI));<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        SphericalPolygonsSet polygon = new SphericalPolygonsSet(boundary, tol);<a name="line.262"></a>
+<span class="sourceLineNo">263</span><a name="line.263"></a>
+<span class="sourceLineNo">264</span>        Assert.assertEquals(Location.OUTSIDE, polygon.checkPoint(new S2Point(new Vector3D( 1,  1,  1).normalize())));<a name="line.264"></a>
+<span class="sourceLineNo">265</span>        Assert.assertEquals(Location.INSIDE,  polygon.checkPoint(new S2Point(new Vector3D(-1,  1,  1).normalize())));<a name="line.265"></a>
+<span class="sourceLineNo">266</span>        Assert.assertEquals(Location.INSIDE,  polygon.checkPoint(new S2Point(new Vector3D(-1, -1,  1).normalize())));<a name="line.266"></a>
+<span class="sourceLineNo">267</span>        Assert.assertEquals(Location.INSIDE,  polygon.checkPoint(new S2Point(new Vector3D( 1, -1,  1).normalize())));<a name="line.267"></a>
+<span class="sourceLineNo">268</span>        Assert.assertEquals(Location.OUTSIDE, polygon.checkPoint(new S2Point(new Vector3D( 1,  1, -1).normalize())));<a name="line.268"></a>
+<span class="sourceLineNo">269</span>        Assert.assertEquals(Location.OUTSIDE, polygon.checkPoint(new S2Point(new Vector3D(-1,  1, -1).normalize())));<a name="line.269"></a>
+<span class="sourceLineNo">270</span>        Assert.assertEquals(Location.INSIDE,  polygon.checkPoint(new S2Point(new Vector3D(-1, -1, -1).normalize())));<a name="line.270"></a>
+<span class="sourceLineNo">271</span>        Assert.assertEquals(Location.OUTSIDE, polygon.checkPoint(new S2Point(new Vector3D( 1, -1, -1).normalize())));<a name="line.271"></a>
+<span class="sourceLineNo">272</span><a name="line.272"></a>
+<span class="sourceLineNo">273</span>        Assert.assertEquals(MathUtils.TWO_PI, polygon.getSize(), 1.0e-10);<a name="line.273"></a>
+<span class="sourceLineNo">274</span>        Assert.assertEquals(3 * FastMath.PI, polygon.getBoundarySize(), 1.0e-10);<a name="line.274"></a>
+<span class="sourceLineNo">275</span><a name="line.275"></a>
+<span class="sourceLineNo">276</span>        List&lt;Vertex&gt; loops = polygon.getBoundaryLoops();<a name="line.276"></a>
+<span class="sourceLineNo">277</span>        Assert.assertEquals(1, loops.size());<a name="line.277"></a>
+<span class="sourceLineNo">278</span>        boolean pXFound = false;<a name="line.278"></a>
+<span class="sourceLineNo">279</span>        boolean mXFound = false;<a name="line.279"></a>
+<span class="sourceLineNo">280</span>        boolean pYFound = false;<a name="line.280"></a>
+<span class="sourceLineNo">281</span>        boolean mYFound = false;<a name="line.281"></a>
+<span class="sourceLineNo">282</span>        boolean pZFound = false;<a name="line.282"></a>
+<span class="sourceLineNo">283</span>        boolean mZFound = false;<a name="line.283"></a>
+<span class="sourceLineNo">284</span>        Vertex first = loops.get(0);<a name="line.284"></a>
+<span class="sourceLineNo">285</span>        int count = 0;<a name="line.285"></a>
+<span class="sourceLineNo">286</span>        for (Vertex v = first; count == 0 || v != first; v = v.getOutgoing().getEnd()) {<a name="line.286"></a>
+<span class="sourceLineNo">287</span>            ++count;<a name="line.287"></a>
+<span class="sourceLineNo">288</span>            Edge e = v.getIncoming();<a name="line.288"></a>
+<span class="sourceLineNo">289</span>            Assert.assertTrue(v == e.getStart().getOutgoing().getEnd());<a name="line.289"></a>
+<span class="sourceLineNo">290</span>            pXFound = pXFound || v.getLocation().getVector().distance(Vector3D.PLUS_I)  &lt; 1.0e-10;<a name="line.290"></a>
+<span class="sourceLineNo">291</span>            mXFound = mXFound || v.getLocation().getVector().distance(Vector3D.MINUS_I) &lt; 1.0e-10;<a name="line.291"></a>
+<span class="sourceLineNo">292</span>            pYFound = pYFound || v.getLocation().getVector().distance(Vector3D.PLUS_J)  &lt; 1.0e-10;<a name="line.292"></a>
+<span class="sourceLineNo">293</span>            mYFound = mYFound || v.getLocation().getVector().distance(Vector3D.MINUS_J) &lt; 1.0e-10;<a name="line.293"></a>
+<span class="sourceLineNo">294</span>            pZFound = pZFound || v.getLocation().getVector().distance(Vector3D.PLUS_K)  &lt; 1.0e-10;<a name="line.294"></a>
+<span class="sourceLineNo">295</span>            mZFound = mZFound || v.getLocation().getVector().distance(Vector3D.MINUS_K) &lt; 1.0e-10;<a name="line.295"></a>
+<span class="sourceLineNo">296</span>            Assert.assertEquals(0.5 * FastMath.PI, e.getLength(), 1.0e-10);<a name="line.296"></a>
+<span class="sourceLineNo">297</span>        }<a name="line.297"></a>
+<span class="sourceLineNo">298</span>        Assert.assertTrue(pXFound);<a name="line.298"></a>
+<span class="sourceLineNo">299</span>        Assert.assertTrue(mXFound);<a name="line.299"></a>
+<span class="sourceLineNo">300</span>        Assert.assertTrue(pYFound);<a name="line.300"></a>
+<span class="sourceLineNo">301</span>        Assert.assertTrue(mYFound);<a name="line.301"></a>
+<span class="sourceLineNo">302</span>        Assert.assertTrue(pZFound);<a name="line.302"></a>
+<span class="sourceLineNo">303</span>        Assert.assertTrue(mZFound);<a name="line.303"></a>
+<span class="sourceLineNo">304</span>        Assert.assertEquals(6, count);<a name="line.304"></a>
+<span class="sourceLineNo">305</span><a name="line.305"></a>
+<span class="sourceLineNo">306</span>    }<a name="line.306"></a>
+<span class="sourceLineNo">307</span><a name="line.307"></a>
+<span class="sourceLineNo">308</span>    @Test<a name="line.308"></a>
+<span class="sourceLineNo">309</span>    public void testSeveralParts() {<a name="line.309"></a>
+<span class="sourceLineNo">310</span>        double tol = 0.01;<a name="line.310"></a>
+<span class="sourceLineNo">311</span>        double sinTol = FastMath.sin(tol);<a name="line.311"></a>
+<span class="sourceLineNo">312</span>        List&lt;SubHyperplane&lt;Sphere2D&gt;&gt; boundary = new ArrayList&lt;SubHyperplane&lt;Sphere2D&gt;&gt;();<a name="line.312"></a>
+<span class="sourceLineNo">313</span><a name="line.313"></a>
+<span class="sourceLineNo">314</span>        // first part: +X, +Y, +Z octant<a name="line.314"></a>
+<span class="sourceLineNo">315</span>        boundary.add(create(Vector3D.PLUS_J,  Vector3D.PLUS_K,  Vector3D.PLUS_I,  tol, 0.0, 0.5 * FastMath.PI));<a name="line.315"></a>
+<span class="sourceLineNo">316</span>        boundary.add(create(Vector3D.PLUS_K,  Vector3D.PLUS_I,  Vector3D.PLUS_J,  tol, 0.0, 0.5 * FastMath.PI));<a name="line.316"></a>
+<span class="sourceLineNo">317</span>        boundary.add(create(Vector3D.PLUS_I,  Vector3D.PLUS_J,  Vector3D.PLUS_K,  tol, 0.0, 0.5 * FastMath.PI));<a name="line.317"></a>
+<span class="sourceLineNo">318</span><a name="line.318"></a>
+<span class="sourceLineNo">319</span>        // first part: -X, -Y, -Z octant<a name="line.319"></a>
+<span class="sourceLineNo">320</span>        boundary.add(create(Vector3D.MINUS_J, Vector3D.MINUS_I, Vector3D.MINUS_K, tol, 0.0, 0.5 * FastMath.PI));<a name="line.320"></a>
+<span class="sourceLineNo">321</span>        boundary.add(create(Vector3D.MINUS_I, Vector3D.MINUS_K, Vector3D.MINUS_J, tol, 0.0, 0.5 * FastMath.PI));<a name="line.321"></a>
+<span class="sourceLineNo">322</span>        boundary.add(create(Vector3D.MINUS_K, Vector3D.MINUS_J, Vector3D.MINUS_I,  tol, 0.0, 0.5 * FastMath.PI));<a name="line.322"></a>
+<span class="sourceLineNo">323</span><a name="line.323"></a>
+<span class="sourceLineNo">324</span>        SphericalPolygonsSet polygon = new SphericalPolygonsSet(boundary, tol);<a name="line.324"></a>
+<span class="sourceLineNo">325</span><a name="line.325"></a>
+<span class="sourceLineNo">326</span>        UnitSphereRandomVectorGenerator random =<a name="line.326"></a>
+<span class="sourceLineNo">327</span>                new UnitSphereRandomVectorGenerator(3, new Well1024a(0xcc5ce49949e0d3ecl));<a name="line.327"></a>
+<span class="sourceLineNo">328</span>        for (int i = 0; i &lt; 1000; ++i) {<a name="line.328"></a>
+<span class="sourceLineNo">329</span>            Vector3D v = new Vector3D(random.nextVector());<a name="line.329"></a>
+<span class="sourceLineNo">330</span>            if ((v.getX() &lt; -sinTol) &amp;&amp; (v.getY() &lt; -sinTol) &amp;&amp; (v.getZ() &lt; -sinTol)) {<a name="line.330"></a>
+<span class="sourceLineNo">331</span>                Assert.assertEquals(Location.INSIDE, polygon.checkPoint(new S2Point(v)));<a name="line.331"></a>
+<span class="sourceLineNo">332</span>            } else if ((v.getX() &lt; sinTol) &amp;&amp; (v.getY() &lt; sinTol) &amp;&amp; (v.getZ() &lt; sinTol)) {<a name="line.332"></a>
+<span class="sourceLineNo">333</span>                Assert.assertEquals(Location.BOUNDARY, polygon.checkPoint(new S2Point(v)));<a name="line.333"></a>
+<span class="sourceLineNo">334</span>            } else if ((v.getX() &gt; sinTol) &amp;&amp; (v.getY() &gt; sinTol) &amp;&amp; (v.getZ() &gt; sinTol)) {<a name="line.334"></a>
+<span class="sourceLineNo">335</span>                Assert.assertEquals(Location.INSIDE, polygon.checkPoint(new S2Point(v)));<a name="line.335"></a>
+<span class="sourceLineNo">336</span>            } else if ((v.getX() &gt; -sinTol) &amp;&amp; (v.getY() &gt; -sinTol) &amp;&amp; (v.getZ() &gt; -sinTol)) {<a name="line.336"></a>
+<span class="sourceLineNo">337</span>                Assert.assertEquals(Location.BOUNDARY, polygon.checkPoint(new S2Point(v)));<a name="line.337"></a>
+<span class="sourceLineNo">338</span>            } else {<a name="line.338"></a>
+<span class="sourceLineNo">339</span>                Assert.assertEquals(Location.OUTSIDE, polygon.checkPoint(new S2Point(v)));<a name="line.339"></a>
+<span class="sourceLineNo">340</span>            }<a name="line.340"></a>
+<span class="sourceLineNo">341</span>        }<a name="line.341"></a>
+<span class="sourceLineNo">342</span><a name="line.342"></a>
+<span class="sourceLineNo">343</span>        Assert.assertEquals(FastMath.PI, polygon.getSize(), 1.0e-10);<a name="line.343"></a>
+<span class="sourceLineNo">344</span>        Assert.assertEquals(3 * FastMath.PI, polygon.getBoundarySize(), 1.0e-10);<a name="line.344"></a>
+<span class="sourceLineNo">345</span><a name="line.345"></a>
+<span class="sourceLineNo">346</span>        // there should be two separate boundary loops<a name="line.346"></a>
+<span class="sourceLineNo">347</span>        Assert.assertEquals(2, polygon.getBoundaryLoops().size());<a name="line.347"></a>
+<span class="sourceLineNo">348</span><a name="line.348"></a>
+<span class="sourceLineNo">349</span>    }<a name="line.349"></a>
+<span class="sourceLineNo">350</span><a name="line.350"></a>
+<span class="sourceLineNo">351</span>    @Test<a name="line.351"></a>
+<span class="sourceLineNo">352</span>    public void testPartWithHole() {<a name="line.352"></a>
+<span class="sourceLineNo">353</span>        double tol = 0.01;<a name="line.353"></a>
+<span class="sourceLineNo">354</span>        double alpha = 0.7;<a name="line.354"></a>
+<span class="sourceLineNo">355</span>        S2Point center = new S2Point(new Vector3D(1, 1, 1));<a name="line.355"></a>
+<span class="sourceLineNo">356</span>        SphericalPolygonsSet hexa = new SphericalPolygonsSet(center.getVector(), Vector3D.PLUS_K, alpha, 6, tol);<a name="line.356"></a>
+<span class="sourceLineNo">357</span>        SphericalPolygonsSet hole  = new SphericalPolygonsSet(tol,<a name="line.357"></a>
+<span class="sourceLineNo">358</span>                                                              new S2Point(FastMath.PI / 6, FastMath.PI / 3),<a name="line.358"></a>
+<span class="sourceLineNo">359</span>                                                              new S2Point(FastMath.PI / 3, FastMath.PI / 3),<a name="line.359"></a>
+<span class="sourceLineNo">360</span>                                                              new S2Point(FastMath.PI / 4, FastMath.PI / 6));<a name="line.360"></a>
+<span class="sourceLineNo">361</span>        SphericalPolygonsSet hexaWithHole =<a name="line.361"></a>
+<span class="sourceLineNo">362</span>                (SphericalPolygonsSet) new RegionFactory&lt;Sphere2D&gt;().difference(hexa, hole);<a name="line.362"></a>
+<span class="sourceLineNo">363</span><a name="line.363"></a>
+<span class="sourceLineNo">364</span>        for (double phi = center.getPhi() - alpha + 0.1; phi &lt; center.getPhi() + alpha - 0.1; phi += 0.07) {<a name="line.364"></a>
+<span class="sourceLineNo">365</span>            Location l = hexaWithHole.checkPoint(new S2Point(FastMath.PI / 4, phi));<a name="line.365"></a>
+<span class="sourceLineNo">366</span>            if (phi &lt; FastMath.PI / 6 || phi &gt; FastMath.PI / 3) {<a name="line.366"></a>
+<span class="sourceLineNo">367</span>                Assert.assertEquals(Location.INSIDE,  l);<a name="line.367"></a>
+<span class="sourceLineNo">368</span>            } else {<a name="line.368"></a>
+<span class="sourceLineNo">369</span>                Assert.assertEquals(Location.OUTSIDE, l);<a name="line.369"></a>
+<span class="sourceLineNo">370</span>            }<a name="line.370"></a>
+<span class="sourceLineNo">371</span>        }<a name="line.371"></a>
+<span class="sourceLineNo">372</span><a name="line.372"></a>
+<span class="sourceLineNo">373</span>        // there should be two separate boundary loops<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        Assert.assertEquals(2, hexaWithHole.getBoundaryLoops().size());<a name="line.374"></a>
+<span class="sourceLineNo">375</span><a name="line.375"></a>
+<span class="sourceLineNo">376</span>        Assert.assertEquals(hexa.getBoundarySize() + hole.getBoundarySize(), hexaWithHole.getBoundarySize(), 1.0e-10);<a name="line.376"></a>
+<span class="sourceLineNo">377</span>        Assert.assertEquals(hexa.getSize() - hole.getSize(), hexaWithHole.getSize(), 1.0e-10);<a name="line.377"></a>
+<span class="sourceLineNo">378</span><a name="line.378"></a>
+<span class="sourceLineNo">379</span>    }<a name="line.379"></a>
+<span class="sourceLineNo">380</span><a name="line.380"></a>
+<span class="sourceLineNo">381</span>    @Test<a name="line.381"></a>
+<span class="sourceLineNo">382</span>    public void testConcentricSubParts() {<a name="line.382"></a>
+<span class="sourceLineNo">383</span>        double tol = 0.001;<a name="line.383"></a>
+<span class="sourceLineNo">384</span>        Vector3D center = new Vector3D(1, 1, 1);<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        SphericalPolygonsSet hexaOut   = new SphericalPolygonsSet(center, Vector3D.PLUS_K, 0.9,  6, tol);<a name="line.385"></a>
+<span class="sourceLineNo">386</span>        SphericalPolygonsSet hexaIn    = new SphericalPolygonsSet(center, Vector3D.PLUS_K, 0.8,  6, tol);<a name="line.386"></a>
+<span class="sourceLineNo">387</span>        SphericalPolygonsSet pentaOut  = new SphericalPolygonsSet(center, Vector3D.PLUS_K, 0.7,  5, tol);<a name="line.387"></a>
+<span class="sourceLineNo">388</span>        SphericalPolygonsSet pentaIn   = new SphericalPolygonsSet(center, Vector3D.PLUS_K, 0.6,  5, tol);<a name="line.388"></a>
+<span class="sourceLineNo">389</span>        SphericalPolygonsSet quadriOut = new SphericalPolygonsSet(center, Vector3D.PLUS_K, 0.5,  4, tol);<a name="line.389"></a>
+<span class="sourceLineNo">390</span>        SphericalPolygonsSet quadriIn  = new SphericalPolygonsSet(center, Vector3D.PLUS_K, 0.4,  4, tol);<a name="line.390"></a>
+<span class="sourceLineNo">391</span>        SphericalPolygonsSet triOut    = new SphericalPolygonsSet(center, Vector3D.PLUS_K, 0.25, 3, tol);<a name="line.391"></a>
+<span class="sourceLineNo">392</span>        SphericalPolygonsSet triIn     = new SphericalPolygonsSet(center, Vector3D.PLUS_K, 0.15, 3, tol);<a name="line.392"></a>
+<span class="sourceLineNo">393</span><a name="line.393"></a>
+<span class="sourceLineNo">394</span>        RegionFactory&lt;Sphere2D&gt; factory = new RegionFactory&lt;Sphere2D&gt;();<a name="line.394"></a>
+<span class="sourceLineNo">395</span>        SphericalPolygonsSet hexa   = (SphericalPolygonsSet) factory.difference(hexaOut,   hexaIn);<a name="line.395"></a>
+<span class="sourceLineNo">396</span>        SphericalPolygonsSet penta  = (SphericalPolygonsSet) factory.difference(pentaOut,  pentaIn);<a name="line.396"></a>
+<span class="sourceLineNo">397</span>        SphericalPolygonsSet quadri = (SphericalPolygonsSet) factory.difference(quadriOut, quadriIn);<a name="line.397"></a>
+<span class="sourceLineNo">398</span>        SphericalPolygonsSet tri    = (SphericalPolygonsSet) factory.difference(triOut,    triIn);<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        SphericalPolygonsSet concentric =<a name="line.399"></a>
+<span class="sourceLineNo">400</span>                (SphericalPolygonsSet) factory.union(factory.union(hexa, penta), factory.union(quadri, tri));<a name="line.400"></a>
+<span class="sourceLineNo">401</span><a name="line.401"></a>
+<span class="sourceLineNo">402</span>        // there should be two separate boundary loops<a name="line.402"></a>
+<span class="sourceLineNo">403</span>        Assert.assertEquals(8, concentric.getBoundaryLoops().size());<a name="line.403"></a>
+<span class="sourceLineNo">404</span><a name="line.404"></a>
+<span class="sourceLineNo">405</span>        Assert.assertEquals(hexaOut.getBoundarySize()   + hexaIn.getBoundarySize()   +<a name="line.405"></a>
+<span class="sourceLineNo">406</span>                            pentaOut.getBoundarySize()  + pentaIn.getBoundarySize()  +<a name="line.406"></a>
+<span class="sourceLineNo">407</span>                            quadriOut.getBoundarySize() + quadriIn.getBoundarySize() +<a name="line.407"></a>
+<span class="sourceLineNo">408</span>                            triOut.getBoundarySize()    + triIn.getBoundarySize(),<a name="line.408"></a>
+<span class="sourceLineNo">409</span>                            concentric.getBoundarySize(), 1.0e-10);<a name="line.409"></a>
+<span class="sourceLineNo">410</span>        Assert.assertEquals(hexaOut.getSize()   - hexaIn.getSize()   +<a name="line.410"></a>
+<span class="sourceLineNo">411</span>                            pentaOut.getSize()  - pentaIn.getSize()  +<a name="line.411"></a>
+<span class="sourceLineNo">412</span>                            quadriOut.getSize() - quadriIn.getSize() +<a name="line.412"></a>
+<span class="sourceLineNo">413</span>                            triOut.getSize()    - triIn.getSize(),<a name="line.413"></a>
+<span class="sourceLineNo">414</span>                            concentric.getSize(), 1.0e-10);<a name="line.414"></a>
+<span class="sourceLineNo">415</span><a name="line.415"></a>
+<span class="sourceLineNo">416</span>        // we expect lots of sign changes as we traverse all concentric rings<a name="line.416"></a>
+<span class="sourceLineNo">417</span>        double phi = new S2Point(center).getPhi();<a name="line.417"></a>
+<span class="sourceLineNo">418</span>        Assert.assertEquals(+0.207, concentric.projectToBoundary(new S2Point(-0.60,  phi)).getOffset(), 0.01);<a name="line.418"></a>
+<span class="sourceLineNo">419</span>        Assert.assertEquals(-0.048, concentric.projectToBoundary(new S2Point(-0.21,  phi)).getOffset(), 0.01);<a name="line.419"></a>
+<span class="sourceLineNo">420</span>        Assert.assertEquals(+0.027, concentric.projectToBoundary(new S2Point(-0.10,  phi)).getOffset(), 0.01);<a name="line.420"></a>
+<span class="sourceLineNo">421</span>        Assert.assertEquals(-0.041, concentric.projectToBoundary(new S2Point( 0.01,  phi)).getOffset(), 0.01);<a name="line.421"></a>
+<span class="sourceLineNo">422</span>        Assert.assertEquals(+0.049, concentric.projectToBoundary(new S2Point( 0.16,  phi)).getOffset(), 0.01);<a name="line.422"></a>
+<span class="sourceLineNo">423</span>        Assert.assertEquals(-0.038, concentric.projectToBoundary(new S2Point( 0.29,  phi)).getOffset(), 0.01);<a name="line.423"></a>
+<span class="sourceLineNo">424</span>        Assert.assertEquals(+0.097, concentric.projectToBoundary(new S2Point( 0.48,  phi)).getOffset(), 0.01);<a name="line.424"></a>
+<span class="sourceLineNo">425</span>        Assert.assertEquals(-0.022, concentric.projectToBoundary(new S2Point( 0.64,  phi)).getOffset(), 0.01);<a name="line.425"></a>
+<span class="sourceLineNo">426</span>        Assert.assertEquals(+0.072, concentric.projectToBoundary(new S2Point( 0.79,  phi)).getOffset(), 0.01);<a name="line.426"></a>
+<span class="sourceLineNo">427</span>        Assert.assertEquals(-0.022, concentric.projectToBoundary(new S2Point( 0.93,  phi)).getOffset(), 0.01);<a name="line.427"></a>
+<span class="sourceLineNo">428</span>        Assert.assertEquals(+0.091, concentric.projectToBoundary(new S2Point( 1.08,  phi)).getOffset(), 0.01);<a name="line.428"></a>
+<span class="sourceLineNo">429</span>        Assert.assertEquals(-0.037, concentric.projectToBoundary(new S2Point( 1.28,  phi)).getOffset(), 0.01);<a name="line.429"></a>
+<span class="sourceLineNo">430</span>        Assert.assertEquals(+0.051, concentric.projectToBoundary(new S2Point( 1.40,  phi)).getOffset(), 0.01);<a name="line.430"></a>
+<span class="sourceLineNo">431</span>        Assert.assertEquals(-0.041, concentric.projectToBoundary(new S2Point( 1.55,  phi)).getOffset(), 0.01);<a name="line.431"></a>
+<span class="sourceLineNo">432</span>        Assert.assertEquals(+0.027, concentric.projectToBoundary(new S2Point( 1.67,  phi)).getOffset(), 0.01);<a name="line.432"></a>
+<span class="sourceLineNo">433</span>        Assert.assertEquals(-0.044, concentric.projectToBoundary(new S2Point( 1.79,  phi)).getOffset(), 0.01);<a name="line.433"></a>
+<span class="sourceLineNo">434</span>        Assert.assertEquals(+0.201, concentric.projectToBoundary(new S2Point( 2.16,  phi)).getOffset(), 0.01);<a name="line.434"></a>
+<span class="sourceLineNo">435</span><a name="line.435"></a>
+<span class="sourceLineNo">436</span>    }<a name="line.436"></a>
+<span class="sourceLineNo">437</span><a name="line.437"></a>
+<span class="sourceLineNo">438</span>    @Test<a name="line.438"></a>
+<span class="sourceLineNo">439</span>    public void testGeographicalMap() {<a name="line.439"></a>
+<span class="sourceLineNo">440</span><a name="line.440"></a>
+<span class="sourceLineNo">441</span>        SphericalPolygonsSet continental = buildSimpleZone(new double[][] {<a name="line.441"></a>
+<span class="sourceLineNo">442</span>          { 51.14850,  2.51357 }, { 50.94660,  1.63900 }, { 50.12717,  1.33876 }, { 49.34737, -0.98946 },<a name="line.442"></a>
+<span class="sourceLineNo">443</span>          { 49.77634, -1.93349 }, { 48.64442, -1.61651 }, { 48.90169, -3.29581 }, { 48.68416, -4.59234 },<a name="line.443"></a>
+<span class="sourceLineNo">444</span>          { 47.95495, -4.49155 }, { 47.57032, -2.96327 }, { 46.01491, -1.19379 }, { 44.02261, -1.38422 },<a name="line.444"></a>
+<span class="sourceLineNo">445</span>          { 43.42280, -1.90135 }, { 43.03401, -1.50277 }, { 42.34338,  1.82679 }, { 42.47301,  2.98599 },<a name="line.445"></a>
+<span class="sourceLineNo">446</span>          { 43.07520,  3.10041 }, { 43.39965,  4.55696 }, { 43.12889,  6.52924 }, { 43.69384,  7.43518 },<a name="line.446"></a>
+<span class="sourceLineNo">447</span>          { 44.12790,  7.54959 }, { 45.02851,  6.74995 }, { 45.33309,  7.09665 }, { 46.42967,  6.50009 },<a name="line.447"></a>
+<span class="sourceLineNo">448</span>          { 46.27298,  6.02260 }, { 46.72577,  6.03738 }, { 47.62058,  7.46675 }, { 49.01778,  8.09927 },<a name="line.448"></a>
+<span class="sourceLineNo">449</span>          { 49.20195,  6.65822 }, { 49.44266,  5.89775 }, { 49.98537,  4.79922 }<a name="line.449"></a>
+<span class="sourceLineNo">450</span>        });<a name="line.450"></a>
+<span class="sourceLineNo">451</span>        SphericalPolygonsSet corsica = buildSimpleZone(new double[][] {<a name="line.451"></a>
+<span class="sourceLineNo">452</span>          { 42.15249,  9.56001 }, { 43.00998,  9.39000 }, { 42.62812,  8.74600 }, { 42.25651,  8.54421 },<a name="line.452"></a>
+<span class="sourceLineNo">453</span>          { 41.58361,  8.77572 }, { 41.38000,  9.22975 }<a name="line.453"></a>
+<span class="sourceLineNo">454</span>        });<a name="line.454"></a>
+<span class="sourceLineNo">455</span>        RegionFactory&lt;Sphere2D&gt; factory = new RegionFactory&lt;Sphere2D&gt;();<a name="line.455"></a>
+<span class="sourceLineNo">456</span>        SphericalPolygonsSet zone = (SphericalPolygonsSet) factory.union(continental, corsica);<a name="line.456"></a>
+<span class="sourceLineNo">457</span>        EnclosingBall&lt;Sphere2D, S2Point&gt; enclosing = zone.getEnclosingCap();<a name="line.457"></a>
+<span class="sourceLineNo">458</span>        Vector3D enclosingCenter = ((S2Point) enclosing.getCenter()).getVector();<a name="line.458"></a>
+<span class="sourceLineNo">459</span><a name="line.459"></a>
+<span class="sourceLineNo">460</span>        double step = FastMath.toRadians(0.1);<a name="line.460"></a>
+<span class="sourceLineNo">461</span>        for (Vertex loopStart : zone.getBoundaryLoops()) {<a name="line.461"></a>
+<span class="sourceLineNo">462</span>            int count = 0;<a name="line.462"></a>
+<span class="sourceLineNo">463</span>            for (Vertex v = loopStart; count == 0 || v != loopStart; v = v.getOutgoing().getEnd()) {<a name="line.463"></a>
+<span class="sourceLineNo">464</span>                ++count;<a name="line.464"></a>
+<span class="sourceLineNo">465</span>                for (int i = 0; i &lt; FastMath.ceil(v.getOutgoing().getLength() / step); ++i) {<a name="line.465"></a>
+<span class="sourceLineNo">466</span>                    Vector3D p = v.getOutgoing().getPointAt(i * step);<a name="line.466"></a>
+<span class="sourceLineNo">467</span>                    Assert.assertTrue(Vector3D.angle(p, enclosingCenter) &lt;= enclosing.getRadius());<a name="line.467"></a>
+<span class="sourceLineNo">468</span>                }<a name="line.468"></a>
+<span class="sourceLineNo">469</span>            }<a name="line.469"></a>
+<span class="sourceLineNo">470</span>        }<a name="line.470"></a>
+<span class="sourceLineNo">471</span><a name="line.471"></a>
+<span class="sourceLineNo">472</span>        S2Point supportPointA = s2Point(48.68416, -4.59234);<a name="line.472"></a>
+<span class="sourceLineNo">473</span>        S2Point supportPointB = s2Point(41.38000,  9.22975);<a name="line.473"></a>
+<span class="sourceLineNo">474</span>        Assert.assertEquals(enclosing.getRadius(), supportPointA.distance(enclosing.getCenter()), 1.0e-10);<a name="line.474"></a>
+<span class="sourceLineNo">475</span>        Assert.assertEquals(enclosing.getRadius(), supportPointB.distance(enclosing.getCenter()), 1.0e-10);<a name="line.475"></a>
+<span class="sourceLineNo">476</span>        Assert.assertEquals(0.5 * supportPointA.distance(supportPointB), enclosing.getRadius(), 1.0e-10);<a name="line.476"></a>
+<span class="sourceLineNo">477</span>        Assert.assertEquals(2, enclosing.getSupportSize());<a name="line.477"></a>
+<span class="sourceLineNo">478</span><a name="line.478"></a>
+<span class="sourceLineNo">479</span>        EnclosingBall&lt;Sphere2D, S2Point&gt; continentalInscribed =<a name="line.479"></a>
+<span class="sourceLineNo">480</span>                ((SphericalPolygonsSet) factory.getComplement(continental)).getEnclosingCap();<a name="line.480"></a>
+<span class="sourceLineNo">481</span>        Vector3D continentalCenter = ((S2Point) continentalInscribed.getCenter()).getVector();<a name="line.481"></a>
+<span class="sourceLineNo">482</span>        Assert.assertEquals(2.2, FastMath.toDegrees(FastMath.PI - continentalInscribed.getRadius()), 0.1);<a name="line.482"></a>
+<span class="sourceLineNo">483</span>        for (Vertex loopStart : continental.getBoundaryLoops()) {<a name="line.483"></a>
+<span class="sourceLineNo">484</span>            int count = 0;<a name="line.484"></a>
+<span class="sourceLineNo">485</span>            for (Vertex v = loopStart; count == 0 || v != loopStart; v = v.getOutgoing().getEnd()) {<a name="line.485"></a>
+<span class="sourceLineNo">486</span>                ++count;<a name="line.486"></a>
+<span class="sourceLineNo">487</span>                for (int i = 0; i &lt; FastMath.ceil(v.getOutgoing().getLength() / step); ++i) {<a name="line.487"></a>
+<span class="sourceLineNo">488</span>                    Vector3D p = v.getOutgoing().getPointAt(i * step);<a name="line.488"></a>
+<span class="sourceLineNo">489</span>                    Assert.assertTrue(Vector3D.angle(p, continentalCenter) &lt;= continentalInscribed.getRadius());<a name="line.489"></a>
+<span class="sourceLineNo">490</span>                }<a name="line.490"></a>
+<span class="sourceLineNo">491</span>            }<a name="line.491"></a>
+<span class="sourceLineNo">492</span>        }<a name="line.492"></a>
+<span class="sourceLineNo">493</span><a name="line.493"></a>
+<span class="sourceLineNo">494</span>        EnclosingBall&lt;Sphere2D, S2Point&gt; corsicaInscribed =<a name="line.494"></a>
+<span class="sourceLineNo">495</span>                ((SphericalPolygonsSet) factory.getComplement(corsica)).getEnclosingCap();<a name="line.495"></a>
+<span class="sourceLineNo">496</span>        Vector3D corsicaCenter = ((S2Point) corsicaInscribed.getCenter()).getVector();<a name="line.496"></a>
+<span class="sourceLineNo">497</span>        Assert.assertEquals(0.34, FastMath.toDegrees(FastMath.PI - corsicaInscribed.getRadius()), 0.01);<a name="line.497"></a>
+<span class="sourceLineNo">498</span>        for (Vertex loopStart : corsica.getBoundaryLoops()) {<a name="line.498"></a>
+<span class="sourceLineNo">499</span>            int count = 0;<a name="line.499"></a>
+<span class="sourceLineNo">500</span>            for (Vertex v = loopStart; count == 0 || v != loopStart; v = v.getOutgoing().getEnd()) {<a name="line.500"></a>
+<span class="sourceLineNo">501</span>                ++count;<a name="line.501"></a>
+<span class="sourceLineNo">502</span>                for (int i = 0; i &lt; FastMath.ceil(v.getOutgoing().getLength() / step); ++i) {<a name="line.502"></a>
+<span class="sourceLineNo">503</span>                    Vector3D p = v.getOutgoing().getPointAt(i * step);<a name="line.503"></a>
+<span class="sourceLineNo">504</span>                    Assert.assertTrue(Vector3D.angle(p, corsicaCenter) &lt;= corsicaInscribed.getRadius());<a name="line.504"></a>
+<span class="sourceLineNo">505</span>                }<a name="line.505"></a>
+<span class="sourceLineNo">506</span>            }<a name="line.506"></a>
+<span class="sourceLineNo">507</span>        }<a name="line.507"></a>
+<span class="sourceLineNo">508</span><a name="line.508"></a>
+<span class="sourceLineNo">509</span>    }<a name="line.509"></a>
+<span class="sourceLineNo">510</span><a name="line.510"></a>
+<span class="sourceLineNo">511</span>    private SubCircle create(Vector3D pole, Vector3D x, Vector3D y,<a name="line.511"></a>
+<span class="sourceLineNo">512</span>                             double tolerance, double ... limits) {<a name="line.512"></a>
+<span class="sourceLineNo">513</span>        RegionFactory&lt;Sphere1D&gt; factory = new RegionFactory&lt;Sphere1D&gt;();<a name="line.513"></a>
+<span class="sourceLineNo">514</span>        Circle circle = new Circle(pole, tolerance);<a name="line.514"></a>
+<span class="sourceLineNo">515</span>        Circle phased =<a name="line.515"></a>
+<span class="sourceLineNo">516</span>                (Circle) Circle.getTransform(new Rotation(circle.getXAxis(), circle.getYAxis(), x, y)).apply(circle);<a name="line.516"></a>
+<span class="sourceLineNo">517</span>        ArcsSet set = (ArcsSet) factory.getComplement(new ArcsSet(tolerance));<a name="line.517"></a>
+<span class="sourceLineNo">518</span>        for (int i = 0; i &lt; limits.length; i += 2) {<a name="line.518"></a>
+<span class="sourceLineNo">519</span>            set = (ArcsSet) factory.union(set, new ArcsSet(limits[i], limits[i + 1], tolerance));<a name="line.519"></a>
+<span class="sourceLineNo">520</span>        }<a name="line.520"></a>
+<span class="sourceLineNo">521</span>        return new SubCircle(phased, set);<a name="line.521"></a>
+<span class="sourceLineNo">522</span>    }<a name="line.522"></a>
+<span class="sourceLineNo">523</span><a name="line.523"></a>
+<span class="sourceLineNo">524</span>    private SphericalPolygonsSet buildSimpleZone(double[][] points) {<a name="line.524"></a>
+<span class="sourceLineNo">525</span>        final S2Point[] vertices = new S2Point[points.length];<a name="line.525"></a>
+<span class="sourceLineNo">526</span>        for (int i = 0; i &lt; points.length; ++i) {<a name="line.526"></a>
+<span class="sourceLineNo">527</span>            vertices[i] = s2Point(points[i][0], points[i][1]);<a name="line.527"></a>
+<span class="sourceLineNo">528</span>        }<a name="line.528"></a>
+<span class="sourceLineNo">529</span>        return new SphericalPolygonsSet(1.0e-10, vertices);<a name="line.529"></a>
+<span class="sourceLineNo">530</span>    }<a name="line.530"></a>
+<span class="sourceLineNo">531</span><a name="line.531"></a>
+<span class="sourceLineNo">532</span>    private S2Point s2Point(double latitude, double longitude) {<a name="line.532"></a>
+<span class="sourceLineNo">533</span>        return new S2Point(FastMath.toRadians(longitude), FastMath.toRadians(90.0 - latitude));<a name="line.533"></a>
+<span class="sourceLineNo">534</span>    }<a name="line.534"></a>
+<span class="sourceLineNo">535</span><a name="line.535"></a>
+<span class="sourceLineNo">536</span>}<a name="line.536"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

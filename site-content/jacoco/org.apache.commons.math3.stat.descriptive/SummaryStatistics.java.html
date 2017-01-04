@@ -1,0 +1,766 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SummaryStatistics.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive</a> &gt; <span class="el_source">SummaryStatistics.java</span></div><h1>SummaryStatistics.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.MathIllegalStateException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.stat.descriptive.moment.GeometricMean;
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
+import org.apache.commons.math3.stat.descriptive.moment.SecondMoment;
+import org.apache.commons.math3.stat.descriptive.moment.Variance;
+import org.apache.commons.math3.stat.descriptive.rank.Max;
+import org.apache.commons.math3.stat.descriptive.rank.Min;
+import org.apache.commons.math3.stat.descriptive.summary.Sum;
+import org.apache.commons.math3.stat.descriptive.summary.SumOfLogs;
+import org.apache.commons.math3.stat.descriptive.summary.SumOfSquares;
+import org.apache.commons.math3.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * &lt;p&gt;
+ * Computes summary statistics for a stream of data values added using the
+ * {@link #addValue(double) addValue} method. The data values are not stored in
+ * memory, so this class can be used to compute statistics for very large data
+ * streams.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * The {@link StorelessUnivariateStatistic} instances used to maintain summary
+ * state and compute statistics are configurable via setters. For example, the
+ * default implementation for the variance can be overridden by calling
+ * {@link #setVarianceImpl(StorelessUnivariateStatistic)}. Actual parameters to
+ * these methods must implement the {@link StorelessUnivariateStatistic}
+ * interface and configuration must be completed before &lt;code&gt;addValue&lt;/code&gt;
+ * is called. No configuration is necessary to use the default, commons-math
+ * provided implementations.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * Note: This class is not thread-safe. Use
+ * {@link SynchronizedSummaryStatistics} if concurrent access from multiple
+ * threads is required.
+ * &lt;/p&gt;
+ */
+public class SummaryStatistics implements StatisticalSummary, Serializable {
+
+    /** Serialization UID */
+    private static final long serialVersionUID = -2021321786743555871L;
+
+    /** count of values that have been added */
+<span class="fc" id="L66">    private long n = 0;</span>
+
+    /** SecondMoment is used to compute the mean and variance */
+<span class="fc" id="L69">    private SecondMoment secondMoment = new SecondMoment();</span>
+
+    /** sum of values that have been added */
+<span class="fc" id="L72">    private Sum sum = new Sum();</span>
+
+    /** sum of the square of each value that has been added */
+<span class="fc" id="L75">    private SumOfSquares sumsq = new SumOfSquares();</span>
+
+    /** min of values that have been added */
+<span class="fc" id="L78">    private Min min = new Min();</span>
+
+    /** max of values that have been added */
+<span class="fc" id="L81">    private Max max = new Max();</span>
+
+    /** sumLog of values that have been added */
+<span class="fc" id="L84">    private SumOfLogs sumLog = new SumOfLogs();</span>
+
+    /** geoMean of values that have been added */
+<span class="fc" id="L87">    private GeometricMean geoMean = new GeometricMean(sumLog);</span>
+
+    /** mean of values that have been added */
+<span class="fc" id="L90">    private Mean mean = new Mean(secondMoment);</span>
+
+    /** variance of values that have been added */
+<span class="fc" id="L93">    private Variance variance = new Variance(secondMoment);</span>
+
+    /** Sum statistic implementation - can be reset by setter. */
+<span class="fc" id="L96">    private StorelessUnivariateStatistic sumImpl = sum;</span>
+
+    /** Sum of squares statistic implementation - can be reset by setter. */
+<span class="fc" id="L99">    private StorelessUnivariateStatistic sumsqImpl = sumsq;</span>
+
+    /** Minimum statistic implementation - can be reset by setter. */
+<span class="fc" id="L102">    private StorelessUnivariateStatistic minImpl = min;</span>
+
+    /** Maximum statistic implementation - can be reset by setter. */
+<span class="fc" id="L105">    private StorelessUnivariateStatistic maxImpl = max;</span>
+
+    /** Sum of log statistic implementation - can be reset by setter. */
+<span class="fc" id="L108">    private StorelessUnivariateStatistic sumLogImpl = sumLog;</span>
+
+    /** Geometric mean statistic implementation - can be reset by setter. */
+<span class="fc" id="L111">    private StorelessUnivariateStatistic geoMeanImpl = geoMean;</span>
+
+    /** Mean statistic implementation - can be reset by setter. */
+<span class="fc" id="L114">    private StorelessUnivariateStatistic meanImpl = mean;</span>
+
+    /** Variance statistic implementation - can be reset by setter. */
+<span class="fc" id="L117">    private StorelessUnivariateStatistic varianceImpl = variance;</span>
+
+    /**
+     * Construct a SummaryStatistics instance
+     */
+<span class="fc" id="L122">    public SummaryStatistics() {</span>
+<span class="fc" id="L123">    }</span>
+
+    /**
+     * A copy constructor. Creates a deep-copy of the {@code original}.
+     *
+     * @param original the {@code SummaryStatistics} instance to copy
+     * @throws NullArgumentException if original is null
+     */
+<span class="fc" id="L131">    public SummaryStatistics(SummaryStatistics original) throws NullArgumentException {</span>
+<span class="fc" id="L132">        copy(original, this);</span>
+<span class="fc" id="L133">    }</span>
+
+    /**
+     * Return a {@link StatisticalSummaryValues} instance reporting current
+     * statistics.
+     * @return Current values of statistics
+     */
+    public StatisticalSummary getSummary() {
+<span class="fc" id="L141">        return new StatisticalSummaryValues(getMean(), getVariance(), getN(),</span>
+                getMax(), getMin(), getSum());
+    }
+
+    /**
+     * Add a value to the data
+     * @param value the value to add
+     */
+    public void addValue(double value) {
+<span class="fc" id="L150">        sumImpl.increment(value);</span>
+<span class="fc" id="L151">        sumsqImpl.increment(value);</span>
+<span class="fc" id="L152">        minImpl.increment(value);</span>
+<span class="fc" id="L153">        maxImpl.increment(value);</span>
+<span class="fc" id="L154">        sumLogImpl.increment(value);</span>
+<span class="fc" id="L155">        secondMoment.increment(value);</span>
+        // If mean, variance or geomean have been overridden,
+        // need to increment these
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        if (meanImpl != mean) {</span>
+<span class="fc" id="L159">            meanImpl.increment(value);</span>
+        }
+<span class="fc bfc" id="L161" title="All 2 branches covered.">        if (varianceImpl != variance) {</span>
+<span class="fc" id="L162">            varianceImpl.increment(value);</span>
+        }
+<span class="fc bfc" id="L164" title="All 2 branches covered.">        if (geoMeanImpl != geoMean) {</span>
+<span class="fc" id="L165">            geoMeanImpl.increment(value);</span>
+        }
+<span class="fc" id="L167">        n++;</span>
+<span class="fc" id="L168">    }</span>
+
+    /**
+     * Returns the number of available values
+     * @return The number of available values
+     */
+    public long getN() {
+<span class="fc" id="L175">        return n;</span>
+    }
+
+    /**
+     * Returns the sum of the values that have been added
+     * @return The sum or &lt;code&gt;Double.NaN&lt;/code&gt; if no values have been added
+     */
+    public double getSum() {
+<span class="fc" id="L183">        return sumImpl.getResult();</span>
+    }
+
+    /**
+     * Returns the sum of the squares of the values that have been added.
+     * &lt;p&gt;
+     * Double.NaN is returned if no values have been added.
+     * &lt;/p&gt;
+     * @return The sum of squares
+     */
+    public double getSumsq() {
+<span class="fc" id="L194">        return sumsqImpl.getResult();</span>
+    }
+
+    /**
+     * Returns the mean of the values that have been added.
+     * &lt;p&gt;
+     * Double.NaN is returned if no values have been added.
+     * &lt;/p&gt;
+     * @return the mean
+     */
+    public double getMean() {
+<span class="fc" id="L205">        return meanImpl.getResult();</span>
+    }
+
+    /**
+     * Returns the standard deviation of the values that have been added.
+     * &lt;p&gt;
+     * Double.NaN is returned if no values have been added.
+     * &lt;/p&gt;
+     * @return the standard deviation
+     */
+    public double getStandardDeviation() {
+<span class="fc" id="L216">        double stdDev = Double.NaN;</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">        if (getN() &gt; 0) {</span>
+<span class="fc bfc" id="L218" title="All 2 branches covered.">            if (getN() &gt; 1) {</span>
+<span class="fc" id="L219">                stdDev = FastMath.sqrt(getVariance());</span>
+            } else {
+<span class="fc" id="L221">                stdDev = 0.0;</span>
+            }
+        }
+<span class="fc" id="L224">        return stdDev;</span>
+    }
+
+    /**
+     * Returns the quadratic mean, a.k.a.
+     * &lt;a href=&quot;http://mathworld.wolfram.com/Root-Mean-Square.html&quot;&gt;
+     * root-mean-square&lt;/a&gt; of the available values
+     * @return The quadratic mean or {@code Double.NaN} if no values
+     * have been added.
+     */
+    public double getQuadraticMean() {
+<span class="fc" id="L235">        final long size = getN();</span>
+<span class="pc bpc" id="L236" title="1 of 2 branches missed.">        return size &gt; 0 ? FastMath.sqrt(getSumsq() / size) : Double.NaN;</span>
+    }
+
+    /**
+     * Returns the (sample) variance of the available values.
+     *
+     * &lt;p&gt;This method returns the bias-corrected sample variance (using {@code n - 1} in
+     * the denominator).  Use {@link #getPopulationVariance()} for the non-bias-corrected
+     * population variance.&lt;/p&gt;
+     *
+     * &lt;p&gt;Double.NaN is returned if no values have been added.&lt;/p&gt;
+     *
+     * @return the variance
+     */
+    public double getVariance() {
+<span class="fc" id="L251">        return varianceImpl.getResult();</span>
+    }
+
+    /**
+     * Returns the &lt;a href=&quot;http://en.wikibooks.org/wiki/Statistics/Summary/Variance&quot;&gt;
+     * population variance&lt;/a&gt; of the values that have been added.
+     *
+     * &lt;p&gt;Double.NaN is returned if no values have been added.&lt;/p&gt;
+     *
+     * @return the population variance
+     */
+    public double getPopulationVariance() {
+<span class="fc" id="L263">        Variance populationVariance = new Variance(secondMoment);</span>
+<span class="fc" id="L264">        populationVariance.setBiasCorrected(false);</span>
+<span class="fc" id="L265">        return populationVariance.getResult();</span>
+    }
+
+    /**
+     * Returns the maximum of the values that have been added.
+     * &lt;p&gt;
+     * Double.NaN is returned if no values have been added.
+     * &lt;/p&gt;
+     * @return the maximum
+     */
+    public double getMax() {
+<span class="fc" id="L276">        return maxImpl.getResult();</span>
+    }
+
+    /**
+     * Returns the minimum of the values that have been added.
+     * &lt;p&gt;
+     * Double.NaN is returned if no values have been added.
+     * &lt;/p&gt;
+     * @return the minimum
+     */
+    public double getMin() {
+<span class="fc" id="L287">        return minImpl.getResult();</span>
+    }
+
+    /**
+     * Returns the geometric mean of the values that have been added.
+     * &lt;p&gt;
+     * Double.NaN is returned if no values have been added.
+     * &lt;/p&gt;
+     * @return the geometric mean
+     */
+    public double getGeometricMean() {
+<span class="fc" id="L298">        return geoMeanImpl.getResult();</span>
+    }
+
+    /**
+     * Returns the sum of the logs of the values that have been added.
+     * &lt;p&gt;
+     * Double.NaN is returned if no values have been added.
+     * &lt;/p&gt;
+     * @return the sum of logs
+     * @since 1.2
+     */
+    public double getSumOfLogs() {
+<span class="fc" id="L310">        return sumLogImpl.getResult();</span>
+    }
+
+    /**
+     * Returns a statistic related to the Second Central Moment.  Specifically,
+     * what is returned is the sum of squared deviations from the sample mean
+     * among the values that have been added.
+     * &lt;p&gt;
+     * Returns &lt;code&gt;Double.NaN&lt;/code&gt; if no data values have been added and
+     * returns &lt;code&gt;0&lt;/code&gt; if there is just one value in the data set.&lt;/p&gt;
+     * &lt;p&gt;
+     * @return second central moment statistic
+     * @since 2.0
+     */
+    public double getSecondMoment() {
+<span class="fc" id="L325">        return secondMoment.getResult();</span>
+    }
+
+    /**
+     * Generates a text report displaying summary statistics from values that
+     * have been added.
+     * @return String with line feeds displaying statistics
+     * @since 1.2
+     */
+    @Override
+    public String toString() {
+<span class="fc" id="L336">        StringBuilder outBuffer = new StringBuilder();</span>
+<span class="fc" id="L337">        String endl = &quot;\n&quot;;</span>
+<span class="fc" id="L338">        outBuffer.append(&quot;SummaryStatistics:&quot;).append(endl);</span>
+<span class="fc" id="L339">        outBuffer.append(&quot;n: &quot;).append(getN()).append(endl);</span>
+<span class="fc" id="L340">        outBuffer.append(&quot;min: &quot;).append(getMin()).append(endl);</span>
+<span class="fc" id="L341">        outBuffer.append(&quot;max: &quot;).append(getMax()).append(endl);</span>
+<span class="fc" id="L342">        outBuffer.append(&quot;sum: &quot;).append(getSum()).append(endl);</span>
+<span class="fc" id="L343">        outBuffer.append(&quot;mean: &quot;).append(getMean()).append(endl);</span>
+<span class="fc" id="L344">        outBuffer.append(&quot;geometric mean: &quot;).append(getGeometricMean())</span>
+            .append(endl);
+<span class="fc" id="L346">        outBuffer.append(&quot;variance: &quot;).append(getVariance()).append(endl);</span>
+<span class="fc" id="L347">        outBuffer.append(&quot;population variance: &quot;).append(getPopulationVariance()).append(endl);</span>
+<span class="fc" id="L348">        outBuffer.append(&quot;second moment: &quot;).append(getSecondMoment()).append(endl);</span>
+<span class="fc" id="L349">        outBuffer.append(&quot;sum of squares: &quot;).append(getSumsq()).append(endl);</span>
+<span class="fc" id="L350">        outBuffer.append(&quot;standard deviation: &quot;).append(getStandardDeviation())</span>
+            .append(endl);
+<span class="fc" id="L352">        outBuffer.append(&quot;sum of logs: &quot;).append(getSumOfLogs()).append(endl);</span>
+<span class="fc" id="L353">        return outBuffer.toString();</span>
+    }
+
+    /**
+     * Resets all statistics and storage
+     */
+    public void clear() {
+<span class="fc" id="L360">        this.n = 0;</span>
+<span class="fc" id="L361">        minImpl.clear();</span>
+<span class="fc" id="L362">        maxImpl.clear();</span>
+<span class="fc" id="L363">        sumImpl.clear();</span>
+<span class="fc" id="L364">        sumLogImpl.clear();</span>
+<span class="fc" id="L365">        sumsqImpl.clear();</span>
+<span class="fc" id="L366">        geoMeanImpl.clear();</span>
+<span class="fc" id="L367">        secondMoment.clear();</span>
+<span class="fc bfc" id="L368" title="All 2 branches covered.">        if (meanImpl != mean) {</span>
+<span class="fc" id="L369">            meanImpl.clear();</span>
+        }
+<span class="pc bpc" id="L371" title="1 of 2 branches missed.">        if (varianceImpl != variance) {</span>
+<span class="nc" id="L372">            varianceImpl.clear();</span>
+        }
+<span class="fc" id="L374">    }</span>
+
+    /**
+     * Returns true iff &lt;code&gt;object&lt;/code&gt; is a
+     * &lt;code&gt;SummaryStatistics&lt;/code&gt; instance and all statistics have the
+     * same values as this.
+     * @param object the object to test equality against.
+     * @return true if object equals this
+     */
+    @Override
+    public boolean equals(Object object) {
+<span class="fc bfc" id="L385" title="All 2 branches covered.">        if (object == this) {</span>
+<span class="fc" id="L386">            return true;</span>
+        }
+<span class="fc bfc" id="L388" title="All 2 branches covered.">        if (object instanceof SummaryStatistics == false) {</span>
+<span class="fc" id="L389">            return false;</span>
+        }
+<span class="fc" id="L391">        SummaryStatistics stat = (SummaryStatistics)object;</span>
+<span class="pc bpc" id="L392" title="7 of 16 branches missed.">        return Precision.equalsIncludingNaN(stat.getGeometricMean(), getGeometricMean()) &amp;&amp;</span>
+               Precision.equalsIncludingNaN(stat.getMax(),           getMax())           &amp;&amp;
+               Precision.equalsIncludingNaN(stat.getMean(),          getMean())          &amp;&amp;
+               Precision.equalsIncludingNaN(stat.getMin(),           getMin())           &amp;&amp;
+               Precision.equalsIncludingNaN(stat.getN(),             getN())             &amp;&amp;
+               Precision.equalsIncludingNaN(stat.getSum(),           getSum())           &amp;&amp;
+               Precision.equalsIncludingNaN(stat.getSumsq(),         getSumsq())         &amp;&amp;
+               Precision.equalsIncludingNaN(stat.getVariance(),      getVariance());
+    }
+
+    /**
+     * Returns hash code based on values of statistics
+     * @return hash code
+     */
+    @Override
+    public int hashCode() {
+<span class="fc" id="L408">        int result = 31 + MathUtils.hash(getGeometricMean());</span>
+<span class="fc" id="L409">        result = result * 31 + MathUtils.hash(getGeometricMean());</span>
+<span class="fc" id="L410">        result = result * 31 + MathUtils.hash(getMax());</span>
+<span class="fc" id="L411">        result = result * 31 + MathUtils.hash(getMean());</span>
+<span class="fc" id="L412">        result = result * 31 + MathUtils.hash(getMin());</span>
+<span class="fc" id="L413">        result = result * 31 + MathUtils.hash(getN());</span>
+<span class="fc" id="L414">        result = result * 31 + MathUtils.hash(getSum());</span>
+<span class="fc" id="L415">        result = result * 31 + MathUtils.hash(getSumsq());</span>
+<span class="fc" id="L416">        result = result * 31 + MathUtils.hash(getVariance());</span>
+<span class="fc" id="L417">        return result;</span>
+    }
+
+    // Getters and setters for statistics implementations
+    /**
+     * Returns the currently configured Sum implementation
+     * @return the StorelessUnivariateStatistic implementing the sum
+     * @since 1.2
+     */
+    public StorelessUnivariateStatistic getSumImpl() {
+<span class="fc" id="L427">        return sumImpl;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Sets the implementation for the Sum.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * This method cannot be activated after data has been added - i.e.,
+     * after {@link #addValue(double) addValue} has been used to add data.
+     * If it is activated after data has been added, an IllegalStateException
+     * will be thrown.
+     * &lt;/p&gt;
+     * @param sumImpl the StorelessUnivariateStatistic instance to use for
+     *        computing the Sum
+     * @throws MathIllegalStateException if data has already been added (i.e if n &gt;0)
+     * @since 1.2
+     */
+    public void setSumImpl(StorelessUnivariateStatistic sumImpl)
+    throws MathIllegalStateException {
+<span class="fc" id="L447">        checkEmpty();</span>
+<span class="fc" id="L448">        this.sumImpl = sumImpl;</span>
+<span class="fc" id="L449">    }</span>
+
+    /**
+     * Returns the currently configured sum of squares implementation
+     * @return the StorelessUnivariateStatistic implementing the sum of squares
+     * @since 1.2
+     */
+    public StorelessUnivariateStatistic getSumsqImpl() {
+<span class="nc" id="L457">        return sumsqImpl;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Sets the implementation for the sum of squares.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * This method cannot be activated after data has been added - i.e.,
+     * after {@link #addValue(double) addValue} has been used to add data.
+     * If it is activated after data has been added, an IllegalStateException
+     * will be thrown.
+     * &lt;/p&gt;
+     * @param sumsqImpl the StorelessUnivariateStatistic instance to use for
+     *        computing the sum of squares
+     * @throws MathIllegalStateException if data has already been added (i.e if n &gt; 0)
+     * @since 1.2
+     */
+    public void setSumsqImpl(StorelessUnivariateStatistic sumsqImpl)
+    throws MathIllegalStateException {
+<span class="nc" id="L477">        checkEmpty();</span>
+<span class="nc" id="L478">        this.sumsqImpl = sumsqImpl;</span>
+<span class="nc" id="L479">    }</span>
+
+    /**
+     * Returns the currently configured minimum implementation
+     * @return the StorelessUnivariateStatistic implementing the minimum
+     * @since 1.2
+     */
+    public StorelessUnivariateStatistic getMinImpl() {
+<span class="nc" id="L487">        return minImpl;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Sets the implementation for the minimum.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * This method cannot be activated after data has been added - i.e.,
+     * after {@link #addValue(double) addValue} has been used to add data.
+     * If it is activated after data has been added, an IllegalStateException
+     * will be thrown.
+     * &lt;/p&gt;
+     * @param minImpl the StorelessUnivariateStatistic instance to use for
+     *        computing the minimum
+     * @throws MathIllegalStateException if data has already been added (i.e if n &gt; 0)
+     * @since 1.2
+     */
+    public void setMinImpl(StorelessUnivariateStatistic minImpl)
+    throws MathIllegalStateException {
+<span class="nc" id="L507">        checkEmpty();</span>
+<span class="nc" id="L508">        this.minImpl = minImpl;</span>
+<span class="nc" id="L509">    }</span>
+
+    /**
+     * Returns the currently configured maximum implementation
+     * @return the StorelessUnivariateStatistic implementing the maximum
+     * @since 1.2
+     */
+    public StorelessUnivariateStatistic getMaxImpl() {
+<span class="nc" id="L517">        return maxImpl;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Sets the implementation for the maximum.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * This method cannot be activated after data has been added - i.e.,
+     * after {@link #addValue(double) addValue} has been used to add data.
+     * If it is activated after data has been added, an IllegalStateException
+     * will be thrown.
+     * &lt;/p&gt;
+     * @param maxImpl the StorelessUnivariateStatistic instance to use for
+     *        computing the maximum
+     * @throws MathIllegalStateException if data has already been added (i.e if n &gt; 0)
+     * @since 1.2
+     */
+    public void setMaxImpl(StorelessUnivariateStatistic maxImpl)
+    throws MathIllegalStateException {
+<span class="nc" id="L537">        checkEmpty();</span>
+<span class="nc" id="L538">        this.maxImpl = maxImpl;</span>
+<span class="nc" id="L539">    }</span>
+
+    /**
+     * Returns the currently configured sum of logs implementation
+     * @return the StorelessUnivariateStatistic implementing the log sum
+     * @since 1.2
+     */
+    public StorelessUnivariateStatistic getSumLogImpl() {
+<span class="nc" id="L547">        return sumLogImpl;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Sets the implementation for the sum of logs.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * This method cannot be activated after data has been added - i.e.,
+     * after {@link #addValue(double) addValue} has been used to add data.
+     * If it is activated after data has been added, an IllegalStateException
+     * will be thrown.
+     * &lt;/p&gt;
+     * @param sumLogImpl the StorelessUnivariateStatistic instance to use for
+     *        computing the log sum
+     * @throws MathIllegalStateException if data has already been added (i.e if n &gt; 0)
+     * @since 1.2
+     */
+    public void setSumLogImpl(StorelessUnivariateStatistic sumLogImpl)
+    throws MathIllegalStateException {
+<span class="fc" id="L567">        checkEmpty();</span>
+<span class="fc" id="L568">        this.sumLogImpl = sumLogImpl;</span>
+<span class="fc" id="L569">        geoMean.setSumLogImpl(sumLogImpl);</span>
+<span class="fc" id="L570">    }</span>
+
+    /**
+     * Returns the currently configured geometric mean implementation
+     * @return the StorelessUnivariateStatistic implementing the geometric mean
+     * @since 1.2
+     */
+    public StorelessUnivariateStatistic getGeoMeanImpl() {
+<span class="fc" id="L578">        return geoMeanImpl;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Sets the implementation for the geometric mean.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * This method cannot be activated after data has been added - i.e.,
+     * after {@link #addValue(double) addValue} has been used to add data.
+     * If it is activated after data has been added, an IllegalStateException
+     * will be thrown.
+     * &lt;/p&gt;
+     * @param geoMeanImpl the StorelessUnivariateStatistic instance to use for
+     *        computing the geometric mean
+     * @throws MathIllegalStateException if data has already been added (i.e if n &gt; 0)
+     * @since 1.2
+     */
+    public void setGeoMeanImpl(StorelessUnivariateStatistic geoMeanImpl)
+    throws MathIllegalStateException {
+<span class="fc" id="L598">        checkEmpty();</span>
+<span class="fc" id="L599">        this.geoMeanImpl = geoMeanImpl;</span>
+<span class="fc" id="L600">    }</span>
+
+    /**
+     * Returns the currently configured mean implementation
+     * @return the StorelessUnivariateStatistic implementing the mean
+     * @since 1.2
+     */
+    public StorelessUnivariateStatistic getMeanImpl() {
+<span class="nc" id="L608">        return meanImpl;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Sets the implementation for the mean.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * This method cannot be activated after data has been added - i.e.,
+     * after {@link #addValue(double) addValue} has been used to add data.
+     * If it is activated after data has been added, an IllegalStateException
+     * will be thrown.
+     * &lt;/p&gt;
+     * @param meanImpl the StorelessUnivariateStatistic instance to use for
+     *        computing the mean
+     * @throws MathIllegalStateException if data has already been added (i.e if n &gt; 0)
+     * @since 1.2
+     */
+    public void setMeanImpl(StorelessUnivariateStatistic meanImpl)
+    throws MathIllegalStateException {
+<span class="fc" id="L628">        checkEmpty();</span>
+<span class="fc" id="L629">        this.meanImpl = meanImpl;</span>
+<span class="fc" id="L630">    }</span>
+
+    /**
+     * Returns the currently configured variance implementation
+     * @return the StorelessUnivariateStatistic implementing the variance
+     * @since 1.2
+     */
+    public StorelessUnivariateStatistic getVarianceImpl() {
+<span class="fc" id="L638">        return varianceImpl;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Sets the implementation for the variance.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * This method cannot be activated after data has been added - i.e.,
+     * after {@link #addValue(double) addValue} has been used to add data.
+     * If it is activated after data has been added, an IllegalStateException
+     * will be thrown.
+     * &lt;/p&gt;
+     * @param varianceImpl the StorelessUnivariateStatistic instance to use for
+     *        computing the variance
+     * @throws MathIllegalStateException if data has already been added (i.e if n &gt; 0)
+     * @since 1.2
+     */
+    public void setVarianceImpl(StorelessUnivariateStatistic varianceImpl)
+    throws MathIllegalStateException {
+<span class="fc" id="L658">        checkEmpty();</span>
+<span class="fc" id="L659">        this.varianceImpl = varianceImpl;</span>
+<span class="fc" id="L660">    }</span>
+
+    /**
+     * Throws IllegalStateException if n &gt; 0.
+     * @throws MathIllegalStateException if data has been added
+     */
+    private void checkEmpty() throws MathIllegalStateException {
+<span class="fc bfc" id="L667" title="All 2 branches covered.">        if (n &gt; 0) {</span>
+<span class="fc" id="L668">            throw new MathIllegalStateException(</span>
+                LocalizedFormats.VALUES_ADDED_BEFORE_CONFIGURING_STATISTIC, n);
+        }
+<span class="fc" id="L671">    }</span>
+
+    /**
+     * Returns a copy of this SummaryStatistics instance with the same internal state.
+     *
+     * @return a copy of this
+     */
+    public SummaryStatistics copy() {
+<span class="nc" id="L679">        SummaryStatistics result = new SummaryStatistics();</span>
+        // No try-catch or advertised exception because arguments are guaranteed non-null
+<span class="nc" id="L681">        copy(this, result);</span>
+<span class="nc" id="L682">        return result;</span>
+    }
+
+    /**
+     * Copies source to dest.
+     * &lt;p&gt;Neither source nor dest can be null.&lt;/p&gt;
+     *
+     * @param source SummaryStatistics to copy
+     * @param dest SummaryStatistics to copy to
+     * @throws NullArgumentException if either source or dest is null
+     */
+    public static void copy(SummaryStatistics source, SummaryStatistics dest)
+        throws NullArgumentException {
+<span class="fc" id="L695">        MathUtils.checkNotNull(source);</span>
+<span class="fc" id="L696">        MathUtils.checkNotNull(dest);</span>
+<span class="fc" id="L697">        dest.maxImpl = source.maxImpl.copy();</span>
+<span class="fc" id="L698">        dest.minImpl = source.minImpl.copy();</span>
+<span class="fc" id="L699">        dest.sumImpl = source.sumImpl.copy();</span>
+<span class="fc" id="L700">        dest.sumLogImpl = source.sumLogImpl.copy();</span>
+<span class="fc" id="L701">        dest.sumsqImpl = source.sumsqImpl.copy();</span>
+<span class="fc" id="L702">        dest.secondMoment = source.secondMoment.copy();</span>
+<span class="fc" id="L703">        dest.n = source.n;</span>
+
+        // Keep commons-math supplied statistics with embedded moments in synch
+<span class="pc bpc" id="L706" title="1 of 2 branches missed.">        if (source.getVarianceImpl() instanceof Variance) {</span>
+<span class="fc" id="L707">            dest.varianceImpl = new Variance(dest.secondMoment);</span>
+        } else {
+<span class="nc" id="L709">            dest.varianceImpl = source.varianceImpl.copy();</span>
+        }
+<span class="pc bpc" id="L711" title="1 of 2 branches missed.">        if (source.meanImpl instanceof Mean) {</span>
+<span class="fc" id="L712">            dest.meanImpl = new Mean(dest.secondMoment);</span>
+        } else {
+<span class="nc" id="L714">            dest.meanImpl = source.meanImpl.copy();</span>
+        }
+<span class="pc bpc" id="L716" title="1 of 2 branches missed.">        if (source.getGeoMeanImpl() instanceof GeometricMean) {</span>
+<span class="fc" id="L717">            dest.geoMeanImpl = new GeometricMean((SumOfLogs) dest.sumLogImpl);</span>
+        } else {
+<span class="nc" id="L719">            dest.geoMeanImpl = source.geoMeanImpl.copy();</span>
+        }
+
+        // Make sure that if stat == statImpl in source, same
+        // holds in dest; otherwise copy stat
+<span class="pc bpc" id="L724" title="1 of 2 branches missed.">        if (source.geoMean == source.geoMeanImpl) {</span>
+<span class="fc" id="L725">            dest.geoMean = (GeometricMean) dest.geoMeanImpl;</span>
+        } else {
+<span class="nc" id="L727">            GeometricMean.copy(source.geoMean, dest.geoMean);</span>
+        }
+<span class="pc bpc" id="L729" title="1 of 2 branches missed.">        if (source.max == source.maxImpl) {</span>
+<span class="fc" id="L730">            dest.max = (Max) dest.maxImpl;</span>
+        } else {
+<span class="nc" id="L732">            Max.copy(source.max, dest.max);</span>
+        }
+<span class="pc bpc" id="L734" title="1 of 2 branches missed.">        if (source.mean == source.meanImpl) {</span>
+<span class="fc" id="L735">            dest.mean = (Mean) dest.meanImpl;</span>
+        } else {
+<span class="nc" id="L737">            Mean.copy(source.mean, dest.mean);</span>
+        }
+<span class="pc bpc" id="L739" title="1 of 2 branches missed.">        if (source.min == source.minImpl) {</span>
+<span class="fc" id="L740">            dest.min = (Min) dest.minImpl;</span>
+        } else {
+<span class="nc" id="L742">            Min.copy(source.min, dest.min);</span>
+        }
+<span class="fc bfc" id="L744" title="All 2 branches covered.">        if (source.sum == source.sumImpl) {</span>
+<span class="fc" id="L745">            dest.sum = (Sum) dest.sumImpl;</span>
+        } else {
+<span class="fc" id="L747">            Sum.copy(source.sum, dest.sum);</span>
+        }
+<span class="pc bpc" id="L749" title="1 of 2 branches missed.">        if (source.variance == source.varianceImpl) {</span>
+<span class="fc" id="L750">            dest.variance = (Variance) dest.varianceImpl;</span>
+        } else {
+<span class="nc" id="L752">            Variance.copy(source.variance, dest.variance);</span>
+        }
+<span class="pc bpc" id="L754" title="1 of 2 branches missed.">        if (source.sumLog == source.sumLogImpl) {</span>
+<span class="fc" id="L755">            dest.sumLog = (SumOfLogs) dest.sumLogImpl;</span>
+        } else {
+<span class="nc" id="L757">            SumOfLogs.copy(source.sumLog, dest.sumLog);</span>
+        }
+<span class="pc bpc" id="L759" title="1 of 2 branches missed.">        if (source.sumsq == source.sumsqImpl) {</span>
+<span class="fc" id="L760">            dest.sumsq = (SumOfSquares) dest.sumsqImpl;</span>
+        } else {
+<span class="nc" id="L762">            SumOfSquares.copy(source.sumsq, dest.sumsq);</span>
+        }
+<span class="fc" id="L764">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>GraggBulirschStoerStepInterpolator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.nonstiff</a> &gt; <span class="el_source">GraggBulirschStoerStepInterpolator.java</span></div><h1>GraggBulirschStoerStepInterpolator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.nonstiff;
+
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
+import org.apache.commons.math3.ode.EquationsMapper;
+import org.apache.commons.math3.ode.sampling.AbstractStepInterpolator;
+import org.apache.commons.math3.ode.sampling.StepInterpolator;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * This class implements an interpolator for the Gragg-Bulirsch-Stoer
+ * integrator.
+ *
+ * &lt;p&gt;This interpolator compute dense output inside the last step
+ * produced by a Gragg-Bulirsch-Stoer integrator.&lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This implementation is basically a reimplementation in Java of the
+ * &lt;a
+ * href=&quot;http://www.unige.ch/math/folks/hairer/prog/nonstiff/odex.f&quot;&gt;odex&lt;/a&gt;
+ * fortran code by E. Hairer and G. Wanner. The redistribution policy
+ * for this code is available &lt;a
+ * href=&quot;http://www.unige.ch/~hairer/prog/licence.txt&quot;&gt;here&lt;/a&gt;, for
+ * convenience, it is reproduced below.&lt;/p&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;table border=&quot;0&quot; width=&quot;80%&quot; cellpadding=&quot;10&quot; align=&quot;center&quot; bgcolor=&quot;#E0E0E0&quot;&gt;
+ * &lt;tr&gt;&lt;td&gt;Copyright (c) 2004, Ernst Hairer&lt;/td&gt;&lt;/tr&gt;
+ *
+ * &lt;tr&gt;&lt;td&gt;Redistribution and use in source and binary forms, with or
+ * without modification, are permitted provided that the following
+ * conditions are met:
+ * &lt;ul&gt;
+ *  &lt;li&gt;Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.&lt;/li&gt;
+ *  &lt;li&gt;Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.&lt;/li&gt;
+ * &lt;/ul&gt;&lt;/td&gt;&lt;/tr&gt;
+ *
+ * &lt;tr&gt;&lt;td&gt;&lt;strong&gt;THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ * CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+ * BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A  PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+ * &lt;/table&gt;
+ *
+ * @see GraggBulirschStoerIntegrator
+ * @since 1.2
+ */
+
+class GraggBulirschStoerStepInterpolator
+  extends AbstractStepInterpolator {
+
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 20110928L;
+
+    /** Slope at the beginning of the step. */
+    private double[] y0Dot;
+
+    /** State at the end of the step. */
+    private double[] y1;
+
+    /** Slope at the end of the step. */
+    private double[] y1Dot;
+
+    /** Derivatives at the middle of the step.
+     * element 0 is state at midpoint, element 1 is first derivative ...
+     */
+    private double[][] yMidDots;
+
+    /** Interpolation polynomials. */
+    private double[][] polynomials;
+
+    /** Error coefficients for the interpolation. */
+    private double[] errfac;
+
+    /** Degree of the interpolation polynomials. */
+    private int currentDegree;
+
+  /** Simple constructor.
+   * This constructor should not be used directly, it is only intended
+   * for the serialization process.
+   */
+    // CHECKSTYLE: stop RedundantModifier
+    // the public modifier here is needed for serialization
+<span class="fc" id="L112">  public GraggBulirschStoerStepInterpolator() {</span>
+<span class="fc" id="L113">    y0Dot    = null;</span>
+<span class="fc" id="L114">    y1       = null;</span>
+<span class="fc" id="L115">    y1Dot    = null;</span>
+<span class="fc" id="L116">    yMidDots = null;</span>
+<span class="fc" id="L117">    resetTables(-1);</span>
+<span class="fc" id="L118">  }</span>
+  // CHECKSTYLE: resume RedundantModifier
+
+  /** Simple constructor.
+   * @param y reference to the integrator array holding the current state
+   * @param y0Dot reference to the integrator array holding the slope
+   * at the beginning of the step
+   * @param y1 reference to the integrator array holding the state at
+   * the end of the step
+   * @param y1Dot reference to the integrator array holding the slope
+   * at the end of the step
+   * @param yMidDots reference to the integrator array holding the
+   * derivatives at the middle point of the step
+   * @param forward integration direction indicator
+   * @param primaryMapper equations mapper for the primary equations set
+   * @param secondaryMappers equations mappers for the secondary equations sets
+   */
+  GraggBulirschStoerStepInterpolator(final double[] y, final double[] y0Dot,
+                                     final double[] y1, final double[] y1Dot,
+                                     final double[][] yMidDots,
+                                     final boolean forward,
+                                     final EquationsMapper primaryMapper,
+                                     final EquationsMapper[] secondaryMappers) {
+
+<span class="fc" id="L142">    super(y, forward, primaryMapper, secondaryMappers);</span>
+<span class="fc" id="L143">    this.y0Dot    = y0Dot;</span>
+<span class="fc" id="L144">    this.y1       = y1;</span>
+<span class="fc" id="L145">    this.y1Dot    = y1Dot;</span>
+<span class="fc" id="L146">    this.yMidDots = yMidDots;</span>
+
+<span class="fc" id="L148">    resetTables(yMidDots.length + 4);</span>
+
+<span class="fc" id="L150">  }</span>
+
+  /** Copy constructor.
+   * @param interpolator interpolator to copy from. The copy is a deep
+   * copy: its arrays are separated from the original arrays of the
+   * instance
+   */
+  GraggBulirschStoerStepInterpolator(final GraggBulirschStoerStepInterpolator interpolator) {
+
+<span class="fc" id="L159">    super(interpolator);</span>
+
+<span class="fc" id="L161">    final int dimension = currentState.length;</span>
+
+    // the interpolator has been finalized,
+    // the following arrays are not needed anymore
+<span class="fc" id="L165">    y0Dot    = null;</span>
+<span class="fc" id="L166">    y1       = null;</span>
+<span class="fc" id="L167">    y1Dot    = null;</span>
+<span class="fc" id="L168">    yMidDots = null;</span>
+
+    // copy the interpolation polynomials (up to the current degree only)
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">    if (interpolator.polynomials == null) {</span>
+<span class="nc" id="L172">      polynomials = null;</span>
+<span class="nc" id="L173">      currentDegree = -1;</span>
+    } else {
+<span class="fc" id="L175">      resetTables(interpolator.currentDegree);</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">      for (int i = 0; i &lt; polynomials.length; ++i) {</span>
+<span class="fc" id="L177">        polynomials[i] = new double[dimension];</span>
+<span class="fc" id="L178">        System.arraycopy(interpolator.polynomials[i], 0,</span>
+                         polynomials[i], 0, dimension);
+      }
+<span class="fc" id="L181">      currentDegree = interpolator.currentDegree;</span>
+    }
+
+<span class="fc" id="L184">  }</span>
+
+  /** Reallocate the internal tables.
+   * Reallocate the internal tables in order to be able to handle
+   * interpolation polynomials up to the given degree
+   * @param maxDegree maximal degree to handle
+   */
+  private void resetTables(final int maxDegree) {
+
+<span class="fc bfc" id="L193" title="All 2 branches covered.">    if (maxDegree &lt; 0) {</span>
+<span class="fc" id="L194">      polynomials   = null;</span>
+<span class="fc" id="L195">      errfac        = null;</span>
+<span class="fc" id="L196">      currentDegree = -1;</span>
+    } else {
+
+<span class="fc" id="L199">      final double[][] newPols = new double[maxDegree + 1][];</span>
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">      if (polynomials != null) {</span>
+<span class="nc" id="L201">        System.arraycopy(polynomials, 0, newPols, 0, polynomials.length);</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">        for (int i = polynomials.length; i &lt; newPols.length; ++i) {</span>
+<span class="nc" id="L203">          newPols[i] = new double[currentState.length];</span>
+        }
+      } else {
+<span class="fc bfc" id="L206" title="All 2 branches covered.">        for (int i = 0; i &lt; newPols.length; ++i) {</span>
+<span class="fc" id="L207">          newPols[i] = new double[currentState.length];</span>
+        }
+      }
+<span class="fc" id="L210">      polynomials = newPols;</span>
+
+      // initialize the error factors array for interpolation
+<span class="pc bpc" id="L213" title="1 of 2 branches missed.">      if (maxDegree &lt;= 4) {</span>
+<span class="nc" id="L214">        errfac = null;</span>
+      } else {
+<span class="fc" id="L216">        errfac = new double[maxDegree - 4];</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">        for (int i = 0; i &lt; errfac.length; ++i) {</span>
+<span class="fc" id="L218">          final int ip5 = i + 5;</span>
+<span class="fc" id="L219">          errfac[i] = 1.0 / (ip5 * ip5);</span>
+<span class="fc" id="L220">          final double e = 0.5 * FastMath.sqrt (((double) (i + 1)) / ip5);</span>
+<span class="fc bfc" id="L221" title="All 2 branches covered.">          for (int j = 0; j &lt;= i; ++j) {</span>
+<span class="fc" id="L222">            errfac[i] *= e / (j + 1);</span>
+          }
+        }
+      }
+
+<span class="fc" id="L227">      currentDegree = 0;</span>
+
+    }
+
+<span class="fc" id="L231">  }</span>
+
+  /** {@inheritDoc} */
+  @Override
+  protected StepInterpolator doCopy() {
+<span class="fc" id="L236">    return new GraggBulirschStoerStepInterpolator(this);</span>
+  }
+
+
+  /** Compute the interpolation coefficients for dense output.
+   * @param mu degree of the interpolation polynomial
+   * @param h current step
+   */
+  public void computeCoefficients(final int mu, final double h) {
+
+<span class="pc bpc" id="L246" title="2 of 4 branches missed.">    if ((polynomials == null) || (polynomials.length &lt;= (mu + 4))) {</span>
+<span class="nc" id="L247">      resetTables(mu + 4);</span>
+    }
+
+<span class="fc" id="L250">    currentDegree = mu + 4;</span>
+
+<span class="fc bfc" id="L252" title="All 2 branches covered.">    for (int i = 0; i &lt; currentState.length; ++i) {</span>
+
+<span class="fc" id="L254">      final double yp0   = h * y0Dot[i];</span>
+<span class="fc" id="L255">      final double yp1   = h * y1Dot[i];</span>
+<span class="fc" id="L256">      final double ydiff = y1[i] - currentState[i];</span>
+<span class="fc" id="L257">      final double aspl  = ydiff - yp1;</span>
+<span class="fc" id="L258">      final double bspl  = yp0 - ydiff;</span>
+
+<span class="fc" id="L260">      polynomials[0][i] = currentState[i];</span>
+<span class="fc" id="L261">      polynomials[1][i] = ydiff;</span>
+<span class="fc" id="L262">      polynomials[2][i] = aspl;</span>
+<span class="fc" id="L263">      polynomials[3][i] = bspl;</span>
+
+<span class="pc bpc" id="L265" title="1 of 2 branches missed.">      if (mu &lt; 0) {</span>
+<span class="nc" id="L266">        return;</span>
+      }
+
+      // compute the remaining coefficients
+<span class="fc" id="L270">      final double ph0 = 0.5 * (currentState[i] + y1[i]) + 0.125 * (aspl + bspl);</span>
+<span class="fc" id="L271">      polynomials[4][i] = 16 * (yMidDots[0][i] - ph0);</span>
+
+<span class="pc bpc" id="L273" title="1 of 2 branches missed.">      if (mu &gt; 0) {</span>
+<span class="fc" id="L274">        final double ph1 = ydiff + 0.25 * (aspl - bspl);</span>
+<span class="fc" id="L275">        polynomials[5][i] = 16 * (yMidDots[1][i] - ph1);</span>
+
+<span class="fc bfc" id="L277" title="All 2 branches covered.">        if (mu &gt; 1) {</span>
+<span class="fc" id="L278">          final double ph2 = yp1 - yp0;</span>
+<span class="fc" id="L279">          polynomials[6][i] = 16 * (yMidDots[2][i] - ph2 + polynomials[4][i]);</span>
+
+<span class="pc bpc" id="L281" title="1 of 2 branches missed.">          if (mu &gt; 2) {</span>
+<span class="fc" id="L282">            final double ph3 = 6 * (bspl - aspl);</span>
+<span class="fc" id="L283">            polynomials[7][i] = 16 * (yMidDots[3][i] - ph3 + 3 * polynomials[5][i]);</span>
+
+<span class="fc bfc" id="L285" title="All 2 branches covered.">            for (int j = 4; j &lt;= mu; ++j) {</span>
+<span class="fc" id="L286">              final double fac1 = 0.5 * j * (j - 1);</span>
+<span class="fc" id="L287">              final double fac2 = 2 * fac1 * (j - 2) * (j - 3);</span>
+<span class="fc" id="L288">              polynomials[j+4][i] =</span>
+                  16 * (yMidDots[j][i] + fac1 * polynomials[j+2][i] - fac2 * polynomials[j][i]);
+            }
+
+          }
+        }
+      }
+    }
+
+<span class="fc" id="L297">  }</span>
+
+  /** Estimate interpolation error.
+   * @param scale scaling array
+   * @return estimate of the interpolation error
+   */
+  public double estimateError(final double[] scale) {
+<span class="fc" id="L304">    double error = 0;</span>
+<span class="pc bpc" id="L305" title="1 of 2 branches missed.">    if (currentDegree &gt;= 5) {</span>
+<span class="fc bfc" id="L306" title="All 2 branches covered.">      for (int i = 0; i &lt; scale.length; ++i) {</span>
+<span class="fc" id="L307">        final double e = polynomials[currentDegree][i] / scale[i];</span>
+<span class="fc" id="L308">        error += e * e;</span>
+      }
+<span class="fc" id="L310">      error = FastMath.sqrt(error / scale.length) * errfac[currentDegree - 5];</span>
+    }
+<span class="fc" id="L312">    return error;</span>
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  protected void computeInterpolatedStateAndDerivatives(final double theta,
+                                                        final double oneMinusThetaH) {
+
+<span class="fc" id="L320">    final int dimension = currentState.length;</span>
+
+<span class="fc" id="L322">    final double oneMinusTheta = 1.0 - theta;</span>
+<span class="fc" id="L323">    final double theta05       = theta - 0.5;</span>
+<span class="fc" id="L324">    final double tOmT          = theta * oneMinusTheta;</span>
+<span class="fc" id="L325">    final double t4            = tOmT * tOmT;</span>
+<span class="fc" id="L326">    final double t4Dot         = 2 * tOmT * (1 - 2 * theta);</span>
+<span class="fc" id="L327">    final double dot1          = 1.0 / h;</span>
+<span class="fc" id="L328">    final double dot2          = theta * (2 - 3 * theta) / h;</span>
+<span class="fc" id="L329">    final double dot3          = ((3 * theta - 4) * theta + 1) / h;</span>
+
+<span class="fc bfc" id="L331" title="All 2 branches covered.">    for (int i = 0; i &lt; dimension; ++i) {</span>
+
+<span class="fc" id="L333">        final double p0 = polynomials[0][i];</span>
+<span class="fc" id="L334">        final double p1 = polynomials[1][i];</span>
+<span class="fc" id="L335">        final double p2 = polynomials[2][i];</span>
+<span class="fc" id="L336">        final double p3 = polynomials[3][i];</span>
+<span class="fc" id="L337">        interpolatedState[i] = p0 + theta * (p1 + oneMinusTheta * (p2 * theta + p3 * oneMinusTheta));</span>
+<span class="fc" id="L338">        interpolatedDerivatives[i] = dot1 * p1 + dot2 * p2 + dot3 * p3;</span>
+
+<span class="pc bpc" id="L340" title="1 of 2 branches missed.">        if (currentDegree &gt; 3) {</span>
+<span class="fc" id="L341">            double cDot = 0;</span>
+<span class="fc" id="L342">            double c = polynomials[currentDegree][i];</span>
+<span class="fc bfc" id="L343" title="All 2 branches covered.">            for (int j = currentDegree - 1; j &gt; 3; --j) {</span>
+<span class="fc" id="L344">                final double d = 1.0 / (j - 3);</span>
+<span class="fc" id="L345">                cDot = d * (theta05 * cDot + c);</span>
+<span class="fc" id="L346">                c = polynomials[j][i] + c * d * theta05;</span>
+            }
+<span class="fc" id="L348">            interpolatedState[i]       += t4 * c;</span>
+<span class="fc" id="L349">            interpolatedDerivatives[i] += (t4 * cDot + t4Dot * c) / h;</span>
+        }
+
+    }
+
+<span class="pc bpc" id="L354" title="1 of 2 branches missed.">    if (h == 0) {</span>
+        // in this degenerated case, the previous computation leads to NaN for derivatives
+        // we fix this by using the derivatives at midpoint
+<span class="nc" id="L357">        System.arraycopy(yMidDots[1], 0, interpolatedDerivatives, 0, dimension);</span>
+    }
+
+<span class="fc" id="L360">  }</span>
+
+  /** {@inheritDoc} */
+  @Override
+  public void writeExternal(final ObjectOutput out)
+    throws IOException {
+
+<span class="pc bpc" id="L367" title="1 of 2 branches missed.">    final int dimension = (currentState == null) ? -1 : currentState.length;</span>
+
+    // save the state of the base class
+<span class="fc" id="L370">    writeBaseExternal(out);</span>
+
+    // save the local attributes (but not the temporary vectors)
+<span class="fc" id="L373">    out.writeInt(currentDegree);</span>
+<span class="fc bfc" id="L374" title="All 2 branches covered.">    for (int k = 0; k &lt;= currentDegree; ++k) {</span>
+<span class="fc bfc" id="L375" title="All 2 branches covered.">      for (int l = 0; l &lt; dimension; ++l) {</span>
+<span class="fc" id="L376">        out.writeDouble(polynomials[k][l]);</span>
+      }
+    }
+
+<span class="fc" id="L380">  }</span>
+
+  /** {@inheritDoc} */
+  @Override
+  public void readExternal(final ObjectInput in)
+    throws IOException, ClassNotFoundException {
+
+    // read the base class
+<span class="fc" id="L388">    final double t = readBaseExternal(in);</span>
+<span class="pc bpc" id="L389" title="1 of 2 branches missed.">    final int dimension = (currentState == null) ? -1 : currentState.length;</span>
+
+    // read the local attributes
+<span class="fc" id="L392">    final int degree = in.readInt();</span>
+<span class="fc" id="L393">    resetTables(degree);</span>
+<span class="fc" id="L394">    currentDegree = degree;</span>
+
+<span class="fc bfc" id="L396" title="All 2 branches covered.">    for (int k = 0; k &lt;= currentDegree; ++k) {</span>
+<span class="fc bfc" id="L397" title="All 2 branches covered.">      for (int l = 0; l &lt; dimension; ++l) {</span>
+<span class="fc" id="L398">        polynomials[k][l] = in.readDouble();</span>
+      }
+    }
+
+    // we can now set the interpolated time and state
+<span class="fc" id="L403">    setInterpolatedTime(t);</span>
+
+<span class="fc" id="L405">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

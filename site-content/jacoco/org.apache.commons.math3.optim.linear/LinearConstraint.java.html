@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LinearConstraint.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optim.linear</a> &gt; <span class="el_source">LinearConstraint.java</span></div><h1>LinearConstraint.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.optim.linear;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.ArrayRealVector;
+
+/**
+ * A linear constraint for a linear optimization problem.
+ * &lt;p&gt;
+ * A linear constraint has one of the forms:
+ * &lt;ul&gt;
+ *   &lt;li&gt;c&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... c&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; = v&lt;/li&gt;
+ *   &lt;li&gt;c&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... c&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; &amp;lt;= v&lt;/li&gt;
+ *   &lt;li&gt;c&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... c&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; &gt;= v&lt;/li&gt;
+ *   &lt;li&gt;l&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... l&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + l&lt;sub&gt;cst&lt;/sub&gt; =
+ *       r&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... r&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + r&lt;sub&gt;cst&lt;/sub&gt;&lt;/li&gt;
+ *   &lt;li&gt;l&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... l&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + l&lt;sub&gt;cst&lt;/sub&gt; &amp;lt;=
+ *       r&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... r&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + r&lt;sub&gt;cst&lt;/sub&gt;&lt;/li&gt;
+ *   &lt;li&gt;l&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... l&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + l&lt;sub&gt;cst&lt;/sub&gt; &gt;=
+ *       r&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... r&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + r&lt;sub&gt;cst&lt;/sub&gt;&lt;/li&gt;
+ * &lt;/ul&gt;
+ * The c&lt;sub&gt;i&lt;/sub&gt;, l&lt;sub&gt;i&lt;/sub&gt; or r&lt;sub&gt;i&lt;/sub&gt; are the coefficients of the constraints, the x&lt;sub&gt;i&lt;/sub&gt;
+ * are the coordinates of the current point and v is the value of the constraint.
+ * &lt;/p&gt;
+ *
+ * @since 2.0
+ */
+public class LinearConstraint implements Serializable {
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = -764632794033034092L;
+    /** Coefficients of the constraint (left hand side). */
+    private final transient RealVector coefficients;
+    /** Relationship between left and right hand sides (=, &amp;lt;=, &gt;=). */
+    private final Relationship relationship;
+    /** Value of the constraint (right hand side). */
+    private final double value;
+
+    /**
+     * Build a constraint involving a single linear equation.
+     * &lt;p&gt;
+     * A linear constraint with a single linear equation has one of the forms:
+     * &lt;ul&gt;
+     *   &lt;li&gt;c&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... c&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; = v&lt;/li&gt;
+     *   &lt;li&gt;c&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... c&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; &amp;lt;= v&lt;/li&gt;
+     *   &lt;li&gt;c&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... c&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; &gt;= v&lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;/p&gt;
+     * @param coefficients The coefficients of the constraint (left hand side)
+     * @param relationship The type of (in)equality used in the constraint
+     * @param value The value of the constraint (right hand side)
+     */
+    public LinearConstraint(final double[] coefficients,
+                            final Relationship relationship,
+                            final double value) {
+<span class="fc" id="L75">        this(new ArrayRealVector(coefficients), relationship, value);</span>
+<span class="fc" id="L76">    }</span>
+
+    /**
+     * Build a constraint involving a single linear equation.
+     * &lt;p&gt;
+     * A linear constraint with a single linear equation has one of the forms:
+     * &lt;ul&gt;
+     *   &lt;li&gt;c&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... c&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; = v&lt;/li&gt;
+     *   &lt;li&gt;c&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... c&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; &amp;lt;= v&lt;/li&gt;
+     *   &lt;li&gt;c&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... c&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; &gt;= v&lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;/p&gt;
+     * @param coefficients The coefficients of the constraint (left hand side)
+     * @param relationship The type of (in)equality used in the constraint
+     * @param value The value of the constraint (right hand side)
+     */
+    public LinearConstraint(final RealVector coefficients,
+                            final Relationship relationship,
+<span class="fc" id="L94">                            final double value) {</span>
+<span class="fc" id="L95">        this.coefficients = coefficients;</span>
+<span class="fc" id="L96">        this.relationship = relationship;</span>
+<span class="fc" id="L97">        this.value        = value;</span>
+<span class="fc" id="L98">    }</span>
+
+    /**
+     * Build a constraint involving two linear equations.
+     * &lt;p&gt;
+     * A linear constraint with two linear equation has one of the forms:
+     * &lt;ul&gt;
+     *   &lt;li&gt;l&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... l&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + l&lt;sub&gt;cst&lt;/sub&gt; =
+     *       r&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... r&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + r&lt;sub&gt;cst&lt;/sub&gt;&lt;/li&gt;
+     *   &lt;li&gt;l&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... l&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + l&lt;sub&gt;cst&lt;/sub&gt; &amp;lt;=
+     *       r&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... r&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + r&lt;sub&gt;cst&lt;/sub&gt;&lt;/li&gt;
+     *   &lt;li&gt;l&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... l&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + l&lt;sub&gt;cst&lt;/sub&gt; &gt;=
+     *       r&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... r&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + r&lt;sub&gt;cst&lt;/sub&gt;&lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;/p&gt;
+     * @param lhsCoefficients The coefficients of the linear expression on the left hand side of the constraint
+     * @param lhsConstant The constant term of the linear expression on the left hand side of the constraint
+     * @param relationship The type of (in)equality used in the constraint
+     * @param rhsCoefficients The coefficients of the linear expression on the right hand side of the constraint
+     * @param rhsConstant The constant term of the linear expression on the right hand side of the constraint
+     */
+    public LinearConstraint(final double[] lhsCoefficients, final double lhsConstant,
+                            final Relationship relationship,
+<span class="nc" id="L121">                            final double[] rhsCoefficients, final double rhsConstant) {</span>
+<span class="nc" id="L122">        double[] sub = new double[lhsCoefficients.length];</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        for (int i = 0; i &lt; sub.length; ++i) {</span>
+<span class="nc" id="L124">            sub[i] = lhsCoefficients[i] - rhsCoefficients[i];</span>
+        }
+<span class="nc" id="L126">        this.coefficients = new ArrayRealVector(sub, false);</span>
+<span class="nc" id="L127">        this.relationship = relationship;</span>
+<span class="nc" id="L128">        this.value        = rhsConstant - lhsConstant;</span>
+<span class="nc" id="L129">    }</span>
+
+    /**
+     * Build a constraint involving two linear equations.
+     * &lt;p&gt;
+     * A linear constraint with two linear equation has one of the forms:
+     * &lt;ul&gt;
+     *   &lt;li&gt;l&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... l&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + l&lt;sub&gt;cst&lt;/sub&gt; =
+     *       r&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... r&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + r&lt;sub&gt;cst&lt;/sub&gt;&lt;/li&gt;
+     *   &lt;li&gt;l&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... l&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + l&lt;sub&gt;cst&lt;/sub&gt; &amp;lt;=
+     *       r&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... r&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + r&lt;sub&gt;cst&lt;/sub&gt;&lt;/li&gt;
+     *   &lt;li&gt;l&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... l&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + l&lt;sub&gt;cst&lt;/sub&gt; &gt;=
+     *       r&lt;sub&gt;1&lt;/sub&gt;x&lt;sub&gt;1&lt;/sub&gt; + ... r&lt;sub&gt;n&lt;/sub&gt;x&lt;sub&gt;n&lt;/sub&gt; + r&lt;sub&gt;cst&lt;/sub&gt;&lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;/p&gt;
+     * @param lhsCoefficients The coefficients of the linear expression on the left hand side of the constraint
+     * @param lhsConstant The constant term of the linear expression on the left hand side of the constraint
+     * @param relationship The type of (in)equality used in the constraint
+     * @param rhsCoefficients The coefficients of the linear expression on the right hand side of the constraint
+     * @param rhsConstant The constant term of the linear expression on the right hand side of the constraint
+     */
+    public LinearConstraint(final RealVector lhsCoefficients, final double lhsConstant,
+                            final Relationship relationship,
+<span class="nc" id="L152">                            final RealVector rhsCoefficients, final double rhsConstant) {</span>
+<span class="nc" id="L153">        this.coefficients = lhsCoefficients.subtract(rhsCoefficients);</span>
+<span class="nc" id="L154">        this.relationship = relationship;</span>
+<span class="nc" id="L155">        this.value        = rhsConstant - lhsConstant;</span>
+<span class="nc" id="L156">    }</span>
+
+    /**
+     * Gets the coefficients of the constraint (left hand side).
+     *
+     * @return the coefficients of the constraint (left hand side).
+     */
+    public RealVector getCoefficients() {
+<span class="fc" id="L164">        return coefficients;</span>
+    }
+
+    /**
+     * Gets the relationship between left and right hand sides.
+     *
+     * @return the relationship between left and right hand sides.
+     */
+    public Relationship getRelationship() {
+<span class="fc" id="L173">        return relationship;</span>
+    }
+
+    /**
+     * Gets the value of the constraint (right hand side).
+     *
+     * @return the value of the constraint (right hand side).
+     */
+    public double getValue() {
+<span class="fc" id="L182">        return value;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(Object other) {
+<span class="pc bpc" id="L188" title="1 of 2 branches missed.">        if (this == other) {</span>
+<span class="nc" id="L189">            return true;</span>
+        }
+<span class="pc bpc" id="L191" title="1 of 2 branches missed.">        if (other instanceof LinearConstraint) {</span>
+<span class="fc" id="L192">            LinearConstraint rhs = (LinearConstraint) other;</span>
+<span class="pc bpc" id="L193" title="2 of 6 branches missed.">            return relationship == rhs.relationship &amp;&amp;</span>
+                value == rhs.value &amp;&amp;
+                coefficients.equals(rhs.coefficients);
+        }
+<span class="nc" id="L197">        return false;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+<span class="fc" id="L203">        return relationship.hashCode() ^</span>
+            Double.valueOf(value).hashCode() ^
+            coefficients.hashCode();
+    }
+
+    /**
+     * Serialize the instance.
+     * @param oos stream where object should be written
+     * @throws IOException if object cannot be written to stream
+     */
+    private void writeObject(ObjectOutputStream oos)
+        throws IOException {
+<span class="fc" id="L215">        oos.defaultWriteObject();</span>
+<span class="fc" id="L216">        MatrixUtils.serializeRealVector(coefficients, oos);</span>
+<span class="fc" id="L217">    }</span>
+
+    /**
+     * Deserialize the instance.
+     * @param ois stream from which the object should be read
+     * @throws ClassNotFoundException if a class in the stream cannot be found
+     * @throws IOException if object cannot be read from the stream
+     */
+    private void readObject(ObjectInputStream ois)
+      throws ClassNotFoundException, IOException {
+<span class="fc" id="L227">        ois.defaultReadObject();</span>
+<span class="fc" id="L228">        MatrixUtils.deserializeRealVector(this, &quot;coefficients&quot;, ois);</span>
+<span class="fc" id="L229">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,637 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.apache.commons.math3.ml.clustering;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.util.ArrayList;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.util.Collection;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.util.Collections;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import java.util.List;<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.exception.ConvergenceException;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.exception.MathIllegalArgumentException;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.math3.exception.NumberIsTooSmallException;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.commons.math3.exception.util.LocalizedFormats;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.math3.ml.distance.DistanceMeasure;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.math3.ml.distance.EuclideanDistance;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.commons.math3.random.JDKRandomGenerator;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.apache.commons.math3.random.RandomGenerator;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.apache.commons.math3.stat.descriptive.moment.Variance;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.apache.commons.math3.util.MathUtils;<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>/**<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * Clustering algorithm based on David Arthur and Sergei Vassilvitski k-means++ algorithm.<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * @param &lt;T&gt; type of the points to cluster<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * @see &lt;a href="http://en.wikipedia.org/wiki/K-means%2B%2B"&gt;K-means++ (wikipedia)&lt;/a&gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * @since 3.2<a name="line.40"></a>
+<span class="sourceLineNo">041</span> */<a name="line.41"></a>
+<span class="sourceLineNo">042</span>public class KMeansPlusPlusClusterer&lt;T extends Clusterable&gt; extends Clusterer&lt;T&gt; {<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>    /** Strategies to use for replacing an empty cluster. */<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    public enum EmptyClusterStrategy {<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>        /** Split the cluster with largest distance variance. */<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        LARGEST_VARIANCE,<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>        /** Split the cluster with largest number of points. */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        LARGEST_POINTS_NUMBER,<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>        /** Create a cluster around the point farthest from its centroid. */<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        FARTHEST_POINT,<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>        /** Generate an error. */<a name="line.56"></a>
+<span class="sourceLineNo">057</span>        ERROR<a name="line.57"></a>
+<span class="sourceLineNo">058</span><a name="line.58"></a>
+<span class="sourceLineNo">059</span>    }<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>    /** The number of clusters. */<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    private final int k;<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>    /** The maximum number of iterations. */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    private final int maxIterations;<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>    /** Random generator for choosing initial centers. */<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    private final RandomGenerator random;<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>    /** Selected strategy for empty clusters. */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    private final EmptyClusterStrategy emptyStrategy;<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>    /** Build a clusterer.<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * &lt;p&gt;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * The default strategy for handling empty clusters that may appear during<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * algorithm iterations is to split the cluster with largest distance variance.<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * &lt;p&gt;<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * The euclidean distance will be used as default distance measure.<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     *<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * @param k the number of clusters to split the data into<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     */<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    public KMeansPlusPlusClusterer(final int k) {<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        this(k, -1);<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    }<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span>    /** Build a clusterer.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * &lt;p&gt;<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * The default strategy for handling empty clusters that may appear during<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * algorithm iterations is to split the cluster with largest distance variance.<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * &lt;p&gt;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * The euclidean distance will be used as default distance measure.<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     *<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * @param k the number of clusters to split the data into<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * @param maxIterations the maximum number of iterations to run the algorithm for.<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     *   If negative, no maximum will be used.<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     */<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    public KMeansPlusPlusClusterer(final int k, final int maxIterations) {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        this(k, maxIterations, new EuclideanDistance());<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    }<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>    /** Build a clusterer.<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * &lt;p&gt;<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * The default strategy for handling empty clusters that may appear during<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * algorithm iterations is to split the cluster with largest distance variance.<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     *<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     * @param k the number of clusters to split the data into<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     * @param maxIterations the maximum number of iterations to run the algorithm for.<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     *   If negative, no maximum will be used.<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     * @param measure the distance measure to use<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     */<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    public KMeansPlusPlusClusterer(final int k, final int maxIterations, final DistanceMeasure measure) {<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        this(k, maxIterations, measure, new JDKRandomGenerator());<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    }<a name="line.113"></a>
+<span class="sourceLineNo">114</span><a name="line.114"></a>
+<span class="sourceLineNo">115</span>    /** Build a clusterer.<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     * &lt;p&gt;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * The default strategy for handling empty clusters that may appear during<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     * algorithm iterations is to split the cluster with largest distance variance.<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     *<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * @param k the number of clusters to split the data into<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     * @param maxIterations the maximum number of iterations to run the algorithm for.<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     *   If negative, no maximum will be used.<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     * @param measure the distance measure to use<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     * @param random random generator to use for choosing initial centers<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     */<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    public KMeansPlusPlusClusterer(final int k, final int maxIterations,<a name="line.126"></a>
+<span class="sourceLineNo">127</span>                                   final DistanceMeasure measure,<a name="line.127"></a>
+<span class="sourceLineNo">128</span>                                   final RandomGenerator random) {<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        this(k, maxIterations, measure, random, EmptyClusterStrategy.LARGEST_VARIANCE);<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    }<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>    /** Build a clusterer.<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     *<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     * @param k the number of clusters to split the data into<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     * @param maxIterations the maximum number of iterations to run the algorithm for.<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     *   If negative, no maximum will be used.<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     * @param measure the distance measure to use<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     * @param random random generator to use for choosing initial centers<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * @param emptyStrategy strategy to use for handling empty clusters that<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     * may appear during algorithm iterations<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     */<a name="line.141"></a>
+<span class="sourceLineNo">142</span>    public KMeansPlusPlusClusterer(final int k, final int maxIterations,<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                                   final DistanceMeasure measure,<a name="line.143"></a>
+<span class="sourceLineNo">144</span>                                   final RandomGenerator random,<a name="line.144"></a>
+<span class="sourceLineNo">145</span>                                   final EmptyClusterStrategy emptyStrategy) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        super(measure);<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        this.k             = k;<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        this.maxIterations = maxIterations;<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        this.random        = random;<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        this.emptyStrategy = emptyStrategy;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    }<a name="line.151"></a>
+<span class="sourceLineNo">152</span><a name="line.152"></a>
+<span class="sourceLineNo">153</span>    /**<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     * Return the number of clusters this instance will use.<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     * @return the number of clusters<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     */<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    public int getK() {<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        return k;<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    }<a name="line.159"></a>
+<span class="sourceLineNo">160</span><a name="line.160"></a>
+<span class="sourceLineNo">161</span>    /**<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     * Returns the maximum number of iterations this instance will use.<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     * @return the maximum number of iterations, or -1 if no maximum is set<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     */<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    public int getMaxIterations() {<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        return maxIterations;<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    }<a name="line.167"></a>
+<span class="sourceLineNo">168</span><a name="line.168"></a>
+<span class="sourceLineNo">169</span>    /**<a name="line.169"></a>
+<span class="sourceLineNo">170</span>     * Returns the random generator this instance will use.<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     * @return the random generator<a name="line.171"></a>
+<span class="sourceLineNo">172</span>     */<a name="line.172"></a>
+<span class="sourceLineNo">173</span>    public RandomGenerator getRandomGenerator() {<a name="line.173"></a>
+<span class="sourceLineNo">174</span>        return random;<a name="line.174"></a>
+<span class="sourceLineNo">175</span>    }<a name="line.175"></a>
+<span class="sourceLineNo">176</span><a name="line.176"></a>
+<span class="sourceLineNo">177</span>    /**<a name="line.177"></a>
+<span class="sourceLineNo">178</span>     * Returns the {@link EmptyClusterStrategy} used by this instance.<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     * @return the {@link EmptyClusterStrategy}<a name="line.179"></a>
+<span class="sourceLineNo">180</span>     */<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    public EmptyClusterStrategy getEmptyClusterStrategy() {<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        return emptyStrategy;<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    }<a name="line.183"></a>
+<span class="sourceLineNo">184</span><a name="line.184"></a>
+<span class="sourceLineNo">185</span>    /**<a name="line.185"></a>
+<span class="sourceLineNo">186</span>     * Runs the K-means++ clustering algorithm.<a name="line.186"></a>
+<span class="sourceLineNo">187</span>     *<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     * @param points the points to cluster<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     * @return a list of clusters containing the points<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     * @throws MathIllegalArgumentException if the data points are null or the number<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     *     of clusters is larger than the number of data points<a name="line.191"></a>
+<span class="sourceLineNo">192</span>     * @throws ConvergenceException if an empty cluster is encountered and the<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     * {@link #emptyStrategy} is set to {@code ERROR}<a name="line.193"></a>
+<span class="sourceLineNo">194</span>     */<a name="line.194"></a>
+<span class="sourceLineNo">195</span>    @Override<a name="line.195"></a>
+<span class="sourceLineNo">196</span>    public List&lt;CentroidCluster&lt;T&gt;&gt; cluster(final Collection&lt;T&gt; points)<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        throws MathIllegalArgumentException, ConvergenceException {<a name="line.197"></a>
+<span class="sourceLineNo">198</span><a name="line.198"></a>
+<span class="sourceLineNo">199</span>        // sanity checks<a name="line.199"></a>
+<span class="sourceLineNo">200</span>        MathUtils.checkNotNull(points);<a name="line.200"></a>
+<span class="sourceLineNo">201</span><a name="line.201"></a>
+<span class="sourceLineNo">202</span>        // number of clusters has to be smaller or equal the number of data points<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        if (points.size() &lt; k) {<a name="line.203"></a>
+<span class="sourceLineNo">204</span>            throw new NumberIsTooSmallException(points.size(), k, false);<a name="line.204"></a>
+<span class="sourceLineNo">205</span>        }<a name="line.205"></a>
+<span class="sourceLineNo">206</span><a name="line.206"></a>
+<span class="sourceLineNo">207</span>        // create the initial clusters<a name="line.207"></a>
+<span class="sourceLineNo">208</span>        List&lt;CentroidCluster&lt;T&gt;&gt; clusters = chooseInitialCenters(points);<a name="line.208"></a>
+<span class="sourceLineNo">209</span><a name="line.209"></a>
+<span class="sourceLineNo">210</span>        // create an array containing the latest assignment of a point to a cluster<a name="line.210"></a>
+<span class="sourceLineNo">211</span>        // no need to initialize the array, as it will be filled with the first assignment<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        int[] assignments = new int[points.size()];<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        assignPointsToClusters(clusters, points, assignments);<a name="line.213"></a>
+<span class="sourceLineNo">214</span><a name="line.214"></a>
+<span class="sourceLineNo">215</span>        // iterate through updating the centers until we're done<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        final int max = (maxIterations &lt; 0) ? Integer.MAX_VALUE : maxIterations;<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        for (int count = 0; count &lt; max; count++) {<a name="line.217"></a>
+<span class="sourceLineNo">218</span>            boolean emptyCluster = false;<a name="line.218"></a>
+<span class="sourceLineNo">219</span>            List&lt;CentroidCluster&lt;T&gt;&gt; newClusters = new ArrayList&lt;CentroidCluster&lt;T&gt;&gt;();<a name="line.219"></a>
+<span class="sourceLineNo">220</span>            for (final CentroidCluster&lt;T&gt; cluster : clusters) {<a name="line.220"></a>
+<span class="sourceLineNo">221</span>                final Clusterable newCenter;<a name="line.221"></a>
+<span class="sourceLineNo">222</span>                if (cluster.getPoints().isEmpty()) {<a name="line.222"></a>
+<span class="sourceLineNo">223</span>                    switch (emptyStrategy) {<a name="line.223"></a>
+<span class="sourceLineNo">224</span>                        case LARGEST_VARIANCE :<a name="line.224"></a>
+<span class="sourceLineNo">225</span>                            newCenter = getPointFromLargestVarianceCluster(clusters);<a name="line.225"></a>
+<span class="sourceLineNo">226</span>                            break;<a name="line.226"></a>
+<span class="sourceLineNo">227</span>                        case LARGEST_POINTS_NUMBER :<a name="line.227"></a>
+<span class="sourceLineNo">228</span>                            newCenter = getPointFromLargestNumberCluster(clusters);<a name="line.228"></a>
+<span class="sourceLineNo">229</span>                            break;<a name="line.229"></a>
+<span class="sourceLineNo">230</span>                        case FARTHEST_POINT :<a name="line.230"></a>
+<span class="sourceLineNo">231</span>                            newCenter = getFarthestPoint(clusters);<a name="line.231"></a>
+<span class="sourceLineNo">232</span>                            break;<a name="line.232"></a>
+<span class="sourceLineNo">233</span>                        default :<a name="line.233"></a>
+<span class="sourceLineNo">234</span>                            throw new ConvergenceException(LocalizedFormats.EMPTY_CLUSTER_IN_K_MEANS);<a name="line.234"></a>
+<span class="sourceLineNo">235</span>                    }<a name="line.235"></a>
+<span class="sourceLineNo">236</span>                    emptyCluster = true;<a name="line.236"></a>
+<span class="sourceLineNo">237</span>                } else {<a name="line.237"></a>
+<span class="sourceLineNo">238</span>                    newCenter = centroidOf(cluster.getPoints(), cluster.getCenter().getPoint().length);<a name="line.238"></a>
+<span class="sourceLineNo">239</span>                }<a name="line.239"></a>
+<span class="sourceLineNo">240</span>                newClusters.add(new CentroidCluster&lt;T&gt;(newCenter));<a name="line.240"></a>
+<span class="sourceLineNo">241</span>            }<a name="line.241"></a>
+<span class="sourceLineNo">242</span>            int changes = assignPointsToClusters(newClusters, points, assignments);<a name="line.242"></a>
+<span class="sourceLineNo">243</span>            clusters = newClusters;<a name="line.243"></a>
+<span class="sourceLineNo">244</span><a name="line.244"></a>
+<span class="sourceLineNo">245</span>            // if there were no more changes in the point-to-cluster assignment<a name="line.245"></a>
+<span class="sourceLineNo">246</span>            // and there are no empty clusters left, return the current clusters<a name="line.246"></a>
+<span class="sourceLineNo">247</span>            if (changes == 0 &amp;&amp; !emptyCluster) {<a name="line.247"></a>
+<span class="sourceLineNo">248</span>                return clusters;<a name="line.248"></a>
+<span class="sourceLineNo">249</span>            }<a name="line.249"></a>
+<span class="sourceLineNo">250</span>        }<a name="line.250"></a>
+<span class="sourceLineNo">251</span>        return clusters;<a name="line.251"></a>
+<span class="sourceLineNo">252</span>    }<a name="line.252"></a>
+<span class="sourceLineNo">253</span><a name="line.253"></a>
+<span class="sourceLineNo">254</span>    /**<a name="line.254"></a>
+<span class="sourceLineNo">255</span>     * Adds the given points to the closest {@link Cluster}.<a name="line.255"></a>
+<span class="sourceLineNo">256</span>     *<a name="line.256"></a>
+<span class="sourceLineNo">257</span>     * @param clusters the {@link Cluster}s to add the points to<a name="line.257"></a>
+<span class="sourceLineNo">258</span>     * @param points the points to add to the given {@link Cluster}s<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     * @param assignments points assignments to clusters<a name="line.259"></a>
+<span class="sourceLineNo">260</span>     * @return the number of points assigned to different clusters as the iteration before<a name="line.260"></a>
+<span class="sourceLineNo">261</span>     */<a name="line.261"></a>
+<span class="sourceLineNo">262</span>    private int assignPointsToClusters(final List&lt;CentroidCluster&lt;T&gt;&gt; clusters,<a name="line.262"></a>
+<span class="sourceLineNo">263</span>                                       final Collection&lt;T&gt; points,<a name="line.263"></a>
+<span class="sourceLineNo">264</span>                                       final int[] assignments) {<a name="line.264"></a>
+<span class="sourceLineNo">265</span>        int assignedDifferently = 0;<a name="line.265"></a>
+<span class="sourceLineNo">266</span>        int pointIndex = 0;<a name="line.266"></a>
+<span class="sourceLineNo">267</span>        for (final T p : points) {<a name="line.267"></a>
+<span class="sourceLineNo">268</span>            int clusterIndex = getNearestCluster(clusters, p);<a name="line.268"></a>
+<span class="sourceLineNo">269</span>            if (clusterIndex != assignments[pointIndex]) {<a name="line.269"></a>
+<span class="sourceLineNo">270</span>                assignedDifferently++;<a name="line.270"></a>
+<span class="sourceLineNo">271</span>            }<a name="line.271"></a>
+<span class="sourceLineNo">272</span><a name="line.272"></a>
+<span class="sourceLineNo">273</span>            CentroidCluster&lt;T&gt; cluster = clusters.get(clusterIndex);<a name="line.273"></a>
+<span class="sourceLineNo">274</span>            cluster.addPoint(p);<a name="line.274"></a>
+<span class="sourceLineNo">275</span>            assignments[pointIndex++] = clusterIndex;<a name="line.275"></a>
+<span class="sourceLineNo">276</span>        }<a name="line.276"></a>
+<span class="sourceLineNo">277</span><a name="line.277"></a>
+<span class="sourceLineNo">278</span>        return assignedDifferently;<a name="line.278"></a>
+<span class="sourceLineNo">279</span>    }<a name="line.279"></a>
+<span class="sourceLineNo">280</span><a name="line.280"></a>
+<span class="sourceLineNo">281</span>    /**<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     * Use K-means++ to choose the initial centers.<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     *<a name="line.283"></a>
+<span class="sourceLineNo">284</span>     * @param points the points to choose the initial centers from<a name="line.284"></a>
+<span class="sourceLineNo">285</span>     * @return the initial centers<a name="line.285"></a>
+<span class="sourceLineNo">286</span>     */<a name="line.286"></a>
+<span class="sourceLineNo">287</span>    private List&lt;CentroidCluster&lt;T&gt;&gt; chooseInitialCenters(final Collection&lt;T&gt; points) {<a name="line.287"></a>
+<span class="sourceLineNo">288</span><a name="line.288"></a>
+<span class="sourceLineNo">289</span>        // Convert to list for indexed access. Make it unmodifiable, since removal of items<a name="line.289"></a>
+<span class="sourceLineNo">290</span>        // would screw up the logic of this method.<a name="line.290"></a>
+<span class="sourceLineNo">291</span>        final List&lt;T&gt; pointList = Collections.unmodifiableList(new ArrayList&lt;T&gt; (points));<a name="line.291"></a>
+<span class="sourceLineNo">292</span><a name="line.292"></a>
+<span class="sourceLineNo">293</span>        // The number of points in the list.<a name="line.293"></a>
+<span class="sourceLineNo">294</span>        final int numPoints = pointList.size();<a name="line.294"></a>
+<span class="sourceLineNo">295</span><a name="line.295"></a>
+<span class="sourceLineNo">296</span>        // Set the corresponding element in this array to indicate when<a name="line.296"></a>
+<span class="sourceLineNo">297</span>        // elements of pointList are no longer available.<a name="line.297"></a>
+<span class="sourceLineNo">298</span>        final boolean[] taken = new boolean[numPoints];<a name="line.298"></a>
+<span class="sourceLineNo">299</span><a name="line.299"></a>
+<span class="sourceLineNo">300</span>        // The resulting list of initial centers.<a name="line.300"></a>
+<span class="sourceLineNo">301</span>        final List&lt;CentroidCluster&lt;T&gt;&gt; resultSet = new ArrayList&lt;CentroidCluster&lt;T&gt;&gt;();<a name="line.301"></a>
+<span class="sourceLineNo">302</span><a name="line.302"></a>
+<span class="sourceLineNo">303</span>        // Choose one center uniformly at random from among the data points.<a name="line.303"></a>
+<span class="sourceLineNo">304</span>        final int firstPointIndex = random.nextInt(numPoints);<a name="line.304"></a>
+<span class="sourceLineNo">305</span><a name="line.305"></a>
+<span class="sourceLineNo">306</span>        final T firstPoint = pointList.get(firstPointIndex);<a name="line.306"></a>
+<span class="sourceLineNo">307</span><a name="line.307"></a>
+<span class="sourceLineNo">308</span>        resultSet.add(new CentroidCluster&lt;T&gt;(firstPoint));<a name="line.308"></a>
+<span class="sourceLineNo">309</span><a name="line.309"></a>
+<span class="sourceLineNo">310</span>        // Must mark it as taken<a name="line.310"></a>
+<span class="sourceLineNo">311</span>        taken[firstPointIndex] = true;<a name="line.311"></a>
+<span class="sourceLineNo">312</span><a name="line.312"></a>
+<span class="sourceLineNo">313</span>        // To keep track of the minimum distance squared of elements of<a name="line.313"></a>
+<span class="sourceLineNo">314</span>        // pointList to elements of resultSet.<a name="line.314"></a>
+<span class="sourceLineNo">315</span>        final double[] minDistSquared = new double[numPoints];<a name="line.315"></a>
+<span class="sourceLineNo">316</span><a name="line.316"></a>
+<span class="sourceLineNo">317</span>        // Initialize the elements.  Since the only point in resultSet is firstPoint,<a name="line.317"></a>
+<span class="sourceLineNo">318</span>        // this is very easy.<a name="line.318"></a>
+<span class="sourceLineNo">319</span>        for (int i = 0; i &lt; numPoints; i++) {<a name="line.319"></a>
+<span class="sourceLineNo">320</span>            if (i != firstPointIndex) { // That point isn't considered<a name="line.320"></a>
+<span class="sourceLineNo">321</span>                double d = distance(firstPoint, pointList.get(i));<a name="line.321"></a>
+<span class="sourceLineNo">322</span>                minDistSquared[i] = d*d;<a name="line.322"></a>
+<span class="sourceLineNo">323</span>            }<a name="line.323"></a>
+<span class="sourceLineNo">324</span>        }<a name="line.324"></a>
+<span class="sourceLineNo">325</span><a name="line.325"></a>
+<span class="sourceLineNo">326</span>        while (resultSet.size() &lt; k) {<a name="line.326"></a>
+<span class="sourceLineNo">327</span><a name="line.327"></a>
+<span class="sourceLineNo">328</span>            // Sum up the squared distances for the points in pointList not<a name="line.328"></a>
+<span class="sourceLineNo">329</span>            // already taken.<a name="line.329"></a>
+<span class="sourceLineNo">330</span>            double distSqSum = 0.0;<a name="line.330"></a>
+<span class="sourceLineNo">331</span><a name="line.331"></a>
+<span class="sourceLineNo">332</span>            for (int i = 0; i &lt; numPoints; i++) {<a name="line.332"></a>
+<span class="sourceLineNo">333</span>                if (!taken[i]) {<a name="line.333"></a>
+<span class="sourceLineNo">334</span>                    distSqSum += minDistSquared[i];<a name="line.334"></a>
+<span class="sourceLineNo">335</span>                }<a name="line.335"></a>
+<span class="sourceLineNo">336</span>            }<a name="line.336"></a>
+<span class="sourceLineNo">337</span><a name="line.337"></a>
+<span class="sourceLineNo">338</span>            // Add one new data point as a center. Each point x is chosen with<a name="line.338"></a>
+<span class="sourceLineNo">339</span>            // probability proportional to D(x)2<a name="line.339"></a>
+<span class="sourceLineNo">340</span>            final double r = random.nextDouble() * distSqSum;<a name="line.340"></a>
+<span class="sourceLineNo">341</span><a name="line.341"></a>
+<span class="sourceLineNo">342</span>            // The index of the next point to be added to the resultSet.<a name="line.342"></a>
+<span class="sourceLineNo">343</span>            int nextPointIndex = -1;<a name="line.343"></a>
+<span class="sourceLineNo">344</span><a name="line.344"></a>
+<span class="sourceLineNo">345</span>            // Sum through the squared min distances again, stopping when<a name="line.345"></a>
+<span class="sourceLineNo">346</span>            // sum &gt;= r.<a name="line.346"></a>
+<span class="sourceLineNo">347</span>            double sum = 0.0;<a name="line.347"></a>
+<span class="sourceLineNo">348</span>            for (int i = 0; i &lt; numPoints; i++) {<a name="line.348"></a>
+<span class="sourceLineNo">349</span>                if (!taken[i]) {<a name="line.349"></a>
+<span class="sourceLineNo">350</span>                    sum += minDistSquared[i];<a name="line.350"></a>
+<span class="sourceLineNo">351</span>                    if (sum &gt;= r) {<a name="line.351"></a>
+<span class="sourceLineNo">352</span>                        nextPointIndex = i;<a name="line.352"></a>
+<span class="sourceLineNo">353</span>                        break;<a name="line.353"></a>
+<span class="sourceLineNo">354</span>                    }<a name="line.354"></a>
+<span class="sourceLineNo">355</span>                }<a name="line.355"></a>
+<span class="sourceLineNo">356</span>            }<a name="line.356"></a>
+<span class="sourceLineNo">357</span><a name="line.357"></a>
+<span class="sourceLineNo">358</span>            // If it's not set to &gt;= 0, the point wasn't found in the previous<a name="line.358"></a>
+<span class="sourceLineNo">359</span>            // for loop, probably because distances are extremely small.  Just pick<a name="line.359"></a>
+<span class="sourceLineNo">360</span>            // the last available point.<a name="line.360"></a>
+<span class="sourceLineNo">361</span>            if (nextPointIndex == -1) {<a name="line.361"></a>
+<span class="sourceLineNo">362</span>                for (int i = numPoints - 1; i &gt;= 0; i--) {<a name="line.362"></a>
+<span class="sourceLineNo">363</span>                    if (!taken[i]) {<a name="line.363"></a>
+<span class="sourceLineNo">364</span>                        nextPointIndex = i;<a name="line.364"></a>
+<span class="sourceLineNo">365</span>                        break;<a name="line.365"></a>
+<span class="sourceLineNo">366</span>                    }<a name="line.366"></a>
+<span class="sourceLineNo">367</span>                }<a name="line.367"></a>
+<span class="sourceLineNo">368</span>            }<a name="line.368"></a>
+<span class="sourceLineNo">369</span><a name="line.369"></a>
+<span class="sourceLineNo">370</span>            // We found one.<a name="line.370"></a>
+<span class="sourceLineNo">371</span>            if (nextPointIndex &gt;= 0) {<a name="line.371"></a>
+<span class="sourceLineNo">372</span><a name="line.372"></a>
+<span class="sourceLineNo">373</span>                final T p = pointList.get(nextPointIndex);<a name="line.373"></a>
+<span class="sourceLineNo">374</span><a name="line.374"></a>
+<span class="sourceLineNo">375</span>                resultSet.add(new CentroidCluster&lt;T&gt; (p));<a name="line.375"></a>
+<span class="sourceLineNo">376</span><a name="line.376"></a>
+<span class="sourceLineNo">377</span>                // Mark it as taken.<a name="line.377"></a>
+<span class="sourceLineNo">378</span>                taken[nextPointIndex] = true;<a name="line.378"></a>
+<span class="sourceLineNo">379</span><a name="line.379"></a>
+<span class="sourceLineNo">380</span>                if (resultSet.size() &lt; k) {<a name="line.380"></a>
+<span class="sourceLineNo">381</span>                    // Now update elements of minDistSquared.  We only have to compute<a name="line.381"></a>
+<span class="sourceLineNo">382</span>                    // the distance to the new center to do this.<a name="line.382"></a>
+<span class="sourceLineNo">383</span>                    for (int j = 0; j &lt; numPoints; j++) {<a name="line.383"></a>
+<span class="sourceLineNo">384</span>                        // Only have to worry about the points still not taken.<a name="line.384"></a>
+<span class="sourceLineNo">385</span>                        if (!taken[j]) {<a name="line.385"></a>
+<span class="sourceLineNo">386</span>                            double d = distance(p, pointList.get(j));<a name="line.386"></a>
+<span class="sourceLineNo">387</span>                            double d2 = d * d;<a name="line.387"></a>
+<span class="sourceLineNo">388</span>                            if (d2 &lt; minDistSquared[j]) {<a name="line.388"></a>
+<span class="sourceLineNo">389</span>                                minDistSquared[j] = d2;<a name="line.389"></a>
+<span class="sourceLineNo">390</span>                            }<a name="line.390"></a>
+<span class="sourceLineNo">391</span>                        }<a name="line.391"></a>
+<span class="sourceLineNo">392</span>                    }<a name="line.392"></a>
+<span class="sourceLineNo">393</span>                }<a name="line.393"></a>
+<span class="sourceLineNo">394</span><a name="line.394"></a>
+<span class="sourceLineNo">395</span>            } else {<a name="line.395"></a>
+<span class="sourceLineNo">396</span>                // None found --<a name="line.396"></a>
+<span class="sourceLineNo">397</span>                // Break from the while loop to prevent<a name="line.397"></a>
+<span class="sourceLineNo">398</span>                // an infinite loop.<a name="line.398"></a>
+<span class="sourceLineNo">399</span>                break;<a name="line.399"></a>
+<span class="sourceLineNo">400</span>            }<a name="line.400"></a>
+<span class="sourceLineNo">401</span>        }<a name="line.401"></a>
+<span class="sourceLineNo">402</span><a name="line.402"></a>
+<span class="sourceLineNo">403</span>        return resultSet;<a name="line.403"></a>
+<span class="sourceLineNo">404</span>    }<a name="line.404"></a>
+<span class="sourceLineNo">405</span><a name="line.405"></a>
+<span class="sourceLineNo">406</span>    /**<a name="line.406"></a>
+<span class="sourceLineNo">407</span>     * Get a random point from the {@link Cluster} with the largest distance variance.<a name="line.407"></a>
+<span class="sourceLineNo">408</span>     *<a name="line.408"></a>
+<span class="sourceLineNo">409</span>     * @param clusters the {@link Cluster}s to search<a name="line.409"></a>
+<span class="sourceLineNo">410</span>     * @return a random point from the selected cluster<a name="line.410"></a>
+<span class="sourceLineNo">411</span>     * @throws ConvergenceException if clusters are all empty<a name="line.411"></a>
+<span class="sourceLineNo">412</span>     */<a name="line.412"></a>
+<span class="sourceLineNo">413</span>    private T getPointFromLargestVarianceCluster(final Collection&lt;CentroidCluster&lt;T&gt;&gt; clusters)<a name="line.413"></a>
+<span class="sourceLineNo">414</span>            throws ConvergenceException {<a name="line.414"></a>
+<span class="sourceLineNo">415</span><a name="line.415"></a>
+<span class="sourceLineNo">416</span>        double maxVariance = Double.NEGATIVE_INFINITY;<a name="line.416"></a>
+<span class="sourceLineNo">417</span>        Cluster&lt;T&gt; selected = null;<a name="line.417"></a>
+<span class="sourceLineNo">418</span>        for (final CentroidCluster&lt;T&gt; cluster : clusters) {<a name="line.418"></a>
+<span class="sourceLineNo">419</span>            if (!cluster.getPoints().isEmpty()) {<a name="line.419"></a>
+<span class="sourceLineNo">420</span><a name="line.420"></a>
+<span class="sourceLineNo">421</span>                // compute the distance variance of the current cluster<a name="line.421"></a>
+<span class="sourceLineNo">422</span>                final Clusterable center = cluster.getCenter();<a name="line.422"></a>
+<span class="sourceLineNo">423</span>                final Variance stat = new Variance();<a name="line.423"></a>
+<span class="sourceLineNo">424</span>                for (final T point : cluster.getPoints()) {<a name="line.424"></a>
+<span class="sourceLineNo">425</span>                    stat.increment(distance(point, center));<a name="line.425"></a>
+<span class="sourceLineNo">426</span>                }<a name="line.426"></a>
+<span class="sourceLineNo">427</span>                final double variance = stat.getResult();<a name="line.427"></a>
+<span class="sourceLineNo">428</span><a name="line.428"></a>
+<span class="sourceLineNo">429</span>                // select the cluster with the largest variance<a name="line.429"></a>
+<span class="sourceLineNo">430</span>                if (variance &gt; maxVariance) {<a name="line.430"></a>
+<span class="sourceLineNo">431</span>                    maxVariance = variance;<a name="line.431"></a>
+<span class="sourceLineNo">432</span>                    selected = cluster;<a name="line.432"></a>
+<span class="sourceLineNo">433</span>                }<a name="line.433"></a>
+<span class="sourceLineNo">434</span><a name="line.434"></a>
+<span class="sourceLineNo">435</span>            }<a name="line.435"></a>
+<span class="sourceLineNo">436</span>        }<a name="line.436"></a>
+<span class="sourceLineNo">437</span><a name="line.437"></a>
+<span class="sourceLineNo">438</span>        // did we find at least one non-empty cluster ?<a name="line.438"></a>
+<span class="sourceLineNo">439</span>        if (selected == null) {<a name="line.439"></a>
+<span class="sourceLineNo">440</span>            throw new ConvergenceException(LocalizedFormats.EMPTY_CLUSTER_IN_K_MEANS);<a name="line.440"></a>
+<span class="sourceLineNo">441</span>        }<a name="line.441"></a>
+<span class="sourceLineNo">442</span><a name="line.442"></a>
+<span class="sourceLineNo">443</span>        // extract a random point from the cluster<a name="line.443"></a>
+<span class="sourceLineNo">444</span>        final List&lt;T&gt; selectedPoints = selected.getPoints();<a name="line.444"></a>
+<span class="sourceLineNo">445</span>        return selectedPoints.remove(random.nextInt(selectedPoints.size()));<a name="line.445"></a>
+<span class="sourceLineNo">446</span><a name="line.446"></a>
+<span class="sourceLineNo">447</span>    }<a name="line.447"></a>
+<span class="sourceLineNo">448</span><a name="line.448"></a>
+<span class="sourceLineNo">449</span>    /**<a name="line.449"></a>
+<span class="sourceLineNo">450</span>     * Get a random point from the {@link Cluster} with the largest number of points<a name="line.450"></a>
+<span class="sourceLineNo">451</span>     *<a name="line.451"></a>
+<span class="sourceLineNo">452</span>     * @param clusters the {@link Cluster}s to search<a name="line.452"></a>
+<span class="sourceLineNo">453</span>     * @return a random point from the selected cluster<a name="line.453"></a>
+<span class="sourceLineNo">454</span>     * @throws ConvergenceException if clusters are all empty<a name="line.454"></a>
+<span class="sourceLineNo">455</span>     */<a name="line.455"></a>
+<span class="sourceLineNo">456</span>    private T getPointFromLargestNumberCluster(final Collection&lt;? extends Cluster&lt;T&gt;&gt; clusters)<a name="line.456"></a>
+<span class="sourceLineNo">457</span>            throws ConvergenceException {<a name="line.457"></a>
+<span class="sourceLineNo">458</span><a name="line.458"></a>
+<span class="sourceLineNo">459</span>        int maxNumber = 0;<a name="line.459"></a>
+<span class="sourceLineNo">460</span>        Cluster&lt;T&gt; selected = null;<a name="line.460"></a>
+<span class="sourceLineNo">461</span>        for (final Cluster&lt;T&gt; cluster : clusters) {<a name="line.461"></a>
+<span class="sourceLineNo">462</span><a name="line.462"></a>
+<span class="sourceLineNo">463</span>            // get the number of points of the current cluster<a name="line.463"></a>
+<span class="sourceLineNo">464</span>            final int number = cluster.getPoints().size();<a name="line.464"></a>
+<span class="sourceLineNo">465</span><a name="line.465"></a>
+<span class="sourceLineNo">466</span>            // select the cluster with the largest number of points<a name="line.466"></a>
+<span class="sourceLineNo">467</span>            if (number &gt; maxNumber) {<a name="line.467"></a>
+<span class="sourceLineNo">468</span>                maxNumber = number;<a name="line.468"></a>
+<span class="sourceLineNo">469</span>                selected = cluster;<a name="line.469"></a>
+<span class="sourceLineNo">470</span>            }<a name="line.470"></a>
+<span class="sourceLineNo">471</span><a name="line.471"></a>
+<span class="sourceLineNo">472</span>        }<a name="line.472"></a>
+<span class="sourceLineNo">473</span><a name="line.473"></a>
+<span class="sourceLineNo">474</span>        // did we find at least one non-empty cluster ?<a name="line.474"></a>
+<span class="sourceLineNo">475</span>        if (selected == null) {<a name="line.475"></a>
+<span class="sourceLineNo">476</span>            throw new ConvergenceException(LocalizedFormats.EMPTY_CLUSTER_IN_K_MEANS);<a name="line.476"></a>
+<span class="sourceLineNo">477</span>        }<a name="line.477"></a>
+<span class="sourceLineNo">478</span><a name="line.478"></a>
+<span class="sourceLineNo">479</span>        // extract a random point from the cluster<a name="line.479"></a>
+<span class="sourceLineNo">480</span>        final List&lt;T&gt; selectedPoints = selected.getPoints();<a name="line.480"></a>
+<span class="sourceLineNo">481</span>        return selectedPoints.remove(random.nextInt(selectedPoints.size()));<a name="line.481"></a>
+<span class="sourceLineNo">482</span><a name="line.482"></a>
+<span class="sourceLineNo">483</span>    }<a name="line.483"></a>
+<span class="sourceLineNo">484</span><a name="line.484"></a>
+<span class="sourceLineNo">485</span>    /**<a name="line.485"></a>
+<span class="sourceLineNo">486</span>     * Get the point farthest to its cluster center<a name="line.486"></a>
+<span class="sourceLineNo">487</span>     *<a name="line.487"></a>
+<span class="sourceLineNo">488</span>     * @param clusters the {@link Cluster}s to search<a name="line.488"></a>
+<span class="sourceLineNo">489</span>     * @return point farthest to its cluster center<a name="line.489"></a>
+<span class="sourceLineNo">490</span>     * @throws ConvergenceException if clusters are all empty<a name="line.490"></a>
+<span class="sourceLineNo">491</span>     */<a name="line.491"></a>
+<span class="sourceLineNo">492</span>    private T getFarthestPoint(final Collection&lt;CentroidCluster&lt;T&gt;&gt; clusters) throws ConvergenceException {<a name="line.492"></a>
+<span class="sourceLineNo">493</span><a name="line.493"></a>
+<span class="sourceLineNo">494</span>        double maxDistance = Double.NEGATIVE_INFINITY;<a name="line.494"></a>
+<span class="sourceLineNo">495</span>        Cluster&lt;T&gt; selectedCluster = null;<a name="line.495"></a>
+<span class="sourceLineNo">496</span>        int selectedPoint = -1;<a name="line.496"></a>
+<span class="sourceLineNo">497</span>        for (final CentroidCluster&lt;T&gt; cluster : clusters) {<a name="line.497"></a>
+<span class="sourceLineNo">498</span><a name="line.498"></a>
+<span class="sourceLineNo">499</span>            // get the farthest point<a name="line.499"></a>
+<span class="sourceLineNo">500</span>            final Clusterable center = cluster.getCenter();<a name="line.500"></a>
+<span class="sourceLineNo">501</span>            final List&lt;T&gt; points = cluster.getPoints();<a name="line.501"></a>
+<span class="sourceLineNo">502</span>            for (int i = 0; i &lt; points.size(); ++i) {<a name="line.502"></a>
+<span class="sourceLineNo">503</span>                final double distance = distance(points.get(i), center);<a name="line.503"></a>
+<span class="sourceLineNo">504</span>                if (distance &gt; maxDistance) {<a name="line.504"></a>
+<span class="sourceLineNo">505</span>                    maxDistance     = distance;<a name="line.505"></a>
+<span class="sourceLineNo">506</span>                    selectedCluster = cluster;<a name="line.506"></a>
+<span class="sourceLineNo">507</span>                    selectedPoint   = i;<a name="line.507"></a>
+<span class="sourceLineNo">508</span>                }<a name="line.508"></a>
+<span class="sourceLineNo">509</span>            }<a name="line.509"></a>
+<span class="sourceLineNo">510</span><a name="line.510"></a>
+<span class="sourceLineNo">511</span>        }<a name="line.511"></a>
+<span class="sourceLineNo">512</span><a name="line.512"></a>
+<span class="sourceLineNo">513</span>        // did we find at least one non-empty cluster ?<a name="line.513"></a>
+<span class="sourceLineNo">514</span>        if (selectedCluster == null) {<a name="line.514"></a>
+<span class="sourceLineNo">515</span>            throw new ConvergenceException(LocalizedFormats.EMPTY_CLUSTER_IN_K_MEANS);<a name="line.515"></a>
+<span class="sourceLineNo">516</span>        }<a name="line.516"></a>
+<span class="sourceLineNo">517</span><a name="line.517"></a>
+<span class="sourceLineNo">518</span>        return selectedCluster.getPoints().remove(selectedPoint);<a name="line.518"></a>
+<span class="sourceLineNo">519</span><a name="line.519"></a>
+<span class="sourceLineNo">520</span>    }<a name="line.520"></a>
+<span class="sourceLineNo">521</span><a name="line.521"></a>
+<span class="sourceLineNo">522</span>    /**<a name="line.522"></a>
+<span class="sourceLineNo">523</span>     * Returns the nearest {@link Cluster} to the given point<a name="line.523"></a>
+<span class="sourceLineNo">524</span>     *<a name="line.524"></a>
+<span class="sourceLineNo">525</span>     * @param clusters the {@link Cluster}s to search<a name="line.525"></a>
+<span class="sourceLineNo">526</span>     * @param point the point to find the nearest {@link Cluster} for<a name="line.526"></a>
+<span class="sourceLineNo">527</span>     * @return the index of the nearest {@link Cluster} to the given point<a name="line.527"></a>
+<span class="sourceLineNo">528</span>     */<a name="line.528"></a>
+<span class="sourceLineNo">529</span>    private int getNearestCluster(final Collection&lt;CentroidCluster&lt;T&gt;&gt; clusters, final T point) {<a name="line.529"></a>
+<span class="sourceLineNo">530</span>        double minDistance = Double.MAX_VALUE;<a name="line.530"></a>
+<span class="sourceLineNo">531</span>        int clusterIndex = 0;<a name="line.531"></a>
+<span class="sourceLineNo">532</span>        int minCluster = 0;<a name="line.532"></a>
+<span class="sourceLineNo">533</span>        for (final CentroidCluster&lt;T&gt; c : clusters) {<a name="line.533"></a>
+<span class="sourceLineNo">534</span>            final double distance = distance(point, c.getCenter());<a name="line.534"></a>
+<span class="sourceLineNo">535</span>            if (distance &lt; minDistance) {<a name="line.535"></a>
+<span class="sourceLineNo">536</span>                minDistance = distance;<a name="line.536"></a>
+<span class="sourceLineNo">537</span>                minCluster = clusterIndex;<a name="line.537"></a>
+<span class="sourceLineNo">538</span>            }<a name="line.538"></a>
+<span class="sourceLineNo">539</span>            clusterIndex++;<a name="line.539"></a>
+<span class="sourceLineNo">540</span>        }<a name="line.540"></a>
+<span class="sourceLineNo">541</span>        return minCluster;<a name="line.541"></a>
+<span class="sourceLineNo">542</span>    }<a name="line.542"></a>
+<span class="sourceLineNo">543</span><a name="line.543"></a>
+<span class="sourceLineNo">544</span>    /**<a name="line.544"></a>
+<span class="sourceLineNo">545</span>     * Computes the centroid for a set of points.<a name="line.545"></a>
+<span class="sourceLineNo">546</span>     *<a name="line.546"></a>
+<span class="sourceLineNo">547</span>     * @param points the set of points<a name="line.547"></a>
+<span class="sourceLineNo">548</span>     * @param dimension the point dimension<a name="line.548"></a>
+<span class="sourceLineNo">549</span>     * @return the computed centroid for the set of points<a name="line.549"></a>
+<span class="sourceLineNo">550</span>     */<a name="line.550"></a>
+<span class="sourceLineNo">551</span>    private Clusterable centroidOf(final Collection&lt;T&gt; points, final int dimension) {<a name="line.551"></a>
+<span class="sourceLineNo">552</span>        final double[] centroid = new double[dimension];<a name="line.552"></a>
+<span class="sourceLineNo">553</span>        for (final T p : points) {<a name="line.553"></a>
+<span class="sourceLineNo">554</span>            final double[] point = p.getPoint();<a name="line.554"></a>
+<span class="sourceLineNo">555</span>            for (int i = 0; i &lt; centroid.length; i++) {<a name="line.555"></a>
+<span class="sourceLineNo">556</span>                centroid[i] += point[i];<a name="line.556"></a>
+<span class="sourceLineNo">557</span>            }<a name="line.557"></a>
+<span class="sourceLineNo">558</span>        }<a name="line.558"></a>
+<span class="sourceLineNo">559</span>        for (int i = 0; i &lt; centroid.length; i++) {<a name="line.559"></a>
+<span class="sourceLineNo">560</span>            centroid[i] /= points.size();<a name="line.560"></a>
+<span class="sourceLineNo">561</span>        }<a name="line.561"></a>
+<span class="sourceLineNo">562</span>        return new DoublePoint(centroid);<a name="line.562"></a>
+<span class="sourceLineNo">563</span>    }<a name="line.563"></a>
+<span class="sourceLineNo">564</span><a name="line.564"></a>
+<span class="sourceLineNo">565</span>}<a name="line.565"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

@@ -1,0 +1,1342 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.apache.commons.math3.stat.inference;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.math.BigDecimal;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.util.Arrays;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.util.HashSet;<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.distribution.EnumeratedRealDistribution;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.distribution.RealDistribution;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.distribution.UniformRealDistribution;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.math3.exception.InsufficientDataException;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.commons.math3.exception.MathArithmeticException;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.math3.exception.MathInternalError;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.math3.exception.NullArgumentException;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.commons.math3.exception.NumberIsTooLargeException;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.apache.commons.math3.exception.OutOfRangeException;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.apache.commons.math3.exception.TooManyIterationsException;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.apache.commons.math3.exception.util.LocalizedFormats;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.apache.commons.math3.fraction.BigFraction;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.apache.commons.math3.fraction.BigFractionField;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.apache.commons.math3.fraction.FractionConversionException;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.apache.commons.math3.linear.Array2DRowFieldMatrix;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import org.apache.commons.math3.linear.FieldMatrix;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import org.apache.commons.math3.linear.MatrixUtils;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import org.apache.commons.math3.linear.RealMatrix;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import org.apache.commons.math3.random.JDKRandomGenerator;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>import org.apache.commons.math3.random.RandomGenerator;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>import org.apache.commons.math3.random.Well19937c;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>import org.apache.commons.math3.util.CombinatoricsUtils;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>import org.apache.commons.math3.util.FastMath;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>import org.apache.commons.math3.util.MathArrays;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>import org.apache.commons.math3.util.MathUtils;<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>/**<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * Implementation of the &lt;a href="http://en.wikipedia.org/wiki/Kolmogorov-Smirnov_test"&gt;<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * Kolmogorov-Smirnov (K-S) test&lt;/a&gt; for equality of continuous distributions.<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * &lt;p&gt;<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * The K-S test uses a statistic based on the maximum deviation of the empirical distribution of<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * sample data points from the distribution expected under the null hypothesis. For one-sample tests<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * evaluating the null hypothesis that a set of sample data points follow a given distribution, the<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * test statistic is \(D_n=\sup_x |F_n(x)-F(x)|\), where \(F\) is the expected distribution and<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * \(F_n\) is the empirical distribution of the \(n\) sample data points. The distribution of<a name="line.58"></a>
+<span class="sourceLineNo">059</span> * \(D_n\) is estimated using a method based on [1] with certain quick decisions for extreme values<a name="line.59"></a>
+<span class="sourceLineNo">060</span> * given in [2].<a name="line.60"></a>
+<span class="sourceLineNo">061</span> * &lt;/p&gt;<a name="line.61"></a>
+<span class="sourceLineNo">062</span> * &lt;p&gt;<a name="line.62"></a>
+<span class="sourceLineNo">063</span> * Two-sample tests are also supported, evaluating the null hypothesis that the two samples<a name="line.63"></a>
+<span class="sourceLineNo">064</span> * {@code x} and {@code y} come from the same underlying distribution. In this case, the test<a name="line.64"></a>
+<span class="sourceLineNo">065</span> * statistic is \(D_{n,m}=\sup_t | F_n(t)-F_m(t)|\) where \(n\) is the length of {@code x}, \(m\) is<a name="line.65"></a>
+<span class="sourceLineNo">066</span> * the length of {@code y}, \(F_n\) is the empirical distribution that puts mass \(1/n\) at each of<a name="line.66"></a>
+<span class="sourceLineNo">067</span> * the values in {@code x} and \(F_m\) is the empirical distribution of the {@code y} values. The<a name="line.67"></a>
+<span class="sourceLineNo">068</span> * default 2-sample test method, {@link #kolmogorovSmirnovTest(double[], double[])} works as<a name="line.68"></a>
+<span class="sourceLineNo">069</span> * follows:<a name="line.69"></a>
+<span class="sourceLineNo">070</span> * &lt;ul&gt;<a name="line.70"></a>
+<span class="sourceLineNo">071</span> * &lt;li&gt;For small samples (where the product of the sample sizes is less than<a name="line.71"></a>
+<span class="sourceLineNo">072</span> * {@value #LARGE_SAMPLE_PRODUCT}), the method presented in [4] is used to compute the<a name="line.72"></a>
+<span class="sourceLineNo">073</span> * exact p-value for the 2-sample test.&lt;/li&gt;<a name="line.73"></a>
+<span class="sourceLineNo">074</span> * &lt;li&gt;When the product of the sample sizes exceeds {@value #LARGE_SAMPLE_PRODUCT}, the asymptotic<a name="line.74"></a>
+<span class="sourceLineNo">075</span> * distribution of \(D_{n,m}\) is used. See {@link #approximateP(double, int, int)} for details on<a name="line.75"></a>
+<span class="sourceLineNo">076</span> * the approximation.&lt;/li&gt;<a name="line.76"></a>
+<span class="sourceLineNo">077</span> * &lt;/ul&gt;&lt;/p&gt;&lt;p&gt;<a name="line.77"></a>
+<span class="sourceLineNo">078</span> * If the product of the sample sizes is less than {@value #LARGE_SAMPLE_PRODUCT} and the sample<a name="line.78"></a>
+<span class="sourceLineNo">079</span> * data contains ties, random jitter is added to the sample data to break ties before applying<a name="line.79"></a>
+<span class="sourceLineNo">080</span> * the algorithm above. Alternatively, the {@link #bootstrap(double[], double[], int, boolean)}<a name="line.80"></a>
+<span class="sourceLineNo">081</span> * method, modeled after &lt;a href="http://sekhon.berkeley.edu/matching/ks.boot.html"&gt;ks.boot&lt;/a&gt;<a name="line.81"></a>
+<span class="sourceLineNo">082</span> * in the R Matching package [3], can be used if ties are known to be present in the data.<a name="line.82"></a>
+<span class="sourceLineNo">083</span> * &lt;/p&gt;<a name="line.83"></a>
+<span class="sourceLineNo">084</span> * &lt;p&gt;<a name="line.84"></a>
+<span class="sourceLineNo">085</span> * In the two-sample case, \(D_{n,m}\) has a discrete distribution. This makes the p-value<a name="line.85"></a>
+<span class="sourceLineNo">086</span> * associated with the null hypothesis \(H_0 : D_{n,m} \ge d \) differ from \(H_0 : D_{n,m} &gt; d \)<a name="line.86"></a>
+<span class="sourceLineNo">087</span> * by the mass of the observed value \(d\). To distinguish these, the two-sample tests use a boolean<a name="line.87"></a>
+<span class="sourceLineNo">088</span> * {@code strict} parameter. This parameter is ignored for large samples.<a name="line.88"></a>
+<span class="sourceLineNo">089</span> * &lt;/p&gt;<a name="line.89"></a>
+<span class="sourceLineNo">090</span> * &lt;p&gt;<a name="line.90"></a>
+<span class="sourceLineNo">091</span> * The methods used by the 2-sample default implementation are also exposed directly:<a name="line.91"></a>
+<span class="sourceLineNo">092</span> * &lt;ul&gt;<a name="line.92"></a>
+<span class="sourceLineNo">093</span> * &lt;li&gt;{@link #exactP(double, int, int, boolean)} computes exact 2-sample p-values&lt;/li&gt;<a name="line.93"></a>
+<span class="sourceLineNo">094</span> * &lt;li&gt;{@link #approximateP(double, int, int)} uses the asymptotic distribution The {@code boolean}<a name="line.94"></a>
+<span class="sourceLineNo">095</span> * arguments in the first two methods allow the probability used to estimate the p-value to be<a name="line.95"></a>
+<span class="sourceLineNo">096</span> * expressed using strict or non-strict inequality. See<a name="line.96"></a>
+<span class="sourceLineNo">097</span> * {@link #kolmogorovSmirnovTest(double[], double[], boolean)}.&lt;/li&gt;<a name="line.97"></a>
+<span class="sourceLineNo">098</span> * &lt;/ul&gt;<a name="line.98"></a>
+<span class="sourceLineNo">099</span> * &lt;/p&gt;<a name="line.99"></a>
+<span class="sourceLineNo">100</span> * &lt;p&gt;<a name="line.100"></a>
+<span class="sourceLineNo">101</span> * References:<a name="line.101"></a>
+<span class="sourceLineNo">102</span> * &lt;ul&gt;<a name="line.102"></a>
+<span class="sourceLineNo">103</span> * &lt;li&gt;[1] &lt;a href="http://www.jstatsoft.org/v08/i18/"&gt; Evaluating Kolmogorov's Distribution&lt;/a&gt; by<a name="line.103"></a>
+<span class="sourceLineNo">104</span> * George Marsaglia, Wai Wan Tsang, and Jingbo Wang&lt;/li&gt;<a name="line.104"></a>
+<span class="sourceLineNo">105</span> * &lt;li&gt;[2] &lt;a href="http://www.jstatsoft.org/v39/i11/"&gt; Computing the Two-Sided Kolmogorov-Smirnov<a name="line.105"></a>
+<span class="sourceLineNo">106</span> * Distribution&lt;/a&gt; by Richard Simard and Pierre L'Ecuyer&lt;/li&gt;<a name="line.106"></a>
+<span class="sourceLineNo">107</span> * &lt;li&gt;[3] Jasjeet S. Sekhon. 2011. &lt;a href="http://www.jstatsoft.org/article/view/v042i07"&gt;<a name="line.107"></a>
+<span class="sourceLineNo">108</span> * Multivariate and Propensity Score Matching Software with Automated Balance Optimization:<a name="line.108"></a>
+<span class="sourceLineNo">109</span> * The Matching package for R&lt;/a&gt; Journal of Statistical Software, 42(7): 1-52.&lt;/li&gt;<a name="line.109"></a>
+<span class="sourceLineNo">110</span> * &lt;li&gt;[4] Wilcox, Rand. 2012. Introduction to Robust Estimation and Hypothesis Testing,<a name="line.110"></a>
+<span class="sourceLineNo">111</span> * Chapter 5, 3rd Ed. Academic Press.&lt;/li&gt;<a name="line.111"></a>
+<span class="sourceLineNo">112</span> * &lt;/ul&gt;<a name="line.112"></a>
+<span class="sourceLineNo">113</span> * &lt;br/&gt;<a name="line.113"></a>
+<span class="sourceLineNo">114</span> * Note that [1] contains an error in computing h, refer to &lt;a<a name="line.114"></a>
+<span class="sourceLineNo">115</span> * href="https://issues.apache.org/jira/browse/MATH-437"&gt;MATH-437&lt;/a&gt; for details.<a name="line.115"></a>
+<span class="sourceLineNo">116</span> * &lt;/p&gt;<a name="line.116"></a>
+<span class="sourceLineNo">117</span> *<a name="line.117"></a>
+<span class="sourceLineNo">118</span> * @since 3.3<a name="line.118"></a>
+<span class="sourceLineNo">119</span> */<a name="line.119"></a>
+<span class="sourceLineNo">120</span>public class KolmogorovSmirnovTest {<a name="line.120"></a>
+<span class="sourceLineNo">121</span><a name="line.121"></a>
+<span class="sourceLineNo">122</span>    /**<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     * Bound on the number of partial sums in {@link #ksSum(double, double, int)}<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     */<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    protected static final int MAXIMUM_PARTIAL_SUM_COUNT = 100000;<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span>    /** Convergence criterion for {@link #ksSum(double, double, int)} */<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    protected static final double KS_SUM_CAUCHY_CRITERION = 1E-20;<a name="line.128"></a>
+<span class="sourceLineNo">129</span><a name="line.129"></a>
+<span class="sourceLineNo">130</span>    /** Convergence criterion for the sums in #pelzGood(double, double, int)} */<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    protected static final double PG_SUM_RELATIVE_ERROR = 1.0e-10;<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>    /** No longer used. */<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    @Deprecated<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    protected static final int SMALL_SAMPLE_PRODUCT = 200;<a name="line.135"></a>
+<span class="sourceLineNo">136</span><a name="line.136"></a>
+<span class="sourceLineNo">137</span>    /**<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     * When product of sample sizes exceeds this value, 2-sample K-S test uses asymptotic<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * distribution to compute the p-value.<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     */<a name="line.140"></a>
+<span class="sourceLineNo">141</span>    protected static final int LARGE_SAMPLE_PRODUCT = 10000;<a name="line.141"></a>
+<span class="sourceLineNo">142</span><a name="line.142"></a>
+<span class="sourceLineNo">143</span>    /** Default number of iterations used by {@link #monteCarloP(double, int, int, boolean, int)}.<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     *  Deprecated as of version 3.6, as this method is no longer needed. */<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    @Deprecated<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    protected static final int MONTE_CARLO_ITERATIONS = 1000000;<a name="line.146"></a>
+<span class="sourceLineNo">147</span><a name="line.147"></a>
+<span class="sourceLineNo">148</span>    /** Random data generator used by {@link #monteCarloP(double, int, int, boolean, int)} */<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    private final RandomGenerator rng;<a name="line.149"></a>
+<span class="sourceLineNo">150</span><a name="line.150"></a>
+<span class="sourceLineNo">151</span>    /**<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     * Construct a KolmogorovSmirnovTest instance with a default random data generator.<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     */<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    public KolmogorovSmirnovTest() {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        rng = new Well19937c();<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    }<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>    /**<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     * Construct a KolmogorovSmirnovTest with the provided random data generator.<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     * The #monteCarloP(double, int, int, boolean, int) that uses the generator supplied to this<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     * constructor is deprecated as of version 3.6.<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     *<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     * @param rng random data generator used by {@link #monteCarloP(double, int, int, boolean, int)}<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     */<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    @Deprecated<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    public KolmogorovSmirnovTest(RandomGenerator rng) {<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        this.rng = rng;<a name="line.167"></a>
+<span class="sourceLineNo">168</span>    }<a name="line.168"></a>
+<span class="sourceLineNo">169</span><a name="line.169"></a>
+<span class="sourceLineNo">170</span>    /**<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     * Computes the &lt;i&gt;p-value&lt;/i&gt;, or &lt;i&gt;observed significance level&lt;/i&gt;, of a one-sample &lt;a<a name="line.171"></a>
+<span class="sourceLineNo">172</span>     * href="http://en.wikipedia.org/wiki/Kolmogorov-Smirnov_test"&gt; Kolmogorov-Smirnov test&lt;/a&gt;<a name="line.172"></a>
+<span class="sourceLineNo">173</span>     * evaluating the null hypothesis that {@code data} conforms to {@code distribution}. If<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     * {@code exact} is true, the distribution used to compute the p-value is computed using<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     * extended precision. See {@link #cdfExact(double, int)}.<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     *<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     * @param distribution reference distribution<a name="line.177"></a>
+<span class="sourceLineNo">178</span>     * @param data sample being being evaluated<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     * @param exact whether or not to force exact computation of the p-value<a name="line.179"></a>
+<span class="sourceLineNo">180</span>     * @return the p-value associated with the null hypothesis that {@code data} is a sample from<a name="line.180"></a>
+<span class="sourceLineNo">181</span>     *         {@code distribution}<a name="line.181"></a>
+<span class="sourceLineNo">182</span>     * @throws InsufficientDataException if {@code data} does not have length at least 2<a name="line.182"></a>
+<span class="sourceLineNo">183</span>     * @throws NullArgumentException if {@code data} is null<a name="line.183"></a>
+<span class="sourceLineNo">184</span>     */<a name="line.184"></a>
+<span class="sourceLineNo">185</span>    public double kolmogorovSmirnovTest(RealDistribution distribution, double[] data, boolean exact) {<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        return 1d - cdf(kolmogorovSmirnovStatistic(distribution, data), data.length, exact);<a name="line.186"></a>
+<span class="sourceLineNo">187</span>    }<a name="line.187"></a>
+<span class="sourceLineNo">188</span><a name="line.188"></a>
+<span class="sourceLineNo">189</span>    /**<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     * Computes the one-sample Kolmogorov-Smirnov test statistic, \(D_n=\sup_x |F_n(x)-F(x)|\) where<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     * \(F\) is the distribution (cdf) function associated with {@code distribution}, \(n\) is the<a name="line.191"></a>
+<span class="sourceLineNo">192</span>     * length of {@code data} and \(F_n\) is the empirical distribution that puts mass \(1/n\) at<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     * each of the values in {@code data}.<a name="line.193"></a>
+<span class="sourceLineNo">194</span>     *<a name="line.194"></a>
+<span class="sourceLineNo">195</span>     * @param distribution reference distribution<a name="line.195"></a>
+<span class="sourceLineNo">196</span>     * @param data sample being evaluated<a name="line.196"></a>
+<span class="sourceLineNo">197</span>     * @return Kolmogorov-Smirnov statistic \(D_n\)<a name="line.197"></a>
+<span class="sourceLineNo">198</span>     * @throws InsufficientDataException if {@code data} does not have length at least 2<a name="line.198"></a>
+<span class="sourceLineNo">199</span>     * @throws NullArgumentException if {@code data} is null<a name="line.199"></a>
+<span class="sourceLineNo">200</span>     */<a name="line.200"></a>
+<span class="sourceLineNo">201</span>    public double kolmogorovSmirnovStatistic(RealDistribution distribution, double[] data) {<a name="line.201"></a>
+<span class="sourceLineNo">202</span>        checkArray(data);<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        final int n = data.length;<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        final double nd = n;<a name="line.204"></a>
+<span class="sourceLineNo">205</span>        final double[] dataCopy = new double[n];<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        System.arraycopy(data, 0, dataCopy, 0, n);<a name="line.206"></a>
+<span class="sourceLineNo">207</span>        Arrays.sort(dataCopy);<a name="line.207"></a>
+<span class="sourceLineNo">208</span>        double d = 0d;<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        for (int i = 1; i &lt;= n; i++) {<a name="line.209"></a>
+<span class="sourceLineNo">210</span>            final double yi = distribution.cumulativeProbability(dataCopy[i - 1]);<a name="line.210"></a>
+<span class="sourceLineNo">211</span>            final double currD = FastMath.max(yi - (i - 1) / nd, i / nd - yi);<a name="line.211"></a>
+<span class="sourceLineNo">212</span>            if (currD &gt; d) {<a name="line.212"></a>
+<span class="sourceLineNo">213</span>                d = currD;<a name="line.213"></a>
+<span class="sourceLineNo">214</span>            }<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        }<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        return d;<a name="line.216"></a>
+<span class="sourceLineNo">217</span>    }<a name="line.217"></a>
+<span class="sourceLineNo">218</span><a name="line.218"></a>
+<span class="sourceLineNo">219</span>    /**<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     * Computes the &lt;i&gt;p-value&lt;/i&gt;, or &lt;i&gt;observed significance level&lt;/i&gt;, of a two-sample &lt;a<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     * href="http://en.wikipedia.org/wiki/Kolmogorov-Smirnov_test"&gt; Kolmogorov-Smirnov test&lt;/a&gt;<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     * evaluating the null hypothesis that {@code x} and {@code y} are samples drawn from the same<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     * probability distribution. Specifically, what is returned is an estimate of the probability<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     * that the {@link #kolmogorovSmirnovStatistic(double[], double[])} associated with a randomly<a name="line.224"></a>
+<span class="sourceLineNo">225</span>     * selected partition of the combined sample into subsamples of sizes {@code x.length} and<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     * {@code y.length} will strictly exceed (if {@code strict} is {@code true}) or be at least as<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     * large as {@code strict = false}) as {@code kolmogorovSmirnovStatistic(x, y)}.<a name="line.227"></a>
+<span class="sourceLineNo">228</span>     * &lt;ul&gt;<a name="line.228"></a>
+<span class="sourceLineNo">229</span>     * &lt;li&gt;For small samples (where the product of the sample sizes is less than<a name="line.229"></a>
+<span class="sourceLineNo">230</span>     * {@value #LARGE_SAMPLE_PRODUCT}), the exact p-value is computed using the method presented<a name="line.230"></a>
+<span class="sourceLineNo">231</span>     * in [4], implemented in {@link #exactP(double, int, int, boolean)}. &lt;/li&gt;<a name="line.231"></a>
+<span class="sourceLineNo">232</span>     * &lt;li&gt;When the product of the sample sizes exceeds {@value #LARGE_SAMPLE_PRODUCT}, the<a name="line.232"></a>
+<span class="sourceLineNo">233</span>     * asymptotic distribution of \(D_{n,m}\) is used. See {@link #approximateP(double, int, int)}<a name="line.233"></a>
+<span class="sourceLineNo">234</span>     * for details on the approximation.&lt;/li&gt;<a name="line.234"></a>
+<span class="sourceLineNo">235</span>     * &lt;/ul&gt;&lt;p&gt;<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     * If {@code x.length * y.length} &lt; {@value #LARGE_SAMPLE_PRODUCT} and the combined set of values in<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     * {@code x} and {@code y} contains ties, random jitter is added to {@code x} and {@code y} to<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     * break ties before computing \(D_{n,m}\) and the p-value. The jitter is uniformly distributed<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     * on (-minDelta / 2, minDelta / 2) where minDelta is the smallest pairwise difference between<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     * values in the combined sample.&lt;/p&gt;<a name="line.240"></a>
+<span class="sourceLineNo">241</span>     * &lt;p&gt;<a name="line.241"></a>
+<span class="sourceLineNo">242</span>     * If ties are known to be present in the data, {@link #bootstrap(double[], double[], int, boolean)}<a name="line.242"></a>
+<span class="sourceLineNo">243</span>     * may be used as an alternative method for estimating the p-value.&lt;/p&gt;<a name="line.243"></a>
+<span class="sourceLineNo">244</span>     *<a name="line.244"></a>
+<span class="sourceLineNo">245</span>     * @param x first sample dataset<a name="line.245"></a>
+<span class="sourceLineNo">246</span>     * @param y second sample dataset<a name="line.246"></a>
+<span class="sourceLineNo">247</span>     * @param strict whether or not the probability to compute is expressed as a strict inequality<a name="line.247"></a>
+<span class="sourceLineNo">248</span>     *        (ignored for large samples)<a name="line.248"></a>
+<span class="sourceLineNo">249</span>     * @return p-value associated with the null hypothesis that {@code x} and {@code y} represent<a name="line.249"></a>
+<span class="sourceLineNo">250</span>     *         samples from the same distribution<a name="line.250"></a>
+<span class="sourceLineNo">251</span>     * @throws InsufficientDataException if either {@code x} or {@code y} does not have length at<a name="line.251"></a>
+<span class="sourceLineNo">252</span>     *         least 2<a name="line.252"></a>
+<span class="sourceLineNo">253</span>     * @throws NullArgumentException if either {@code x} or {@code y} is null<a name="line.253"></a>
+<span class="sourceLineNo">254</span>     * @see #bootstrap(double[], double[], int, boolean)<a name="line.254"></a>
+<span class="sourceLineNo">255</span>     */<a name="line.255"></a>
+<span class="sourceLineNo">256</span>    public double kolmogorovSmirnovTest(double[] x, double[] y, boolean strict) {<a name="line.256"></a>
+<span class="sourceLineNo">257</span>        final long lengthProduct = (long) x.length * y.length;<a name="line.257"></a>
+<span class="sourceLineNo">258</span>        double[] xa = null;<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        double[] ya = null;<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        if (lengthProduct &lt; LARGE_SAMPLE_PRODUCT &amp;&amp; hasTies(x,y)) {<a name="line.260"></a>
+<span class="sourceLineNo">261</span>            xa = MathArrays.copyOf(x);<a name="line.261"></a>
+<span class="sourceLineNo">262</span>            ya = MathArrays.copyOf(y);<a name="line.262"></a>
+<span class="sourceLineNo">263</span>            fixTies(xa, ya);<a name="line.263"></a>
+<span class="sourceLineNo">264</span>        } else {<a name="line.264"></a>
+<span class="sourceLineNo">265</span>            xa = x;<a name="line.265"></a>
+<span class="sourceLineNo">266</span>            ya = y;<a name="line.266"></a>
+<span class="sourceLineNo">267</span>        }<a name="line.267"></a>
+<span class="sourceLineNo">268</span>        if (lengthProduct &lt; LARGE_SAMPLE_PRODUCT) {<a name="line.268"></a>
+<span class="sourceLineNo">269</span>            return exactP(kolmogorovSmirnovStatistic(xa, ya), x.length, y.length, strict);<a name="line.269"></a>
+<span class="sourceLineNo">270</span>        }<a name="line.270"></a>
+<span class="sourceLineNo">271</span>        return approximateP(kolmogorovSmirnovStatistic(x, y), x.length, y.length);<a name="line.271"></a>
+<span class="sourceLineNo">272</span>    }<a name="line.272"></a>
+<span class="sourceLineNo">273</span><a name="line.273"></a>
+<span class="sourceLineNo">274</span>    /**<a name="line.274"></a>
+<span class="sourceLineNo">275</span>     * Computes the &lt;i&gt;p-value&lt;/i&gt;, or &lt;i&gt;observed significance level&lt;/i&gt;, of a two-sample &lt;a<a name="line.275"></a>
+<span class="sourceLineNo">276</span>     * href="http://en.wikipedia.org/wiki/Kolmogorov-Smirnov_test"&gt; Kolmogorov-Smirnov test&lt;/a&gt;<a name="line.276"></a>
+<span class="sourceLineNo">277</span>     * evaluating the null hypothesis that {@code x} and {@code y} are samples drawn from the same<a name="line.277"></a>
+<span class="sourceLineNo">278</span>     * probability distribution. Assumes the strict form of the inequality used to compute the<a name="line.278"></a>
+<span class="sourceLineNo">279</span>     * p-value. See {@link #kolmogorovSmirnovTest(RealDistribution, double[], boolean)}.<a name="line.279"></a>
+<span class="sourceLineNo">280</span>     *<a name="line.280"></a>
+<span class="sourceLineNo">281</span>     * @param x first sample dataset<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     * @param y second sample dataset<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     * @return p-value associated with the null hypothesis that {@code x} and {@code y} represent<a name="line.283"></a>
+<span class="sourceLineNo">284</span>     *         samples from the same distribution<a name="line.284"></a>
+<span class="sourceLineNo">285</span>     * @throws InsufficientDataException if either {@code x} or {@code y} does not have length at<a name="line.285"></a>
+<span class="sourceLineNo">286</span>     *         least 2<a name="line.286"></a>
+<span class="sourceLineNo">287</span>     * @throws NullArgumentException if either {@code x} or {@code y} is null<a name="line.287"></a>
+<span class="sourceLineNo">288</span>     */<a name="line.288"></a>
+<span class="sourceLineNo">289</span>    public double kolmogorovSmirnovTest(double[] x, double[] y) {<a name="line.289"></a>
+<span class="sourceLineNo">290</span>        return kolmogorovSmirnovTest(x, y, true);<a name="line.290"></a>
+<span class="sourceLineNo">291</span>    }<a name="line.291"></a>
+<span class="sourceLineNo">292</span><a name="line.292"></a>
+<span class="sourceLineNo">293</span>    /**<a name="line.293"></a>
+<span class="sourceLineNo">294</span>     * Computes the two-sample Kolmogorov-Smirnov test statistic, \(D_{n,m}=\sup_x |F_n(x)-F_m(x)|\)<a name="line.294"></a>
+<span class="sourceLineNo">295</span>     * where \(n\) is the length of {@code x}, \(m\) is the length of {@code y}, \(F_n\) is the<a name="line.295"></a>
+<span class="sourceLineNo">296</span>     * empirical distribution that puts mass \(1/n\) at each of the values in {@code x} and \(F_m\)<a name="line.296"></a>
+<span class="sourceLineNo">297</span>     * is the empirical distribution of the {@code y} values.<a name="line.297"></a>
+<span class="sourceLineNo">298</span>     *<a name="line.298"></a>
+<span class="sourceLineNo">299</span>     * @param x first sample<a name="line.299"></a>
+<span class="sourceLineNo">300</span>     * @param y second sample<a name="line.300"></a>
+<span class="sourceLineNo">301</span>     * @return test statistic \(D_{n,m}\) used to evaluate the null hypothesis that {@code x} and<a name="line.301"></a>
+<span class="sourceLineNo">302</span>     *         {@code y} represent samples from the same underlying distribution<a name="line.302"></a>
+<span class="sourceLineNo">303</span>     * @throws InsufficientDataException if either {@code x} or {@code y} does not have length at<a name="line.303"></a>
+<span class="sourceLineNo">304</span>     *         least 2<a name="line.304"></a>
+<span class="sourceLineNo">305</span>     * @throws NullArgumentException if either {@code x} or {@code y} is null<a name="line.305"></a>
+<span class="sourceLineNo">306</span>     */<a name="line.306"></a>
+<span class="sourceLineNo">307</span>    public double kolmogorovSmirnovStatistic(double[] x, double[] y) {<a name="line.307"></a>
+<span class="sourceLineNo">308</span>        return integralKolmogorovSmirnovStatistic(x, y)/((double)(x.length * (long)y.length));<a name="line.308"></a>
+<span class="sourceLineNo">309</span>    }<a name="line.309"></a>
+<span class="sourceLineNo">310</span><a name="line.310"></a>
+<span class="sourceLineNo">311</span>    /**<a name="line.311"></a>
+<span class="sourceLineNo">312</span>     * Computes the two-sample Kolmogorov-Smirnov test statistic, \(D_{n,m}=\sup_x |F_n(x)-F_m(x)|\)<a name="line.312"></a>
+<span class="sourceLineNo">313</span>     * where \(n\) is the length of {@code x}, \(m\) is the length of {@code y}, \(F_n\) is the<a name="line.313"></a>
+<span class="sourceLineNo">314</span>     * empirical distribution that puts mass \(1/n\) at each of the values in {@code x} and \(F_m\)<a name="line.314"></a>
+<span class="sourceLineNo">315</span>     * is the empirical distribution of the {@code y} values. Finally \(n m D_{n,m}\) is returned<a name="line.315"></a>
+<span class="sourceLineNo">316</span>     * as long value.<a name="line.316"></a>
+<span class="sourceLineNo">317</span>     *<a name="line.317"></a>
+<span class="sourceLineNo">318</span>     * @param x first sample<a name="line.318"></a>
+<span class="sourceLineNo">319</span>     * @param y second sample<a name="line.319"></a>
+<span class="sourceLineNo">320</span>     * @return test statistic \(n m D_{n,m}\) used to evaluate the null hypothesis that {@code x} and<a name="line.320"></a>
+<span class="sourceLineNo">321</span>     *         {@code y} represent samples from the same underlying distribution<a name="line.321"></a>
+<span class="sourceLineNo">322</span>     * @throws InsufficientDataException if either {@code x} or {@code y} does not have length at<a name="line.322"></a>
+<span class="sourceLineNo">323</span>     *         least 2<a name="line.323"></a>
+<span class="sourceLineNo">324</span>     * @throws NullArgumentException if either {@code x} or {@code y} is null<a name="line.324"></a>
+<span class="sourceLineNo">325</span>     */<a name="line.325"></a>
+<span class="sourceLineNo">326</span>    private long integralKolmogorovSmirnovStatistic(double[] x, double[] y) {<a name="line.326"></a>
+<span class="sourceLineNo">327</span>        checkArray(x);<a name="line.327"></a>
+<span class="sourceLineNo">328</span>        checkArray(y);<a name="line.328"></a>
+<span class="sourceLineNo">329</span>        // Copy and sort the sample arrays<a name="line.329"></a>
+<span class="sourceLineNo">330</span>        final double[] sx = MathArrays.copyOf(x);<a name="line.330"></a>
+<span class="sourceLineNo">331</span>        final double[] sy = MathArrays.copyOf(y);<a name="line.331"></a>
+<span class="sourceLineNo">332</span>        Arrays.sort(sx);<a name="line.332"></a>
+<span class="sourceLineNo">333</span>        Arrays.sort(sy);<a name="line.333"></a>
+<span class="sourceLineNo">334</span>        final int n = sx.length;<a name="line.334"></a>
+<span class="sourceLineNo">335</span>        final int m = sy.length;<a name="line.335"></a>
+<span class="sourceLineNo">336</span><a name="line.336"></a>
+<span class="sourceLineNo">337</span>        int rankX = 0;<a name="line.337"></a>
+<span class="sourceLineNo">338</span>        int rankY = 0;<a name="line.338"></a>
+<span class="sourceLineNo">339</span>        long curD = 0l;<a name="line.339"></a>
+<span class="sourceLineNo">340</span><a name="line.340"></a>
+<span class="sourceLineNo">341</span>        // Find the max difference between cdf_x and cdf_y<a name="line.341"></a>
+<span class="sourceLineNo">342</span>        long supD = 0l;<a name="line.342"></a>
+<span class="sourceLineNo">343</span>        do {<a name="line.343"></a>
+<span class="sourceLineNo">344</span>            double z = Double.compare(sx[rankX], sy[rankY]) &lt;= 0 ? sx[rankX] : sy[rankY];<a name="line.344"></a>
+<span class="sourceLineNo">345</span>            while(rankX &lt; n &amp;&amp; Double.compare(sx[rankX], z) == 0) {<a name="line.345"></a>
+<span class="sourceLineNo">346</span>                rankX += 1;<a name="line.346"></a>
+<span class="sourceLineNo">347</span>                curD += m;<a name="line.347"></a>
+<span class="sourceLineNo">348</span>            }<a name="line.348"></a>
+<span class="sourceLineNo">349</span>            while(rankY &lt; m &amp;&amp; Double.compare(sy[rankY], z) == 0) {<a name="line.349"></a>
+<span class="sourceLineNo">350</span>                rankY += 1;<a name="line.350"></a>
+<span class="sourceLineNo">351</span>                curD -= n;<a name="line.351"></a>
+<span class="sourceLineNo">352</span>            }<a name="line.352"></a>
+<span class="sourceLineNo">353</span>            if (curD &gt; supD) {<a name="line.353"></a>
+<span class="sourceLineNo">354</span>                supD = curD;<a name="line.354"></a>
+<span class="sourceLineNo">355</span>            }<a name="line.355"></a>
+<span class="sourceLineNo">356</span>            else if (-curD &gt; supD) {<a name="line.356"></a>
+<span class="sourceLineNo">357</span>                supD = -curD;<a name="line.357"></a>
+<span class="sourceLineNo">358</span>            }<a name="line.358"></a>
+<span class="sourceLineNo">359</span>        } while(rankX &lt; n &amp;&amp; rankY &lt; m);<a name="line.359"></a>
+<span class="sourceLineNo">360</span>        return supD;<a name="line.360"></a>
+<span class="sourceLineNo">361</span>    }<a name="line.361"></a>
+<span class="sourceLineNo">362</span><a name="line.362"></a>
+<span class="sourceLineNo">363</span>    /**<a name="line.363"></a>
+<span class="sourceLineNo">364</span>     * Computes the &lt;i&gt;p-value&lt;/i&gt;, or &lt;i&gt;observed significance level&lt;/i&gt;, of a one-sample &lt;a<a name="line.364"></a>
+<span class="sourceLineNo">365</span>     * href="http://en.wikipedia.org/wiki/Kolmogorov-Smirnov_test"&gt; Kolmogorov-Smirnov test&lt;/a&gt;<a name="line.365"></a>
+<span class="sourceLineNo">366</span>     * evaluating the null hypothesis that {@code data} conforms to {@code distribution}.<a name="line.366"></a>
+<span class="sourceLineNo">367</span>     *<a name="line.367"></a>
+<span class="sourceLineNo">368</span>     * @param distribution reference distribution<a name="line.368"></a>
+<span class="sourceLineNo">369</span>     * @param data sample being being evaluated<a name="line.369"></a>
+<span class="sourceLineNo">370</span>     * @return the p-value associated with the null hypothesis that {@code data} is a sample from<a name="line.370"></a>
+<span class="sourceLineNo">371</span>     *         {@code distribution}<a name="line.371"></a>
+<span class="sourceLineNo">372</span>     * @throws InsufficientDataException if {@code data} does not have length at least 2<a name="line.372"></a>
+<span class="sourceLineNo">373</span>     * @throws NullArgumentException if {@code data} is null<a name="line.373"></a>
+<span class="sourceLineNo">374</span>     */<a name="line.374"></a>
+<span class="sourceLineNo">375</span>    public double kolmogorovSmirnovTest(RealDistribution distribution, double[] data) {<a name="line.375"></a>
+<span class="sourceLineNo">376</span>        return kolmogorovSmirnovTest(distribution, data, false);<a name="line.376"></a>
+<span class="sourceLineNo">377</span>    }<a name="line.377"></a>
+<span class="sourceLineNo">378</span><a name="line.378"></a>
+<span class="sourceLineNo">379</span>    /**<a name="line.379"></a>
+<span class="sourceLineNo">380</span>     * Performs a &lt;a href="http://en.wikipedia.org/wiki/Kolmogorov-Smirnov_test"&gt; Kolmogorov-Smirnov<a name="line.380"></a>
+<span class="sourceLineNo">381</span>     * test&lt;/a&gt; evaluating the null hypothesis that {@code data} conforms to {@code distribution}.<a name="line.381"></a>
+<span class="sourceLineNo">382</span>     *<a name="line.382"></a>
+<span class="sourceLineNo">383</span>     * @param distribution reference distribution<a name="line.383"></a>
+<span class="sourceLineNo">384</span>     * @param data sample being being evaluated<a name="line.384"></a>
+<span class="sourceLineNo">385</span>     * @param alpha significance level of the test<a name="line.385"></a>
+<span class="sourceLineNo">386</span>     * @return true iff the null hypothesis that {@code data} is a sample from {@code distribution}<a name="line.386"></a>
+<span class="sourceLineNo">387</span>     *         can be rejected with confidence 1 - {@code alpha}<a name="line.387"></a>
+<span class="sourceLineNo">388</span>     * @throws InsufficientDataException if {@code data} does not have length at least 2<a name="line.388"></a>
+<span class="sourceLineNo">389</span>     * @throws NullArgumentException if {@code data} is null<a name="line.389"></a>
+<span class="sourceLineNo">390</span>     */<a name="line.390"></a>
+<span class="sourceLineNo">391</span>    public boolean kolmogorovSmirnovTest(RealDistribution distribution, double[] data, double alpha) {<a name="line.391"></a>
+<span class="sourceLineNo">392</span>        if ((alpha &lt;= 0) || (alpha &gt; 0.5)) {<a name="line.392"></a>
+<span class="sourceLineNo">393</span>            throw new OutOfRangeException(LocalizedFormats.OUT_OF_BOUND_SIGNIFICANCE_LEVEL, alpha, 0, 0.5);<a name="line.393"></a>
+<span class="sourceLineNo">394</span>        }<a name="line.394"></a>
+<span class="sourceLineNo">395</span>        return kolmogorovSmirnovTest(distribution, data) &lt; alpha;<a name="line.395"></a>
+<span class="sourceLineNo">396</span>    }<a name="line.396"></a>
+<span class="sourceLineNo">397</span><a name="line.397"></a>
+<span class="sourceLineNo">398</span>    /**<a name="line.398"></a>
+<span class="sourceLineNo">399</span>     * Estimates the &lt;i&gt;p-value&lt;/i&gt; of a two-sample<a name="line.399"></a>
+<span class="sourceLineNo">400</span>     * &lt;a href="http://en.wikipedia.org/wiki/Kolmogorov-Smirnov_test"&gt; Kolmogorov-Smirnov test&lt;/a&gt;<a name="line.400"></a>
+<span class="sourceLineNo">401</span>     * evaluating the null hypothesis that {@code x} and {@code y} are samples drawn from the same<a name="line.401"></a>
+<span class="sourceLineNo">402</span>     * probability distribution. This method estimates the p-value by repeatedly sampling sets of size<a name="line.402"></a>
+<span class="sourceLineNo">403</span>     * {@code x.length} and {@code y.length} from the empirical distribution of the combined sample.<a name="line.403"></a>
+<span class="sourceLineNo">404</span>     * When {@code strict} is true, this is equivalent to the algorithm implemented in the R function<a name="line.404"></a>
+<span class="sourceLineNo">405</span>     * {@code ks.boot}, described in &lt;pre&gt;<a name="line.405"></a>
+<span class="sourceLineNo">406</span>     * Jasjeet S. Sekhon. 2011. 'Multivariate and Propensity Score Matching<a name="line.406"></a>
+<span class="sourceLineNo">407</span>     * Software with Automated Balance Optimization: The Matching package for R.'<a name="line.407"></a>
+<span class="sourceLineNo">408</span>     * Journal of Statistical Software, 42(7): 1-52.<a name="line.408"></a>
+<span class="sourceLineNo">409</span>     * &lt;/pre&gt;<a name="line.409"></a>
+<span class="sourceLineNo">410</span>     * @param x first sample<a name="line.410"></a>
+<span class="sourceLineNo">411</span>     * @param y second sample<a name="line.411"></a>
+<span class="sourceLineNo">412</span>     * @param iterations number of bootstrap resampling iterations<a name="line.412"></a>
+<span class="sourceLineNo">413</span>     * @param strict whether or not the null hypothesis is expressed as a strict inequality<a name="line.413"></a>
+<span class="sourceLineNo">414</span>     * @return estimated p-value<a name="line.414"></a>
+<span class="sourceLineNo">415</span>     */<a name="line.415"></a>
+<span class="sourceLineNo">416</span>    public double bootstrap(double[] x, double[] y, int iterations, boolean strict) {<a name="line.416"></a>
+<span class="sourceLineNo">417</span>        final int xLength = x.length;<a name="line.417"></a>
+<span class="sourceLineNo">418</span>        final int yLength = y.length;<a name="line.418"></a>
+<span class="sourceLineNo">419</span>        final double[] combined = new double[xLength + yLength];<a name="line.419"></a>
+<span class="sourceLineNo">420</span>        System.arraycopy(x, 0, combined, 0, xLength);<a name="line.420"></a>
+<span class="sourceLineNo">421</span>        System.arraycopy(y, 0, combined, xLength, yLength);<a name="line.421"></a>
+<span class="sourceLineNo">422</span>        final EnumeratedRealDistribution dist = new EnumeratedRealDistribution(rng, combined);<a name="line.422"></a>
+<span class="sourceLineNo">423</span>        final long d = integralKolmogorovSmirnovStatistic(x, y);<a name="line.423"></a>
+<span class="sourceLineNo">424</span>        int greaterCount = 0;<a name="line.424"></a>
+<span class="sourceLineNo">425</span>        int equalCount = 0;<a name="line.425"></a>
+<span class="sourceLineNo">426</span>        double[] curX;<a name="line.426"></a>
+<span class="sourceLineNo">427</span>        double[] curY;<a name="line.427"></a>
+<span class="sourceLineNo">428</span>        long curD;<a name="line.428"></a>
+<span class="sourceLineNo">429</span>        for (int i = 0; i &lt; iterations; i++) {<a name="line.429"></a>
+<span class="sourceLineNo">430</span>            curX = dist.sample(xLength);<a name="line.430"></a>
+<span class="sourceLineNo">431</span>            curY = dist.sample(yLength);<a name="line.431"></a>
+<span class="sourceLineNo">432</span>            curD = integralKolmogorovSmirnovStatistic(curX, curY);<a name="line.432"></a>
+<span class="sourceLineNo">433</span>            if (curD &gt; d) {<a name="line.433"></a>
+<span class="sourceLineNo">434</span>                greaterCount++;<a name="line.434"></a>
+<span class="sourceLineNo">435</span>            } else if (curD == d) {<a name="line.435"></a>
+<span class="sourceLineNo">436</span>                equalCount++;<a name="line.436"></a>
+<span class="sourceLineNo">437</span>            }<a name="line.437"></a>
+<span class="sourceLineNo">438</span>        }<a name="line.438"></a>
+<span class="sourceLineNo">439</span>        return strict ? greaterCount / (double) iterations :<a name="line.439"></a>
+<span class="sourceLineNo">440</span>            (greaterCount + equalCount) / (double) iterations;<a name="line.440"></a>
+<span class="sourceLineNo">441</span>    }<a name="line.441"></a>
+<span class="sourceLineNo">442</span><a name="line.442"></a>
+<span class="sourceLineNo">443</span>    /**<a name="line.443"></a>
+<span class="sourceLineNo">444</span>     * Computes {@code bootstrap(x, y, iterations, true)}.<a name="line.444"></a>
+<span class="sourceLineNo">445</span>     * This is equivalent to ks.boot(x,y, nboots=iterations) using the R Matching<a name="line.445"></a>
+<span class="sourceLineNo">446</span>     * package function. See #bootstrap(double[], double[], int, boolean).<a name="line.446"></a>
+<span class="sourceLineNo">447</span>     *<a name="line.447"></a>
+<span class="sourceLineNo">448</span>     * @param x first sample<a name="line.448"></a>
+<span class="sourceLineNo">449</span>     * @param y second sample<a name="line.449"></a>
+<span class="sourceLineNo">450</span>     * @param iterations number of bootstrap resampling iterations<a name="line.450"></a>
+<span class="sourceLineNo">451</span>     * @return estimated p-value<a name="line.451"></a>
+<span class="sourceLineNo">452</span>     */<a name="line.452"></a>
+<span class="sourceLineNo">453</span>    public double bootstrap(double[] x, double[] y, int iterations) {<a name="line.453"></a>
+<span class="sourceLineNo">454</span>        return bootstrap(x, y, iterations, true);<a name="line.454"></a>
+<span class="sourceLineNo">455</span>    }<a name="line.455"></a>
+<span class="sourceLineNo">456</span><a name="line.456"></a>
+<span class="sourceLineNo">457</span>    /**<a name="line.457"></a>
+<span class="sourceLineNo">458</span>     * Calculates \(P(D_n &lt; d)\) using the method described in [1] with quick decisions for extreme<a name="line.458"></a>
+<span class="sourceLineNo">459</span>     * values given in [2] (see above). The result is not exact as with<a name="line.459"></a>
+<span class="sourceLineNo">460</span>     * {@link #cdfExact(double, int)} because calculations are based on<a name="line.460"></a>
+<span class="sourceLineNo">461</span>     * {@code double} rather than {@link org.apache.commons.math3.fraction.BigFraction}.<a name="line.461"></a>
+<span class="sourceLineNo">462</span>     *<a name="line.462"></a>
+<span class="sourceLineNo">463</span>     * @param d statistic<a name="line.463"></a>
+<span class="sourceLineNo">464</span>     * @param n sample size<a name="line.464"></a>
+<span class="sourceLineNo">465</span>     * @return \(P(D_n &lt; d)\)<a name="line.465"></a>
+<span class="sourceLineNo">466</span>     * @throws MathArithmeticException if algorithm fails to convert {@code h} to a<a name="line.466"></a>
+<span class="sourceLineNo">467</span>     *         {@link org.apache.commons.math3.fraction.BigFraction} in expressing {@code d} as \((k<a name="line.467"></a>
+<span class="sourceLineNo">468</span>     *         - h) / m\) for integer {@code k, m} and \(0 \le h &lt; 1\)<a name="line.468"></a>
+<span class="sourceLineNo">469</span>     */<a name="line.469"></a>
+<span class="sourceLineNo">470</span>    public double cdf(double d, int n)<a name="line.470"></a>
+<span class="sourceLineNo">471</span>        throws MathArithmeticException {<a name="line.471"></a>
+<span class="sourceLineNo">472</span>        return cdf(d, n, false);<a name="line.472"></a>
+<span class="sourceLineNo">473</span>    }<a name="line.473"></a>
+<span class="sourceLineNo">474</span><a name="line.474"></a>
+<span class="sourceLineNo">475</span>    /**<a name="line.475"></a>
+<span class="sourceLineNo">476</span>     * Calculates {@code P(D_n &lt; d)}. The result is exact in the sense that BigFraction/BigReal is<a name="line.476"></a>
+<span class="sourceLineNo">477</span>     * used everywhere at the expense of very slow execution time. Almost never choose this in real<a name="line.477"></a>
+<span class="sourceLineNo">478</span>     * applications unless you are very sure; this is almost solely for verification purposes.<a name="line.478"></a>
+<span class="sourceLineNo">479</span>     * Normally, you would choose {@link #cdf(double, int)}. See the class<a name="line.479"></a>
+<span class="sourceLineNo">480</span>     * javadoc for definitions and algorithm description.<a name="line.480"></a>
+<span class="sourceLineNo">481</span>     *<a name="line.481"></a>
+<span class="sourceLineNo">482</span>     * @param d statistic<a name="line.482"></a>
+<span class="sourceLineNo">483</span>     * @param n sample size<a name="line.483"></a>
+<span class="sourceLineNo">484</span>     * @return \(P(D_n &lt; d)\)<a name="line.484"></a>
+<span class="sourceLineNo">485</span>     * @throws MathArithmeticException if the algorithm fails to convert {@code h} to a<a name="line.485"></a>
+<span class="sourceLineNo">486</span>     *         {@link org.apache.commons.math3.fraction.BigFraction} in expressing {@code d} as \((k<a name="line.486"></a>
+<span class="sourceLineNo">487</span>     *         - h) / m\) for integer {@code k, m} and \(0 \le h &lt; 1\)<a name="line.487"></a>
+<span class="sourceLineNo">488</span>     */<a name="line.488"></a>
+<span class="sourceLineNo">489</span>    public double cdfExact(double d, int n)<a name="line.489"></a>
+<span class="sourceLineNo">490</span>        throws MathArithmeticException {<a name="line.490"></a>
+<span class="sourceLineNo">491</span>        return cdf(d, n, true);<a name="line.491"></a>
+<span class="sourceLineNo">492</span>    }<a name="line.492"></a>
+<span class="sourceLineNo">493</span><a name="line.493"></a>
+<span class="sourceLineNo">494</span>    /**<a name="line.494"></a>
+<span class="sourceLineNo">495</span>     * Calculates {@code P(D_n &lt; d)} using method described in [1] with quick decisions for extreme<a name="line.495"></a>
+<span class="sourceLineNo">496</span>     * values given in [2] (see above).<a name="line.496"></a>
+<span class="sourceLineNo">497</span>     *<a name="line.497"></a>
+<span class="sourceLineNo">498</span>     * @param d statistic<a name="line.498"></a>
+<span class="sourceLineNo">499</span>     * @param n sample size<a name="line.499"></a>
+<span class="sourceLineNo">500</span>     * @param exact whether the probability should be calculated exact using<a name="line.500"></a>
+<span class="sourceLineNo">501</span>     *        {@link org.apache.commons.math3.fraction.BigFraction} everywhere at the expense of<a name="line.501"></a>
+<span class="sourceLineNo">502</span>     *        very slow execution time, or if {@code double} should be used convenient places to<a name="line.502"></a>
+<span class="sourceLineNo">503</span>     *        gain speed. Almost never choose {@code true} in real applications unless you are very<a name="line.503"></a>
+<span class="sourceLineNo">504</span>     *        sure; {@code true} is almost solely for verification purposes.<a name="line.504"></a>
+<span class="sourceLineNo">505</span>     * @return \(P(D_n &lt; d)\)<a name="line.505"></a>
+<span class="sourceLineNo">506</span>     * @throws MathArithmeticException if algorithm fails to convert {@code h} to a<a name="line.506"></a>
+<span class="sourceLineNo">507</span>     *         {@link org.apache.commons.math3.fraction.BigFraction} in expressing {@code d} as \((k<a name="line.507"></a>
+<span class="sourceLineNo">508</span>     *         - h) / m\) for integer {@code k, m} and \(0 \le h &lt; 1\).<a name="line.508"></a>
+<span class="sourceLineNo">509</span>     */<a name="line.509"></a>
+<span class="sourceLineNo">510</span>    public double cdf(double d, int n, boolean exact)<a name="line.510"></a>
+<span class="sourceLineNo">511</span>        throws MathArithmeticException {<a name="line.511"></a>
+<span class="sourceLineNo">512</span><a name="line.512"></a>
+<span class="sourceLineNo">513</span>        final double ninv = 1 / ((double) n);<a name="line.513"></a>
+<span class="sourceLineNo">514</span>        final double ninvhalf = 0.5 * ninv;<a name="line.514"></a>
+<span class="sourceLineNo">515</span><a name="line.515"></a>
+<span class="sourceLineNo">516</span>        if (d &lt;= ninvhalf) {<a name="line.516"></a>
+<span class="sourceLineNo">517</span>            return 0;<a name="line.517"></a>
+<span class="sourceLineNo">518</span>        } else if (ninvhalf &lt; d &amp;&amp; d &lt;= ninv) {<a name="line.518"></a>
+<span class="sourceLineNo">519</span>            double res = 1;<a name="line.519"></a>
+<span class="sourceLineNo">520</span>            final double f = 2 * d - ninv;<a name="line.520"></a>
+<span class="sourceLineNo">521</span>            // n! f^n = n*f * (n-1)*f * ... * 1*x<a name="line.521"></a>
+<span class="sourceLineNo">522</span>            for (int i = 1; i &lt;= n; ++i) {<a name="line.522"></a>
+<span class="sourceLineNo">523</span>                res *= i * f;<a name="line.523"></a>
+<span class="sourceLineNo">524</span>            }<a name="line.524"></a>
+<span class="sourceLineNo">525</span>            return res;<a name="line.525"></a>
+<span class="sourceLineNo">526</span>        } else if (1 - ninv &lt;= d &amp;&amp; d &lt; 1) {<a name="line.526"></a>
+<span class="sourceLineNo">527</span>            return 1 - 2 * Math.pow(1 - d, n);<a name="line.527"></a>
+<span class="sourceLineNo">528</span>        } else if (1 &lt;= d) {<a name="line.528"></a>
+<span class="sourceLineNo">529</span>            return 1;<a name="line.529"></a>
+<span class="sourceLineNo">530</span>        }<a name="line.530"></a>
+<span class="sourceLineNo">531</span>        if (exact) {<a name="line.531"></a>
+<span class="sourceLineNo">532</span>            return exactK(d, n);<a name="line.532"></a>
+<span class="sourceLineNo">533</span>        }<a name="line.533"></a>
+<span class="sourceLineNo">534</span>        if (n &lt;= 140) {<a name="line.534"></a>
+<span class="sourceLineNo">535</span>            return roundedK(d, n);<a name="line.535"></a>
+<span class="sourceLineNo">536</span>        }<a name="line.536"></a>
+<span class="sourceLineNo">537</span>        return pelzGood(d, n);<a name="line.537"></a>
+<span class="sourceLineNo">538</span>    }<a name="line.538"></a>
+<span class="sourceLineNo">539</span><a name="line.539"></a>
+<span class="sourceLineNo">540</span>    /**<a name="line.540"></a>
+<span class="sourceLineNo">541</span>     * Calculates the exact value of {@code P(D_n &lt; d)} using the method described in [1] (reference<a name="line.541"></a>
+<span class="sourceLineNo">542</span>     * in class javadoc above) and {@link org.apache.commons.math3.fraction.BigFraction} (see<a name="line.542"></a>
+<span class="sourceLineNo">543</span>     * above).<a name="line.543"></a>
+<span class="sourceLineNo">544</span>     *<a name="line.544"></a>
+<span class="sourceLineNo">545</span>     * @param d statistic<a name="line.545"></a>
+<span class="sourceLineNo">546</span>     * @param n sample size<a name="line.546"></a>
+<span class="sourceLineNo">547</span>     * @return the two-sided probability of \(P(D_n &lt; d)\)<a name="line.547"></a>
+<span class="sourceLineNo">548</span>     * @throws MathArithmeticException if algorithm fails to convert {@code h} to a<a name="line.548"></a>
+<span class="sourceLineNo">549</span>     *         {@link org.apache.commons.math3.fraction.BigFraction} in expressing {@code d} as \((k<a name="line.549"></a>
+<span class="sourceLineNo">550</span>     *         - h) / m\) for integer {@code k, m} and \(0 \le h &lt; 1\).<a name="line.550"></a>
+<span class="sourceLineNo">551</span>     */<a name="line.551"></a>
+<span class="sourceLineNo">552</span>    private double exactK(double d, int n)<a name="line.552"></a>
+<span class="sourceLineNo">553</span>        throws MathArithmeticException {<a name="line.553"></a>
+<span class="sourceLineNo">554</span><a name="line.554"></a>
+<span class="sourceLineNo">555</span>        final int k = (int) Math.ceil(n * d);<a name="line.555"></a>
+<span class="sourceLineNo">556</span><a name="line.556"></a>
+<span class="sourceLineNo">557</span>        final FieldMatrix&lt;BigFraction&gt; H = this.createExactH(d, n);<a name="line.557"></a>
+<span class="sourceLineNo">558</span>        final FieldMatrix&lt;BigFraction&gt; Hpower = H.power(n);<a name="line.558"></a>
+<span class="sourceLineNo">559</span><a name="line.559"></a>
+<span class="sourceLineNo">560</span>        BigFraction pFrac = Hpower.getEntry(k - 1, k - 1);<a name="line.560"></a>
+<span class="sourceLineNo">561</span><a name="line.561"></a>
+<span class="sourceLineNo">562</span>        for (int i = 1; i &lt;= n; ++i) {<a name="line.562"></a>
+<span class="sourceLineNo">563</span>            pFrac = pFrac.multiply(i).divide(n);<a name="line.563"></a>
+<span class="sourceLineNo">564</span>        }<a name="line.564"></a>
+<span class="sourceLineNo">565</span><a name="line.565"></a>
+<span class="sourceLineNo">566</span>        /*<a name="line.566"></a>
+<span class="sourceLineNo">567</span>         * BigFraction.doubleValue converts numerator to double and the denominator to double and<a name="line.567"></a>
+<span class="sourceLineNo">568</span>         * divides afterwards. That gives NaN quite easy. This does not (scale is the number of<a name="line.568"></a>
+<span class="sourceLineNo">569</span>         * digits):<a name="line.569"></a>
+<span class="sourceLineNo">570</span>         */<a name="line.570"></a>
+<span class="sourceLineNo">571</span>        return pFrac.bigDecimalValue(20, BigDecimal.ROUND_HALF_UP).doubleValue();<a name="line.571"></a>
+<span class="sourceLineNo">572</span>    }<a name="line.572"></a>
+<span class="sourceLineNo">573</span><a name="line.573"></a>
+<span class="sourceLineNo">574</span>    /**<a name="line.574"></a>
+<span class="sourceLineNo">575</span>     * Calculates {@code P(D_n &lt; d)} using method described in [1] and doubles (see above).<a name="line.575"></a>
+<span class="sourceLineNo">576</span>     *<a name="line.576"></a>
+<span class="sourceLineNo">577</span>     * @param d statistic<a name="line.577"></a>
+<span class="sourceLineNo">578</span>     * @param n sample size<a name="line.578"></a>
+<span class="sourceLineNo">579</span>     * @return \(P(D_n &lt; d)\)<a name="line.579"></a>
+<span class="sourceLineNo">580</span>     */<a name="line.580"></a>
+<span class="sourceLineNo">581</span>    private double roundedK(double d, int n) {<a name="line.581"></a>
+<span class="sourceLineNo">582</span><a name="line.582"></a>
+<span class="sourceLineNo">583</span>        final int k = (int) Math.ceil(n * d);<a name="line.583"></a>
+<span class="sourceLineNo">584</span>        final RealMatrix H = this.createRoundedH(d, n);<a name="line.584"></a>
+<span class="sourceLineNo">585</span>        final RealMatrix Hpower = H.power(n);<a name="line.585"></a>
+<span class="sourceLineNo">586</span><a name="line.586"></a>
+<span class="sourceLineNo">587</span>        double pFrac = Hpower.getEntry(k - 1, k - 1);<a name="line.587"></a>
+<span class="sourceLineNo">588</span>        for (int i = 1; i &lt;= n; ++i) {<a name="line.588"></a>
+<span class="sourceLineNo">589</span>            pFrac *= (double) i / (double) n;<a name="line.589"></a>
+<span class="sourceLineNo">590</span>        }<a name="line.590"></a>
+<span class="sourceLineNo">591</span><a name="line.591"></a>
+<span class="sourceLineNo">592</span>        return pFrac;<a name="line.592"></a>
+<span class="sourceLineNo">593</span>    }<a name="line.593"></a>
+<span class="sourceLineNo">594</span><a name="line.594"></a>
+<span class="sourceLineNo">595</span>    /**<a name="line.595"></a>
+<span class="sourceLineNo">596</span>     * Computes the Pelz-Good approximation for \(P(D_n &lt; d)\) as described in [2] in the class javadoc.<a name="line.596"></a>
+<span class="sourceLineNo">597</span>     *<a name="line.597"></a>
+<span class="sourceLineNo">598</span>     * @param d value of d-statistic (x in [2])<a name="line.598"></a>
+<span class="sourceLineNo">599</span>     * @param n sample size<a name="line.599"></a>
+<span class="sourceLineNo">600</span>     * @return \(P(D_n &lt; d)\)<a name="line.600"></a>
+<span class="sourceLineNo">601</span>     * @since 3.4<a name="line.601"></a>
+<span class="sourceLineNo">602</span>     */<a name="line.602"></a>
+<span class="sourceLineNo">603</span>    public double pelzGood(double d, int n) {<a name="line.603"></a>
+<span class="sourceLineNo">604</span>        // Change the variable since approximation is for the distribution evaluated at d / sqrt(n)<a name="line.604"></a>
+<span class="sourceLineNo">605</span>        final double sqrtN = FastMath.sqrt(n);<a name="line.605"></a>
+<span class="sourceLineNo">606</span>        final double z = d * sqrtN;<a name="line.606"></a>
+<span class="sourceLineNo">607</span>        final double z2 = d * d * n;<a name="line.607"></a>
+<span class="sourceLineNo">608</span>        final double z4 = z2 * z2;<a name="line.608"></a>
+<span class="sourceLineNo">609</span>        final double z6 = z4 * z2;<a name="line.609"></a>
+<span class="sourceLineNo">610</span>        final double z8 = z4 * z4;<a name="line.610"></a>
+<span class="sourceLineNo">611</span><a name="line.611"></a>
+<span class="sourceLineNo">612</span>        // Eventual return value<a name="line.612"></a>
+<span class="sourceLineNo">613</span>        double ret = 0;<a name="line.613"></a>
+<span class="sourceLineNo">614</span><a name="line.614"></a>
+<span class="sourceLineNo">615</span>        // Compute K_0(z)<a name="line.615"></a>
+<span class="sourceLineNo">616</span>        double sum = 0;<a name="line.616"></a>
+<span class="sourceLineNo">617</span>        double increment = 0;<a name="line.617"></a>
+<span class="sourceLineNo">618</span>        double kTerm = 0;<a name="line.618"></a>
+<span class="sourceLineNo">619</span>        double z2Term = MathUtils.PI_SQUARED / (8 * z2);<a name="line.619"></a>
+<span class="sourceLineNo">620</span>        int k = 1;<a name="line.620"></a>
+<span class="sourceLineNo">621</span>        for (; k &lt; MAXIMUM_PARTIAL_SUM_COUNT; k++) {<a name="line.621"></a>
+<span class="sourceLineNo">622</span>            kTerm = 2 * k - 1;<a name="line.622"></a>
+<span class="sourceLineNo">623</span>            increment = FastMath.exp(-z2Term * kTerm * kTerm);<a name="line.623"></a>
+<span class="sourceLineNo">624</span>            sum += increment;<a name="line.624"></a>
+<span class="sourceLineNo">625</span>            if (increment &lt;= PG_SUM_RELATIVE_ERROR * sum) {<a name="line.625"></a>
+<span class="sourceLineNo">626</span>                break;<a name="line.626"></a>
+<span class="sourceLineNo">627</span>            }<a name="line.627"></a>
+<span class="sourceLineNo">628</span>        }<a name="line.628"></a>
+<span class="sourceLineNo">629</span>        if (k == MAXIMUM_PARTIAL_SUM_COUNT) {<a name="line.629"></a>
+<span class="sourceLineNo">630</span>            throw new TooManyIterationsException(MAXIMUM_PARTIAL_SUM_COUNT);<a name="line.630"></a>
+<span class="sourceLineNo">631</span>        }<a name="line.631"></a>
+<span class="sourceLineNo">632</span>        ret = sum * FastMath.sqrt(2 * FastMath.PI) / z;<a name="line.632"></a>
+<span class="sourceLineNo">633</span><a name="line.633"></a>
+<span class="sourceLineNo">634</span>        // K_1(z)<a name="line.634"></a>
+<span class="sourceLineNo">635</span>        // Sum is -inf to inf, but k term is always (k + 1/2) ^ 2, so really have<a name="line.635"></a>
+<span class="sourceLineNo">636</span>        // twice the sum from k = 0 to inf (k = -1 is same as 0, -2 same as 1, ...)<a name="line.636"></a>
+<span class="sourceLineNo">637</span>        final double twoZ2 = 2 * z2;<a name="line.637"></a>
+<span class="sourceLineNo">638</span>        sum = 0;<a name="line.638"></a>
+<span class="sourceLineNo">639</span>        kTerm = 0;<a name="line.639"></a>
+<span class="sourceLineNo">640</span>        double kTerm2 = 0;<a name="line.640"></a>
+<span class="sourceLineNo">641</span>        for (k = 0; k &lt; MAXIMUM_PARTIAL_SUM_COUNT; k++) {<a name="line.641"></a>
+<span class="sourceLineNo">642</span>            kTerm = k + 0.5;<a name="line.642"></a>
+<span class="sourceLineNo">643</span>            kTerm2 = kTerm * kTerm;<a name="line.643"></a>
+<span class="sourceLineNo">644</span>            increment = (MathUtils.PI_SQUARED * kTerm2 - z2) * FastMath.exp(-MathUtils.PI_SQUARED * kTerm2 / twoZ2);<a name="line.644"></a>
+<span class="sourceLineNo">645</span>            sum += increment;<a name="line.645"></a>
+<span class="sourceLineNo">646</span>            if (FastMath.abs(increment) &lt; PG_SUM_RELATIVE_ERROR * FastMath.abs(sum)) {<a name="line.646"></a>
+<span class="sourceLineNo">647</span>                break;<a name="line.647"></a>
+<span class="sourceLineNo">648</span>            }<a name="line.648"></a>
+<span class="sourceLineNo">649</span>        }<a name="line.649"></a>
+<span class="sourceLineNo">650</span>        if (k == MAXIMUM_PARTIAL_SUM_COUNT) {<a name="line.650"></a>
+<span class="sourceLineNo">651</span>            throw new TooManyIterationsException(MAXIMUM_PARTIAL_SUM_COUNT);<a name="line.651"></a>
+<span class="sourceLineNo">652</span>        }<a name="line.652"></a>
+<span class="sourceLineNo">653</span>        final double sqrtHalfPi = FastMath.sqrt(FastMath.PI / 2);<a name="line.653"></a>
+<span class="sourceLineNo">654</span>        // Instead of doubling sum, divide by 3 instead of 6<a name="line.654"></a>
+<span class="sourceLineNo">655</span>        ret += sum * sqrtHalfPi / (3 * z4 * sqrtN);<a name="line.655"></a>
+<span class="sourceLineNo">656</span><a name="line.656"></a>
+<span class="sourceLineNo">657</span>        // K_2(z)<a name="line.657"></a>
+<span class="sourceLineNo">658</span>        // Same drill as K_1, but with two doubly infinite sums, all k terms are even powers.<a name="line.658"></a>
+<span class="sourceLineNo">659</span>        final double z4Term = 2 * z4;<a name="line.659"></a>
+<span class="sourceLineNo">660</span>        final double z6Term = 6 * z6;<a name="line.660"></a>
+<span class="sourceLineNo">661</span>        z2Term = 5 * z2;<a name="line.661"></a>
+<span class="sourceLineNo">662</span>        final double pi4 = MathUtils.PI_SQUARED * MathUtils.PI_SQUARED;<a name="line.662"></a>
+<span class="sourceLineNo">663</span>        sum = 0;<a name="line.663"></a>
+<span class="sourceLineNo">664</span>        kTerm = 0;<a name="line.664"></a>
+<span class="sourceLineNo">665</span>        kTerm2 = 0;<a name="line.665"></a>
+<span class="sourceLineNo">666</span>        for (k = 0; k &lt; MAXIMUM_PARTIAL_SUM_COUNT; k++) {<a name="line.666"></a>
+<span class="sourceLineNo">667</span>            kTerm = k + 0.5;<a name="line.667"></a>
+<span class="sourceLineNo">668</span>            kTerm2 = kTerm * kTerm;<a name="line.668"></a>
+<span class="sourceLineNo">669</span>            increment =  (z6Term + z4Term + MathUtils.PI_SQUARED * (z4Term - z2Term) * kTerm2 +<a name="line.669"></a>
+<span class="sourceLineNo">670</span>                    pi4 * (1 - twoZ2) * kTerm2 * kTerm2) * FastMath.exp(-MathUtils.PI_SQUARED * kTerm2 / twoZ2);<a name="line.670"></a>
+<span class="sourceLineNo">671</span>            sum += increment;<a name="line.671"></a>
+<span class="sourceLineNo">672</span>            if (FastMath.abs(increment) &lt; PG_SUM_RELATIVE_ERROR * FastMath.abs(sum)) {<a name="line.672"></a>
+<span class="sourceLineNo">673</span>                break;<a name="line.673"></a>
+<span class="sourceLineNo">674</span>            }<a name="line.674"></a>
+<span class="sourceLineNo">675</span>        }<a name="line.675"></a>
+<span class="sourceLineNo">676</span>        if (k == MAXIMUM_PARTIAL_SUM_COUNT) {<a name="line.676"></a>
+<span class="sourceLineNo">677</span>            throw new TooManyIterationsException(MAXIMUM_PARTIAL_SUM_COUNT);<a name="line.677"></a>
+<span class="sourceLineNo">678</span>        }<a name="line.678"></a>
+<span class="sourceLineNo">679</span>        double sum2 = 0;<a name="line.679"></a>
+<span class="sourceLineNo">680</span>        kTerm2 = 0;<a name="line.680"></a>
+<span class="sourceLineNo">681</span>        for (k = 1; k &lt; MAXIMUM_PARTIAL_SUM_COUNT; k++) {<a name="line.681"></a>
+<span class="sourceLineNo">682</span>            kTerm2 = k * k;<a name="line.682"></a>
+<span class="sourceLineNo">683</span>            increment = MathUtils.PI_SQUARED * kTerm2 * FastMath.exp(-MathUtils.PI_SQUARED * kTerm2 / twoZ2);<a name="line.683"></a>
+<span class="sourceLineNo">684</span>            sum2 += increment;<a name="line.684"></a>
+<span class="sourceLineNo">685</span>            if (FastMath.abs(increment) &lt; PG_SUM_RELATIVE_ERROR * FastMath.abs(sum2)) {<a name="line.685"></a>
+<span class="sourceLineNo">686</span>                break;<a name="line.686"></a>
+<span class="sourceLineNo">687</span>            }<a name="line.687"></a>
+<span class="sourceLineNo">688</span>        }<a name="line.688"></a>
+<span class="sourceLineNo">689</span>        if (k == MAXIMUM_PARTIAL_SUM_COUNT) {<a name="line.689"></a>
+<span class="sourceLineNo">690</span>            throw new TooManyIterationsException(MAXIMUM_PARTIAL_SUM_COUNT);<a name="line.690"></a>
+<span class="sourceLineNo">691</span>        }<a name="line.691"></a>
+<span class="sourceLineNo">692</span>        // Again, adjust coefficients instead of doubling sum, sum2<a name="line.692"></a>
+<span class="sourceLineNo">693</span>        ret += (sqrtHalfPi / n) * (sum / (36 * z2 * z2 * z2 * z) - sum2 / (18 * z2 * z));<a name="line.693"></a>
+<span class="sourceLineNo">694</span><a name="line.694"></a>
+<span class="sourceLineNo">695</span>        // K_3(z) One more time with feeling - two doubly infinite sums, all k powers even.<a name="line.695"></a>
+<span class="sourceLineNo">696</span>        // Multiply coefficient denominators by 2, so omit doubling sums.<a name="line.696"></a>
+<span class="sourceLineNo">697</span>        final double pi6 = pi4 * MathUtils.PI_SQUARED;<a name="line.697"></a>
+<span class="sourceLineNo">698</span>        sum = 0;<a name="line.698"></a>
+<span class="sourceLineNo">699</span>        double kTerm4 = 0;<a name="line.699"></a>
+<span class="sourceLineNo">700</span>        double kTerm6 = 0;<a name="line.700"></a>
+<span class="sourceLineNo">701</span>        for (k = 0; k &lt; MAXIMUM_PARTIAL_SUM_COUNT; k++) {<a name="line.701"></a>
+<span class="sourceLineNo">702</span>            kTerm = k + 0.5;<a name="line.702"></a>
+<span class="sourceLineNo">703</span>            kTerm2 = kTerm * kTerm;<a name="line.703"></a>
+<span class="sourceLineNo">704</span>            kTerm4 = kTerm2 * kTerm2;<a name="line.704"></a>
+<span class="sourceLineNo">705</span>            kTerm6 = kTerm4 * kTerm2;<a name="line.705"></a>
+<span class="sourceLineNo">706</span>            increment = (pi6 * kTerm6 * (5 - 30 * z2) + pi4 * kTerm4 * (-60 * z2 + 212 * z4) +<a name="line.706"></a>
+<span class="sourceLineNo">707</span>                            MathUtils.PI_SQUARED * kTerm2 * (135 * z4 - 96 * z6) - 30 * z6 - 90 * z8) *<a name="line.707"></a>
+<span class="sourceLineNo">708</span>                    FastMath.exp(-MathUtils.PI_SQUARED * kTerm2 / twoZ2);<a name="line.708"></a>
+<span class="sourceLineNo">709</span>            sum += increment;<a name="line.709"></a>
+<span class="sourceLineNo">710</span>            if (FastMath.abs(increment) &lt; PG_SUM_RELATIVE_ERROR * FastMath.abs(sum)) {<a name="line.710"></a>
+<span class="sourceLineNo">711</span>                break;<a name="line.711"></a>
+<span class="sourceLineNo">712</span>            }<a name="line.712"></a>
+<span class="sourceLineNo">713</span>        }<a name="line.713"></a>
+<span class="sourceLineNo">714</span>        if (k == MAXIMUM_PARTIAL_SUM_COUNT) {<a name="line.714"></a>
+<span class="sourceLineNo">715</span>            throw new TooManyIterationsException(MAXIMUM_PARTIAL_SUM_COUNT);<a name="line.715"></a>
+<span class="sourceLineNo">716</span>        }<a name="line.716"></a>
+<span class="sourceLineNo">717</span>        sum2 = 0;<a name="line.717"></a>
+<span class="sourceLineNo">718</span>        for (k = 1; k &lt; MAXIMUM_PARTIAL_SUM_COUNT; k++) {<a name="line.718"></a>
+<span class="sourceLineNo">719</span>            kTerm2 = k * k;<a name="line.719"></a>
+<span class="sourceLineNo">720</span>            kTerm4 = kTerm2 * kTerm2;<a name="line.720"></a>
+<span class="sourceLineNo">721</span>            increment = (-pi4 * kTerm4 + 3 * MathUtils.PI_SQUARED * kTerm2 * z2) *<a name="line.721"></a>
+<span class="sourceLineNo">722</span>                    FastMath.exp(-MathUtils.PI_SQUARED * kTerm2 / twoZ2);<a name="line.722"></a>
+<span class="sourceLineNo">723</span>            sum2 += increment;<a name="line.723"></a>
+<span class="sourceLineNo">724</span>            if (FastMath.abs(increment) &lt; PG_SUM_RELATIVE_ERROR * FastMath.abs(sum2)) {<a name="line.724"></a>
+<span class="sourceLineNo">725</span>                break;<a name="line.725"></a>
+<span class="sourceLineNo">726</span>            }<a name="line.726"></a>
+<span class="sourceLineNo">727</span>        }<a name="line.727"></a>
+<span class="sourceLineNo">728</span>        if (k == MAXIMUM_PARTIAL_SUM_COUNT) {<a name="line.728"></a>
+<span class="sourceLineNo">729</span>            throw new TooManyIterationsException(MAXIMUM_PARTIAL_SUM_COUNT);<a name="line.729"></a>
+<span class="sourceLineNo">730</span>        }<a name="line.730"></a>
+<span class="sourceLineNo">731</span>        return ret + (sqrtHalfPi / (sqrtN * n)) * (sum / (3240 * z6 * z4) +<a name="line.731"></a>
+<span class="sourceLineNo">732</span>                + sum2 / (108 * z6));<a name="line.732"></a>
+<span class="sourceLineNo">733</span><a name="line.733"></a>
+<span class="sourceLineNo">734</span>    }<a name="line.734"></a>
+<span class="sourceLineNo">735</span><a name="line.735"></a>
+<span class="sourceLineNo">736</span>    /***<a name="line.736"></a>
+<span class="sourceLineNo">737</span>     * Creates {@code H} of size {@code m x m} as described in [1] (see above).<a name="line.737"></a>
+<span class="sourceLineNo">738</span>     *<a name="line.738"></a>
+<span class="sourceLineNo">739</span>     * @param d statistic<a name="line.739"></a>
+<span class="sourceLineNo">740</span>     * @param n sample size<a name="line.740"></a>
+<span class="sourceLineNo">741</span>     * @return H matrix<a name="line.741"></a>
+<span class="sourceLineNo">742</span>     * @throws NumberIsTooLargeException if fractional part is greater than 1<a name="line.742"></a>
+<span class="sourceLineNo">743</span>     * @throws FractionConversionException if algorithm fails to convert {@code h} to a<a name="line.743"></a>
+<span class="sourceLineNo">744</span>     *         {@link org.apache.commons.math3.fraction.BigFraction} in expressing {@code d} as \((k<a name="line.744"></a>
+<span class="sourceLineNo">745</span>     *         - h) / m\) for integer {@code k, m} and \(0 &lt;= h &lt; 1\).<a name="line.745"></a>
+<span class="sourceLineNo">746</span>     */<a name="line.746"></a>
+<span class="sourceLineNo">747</span>    private FieldMatrix&lt;BigFraction&gt; createExactH(double d, int n)<a name="line.747"></a>
+<span class="sourceLineNo">748</span>        throws NumberIsTooLargeException, FractionConversionException {<a name="line.748"></a>
+<span class="sourceLineNo">749</span><a name="line.749"></a>
+<span class="sourceLineNo">750</span>        final int k = (int) Math.ceil(n * d);<a name="line.750"></a>
+<span class="sourceLineNo">751</span>        final int m = 2 * k - 1;<a name="line.751"></a>
+<span class="sourceLineNo">752</span>        final double hDouble = k - n * d;<a name="line.752"></a>
+<span class="sourceLineNo">753</span>        if (hDouble &gt;= 1) {<a name="line.753"></a>
+<span class="sourceLineNo">754</span>            throw new NumberIsTooLargeException(hDouble, 1.0, false);<a name="line.754"></a>
+<span class="sourceLineNo">755</span>        }<a name="line.755"></a>
+<span class="sourceLineNo">756</span>        BigFraction h = null;<a name="line.756"></a>
+<span class="sourceLineNo">757</span>        try {<a name="line.757"></a>
+<span class="sourceLineNo">758</span>            h = new BigFraction(hDouble, 1.0e-20, 10000);<a name="line.758"></a>
+<span class="sourceLineNo">759</span>        } catch (final FractionConversionException e1) {<a name="line.759"></a>
+<span class="sourceLineNo">760</span>            try {<a name="line.760"></a>
+<span class="sourceLineNo">761</span>                h = new BigFraction(hDouble, 1.0e-10, 10000);<a name="line.761"></a>
+<span class="sourceLineNo">762</span>            } catch (final FractionConversionException e2) {<a name="line.762"></a>
+<span class="sourceLineNo">763</span>                h = new BigFraction(hDouble, 1.0e-5, 10000);<a name="line.763"></a>
+<span class="sourceLineNo">764</span>            }<a name="line.764"></a>
+<span class="sourceLineNo">765</span>        }<a name="line.765"></a>
+<span class="sourceLineNo">766</span>        final BigFraction[][] Hdata = new BigFraction[m][m];<a name="line.766"></a>
+<span class="sourceLineNo">767</span><a name="line.767"></a>
+<span class="sourceLineNo">768</span>        /*<a name="line.768"></a>
+<span class="sourceLineNo">769</span>         * Start by filling everything with either 0 or 1.<a name="line.769"></a>
+<span class="sourceLineNo">770</span>         */<a name="line.770"></a>
+<span class="sourceLineNo">771</span>        for (int i = 0; i &lt; m; ++i) {<a name="line.771"></a>
+<span class="sourceLineNo">772</span>            for (int j = 0; j &lt; m; ++j) {<a name="line.772"></a>
+<span class="sourceLineNo">773</span>                if (i - j + 1 &lt; 0) {<a name="line.773"></a>
+<span class="sourceLineNo">774</span>                    Hdata[i][j] = BigFraction.ZERO;<a name="line.774"></a>
+<span class="sourceLineNo">775</span>                } else {<a name="line.775"></a>
+<span class="sourceLineNo">776</span>                    Hdata[i][j] = BigFraction.ONE;<a name="line.776"></a>
+<span class="sourceLineNo">777</span>                }<a name="line.777"></a>
+<span class="sourceLineNo">778</span>            }<a name="line.778"></a>
+<span class="sourceLineNo">779</span>        }<a name="line.779"></a>
+<span class="sourceLineNo">780</span><a name="line.780"></a>
+<span class="sourceLineNo">781</span>        /*<a name="line.781"></a>
+<span class="sourceLineNo">782</span>         * Setting up power-array to avoid calculating the same value twice: hPowers[0] = h^1 ...<a name="line.782"></a>
+<span class="sourceLineNo">783</span>         * hPowers[m-1] = h^m<a name="line.783"></a>
+<span class="sourceLineNo">784</span>         */<a name="line.784"></a>
+<span class="sourceLineNo">785</span>        final BigFraction[] hPowers = new BigFraction[m];<a name="line.785"></a>
+<span class="sourceLineNo">786</span>        hPowers[0] = h;<a name="line.786"></a>
+<span class="sourceLineNo">787</span>        for (int i = 1; i &lt; m; ++i) {<a name="line.787"></a>
+<span class="sourceLineNo">788</span>            hPowers[i] = h.multiply(hPowers[i - 1]);<a name="line.788"></a>
+<span class="sourceLineNo">789</span>        }<a name="line.789"></a>
+<span class="sourceLineNo">790</span><a name="line.790"></a>
+<span class="sourceLineNo">791</span>        /*<a name="line.791"></a>
+<span class="sourceLineNo">792</span>         * First column and last row has special values (each other reversed).<a name="line.792"></a>
+<span class="sourceLineNo">793</span>         */<a name="line.793"></a>
+<span class="sourceLineNo">794</span>        for (int i = 0; i &lt; m; ++i) {<a name="line.794"></a>
+<span class="sourceLineNo">795</span>            Hdata[i][0] = Hdata[i][0].subtract(hPowers[i]);<a name="line.795"></a>
+<span class="sourceLineNo">796</span>            Hdata[m - 1][i] = Hdata[m - 1][i].subtract(hPowers[m - i - 1]);<a name="line.796"></a>
+<span class="sourceLineNo">797</span>        }<a name="line.797"></a>
+<span class="sourceLineNo">798</span><a name="line.798"></a>
+<span class="sourceLineNo">799</span>        /*<a name="line.799"></a>
+<span class="sourceLineNo">800</span>         * [1] states: "For 1/2 &lt; h &lt; 1 the bottom left element of the matrix should be (1 - 2*h^m +<a name="line.800"></a>
+<span class="sourceLineNo">801</span>         * (2h - 1)^m )/m!" Since 0 &lt;= h &lt; 1, then if h &gt; 1/2 is sufficient to check:<a name="line.801"></a>
+<span class="sourceLineNo">802</span>         */<a name="line.802"></a>
+<span class="sourceLineNo">803</span>        if (h.compareTo(BigFraction.ONE_HALF) == 1) {<a name="line.803"></a>
+<span class="sourceLineNo">804</span>            Hdata[m - 1][0] = Hdata[m - 1][0].add(h.multiply(2).subtract(1).pow(m));<a name="line.804"></a>
+<span class="sourceLineNo">805</span>        }<a name="line.805"></a>
+<span class="sourceLineNo">806</span><a name="line.806"></a>
+<span class="sourceLineNo">807</span>        /*<a name="line.807"></a>
+<span class="sourceLineNo">808</span>         * Aside from the first column and last row, the (i, j)-th element is 1/(i - j + 1)! if i -<a name="line.808"></a>
+<span class="sourceLineNo">809</span>         * j + 1 &gt;= 0, else 0. 1's and 0's are already put, so only division with (i - j + 1)! is<a name="line.809"></a>
+<span class="sourceLineNo">810</span>         * needed in the elements that have 1's. There is no need to calculate (i - j + 1)! and then<a name="line.810"></a>
+<span class="sourceLineNo">811</span>         * divide - small steps avoid overflows. Note that i - j + 1 &gt; 0 &lt;=&gt; i + 1 &gt; j instead of<a name="line.811"></a>
+<span class="sourceLineNo">812</span>         * j'ing all the way to m. Also note that it is started at g = 2 because dividing by 1 isn't<a name="line.812"></a>
+<span class="sourceLineNo">813</span>         * really necessary.<a name="line.813"></a>
+<span class="sourceLineNo">814</span>         */<a name="line.814"></a>
+<span class="sourceLineNo">815</span>        for (int i = 0; i &lt; m; ++i) {<a name="line.815"></a>
+<span class="sourceLineNo">816</span>            for (int j = 0; j &lt; i + 1; ++j) {<a name="line.816"></a>
+<span class="sourceLineNo">817</span>                if (i - j + 1 &gt; 0) {<a name="line.817"></a>
+<span class="sourceLineNo">818</span>                    for (int g = 2; g &lt;= i - j + 1; ++g) {<a name="line.818"></a>
+<span class="sourceLineNo">819</span>                        Hdata[i][j] = Hdata[i][j].divide(g);<a name="line.819"></a>
+<span class="sourceLineNo">820</span>                    }<a name="line.820"></a>
+<span class="sourceLineNo">821</span>                }<a name="line.821"></a>
+<span class="sourceLineNo">822</span>            }<a name="line.822"></a>
+<span class="sourceLineNo">823</span>        }<a name="line.823"></a>
+<span class="sourceLineNo">824</span>        return new Array2DRowFieldMatrix&lt;BigFraction&gt;(BigFractionField.getInstance(), Hdata);<a name="line.824"></a>
+<span class="sourceLineNo">825</span>    }<a name="line.825"></a>
+<span class="sourceLineNo">826</span><a name="line.826"></a>
+<span class="sourceLineNo">827</span>    /***<a name="line.827"></a>
+<span class="sourceLineNo">828</span>     * Creates {@code H} of size {@code m x m} as described in [1] (see above)<a name="line.828"></a>
+<span class="sourceLineNo">829</span>     * using double-precision.<a name="line.829"></a>
+<span class="sourceLineNo">830</span>     *<a name="line.830"></a>
+<span class="sourceLineNo">831</span>     * @param d statistic<a name="line.831"></a>
+<span class="sourceLineNo">832</span>     * @param n sample size<a name="line.832"></a>
+<span class="sourceLineNo">833</span>     * @return H matrix<a name="line.833"></a>
+<span class="sourceLineNo">834</span>     * @throws NumberIsTooLargeException if fractional part is greater than 1<a name="line.834"></a>
+<span class="sourceLineNo">835</span>     */<a name="line.835"></a>
+<span class="sourceLineNo">836</span>    private RealMatrix createRoundedH(double d, int n)<a name="line.836"></a>
+<span class="sourceLineNo">837</span>        throws NumberIsTooLargeException {<a name="line.837"></a>
+<span class="sourceLineNo">838</span><a name="line.838"></a>
+<span class="sourceLineNo">839</span>        final int k = (int) Math.ceil(n * d);<a name="line.839"></a>
+<span class="sourceLineNo">840</span>        final int m = 2 * k - 1;<a name="line.840"></a>
+<span class="sourceLineNo">841</span>        final double h = k - n * d;<a name="line.841"></a>
+<span class="sourceLineNo">842</span>        if (h &gt;= 1) {<a name="line.842"></a>
+<span class="sourceLineNo">843</span>            throw new NumberIsTooLargeException(h, 1.0, false);<a name="line.843"></a>
+<span class="sourceLineNo">844</span>        }<a name="line.844"></a>
+<span class="sourceLineNo">845</span>        final double[][] Hdata = new double[m][m];<a name="line.845"></a>
+<span class="sourceLineNo">846</span><a name="line.846"></a>
+<span class="sourceLineNo">847</span>        /*<a name="line.847"></a>
+<span class="sourceLineNo">848</span>         * Start by filling everything with either 0 or 1.<a name="line.848"></a>
+<span class="sourceLineNo">849</span>         */<a name="line.849"></a>
+<span class="sourceLineNo">850</span>        for (int i = 0; i &lt; m; ++i) {<a name="line.850"></a>
+<span class="sourceLineNo">851</span>            for (int j = 0; j &lt; m; ++j) {<a name="line.851"></a>
+<span class="sourceLineNo">852</span>                if (i - j + 1 &lt; 0) {<a name="line.852"></a>
+<span class="sourceLineNo">853</span>                    Hdata[i][j] = 0;<a name="line.853"></a>
+<span class="sourceLineNo">854</span>                } else {<a name="line.854"></a>
+<span class="sourceLineNo">855</span>                    Hdata[i][j] = 1;<a name="line.855"></a>
+<span class="sourceLineNo">856</span>                }<a name="line.856"></a>
+<span class="sourceLineNo">857</span>            }<a name="line.857"></a>
+<span class="sourceLineNo">858</span>        }<a name="line.858"></a>
+<span class="sourceLineNo">859</span><a name="line.859"></a>
+<span class="sourceLineNo">860</span>        /*<a name="line.860"></a>
+<span class="sourceLineNo">861</span>         * Setting up power-array to avoid calculating the same value twice: hPowers[0] = h^1 ...<a name="line.861"></a>
+<span class="sourceLineNo">862</span>         * hPowers[m-1] = h^m<a name="line.862"></a>
+<span class="sourceLineNo">863</span>         */<a name="line.863"></a>
+<span class="sourceLineNo">864</span>        final double[] hPowers = new double[m];<a name="line.864"></a>
+<span class="sourceLineNo">865</span>        hPowers[0] = h;<a name="line.865"></a>
+<span class="sourceLineNo">866</span>        for (int i = 1; i &lt; m; ++i) {<a name="line.866"></a>
+<span class="sourceLineNo">867</span>            hPowers[i] = h * hPowers[i - 1];<a name="line.867"></a>
+<span class="sourceLineNo">868</span>        }<a name="line.868"></a>
+<span class="sourceLineNo">869</span><a name="line.869"></a>
+<span class="sourceLineNo">870</span>        /*<a name="line.870"></a>
+<span class="sourceLineNo">871</span>         * First column and last row has special values (each other reversed).<a name="line.871"></a>
+<span class="sourceLineNo">872</span>         */<a name="line.872"></a>
+<span class="sourceLineNo">873</span>        for (int i = 0; i &lt; m; ++i) {<a name="line.873"></a>
+<span class="sourceLineNo">874</span>            Hdata[i][0] = Hdata[i][0] - hPowers[i];<a name="line.874"></a>
+<span class="sourceLineNo">875</span>            Hdata[m - 1][i] -= hPowers[m - i - 1];<a name="line.875"></a>
+<span class="sourceLineNo">876</span>        }<a name="line.876"></a>
+<span class="sourceLineNo">877</span><a name="line.877"></a>
+<span class="sourceLineNo">878</span>        /*<a name="line.878"></a>
+<span class="sourceLineNo">879</span>         * [1] states: "For 1/2 &lt; h &lt; 1 the bottom left element of the matrix should be (1 - 2*h^m +<a name="line.879"></a>
+<span class="sourceLineNo">880</span>         * (2h - 1)^m )/m!" Since 0 &lt;= h &lt; 1, then if h &gt; 1/2 is sufficient to check:<a name="line.880"></a>
+<span class="sourceLineNo">881</span>         */<a name="line.881"></a>
+<span class="sourceLineNo">882</span>        if (Double.compare(h, 0.5) &gt; 0) {<a name="line.882"></a>
+<span class="sourceLineNo">883</span>            Hdata[m - 1][0] += FastMath.pow(2 * h - 1, m);<a name="line.883"></a>
+<span class="sourceLineNo">884</span>        }<a name="line.884"></a>
+<span class="sourceLineNo">885</span><a name="line.885"></a>
+<span class="sourceLineNo">886</span>        /*<a name="line.886"></a>
+<span class="sourceLineNo">887</span>         * Aside from the first column and last row, the (i, j)-th element is 1/(i - j + 1)! if i -<a name="line.887"></a>
+<span class="sourceLineNo">888</span>         * j + 1 &gt;= 0, else 0. 1's and 0's are already put, so only division with (i - j + 1)! is<a name="line.888"></a>
+<span class="sourceLineNo">889</span>         * needed in the elements that have 1's. There is no need to calculate (i - j + 1)! and then<a name="line.889"></a>
+<span class="sourceLineNo">890</span>         * divide - small steps avoid overflows. Note that i - j + 1 &gt; 0 &lt;=&gt; i + 1 &gt; j instead of<a name="line.890"></a>
+<span class="sourceLineNo">891</span>         * j'ing all the way to m. Also note that it is started at g = 2 because dividing by 1 isn't<a name="line.891"></a>
+<span class="sourceLineNo">892</span>         * really necessary.<a name="line.892"></a>
+<span class="sourceLineNo">893</span>         */<a name="line.893"></a>
+<span class="sourceLineNo">894</span>        for (int i = 0; i &lt; m; ++i) {<a name="line.894"></a>
+<span class="sourceLineNo">895</span>            for (int j = 0; j &lt; i + 1; ++j) {<a name="line.895"></a>
+<span class="sourceLineNo">896</span>                if (i - j + 1 &gt; 0) {<a name="line.896"></a>
+<span class="sourceLineNo">897</span>                    for (int g = 2; g &lt;= i - j + 1; ++g) {<a name="line.897"></a>
+<span class="sourceLineNo">898</span>                        Hdata[i][j] /= g;<a name="line.898"></a>
+<span class="sourceLineNo">899</span>                    }<a name="line.899"></a>
+<span class="sourceLineNo">900</span>                }<a name="line.900"></a>
+<span class="sourceLineNo">901</span>            }<a name="line.901"></a>
+<span class="sourceLineNo">902</span>        }<a name="line.902"></a>
+<span class="sourceLineNo">903</span>        return MatrixUtils.createRealMatrix(Hdata);<a name="line.903"></a>
+<span class="sourceLineNo">904</span>    }<a name="line.904"></a>
+<span class="sourceLineNo">905</span><a name="line.905"></a>
+<span class="sourceLineNo">906</span>    /**<a name="line.906"></a>
+<span class="sourceLineNo">907</span>     * Verifies that {@code array} has length at least 2.<a name="line.907"></a>
+<span class="sourceLineNo">908</span>     *<a name="line.908"></a>
+<span class="sourceLineNo">909</span>     * @param array array to test<a name="line.909"></a>
+<span class="sourceLineNo">910</span>     * @throws NullArgumentException if array is null<a name="line.910"></a>
+<span class="sourceLineNo">911</span>     * @throws InsufficientDataException if array is too short<a name="line.911"></a>
+<span class="sourceLineNo">912</span>     */<a name="line.912"></a>
+<span class="sourceLineNo">913</span>    private void checkArray(double[] array) {<a name="line.913"></a>
+<span class="sourceLineNo">914</span>        if (array == null) {<a name="line.914"></a>
+<span class="sourceLineNo">915</span>            throw new NullArgumentException(LocalizedFormats.NULL_NOT_ALLOWED);<a name="line.915"></a>
+<span class="sourceLineNo">916</span>        }<a name="line.916"></a>
+<span class="sourceLineNo">917</span>        if (array.length &lt; 2) {<a name="line.917"></a>
+<span class="sourceLineNo">918</span>            throw new InsufficientDataException(LocalizedFormats.INSUFFICIENT_OBSERVED_POINTS_IN_SAMPLE, array.length,<a name="line.918"></a>
+<span class="sourceLineNo">919</span>                                                2);<a name="line.919"></a>
+<span class="sourceLineNo">920</span>        }<a name="line.920"></a>
+<span class="sourceLineNo">921</span>    }<a name="line.921"></a>
+<span class="sourceLineNo">922</span><a name="line.922"></a>
+<span class="sourceLineNo">923</span>    /**<a name="line.923"></a>
+<span class="sourceLineNo">924</span>     * Computes \( 1 + 2 \sum_{i=1}^\infty (-1)^i e^{-2 i^2 t^2} \) stopping when successive partial<a name="line.924"></a>
+<span class="sourceLineNo">925</span>     * sums are within {@code tolerance} of one another, or when {@code maxIterations} partial sums<a name="line.925"></a>
+<span class="sourceLineNo">926</span>     * have been computed. If the sum does not converge before {@code maxIterations} iterations a<a name="line.926"></a>
+<span class="sourceLineNo">927</span>     * {@link TooManyIterationsException} is thrown.<a name="line.927"></a>
+<span class="sourceLineNo">928</span>     *<a name="line.928"></a>
+<span class="sourceLineNo">929</span>     * @param t argument<a name="line.929"></a>
+<span class="sourceLineNo">930</span>     * @param tolerance Cauchy criterion for partial sums<a name="line.930"></a>
+<span class="sourceLineNo">931</span>     * @param maxIterations maximum number of partial sums to compute<a name="line.931"></a>
+<span class="sourceLineNo">932</span>     * @return Kolmogorov sum evaluated at t<a name="line.932"></a>
+<span class="sourceLineNo">933</span>     * @throws TooManyIterationsException if the series does not converge<a name="line.933"></a>
+<span class="sourceLineNo">934</span>     */<a name="line.934"></a>
+<span class="sourceLineNo">935</span>    public double ksSum(double t, double tolerance, int maxIterations) {<a name="line.935"></a>
+<span class="sourceLineNo">936</span>        if (t == 0.0) {<a name="line.936"></a>
+<span class="sourceLineNo">937</span>            return 0.0;<a name="line.937"></a>
+<span class="sourceLineNo">938</span>        }<a name="line.938"></a>
+<span class="sourceLineNo">939</span><a name="line.939"></a>
+<span class="sourceLineNo">940</span>        // TODO: for small t (say less than 1), the alternative expansion in part 3 of [1]<a name="line.940"></a>
+<span class="sourceLineNo">941</span>        // from class javadoc should be used.<a name="line.941"></a>
+<span class="sourceLineNo">942</span><a name="line.942"></a>
+<span class="sourceLineNo">943</span>        final double x = -2 * t * t;<a name="line.943"></a>
+<span class="sourceLineNo">944</span>        int sign = -1;<a name="line.944"></a>
+<span class="sourceLineNo">945</span>        long i = 1;<a name="line.945"></a>
+<span class="sourceLineNo">946</span>        double partialSum = 0.5d;<a name="line.946"></a>
+<span class="sourceLineNo">947</span>        double delta = 1;<a name="line.947"></a>
+<span class="sourceLineNo">948</span>        while (delta &gt; tolerance &amp;&amp; i &lt; maxIterations) {<a name="line.948"></a>
+<span class="sourceLineNo">949</span>            delta = FastMath.exp(x * i * i);<a name="line.949"></a>
+<span class="sourceLineNo">950</span>            partialSum += sign * delta;<a name="line.950"></a>
+<span class="sourceLineNo">951</span>            sign *= -1;<a name="line.951"></a>
+<span class="sourceLineNo">952</span>            i++;<a name="line.952"></a>
+<span class="sourceLineNo">953</span>        }<a name="line.953"></a>
+<span class="sourceLineNo">954</span>        if (i == maxIterations) {<a name="line.954"></a>
+<span class="sourceLineNo">955</span>            throw new TooManyIterationsException(maxIterations);<a name="line.955"></a>
+<span class="sourceLineNo">956</span>        }<a name="line.956"></a>
+<span class="sourceLineNo">957</span>        return partialSum * 2;<a name="line.957"></a>
+<span class="sourceLineNo">958</span>    }<a name="line.958"></a>
+<span class="sourceLineNo">959</span><a name="line.959"></a>
+<span class="sourceLineNo">960</span>    /**<a name="line.960"></a>
+<span class="sourceLineNo">961</span>     * Given a d-statistic in the range [0, 1] and the two sample sizes n and m,<a name="line.961"></a>
+<span class="sourceLineNo">962</span>     * an integral d-statistic in the range [0, n*m] is calculated, that can be used for<a name="line.962"></a>
+<span class="sourceLineNo">963</span>     * comparison with other integral d-statistics. Depending whether {@code strict} is<a name="line.963"></a>
+<span class="sourceLineNo">964</span>     * {@code true} or not, the returned value divided by (n*m) is greater than<a name="line.964"></a>
+<span class="sourceLineNo">965</span>     * (resp greater than or equal to) the given d value (allowing some tolerance).<a name="line.965"></a>
+<span class="sourceLineNo">966</span>     *<a name="line.966"></a>
+<span class="sourceLineNo">967</span>     * @param d a d-statistic in the range [0, 1]<a name="line.967"></a>
+<span class="sourceLineNo">968</span>     * @param n first sample size<a name="line.968"></a>
+<span class="sourceLineNo">969</span>     * @param m second sample size<a name="line.969"></a>
+<span class="sourceLineNo">970</span>     * @param strict whether the returned value divided by (n*m) is allowed to be equal to d<a name="line.970"></a>
+<span class="sourceLineNo">971</span>     * @return the integral d-statistic in the range [0, n*m]<a name="line.971"></a>
+<span class="sourceLineNo">972</span>     */<a name="line.972"></a>
+<span class="sourceLineNo">973</span>    private static long calculateIntegralD(double d, int n, int m, boolean strict) {<a name="line.973"></a>
+<span class="sourceLineNo">974</span>        final double tol = 1e-12;  // d-values within tol of one another are considered equal<a name="line.974"></a>
+<span class="sourceLineNo">975</span>        long nm = n * (long)m;<a name="line.975"></a>
+<span class="sourceLineNo">976</span>        long upperBound = (long)FastMath.ceil((d - tol) * nm);<a name="line.976"></a>
+<span class="sourceLineNo">977</span>        long lowerBound = (long)FastMath.floor((d + tol) * nm);<a name="line.977"></a>
+<span class="sourceLineNo">978</span>        if (strict &amp;&amp; lowerBound == upperBound) {<a name="line.978"></a>
+<span class="sourceLineNo">979</span>            return upperBound + 1l;<a name="line.979"></a>
+<span class="sourceLineNo">980</span>        }<a name="line.980"></a>
+<span class="sourceLineNo">981</span>        else {<a name="line.981"></a>
+<span class="sourceLineNo">982</span>            return upperBound;<a name="line.982"></a>
+<span class="sourceLineNo">983</span>        }<a name="line.983"></a>
+<span class="sourceLineNo">984</span>    }<a name="line.984"></a>
+<span class="sourceLineNo">985</span><a name="line.985"></a>
+<span class="sourceLineNo">986</span>    /**<a name="line.986"></a>
+<span class="sourceLineNo">987</span>     * Computes \(P(D_{n,m} &gt; d)\) if {@code strict} is {@code true}; otherwise \(P(D_{n,m} \ge<a name="line.987"></a>
+<span class="sourceLineNo">988</span>     * d)\), where \(D_{n,m}\) is the 2-sample Kolmogorov-Smirnov statistic. See<a name="line.988"></a>
+<span class="sourceLineNo">989</span>     * {@link #kolmogorovSmirnovStatistic(double[], double[])} for the definition of \(D_{n,m}\).<a name="line.989"></a>
+<span class="sourceLineNo">990</span>     * &lt;p&gt;<a name="line.990"></a>
+<span class="sourceLineNo">991</span>     * The returned probability is exact, implemented by unwinding the recursive function<a name="line.991"></a>
+<span class="sourceLineNo">992</span>     * definitions presented in [4] (class javadoc).<a name="line.992"></a>
+<span class="sourceLineNo">993</span>     * &lt;/p&gt;<a name="line.993"></a>
+<span class="sourceLineNo">994</span>     *<a name="line.994"></a>
+<span class="sourceLineNo">995</span>     * @param d D-statistic value<a name="line.995"></a>
+<span class="sourceLineNo">996</span>     * @param n first sample size<a name="line.996"></a>
+<span class="sourceLineNo">997</span>     * @param m second sample size<a name="line.997"></a>
+<span class="sourceLineNo">998</span>     * @param strict whether or not the probability to compute is expressed as a strict inequality<a name="line.998"></a>
+<span class="sourceLineNo">999</span>     * @return probability that a randomly selected m-n partition of m + n generates \(D_{n,m}\)<a name="line.999"></a>
+<span class="sourceLineNo">1000</span>     *         greater than (resp. greater than or equal to) {@code d}<a name="line.1000"></a>
+<span class="sourceLineNo">1001</span>     */<a name="line.1001"></a>
+<span class="sourceLineNo">1002</span>    public double exactP(double d, int n, int m, boolean strict) {<a name="line.1002"></a>
+<span class="sourceLineNo">1003</span>       return 1 - n(m, n, m, n, calculateIntegralD(d, m, n, strict), strict) /<a name="line.1003"></a>
+<span class="sourceLineNo">1004</span>               CombinatoricsUtils.binomialCoefficientDouble(n + m, m);<a name="line.1004"></a>
+<span class="sourceLineNo">1005</span>    }<a name="line.1005"></a>
+<span class="sourceLineNo">1006</span><a name="line.1006"></a>
+<span class="sourceLineNo">1007</span>    /**<a name="line.1007"></a>
+<span class="sourceLineNo">1008</span>     * Uses the Kolmogorov-Smirnov distribution to approximate \(P(D_{n,m} &gt; d)\) where \(D_{n,m}\)<a name="line.1008"></a>
+<span class="sourceLineNo">1009</span>     * is the 2-sample Kolmogorov-Smirnov statistic. See<a name="line.1009"></a>
+<span class="sourceLineNo">1010</span>     * {@link #kolmogorovSmirnovStatistic(double[], double[])} for the definition of \(D_{n,m}\).<a name="line.1010"></a>
+<span class="sourceLineNo">1011</span>     * &lt;p&gt;<a name="line.1011"></a>
+<span class="sourceLineNo">1012</span>     * Specifically, what is returned is \(1 - k(d \sqrt{mn / (m + n)})\) where \(k(t) = 1 + 2<a name="line.1012"></a>
+<span class="sourceLineNo">1013</span>     * \sum_{i=1}^\infty (-1)^i e^{-2 i^2 t^2}\). See {@link #ksSum(double, double, int)} for<a name="line.1013"></a>
+<span class="sourceLineNo">1014</span>     * details on how convergence of the sum is determined. This implementation passes {@code ksSum}<a name="line.1014"></a>
+<span class="sourceLineNo">1015</span>     * {@value #KS_SUM_CAUCHY_CRITERION} as {@code tolerance} and<a name="line.1015"></a>
+<span class="sourceLineNo">1016</span>     * {@value #MAXIMUM_PARTIAL_SUM_COUNT} as {@code maxIterations}.<a name="line.1016"></a>
+<span class="sourceLineNo">1017</span>     * &lt;/p&gt;<a name="line.1017"></a>
+<span class="sourceLineNo">1018</span>     *<a name="line.1018"></a>
+<span class="sourceLineNo">1019</span>     * @param d D-statistic value<a name="line.1019"></a>
+<span class="sourceLineNo">1020</span>     * @param n first sample size<a name="line.1020"></a>
+<span class="sourceLineNo">1021</span>     * @param m second sample size<a name="line.1021"></a>
+<span class="sourceLineNo">1022</span>     * @return approximate probability that a randomly selected m-n partition of m + n generates<a name="line.1022"></a>
+<span class="sourceLineNo">1023</span>     *         \(D_{n,m}\) greater than {@code d}<a name="line.1023"></a>
+<span class="sourceLineNo">1024</span>     */<a name="line.1024"></a>
+<span class="sourceLineNo">1025</span>    public double approximateP(double d, int n, int m) {<a name="line.1025"></a>
+<span class="sourceLineNo">1026</span>        final double dm = m;<a name="line.1026"></a>
+<span class="sourceLineNo">1027</span>        final double dn = n;<a name="line.1027"></a>
+<span class="sourceLineNo">1028</span>        return 1 - ksSum(d * FastMath.sqrt((dm * dn) / (dm + dn)),<a name="line.1028"></a>
+<span class="sourceLineNo">1029</span>                         KS_SUM_CAUCHY_CRITERION, MAXIMUM_PARTIAL_SUM_COUNT);<a name="line.1029"></a>
+<span class="sourceLineNo">1030</span>    }<a name="line.1030"></a>
+<span class="sourceLineNo">1031</span><a name="line.1031"></a>
+<span class="sourceLineNo">1032</span>    /**<a name="line.1032"></a>
+<span class="sourceLineNo">1033</span>     * Fills a boolean array randomly with a fixed number of {@code true} values.<a name="line.1033"></a>
+<span class="sourceLineNo">1034</span>     * The method uses a simplified version of the Fisher-Yates shuffle algorithm.<a name="line.1034"></a>
+<span class="sourceLineNo">1035</span>     * By processing first the {@code true} values followed by the remaining {@code false} values<a name="line.1035"></a>
+<span class="sourceLineNo">1036</span>     * less random numbers need to be generated. The method is optimized for the case<a name="line.1036"></a>
+<span class="sourceLineNo">1037</span>     * that the number of {@code true} values is larger than or equal to the number of<a name="line.1037"></a>
+<span class="sourceLineNo">1038</span>     * {@code false} values.<a name="line.1038"></a>
+<span class="sourceLineNo">1039</span>     *<a name="line.1039"></a>
+<span class="sourceLineNo">1040</span>     * @param b boolean array<a name="line.1040"></a>
+<span class="sourceLineNo">1041</span>     * @param numberOfTrueValues number of {@code true} values the boolean array should finally have<a name="line.1041"></a>
+<span class="sourceLineNo">1042</span>     * @param rng random data generator<a name="line.1042"></a>
+<span class="sourceLineNo">1043</span>     */<a name="line.1043"></a>
+<span class="sourceLineNo">1044</span>    static void fillBooleanArrayRandomlyWithFixedNumberTrueValues(final boolean[] b, final int numberOfTrueValues, final RandomGenerator rng) {<a name="line.1044"></a>
+<span class="sourceLineNo">1045</span>        Arrays.fill(b, true);<a name="line.1045"></a>
+<span class="sourceLineNo">1046</span>        for (int k = numberOfTrueValues; k &lt; b.length; k++) {<a name="line.1046"></a>
+<span class="sourceLineNo">1047</span>            final int r = rng.nextInt(k + 1);<a name="line.1047"></a>
+<span class="sourceLineNo">1048</span>            b[(b[r]) ? r : k] = false;<a name="line.1048"></a>
+<span class="sourceLineNo">1049</span>        }<a name="line.1049"></a>
+<span class="sourceLineNo">1050</span>    }<a name="line.1050"></a>
+<span class="sourceLineNo">1051</span><a name="line.1051"></a>
+<span class="sourceLineNo">1052</span>    /**<a name="line.1052"></a>
+<span class="sourceLineNo">1053</span>     * Uses Monte Carlo simulation to approximate \(P(D_{n,m} &gt; d)\) where \(D_{n,m}\) is the<a name="line.1053"></a>
+<span class="sourceLineNo">1054</span>     * 2-sample Kolmogorov-Smirnov statistic. See<a name="line.1054"></a>
+<span class="sourceLineNo">1055</span>     * {@link #kolmogorovSmirnovStatistic(double[], double[])} for the definition of \(D_{n,m}\).<a name="line.1055"></a>
+<span class="sourceLineNo">1056</span>     * &lt;p&gt;<a name="line.1056"></a>
+<span class="sourceLineNo">1057</span>     * The simulation generates {@code iterations} random partitions of {@code m + n} into an<a name="line.1057"></a>
+<span class="sourceLineNo">1058</span>     * {@code n} set and an {@code m} set, computing \(D_{n,m}\) for each partition and returning<a name="line.1058"></a>
+<span class="sourceLineNo">1059</span>     * the proportion of values that are greater than {@code d}, or greater than or equal to<a name="line.1059"></a>
+<span class="sourceLineNo">1060</span>     * {@code d} if {@code strict} is {@code false}.<a name="line.1060"></a>
+<span class="sourceLineNo">1061</span>     * &lt;/p&gt;<a name="line.1061"></a>
+<span class="sourceLineNo">1062</span>     *<a name="line.1062"></a>
+<span class="sourceLineNo">1063</span>     * @param d D-statistic value<a name="line.1063"></a>
+<span class="sourceLineNo">1064</span>     * @param n first sample size<a name="line.1064"></a>
+<span class="sourceLineNo">1065</span>     * @param m second sample size<a name="line.1065"></a>
+<span class="sourceLineNo">1066</span>     * @param iterations number of random partitions to generate<a name="line.1066"></a>
+<span class="sourceLineNo">1067</span>     * @param strict whether or not the probability to compute is expressed as a strict inequality<a name="line.1067"></a>
+<span class="sourceLineNo">1068</span>     * @return proportion of randomly generated m-n partitions of m + n that result in \(D_{n,m}\)<a name="line.1068"></a>
+<span class="sourceLineNo">1069</span>     *         greater than (resp. greater than or equal to) {@code d}<a name="line.1069"></a>
+<span class="sourceLineNo">1070</span>     */<a name="line.1070"></a>
+<span class="sourceLineNo">1071</span>    public double monteCarloP(final double d, final int n, final int m, final boolean strict,<a name="line.1071"></a>
+<span class="sourceLineNo">1072</span>                              final int iterations) {<a name="line.1072"></a>
+<span class="sourceLineNo">1073</span>        return integralMonteCarloP(calculateIntegralD(d, n, m, strict), n, m, iterations);<a name="line.1073"></a>
+<span class="sourceLineNo">1074</span>    }<a name="line.1074"></a>
+<span class="sourceLineNo">1075</span><a name="line.1075"></a>
+<span class="sourceLineNo">1076</span>    /**<a name="line.1076"></a>
+<span class="sourceLineNo">1077</span>     * Uses Monte Carlo simulation to approximate \(P(D_{n,m} &gt;= d/(n*m))\) where \(D_{n,m}\) is the<a name="line.1077"></a>
+<span class="sourceLineNo">1078</span>     * 2-sample Kolmogorov-Smirnov statistic.<a name="line.1078"></a>
+<span class="sourceLineNo">1079</span>     * &lt;p&gt;<a name="line.1079"></a>
+<span class="sourceLineNo">1080</span>     * Here d is the D-statistic represented as long value.<a name="line.1080"></a>
+<span class="sourceLineNo">1081</span>     * The real D-statistic is obtained by dividing d by n*m.<a name="line.1081"></a>
+<span class="sourceLineNo">1082</span>     * See also {@link #monteCarloP(double, int, int, boolean, int)}.<a name="line.1082"></a>
+<span class="sourceLineNo">1083</span>     *<a name="line.1083"></a>
+<span class="sourceLineNo">1084</span>     * @param d integral D-statistic<a name="line.1084"></a>
+<span class="sourceLineNo">1085</span>     * @param n first sample size<a name="line.1085"></a>
+<span class="sourceLineNo">1086</span>     * @param m second sample size<a name="line.1086"></a>
+<span class="sourceLineNo">1087</span>     * @param iterations number of random partitions to generate<a name="line.1087"></a>
+<span class="sourceLineNo">1088</span>     * @return proportion of randomly generated m-n partitions of m + n that result in \(D_{n,m}\)<a name="line.1088"></a>
+<span class="sourceLineNo">1089</span>     *         greater than or equal to {@code d/(n*m))}<a name="line.1089"></a>
+<span class="sourceLineNo">1090</span>     */<a name="line.1090"></a>
+<span class="sourceLineNo">1091</span>    private double integralMonteCarloP(final long d, final int n, final int m, final int iterations) {<a name="line.1091"></a>
+<span class="sourceLineNo">1092</span><a name="line.1092"></a>
+<span class="sourceLineNo">1093</span>        // ensure that nn is always the max of (n, m) to require fewer random numbers<a name="line.1093"></a>
+<span class="sourceLineNo">1094</span>        final int nn = FastMath.max(n, m);<a name="line.1094"></a>
+<span class="sourceLineNo">1095</span>        final int mm = FastMath.min(n, m);<a name="line.1095"></a>
+<span class="sourceLineNo">1096</span>        final int sum = nn + mm;<a name="line.1096"></a>
+<span class="sourceLineNo">1097</span><a name="line.1097"></a>
+<span class="sourceLineNo">1098</span>        int tail = 0;<a name="line.1098"></a>
+<span class="sourceLineNo">1099</span>        final boolean b[] = new boolean[sum];<a name="line.1099"></a>
+<span class="sourceLineNo">1100</span>        for (int i = 0; i &lt; iterations; i++) {<a name="line.1100"></a>
+<span class="sourceLineNo">1101</span>            fillBooleanArrayRandomlyWithFixedNumberTrueValues(b, nn, rng);<a name="line.1101"></a>
+<span class="sourceLineNo">1102</span>            long curD = 0l;<a name="line.1102"></a>
+<span class="sourceLineNo">1103</span>            for(int j = 0; j &lt; b.length; ++j) {<a name="line.1103"></a>
+<span class="sourceLineNo">1104</span>                if (b[j]) {<a name="line.1104"></a>
+<span class="sourceLineNo">1105</span>                    curD += mm;<a name="line.1105"></a>
+<span class="sourceLineNo">1106</span>                    if (curD &gt;= d) {<a name="line.1106"></a>
+<span class="sourceLineNo">1107</span>                        tail++;<a name="line.1107"></a>
+<span class="sourceLineNo">1108</span>                        break;<a name="line.1108"></a>
+<span class="sourceLineNo">1109</span>                    }<a name="line.1109"></a>
+<span class="sourceLineNo">1110</span>                } else {<a name="line.1110"></a>
+<span class="sourceLineNo">1111</span>                    curD -= nn;<a name="line.1111"></a>
+<span class="sourceLineNo">1112</span>                    if (curD &lt;= -d) {<a name="line.1112"></a>
+<span class="sourceLineNo">1113</span>                        tail++;<a name="line.1113"></a>
+<span class="sourceLineNo">1114</span>                        break;<a name="line.1114"></a>
+<span class="sourceLineNo">1115</span>                    }<a name="line.1115"></a>
+<span class="sourceLineNo">1116</span>                }<a name="line.1116"></a>
+<span class="sourceLineNo">1117</span>            }<a name="line.1117"></a>
+<span class="sourceLineNo">1118</span>        }<a name="line.1118"></a>
+<span class="sourceLineNo">1119</span>        return (double) tail / iterations;<a name="line.1119"></a>
+<span class="sourceLineNo">1120</span>    }<a name="line.1120"></a>
+<span class="sourceLineNo">1121</span><a name="line.1121"></a>
+<span class="sourceLineNo">1122</span>    /**<a name="line.1122"></a>
+<span class="sourceLineNo">1123</span>     * If there are no ties in the combined dataset formed from x and y, this<a name="line.1123"></a>
+<span class="sourceLineNo">1124</span>     * method is a no-op.  If there are ties, a uniform random deviate in<a name="line.1124"></a>
+<span class="sourceLineNo">1125</span>     * (-minDelta / 2, minDelta / 2) - {0} is added to each value in x and y, where<a name="line.1125"></a>
+<span class="sourceLineNo">1126</span>     * minDelta is the minimum difference between unequal values in the combined<a name="line.1126"></a>
+<span class="sourceLineNo">1127</span>     * sample.  A fixed seed is used to generate the jitter, so repeated activations<a name="line.1127"></a>
+<span class="sourceLineNo">1128</span>     * with the same input arrays result in the same values.<a name="line.1128"></a>
+<span class="sourceLineNo">1129</span>     *<a name="line.1129"></a>
+<span class="sourceLineNo">1130</span>     * NOTE: if there are ties in the data, this method overwrites the data in<a name="line.1130"></a>
+<span class="sourceLineNo">1131</span>     * x and y with the jittered values.<a name="line.1131"></a>
+<span class="sourceLineNo">1132</span>     *<a name="line.1132"></a>
+<span class="sourceLineNo">1133</span>     * @param x first sample<a name="line.1133"></a>
+<span class="sourceLineNo">1134</span>     * @param y second sample<a name="line.1134"></a>
+<span class="sourceLineNo">1135</span>     */<a name="line.1135"></a>
+<span class="sourceLineNo">1136</span>    private static void fixTies(double[] x, double[] y) {<a name="line.1136"></a>
+<span class="sourceLineNo">1137</span>       final double[] values = MathArrays.unique(MathArrays.concatenate(x,y));<a name="line.1137"></a>
+<span class="sourceLineNo">1138</span>       if (values.length == x.length + y.length) {<a name="line.1138"></a>
+<span class="sourceLineNo">1139</span>           return;  // There are no ties<a name="line.1139"></a>
+<span class="sourceLineNo">1140</span>       }<a name="line.1140"></a>
+<span class="sourceLineNo">1141</span><a name="line.1141"></a>
+<span class="sourceLineNo">1142</span>       // Find the smallest difference between values, or 1 if all values are the same<a name="line.1142"></a>
+<span class="sourceLineNo">1143</span>       double minDelta = 1;<a name="line.1143"></a>
+<span class="sourceLineNo">1144</span>       double prev = values[0];<a name="line.1144"></a>
+<span class="sourceLineNo">1145</span>       double delta = 1;<a name="line.1145"></a>
+<span class="sourceLineNo">1146</span>       for (int i = 1; i &lt; values.length; i++) {<a name="line.1146"></a>
+<span class="sourceLineNo">1147</span>          delta = prev - values[i];<a name="line.1147"></a>
+<span class="sourceLineNo">1148</span>          if (delta &lt; minDelta) {<a name="line.1148"></a>
+<span class="sourceLineNo">1149</span>              minDelta = delta;<a name="line.1149"></a>
+<span class="sourceLineNo">1150</span>          }<a name="line.1150"></a>
+<span class="sourceLineNo">1151</span>          prev = values[i];<a name="line.1151"></a>
+<span class="sourceLineNo">1152</span>       }<a name="line.1152"></a>
+<span class="sourceLineNo">1153</span>       minDelta /= 2;<a name="line.1153"></a>
+<span class="sourceLineNo">1154</span><a name="line.1154"></a>
+<span class="sourceLineNo">1155</span>       // Add jitter using a fixed seed (so same arguments always give same results),<a name="line.1155"></a>
+<span class="sourceLineNo">1156</span>       // low-initialization-overhead generator<a name="line.1156"></a>
+<span class="sourceLineNo">1157</span>       final RealDistribution dist =<a name="line.1157"></a>
+<span class="sourceLineNo">1158</span>               new UniformRealDistribution(new JDKRandomGenerator(100), -minDelta, minDelta);<a name="line.1158"></a>
+<span class="sourceLineNo">1159</span><a name="line.1159"></a>
+<span class="sourceLineNo">1160</span>       // It is theoretically possible that jitter does not break ties, so repeat<a name="line.1160"></a>
+<span class="sourceLineNo">1161</span>       // until all ties are gone.  Bound the loop and throw MIE if bound is exceeded.<a name="line.1161"></a>
+<span class="sourceLineNo">1162</span>       int ct = 0;<a name="line.1162"></a>
+<span class="sourceLineNo">1163</span>       boolean ties = true;<a name="line.1163"></a>
+<span class="sourceLineNo">1164</span>       do {<a name="line.1164"></a>
+<span class="sourceLineNo">1165</span>           jitter(x, dist);<a name="line.1165"></a>
+<span class="sourceLineNo">1166</span>           jitter(y, dist);<a name="line.1166"></a>
+<span class="sourceLineNo">1167</span>           ties = hasTies(x, y);<a name="line.1167"></a>
+<span class="sourceLineNo">1168</span>           ct++;<a name="line.1168"></a>
+<span class="sourceLineNo">1169</span>       } while (ties &amp;&amp; ct &lt; 1000);<a name="line.1169"></a>
+<span class="sourceLineNo">1170</span>       if (ties) {<a name="line.1170"></a>
+<span class="sourceLineNo">1171</span>           throw new MathInternalError(); // Should never happen<a name="line.1171"></a>
+<span class="sourceLineNo">1172</span>       }<a name="line.1172"></a>
+<span class="sourceLineNo">1173</span>    }<a name="line.1173"></a>
+<span class="sourceLineNo">1174</span><a name="line.1174"></a>
+<span class="sourceLineNo">1175</span>    /**<a name="line.1175"></a>
+<span class="sourceLineNo">1176</span>     * Returns true iff there are ties in the combined sample<a name="line.1176"></a>
+<span class="sourceLineNo">1177</span>     * formed from x and y.<a name="line.1177"></a>
+<span class="sourceLineNo">1178</span>     *<a name="line.1178"></a>
+<span class="sourceLineNo">1179</span>     * @param x first sample<a name="line.1179"></a>
+<span class="sourceLineNo">1180</span>     * @param y second sample<a name="line.1180"></a>
+<span class="sourceLineNo">1181</span>     * @return true if x and y together contain ties<a name="line.1181"></a>
+<span class="sourceLineNo">1182</span>     */<a name="line.1182"></a>
+<span class="sourceLineNo">1183</span>    private static boolean hasTies(double[] x, double[] y) {<a name="line.1183"></a>
+<span class="sourceLineNo">1184</span>        final HashSet&lt;Double&gt; values = new HashSet&lt;Double&gt;();<a name="line.1184"></a>
+<span class="sourceLineNo">1185</span>            for (int i = 0; i &lt; x.length; i++) {<a name="line.1185"></a>
+<span class="sourceLineNo">1186</span>                if (!values.add(x[i])) {<a name="line.1186"></a>
+<span class="sourceLineNo">1187</span>                    return true;<a name="line.1187"></a>
+<span class="sourceLineNo">1188</span>                }<a name="line.1188"></a>
+<span class="sourceLineNo">1189</span>            }<a name="line.1189"></a>
+<span class="sourceLineNo">1190</span>            for (int i = 0; i &lt; y.length; i++) {<a name="line.1190"></a>
+<span class="sourceLineNo">1191</span>                if (!values.add(y[i])) {<a name="line.1191"></a>
+<span class="sourceLineNo">1192</span>                    return true;<a name="line.1192"></a>
+<span class="sourceLineNo">1193</span>                }<a name="line.1193"></a>
+<span class="sourceLineNo">1194</span>            }<a name="line.1194"></a>
+<span class="sourceLineNo">1195</span>        return false;<a name="line.1195"></a>
+<span class="sourceLineNo">1196</span>    }<a name="line.1196"></a>
+<span class="sourceLineNo">1197</span><a name="line.1197"></a>
+<span class="sourceLineNo">1198</span>    /**<a name="line.1198"></a>
+<span class="sourceLineNo">1199</span>     * Adds random jitter to {@code data} using deviates sampled from {@code dist}.<a name="line.1199"></a>
+<span class="sourceLineNo">1200</span>     * &lt;p&gt;<a name="line.1200"></a>
+<span class="sourceLineNo">1201</span>     * Note that jitter is applied in-place - i.e., the array<a name="line.1201"></a>
+<span class="sourceLineNo">1202</span>     * values are overwritten with the result of applying jitter.&lt;/p&gt;<a name="line.1202"></a>
+<span class="sourceLineNo">1203</span>     *<a name="line.1203"></a>
+<span class="sourceLineNo">1204</span>     * @param data input/output data array - entries overwritten by the method<a name="line.1204"></a>
+<span class="sourceLineNo">1205</span>     * @param dist probability distribution to sample for jitter values<a name="line.1205"></a>
+<span class="sourceLineNo">1206</span>     * @throws NullPointerException if either of the parameters is null<a name="line.1206"></a>
+<span class="sourceLineNo">1207</span>     */<a name="line.1207"></a>
+<span class="sourceLineNo">1208</span>    private static void jitter(double[] data, RealDistribution dist) {<a name="line.1208"></a>
+<span class="sourceLineNo">1209</span>        for (int i = 0; i &lt; data.length; i++) {<a name="line.1209"></a>
+<span class="sourceLineNo">1210</span>            data[i] += dist.sample();<a name="line.1210"></a>
+<span class="sourceLineNo">1211</span>        }<a name="line.1211"></a>
+<span class="sourceLineNo">1212</span>    }<a name="line.1212"></a>
+<span class="sourceLineNo">1213</span><a name="line.1213"></a>
+<span class="sourceLineNo">1214</span>    /**<a name="line.1214"></a>
+<span class="sourceLineNo">1215</span>     * The function C(i, j) defined in [4] (class javadoc), formula (5.5).<a name="line.1215"></a>
+<span class="sourceLineNo">1216</span>     * defined to return 1 if |i/n - j/m| &lt;= c; 0 otherwise. Here c is scaled up<a name="line.1216"></a>
+<span class="sourceLineNo">1217</span>     * and recoded as a long to avoid rounding errors in comparison tests, so what<a name="line.1217"></a>
+<span class="sourceLineNo">1218</span>     * is actually tested is |im - jn| &lt;= cmn.<a name="line.1218"></a>
+<span class="sourceLineNo">1219</span>     *<a name="line.1219"></a>
+<span class="sourceLineNo">1220</span>     * @param i first path parameter<a name="line.1220"></a>
+<span class="sourceLineNo">1221</span>     * @param j second path paramter<a name="line.1221"></a>
+<span class="sourceLineNo">1222</span>     * @param m first sample size<a name="line.1222"></a>
+<span class="sourceLineNo">1223</span>     * @param n second sample size<a name="line.1223"></a>
+<span class="sourceLineNo">1224</span>     * @param cmn integral D-statistic (see {@link #calculateIntegralD(double, int, int, boolean)})<a name="line.1224"></a>
+<span class="sourceLineNo">1225</span>     * @param strict whether or not the null hypothesis uses strict inequality<a name="line.1225"></a>
+<span class="sourceLineNo">1226</span>     * @return C(i,j) for given m, n, c<a name="line.1226"></a>
+<span class="sourceLineNo">1227</span>     */<a name="line.1227"></a>
+<span class="sourceLineNo">1228</span>    private static int c(int i, int j, int m, int n, long cmn, boolean strict) {<a name="line.1228"></a>
+<span class="sourceLineNo">1229</span>        if (strict) {<a name="line.1229"></a>
+<span class="sourceLineNo">1230</span>            return FastMath.abs(i*(long)n - j*(long)m) &lt;= cmn ? 1 : 0;<a name="line.1230"></a>
+<span class="sourceLineNo">1231</span>        }<a name="line.1231"></a>
+<span class="sourceLineNo">1232</span>        return FastMath.abs(i*(long)n - j*(long)m) &lt; cmn ? 1 : 0;<a name="line.1232"></a>
+<span class="sourceLineNo">1233</span>    }<a name="line.1233"></a>
+<span class="sourceLineNo">1234</span><a name="line.1234"></a>
+<span class="sourceLineNo">1235</span>    /**<a name="line.1235"></a>
+<span class="sourceLineNo">1236</span>     * The function N(i, j) defined in [4] (class javadoc).<a name="line.1236"></a>
+<span class="sourceLineNo">1237</span>     * Returns the number of paths over the lattice {(i,j) : 0 &lt;= i &lt;= n, 0 &lt;= j &lt;= m}<a name="line.1237"></a>
+<span class="sourceLineNo">1238</span>     * from (0,0) to (i,j) satisfying C(h,k, m, n, c) = 1 for each (h,k) on the path.<a name="line.1238"></a>
+<span class="sourceLineNo">1239</span>     * The return value is integral, but subject to overflow, so it is maintained and<a name="line.1239"></a>
+<span class="sourceLineNo">1240</span>     * returned as a double.<a name="line.1240"></a>
+<span class="sourceLineNo">1241</span>     *<a name="line.1241"></a>
+<span class="sourceLineNo">1242</span>     * @param i first path parameter<a name="line.1242"></a>
+<span class="sourceLineNo">1243</span>     * @param j second path parameter<a name="line.1243"></a>
+<span class="sourceLineNo">1244</span>     * @param m first sample size<a name="line.1244"></a>
+<span class="sourceLineNo">1245</span>     * @param n second sample size<a name="line.1245"></a>
+<span class="sourceLineNo">1246</span>     * @param cnm integral D-statistic (see {@link #calculateIntegralD(double, int, int, boolean)})<a name="line.1246"></a>
+<span class="sourceLineNo">1247</span>     * @param strict whether or not the null hypothesis uses strict inequality<a name="line.1247"></a>
+<span class="sourceLineNo">1248</span>     * @return number or paths to (i, j) from (0,0) representing D-values as large as c for given m, n<a name="line.1248"></a>
+<span class="sourceLineNo">1249</span>     */<a name="line.1249"></a>
+<span class="sourceLineNo">1250</span>    private static double n(int i, int j, int m, int n, long cnm, boolean strict) {<a name="line.1250"></a>
+<span class="sourceLineNo">1251</span>        /*<a name="line.1251"></a>
+<span class="sourceLineNo">1252</span>         * Unwind the recursive definition given in [4].<a name="line.1252"></a>
+<span class="sourceLineNo">1253</span>         * Compute n(1,1), n(1,2)...n(2,1), n(2,2)... up to n(i,j), one row at a time.<a name="line.1253"></a>
+<span class="sourceLineNo">1254</span>         * When n(i,*) are being computed, lag[] holds the values of n(i - 1, *).<a name="line.1254"></a>
+<span class="sourceLineNo">1255</span>         */<a name="line.1255"></a>
+<span class="sourceLineNo">1256</span>        final double[] lag = new double[n];<a name="line.1256"></a>
+<span class="sourceLineNo">1257</span>        double last = 0;<a name="line.1257"></a>
+<span class="sourceLineNo">1258</span>        for (int k = 0; k &lt; n; k++) {<a name="line.1258"></a>
+<span class="sourceLineNo">1259</span>            lag[k] = c(0, k + 1, m, n, cnm, strict);<a name="line.1259"></a>
+<span class="sourceLineNo">1260</span>        }<a name="line.1260"></a>
+<span class="sourceLineNo">1261</span>        for (int k = 1; k &lt;= i; k++) {<a name="line.1261"></a>
+<span class="sourceLineNo">1262</span>            last = c(k, 0, m, n, cnm, strict);<a name="line.1262"></a>
+<span class="sourceLineNo">1263</span>            for (int l = 1; l &lt;= j; l++) {<a name="line.1263"></a>
+<span class="sourceLineNo">1264</span>                lag[l - 1] = c(k, l, m, n, cnm, strict) * (last + lag[l - 1]);<a name="line.1264"></a>
+<span class="sourceLineNo">1265</span>                last = lag[l - 1];<a name="line.1265"></a>
+<span class="sourceLineNo">1266</span>            }<a name="line.1266"></a>
+<span class="sourceLineNo">1267</span>        }<a name="line.1267"></a>
+<span class="sourceLineNo">1268</span>        return last;<a name="line.1268"></a>
+<span class="sourceLineNo">1269</span>    }<a name="line.1269"></a>
+<span class="sourceLineNo">1270</span>}<a name="line.1270"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

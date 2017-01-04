@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>KthSelector.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.util</a> &gt; <span class="el_source">KthSelector.java</span></div><h1>KthSelector.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.util;
+
+import java.io.Serializable;
+import java.util.Arrays;
+
+import org.apache.commons.math3.exception.NullArgumentException;
+
+
+/**
+ * A Simple K&lt;sup&gt;th&lt;/sup&gt; selector implementation to pick up the
+ * K&lt;sup&gt;th&lt;/sup&gt; ordered element from a work array containing the input
+ * numbers.
+ * @since 3.4
+ */
+public class KthSelector implements Serializable {
+
+    /** Serializable UID. */
+    private static final long serialVersionUID = 20140713L;
+
+    /** Minimum selection size for insertion sort rather than selection. */
+    private static final int MIN_SELECT_SIZE = 15;
+
+    /** A {@link PivotingStrategyInterface} used for pivoting  */
+    private final PivotingStrategyInterface pivotingStrategy;
+
+    /**
+     * Constructor with default {@link MedianOf3PivotingStrategy median of 3} pivoting strategy
+     */
+<span class="fc" id="L45">    public KthSelector() {</span>
+<span class="fc" id="L46">        this.pivotingStrategy = new MedianOf3PivotingStrategy();</span>
+<span class="fc" id="L47">    }</span>
+
+    /**
+     * Constructor with specified pivoting strategy
+     *
+     * @param pivotingStrategy pivoting strategy to use
+     * @throws NullArgumentException when pivotingStrategy is null
+     * @see MedianOf3PivotingStrategy
+     * @see RandomPivotingStrategy
+     * @see CentralPivotingStrategy
+     */
+    public KthSelector(final PivotingStrategyInterface pivotingStrategy)
+<span class="fc" id="L59">        throws NullArgumentException {</span>
+<span class="fc" id="L60">        MathUtils.checkNotNull(pivotingStrategy);</span>
+<span class="fc" id="L61">        this.pivotingStrategy = pivotingStrategy;</span>
+<span class="fc" id="L62">    }</span>
+
+    /** Get the pivotin strategy.
+     * @return pivoting strategy
+     */
+    public PivotingStrategyInterface getPivotingStrategy() {
+<span class="fc" id="L68">        return pivotingStrategy;</span>
+    }
+
+    /**
+     * Select K&lt;sup&gt;th&lt;/sup&gt; value in the array.
+     *
+     * @param work work array to use to find out the K&lt;sup&gt;th&lt;/sup&gt; value
+     * @param pivotsHeap cached pivots heap that can be used for efficient estimation
+     * @param k the index whose value in the array is of interest
+     * @return K&lt;sup&gt;th&lt;/sup&gt; value
+     */
+    public double select(final double[] work, final int[] pivotsHeap, final int k) {
+<span class="fc" id="L80">        int begin = 0;</span>
+<span class="fc" id="L81">        int end = work.length;</span>
+<span class="fc" id="L82">        int node = 0;</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        final boolean usePivotsHeap = pivotsHeap != null;</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        while (end - begin &gt; MIN_SELECT_SIZE) {</span>
+            final int pivot;
+
+<span class="fc bfc" id="L87" title="All 6 branches covered.">            if (usePivotsHeap &amp;&amp; node &lt; pivotsHeap.length &amp;&amp;</span>
+                    pivotsHeap[node] &gt;= 0) {
+                // the pivot has already been found in a previous call
+                // and the array has already been partitioned around it
+<span class="fc" id="L91">                pivot = pivotsHeap[node];</span>
+            } else {
+                // select a pivot and partition work array around it
+<span class="fc" id="L94">                pivot = partition(work, begin, end, pivotingStrategy.pivotIndex(work, begin, end));</span>
+<span class="fc bfc" id="L95" title="All 4 branches covered.">                if (usePivotsHeap &amp;&amp; node &lt; pivotsHeap.length) {</span>
+<span class="fc" id="L96">                    pivotsHeap[node] = pivot;</span>
+                }
+            }
+
+<span class="fc bfc" id="L100" title="All 2 branches covered.">            if (k == pivot) {</span>
+                // the pivot was exactly the element we wanted
+<span class="fc" id="L102">                return work[k];</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">            } else if (k &lt; pivot) {</span>
+                // the element is in the left partition
+<span class="fc" id="L105">                end  = pivot;</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">                node = FastMath.min(2 * node + 1, usePivotsHeap ? pivotsHeap.length : end);</span>
+            } else {
+                // the element is in the right partition
+<span class="fc" id="L109">                begin = pivot + 1;</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">                node  = FastMath.min(2 * node + 2, usePivotsHeap ? pivotsHeap.length : end);</span>
+            }
+<span class="fc" id="L112">        }</span>
+<span class="fc" id="L113">        Arrays.sort(work, begin, end);</span>
+<span class="fc" id="L114">        return work[k];</span>
+    }
+
+    /**
+     * Partition an array slice around a pivot.Partitioning exchanges array
+     * elements such that all elements smaller than pivot are before it and
+     * all elements larger than pivot are after it.
+     *
+     * @param work work array
+     * @param begin index of the first element of the slice of work array
+     * @param end index after the last element of the slice of work array
+     * @param pivot initial index of the pivot
+     * @return index of the pivot after partition
+     */
+    private int partition(final double[] work, final int begin, final int end, final int pivot) {
+
+<span class="fc" id="L130">        final double value = work[pivot];</span>
+<span class="fc" id="L131">        work[pivot] = work[begin];</span>
+
+<span class="fc" id="L133">        int i = begin + 1;</span>
+<span class="fc" id="L134">        int j = end - 1;</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">        while (i &lt; j) {</span>
+<span class="fc bfc" id="L136" title="All 4 branches covered.">            while (i &lt; j &amp;&amp; work[j] &gt; value) {</span>
+<span class="fc" id="L137">                --j;</span>
+            }
+<span class="fc bfc" id="L139" title="All 4 branches covered.">            while (i &lt; j &amp;&amp; work[i] &lt; value) {</span>
+<span class="fc" id="L140">                ++i;</span>
+            }
+
+<span class="fc bfc" id="L143" title="All 2 branches covered.">            if (i &lt; j) {</span>
+<span class="fc" id="L144">                final double tmp = work[i];</span>
+<span class="fc" id="L145">                work[i++] = work[j];</span>
+<span class="fc" id="L146">                work[j--] = tmp;</span>
+<span class="fc" id="L147">            }</span>
+        }
+
+<span class="pc bpc" id="L150" title="1 of 4 branches missed.">        if (i &gt;= end || work[i] &gt; value) {</span>
+<span class="fc" id="L151">            --i;</span>
+        }
+<span class="fc" id="L153">        work[begin] = work[i];</span>
+<span class="fc" id="L154">        work[i] = value;</span>
+<span class="fc" id="L155">        return i;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

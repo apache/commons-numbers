@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Well512aTest xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../testapidocs/org/apache/commons/math3/random/Well512aTest.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math3.random;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> org.junit.Assert;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> org.junit.Test;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/apache/commons/math3/random/Well512aTest.html">Well512aTest</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../org/apache/commons/math3/random/RandomGeneratorAbstractTest.html">RandomGeneratorAbstractTest</a> {
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      @Override
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">public</strong> RandomGenerator makeGenerator() {
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Well512a(101);
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      }
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      @Test
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testReferenceCode() {
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>          Well512a mt = <strong class="jxr_keyword">new</strong> Well512a(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[] {
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>              740849862,  1202665156,  -199039369,  -259008301,  -291878969, -1164428990, -1565918811,   491009864,
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>            -1883086670,  1383450241,  1244617256,   689006653, -1576746370, -1307940314,  1421489086,  1742094000
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>         });
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>          <strong class="jxr_keyword">int</strong>[] refInt = {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>              1634813289,   1876773016,   -973836208,  -2130023652,  -1045460084,  -1834384857,   1691032973,    609714289,
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>              2033920362,    555915483,      6680992,   1958127415,   1866469645,  -1471336965,   2049178762,   -192324811,
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>             -2056050066,    810879705,   1405046309,   -781317118,   1012782311,  -1045081032,    728377508,   1473511660,
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>               290489070,    326666761,   2018299979,  -1876688058,   1239968501,   1464625040,   2025151042,   -101397407,
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>              1387902041,    210959839,   1366359326,   -476473433,    153180037,  -1607631523,   -506743495,     17888738,
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>               313865008,   -340504498,    586684079,   1243699375,    753162229,   -646761694,   -739189655,   -210120185,
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>             -1856358726,   -628255542,  -1812798197,   1416288088,   1077967722,   -846846208,   1379850409,   -580183344,
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>                -1858959,    210859778,    295841424,   1492774865,  -1415543680,   -344870570,  -1942779197,   1549510646,
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>              -389544849,    314254218,     11784988,  -1311757368,   1719514841,   -764610517,   1296788970,   -994707050,
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>               783854563,    422654144,    387639079,   1219688425,   2144352572,   -834212874,  -1036550358,    935909479,
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>              -568610842,   1327498837,   -588933178,   1910065754,    -40851599,   -182063170,   1302731458,    541311559,
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>             -1647345522,    805224371,  -1721196679,   1518507830,   -952689880,   -433276260,    509675254,   -777259954,
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>              1277810106,    284054896,    936042202,   2036836351,   1956412426,  -1186403024,    287795400,   2135311211,
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>               720485927,   1500695024,   -281656583,  -1277937322,  -1628968482,   1242814831,  -2030700974,   1473867890,
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>               440813549,  -1357033971,     28384076,   1602731216,   -641465746,   -609054347,    635938444,   1472898176,
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>              1476894555,   -747974186,  -1590337055,   -884242108,   -389736197,  -2066984505,   1087103272,  -1236446290,
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>                31657463,   1835715432,   -468439078,  -2132633204,   -434609235,    258308151,   1851926761,  -1630139159,
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>             -1344617241,   1969204215,    619463174,   -174392624,    207475487,  -1619828078,   1327980298,    -83968178,
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>               445951782,  -1786230541,      6279288,   -580982231,   1550645552,   2006533941,    275746007,    455676647,
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>              2019637349,   1115547704,  -1313120106,   -516213449,     73752461,  -1382448112,    398589620,   1319888048,
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>             -1595572334,   1566934536,  -1735685764,  -1509545339,   1458173912,   -549395819,   -618827040,   1516624531,
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>              1900757187,  -1454200688,    965524719,    488355065,  -1869294316,   -810641680,  -2059428251,   1454656431,
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              1329120541,   -232185900,   -994996943,   1855980910,   -452077812,   1565630611,    759842266,   1241435187,
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>             -1390456063,   1946400597,  -2032319771,    683667881,    905911106,   1983310786,    120010546,    526018017,
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>             -1946881912,    205004987,  -1307250612,   2130980818,   2052864161,    189839787,   1789478047,    406168885,
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>             -1145186347,      8507675,   1277188815,   1492619042,   2009819675,  -1627411598,   -851016743,  -1828234956,
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              1962622506,   2140398255,    236935165,   -337237772,   1263419111,    516775236,   -335741025,   1391328225,
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>               455979249,  -1457534664,   -657606241,    485648133,   1762116343,   1194889600,    817834937,    321150162,
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>               131159182,    290277758,  -1876924740,  -1770401129,   1291602973,  -1003642974,  -1580211929,   1520422021,
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              -399171579,    -24315308,    453805396,   -659197747,   -205656847,    466526550,   1444397201,   1178091401,
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>             -1157268826,   -602394028,  -1370668795,   1614896435,   1699071659,   1864753793,   1888518358,  -1721244514,
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              1812776767,    668822227,   -297283057,   2130183333,  -1169618692,    912860240,  -2028253096,   1244694278
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          };
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; refInt.length; ++i) {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              Assert.assertEquals(refInt[i], mt.nextInt());
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          }
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

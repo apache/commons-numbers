@@ -1,0 +1,557 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+<title>FractionFormatTest (Apache Commons Math 3.5 Test API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="FractionFormatTest (Apache Commons Math 3.5 Test API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/FractionFormatTest.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+<div class="aboutLanguage"><em><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></em></div>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../org/apache/commons/math3/fraction/FractionFieldTest.html" title="class in org.apache.commons.math3.fraction"><span class="strong">PREV CLASS</span></a></li>
+<li><a href="../../../../../org/apache/commons/math3/fraction/FractionTest.html" title="class in org.apache.commons.math3.fraction"><span class="strong">NEXT CLASS</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/apache/commons/math3/fraction/FractionFormatTest.html" target="_top">FRAMES</a></li>
+<li><a href="FractionFormatTest.html" target="_top">NO FRAMES</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>SUMMARY:&nbsp;</li>
+<li>NESTED&nbsp;|&nbsp;</li>
+<li>FIELD&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">METHOD</a></li>
+</ul>
+<ul class="subNavList">
+<li>DETAIL:&nbsp;</li>
+<li>FIELD&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">METHOD</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<p class="subTitle">org.apache.commons.math3.fraction</p>
+<h2 title="Class FractionFormatTest" class="title">Class FractionFormatTest</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>org.apache.commons.math3.fraction.FractionFormatTest</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<br>
+<pre>public class <a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.30">FractionFormatTest</a>
+extends <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#FractionFormatTest()">FractionFormatTest</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="http://docs.oracle.com/javase/6/docs/api/java/util/Locale.html?is-external=true" title="class or interface in java.util">Locale</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#getLocale()">getLocale</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#setUp()">setUp</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testDenominatorFormat()">testDenominatorFormat</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testDoubleFormat()">testDoubleFormat</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testFormat()">testFormat</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testFormatImproper()">testFormatImproper</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testFormatImproperNegative()">testFormatImproperNegative</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testFormatNegative()">testFormatNegative</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testFormatZero()">testFormatZero</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testLongFormat()">testLongFormat</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testNumeratorFormat()">testNumeratorFormat</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testParse()">testParse</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testParseInteger()">testParseInteger</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testParseInvalid()">testParseInvalid</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testParseInvalidDenominator()">testParseInvalidDenominator</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testParseNegative()">testParseNegative</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testParseOne1()">testParseOne1</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testParseOne2()">testParseOne2</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testParseProper()">testParseProper</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testParseProperInvalidMinus()">testParseProperInvalidMinus</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testParseProperNegative()">testParseProperNegative</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testParseZero1()">testParseZero1</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testParseZero2()">testParseZero2</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fraction/FractionFormatTest.html#testWholeFormat()">testWholeFormat</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="FractionFormatTest()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>FractionFormatTest</h4>
+<pre>public&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.30">FractionFormatTest</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="getLocale()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getLocale</h4>
+<pre>protected&nbsp;<a href="http://docs.oracle.com/javase/6/docs/api/java/util/Locale.html?is-external=true" title="class or interface in java.util">Locale</a>&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.35">getLocale</a>()</pre>
+</li>
+</ul>
+<a name="setUp()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUp</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.40">setUp</a>()</pre>
+</li>
+</ul>
+<a name="testFormat()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFormat</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.46">testFormat</a>()</pre>
+</li>
+</ul>
+<a name="testFormatNegative()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFormatNegative</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.58">testFormatNegative</a>()</pre>
+</li>
+</ul>
+<a name="testFormatZero()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFormatZero</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.70">testFormatZero</a>()</pre>
+</li>
+</ul>
+<a name="testFormatImproper()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFormatImproper</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.82">testFormatImproper</a>()</pre>
+</li>
+</ul>
+<a name="testFormatImproperNegative()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFormatImproperNegative</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.93">testFormatImproperNegative</a>()</pre>
+</li>
+</ul>
+<a name="testParse()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testParse</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.104">testParse</a>()</pre>
+</li>
+</ul>
+<a name="testParseInteger()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testParseInteger</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.123">testParseInteger</a>()</pre>
+</li>
+</ul>
+<a name="testParseOne1()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testParseOne1</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.140">testParseOne1</a>()</pre>
+</li>
+</ul>
+<a name="testParseOne2()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testParseOne2</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.149">testParseOne2</a>()</pre>
+</li>
+</ul>
+<a name="testParseZero1()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testParseZero1</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.158">testParseZero1</a>()</pre>
+</li>
+</ul>
+<a name="testParseZero2()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testParseZero2</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.167">testParseZero2</a>()</pre>
+</li>
+</ul>
+<a name="testParseInvalid()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testParseInvalid</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.178">testParseInvalid</a>()</pre>
+</li>
+</ul>
+<a name="testParseInvalidDenominator()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testParseInvalidDenominator</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.196">testParseInvalidDenominator</a>()</pre>
+</li>
+</ul>
+<a name="testParseNegative()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testParseNegative</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.214">testParseNegative</a>()</pre>
+</li>
+</ul>
+<a name="testParseProper()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testParseProper</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.242">testParseProper</a>()</pre>
+</li>
+</ul>
+<a name="testParseProperNegative()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testParseProperNegative</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.261">testParseProperNegative</a>()</pre>
+</li>
+</ul>
+<a name="testParseProperInvalidMinus()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testParseProperInvalidMinus</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.279">testParseProperInvalidMinus</a>()</pre>
+</li>
+</ul>
+<a name="testNumeratorFormat()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testNumeratorFormat</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.297">testNumeratorFormat</a>()</pre>
+</li>
+</ul>
+<a name="testDenominatorFormat()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testDenominatorFormat</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.314">testDenominatorFormat</a>()</pre>
+</li>
+</ul>
+<a name="testWholeFormat()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testWholeFormat</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.331">testWholeFormat</a>()</pre>
+</li>
+</ul>
+<a name="testLongFormat()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testLongFormat</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.343">testLongFormat</a>()</pre>
+</li>
+</ul>
+<a name="testDoubleFormat()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>testDoubleFormat</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fraction/FractionFormatTest.html#line.348">testDoubleFormat</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/FractionFormatTest.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+<div class="aboutLanguage"><em><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></em></div>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../org/apache/commons/math3/fraction/FractionFieldTest.html" title="class in org.apache.commons.math3.fraction"><span class="strong">PREV CLASS</span></a></li>
+<li><a href="../../../../../org/apache/commons/math3/fraction/FractionTest.html" title="class in org.apache.commons.math3.fraction"><span class="strong">NEXT CLASS</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/apache/commons/math3/fraction/FractionFormatTest.html" target="_top">FRAMES</a></li>
+<li><a href="FractionFormatTest.html" target="_top">NO FRAMES</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>SUMMARY:&nbsp;</li>
+<li>NESTED&nbsp;|&nbsp;</li>
+<li>FIELD&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">METHOD</a></li>
+</ul>
+<ul class="subNavList">
+<li>DETAIL:&nbsp;</li>
+<li>FIELD&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">METHOD</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+<p class="legalCopy"><small>Copyright &#169; 2003&#x2013;2015 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</small></p>
+</body>
+</html>

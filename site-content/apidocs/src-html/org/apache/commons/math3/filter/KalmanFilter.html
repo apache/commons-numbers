@@ -1,0 +1,460 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.filter;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.apache.commons.math3.exception.DimensionMismatchException;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.exception.NullArgumentException;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.linear.Array2DRowRealMatrix;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.linear.ArrayRealVector;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.linear.CholeskyDecomposition;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.linear.MatrixDimensionMismatchException;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.linear.MatrixUtils;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.linear.NonSquareMatrixException;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.math3.linear.RealMatrix;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.commons.math3.linear.RealVector;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.math3.linear.SingularMatrixException;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.math3.util.MathUtils;<a name="line.30"></a>
+<span class="sourceLineNo">031</span><a name="line.31"></a>
+<span class="sourceLineNo">032</span>/**<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * Implementation of a Kalman filter to estimate the state &lt;i&gt;x&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * of a discrete-time controlled process that is governed by the linear<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * stochastic difference equation:<a name="line.35"></a>
+<span class="sourceLineNo">036</span> *<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * &lt;pre&gt;<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * &lt;i&gt;x&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt; = &lt;b&gt;A&lt;/b&gt;&lt;i&gt;x&lt;sub&gt;k-1&lt;/sub&gt;&lt;/i&gt; + &lt;b&gt;B&lt;/b&gt;&lt;i&gt;u&lt;sub&gt;k-1&lt;/sub&gt;&lt;/i&gt; + &lt;i&gt;w&lt;sub&gt;k-1&lt;/sub&gt;&lt;/i&gt;<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * &lt;/pre&gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span> *<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * with a measurement &lt;i&gt;x&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt; that is<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * &lt;pre&gt;<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * &lt;i&gt;z&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt; = &lt;b&gt;H&lt;/b&gt;&lt;i&gt;x&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt; + &lt;i&gt;v&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt;.<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * &lt;/pre&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span> *<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * &lt;p&gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * The random variables &lt;i&gt;w&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt; and &lt;i&gt;v&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt; represent<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * the process and measurement noise and are assumed to be independent of each<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * other and distributed with normal probability (white noise).<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * &lt;p&gt;<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * The Kalman filter cycle involves the following steps:<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * &lt;ol&gt;<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * &lt;li&gt;predict: project the current state estimate ahead in time&lt;/li&gt;<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * &lt;li&gt;correct: adjust the projected estimate by an actual measurement&lt;/li&gt;<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * &lt;/ol&gt;<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * &lt;p&gt;<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * The Kalman filter is initialized with a {@link ProcessModel} and a<a name="line.58"></a>
+<span class="sourceLineNo">059</span> * {@link MeasurementModel}, which contain the corresponding transformation and<a name="line.59"></a>
+<span class="sourceLineNo">060</span> * noise covariance matrices. The parameter names used in the respective models<a name="line.60"></a>
+<span class="sourceLineNo">061</span> * correspond to the following names commonly used in the mathematical<a name="line.61"></a>
+<span class="sourceLineNo">062</span> * literature:<a name="line.62"></a>
+<span class="sourceLineNo">063</span> * &lt;ul&gt;<a name="line.63"></a>
+<span class="sourceLineNo">064</span> * &lt;li&gt;A - state transition matrix&lt;/li&gt;<a name="line.64"></a>
+<span class="sourceLineNo">065</span> * &lt;li&gt;B - control input matrix&lt;/li&gt;<a name="line.65"></a>
+<span class="sourceLineNo">066</span> * &lt;li&gt;H - measurement matrix&lt;/li&gt;<a name="line.66"></a>
+<span class="sourceLineNo">067</span> * &lt;li&gt;Q - process noise covariance matrix&lt;/li&gt;<a name="line.67"></a>
+<span class="sourceLineNo">068</span> * &lt;li&gt;R - measurement noise covariance matrix&lt;/li&gt;<a name="line.68"></a>
+<span class="sourceLineNo">069</span> * &lt;li&gt;P - error covariance matrix&lt;/li&gt;<a name="line.69"></a>
+<span class="sourceLineNo">070</span> * &lt;/ul&gt;<a name="line.70"></a>
+<span class="sourceLineNo">071</span> *<a name="line.71"></a>
+<span class="sourceLineNo">072</span> * @see &lt;a href="http://www.cs.unc.edu/~welch/kalman/"&gt;Kalman filter<a name="line.72"></a>
+<span class="sourceLineNo">073</span> *      resources&lt;/a&gt;<a name="line.73"></a>
+<span class="sourceLineNo">074</span> * @see &lt;a href="http://www.cs.unc.edu/~welch/media/pdf/kalman_intro.pdf"&gt;An<a name="line.74"></a>
+<span class="sourceLineNo">075</span> *      introduction to the Kalman filter by Greg Welch and Gary Bishop&lt;/a&gt;<a name="line.75"></a>
+<span class="sourceLineNo">076</span> * @see &lt;a href="http://academic.csuohio.edu/simond/courses/eec644/kalman.pdf"&gt;<a name="line.76"></a>
+<span class="sourceLineNo">077</span> *      Kalman filter example by Dan Simon&lt;/a&gt;<a name="line.77"></a>
+<span class="sourceLineNo">078</span> * @see ProcessModel<a name="line.78"></a>
+<span class="sourceLineNo">079</span> * @see MeasurementModel<a name="line.79"></a>
+<span class="sourceLineNo">080</span> * @since 3.0<a name="line.80"></a>
+<span class="sourceLineNo">081</span> */<a name="line.81"></a>
+<span class="sourceLineNo">082</span>public class KalmanFilter {<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    /** The process model used by this filter instance. */<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    private final ProcessModel processModel;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    /** The measurement model used by this filter instance. */<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    private final MeasurementModel measurementModel;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    /** The transition matrix, equivalent to A. */<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    private RealMatrix transitionMatrix;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    /** The transposed transition matrix. */<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    private RealMatrix transitionMatrixT;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    /** The control matrix, equivalent to B. */<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    private RealMatrix controlMatrix;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    /** The measurement matrix, equivalent to H. */<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    private RealMatrix measurementMatrix;<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    /** The transposed measurement matrix. */<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    private RealMatrix measurementMatrixT;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    /** The internal state estimation vector, equivalent to x hat. */<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    private RealVector stateEstimation;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    /** The error covariance matrix, equivalent to P. */<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    private RealMatrix errorCovariance;<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>    /**<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * Creates a new Kalman filter with the given process and measurement models.<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     *<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     * @param process<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     *            the model defining the underlying process dynamics<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     * @param measurement<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     *            the model defining the given measurement characteristics<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     * @throws NullArgumentException<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     *             if any of the given inputs is null (except for the control matrix)<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     * @throws NonSquareMatrixException<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     *             if the transition matrix is non square<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * @throws DimensionMismatchException<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     *             if the column dimension of the transition matrix does not match the dimension of the<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     *             initial state estimation vector<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     * @throws MatrixDimensionMismatchException<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     *             if the matrix dimensions do not fit together<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     */<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    public KalmanFilter(final ProcessModel process, final MeasurementModel measurement)<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            throws NullArgumentException, NonSquareMatrixException, DimensionMismatchException,<a name="line.120"></a>
+<span class="sourceLineNo">121</span>                   MatrixDimensionMismatchException {<a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
+<span class="sourceLineNo">123</span>        MathUtils.checkNotNull(process);<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        MathUtils.checkNotNull(measurement);<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span>        this.processModel = process;<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        this.measurementModel = measurement;<a name="line.127"></a>
+<span class="sourceLineNo">128</span><a name="line.128"></a>
+<span class="sourceLineNo">129</span>        transitionMatrix = processModel.getStateTransitionMatrix();<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        MathUtils.checkNotNull(transitionMatrix);<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        transitionMatrixT = transitionMatrix.transpose();<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>        // create an empty matrix if no control matrix was given<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        if (processModel.getControlMatrix() == null) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>            controlMatrix = new Array2DRowRealMatrix();<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        } else {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            controlMatrix = processModel.getControlMatrix();<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        }<a name="line.138"></a>
+<span class="sourceLineNo">139</span><a name="line.139"></a>
+<span class="sourceLineNo">140</span>        measurementMatrix = measurementModel.getMeasurementMatrix();<a name="line.140"></a>
+<span class="sourceLineNo">141</span>        MathUtils.checkNotNull(measurementMatrix);<a name="line.141"></a>
+<span class="sourceLineNo">142</span>        measurementMatrixT = measurementMatrix.transpose();<a name="line.142"></a>
+<span class="sourceLineNo">143</span><a name="line.143"></a>
+<span class="sourceLineNo">144</span>        // check that the process and measurement noise matrices are not null<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        // they will be directly accessed from the model as they may change<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        // over time<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        RealMatrix processNoise = processModel.getProcessNoise();<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        MathUtils.checkNotNull(processNoise);<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        RealMatrix measNoise = measurementModel.getMeasurementNoise();<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        MathUtils.checkNotNull(measNoise);<a name="line.150"></a>
+<span class="sourceLineNo">151</span><a name="line.151"></a>
+<span class="sourceLineNo">152</span>        // set the initial state estimate to a zero vector if it is not<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        // available from the process model<a name="line.153"></a>
+<span class="sourceLineNo">154</span>        if (processModel.getInitialStateEstimate() == null) {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>            stateEstimation = new ArrayRealVector(transitionMatrix.getColumnDimension());<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        } else {<a name="line.156"></a>
+<span class="sourceLineNo">157</span>            stateEstimation = processModel.getInitialStateEstimate();<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        }<a name="line.158"></a>
+<span class="sourceLineNo">159</span><a name="line.159"></a>
+<span class="sourceLineNo">160</span>        if (transitionMatrix.getColumnDimension() != stateEstimation.getDimension()) {<a name="line.160"></a>
+<span class="sourceLineNo">161</span>            throw new DimensionMismatchException(transitionMatrix.getColumnDimension(),<a name="line.161"></a>
+<span class="sourceLineNo">162</span>                                                 stateEstimation.getDimension());<a name="line.162"></a>
+<span class="sourceLineNo">163</span>        }<a name="line.163"></a>
+<span class="sourceLineNo">164</span><a name="line.164"></a>
+<span class="sourceLineNo">165</span>        // initialize the error covariance to the process noise if it is not<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        // available from the process model<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        if (processModel.getInitialErrorCovariance() == null) {<a name="line.167"></a>
+<span class="sourceLineNo">168</span>            errorCovariance = processNoise.copy();<a name="line.168"></a>
+<span class="sourceLineNo">169</span>        } else {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>            errorCovariance = processModel.getInitialErrorCovariance();<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        }<a name="line.171"></a>
+<span class="sourceLineNo">172</span><a name="line.172"></a>
+<span class="sourceLineNo">173</span>        // sanity checks, the control matrix B may be null<a name="line.173"></a>
+<span class="sourceLineNo">174</span><a name="line.174"></a>
+<span class="sourceLineNo">175</span>        // A must be a square matrix<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        if (!transitionMatrix.isSquare()) {<a name="line.176"></a>
+<span class="sourceLineNo">177</span>            throw new NonSquareMatrixException(<a name="line.177"></a>
+<span class="sourceLineNo">178</span>                    transitionMatrix.getRowDimension(),<a name="line.178"></a>
+<span class="sourceLineNo">179</span>                    transitionMatrix.getColumnDimension());<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        }<a name="line.180"></a>
+<span class="sourceLineNo">181</span><a name="line.181"></a>
+<span class="sourceLineNo">182</span>        // row dimension of B must be equal to A<a name="line.182"></a>
+<span class="sourceLineNo">183</span>        // if no control matrix is available, the row and column dimension will be 0<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        if (controlMatrix != null &amp;&amp;<a name="line.184"></a>
+<span class="sourceLineNo">185</span>            controlMatrix.getRowDimension() &gt; 0 &amp;&amp;<a name="line.185"></a>
+<span class="sourceLineNo">186</span>            controlMatrix.getColumnDimension() &gt; 0 &amp;&amp;<a name="line.186"></a>
+<span class="sourceLineNo">187</span>            controlMatrix.getRowDimension() != transitionMatrix.getRowDimension()) {<a name="line.187"></a>
+<span class="sourceLineNo">188</span>            throw new MatrixDimensionMismatchException(controlMatrix.getRowDimension(),<a name="line.188"></a>
+<span class="sourceLineNo">189</span>                                                       controlMatrix.getColumnDimension(),<a name="line.189"></a>
+<span class="sourceLineNo">190</span>                                                       transitionMatrix.getRowDimension(),<a name="line.190"></a>
+<span class="sourceLineNo">191</span>                                                       controlMatrix.getColumnDimension());<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        }<a name="line.192"></a>
+<span class="sourceLineNo">193</span><a name="line.193"></a>
+<span class="sourceLineNo">194</span>        // Q must be equal to A<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        MatrixUtils.checkAdditionCompatible(transitionMatrix, processNoise);<a name="line.195"></a>
+<span class="sourceLineNo">196</span><a name="line.196"></a>
+<span class="sourceLineNo">197</span>        // column dimension of H must be equal to row dimension of A<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        if (measurementMatrix.getColumnDimension() != transitionMatrix.getRowDimension()) {<a name="line.198"></a>
+<span class="sourceLineNo">199</span>            throw new MatrixDimensionMismatchException(measurementMatrix.getRowDimension(),<a name="line.199"></a>
+<span class="sourceLineNo">200</span>                                                       measurementMatrix.getColumnDimension(),<a name="line.200"></a>
+<span class="sourceLineNo">201</span>                                                       measurementMatrix.getRowDimension(),<a name="line.201"></a>
+<span class="sourceLineNo">202</span>                                                       transitionMatrix.getRowDimension());<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        }<a name="line.203"></a>
+<span class="sourceLineNo">204</span><a name="line.204"></a>
+<span class="sourceLineNo">205</span>        // row dimension of R must be equal to row dimension of H<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        if (measNoise.getRowDimension() != measurementMatrix.getRowDimension()) {<a name="line.206"></a>
+<span class="sourceLineNo">207</span>            throw new MatrixDimensionMismatchException(measNoise.getRowDimension(),<a name="line.207"></a>
+<span class="sourceLineNo">208</span>                                                       measNoise.getColumnDimension(),<a name="line.208"></a>
+<span class="sourceLineNo">209</span>                                                       measurementMatrix.getRowDimension(),<a name="line.209"></a>
+<span class="sourceLineNo">210</span>                                                       measNoise.getColumnDimension());<a name="line.210"></a>
+<span class="sourceLineNo">211</span>        }<a name="line.211"></a>
+<span class="sourceLineNo">212</span>    }<a name="line.212"></a>
+<span class="sourceLineNo">213</span><a name="line.213"></a>
+<span class="sourceLineNo">214</span>    /**<a name="line.214"></a>
+<span class="sourceLineNo">215</span>     * Returns the dimension of the state estimation vector.<a name="line.215"></a>
+<span class="sourceLineNo">216</span>     *<a name="line.216"></a>
+<span class="sourceLineNo">217</span>     * @return the state dimension<a name="line.217"></a>
+<span class="sourceLineNo">218</span>     */<a name="line.218"></a>
+<span class="sourceLineNo">219</span>    public int getStateDimension() {<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        return stateEstimation.getDimension();<a name="line.220"></a>
+<span class="sourceLineNo">221</span>    }<a name="line.221"></a>
+<span class="sourceLineNo">222</span><a name="line.222"></a>
+<span class="sourceLineNo">223</span>    /**<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     * Returns the dimension of the measurement vector.<a name="line.224"></a>
+<span class="sourceLineNo">225</span>     *<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     * @return the measurement vector dimension<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     */<a name="line.227"></a>
+<span class="sourceLineNo">228</span>    public int getMeasurementDimension() {<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        return measurementMatrix.getRowDimension();<a name="line.229"></a>
+<span class="sourceLineNo">230</span>    }<a name="line.230"></a>
+<span class="sourceLineNo">231</span><a name="line.231"></a>
+<span class="sourceLineNo">232</span>    /**<a name="line.232"></a>
+<span class="sourceLineNo">233</span>     * Returns the current state estimation vector.<a name="line.233"></a>
+<span class="sourceLineNo">234</span>     *<a name="line.234"></a>
+<span class="sourceLineNo">235</span>     * @return the state estimation vector<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     */<a name="line.236"></a>
+<span class="sourceLineNo">237</span>    public double[] getStateEstimation() {<a name="line.237"></a>
+<span class="sourceLineNo">238</span>        return stateEstimation.toArray();<a name="line.238"></a>
+<span class="sourceLineNo">239</span>    }<a name="line.239"></a>
+<span class="sourceLineNo">240</span><a name="line.240"></a>
+<span class="sourceLineNo">241</span>    /**<a name="line.241"></a>
+<span class="sourceLineNo">242</span>     * Returns a copy of the current state estimation vector.<a name="line.242"></a>
+<span class="sourceLineNo">243</span>     *<a name="line.243"></a>
+<span class="sourceLineNo">244</span>     * @return the state estimation vector<a name="line.244"></a>
+<span class="sourceLineNo">245</span>     */<a name="line.245"></a>
+<span class="sourceLineNo">246</span>    public RealVector getStateEstimationVector() {<a name="line.246"></a>
+<span class="sourceLineNo">247</span>        return stateEstimation.copy();<a name="line.247"></a>
+<span class="sourceLineNo">248</span>    }<a name="line.248"></a>
+<span class="sourceLineNo">249</span><a name="line.249"></a>
+<span class="sourceLineNo">250</span>    /**<a name="line.250"></a>
+<span class="sourceLineNo">251</span>     * Returns the current error covariance matrix.<a name="line.251"></a>
+<span class="sourceLineNo">252</span>     *<a name="line.252"></a>
+<span class="sourceLineNo">253</span>     * @return the error covariance matrix<a name="line.253"></a>
+<span class="sourceLineNo">254</span>     */<a name="line.254"></a>
+<span class="sourceLineNo">255</span>    public double[][] getErrorCovariance() {<a name="line.255"></a>
+<span class="sourceLineNo">256</span>        return errorCovariance.getData();<a name="line.256"></a>
+<span class="sourceLineNo">257</span>    }<a name="line.257"></a>
+<span class="sourceLineNo">258</span><a name="line.258"></a>
+<span class="sourceLineNo">259</span>    /**<a name="line.259"></a>
+<span class="sourceLineNo">260</span>     * Returns a copy of the current error covariance matrix.<a name="line.260"></a>
+<span class="sourceLineNo">261</span>     *<a name="line.261"></a>
+<span class="sourceLineNo">262</span>     * @return the error covariance matrix<a name="line.262"></a>
+<span class="sourceLineNo">263</span>     */<a name="line.263"></a>
+<span class="sourceLineNo">264</span>    public RealMatrix getErrorCovarianceMatrix() {<a name="line.264"></a>
+<span class="sourceLineNo">265</span>        return errorCovariance.copy();<a name="line.265"></a>
+<span class="sourceLineNo">266</span>    }<a name="line.266"></a>
+<span class="sourceLineNo">267</span><a name="line.267"></a>
+<span class="sourceLineNo">268</span>    /**<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     * Predict the internal state estimation one time step ahead.<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     */<a name="line.270"></a>
+<span class="sourceLineNo">271</span>    public void predict() {<a name="line.271"></a>
+<span class="sourceLineNo">272</span>        predict((RealVector) null);<a name="line.272"></a>
+<span class="sourceLineNo">273</span>    }<a name="line.273"></a>
+<span class="sourceLineNo">274</span><a name="line.274"></a>
+<span class="sourceLineNo">275</span>    /**<a name="line.275"></a>
+<span class="sourceLineNo">276</span>     * Predict the internal state estimation one time step ahead.<a name="line.276"></a>
+<span class="sourceLineNo">277</span>     *<a name="line.277"></a>
+<span class="sourceLineNo">278</span>     * @param u<a name="line.278"></a>
+<span class="sourceLineNo">279</span>     *            the control vector<a name="line.279"></a>
+<span class="sourceLineNo">280</span>     * @throws DimensionMismatchException<a name="line.280"></a>
+<span class="sourceLineNo">281</span>     *             if the dimension of the control vector does not fit<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     */<a name="line.282"></a>
+<span class="sourceLineNo">283</span>    public void predict(final double[] u) throws DimensionMismatchException {<a name="line.283"></a>
+<span class="sourceLineNo">284</span>        predict(new ArrayRealVector(u, false));<a name="line.284"></a>
+<span class="sourceLineNo">285</span>    }<a name="line.285"></a>
+<span class="sourceLineNo">286</span><a name="line.286"></a>
+<span class="sourceLineNo">287</span>    /**<a name="line.287"></a>
+<span class="sourceLineNo">288</span>     * Predict the internal state estimation one time step ahead.<a name="line.288"></a>
+<span class="sourceLineNo">289</span>     *<a name="line.289"></a>
+<span class="sourceLineNo">290</span>     * @param u<a name="line.290"></a>
+<span class="sourceLineNo">291</span>     *            the control vector<a name="line.291"></a>
+<span class="sourceLineNo">292</span>     * @throws DimensionMismatchException<a name="line.292"></a>
+<span class="sourceLineNo">293</span>     *             if the dimension of the control vector does not match<a name="line.293"></a>
+<span class="sourceLineNo">294</span>     */<a name="line.294"></a>
+<span class="sourceLineNo">295</span>    public void predict(final RealVector u) throws DimensionMismatchException {<a name="line.295"></a>
+<span class="sourceLineNo">296</span>        // sanity checks<a name="line.296"></a>
+<span class="sourceLineNo">297</span>        if (u != null &amp;&amp;<a name="line.297"></a>
+<span class="sourceLineNo">298</span>            u.getDimension() != controlMatrix.getColumnDimension()) {<a name="line.298"></a>
+<span class="sourceLineNo">299</span>            throw new DimensionMismatchException(u.getDimension(),<a name="line.299"></a>
+<span class="sourceLineNo">300</span>                                                 controlMatrix.getColumnDimension());<a name="line.300"></a>
+<span class="sourceLineNo">301</span>        }<a name="line.301"></a>
+<span class="sourceLineNo">302</span><a name="line.302"></a>
+<span class="sourceLineNo">303</span>        // project the state estimation ahead (a priori state)<a name="line.303"></a>
+<span class="sourceLineNo">304</span>        // xHat(k)- = A * xHat(k-1) + B * u(k-1)<a name="line.304"></a>
+<span class="sourceLineNo">305</span>        stateEstimation = transitionMatrix.operate(stateEstimation);<a name="line.305"></a>
+<span class="sourceLineNo">306</span><a name="line.306"></a>
+<span class="sourceLineNo">307</span>        // add control input if it is available<a name="line.307"></a>
+<span class="sourceLineNo">308</span>        if (u != null) {<a name="line.308"></a>
+<span class="sourceLineNo">309</span>            stateEstimation = stateEstimation.add(controlMatrix.operate(u));<a name="line.309"></a>
+<span class="sourceLineNo">310</span>        }<a name="line.310"></a>
+<span class="sourceLineNo">311</span><a name="line.311"></a>
+<span class="sourceLineNo">312</span>        // project the error covariance ahead<a name="line.312"></a>
+<span class="sourceLineNo">313</span>        // P(k)- = A * P(k-1) * A' + Q<a name="line.313"></a>
+<span class="sourceLineNo">314</span>        errorCovariance = transitionMatrix.multiply(errorCovariance)<a name="line.314"></a>
+<span class="sourceLineNo">315</span>                .multiply(transitionMatrixT)<a name="line.315"></a>
+<span class="sourceLineNo">316</span>                .add(processModel.getProcessNoise());<a name="line.316"></a>
+<span class="sourceLineNo">317</span>    }<a name="line.317"></a>
+<span class="sourceLineNo">318</span><a name="line.318"></a>
+<span class="sourceLineNo">319</span>    /**<a name="line.319"></a>
+<span class="sourceLineNo">320</span>     * Correct the current state estimate with an actual measurement.<a name="line.320"></a>
+<span class="sourceLineNo">321</span>     *<a name="line.321"></a>
+<span class="sourceLineNo">322</span>     * @param z<a name="line.322"></a>
+<span class="sourceLineNo">323</span>     *            the measurement vector<a name="line.323"></a>
+<span class="sourceLineNo">324</span>     * @throws NullArgumentException<a name="line.324"></a>
+<span class="sourceLineNo">325</span>     *             if the measurement vector is {@code null}<a name="line.325"></a>
+<span class="sourceLineNo">326</span>     * @throws DimensionMismatchException<a name="line.326"></a>
+<span class="sourceLineNo">327</span>     *             if the dimension of the measurement vector does not fit<a name="line.327"></a>
+<span class="sourceLineNo">328</span>     * @throws SingularMatrixException<a name="line.328"></a>
+<span class="sourceLineNo">329</span>     *             if the covariance matrix could not be inverted<a name="line.329"></a>
+<span class="sourceLineNo">330</span>     */<a name="line.330"></a>
+<span class="sourceLineNo">331</span>    public void correct(final double[] z)<a name="line.331"></a>
+<span class="sourceLineNo">332</span>            throws NullArgumentException, DimensionMismatchException, SingularMatrixException {<a name="line.332"></a>
+<span class="sourceLineNo">333</span>        correct(new ArrayRealVector(z, false));<a name="line.333"></a>
+<span class="sourceLineNo">334</span>    }<a name="line.334"></a>
+<span class="sourceLineNo">335</span><a name="line.335"></a>
+<span class="sourceLineNo">336</span>    /**<a name="line.336"></a>
+<span class="sourceLineNo">337</span>     * Correct the current state estimate with an actual measurement.<a name="line.337"></a>
+<span class="sourceLineNo">338</span>     *<a name="line.338"></a>
+<span class="sourceLineNo">339</span>     * @param z<a name="line.339"></a>
+<span class="sourceLineNo">340</span>     *            the measurement vector<a name="line.340"></a>
+<span class="sourceLineNo">341</span>     * @throws NullArgumentException<a name="line.341"></a>
+<span class="sourceLineNo">342</span>     *             if the measurement vector is {@code null}<a name="line.342"></a>
+<span class="sourceLineNo">343</span>     * @throws DimensionMismatchException<a name="line.343"></a>
+<span class="sourceLineNo">344</span>     *             if the dimension of the measurement vector does not fit<a name="line.344"></a>
+<span class="sourceLineNo">345</span>     * @throws SingularMatrixException<a name="line.345"></a>
+<span class="sourceLineNo">346</span>     *             if the covariance matrix could not be inverted<a name="line.346"></a>
+<span class="sourceLineNo">347</span>     */<a name="line.347"></a>
+<span class="sourceLineNo">348</span>    public void correct(final RealVector z)<a name="line.348"></a>
+<span class="sourceLineNo">349</span>            throws NullArgumentException, DimensionMismatchException, SingularMatrixException {<a name="line.349"></a>
+<span class="sourceLineNo">350</span><a name="line.350"></a>
+<span class="sourceLineNo">351</span>        // sanity checks<a name="line.351"></a>
+<span class="sourceLineNo">352</span>        MathUtils.checkNotNull(z);<a name="line.352"></a>
+<span class="sourceLineNo">353</span>        if (z.getDimension() != measurementMatrix.getRowDimension()) {<a name="line.353"></a>
+<span class="sourceLineNo">354</span>            throw new DimensionMismatchException(z.getDimension(),<a name="line.354"></a>
+<span class="sourceLineNo">355</span>                                                 measurementMatrix.getRowDimension());<a name="line.355"></a>
+<span class="sourceLineNo">356</span>        }<a name="line.356"></a>
+<span class="sourceLineNo">357</span><a name="line.357"></a>
+<span class="sourceLineNo">358</span>        // S = H * P(k) * H' + R<a name="line.358"></a>
+<span class="sourceLineNo">359</span>        RealMatrix s = measurementMatrix.multiply(errorCovariance)<a name="line.359"></a>
+<span class="sourceLineNo">360</span>            .multiply(measurementMatrixT)<a name="line.360"></a>
+<span class="sourceLineNo">361</span>            .add(measurementModel.getMeasurementNoise());<a name="line.361"></a>
+<span class="sourceLineNo">362</span><a name="line.362"></a>
+<span class="sourceLineNo">363</span>        // Inn = z(k) - H * xHat(k)-<a name="line.363"></a>
+<span class="sourceLineNo">364</span>        RealVector innovation = z.subtract(measurementMatrix.operate(stateEstimation));<a name="line.364"></a>
+<span class="sourceLineNo">365</span><a name="line.365"></a>
+<span class="sourceLineNo">366</span>        // calculate gain matrix<a name="line.366"></a>
+<span class="sourceLineNo">367</span>        // K(k) = P(k)- * H' * (H * P(k)- * H' + R)^-1<a name="line.367"></a>
+<span class="sourceLineNo">368</span>        // K(k) = P(k)- * H' * S^-1<a name="line.368"></a>
+<span class="sourceLineNo">369</span><a name="line.369"></a>
+<span class="sourceLineNo">370</span>        // instead of calculating the inverse of S we can rearrange the formula,<a name="line.370"></a>
+<span class="sourceLineNo">371</span>        // and then solve the linear equation A x X = B with A = S', X = K' and B = (H * P)'<a name="line.371"></a>
+<span class="sourceLineNo">372</span><a name="line.372"></a>
+<span class="sourceLineNo">373</span>        // K(k) * S = P(k)- * H'<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        // S' * K(k)' = H * P(k)-'<a name="line.374"></a>
+<span class="sourceLineNo">375</span>        RealMatrix kalmanGain = new CholeskyDecomposition(s).getSolver()<a name="line.375"></a>
+<span class="sourceLineNo">376</span>                .solve(measurementMatrix.multiply(errorCovariance.transpose()))<a name="line.376"></a>
+<span class="sourceLineNo">377</span>                .transpose();<a name="line.377"></a>
+<span class="sourceLineNo">378</span><a name="line.378"></a>
+<span class="sourceLineNo">379</span>        // update estimate with measurement z(k)<a name="line.379"></a>
+<span class="sourceLineNo">380</span>        // xHat(k) = xHat(k)- + K * Inn<a name="line.380"></a>
+<span class="sourceLineNo">381</span>        stateEstimation = stateEstimation.add(kalmanGain.operate(innovation));<a name="line.381"></a>
+<span class="sourceLineNo">382</span><a name="line.382"></a>
+<span class="sourceLineNo">383</span>        // update covariance of prediction error<a name="line.383"></a>
+<span class="sourceLineNo">384</span>        // P(k) = (I - K * H) * P(k)-<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        RealMatrix identity = MatrixUtils.createRealIdentityMatrix(kalmanGain.getRowDimension());<a name="line.385"></a>
+<span class="sourceLineNo">386</span>        errorCovariance = identity.subtract(kalmanGain.multiply(measurementMatrix)).multiply(errorCovariance);<a name="line.386"></a>
+<span class="sourceLineNo">387</span>    }<a name="line.387"></a>
+<span class="sourceLineNo">388</span>}<a name="line.388"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

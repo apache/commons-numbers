@@ -1,0 +1,659 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FastMathCalc.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.util</a> &gt; <span class="el_source">FastMathCalc.java</span></div><h1>FastMathCalc.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.util;
+
+import java.io.PrintStream;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+
+/** Class used to compute the classical functions tables.
+ * @since 3.0
+ */
+class FastMathCalc {
+
+    /**
+     * 0x40000000 - used to split a double into two parts, both with the low order bits cleared.
+     * Equivalent to 2^30.
+     */
+    private static final long HEX_40000000 = 0x40000000L; // 1073741824L
+
+    /** Factorial table, for Taylor series expansions. 0!, 1!, 2!, ... 19! */
+<span class="nc" id="L35">    private static final double FACT[] = new double[]</span>
+        {
+        +1.0d,                        // 0
+        +1.0d,                        // 1
+        +2.0d,                        // 2
+        +6.0d,                        // 3
+        +24.0d,                       // 4
+        +120.0d,                      // 5
+        +720.0d,                      // 6
+        +5040.0d,                     // 7
+        +40320.0d,                    // 8
+        +362880.0d,                   // 9
+        +3628800.0d,                  // 10
+        +39916800.0d,                 // 11
+        +479001600.0d,                // 12
+        +6227020800.0d,               // 13
+        +87178291200.0d,              // 14
+        +1307674368000.0d,            // 15
+        +20922789888000.0d,           // 16
+        +355687428096000.0d,          // 17
+        +6402373705728000.0d,         // 18
+        +121645100408832000.0d,       // 19
+        };
+
+    /** Coefficients for slowLog. */
+<span class="nc" id="L60">    private static final double LN_SPLIT_COEF[][] = {</span>
+        {2.0, 0.0},
+        {0.6666666269302368, 3.9736429850260626E-8},
+        {0.3999999761581421, 2.3841857910019882E-8},
+        {0.2857142686843872, 1.7029898543501842E-8},
+        {0.2222222089767456, 1.3245471311735498E-8},
+        {0.1818181574344635, 2.4384203044354907E-8},
+        {0.1538461446762085, 9.140260083262505E-9},
+        {0.13333332538604736, 9.220590270857665E-9},
+        {0.11764700710773468, 1.2393345855018391E-8},
+        {0.10526403784751892, 8.251545029714408E-9},
+        {0.0952233225107193, 1.2675934823758863E-8},
+        {0.08713622391223907, 1.1430250008909141E-8},
+        {0.07842259109020233, 2.404307984052299E-9},
+        {0.08371849358081818, 1.176342548272881E-8},
+        {0.030589580535888672, 1.2958646899018938E-9},
+        {0.14982303977012634, 1.225743062930824E-8},
+    };
+
+    /** Table start declaration. */
+    private static final String TABLE_START_DECL = &quot;    {&quot;;
+
+    /** Table end declaration. */
+    private static final String TABLE_END_DECL   = &quot;    };&quot;;
+
+    /**
+     * Private Constructor.
+     */
+<span class="nc" id="L88">    private FastMathCalc() {</span>
+<span class="nc" id="L89">    }</span>
+
+    /** Build the sine and cosine tables.
+     * @param SINE_TABLE_A table of the most significant part of the sines
+     * @param SINE_TABLE_B table of the least significant part of the sines
+     * @param COSINE_TABLE_A table of the most significant part of the cosines
+     * @param COSINE_TABLE_B table of the most significant part of the cosines
+     * @param SINE_TABLE_LEN length of the tables
+     * @param TANGENT_TABLE_A table of the most significant part of the tangents
+     * @param TANGENT_TABLE_B table of the most significant part of the tangents
+     */
+    @SuppressWarnings(&quot;unused&quot;)
+    private static void buildSinCosTables(double[] SINE_TABLE_A, double[] SINE_TABLE_B,
+                                          double[] COSINE_TABLE_A, double[] COSINE_TABLE_B,
+                                          int SINE_TABLE_LEN, double[] TANGENT_TABLE_A, double[] TANGENT_TABLE_B) {
+<span class="nc" id="L104">        final double result[] = new double[2];</span>
+
+        /* Use taylor series for 0 &lt;= x &lt;= 6/8 */
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        for (int i = 0; i &lt; 7; i++) {</span>
+<span class="nc" id="L108">            double x = i / 8.0;</span>
+
+<span class="nc" id="L110">            slowSin(x, result);</span>
+<span class="nc" id="L111">            SINE_TABLE_A[i] = result[0];</span>
+<span class="nc" id="L112">            SINE_TABLE_B[i] = result[1];</span>
+
+<span class="nc" id="L114">            slowCos(x, result);</span>
+<span class="nc" id="L115">            COSINE_TABLE_A[i] = result[0];</span>
+<span class="nc" id="L116">            COSINE_TABLE_B[i] = result[1];</span>
+        }
+
+        /* Use angle addition formula to complete table to 13/8, just beyond pi/2 */
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        for (int i = 7; i &lt; SINE_TABLE_LEN; i++) {</span>
+<span class="nc" id="L121">            double xs[] = new double[2];</span>
+<span class="nc" id="L122">            double ys[] = new double[2];</span>
+<span class="nc" id="L123">            double as[] = new double[2];</span>
+<span class="nc" id="L124">            double bs[] = new double[2];</span>
+<span class="nc" id="L125">            double temps[] = new double[2];</span>
+
+<span class="nc bnc" id="L127" title="All 2 branches missed.">            if ( (i &amp; 1) == 0) {</span>
+                // Even, use double angle
+<span class="nc" id="L129">                xs[0] = SINE_TABLE_A[i/2];</span>
+<span class="nc" id="L130">                xs[1] = SINE_TABLE_B[i/2];</span>
+<span class="nc" id="L131">                ys[0] = COSINE_TABLE_A[i/2];</span>
+<span class="nc" id="L132">                ys[1] = COSINE_TABLE_B[i/2];</span>
+
+                /* compute sine */
+<span class="nc" id="L135">                splitMult(xs, ys, result);</span>
+<span class="nc" id="L136">                SINE_TABLE_A[i] = result[0] * 2.0;</span>
+<span class="nc" id="L137">                SINE_TABLE_B[i] = result[1] * 2.0;</span>
+
+                /* Compute cosine */
+<span class="nc" id="L140">                splitMult(ys, ys, as);</span>
+<span class="nc" id="L141">                splitMult(xs, xs, temps);</span>
+<span class="nc" id="L142">                temps[0] = -temps[0];</span>
+<span class="nc" id="L143">                temps[1] = -temps[1];</span>
+<span class="nc" id="L144">                splitAdd(as, temps, result);</span>
+<span class="nc" id="L145">                COSINE_TABLE_A[i] = result[0];</span>
+<span class="nc" id="L146">                COSINE_TABLE_B[i] = result[1];</span>
+            } else {
+<span class="nc" id="L148">                xs[0] = SINE_TABLE_A[i/2];</span>
+<span class="nc" id="L149">                xs[1] = SINE_TABLE_B[i/2];</span>
+<span class="nc" id="L150">                ys[0] = COSINE_TABLE_A[i/2];</span>
+<span class="nc" id="L151">                ys[1] = COSINE_TABLE_B[i/2];</span>
+<span class="nc" id="L152">                as[0] = SINE_TABLE_A[i/2+1];</span>
+<span class="nc" id="L153">                as[1] = SINE_TABLE_B[i/2+1];</span>
+<span class="nc" id="L154">                bs[0] = COSINE_TABLE_A[i/2+1];</span>
+<span class="nc" id="L155">                bs[1] = COSINE_TABLE_B[i/2+1];</span>
+
+                /* compute sine */
+<span class="nc" id="L158">                splitMult(xs, bs, temps);</span>
+<span class="nc" id="L159">                splitMult(ys, as, result);</span>
+<span class="nc" id="L160">                splitAdd(result, temps, result);</span>
+<span class="nc" id="L161">                SINE_TABLE_A[i] = result[0];</span>
+<span class="nc" id="L162">                SINE_TABLE_B[i] = result[1];</span>
+
+                /* Compute cosine */
+<span class="nc" id="L165">                splitMult(ys, bs, result);</span>
+<span class="nc" id="L166">                splitMult(xs, as, temps);</span>
+<span class="nc" id="L167">                temps[0] = -temps[0];</span>
+<span class="nc" id="L168">                temps[1] = -temps[1];</span>
+<span class="nc" id="L169">                splitAdd(result, temps, result);</span>
+<span class="nc" id="L170">                COSINE_TABLE_A[i] = result[0];</span>
+<span class="nc" id="L171">                COSINE_TABLE_B[i] = result[1];</span>
+            }
+        }
+
+        /* Compute tangent = sine/cosine */
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        for (int i = 0; i &lt; SINE_TABLE_LEN; i++) {</span>
+<span class="nc" id="L177">            double xs[] = new double[2];</span>
+<span class="nc" id="L178">            double ys[] = new double[2];</span>
+<span class="nc" id="L179">            double as[] = new double[2];</span>
+
+<span class="nc" id="L181">            as[0] = COSINE_TABLE_A[i];</span>
+<span class="nc" id="L182">            as[1] = COSINE_TABLE_B[i];</span>
+
+<span class="nc" id="L184">            splitReciprocal(as, ys);</span>
+
+<span class="nc" id="L186">            xs[0] = SINE_TABLE_A[i];</span>
+<span class="nc" id="L187">            xs[1] = SINE_TABLE_B[i];</span>
+
+<span class="nc" id="L189">            splitMult(xs, ys, as);</span>
+
+<span class="nc" id="L191">            TANGENT_TABLE_A[i] = as[0];</span>
+<span class="nc" id="L192">            TANGENT_TABLE_B[i] = as[1];</span>
+        }
+
+<span class="nc" id="L195">    }</span>
+
+    /**
+     *  For x between 0 and pi/4 compute cosine using Talor series
+     *  cos(x) = 1 - x^2/2! + x^4/4! ...
+     * @param x number from which cosine is requested
+     * @param result placeholder where to put the result in extended precision
+     * (may be null)
+     * @return cos(x)
+     */
+    static double slowCos(final double x, final double result[]) {
+
+<span class="nc" id="L207">        final double xs[] = new double[2];</span>
+<span class="nc" id="L208">        final double ys[] = new double[2];</span>
+<span class="nc" id="L209">        final double facts[] = new double[2];</span>
+<span class="nc" id="L210">        final double as[] = new double[2];</span>
+<span class="nc" id="L211">        split(x, xs);</span>
+<span class="nc" id="L212">        ys[0] = ys[1] = 0.0;</span>
+
+<span class="nc bnc" id="L214" title="All 2 branches missed.">        for (int i = FACT.length-1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L215">            splitMult(xs, ys, as);</span>
+<span class="nc" id="L216">            ys[0] = as[0]; ys[1] = as[1];</span>
+
+<span class="nc bnc" id="L218" title="All 2 branches missed.">            if ( (i &amp; 1) != 0) { // skip odd entries</span>
+<span class="nc" id="L219">                continue;</span>
+            }
+
+<span class="nc" id="L222">            split(FACT[i], as);</span>
+<span class="nc" id="L223">            splitReciprocal(as, facts);</span>
+
+<span class="nc bnc" id="L225" title="All 2 branches missed.">            if ( (i &amp; 2) != 0 ) { // alternate terms are negative</span>
+<span class="nc" id="L226">                facts[0] = -facts[0];</span>
+<span class="nc" id="L227">                facts[1] = -facts[1];</span>
+            }
+
+<span class="nc" id="L230">            splitAdd(ys, facts, as);</span>
+<span class="nc" id="L231">            ys[0] = as[0]; ys[1] = as[1];</span>
+        }
+
+<span class="nc bnc" id="L234" title="All 2 branches missed.">        if (result != null) {</span>
+<span class="nc" id="L235">            result[0] = ys[0];</span>
+<span class="nc" id="L236">            result[1] = ys[1];</span>
+        }
+
+<span class="nc" id="L239">        return ys[0] + ys[1];</span>
+    }
+
+    /**
+     * For x between 0 and pi/4 compute sine using Taylor expansion:
+     * sin(x) = x - x^3/3! + x^5/5! - x^7/7! ...
+     * @param x number from which sine is requested
+     * @param result placeholder where to put the result in extended precision
+     * (may be null)
+     * @return sin(x)
+     */
+    static double slowSin(final double x, final double result[]) {
+<span class="nc" id="L251">        final double xs[] = new double[2];</span>
+<span class="nc" id="L252">        final double ys[] = new double[2];</span>
+<span class="nc" id="L253">        final double facts[] = new double[2];</span>
+<span class="nc" id="L254">        final double as[] = new double[2];</span>
+<span class="nc" id="L255">        split(x, xs);</span>
+<span class="nc" id="L256">        ys[0] = ys[1] = 0.0;</span>
+
+<span class="nc bnc" id="L258" title="All 2 branches missed.">        for (int i = FACT.length-1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L259">            splitMult(xs, ys, as);</span>
+<span class="nc" id="L260">            ys[0] = as[0]; ys[1] = as[1];</span>
+
+<span class="nc bnc" id="L262" title="All 2 branches missed.">            if ( (i &amp; 1) == 0) { // Ignore even numbers</span>
+<span class="nc" id="L263">                continue;</span>
+            }
+
+<span class="nc" id="L266">            split(FACT[i], as);</span>
+<span class="nc" id="L267">            splitReciprocal(as, facts);</span>
+
+<span class="nc bnc" id="L269" title="All 2 branches missed.">            if ( (i &amp; 2) != 0 ) { // alternate terms are negative</span>
+<span class="nc" id="L270">                facts[0] = -facts[0];</span>
+<span class="nc" id="L271">                facts[1] = -facts[1];</span>
+            }
+
+<span class="nc" id="L274">            splitAdd(ys, facts, as);</span>
+<span class="nc" id="L275">            ys[0] = as[0]; ys[1] = as[1];</span>
+        }
+
+<span class="nc bnc" id="L278" title="All 2 branches missed.">        if (result != null) {</span>
+<span class="nc" id="L279">            result[0] = ys[0];</span>
+<span class="nc" id="L280">            result[1] = ys[1];</span>
+        }
+
+<span class="nc" id="L283">        return ys[0] + ys[1];</span>
+    }
+
+
+    /**
+     *  For x between 0 and 1, returns exp(x), uses extended precision
+     *  @param x argument of exponential
+     *  @param result placeholder where to place exp(x) split in two terms
+     *  for extra precision (i.e. exp(x) = result[0] + result[1]
+     *  @return exp(x)
+     */
+    static double slowexp(final double x, final double result[]) {
+<span class="nc" id="L295">        final double xs[] = new double[2];</span>
+<span class="nc" id="L296">        final double ys[] = new double[2];</span>
+<span class="nc" id="L297">        final double facts[] = new double[2];</span>
+<span class="nc" id="L298">        final double as[] = new double[2];</span>
+<span class="nc" id="L299">        split(x, xs);</span>
+<span class="nc" id="L300">        ys[0] = ys[1] = 0.0;</span>
+
+<span class="nc bnc" id="L302" title="All 2 branches missed.">        for (int i = FACT.length-1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L303">            splitMult(xs, ys, as);</span>
+<span class="nc" id="L304">            ys[0] = as[0];</span>
+<span class="nc" id="L305">            ys[1] = as[1];</span>
+
+<span class="nc" id="L307">            split(FACT[i], as);</span>
+<span class="nc" id="L308">            splitReciprocal(as, facts);</span>
+
+<span class="nc" id="L310">            splitAdd(ys, facts, as);</span>
+<span class="nc" id="L311">            ys[0] = as[0];</span>
+<span class="nc" id="L312">            ys[1] = as[1];</span>
+        }
+
+<span class="nc bnc" id="L315" title="All 2 branches missed.">        if (result != null) {</span>
+<span class="nc" id="L316">            result[0] = ys[0];</span>
+<span class="nc" id="L317">            result[1] = ys[1];</span>
+        }
+
+<span class="nc" id="L320">        return ys[0] + ys[1];</span>
+    }
+
+    /** Compute split[0], split[1] such that their sum is equal to d,
+     * and split[0] has its 30 least significant bits as zero.
+     * @param d number to split
+     * @param split placeholder where to place the result
+     */
+    private static void split(final double d, final double split[]) {
+<span class="nc bnc" id="L329" title="All 4 branches missed.">        if (d &lt; 8e298 &amp;&amp; d &gt; -8e298) {</span>
+<span class="nc" id="L330">            final double a = d * HEX_40000000;</span>
+<span class="nc" id="L331">            split[0] = (d + a) - a;</span>
+<span class="nc" id="L332">            split[1] = d - split[0];</span>
+<span class="nc" id="L333">        } else {</span>
+<span class="nc" id="L334">            final double a = d * 9.31322574615478515625E-10;</span>
+<span class="nc" id="L335">            split[0] = (d + a - d) * HEX_40000000;</span>
+<span class="nc" id="L336">            split[1] = d - split[0];</span>
+        }
+<span class="nc" id="L338">    }</span>
+
+    /** Recompute a split.
+     * @param a input/out array containing the split, changed
+     * on output
+     */
+    private static void resplit(final double a[]) {
+<span class="nc" id="L345">        final double c = a[0] + a[1];</span>
+<span class="nc" id="L346">        final double d = -(c - a[0] - a[1]);</span>
+
+<span class="nc bnc" id="L348" title="All 4 branches missed.">        if (c &lt; 8e298 &amp;&amp; c &gt; -8e298) { // MAGIC NUMBER</span>
+<span class="nc" id="L349">            double z = c * HEX_40000000;</span>
+<span class="nc" id="L350">            a[0] = (c + z) - z;</span>
+<span class="nc" id="L351">            a[1] = c - a[0] + d;</span>
+<span class="nc" id="L352">        } else {</span>
+<span class="nc" id="L353">            double z = c * 9.31322574615478515625E-10;</span>
+<span class="nc" id="L354">            a[0] = (c + z - c) * HEX_40000000;</span>
+<span class="nc" id="L355">            a[1] = c - a[0] + d;</span>
+        }
+<span class="nc" id="L357">    }</span>
+
+    /** Multiply two numbers in split form.
+     * @param a first term of multiplication
+     * @param b second term of multiplication
+     * @param ans placeholder where to put the result
+     */
+    private static void splitMult(double a[], double b[], double ans[]) {
+<span class="nc" id="L365">        ans[0] = a[0] * b[0];</span>
+<span class="nc" id="L366">        ans[1] = a[0] * b[1] + a[1] * b[0] + a[1] * b[1];</span>
+
+        /* Resplit */
+<span class="nc" id="L369">        resplit(ans);</span>
+<span class="nc" id="L370">    }</span>
+
+    /** Add two numbers in split form.
+     * @param a first term of addition
+     * @param b second term of addition
+     * @param ans placeholder where to put the result
+     */
+    private static void splitAdd(final double a[], final double b[], final double ans[]) {
+<span class="nc" id="L378">        ans[0] = a[0] + b[0];</span>
+<span class="nc" id="L379">        ans[1] = a[1] + b[1];</span>
+
+<span class="nc" id="L381">        resplit(ans);</span>
+<span class="nc" id="L382">    }</span>
+
+    /** Compute the reciprocal of in.  Use the following algorithm.
+     *  in = c + d.
+     *  want to find x + y such that x+y = 1/(c+d) and x is much
+     *  larger than y and x has several zero bits on the right.
+     *
+     *  Set b = 1/(2^22),  a = 1 - b.  Thus (a+b) = 1.
+     *  Use following identity to compute (a+b)/(c+d)
+     *
+     *  (a+b)/(c+d)  =   a/c   +    (bc - ad) / (c^2 + cd)
+     *  set x = a/c  and y = (bc - ad) / (c^2 + cd)
+     *  This will be close to the right answer, but there will be
+     *  some rounding in the calculation of X.  So by carefully
+     *  computing 1 - (c+d)(x+y) we can compute an error and
+     *  add that back in.   This is done carefully so that terms
+     *  of similar size are subtracted first.
+     *  @param in initial number, in split form
+     *  @param result placeholder where to put the result
+     */
+    static void splitReciprocal(final double in[], final double result[]) {
+<span class="nc" id="L403">        final double b = 1.0/4194304.0;</span>
+<span class="nc" id="L404">        final double a = 1.0 - b;</span>
+
+<span class="nc bnc" id="L406" title="All 2 branches missed.">        if (in[0] == 0.0) {</span>
+<span class="nc" id="L407">            in[0] = in[1];</span>
+<span class="nc" id="L408">            in[1] = 0.0;</span>
+        }
+
+<span class="nc" id="L411">        result[0] = a / in[0];</span>
+<span class="nc" id="L412">        result[1] = (b*in[0]-a*in[1]) / (in[0]*in[0] + in[0]*in[1]);</span>
+
+<span class="nc bnc" id="L414" title="All 2 branches missed.">        if (result[1] != result[1]) { // can happen if result[1] is NAN</span>
+<span class="nc" id="L415">            result[1] = 0.0;</span>
+        }
+
+        /* Resplit */
+<span class="nc" id="L419">        resplit(result);</span>
+
+<span class="nc bnc" id="L421" title="All 2 branches missed.">        for (int i = 0; i &lt; 2; i++) {</span>
+            /* this may be overkill, probably once is enough */
+<span class="nc" id="L423">            double err = 1.0 - result[0] * in[0] - result[0] * in[1] -</span>
+            result[1] * in[0] - result[1] * in[1];
+            /*err = 1.0 - err; */
+<span class="nc" id="L426">            err *= result[0] + result[1];</span>
+            /*printf(&quot;err = %16e\n&quot;, err); */
+<span class="nc" id="L428">            result[1] += err;</span>
+        }
+<span class="nc" id="L430">    }</span>
+
+    /** Compute (a[0] + a[1]) * (b[0] + b[1]) in extended precision.
+     * @param a first term of the multiplication
+     * @param b second term of the multiplication
+     * @param result placeholder where to put the result
+     */
+    private static void quadMult(final double a[], final double b[], final double result[]) {
+<span class="nc" id="L438">        final double xs[] = new double[2];</span>
+<span class="nc" id="L439">        final double ys[] = new double[2];</span>
+<span class="nc" id="L440">        final double zs[] = new double[2];</span>
+
+        /* a[0] * b[0] */
+<span class="nc" id="L443">        split(a[0], xs);</span>
+<span class="nc" id="L444">        split(b[0], ys);</span>
+<span class="nc" id="L445">        splitMult(xs, ys, zs);</span>
+
+<span class="nc" id="L447">        result[0] = zs[0];</span>
+<span class="nc" id="L448">        result[1] = zs[1];</span>
+
+        /* a[0] * b[1] */
+<span class="nc" id="L451">        split(b[1], ys);</span>
+<span class="nc" id="L452">        splitMult(xs, ys, zs);</span>
+
+<span class="nc" id="L454">        double tmp = result[0] + zs[0];</span>
+<span class="nc" id="L455">        result[1] -= tmp - result[0] - zs[0];</span>
+<span class="nc" id="L456">        result[0] = tmp;</span>
+<span class="nc" id="L457">        tmp = result[0] + zs[1];</span>
+<span class="nc" id="L458">        result[1] -= tmp - result[0] - zs[1];</span>
+<span class="nc" id="L459">        result[0] = tmp;</span>
+
+        /* a[1] * b[0] */
+<span class="nc" id="L462">        split(a[1], xs);</span>
+<span class="nc" id="L463">        split(b[0], ys);</span>
+<span class="nc" id="L464">        splitMult(xs, ys, zs);</span>
+
+<span class="nc" id="L466">        tmp = result[0] + zs[0];</span>
+<span class="nc" id="L467">        result[1] -= tmp - result[0] - zs[0];</span>
+<span class="nc" id="L468">        result[0] = tmp;</span>
+<span class="nc" id="L469">        tmp = result[0] + zs[1];</span>
+<span class="nc" id="L470">        result[1] -= tmp - result[0] - zs[1];</span>
+<span class="nc" id="L471">        result[0] = tmp;</span>
+
+        /* a[1] * b[0] */
+<span class="nc" id="L474">        split(a[1], xs);</span>
+<span class="nc" id="L475">        split(b[1], ys);</span>
+<span class="nc" id="L476">        splitMult(xs, ys, zs);</span>
+
+<span class="nc" id="L478">        tmp = result[0] + zs[0];</span>
+<span class="nc" id="L479">        result[1] -= tmp - result[0] - zs[0];</span>
+<span class="nc" id="L480">        result[0] = tmp;</span>
+<span class="nc" id="L481">        tmp = result[0] + zs[1];</span>
+<span class="nc" id="L482">        result[1] -= tmp - result[0] - zs[1];</span>
+<span class="nc" id="L483">        result[0] = tmp;</span>
+<span class="nc" id="L484">    }</span>
+
+    /** Compute exp(p) for a integer p in extended precision.
+     * @param p integer whose exponential is requested
+     * @param result placeholder where to put the result in extended precision
+     * @return exp(p) in standard precision (equal to result[0] + result[1])
+     */
+    static double expint(int p, final double result[]) {
+        //double x = M_E;
+<span class="nc" id="L493">        final double xs[] = new double[2];</span>
+<span class="nc" id="L494">        final double as[] = new double[2];</span>
+<span class="nc" id="L495">        final double ys[] = new double[2];</span>
+        //split(x, xs);
+        //xs[1] = (double)(2.7182818284590452353602874713526625L - xs[0]);
+        //xs[0] = 2.71827697753906250000;
+        //xs[1] = 4.85091998273542816811e-06;
+        //xs[0] = Double.longBitsToDouble(0x4005bf0800000000L);
+        //xs[1] = Double.longBitsToDouble(0x3ed458a2bb4a9b00L);
+
+        /* E */
+<span class="nc" id="L504">        xs[0] = 2.718281828459045;</span>
+<span class="nc" id="L505">        xs[1] = 1.4456468917292502E-16;</span>
+
+<span class="nc" id="L507">        split(1.0, ys);</span>
+
+<span class="nc bnc" id="L509" title="All 2 branches missed.">        while (p &gt; 0) {</span>
+<span class="nc bnc" id="L510" title="All 2 branches missed.">            if ((p &amp; 1) != 0) {</span>
+<span class="nc" id="L511">                quadMult(ys, xs, as);</span>
+<span class="nc" id="L512">                ys[0] = as[0]; ys[1] = as[1];</span>
+            }
+
+<span class="nc" id="L515">            quadMult(xs, xs, as);</span>
+<span class="nc" id="L516">            xs[0] = as[0]; xs[1] = as[1];</span>
+
+<span class="nc" id="L518">            p &gt;&gt;= 1;</span>
+        }
+
+<span class="nc bnc" id="L521" title="All 2 branches missed.">        if (result != null) {</span>
+<span class="nc" id="L522">            result[0] = ys[0];</span>
+<span class="nc" id="L523">            result[1] = ys[1];</span>
+
+<span class="nc" id="L525">            resplit(result);</span>
+        }
+
+<span class="nc" id="L528">        return ys[0] + ys[1];</span>
+    }
+    /** xi in the range of [1, 2].
+     *                                3        5        7
+     *      x+1           /          x        x        x          \
+     *  ln ----- =   2 *  |  x  +   ----  +  ----  +  ---- + ...  |
+     *      1-x           \          3        5        7          /
+     *
+     * So, compute a Remez approximation of the following function
+     *
+     *  ln ((sqrt(x)+1)/(1-sqrt(x)))  /  x
+     *
+     * This will be an even function with only positive coefficents.
+     * x is in the range [0 - 1/3].
+     *
+     * Transform xi for input to the above function by setting
+     * x = (xi-1)/(xi+1).   Input to the polynomial is x^2, then
+     * the result is multiplied by x.
+     * @param xi number from which log is requested
+     * @return log(xi)
+     */
+    static double[] slowLog(double xi) {
+<span class="nc" id="L550">        double x[] = new double[2];</span>
+<span class="nc" id="L551">        double x2[] = new double[2];</span>
+<span class="nc" id="L552">        double y[] = new double[2];</span>
+<span class="nc" id="L553">        double a[] = new double[2];</span>
+
+<span class="nc" id="L555">        split(xi, x);</span>
+
+        /* Set X = (x-1)/(x+1) */
+<span class="nc" id="L558">        x[0] += 1.0;</span>
+<span class="nc" id="L559">        resplit(x);</span>
+<span class="nc" id="L560">        splitReciprocal(x, a);</span>
+<span class="nc" id="L561">        x[0] -= 2.0;</span>
+<span class="nc" id="L562">        resplit(x);</span>
+<span class="nc" id="L563">        splitMult(x, a, y);</span>
+<span class="nc" id="L564">        x[0] = y[0];</span>
+<span class="nc" id="L565">        x[1] = y[1];</span>
+
+        /* Square X -&gt; X2*/
+<span class="nc" id="L568">        splitMult(x, x, x2);</span>
+
+
+        //x[0] -= 1.0;
+        //resplit(x);
+
+<span class="nc" id="L574">        y[0] = LN_SPLIT_COEF[LN_SPLIT_COEF.length-1][0];</span>
+<span class="nc" id="L575">        y[1] = LN_SPLIT_COEF[LN_SPLIT_COEF.length-1][1];</span>
+
+<span class="nc bnc" id="L577" title="All 2 branches missed.">        for (int i = LN_SPLIT_COEF.length-2; i &gt;= 0; i--) {</span>
+<span class="nc" id="L578">            splitMult(y, x2, a);</span>
+<span class="nc" id="L579">            y[0] = a[0];</span>
+<span class="nc" id="L580">            y[1] = a[1];</span>
+<span class="nc" id="L581">            splitAdd(y, LN_SPLIT_COEF[i], a);</span>
+<span class="nc" id="L582">            y[0] = a[0];</span>
+<span class="nc" id="L583">            y[1] = a[1];</span>
+        }
+
+<span class="nc" id="L586">        splitMult(y, x, a);</span>
+<span class="nc" id="L587">        y[0] = a[0];</span>
+<span class="nc" id="L588">        y[1] = a[1];</span>
+
+<span class="nc" id="L590">        return y;</span>
+    }
+
+
+    /**
+     * Print an array.
+     * @param out text output stream where output should be printed
+     * @param name array name
+     * @param expectedLen expected length of the array
+     * @param array2d array data
+     */
+    static void printarray(PrintStream out, String name, int expectedLen, double[][] array2d) {
+<span class="nc" id="L602">        out.println(name);</span>
+<span class="nc" id="L603">        checkLen(expectedLen, array2d.length);</span>
+<span class="nc" id="L604">        out.println(TABLE_START_DECL + &quot; &quot;);</span>
+<span class="nc" id="L605">        int i = 0;</span>
+<span class="nc bnc" id="L606" title="All 2 branches missed.">        for(double[] array : array2d) { // &quot;double array[]&quot; causes PMD parsing error</span>
+<span class="nc" id="L607">            out.print(&quot;        {&quot;);</span>
+<span class="nc bnc" id="L608" title="All 2 branches missed.">            for(double d : array) { // assume inner array has very few entries</span>
+<span class="nc" id="L609">                out.printf(&quot;%-25.25s&quot;, format(d)); // multiple entries per line</span>
+            }
+<span class="nc" id="L611">            out.println(&quot;}, // &quot; + i++);</span>
+        }
+<span class="nc" id="L613">        out.println(TABLE_END_DECL);</span>
+<span class="nc" id="L614">    }</span>
+
+    /**
+     * Print an array.
+     * @param out text output stream where output should be printed
+     * @param name array name
+     * @param expectedLen expected length of the array
+     * @param array array data
+     */
+    static void printarray(PrintStream out, String name, int expectedLen, double[] array) {
+<span class="nc" id="L624">        out.println(name + &quot;=&quot;);</span>
+<span class="nc" id="L625">        checkLen(expectedLen, array.length);</span>
+<span class="nc" id="L626">        out.println(TABLE_START_DECL);</span>
+<span class="nc bnc" id="L627" title="All 2 branches missed.">        for(double d : array){</span>
+<span class="nc" id="L628">            out.printf(&quot;        %s%n&quot;, format(d)); // one entry per line</span>
+        }
+<span class="nc" id="L630">        out.println(TABLE_END_DECL);</span>
+<span class="nc" id="L631">    }</span>
+
+    /** Format a double.
+     * @param d double number to format
+     * @return formatted number
+     */
+    static String format(double d) {
+<span class="nc bnc" id="L638" title="All 2 branches missed.">        if (d != d) {</span>
+<span class="nc" id="L639">            return &quot;Double.NaN,&quot;;</span>
+        } else {
+<span class="nc bnc" id="L641" title="All 2 branches missed.">            return ((d &gt;= 0) ? &quot;+&quot; : &quot;&quot;) + Double.toString(d) + &quot;d,&quot;;</span>
+        }
+    }
+
+    /**
+     * Check two lengths are equal.
+     * @param expectedLen expected length
+     * @param actual actual length
+     * @exception DimensionMismatchException if the two lengths are not equal
+     */
+    private static void checkLen(int expectedLen, int actual)
+        throws DimensionMismatchException {
+<span class="nc bnc" id="L653" title="All 2 branches missed.">        if (expectedLen != actual) {</span>
+<span class="nc" id="L654">            throw new DimensionMismatchException(actual, expectedLen);</span>
+        }
+<span class="nc" id="L656">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

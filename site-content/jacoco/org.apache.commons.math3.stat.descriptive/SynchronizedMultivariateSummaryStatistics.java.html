@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SynchronizedMultivariateSummaryStatistics.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive</a> &gt; <span class="el_source">SynchronizedMultivariateSummaryStatistics.java</span></div><h1>SynchronizedMultivariateSummaryStatistics.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MathIllegalStateException;
+import org.apache.commons.math3.linear.RealMatrix;
+
+/**
+ * Implementation of
+ * {@link org.apache.commons.math3.stat.descriptive.MultivariateSummaryStatistics} that
+ * is safe to use in a multithreaded environment.  Multiple threads can safely
+ * operate on a single instance without causing runtime exceptions due to race
+ * conditions.  In effect, this implementation makes modification and access
+ * methods atomic operations for a single instance.  That is to say, as one
+ * thread is computing a statistic from the instance, no other thread can modify
+ * the instance nor compute another statistic.
+ * @since 1.2
+ */
+public class SynchronizedMultivariateSummaryStatistics
+    extends MultivariateSummaryStatistics {
+
+    /** Serialization UID */
+    private static final long serialVersionUID = 7099834153347155363L;
+
+    /**
+     * Construct a SynchronizedMultivariateSummaryStatistics instance
+     * @param k dimension of the data
+     * @param isCovarianceBiasCorrected if true, the unbiased sample
+     * covariance is computed, otherwise the biased population covariance
+     * is computed
+     */
+    public SynchronizedMultivariateSummaryStatistics(int k, boolean isCovarianceBiasCorrected) {
+<span class="fc" id="L48">        super(k, isCovarianceBiasCorrected);</span>
+<span class="fc" id="L49">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void addValue(double[] value) throws DimensionMismatchException {
+<span class="fc" id="L56">      super.addValue(value);</span>
+<span class="fc" id="L57">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized int getDimension() {
+<span class="fc" id="L64">        return super.getDimension();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized long getN() {
+<span class="fc" id="L72">        return super.getN();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized double[] getSum() {
+<span class="fc" id="L80">        return super.getSum();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized double[] getSumSq() {
+<span class="fc" id="L88">        return super.getSumSq();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized double[] getSumLog() {
+<span class="fc" id="L96">        return super.getSumLog();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized double[] getMean() {
+<span class="fc" id="L104">        return super.getMean();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized double[] getStandardDeviation() {
+<span class="fc" id="L112">        return super.getStandardDeviation();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized RealMatrix getCovariance() {
+<span class="fc" id="L120">        return super.getCovariance();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized double[] getMax() {
+<span class="fc" id="L128">        return super.getMax();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized double[] getMin() {
+<span class="fc" id="L136">        return super.getMin();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized double[] getGeometricMean() {
+<span class="fc" id="L144">        return super.getGeometricMean();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized String toString() {
+<span class="fc" id="L152">        return super.toString();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void clear() {
+<span class="fc" id="L160">        super.clear();</span>
+<span class="fc" id="L161">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized boolean equals(Object object) {
+<span class="fc" id="L168">        return super.equals(object);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized int hashCode() {
+<span class="fc" id="L176">        return super.hashCode();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized StorelessUnivariateStatistic[] getSumImpl() {
+<span class="fc" id="L184">        return super.getSumImpl();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void setSumImpl(StorelessUnivariateStatistic[] sumImpl)
+    throws DimensionMismatchException, MathIllegalStateException {
+<span class="fc" id="L193">        super.setSumImpl(sumImpl);</span>
+<span class="fc" id="L194">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized StorelessUnivariateStatistic[] getSumsqImpl() {
+<span class="fc" id="L201">        return super.getSumsqImpl();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void setSumsqImpl(StorelessUnivariateStatistic[] sumsqImpl)
+    throws DimensionMismatchException, MathIllegalStateException {
+<span class="fc" id="L210">        super.setSumsqImpl(sumsqImpl);</span>
+<span class="fc" id="L211">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized StorelessUnivariateStatistic[] getMinImpl() {
+<span class="fc" id="L218">        return super.getMinImpl();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void setMinImpl(StorelessUnivariateStatistic[] minImpl)
+    throws DimensionMismatchException, MathIllegalStateException {
+<span class="fc" id="L227">        super.setMinImpl(minImpl);</span>
+<span class="fc" id="L228">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized StorelessUnivariateStatistic[] getMaxImpl() {
+<span class="fc" id="L235">        return super.getMaxImpl();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void setMaxImpl(StorelessUnivariateStatistic[] maxImpl)
+    throws DimensionMismatchException, MathIllegalStateException{
+<span class="fc" id="L244">        super.setMaxImpl(maxImpl);</span>
+<span class="fc" id="L245">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized StorelessUnivariateStatistic[] getSumLogImpl() {
+<span class="fc" id="L252">        return super.getSumLogImpl();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void setSumLogImpl(StorelessUnivariateStatistic[] sumLogImpl)
+    throws DimensionMismatchException, MathIllegalStateException {
+<span class="fc" id="L261">        super.setSumLogImpl(sumLogImpl);</span>
+<span class="fc" id="L262">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized StorelessUnivariateStatistic[] getGeoMeanImpl() {
+<span class="fc" id="L269">        return super.getGeoMeanImpl();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void setGeoMeanImpl(StorelessUnivariateStatistic[] geoMeanImpl)
+    throws DimensionMismatchException, MathIllegalStateException {
+<span class="fc" id="L278">        super.setGeoMeanImpl(geoMeanImpl);</span>
+<span class="fc" id="L279">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized StorelessUnivariateStatistic[] getMeanImpl() {
+<span class="fc" id="L286">        return super.getMeanImpl();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void setMeanImpl(StorelessUnivariateStatistic[] meanImpl)
+    throws DimensionMismatchException, MathIllegalStateException {
+<span class="fc" id="L295">        super.setMeanImpl(meanImpl);</span>
+<span class="fc" id="L296">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

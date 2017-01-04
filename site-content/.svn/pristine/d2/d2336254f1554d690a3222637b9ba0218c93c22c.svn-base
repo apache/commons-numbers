@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>StandardDeviation.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive.moment</a> &gt; <span class="el_source">StandardDeviation.java</span></div><h1>StandardDeviation.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive.moment;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.stat.descriptive.AbstractStorelessUnivariateStatistic;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * Computes the sample standard deviation.  The standard deviation
+ * is the positive square root of the variance.  This implementation wraps a
+ * {@link Variance} instance.  The &lt;code&gt;isBiasCorrected&lt;/code&gt; property of the
+ * wrapped Variance instance is exposed, so that this class can be used to
+ * compute both the &quot;sample standard deviation&quot; (the square root of the
+ * bias-corrected &quot;sample variance&quot;) or the &quot;population standard deviation&quot;
+ * (the square root of the non-bias-corrected &quot;population variance&quot;). See
+ * {@link Variance} for more information.
+ * &lt;p&gt;
+ * &lt;strong&gt;Note that this implementation is not synchronized.&lt;/strong&gt; If
+ * multiple threads access an instance of this class concurrently, and at least
+ * one of the threads invokes the &lt;code&gt;increment()&lt;/code&gt; or
+ * &lt;code&gt;clear()&lt;/code&gt; method, it must be synchronized externally.&lt;/p&gt;
+ *
+ */
+public class StandardDeviation extends AbstractStorelessUnivariateStatistic
+    implements Serializable {
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = 5728716329662425188L;
+
+    /** Wrapped Variance instance */
+<span class="pc" id="L50">    private Variance variance = null;</span>
+
+    /**
+     * Constructs a StandardDeviation.  Sets the underlying {@link Variance}
+     * instance's &lt;code&gt;isBiasCorrected&lt;/code&gt; property to true.
+     */
+<span class="fc" id="L56">    public StandardDeviation() {</span>
+<span class="fc" id="L57">        variance = new Variance();</span>
+<span class="fc" id="L58">    }</span>
+
+    /**
+     * Constructs a StandardDeviation from an external second moment.
+     *
+     * @param m2 the external moment
+     */
+<span class="nc" id="L65">    public StandardDeviation(final SecondMoment m2) {</span>
+<span class="nc" id="L66">        variance = new Variance(m2);</span>
+<span class="nc" id="L67">    }</span>
+
+    /**
+     * Copy constructor, creates a new {@code StandardDeviation} identical
+     * to the {@code original}
+     *
+     * @param original the {@code StandardDeviation} instance to copy
+     * @throws NullArgumentException if original is null
+     */
+<span class="nc" id="L76">    public StandardDeviation(StandardDeviation original) throws NullArgumentException {</span>
+<span class="nc" id="L77">        copy(original, this);</span>
+<span class="nc" id="L78">    }</span>
+
+    /**
+     * Contructs a StandardDeviation with the specified value for the
+     * &lt;code&gt;isBiasCorrected&lt;/code&gt; property.  If this property is set to
+     * &lt;code&gt;true&lt;/code&gt;, the {@link Variance} used in computing results will
+     * use the bias-corrected, or &quot;sample&quot; formula.  See {@link Variance} for
+     * details.
+     *
+     * @param isBiasCorrected  whether or not the variance computation will use
+     * the bias-corrected formula
+     */
+<span class="fc" id="L90">    public StandardDeviation(boolean isBiasCorrected) {</span>
+<span class="fc" id="L91">        variance = new Variance(isBiasCorrected);</span>
+<span class="fc" id="L92">    }</span>
+
+    /**
+     * Contructs a StandardDeviation with the specified value for the
+     * &lt;code&gt;isBiasCorrected&lt;/code&gt; property and the supplied external moment.
+     * If &lt;code&gt;isBiasCorrected&lt;/code&gt; is set to &lt;code&gt;true&lt;/code&gt;, the
+     * {@link Variance} used in computing results will use the bias-corrected,
+     * or &quot;sample&quot; formula.  See {@link Variance} for details.
+     *
+     * @param isBiasCorrected  whether or not the variance computation will use
+     * the bias-corrected formula
+      * @param m2 the external moment
+     */
+<span class="fc" id="L105">    public StandardDeviation(boolean isBiasCorrected, SecondMoment m2) {</span>
+<span class="fc" id="L106">        variance = new Variance(isBiasCorrected, m2);</span>
+<span class="fc" id="L107">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void increment(final double d) {
+<span class="fc" id="L114">        variance.increment(d);</span>
+<span class="fc" id="L115">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getN() {
+<span class="fc" id="L121">        return variance.getN();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getResult() {
+<span class="fc" id="L129">        return FastMath.sqrt(variance.getResult());</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void clear() {
+<span class="fc" id="L137">        variance.clear();</span>
+<span class="fc" id="L138">    }</span>
+
+    /**
+     * Returns the Standard Deviation of the entries in the input array, or
+     * &lt;code&gt;Double.NaN&lt;/code&gt; if the array is empty.
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     * &lt;p&gt;
+     * Does not change the internal state of the statistic.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @return the standard deviation of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null
+     */
+    @Override
+    public double evaluate(final double[] values) throws MathIllegalArgumentException  {
+<span class="fc" id="L156">        return FastMath.sqrt(variance.evaluate(values));</span>
+    }
+
+    /**
+     * Returns the Standard Deviation of the entries in the specified portion of
+     * the input array, or &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray
+     * is empty.
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample. &lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     * &lt;p&gt;
+     * Does not change the internal state of the statistic.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the standard deviation of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     *  parameters are not valid
+     */
+    @Override
+    public double evaluate(final double[] values, final int begin, final int length)
+    throws MathIllegalArgumentException  {
+<span class="fc" id="L180">       return FastMath.sqrt(variance.evaluate(values, begin, length));</span>
+    }
+
+    /**
+     * Returns the Standard Deviation of the entries in the specified portion of
+     * the input array, using the precomputed mean value.  Returns
+     * &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray is empty.
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * The formula used assumes that the supplied mean value is the arithmetic
+     * mean of the sample data, not a known population parameter.  This method
+     * is supplied only to save computation when the mean has already been
+     * computed.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     * &lt;p&gt;
+     * Does not change the internal state of the statistic.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param mean the precomputed mean value
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the standard deviation of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     *  parameters are not valid
+     */
+    public double evaluate(final double[] values, final double mean,
+            final int begin, final int length) throws MathIllegalArgumentException  {
+<span class="nc" id="L209">        return FastMath.sqrt(variance.evaluate(values, mean, begin, length));</span>
+    }
+
+    /**
+     * Returns the Standard Deviation of the entries in the input array, using
+     * the precomputed mean value.  Returns
+     * &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray is empty.
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * The formula used assumes that the supplied mean value is the arithmetic
+     * mean of the sample data, not a known population parameter.  This method
+     * is supplied only to save computation when the mean has already been
+     * computed.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     * &lt;p&gt;
+     * Does not change the internal state of the statistic.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param mean the precomputed mean value
+     * @return the standard deviation of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null
+     */
+    public double evaluate(final double[] values, final double mean)
+    throws MathIllegalArgumentException  {
+<span class="nc" id="L235">        return FastMath.sqrt(variance.evaluate(values, mean));</span>
+    }
+
+    /**
+     * @return Returns the isBiasCorrected.
+     */
+    public boolean isBiasCorrected() {
+<span class="nc" id="L242">        return variance.isBiasCorrected();</span>
+    }
+
+    /**
+     * @param isBiasCorrected The isBiasCorrected to set.
+     */
+    public void setBiasCorrected(boolean isBiasCorrected) {
+<span class="fc" id="L249">        variance.setBiasCorrected(isBiasCorrected);</span>
+<span class="fc" id="L250">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public StandardDeviation copy() {
+<span class="fc" id="L257">        StandardDeviation result = new StandardDeviation();</span>
+        // No try-catch or advertised exception because args are guaranteed non-null
+<span class="fc" id="L259">        copy(this, result);</span>
+<span class="fc" id="L260">        return result;</span>
+    }
+
+
+    /**
+     * Copies source to dest.
+     * &lt;p&gt;Neither source nor dest can be null.&lt;/p&gt;
+     *
+     * @param source StandardDeviation to copy
+     * @param dest StandardDeviation to copy to
+     * @throws NullArgumentException if either source or dest is null
+     */
+    public static void copy(StandardDeviation source, StandardDeviation dest)
+        throws NullArgumentException {
+<span class="fc" id="L274">        MathUtils.checkNotNull(source);</span>
+<span class="fc" id="L275">        MathUtils.checkNotNull(dest);</span>
+<span class="fc" id="L276">        dest.setData(source.getDataRef());</span>
+<span class="fc" id="L277">        dest.variance = source.variance.copy();</span>
+<span class="fc" id="L278">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

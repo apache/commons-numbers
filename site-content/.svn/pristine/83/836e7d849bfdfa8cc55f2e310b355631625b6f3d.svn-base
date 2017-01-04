@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>S1Point.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.spherical.oned</a> &gt; <span class="el_source">S1Point.java</span></div><h1>S1Point.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.spherical.oned;
+
+import org.apache.commons.math3.geometry.Point;
+import org.apache.commons.math3.geometry.Space;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathUtils;
+
+/** This class represents a point on the 1-sphere.
+ * &lt;p&gt;Instances of this class are guaranteed to be immutable.&lt;/p&gt;
+ * @since 3.3
+ */
+public class S1Point implements Point&lt;Sphere1D&gt; {
+
+   // CHECKSTYLE: stop ConstantName
+    /** A vector with all coordinates set to NaN. */
+<span class="fc" id="L33">    public static final S1Point NaN = new S1Point(Double.NaN, Vector2D.NaN);</span>
+    // CHECKSTYLE: resume ConstantName
+
+    /** Serializable UID. */
+    private static final long serialVersionUID = 20131218L;
+
+    /** Azimuthal angle \( \alpha \). */
+    private final double alpha;
+
+    /** Corresponding 2D normalized vector. */
+    private final Vector2D vector;
+
+    /** Simple constructor.
+     * Build a vector from its coordinates
+     * @param alpha azimuthal angle \( \alpha \)
+     * @see #getAlpha()
+     */
+    public S1Point(final double alpha) {
+<span class="fc" id="L51">        this(MathUtils.normalizeAngle(alpha, FastMath.PI),</span>
+             new Vector2D(FastMath.cos(alpha), FastMath.sin(alpha)));
+<span class="fc" id="L53">    }</span>
+
+    /** Build a point from its internal components.
+     * @param alpha azimuthal angle \( \alpha \)
+     * @param vector corresponding vector
+     */
+<span class="fc" id="L59">    private S1Point(final double alpha, final Vector2D vector) {</span>
+<span class="fc" id="L60">        this.alpha  = alpha;</span>
+<span class="fc" id="L61">        this.vector = vector;</span>
+<span class="fc" id="L62">    }</span>
+
+    /** Get the azimuthal angle \( \alpha \).
+     * @return azimuthal angle \( \alpha \)
+     * @see #S1Point(double)
+     */
+    public double getAlpha() {
+<span class="fc" id="L69">        return alpha;</span>
+    }
+
+    /** Get the corresponding normalized vector in the 2D euclidean space.
+     * @return normalized vector
+     */
+    public Vector2D getVector() {
+<span class="fc" id="L76">        return vector;</span>
+    }
+
+    /** {@inheritDoc} */
+    public Space getSpace() {
+<span class="fc" id="L81">        return Sphere1D.getInstance();</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isNaN() {
+<span class="fc" id="L86">        return Double.isNaN(alpha);</span>
+    }
+
+    /** {@inheritDoc} */
+    public double distance(final Point&lt;Sphere1D&gt; point) {
+<span class="fc" id="L91">        return distance(this, (S1Point) point);</span>
+    }
+
+    /** Compute the distance (angular separation) between two points.
+     * @param p1 first vector
+     * @param p2 second vector
+     * @return the angular separation between p1 and p2
+     */
+    public static double distance(S1Point p1, S1Point p2) {
+<span class="fc" id="L100">        return Vector2D.angle(p1.vector, p2.vector);</span>
+    }
+
+    /**
+     * Test for the equality of two points on the 2-sphere.
+     * &lt;p&gt;
+     * If all coordinates of two points are exactly the same, and none are
+     * &lt;code&gt;Double.NaN&lt;/code&gt;, the two points are considered to be equal.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * &lt;code&gt;NaN&lt;/code&gt; coordinates are considered to affect globally the vector
+     * and be equals to each other - i.e, if either (or all) coordinates of the
+     * 2D vector are equal to &lt;code&gt;Double.NaN&lt;/code&gt;, the 2D vector is equal to
+     * {@link #NaN}.
+     * &lt;/p&gt;
+     *
+     * @param other Object to test for equality to this
+     * @return true if two points on the 2-sphere objects are equal, false if
+     *         object is null, not an instance of S2Point, or
+     *         not equal to this S2Point instance
+     *
+     */
+    @Override
+    public boolean equals(Object other) {
+
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (this == other) {</span>
+<span class="fc" id="L126">            return true;</span>
+        }
+
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        if (other instanceof S1Point) {</span>
+<span class="fc" id="L130">            final S1Point rhs = (S1Point) other;</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">            if (rhs.isNaN()) {</span>
+<span class="fc" id="L132">                return this.isNaN();</span>
+            }
+
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">            return alpha == rhs.alpha;</span>
+        }
+
+<span class="fc" id="L138">        return false;</span>
+
+    }
+
+    /**
+     * Get a hashCode for the 2D vector.
+     * &lt;p&gt;
+     * All NaN values have the same hash code.&lt;/p&gt;
+     *
+     * @return a hash code value for this object
+     */
+    @Override
+    public int hashCode() {
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">        if (isNaN()) {</span>
+<span class="nc" id="L152">            return 542;</span>
+        }
+<span class="fc" id="L154">        return 1759 * MathUtils.hash(alpha);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

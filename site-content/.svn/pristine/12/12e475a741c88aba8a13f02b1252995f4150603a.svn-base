@@ -1,0 +1,745 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.transform;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.io.Serializable;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.lang.reflect.Array;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.analysis.FunctionUtils;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.analysis.UnivariateFunction;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.complex.Complex;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.exception.DimensionMismatchException;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.exception.MathIllegalArgumentException;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.math3.exception.MathIllegalStateException;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.commons.math3.exception.util.LocalizedFormats;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.math3.util.ArithmeticUtils;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.math3.util.FastMath;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.commons.math3.util.MathArrays;<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>/**<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * Implements the Fast Fourier Transform for transformation of one-dimensional<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * real or complex data sets. For reference, see &lt;em&gt;Applied Numerical Linear<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * Algebra&lt;/em&gt;, ISBN 0898713897, chapter 6.<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * &lt;p&gt;<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * There are several variants of the discrete Fourier transform, with various<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * normalization conventions, which are specified by the parameter<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * {@link DftNormalization}.<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * &lt;p&gt;<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * The current implementation of the discrete Fourier transform as a fast<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * Fourier transform requires the length of the data set to be a power of 2.<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * This greatly simplifies and speeds up the code. Users can pad the data with<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * zeros to meet this requirement. There are other flavors of FFT, for<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * reference, see S. Winograd,<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * &lt;i&gt;On computing the discrete Fourier transform&lt;/i&gt;, Mathematics of<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * Computation, 32 (1978), 175 - 199.<a name="line.48"></a>
+<span class="sourceLineNo">049</span> *<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * @see DftNormalization<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * @since 1.2<a name="line.51"></a>
+<span class="sourceLineNo">052</span> */<a name="line.52"></a>
+<span class="sourceLineNo">053</span>public class FastFourierTransformer implements Serializable {<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>    /** Serializable version identifier. */<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    static final long serialVersionUID = 20120210L;<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>    /**<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * {@code W_SUB_N_R[i]} is the real part of<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * {@code exp(- 2 * i * pi / n)}:<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * {@code W_SUB_N_R[i] = cos(2 * pi/ n)}, where {@code n = 2^i}.<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     */<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    private static final double[] W_SUB_N_R =<a name="line.63"></a>
+<span class="sourceLineNo">064</span>            {  0x1.0p0, -0x1.0p0, 0x1.1a62633145c07p-54, 0x1.6a09e667f3bcdp-1<a name="line.64"></a>
+<span class="sourceLineNo">065</span>            , 0x1.d906bcf328d46p-1, 0x1.f6297cff75cbp-1, 0x1.fd88da3d12526p-1, 0x1.ff621e3796d7ep-1<a name="line.65"></a>
+<span class="sourceLineNo">066</span>            , 0x1.ffd886084cd0dp-1, 0x1.fff62169b92dbp-1, 0x1.fffd8858e8a92p-1, 0x1.ffff621621d02p-1<a name="line.66"></a>
+<span class="sourceLineNo">067</span>            , 0x1.ffffd88586ee6p-1, 0x1.fffff62161a34p-1, 0x1.fffffd8858675p-1, 0x1.ffffff621619cp-1<a name="line.67"></a>
+<span class="sourceLineNo">068</span>            , 0x1.ffffffd885867p-1, 0x1.fffffff62161ap-1, 0x1.fffffffd88586p-1, 0x1.ffffffff62162p-1<a name="line.68"></a>
+<span class="sourceLineNo">069</span>            , 0x1.ffffffffd8858p-1, 0x1.fffffffff6216p-1, 0x1.fffffffffd886p-1, 0x1.ffffffffff621p-1<a name="line.69"></a>
+<span class="sourceLineNo">070</span>            , 0x1.ffffffffffd88p-1, 0x1.fffffffffff62p-1, 0x1.fffffffffffd9p-1, 0x1.ffffffffffff6p-1<a name="line.70"></a>
+<span class="sourceLineNo">071</span>            , 0x1.ffffffffffffep-1, 0x1.fffffffffffffp-1, 0x1.0p0, 0x1.0p0<a name="line.71"></a>
+<span class="sourceLineNo">072</span>            , 0x1.0p0, 0x1.0p0, 0x1.0p0, 0x1.0p0<a name="line.72"></a>
+<span class="sourceLineNo">073</span>            , 0x1.0p0, 0x1.0p0, 0x1.0p0, 0x1.0p0<a name="line.73"></a>
+<span class="sourceLineNo">074</span>            , 0x1.0p0, 0x1.0p0, 0x1.0p0, 0x1.0p0<a name="line.74"></a>
+<span class="sourceLineNo">075</span>            , 0x1.0p0, 0x1.0p0, 0x1.0p0, 0x1.0p0<a name="line.75"></a>
+<span class="sourceLineNo">076</span>            , 0x1.0p0, 0x1.0p0, 0x1.0p0, 0x1.0p0<a name="line.76"></a>
+<span class="sourceLineNo">077</span>            , 0x1.0p0, 0x1.0p0, 0x1.0p0, 0x1.0p0<a name="line.77"></a>
+<span class="sourceLineNo">078</span>            , 0x1.0p0, 0x1.0p0, 0x1.0p0, 0x1.0p0<a name="line.78"></a>
+<span class="sourceLineNo">079</span>            , 0x1.0p0, 0x1.0p0, 0x1.0p0 };<a name="line.79"></a>
+<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">081</span>    /**<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * {@code W_SUB_N_I[i]} is the imaginary part of<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     * {@code exp(- 2 * i * pi / n)}:<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * {@code W_SUB_N_I[i] = -sin(2 * pi/ n)}, where {@code n = 2^i}.<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     */<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    private static final double[] W_SUB_N_I =<a name="line.86"></a>
+<span class="sourceLineNo">087</span>            {  0x1.1a62633145c07p-52, -0x1.1a62633145c07p-53, -0x1.0p0, -0x1.6a09e667f3bccp-1<a name="line.87"></a>
+<span class="sourceLineNo">088</span>            , -0x1.87de2a6aea963p-2, -0x1.8f8b83c69a60ap-3, -0x1.917a6bc29b42cp-4, -0x1.91f65f10dd814p-5<a name="line.88"></a>
+<span class="sourceLineNo">089</span>            , -0x1.92155f7a3667ep-6, -0x1.921d1fcdec784p-7, -0x1.921f0fe670071p-8, -0x1.921f8becca4bap-9<a name="line.89"></a>
+<span class="sourceLineNo">090</span>            , -0x1.921faaee6472dp-10, -0x1.921fb2aecb36p-11, -0x1.921fb49ee4ea6p-12, -0x1.921fb51aeb57bp-13<a name="line.90"></a>
+<span class="sourceLineNo">091</span>            , -0x1.921fb539ecf31p-14, -0x1.921fb541ad59ep-15, -0x1.921fb5439d73ap-16, -0x1.921fb544197ap-17<a name="line.91"></a>
+<span class="sourceLineNo">092</span>            , -0x1.921fb544387bap-18, -0x1.921fb544403c1p-19, -0x1.921fb544422c2p-20, -0x1.921fb54442a83p-21<a name="line.92"></a>
+<span class="sourceLineNo">093</span>            , -0x1.921fb54442c73p-22, -0x1.921fb54442cefp-23, -0x1.921fb54442d0ep-24, -0x1.921fb54442d15p-25<a name="line.93"></a>
+<span class="sourceLineNo">094</span>            , -0x1.921fb54442d17p-26, -0x1.921fb54442d18p-27, -0x1.921fb54442d18p-28, -0x1.921fb54442d18p-29<a name="line.94"></a>
+<span class="sourceLineNo">095</span>            , -0x1.921fb54442d18p-30, -0x1.921fb54442d18p-31, -0x1.921fb54442d18p-32, -0x1.921fb54442d18p-33<a name="line.95"></a>
+<span class="sourceLineNo">096</span>            , -0x1.921fb54442d18p-34, -0x1.921fb54442d18p-35, -0x1.921fb54442d18p-36, -0x1.921fb54442d18p-37<a name="line.96"></a>
+<span class="sourceLineNo">097</span>            , -0x1.921fb54442d18p-38, -0x1.921fb54442d18p-39, -0x1.921fb54442d18p-40, -0x1.921fb54442d18p-41<a name="line.97"></a>
+<span class="sourceLineNo">098</span>            , -0x1.921fb54442d18p-42, -0x1.921fb54442d18p-43, -0x1.921fb54442d18p-44, -0x1.921fb54442d18p-45<a name="line.98"></a>
+<span class="sourceLineNo">099</span>            , -0x1.921fb54442d18p-46, -0x1.921fb54442d18p-47, -0x1.921fb54442d18p-48, -0x1.921fb54442d18p-49<a name="line.99"></a>
+<span class="sourceLineNo">100</span>            , -0x1.921fb54442d18p-50, -0x1.921fb54442d18p-51, -0x1.921fb54442d18p-52, -0x1.921fb54442d18p-53<a name="line.100"></a>
+<span class="sourceLineNo">101</span>            , -0x1.921fb54442d18p-54, -0x1.921fb54442d18p-55, -0x1.921fb54442d18p-56, -0x1.921fb54442d18p-57<a name="line.101"></a>
+<span class="sourceLineNo">102</span>            , -0x1.921fb54442d18p-58, -0x1.921fb54442d18p-59, -0x1.921fb54442d18p-60 };<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>    /** The type of DFT to be performed. */<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    private final DftNormalization normalization;<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>    /**<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     * Creates a new instance of this class, with various normalization<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     * conventions.<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     *<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     * @param normalization the type of normalization to be applied to the<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     * transformed data<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     */<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    public FastFourierTransformer(final DftNormalization normalization) {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        this.normalization = normalization;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    }<a name="line.116"></a>
+<span class="sourceLineNo">117</span><a name="line.117"></a>
+<span class="sourceLineNo">118</span>    /**<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * Performs identical index bit reversal shuffles on two arrays of identical<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * size. Each element in the array is swapped with another element based on<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     * the bit-reversal of the index. For example, in an array with length 16,<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     * item at binary index 0011 (decimal 3) would be swapped with the item at<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     * binary index 1100 (decimal 12).<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     *<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     * @param a the first array to be shuffled<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * @param b the second array to be shuffled<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     */<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    private static void bitReversalShuffle2(double[] a, double[] b) {<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        final int n = a.length;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        assert b.length == n;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        final int halfOfN = n &gt;&gt; 1;<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>        int j = 0;<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        for (int i = 0; i &lt; n; i++) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>            if (i &lt; j) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>                // swap indices i &amp; j<a name="line.136"></a>
+<span class="sourceLineNo">137</span>                double temp = a[i];<a name="line.137"></a>
+<span class="sourceLineNo">138</span>                a[i] = a[j];<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                a[j] = temp;<a name="line.139"></a>
+<span class="sourceLineNo">140</span><a name="line.140"></a>
+<span class="sourceLineNo">141</span>                temp = b[i];<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                b[i] = b[j];<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                b[j] = temp;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>            }<a name="line.144"></a>
+<span class="sourceLineNo">145</span><a name="line.145"></a>
+<span class="sourceLineNo">146</span>            int k = halfOfN;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>            while (k &lt;= j &amp;&amp; k &gt; 0) {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>                j -= k;<a name="line.148"></a>
+<span class="sourceLineNo">149</span>                k &gt;&gt;= 1;<a name="line.149"></a>
+<span class="sourceLineNo">150</span>            }<a name="line.150"></a>
+<span class="sourceLineNo">151</span>            j += k;<a name="line.151"></a>
+<span class="sourceLineNo">152</span>        }<a name="line.152"></a>
+<span class="sourceLineNo">153</span>    }<a name="line.153"></a>
+<span class="sourceLineNo">154</span><a name="line.154"></a>
+<span class="sourceLineNo">155</span>    /**<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     * Applies the proper normalization to the specified transformed data.<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     *<a name="line.157"></a>
+<span class="sourceLineNo">158</span>     * @param dataRI the unscaled transformed data<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     * @param normalization the normalization to be applied<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     * @param type the type of transform (forward, inverse) which resulted in the specified data<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     */<a name="line.161"></a>
+<span class="sourceLineNo">162</span>    private static void normalizeTransformedData(final double[][] dataRI,<a name="line.162"></a>
+<span class="sourceLineNo">163</span>        final DftNormalization normalization, final TransformType type) {<a name="line.163"></a>
+<span class="sourceLineNo">164</span><a name="line.164"></a>
+<span class="sourceLineNo">165</span>        final double[] dataR = dataRI[0];<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        final double[] dataI = dataRI[1];<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        final int n = dataR.length;<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        assert dataI.length == n;<a name="line.168"></a>
+<span class="sourceLineNo">169</span><a name="line.169"></a>
+<span class="sourceLineNo">170</span>        switch (normalization) {<a name="line.170"></a>
+<span class="sourceLineNo">171</span>            case STANDARD:<a name="line.171"></a>
+<span class="sourceLineNo">172</span>                if (type == TransformType.INVERSE) {<a name="line.172"></a>
+<span class="sourceLineNo">173</span>                    final double scaleFactor = 1.0 / ((double) n);<a name="line.173"></a>
+<span class="sourceLineNo">174</span>                    for (int i = 0; i &lt; n; i++) {<a name="line.174"></a>
+<span class="sourceLineNo">175</span>                        dataR[i] *= scaleFactor;<a name="line.175"></a>
+<span class="sourceLineNo">176</span>                        dataI[i] *= scaleFactor;<a name="line.176"></a>
+<span class="sourceLineNo">177</span>                    }<a name="line.177"></a>
+<span class="sourceLineNo">178</span>                }<a name="line.178"></a>
+<span class="sourceLineNo">179</span>                break;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>            case UNITARY:<a name="line.180"></a>
+<span class="sourceLineNo">181</span>                final double scaleFactor = 1.0 / FastMath.sqrt(n);<a name="line.181"></a>
+<span class="sourceLineNo">182</span>                for (int i = 0; i &lt; n; i++) {<a name="line.182"></a>
+<span class="sourceLineNo">183</span>                    dataR[i] *= scaleFactor;<a name="line.183"></a>
+<span class="sourceLineNo">184</span>                    dataI[i] *= scaleFactor;<a name="line.184"></a>
+<span class="sourceLineNo">185</span>                }<a name="line.185"></a>
+<span class="sourceLineNo">186</span>                break;<a name="line.186"></a>
+<span class="sourceLineNo">187</span>            default:<a name="line.187"></a>
+<span class="sourceLineNo">188</span>                /*<a name="line.188"></a>
+<span class="sourceLineNo">189</span>                 * This should never occur in normal conditions. However this<a name="line.189"></a>
+<span class="sourceLineNo">190</span>                 * clause has been added as a safeguard if other types of<a name="line.190"></a>
+<span class="sourceLineNo">191</span>                 * normalizations are ever implemented, and the corresponding<a name="line.191"></a>
+<span class="sourceLineNo">192</span>                 * test is forgotten in the present switch.<a name="line.192"></a>
+<span class="sourceLineNo">193</span>                 */<a name="line.193"></a>
+<span class="sourceLineNo">194</span>                throw new MathIllegalStateException();<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        }<a name="line.195"></a>
+<span class="sourceLineNo">196</span>    }<a name="line.196"></a>
+<span class="sourceLineNo">197</span><a name="line.197"></a>
+<span class="sourceLineNo">198</span>    /**<a name="line.198"></a>
+<span class="sourceLineNo">199</span>     * Computes the standard transform of the specified complex data. The<a name="line.199"></a>
+<span class="sourceLineNo">200</span>     * computation is done in place. The input data is laid out as follows<a name="line.200"></a>
+<span class="sourceLineNo">201</span>     * &lt;ul&gt;<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     *   &lt;li&gt;{@code dataRI[0][i]} is the real part of the {@code i}-th data point,&lt;/li&gt;<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     *   &lt;li&gt;{@code dataRI[1][i]} is the imaginary part of the {@code i}-th data point.&lt;/li&gt;<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     * &lt;/ul&gt;<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     *<a name="line.205"></a>
+<span class="sourceLineNo">206</span>     * @param dataRI the two dimensional array of real and imaginary parts of the data<a name="line.206"></a>
+<span class="sourceLineNo">207</span>     * @param normalization the normalization to be applied to the transformed data<a name="line.207"></a>
+<span class="sourceLineNo">208</span>     * @param type the type of transform (forward, inverse) to be performed<a name="line.208"></a>
+<span class="sourceLineNo">209</span>     * @throws DimensionMismatchException if the number of rows of the specified<a name="line.209"></a>
+<span class="sourceLineNo">210</span>     *   array is not two, or the array is not rectangular<a name="line.210"></a>
+<span class="sourceLineNo">211</span>     * @throws MathIllegalArgumentException if the number of data points is not<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     *   a power of two<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     */<a name="line.213"></a>
+<span class="sourceLineNo">214</span>    public static void transformInPlace(final double[][] dataRI,<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        final DftNormalization normalization, final TransformType type) {<a name="line.215"></a>
+<span class="sourceLineNo">216</span><a name="line.216"></a>
+<span class="sourceLineNo">217</span>        if (dataRI.length != 2) {<a name="line.217"></a>
+<span class="sourceLineNo">218</span>            throw new DimensionMismatchException(dataRI.length, 2);<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        }<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        final double[] dataR = dataRI[0];<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        final double[] dataI = dataRI[1];<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        if (dataR.length != dataI.length) {<a name="line.222"></a>
+<span class="sourceLineNo">223</span>            throw new DimensionMismatchException(dataI.length, dataR.length);<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        }<a name="line.224"></a>
+<span class="sourceLineNo">225</span><a name="line.225"></a>
+<span class="sourceLineNo">226</span>        final int n = dataR.length;<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        if (!ArithmeticUtils.isPowerOfTwo(n)) {<a name="line.227"></a>
+<span class="sourceLineNo">228</span>            throw new MathIllegalArgumentException(<a name="line.228"></a>
+<span class="sourceLineNo">229</span>                LocalizedFormats.NOT_POWER_OF_TWO_CONSIDER_PADDING,<a name="line.229"></a>
+<span class="sourceLineNo">230</span>                Integer.valueOf(n));<a name="line.230"></a>
+<span class="sourceLineNo">231</span>        }<a name="line.231"></a>
+<span class="sourceLineNo">232</span><a name="line.232"></a>
+<span class="sourceLineNo">233</span>        if (n == 1) {<a name="line.233"></a>
+<span class="sourceLineNo">234</span>            return;<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        } else if (n == 2) {<a name="line.235"></a>
+<span class="sourceLineNo">236</span>            final double srcR0 = dataR[0];<a name="line.236"></a>
+<span class="sourceLineNo">237</span>            final double srcI0 = dataI[0];<a name="line.237"></a>
+<span class="sourceLineNo">238</span>            final double srcR1 = dataR[1];<a name="line.238"></a>
+<span class="sourceLineNo">239</span>            final double srcI1 = dataI[1];<a name="line.239"></a>
+<span class="sourceLineNo">240</span><a name="line.240"></a>
+<span class="sourceLineNo">241</span>            // X_0 = x_0 + x_1<a name="line.241"></a>
+<span class="sourceLineNo">242</span>            dataR[0] = srcR0 + srcR1;<a name="line.242"></a>
+<span class="sourceLineNo">243</span>            dataI[0] = srcI0 + srcI1;<a name="line.243"></a>
+<span class="sourceLineNo">244</span>            // X_1 = x_0 - x_1<a name="line.244"></a>
+<span class="sourceLineNo">245</span>            dataR[1] = srcR0 - srcR1;<a name="line.245"></a>
+<span class="sourceLineNo">246</span>            dataI[1] = srcI0 - srcI1;<a name="line.246"></a>
+<span class="sourceLineNo">247</span><a name="line.247"></a>
+<span class="sourceLineNo">248</span>            normalizeTransformedData(dataRI, normalization, type);<a name="line.248"></a>
+<span class="sourceLineNo">249</span>            return;<a name="line.249"></a>
+<span class="sourceLineNo">250</span>        }<a name="line.250"></a>
+<span class="sourceLineNo">251</span><a name="line.251"></a>
+<span class="sourceLineNo">252</span>        bitReversalShuffle2(dataR, dataI);<a name="line.252"></a>
+<span class="sourceLineNo">253</span><a name="line.253"></a>
+<span class="sourceLineNo">254</span>        // Do 4-term DFT.<a name="line.254"></a>
+<span class="sourceLineNo">255</span>        if (type == TransformType.INVERSE) {<a name="line.255"></a>
+<span class="sourceLineNo">256</span>            for (int i0 = 0; i0 &lt; n; i0 += 4) {<a name="line.256"></a>
+<span class="sourceLineNo">257</span>                final int i1 = i0 + 1;<a name="line.257"></a>
+<span class="sourceLineNo">258</span>                final int i2 = i0 + 2;<a name="line.258"></a>
+<span class="sourceLineNo">259</span>                final int i3 = i0 + 3;<a name="line.259"></a>
+<span class="sourceLineNo">260</span><a name="line.260"></a>
+<span class="sourceLineNo">261</span>                final double srcR0 = dataR[i0];<a name="line.261"></a>
+<span class="sourceLineNo">262</span>                final double srcI0 = dataI[i0];<a name="line.262"></a>
+<span class="sourceLineNo">263</span>                final double srcR1 = dataR[i2];<a name="line.263"></a>
+<span class="sourceLineNo">264</span>                final double srcI1 = dataI[i2];<a name="line.264"></a>
+<span class="sourceLineNo">265</span>                final double srcR2 = dataR[i1];<a name="line.265"></a>
+<span class="sourceLineNo">266</span>                final double srcI2 = dataI[i1];<a name="line.266"></a>
+<span class="sourceLineNo">267</span>                final double srcR3 = dataR[i3];<a name="line.267"></a>
+<span class="sourceLineNo">268</span>                final double srcI3 = dataI[i3];<a name="line.268"></a>
+<span class="sourceLineNo">269</span><a name="line.269"></a>
+<span class="sourceLineNo">270</span>                // 4-term DFT<a name="line.270"></a>
+<span class="sourceLineNo">271</span>                // X_0 = x_0 + x_1 + x_2 + x_3<a name="line.271"></a>
+<span class="sourceLineNo">272</span>                dataR[i0] = srcR0 + srcR1 + srcR2 + srcR3;<a name="line.272"></a>
+<span class="sourceLineNo">273</span>                dataI[i0] = srcI0 + srcI1 + srcI2 + srcI3;<a name="line.273"></a>
+<span class="sourceLineNo">274</span>                // X_1 = x_0 - x_2 + j * (x_3 - x_1)<a name="line.274"></a>
+<span class="sourceLineNo">275</span>                dataR[i1] = srcR0 - srcR2 + (srcI3 - srcI1);<a name="line.275"></a>
+<span class="sourceLineNo">276</span>                dataI[i1] = srcI0 - srcI2 + (srcR1 - srcR3);<a name="line.276"></a>
+<span class="sourceLineNo">277</span>                // X_2 = x_0 - x_1 + x_2 - x_3<a name="line.277"></a>
+<span class="sourceLineNo">278</span>                dataR[i2] = srcR0 - srcR1 + srcR2 - srcR3;<a name="line.278"></a>
+<span class="sourceLineNo">279</span>                dataI[i2] = srcI0 - srcI1 + srcI2 - srcI3;<a name="line.279"></a>
+<span class="sourceLineNo">280</span>                // X_3 = x_0 - x_2 + j * (x_1 - x_3)<a name="line.280"></a>
+<span class="sourceLineNo">281</span>                dataR[i3] = srcR0 - srcR2 + (srcI1 - srcI3);<a name="line.281"></a>
+<span class="sourceLineNo">282</span>                dataI[i3] = srcI0 - srcI2 + (srcR3 - srcR1);<a name="line.282"></a>
+<span class="sourceLineNo">283</span>            }<a name="line.283"></a>
+<span class="sourceLineNo">284</span>        } else {<a name="line.284"></a>
+<span class="sourceLineNo">285</span>            for (int i0 = 0; i0 &lt; n; i0 += 4) {<a name="line.285"></a>
+<span class="sourceLineNo">286</span>                final int i1 = i0 + 1;<a name="line.286"></a>
+<span class="sourceLineNo">287</span>                final int i2 = i0 + 2;<a name="line.287"></a>
+<span class="sourceLineNo">288</span>                final int i3 = i0 + 3;<a name="line.288"></a>
+<span class="sourceLineNo">289</span><a name="line.289"></a>
+<span class="sourceLineNo">290</span>                final double srcR0 = dataR[i0];<a name="line.290"></a>
+<span class="sourceLineNo">291</span>                final double srcI0 = dataI[i0];<a name="line.291"></a>
+<span class="sourceLineNo">292</span>                final double srcR1 = dataR[i2];<a name="line.292"></a>
+<span class="sourceLineNo">293</span>                final double srcI1 = dataI[i2];<a name="line.293"></a>
+<span class="sourceLineNo">294</span>                final double srcR2 = dataR[i1];<a name="line.294"></a>
+<span class="sourceLineNo">295</span>                final double srcI2 = dataI[i1];<a name="line.295"></a>
+<span class="sourceLineNo">296</span>                final double srcR3 = dataR[i3];<a name="line.296"></a>
+<span class="sourceLineNo">297</span>                final double srcI3 = dataI[i3];<a name="line.297"></a>
+<span class="sourceLineNo">298</span><a name="line.298"></a>
+<span class="sourceLineNo">299</span>                // 4-term DFT<a name="line.299"></a>
+<span class="sourceLineNo">300</span>                // X_0 = x_0 + x_1 + x_2 + x_3<a name="line.300"></a>
+<span class="sourceLineNo">301</span>                dataR[i0] = srcR0 + srcR1 + srcR2 + srcR3;<a name="line.301"></a>
+<span class="sourceLineNo">302</span>                dataI[i0] = srcI0 + srcI1 + srcI2 + srcI3;<a name="line.302"></a>
+<span class="sourceLineNo">303</span>                // X_1 = x_0 - x_2 + j * (x_3 - x_1)<a name="line.303"></a>
+<span class="sourceLineNo">304</span>                dataR[i1] = srcR0 - srcR2 + (srcI1 - srcI3);<a name="line.304"></a>
+<span class="sourceLineNo">305</span>                dataI[i1] = srcI0 - srcI2 + (srcR3 - srcR1);<a name="line.305"></a>
+<span class="sourceLineNo">306</span>                // X_2 = x_0 - x_1 + x_2 - x_3<a name="line.306"></a>
+<span class="sourceLineNo">307</span>                dataR[i2] = srcR0 - srcR1 + srcR2 - srcR3;<a name="line.307"></a>
+<span class="sourceLineNo">308</span>                dataI[i2] = srcI0 - srcI1 + srcI2 - srcI3;<a name="line.308"></a>
+<span class="sourceLineNo">309</span>                // X_3 = x_0 - x_2 + j * (x_1 - x_3)<a name="line.309"></a>
+<span class="sourceLineNo">310</span>                dataR[i3] = srcR0 - srcR2 + (srcI3 - srcI1);<a name="line.310"></a>
+<span class="sourceLineNo">311</span>                dataI[i3] = srcI0 - srcI2 + (srcR1 - srcR3);<a name="line.311"></a>
+<span class="sourceLineNo">312</span>            }<a name="line.312"></a>
+<span class="sourceLineNo">313</span>        }<a name="line.313"></a>
+<span class="sourceLineNo">314</span><a name="line.314"></a>
+<span class="sourceLineNo">315</span>        int lastN0 = 4;<a name="line.315"></a>
+<span class="sourceLineNo">316</span>        int lastLogN0 = 2;<a name="line.316"></a>
+<span class="sourceLineNo">317</span>        while (lastN0 &lt; n) {<a name="line.317"></a>
+<span class="sourceLineNo">318</span>            int n0 = lastN0 &lt;&lt; 1;<a name="line.318"></a>
+<span class="sourceLineNo">319</span>            int logN0 = lastLogN0 + 1;<a name="line.319"></a>
+<span class="sourceLineNo">320</span>            double wSubN0R = W_SUB_N_R[logN0];<a name="line.320"></a>
+<span class="sourceLineNo">321</span>            double wSubN0I = W_SUB_N_I[logN0];<a name="line.321"></a>
+<span class="sourceLineNo">322</span>            if (type == TransformType.INVERSE) {<a name="line.322"></a>
+<span class="sourceLineNo">323</span>                wSubN0I = -wSubN0I;<a name="line.323"></a>
+<span class="sourceLineNo">324</span>            }<a name="line.324"></a>
+<span class="sourceLineNo">325</span><a name="line.325"></a>
+<span class="sourceLineNo">326</span>            // Combine even/odd transforms of size lastN0 into a transform of size N0 (lastN0 * 2).<a name="line.326"></a>
+<span class="sourceLineNo">327</span>            for (int destEvenStartIndex = 0; destEvenStartIndex &lt; n; destEvenStartIndex += n0) {<a name="line.327"></a>
+<span class="sourceLineNo">328</span>                int destOddStartIndex = destEvenStartIndex + lastN0;<a name="line.328"></a>
+<span class="sourceLineNo">329</span><a name="line.329"></a>
+<span class="sourceLineNo">330</span>                double wSubN0ToRR = 1;<a name="line.330"></a>
+<span class="sourceLineNo">331</span>                double wSubN0ToRI = 0;<a name="line.331"></a>
+<span class="sourceLineNo">332</span><a name="line.332"></a>
+<span class="sourceLineNo">333</span>                for (int r = 0; r &lt; lastN0; r++) {<a name="line.333"></a>
+<span class="sourceLineNo">334</span>                    double grR = dataR[destEvenStartIndex + r];<a name="line.334"></a>
+<span class="sourceLineNo">335</span>                    double grI = dataI[destEvenStartIndex + r];<a name="line.335"></a>
+<span class="sourceLineNo">336</span>                    double hrR = dataR[destOddStartIndex + r];<a name="line.336"></a>
+<span class="sourceLineNo">337</span>                    double hrI = dataI[destOddStartIndex + r];<a name="line.337"></a>
+<span class="sourceLineNo">338</span><a name="line.338"></a>
+<span class="sourceLineNo">339</span>                    // dest[destEvenStartIndex + r] = Gr + WsubN0ToR * Hr<a name="line.339"></a>
+<span class="sourceLineNo">340</span>                    dataR[destEvenStartIndex + r] = grR + wSubN0ToRR * hrR - wSubN0ToRI * hrI;<a name="line.340"></a>
+<span class="sourceLineNo">341</span>                    dataI[destEvenStartIndex + r] = grI + wSubN0ToRR * hrI + wSubN0ToRI * hrR;<a name="line.341"></a>
+<span class="sourceLineNo">342</span>                    // dest[destOddStartIndex + r] = Gr - WsubN0ToR * Hr<a name="line.342"></a>
+<span class="sourceLineNo">343</span>                    dataR[destOddStartIndex + r] = grR - (wSubN0ToRR * hrR - wSubN0ToRI * hrI);<a name="line.343"></a>
+<span class="sourceLineNo">344</span>                    dataI[destOddStartIndex + r] = grI - (wSubN0ToRR * hrI + wSubN0ToRI * hrR);<a name="line.344"></a>
+<span class="sourceLineNo">345</span><a name="line.345"></a>
+<span class="sourceLineNo">346</span>                    // WsubN0ToR *= WsubN0R<a name="line.346"></a>
+<span class="sourceLineNo">347</span>                    double nextWsubN0ToRR = wSubN0ToRR * wSubN0R - wSubN0ToRI * wSubN0I;<a name="line.347"></a>
+<span class="sourceLineNo">348</span>                    double nextWsubN0ToRI = wSubN0ToRR * wSubN0I + wSubN0ToRI * wSubN0R;<a name="line.348"></a>
+<span class="sourceLineNo">349</span>                    wSubN0ToRR = nextWsubN0ToRR;<a name="line.349"></a>
+<span class="sourceLineNo">350</span>                    wSubN0ToRI = nextWsubN0ToRI;<a name="line.350"></a>
+<span class="sourceLineNo">351</span>                }<a name="line.351"></a>
+<span class="sourceLineNo">352</span>            }<a name="line.352"></a>
+<span class="sourceLineNo">353</span><a name="line.353"></a>
+<span class="sourceLineNo">354</span>            lastN0 = n0;<a name="line.354"></a>
+<span class="sourceLineNo">355</span>            lastLogN0 = logN0;<a name="line.355"></a>
+<span class="sourceLineNo">356</span>        }<a name="line.356"></a>
+<span class="sourceLineNo">357</span><a name="line.357"></a>
+<span class="sourceLineNo">358</span>        normalizeTransformedData(dataRI, normalization, type);<a name="line.358"></a>
+<span class="sourceLineNo">359</span>    }<a name="line.359"></a>
+<span class="sourceLineNo">360</span><a name="line.360"></a>
+<span class="sourceLineNo">361</span>    /**<a name="line.361"></a>
+<span class="sourceLineNo">362</span>     * Returns the (forward, inverse) transform of the specified real data set.<a name="line.362"></a>
+<span class="sourceLineNo">363</span>     *<a name="line.363"></a>
+<span class="sourceLineNo">364</span>     * @param f the real data array to be transformed<a name="line.364"></a>
+<span class="sourceLineNo">365</span>     * @param type the type of transform (forward, inverse) to be performed<a name="line.365"></a>
+<span class="sourceLineNo">366</span>     * @return the complex transformed array<a name="line.366"></a>
+<span class="sourceLineNo">367</span>     * @throws MathIllegalArgumentException if the length of the data array is not a power of two<a name="line.367"></a>
+<span class="sourceLineNo">368</span>     */<a name="line.368"></a>
+<span class="sourceLineNo">369</span>    public Complex[] transform(final double[] f, final TransformType type) {<a name="line.369"></a>
+<span class="sourceLineNo">370</span>        final double[][] dataRI = new double[][] {<a name="line.370"></a>
+<span class="sourceLineNo">371</span>            MathArrays.copyOf(f, f.length), new double[f.length]<a name="line.371"></a>
+<span class="sourceLineNo">372</span>        };<a name="line.372"></a>
+<span class="sourceLineNo">373</span><a name="line.373"></a>
+<span class="sourceLineNo">374</span>        transformInPlace(dataRI, normalization, type);<a name="line.374"></a>
+<span class="sourceLineNo">375</span><a name="line.375"></a>
+<span class="sourceLineNo">376</span>        return TransformUtils.createComplexArray(dataRI);<a name="line.376"></a>
+<span class="sourceLineNo">377</span>    }<a name="line.377"></a>
+<span class="sourceLineNo">378</span><a name="line.378"></a>
+<span class="sourceLineNo">379</span>    /**<a name="line.379"></a>
+<span class="sourceLineNo">380</span>     * Returns the (forward, inverse) transform of the specified real function,<a name="line.380"></a>
+<span class="sourceLineNo">381</span>     * sampled on the specified interval.<a name="line.381"></a>
+<span class="sourceLineNo">382</span>     *<a name="line.382"></a>
+<span class="sourceLineNo">383</span>     * @param f the function to be sampled and transformed<a name="line.383"></a>
+<span class="sourceLineNo">384</span>     * @param min the (inclusive) lower bound for the interval<a name="line.384"></a>
+<span class="sourceLineNo">385</span>     * @param max the (exclusive) upper bound for the interval<a name="line.385"></a>
+<span class="sourceLineNo">386</span>     * @param n the number of sample points<a name="line.386"></a>
+<span class="sourceLineNo">387</span>     * @param type the type of transform (forward, inverse) to be performed<a name="line.387"></a>
+<span class="sourceLineNo">388</span>     * @return the complex transformed array<a name="line.388"></a>
+<span class="sourceLineNo">389</span>     * @throws org.apache.commons.math3.exception.NumberIsTooLargeException<a name="line.389"></a>
+<span class="sourceLineNo">390</span>     *   if the lower bound is greater than, or equal to the upper bound<a name="line.390"></a>
+<span class="sourceLineNo">391</span>     * @throws org.apache.commons.math3.exception.NotStrictlyPositiveException<a name="line.391"></a>
+<span class="sourceLineNo">392</span>     *   if the number of sample points {@code n} is negative<a name="line.392"></a>
+<span class="sourceLineNo">393</span>     * @throws MathIllegalArgumentException if the number of sample points<a name="line.393"></a>
+<span class="sourceLineNo">394</span>     *   {@code n} is not a power of two<a name="line.394"></a>
+<span class="sourceLineNo">395</span>     */<a name="line.395"></a>
+<span class="sourceLineNo">396</span>    public Complex[] transform(final UnivariateFunction f,<a name="line.396"></a>
+<span class="sourceLineNo">397</span>                               final double min, final double max, final int n,<a name="line.397"></a>
+<span class="sourceLineNo">398</span>                               final TransformType type) {<a name="line.398"></a>
+<span class="sourceLineNo">399</span><a name="line.399"></a>
+<span class="sourceLineNo">400</span>        final double[] data = FunctionUtils.sample(f, min, max, n);<a name="line.400"></a>
+<span class="sourceLineNo">401</span>        return transform(data, type);<a name="line.401"></a>
+<span class="sourceLineNo">402</span>    }<a name="line.402"></a>
+<span class="sourceLineNo">403</span><a name="line.403"></a>
+<span class="sourceLineNo">404</span>    /**<a name="line.404"></a>
+<span class="sourceLineNo">405</span>     * Returns the (forward, inverse) transform of the specified complex data set.<a name="line.405"></a>
+<span class="sourceLineNo">406</span>     *<a name="line.406"></a>
+<span class="sourceLineNo">407</span>     * @param f the complex data array to be transformed<a name="line.407"></a>
+<span class="sourceLineNo">408</span>     * @param type the type of transform (forward, inverse) to be performed<a name="line.408"></a>
+<span class="sourceLineNo">409</span>     * @return the complex transformed array<a name="line.409"></a>
+<span class="sourceLineNo">410</span>     * @throws MathIllegalArgumentException if the length of the data array is not a power of two<a name="line.410"></a>
+<span class="sourceLineNo">411</span>     */<a name="line.411"></a>
+<span class="sourceLineNo">412</span>    public Complex[] transform(final Complex[] f, final TransformType type) {<a name="line.412"></a>
+<span class="sourceLineNo">413</span>        final double[][] dataRI = TransformUtils.createRealImaginaryArray(f);<a name="line.413"></a>
+<span class="sourceLineNo">414</span><a name="line.414"></a>
+<span class="sourceLineNo">415</span>        transformInPlace(dataRI, normalization, type);<a name="line.415"></a>
+<span class="sourceLineNo">416</span><a name="line.416"></a>
+<span class="sourceLineNo">417</span>        return TransformUtils.createComplexArray(dataRI);<a name="line.417"></a>
+<span class="sourceLineNo">418</span>    }<a name="line.418"></a>
+<span class="sourceLineNo">419</span><a name="line.419"></a>
+<span class="sourceLineNo">420</span>    /**<a name="line.420"></a>
+<span class="sourceLineNo">421</span>     * Performs a multi-dimensional Fourier transform on a given array. Use<a name="line.421"></a>
+<span class="sourceLineNo">422</span>     * {@link #transform(Complex[], TransformType)} in a row-column<a name="line.422"></a>
+<span class="sourceLineNo">423</span>     * implementation in any number of dimensions with<a name="line.423"></a>
+<span class="sourceLineNo">424</span>     * O(N&amp;times;log(N)) complexity with<a name="line.424"></a>
+<span class="sourceLineNo">425</span>     * N = n&lt;sub&gt;1&lt;/sub&gt; &amp;times; n&lt;sub&gt;2&lt;/sub&gt; &amp;times;n&lt;sub&gt;3&lt;/sub&gt; &amp;times; ...<a name="line.425"></a>
+<span class="sourceLineNo">426</span>     * &amp;times; n&lt;sub&gt;d&lt;/sub&gt;, where n&lt;sub&gt;k&lt;/sub&gt; is the number of elements in<a name="line.426"></a>
+<span class="sourceLineNo">427</span>     * dimension k, and d is the total number of dimensions.<a name="line.427"></a>
+<span class="sourceLineNo">428</span>     *<a name="line.428"></a>
+<span class="sourceLineNo">429</span>     * @param mdca Multi-Dimensional Complex Array, i.e. {@code Complex[][][][]}<a name="line.429"></a>
+<span class="sourceLineNo">430</span>     * @param type the type of transform (forward, inverse) to be performed<a name="line.430"></a>
+<span class="sourceLineNo">431</span>     * @return transform of {@code mdca} as a Multi-Dimensional Complex Array, i.e. {@code Complex[][][][]}<a name="line.431"></a>
+<span class="sourceLineNo">432</span>     * @throws IllegalArgumentException if any dimension is not a power of two<a name="line.432"></a>
+<span class="sourceLineNo">433</span>     * @deprecated see MATH-736<a name="line.433"></a>
+<span class="sourceLineNo">434</span>     */<a name="line.434"></a>
+<span class="sourceLineNo">435</span>    @Deprecated<a name="line.435"></a>
+<span class="sourceLineNo">436</span>    public Object mdfft(Object mdca, TransformType type) {<a name="line.436"></a>
+<span class="sourceLineNo">437</span>        MultiDimensionalComplexMatrix mdcm = (MultiDimensionalComplexMatrix)<a name="line.437"></a>
+<span class="sourceLineNo">438</span>                new MultiDimensionalComplexMatrix(mdca).clone();<a name="line.438"></a>
+<span class="sourceLineNo">439</span>        int[] dimensionSize = mdcm.getDimensionSizes();<a name="line.439"></a>
+<span class="sourceLineNo">440</span>        //cycle through each dimension<a name="line.440"></a>
+<span class="sourceLineNo">441</span>        for (int i = 0; i &lt; dimensionSize.length; i++) {<a name="line.441"></a>
+<span class="sourceLineNo">442</span>            mdfft(mdcm, type, i, new int[0]);<a name="line.442"></a>
+<span class="sourceLineNo">443</span>        }<a name="line.443"></a>
+<span class="sourceLineNo">444</span>        return mdcm.getArray();<a name="line.444"></a>
+<span class="sourceLineNo">445</span>    }<a name="line.445"></a>
+<span class="sourceLineNo">446</span><a name="line.446"></a>
+<span class="sourceLineNo">447</span>    /**<a name="line.447"></a>
+<span class="sourceLineNo">448</span>     * Performs one dimension of a multi-dimensional Fourier transform.<a name="line.448"></a>
+<span class="sourceLineNo">449</span>     *<a name="line.449"></a>
+<span class="sourceLineNo">450</span>     * @param mdcm input matrix<a name="line.450"></a>
+<span class="sourceLineNo">451</span>     * @param type the type of transform (forward, inverse) to be performed<a name="line.451"></a>
+<span class="sourceLineNo">452</span>     * @param d index of the dimension to process<a name="line.452"></a>
+<span class="sourceLineNo">453</span>     * @param subVector recursion subvector<a name="line.453"></a>
+<span class="sourceLineNo">454</span>     * @throws IllegalArgumentException if any dimension is not a power of two<a name="line.454"></a>
+<span class="sourceLineNo">455</span>     * @deprecated see MATH-736<a name="line.455"></a>
+<span class="sourceLineNo">456</span>     */<a name="line.456"></a>
+<span class="sourceLineNo">457</span>    @Deprecated<a name="line.457"></a>
+<span class="sourceLineNo">458</span>    private void mdfft(MultiDimensionalComplexMatrix mdcm,<a name="line.458"></a>
+<span class="sourceLineNo">459</span>            TransformType type, int d, int[] subVector) {<a name="line.459"></a>
+<span class="sourceLineNo">460</span><a name="line.460"></a>
+<span class="sourceLineNo">461</span>        int[] dimensionSize = mdcm.getDimensionSizes();<a name="line.461"></a>
+<span class="sourceLineNo">462</span>        //if done<a name="line.462"></a>
+<span class="sourceLineNo">463</span>        if (subVector.length == dimensionSize.length) {<a name="line.463"></a>
+<span class="sourceLineNo">464</span>            Complex[] temp = new Complex[dimensionSize[d]];<a name="line.464"></a>
+<span class="sourceLineNo">465</span>            for (int i = 0; i &lt; dimensionSize[d]; i++) {<a name="line.465"></a>
+<span class="sourceLineNo">466</span>                //fft along dimension d<a name="line.466"></a>
+<span class="sourceLineNo">467</span>                subVector[d] = i;<a name="line.467"></a>
+<span class="sourceLineNo">468</span>                temp[i] = mdcm.get(subVector);<a name="line.468"></a>
+<span class="sourceLineNo">469</span>            }<a name="line.469"></a>
+<span class="sourceLineNo">470</span><a name="line.470"></a>
+<span class="sourceLineNo">471</span>            temp = transform(temp, type);<a name="line.471"></a>
+<span class="sourceLineNo">472</span><a name="line.472"></a>
+<span class="sourceLineNo">473</span>            for (int i = 0; i &lt; dimensionSize[d]; i++) {<a name="line.473"></a>
+<span class="sourceLineNo">474</span>                subVector[d] = i;<a name="line.474"></a>
+<span class="sourceLineNo">475</span>                mdcm.set(temp[i], subVector);<a name="line.475"></a>
+<span class="sourceLineNo">476</span>            }<a name="line.476"></a>
+<span class="sourceLineNo">477</span>        } else {<a name="line.477"></a>
+<span class="sourceLineNo">478</span>            int[] vector = new int[subVector.length + 1];<a name="line.478"></a>
+<span class="sourceLineNo">479</span>            System.arraycopy(subVector, 0, vector, 0, subVector.length);<a name="line.479"></a>
+<span class="sourceLineNo">480</span>            if (subVector.length == d) {<a name="line.480"></a>
+<span class="sourceLineNo">481</span>                //value is not important once the recursion is done.<a name="line.481"></a>
+<span class="sourceLineNo">482</span>                //then an fft will be applied along the dimension d.<a name="line.482"></a>
+<span class="sourceLineNo">483</span>                vector[d] = 0;<a name="line.483"></a>
+<span class="sourceLineNo">484</span>                mdfft(mdcm, type, d, vector);<a name="line.484"></a>
+<span class="sourceLineNo">485</span>            } else {<a name="line.485"></a>
+<span class="sourceLineNo">486</span>                for (int i = 0; i &lt; dimensionSize[subVector.length]; i++) {<a name="line.486"></a>
+<span class="sourceLineNo">487</span>                    vector[subVector.length] = i;<a name="line.487"></a>
+<span class="sourceLineNo">488</span>                    //further split along the next dimension<a name="line.488"></a>
+<span class="sourceLineNo">489</span>                    mdfft(mdcm, type, d, vector);<a name="line.489"></a>
+<span class="sourceLineNo">490</span>                }<a name="line.490"></a>
+<span class="sourceLineNo">491</span>            }<a name="line.491"></a>
+<span class="sourceLineNo">492</span>        }<a name="line.492"></a>
+<span class="sourceLineNo">493</span>    }<a name="line.493"></a>
+<span class="sourceLineNo">494</span><a name="line.494"></a>
+<span class="sourceLineNo">495</span>    /**<a name="line.495"></a>
+<span class="sourceLineNo">496</span>     * Complex matrix implementation. Not designed for synchronized access may<a name="line.496"></a>
+<span class="sourceLineNo">497</span>     * eventually be replaced by jsr-83 of the java community process<a name="line.497"></a>
+<span class="sourceLineNo">498</span>     * http://jcp.org/en/jsr/detail?id=83<a name="line.498"></a>
+<span class="sourceLineNo">499</span>     * may require additional exception throws for other basic requirements.<a name="line.499"></a>
+<span class="sourceLineNo">500</span>     *<a name="line.500"></a>
+<span class="sourceLineNo">501</span>     * @deprecated see MATH-736<a name="line.501"></a>
+<span class="sourceLineNo">502</span>     */<a name="line.502"></a>
+<span class="sourceLineNo">503</span>    @Deprecated<a name="line.503"></a>
+<span class="sourceLineNo">504</span>    private static class MultiDimensionalComplexMatrix<a name="line.504"></a>
+<span class="sourceLineNo">505</span>        implements Cloneable {<a name="line.505"></a>
+<span class="sourceLineNo">506</span><a name="line.506"></a>
+<span class="sourceLineNo">507</span>        /** Size in all dimensions. */<a name="line.507"></a>
+<span class="sourceLineNo">508</span>        protected int[] dimensionSize;<a name="line.508"></a>
+<span class="sourceLineNo">509</span><a name="line.509"></a>
+<span class="sourceLineNo">510</span>        /** Storage array. */<a name="line.510"></a>
+<span class="sourceLineNo">511</span>        protected Object multiDimensionalComplexArray;<a name="line.511"></a>
+<span class="sourceLineNo">512</span><a name="line.512"></a>
+<span class="sourceLineNo">513</span>        /**<a name="line.513"></a>
+<span class="sourceLineNo">514</span>         * Simple constructor.<a name="line.514"></a>
+<span class="sourceLineNo">515</span>         *<a name="line.515"></a>
+<span class="sourceLineNo">516</span>         * @param multiDimensionalComplexArray array containing the matrix<a name="line.516"></a>
+<span class="sourceLineNo">517</span>         * elements<a name="line.517"></a>
+<span class="sourceLineNo">518</span>         */<a name="line.518"></a>
+<span class="sourceLineNo">519</span>        MultiDimensionalComplexMatrix(Object multiDimensionalComplexArray) {<a name="line.519"></a>
+<span class="sourceLineNo">520</span><a name="line.520"></a>
+<span class="sourceLineNo">521</span>            this.multiDimensionalComplexArray = multiDimensionalComplexArray;<a name="line.521"></a>
+<span class="sourceLineNo">522</span><a name="line.522"></a>
+<span class="sourceLineNo">523</span>            // count dimensions<a name="line.523"></a>
+<span class="sourceLineNo">524</span>            int numOfDimensions = 0;<a name="line.524"></a>
+<span class="sourceLineNo">525</span>            for (Object lastDimension = multiDimensionalComplexArray;<a name="line.525"></a>
+<span class="sourceLineNo">526</span>                 lastDimension instanceof Object[];) {<a name="line.526"></a>
+<span class="sourceLineNo">527</span>                final Object[] array = (Object[]) lastDimension;<a name="line.527"></a>
+<span class="sourceLineNo">528</span>                numOfDimensions++;<a name="line.528"></a>
+<span class="sourceLineNo">529</span>                lastDimension = array[0];<a name="line.529"></a>
+<span class="sourceLineNo">530</span>            }<a name="line.530"></a>
+<span class="sourceLineNo">531</span><a name="line.531"></a>
+<span class="sourceLineNo">532</span>            // allocate array with exact count<a name="line.532"></a>
+<span class="sourceLineNo">533</span>            dimensionSize = new int[numOfDimensions];<a name="line.533"></a>
+<span class="sourceLineNo">534</span><a name="line.534"></a>
+<span class="sourceLineNo">535</span>            // fill array<a name="line.535"></a>
+<span class="sourceLineNo">536</span>            numOfDimensions = 0;<a name="line.536"></a>
+<span class="sourceLineNo">537</span>            for (Object lastDimension = multiDimensionalComplexArray;<a name="line.537"></a>
+<span class="sourceLineNo">538</span>                 lastDimension instanceof Object[];) {<a name="line.538"></a>
+<span class="sourceLineNo">539</span>                final Object[] array = (Object[]) lastDimension;<a name="line.539"></a>
+<span class="sourceLineNo">540</span>                dimensionSize[numOfDimensions++] = array.length;<a name="line.540"></a>
+<span class="sourceLineNo">541</span>                lastDimension = array[0];<a name="line.541"></a>
+<span class="sourceLineNo">542</span>            }<a name="line.542"></a>
+<span class="sourceLineNo">543</span><a name="line.543"></a>
+<span class="sourceLineNo">544</span>        }<a name="line.544"></a>
+<span class="sourceLineNo">545</span><a name="line.545"></a>
+<span class="sourceLineNo">546</span>        /**<a name="line.546"></a>
+<span class="sourceLineNo">547</span>         * Get a matrix element.<a name="line.547"></a>
+<span class="sourceLineNo">548</span>         *<a name="line.548"></a>
+<span class="sourceLineNo">549</span>         * @param vector indices of the element<a name="line.549"></a>
+<span class="sourceLineNo">550</span>         * @return matrix element<a name="line.550"></a>
+<span class="sourceLineNo">551</span>         * @exception DimensionMismatchException if dimensions do not match<a name="line.551"></a>
+<span class="sourceLineNo">552</span>         */<a name="line.552"></a>
+<span class="sourceLineNo">553</span>        public Complex get(int... vector)<a name="line.553"></a>
+<span class="sourceLineNo">554</span>                throws DimensionMismatchException {<a name="line.554"></a>
+<span class="sourceLineNo">555</span><a name="line.555"></a>
+<span class="sourceLineNo">556</span>            if (vector == null) {<a name="line.556"></a>
+<span class="sourceLineNo">557</span>                if (dimensionSize.length &gt; 0) {<a name="line.557"></a>
+<span class="sourceLineNo">558</span>                    throw new DimensionMismatchException(<a name="line.558"></a>
+<span class="sourceLineNo">559</span>                            0,<a name="line.559"></a>
+<span class="sourceLineNo">560</span>                            dimensionSize.length);<a name="line.560"></a>
+<span class="sourceLineNo">561</span>                }<a name="line.561"></a>
+<span class="sourceLineNo">562</span>                return null;<a name="line.562"></a>
+<span class="sourceLineNo">563</span>            }<a name="line.563"></a>
+<span class="sourceLineNo">564</span>            if (vector.length != dimensionSize.length) {<a name="line.564"></a>
+<span class="sourceLineNo">565</span>                throw new DimensionMismatchException(<a name="line.565"></a>
+<span class="sourceLineNo">566</span>                        vector.length,<a name="line.566"></a>
+<span class="sourceLineNo">567</span>                        dimensionSize.length);<a name="line.567"></a>
+<span class="sourceLineNo">568</span>            }<a name="line.568"></a>
+<span class="sourceLineNo">569</span><a name="line.569"></a>
+<span class="sourceLineNo">570</span>            Object lastDimension = multiDimensionalComplexArray;<a name="line.570"></a>
+<span class="sourceLineNo">571</span><a name="line.571"></a>
+<span class="sourceLineNo">572</span>            for (int i = 0; i &lt; dimensionSize.length; i++) {<a name="line.572"></a>
+<span class="sourceLineNo">573</span>                lastDimension = ((Object[]) lastDimension)[vector[i]];<a name="line.573"></a>
+<span class="sourceLineNo">574</span>            }<a name="line.574"></a>
+<span class="sourceLineNo">575</span>            return (Complex) lastDimension;<a name="line.575"></a>
+<span class="sourceLineNo">576</span>        }<a name="line.576"></a>
+<span class="sourceLineNo">577</span><a name="line.577"></a>
+<span class="sourceLineNo">578</span>        /**<a name="line.578"></a>
+<span class="sourceLineNo">579</span>         * Set a matrix element.<a name="line.579"></a>
+<span class="sourceLineNo">580</span>         *<a name="line.580"></a>
+<span class="sourceLineNo">581</span>         * @param magnitude magnitude of the element<a name="line.581"></a>
+<span class="sourceLineNo">582</span>         * @param vector indices of the element<a name="line.582"></a>
+<span class="sourceLineNo">583</span>         * @return the previous value<a name="line.583"></a>
+<span class="sourceLineNo">584</span>         * @exception DimensionMismatchException if dimensions do not match<a name="line.584"></a>
+<span class="sourceLineNo">585</span>         */<a name="line.585"></a>
+<span class="sourceLineNo">586</span>        public Complex set(Complex magnitude, int... vector)<a name="line.586"></a>
+<span class="sourceLineNo">587</span>                throws DimensionMismatchException {<a name="line.587"></a>
+<span class="sourceLineNo">588</span><a name="line.588"></a>
+<span class="sourceLineNo">589</span>            if (vector == null) {<a name="line.589"></a>
+<span class="sourceLineNo">590</span>                if (dimensionSize.length &gt; 0) {<a name="line.590"></a>
+<span class="sourceLineNo">591</span>                    throw new DimensionMismatchException(<a name="line.591"></a>
+<span class="sourceLineNo">592</span>                            0,<a name="line.592"></a>
+<span class="sourceLineNo">593</span>                            dimensionSize.length);<a name="line.593"></a>
+<span class="sourceLineNo">594</span>                }<a name="line.594"></a>
+<span class="sourceLineNo">595</span>                return null;<a name="line.595"></a>
+<span class="sourceLineNo">596</span>            }<a name="line.596"></a>
+<span class="sourceLineNo">597</span>            if (vector.length != dimensionSize.length) {<a name="line.597"></a>
+<span class="sourceLineNo">598</span>                throw new DimensionMismatchException(<a name="line.598"></a>
+<span class="sourceLineNo">599</span>                        vector.length,<a name="line.599"></a>
+<span class="sourceLineNo">600</span>                        dimensionSize.length);<a name="line.600"></a>
+<span class="sourceLineNo">601</span>            }<a name="line.601"></a>
+<span class="sourceLineNo">602</span><a name="line.602"></a>
+<span class="sourceLineNo">603</span>            Object[] lastDimension = (Object[]) multiDimensionalComplexArray;<a name="line.603"></a>
+<span class="sourceLineNo">604</span>            for (int i = 0; i &lt; dimensionSize.length - 1; i++) {<a name="line.604"></a>
+<span class="sourceLineNo">605</span>                lastDimension = (Object[]) lastDimension[vector[i]];<a name="line.605"></a>
+<span class="sourceLineNo">606</span>            }<a name="line.606"></a>
+<span class="sourceLineNo">607</span><a name="line.607"></a>
+<span class="sourceLineNo">608</span>            Complex lastValue = (Complex) lastDimension[vector[dimensionSize.length - 1]];<a name="line.608"></a>
+<span class="sourceLineNo">609</span>            lastDimension[vector[dimensionSize.length - 1]] = magnitude;<a name="line.609"></a>
+<span class="sourceLineNo">610</span><a name="line.610"></a>
+<span class="sourceLineNo">611</span>            return lastValue;<a name="line.611"></a>
+<span class="sourceLineNo">612</span>        }<a name="line.612"></a>
+<span class="sourceLineNo">613</span><a name="line.613"></a>
+<span class="sourceLineNo">614</span>        /**<a name="line.614"></a>
+<span class="sourceLineNo">615</span>         * Get the size in all dimensions.<a name="line.615"></a>
+<span class="sourceLineNo">616</span>         *<a name="line.616"></a>
+<span class="sourceLineNo">617</span>         * @return size in all dimensions<a name="line.617"></a>
+<span class="sourceLineNo">618</span>         */<a name="line.618"></a>
+<span class="sourceLineNo">619</span>        public int[] getDimensionSizes() {<a name="line.619"></a>
+<span class="sourceLineNo">620</span>            return dimensionSize.clone();<a name="line.620"></a>
+<span class="sourceLineNo">621</span>        }<a name="line.621"></a>
+<span class="sourceLineNo">622</span><a name="line.622"></a>
+<span class="sourceLineNo">623</span>        /**<a name="line.623"></a>
+<span class="sourceLineNo">624</span>         * Get the underlying storage array.<a name="line.624"></a>
+<span class="sourceLineNo">625</span>         *<a name="line.625"></a>
+<span class="sourceLineNo">626</span>         * @return underlying storage array<a name="line.626"></a>
+<span class="sourceLineNo">627</span>         */<a name="line.627"></a>
+<span class="sourceLineNo">628</span>        public Object getArray() {<a name="line.628"></a>
+<span class="sourceLineNo">629</span>            return multiDimensionalComplexArray;<a name="line.629"></a>
+<span class="sourceLineNo">630</span>        }<a name="line.630"></a>
+<span class="sourceLineNo">631</span><a name="line.631"></a>
+<span class="sourceLineNo">632</span>        /** {@inheritDoc} */<a name="line.632"></a>
+<span class="sourceLineNo">633</span>        @Override<a name="line.633"></a>
+<span class="sourceLineNo">634</span>        public Object clone() {<a name="line.634"></a>
+<span class="sourceLineNo">635</span>            MultiDimensionalComplexMatrix mdcm =<a name="line.635"></a>
+<span class="sourceLineNo">636</span>                    new MultiDimensionalComplexMatrix(Array.newInstance(<a name="line.636"></a>
+<span class="sourceLineNo">637</span>                    Complex.class, dimensionSize));<a name="line.637"></a>
+<span class="sourceLineNo">638</span>            clone(mdcm);<a name="line.638"></a>
+<span class="sourceLineNo">639</span>            return mdcm;<a name="line.639"></a>
+<span class="sourceLineNo">640</span>        }<a name="line.640"></a>
+<span class="sourceLineNo">641</span><a name="line.641"></a>
+<span class="sourceLineNo">642</span>        /**<a name="line.642"></a>
+<span class="sourceLineNo">643</span>         * Copy contents of current array into mdcm.<a name="line.643"></a>
+<span class="sourceLineNo">644</span>         *<a name="line.644"></a>
+<span class="sourceLineNo">645</span>         * @param mdcm array where to copy data<a name="line.645"></a>
+<span class="sourceLineNo">646</span>         */<a name="line.646"></a>
+<span class="sourceLineNo">647</span>        private void clone(MultiDimensionalComplexMatrix mdcm) {<a name="line.647"></a>
+<span class="sourceLineNo">648</span><a name="line.648"></a>
+<span class="sourceLineNo">649</span>            int[] vector = new int[dimensionSize.length];<a name="line.649"></a>
+<span class="sourceLineNo">650</span>            int size = 1;<a name="line.650"></a>
+<span class="sourceLineNo">651</span>            for (int i = 0; i &lt; dimensionSize.length; i++) {<a name="line.651"></a>
+<span class="sourceLineNo">652</span>                size *= dimensionSize[i];<a name="line.652"></a>
+<span class="sourceLineNo">653</span>            }<a name="line.653"></a>
+<span class="sourceLineNo">654</span>            int[][] vectorList = new int[size][dimensionSize.length];<a name="line.654"></a>
+<span class="sourceLineNo">655</span>            for (int[] nextVector : vectorList) {<a name="line.655"></a>
+<span class="sourceLineNo">656</span>                System.arraycopy(vector, 0, nextVector, 0,<a name="line.656"></a>
+<span class="sourceLineNo">657</span>                                 dimensionSize.length);<a name="line.657"></a>
+<span class="sourceLineNo">658</span>                for (int i = 0; i &lt; dimensionSize.length; i++) {<a name="line.658"></a>
+<span class="sourceLineNo">659</span>                    vector[i]++;<a name="line.659"></a>
+<span class="sourceLineNo">660</span>                    if (vector[i] &lt; dimensionSize[i]) {<a name="line.660"></a>
+<span class="sourceLineNo">661</span>                        break;<a name="line.661"></a>
+<span class="sourceLineNo">662</span>                    } else {<a name="line.662"></a>
+<span class="sourceLineNo">663</span>                        vector[i] = 0;<a name="line.663"></a>
+<span class="sourceLineNo">664</span>                    }<a name="line.664"></a>
+<span class="sourceLineNo">665</span>                }<a name="line.665"></a>
+<span class="sourceLineNo">666</span>            }<a name="line.666"></a>
+<span class="sourceLineNo">667</span><a name="line.667"></a>
+<span class="sourceLineNo">668</span>            for (int[] nextVector : vectorList) {<a name="line.668"></a>
+<span class="sourceLineNo">669</span>                mdcm.set(get(nextVector), nextVector);<a name="line.669"></a>
+<span class="sourceLineNo">670</span>            }<a name="line.670"></a>
+<span class="sourceLineNo">671</span>        }<a name="line.671"></a>
+<span class="sourceLineNo">672</span>    }<a name="line.672"></a>
+<span class="sourceLineNo">673</span>}<a name="line.673"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

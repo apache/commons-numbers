@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AdamsBashforthFieldIntegrator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.nonstiff</a> &gt; <span class="el_source">AdamsBashforthFieldIntegrator.java</span></div><h1>AdamsBashforthFieldIntegrator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.nonstiff;
+
+import org.apache.commons.math3.Field;
+import org.apache.commons.math3.RealFieldElement;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.exception.NoBracketingException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.linear.Array2DRowFieldMatrix;
+import org.apache.commons.math3.linear.FieldMatrix;
+import org.apache.commons.math3.ode.FieldExpandableODE;
+import org.apache.commons.math3.ode.FieldODEState;
+import org.apache.commons.math3.ode.FieldODEStateAndDerivative;
+import org.apache.commons.math3.util.MathArrays;
+
+
+/**
+ * This class implements explicit Adams-Bashforth integrators for Ordinary
+ * Differential Equations.
+ *
+ * &lt;p&gt;Adams-Bashforth methods (in fact due to Adams alone) are explicit
+ * multistep ODE solvers. This implementation is a variation of the classical
+ * one: it uses adaptive stepsize to implement error control, whereas
+ * classical implementations are fixed step size. The value of state vector
+ * at step n+1 is a simple combination of the value at step n and of the
+ * derivatives at steps n, n-1, n-2 ... Depending on the number k of previous
+ * steps one wants to use for computing the next value, different formulas
+ * are available:&lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;k = 1: y&lt;sub&gt;n+1&lt;/sub&gt; = y&lt;sub&gt;n&lt;/sub&gt; + h y'&lt;sub&gt;n&lt;/sub&gt;&lt;/li&gt;
+ *   &lt;li&gt;k = 2: y&lt;sub&gt;n+1&lt;/sub&gt; = y&lt;sub&gt;n&lt;/sub&gt; + h (3y'&lt;sub&gt;n&lt;/sub&gt;-y'&lt;sub&gt;n-1&lt;/sub&gt;)/2&lt;/li&gt;
+ *   &lt;li&gt;k = 3: y&lt;sub&gt;n+1&lt;/sub&gt; = y&lt;sub&gt;n&lt;/sub&gt; + h (23y'&lt;sub&gt;n&lt;/sub&gt;-16y'&lt;sub&gt;n-1&lt;/sub&gt;+5y'&lt;sub&gt;n-2&lt;/sub&gt;)/12&lt;/li&gt;
+ *   &lt;li&gt;k = 4: y&lt;sub&gt;n+1&lt;/sub&gt; = y&lt;sub&gt;n&lt;/sub&gt; + h (55y'&lt;sub&gt;n&lt;/sub&gt;-59y'&lt;sub&gt;n-1&lt;/sub&gt;+37y'&lt;sub&gt;n-2&lt;/sub&gt;-9y'&lt;sub&gt;n-3&lt;/sub&gt;)/24&lt;/li&gt;
+ *   &lt;li&gt;...&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;A k-steps Adams-Bashforth method is of order k.&lt;/p&gt;
+ *
+ * &lt;h3&gt;Implementation details&lt;/h3&gt;
+ *
+ * &lt;p&gt;We define scaled derivatives s&lt;sub&gt;i&lt;/sub&gt;(n) at step n as:
+ * &lt;pre&gt;
+ * s&lt;sub&gt;1&lt;/sub&gt;(n) = h y'&lt;sub&gt;n&lt;/sub&gt; for first derivative
+ * s&lt;sub&gt;2&lt;/sub&gt;(n) = h&lt;sup&gt;2&lt;/sup&gt;/2 y''&lt;sub&gt;n&lt;/sub&gt; for second derivative
+ * s&lt;sub&gt;3&lt;/sub&gt;(n) = h&lt;sup&gt;3&lt;/sup&gt;/6 y'''&lt;sub&gt;n&lt;/sub&gt; for third derivative
+ * ...
+ * s&lt;sub&gt;k&lt;/sub&gt;(n) = h&lt;sup&gt;k&lt;/sup&gt;/k! y&lt;sup&gt;(k)&lt;/sup&gt;&lt;sub&gt;n&lt;/sub&gt; for k&lt;sup&gt;th&lt;/sup&gt; derivative
+ * &lt;/pre&gt;&lt;/p&gt;
+ *
+ * &lt;p&gt;The definitions above use the classical representation with several previous first
+ * derivatives. Lets define
+ * &lt;pre&gt;
+ *   q&lt;sub&gt;n&lt;/sub&gt; = [ s&lt;sub&gt;1&lt;/sub&gt;(n-1) s&lt;sub&gt;1&lt;/sub&gt;(n-2) ... s&lt;sub&gt;1&lt;/sub&gt;(n-(k-1)) ]&lt;sup&gt;T&lt;/sup&gt;
+ * &lt;/pre&gt;
+ * (we omit the k index in the notation for clarity). With these definitions,
+ * Adams-Bashforth methods can be written:
+ * &lt;ul&gt;
+ *   &lt;li&gt;k = 1: y&lt;sub&gt;n+1&lt;/sub&gt; = y&lt;sub&gt;n&lt;/sub&gt; + s&lt;sub&gt;1&lt;/sub&gt;(n)&lt;/li&gt;
+ *   &lt;li&gt;k = 2: y&lt;sub&gt;n+1&lt;/sub&gt; = y&lt;sub&gt;n&lt;/sub&gt; + 3/2 s&lt;sub&gt;1&lt;/sub&gt;(n) + [ -1/2 ] q&lt;sub&gt;n&lt;/sub&gt;&lt;/li&gt;
+ *   &lt;li&gt;k = 3: y&lt;sub&gt;n+1&lt;/sub&gt; = y&lt;sub&gt;n&lt;/sub&gt; + 23/12 s&lt;sub&gt;1&lt;/sub&gt;(n) + [ -16/12 5/12 ] q&lt;sub&gt;n&lt;/sub&gt;&lt;/li&gt;
+ *   &lt;li&gt;k = 4: y&lt;sub&gt;n+1&lt;/sub&gt; = y&lt;sub&gt;n&lt;/sub&gt; + 55/24 s&lt;sub&gt;1&lt;/sub&gt;(n) + [ -59/24 37/24 -9/24 ] q&lt;sub&gt;n&lt;/sub&gt;&lt;/li&gt;
+ *   &lt;li&gt;...&lt;/li&gt;
+ * &lt;/ul&gt;&lt;/p&gt;
+ *
+ * &lt;p&gt;Instead of using the classical representation with first derivatives only (y&lt;sub&gt;n&lt;/sub&gt;,
+ * s&lt;sub&gt;1&lt;/sub&gt;(n) and q&lt;sub&gt;n&lt;/sub&gt;), our implementation uses the Nordsieck vector with
+ * higher degrees scaled derivatives all taken at the same step (y&lt;sub&gt;n&lt;/sub&gt;, s&lt;sub&gt;1&lt;/sub&gt;(n)
+ * and r&lt;sub&gt;n&lt;/sub&gt;) where r&lt;sub&gt;n&lt;/sub&gt; is defined as:
+ * &lt;pre&gt;
+ * r&lt;sub&gt;n&lt;/sub&gt; = [ s&lt;sub&gt;2&lt;/sub&gt;(n), s&lt;sub&gt;3&lt;/sub&gt;(n) ... s&lt;sub&gt;k&lt;/sub&gt;(n) ]&lt;sup&gt;T&lt;/sup&gt;
+ * &lt;/pre&gt;
+ * (here again we omit the k index in the notation for clarity)
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;Taylor series formulas show that for any index offset i, s&lt;sub&gt;1&lt;/sub&gt;(n-i) can be
+ * computed from s&lt;sub&gt;1&lt;/sub&gt;(n), s&lt;sub&gt;2&lt;/sub&gt;(n) ... s&lt;sub&gt;k&lt;/sub&gt;(n), the formula being exact
+ * for degree k polynomials.
+ * &lt;pre&gt;
+ * s&lt;sub&gt;1&lt;/sub&gt;(n-i) = s&lt;sub&gt;1&lt;/sub&gt;(n) + &amp;sum;&lt;sub&gt;j&amp;gt;0&lt;/sub&gt; (j+1) (-i)&lt;sup&gt;j&lt;/sup&gt; s&lt;sub&gt;j+1&lt;/sub&gt;(n)
+ * &lt;/pre&gt;
+ * The previous formula can be used with several values for i to compute the transform between
+ * classical representation and Nordsieck vector. The transform between r&lt;sub&gt;n&lt;/sub&gt;
+ * and q&lt;sub&gt;n&lt;/sub&gt; resulting from the Taylor series formulas above is:
+ * &lt;pre&gt;
+ * q&lt;sub&gt;n&lt;/sub&gt; = s&lt;sub&gt;1&lt;/sub&gt;(n) u + P r&lt;sub&gt;n&lt;/sub&gt;
+ * &lt;/pre&gt;
+ * where u is the [ 1 1 ... 1 ]&lt;sup&gt;T&lt;/sup&gt; vector and P is the (k-1)&amp;times;(k-1) matrix built
+ * with the (j+1) (-i)&lt;sup&gt;j&lt;/sup&gt; terms with i being the row number starting from 1 and j being
+ * the column number starting from 1:
+ * &lt;pre&gt;
+ *        [  -2   3   -4    5  ... ]
+ *        [  -4  12  -32   80  ... ]
+ *   P =  [  -6  27 -108  405  ... ]
+ *        [  -8  48 -256 1280  ... ]
+ *        [          ...           ]
+ * &lt;/pre&gt;&lt;/p&gt;
+ *
+ * &lt;p&gt;Using the Nordsieck vector has several advantages:
+ * &lt;ul&gt;
+ *   &lt;li&gt;it greatly simplifies step interpolation as the interpolator mainly applies
+ *   Taylor series formulas,&lt;/li&gt;
+ *   &lt;li&gt;it simplifies step changes that occur when discrete events that truncate
+ *   the step are triggered,&lt;/li&gt;
+ *   &lt;li&gt;it allows to extend the methods in order to support adaptive stepsize.&lt;/li&gt;
+ * &lt;/ul&gt;&lt;/p&gt;
+ *
+ * &lt;p&gt;The Nordsieck vector at step n+1 is computed from the Nordsieck vector at step n as follows:
+ * &lt;ul&gt;
+ *   &lt;li&gt;y&lt;sub&gt;n+1&lt;/sub&gt; = y&lt;sub&gt;n&lt;/sub&gt; + s&lt;sub&gt;1&lt;/sub&gt;(n) + u&lt;sup&gt;T&lt;/sup&gt; r&lt;sub&gt;n&lt;/sub&gt;&lt;/li&gt;
+ *   &lt;li&gt;s&lt;sub&gt;1&lt;/sub&gt;(n+1) = h f(t&lt;sub&gt;n+1&lt;/sub&gt;, y&lt;sub&gt;n+1&lt;/sub&gt;)&lt;/li&gt;
+ *   &lt;li&gt;r&lt;sub&gt;n+1&lt;/sub&gt; = (s&lt;sub&gt;1&lt;/sub&gt;(n) - s&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u + P&lt;sup&gt;-1&lt;/sup&gt; A P r&lt;sub&gt;n&lt;/sub&gt;&lt;/li&gt;
+ * &lt;/ul&gt;
+ * where A is a rows shifting matrix (the lower left part is an identity matrix):
+ * &lt;pre&gt;
+ *        [ 0 0   ...  0 0 | 0 ]
+ *        [ ---------------+---]
+ *        [ 1 0   ...  0 0 | 0 ]
+ *    A = [ 0 1   ...  0 0 | 0 ]
+ *        [       ...      | 0 ]
+ *        [ 0 0   ...  1 0 | 0 ]
+ *        [ 0 0   ...  0 1 | 0 ]
+ * &lt;/pre&gt;&lt;/p&gt;
+ *
+ * &lt;p&gt;The P&lt;sup&gt;-1&lt;/sup&gt;u vector and the P&lt;sup&gt;-1&lt;/sup&gt; A P matrix do not depend on the state,
+ * they only depend on k and therefore are precomputed once for all.&lt;/p&gt;
+ *
+ * @param &lt;T&gt; the type of the field elements
+ * @since 3.6
+ */
+public class AdamsBashforthFieldIntegrator&lt;T extends RealFieldElement&lt;T&gt;&gt; extends AdamsFieldIntegrator&lt;T&gt; {
+
+    /** Integrator method name. */
+    private static final String METHOD_NAME = &quot;Adams-Bashforth&quot;;
+
+    /**
+     * Build an Adams-Bashforth integrator with the given order and step control parameters.
+     * @param field field to which the time and state vector elements belong
+     * @param nSteps number of steps of the method excluding the one being computed
+     * @param minStep minimal step (sign is irrelevant, regardless of
+     * integration direction, forward or backward), the last step can
+     * be smaller than this
+     * @param maxStep maximal step (sign is irrelevant, regardless of
+     * integration direction, forward or backward), the last step can
+     * be smaller than this
+     * @param scalAbsoluteTolerance allowed absolute error
+     * @param scalRelativeTolerance allowed relative error
+     * @exception NumberIsTooSmallException if order is 1 or less
+     */
+    public AdamsBashforthFieldIntegrator(final Field&lt;T&gt; field, final int nSteps,
+                                         final double minStep, final double maxStep,
+                                         final double scalAbsoluteTolerance,
+                                         final double scalRelativeTolerance)
+        throws NumberIsTooSmallException {
+<span class="fc" id="L171">        super(field, METHOD_NAME, nSteps, nSteps, minStep, maxStep,</span>
+              scalAbsoluteTolerance, scalRelativeTolerance);
+<span class="fc" id="L173">    }</span>
+
+    /**
+     * Build an Adams-Bashforth integrator with the given order and step control parameters.
+     * @param field field to which the time and state vector elements belong
+     * @param nSteps number of steps of the method excluding the one being computed
+     * @param minStep minimal step (sign is irrelevant, regardless of
+     * integration direction, forward or backward), the last step can
+     * be smaller than this
+     * @param maxStep maximal step (sign is irrelevant, regardless of
+     * integration direction, forward or backward), the last step can
+     * be smaller than this
+     * @param vecAbsoluteTolerance allowed absolute error
+     * @param vecRelativeTolerance allowed relative error
+     * @exception IllegalArgumentException if order is 1 or less
+     */
+    public AdamsBashforthFieldIntegrator(final Field&lt;T&gt; field, final int nSteps,
+                                         final double minStep, final double maxStep,
+                                         final double[] vecAbsoluteTolerance,
+                                         final double[] vecRelativeTolerance)
+        throws IllegalArgumentException {
+<span class="fc" id="L194">        super(field, METHOD_NAME, nSteps, nSteps, minStep, maxStep,</span>
+              vecAbsoluteTolerance, vecRelativeTolerance);
+<span class="fc" id="L196">    }</span>
+
+    /** Estimate error.
+     * &lt;p&gt;
+     * Error is estimated by interpolating back to previous state using
+     * the state Taylor expansion and comparing to real previous state.
+     * &lt;/p&gt;
+     * @param previousState state vector at step start
+     * @param predictedState predicted state vector at step end
+     * @param predictedScaled predicted value of the scaled derivatives at step end
+     * @param predictedNordsieck predicted value of the Nordsieck vector at step end
+     * @return estimated normalized local discretization error
+     */
+    private T errorEstimation(final T[] previousState,
+                              final T[] predictedState,
+                              final T[] predictedScaled,
+                              final FieldMatrix&lt;T&gt; predictedNordsieck) {
+
+<span class="fc" id="L214">        T error = getField().getZero();</span>
+<span class="fc bfc" id="L215" title="All 2 branches covered.">        for (int i = 0; i &lt; mainSetDimension; ++i) {</span>
+<span class="fc" id="L216">            final T yScale = predictedState[i].abs();</span>
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">            final T tol = (vecAbsoluteTolerance == null) ?</span>
+                          yScale.multiply(scalRelativeTolerance).add(scalAbsoluteTolerance) :
+                          yScale.multiply(vecRelativeTolerance[i]).add(vecAbsoluteTolerance[i]);
+
+            // apply Taylor formula from high order to low order,
+            // for the sake of numerical accuracy
+<span class="fc" id="L223">            T variation = getField().getZero();</span>
+<span class="fc bfc" id="L224" title="All 2 branches covered.">            int sign = predictedNordsieck.getRowDimension() % 2 == 0 ? -1 : 1;</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">            for (int k = predictedNordsieck.getRowDimension() - 1; k &gt;= 0; --k) {</span>
+<span class="fc" id="L226">                variation = variation.add(predictedNordsieck.getEntry(k, i).multiply(sign));</span>
+<span class="fc" id="L227">                sign      = -sign;</span>
+            }
+<span class="fc" id="L229">            variation = variation.subtract(predictedScaled[i]);</span>
+
+<span class="fc" id="L231">            final T ratio  = predictedState[i].subtract(previousState[i]).add(variation).divide(tol);</span>
+<span class="fc" id="L232">            error = error.add(ratio.multiply(ratio));</span>
+
+        }
+
+<span class="fc" id="L236">        return error.divide(mainSetDimension).sqrt();</span>
+
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public FieldODEStateAndDerivative&lt;T&gt; integrate(final FieldExpandableODE&lt;T&gt; equations,
+                                                   final FieldODEState&lt;T&gt; initialState,
+                                                   final T finalTime)
+        throws NumberIsTooSmallException, DimensionMismatchException,
+               MaxCountExceededException, NoBracketingException {
+
+<span class="fc" id="L248">        sanityChecks(initialState, finalTime);</span>
+<span class="fc" id="L249">        final T   t0 = initialState.getTime();</span>
+<span class="fc" id="L250">        final T[] y  = equations.getMapper().mapState(initialState);</span>
+<span class="fc" id="L251">        setStepStart(initIntegration(equations, t0, y, finalTime));</span>
+<span class="fc bfc" id="L252" title="All 2 branches covered.">        final boolean forward = finalTime.subtract(initialState.getTime()).getReal() &gt; 0;</span>
+
+        // compute the initial Nordsieck vector using the configured starter integrator
+<span class="fc" id="L255">        start(equations, getStepStart(), finalTime);</span>
+
+        // reuse the step that was chosen by the starter integrator
+<span class="fc" id="L258">        FieldODEStateAndDerivative&lt;T&gt; stepStart = getStepStart();</span>
+<span class="fc" id="L259">        FieldODEStateAndDerivative&lt;T&gt; stepEnd   =</span>
+                        AdamsFieldStepInterpolator.taylor(stepStart,
+                                                          stepStart.getTime().add(getStepSize()),
+                                                          getStepSize(), scaled, nordsieck);
+
+        // main integration loop
+<span class="fc" id="L265">        setIsLastStep(false);</span>
+        do {
+
+<span class="fc" id="L268">            T[] predictedY = null;</span>
+<span class="fc" id="L269">            final T[] predictedScaled = MathArrays.buildArray(getField(), y.length);</span>
+<span class="fc" id="L270">            Array2DRowFieldMatrix&lt;T&gt; predictedNordsieck = null;</span>
+<span class="fc" id="L271">            T error = getField().getZero().add(10);</span>
+<span class="fc bfc" id="L272" title="All 2 branches covered.">            while (error.subtract(1.0).getReal() &gt;= 0.0) {</span>
+
+                // predict a first estimate of the state at step end
+<span class="fc" id="L275">                predictedY = stepEnd.getState();</span>
+
+                // evaluate the derivative
+<span class="fc" id="L278">                final T[] yDot = computeDerivatives(stepEnd.getTime(), predictedY);</span>
+
+                // predict Nordsieck vector at step end
+<span class="fc bfc" id="L281" title="All 2 branches covered.">                for (int j = 0; j &lt; predictedScaled.length; ++j) {</span>
+<span class="fc" id="L282">                    predictedScaled[j] = getStepSize().multiply(yDot[j]);</span>
+                }
+<span class="fc" id="L284">                predictedNordsieck = updateHighOrderDerivativesPhase1(nordsieck);</span>
+<span class="fc" id="L285">                updateHighOrderDerivativesPhase2(scaled, predictedScaled, predictedNordsieck);</span>
+
+                // evaluate error
+<span class="fc" id="L288">                error = errorEstimation(y, predictedY, predictedScaled, predictedNordsieck);</span>
+
+<span class="fc bfc" id="L290" title="All 2 branches covered.">                if (error.subtract(1.0).getReal() &gt;= 0.0) {</span>
+                    // reject the step and attempt to reduce error by stepsize control
+<span class="fc" id="L292">                    final T factor = computeStepGrowShrinkFactor(error);</span>
+<span class="fc" id="L293">                    rescale(filterStep(getStepSize().multiply(factor), forward, false));</span>
+<span class="fc" id="L294">                    stepEnd = AdamsFieldStepInterpolator.taylor(getStepStart(),</span>
+                                                                getStepStart().getTime().add(getStepSize()),
+                                                                getStepSize(),
+                                                                scaled,
+                                                                nordsieck);
+
+                }
+<span class="fc" id="L301">            }</span>
+
+            // discrete events handling
+<span class="fc" id="L304">            setStepStart(acceptStep(new AdamsFieldStepInterpolator&lt;T&gt;(getStepSize(), stepEnd,</span>
+                                                                      predictedScaled, predictedNordsieck, forward,
+                                                                      getStepStart(), stepEnd,
+                                                                      equations.getMapper()),
+                                    finalTime));
+<span class="fc" id="L309">            scaled    = predictedScaled;</span>
+<span class="fc" id="L310">            nordsieck = predictedNordsieck;</span>
+
+<span class="fc bfc" id="L312" title="All 2 branches covered.">            if (!isLastStep()) {</span>
+
+<span class="fc" id="L314">                System.arraycopy(predictedY, 0, y, 0, y.length);</span>
+
+<span class="pc bpc" id="L316" title="1 of 2 branches missed.">                if (resetOccurred()) {</span>
+                    // some events handler has triggered changes that
+                    // invalidate the derivatives, we need to restart from scratch
+<span class="nc" id="L319">                    start(equations, getStepStart(), finalTime);</span>
+                }
+
+                // stepsize control for next step
+<span class="fc" id="L323">                final T       factor     = computeStepGrowShrinkFactor(error);</span>
+<span class="fc" id="L324">                final T       scaledH    = getStepSize().multiply(factor);</span>
+<span class="fc" id="L325">                final T       nextT      = getStepStart().getTime().add(scaledH);</span>
+<span class="fc bfc" id="L326" title="All 6 branches covered.">                final boolean nextIsLast = forward ?</span>
+                                           nextT.subtract(finalTime).getReal() &gt;= 0 :
+                                           nextT.subtract(finalTime).getReal() &lt;= 0;
+<span class="fc" id="L329">                T hNew = filterStep(scaledH, forward, nextIsLast);</span>
+
+<span class="fc" id="L331">                final T       filteredNextT      = getStepStart().getTime().add(hNew);</span>
+<span class="fc bfc" id="L332" title="All 6 branches covered.">                final boolean filteredNextIsLast = forward ?</span>
+                                                   filteredNextT.subtract(finalTime).getReal() &gt;= 0 :
+                                                   filteredNextT.subtract(finalTime).getReal() &lt;= 0;
+<span class="fc bfc" id="L335" title="All 2 branches covered.">                if (filteredNextIsLast) {</span>
+<span class="fc" id="L336">                    hNew = finalTime.subtract(getStepStart().getTime());</span>
+                }
+
+<span class="fc" id="L339">                rescale(hNew);</span>
+<span class="fc" id="L340">                stepEnd = AdamsFieldStepInterpolator.taylor(getStepStart(), getStepStart().getTime().add(getStepSize()),</span>
+                                                            getStepSize(), scaled, nordsieck);
+
+            }
+
+<span class="fc bfc" id="L345" title="All 2 branches covered.">        } while (!isLastStep());</span>
+
+<span class="fc" id="L347">        final FieldODEStateAndDerivative&lt;T&gt; finalState = getStepStart();</span>
+<span class="fc" id="L348">        setStepStart(null);</span>
+<span class="fc" id="L349">        setStepSize(null);</span>
+<span class="fc" id="L350">        return finalState;</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

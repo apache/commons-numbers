@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractConvergenceChecker.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optimization</a> &gt; <span class="el_source">AbstractConvergenceChecker.java</span></div><h1>AbstractConvergenceChecker.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.optimization;
+
+import org.apache.commons.math3.util.Precision;
+
+/**
+ * Base class for all convergence checker implementations.
+ *
+ * @param &lt;PAIR&gt; Type of (point, value) pair.
+ *
+ * @deprecated As of 3.1 (to be removed in 4.0).
+ * @since 3.0
+ */
+@Deprecated
+public abstract class AbstractConvergenceChecker&lt;PAIR&gt;
+    implements ConvergenceChecker&lt;PAIR&gt; {
+    /**
+     * Default relative threshold.
+     * @deprecated in 3.1 (to be removed in 4.0) because this value is too small
+     * to be useful as a default (cf. MATH-798).
+     */
+    @Deprecated
+<span class="fc" id="L39">    private static final double DEFAULT_RELATIVE_THRESHOLD = 100 * Precision.EPSILON;</span>
+    /**
+     * Default absolute threshold.
+     * @deprecated in 3.1 (to be removed in 4.0) because this value is too small
+     * to be useful as a default (cf. MATH-798).
+     */
+    @Deprecated
+<span class="fc" id="L46">    private static final double DEFAULT_ABSOLUTE_THRESHOLD = 100 * Precision.SAFE_MIN;</span>
+    /**
+     * Relative tolerance threshold.
+     */
+    private final double relativeThreshold;
+    /**
+     * Absolute tolerance threshold.
+     */
+    private final double absoluteThreshold;
+
+    /**
+     * Build an instance with default thresholds.
+     * @deprecated in 3.1 (to be removed in 4.0). Convergence thresholds are
+     * problem-dependent. As this class is intended for users who want to set
+     * their own convergence criterion instead of relying on an algorithm's
+     * default procedure, they should also set the thresholds appropriately
+     * (cf. MATH-798).
+     */
+    @Deprecated
+<span class="nc" id="L65">    public AbstractConvergenceChecker() {</span>
+<span class="nc" id="L66">        this.relativeThreshold = DEFAULT_RELATIVE_THRESHOLD;</span>
+<span class="nc" id="L67">        this.absoluteThreshold = DEFAULT_ABSOLUTE_THRESHOLD;</span>
+<span class="nc" id="L68">    }</span>
+
+    /**
+     * Build an instance with a specified thresholds.
+     *
+     * @param relativeThreshold relative tolerance threshold
+     * @param absoluteThreshold absolute tolerance threshold
+     */
+    public AbstractConvergenceChecker(final double relativeThreshold,
+<span class="fc" id="L77">                                      final double absoluteThreshold) {</span>
+<span class="fc" id="L78">        this.relativeThreshold = relativeThreshold;</span>
+<span class="fc" id="L79">        this.absoluteThreshold = absoluteThreshold;</span>
+<span class="fc" id="L80">    }</span>
+
+    /**
+     * @return the relative threshold.
+     */
+    public double getRelativeThreshold() {
+<span class="fc" id="L86">        return relativeThreshold;</span>
+    }
+
+    /**
+     * @return the absolute threshold.
+     */
+    public double getAbsoluteThreshold() {
+<span class="fc" id="L93">        return absoluteThreshold;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public abstract boolean converged(int iteration,
+                                      PAIR previous,
+                                      PAIR current);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

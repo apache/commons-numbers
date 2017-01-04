@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>PolynomialCurveFitter.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.fitting</a> &gt; <span class="el_source">PolynomialCurveFitter.java</span></div><h1>PolynomialCurveFitter.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.fitting;
+
+import java.util.Collection;
+
+import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
+import org.apache.commons.math3.exception.MathInternalError;
+import org.apache.commons.math3.fitting.leastsquares.LeastSquaresBuilder;
+import org.apache.commons.math3.fitting.leastsquares.LeastSquaresProblem;
+import org.apache.commons.math3.linear.DiagonalMatrix;
+
+/**
+ * Fits points to a {@link
+ * org.apache.commons.math3.analysis.polynomials.PolynomialFunction.Parametric polynomial}
+ * function.
+ * &lt;br/&gt;
+ * The size of the {@link #withStartPoint(double[]) initial guess} array defines the
+ * degree of the polynomial to be fitted.
+ * They must be sorted in increasing order of the polynomial's degree.
+ * The optimal values of the coefficients will be returned in the same order.
+ *
+ * @since 3.3
+ */
+public class PolynomialCurveFitter extends AbstractCurveFitter {
+    /** Parametric function to be fitted. */
+<span class="fc" id="L41">    private static final PolynomialFunction.Parametric FUNCTION = new PolynomialFunction.Parametric();</span>
+    /** Initial guess. */
+    private final double[] initialGuess;
+    /** Maximum number of iterations of the optimization algorithm. */
+    private final int maxIter;
+
+    /**
+     * Contructor used by the factory methods.
+     *
+     * @param initialGuess Initial guess.
+     * @param maxIter Maximum number of iterations of the optimization algorithm.
+     * @throws MathInternalError if {@code initialGuess} is {@code null}.
+     */
+    private PolynomialCurveFitter(double[] initialGuess,
+<span class="fc" id="L55">                                  int maxIter) {</span>
+<span class="fc" id="L56">        this.initialGuess = initialGuess;</span>
+<span class="fc" id="L57">        this.maxIter = maxIter;</span>
+<span class="fc" id="L58">    }</span>
+
+    /**
+     * Creates a default curve fitter.
+     * Zero will be used as initial guess for the coefficients, and the maximum
+     * number of iterations of the optimization algorithm is set to
+     * {@link Integer#MAX_VALUE}.
+     *
+     * @param degree Degree of the polynomial to be fitted.
+     * @return a curve fitter.
+     *
+     * @see #withStartPoint(double[])
+     * @see #withMaxIterations(int)
+     */
+    public static PolynomialCurveFitter create(int degree) {
+<span class="fc" id="L73">        return new PolynomialCurveFitter(new double[degree + 1], Integer.MAX_VALUE);</span>
+    }
+
+    /**
+     * Configure the start point (initial guess).
+     * @param newStart new start point (initial guess)
+     * @return a new instance.
+     */
+    public PolynomialCurveFitter withStartPoint(double[] newStart) {
+<span class="fc" id="L82">        return new PolynomialCurveFitter(newStart.clone(),</span>
+                                         maxIter);
+    }
+
+    /**
+     * Configure the maximum number of iterations.
+     * @param newMaxIter maximum number of iterations
+     * @return a new instance.
+     */
+    public PolynomialCurveFitter withMaxIterations(int newMaxIter) {
+<span class="nc" id="L92">        return new PolynomialCurveFitter(initialGuess,</span>
+                                         newMaxIter);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected LeastSquaresProblem getProblem(Collection&lt;WeightedObservedPoint&gt; observations) {
+        // Prepare least-squares problem.
+<span class="fc" id="L100">        final int len = observations.size();</span>
+<span class="fc" id="L101">        final double[] target  = new double[len];</span>
+<span class="fc" id="L102">        final double[] weights = new double[len];</span>
+
+<span class="fc" id="L104">        int i = 0;</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        for (WeightedObservedPoint obs : observations) {</span>
+<span class="fc" id="L106">            target[i]  = obs.getY();</span>
+<span class="fc" id="L107">            weights[i] = obs.getWeight();</span>
+<span class="fc" id="L108">            ++i;</span>
+<span class="fc" id="L109">        }</span>
+
+<span class="fc" id="L111">        final AbstractCurveFitter.TheoreticalValuesFunction model =</span>
+                new AbstractCurveFitter.TheoreticalValuesFunction(FUNCTION, observations);
+
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">        if (initialGuess == null) {</span>
+<span class="nc" id="L115">            throw new MathInternalError();</span>
+        }
+
+        // Return a new least squares problem set up to fit a polynomial curve to the
+        // observed points.
+<span class="fc" id="L120">        return new LeastSquaresBuilder().</span>
+                maxEvaluations(Integer.MAX_VALUE).
+                maxIterations(maxIter).
+                start(initialGuess).
+                target(target).
+                weight(new DiagonalMatrix(weights)).
+                model(model.getModelFunction(), model.getModelFunctionJacobian()).
+                build();
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

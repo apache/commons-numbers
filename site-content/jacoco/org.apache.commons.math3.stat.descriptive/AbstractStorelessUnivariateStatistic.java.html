@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractStorelessUnivariateStatistic.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive</a> &gt; <span class="el_source">AbstractStorelessUnivariateStatistic.java</span></div><h1>AbstractStorelessUnivariateStatistic.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive;
+
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
+
+/**
+ *
+ * Abstract implementation of the {@link StorelessUnivariateStatistic} interface.
+ * &lt;p&gt;
+ * Provides default &lt;code&gt;evaluate()&lt;/code&gt; and &lt;code&gt;incrementAll(double[])&lt;/code&gt;
+ * implementations.&lt;/p&gt;
+ * &lt;p&gt;
+ * &lt;strong&gt;Note that these implementations are not synchronized.&lt;/strong&gt;&lt;/p&gt;
+ *
+ */
+<span class="fc" id="L35">public abstract class AbstractStorelessUnivariateStatistic</span>
+    extends AbstractUnivariateStatistic
+    implements StorelessUnivariateStatistic {
+
+    /**
+     * This default implementation calls {@link #clear}, then invokes
+     * {@link #increment} in a loop over the the input array, and then uses
+     * {@link #getResult} to compute the return value.
+     * &lt;p&gt;
+     * Note that this implementation changes the internal state of the
+     * statistic.  Its side effects are the same as invoking {@link #clear} and
+     * then {@link #incrementAll(double[])}.&lt;/p&gt;
+     * &lt;p&gt;
+     * Implementations may override this method with a more efficient and
+     * possibly more accurate implementation that works directly with the
+     * input array.&lt;/p&gt;
+     * &lt;p&gt;
+     * If the array is null, a MathIllegalArgumentException is thrown.&lt;/p&gt;
+     * @param values input array
+     * @return the value of the statistic applied to the input array
+     * @throws MathIllegalArgumentException if values is null
+     * @see org.apache.commons.math3.stat.descriptive.UnivariateStatistic#evaluate(double[])
+     */
+    @Override
+    public double evaluate(final double[] values) throws MathIllegalArgumentException {
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (values == null) {</span>
+<span class="fc" id="L61">            throw new NullArgumentException(LocalizedFormats.INPUT_ARRAY);</span>
+        }
+<span class="fc" id="L63">        return evaluate(values, 0, values.length);</span>
+    }
+
+    /**
+     * This default implementation calls {@link #clear}, then invokes
+     * {@link #increment} in a loop over the specified portion of the input
+     * array, and then uses {@link #getResult} to compute the return value.
+     * &lt;p&gt;
+     * Note that this implementation changes the internal state of the
+     * statistic.  Its side effects are the same as invoking {@link #clear} and
+     * then {@link #incrementAll(double[], int, int)}.&lt;/p&gt;
+     * &lt;p&gt;
+     * Implementations may override this method with a more efficient and
+     * possibly more accurate implementation that works directly with the
+     * input array.&lt;/p&gt;
+     * &lt;p&gt;
+     * If the array is null or the index parameters are not valid, an
+     * MathIllegalArgumentException is thrown.&lt;/p&gt;
+     * @param values the input array
+     * @param begin the index of the first element to include
+     * @param length the number of elements to include
+     * @return the value of the statistic applied to the included array entries
+     * @throws MathIllegalArgumentException if the array is null or the indices are not valid
+     * @see org.apache.commons.math3.stat.descriptive.UnivariateStatistic#evaluate(double[], int, int)
+     */
+    @Override
+    public double evaluate(final double[] values, final int begin,
+            final int length) throws MathIllegalArgumentException {
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (test(values, begin, length)) {</span>
+<span class="fc" id="L92">            clear();</span>
+<span class="fc" id="L93">            incrementAll(values, begin, length);</span>
+        }
+<span class="fc" id="L95">        return getResult();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract StorelessUnivariateStatistic copy();
+
+    /**
+     * {@inheritDoc}
+     */
+    public abstract void clear();
+
+    /**
+     * {@inheritDoc}
+     */
+    public abstract double getResult();
+
+    /**
+     * {@inheritDoc}
+     */
+    public abstract void increment(final double d);
+
+    /**
+     * This default implementation just calls {@link #increment} in a loop over
+     * the input array.
+     * &lt;p&gt;
+     * Throws IllegalArgumentException if the input values array is null.&lt;/p&gt;
+     *
+     * @param values values to add
+     * @throws MathIllegalArgumentException if values is null
+     * @see org.apache.commons.math3.stat.descriptive.StorelessUnivariateStatistic#incrementAll(double[])
+     */
+    public void incrementAll(double[] values) throws MathIllegalArgumentException {
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">        if (values == null) {</span>
+<span class="nc" id="L131">            throw new NullArgumentException(LocalizedFormats.INPUT_ARRAY);</span>
+        }
+<span class="fc" id="L133">        incrementAll(values, 0, values.length);</span>
+<span class="fc" id="L134">    }</span>
+
+    /**
+     * This default implementation just calls {@link #increment} in a loop over
+     * the specified portion of the input array.
+     * &lt;p&gt;
+     * Throws IllegalArgumentException if the input values array is null.&lt;/p&gt;
+     *
+     * @param values  array holding values to add
+     * @param begin   index of the first array element to add
+     * @param length  number of array elements to add
+     * @throws MathIllegalArgumentException if values is null
+     * @see org.apache.commons.math3.stat.descriptive.StorelessUnivariateStatistic#incrementAll(double[], int, int)
+     */
+    public void incrementAll(double[] values, int begin, int length) throws MathIllegalArgumentException {
+<span class="fc bfc" id="L149" title="All 2 branches covered.">        if (test(values, begin, length)) {</span>
+<span class="fc" id="L150">            int k = begin + length;</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">            for (int i = begin; i &lt; k; i++) {</span>
+<span class="fc" id="L152">                increment(values[i]);</span>
+            }
+        }
+<span class="fc" id="L155">    }</span>
+
+    /**
+     * Returns true iff &lt;code&gt;object&lt;/code&gt; is an
+     * &lt;code&gt;AbstractStorelessUnivariateStatistic&lt;/code&gt; returning the same
+     * values as this for &lt;code&gt;getResult()&lt;/code&gt; and &lt;code&gt;getN()&lt;/code&gt;
+     * @param object object to test equality against.
+     * @return true if object returns the same value as this
+     */
+    @Override
+    public boolean equals(Object object) {
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        if (object == this ) {</span>
+<span class="fc" id="L167">            return true;</span>
+        }
+<span class="fc bfc" id="L169" title="All 2 branches covered.">       if (object instanceof AbstractStorelessUnivariateStatistic == false) {</span>
+<span class="fc" id="L170">            return false;</span>
+        }
+<span class="fc" id="L172">        AbstractStorelessUnivariateStatistic stat = (AbstractStorelessUnivariateStatistic) object;</span>
+<span class="fc bfc" id="L173" title="All 4 branches covered.">        return Precision.equalsIncludingNaN(stat.getResult(), this.getResult()) &amp;&amp;</span>
+               Precision.equalsIncludingNaN(stat.getN(), this.getN());
+    }
+
+    /**
+     * Returns hash code based on getResult() and getN()
+     *
+     * @return hash code
+     */
+    @Override
+    public int hashCode() {
+<span class="fc" id="L184">        return 31* (31 + MathUtils.hash(getResult())) + MathUtils.hash(getN());</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

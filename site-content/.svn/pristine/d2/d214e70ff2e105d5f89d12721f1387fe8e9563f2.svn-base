@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BoundaryProjector.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.partitioning</a> &gt; <span class="el_source">BoundaryProjector.java</span></div><h1>BoundaryProjector.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.partitioning;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.math3.geometry.Point;
+import org.apache.commons.math3.geometry.Space;
+import org.apache.commons.math3.geometry.partitioning.Region.Location;
+import org.apache.commons.math3.util.FastMath;
+
+/** Local tree visitor to compute projection on boundary.
+ * @param &lt;S&gt; Type of the space.
+ * @param &lt;T&gt; Type of the sub-space.
+ * @since 3.3
+ */
+class BoundaryProjector&lt;S extends Space, T extends Space&gt; implements BSPTreeVisitor&lt;S&gt; {
+
+    /** Original point. */
+    private final Point&lt;S&gt; original;
+
+    /** Current best projected point. */
+    private Point&lt;S&gt; projected;
+
+    /** Leaf node closest to the test point. */
+    private BSPTree&lt;S&gt; leaf;
+
+    /** Current offset. */
+    private double offset;
+
+    /** Simple constructor.
+     * @param original original point
+     */
+<span class="fc" id="L49">    BoundaryProjector(final Point&lt;S&gt; original) {</span>
+<span class="fc" id="L50">        this.original  = original;</span>
+<span class="fc" id="L51">        this.projected = null;</span>
+<span class="fc" id="L52">        this.leaf      = null;</span>
+<span class="fc" id="L53">        this.offset    = Double.POSITIVE_INFINITY;</span>
+<span class="fc" id="L54">    }</span>
+
+    /** {@inheritDoc} */
+    public Order visitOrder(final BSPTree&lt;S&gt; node) {
+        // we want to visit the tree so that the first encountered
+        // leaf is the one closest to the test point
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (node.getCut().getHyperplane().getOffset(original) &lt;= 0) {</span>
+<span class="fc" id="L61">            return Order.MINUS_SUB_PLUS;</span>
+        } else {
+<span class="fc" id="L63">            return Order.PLUS_SUB_MINUS;</span>
+        }
+    }
+
+    /** {@inheritDoc} */
+    public void visitInternalNode(final BSPTree&lt;S&gt; node) {
+
+        // project the point on the cut sub-hyperplane
+<span class="fc" id="L71">        final Hyperplane&lt;S&gt; hyperplane = node.getCut().getHyperplane();</span>
+<span class="fc" id="L72">        final double signedOffset = hyperplane.getOffset(original);</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        if (FastMath.abs(signedOffset) &lt; offset) {</span>
+
+            // project point
+<span class="fc" id="L76">            final Point&lt;S&gt; regular = hyperplane.project(original);</span>
+
+            // get boundary parts
+<span class="fc" id="L79">            final List&lt;Region&lt;T&gt;&gt; boundaryParts = boundaryRegions(node);</span>
+
+            // check if regular projection really belongs to the boundary
+<span class="fc" id="L82">            boolean regularFound = false;</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">            for (final Region&lt;T&gt; part : boundaryParts) {</span>
+<span class="pc bpc" id="L84" title="1 of 4 branches missed.">                if (!regularFound &amp;&amp; belongsToPart(regular, hyperplane, part)) {</span>
+                    // the projected point lies in the boundary
+<span class="fc" id="L86">                    projected    = regular;</span>
+<span class="fc" id="L87">                    offset       = FastMath.abs(signedOffset);</span>
+<span class="fc" id="L88">                    regularFound = true;</span>
+                }
+<span class="fc" id="L90">            }</span>
+
+<span class="fc bfc" id="L92" title="All 2 branches covered.">            if (!regularFound) {</span>
+                // the regular projected point is not on boundary,
+                // so we have to check further if a singular point
+                // (i.e. a vertex in 2D case) is a possible projection
+<span class="fc bfc" id="L96" title="All 2 branches covered.">                for (final Region&lt;T&gt; part : boundaryParts) {</span>
+<span class="fc" id="L97">                    final Point&lt;S&gt; spI = singularProjection(regular, hyperplane, part);</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">                    if (spI != null) {</span>
+<span class="fc" id="L99">                        final double distance = original.distance(spI);</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">                        if (distance &lt; offset) {</span>
+<span class="fc" id="L101">                            projected = spI;</span>
+<span class="fc" id="L102">                            offset    = distance;</span>
+                        }
+                    }
+<span class="fc" id="L105">                }</span>
+
+            }
+
+        }
+
+<span class="fc" id="L111">    }</span>
+
+    /** {@inheritDoc} */
+    public void visitLeafNode(final BSPTree&lt;S&gt; node) {
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (leaf == null) {</span>
+            // this is the first leaf we visit,
+            // it is the closest one to the original point
+<span class="fc" id="L118">            leaf = node;</span>
+        }
+<span class="fc" id="L120">    }</span>
+
+    /** Get the projection.
+     * @return projection
+     */
+    public BoundaryProjection&lt;S&gt; getProjection() {
+
+        // fix offset sign
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        offset = FastMath.copySign(offset, (Boolean) leaf.getAttribute() ? -1 : +1);</span>
+
+<span class="fc" id="L130">        return new BoundaryProjection&lt;S&gt;(original, projected, offset);</span>
+
+    }
+
+    /** Extract the regions of the boundary on an internal node.
+     * @param node internal node
+     * @return regions in the node sub-hyperplane
+     */
+    private List&lt;Region&lt;T&gt;&gt; boundaryRegions(final BSPTree&lt;S&gt; node) {
+
+<span class="fc" id="L140">        final List&lt;Region&lt;T&gt;&gt; regions = new ArrayList&lt;Region&lt;T&gt;&gt;(2);</span>
+
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L143">        final BoundaryAttribute&lt;S&gt; ba = (BoundaryAttribute&lt;S&gt;) node.getAttribute();</span>
+<span class="fc" id="L144">        addRegion(ba.getPlusInside(),  regions);</span>
+<span class="fc" id="L145">        addRegion(ba.getPlusOutside(), regions);</span>
+
+<span class="fc" id="L147">        return regions;</span>
+
+    }
+
+    /** Add a boundary region to a list.
+     * @param sub sub-hyperplane defining the region
+     * @param list to fill up
+     */
+    private void addRegion(final SubHyperplane&lt;S&gt; sub, final List&lt;Region&lt;T&gt;&gt; list) {
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        if (sub != null) {</span>
+            @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L158">            final Region&lt;T&gt; region = ((AbstractSubHyperplane&lt;S, T&gt;) sub).getRemainingRegion();</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">            if (region != null) {</span>
+<span class="fc" id="L160">                list.add(region);</span>
+            }
+        }
+<span class="fc" id="L163">    }</span>
+
+    /** Check if a projected point lies on a boundary part.
+     * @param point projected point to check
+     * @param hyperplane hyperplane into which the point was projected
+     * @param part boundary part
+     * @return true if point lies on the boundary part
+     */
+    private boolean belongsToPart(final Point&lt;S&gt; point, final Hyperplane&lt;S&gt; hyperplane,
+                                  final Region&lt;T&gt; part) {
+
+        // there is a non-null sub-space, we can dive into smaller dimensions
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L176">        final Embedding&lt;S, T&gt; embedding = (Embedding&lt;S, T&gt;) hyperplane;</span>
+<span class="fc bfc" id="L177" title="All 2 branches covered.">        return part.checkPoint(embedding.toSubSpace(point)) != Location.OUTSIDE;</span>
+
+    }
+
+    /** Get the projection to the closest boundary singular point.
+     * @param point projected point to check
+     * @param hyperplane hyperplane into which the point was projected
+     * @param part boundary part
+     * @return projection to a singular point of boundary part (may be null)
+     */
+    private Point&lt;S&gt; singularProjection(final Point&lt;S&gt; point, final Hyperplane&lt;S&gt; hyperplane,
+                                        final Region&lt;T&gt; part) {
+
+        // there is a non-null sub-space, we can dive into smaller dimensions
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L192">        final Embedding&lt;S, T&gt; embedding = (Embedding&lt;S, T&gt;) hyperplane;</span>
+<span class="fc" id="L193">        final BoundaryProjection&lt;T&gt; bp = part.projectToBoundary(embedding.toSubSpace(point));</span>
+
+        // back to initial dimension
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">        return (bp.getProjected() == null) ? null : embedding.toSpace(bp.getProjected());</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

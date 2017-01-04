@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>KalmanFilter.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.filter</a> &gt; <span class="el_source">KalmanFilter.java</span></div><h1>KalmanFilter.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.filter;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.CholeskyDecomposition;
+import org.apache.commons.math3.linear.MatrixDimensionMismatchException;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.NonSquareMatrixException;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.SingularMatrixException;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * Implementation of a Kalman filter to estimate the state &lt;i&gt;x&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt;
+ * of a discrete-time controlled process that is governed by the linear
+ * stochastic difference equation:
+ *
+ * &lt;pre&gt;
+ * &lt;i&gt;x&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt; = &lt;b&gt;A&lt;/b&gt;&lt;i&gt;x&lt;sub&gt;k-1&lt;/sub&gt;&lt;/i&gt; + &lt;b&gt;B&lt;/b&gt;&lt;i&gt;u&lt;sub&gt;k-1&lt;/sub&gt;&lt;/i&gt; + &lt;i&gt;w&lt;sub&gt;k-1&lt;/sub&gt;&lt;/i&gt;
+ * &lt;/pre&gt;
+ *
+ * with a measurement &lt;i&gt;x&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt; that is
+ *
+ * &lt;pre&gt;
+ * &lt;i&gt;z&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt; = &lt;b&gt;H&lt;/b&gt;&lt;i&gt;x&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt; + &lt;i&gt;v&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt;.
+ * &lt;/pre&gt;
+ *
+ * &lt;p&gt;
+ * The random variables &lt;i&gt;w&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt; and &lt;i&gt;v&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt; represent
+ * the process and measurement noise and are assumed to be independent of each
+ * other and distributed with normal probability (white noise).
+ * &lt;p&gt;
+ * The Kalman filter cycle involves the following steps:
+ * &lt;ol&gt;
+ * &lt;li&gt;predict: project the current state estimate ahead in time&lt;/li&gt;
+ * &lt;li&gt;correct: adjust the projected estimate by an actual measurement&lt;/li&gt;
+ * &lt;/ol&gt;
+ * &lt;p&gt;
+ * The Kalman filter is initialized with a {@link ProcessModel} and a
+ * {@link MeasurementModel}, which contain the corresponding transformation and
+ * noise covariance matrices. The parameter names used in the respective models
+ * correspond to the following names commonly used in the mathematical
+ * literature:
+ * &lt;ul&gt;
+ * &lt;li&gt;A - state transition matrix&lt;/li&gt;
+ * &lt;li&gt;B - control input matrix&lt;/li&gt;
+ * &lt;li&gt;H - measurement matrix&lt;/li&gt;
+ * &lt;li&gt;Q - process noise covariance matrix&lt;/li&gt;
+ * &lt;li&gt;R - measurement noise covariance matrix&lt;/li&gt;
+ * &lt;li&gt;P - error covariance matrix&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @see &lt;a href=&quot;http://www.cs.unc.edu/~welch/kalman/&quot;&gt;Kalman filter
+ *      resources&lt;/a&gt;
+ * @see &lt;a href=&quot;http://www.cs.unc.edu/~welch/media/pdf/kalman_intro.pdf&quot;&gt;An
+ *      introduction to the Kalman filter by Greg Welch and Gary Bishop&lt;/a&gt;
+ * @see &lt;a href=&quot;http://academic.csuohio.edu/simond/courses/eec644/kalman.pdf&quot;&gt;
+ *      Kalman filter example by Dan Simon&lt;/a&gt;
+ * @see ProcessModel
+ * @see MeasurementModel
+ * @since 3.0
+ */
+public class KalmanFilter {
+    /** The process model used by this filter instance. */
+    private final ProcessModel processModel;
+    /** The measurement model used by this filter instance. */
+    private final MeasurementModel measurementModel;
+    /** The transition matrix, equivalent to A. */
+    private RealMatrix transitionMatrix;
+    /** The transposed transition matrix. */
+    private RealMatrix transitionMatrixT;
+    /** The control matrix, equivalent to B. */
+    private RealMatrix controlMatrix;
+    /** The measurement matrix, equivalent to H. */
+    private RealMatrix measurementMatrix;
+    /** The transposed measurement matrix. */
+    private RealMatrix measurementMatrixT;
+    /** The internal state estimation vector, equivalent to x hat. */
+    private RealVector stateEstimation;
+    /** The error covariance matrix, equivalent to P. */
+    private RealMatrix errorCovariance;
+
+    /**
+     * Creates a new Kalman filter with the given process and measurement models.
+     *
+     * @param process
+     *            the model defining the underlying process dynamics
+     * @param measurement
+     *            the model defining the given measurement characteristics
+     * @throws NullArgumentException
+     *             if any of the given inputs is null (except for the control matrix)
+     * @throws NonSquareMatrixException
+     *             if the transition matrix is non square
+     * @throws DimensionMismatchException
+     *             if the column dimension of the transition matrix does not match the dimension of the
+     *             initial state estimation vector
+     * @throws MatrixDimensionMismatchException
+     *             if the matrix dimensions do not fit together
+     */
+    public KalmanFilter(final ProcessModel process, final MeasurementModel measurement)
+            throws NullArgumentException, NonSquareMatrixException, DimensionMismatchException,
+<span class="fc" id="L121">                   MatrixDimensionMismatchException {</span>
+
+<span class="fc" id="L123">        MathUtils.checkNotNull(process);</span>
+<span class="fc" id="L124">        MathUtils.checkNotNull(measurement);</span>
+
+<span class="fc" id="L126">        this.processModel = process;</span>
+<span class="fc" id="L127">        this.measurementModel = measurement;</span>
+
+<span class="fc" id="L129">        transitionMatrix = processModel.getStateTransitionMatrix();</span>
+<span class="fc" id="L130">        MathUtils.checkNotNull(transitionMatrix);</span>
+<span class="fc" id="L131">        transitionMatrixT = transitionMatrix.transpose();</span>
+
+        // create an empty matrix if no control matrix was given
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        if (processModel.getControlMatrix() == null) {</span>
+<span class="fc" id="L135">            controlMatrix = new Array2DRowRealMatrix();</span>
+        } else {
+<span class="fc" id="L137">            controlMatrix = processModel.getControlMatrix();</span>
+        }
+
+<span class="fc" id="L140">        measurementMatrix = measurementModel.getMeasurementMatrix();</span>
+<span class="fc" id="L141">        MathUtils.checkNotNull(measurementMatrix);</span>
+<span class="fc" id="L142">        measurementMatrixT = measurementMatrix.transpose();</span>
+
+        // check that the process and measurement noise matrices are not null
+        // they will be directly accessed from the model as they may change
+        // over time
+<span class="fc" id="L147">        RealMatrix processNoise = processModel.getProcessNoise();</span>
+<span class="fc" id="L148">        MathUtils.checkNotNull(processNoise);</span>
+<span class="fc" id="L149">        RealMatrix measNoise = measurementModel.getMeasurementNoise();</span>
+<span class="fc" id="L150">        MathUtils.checkNotNull(measNoise);</span>
+
+        // set the initial state estimate to a zero vector if it is not
+        // available from the process model
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        if (processModel.getInitialStateEstimate() == null) {</span>
+<span class="nc" id="L155">            stateEstimation = new ArrayRealVector(transitionMatrix.getColumnDimension());</span>
+        } else {
+<span class="fc" id="L157">            stateEstimation = processModel.getInitialStateEstimate();</span>
+        }
+
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">        if (transitionMatrix.getColumnDimension() != stateEstimation.getDimension()) {</span>
+<span class="nc" id="L161">            throw new DimensionMismatchException(transitionMatrix.getColumnDimension(),</span>
+                                                 stateEstimation.getDimension());
+        }
+
+        // initialize the error covariance to the process noise if it is not
+        // available from the process model
+<span class="fc bfc" id="L167" title="All 2 branches covered.">        if (processModel.getInitialErrorCovariance() == null) {</span>
+<span class="fc" id="L168">            errorCovariance = processNoise.copy();</span>
+        } else {
+<span class="fc" id="L170">            errorCovariance = processModel.getInitialErrorCovariance();</span>
+        }
+
+        // sanity checks, the control matrix B may be null
+
+        // A must be a square matrix
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">        if (!transitionMatrix.isSquare()) {</span>
+<span class="nc" id="L177">            throw new NonSquareMatrixException(</span>
+                    transitionMatrix.getRowDimension(),
+                    transitionMatrix.getColumnDimension());
+        }
+
+        // row dimension of B must be equal to A
+        // if no control matrix is available, the row and column dimension will be 0
+<span class="pc bpc" id="L184" title="2 of 8 branches missed.">        if (controlMatrix != null &amp;&amp;</span>
+            controlMatrix.getRowDimension() &gt; 0 &amp;&amp;
+            controlMatrix.getColumnDimension() &gt; 0 &amp;&amp;
+            controlMatrix.getRowDimension() != transitionMatrix.getRowDimension()) {
+<span class="fc" id="L188">            throw new MatrixDimensionMismatchException(controlMatrix.getRowDimension(),</span>
+                                                       controlMatrix.getColumnDimension(),
+                                                       transitionMatrix.getRowDimension(),
+                                                       controlMatrix.getColumnDimension());
+        }
+
+        // Q must be equal to A
+<span class="fc" id="L195">        MatrixUtils.checkAdditionCompatible(transitionMatrix, processNoise);</span>
+
+        // column dimension of H must be equal to row dimension of A
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">        if (measurementMatrix.getColumnDimension() != transitionMatrix.getRowDimension()) {</span>
+<span class="nc" id="L199">            throw new MatrixDimensionMismatchException(measurementMatrix.getRowDimension(),</span>
+                                                       measurementMatrix.getColumnDimension(),
+                                                       measurementMatrix.getRowDimension(),
+                                                       transitionMatrix.getRowDimension());
+        }
+
+        // row dimension of R must be equal to row dimension of H
+<span class="fc bfc" id="L206" title="All 2 branches covered.">        if (measNoise.getRowDimension() != measurementMatrix.getRowDimension()) {</span>
+<span class="fc" id="L207">            throw new MatrixDimensionMismatchException(measNoise.getRowDimension(),</span>
+                                                       measNoise.getColumnDimension(),
+                                                       measurementMatrix.getRowDimension(),
+                                                       measNoise.getColumnDimension());
+        }
+<span class="fc" id="L212">    }</span>
+
+    /**
+     * Returns the dimension of the state estimation vector.
+     *
+     * @return the state dimension
+     */
+    public int getStateDimension() {
+<span class="fc" id="L220">        return stateEstimation.getDimension();</span>
+    }
+
+    /**
+     * Returns the dimension of the measurement vector.
+     *
+     * @return the measurement vector dimension
+     */
+    public int getMeasurementDimension() {
+<span class="fc" id="L229">        return measurementMatrix.getRowDimension();</span>
+    }
+
+    /**
+     * Returns the current state estimation vector.
+     *
+     * @return the state estimation vector
+     */
+    public double[] getStateEstimation() {
+<span class="fc" id="L238">        return stateEstimation.toArray();</span>
+    }
+
+    /**
+     * Returns a copy of the current state estimation vector.
+     *
+     * @return the state estimation vector
+     */
+    public RealVector getStateEstimationVector() {
+<span class="nc" id="L247">        return stateEstimation.copy();</span>
+    }
+
+    /**
+     * Returns the current error covariance matrix.
+     *
+     * @return the error covariance matrix
+     */
+    public double[][] getErrorCovariance() {
+<span class="fc" id="L256">        return errorCovariance.getData();</span>
+    }
+
+    /**
+     * Returns a copy of the current error covariance matrix.
+     *
+     * @return the error covariance matrix
+     */
+    public RealMatrix getErrorCovarianceMatrix() {
+<span class="nc" id="L265">        return errorCovariance.copy();</span>
+    }
+
+    /**
+     * Predict the internal state estimation one time step ahead.
+     */
+    public void predict() {
+<span class="fc" id="L272">        predict((RealVector) null);</span>
+<span class="fc" id="L273">    }</span>
+
+    /**
+     * Predict the internal state estimation one time step ahead.
+     *
+     * @param u
+     *            the control vector
+     * @throws DimensionMismatchException
+     *             if the dimension of the control vector does not fit
+     */
+    public void predict(final double[] u) throws DimensionMismatchException {
+<span class="nc" id="L284">        predict(new ArrayRealVector(u, false));</span>
+<span class="nc" id="L285">    }</span>
+
+    /**
+     * Predict the internal state estimation one time step ahead.
+     *
+     * @param u
+     *            the control vector
+     * @throws DimensionMismatchException
+     *             if the dimension of the control vector does not match
+     */
+    public void predict(final RealVector u) throws DimensionMismatchException {
+        // sanity checks
+<span class="pc bpc" id="L297" title="1 of 4 branches missed.">        if (u != null &amp;&amp;</span>
+            u.getDimension() != controlMatrix.getColumnDimension()) {
+<span class="nc" id="L299">            throw new DimensionMismatchException(u.getDimension(),</span>
+                                                 controlMatrix.getColumnDimension());
+        }
+
+        // project the state estimation ahead (a priori state)
+        // xHat(k)- = A * xHat(k-1) + B * u(k-1)
+<span class="fc" id="L305">        stateEstimation = transitionMatrix.operate(stateEstimation);</span>
+
+        // add control input if it is available
+<span class="fc bfc" id="L308" title="All 2 branches covered.">        if (u != null) {</span>
+<span class="fc" id="L309">            stateEstimation = stateEstimation.add(controlMatrix.operate(u));</span>
+        }
+
+        // project the error covariance ahead
+        // P(k)- = A * P(k-1) * A' + Q
+<span class="fc" id="L314">        errorCovariance = transitionMatrix.multiply(errorCovariance)</span>
+                .multiply(transitionMatrixT)
+                .add(processModel.getProcessNoise());
+<span class="fc" id="L317">    }</span>
+
+    /**
+     * Correct the current state estimate with an actual measurement.
+     *
+     * @param z
+     *            the measurement vector
+     * @throws NullArgumentException
+     *             if the measurement vector is {@code null}
+     * @throws DimensionMismatchException
+     *             if the dimension of the measurement vector does not fit
+     * @throws SingularMatrixException
+     *             if the covariance matrix could not be inverted
+     */
+    public void correct(final double[] z)
+            throws NullArgumentException, DimensionMismatchException, SingularMatrixException {
+<span class="fc" id="L333">        correct(new ArrayRealVector(z, false));</span>
+<span class="fc" id="L334">    }</span>
+
+    /**
+     * Correct the current state estimate with an actual measurement.
+     *
+     * @param z
+     *            the measurement vector
+     * @throws NullArgumentException
+     *             if the measurement vector is {@code null}
+     * @throws DimensionMismatchException
+     *             if the dimension of the measurement vector does not fit
+     * @throws SingularMatrixException
+     *             if the covariance matrix could not be inverted
+     */
+    public void correct(final RealVector z)
+            throws NullArgumentException, DimensionMismatchException, SingularMatrixException {
+
+        // sanity checks
+<span class="fc" id="L352">        MathUtils.checkNotNull(z);</span>
+<span class="pc bpc" id="L353" title="1 of 2 branches missed.">        if (z.getDimension() != measurementMatrix.getRowDimension()) {</span>
+<span class="nc" id="L354">            throw new DimensionMismatchException(z.getDimension(),</span>
+                                                 measurementMatrix.getRowDimension());
+        }
+
+        // S = H * P(k) * H' + R
+<span class="fc" id="L359">        RealMatrix s = measurementMatrix.multiply(errorCovariance)</span>
+            .multiply(measurementMatrixT)
+            .add(measurementModel.getMeasurementNoise());
+
+        // Inn = z(k) - H * xHat(k)-
+<span class="fc" id="L364">        RealVector innovation = z.subtract(measurementMatrix.operate(stateEstimation));</span>
+
+        // calculate gain matrix
+        // K(k) = P(k)- * H' * (H * P(k)- * H' + R)^-1
+        // K(k) = P(k)- * H' * S^-1
+
+        // instead of calculating the inverse of S we can rearrange the formula,
+        // and then solve the linear equation A x X = B with A = S', X = K' and B = (H * P)'
+
+        // K(k) * S = P(k)- * H'
+        // S' * K(k)' = H * P(k)-'
+<span class="fc" id="L375">        RealMatrix kalmanGain = new CholeskyDecomposition(s).getSolver()</span>
+                .solve(measurementMatrix.multiply(errorCovariance.transpose()))
+                .transpose();
+
+        // update estimate with measurement z(k)
+        // xHat(k) = xHat(k)- + K * Inn
+<span class="fc" id="L381">        stateEstimation = stateEstimation.add(kalmanGain.operate(innovation));</span>
+
+        // update covariance of prediction error
+        // P(k) = (I - K * H) * P(k)-
+<span class="fc" id="L385">        RealMatrix identity = MatrixUtils.createRealIdentityMatrix(kalmanGain.getRowDimension());</span>
+<span class="fc" id="L386">        errorCovariance = identity.subtract(kalmanGain.multiply(measurementMatrix)).multiply(errorCovariance);</span>
+<span class="fc" id="L387">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

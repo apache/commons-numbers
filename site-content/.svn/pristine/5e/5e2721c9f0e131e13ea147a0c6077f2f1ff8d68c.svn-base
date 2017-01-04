@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractUnivariateStatistic.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive</a> &gt; <span class="el_source">AbstractUnivariateStatistic.java</span></div><h1>AbstractUnivariateStatistic.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive;
+
+import org.apache.commons.math3.exception.NotPositiveException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.util.MathArrays;
+
+/**
+ * Abstract base class for all implementations of the
+ * {@link UnivariateStatistic} interface.
+ * &lt;p&gt;
+ * Provides a default implementation of &lt;code&gt;evaluate(double[]),&lt;/code&gt;
+ * delegating to &lt;code&gt;evaluate(double[], int, int)&lt;/code&gt; in the natural way.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * Also includes a &lt;code&gt;test&lt;/code&gt; method that performs generic parameter
+ * validation for the &lt;code&gt;evaluate&lt;/code&gt; methods.&lt;/p&gt;
+ *
+ */
+<span class="fc" id="L38">public abstract class AbstractUnivariateStatistic</span>
+    implements UnivariateStatistic {
+
+    /** Stored data. */
+    private double[] storedData;
+
+    /**
+     * Set the data array.
+     * &lt;p&gt;
+     * The stored value is a copy of the parameter array, not the array itself.
+     * &lt;/p&gt;
+     * @param values data array to store (may be null to remove stored data)
+     * @see #evaluate()
+     */
+    public void setData(final double[] values) {
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        storedData = (values == null) ? null : values.clone();</span>
+<span class="fc" id="L54">    }</span>
+
+    /**
+     * Get a copy of the stored data array.
+     * @return copy of the stored data array (may be null)
+     */
+    public double[] getData() {
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        return (storedData == null) ? null : storedData.clone();</span>
+    }
+
+    /**
+     * Get a reference to the stored data array.
+     * @return reference to the stored data array (may be null)
+     */
+    protected double[] getDataRef() {
+<span class="fc" id="L69">        return storedData;</span>
+    }
+
+    /**
+     * Set the data array.  The input array is copied, not referenced.
+     *
+     * @param values data array to store
+     * @param begin the index of the first element to include
+     * @param length the number of elements to include
+     * @throws MathIllegalArgumentException if values is null or the indices
+     * are not valid
+     * @see #evaluate()
+     */
+    public void setData(final double[] values, final int begin, final int length)
+    throws MathIllegalArgumentException {
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (values == null) {</span>
+<span class="nc" id="L85">            throw new NullArgumentException(LocalizedFormats.INPUT_ARRAY);</span>
+        }
+
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (begin &lt; 0) {</span>
+<span class="nc" id="L89">            throw new NotPositiveException(LocalizedFormats.START_POSITION, begin);</span>
+        }
+
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (length &lt; 0) {</span>
+<span class="nc" id="L93">            throw new NotPositiveException(LocalizedFormats.LENGTH, length);</span>
+        }
+
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (begin + length &gt; values.length) {</span>
+<span class="nc" id="L97">            throw new NumberIsTooLargeException(LocalizedFormats.SUBARRAY_ENDS_AFTER_ARRAY_END,</span>
+                                                begin + length, values.length, true);
+        }
+<span class="nc" id="L100">        storedData = new double[length];</span>
+<span class="nc" id="L101">        System.arraycopy(values, begin, storedData, 0, length);</span>
+<span class="nc" id="L102">    }</span>
+
+    /**
+     * Returns the result of evaluating the statistic over the stored data.
+     * &lt;p&gt;
+     * The stored array is the one which was set by previous calls to {@link #setData(double[])}.
+     * &lt;/p&gt;
+     * @return the value of the statistic applied to the stored data
+     * @throws MathIllegalArgumentException if the stored data array is null
+     */
+    public double evaluate() throws MathIllegalArgumentException {
+<span class="fc" id="L113">        return evaluate(storedData);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public double evaluate(final double[] values) throws MathIllegalArgumentException {
+<span class="fc" id="L120">        test(values, 0, 0);</span>
+<span class="fc" id="L121">        return evaluate(values, 0, values.length);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public abstract double evaluate(final double[] values, final int begin, final int length)
+    throws MathIllegalArgumentException;
+
+    /**
+     * {@inheritDoc}
+     */
+    public abstract UnivariateStatistic copy();
+
+    /**
+     * This method is used by &lt;code&gt;evaluate(double[], int, int)&lt;/code&gt; methods
+     * to verify that the input parameters designate a subarray of positive length.
+     * &lt;p&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;returns &lt;code&gt;true&lt;/code&gt; iff the parameters designate a subarray of
+     * positive length&lt;/li&gt;
+     * &lt;li&gt;throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null or
+     * or the indices are invalid&lt;/li&gt;
+     * &lt;li&gt;returns &lt;code&gt;false&lt;/li&gt; if the array is non-null, but
+     * &lt;code&gt;length&lt;/code&gt; is 0.
+     * &lt;/ul&gt;&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return true if the parameters are valid and designate a subarray of positive length
+     * @throws MathIllegalArgumentException if the indices are invalid or the array is null
+     */
+    protected boolean test(
+        final double[] values,
+        final int begin,
+        final int length) throws MathIllegalArgumentException {
+<span class="fc" id="L158">        return MathArrays.verifyValues(values, begin, length, false);</span>
+    }
+
+    /**
+     * This method is used by &lt;code&gt;evaluate(double[], int, int)&lt;/code&gt; methods
+     * to verify that the input parameters designate a subarray of positive length.
+     * &lt;p&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;returns &lt;code&gt;true&lt;/code&gt; iff the parameters designate a subarray of
+     * non-negative length&lt;/li&gt;
+     * &lt;li&gt;throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null or
+     * or the indices are invalid&lt;/li&gt;
+     * &lt;li&gt;returns &lt;code&gt;false&lt;/li&gt; if the array is non-null, but
+     * &lt;code&gt;length&lt;/code&gt; is 0 unless &lt;code&gt;allowEmpty&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @param allowEmpty if &lt;code&gt;true&lt;/code&gt; then zero length arrays are allowed
+     * @return true if the parameters are valid
+     * @throws MathIllegalArgumentException if the indices are invalid or the array is null
+     * @since 3.0
+     */
+    protected boolean test(final double[] values, final int begin,
+            final int length, final boolean allowEmpty) throws MathIllegalArgumentException {
+<span class="fc" id="L184">        return MathArrays.verifyValues(values, begin, length, allowEmpty);</span>
+    }
+
+    /**
+     * This method is used by &lt;code&gt;evaluate(double[], double[], int, int)&lt;/code&gt; methods
+     * to verify that the begin and length parameters designate a subarray of positive length
+     * and the weights are all non-negative, non-NaN, finite, and not all zero.
+     * &lt;p&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;returns &lt;code&gt;true&lt;/code&gt; iff the parameters designate a subarray of
+     * positive length and the weights array contains legitimate values.&lt;/li&gt;
+     * &lt;li&gt;throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if any of the following are true:
+     * &lt;ul&gt;&lt;li&gt;the values array is null&lt;/li&gt;
+     *     &lt;li&gt;the weights array is null&lt;/li&gt;
+     *     &lt;li&gt;the weights array does not have the same length as the values array&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains one or more infinite values&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains one or more NaN values&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains negative values&lt;/li&gt;
+     *     &lt;li&gt;the start and length arguments do not determine a valid array&lt;/li&gt;&lt;/ul&gt;
+     * &lt;/li&gt;
+     * &lt;li&gt;returns &lt;code&gt;false&lt;/li&gt; if the array is non-null, but
+     * &lt;code&gt;length&lt;/code&gt; is 0.
+     * &lt;/ul&gt;&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param weights the weights array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return true if the parameters are valid and designate a subarray of positive length
+     * @throws MathIllegalArgumentException if the indices are invalid or the array is null
+     * @since 2.1
+     */
+    protected boolean test(
+        final double[] values,
+        final double[] weights,
+        final int begin,
+        final int length) throws MathIllegalArgumentException {
+<span class="fc" id="L221">        return MathArrays.verifyValues(values, weights, begin, length, false);</span>
+    }
+
+    /**
+     * This method is used by &lt;code&gt;evaluate(double[], double[], int, int)&lt;/code&gt; methods
+     * to verify that the begin and length parameters designate a subarray of positive length
+     * and the weights are all non-negative, non-NaN, finite, and not all zero.
+     * &lt;p&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;returns &lt;code&gt;true&lt;/code&gt; iff the parameters designate a subarray of
+     * non-negative length and the weights array contains legitimate values.&lt;/li&gt;
+     * &lt;li&gt;throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if any of the following are true:
+     * &lt;ul&gt;&lt;li&gt;the values array is null&lt;/li&gt;
+     *     &lt;li&gt;the weights array is null&lt;/li&gt;
+     *     &lt;li&gt;the weights array does not have the same length as the values array&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains one or more infinite values&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains one or more NaN values&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains negative values&lt;/li&gt;
+     *     &lt;li&gt;the start and length arguments do not determine a valid array&lt;/li&gt;&lt;/ul&gt;
+     * &lt;/li&gt;
+     * &lt;li&gt;returns &lt;code&gt;false&lt;/li&gt; if the array is non-null, but
+     * &lt;code&gt;length&lt;/code&gt; is 0 unless &lt;code&gt;allowEmpty&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;.
+     * &lt;/ul&gt;&lt;/p&gt;
+     *
+     * @param values the input array.
+     * @param weights the weights array.
+     * @param begin index of the first array element to include.
+     * @param length the number of elements to include.
+     * @param allowEmpty if {@code true} than allow zero length arrays to pass.
+     * @return {@code true} if the parameters are valid.
+     * @throws NullArgumentException if either of the arrays are null
+     * @throws MathIllegalArgumentException if the array indices are not valid,
+     * the weights array contains NaN, infinite or negative elements, or there
+     * are no positive weights.
+     * @since 3.0
+     */
+    protected boolean test(final double[] values, final double[] weights,
+            final int begin, final int length, final boolean allowEmpty) throws MathIllegalArgumentException {
+
+<span class="fc" id="L260">        return MathArrays.verifyValues(values, weights, begin, length, allowEmpty);</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

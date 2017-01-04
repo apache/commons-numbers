@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractSimplex.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optimization.direct</a> &gt; <span class="el_source">AbstractSimplex.java</span></div><h1>AbstractSimplex.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.optimization.direct;
+
+import java.util.Arrays;
+import java.util.Comparator;
+
+import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.ZeroException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.optimization.PointValuePair;
+import org.apache.commons.math3.optimization.OptimizationData;
+
+/**
+ * This class implements the simplex concept.
+ * It is intended to be used in conjunction with {@link SimplexOptimizer}.
+ * &lt;br/&gt;
+ * The initial configuration of the simplex is set by the constructors
+ * {@link #AbstractSimplex(double[])} or {@link #AbstractSimplex(double[][])}.
+ * The other {@link #AbstractSimplex(int) constructor} will set all steps
+ * to 1, thus building a default configuration from a unit hypercube.
+ * &lt;br/&gt;
+ * Users &lt;em&gt;must&lt;/em&gt; call the {@link #build(double[]) build} method in order
+ * to create the data structure that will be acted on by the other methods of
+ * this class.
+ *
+ * @see SimplexOptimizer
+ * @deprecated As of 3.1 (to be removed in 4.0).
+ * @since 3.0
+ */
+@Deprecated
+public abstract class AbstractSimplex implements OptimizationData {
+    /** Simplex. */
+    private PointValuePair[] simplex;
+    /** Start simplex configuration. */
+    private double[][] startConfiguration;
+    /** Simplex dimension (must be equal to {@code simplex.length - 1}). */
+    private final int dimension;
+
+    /**
+     * Build a unit hypercube simplex.
+     *
+     * @param n Dimension of the simplex.
+     */
+    protected AbstractSimplex(int n) {
+<span class="nc" id="L66">        this(n, 1d);</span>
+<span class="nc" id="L67">    }</span>
+
+    /**
+     * Build a hypercube simplex with the given side length.
+     *
+     * @param n Dimension of the simplex.
+     * @param sideLength Length of the sides of the hypercube.
+     */
+    protected AbstractSimplex(int n,
+                              double sideLength) {
+<span class="fc" id="L77">        this(createHypercubeSteps(n, sideLength));</span>
+<span class="fc" id="L78">    }</span>
+
+    /**
+     * The start configuration for simplex is built from a box parallel to
+     * the canonical axes of the space. The simplex is the subset of vertices
+     * of a box parallel to the canonical axes. It is built as the path followed
+     * while traveling from one vertex of the box to the diagonally opposite
+     * vertex moving only along the box edges. The first vertex of the box will
+     * be located at the start point of the optimization.
+     * As an example, in dimension 3 a simplex has 4 vertices. Setting the
+     * steps to (1, 10, 2) and the start point to (1, 1, 1) would imply the
+     * start simplex would be: { (1, 1, 1), (2, 1, 1), (2, 11, 1), (2, 11, 3) }.
+     * The first vertex would be set to the start point at (1, 1, 1) and the
+     * last vertex would be set to the diagonally opposite vertex at (2, 11, 3).
+     *
+     * @param steps Steps along the canonical axes representing box edges. They
+     * may be negative but not zero.
+     * @throws NullArgumentException if {@code steps} is {@code null}.
+     * @throws ZeroException if one of the steps is zero.
+     */
+<span class="fc" id="L98">    protected AbstractSimplex(final double[] steps) {</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        if (steps == null) {</span>
+<span class="nc" id="L100">            throw new NullArgumentException();</span>
+        }
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">        if (steps.length == 0) {</span>
+<span class="nc" id="L103">            throw new ZeroException();</span>
+        }
+<span class="fc" id="L105">        dimension = steps.length;</span>
+
+        // Only the relative position of the n final vertices with respect
+        // to the first one are stored.
+<span class="fc" id="L109">        startConfiguration = new double[dimension][dimension];</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        for (int i = 0; i &lt; dimension; i++) {</span>
+<span class="fc" id="L111">            final double[] vertexI = startConfiguration[i];</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">            for (int j = 0; j &lt; i + 1; j++) {</span>
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">                if (steps[j] == 0) {</span>
+<span class="nc" id="L114">                    throw new ZeroException(LocalizedFormats.EQUAL_VERTICES_IN_SIMPLEX);</span>
+                }
+<span class="fc" id="L116">                System.arraycopy(steps, 0, vertexI, 0, j + 1);</span>
+            }
+        }
+<span class="fc" id="L119">    }</span>
+
+    /**
+     * The real initial simplex will be set up by moving the reference
+     * simplex such that its first point is located at the start point of the
+     * optimization.
+     *
+     * @param referenceSimplex Reference simplex.
+     * @throws NotStrictlyPositiveException if the reference simplex does not
+     * contain at least one point.
+     * @throws DimensionMismatchException if there is a dimension mismatch
+     * in the reference simplex.
+     * @throws IllegalArgumentException if one of its vertices is duplicated.
+     */
+<span class="fc" id="L133">    protected AbstractSimplex(final double[][] referenceSimplex) {</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">        if (referenceSimplex.length &lt;= 0) {</span>
+<span class="nc" id="L135">            throw new NotStrictlyPositiveException(LocalizedFormats.SIMPLEX_NEED_ONE_POINT,</span>
+                                                   referenceSimplex.length);
+        }
+<span class="fc" id="L138">        dimension = referenceSimplex.length - 1;</span>
+
+        // Only the relative position of the n final vertices with respect
+        // to the first one are stored.
+<span class="fc" id="L142">        startConfiguration = new double[dimension][dimension];</span>
+<span class="fc" id="L143">        final double[] ref0 = referenceSimplex[0];</span>
+
+        // Loop over vertices.
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        for (int i = 0; i &lt; referenceSimplex.length; i++) {</span>
+<span class="fc" id="L147">            final double[] refI = referenceSimplex[i];</span>
+
+            // Safety checks.
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">            if (refI.length != dimension) {</span>
+<span class="nc" id="L151">                throw new DimensionMismatchException(refI.length, dimension);</span>
+            }
+<span class="fc bfc" id="L153" title="All 2 branches covered.">            for (int j = 0; j &lt; i; j++) {</span>
+<span class="fc" id="L154">                final double[] refJ = referenceSimplex[j];</span>
+<span class="fc" id="L155">                boolean allEquals = true;</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">                for (int k = 0; k &lt; dimension; k++) {</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">                    if (refI[k] != refJ[k]) {</span>
+<span class="fc" id="L158">                        allEquals = false;</span>
+<span class="fc" id="L159">                        break;</span>
+                    }
+                }
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">                if (allEquals) {</span>
+<span class="nc" id="L163">                    throw new MathIllegalArgumentException(LocalizedFormats.EQUAL_VERTICES_IN_SIMPLEX,</span>
+                                                           i, j);
+                }
+            }
+
+            // Store vertex i position relative to vertex 0 position.
+<span class="fc bfc" id="L169" title="All 2 branches covered.">            if (i &gt; 0) {</span>
+<span class="fc" id="L170">                final double[] confI = startConfiguration[i - 1];</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">                for (int k = 0; k &lt; dimension; k++) {</span>
+<span class="fc" id="L172">                    confI[k] = refI[k] - ref0[k];</span>
+                }
+            }
+        }
+<span class="fc" id="L176">    }</span>
+
+    /**
+     * Get simplex dimension.
+     *
+     * @return the dimension of the simplex.
+     */
+    public int getDimension() {
+<span class="fc" id="L184">        return dimension;</span>
+    }
+
+    /**
+     * Get simplex size.
+     * After calling the {@link #build(double[]) build} method, this method will
+     * will be equivalent to {@code getDimension() + 1}.
+     *
+     * @return the size of the simplex.
+     */
+    public int getSize() {
+<span class="fc" id="L195">        return simplex.length;</span>
+    }
+
+    /**
+     * Compute the next simplex of the algorithm.
+     *
+     * @param evaluationFunction Evaluation function.
+     * @param comparator Comparator to use to sort simplex vertices from best
+     * to worst.
+     * @throws org.apache.commons.math3.exception.TooManyEvaluationsException
+     * if the algorithm fails to converge.
+     */
+    public abstract void iterate(final MultivariateFunction evaluationFunction,
+                                 final Comparator&lt;PointValuePair&gt; comparator);
+
+    /**
+     * Build an initial simplex.
+     *
+     * @param startPoint First point of the simplex.
+     * @throws DimensionMismatchException if the start point does not match
+     * simplex dimension.
+     */
+    public void build(final double[] startPoint) {
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">        if (dimension != startPoint.length) {</span>
+<span class="nc" id="L219">            throw new DimensionMismatchException(dimension, startPoint.length);</span>
+        }
+
+        // Set first vertex.
+<span class="fc" id="L223">        simplex = new PointValuePair[dimension + 1];</span>
+<span class="fc" id="L224">        simplex[0] = new PointValuePair(startPoint, Double.NaN);</span>
+
+        // Set remaining vertices.
+<span class="fc bfc" id="L227" title="All 2 branches covered.">        for (int i = 0; i &lt; dimension; i++) {</span>
+<span class="fc" id="L228">            final double[] confI = startConfiguration[i];</span>
+<span class="fc" id="L229">            final double[] vertexI = new double[dimension];</span>
+<span class="fc bfc" id="L230" title="All 2 branches covered.">            for (int k = 0; k &lt; dimension; k++) {</span>
+<span class="fc" id="L231">                vertexI[k] = startPoint[k] + confI[k];</span>
+            }
+<span class="fc" id="L233">            simplex[i + 1] = new PointValuePair(vertexI, Double.NaN);</span>
+        }
+<span class="fc" id="L235">    }</span>
+
+    /**
+     * Evaluate all the non-evaluated points of the simplex.
+     *
+     * @param evaluationFunction Evaluation function.
+     * @param comparator Comparator to use to sort simplex vertices from best to worst.
+     * @throws org.apache.commons.math3.exception.TooManyEvaluationsException
+     * if the maximal number of evaluations is exceeded.
+     */
+    public void evaluate(final MultivariateFunction evaluationFunction,
+                         final Comparator&lt;PointValuePair&gt; comparator) {
+        // Evaluate the objective function at all non-evaluated simplex points.
+<span class="fc bfc" id="L248" title="All 2 branches covered.">        for (int i = 0; i &lt; simplex.length; i++) {</span>
+<span class="fc" id="L249">            final PointValuePair vertex = simplex[i];</span>
+<span class="fc" id="L250">            final double[] point = vertex.getPointRef();</span>
+<span class="fc bfc" id="L251" title="All 2 branches covered.">            if (Double.isNaN(vertex.getValue())) {</span>
+<span class="fc" id="L252">                simplex[i] = new PointValuePair(point, evaluationFunction.value(point), false);</span>
+            }
+        }
+
+        // Sort the simplex from best to worst.
+<span class="fc" id="L257">        Arrays.sort(simplex, comparator);</span>
+<span class="fc" id="L258">    }</span>
+
+    /**
+     * Replace the worst point of the simplex by a new point.
+     *
+     * @param pointValuePair Point to insert.
+     * @param comparator Comparator to use for sorting the simplex vertices
+     * from best to worst.
+     */
+    protected void replaceWorstPoint(PointValuePair pointValuePair,
+                                     final Comparator&lt;PointValuePair&gt; comparator) {
+<span class="fc bfc" id="L269" title="All 2 branches covered.">        for (int i = 0; i &lt; dimension; i++) {</span>
+<span class="fc bfc" id="L270" title="All 2 branches covered.">            if (comparator.compare(simplex[i], pointValuePair) &gt; 0) {</span>
+<span class="fc" id="L271">                PointValuePair tmp = simplex[i];</span>
+<span class="fc" id="L272">                simplex[i] = pointValuePair;</span>
+<span class="fc" id="L273">                pointValuePair = tmp;</span>
+            }
+        }
+<span class="fc" id="L276">        simplex[dimension] = pointValuePair;</span>
+<span class="fc" id="L277">    }</span>
+
+    /**
+     * Get the points of the simplex.
+     *
+     * @return all the simplex points.
+     */
+    public PointValuePair[] getPoints() {
+<span class="fc" id="L285">        final PointValuePair[] copy = new PointValuePair[simplex.length];</span>
+<span class="fc" id="L286">        System.arraycopy(simplex, 0, copy, 0, simplex.length);</span>
+<span class="fc" id="L287">        return copy;</span>
+    }
+
+    /**
+     * Get the simplex point stored at the requested {@code index}.
+     *
+     * @param index Location.
+     * @return the point at location {@code index}.
+     */
+    public PointValuePair getPoint(int index) {
+<span class="pc bpc" id="L297" title="2 of 4 branches missed.">        if (index &lt; 0 ||</span>
+            index &gt;= simplex.length) {
+<span class="nc" id="L299">            throw new OutOfRangeException(index, 0, simplex.length - 1);</span>
+        }
+<span class="fc" id="L301">        return simplex[index];</span>
+    }
+
+    /**
+     * Store a new point at location {@code index}.
+     * Note that no deep-copy of {@code point} is performed.
+     *
+     * @param index Location.
+     * @param point New value.
+     */
+    protected void setPoint(int index, PointValuePair point) {
+<span class="pc bpc" id="L312" title="2 of 4 branches missed.">        if (index &lt; 0 ||</span>
+            index &gt;= simplex.length) {
+<span class="nc" id="L314">            throw new OutOfRangeException(index, 0, simplex.length - 1);</span>
+        }
+<span class="fc" id="L316">        simplex[index] = point;</span>
+<span class="fc" id="L317">    }</span>
+
+    /**
+     * Replace all points.
+     * Note that no deep-copy of {@code points} is performed.
+     *
+     * @param points New Points.
+     */
+    protected void setPoints(PointValuePair[] points) {
+<span class="pc bpc" id="L326" title="1 of 2 branches missed.">        if (points.length != simplex.length) {</span>
+<span class="nc" id="L327">            throw new DimensionMismatchException(points.length, simplex.length);</span>
+        }
+<span class="fc" id="L329">        simplex = points;</span>
+<span class="fc" id="L330">    }</span>
+
+    /**
+     * Create steps for a unit hypercube.
+     *
+     * @param n Dimension of the hypercube.
+     * @param sideLength Length of the sides of the hypercube.
+     * @return the steps.
+     */
+    private static double[] createHypercubeSteps(int n,
+                                                 double sideLength) {
+<span class="fc" id="L341">        final double[] steps = new double[n];</span>
+<span class="fc bfc" id="L342" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L343">            steps[i] = sideLength;</span>
+        }
+<span class="fc" id="L345">        return steps;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

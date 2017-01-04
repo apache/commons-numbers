@@ -1,0 +1,1496 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.apache.commons.math3.geometry.euclidean.threed;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.io.Serializable;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.exception.MathArithmeticException;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.exception.MathIllegalArgumentException;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.exception.util.LocalizedFormats;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.util.FastMath;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.util.MathArrays;<a name="line.26"></a>
+<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">028</span>/**<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * This class implements rotations in a three-dimensional space.<a name="line.29"></a>
+<span class="sourceLineNo">030</span> *<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * &lt;p&gt;Rotations can be represented by several different mathematical<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * entities (matrices, axe and angle, Cardan or Euler angles,<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * quaternions). This class presents an higher level abstraction, more<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * user-oriented and hiding this implementation details. Well, for the<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * curious, we use quaternions for the internal representation. The<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * user can build a rotation from any of these representations, and<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * any of these representations can be retrieved from a<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * &lt;code&gt;Rotation&lt;/code&gt; instance (see the various constructors and<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * getters). In addition, a rotation can also be built implicitly<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * from a set of vectors and their image.&lt;/p&gt;<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * &lt;p&gt;This implies that this class can be used to convert from one<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * representation to another one. For example, converting a rotation<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * matrix into a set of Cardan angles from can be done using the<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * following single line of code:&lt;/p&gt;<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * &lt;pre&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * double[] angles = new Rotation(matrix, 1.0e-10).getAngles(RotationOrder.XYZ);<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * &lt;/pre&gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * &lt;p&gt;Focus is oriented on what a rotation &lt;em&gt;do&lt;/em&gt; rather than on its<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * underlying representation. Once it has been built, and regardless of its<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * internal representation, a rotation is an &lt;em&gt;operator&lt;/em&gt; which basically<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * transforms three dimensional {@link Vector3D vectors} into other three<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * dimensional {@link Vector3D vectors}. Depending on the application, the<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * meaning of these vectors may vary and the semantics of the rotation also.&lt;/p&gt;<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * &lt;p&gt;For example in an spacecraft attitude simulation tool, users will often<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * consider the vectors are fixed (say the Earth direction for example) and the<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * frames change. The rotation transforms the coordinates of the vector in inertial<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * frame into the coordinates of the same vector in satellite frame. In this<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * case, the rotation implicitly defines the relation between the two frames.&lt;/p&gt;<a name="line.58"></a>
+<span class="sourceLineNo">059</span> * &lt;p&gt;Another example could be a telescope control application, where the rotation<a name="line.59"></a>
+<span class="sourceLineNo">060</span> * would transform the sighting direction at rest into the desired observing<a name="line.60"></a>
+<span class="sourceLineNo">061</span> * direction when the telescope is pointed towards an object of interest. In this<a name="line.61"></a>
+<span class="sourceLineNo">062</span> * case the rotation transforms the direction at rest in a topocentric frame<a name="line.62"></a>
+<span class="sourceLineNo">063</span> * into the sighting direction in the same topocentric frame. This implies in this<a name="line.63"></a>
+<span class="sourceLineNo">064</span> * case the frame is fixed and the vector moves.&lt;/p&gt;<a name="line.64"></a>
+<span class="sourceLineNo">065</span> * &lt;p&gt;In many case, both approaches will be combined. In our telescope example,<a name="line.65"></a>
+<span class="sourceLineNo">066</span> * we will probably also need to transform the observing direction in the topocentric<a name="line.66"></a>
+<span class="sourceLineNo">067</span> * frame into the observing direction in inertial frame taking into account the observatory<a name="line.67"></a>
+<span class="sourceLineNo">068</span> * location and the Earth rotation, which would essentially be an application of the<a name="line.68"></a>
+<span class="sourceLineNo">069</span> * first approach.&lt;/p&gt;<a name="line.69"></a>
+<span class="sourceLineNo">070</span> *<a name="line.70"></a>
+<span class="sourceLineNo">071</span> * &lt;p&gt;These examples show that a rotation is what the user wants it to be. This<a name="line.71"></a>
+<span class="sourceLineNo">072</span> * class does not push the user towards one specific definition and hence does not<a name="line.72"></a>
+<span class="sourceLineNo">073</span> * provide methods like &lt;code&gt;projectVectorIntoDestinationFrame&lt;/code&gt; or<a name="line.73"></a>
+<span class="sourceLineNo">074</span> * &lt;code&gt;computeTransformedDirection&lt;/code&gt;. It provides simpler and more generic<a name="line.74"></a>
+<span class="sourceLineNo">075</span> * methods: {@link #applyTo(Vector3D) applyTo(Vector3D)} and {@link<a name="line.75"></a>
+<span class="sourceLineNo">076</span> * #applyInverseTo(Vector3D) applyInverseTo(Vector3D)}.&lt;/p&gt;<a name="line.76"></a>
+<span class="sourceLineNo">077</span> *<a name="line.77"></a>
+<span class="sourceLineNo">078</span> * &lt;p&gt;Since a rotation is basically a vectorial operator, several rotations can be<a name="line.78"></a>
+<span class="sourceLineNo">079</span> * composed together and the composite operation &lt;code&gt;r = r&lt;sub&gt;1&lt;/sub&gt; o<a name="line.79"></a>
+<span class="sourceLineNo">080</span> * r&lt;sub&gt;2&lt;/sub&gt;&lt;/code&gt; (which means that for each vector &lt;code&gt;u&lt;/code&gt;,<a name="line.80"></a>
+<span class="sourceLineNo">081</span> * &lt;code&gt;r(u) = r&lt;sub&gt;1&lt;/sub&gt;(r&lt;sub&gt;2&lt;/sub&gt;(u))&lt;/code&gt;) is also a rotation. Hence<a name="line.81"></a>
+<span class="sourceLineNo">082</span> * we can consider that in addition to vectors, a rotation can be applied to other<a name="line.82"></a>
+<span class="sourceLineNo">083</span> * rotations as well (or to itself). With our previous notations, we would say we<a name="line.83"></a>
+<span class="sourceLineNo">084</span> * can apply &lt;code&gt;r&lt;sub&gt;1&lt;/sub&gt;&lt;/code&gt; to &lt;code&gt;r&lt;sub&gt;2&lt;/sub&gt;&lt;/code&gt; and the result<a name="line.84"></a>
+<span class="sourceLineNo">085</span> * we get is &lt;code&gt;r = r&lt;sub&gt;1&lt;/sub&gt; o r&lt;sub&gt;2&lt;/sub&gt;&lt;/code&gt;. For this purpose, the<a name="line.85"></a>
+<span class="sourceLineNo">086</span> * class provides the methods: {@link #applyTo(Rotation) applyTo(Rotation)} and<a name="line.86"></a>
+<span class="sourceLineNo">087</span> * {@link #applyInverseTo(Rotation) applyInverseTo(Rotation)}.&lt;/p&gt;<a name="line.87"></a>
+<span class="sourceLineNo">088</span> *<a name="line.88"></a>
+<span class="sourceLineNo">089</span> * &lt;p&gt;Rotations are guaranteed to be immutable objects.&lt;/p&gt;<a name="line.89"></a>
+<span class="sourceLineNo">090</span> *<a name="line.90"></a>
+<span class="sourceLineNo">091</span> * @see Vector3D<a name="line.91"></a>
+<span class="sourceLineNo">092</span> * @see RotationOrder<a name="line.92"></a>
+<span class="sourceLineNo">093</span> * @since 1.2<a name="line.93"></a>
+<span class="sourceLineNo">094</span> */<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>public class Rotation implements Serializable {<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>  /** Identity rotation. */<a name="line.98"></a>
+<span class="sourceLineNo">099</span>  public static final Rotation IDENTITY = new Rotation(1.0, 0.0, 0.0, 0.0, false);<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>  /** Serializable version identifier */<a name="line.101"></a>
+<span class="sourceLineNo">102</span>  private static final long serialVersionUID = -2153622329907944313L;<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>  /** Scalar coordinate of the quaternion. */<a name="line.104"></a>
+<span class="sourceLineNo">105</span>  private final double q0;<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>  /** First coordinate of the vectorial part of the quaternion. */<a name="line.107"></a>
+<span class="sourceLineNo">108</span>  private final double q1;<a name="line.108"></a>
+<span class="sourceLineNo">109</span><a name="line.109"></a>
+<span class="sourceLineNo">110</span>  /** Second coordinate of the vectorial part of the quaternion. */<a name="line.110"></a>
+<span class="sourceLineNo">111</span>  private final double q2;<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>  /** Third coordinate of the vectorial part of the quaternion. */<a name="line.113"></a>
+<span class="sourceLineNo">114</span>  private final double q3;<a name="line.114"></a>
+<span class="sourceLineNo">115</span><a name="line.115"></a>
+<span class="sourceLineNo">116</span>  /** Build a rotation from the quaternion coordinates.<a name="line.116"></a>
+<span class="sourceLineNo">117</span>   * &lt;p&gt;A rotation can be built from a &lt;em&gt;normalized&lt;/em&gt; quaternion,<a name="line.117"></a>
+<span class="sourceLineNo">118</span>   * i.e. a quaternion for which q&lt;sub&gt;0&lt;/sub&gt;&lt;sup&gt;2&lt;/sup&gt; +<a name="line.118"></a>
+<span class="sourceLineNo">119</span>   * q&lt;sub&gt;1&lt;/sub&gt;&lt;sup&gt;2&lt;/sup&gt; + q&lt;sub&gt;2&lt;/sub&gt;&lt;sup&gt;2&lt;/sup&gt; +<a name="line.119"></a>
+<span class="sourceLineNo">120</span>   * q&lt;sub&gt;3&lt;/sub&gt;&lt;sup&gt;2&lt;/sup&gt; = 1. If the quaternion is not normalized,<a name="line.120"></a>
+<span class="sourceLineNo">121</span>   * the constructor can normalize it in a preprocessing step.&lt;/p&gt;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>   * &lt;p&gt;Note that some conventions put the scalar part of the quaternion<a name="line.122"></a>
+<span class="sourceLineNo">123</span>   * as the 4&lt;sup&gt;th&lt;/sup&gt; component and the vector part as the first three<a name="line.123"></a>
+<span class="sourceLineNo">124</span>   * components. This is &lt;em&gt;not&lt;/em&gt; our convention. We put the scalar part<a name="line.124"></a>
+<span class="sourceLineNo">125</span>   * as the first component.&lt;/p&gt;<a name="line.125"></a>
+<span class="sourceLineNo">126</span>   * @param q0 scalar part of the quaternion<a name="line.126"></a>
+<span class="sourceLineNo">127</span>   * @param q1 first coordinate of the vectorial part of the quaternion<a name="line.127"></a>
+<span class="sourceLineNo">128</span>   * @param q2 second coordinate of the vectorial part of the quaternion<a name="line.128"></a>
+<span class="sourceLineNo">129</span>   * @param q3 third coordinate of the vectorial part of the quaternion<a name="line.129"></a>
+<span class="sourceLineNo">130</span>   * @param needsNormalization if true, the coordinates are considered<a name="line.130"></a>
+<span class="sourceLineNo">131</span>   * not to be normalized, a normalization preprocessing step is performed<a name="line.131"></a>
+<span class="sourceLineNo">132</span>   * before using them<a name="line.132"></a>
+<span class="sourceLineNo">133</span>   */<a name="line.133"></a>
+<span class="sourceLineNo">134</span>  public Rotation(double q0, double q1, double q2, double q3,<a name="line.134"></a>
+<span class="sourceLineNo">135</span>                  boolean needsNormalization) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span><a name="line.136"></a>
+<span class="sourceLineNo">137</span>    if (needsNormalization) {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>      // normalization preprocessing<a name="line.138"></a>
+<span class="sourceLineNo">139</span>      double inv = 1.0 / FastMath.sqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);<a name="line.139"></a>
+<span class="sourceLineNo">140</span>      q0 *= inv;<a name="line.140"></a>
+<span class="sourceLineNo">141</span>      q1 *= inv;<a name="line.141"></a>
+<span class="sourceLineNo">142</span>      q2 *= inv;<a name="line.142"></a>
+<span class="sourceLineNo">143</span>      q3 *= inv;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    }<a name="line.144"></a>
+<span class="sourceLineNo">145</span><a name="line.145"></a>
+<span class="sourceLineNo">146</span>    this.q0 = q0;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    this.q1 = q1;<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    this.q2 = q2;<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    this.q3 = q3;<a name="line.149"></a>
+<span class="sourceLineNo">150</span><a name="line.150"></a>
+<span class="sourceLineNo">151</span>  }<a name="line.151"></a>
+<span class="sourceLineNo">152</span><a name="line.152"></a>
+<span class="sourceLineNo">153</span>  /** Build a rotation from an axis and an angle.<a name="line.153"></a>
+<span class="sourceLineNo">154</span>   * &lt;p&gt;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>   * Calling this constructor is equivalent to call<a name="line.155"></a>
+<span class="sourceLineNo">156</span>   * {@link #Rotation(Vector3D, double, RotationConvention)<a name="line.156"></a>
+<span class="sourceLineNo">157</span>   * new Rotation(axis, angle, RotationConvention.VECTOR_OPERATOR)}<a name="line.157"></a>
+<span class="sourceLineNo">158</span>   * &lt;/p&gt;<a name="line.158"></a>
+<span class="sourceLineNo">159</span>   * @param axis axis around which to rotate<a name="line.159"></a>
+<span class="sourceLineNo">160</span>   * @param angle rotation angle.<a name="line.160"></a>
+<span class="sourceLineNo">161</span>   * @exception MathIllegalArgumentException if the axis norm is zero<a name="line.161"></a>
+<span class="sourceLineNo">162</span>   * @deprecated as of 3.6, replaced with {@link #Rotation(Vector3D, double, RotationConvention)}<a name="line.162"></a>
+<span class="sourceLineNo">163</span>   */<a name="line.163"></a>
+<span class="sourceLineNo">164</span>  @Deprecated<a name="line.164"></a>
+<span class="sourceLineNo">165</span>  public Rotation(Vector3D axis, double angle) throws MathIllegalArgumentException {<a name="line.165"></a>
+<span class="sourceLineNo">166</span>      this(axis, angle, RotationConvention.VECTOR_OPERATOR);<a name="line.166"></a>
+<span class="sourceLineNo">167</span>  }<a name="line.167"></a>
+<span class="sourceLineNo">168</span><a name="line.168"></a>
+<span class="sourceLineNo">169</span>  /** Build a rotation from an axis and an angle.<a name="line.169"></a>
+<span class="sourceLineNo">170</span>   * @param axis axis around which to rotate<a name="line.170"></a>
+<span class="sourceLineNo">171</span>   * @param angle rotation angle<a name="line.171"></a>
+<span class="sourceLineNo">172</span>   * @param convention convention to use for the semantics of the angle<a name="line.172"></a>
+<span class="sourceLineNo">173</span>   * @exception MathIllegalArgumentException if the axis norm is zero<a name="line.173"></a>
+<span class="sourceLineNo">174</span>   * @since 3.6<a name="line.174"></a>
+<span class="sourceLineNo">175</span>   */<a name="line.175"></a>
+<span class="sourceLineNo">176</span>  public Rotation(final Vector3D axis, final double angle, final RotationConvention convention)<a name="line.176"></a>
+<span class="sourceLineNo">177</span>      throws MathIllegalArgumentException {<a name="line.177"></a>
+<span class="sourceLineNo">178</span><a name="line.178"></a>
+<span class="sourceLineNo">179</span>    double norm = axis.getNorm();<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    if (norm == 0) {<a name="line.180"></a>
+<span class="sourceLineNo">181</span>      throw new MathIllegalArgumentException(LocalizedFormats.ZERO_NORM_FOR_ROTATION_AXIS);<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    }<a name="line.182"></a>
+<span class="sourceLineNo">183</span><a name="line.183"></a>
+<span class="sourceLineNo">184</span>    double halfAngle = convention == RotationConvention.VECTOR_OPERATOR ? -0.5 * angle : +0.5 * angle;<a name="line.184"></a>
+<span class="sourceLineNo">185</span>    double coeff = FastMath.sin(halfAngle) / norm;<a name="line.185"></a>
+<span class="sourceLineNo">186</span><a name="line.186"></a>
+<span class="sourceLineNo">187</span>    q0 = FastMath.cos (halfAngle);<a name="line.187"></a>
+<span class="sourceLineNo">188</span>    q1 = coeff * axis.getX();<a name="line.188"></a>
+<span class="sourceLineNo">189</span>    q2 = coeff * axis.getY();<a name="line.189"></a>
+<span class="sourceLineNo">190</span>    q3 = coeff * axis.getZ();<a name="line.190"></a>
+<span class="sourceLineNo">191</span><a name="line.191"></a>
+<span class="sourceLineNo">192</span>  }<a name="line.192"></a>
+<span class="sourceLineNo">193</span><a name="line.193"></a>
+<span class="sourceLineNo">194</span>  /** Build a rotation from a 3X3 matrix.<a name="line.194"></a>
+<span class="sourceLineNo">195</span><a name="line.195"></a>
+<span class="sourceLineNo">196</span>   * &lt;p&gt;Rotation matrices are orthogonal matrices, i.e. unit matrices<a name="line.196"></a>
+<span class="sourceLineNo">197</span>   * (which are matrices for which m.m&lt;sup&gt;T&lt;/sup&gt; = I) with real<a name="line.197"></a>
+<span class="sourceLineNo">198</span>   * coefficients. The module of the determinant of unit matrices is<a name="line.198"></a>
+<span class="sourceLineNo">199</span>   * 1, among the orthogonal 3X3 matrices, only the ones having a<a name="line.199"></a>
+<span class="sourceLineNo">200</span>   * positive determinant (+1) are rotation matrices.&lt;/p&gt;<a name="line.200"></a>
+<span class="sourceLineNo">201</span><a name="line.201"></a>
+<span class="sourceLineNo">202</span>   * &lt;p&gt;When a rotation is defined by a matrix with truncated values<a name="line.202"></a>
+<span class="sourceLineNo">203</span>   * (typically when it is extracted from a technical sheet where only<a name="line.203"></a>
+<span class="sourceLineNo">204</span>   * four to five significant digits are available), the matrix is not<a name="line.204"></a>
+<span class="sourceLineNo">205</span>   * orthogonal anymore. This constructor handles this case<a name="line.205"></a>
+<span class="sourceLineNo">206</span>   * transparently by using a copy of the given matrix and applying a<a name="line.206"></a>
+<span class="sourceLineNo">207</span>   * correction to the copy in order to perfect its orthogonality. If<a name="line.207"></a>
+<span class="sourceLineNo">208</span>   * the Frobenius norm of the correction needed is above the given<a name="line.208"></a>
+<span class="sourceLineNo">209</span>   * threshold, then the matrix is considered to be too far from a<a name="line.209"></a>
+<span class="sourceLineNo">210</span>   * true rotation matrix and an exception is thrown.&lt;p&gt;<a name="line.210"></a>
+<span class="sourceLineNo">211</span><a name="line.211"></a>
+<span class="sourceLineNo">212</span>   * @param m rotation matrix<a name="line.212"></a>
+<span class="sourceLineNo">213</span>   * @param threshold convergence threshold for the iterative<a name="line.213"></a>
+<span class="sourceLineNo">214</span>   * orthogonality correction (convergence is reached when the<a name="line.214"></a>
+<span class="sourceLineNo">215</span>   * difference between two steps of the Frobenius norm of the<a name="line.215"></a>
+<span class="sourceLineNo">216</span>   * correction is below this threshold)<a name="line.216"></a>
+<span class="sourceLineNo">217</span><a name="line.217"></a>
+<span class="sourceLineNo">218</span>   * @exception NotARotationMatrixException if the matrix is not a 3X3<a name="line.218"></a>
+<span class="sourceLineNo">219</span>   * matrix, or if it cannot be transformed into an orthogonal matrix<a name="line.219"></a>
+<span class="sourceLineNo">220</span>   * with the given threshold, or if the determinant of the resulting<a name="line.220"></a>
+<span class="sourceLineNo">221</span>   * orthogonal matrix is negative<a name="line.221"></a>
+<span class="sourceLineNo">222</span><a name="line.222"></a>
+<span class="sourceLineNo">223</span>   */<a name="line.223"></a>
+<span class="sourceLineNo">224</span>  public Rotation(double[][] m, double threshold)<a name="line.224"></a>
+<span class="sourceLineNo">225</span>    throws NotARotationMatrixException {<a name="line.225"></a>
+<span class="sourceLineNo">226</span><a name="line.226"></a>
+<span class="sourceLineNo">227</span>    // dimension check<a name="line.227"></a>
+<span class="sourceLineNo">228</span>    if ((m.length != 3) || (m[0].length != 3) ||<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        (m[1].length != 3) || (m[2].length != 3)) {<a name="line.229"></a>
+<span class="sourceLineNo">230</span>      throw new NotARotationMatrixException(<a name="line.230"></a>
+<span class="sourceLineNo">231</span>              LocalizedFormats.ROTATION_MATRIX_DIMENSIONS,<a name="line.231"></a>
+<span class="sourceLineNo">232</span>              m.length, m[0].length);<a name="line.232"></a>
+<span class="sourceLineNo">233</span>    }<a name="line.233"></a>
+<span class="sourceLineNo">234</span><a name="line.234"></a>
+<span class="sourceLineNo">235</span>    // compute a "close" orthogonal matrix<a name="line.235"></a>
+<span class="sourceLineNo">236</span>    double[][] ort = orthogonalizeMatrix(m, threshold);<a name="line.236"></a>
+<span class="sourceLineNo">237</span><a name="line.237"></a>
+<span class="sourceLineNo">238</span>    // check the sign of the determinant<a name="line.238"></a>
+<span class="sourceLineNo">239</span>    double det = ort[0][0] * (ort[1][1] * ort[2][2] - ort[2][1] * ort[1][2]) -<a name="line.239"></a>
+<span class="sourceLineNo">240</span>                 ort[1][0] * (ort[0][1] * ort[2][2] - ort[2][1] * ort[0][2]) +<a name="line.240"></a>
+<span class="sourceLineNo">241</span>                 ort[2][0] * (ort[0][1] * ort[1][2] - ort[1][1] * ort[0][2]);<a name="line.241"></a>
+<span class="sourceLineNo">242</span>    if (det &lt; 0.0) {<a name="line.242"></a>
+<span class="sourceLineNo">243</span>      throw new NotARotationMatrixException(<a name="line.243"></a>
+<span class="sourceLineNo">244</span>              LocalizedFormats.CLOSEST_ORTHOGONAL_MATRIX_HAS_NEGATIVE_DETERMINANT,<a name="line.244"></a>
+<span class="sourceLineNo">245</span>              det);<a name="line.245"></a>
+<span class="sourceLineNo">246</span>    }<a name="line.246"></a>
+<span class="sourceLineNo">247</span><a name="line.247"></a>
+<span class="sourceLineNo">248</span>    double[] quat = mat2quat(ort);<a name="line.248"></a>
+<span class="sourceLineNo">249</span>    q0 = quat[0];<a name="line.249"></a>
+<span class="sourceLineNo">250</span>    q1 = quat[1];<a name="line.250"></a>
+<span class="sourceLineNo">251</span>    q2 = quat[2];<a name="line.251"></a>
+<span class="sourceLineNo">252</span>    q3 = quat[3];<a name="line.252"></a>
+<span class="sourceLineNo">253</span><a name="line.253"></a>
+<span class="sourceLineNo">254</span>  }<a name="line.254"></a>
+<span class="sourceLineNo">255</span><a name="line.255"></a>
+<span class="sourceLineNo">256</span>  /** Build the rotation that transforms a pair of vectors into another pair.<a name="line.256"></a>
+<span class="sourceLineNo">257</span><a name="line.257"></a>
+<span class="sourceLineNo">258</span>   * &lt;p&gt;Except for possible scale factors, if the instance were applied to<a name="line.258"></a>
+<span class="sourceLineNo">259</span>   * the pair (u&lt;sub&gt;1&lt;/sub&gt;, u&lt;sub&gt;2&lt;/sub&gt;) it will produce the pair<a name="line.259"></a>
+<span class="sourceLineNo">260</span>   * (v&lt;sub&gt;1&lt;/sub&gt;, v&lt;sub&gt;2&lt;/sub&gt;).&lt;/p&gt;<a name="line.260"></a>
+<span class="sourceLineNo">261</span><a name="line.261"></a>
+<span class="sourceLineNo">262</span>   * &lt;p&gt;If the angular separation between u&lt;sub&gt;1&lt;/sub&gt; and u&lt;sub&gt;2&lt;/sub&gt; is<a name="line.262"></a>
+<span class="sourceLineNo">263</span>   * not the same as the angular separation between v&lt;sub&gt;1&lt;/sub&gt; and<a name="line.263"></a>
+<span class="sourceLineNo">264</span>   * v&lt;sub&gt;2&lt;/sub&gt;, then a corrected v'&lt;sub&gt;2&lt;/sub&gt; will be used rather than<a name="line.264"></a>
+<span class="sourceLineNo">265</span>   * v&lt;sub&gt;2&lt;/sub&gt;, the corrected vector will be in the (&amp;pm;v&lt;sub&gt;1&lt;/sub&gt;,<a name="line.265"></a>
+<span class="sourceLineNo">266</span>   * +v&lt;sub&gt;2&lt;/sub&gt;) half-plane.&lt;/p&gt;<a name="line.266"></a>
+<span class="sourceLineNo">267</span><a name="line.267"></a>
+<span class="sourceLineNo">268</span>   * @param u1 first vector of the origin pair<a name="line.268"></a>
+<span class="sourceLineNo">269</span>   * @param u2 second vector of the origin pair<a name="line.269"></a>
+<span class="sourceLineNo">270</span>   * @param v1 desired image of u1 by the rotation<a name="line.270"></a>
+<span class="sourceLineNo">271</span>   * @param v2 desired image of u2 by the rotation<a name="line.271"></a>
+<span class="sourceLineNo">272</span>   * @exception MathArithmeticException if the norm of one of the vectors is zero,<a name="line.272"></a>
+<span class="sourceLineNo">273</span>   * or if one of the pair is degenerated (i.e. the vectors of the pair are collinear)<a name="line.273"></a>
+<span class="sourceLineNo">274</span>   */<a name="line.274"></a>
+<span class="sourceLineNo">275</span>  public Rotation(Vector3D u1, Vector3D u2, Vector3D v1, Vector3D v2)<a name="line.275"></a>
+<span class="sourceLineNo">276</span>      throws MathArithmeticException {<a name="line.276"></a>
+<span class="sourceLineNo">277</span><a name="line.277"></a>
+<span class="sourceLineNo">278</span>      // build orthonormalized base from u1, u2<a name="line.278"></a>
+<span class="sourceLineNo">279</span>      // this fails when vectors are null or collinear, which is forbidden to define a rotation<a name="line.279"></a>
+<span class="sourceLineNo">280</span>      final Vector3D u3 = u1.crossProduct(u2).normalize();<a name="line.280"></a>
+<span class="sourceLineNo">281</span>      u2 = u3.crossProduct(u1).normalize();<a name="line.281"></a>
+<span class="sourceLineNo">282</span>      u1 = u1.normalize();<a name="line.282"></a>
+<span class="sourceLineNo">283</span><a name="line.283"></a>
+<span class="sourceLineNo">284</span>      // build an orthonormalized base from v1, v2<a name="line.284"></a>
+<span class="sourceLineNo">285</span>      // this fails when vectors are null or collinear, which is forbidden to define a rotation<a name="line.285"></a>
+<span class="sourceLineNo">286</span>      final Vector3D v3 = v1.crossProduct(v2).normalize();<a name="line.286"></a>
+<span class="sourceLineNo">287</span>      v2 = v3.crossProduct(v1).normalize();<a name="line.287"></a>
+<span class="sourceLineNo">288</span>      v1 = v1.normalize();<a name="line.288"></a>
+<span class="sourceLineNo">289</span><a name="line.289"></a>
+<span class="sourceLineNo">290</span>      // buid a matrix transforming the first base into the second one<a name="line.290"></a>
+<span class="sourceLineNo">291</span>      final double[][] m = new double[][] {<a name="line.291"></a>
+<span class="sourceLineNo">292</span>          {<a name="line.292"></a>
+<span class="sourceLineNo">293</span>              MathArrays.linearCombination(u1.getX(), v1.getX(), u2.getX(), v2.getX(), u3.getX(), v3.getX()),<a name="line.293"></a>
+<span class="sourceLineNo">294</span>              MathArrays.linearCombination(u1.getY(), v1.getX(), u2.getY(), v2.getX(), u3.getY(), v3.getX()),<a name="line.294"></a>
+<span class="sourceLineNo">295</span>              MathArrays.linearCombination(u1.getZ(), v1.getX(), u2.getZ(), v2.getX(), u3.getZ(), v3.getX())<a name="line.295"></a>
+<span class="sourceLineNo">296</span>          },<a name="line.296"></a>
+<span class="sourceLineNo">297</span>          {<a name="line.297"></a>
+<span class="sourceLineNo">298</span>              MathArrays.linearCombination(u1.getX(), v1.getY(), u2.getX(), v2.getY(), u3.getX(), v3.getY()),<a name="line.298"></a>
+<span class="sourceLineNo">299</span>              MathArrays.linearCombination(u1.getY(), v1.getY(), u2.getY(), v2.getY(), u3.getY(), v3.getY()),<a name="line.299"></a>
+<span class="sourceLineNo">300</span>              MathArrays.linearCombination(u1.getZ(), v1.getY(), u2.getZ(), v2.getY(), u3.getZ(), v3.getY())<a name="line.300"></a>
+<span class="sourceLineNo">301</span>          },<a name="line.301"></a>
+<span class="sourceLineNo">302</span>          {<a name="line.302"></a>
+<span class="sourceLineNo">303</span>              MathArrays.linearCombination(u1.getX(), v1.getZ(), u2.getX(), v2.getZ(), u3.getX(), v3.getZ()),<a name="line.303"></a>
+<span class="sourceLineNo">304</span>              MathArrays.linearCombination(u1.getY(), v1.getZ(), u2.getY(), v2.getZ(), u3.getY(), v3.getZ()),<a name="line.304"></a>
+<span class="sourceLineNo">305</span>              MathArrays.linearCombination(u1.getZ(), v1.getZ(), u2.getZ(), v2.getZ(), u3.getZ(), v3.getZ())<a name="line.305"></a>
+<span class="sourceLineNo">306</span>          }<a name="line.306"></a>
+<span class="sourceLineNo">307</span>      };<a name="line.307"></a>
+<span class="sourceLineNo">308</span><a name="line.308"></a>
+<span class="sourceLineNo">309</span>      double[] quat = mat2quat(m);<a name="line.309"></a>
+<span class="sourceLineNo">310</span>      q0 = quat[0];<a name="line.310"></a>
+<span class="sourceLineNo">311</span>      q1 = quat[1];<a name="line.311"></a>
+<span class="sourceLineNo">312</span>      q2 = quat[2];<a name="line.312"></a>
+<span class="sourceLineNo">313</span>      q3 = quat[3];<a name="line.313"></a>
+<span class="sourceLineNo">314</span><a name="line.314"></a>
+<span class="sourceLineNo">315</span>  }<a name="line.315"></a>
+<span class="sourceLineNo">316</span><a name="line.316"></a>
+<span class="sourceLineNo">317</span>  /** Build one of the rotations that transform one vector into another one.<a name="line.317"></a>
+<span class="sourceLineNo">318</span><a name="line.318"></a>
+<span class="sourceLineNo">319</span>   * &lt;p&gt;Except for a possible scale factor, if the instance were<a name="line.319"></a>
+<span class="sourceLineNo">320</span>   * applied to the vector u it will produce the vector v. There is an<a name="line.320"></a>
+<span class="sourceLineNo">321</span>   * infinite number of such rotations, this constructor choose the<a name="line.321"></a>
+<span class="sourceLineNo">322</span>   * one with the smallest associated angle (i.e. the one whose axis<a name="line.322"></a>
+<span class="sourceLineNo">323</span>   * is orthogonal to the (u, v) plane). If u and v are collinear, an<a name="line.323"></a>
+<span class="sourceLineNo">324</span>   * arbitrary rotation axis is chosen.&lt;/p&gt;<a name="line.324"></a>
+<span class="sourceLineNo">325</span><a name="line.325"></a>
+<span class="sourceLineNo">326</span>   * @param u origin vector<a name="line.326"></a>
+<span class="sourceLineNo">327</span>   * @param v desired image of u by the rotation<a name="line.327"></a>
+<span class="sourceLineNo">328</span>   * @exception MathArithmeticException if the norm of one of the vectors is zero<a name="line.328"></a>
+<span class="sourceLineNo">329</span>   */<a name="line.329"></a>
+<span class="sourceLineNo">330</span>  public Rotation(Vector3D u, Vector3D v) throws MathArithmeticException {<a name="line.330"></a>
+<span class="sourceLineNo">331</span><a name="line.331"></a>
+<span class="sourceLineNo">332</span>    double normProduct = u.getNorm() * v.getNorm();<a name="line.332"></a>
+<span class="sourceLineNo">333</span>    if (normProduct == 0) {<a name="line.333"></a>
+<span class="sourceLineNo">334</span>        throw new MathArithmeticException(LocalizedFormats.ZERO_NORM_FOR_ROTATION_DEFINING_VECTOR);<a name="line.334"></a>
+<span class="sourceLineNo">335</span>    }<a name="line.335"></a>
+<span class="sourceLineNo">336</span><a name="line.336"></a>
+<span class="sourceLineNo">337</span>    double dot = u.dotProduct(v);<a name="line.337"></a>
+<span class="sourceLineNo">338</span><a name="line.338"></a>
+<span class="sourceLineNo">339</span>    if (dot &lt; ((2.0e-15 - 1.0) * normProduct)) {<a name="line.339"></a>
+<span class="sourceLineNo">340</span>      // special case u = -v: we select a PI angle rotation around<a name="line.340"></a>
+<span class="sourceLineNo">341</span>      // an arbitrary vector orthogonal to u<a name="line.341"></a>
+<span class="sourceLineNo">342</span>      Vector3D w = u.orthogonal();<a name="line.342"></a>
+<span class="sourceLineNo">343</span>      q0 = 0.0;<a name="line.343"></a>
+<span class="sourceLineNo">344</span>      q1 = -w.getX();<a name="line.344"></a>
+<span class="sourceLineNo">345</span>      q2 = -w.getY();<a name="line.345"></a>
+<span class="sourceLineNo">346</span>      q3 = -w.getZ();<a name="line.346"></a>
+<span class="sourceLineNo">347</span>    } else {<a name="line.347"></a>
+<span class="sourceLineNo">348</span>      // general case: (u, v) defines a plane, we select<a name="line.348"></a>
+<span class="sourceLineNo">349</span>      // the shortest possible rotation: axis orthogonal to this plane<a name="line.349"></a>
+<span class="sourceLineNo">350</span>      q0 = FastMath.sqrt(0.5 * (1.0 + dot / normProduct));<a name="line.350"></a>
+<span class="sourceLineNo">351</span>      double coeff = 1.0 / (2.0 * q0 * normProduct);<a name="line.351"></a>
+<span class="sourceLineNo">352</span>      Vector3D q = v.crossProduct(u);<a name="line.352"></a>
+<span class="sourceLineNo">353</span>      q1 = coeff * q.getX();<a name="line.353"></a>
+<span class="sourceLineNo">354</span>      q2 = coeff * q.getY();<a name="line.354"></a>
+<span class="sourceLineNo">355</span>      q3 = coeff * q.getZ();<a name="line.355"></a>
+<span class="sourceLineNo">356</span>    }<a name="line.356"></a>
+<span class="sourceLineNo">357</span><a name="line.357"></a>
+<span class="sourceLineNo">358</span>  }<a name="line.358"></a>
+<span class="sourceLineNo">359</span><a name="line.359"></a>
+<span class="sourceLineNo">360</span>  /** Build a rotation from three Cardan or Euler elementary rotations.<a name="line.360"></a>
+<span class="sourceLineNo">361</span><a name="line.361"></a>
+<span class="sourceLineNo">362</span>   * &lt;p&gt;<a name="line.362"></a>
+<span class="sourceLineNo">363</span>   * Calling this constructor is equivalent to call<a name="line.363"></a>
+<span class="sourceLineNo">364</span>   * {@link #Rotation(RotationOrder, RotationConvention, double, double, double)<a name="line.364"></a>
+<span class="sourceLineNo">365</span>   * new Rotation(order, RotationConvention.VECTOR_OPERATOR, alpha1, alpha2, alpha3)}<a name="line.365"></a>
+<span class="sourceLineNo">366</span>   * &lt;/p&gt;<a name="line.366"></a>
+<span class="sourceLineNo">367</span><a name="line.367"></a>
+<span class="sourceLineNo">368</span>   * @param order order of rotations to use<a name="line.368"></a>
+<span class="sourceLineNo">369</span>   * @param alpha1 angle of the first elementary rotation<a name="line.369"></a>
+<span class="sourceLineNo">370</span>   * @param alpha2 angle of the second elementary rotation<a name="line.370"></a>
+<span class="sourceLineNo">371</span>   * @param alpha3 angle of the third elementary rotation<a name="line.371"></a>
+<span class="sourceLineNo">372</span>   * @deprecated as of 3.6, replaced with {@link<a name="line.372"></a>
+<span class="sourceLineNo">373</span>   * #Rotation(RotationOrder, RotationConvention, double, double, double)}<a name="line.373"></a>
+<span class="sourceLineNo">374</span>   */<a name="line.374"></a>
+<span class="sourceLineNo">375</span>  @Deprecated<a name="line.375"></a>
+<span class="sourceLineNo">376</span>  public Rotation(RotationOrder order,<a name="line.376"></a>
+<span class="sourceLineNo">377</span>                  double alpha1, double alpha2, double alpha3) {<a name="line.377"></a>
+<span class="sourceLineNo">378</span>      this(order, RotationConvention.VECTOR_OPERATOR, alpha1, alpha2, alpha3);<a name="line.378"></a>
+<span class="sourceLineNo">379</span>  }<a name="line.379"></a>
+<span class="sourceLineNo">380</span><a name="line.380"></a>
+<span class="sourceLineNo">381</span>  /** Build a rotation from three Cardan or Euler elementary rotations.<a name="line.381"></a>
+<span class="sourceLineNo">382</span><a name="line.382"></a>
+<span class="sourceLineNo">383</span>   * &lt;p&gt;Cardan rotations are three successive rotations around the<a name="line.383"></a>
+<span class="sourceLineNo">384</span>   * canonical axes X, Y and Z, each axis being used once. There are<a name="line.384"></a>
+<span class="sourceLineNo">385</span>   * 6 such sets of rotations (XYZ, XZY, YXZ, YZX, ZXY and ZYX). Euler<a name="line.385"></a>
+<span class="sourceLineNo">386</span>   * rotations are three successive rotations around the canonical<a name="line.386"></a>
+<span class="sourceLineNo">387</span>   * axes X, Y and Z, the first and last rotations being around the<a name="line.387"></a>
+<span class="sourceLineNo">388</span>   * same axis. There are 6 such sets of rotations (XYX, XZX, YXY,<a name="line.388"></a>
+<span class="sourceLineNo">389</span>   * YZY, ZXZ and ZYZ), the most popular one being ZXZ.&lt;/p&gt;<a name="line.389"></a>
+<span class="sourceLineNo">390</span>   * &lt;p&gt;Beware that many people routinely use the term Euler angles even<a name="line.390"></a>
+<span class="sourceLineNo">391</span>   * for what really are Cardan angles (this confusion is especially<a name="line.391"></a>
+<span class="sourceLineNo">392</span>   * widespread in the aerospace business where Roll, Pitch and Yaw angles<a name="line.392"></a>
+<span class="sourceLineNo">393</span>   * are often wrongly tagged as Euler angles).&lt;/p&gt;<a name="line.393"></a>
+<span class="sourceLineNo">394</span><a name="line.394"></a>
+<span class="sourceLineNo">395</span>   * @param order order of rotations to compose, from left to right<a name="line.395"></a>
+<span class="sourceLineNo">396</span>   * (i.e. we will use {@code r1.compose(r2.compose(r3, convention), convention)})<a name="line.396"></a>
+<span class="sourceLineNo">397</span>   * @param convention convention to use for the semantics of the angle<a name="line.397"></a>
+<span class="sourceLineNo">398</span>   * @param alpha1 angle of the first elementary rotation<a name="line.398"></a>
+<span class="sourceLineNo">399</span>   * @param alpha2 angle of the second elementary rotation<a name="line.399"></a>
+<span class="sourceLineNo">400</span>   * @param alpha3 angle of the third elementary rotation<a name="line.400"></a>
+<span class="sourceLineNo">401</span>   * @since 3.6<a name="line.401"></a>
+<span class="sourceLineNo">402</span>   */<a name="line.402"></a>
+<span class="sourceLineNo">403</span>  public Rotation(RotationOrder order, RotationConvention convention,<a name="line.403"></a>
+<span class="sourceLineNo">404</span>                  double alpha1, double alpha2, double alpha3) {<a name="line.404"></a>
+<span class="sourceLineNo">405</span>      Rotation r1 = new Rotation(order.getA1(), alpha1, convention);<a name="line.405"></a>
+<span class="sourceLineNo">406</span>      Rotation r2 = new Rotation(order.getA2(), alpha2, convention);<a name="line.406"></a>
+<span class="sourceLineNo">407</span>      Rotation r3 = new Rotation(order.getA3(), alpha3, convention);<a name="line.407"></a>
+<span class="sourceLineNo">408</span>      Rotation composed = r1.compose(r2.compose(r3, convention), convention);<a name="line.408"></a>
+<span class="sourceLineNo">409</span>      q0 = composed.q0;<a name="line.409"></a>
+<span class="sourceLineNo">410</span>      q1 = composed.q1;<a name="line.410"></a>
+<span class="sourceLineNo">411</span>      q2 = composed.q2;<a name="line.411"></a>
+<span class="sourceLineNo">412</span>      q3 = composed.q3;<a name="line.412"></a>
+<span class="sourceLineNo">413</span>  }<a name="line.413"></a>
+<span class="sourceLineNo">414</span><a name="line.414"></a>
+<span class="sourceLineNo">415</span>  /** Convert an orthogonal rotation matrix to a quaternion.<a name="line.415"></a>
+<span class="sourceLineNo">416</span>   * @param ort orthogonal rotation matrix<a name="line.416"></a>
+<span class="sourceLineNo">417</span>   * @return quaternion corresponding to the matrix<a name="line.417"></a>
+<span class="sourceLineNo">418</span>   */<a name="line.418"></a>
+<span class="sourceLineNo">419</span>  private static double[] mat2quat(final double[][] ort) {<a name="line.419"></a>
+<span class="sourceLineNo">420</span><a name="line.420"></a>
+<span class="sourceLineNo">421</span>      final double[] quat = new double[4];<a name="line.421"></a>
+<span class="sourceLineNo">422</span><a name="line.422"></a>
+<span class="sourceLineNo">423</span>      // There are different ways to compute the quaternions elements<a name="line.423"></a>
+<span class="sourceLineNo">424</span>      // from the matrix. They all involve computing one element from<a name="line.424"></a>
+<span class="sourceLineNo">425</span>      // the diagonal of the matrix, and computing the three other ones<a name="line.425"></a>
+<span class="sourceLineNo">426</span>      // using a formula involving a division by the first element,<a name="line.426"></a>
+<span class="sourceLineNo">427</span>      // which unfortunately can be zero. Since the norm of the<a name="line.427"></a>
+<span class="sourceLineNo">428</span>      // quaternion is 1, we know at least one element has an absolute<a name="line.428"></a>
+<span class="sourceLineNo">429</span>      // value greater or equal to 0.5, so it is always possible to<a name="line.429"></a>
+<span class="sourceLineNo">430</span>      // select the right formula and avoid division by zero and even<a name="line.430"></a>
+<span class="sourceLineNo">431</span>      // numerical inaccuracy. Checking the elements in turn and using<a name="line.431"></a>
+<span class="sourceLineNo">432</span>      // the first one greater than 0.45 is safe (this leads to a simple<a name="line.432"></a>
+<span class="sourceLineNo">433</span>      // test since qi = 0.45 implies 4 qi^2 - 1 = -0.19)<a name="line.433"></a>
+<span class="sourceLineNo">434</span>      double s = ort[0][0] + ort[1][1] + ort[2][2];<a name="line.434"></a>
+<span class="sourceLineNo">435</span>      if (s &gt; -0.19) {<a name="line.435"></a>
+<span class="sourceLineNo">436</span>          // compute q0 and deduce q1, q2 and q3<a name="line.436"></a>
+<span class="sourceLineNo">437</span>          quat[0] = 0.5 * FastMath.sqrt(s + 1.0);<a name="line.437"></a>
+<span class="sourceLineNo">438</span>          double inv = 0.25 / quat[0];<a name="line.438"></a>
+<span class="sourceLineNo">439</span>          quat[1] = inv * (ort[1][2] - ort[2][1]);<a name="line.439"></a>
+<span class="sourceLineNo">440</span>          quat[2] = inv * (ort[2][0] - ort[0][2]);<a name="line.440"></a>
+<span class="sourceLineNo">441</span>          quat[3] = inv * (ort[0][1] - ort[1][0]);<a name="line.441"></a>
+<span class="sourceLineNo">442</span>      } else {<a name="line.442"></a>
+<span class="sourceLineNo">443</span>          s = ort[0][0] - ort[1][1] - ort[2][2];<a name="line.443"></a>
+<span class="sourceLineNo">444</span>          if (s &gt; -0.19) {<a name="line.444"></a>
+<span class="sourceLineNo">445</span>              // compute q1 and deduce q0, q2 and q3<a name="line.445"></a>
+<span class="sourceLineNo">446</span>              quat[1] = 0.5 * FastMath.sqrt(s + 1.0);<a name="line.446"></a>
+<span class="sourceLineNo">447</span>              double inv = 0.25 / quat[1];<a name="line.447"></a>
+<span class="sourceLineNo">448</span>              quat[0] = inv * (ort[1][2] - ort[2][1]);<a name="line.448"></a>
+<span class="sourceLineNo">449</span>              quat[2] = inv * (ort[0][1] + ort[1][0]);<a name="line.449"></a>
+<span class="sourceLineNo">450</span>              quat[3] = inv * (ort[0][2] + ort[2][0]);<a name="line.450"></a>
+<span class="sourceLineNo">451</span>          } else {<a name="line.451"></a>
+<span class="sourceLineNo">452</span>              s = ort[1][1] - ort[0][0] - ort[2][2];<a name="line.452"></a>
+<span class="sourceLineNo">453</span>              if (s &gt; -0.19) {<a name="line.453"></a>
+<span class="sourceLineNo">454</span>                  // compute q2 and deduce q0, q1 and q3<a name="line.454"></a>
+<span class="sourceLineNo">455</span>                  quat[2] = 0.5 * FastMath.sqrt(s + 1.0);<a name="line.455"></a>
+<span class="sourceLineNo">456</span>                  double inv = 0.25 / quat[2];<a name="line.456"></a>
+<span class="sourceLineNo">457</span>                  quat[0] = inv * (ort[2][0] - ort[0][2]);<a name="line.457"></a>
+<span class="sourceLineNo">458</span>                  quat[1] = inv * (ort[0][1] + ort[1][0]);<a name="line.458"></a>
+<span class="sourceLineNo">459</span>                  quat[3] = inv * (ort[2][1] + ort[1][2]);<a name="line.459"></a>
+<span class="sourceLineNo">460</span>              } else {<a name="line.460"></a>
+<span class="sourceLineNo">461</span>                  // compute q3 and deduce q0, q1 and q2<a name="line.461"></a>
+<span class="sourceLineNo">462</span>                  s = ort[2][2] - ort[0][0] - ort[1][1];<a name="line.462"></a>
+<span class="sourceLineNo">463</span>                  quat[3] = 0.5 * FastMath.sqrt(s + 1.0);<a name="line.463"></a>
+<span class="sourceLineNo">464</span>                  double inv = 0.25 / quat[3];<a name="line.464"></a>
+<span class="sourceLineNo">465</span>                  quat[0] = inv * (ort[0][1] - ort[1][0]);<a name="line.465"></a>
+<span class="sourceLineNo">466</span>                  quat[1] = inv * (ort[0][2] + ort[2][0]);<a name="line.466"></a>
+<span class="sourceLineNo">467</span>                  quat[2] = inv * (ort[2][1] + ort[1][2]);<a name="line.467"></a>
+<span class="sourceLineNo">468</span>              }<a name="line.468"></a>
+<span class="sourceLineNo">469</span>          }<a name="line.469"></a>
+<span class="sourceLineNo">470</span>      }<a name="line.470"></a>
+<span class="sourceLineNo">471</span><a name="line.471"></a>
+<span class="sourceLineNo">472</span>      return quat;<a name="line.472"></a>
+<span class="sourceLineNo">473</span><a name="line.473"></a>
+<span class="sourceLineNo">474</span>  }<a name="line.474"></a>
+<span class="sourceLineNo">475</span><a name="line.475"></a>
+<span class="sourceLineNo">476</span>  /** Revert a rotation.<a name="line.476"></a>
+<span class="sourceLineNo">477</span>   * Build a rotation which reverse the effect of another<a name="line.477"></a>
+<span class="sourceLineNo">478</span>   * rotation. This means that if r(u) = v, then r.revert(v) = u. The<a name="line.478"></a>
+<span class="sourceLineNo">479</span>   * instance is not changed.<a name="line.479"></a>
+<span class="sourceLineNo">480</span>   * @return a new rotation whose effect is the reverse of the effect<a name="line.480"></a>
+<span class="sourceLineNo">481</span>   * of the instance<a name="line.481"></a>
+<span class="sourceLineNo">482</span>   */<a name="line.482"></a>
+<span class="sourceLineNo">483</span>  public Rotation revert() {<a name="line.483"></a>
+<span class="sourceLineNo">484</span>    return new Rotation(-q0, q1, q2, q3, false);<a name="line.484"></a>
+<span class="sourceLineNo">485</span>  }<a name="line.485"></a>
+<span class="sourceLineNo">486</span><a name="line.486"></a>
+<span class="sourceLineNo">487</span>  /** Get the scalar coordinate of the quaternion.<a name="line.487"></a>
+<span class="sourceLineNo">488</span>   * @return scalar coordinate of the quaternion<a name="line.488"></a>
+<span class="sourceLineNo">489</span>   */<a name="line.489"></a>
+<span class="sourceLineNo">490</span>  public double getQ0() {<a name="line.490"></a>
+<span class="sourceLineNo">491</span>    return q0;<a name="line.491"></a>
+<span class="sourceLineNo">492</span>  }<a name="line.492"></a>
+<span class="sourceLineNo">493</span><a name="line.493"></a>
+<span class="sourceLineNo">494</span>  /** Get the first coordinate of the vectorial part of the quaternion.<a name="line.494"></a>
+<span class="sourceLineNo">495</span>   * @return first coordinate of the vectorial part of the quaternion<a name="line.495"></a>
+<span class="sourceLineNo">496</span>   */<a name="line.496"></a>
+<span class="sourceLineNo">497</span>  public double getQ1() {<a name="line.497"></a>
+<span class="sourceLineNo">498</span>    return q1;<a name="line.498"></a>
+<span class="sourceLineNo">499</span>  }<a name="line.499"></a>
+<span class="sourceLineNo">500</span><a name="line.500"></a>
+<span class="sourceLineNo">501</span>  /** Get the second coordinate of the vectorial part of the quaternion.<a name="line.501"></a>
+<span class="sourceLineNo">502</span>   * @return second coordinate of the vectorial part of the quaternion<a name="line.502"></a>
+<span class="sourceLineNo">503</span>   */<a name="line.503"></a>
+<span class="sourceLineNo">504</span>  public double getQ2() {<a name="line.504"></a>
+<span class="sourceLineNo">505</span>    return q2;<a name="line.505"></a>
+<span class="sourceLineNo">506</span>  }<a name="line.506"></a>
+<span class="sourceLineNo">507</span><a name="line.507"></a>
+<span class="sourceLineNo">508</span>  /** Get the third coordinate of the vectorial part of the quaternion.<a name="line.508"></a>
+<span class="sourceLineNo">509</span>   * @return third coordinate of the vectorial part of the quaternion<a name="line.509"></a>
+<span class="sourceLineNo">510</span>   */<a name="line.510"></a>
+<span class="sourceLineNo">511</span>  public double getQ3() {<a name="line.511"></a>
+<span class="sourceLineNo">512</span>    return q3;<a name="line.512"></a>
+<span class="sourceLineNo">513</span>  }<a name="line.513"></a>
+<span class="sourceLineNo">514</span><a name="line.514"></a>
+<span class="sourceLineNo">515</span>  /** Get the normalized axis of the rotation.<a name="line.515"></a>
+<span class="sourceLineNo">516</span>   * &lt;p&gt;<a name="line.516"></a>
+<span class="sourceLineNo">517</span>   * Calling this method is equivalent to call<a name="line.517"></a>
+<span class="sourceLineNo">518</span>   * {@link #getAxis(RotationConvention) getAxis(RotationConvention.VECTOR_OPERATOR)}<a name="line.518"></a>
+<span class="sourceLineNo">519</span>   * &lt;/p&gt;<a name="line.519"></a>
+<span class="sourceLineNo">520</span>   * @return normalized axis of the rotation<a name="line.520"></a>
+<span class="sourceLineNo">521</span>   * @see #Rotation(Vector3D, double, RotationConvention)<a name="line.521"></a>
+<span class="sourceLineNo">522</span>   * @deprecated as of 3.6, replaced with {@link #getAxis(RotationConvention)}<a name="line.522"></a>
+<span class="sourceLineNo">523</span>   */<a name="line.523"></a>
+<span class="sourceLineNo">524</span>  @Deprecated<a name="line.524"></a>
+<span class="sourceLineNo">525</span>  public Vector3D getAxis() {<a name="line.525"></a>
+<span class="sourceLineNo">526</span>    return getAxis(RotationConvention.VECTOR_OPERATOR);<a name="line.526"></a>
+<span class="sourceLineNo">527</span>  }<a name="line.527"></a>
+<span class="sourceLineNo">528</span><a name="line.528"></a>
+<span class="sourceLineNo">529</span>  /** Get the normalized axis of the rotation.<a name="line.529"></a>
+<span class="sourceLineNo">530</span>   * &lt;p&gt;<a name="line.530"></a>
+<span class="sourceLineNo">531</span>   * Note that as {@link #getAngle()} always returns an angle<a name="line.531"></a>
+<span class="sourceLineNo">532</span>   * between 0 and &amp;pi;, changing the convention changes the<a name="line.532"></a>
+<span class="sourceLineNo">533</span>   * direction of the axis, not the sign of the angle.<a name="line.533"></a>
+<span class="sourceLineNo">534</span>   * &lt;/p&gt;<a name="line.534"></a>
+<span class="sourceLineNo">535</span>   * @param convention convention to use for the semantics of the angle<a name="line.535"></a>
+<span class="sourceLineNo">536</span>   * @return normalized axis of the rotation<a name="line.536"></a>
+<span class="sourceLineNo">537</span>   * @see #Rotation(Vector3D, double, RotationConvention)<a name="line.537"></a>
+<span class="sourceLineNo">538</span>   * @since 3.6<a name="line.538"></a>
+<span class="sourceLineNo">539</span>   */<a name="line.539"></a>
+<span class="sourceLineNo">540</span>  public Vector3D getAxis(final RotationConvention convention) {<a name="line.540"></a>
+<span class="sourceLineNo">541</span>    final double squaredSine = q1 * q1 + q2 * q2 + q3 * q3;<a name="line.541"></a>
+<span class="sourceLineNo">542</span>    if (squaredSine == 0) {<a name="line.542"></a>
+<span class="sourceLineNo">543</span>      return convention == RotationConvention.VECTOR_OPERATOR ? Vector3D.PLUS_I : Vector3D.MINUS_I;<a name="line.543"></a>
+<span class="sourceLineNo">544</span>    } else {<a name="line.544"></a>
+<span class="sourceLineNo">545</span>        final double sgn = convention == RotationConvention.VECTOR_OPERATOR ? +1 : -1;<a name="line.545"></a>
+<span class="sourceLineNo">546</span>        if (q0 &lt; 0) {<a name="line.546"></a>
+<span class="sourceLineNo">547</span>            final double inverse = sgn / FastMath.sqrt(squaredSine);<a name="line.547"></a>
+<span class="sourceLineNo">548</span>            return new Vector3D(q1 * inverse, q2 * inverse, q3 * inverse);<a name="line.548"></a>
+<span class="sourceLineNo">549</span>        }<a name="line.549"></a>
+<span class="sourceLineNo">550</span>        final double inverse = -sgn / FastMath.sqrt(squaredSine);<a name="line.550"></a>
+<span class="sourceLineNo">551</span>        return new Vector3D(q1 * inverse, q2 * inverse, q3 * inverse);<a name="line.551"></a>
+<span class="sourceLineNo">552</span>    }<a name="line.552"></a>
+<span class="sourceLineNo">553</span>  }<a name="line.553"></a>
+<span class="sourceLineNo">554</span><a name="line.554"></a>
+<span class="sourceLineNo">555</span>  /** Get the angle of the rotation.<a name="line.555"></a>
+<span class="sourceLineNo">556</span>   * @return angle of the rotation (between 0 and &amp;pi;)<a name="line.556"></a>
+<span class="sourceLineNo">557</span>   * @see #Rotation(Vector3D, double)<a name="line.557"></a>
+<span class="sourceLineNo">558</span>   */<a name="line.558"></a>
+<span class="sourceLineNo">559</span>  public double getAngle() {<a name="line.559"></a>
+<span class="sourceLineNo">560</span>    if ((q0 &lt; -0.1) || (q0 &gt; 0.1)) {<a name="line.560"></a>
+<span class="sourceLineNo">561</span>      return 2 * FastMath.asin(FastMath.sqrt(q1 * q1 + q2 * q2 + q3 * q3));<a name="line.561"></a>
+<span class="sourceLineNo">562</span>    } else if (q0 &lt; 0) {<a name="line.562"></a>
+<span class="sourceLineNo">563</span>      return 2 * FastMath.acos(-q0);<a name="line.563"></a>
+<span class="sourceLineNo">564</span>    }<a name="line.564"></a>
+<span class="sourceLineNo">565</span>    return 2 * FastMath.acos(q0);<a name="line.565"></a>
+<span class="sourceLineNo">566</span>  }<a name="line.566"></a>
+<span class="sourceLineNo">567</span><a name="line.567"></a>
+<span class="sourceLineNo">568</span>  /** Get the Cardan or Euler angles corresponding to the instance.<a name="line.568"></a>
+<span class="sourceLineNo">569</span><a name="line.569"></a>
+<span class="sourceLineNo">570</span>   * &lt;p&gt;<a name="line.570"></a>
+<span class="sourceLineNo">571</span>   * Calling this method is equivalent to call<a name="line.571"></a>
+<span class="sourceLineNo">572</span>   * {@link #getAngles(RotationOrder, RotationConvention)<a name="line.572"></a>
+<span class="sourceLineNo">573</span>   * getAngles(order, RotationConvention.VECTOR_OPERATOR)}<a name="line.573"></a>
+<span class="sourceLineNo">574</span>   * &lt;/p&gt;<a name="line.574"></a>
+<span class="sourceLineNo">575</span><a name="line.575"></a>
+<span class="sourceLineNo">576</span>   * @param order rotation order to use<a name="line.576"></a>
+<span class="sourceLineNo">577</span>   * @return an array of three angles, in the order specified by the set<a name="line.577"></a>
+<span class="sourceLineNo">578</span>   * @exception CardanEulerSingularityException if the rotation is<a name="line.578"></a>
+<span class="sourceLineNo">579</span>   * singular with respect to the angles set specified<a name="line.579"></a>
+<span class="sourceLineNo">580</span>   * @deprecated as of 3.6, replaced with {@link #getAngles(RotationOrder, RotationConvention)}<a name="line.580"></a>
+<span class="sourceLineNo">581</span>   */<a name="line.581"></a>
+<span class="sourceLineNo">582</span>  @Deprecated<a name="line.582"></a>
+<span class="sourceLineNo">583</span>  public double[] getAngles(RotationOrder order)<a name="line.583"></a>
+<span class="sourceLineNo">584</span>      throws CardanEulerSingularityException {<a name="line.584"></a>
+<span class="sourceLineNo">585</span>      return getAngles(order, RotationConvention.VECTOR_OPERATOR);<a name="line.585"></a>
+<span class="sourceLineNo">586</span>  }<a name="line.586"></a>
+<span class="sourceLineNo">587</span><a name="line.587"></a>
+<span class="sourceLineNo">588</span>  /** Get the Cardan or Euler angles corresponding to the instance.<a name="line.588"></a>
+<span class="sourceLineNo">589</span><a name="line.589"></a>
+<span class="sourceLineNo">590</span>   * &lt;p&gt;The equations show that each rotation can be defined by two<a name="line.590"></a>
+<span class="sourceLineNo">591</span>   * different values of the Cardan or Euler angles set. For example<a name="line.591"></a>
+<span class="sourceLineNo">592</span>   * if Cardan angles are used, the rotation defined by the angles<a name="line.592"></a>
+<span class="sourceLineNo">593</span>   * a&lt;sub&gt;1&lt;/sub&gt;, a&lt;sub&gt;2&lt;/sub&gt; and a&lt;sub&gt;3&lt;/sub&gt; is the same as<a name="line.593"></a>
+<span class="sourceLineNo">594</span>   * the rotation defined by the angles &amp;pi; + a&lt;sub&gt;1&lt;/sub&gt;, &amp;pi;<a name="line.594"></a>
+<span class="sourceLineNo">595</span>   * - a&lt;sub&gt;2&lt;/sub&gt; and &amp;pi; + a&lt;sub&gt;3&lt;/sub&gt;. This method implements<a name="line.595"></a>
+<span class="sourceLineNo">596</span>   * the following arbitrary choices:&lt;/p&gt;<a name="line.596"></a>
+<span class="sourceLineNo">597</span>   * &lt;ul&gt;<a name="line.597"></a>
+<span class="sourceLineNo">598</span>   *   &lt;li&gt;for Cardan angles, the chosen set is the one for which the<a name="line.598"></a>
+<span class="sourceLineNo">599</span>   *   second angle is between -&amp;pi;/2 and &amp;pi;/2 (i.e its cosine is<a name="line.599"></a>
+<span class="sourceLineNo">600</span>   *   positive),&lt;/li&gt;<a name="line.600"></a>
+<span class="sourceLineNo">601</span>   *   &lt;li&gt;for Euler angles, the chosen set is the one for which the<a name="line.601"></a>
+<span class="sourceLineNo">602</span>   *   second angle is between 0 and &amp;pi; (i.e its sine is positive).&lt;/li&gt;<a name="line.602"></a>
+<span class="sourceLineNo">603</span>   * &lt;/ul&gt;<a name="line.603"></a>
+<span class="sourceLineNo">604</span><a name="line.604"></a>
+<span class="sourceLineNo">605</span>   * &lt;p&gt;Cardan and Euler angle have a very disappointing drawback: all<a name="line.605"></a>
+<span class="sourceLineNo">606</span>   * of them have singularities. This means that if the instance is<a name="line.606"></a>
+<span class="sourceLineNo">607</span>   * too close to the singularities corresponding to the given<a name="line.607"></a>
+<span class="sourceLineNo">608</span>   * rotation order, it will be impossible to retrieve the angles. For<a name="line.608"></a>
+<span class="sourceLineNo">609</span>   * Cardan angles, this is often called gimbal lock. There is<a name="line.609"></a>
+<span class="sourceLineNo">610</span>   * &lt;em&gt;nothing&lt;/em&gt; to do to prevent this, it is an intrinsic problem<a name="line.610"></a>
+<span class="sourceLineNo">611</span>   * with Cardan and Euler representation (but not a problem with the<a name="line.611"></a>
+<span class="sourceLineNo">612</span>   * rotation itself, which is perfectly well defined). For Cardan<a name="line.612"></a>
+<span class="sourceLineNo">613</span>   * angles, singularities occur when the second angle is close to<a name="line.613"></a>
+<span class="sourceLineNo">614</span>   * -&amp;pi;/2 or +&amp;pi;/2, for Euler angle singularities occur when the<a name="line.614"></a>
+<span class="sourceLineNo">615</span>   * second angle is close to 0 or &amp;pi;, this implies that the identity<a name="line.615"></a>
+<span class="sourceLineNo">616</span>   * rotation is always singular for Euler angles!&lt;/p&gt;<a name="line.616"></a>
+<span class="sourceLineNo">617</span><a name="line.617"></a>
+<span class="sourceLineNo">618</span>   * @param order rotation order to use<a name="line.618"></a>
+<span class="sourceLineNo">619</span>   * @param convention convention to use for the semantics of the angle<a name="line.619"></a>
+<span class="sourceLineNo">620</span>   * @return an array of three angles, in the order specified by the set<a name="line.620"></a>
+<span class="sourceLineNo">621</span>   * @exception CardanEulerSingularityException if the rotation is<a name="line.621"></a>
+<span class="sourceLineNo">622</span>   * singular with respect to the angles set specified<a name="line.622"></a>
+<span class="sourceLineNo">623</span>   * @since 3.6<a name="line.623"></a>
+<span class="sourceLineNo">624</span>   */<a name="line.624"></a>
+<span class="sourceLineNo">625</span>  public double[] getAngles(RotationOrder order, RotationConvention convention)<a name="line.625"></a>
+<span class="sourceLineNo">626</span>      throws CardanEulerSingularityException {<a name="line.626"></a>
+<span class="sourceLineNo">627</span><a name="line.627"></a>
+<span class="sourceLineNo">628</span>      if (convention == RotationConvention.VECTOR_OPERATOR) {<a name="line.628"></a>
+<span class="sourceLineNo">629</span>          if (order == RotationOrder.XYZ) {<a name="line.629"></a>
+<span class="sourceLineNo">630</span><a name="line.630"></a>
+<span class="sourceLineNo">631</span>              // r (Vector3D.plusK) coordinates are :<a name="line.631"></a>
+<span class="sourceLineNo">632</span>              //  sin (theta), -cos (theta) sin (phi), cos (theta) cos (phi)<a name="line.632"></a>
+<span class="sourceLineNo">633</span>              // (-r) (Vector3D.plusI) coordinates are :<a name="line.633"></a>
+<span class="sourceLineNo">634</span>              // cos (psi) cos (theta), -sin (psi) cos (theta), sin (theta)<a name="line.634"></a>
+<span class="sourceLineNo">635</span>              // and we can choose to have theta in the interval [-PI/2 ; +PI/2]<a name="line.635"></a>
+<span class="sourceLineNo">636</span>              Vector3D v1 = applyTo(Vector3D.PLUS_K);<a name="line.636"></a>
+<span class="sourceLineNo">637</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_I);<a name="line.637"></a>
+<span class="sourceLineNo">638</span>              if  ((v2.getZ() &lt; -0.9999999999) || (v2.getZ() &gt; 0.9999999999)) {<a name="line.638"></a>
+<span class="sourceLineNo">639</span>                  throw new CardanEulerSingularityException(true);<a name="line.639"></a>
+<span class="sourceLineNo">640</span>              }<a name="line.640"></a>
+<span class="sourceLineNo">641</span>              return new double[] {<a name="line.641"></a>
+<span class="sourceLineNo">642</span>                  FastMath.atan2(-(v1.getY()), v1.getZ()),<a name="line.642"></a>
+<span class="sourceLineNo">643</span>                  FastMath.asin(v2.getZ()),<a name="line.643"></a>
+<span class="sourceLineNo">644</span>                  FastMath.atan2(-(v2.getY()), v2.getX())<a name="line.644"></a>
+<span class="sourceLineNo">645</span>              };<a name="line.645"></a>
+<span class="sourceLineNo">646</span><a name="line.646"></a>
+<span class="sourceLineNo">647</span>          } else if (order == RotationOrder.XZY) {<a name="line.647"></a>
+<span class="sourceLineNo">648</span><a name="line.648"></a>
+<span class="sourceLineNo">649</span>              // r (Vector3D.plusJ) coordinates are :<a name="line.649"></a>
+<span class="sourceLineNo">650</span>              // -sin (psi), cos (psi) cos (phi), cos (psi) sin (phi)<a name="line.650"></a>
+<span class="sourceLineNo">651</span>              // (-r) (Vector3D.plusI) coordinates are :<a name="line.651"></a>
+<span class="sourceLineNo">652</span>              // cos (theta) cos (psi), -sin (psi), sin (theta) cos (psi)<a name="line.652"></a>
+<span class="sourceLineNo">653</span>              // and we can choose to have psi in the interval [-PI/2 ; +PI/2]<a name="line.653"></a>
+<span class="sourceLineNo">654</span>              Vector3D v1 = applyTo(Vector3D.PLUS_J);<a name="line.654"></a>
+<span class="sourceLineNo">655</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_I);<a name="line.655"></a>
+<span class="sourceLineNo">656</span>              if ((v2.getY() &lt; -0.9999999999) || (v2.getY() &gt; 0.9999999999)) {<a name="line.656"></a>
+<span class="sourceLineNo">657</span>                  throw new CardanEulerSingularityException(true);<a name="line.657"></a>
+<span class="sourceLineNo">658</span>              }<a name="line.658"></a>
+<span class="sourceLineNo">659</span>              return new double[] {<a name="line.659"></a>
+<span class="sourceLineNo">660</span>                  FastMath.atan2(v1.getZ(), v1.getY()),<a name="line.660"></a>
+<span class="sourceLineNo">661</span>                 -FastMath.asin(v2.getY()),<a name="line.661"></a>
+<span class="sourceLineNo">662</span>                  FastMath.atan2(v2.getZ(), v2.getX())<a name="line.662"></a>
+<span class="sourceLineNo">663</span>              };<a name="line.663"></a>
+<span class="sourceLineNo">664</span><a name="line.664"></a>
+<span class="sourceLineNo">665</span>          } else if (order == RotationOrder.YXZ) {<a name="line.665"></a>
+<span class="sourceLineNo">666</span><a name="line.666"></a>
+<span class="sourceLineNo">667</span>              // r (Vector3D.plusK) coordinates are :<a name="line.667"></a>
+<span class="sourceLineNo">668</span>              //  cos (phi) sin (theta), -sin (phi), cos (phi) cos (theta)<a name="line.668"></a>
+<span class="sourceLineNo">669</span>              // (-r) (Vector3D.plusJ) coordinates are :<a name="line.669"></a>
+<span class="sourceLineNo">670</span>              // sin (psi) cos (phi), cos (psi) cos (phi), -sin (phi)<a name="line.670"></a>
+<span class="sourceLineNo">671</span>              // and we can choose to have phi in the interval [-PI/2 ; +PI/2]<a name="line.671"></a>
+<span class="sourceLineNo">672</span>              Vector3D v1 = applyTo(Vector3D.PLUS_K);<a name="line.672"></a>
+<span class="sourceLineNo">673</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_J);<a name="line.673"></a>
+<span class="sourceLineNo">674</span>              if ((v2.getZ() &lt; -0.9999999999) || (v2.getZ() &gt; 0.9999999999)) {<a name="line.674"></a>
+<span class="sourceLineNo">675</span>                  throw new CardanEulerSingularityException(true);<a name="line.675"></a>
+<span class="sourceLineNo">676</span>              }<a name="line.676"></a>
+<span class="sourceLineNo">677</span>              return new double[] {<a name="line.677"></a>
+<span class="sourceLineNo">678</span>                  FastMath.atan2(v1.getX(), v1.getZ()),<a name="line.678"></a>
+<span class="sourceLineNo">679</span>                 -FastMath.asin(v2.getZ()),<a name="line.679"></a>
+<span class="sourceLineNo">680</span>                  FastMath.atan2(v2.getX(), v2.getY())<a name="line.680"></a>
+<span class="sourceLineNo">681</span>              };<a name="line.681"></a>
+<span class="sourceLineNo">682</span><a name="line.682"></a>
+<span class="sourceLineNo">683</span>          } else if (order == RotationOrder.YZX) {<a name="line.683"></a>
+<span class="sourceLineNo">684</span><a name="line.684"></a>
+<span class="sourceLineNo">685</span>              // r (Vector3D.plusI) coordinates are :<a name="line.685"></a>
+<span class="sourceLineNo">686</span>              // cos (psi) cos (theta), sin (psi), -cos (psi) sin (theta)<a name="line.686"></a>
+<span class="sourceLineNo">687</span>              // (-r) (Vector3D.plusJ) coordinates are :<a name="line.687"></a>
+<span class="sourceLineNo">688</span>              // sin (psi), cos (phi) cos (psi), -sin (phi) cos (psi)<a name="line.688"></a>
+<span class="sourceLineNo">689</span>              // and we can choose to have psi in the interval [-PI/2 ; +PI/2]<a name="line.689"></a>
+<span class="sourceLineNo">690</span>              Vector3D v1 = applyTo(Vector3D.PLUS_I);<a name="line.690"></a>
+<span class="sourceLineNo">691</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_J);<a name="line.691"></a>
+<span class="sourceLineNo">692</span>              if ((v2.getX() &lt; -0.9999999999) || (v2.getX() &gt; 0.9999999999)) {<a name="line.692"></a>
+<span class="sourceLineNo">693</span>                  throw new CardanEulerSingularityException(true);<a name="line.693"></a>
+<span class="sourceLineNo">694</span>              }<a name="line.694"></a>
+<span class="sourceLineNo">695</span>              return new double[] {<a name="line.695"></a>
+<span class="sourceLineNo">696</span>                  FastMath.atan2(-(v1.getZ()), v1.getX()),<a name="line.696"></a>
+<span class="sourceLineNo">697</span>                  FastMath.asin(v2.getX()),<a name="line.697"></a>
+<span class="sourceLineNo">698</span>                  FastMath.atan2(-(v2.getZ()), v2.getY())<a name="line.698"></a>
+<span class="sourceLineNo">699</span>              };<a name="line.699"></a>
+<span class="sourceLineNo">700</span><a name="line.700"></a>
+<span class="sourceLineNo">701</span>          } else if (order == RotationOrder.ZXY) {<a name="line.701"></a>
+<span class="sourceLineNo">702</span><a name="line.702"></a>
+<span class="sourceLineNo">703</span>              // r (Vector3D.plusJ) coordinates are :<a name="line.703"></a>
+<span class="sourceLineNo">704</span>              // -cos (phi) sin (psi), cos (phi) cos (psi), sin (phi)<a name="line.704"></a>
+<span class="sourceLineNo">705</span>              // (-r) (Vector3D.plusK) coordinates are :<a name="line.705"></a>
+<span class="sourceLineNo">706</span>              // -sin (theta) cos (phi), sin (phi), cos (theta) cos (phi)<a name="line.706"></a>
+<span class="sourceLineNo">707</span>              // and we can choose to have phi in the interval [-PI/2 ; +PI/2]<a name="line.707"></a>
+<span class="sourceLineNo">708</span>              Vector3D v1 = applyTo(Vector3D.PLUS_J);<a name="line.708"></a>
+<span class="sourceLineNo">709</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_K);<a name="line.709"></a>
+<span class="sourceLineNo">710</span>              if ((v2.getY() &lt; -0.9999999999) || (v2.getY() &gt; 0.9999999999)) {<a name="line.710"></a>
+<span class="sourceLineNo">711</span>                  throw new CardanEulerSingularityException(true);<a name="line.711"></a>
+<span class="sourceLineNo">712</span>              }<a name="line.712"></a>
+<span class="sourceLineNo">713</span>              return new double[] {<a name="line.713"></a>
+<span class="sourceLineNo">714</span>                  FastMath.atan2(-(v1.getX()), v1.getY()),<a name="line.714"></a>
+<span class="sourceLineNo">715</span>                  FastMath.asin(v2.getY()),<a name="line.715"></a>
+<span class="sourceLineNo">716</span>                  FastMath.atan2(-(v2.getX()), v2.getZ())<a name="line.716"></a>
+<span class="sourceLineNo">717</span>              };<a name="line.717"></a>
+<span class="sourceLineNo">718</span><a name="line.718"></a>
+<span class="sourceLineNo">719</span>          } else if (order == RotationOrder.ZYX) {<a name="line.719"></a>
+<span class="sourceLineNo">720</span><a name="line.720"></a>
+<span class="sourceLineNo">721</span>              // r (Vector3D.plusI) coordinates are :<a name="line.721"></a>
+<span class="sourceLineNo">722</span>              //  cos (theta) cos (psi), cos (theta) sin (psi), -sin (theta)<a name="line.722"></a>
+<span class="sourceLineNo">723</span>              // (-r) (Vector3D.plusK) coordinates are :<a name="line.723"></a>
+<span class="sourceLineNo">724</span>              // -sin (theta), sin (phi) cos (theta), cos (phi) cos (theta)<a name="line.724"></a>
+<span class="sourceLineNo">725</span>              // and we can choose to have theta in the interval [-PI/2 ; +PI/2]<a name="line.725"></a>
+<span class="sourceLineNo">726</span>              Vector3D v1 = applyTo(Vector3D.PLUS_I);<a name="line.726"></a>
+<span class="sourceLineNo">727</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_K);<a name="line.727"></a>
+<span class="sourceLineNo">728</span>              if ((v2.getX() &lt; -0.9999999999) || (v2.getX() &gt; 0.9999999999)) {<a name="line.728"></a>
+<span class="sourceLineNo">729</span>                  throw new CardanEulerSingularityException(true);<a name="line.729"></a>
+<span class="sourceLineNo">730</span>              }<a name="line.730"></a>
+<span class="sourceLineNo">731</span>              return new double[] {<a name="line.731"></a>
+<span class="sourceLineNo">732</span>                  FastMath.atan2(v1.getY(), v1.getX()),<a name="line.732"></a>
+<span class="sourceLineNo">733</span>                 -FastMath.asin(v2.getX()),<a name="line.733"></a>
+<span class="sourceLineNo">734</span>                  FastMath.atan2(v2.getY(), v2.getZ())<a name="line.734"></a>
+<span class="sourceLineNo">735</span>              };<a name="line.735"></a>
+<span class="sourceLineNo">736</span><a name="line.736"></a>
+<span class="sourceLineNo">737</span>          } else if (order == RotationOrder.XYX) {<a name="line.737"></a>
+<span class="sourceLineNo">738</span><a name="line.738"></a>
+<span class="sourceLineNo">739</span>              // r (Vector3D.plusI) coordinates are :<a name="line.739"></a>
+<span class="sourceLineNo">740</span>              //  cos (theta), sin (phi1) sin (theta), -cos (phi1) sin (theta)<a name="line.740"></a>
+<span class="sourceLineNo">741</span>              // (-r) (Vector3D.plusI) coordinates are :<a name="line.741"></a>
+<span class="sourceLineNo">742</span>              // cos (theta), sin (theta) sin (phi2), sin (theta) cos (phi2)<a name="line.742"></a>
+<span class="sourceLineNo">743</span>              // and we can choose to have theta in the interval [0 ; PI]<a name="line.743"></a>
+<span class="sourceLineNo">744</span>              Vector3D v1 = applyTo(Vector3D.PLUS_I);<a name="line.744"></a>
+<span class="sourceLineNo">745</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_I);<a name="line.745"></a>
+<span class="sourceLineNo">746</span>              if ((v2.getX() &lt; -0.9999999999) || (v2.getX() &gt; 0.9999999999)) {<a name="line.746"></a>
+<span class="sourceLineNo">747</span>                  throw new CardanEulerSingularityException(false);<a name="line.747"></a>
+<span class="sourceLineNo">748</span>              }<a name="line.748"></a>
+<span class="sourceLineNo">749</span>              return new double[] {<a name="line.749"></a>
+<span class="sourceLineNo">750</span>                  FastMath.atan2(v1.getY(), -v1.getZ()),<a name="line.750"></a>
+<span class="sourceLineNo">751</span>                  FastMath.acos(v2.getX()),<a name="line.751"></a>
+<span class="sourceLineNo">752</span>                  FastMath.atan2(v2.getY(), v2.getZ())<a name="line.752"></a>
+<span class="sourceLineNo">753</span>              };<a name="line.753"></a>
+<span class="sourceLineNo">754</span><a name="line.754"></a>
+<span class="sourceLineNo">755</span>          } else if (order == RotationOrder.XZX) {<a name="line.755"></a>
+<span class="sourceLineNo">756</span><a name="line.756"></a>
+<span class="sourceLineNo">757</span>              // r (Vector3D.plusI) coordinates are :<a name="line.757"></a>
+<span class="sourceLineNo">758</span>              //  cos (psi), cos (phi1) sin (psi), sin (phi1) sin (psi)<a name="line.758"></a>
+<span class="sourceLineNo">759</span>              // (-r) (Vector3D.plusI) coordinates are :<a name="line.759"></a>
+<span class="sourceLineNo">760</span>              // cos (psi), -sin (psi) cos (phi2), sin (psi) sin (phi2)<a name="line.760"></a>
+<span class="sourceLineNo">761</span>              // and we can choose to have psi in the interval [0 ; PI]<a name="line.761"></a>
+<span class="sourceLineNo">762</span>              Vector3D v1 = applyTo(Vector3D.PLUS_I);<a name="line.762"></a>
+<span class="sourceLineNo">763</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_I);<a name="line.763"></a>
+<span class="sourceLineNo">764</span>              if ((v2.getX() &lt; -0.9999999999) || (v2.getX() &gt; 0.9999999999)) {<a name="line.764"></a>
+<span class="sourceLineNo">765</span>                  throw new CardanEulerSingularityException(false);<a name="line.765"></a>
+<span class="sourceLineNo">766</span>              }<a name="line.766"></a>
+<span class="sourceLineNo">767</span>              return new double[] {<a name="line.767"></a>
+<span class="sourceLineNo">768</span>                  FastMath.atan2(v1.getZ(), v1.getY()),<a name="line.768"></a>
+<span class="sourceLineNo">769</span>                  FastMath.acos(v2.getX()),<a name="line.769"></a>
+<span class="sourceLineNo">770</span>                  FastMath.atan2(v2.getZ(), -v2.getY())<a name="line.770"></a>
+<span class="sourceLineNo">771</span>              };<a name="line.771"></a>
+<span class="sourceLineNo">772</span><a name="line.772"></a>
+<span class="sourceLineNo">773</span>          } else if (order == RotationOrder.YXY) {<a name="line.773"></a>
+<span class="sourceLineNo">774</span><a name="line.774"></a>
+<span class="sourceLineNo">775</span>              // r (Vector3D.plusJ) coordinates are :<a name="line.775"></a>
+<span class="sourceLineNo">776</span>              //  sin (theta1) sin (phi), cos (phi), cos (theta1) sin (phi)<a name="line.776"></a>
+<span class="sourceLineNo">777</span>              // (-r) (Vector3D.plusJ) coordinates are :<a name="line.777"></a>
+<span class="sourceLineNo">778</span>              // sin (phi) sin (theta2), cos (phi), -sin (phi) cos (theta2)<a name="line.778"></a>
+<span class="sourceLineNo">779</span>              // and we can choose to have phi in the interval [0 ; PI]<a name="line.779"></a>
+<span class="sourceLineNo">780</span>              Vector3D v1 = applyTo(Vector3D.PLUS_J);<a name="line.780"></a>
+<span class="sourceLineNo">781</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_J);<a name="line.781"></a>
+<span class="sourceLineNo">782</span>              if ((v2.getY() &lt; -0.9999999999) || (v2.getY() &gt; 0.9999999999)) {<a name="line.782"></a>
+<span class="sourceLineNo">783</span>                  throw new CardanEulerSingularityException(false);<a name="line.783"></a>
+<span class="sourceLineNo">784</span>              }<a name="line.784"></a>
+<span class="sourceLineNo">785</span>              return new double[] {<a name="line.785"></a>
+<span class="sourceLineNo">786</span>                  FastMath.atan2(v1.getX(), v1.getZ()),<a name="line.786"></a>
+<span class="sourceLineNo">787</span>                  FastMath.acos(v2.getY()),<a name="line.787"></a>
+<span class="sourceLineNo">788</span>                  FastMath.atan2(v2.getX(), -v2.getZ())<a name="line.788"></a>
+<span class="sourceLineNo">789</span>              };<a name="line.789"></a>
+<span class="sourceLineNo">790</span><a name="line.790"></a>
+<span class="sourceLineNo">791</span>          } else if (order == RotationOrder.YZY) {<a name="line.791"></a>
+<span class="sourceLineNo">792</span><a name="line.792"></a>
+<span class="sourceLineNo">793</span>              // r (Vector3D.plusJ) coordinates are :<a name="line.793"></a>
+<span class="sourceLineNo">794</span>              //  -cos (theta1) sin (psi), cos (psi), sin (theta1) sin (psi)<a name="line.794"></a>
+<span class="sourceLineNo">795</span>              // (-r) (Vector3D.plusJ) coordinates are :<a name="line.795"></a>
+<span class="sourceLineNo">796</span>              // sin (psi) cos (theta2), cos (psi), sin (psi) sin (theta2)<a name="line.796"></a>
+<span class="sourceLineNo">797</span>              // and we can choose to have psi in the interval [0 ; PI]<a name="line.797"></a>
+<span class="sourceLineNo">798</span>              Vector3D v1 = applyTo(Vector3D.PLUS_J);<a name="line.798"></a>
+<span class="sourceLineNo">799</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_J);<a name="line.799"></a>
+<span class="sourceLineNo">800</span>              if ((v2.getY() &lt; -0.9999999999) || (v2.getY() &gt; 0.9999999999)) {<a name="line.800"></a>
+<span class="sourceLineNo">801</span>                  throw new CardanEulerSingularityException(false);<a name="line.801"></a>
+<span class="sourceLineNo">802</span>              }<a name="line.802"></a>
+<span class="sourceLineNo">803</span>              return new double[] {<a name="line.803"></a>
+<span class="sourceLineNo">804</span>                  FastMath.atan2(v1.getZ(), -v1.getX()),<a name="line.804"></a>
+<span class="sourceLineNo">805</span>                  FastMath.acos(v2.getY()),<a name="line.805"></a>
+<span class="sourceLineNo">806</span>                  FastMath.atan2(v2.getZ(), v2.getX())<a name="line.806"></a>
+<span class="sourceLineNo">807</span>              };<a name="line.807"></a>
+<span class="sourceLineNo">808</span><a name="line.808"></a>
+<span class="sourceLineNo">809</span>          } else if (order == RotationOrder.ZXZ) {<a name="line.809"></a>
+<span class="sourceLineNo">810</span><a name="line.810"></a>
+<span class="sourceLineNo">811</span>              // r (Vector3D.plusK) coordinates are :<a name="line.811"></a>
+<span class="sourceLineNo">812</span>              //  sin (psi1) sin (phi), -cos (psi1) sin (phi), cos (phi)<a name="line.812"></a>
+<span class="sourceLineNo">813</span>              // (-r) (Vector3D.plusK) coordinates are :<a name="line.813"></a>
+<span class="sourceLineNo">814</span>              // sin (phi) sin (psi2), sin (phi) cos (psi2), cos (phi)<a name="line.814"></a>
+<span class="sourceLineNo">815</span>              // and we can choose to have phi in the interval [0 ; PI]<a name="line.815"></a>
+<span class="sourceLineNo">816</span>              Vector3D v1 = applyTo(Vector3D.PLUS_K);<a name="line.816"></a>
+<span class="sourceLineNo">817</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_K);<a name="line.817"></a>
+<span class="sourceLineNo">818</span>              if ((v2.getZ() &lt; -0.9999999999) || (v2.getZ() &gt; 0.9999999999)) {<a name="line.818"></a>
+<span class="sourceLineNo">819</span>                  throw new CardanEulerSingularityException(false);<a name="line.819"></a>
+<span class="sourceLineNo">820</span>              }<a name="line.820"></a>
+<span class="sourceLineNo">821</span>              return new double[] {<a name="line.821"></a>
+<span class="sourceLineNo">822</span>                  FastMath.atan2(v1.getX(), -v1.getY()),<a name="line.822"></a>
+<span class="sourceLineNo">823</span>                  FastMath.acos(v2.getZ()),<a name="line.823"></a>
+<span class="sourceLineNo">824</span>                  FastMath.atan2(v2.getX(), v2.getY())<a name="line.824"></a>
+<span class="sourceLineNo">825</span>              };<a name="line.825"></a>
+<span class="sourceLineNo">826</span><a name="line.826"></a>
+<span class="sourceLineNo">827</span>          } else { // last possibility is ZYZ<a name="line.827"></a>
+<span class="sourceLineNo">828</span><a name="line.828"></a>
+<span class="sourceLineNo">829</span>              // r (Vector3D.plusK) coordinates are :<a name="line.829"></a>
+<span class="sourceLineNo">830</span>              //  cos (psi1) sin (theta), sin (psi1) sin (theta), cos (theta)<a name="line.830"></a>
+<span class="sourceLineNo">831</span>              // (-r) (Vector3D.plusK) coordinates are :<a name="line.831"></a>
+<span class="sourceLineNo">832</span>              // -sin (theta) cos (psi2), sin (theta) sin (psi2), cos (theta)<a name="line.832"></a>
+<span class="sourceLineNo">833</span>              // and we can choose to have theta in the interval [0 ; PI]<a name="line.833"></a>
+<span class="sourceLineNo">834</span>              Vector3D v1 = applyTo(Vector3D.PLUS_K);<a name="line.834"></a>
+<span class="sourceLineNo">835</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_K);<a name="line.835"></a>
+<span class="sourceLineNo">836</span>              if ((v2.getZ() &lt; -0.9999999999) || (v2.getZ() &gt; 0.9999999999)) {<a name="line.836"></a>
+<span class="sourceLineNo">837</span>                  throw new CardanEulerSingularityException(false);<a name="line.837"></a>
+<span class="sourceLineNo">838</span>              }<a name="line.838"></a>
+<span class="sourceLineNo">839</span>              return new double[] {<a name="line.839"></a>
+<span class="sourceLineNo">840</span>                  FastMath.atan2(v1.getY(), v1.getX()),<a name="line.840"></a>
+<span class="sourceLineNo">841</span>                  FastMath.acos(v2.getZ()),<a name="line.841"></a>
+<span class="sourceLineNo">842</span>                  FastMath.atan2(v2.getY(), -v2.getX())<a name="line.842"></a>
+<span class="sourceLineNo">843</span>              };<a name="line.843"></a>
+<span class="sourceLineNo">844</span><a name="line.844"></a>
+<span class="sourceLineNo">845</span>          }<a name="line.845"></a>
+<span class="sourceLineNo">846</span>      } else {<a name="line.846"></a>
+<span class="sourceLineNo">847</span>          if (order == RotationOrder.XYZ) {<a name="line.847"></a>
+<span class="sourceLineNo">848</span><a name="line.848"></a>
+<span class="sourceLineNo">849</span>              // r (Vector3D.plusI) coordinates are :<a name="line.849"></a>
+<span class="sourceLineNo">850</span>              //  cos (theta) cos (psi), -cos (theta) sin (psi), sin (theta)<a name="line.850"></a>
+<span class="sourceLineNo">851</span>              // (-r) (Vector3D.plusK) coordinates are :<a name="line.851"></a>
+<span class="sourceLineNo">852</span>              // sin (theta), -sin (phi) cos (theta), cos (phi) cos (theta)<a name="line.852"></a>
+<span class="sourceLineNo">853</span>              // and we can choose to have theta in the interval [-PI/2 ; +PI/2]<a name="line.853"></a>
+<span class="sourceLineNo">854</span>              Vector3D v1 = applyTo(Vector3D.PLUS_I);<a name="line.854"></a>
+<span class="sourceLineNo">855</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_K);<a name="line.855"></a>
+<span class="sourceLineNo">856</span>              if ((v2.getX() &lt; -0.9999999999) || (v2.getX() &gt; 0.9999999999)) {<a name="line.856"></a>
+<span class="sourceLineNo">857</span>                  throw new CardanEulerSingularityException(true);<a name="line.857"></a>
+<span class="sourceLineNo">858</span>              }<a name="line.858"></a>
+<span class="sourceLineNo">859</span>              return new double[] {<a name="line.859"></a>
+<span class="sourceLineNo">860</span>                  FastMath.atan2(-v2.getY(), v2.getZ()),<a name="line.860"></a>
+<span class="sourceLineNo">861</span>                  FastMath.asin(v2.getX()),<a name="line.861"></a>
+<span class="sourceLineNo">862</span>                  FastMath.atan2(-v1.getY(), v1.getX())<a name="line.862"></a>
+<span class="sourceLineNo">863</span>              };<a name="line.863"></a>
+<span class="sourceLineNo">864</span><a name="line.864"></a>
+<span class="sourceLineNo">865</span>          } else if (order == RotationOrder.XZY) {<a name="line.865"></a>
+<span class="sourceLineNo">866</span><a name="line.866"></a>
+<span class="sourceLineNo">867</span>              // r (Vector3D.plusI) coordinates are :<a name="line.867"></a>
+<span class="sourceLineNo">868</span>              // cos (psi) cos (theta), -sin (psi), cos (psi) sin (theta)<a name="line.868"></a>
+<span class="sourceLineNo">869</span>              // (-r) (Vector3D.plusJ) coordinates are :<a name="line.869"></a>
+<span class="sourceLineNo">870</span>              // -sin (psi), cos (phi) cos (psi), sin (phi) cos (psi)<a name="line.870"></a>
+<span class="sourceLineNo">871</span>              // and we can choose to have psi in the interval [-PI/2 ; +PI/2]<a name="line.871"></a>
+<span class="sourceLineNo">872</span>              Vector3D v1 = applyTo(Vector3D.PLUS_I);<a name="line.872"></a>
+<span class="sourceLineNo">873</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_J);<a name="line.873"></a>
+<span class="sourceLineNo">874</span>              if ((v2.getX() &lt; -0.9999999999) || (v2.getX() &gt; 0.9999999999)) {<a name="line.874"></a>
+<span class="sourceLineNo">875</span>                  throw new CardanEulerSingularityException(true);<a name="line.875"></a>
+<span class="sourceLineNo">876</span>              }<a name="line.876"></a>
+<span class="sourceLineNo">877</span>              return new double[] {<a name="line.877"></a>
+<span class="sourceLineNo">878</span>                  FastMath.atan2(v2.getZ(), v2.getY()),<a name="line.878"></a>
+<span class="sourceLineNo">879</span>                 -FastMath.asin(v2.getX()),<a name="line.879"></a>
+<span class="sourceLineNo">880</span>                  FastMath.atan2(v1.getZ(), v1.getX())<a name="line.880"></a>
+<span class="sourceLineNo">881</span>              };<a name="line.881"></a>
+<span class="sourceLineNo">882</span><a name="line.882"></a>
+<span class="sourceLineNo">883</span>          } else if (order == RotationOrder.YXZ) {<a name="line.883"></a>
+<span class="sourceLineNo">884</span><a name="line.884"></a>
+<span class="sourceLineNo">885</span>              // r (Vector3D.plusJ) coordinates are :<a name="line.885"></a>
+<span class="sourceLineNo">886</span>              // cos (phi) sin (psi), cos (phi) cos (psi), -sin (phi)<a name="line.886"></a>
+<span class="sourceLineNo">887</span>              // (-r) (Vector3D.plusK) coordinates are :<a name="line.887"></a>
+<span class="sourceLineNo">888</span>              // sin (theta) cos (phi), -sin (phi), cos (theta) cos (phi)<a name="line.888"></a>
+<span class="sourceLineNo">889</span>              // and we can choose to have phi in the interval [-PI/2 ; +PI/2]<a name="line.889"></a>
+<span class="sourceLineNo">890</span>              Vector3D v1 = applyTo(Vector3D.PLUS_J);<a name="line.890"></a>
+<span class="sourceLineNo">891</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_K);<a name="line.891"></a>
+<span class="sourceLineNo">892</span>              if ((v2.getY() &lt; -0.9999999999) || (v2.getY() &gt; 0.9999999999)) {<a name="line.892"></a>
+<span class="sourceLineNo">893</span>                  throw new CardanEulerSingularityException(true);<a name="line.893"></a>
+<span class="sourceLineNo">894</span>              }<a name="line.894"></a>
+<span class="sourceLineNo">895</span>              return new double[] {<a name="line.895"></a>
+<span class="sourceLineNo">896</span>                  FastMath.atan2(v2.getX(), v2.getZ()),<a name="line.896"></a>
+<span class="sourceLineNo">897</span>                 -FastMath.asin(v2.getY()),<a name="line.897"></a>
+<span class="sourceLineNo">898</span>                  FastMath.atan2(v1.getX(), v1.getY())<a name="line.898"></a>
+<span class="sourceLineNo">899</span>              };<a name="line.899"></a>
+<span class="sourceLineNo">900</span><a name="line.900"></a>
+<span class="sourceLineNo">901</span>          } else if (order == RotationOrder.YZX) {<a name="line.901"></a>
+<span class="sourceLineNo">902</span><a name="line.902"></a>
+<span class="sourceLineNo">903</span>              // r (Vector3D.plusJ) coordinates are :<a name="line.903"></a>
+<span class="sourceLineNo">904</span>              // sin (psi), cos (psi) cos (phi), -cos (psi) sin (phi)<a name="line.904"></a>
+<span class="sourceLineNo">905</span>              // (-r) (Vector3D.plusI) coordinates are :<a name="line.905"></a>
+<span class="sourceLineNo">906</span>              // cos (theta) cos (psi), sin (psi), -sin (theta) cos (psi)<a name="line.906"></a>
+<span class="sourceLineNo">907</span>              // and we can choose to have psi in the interval [-PI/2 ; +PI/2]<a name="line.907"></a>
+<span class="sourceLineNo">908</span>              Vector3D v1 = applyTo(Vector3D.PLUS_J);<a name="line.908"></a>
+<span class="sourceLineNo">909</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_I);<a name="line.909"></a>
+<span class="sourceLineNo">910</span>              if ((v2.getY() &lt; -0.9999999999) || (v2.getY() &gt; 0.9999999999)) {<a name="line.910"></a>
+<span class="sourceLineNo">911</span>                  throw new CardanEulerSingularityException(true);<a name="line.911"></a>
+<span class="sourceLineNo">912</span>              }<a name="line.912"></a>
+<span class="sourceLineNo">913</span>              return new double[] {<a name="line.913"></a>
+<span class="sourceLineNo">914</span>                  FastMath.atan2(-v2.getZ(), v2.getX()),<a name="line.914"></a>
+<span class="sourceLineNo">915</span>                  FastMath.asin(v2.getY()),<a name="line.915"></a>
+<span class="sourceLineNo">916</span>                  FastMath.atan2(-v1.getZ(), v1.getY())<a name="line.916"></a>
+<span class="sourceLineNo">917</span>              };<a name="line.917"></a>
+<span class="sourceLineNo">918</span><a name="line.918"></a>
+<span class="sourceLineNo">919</span>          } else if (order == RotationOrder.ZXY) {<a name="line.919"></a>
+<span class="sourceLineNo">920</span><a name="line.920"></a>
+<span class="sourceLineNo">921</span>              // r (Vector3D.plusK) coordinates are :<a name="line.921"></a>
+<span class="sourceLineNo">922</span>              //  -cos (phi) sin (theta), sin (phi), cos (phi) cos (theta)<a name="line.922"></a>
+<span class="sourceLineNo">923</span>              // (-r) (Vector3D.plusJ) coordinates are :<a name="line.923"></a>
+<span class="sourceLineNo">924</span>              // -sin (psi) cos (phi), cos (psi) cos (phi), sin (phi)<a name="line.924"></a>
+<span class="sourceLineNo">925</span>              // and we can choose to have phi in the interval [-PI/2 ; +PI/2]<a name="line.925"></a>
+<span class="sourceLineNo">926</span>              Vector3D v1 = applyTo(Vector3D.PLUS_K);<a name="line.926"></a>
+<span class="sourceLineNo">927</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_J);<a name="line.927"></a>
+<span class="sourceLineNo">928</span>              if ((v2.getZ() &lt; -0.9999999999) || (v2.getZ() &gt; 0.9999999999)) {<a name="line.928"></a>
+<span class="sourceLineNo">929</span>                  throw new CardanEulerSingularityException(true);<a name="line.929"></a>
+<span class="sourceLineNo">930</span>              }<a name="line.930"></a>
+<span class="sourceLineNo">931</span>              return new double[] {<a name="line.931"></a>
+<span class="sourceLineNo">932</span>                  FastMath.atan2(-v2.getX(), v2.getY()),<a name="line.932"></a>
+<span class="sourceLineNo">933</span>                  FastMath.asin(v2.getZ()),<a name="line.933"></a>
+<span class="sourceLineNo">934</span>                  FastMath.atan2(-v1.getX(), v1.getZ())<a name="line.934"></a>
+<span class="sourceLineNo">935</span>              };<a name="line.935"></a>
+<span class="sourceLineNo">936</span><a name="line.936"></a>
+<span class="sourceLineNo">937</span>          } else if (order == RotationOrder.ZYX) {<a name="line.937"></a>
+<span class="sourceLineNo">938</span><a name="line.938"></a>
+<span class="sourceLineNo">939</span>              // r (Vector3D.plusK) coordinates are :<a name="line.939"></a>
+<span class="sourceLineNo">940</span>              //  -sin (theta), cos (theta) sin (phi), cos (theta) cos (phi)<a name="line.940"></a>
+<span class="sourceLineNo">941</span>              // (-r) (Vector3D.plusI) coordinates are :<a name="line.941"></a>
+<span class="sourceLineNo">942</span>              // cos (psi) cos (theta), sin (psi) cos (theta), -sin (theta)<a name="line.942"></a>
+<span class="sourceLineNo">943</span>              // and we can choose to have theta in the interval [-PI/2 ; +PI/2]<a name="line.943"></a>
+<span class="sourceLineNo">944</span>              Vector3D v1 = applyTo(Vector3D.PLUS_K);<a name="line.944"></a>
+<span class="sourceLineNo">945</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_I);<a name="line.945"></a>
+<span class="sourceLineNo">946</span>              if  ((v2.getZ() &lt; -0.9999999999) || (v2.getZ() &gt; 0.9999999999)) {<a name="line.946"></a>
+<span class="sourceLineNo">947</span>                  throw new CardanEulerSingularityException(true);<a name="line.947"></a>
+<span class="sourceLineNo">948</span>              }<a name="line.948"></a>
+<span class="sourceLineNo">949</span>              return new double[] {<a name="line.949"></a>
+<span class="sourceLineNo">950</span>                  FastMath.atan2(v2.getY(), v2.getX()),<a name="line.950"></a>
+<span class="sourceLineNo">951</span>                 -FastMath.asin(v2.getZ()),<a name="line.951"></a>
+<span class="sourceLineNo">952</span>                  FastMath.atan2(v1.getY(), v1.getZ())<a name="line.952"></a>
+<span class="sourceLineNo">953</span>              };<a name="line.953"></a>
+<span class="sourceLineNo">954</span><a name="line.954"></a>
+<span class="sourceLineNo">955</span>          } else if (order == RotationOrder.XYX) {<a name="line.955"></a>
+<span class="sourceLineNo">956</span><a name="line.956"></a>
+<span class="sourceLineNo">957</span>              // r (Vector3D.plusI) coordinates are :<a name="line.957"></a>
+<span class="sourceLineNo">958</span>              //  cos (theta), sin (phi2) sin (theta), cos (phi2) sin (theta)<a name="line.958"></a>
+<span class="sourceLineNo">959</span>              // (-r) (Vector3D.plusI) coordinates are :<a name="line.959"></a>
+<span class="sourceLineNo">960</span>              // cos (theta), sin (theta) sin (phi1), -sin (theta) cos (phi1)<a name="line.960"></a>
+<span class="sourceLineNo">961</span>              // and we can choose to have theta in the interval [0 ; PI]<a name="line.961"></a>
+<span class="sourceLineNo">962</span>              Vector3D v1 = applyTo(Vector3D.PLUS_I);<a name="line.962"></a>
+<span class="sourceLineNo">963</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_I);<a name="line.963"></a>
+<span class="sourceLineNo">964</span>              if ((v2.getX() &lt; -0.9999999999) || (v2.getX() &gt; 0.9999999999)) {<a name="line.964"></a>
+<span class="sourceLineNo">965</span>                  throw new CardanEulerSingularityException(false);<a name="line.965"></a>
+<span class="sourceLineNo">966</span>              }<a name="line.966"></a>
+<span class="sourceLineNo">967</span>              return new double[] {<a name="line.967"></a>
+<span class="sourceLineNo">968</span>                  FastMath.atan2(v2.getY(), -v2.getZ()),<a name="line.968"></a>
+<span class="sourceLineNo">969</span>                  FastMath.acos(v2.getX()),<a name="line.969"></a>
+<span class="sourceLineNo">970</span>                  FastMath.atan2(v1.getY(), v1.getZ())<a name="line.970"></a>
+<span class="sourceLineNo">971</span>              };<a name="line.971"></a>
+<span class="sourceLineNo">972</span><a name="line.972"></a>
+<span class="sourceLineNo">973</span>          } else if (order == RotationOrder.XZX) {<a name="line.973"></a>
+<span class="sourceLineNo">974</span><a name="line.974"></a>
+<span class="sourceLineNo">975</span>              // r (Vector3D.plusI) coordinates are :<a name="line.975"></a>
+<span class="sourceLineNo">976</span>              //  cos (psi), -cos (phi2) sin (psi), sin (phi2) sin (psi)<a name="line.976"></a>
+<span class="sourceLineNo">977</span>              // (-r) (Vector3D.plusI) coordinates are :<a name="line.977"></a>
+<span class="sourceLineNo">978</span>              // cos (psi), sin (psi) cos (phi1), sin (psi) sin (phi1)<a name="line.978"></a>
+<span class="sourceLineNo">979</span>              // and we can choose to have psi in the interval [0 ; PI]<a name="line.979"></a>
+<span class="sourceLineNo">980</span>              Vector3D v1 = applyTo(Vector3D.PLUS_I);<a name="line.980"></a>
+<span class="sourceLineNo">981</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_I);<a name="line.981"></a>
+<span class="sourceLineNo">982</span>              if ((v2.getX() &lt; -0.9999999999) || (v2.getX() &gt; 0.9999999999)) {<a name="line.982"></a>
+<span class="sourceLineNo">983</span>                  throw new CardanEulerSingularityException(false);<a name="line.983"></a>
+<span class="sourceLineNo">984</span>              }<a name="line.984"></a>
+<span class="sourceLineNo">985</span>              return new double[] {<a name="line.985"></a>
+<span class="sourceLineNo">986</span>                  FastMath.atan2(v2.getZ(), v2.getY()),<a name="line.986"></a>
+<span class="sourceLineNo">987</span>                  FastMath.acos(v2.getX()),<a name="line.987"></a>
+<span class="sourceLineNo">988</span>                  FastMath.atan2(v1.getZ(), -v1.getY())<a name="line.988"></a>
+<span class="sourceLineNo">989</span>              };<a name="line.989"></a>
+<span class="sourceLineNo">990</span><a name="line.990"></a>
+<span class="sourceLineNo">991</span>          } else if (order == RotationOrder.YXY) {<a name="line.991"></a>
+<span class="sourceLineNo">992</span><a name="line.992"></a>
+<span class="sourceLineNo">993</span>              // r (Vector3D.plusJ) coordinates are :<a name="line.993"></a>
+<span class="sourceLineNo">994</span>              // sin (phi) sin (theta2), cos (phi), -sin (phi) cos (theta2)<a name="line.994"></a>
+<span class="sourceLineNo">995</span>              // (-r) (Vector3D.plusJ) coordinates are :<a name="line.995"></a>
+<span class="sourceLineNo">996</span>              //  sin (theta1) sin (phi), cos (phi), cos (theta1) sin (phi)<a name="line.996"></a>
+<span class="sourceLineNo">997</span>              // and we can choose to have phi in the interval [0 ; PI]<a name="line.997"></a>
+<span class="sourceLineNo">998</span>              Vector3D v1 = applyTo(Vector3D.PLUS_J);<a name="line.998"></a>
+<span class="sourceLineNo">999</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_J);<a name="line.999"></a>
+<span class="sourceLineNo">1000</span>              if ((v2.getY() &lt; -0.9999999999) || (v2.getY() &gt; 0.9999999999)) {<a name="line.1000"></a>
+<span class="sourceLineNo">1001</span>                  throw new CardanEulerSingularityException(false);<a name="line.1001"></a>
+<span class="sourceLineNo">1002</span>              }<a name="line.1002"></a>
+<span class="sourceLineNo">1003</span>              return new double[] {<a name="line.1003"></a>
+<span class="sourceLineNo">1004</span>                  FastMath.atan2(v2.getX(), v2.getZ()),<a name="line.1004"></a>
+<span class="sourceLineNo">1005</span>                  FastMath.acos(v2.getY()),<a name="line.1005"></a>
+<span class="sourceLineNo">1006</span>                  FastMath.atan2(v1.getX(), -v1.getZ())<a name="line.1006"></a>
+<span class="sourceLineNo">1007</span>              };<a name="line.1007"></a>
+<span class="sourceLineNo">1008</span><a name="line.1008"></a>
+<span class="sourceLineNo">1009</span>          } else if (order == RotationOrder.YZY) {<a name="line.1009"></a>
+<span class="sourceLineNo">1010</span><a name="line.1010"></a>
+<span class="sourceLineNo">1011</span>              // r (Vector3D.plusJ) coordinates are :<a name="line.1011"></a>
+<span class="sourceLineNo">1012</span>              // sin (psi) cos (theta2), cos (psi), sin (psi) sin (theta2)<a name="line.1012"></a>
+<span class="sourceLineNo">1013</span>              // (-r) (Vector3D.plusJ) coordinates are :<a name="line.1013"></a>
+<span class="sourceLineNo">1014</span>              //  -cos (theta1) sin (psi), cos (psi), sin (theta1) sin (psi)<a name="line.1014"></a>
+<span class="sourceLineNo">1015</span>              // and we can choose to have psi in the interval [0 ; PI]<a name="line.1015"></a>
+<span class="sourceLineNo">1016</span>              Vector3D v1 = applyTo(Vector3D.PLUS_J);<a name="line.1016"></a>
+<span class="sourceLineNo">1017</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_J);<a name="line.1017"></a>
+<span class="sourceLineNo">1018</span>              if ((v2.getY() &lt; -0.9999999999) || (v2.getY() &gt; 0.9999999999)) {<a name="line.1018"></a>
+<span class="sourceLineNo">1019</span>                  throw new CardanEulerSingularityException(false);<a name="line.1019"></a>
+<span class="sourceLineNo">1020</span>              }<a name="line.1020"></a>
+<span class="sourceLineNo">1021</span>              return new double[] {<a name="line.1021"></a>
+<span class="sourceLineNo">1022</span>                  FastMath.atan2(v2.getZ(), -v2.getX()),<a name="line.1022"></a>
+<span class="sourceLineNo">1023</span>                  FastMath.acos(v2.getY()),<a name="line.1023"></a>
+<span class="sourceLineNo">1024</span>                  FastMath.atan2(v1.getZ(), v1.getX())<a name="line.1024"></a>
+<span class="sourceLineNo">1025</span>              };<a name="line.1025"></a>
+<span class="sourceLineNo">1026</span><a name="line.1026"></a>
+<span class="sourceLineNo">1027</span>          } else if (order == RotationOrder.ZXZ) {<a name="line.1027"></a>
+<span class="sourceLineNo">1028</span><a name="line.1028"></a>
+<span class="sourceLineNo">1029</span>              // r (Vector3D.plusK) coordinates are :<a name="line.1029"></a>
+<span class="sourceLineNo">1030</span>              // sin (phi) sin (psi2), sin (phi) cos (psi2), cos (phi)<a name="line.1030"></a>
+<span class="sourceLineNo">1031</span>              // (-r) (Vector3D.plusK) coordinates are :<a name="line.1031"></a>
+<span class="sourceLineNo">1032</span>              //  sin (psi1) sin (phi), -cos (psi1) sin (phi), cos (phi)<a name="line.1032"></a>
+<span class="sourceLineNo">1033</span>              // and we can choose to have phi in the interval [0 ; PI]<a name="line.1033"></a>
+<span class="sourceLineNo">1034</span>              Vector3D v1 = applyTo(Vector3D.PLUS_K);<a name="line.1034"></a>
+<span class="sourceLineNo">1035</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_K);<a name="line.1035"></a>
+<span class="sourceLineNo">1036</span>              if ((v2.getZ() &lt; -0.9999999999) || (v2.getZ() &gt; 0.9999999999)) {<a name="line.1036"></a>
+<span class="sourceLineNo">1037</span>                  throw new CardanEulerSingularityException(false);<a name="line.1037"></a>
+<span class="sourceLineNo">1038</span>              }<a name="line.1038"></a>
+<span class="sourceLineNo">1039</span>              return new double[] {<a name="line.1039"></a>
+<span class="sourceLineNo">1040</span>                  FastMath.atan2(v2.getX(), -v2.getY()),<a name="line.1040"></a>
+<span class="sourceLineNo">1041</span>                  FastMath.acos(v2.getZ()),<a name="line.1041"></a>
+<span class="sourceLineNo">1042</span>                  FastMath.atan2(v1.getX(), v1.getY())<a name="line.1042"></a>
+<span class="sourceLineNo">1043</span>              };<a name="line.1043"></a>
+<span class="sourceLineNo">1044</span><a name="line.1044"></a>
+<span class="sourceLineNo">1045</span>          } else { // last possibility is ZYZ<a name="line.1045"></a>
+<span class="sourceLineNo">1046</span><a name="line.1046"></a>
+<span class="sourceLineNo">1047</span>              // r (Vector3D.plusK) coordinates are :<a name="line.1047"></a>
+<span class="sourceLineNo">1048</span>              // -sin (theta) cos (psi2), sin (theta) sin (psi2), cos (theta)<a name="line.1048"></a>
+<span class="sourceLineNo">1049</span>              // (-r) (Vector3D.plusK) coordinates are :<a name="line.1049"></a>
+<span class="sourceLineNo">1050</span>              //  cos (psi1) sin (theta), sin (psi1) sin (theta), cos (theta)<a name="line.1050"></a>
+<span class="sourceLineNo">1051</span>              // and we can choose to have theta in the interval [0 ; PI]<a name="line.1051"></a>
+<span class="sourceLineNo">1052</span>              Vector3D v1 = applyTo(Vector3D.PLUS_K);<a name="line.1052"></a>
+<span class="sourceLineNo">1053</span>              Vector3D v2 = applyInverseTo(Vector3D.PLUS_K);<a name="line.1053"></a>
+<span class="sourceLineNo">1054</span>              if ((v2.getZ() &lt; -0.9999999999) || (v2.getZ() &gt; 0.9999999999)) {<a name="line.1054"></a>
+<span class="sourceLineNo">1055</span>                  throw new CardanEulerSingularityException(false);<a name="line.1055"></a>
+<span class="sourceLineNo">1056</span>              }<a name="line.1056"></a>
+<span class="sourceLineNo">1057</span>              return new double[] {<a name="line.1057"></a>
+<span class="sourceLineNo">1058</span>                  FastMath.atan2(v2.getY(), v2.getX()),<a name="line.1058"></a>
+<span class="sourceLineNo">1059</span>                  FastMath.acos(v2.getZ()),<a name="line.1059"></a>
+<span class="sourceLineNo">1060</span>                  FastMath.atan2(v1.getY(), -v1.getX())<a name="line.1060"></a>
+<span class="sourceLineNo">1061</span>              };<a name="line.1061"></a>
+<span class="sourceLineNo">1062</span><a name="line.1062"></a>
+<span class="sourceLineNo">1063</span>          }<a name="line.1063"></a>
+<span class="sourceLineNo">1064</span>      }<a name="line.1064"></a>
+<span class="sourceLineNo">1065</span><a name="line.1065"></a>
+<span class="sourceLineNo">1066</span>  }<a name="line.1066"></a>
+<span class="sourceLineNo">1067</span><a name="line.1067"></a>
+<span class="sourceLineNo">1068</span>  /** Get the 3X3 matrix corresponding to the instance<a name="line.1068"></a>
+<span class="sourceLineNo">1069</span>   * @return the matrix corresponding to the instance<a name="line.1069"></a>
+<span class="sourceLineNo">1070</span>   */<a name="line.1070"></a>
+<span class="sourceLineNo">1071</span>  public double[][] getMatrix() {<a name="line.1071"></a>
+<span class="sourceLineNo">1072</span><a name="line.1072"></a>
+<span class="sourceLineNo">1073</span>    // products<a name="line.1073"></a>
+<span class="sourceLineNo">1074</span>    double q0q0  = q0 * q0;<a name="line.1074"></a>
+<span class="sourceLineNo">1075</span>    double q0q1  = q0 * q1;<a name="line.1075"></a>
+<span class="sourceLineNo">1076</span>    double q0q2  = q0 * q2;<a name="line.1076"></a>
+<span class="sourceLineNo">1077</span>    double q0q3  = q0 * q3;<a name="line.1077"></a>
+<span class="sourceLineNo">1078</span>    double q1q1  = q1 * q1;<a name="line.1078"></a>
+<span class="sourceLineNo">1079</span>    double q1q2  = q1 * q2;<a name="line.1079"></a>
+<span class="sourceLineNo">1080</span>    double q1q3  = q1 * q3;<a name="line.1080"></a>
+<span class="sourceLineNo">1081</span>    double q2q2  = q2 * q2;<a name="line.1081"></a>
+<span class="sourceLineNo">1082</span>    double q2q3  = q2 * q3;<a name="line.1082"></a>
+<span class="sourceLineNo">1083</span>    double q3q3  = q3 * q3;<a name="line.1083"></a>
+<span class="sourceLineNo">1084</span><a name="line.1084"></a>
+<span class="sourceLineNo">1085</span>    // create the matrix<a name="line.1085"></a>
+<span class="sourceLineNo">1086</span>    double[][] m = new double[3][];<a name="line.1086"></a>
+<span class="sourceLineNo">1087</span>    m[0] = new double[3];<a name="line.1087"></a>
+<span class="sourceLineNo">1088</span>    m[1] = new double[3];<a name="line.1088"></a>
+<span class="sourceLineNo">1089</span>    m[2] = new double[3];<a name="line.1089"></a>
+<span class="sourceLineNo">1090</span><a name="line.1090"></a>
+<span class="sourceLineNo">1091</span>    m [0][0] = 2.0 * (q0q0 + q1q1) - 1.0;<a name="line.1091"></a>
+<span class="sourceLineNo">1092</span>    m [1][0] = 2.0 * (q1q2 - q0q3);<a name="line.1092"></a>
+<span class="sourceLineNo">1093</span>    m [2][0] = 2.0 * (q1q3 + q0q2);<a name="line.1093"></a>
+<span class="sourceLineNo">1094</span><a name="line.1094"></a>
+<span class="sourceLineNo">1095</span>    m [0][1] = 2.0 * (q1q2 + q0q3);<a name="line.1095"></a>
+<span class="sourceLineNo">1096</span>    m [1][1] = 2.0 * (q0q0 + q2q2) - 1.0;<a name="line.1096"></a>
+<span class="sourceLineNo">1097</span>    m [2][1] = 2.0 * (q2q3 - q0q1);<a name="line.1097"></a>
+<span class="sourceLineNo">1098</span><a name="line.1098"></a>
+<span class="sourceLineNo">1099</span>    m [0][2] = 2.0 * (q1q3 - q0q2);<a name="line.1099"></a>
+<span class="sourceLineNo">1100</span>    m [1][2] = 2.0 * (q2q3 + q0q1);<a name="line.1100"></a>
+<span class="sourceLineNo">1101</span>    m [2][2] = 2.0 * (q0q0 + q3q3) - 1.0;<a name="line.1101"></a>
+<span class="sourceLineNo">1102</span><a name="line.1102"></a>
+<span class="sourceLineNo">1103</span>    return m;<a name="line.1103"></a>
+<span class="sourceLineNo">1104</span><a name="line.1104"></a>
+<span class="sourceLineNo">1105</span>  }<a name="line.1105"></a>
+<span class="sourceLineNo">1106</span><a name="line.1106"></a>
+<span class="sourceLineNo">1107</span>  /** Apply the rotation to a vector.<a name="line.1107"></a>
+<span class="sourceLineNo">1108</span>   * @param u vector to apply the rotation to<a name="line.1108"></a>
+<span class="sourceLineNo">1109</span>   * @return a new vector which is the image of u by the rotation<a name="line.1109"></a>
+<span class="sourceLineNo">1110</span>   */<a name="line.1110"></a>
+<span class="sourceLineNo">1111</span>  public Vector3D applyTo(Vector3D u) {<a name="line.1111"></a>
+<span class="sourceLineNo">1112</span><a name="line.1112"></a>
+<span class="sourceLineNo">1113</span>    double x = u.getX();<a name="line.1113"></a>
+<span class="sourceLineNo">1114</span>    double y = u.getY();<a name="line.1114"></a>
+<span class="sourceLineNo">1115</span>    double z = u.getZ();<a name="line.1115"></a>
+<span class="sourceLineNo">1116</span><a name="line.1116"></a>
+<span class="sourceLineNo">1117</span>    double s = q1 * x + q2 * y + q3 * z;<a name="line.1117"></a>
+<span class="sourceLineNo">1118</span><a name="line.1118"></a>
+<span class="sourceLineNo">1119</span>    return new Vector3D(2 * (q0 * (x * q0 - (q2 * z - q3 * y)) + s * q1) - x,<a name="line.1119"></a>
+<span class="sourceLineNo">1120</span>                        2 * (q0 * (y * q0 - (q3 * x - q1 * z)) + s * q2) - y,<a name="line.1120"></a>
+<span class="sourceLineNo">1121</span>                        2 * (q0 * (z * q0 - (q1 * y - q2 * x)) + s * q3) - z);<a name="line.1121"></a>
+<span class="sourceLineNo">1122</span><a name="line.1122"></a>
+<span class="sourceLineNo">1123</span>  }<a name="line.1123"></a>
+<span class="sourceLineNo">1124</span><a name="line.1124"></a>
+<span class="sourceLineNo">1125</span>  /** Apply the rotation to a vector stored in an array.<a name="line.1125"></a>
+<span class="sourceLineNo">1126</span>   * @param in an array with three items which stores vector to rotate<a name="line.1126"></a>
+<span class="sourceLineNo">1127</span>   * @param out an array with three items to put result to (it can be the same<a name="line.1127"></a>
+<span class="sourceLineNo">1128</span>   * array as in)<a name="line.1128"></a>
+<span class="sourceLineNo">1129</span>   */<a name="line.1129"></a>
+<span class="sourceLineNo">1130</span>  public void applyTo(final double[] in, final double[] out) {<a name="line.1130"></a>
+<span class="sourceLineNo">1131</span><a name="line.1131"></a>
+<span class="sourceLineNo">1132</span>      final double x = in[0];<a name="line.1132"></a>
+<span class="sourceLineNo">1133</span>      final double y = in[1];<a name="line.1133"></a>
+<span class="sourceLineNo">1134</span>      final double z = in[2];<a name="line.1134"></a>
+<span class="sourceLineNo">1135</span><a name="line.1135"></a>
+<span class="sourceLineNo">1136</span>      final double s = q1 * x + q2 * y + q3 * z;<a name="line.1136"></a>
+<span class="sourceLineNo">1137</span><a name="line.1137"></a>
+<span class="sourceLineNo">1138</span>      out[0] = 2 * (q0 * (x * q0 - (q2 * z - q3 * y)) + s * q1) - x;<a name="line.1138"></a>
+<span class="sourceLineNo">1139</span>      out[1] = 2 * (q0 * (y * q0 - (q3 * x - q1 * z)) + s * q2) - y;<a name="line.1139"></a>
+<span class="sourceLineNo">1140</span>      out[2] = 2 * (q0 * (z * q0 - (q1 * y - q2 * x)) + s * q3) - z;<a name="line.1140"></a>
+<span class="sourceLineNo">1141</span><a name="line.1141"></a>
+<span class="sourceLineNo">1142</span>  }<a name="line.1142"></a>
+<span class="sourceLineNo">1143</span><a name="line.1143"></a>
+<span class="sourceLineNo">1144</span>  /** Apply the inverse of the rotation to a vector.<a name="line.1144"></a>
+<span class="sourceLineNo">1145</span>   * @param u vector to apply the inverse of the rotation to<a name="line.1145"></a>
+<span class="sourceLineNo">1146</span>   * @return a new vector which such that u is its image by the rotation<a name="line.1146"></a>
+<span class="sourceLineNo">1147</span>   */<a name="line.1147"></a>
+<span class="sourceLineNo">1148</span>  public Vector3D applyInverseTo(Vector3D u) {<a name="line.1148"></a>
+<span class="sourceLineNo">1149</span><a name="line.1149"></a>
+<span class="sourceLineNo">1150</span>    double x = u.getX();<a name="line.1150"></a>
+<span class="sourceLineNo">1151</span>    double y = u.getY();<a name="line.1151"></a>
+<span class="sourceLineNo">1152</span>    double z = u.getZ();<a name="line.1152"></a>
+<span class="sourceLineNo">1153</span><a name="line.1153"></a>
+<span class="sourceLineNo">1154</span>    double s = q1 * x + q2 * y + q3 * z;<a name="line.1154"></a>
+<span class="sourceLineNo">1155</span>    double m0 = -q0;<a name="line.1155"></a>
+<span class="sourceLineNo">1156</span><a name="line.1156"></a>
+<span class="sourceLineNo">1157</span>    return new Vector3D(2 * (m0 * (x * m0 - (q2 * z - q3 * y)) + s * q1) - x,<a name="line.1157"></a>
+<span class="sourceLineNo">1158</span>                        2 * (m0 * (y * m0 - (q3 * x - q1 * z)) + s * q2) - y,<a name="line.1158"></a>
+<span class="sourceLineNo">1159</span>                        2 * (m0 * (z * m0 - (q1 * y - q2 * x)) + s * q3) - z);<a name="line.1159"></a>
+<span class="sourceLineNo">1160</span><a name="line.1160"></a>
+<span class="sourceLineNo">1161</span>  }<a name="line.1161"></a>
+<span class="sourceLineNo">1162</span><a name="line.1162"></a>
+<span class="sourceLineNo">1163</span>  /** Apply the inverse of the rotation to a vector stored in an array.<a name="line.1163"></a>
+<span class="sourceLineNo">1164</span>   * @param in an array with three items which stores vector to rotate<a name="line.1164"></a>
+<span class="sourceLineNo">1165</span>   * @param out an array with three items to put result to (it can be the same<a name="line.1165"></a>
+<span class="sourceLineNo">1166</span>   * array as in)<a name="line.1166"></a>
+<span class="sourceLineNo">1167</span>   */<a name="line.1167"></a>
+<span class="sourceLineNo">1168</span>  public void applyInverseTo(final double[] in, final double[] out) {<a name="line.1168"></a>
+<span class="sourceLineNo">1169</span><a name="line.1169"></a>
+<span class="sourceLineNo">1170</span>      final double x = in[0];<a name="line.1170"></a>
+<span class="sourceLineNo">1171</span>      final double y = in[1];<a name="line.1171"></a>
+<span class="sourceLineNo">1172</span>      final double z = in[2];<a name="line.1172"></a>
+<span class="sourceLineNo">1173</span><a name="line.1173"></a>
+<span class="sourceLineNo">1174</span>      final double s = q1 * x + q2 * y + q3 * z;<a name="line.1174"></a>
+<span class="sourceLineNo">1175</span>      final double m0 = -q0;<a name="line.1175"></a>
+<span class="sourceLineNo">1176</span><a name="line.1176"></a>
+<span class="sourceLineNo">1177</span>      out[0] = 2 * (m0 * (x * m0 - (q2 * z - q3 * y)) + s * q1) - x;<a name="line.1177"></a>
+<span class="sourceLineNo">1178</span>      out[1] = 2 * (m0 * (y * m0 - (q3 * x - q1 * z)) + s * q2) - y;<a name="line.1178"></a>
+<span class="sourceLineNo">1179</span>      out[2] = 2 * (m0 * (z * m0 - (q1 * y - q2 * x)) + s * q3) - z;<a name="line.1179"></a>
+<span class="sourceLineNo">1180</span><a name="line.1180"></a>
+<span class="sourceLineNo">1181</span>  }<a name="line.1181"></a>
+<span class="sourceLineNo">1182</span><a name="line.1182"></a>
+<span class="sourceLineNo">1183</span>  /** Apply the instance to another rotation.<a name="line.1183"></a>
+<span class="sourceLineNo">1184</span>   * &lt;p&gt;<a name="line.1184"></a>
+<span class="sourceLineNo">1185</span>   * Calling this method is equivalent to call<a name="line.1185"></a>
+<span class="sourceLineNo">1186</span>   * {@link #compose(Rotation, RotationConvention)<a name="line.1186"></a>
+<span class="sourceLineNo">1187</span>   * compose(r, RotationConvention.VECTOR_OPERATOR)}.<a name="line.1187"></a>
+<span class="sourceLineNo">1188</span>   * &lt;/p&gt;<a name="line.1188"></a>
+<span class="sourceLineNo">1189</span>   * @param r rotation to apply the rotation to<a name="line.1189"></a>
+<span class="sourceLineNo">1190</span>   * @return a new rotation which is the composition of r by the instance<a name="line.1190"></a>
+<span class="sourceLineNo">1191</span>   */<a name="line.1191"></a>
+<span class="sourceLineNo">1192</span>  public Rotation applyTo(Rotation r) {<a name="line.1192"></a>
+<span class="sourceLineNo">1193</span>    return compose(r, RotationConvention.VECTOR_OPERATOR);<a name="line.1193"></a>
+<span class="sourceLineNo">1194</span>  }<a name="line.1194"></a>
+<span class="sourceLineNo">1195</span><a name="line.1195"></a>
+<span class="sourceLineNo">1196</span>  /** Compose the instance with another rotation.<a name="line.1196"></a>
+<span class="sourceLineNo">1197</span>   * &lt;p&gt;<a name="line.1197"></a>
+<span class="sourceLineNo">1198</span>   * If the semantics of the rotations composition corresponds to a<a name="line.1198"></a>
+<span class="sourceLineNo">1199</span>   * {@link RotationConvention#VECTOR_OPERATOR vector operator} convention,<a name="line.1199"></a>
+<span class="sourceLineNo">1200</span>   * applying the instance to a rotation is computing the composition<a name="line.1200"></a>
+<span class="sourceLineNo">1201</span>   * in an order compliant with the following rule : let {@code u} be any<a name="line.1201"></a>
+<span class="sourceLineNo">1202</span>   * vector and {@code v} its image by {@code r1} (i.e.<a name="line.1202"></a>
+<span class="sourceLineNo">1203</span>   * {@code r1.applyTo(u) = v}). Let {@code w} be the image of {@code v} by<a name="line.1203"></a>
+<span class="sourceLineNo">1204</span>   * rotation {@code r2} (i.e. {@code r2.applyTo(v) = w}). Then<a name="line.1204"></a>
+<span class="sourceLineNo">1205</span>   * {@code w = comp.applyTo(u)}, where<a name="line.1205"></a>
+<span class="sourceLineNo">1206</span>   * {@code comp = r2.compose(r1, RotationConvention.VECTOR_OPERATOR)}.<a name="line.1206"></a>
+<span class="sourceLineNo">1207</span>   * &lt;/p&gt;<a name="line.1207"></a>
+<span class="sourceLineNo">1208</span>   * &lt;p&gt;<a name="line.1208"></a>
+<span class="sourceLineNo">1209</span>   * If the semantics of the rotations composition corresponds to a<a name="line.1209"></a>
+<span class="sourceLineNo">1210</span>   * {@link RotationConvention#FRAME_TRANSFORM frame transform} convention,<a name="line.1210"></a>
+<span class="sourceLineNo">1211</span>   * the application order will be reversed. So keeping the exact same<a name="line.1211"></a>
+<span class="sourceLineNo">1212</span>   * meaning of all {@code r1}, {@code r2}, {@code u}, {@code v}, {@code w}<a name="line.1212"></a>
+<span class="sourceLineNo">1213</span>   * and  {@code comp} as above, {@code comp} could also be computed as<a name="line.1213"></a>
+<span class="sourceLineNo">1214</span>   * {@code comp = r1.compose(r2, RotationConvention.FRAME_TRANSFORM)}.<a name="line.1214"></a>
+<span class="sourceLineNo">1215</span>   * &lt;/p&gt;<a name="line.1215"></a>
+<span class="sourceLineNo">1216</span>   * @param r rotation to apply the rotation to<a name="line.1216"></a>
+<span class="sourceLineNo">1217</span>   * @param convention convention to use for the semantics of the angle<a name="line.1217"></a>
+<span class="sourceLineNo">1218</span>   * @return a new rotation which is the composition of r by the instance<a name="line.1218"></a>
+<span class="sourceLineNo">1219</span>   */<a name="line.1219"></a>
+<span class="sourceLineNo">1220</span>  public Rotation compose(final Rotation r, final RotationConvention convention) {<a name="line.1220"></a>
+<span class="sourceLineNo">1221</span>    return convention == RotationConvention.VECTOR_OPERATOR ?<a name="line.1221"></a>
+<span class="sourceLineNo">1222</span>           composeInternal(r) : r.composeInternal(this);<a name="line.1222"></a>
+<span class="sourceLineNo">1223</span>  }<a name="line.1223"></a>
+<span class="sourceLineNo">1224</span><a name="line.1224"></a>
+<span class="sourceLineNo">1225</span>  /** Compose the instance with another rotation using vector operator convention.<a name="line.1225"></a>
+<span class="sourceLineNo">1226</span>   * @param r rotation to apply the rotation to<a name="line.1226"></a>
+<span class="sourceLineNo">1227</span>   * @return a new rotation which is the composition of r by the instance<a name="line.1227"></a>
+<span class="sourceLineNo">1228</span>   * using vector operator convention<a name="line.1228"></a>
+<span class="sourceLineNo">1229</span>   */<a name="line.1229"></a>
+<span class="sourceLineNo">1230</span>  private Rotation composeInternal(final Rotation r) {<a name="line.1230"></a>
+<span class="sourceLineNo">1231</span>    return new Rotation(r.q0 * q0 - (r.q1 * q1 + r.q2 * q2 + r.q3 * q3),<a name="line.1231"></a>
+<span class="sourceLineNo">1232</span>                        r.q1 * q0 + r.q0 * q1 + (r.q2 * q3 - r.q3 * q2),<a name="line.1232"></a>
+<span class="sourceLineNo">1233</span>                        r.q2 * q0 + r.q0 * q2 + (r.q3 * q1 - r.q1 * q3),<a name="line.1233"></a>
+<span class="sourceLineNo">1234</span>                        r.q3 * q0 + r.q0 * q3 + (r.q1 * q2 - r.q2 * q1),<a name="line.1234"></a>
+<span class="sourceLineNo">1235</span>                        false);<a name="line.1235"></a>
+<span class="sourceLineNo">1236</span>  }<a name="line.1236"></a>
+<span class="sourceLineNo">1237</span><a name="line.1237"></a>
+<span class="sourceLineNo">1238</span>  /** Apply the inverse of the instance to another rotation.<a name="line.1238"></a>
+<span class="sourceLineNo">1239</span>   * &lt;p&gt;<a name="line.1239"></a>
+<span class="sourceLineNo">1240</span>   * Calling this method is equivalent to call<a name="line.1240"></a>
+<span class="sourceLineNo">1241</span>   * {@link #composeInverse(Rotation, RotationConvention)<a name="line.1241"></a>
+<span class="sourceLineNo">1242</span>   * composeInverse(r, RotationConvention.VECTOR_OPERATOR)}.<a name="line.1242"></a>
+<span class="sourceLineNo">1243</span>   * &lt;/p&gt;<a name="line.1243"></a>
+<span class="sourceLineNo">1244</span>   * @param r rotation to apply the rotation to<a name="line.1244"></a>
+<span class="sourceLineNo">1245</span>   * @return a new rotation which is the composition of r by the inverse<a name="line.1245"></a>
+<span class="sourceLineNo">1246</span>   * of the instance<a name="line.1246"></a>
+<span class="sourceLineNo">1247</span>   */<a name="line.1247"></a>
+<span class="sourceLineNo">1248</span>  public Rotation applyInverseTo(Rotation r) {<a name="line.1248"></a>
+<span class="sourceLineNo">1249</span>    return composeInverse(r, RotationConvention.VECTOR_OPERATOR);<a name="line.1249"></a>
+<span class="sourceLineNo">1250</span>  }<a name="line.1250"></a>
+<span class="sourceLineNo">1251</span><a name="line.1251"></a>
+<span class="sourceLineNo">1252</span>  /** Compose the inverse of the instance with another rotation.<a name="line.1252"></a>
+<span class="sourceLineNo">1253</span>   * &lt;p&gt;<a name="line.1253"></a>
+<span class="sourceLineNo">1254</span>   * If the semantics of the rotations composition corresponds to a<a name="line.1254"></a>
+<span class="sourceLineNo">1255</span>   * {@link RotationConvention#VECTOR_OPERATOR vector operator} convention,<a name="line.1255"></a>
+<span class="sourceLineNo">1256</span>   * applying the inverse of the instance to a rotation is computing<a name="line.1256"></a>
+<span class="sourceLineNo">1257</span>   * the composition in an order compliant with the following rule :<a name="line.1257"></a>
+<span class="sourceLineNo">1258</span>   * let {@code u} be any vector and {@code v} its image by {@code r1}<a name="line.1258"></a>
+<span class="sourceLineNo">1259</span>   * (i.e. {@code r1.applyTo(u) = v}). Let {@code w} be the inverse image<a name="line.1259"></a>
+<span class="sourceLineNo">1260</span>   * of {@code v} by {@code r2} (i.e. {@code r2.applyInverseTo(v) = w}).<a name="line.1260"></a>
+<span class="sourceLineNo">1261</span>   * Then {@code w = comp.applyTo(u)}, where<a name="line.1261"></a>
+<span class="sourceLineNo">1262</span>   * {@code comp = r2.composeInverse(r1)}.<a name="line.1262"></a>
+<span class="sourceLineNo">1263</span>   * &lt;/p&gt;<a name="line.1263"></a>
+<span class="sourceLineNo">1264</span>   * &lt;p&gt;<a name="line.1264"></a>
+<span class="sourceLineNo">1265</span>   * If the semantics of the rotations composition corresponds to a<a name="line.1265"></a>
+<span class="sourceLineNo">1266</span>   * {@link RotationConvention#FRAME_TRANSFORM frame transform} convention,<a name="line.1266"></a>
+<span class="sourceLineNo">1267</span>   * the application order will be reversed, which means it is the<a name="line.1267"></a>
+<span class="sourceLineNo">1268</span>   * &lt;em&gt;innermost&lt;/em&gt; rotation that will be reversed. So keeping the exact same<a name="line.1268"></a>
+<span class="sourceLineNo">1269</span>   * meaning of all {@code r1}, {@code r2}, {@code u}, {@code v}, {@code w}<a name="line.1269"></a>
+<span class="sourceLineNo">1270</span>   * and  {@code comp} as above, {@code comp} could also be computed as<a name="line.1270"></a>
+<span class="sourceLineNo">1271</span>   * {@code comp = r1.revert().composeInverse(r2.revert(), RotationConvention.FRAME_TRANSFORM)}.<a name="line.1271"></a>
+<span class="sourceLineNo">1272</span>   * &lt;/p&gt;<a name="line.1272"></a>
+<span class="sourceLineNo">1273</span>   * @param r rotation to apply the rotation to<a name="line.1273"></a>
+<span class="sourceLineNo">1274</span>   * @param convention convention to use for the semantics of the angle<a name="line.1274"></a>
+<span class="sourceLineNo">1275</span>   * @return a new rotation which is the composition of r by the inverse<a name="line.1275"></a>
+<span class="sourceLineNo">1276</span>   * of the instance<a name="line.1276"></a>
+<span class="sourceLineNo">1277</span>   */<a name="line.1277"></a>
+<span class="sourceLineNo">1278</span>  public Rotation composeInverse(final Rotation r, final RotationConvention convention) {<a name="line.1278"></a>
+<span class="sourceLineNo">1279</span>    return convention == RotationConvention.VECTOR_OPERATOR ?<a name="line.1279"></a>
+<span class="sourceLineNo">1280</span>           composeInverseInternal(r) : r.composeInternal(revert());<a name="line.1280"></a>
+<span class="sourceLineNo">1281</span>  }<a name="line.1281"></a>
+<span class="sourceLineNo">1282</span><a name="line.1282"></a>
+<span class="sourceLineNo">1283</span>  /** Compose the inverse of the instance with another rotation<a name="line.1283"></a>
+<span class="sourceLineNo">1284</span>   * using vector operator convention.<a name="line.1284"></a>
+<span class="sourceLineNo">1285</span>   * @param r rotation to apply the rotation to<a name="line.1285"></a>
+<span class="sourceLineNo">1286</span>   * @return a new rotation which is the composition of r by the inverse<a name="line.1286"></a>
+<span class="sourceLineNo">1287</span>   * of the instance using vector operator convention<a name="line.1287"></a>
+<span class="sourceLineNo">1288</span>   */<a name="line.1288"></a>
+<span class="sourceLineNo">1289</span>  private Rotation composeInverseInternal(Rotation r) {<a name="line.1289"></a>
+<span class="sourceLineNo">1290</span>    return new Rotation(-r.q0 * q0 - (r.q1 * q1 + r.q2 * q2 + r.q3 * q3),<a name="line.1290"></a>
+<span class="sourceLineNo">1291</span>                        -r.q1 * q0 + r.q0 * q1 + (r.q2 * q3 - r.q3 * q2),<a name="line.1291"></a>
+<span class="sourceLineNo">1292</span>                        -r.q2 * q0 + r.q0 * q2 + (r.q3 * q1 - r.q1 * q3),<a name="line.1292"></a>
+<span class="sourceLineNo">1293</span>                        -r.q3 * q0 + r.q0 * q3 + (r.q1 * q2 - r.q2 * q1),<a name="line.1293"></a>
+<span class="sourceLineNo">1294</span>                        false);<a name="line.1294"></a>
+<span class="sourceLineNo">1295</span>  }<a name="line.1295"></a>
+<span class="sourceLineNo">1296</span><a name="line.1296"></a>
+<span class="sourceLineNo">1297</span>  /** Perfect orthogonality on a 3X3 matrix.<a name="line.1297"></a>
+<span class="sourceLineNo">1298</span>   * @param m initial matrix (not exactly orthogonal)<a name="line.1298"></a>
+<span class="sourceLineNo">1299</span>   * @param threshold convergence threshold for the iterative<a name="line.1299"></a>
+<span class="sourceLineNo">1300</span>   * orthogonality correction (convergence is reached when the<a name="line.1300"></a>
+<span class="sourceLineNo">1301</span>   * difference between two steps of the Frobenius norm of the<a name="line.1301"></a>
+<span class="sourceLineNo">1302</span>   * correction is below this threshold)<a name="line.1302"></a>
+<span class="sourceLineNo">1303</span>   * @return an orthogonal matrix close to m<a name="line.1303"></a>
+<span class="sourceLineNo">1304</span>   * @exception NotARotationMatrixException if the matrix cannot be<a name="line.1304"></a>
+<span class="sourceLineNo">1305</span>   * orthogonalized with the given threshold after 10 iterations<a name="line.1305"></a>
+<span class="sourceLineNo">1306</span>   */<a name="line.1306"></a>
+<span class="sourceLineNo">1307</span>  private double[][] orthogonalizeMatrix(double[][] m, double threshold)<a name="line.1307"></a>
+<span class="sourceLineNo">1308</span>    throws NotARotationMatrixException {<a name="line.1308"></a>
+<span class="sourceLineNo">1309</span>    double[] m0 = m[0];<a name="line.1309"></a>
+<span class="sourceLineNo">1310</span>    double[] m1 = m[1];<a name="line.1310"></a>
+<span class="sourceLineNo">1311</span>    double[] m2 = m[2];<a name="line.1311"></a>
+<span class="sourceLineNo">1312</span>    double x00 = m0[0];<a name="line.1312"></a>
+<span class="sourceLineNo">1313</span>    double x01 = m0[1];<a name="line.1313"></a>
+<span class="sourceLineNo">1314</span>    double x02 = m0[2];<a name="line.1314"></a>
+<span class="sourceLineNo">1315</span>    double x10 = m1[0];<a name="line.1315"></a>
+<span class="sourceLineNo">1316</span>    double x11 = m1[1];<a name="line.1316"></a>
+<span class="sourceLineNo">1317</span>    double x12 = m1[2];<a name="line.1317"></a>
+<span class="sourceLineNo">1318</span>    double x20 = m2[0];<a name="line.1318"></a>
+<span class="sourceLineNo">1319</span>    double x21 = m2[1];<a name="line.1319"></a>
+<span class="sourceLineNo">1320</span>    double x22 = m2[2];<a name="line.1320"></a>
+<span class="sourceLineNo">1321</span>    double fn = 0;<a name="line.1321"></a>
+<span class="sourceLineNo">1322</span>    double fn1;<a name="line.1322"></a>
+<span class="sourceLineNo">1323</span><a name="line.1323"></a>
+<span class="sourceLineNo">1324</span>    double[][] o = new double[3][3];<a name="line.1324"></a>
+<span class="sourceLineNo">1325</span>    double[] o0 = o[0];<a name="line.1325"></a>
+<span class="sourceLineNo">1326</span>    double[] o1 = o[1];<a name="line.1326"></a>
+<span class="sourceLineNo">1327</span>    double[] o2 = o[2];<a name="line.1327"></a>
+<span class="sourceLineNo">1328</span><a name="line.1328"></a>
+<span class="sourceLineNo">1329</span>    // iterative correction: Xn+1 = Xn - 0.5 * (Xn.Mt.Xn - M)<a name="line.1329"></a>
+<span class="sourceLineNo">1330</span>    int i = 0;<a name="line.1330"></a>
+<span class="sourceLineNo">1331</span>    while (++i &lt; 11) {<a name="line.1331"></a>
+<span class="sourceLineNo">1332</span><a name="line.1332"></a>
+<span class="sourceLineNo">1333</span>      // Mt.Xn<a name="line.1333"></a>
+<span class="sourceLineNo">1334</span>      double mx00 = m0[0] * x00 + m1[0] * x10 + m2[0] * x20;<a name="line.1334"></a>
+<span class="sourceLineNo">1335</span>      double mx10 = m0[1] * x00 + m1[1] * x10 + m2[1] * x20;<a name="line.1335"></a>
+<span class="sourceLineNo">1336</span>      double mx20 = m0[2] * x00 + m1[2] * x10 + m2[2] * x20;<a name="line.1336"></a>
+<span class="sourceLineNo">1337</span>      double mx01 = m0[0] * x01 + m1[0] * x11 + m2[0] * x21;<a name="line.1337"></a>
+<span class="sourceLineNo">1338</span>      double mx11 = m0[1] * x01 + m1[1] * x11 + m2[1] * x21;<a name="line.1338"></a>
+<span class="sourceLineNo">1339</span>      double mx21 = m0[2] * x01 + m1[2] * x11 + m2[2] * x21;<a name="line.1339"></a>
+<span class="sourceLineNo">1340</span>      double mx02 = m0[0] * x02 + m1[0] * x12 + m2[0] * x22;<a name="line.1340"></a>
+<span class="sourceLineNo">1341</span>      double mx12 = m0[1] * x02 + m1[1] * x12 + m2[1] * x22;<a name="line.1341"></a>
+<span class="sourceLineNo">1342</span>      double mx22 = m0[2] * x02 + m1[2] * x12 + m2[2] * x22;<a name="line.1342"></a>
+<span class="sourceLineNo">1343</span><a name="line.1343"></a>
+<span class="sourceLineNo">1344</span>      // Xn+1<a name="line.1344"></a>
+<span class="sourceLineNo">1345</span>      o0[0] = x00 - 0.5 * (x00 * mx00 + x01 * mx10 + x02 * mx20 - m0[0]);<a name="line.1345"></a>
+<span class="sourceLineNo">1346</span>      o0[1] = x01 - 0.5 * (x00 * mx01 + x01 * mx11 + x02 * mx21 - m0[1]);<a name="line.1346"></a>
+<span class="sourceLineNo">1347</span>      o0[2] = x02 - 0.5 * (x00 * mx02 + x01 * mx12 + x02 * mx22 - m0[2]);<a name="line.1347"></a>
+<span class="sourceLineNo">1348</span>      o1[0] = x10 - 0.5 * (x10 * mx00 + x11 * mx10 + x12 * mx20 - m1[0]);<a name="line.1348"></a>
+<span class="sourceLineNo">1349</span>      o1[1] = x11 - 0.5 * (x10 * mx01 + x11 * mx11 + x12 * mx21 - m1[1]);<a name="line.1349"></a>
+<span class="sourceLineNo">1350</span>      o1[2] = x12 - 0.5 * (x10 * mx02 + x11 * mx12 + x12 * mx22 - m1[2]);<a name="line.1350"></a>
+<span class="sourceLineNo">1351</span>      o2[0] = x20 - 0.5 * (x20 * mx00 + x21 * mx10 + x22 * mx20 - m2[0]);<a name="line.1351"></a>
+<span class="sourceLineNo">1352</span>      o2[1] = x21 - 0.5 * (x20 * mx01 + x21 * mx11 + x22 * mx21 - m2[1]);<a name="line.1352"></a>
+<span class="sourceLineNo">1353</span>      o2[2] = x22 - 0.5 * (x20 * mx02 + x21 * mx12 + x22 * mx22 - m2[2]);<a name="line.1353"></a>
+<span class="sourceLineNo">1354</span><a name="line.1354"></a>
+<span class="sourceLineNo">1355</span>      // correction on each elements<a name="line.1355"></a>
+<span class="sourceLineNo">1356</span>      double corr00 = o0[0] - m0[0];<a name="line.1356"></a>
+<span class="sourceLineNo">1357</span>      double corr01 = o0[1] - m0[1];<a name="line.1357"></a>
+<span class="sourceLineNo">1358</span>      double corr02 = o0[2] - m0[2];<a name="line.1358"></a>
+<span class="sourceLineNo">1359</span>      double corr10 = o1[0] - m1[0];<a name="line.1359"></a>
+<span class="sourceLineNo">1360</span>      double corr11 = o1[1] - m1[1];<a name="line.1360"></a>
+<span class="sourceLineNo">1361</span>      double corr12 = o1[2] - m1[2];<a name="line.1361"></a>
+<span class="sourceLineNo">1362</span>      double corr20 = o2[0] - m2[0];<a name="line.1362"></a>
+<span class="sourceLineNo">1363</span>      double corr21 = o2[1] - m2[1];<a name="line.1363"></a>
+<span class="sourceLineNo">1364</span>      double corr22 = o2[2] - m2[2];<a name="line.1364"></a>
+<span class="sourceLineNo">1365</span><a name="line.1365"></a>
+<span class="sourceLineNo">1366</span>      // Frobenius norm of the correction<a name="line.1366"></a>
+<span class="sourceLineNo">1367</span>      fn1 = corr00 * corr00 + corr01 * corr01 + corr02 * corr02 +<a name="line.1367"></a>
+<span class="sourceLineNo">1368</span>            corr10 * corr10 + corr11 * corr11 + corr12 * corr12 +<a name="line.1368"></a>
+<span class="sourceLineNo">1369</span>            corr20 * corr20 + corr21 * corr21 + corr22 * corr22;<a name="line.1369"></a>
+<span class="sourceLineNo">1370</span><a name="line.1370"></a>
+<span class="sourceLineNo">1371</span>      // convergence test<a name="line.1371"></a>
+<span class="sourceLineNo">1372</span>      if (FastMath.abs(fn1 - fn) &lt;= threshold) {<a name="line.1372"></a>
+<span class="sourceLineNo">1373</span>          return o;<a name="line.1373"></a>
+<span class="sourceLineNo">1374</span>      }<a name="line.1374"></a>
+<span class="sourceLineNo">1375</span><a name="line.1375"></a>
+<span class="sourceLineNo">1376</span>      // prepare next iteration<a name="line.1376"></a>
+<span class="sourceLineNo">1377</span>      x00 = o0[0];<a name="line.1377"></a>
+<span class="sourceLineNo">1378</span>      x01 = o0[1];<a name="line.1378"></a>
+<span class="sourceLineNo">1379</span>      x02 = o0[2];<a name="line.1379"></a>
+<span class="sourceLineNo">1380</span>      x10 = o1[0];<a name="line.1380"></a>
+<span class="sourceLineNo">1381</span>      x11 = o1[1];<a name="line.1381"></a>
+<span class="sourceLineNo">1382</span>      x12 = o1[2];<a name="line.1382"></a>
+<span class="sourceLineNo">1383</span>      x20 = o2[0];<a name="line.1383"></a>
+<span class="sourceLineNo">1384</span>      x21 = o2[1];<a name="line.1384"></a>
+<span class="sourceLineNo">1385</span>      x22 = o2[2];<a name="line.1385"></a>
+<span class="sourceLineNo">1386</span>      fn  = fn1;<a name="line.1386"></a>
+<span class="sourceLineNo">1387</span><a name="line.1387"></a>
+<span class="sourceLineNo">1388</span>    }<a name="line.1388"></a>
+<span class="sourceLineNo">1389</span><a name="line.1389"></a>
+<span class="sourceLineNo">1390</span>    // the algorithm did not converge after 10 iterations<a name="line.1390"></a>
+<span class="sourceLineNo">1391</span>    throw new NotARotationMatrixException(<a name="line.1391"></a>
+<span class="sourceLineNo">1392</span>            LocalizedFormats.UNABLE_TO_ORTHOGONOLIZE_MATRIX,<a name="line.1392"></a>
+<span class="sourceLineNo">1393</span>            i - 1);<a name="line.1393"></a>
+<span class="sourceLineNo">1394</span>  }<a name="line.1394"></a>
+<span class="sourceLineNo">1395</span><a name="line.1395"></a>
+<span class="sourceLineNo">1396</span>  /** Compute the &lt;i&gt;distance&lt;/i&gt; between two rotations.<a name="line.1396"></a>
+<span class="sourceLineNo">1397</span>   * &lt;p&gt;The &lt;i&gt;distance&lt;/i&gt; is intended here as a way to check if two<a name="line.1397"></a>
+<span class="sourceLineNo">1398</span>   * rotations are almost similar (i.e. they transform vectors the same way)<a name="line.1398"></a>
+<span class="sourceLineNo">1399</span>   * or very different. It is mathematically defined as the angle of<a name="line.1399"></a>
+<span class="sourceLineNo">1400</span>   * the rotation r that prepended to one of the rotations gives the other<a name="line.1400"></a>
+<span class="sourceLineNo">1401</span>   * one:&lt;/p&gt;<a name="line.1401"></a>
+<span class="sourceLineNo">1402</span>   * &lt;pre&gt;<a name="line.1402"></a>
+<span class="sourceLineNo">1403</span>   *        r&lt;sub&gt;1&lt;/sub&gt;(r) = r&lt;sub&gt;2&lt;/sub&gt;<a name="line.1403"></a>
+<span class="sourceLineNo">1404</span>   * &lt;/pre&gt;<a name="line.1404"></a>
+<span class="sourceLineNo">1405</span>   * &lt;p&gt;This distance is an angle between 0 and &amp;pi;. Its value is the smallest<a name="line.1405"></a>
+<span class="sourceLineNo">1406</span>   * possible upper bound of the angle in radians between r&lt;sub&gt;1&lt;/sub&gt;(v)<a name="line.1406"></a>
+<span class="sourceLineNo">1407</span>   * and r&lt;sub&gt;2&lt;/sub&gt;(v) for all possible vectors v. This upper bound is<a name="line.1407"></a>
+<span class="sourceLineNo">1408</span>   * reached for some v. The distance is equal to 0 if and only if the two<a name="line.1408"></a>
+<span class="sourceLineNo">1409</span>   * rotations are identical.&lt;/p&gt;<a name="line.1409"></a>
+<span class="sourceLineNo">1410</span>   * &lt;p&gt;Comparing two rotations should always be done using this value rather<a name="line.1410"></a>
+<span class="sourceLineNo">1411</span>   * than for example comparing the components of the quaternions. It is much<a name="line.1411"></a>
+<span class="sourceLineNo">1412</span>   * more stable, and has a geometric meaning. Also comparing quaternions<a name="line.1412"></a>
+<span class="sourceLineNo">1413</span>   * components is error prone since for example quaternions (0.36, 0.48, -0.48, -0.64)<a name="line.1413"></a>
+<span class="sourceLineNo">1414</span>   * and (-0.36, -0.48, 0.48, 0.64) represent exactly the same rotation despite<a name="line.1414"></a>
+<span class="sourceLineNo">1415</span>   * their components are different (they are exact opposites).&lt;/p&gt;<a name="line.1415"></a>
+<span class="sourceLineNo">1416</span>   * @param r1 first rotation<a name="line.1416"></a>
+<span class="sourceLineNo">1417</span>   * @param r2 second rotation<a name="line.1417"></a>
+<span class="sourceLineNo">1418</span>   * @return &lt;i&gt;distance&lt;/i&gt; between r1 and r2<a name="line.1418"></a>
+<span class="sourceLineNo">1419</span>   */<a name="line.1419"></a>
+<span class="sourceLineNo">1420</span>  public static double distance(Rotation r1, Rotation r2) {<a name="line.1420"></a>
+<span class="sourceLineNo">1421</span>      return r1.composeInverseInternal(r2).getAngle();<a name="line.1421"></a>
+<span class="sourceLineNo">1422</span>  }<a name="line.1422"></a>
+<span class="sourceLineNo">1423</span><a name="line.1423"></a>
+<span class="sourceLineNo">1424</span>}<a name="line.1424"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

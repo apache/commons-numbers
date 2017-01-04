@@ -1,0 +1,833 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>OpenMapRealVector.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.linear</a> &gt; <span class="el_source">OpenMapRealVector.java</span></div><h1>OpenMapRealVector.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.linear;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MathArithmeticException;
+import org.apache.commons.math3.exception.NotPositiveException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.OpenIntToDoubleHashMap;
+import org.apache.commons.math3.util.OpenIntToDoubleHashMap.Iterator;
+
+/**
+ * This class implements the {@link RealVector} interface with a
+ * {@link OpenIntToDoubleHashMap} backing store.
+ * &lt;p&gt;
+ *  Caveat: This implementation assumes that, for any {@code x},
+ *  the equality {@code x * 0d == 0d} holds. But it is is not true for
+ *  {@code NaN}. Moreover, zero entries will lose their sign.
+ *  Some operations (that involve {@code NaN} and/or infinities) may
+ *  thus give incorrect results, like multiplications, divisions or
+ *  functions mapping.
+ * &lt;/p&gt;
+ * @since 2.0
+ */
+public class OpenMapRealVector extends SparseRealVector
+    implements Serializable {
+    /** Default Tolerance for having a value considered zero. */
+    public static final double DEFAULT_ZERO_TOLERANCE = 1.0e-12;
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 8772222695580707260L;
+    /** Entries of the vector. */
+    private final OpenIntToDoubleHashMap entries;
+    /** Dimension of the vector. */
+    private final int virtualSize;
+    /** Tolerance for having a value considered zero. */
+    private final double epsilon;
+
+    /**
+     * Build a 0-length vector.
+     * Zero-length vectors may be used to initialized construction of vectors
+     * by data gathering. We start with zero-length and use either the {@link
+     * #OpenMapRealVector(OpenMapRealVector, int)} constructor
+     * or one of the {@code append} method ({@link #append(double)},
+     * {@link #append(RealVector)}) to gather data into this vector.
+     */
+    public OpenMapRealVector() {
+<span class="fc" id="L65">        this(0, DEFAULT_ZERO_TOLERANCE);</span>
+<span class="fc" id="L66">    }</span>
+
+    /**
+     * Construct a vector of zeroes.
+     *
+     * @param dimension Size of the vector.
+     */
+    public OpenMapRealVector(int dimension) {
+<span class="fc" id="L74">        this(dimension, DEFAULT_ZERO_TOLERANCE);</span>
+<span class="fc" id="L75">    }</span>
+
+    /**
+     * Construct a vector of zeroes, specifying zero tolerance.
+     *
+     * @param dimension Size of the vector.
+     * @param epsilon Tolerance below which a value considered zero.
+     */
+<span class="fc" id="L83">    public OpenMapRealVector(int dimension, double epsilon) {</span>
+<span class="fc" id="L84">        virtualSize = dimension;</span>
+<span class="fc" id="L85">        entries = new OpenIntToDoubleHashMap(0.0);</span>
+<span class="fc" id="L86">        this.epsilon = epsilon;</span>
+<span class="fc" id="L87">    }</span>
+
+    /**
+     * Build a resized vector, for use with append.
+     *
+     * @param v Original vector.
+     * @param resize Amount to add.
+     */
+<span class="fc" id="L95">    protected OpenMapRealVector(OpenMapRealVector v, int resize) {</span>
+<span class="fc" id="L96">        virtualSize = v.getDimension() + resize;</span>
+<span class="fc" id="L97">        entries = new OpenIntToDoubleHashMap(v.entries);</span>
+<span class="fc" id="L98">        epsilon = v.epsilon;</span>
+<span class="fc" id="L99">    }</span>
+
+    /**
+     * Build a vector with known the sparseness (for advanced use only).
+     *
+     * @param dimension Size of the vector.
+     * @param expectedSize The expected number of non-zero entries.
+     */
+    public OpenMapRealVector(int dimension, int expectedSize) {
+<span class="nc" id="L108">        this(dimension, expectedSize, DEFAULT_ZERO_TOLERANCE);</span>
+<span class="nc" id="L109">    }</span>
+
+    /**
+     * Build a vector with known the sparseness and zero tolerance
+     * setting (for advanced use only).
+     *
+     * @param dimension Size of the vector.
+     * @param expectedSize Expected number of non-zero entries.
+     * @param epsilon Tolerance below which a value is considered zero.
+     */
+<span class="nc" id="L119">    public OpenMapRealVector(int dimension, int expectedSize, double epsilon) {</span>
+<span class="nc" id="L120">        virtualSize = dimension;</span>
+<span class="nc" id="L121">        entries = new OpenIntToDoubleHashMap(expectedSize, 0.0);</span>
+<span class="nc" id="L122">        this.epsilon = epsilon;</span>
+<span class="nc" id="L123">    }</span>
+
+    /**
+     * Create from an array.
+     * Only non-zero entries will be stored.
+     *
+     * @param values Set of values to create from.
+     */
+    public OpenMapRealVector(double[] values) {
+<span class="fc" id="L132">        this(values, DEFAULT_ZERO_TOLERANCE);</span>
+<span class="fc" id="L133">    }</span>
+
+    /**
+     * Create from an array, specifying zero tolerance.
+     * Only non-zero entries will be stored.
+     *
+     * @param values Set of values to create from.
+     * @param epsilon Tolerance below which a value is considered zero.
+     */
+<span class="fc" id="L142">    public OpenMapRealVector(double[] values, double epsilon) {</span>
+<span class="fc" id="L143">        virtualSize = values.length;</span>
+<span class="fc" id="L144">        entries = new OpenIntToDoubleHashMap(0.0);</span>
+<span class="fc" id="L145">        this.epsilon = epsilon;</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        for (int key = 0; key &lt; values.length; key++) {</span>
+<span class="fc" id="L147">            double value = values[key];</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">            if (!isDefaultValue(value)) {</span>
+<span class="fc" id="L149">                entries.put(key, value);</span>
+            }
+        }
+<span class="fc" id="L152">    }</span>
+
+    /**
+     * Create from an array.
+     * Only non-zero entries will be stored.
+     *
+     * @param values The set of values to create from
+     */
+    public OpenMapRealVector(Double[] values) {
+<span class="fc" id="L161">        this(values, DEFAULT_ZERO_TOLERANCE);</span>
+<span class="fc" id="L162">    }</span>
+
+    /**
+     * Create from an array.
+     * Only non-zero entries will be stored.
+     *
+     * @param values Set of values to create from.
+     * @param epsilon Tolerance below which a value is considered zero.
+     */
+<span class="fc" id="L171">    public OpenMapRealVector(Double[] values, double epsilon) {</span>
+<span class="fc" id="L172">        virtualSize = values.length;</span>
+<span class="fc" id="L173">        entries = new OpenIntToDoubleHashMap(0.0);</span>
+<span class="fc" id="L174">        this.epsilon = epsilon;</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">        for (int key = 0; key &lt; values.length; key++) {</span>
+<span class="fc" id="L176">            double value = values[key].doubleValue();</span>
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">            if (!isDefaultValue(value)) {</span>
+<span class="fc" id="L178">                entries.put(key, value);</span>
+            }
+        }
+<span class="fc" id="L181">    }</span>
+
+    /**
+     * Copy constructor.
+     *
+     * @param v Instance to copy from.
+     */
+<span class="fc" id="L188">    public OpenMapRealVector(OpenMapRealVector v) {</span>
+<span class="fc" id="L189">        virtualSize = v.getDimension();</span>
+<span class="fc" id="L190">        entries = new OpenIntToDoubleHashMap(v.getEntries());</span>
+<span class="fc" id="L191">        epsilon = v.epsilon;</span>
+<span class="fc" id="L192">    }</span>
+
+    /**
+     * Generic copy constructor.
+     *
+     * @param v Instance to copy from.
+     */
+<span class="fc" id="L199">    public OpenMapRealVector(RealVector v) {</span>
+<span class="fc" id="L200">        virtualSize = v.getDimension();</span>
+<span class="fc" id="L201">        entries = new OpenIntToDoubleHashMap(0.0);</span>
+<span class="fc" id="L202">        epsilon = DEFAULT_ZERO_TOLERANCE;</span>
+<span class="fc bfc" id="L203" title="All 2 branches covered.">        for (int key = 0; key &lt; virtualSize; key++) {</span>
+<span class="fc" id="L204">            double value = v.getEntry(key);</span>
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">            if (!isDefaultValue(value)) {</span>
+<span class="fc" id="L206">                entries.put(key, value);</span>
+            }
+        }
+<span class="fc" id="L209">    }</span>
+
+    /**
+     * Get the entries of this instance.
+     *
+     * @return the entries of this instance.
+     */
+    private OpenIntToDoubleHashMap getEntries() {
+<span class="fc" id="L217">        return entries;</span>
+    }
+
+    /**
+     * Determine if this value is within epsilon of zero.
+     *
+     * @param value Value to test
+     * @return {@code true} if this value is within epsilon to zero,
+     * {@code false} otherwise.
+     * @since 2.1
+     */
+    protected boolean isDefaultValue(double value) {
+<span class="fc bfc" id="L229" title="All 2 branches covered.">        return FastMath.abs(value) &lt; epsilon;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public RealVector add(RealVector v)
+        throws DimensionMismatchException {
+<span class="fc" id="L236">        checkVectorDimensions(v.getDimension());</span>
+<span class="fc bfc" id="L237" title="All 2 branches covered.">        if (v instanceof OpenMapRealVector) {</span>
+<span class="fc" id="L238">            return add((OpenMapRealVector) v);</span>
+        } else {
+<span class="fc" id="L240">            return super.add(v);</span>
+        }
+    }
+
+    /**
+     * Optimized method to add two OpenMapRealVectors.
+     * It copies the larger vector, then iterates over the smaller.
+     *
+     * @param v Vector to add.
+     * @return the sum of {@code this} and {@code v}.
+     * @throws DimensionMismatchException if the dimensions do not match.
+     */
+    public OpenMapRealVector add(OpenMapRealVector v)
+        throws DimensionMismatchException {
+<span class="fc" id="L254">        checkVectorDimensions(v.getDimension());</span>
+<span class="pc bpc" id="L255" title="1 of 2 branches missed.">        boolean copyThis = entries.size() &gt; v.entries.size();</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">        OpenMapRealVector res = copyThis ? this.copy() : v.copy();</span>
+<span class="pc bpc" id="L257" title="1 of 2 branches missed.">        Iterator iter = copyThis ? v.entries.iterator() : entries.iterator();</span>
+<span class="pc bpc" id="L258" title="1 of 2 branches missed.">        OpenIntToDoubleHashMap randomAccess = copyThis ? entries : v.entries;</span>
+<span class="fc bfc" id="L259" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L260">            iter.advance();</span>
+<span class="fc" id="L261">            int key = iter.key();</span>
+<span class="fc bfc" id="L262" title="All 2 branches covered.">            if (randomAccess.containsKey(key)) {</span>
+<span class="fc" id="L263">                res.setEntry(key, randomAccess.get(key) + iter.value());</span>
+            } else {
+<span class="fc" id="L265">                res.setEntry(key, iter.value());</span>
+            }
+<span class="fc" id="L267">        }</span>
+<span class="fc" id="L268">        return res;</span>
+    }
+
+    /**
+     * Optimized method to append a OpenMapRealVector.
+     * @param v vector to append
+     * @return The result of appending {@code v} to self
+     */
+    public OpenMapRealVector append(OpenMapRealVector v) {
+<span class="fc" id="L277">        OpenMapRealVector res = new OpenMapRealVector(this, v.getDimension());</span>
+<span class="fc" id="L278">        Iterator iter = v.entries.iterator();</span>
+<span class="fc bfc" id="L279" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L280">            iter.advance();</span>
+<span class="fc" id="L281">            res.setEntry(iter.key() + virtualSize, iter.value());</span>
+        }
+<span class="fc" id="L283">        return res;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public OpenMapRealVector append(RealVector v) {
+<span class="fc bfc" id="L289" title="All 2 branches covered.">        if (v instanceof OpenMapRealVector) {</span>
+<span class="fc" id="L290">            return append((OpenMapRealVector) v);</span>
+        } else {
+<span class="fc" id="L292">            final OpenMapRealVector res = new OpenMapRealVector(this, v.getDimension());</span>
+<span class="fc bfc" id="L293" title="All 2 branches covered.">            for (int i = 0; i &lt; v.getDimension(); i++) {</span>
+<span class="fc" id="L294">                res.setEntry(i + virtualSize, v.getEntry(i));</span>
+            }
+<span class="fc" id="L296">            return res;</span>
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public OpenMapRealVector append(double d) {
+<span class="fc" id="L303">        OpenMapRealVector res = new OpenMapRealVector(this, 1);</span>
+<span class="fc" id="L304">        res.setEntry(virtualSize, d);</span>
+<span class="fc" id="L305">        return res;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     * @since 2.1
+     */
+    @Override
+    public OpenMapRealVector copy() {
+<span class="fc" id="L314">        return new OpenMapRealVector(this);</span>
+    }
+
+    /**
+     * Computes the dot product.
+     * Note that the computation is now performed in the parent class: no
+     * performance improvement is to be expected from this overloaded
+     * method.
+     * The previous implementation was buggy and cannot be easily fixed
+     * (see MATH-795).
+     *
+     * @param v Vector.
+     * @return the dot product of this vector with {@code v}.
+     * @throws DimensionMismatchException if {@code v} is not the same size as
+     * {@code this} vector.
+     *
+     * @deprecated as of 3.1 (to be removed in 4.0). The computation is
+     * performed by the parent class. The method must be kept to maintain
+     * backwards compatibility.
+     */
+    @Deprecated
+    public double dotProduct(OpenMapRealVector v)
+        throws DimensionMismatchException {
+<span class="nc" id="L337">        return dotProduct((RealVector) v);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public OpenMapRealVector ebeDivide(RealVector v)
+        throws DimensionMismatchException {
+<span class="fc" id="L344">        checkVectorDimensions(v.getDimension());</span>
+<span class="fc" id="L345">        OpenMapRealVector res = new OpenMapRealVector(this);</span>
+        /*
+         * MATH-803: it is not sufficient to loop through non zero entries of
+         * this only. Indeed, if this[i] = 0d and v[i] = 0d, then
+         * this[i] / v[i] = NaN, and not 0d.
+         */
+<span class="fc" id="L351">        final int n = getDimension();</span>
+<span class="fc bfc" id="L352" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L353">            res.setEntry(i, this.getEntry(i) / v.getEntry(i));</span>
+        }
+<span class="fc" id="L355">        return res;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public OpenMapRealVector ebeMultiply(RealVector v)
+        throws DimensionMismatchException {
+<span class="fc" id="L362">        checkVectorDimensions(v.getDimension());</span>
+<span class="fc" id="L363">        OpenMapRealVector res = new OpenMapRealVector(this);</span>
+<span class="fc" id="L364">        Iterator iter = entries.iterator();</span>
+<span class="fc bfc" id="L365" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L366">            iter.advance();</span>
+<span class="fc" id="L367">            res.setEntry(iter.key(), iter.value() * v.getEntry(iter.key()));</span>
+        }
+<span class="fc" id="L369">        return res;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public OpenMapRealVector getSubVector(int index, int n)
+        throws NotPositiveException, OutOfRangeException {
+<span class="fc" id="L376">        checkIndex(index);</span>
+<span class="fc bfc" id="L377" title="All 2 branches covered.">        if (n &lt; 0) {</span>
+<span class="fc" id="L378">            throw new NotPositiveException(LocalizedFormats.NUMBER_OF_ELEMENTS_SHOULD_BE_POSITIVE, n);</span>
+        }
+<span class="fc" id="L380">        checkIndex(index + n - 1);</span>
+<span class="fc" id="L381">        OpenMapRealVector res = new OpenMapRealVector(n);</span>
+<span class="fc" id="L382">        int end = index + n;</span>
+<span class="fc" id="L383">        Iterator iter = entries.iterator();</span>
+<span class="fc bfc" id="L384" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L385">            iter.advance();</span>
+<span class="fc" id="L386">            int key = iter.key();</span>
+<span class="fc bfc" id="L387" title="All 4 branches covered.">            if (key &gt;= index &amp;&amp; key &lt; end) {</span>
+<span class="fc" id="L388">                res.setEntry(key - index, iter.value());</span>
+            }
+<span class="fc" id="L390">        }</span>
+<span class="fc" id="L391">        return res;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int getDimension() {
+<span class="fc" id="L397">        return virtualSize;</span>
+    }
+
+    /**
+     * Optimized method to compute distance.
+     *
+     * @param v Vector to compute distance to.
+     * @return the distance from {@code this} and {@code v}.
+     * @throws DimensionMismatchException if the dimensions do not match.
+     */
+    public double getDistance(OpenMapRealVector v)
+        throws DimensionMismatchException {
+<span class="fc" id="L409">        checkVectorDimensions(v.getDimension());</span>
+<span class="fc" id="L410">        Iterator iter = entries.iterator();</span>
+<span class="fc" id="L411">        double res = 0;</span>
+<span class="fc bfc" id="L412" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L413">            iter.advance();</span>
+<span class="fc" id="L414">            int key = iter.key();</span>
+            double delta;
+<span class="fc" id="L416">            delta = iter.value() - v.getEntry(key);</span>
+<span class="fc" id="L417">            res += delta * delta;</span>
+<span class="fc" id="L418">        }</span>
+<span class="fc" id="L419">        iter = v.getEntries().iterator();</span>
+<span class="fc bfc" id="L420" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L421">            iter.advance();</span>
+<span class="fc" id="L422">            int key = iter.key();</span>
+<span class="fc bfc" id="L423" title="All 2 branches covered.">            if (!entries.containsKey(key)) {</span>
+<span class="fc" id="L424">                final double value = iter.value();</span>
+<span class="fc" id="L425">                res += value * value;</span>
+            }
+<span class="fc" id="L427">        }</span>
+<span class="fc" id="L428">        return FastMath.sqrt(res);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double getDistance(RealVector v) throws DimensionMismatchException {
+<span class="fc" id="L434">        checkVectorDimensions(v.getDimension());</span>
+<span class="fc bfc" id="L435" title="All 2 branches covered.">        if (v instanceof OpenMapRealVector) {</span>
+<span class="fc" id="L436">            return getDistance((OpenMapRealVector) v);</span>
+        } else {
+<span class="fc" id="L438">            return super.getDistance(v);</span>
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double getEntry(int index) throws OutOfRangeException {
+<span class="fc" id="L445">        checkIndex(index);</span>
+<span class="fc" id="L446">        return entries.get(index);</span>
+    }
+
+    /**
+     * Distance between two vectors.
+     * This method computes the distance consistent with
+     * L&lt;sub&gt;1&lt;/sub&gt; norm, i.e. the sum of the absolute values of
+     * elements differences.
+     *
+     * @param v Vector to which distance is requested.
+     * @return distance between this vector and {@code v}.
+     * @throws DimensionMismatchException if the dimensions do not match.
+     */
+    public double getL1Distance(OpenMapRealVector v)
+        throws DimensionMismatchException {
+<span class="fc" id="L461">        checkVectorDimensions(v.getDimension());</span>
+<span class="fc" id="L462">        double max = 0;</span>
+<span class="fc" id="L463">        Iterator iter = entries.iterator();</span>
+<span class="fc bfc" id="L464" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L465">            iter.advance();</span>
+<span class="fc" id="L466">            double delta = FastMath.abs(iter.value() - v.getEntry(iter.key()));</span>
+<span class="fc" id="L467">            max += delta;</span>
+<span class="fc" id="L468">        }</span>
+<span class="fc" id="L469">        iter = v.getEntries().iterator();</span>
+<span class="fc bfc" id="L470" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L471">            iter.advance();</span>
+<span class="fc" id="L472">            int key = iter.key();</span>
+<span class="fc bfc" id="L473" title="All 2 branches covered.">            if (!entries.containsKey(key)) {</span>
+<span class="fc" id="L474">                double delta = FastMath.abs(iter.value());</span>
+<span class="fc" id="L475">                max +=  FastMath.abs(delta);</span>
+            }
+<span class="fc" id="L477">        }</span>
+<span class="fc" id="L478">        return max;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double getL1Distance(RealVector v)
+        throws DimensionMismatchException {
+<span class="fc" id="L485">        checkVectorDimensions(v.getDimension());</span>
+<span class="fc bfc" id="L486" title="All 2 branches covered.">        if (v instanceof OpenMapRealVector) {</span>
+<span class="fc" id="L487">            return getL1Distance((OpenMapRealVector) v);</span>
+        } else {
+<span class="fc" id="L489">            return super.getL1Distance(v);</span>
+        }
+    }
+
+    /**
+     * Optimized method to compute LInfDistance.
+     *
+     * @param v Vector to compute distance from.
+     * @return the LInfDistance.
+     * @throws DimensionMismatchException if the dimensions do not match.
+     */
+    private double getLInfDistance(OpenMapRealVector v)
+        throws DimensionMismatchException {
+<span class="fc" id="L502">        checkVectorDimensions(v.getDimension());</span>
+<span class="fc" id="L503">        double max = 0;</span>
+<span class="fc" id="L504">        Iterator iter = entries.iterator();</span>
+<span class="fc bfc" id="L505" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L506">            iter.advance();</span>
+<span class="fc" id="L507">            double delta = FastMath.abs(iter.value() - v.getEntry(iter.key()));</span>
+<span class="fc bfc" id="L508" title="All 2 branches covered.">            if (delta &gt; max) {</span>
+<span class="fc" id="L509">                max = delta;</span>
+            }
+<span class="fc" id="L511">        }</span>
+<span class="fc" id="L512">        iter = v.getEntries().iterator();</span>
+<span class="fc bfc" id="L513" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L514">            iter.advance();</span>
+<span class="fc" id="L515">            int key = iter.key();</span>
+<span class="fc bfc" id="L516" title="All 4 branches covered.">            if (!entries.containsKey(key) &amp;&amp; iter.value() &gt; max) {</span>
+<span class="fc" id="L517">                max = iter.value();</span>
+            }
+<span class="fc" id="L519">        }</span>
+<span class="fc" id="L520">        return max;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double getLInfDistance(RealVector v)
+        throws DimensionMismatchException {
+<span class="fc" id="L527">        checkVectorDimensions(v.getDimension());</span>
+<span class="fc bfc" id="L528" title="All 2 branches covered.">        if (v instanceof OpenMapRealVector) {</span>
+<span class="fc" id="L529">            return getLInfDistance((OpenMapRealVector) v);</span>
+        } else {
+<span class="fc" id="L531">            return super.getLInfDistance(v);</span>
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isInfinite() {
+<span class="fc" id="L538">        boolean infiniteFound = false;</span>
+<span class="fc" id="L539">        Iterator iter = entries.iterator();</span>
+<span class="fc bfc" id="L540" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L541">            iter.advance();</span>
+<span class="fc" id="L542">            final double value = iter.value();</span>
+<span class="fc bfc" id="L543" title="All 2 branches covered.">            if (Double.isNaN(value)) {</span>
+<span class="fc" id="L544">                return false;</span>
+            }
+<span class="fc bfc" id="L546" title="All 2 branches covered.">            if (Double.isInfinite(value)) {</span>
+<span class="fc" id="L547">                infiniteFound = true;</span>
+            }
+<span class="fc" id="L549">        }</span>
+<span class="fc" id="L550">        return infiniteFound;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isNaN() {
+<span class="fc" id="L556">        Iterator iter = entries.iterator();</span>
+<span class="fc bfc" id="L557" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L558">            iter.advance();</span>
+<span class="fc bfc" id="L559" title="All 2 branches covered.">            if (Double.isNaN(iter.value())) {</span>
+<span class="fc" id="L560">                return true;</span>
+            }
+        }
+<span class="fc" id="L563">        return false;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public OpenMapRealVector mapAdd(double d) {
+<span class="fc" id="L569">        return copy().mapAddToSelf(d);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public OpenMapRealVector mapAddToSelf(double d) {
+<span class="fc bfc" id="L575" title="All 2 branches covered.">        for (int i = 0; i &lt; virtualSize; i++) {</span>
+<span class="fc" id="L576">            setEntry(i, getEntry(i) + d);</span>
+        }
+<span class="fc" id="L578">        return this;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setEntry(int index, double value)
+        throws OutOfRangeException {
+<span class="fc" id="L585">        checkIndex(index);</span>
+<span class="fc bfc" id="L586" title="All 2 branches covered.">        if (!isDefaultValue(value)) {</span>
+<span class="fc" id="L587">            entries.put(index, value);</span>
+<span class="fc bfc" id="L588" title="All 2 branches covered.">        } else if (entries.containsKey(index)) {</span>
+<span class="fc" id="L589">            entries.remove(index);</span>
+        }
+<span class="fc" id="L591">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public void setSubVector(int index, RealVector v)
+        throws OutOfRangeException {
+<span class="fc" id="L597">        checkIndex(index);</span>
+<span class="fc" id="L598">        checkIndex(index + v.getDimension() - 1);</span>
+<span class="fc bfc" id="L599" title="All 2 branches covered.">        for (int i = 0; i &lt; v.getDimension(); i++) {</span>
+<span class="fc" id="L600">            setEntry(i + index, v.getEntry(i));</span>
+        }
+<span class="fc" id="L602">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public void set(double value) {
+<span class="fc bfc" id="L607" title="All 2 branches covered.">        for (int i = 0; i &lt; virtualSize; i++) {</span>
+<span class="fc" id="L608">            setEntry(i, value);</span>
+        }
+<span class="fc" id="L610">    }</span>
+
+    /**
+     * Optimized method to subtract OpenMapRealVectors.
+     *
+     * @param v Vector to subtract from {@code this}.
+     * @return the difference of {@code this} and {@code v}.
+     * @throws DimensionMismatchException if the dimensions do not match.
+     */
+    public OpenMapRealVector subtract(OpenMapRealVector v)
+        throws DimensionMismatchException {
+<span class="fc" id="L621">        checkVectorDimensions(v.getDimension());</span>
+<span class="fc" id="L622">        OpenMapRealVector res = copy();</span>
+<span class="fc" id="L623">        Iterator iter = v.getEntries().iterator();</span>
+<span class="fc bfc" id="L624" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L625">            iter.advance();</span>
+<span class="fc" id="L626">            int key = iter.key();</span>
+<span class="fc bfc" id="L627" title="All 2 branches covered.">            if (entries.containsKey(key)) {</span>
+<span class="fc" id="L628">                res.setEntry(key, entries.get(key) - iter.value());</span>
+            } else {
+<span class="fc" id="L630">                res.setEntry(key, -iter.value());</span>
+            }
+<span class="fc" id="L632">        }</span>
+<span class="fc" id="L633">        return res;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public RealVector subtract(RealVector v)
+        throws DimensionMismatchException {
+<span class="fc" id="L640">        checkVectorDimensions(v.getDimension());</span>
+<span class="fc bfc" id="L641" title="All 2 branches covered.">        if (v instanceof OpenMapRealVector) {</span>
+<span class="fc" id="L642">            return subtract((OpenMapRealVector) v);</span>
+        } else {
+<span class="fc" id="L644">            return super.subtract(v);</span>
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public OpenMapRealVector unitVector() throws MathArithmeticException {
+<span class="fc" id="L651">        OpenMapRealVector res = copy();</span>
+<span class="fc" id="L652">        res.unitize();</span>
+<span class="fc" id="L653">        return res;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void unitize() throws MathArithmeticException {
+<span class="fc" id="L659">        double norm = getNorm();</span>
+<span class="fc bfc" id="L660" title="All 2 branches covered.">        if (isDefaultValue(norm)) {</span>
+<span class="fc" id="L661">            throw new MathArithmeticException(LocalizedFormats.ZERO_NORM);</span>
+        }
+<span class="fc" id="L663">        Iterator iter = entries.iterator();</span>
+<span class="fc bfc" id="L664" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L665">            iter.advance();</span>
+<span class="fc" id="L666">            entries.put(iter.key(), iter.value() / norm);</span>
+        }
+<span class="fc" id="L668">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public double[] toArray() {
+<span class="fc" id="L673">        double[] res = new double[virtualSize];</span>
+<span class="fc" id="L674">        Iterator iter = entries.iterator();</span>
+<span class="fc bfc" id="L675" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L676">            iter.advance();</span>
+<span class="fc" id="L677">            res[iter.key()] = iter.value();</span>
+        }
+<span class="fc" id="L679">        return res;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     * Implementation Note: This works on exact values, and as a result
+     * it is possible for {@code a.subtract(b)} to be the zero vector, while
+     * {@code a.hashCode() != b.hashCode()}.
+     */
+    @Override
+    public int hashCode() {
+<span class="nc" id="L690">        final int prime = 31;</span>
+<span class="nc" id="L691">        int result = 1;</span>
+        long temp;
+<span class="nc" id="L693">        temp = Double.doubleToLongBits(epsilon);</span>
+<span class="nc" id="L694">        result = prime * result + (int) (temp ^ (temp &gt;&gt;&gt; 32));</span>
+<span class="nc" id="L695">        result = prime * result + virtualSize;</span>
+<span class="nc" id="L696">        Iterator iter = entries.iterator();</span>
+<span class="nc bnc" id="L697" title="All 2 branches missed.">        while (iter.hasNext()) {</span>
+<span class="nc" id="L698">            iter.advance();</span>
+<span class="nc" id="L699">            temp = Double.doubleToLongBits(iter.value());</span>
+<span class="nc" id="L700">            result = prime * result + (int) (temp ^ (temp &gt;&gt;32));</span>
+        }
+<span class="nc" id="L702">        return result;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     * Implementation Note: This performs an exact comparison, and as a result
+     * it is possible for {@code a.subtract(b}} to be the zero vector, while
+     * {@code  a.equals(b) == false}.
+     */
+    @Override
+    public boolean equals(Object obj) {
+<span class="fc bfc" id="L713" title="All 2 branches covered.">        if (this == obj) {</span>
+<span class="fc" id="L714">            return true;</span>
+        }
+<span class="fc bfc" id="L716" title="All 2 branches covered.">        if (!(obj instanceof OpenMapRealVector)) {</span>
+<span class="fc" id="L717">            return false;</span>
+        }
+<span class="fc" id="L719">        OpenMapRealVector other = (OpenMapRealVector) obj;</span>
+<span class="fc bfc" id="L720" title="All 2 branches covered.">        if (virtualSize != other.virtualSize) {</span>
+<span class="fc" id="L721">            return false;</span>
+        }
+<span class="pc bpc" id="L723" title="1 of 2 branches missed.">        if (Double.doubleToLongBits(epsilon) !=</span>
+            Double.doubleToLongBits(other.epsilon)) {
+<span class="nc" id="L725">            return false;</span>
+        }
+<span class="fc" id="L727">        Iterator iter = entries.iterator();</span>
+<span class="fc bfc" id="L728" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L729">            iter.advance();</span>
+<span class="fc" id="L730">            double test = other.getEntry(iter.key());</span>
+<span class="pc bpc" id="L731" title="1 of 2 branches missed.">            if (Double.doubleToLongBits(test) != Double.doubleToLongBits(iter.value())) {</span>
+<span class="nc" id="L732">                return false;</span>
+            }
+<span class="fc" id="L734">        }</span>
+<span class="fc" id="L735">        iter = other.getEntries().iterator();</span>
+<span class="fc bfc" id="L736" title="All 2 branches covered.">        while (iter.hasNext()) {</span>
+<span class="fc" id="L737">            iter.advance();</span>
+<span class="fc" id="L738">            double test = iter.value();</span>
+<span class="pc bpc" id="L739" title="1 of 2 branches missed.">            if (Double.doubleToLongBits(test) != Double.doubleToLongBits(getEntry(iter.key()))) {</span>
+<span class="nc" id="L740">                return false;</span>
+            }
+<span class="fc" id="L742">        }</span>
+<span class="fc" id="L743">        return true;</span>
+    }
+
+    /**
+     *
+     * @return the percentage of none zero elements as a decimal percent.
+     * @since 2.2
+     */
+    public double getSparsity() {
+<span class="nc" id="L752">        return (double)entries.size()/(double)getDimension();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public java.util.Iterator&lt;Entry&gt; sparseIterator() {
+<span class="fc" id="L758">        return new OpenMapSparseIterator();</span>
+    }
+
+    /**
+     * Implementation of {@code Entry} optimized for OpenMap.
+     * This implementation does not allow arbitrary calls to {@code setIndex}
+     * since the order in which entries are returned is undefined.
+     */
+    protected class OpenMapEntry extends Entry {
+        /** Iterator pointing to the entry. */
+        private final Iterator iter;
+
+        /**
+         * Build an entry from an iterator point to an element.
+         *
+         * @param iter Iterator pointing to the entry.
+         */
+<span class="fc" id="L775">        protected OpenMapEntry(Iterator iter) {</span>
+<span class="fc" id="L776">            this.iter = iter;</span>
+<span class="fc" id="L777">        }</span>
+
+        /** {@inheritDoc} */
+        @Override
+        public double getValue() {
+<span class="fc" id="L782">            return iter.value();</span>
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public void setValue(double value) {
+<span class="nc" id="L788">            entries.put(iter.key(), value);</span>
+<span class="nc" id="L789">        }</span>
+
+        /** {@inheritDoc} */
+        @Override
+        public int getIndex() {
+<span class="fc" id="L794">            return iter.key();</span>
+        }
+
+    }
+
+    /**
+     * Iterator class to do iteration over just the non-zero elements.
+     * This implementation is fail-fast, so cannot be used to modify
+     * any zero element.
+     */
+    protected class OpenMapSparseIterator implements java.util.Iterator&lt;Entry&gt; {
+        /** Underlying iterator. */
+        private final Iterator iter;
+        /** Current entry. */
+        private final Entry current;
+
+        /** Simple constructor. */
+<span class="fc" id="L811">        protected OpenMapSparseIterator() {</span>
+<span class="fc" id="L812">            iter = entries.iterator();</span>
+<span class="fc" id="L813">            current = new OpenMapEntry(iter);</span>
+<span class="fc" id="L814">        }</span>
+
+        /** {@inheritDoc} */
+        public boolean hasNext() {
+<span class="fc" id="L818">            return iter.hasNext();</span>
+        }
+
+        /** {@inheritDoc} */
+        public Entry next() {
+<span class="fc" id="L823">            iter.advance();</span>
+<span class="fc" id="L824">            return current;</span>
+        }
+
+        /** {@inheritDoc} */
+        public void remove() {
+<span class="nc" id="L829">            throw new UnsupportedOperationException(&quot;Not supported&quot;);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

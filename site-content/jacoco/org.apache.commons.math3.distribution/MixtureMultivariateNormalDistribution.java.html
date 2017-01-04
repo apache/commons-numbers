@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MixtureMultivariateNormalDistribution.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.distribution</a> &gt; <span class="el_source">MixtureMultivariateNormalDistribution.java</span></div><h1>MixtureMultivariateNormalDistribution.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.distribution;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NotPositiveException;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.util.Pair;
+
+/**
+ * Multivariate normal mixture distribution.
+ * This class is mainly syntactic sugar.
+ *
+ * @see MixtureMultivariateRealDistribution
+ * @since 3.2
+ */
+public class MixtureMultivariateNormalDistribution
+    extends MixtureMultivariateRealDistribution&lt;MultivariateNormalDistribution&gt; {
+
+    /**
+     * Creates a multivariate normal mixture distribution.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; this constructor will implicitly create an instance of
+     * {@link org.apache.commons.math3.random.Well19937c Well19937c} as random
+     * generator to be used for sampling only (see {@link #sample()} and
+     * {@link #sample(int)}). In case no sampling is needed for the created
+     * distribution, it is advised to pass {@code null} as random generator via
+     * the appropriate constructors to avoid the additional initialisation
+     * overhead.
+     *
+     * @param weights Weights of each component.
+     * @param means Mean vector for each component.
+     * @param covariances Covariance matrix for each component.
+     */
+    public MixtureMultivariateNormalDistribution(double[] weights,
+                                                 double[][] means,
+                                                 double[][][] covariances) {
+<span class="fc" id="L55">        super(createComponents(weights, means, covariances));</span>
+<span class="fc" id="L56">    }</span>
+
+    /**
+     * Creates a mixture model from a list of distributions and their
+     * associated weights.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; this constructor will implicitly create an instance of
+     * {@link org.apache.commons.math3.random.Well19937c Well19937c} as random
+     * generator to be used for sampling only (see {@link #sample()} and
+     * {@link #sample(int)}). In case no sampling is needed for the created
+     * distribution, it is advised to pass {@code null} as random generator via
+     * the appropriate constructors to avoid the additional initialisation
+     * overhead.
+     *
+     * @param components List of (weight, distribution) pairs from which to sample.
+     */
+    public MixtureMultivariateNormalDistribution(List&lt;Pair&lt;Double, MultivariateNormalDistribution&gt;&gt; components) {
+<span class="fc" id="L73">        super(components);</span>
+<span class="fc" id="L74">    }</span>
+
+    /**
+     * Creates a mixture model from a list of distributions and their
+     * associated weights.
+     *
+     * @param rng Random number generator.
+     * @param components Distributions from which to sample.
+     * @throws NotPositiveException if any of the weights is negative.
+     * @throws DimensionMismatchException if not all components have the same
+     * number of variables.
+     */
+    public MixtureMultivariateNormalDistribution(RandomGenerator rng,
+                                                 List&lt;Pair&lt;Double, MultivariateNormalDistribution&gt;&gt; components)
+        throws NotPositiveException, DimensionMismatchException {
+<span class="nc" id="L89">        super(rng, components);</span>
+<span class="nc" id="L90">    }</span>
+
+    /**
+     * @param weights Weights of each component.
+     * @param means Mean vector for each component.
+     * @param covariances Covariance matrix for each component.
+     * @return the list of components.
+     */
+    private static List&lt;Pair&lt;Double, MultivariateNormalDistribution&gt;&gt; createComponents(double[] weights,
+                                                                                       double[][] means,
+                                                                                       double[][][] covariances) {
+<span class="fc" id="L101">        final List&lt;Pair&lt;Double, MultivariateNormalDistribution&gt;&gt; mvns</span>
+            = new ArrayList&lt;Pair&lt;Double, MultivariateNormalDistribution&gt;&gt;(weights.length);
+
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        for (int i = 0; i &lt; weights.length; i++) {</span>
+<span class="fc" id="L105">            final MultivariateNormalDistribution dist</span>
+                = new MultivariateNormalDistribution(means[i], covariances[i]);
+
+<span class="fc" id="L108">            mvns.add(new Pair&lt;Double, MultivariateNormalDistribution&gt;(weights[i], dist));</span>
+        }
+
+<span class="fc" id="L111">        return mvns;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

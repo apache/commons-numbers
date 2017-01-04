@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>NeuronString.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ml.neuralnet.oned</a> &gt; <span class="el_source">NeuronString.java</span></div><h1>NeuronString.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ml.neuralnet.oned;
+
+import java.io.Serializable;
+import java.io.ObjectInputStream;
+import org.apache.commons.math3.ml.neuralnet.Network;
+import org.apache.commons.math3.ml.neuralnet.FeatureInitializer;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+
+/**
+ * Neural network with the topology of a one-dimensional line.
+ * Each neuron defines one point on the line.
+ *
+ * @since 3.3
+ */
+public class NeuronString implements Serializable {
+    /** Serial version ID */
+    private static final long serialVersionUID = 1L;
+    /** Underlying network. */
+    private final Network network;
+    /** Number of neurons. */
+    private final int size;
+    /** Wrap. */
+    private final boolean wrap;
+
+    /**
+     * Mapping of the 1D coordinate to the neuron identifiers
+     * (attributed by the {@link #network} instance).
+     */
+    private final long[] identifiers;
+
+    /**
+     * Constructor with restricted access, solely used for deserialization.
+     *
+     * @param wrap Whether to wrap the dimension (i.e the first and last
+     * neurons will be linked together).
+     * @param featuresList Arrays that will initialize the features sets of
+     * the network's neurons.
+     * @throws NumberIsTooSmallException if {@code num &lt; 2}.
+     */
+    NeuronString(boolean wrap,
+<span class="fc" id="L59">                 double[][] featuresList) {</span>
+<span class="fc" id="L60">        size = featuresList.length;</span>
+
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">        if (size &lt; 2) {</span>
+<span class="nc" id="L63">            throw new NumberIsTooSmallException(size, 2, true);</span>
+        }
+
+<span class="fc" id="L66">        this.wrap = wrap;</span>
+
+<span class="fc" id="L68">        final int fLen = featuresList[0].length;</span>
+<span class="fc" id="L69">        network = new Network(0, fLen);</span>
+<span class="fc" id="L70">        identifiers = new long[size];</span>
+
+        // Add neurons.
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L74">            identifiers[i] = network.createNeuron(featuresList[i]);</span>
+        }
+
+        // Add links.
+<span class="fc" id="L78">        createLinks();</span>
+<span class="fc" id="L79">    }</span>
+
+    /**
+     * Creates a one-dimensional network:
+     * Each neuron not located on the border of the mesh has two
+     * neurons linked to it.
+     * &lt;br/&gt;
+     * The links are bi-directional.
+     * Neurons created successively are neighbours (i.e. there are
+     * links between them).
+     * &lt;br/&gt;
+     * The topology of the network can also be a circle (if the
+     * dimension is wrapped).
+     *
+     * @param num Number of neurons.
+     * @param wrap Whether to wrap the dimension (i.e the first and last
+     * neurons will be linked together).
+     * @param featureInit Arrays that will initialize the features sets of
+     * the network's neurons.
+     * @throws NumberIsTooSmallException if {@code num &lt; 2}.
+     */
+    public NeuronString(int num,
+                        boolean wrap,
+<span class="fc" id="L102">                        FeatureInitializer[] featureInit) {</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        if (num &lt; 2) {</span>
+<span class="nc" id="L104">            throw new NumberIsTooSmallException(num, 2, true);</span>
+        }
+
+<span class="fc" id="L107">        size = num;</span>
+<span class="fc" id="L108">        this.wrap = wrap;</span>
+<span class="fc" id="L109">        identifiers = new long[num];</span>
+
+<span class="fc" id="L111">        final int fLen = featureInit.length;</span>
+<span class="fc" id="L112">        network = new Network(0, fLen);</span>
+
+        // Add neurons.
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        for (int i = 0; i &lt; num; i++) {</span>
+<span class="fc" id="L116">            final double[] features = new double[fLen];</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">            for (int fIndex = 0; fIndex &lt; fLen; fIndex++) {</span>
+<span class="fc" id="L118">                features[fIndex] = featureInit[fIndex].value();</span>
+            }
+<span class="fc" id="L120">            identifiers[i] = network.createNeuron(features);</span>
+        }
+
+        // Add links.
+<span class="fc" id="L124">        createLinks();</span>
+<span class="fc" id="L125">    }</span>
+
+    /**
+     * Retrieves the underlying network.
+     * A reference is returned (enabling, for example, the network to be
+     * trained).
+     * This also implies that calling methods that modify the {@link Network}
+     * topology may cause this class to become inconsistent.
+     *
+     * @return the network.
+     */
+    public Network getNetwork() {
+<span class="fc" id="L137">        return network;</span>
+    }
+
+    /**
+     * Gets the number of neurons.
+     *
+     * @return the number of neurons.
+     */
+    public int getSize() {
+<span class="nc" id="L146">        return size;</span>
+    }
+
+    /**
+     * Retrieves the features set from the neuron at location
+     * {@code i} in the map.
+     *
+     * @param i Neuron index.
+     * @return the features of the neuron at index {@code i}.
+     * @throws OutOfRangeException if {@code i} is out of range.
+     */
+    public double[] getFeatures(int i) {
+<span class="pc bpc" id="L158" title="2 of 4 branches missed.">        if (i &lt; 0 ||</span>
+            i &gt;= size) {
+<span class="nc" id="L160">            throw new OutOfRangeException(i, 0, size - 1);</span>
+        }
+
+<span class="fc" id="L163">        return network.getNeuron(identifiers[i]).getFeatures();</span>
+    }
+
+    /**
+     * Creates the neighbour relationships between neurons.
+     */
+    private void createLinks() {
+<span class="fc bfc" id="L170" title="All 2 branches covered.">        for (int i = 0; i &lt; size - 1; i++) {</span>
+<span class="fc" id="L171">            network.addLink(network.getNeuron(i), network.getNeuron(i + 1));</span>
+        }
+<span class="fc bfc" id="L173" title="All 2 branches covered.">        for (int i = size - 1; i &gt; 0; i--) {</span>
+<span class="fc" id="L174">            network.addLink(network.getNeuron(i), network.getNeuron(i - 1));</span>
+        }
+<span class="fc bfc" id="L176" title="All 2 branches covered.">        if (wrap) {</span>
+<span class="fc" id="L177">            network.addLink(network.getNeuron(0), network.getNeuron(size - 1));</span>
+<span class="fc" id="L178">            network.addLink(network.getNeuron(size - 1), network.getNeuron(0));</span>
+        }
+<span class="fc" id="L180">    }</span>
+
+    /**
+     * Prevents proxy bypass.
+     *
+     * @param in Input stream.
+     */
+    private void readObject(ObjectInputStream in) {
+<span class="nc" id="L188">        throw new IllegalStateException();</span>
+    }
+
+    /**
+     * Custom serialization.
+     *
+     * @return the proxy instance that will be actually serialized.
+     */
+    private Object writeReplace() {
+<span class="fc" id="L197">        final double[][] featuresList = new double[size][];</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L199">            featuresList[i] = getFeatures(i);</span>
+        }
+
+<span class="fc" id="L202">        return new SerializationProxy(wrap,</span>
+                                      featuresList);
+    }
+
+    /**
+     * Serialization.
+     */
+    private static class SerializationProxy implements Serializable {
+        /** Serializable. */
+        private static final long serialVersionUID = 20130226L;
+        /** Wrap. */
+        private final boolean wrap;
+        /** Neurons' features. */
+        private final double[][] featuresList;
+
+        /**
+         * @param wrap Whether the dimension is wrapped.
+         * @param featuresList List of neurons features.
+         * {@code neuronList}.
+         */
+        SerializationProxy(boolean wrap,
+<span class="fc" id="L223">                           double[][] featuresList) {</span>
+<span class="fc" id="L224">            this.wrap = wrap;</span>
+<span class="fc" id="L225">            this.featuresList = featuresList;</span>
+<span class="fc" id="L226">        }</span>
+
+        /**
+         * Custom serialization.
+         *
+         * @return the {@link Neuron} for which this instance is the proxy.
+         */
+        private Object readResolve() {
+<span class="fc" id="L234">            return new NeuronString(wrap,</span>
+                                    featuresList);
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

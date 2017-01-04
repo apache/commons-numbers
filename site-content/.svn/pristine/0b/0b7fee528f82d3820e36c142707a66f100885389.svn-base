@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SubHyperplane.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.partitioning</a> &gt; <span class="el_source">SubHyperplane.java</span></div><h1>SubHyperplane.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.partitioning;
+
+import org.apache.commons.math3.geometry.Space;
+
+/** This interface represents the remaining parts of an hyperplane after
+ * other parts have been chopped off.
+
+ * &lt;p&gt;sub-hyperplanes are obtained when parts of an {@link
+ * Hyperplane hyperplane} are chopped off by other hyperplanes that
+ * intersect it. The remaining part is a convex region. Such objects
+ * appear in {@link BSPTree BSP trees} as the intersection of a cut
+ * hyperplane with the convex region which it splits, the chopping
+ * hyperplanes are the cut hyperplanes closer to the tree root.&lt;/p&gt;
+
+ * &lt;p&gt;
+ * Note that this interface is &lt;em&gt;not&lt;/em&gt; intended to be implemented
+ * by Apache Commons Math users, it is only intended to be implemented
+ * within the library itself. New methods may be added even for minor
+ * versions, which breaks compatibility for external implementations.
+ * &lt;/p&gt;
+
+ * @param &lt;S&gt; Type of the embedding space.
+
+ * @since 3.0
+ */
+public interface SubHyperplane&lt;S extends Space&gt; {
+
+    /** Copy the instance.
+     * &lt;p&gt;The instance created is completely independent of the original
+     * one. A deep copy is used, none of the underlying objects are
+     * shared (except for the nodes attributes and immutable
+     * objects).&lt;/p&gt;
+     * @return a new sub-hyperplane, copy of the instance
+     */
+    SubHyperplane&lt;S&gt; copySelf();
+
+    /** Get the underlying hyperplane.
+     * @return underlying hyperplane
+     */
+    Hyperplane&lt;S&gt; getHyperplane();
+
+    /** Check if the instance is empty.
+     * @return true if the instance is empty
+     */
+    boolean isEmpty();
+
+    /** Get the size of the instance.
+     * @return the size of the instance (this is a length in 1D, an area
+     * in 2D, a volume in 3D ...)
+     */
+    double getSize();
+
+    /** Compute the relative position of the instance with respect
+     * to an hyperplane.
+     * @param hyperplane hyperplane to check instance against
+     * @return one of {@link Side#PLUS}, {@link Side#MINUS}, {@link Side#BOTH},
+     * {@link Side#HYPER}
+     * @deprecated as of 3.6, replaced with {@link #split(Hyperplane)}.{@link SplitSubHyperplane#getSide()}
+     */
+    @Deprecated
+    Side side(Hyperplane&lt;S&gt; hyperplane);
+
+    /** Split the instance in two parts by an hyperplane.
+     * @param hyperplane splitting hyperplane
+     * @return an object containing both the part of the instance
+     * on the plus side of the hyperplane and the part of the
+     * instance on the minus side of the hyperplane
+     */
+    SplitSubHyperplane&lt;S&gt; split(Hyperplane&lt;S&gt; hyperplane);
+
+    /** Compute the union of the instance and another sub-hyperplane.
+     * @param other other sub-hyperplane to union (&lt;em&gt;must&lt;/em&gt; be in the
+     * same hyperplane as the instance)
+     * @return a new sub-hyperplane, union of the instance and other
+     */
+    SubHyperplane&lt;S&gt; reunite(SubHyperplane&lt;S&gt; other);
+
+    /** Class holding the results of the {@link #split split} method.
+     * @param &lt;U&gt; Type of the embedding space.
+     */
+    class SplitSubHyperplane&lt;U extends Space&gt; {
+
+        /** Part of the sub-hyperplane on the plus side of the splitting hyperplane. */
+        private final SubHyperplane&lt;U&gt; plus;
+
+        /** Part of the sub-hyperplane on the minus side of the splitting hyperplane. */
+        private final SubHyperplane&lt;U&gt; minus;
+
+        /** Build a SplitSubHyperplane from its parts.
+         * @param plus part of the sub-hyperplane on the plus side of the
+         * splitting hyperplane
+         * @param minus part of the sub-hyperplane on the minus side of the
+         * splitting hyperplane
+         */
+        public SplitSubHyperplane(final SubHyperplane&lt;U&gt; plus,
+<span class="fc" id="L112">                                  final SubHyperplane&lt;U&gt; minus) {</span>
+<span class="fc" id="L113">            this.plus  = plus;</span>
+<span class="fc" id="L114">            this.minus = minus;</span>
+<span class="fc" id="L115">        }</span>
+
+        /** Get the part of the sub-hyperplane on the plus side of the splitting hyperplane.
+         * @return part of the sub-hyperplane on the plus side of the splitting hyperplane
+         */
+        public SubHyperplane&lt;U&gt; getPlus() {
+<span class="fc" id="L121">            return plus;</span>
+        }
+
+        /** Get the part of the sub-hyperplane on the minus side of the splitting hyperplane.
+         * @return part of the sub-hyperplane on the minus side of the splitting hyperplane
+         */
+        public SubHyperplane&lt;U&gt; getMinus() {
+<span class="fc" id="L128">            return minus;</span>
+        }
+
+        /** Get the side of the split sub-hyperplane with respect to its splitter.
+         * @return {@link Side#PLUS} if only {@link #getPlus()} is neither null nor empty,
+         * {@link Side#MINUS} if only {@link #getMinus()} is neither null nor empty,
+         * {@link Side#BOTH} if both {@link #getPlus()} and {@link #getMinus()}
+         * are neither null nor empty or {@link Side#HYPER} if both {@link #getPlus()} and
+         * {@link #getMinus()} are either null or empty
+         * @since 3.6
+         */
+        public Side getSide() {
+<span class="fc bfc" id="L140" title="All 4 branches covered.">            if (plus != null &amp;&amp; !plus.isEmpty()) {</span>
+<span class="fc bfc" id="L141" title="All 4 branches covered.">                if (minus != null &amp;&amp; !minus.isEmpty()) {</span>
+<span class="fc" id="L142">                    return Side.BOTH;</span>
+                } else {
+<span class="fc" id="L144">                    return Side.PLUS;</span>
+                }
+<span class="pc bpc" id="L146" title="1 of 4 branches missed.">            } else if (minus != null &amp;&amp; !minus.isEmpty()) {</span>
+<span class="fc" id="L147">                return Side.MINUS;</span>
+            } else {
+<span class="fc" id="L149">                return Side.HYPER;</span>
+            }
+        }
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

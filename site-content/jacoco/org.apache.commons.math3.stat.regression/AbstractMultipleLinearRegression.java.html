@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractMultipleLinearRegression.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.regression</a> &gt; <span class="el_source">AbstractMultipleLinearRegression.java</span></div><h1>AbstractMultipleLinearRegression.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.regression;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.InsufficientDataException;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.linear.NonSquareMatrixException;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.stat.descriptive.moment.Variance;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * Abstract base class for implementations of MultipleLinearRegression.
+ * @since 2.0
+ */
+<span class="fc" id="L37">public abstract class AbstractMultipleLinearRegression implements</span>
+        MultipleLinearRegression {
+
+    /** X sample data. */
+    private RealMatrix xMatrix;
+
+    /** Y sample data. */
+    private RealVector yVector;
+
+    /** Whether or not the regression model includes an intercept.  True means no intercept. */
+<span class="fc" id="L47">    private boolean noIntercept = false;</span>
+
+    /**
+     * @return the X sample data.
+     */
+    protected RealMatrix getX() {
+<span class="fc" id="L53">        return xMatrix;</span>
+    }
+
+    /**
+     * @return the Y sample data.
+     */
+    protected RealVector getY() {
+<span class="fc" id="L60">        return yVector;</span>
+    }
+
+    /**
+     * @return true if the model has no intercept term; false otherwise
+     * @since 2.2
+     */
+    public boolean isNoIntercept() {
+<span class="fc" id="L68">        return noIntercept;</span>
+    }
+
+    /**
+     * @param noIntercept true means the model is to be estimated without an intercept term
+     * @since 2.2
+     */
+    public void setNoIntercept(boolean noIntercept) {
+<span class="fc" id="L76">        this.noIntercept = noIntercept;</span>
+<span class="fc" id="L77">    }</span>
+
+    /**
+     * &lt;p&gt;Loads model x and y sample data from a flat input array, overriding any previous sample.
+     * &lt;/p&gt;
+     * &lt;p&gt;Assumes that rows are concatenated with y values first in each row.  For example, an input
+     * &lt;code&gt;data&lt;/code&gt; array containing the sequence of values (1, 2, 3, 4, 5, 6, 7, 8, 9) with
+     * &lt;code&gt;nobs = 3&lt;/code&gt; and &lt;code&gt;nvars = 2&lt;/code&gt; creates a regression dataset with two
+     * independent variables, as below:
+     * &lt;pre&gt;
+     *   y   x[0]  x[1]
+     *   --------------
+     *   1     2     3
+     *   4     5     6
+     *   7     8     9
+     * &lt;/pre&gt;
+     * &lt;/p&gt;
+     * &lt;p&gt;Note that there is no need to add an initial unitary column (column of 1's) when
+     * specifying a model including an intercept term.  If {@link #isNoIntercept()} is &lt;code&gt;true&lt;/code&gt;,
+     * the X matrix will be created without an initial column of &quot;1&quot;s; otherwise this column will
+     * be added.
+     * &lt;/p&gt;
+     * &lt;p&gt;Throws IllegalArgumentException if any of the following preconditions fail:
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;data&lt;/code&gt; cannot be null&lt;/li&gt;
+     * &lt;li&gt;&lt;code&gt;data.length = nobs * (nvars + 1)&lt;/li&gt;
+     * &lt;li&gt;&lt;code&gt;nobs &gt; nvars&lt;/code&gt;&lt;/li&gt;&lt;/ul&gt;
+     * &lt;/p&gt;
+     *
+     * @param data input data array
+     * @param nobs number of observations (rows)
+     * @param nvars number of independent variables (columns, not counting y)
+     * @throws NullArgumentException if the data array is null
+     * @throws DimensionMismatchException if the length of the data array is not equal
+     * to &lt;code&gt;nobs * (nvars + 1)&lt;/code&gt;
+     * @throws InsufficientDataException if &lt;code&gt;nobs&lt;/code&gt; is less than
+     * &lt;code&gt;nvars + 1&lt;/code&gt;
+     */
+    public void newSampleData(double[] data, int nobs, int nvars) {
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (data == null) {</span>
+<span class="fc" id="L116">            throw new NullArgumentException();</span>
+        }
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        if (data.length != nobs * (nvars + 1)) {</span>
+<span class="fc" id="L119">            throw new DimensionMismatchException(data.length, nobs * (nvars + 1));</span>
+        }
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        if (nobs &lt;= nvars) {</span>
+<span class="fc" id="L122">            throw new InsufficientDataException(LocalizedFormats.INSUFFICIENT_OBSERVED_POINTS_IN_SAMPLE, nobs, nvars + 1);</span>
+        }
+<span class="fc" id="L124">        double[] y = new double[nobs];</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        final int cols = noIntercept ? nvars: nvars + 1;</span>
+<span class="fc" id="L126">        double[][] x = new double[nobs][cols];</span>
+<span class="fc" id="L127">        int pointer = 0;</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        for (int i = 0; i &lt; nobs; i++) {</span>
+<span class="fc" id="L129">            y[i] = data[pointer++];</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">            if (!noIntercept) {</span>
+<span class="fc" id="L131">                x[i][0] = 1.0d;</span>
+            }
+<span class="fc bfc" id="L133" title="All 4 branches covered.">            for (int j = noIntercept ? 0 : 1; j &lt; cols; j++) {</span>
+<span class="fc" id="L134">                x[i][j] = data[pointer++];</span>
+            }
+        }
+<span class="fc" id="L137">        this.xMatrix = new Array2DRowRealMatrix(x);</span>
+<span class="fc" id="L138">        this.yVector = new ArrayRealVector(y);</span>
+<span class="fc" id="L139">    }</span>
+
+    /**
+     * Loads new y sample data, overriding any previous data.
+     *
+     * @param y the array representing the y sample
+     * @throws NullArgumentException if y is null
+     * @throws NoDataException if y is empty
+     */
+    protected void newYSampleData(double[] y) {
+<span class="fc bfc" id="L149" title="All 2 branches covered.">        if (y == null) {</span>
+<span class="fc" id="L150">            throw new NullArgumentException();</span>
+        }
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">        if (y.length == 0) {</span>
+<span class="nc" id="L153">            throw new NoDataException();</span>
+        }
+<span class="fc" id="L155">        this.yVector = new ArrayRealVector(y);</span>
+<span class="fc" id="L156">    }</span>
+
+    /**
+     * &lt;p&gt;Loads new x sample data, overriding any previous data.
+     * &lt;/p&gt;
+     * The input &lt;code&gt;x&lt;/code&gt; array should have one row for each sample
+     * observation, with columns corresponding to independent variables.
+     * For example, if &lt;pre&gt;
+     * &lt;code&gt; x = new double[][] {{1, 2}, {3, 4}, {5, 6}} &lt;/code&gt;&lt;/pre&gt;
+     * then &lt;code&gt;setXSampleData(x) &lt;/code&gt; results in a model with two independent
+     * variables and 3 observations:
+     * &lt;pre&gt;
+     *   x[0]  x[1]
+     *   ----------
+     *     1    2
+     *     3    4
+     *     5    6
+     * &lt;/pre&gt;
+     * &lt;/p&gt;
+     * &lt;p&gt;Note that there is no need to add an initial unitary column (column of 1's) when
+     * specifying a model including an intercept term.
+     * &lt;/p&gt;
+     * @param x the rectangular array representing the x sample
+     * @throws NullArgumentException if x is null
+     * @throws NoDataException if x is empty
+     * @throws DimensionMismatchException if x is not rectangular
+     */
+    protected void newXSampleData(double[][] x) {
+<span class="fc bfc" id="L184" title="All 2 branches covered.">        if (x == null) {</span>
+<span class="fc" id="L185">            throw new NullArgumentException();</span>
+        }
+<span class="pc bpc" id="L187" title="1 of 2 branches missed.">        if (x.length == 0) {</span>
+<span class="nc" id="L188">            throw new NoDataException();</span>
+        }
+<span class="fc bfc" id="L190" title="All 2 branches covered.">        if (noIntercept) {</span>
+<span class="fc" id="L191">            this.xMatrix = new Array2DRowRealMatrix(x, true);</span>
+        } else { // Augment design matrix with initial unitary column
+<span class="fc" id="L193">            final int nVars = x[0].length;</span>
+<span class="fc" id="L194">            final double[][] xAug = new double[x.length][nVars + 1];</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">            for (int i = 0; i &lt; x.length; i++) {</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">                if (x[i].length != nVars) {</span>
+<span class="nc" id="L197">                    throw new DimensionMismatchException(x[i].length, nVars);</span>
+                }
+<span class="fc" id="L199">                xAug[i][0] = 1.0d;</span>
+<span class="fc" id="L200">                System.arraycopy(x[i], 0, xAug[i], 1, nVars);</span>
+            }
+<span class="fc" id="L202">            this.xMatrix = new Array2DRowRealMatrix(xAug, false);</span>
+        }
+<span class="fc" id="L204">    }</span>
+
+    /**
+     * Validates sample data.  Checks that
+     * &lt;ul&gt;&lt;li&gt;Neither x nor y is null or empty;&lt;/li&gt;
+     * &lt;li&gt;The length (i.e. number of rows) of x equals the length of y&lt;/li&gt;
+     * &lt;li&gt;x has at least one more row than it has columns (i.e. there is
+     * sufficient data to estimate regression coefficients for each of the
+     * columns in x plus an intercept.&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @param x the [n,k] array representing the x data
+     * @param y the [n,1] array representing the y data
+     * @throws NullArgumentException if {@code x} or {@code y} is null
+     * @throws DimensionMismatchException if {@code x} and {@code y} do not
+     * have the same length
+     * @throws NoDataException if {@code x} or {@code y} are zero-length
+     * @throws MathIllegalArgumentException if the number of rows of {@code x}
+     * is not larger than the number of columns + 1
+     */
+    protected void validateSampleData(double[][] x, double[] y) throws MathIllegalArgumentException {
+<span class="fc bfc" id="L225" title="All 4 branches covered.">        if ((x == null) || (y == null)) {</span>
+<span class="fc" id="L226">            throw new NullArgumentException();</span>
+        }
+<span class="fc bfc" id="L228" title="All 2 branches covered.">        if (x.length != y.length) {</span>
+<span class="fc" id="L229">            throw new DimensionMismatchException(y.length, x.length);</span>
+        }
+<span class="fc bfc" id="L231" title="All 2 branches covered.">        if (x.length == 0) {  // Must be no y data either</span>
+<span class="fc" id="L232">            throw new NoDataException();</span>
+        }
+<span class="fc bfc" id="L234" title="All 2 branches covered.">        if (x[0].length + 1 &gt; x.length) {</span>
+<span class="fc" id="L235">            throw new MathIllegalArgumentException(</span>
+                    LocalizedFormats.NOT_ENOUGH_DATA_FOR_NUMBER_OF_PREDICTORS,
+                    x.length, x[0].length);
+        }
+<span class="fc" id="L239">    }</span>
+
+    /**
+     * Validates that the x data and covariance matrix have the same
+     * number of rows and that the covariance matrix is square.
+     *
+     * @param x the [n,k] array representing the x sample
+     * @param covariance the [n,n] array representing the covariance matrix
+     * @throws DimensionMismatchException if the number of rows in x is not equal
+     * to the number of rows in covariance
+     * @throws NonSquareMatrixException if the covariance matrix is not square
+     */
+    protected void validateCovarianceData(double[][] x, double[][] covariance) {
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">        if (x.length != covariance.length) {</span>
+<span class="nc" id="L253">            throw new DimensionMismatchException(x.length, covariance.length);</span>
+        }
+<span class="pc bpc" id="L255" title="2 of 4 branches missed.">        if (covariance.length &gt; 0 &amp;&amp; covariance.length != covariance[0].length) {</span>
+<span class="nc" id="L256">            throw new NonSquareMatrixException(covariance.length, covariance[0].length);</span>
+        }
+<span class="fc" id="L258">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    public double[] estimateRegressionParameters() {
+<span class="fc" id="L264">        RealVector b = calculateBeta();</span>
+<span class="fc" id="L265">        return b.toArray();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public double[] estimateResiduals() {
+<span class="fc" id="L272">        RealVector b = calculateBeta();</span>
+<span class="fc" id="L273">        RealVector e = yVector.subtract(xMatrix.operate(b));</span>
+<span class="fc" id="L274">        return e.toArray();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public double[][] estimateRegressionParametersVariance() {
+<span class="fc" id="L281">        return calculateBetaVariance().getData();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public double[] estimateRegressionParametersStandardErrors() {
+<span class="fc" id="L288">        double[][] betaVariance = estimateRegressionParametersVariance();</span>
+<span class="fc" id="L289">        double sigma = calculateErrorVariance();</span>
+<span class="fc" id="L290">        int length = betaVariance[0].length;</span>
+<span class="fc" id="L291">        double[] result = new double[length];</span>
+<span class="fc bfc" id="L292" title="All 2 branches covered.">        for (int i = 0; i &lt; length; i++) {</span>
+<span class="fc" id="L293">            result[i] = FastMath.sqrt(sigma * betaVariance[i][i]);</span>
+        }
+<span class="fc" id="L295">        return result;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public double estimateRegressandVariance() {
+<span class="nc" id="L302">        return calculateYVariance();</span>
+    }
+
+    /**
+     * Estimates the variance of the error.
+     *
+     * @return estimate of the error variance
+     * @since 2.2
+     */
+    public double estimateErrorVariance() {
+<span class="fc" id="L312">        return calculateErrorVariance();</span>
+
+    }
+
+    /**
+     * Estimates the standard error of the regression.
+     *
+     * @return regression standard error
+     * @since 2.2
+     */
+    public double estimateRegressionStandardError() {
+<span class="fc" id="L323">        return FastMath.sqrt(estimateErrorVariance());</span>
+    }
+
+    /**
+     * Calculates the beta of multiple linear regression in matrix notation.
+     *
+     * @return beta
+     */
+    protected abstract RealVector calculateBeta();
+
+    /**
+     * Calculates the beta variance of multiple linear regression in matrix
+     * notation.
+     *
+     * @return beta variance
+     */
+    protected abstract RealMatrix calculateBetaVariance();
+
+
+    /**
+     * Calculates the variance of the y values.
+     *
+     * @return Y variance
+     */
+    protected double calculateYVariance() {
+<span class="fc" id="L348">        return new Variance().evaluate(yVector.toArray());</span>
+    }
+
+    /**
+     * &lt;p&gt;Calculates the variance of the error term.&lt;/p&gt;
+     * Uses the formula &lt;pre&gt;
+     * var(u) = u &amp;middot; u / (n - k)
+     * &lt;/pre&gt;
+     * where n and k are the row and column dimensions of the design
+     * matrix X.
+     *
+     * @return error variance estimate
+     * @since 2.2
+     */
+    protected double calculateErrorVariance() {
+<span class="fc" id="L363">        RealVector residuals = calculateResiduals();</span>
+<span class="fc" id="L364">        return residuals.dotProduct(residuals) /</span>
+               (xMatrix.getRowDimension() - xMatrix.getColumnDimension());
+    }
+
+    /**
+     * Calculates the residuals of multiple linear regression in matrix
+     * notation.
+     *
+     * &lt;pre&gt;
+     * u = y - X * b
+     * &lt;/pre&gt;
+     *
+     * @return The residuals [n,1] matrix
+     */
+    protected RealVector calculateResiduals() {
+<span class="fc" id="L379">        RealVector b = calculateBeta();</span>
+<span class="fc" id="L380">        return yVector.subtract(xMatrix.operate(b));</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

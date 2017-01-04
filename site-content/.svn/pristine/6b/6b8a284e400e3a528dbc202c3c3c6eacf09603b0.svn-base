@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RungeKuttaFieldIntegrator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.nonstiff</a> &gt; <span class="el_source">RungeKuttaFieldIntegrator.java</span></div><h1>RungeKuttaFieldIntegrator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.nonstiff;
+
+
+import org.apache.commons.math3.Field;
+import org.apache.commons.math3.RealFieldElement;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.exception.NoBracketingException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.ode.AbstractFieldIntegrator;
+import org.apache.commons.math3.ode.FieldEquationsMapper;
+import org.apache.commons.math3.ode.FieldExpandableODE;
+import org.apache.commons.math3.ode.FirstOrderFieldDifferentialEquations;
+import org.apache.commons.math3.ode.FieldODEState;
+import org.apache.commons.math3.ode.FieldODEStateAndDerivative;
+import org.apache.commons.math3.util.MathArrays;
+
+/**
+ * This class implements the common part of all fixed step Runge-Kutta
+ * integrators for Ordinary Differential Equations.
+ *
+ * &lt;p&gt;These methods are explicit Runge-Kutta methods, their Butcher
+ * arrays are as follows :
+ * &lt;pre&gt;
+ *    0  |
+ *   c2  | a21
+ *   c3  | a31  a32
+ *   ... |        ...
+ *   cs  | as1  as2  ...  ass-1
+ *       |--------------------------
+ *       |  b1   b2  ...   bs-1  bs
+ * &lt;/pre&gt;
+ * &lt;/p&gt;
+ *
+ * @see EulerFieldIntegrator
+ * @see ClassicalRungeKuttaFieldIntegrator
+ * @see GillFieldIntegrator
+ * @see MidpointFieldIntegrator
+ * @param &lt;T&gt; the type of the field elements
+ * @since 3.6
+ */
+
+public abstract class RungeKuttaFieldIntegrator&lt;T extends RealFieldElement&lt;T&gt;&gt;
+    extends AbstractFieldIntegrator&lt;T&gt;
+    implements FieldButcherArrayProvider&lt;T&gt; {
+
+    /** Time steps from Butcher array (without the first zero). */
+    private final T[] c;
+
+    /** Internal weights from Butcher array (without the first empty row). */
+    private final T[][] a;
+
+    /** External weights for the high order method from Butcher array. */
+    private final T[] b;
+
+    /** Integration step. */
+    private final T step;
+
+    /** Simple constructor.
+     * Build a Runge-Kutta integrator with the given
+     * step. The default step handler does nothing.
+     * @param field field to which the time and state vector elements belong
+     * @param name name of the method
+     * @param step integration step
+     */
+    protected RungeKuttaFieldIntegrator(final Field&lt;T&gt; field, final String name, final T step) {
+<span class="fc" id="L84">        super(field, name);</span>
+<span class="fc" id="L85">        this.c    = getC();</span>
+<span class="fc" id="L86">        this.a    = getA();</span>
+<span class="fc" id="L87">        this.b    = getB();</span>
+<span class="fc" id="L88">        this.step = step.abs();</span>
+<span class="fc" id="L89">    }</span>
+
+    /** Create a fraction.
+     * @param p numerator
+     * @param q denominator
+     * @return p/q computed in the instance field
+     */
+    protected T fraction(final int p, final int q) {
+<span class="fc" id="L97">        return getField().getZero().add(p).divide(q);</span>
+    }
+
+    /** Create an interpolator.
+     * @param forward integration direction indicator
+     * @param yDotK slopes at the intermediate points
+     * @param globalPreviousState start of the global step
+     * @param globalCurrentState end of the global step
+     * @param mapper equations mapper for the all equations
+     * @return external weights for the high order method from Butcher array
+     */
+    protected abstract RungeKuttaFieldStepInterpolator&lt;T&gt; createInterpolator(boolean forward, T[][] yDotK,
+                                                                             final FieldODEStateAndDerivative&lt;T&gt; globalPreviousState,
+                                                                             final FieldODEStateAndDerivative&lt;T&gt; globalCurrentState,
+                                                                             FieldEquationsMapper&lt;T&gt; mapper);
+
+    /** {@inheritDoc} */
+    public FieldODEStateAndDerivative&lt;T&gt; integrate(final FieldExpandableODE&lt;T&gt; equations,
+                                                   final FieldODEState&lt;T&gt; initialState, final T finalTime)
+        throws NumberIsTooSmallException, DimensionMismatchException,
+        MaxCountExceededException, NoBracketingException {
+
+<span class="fc" id="L119">        sanityChecks(initialState, finalTime);</span>
+<span class="fc" id="L120">        final T   t0 = initialState.getTime();</span>
+<span class="fc" id="L121">        final T[] y0 = equations.getMapper().mapState(initialState);</span>
+<span class="fc" id="L122">        setStepStart(initIntegration(equations, t0, y0, finalTime));</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        final boolean forward = finalTime.subtract(initialState.getTime()).getReal() &gt; 0;</span>
+
+        // create some internal working arrays
+<span class="fc" id="L126">        final int   stages = c.length + 1;</span>
+<span class="fc" id="L127">        T[]         y      = y0;</span>
+<span class="fc" id="L128">        final T[][] yDotK  = MathArrays.buildArray(getField(), stages, -1);</span>
+<span class="fc" id="L129">        final T[]   yTmp   = MathArrays.buildArray(getField(), y0.length);</span>
+
+        // set up integration control objects
+<span class="fc bfc" id="L132" title="All 2 branches covered.">        if (forward) {</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">            if (getStepStart().getTime().add(step).subtract(finalTime).getReal() &gt;= 0) {</span>
+<span class="fc" id="L134">                setStepSize(finalTime.subtract(getStepStart().getTime()));</span>
+            } else {
+<span class="fc" id="L136">                setStepSize(step);</span>
+            }
+        } else {
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">            if (getStepStart().getTime().subtract(step).subtract(finalTime).getReal() &lt;= 0) {</span>
+<span class="nc" id="L140">                setStepSize(finalTime.subtract(getStepStart().getTime()));</span>
+            } else {
+<span class="fc" id="L142">                setStepSize(step.negate());</span>
+            }
+        }
+
+        // main integration loop
+<span class="fc" id="L147">        setIsLastStep(false);</span>
+        do {
+
+            // first stage
+<span class="fc" id="L151">            y        = equations.getMapper().mapState(getStepStart());</span>
+<span class="fc" id="L152">            yDotK[0] = equations.getMapper().mapDerivative(getStepStart());</span>
+
+            // next stages
+<span class="fc bfc" id="L155" title="All 2 branches covered.">            for (int k = 1; k &lt; stages; ++k) {</span>
+
+<span class="fc bfc" id="L157" title="All 2 branches covered.">                for (int j = 0; j &lt; y0.length; ++j) {</span>
+<span class="fc" id="L158">                    T sum = yDotK[0][j].multiply(a[k-1][0]);</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">                    for (int l = 1; l &lt; k; ++l) {</span>
+<span class="fc" id="L160">                        sum = sum.add(yDotK[l][j].multiply(a[k-1][l]));</span>
+                    }
+<span class="fc" id="L162">                    yTmp[j] = y[j].add(getStepSize().multiply(sum));</span>
+                }
+
+<span class="fc" id="L165">                yDotK[k] = computeDerivatives(getStepStart().getTime().add(getStepSize().multiply(c[k-1])), yTmp);</span>
+
+            }
+
+            // estimate the state at the end of the step
+<span class="fc bfc" id="L170" title="All 2 branches covered.">            for (int j = 0; j &lt; y0.length; ++j) {</span>
+<span class="fc" id="L171">                T sum = yDotK[0][j].multiply(b[0]);</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">                for (int l = 1; l &lt; stages; ++l) {</span>
+<span class="fc" id="L173">                    sum = sum.add(yDotK[l][j].multiply(b[l]));</span>
+                }
+<span class="fc" id="L175">                yTmp[j] = y[j].add(getStepSize().multiply(sum));</span>
+            }
+<span class="fc" id="L177">            final T stepEnd   = getStepStart().getTime().add(getStepSize());</span>
+<span class="fc" id="L178">            final T[] yDotTmp = computeDerivatives(stepEnd, yTmp);</span>
+<span class="fc" id="L179">            final FieldODEStateAndDerivative&lt;T&gt; stateTmp = new FieldODEStateAndDerivative&lt;T&gt;(stepEnd, yTmp, yDotTmp);</span>
+
+            // discrete events handling
+<span class="fc" id="L182">            System.arraycopy(yTmp, 0, y, 0, y0.length);</span>
+<span class="fc" id="L183">            setStepStart(acceptStep(createInterpolator(forward, yDotK, getStepStart(), stateTmp, equations.getMapper()),</span>
+                                    finalTime));
+
+<span class="fc bfc" id="L186" title="All 2 branches covered.">            if (!isLastStep()) {</span>
+
+                // stepsize control for next step
+<span class="fc" id="L189">                final T  nextT      = getStepStart().getTime().add(getStepSize());</span>
+<span class="fc bfc" id="L190" title="All 6 branches covered.">                final boolean nextIsLast = forward ?</span>
+                                           (nextT.subtract(finalTime).getReal() &gt;= 0) :
+                                           (nextT.subtract(finalTime).getReal() &lt;= 0);
+<span class="fc bfc" id="L193" title="All 2 branches covered.">                if (nextIsLast) {</span>
+<span class="fc" id="L194">                    setStepSize(finalTime.subtract(getStepStart().getTime()));</span>
+                }
+            }
+
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        } while (!isLastStep());</span>
+
+<span class="fc" id="L200">        final FieldODEStateAndDerivative&lt;T&gt; finalState = getStepStart();</span>
+<span class="fc" id="L201">        setStepStart(null);</span>
+<span class="fc" id="L202">        setStepSize(null);</span>
+<span class="fc" id="L203">        return finalState;</span>
+
+    }
+
+    /** Fast computation of a single step of ODE integration.
+     * &lt;p&gt;This method is intended for the limited use case of
+     * very fast computation of only one step without using any of the
+     * rich features of general integrators that may take some time
+     * to set up (i.e. no step handlers, no events handlers, no additional
+     * states, no interpolators, no error control, no evaluations count,
+     * no sanity checks ...). It handles the strict minimum of computation,
+     * so it can be embedded in outer loops.&lt;/p&gt;
+     * &lt;p&gt;
+     * This method is &lt;em&gt;not&lt;/em&gt; used at all by the {@link #integrate(FieldExpandableODE,
+     * FieldODEState, RealFieldElement)} method. It also completely ignores the step set at
+     * construction time, and uses only a single step to go from {@code t0} to {@code t}.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * As this method does not use any of the state-dependent features of the integrator,
+     * it should be reasonably thread-safe &lt;em&gt;if and only if&lt;/em&gt; the provided differential
+     * equations are themselves thread-safe.
+     * &lt;/p&gt;
+     * @param equations differential equations to integrate
+     * @param t0 initial time
+     * @param y0 initial value of the state vector at t0
+     * @param t target time for the integration
+     * (can be set to a value smaller than {@code t0} for backward integration)
+     * @return state vector at {@code t}
+     */
+    public T[] singleStep(final FirstOrderFieldDifferentialEquations&lt;T&gt; equations,
+                          final T t0, final T[] y0, final T t) {
+
+        // create some internal working arrays
+<span class="fc" id="L236">        final T[] y       = y0.clone();</span>
+<span class="fc" id="L237">        final int stages  = c.length + 1;</span>
+<span class="fc" id="L238">        final T[][] yDotK = MathArrays.buildArray(getField(), stages, -1);</span>
+<span class="fc" id="L239">        final T[] yTmp    = y0.clone();</span>
+
+        // first stage
+<span class="fc" id="L242">        final T h = t.subtract(t0);</span>
+<span class="fc" id="L243">        yDotK[0] = equations.computeDerivatives(t0, y);</span>
+
+        // next stages
+<span class="fc bfc" id="L246" title="All 2 branches covered.">        for (int k = 1; k &lt; stages; ++k) {</span>
+
+<span class="fc bfc" id="L248" title="All 2 branches covered.">            for (int j = 0; j &lt; y0.length; ++j) {</span>
+<span class="fc" id="L249">                T sum = yDotK[0][j].multiply(a[k-1][0]);</span>
+<span class="fc bfc" id="L250" title="All 2 branches covered.">                for (int l = 1; l &lt; k; ++l) {</span>
+<span class="fc" id="L251">                    sum = sum.add(yDotK[l][j].multiply(a[k-1][l]));</span>
+                }
+<span class="fc" id="L253">                yTmp[j] = y[j].add(h.multiply(sum));</span>
+            }
+
+<span class="fc" id="L256">            yDotK[k] = equations.computeDerivatives(t0.add(h.multiply(c[k-1])), yTmp);</span>
+
+        }
+
+        // estimate the state at the end of the step
+<span class="fc bfc" id="L261" title="All 2 branches covered.">        for (int j = 0; j &lt; y0.length; ++j) {</span>
+<span class="fc" id="L262">            T sum = yDotK[0][j].multiply(b[0]);</span>
+<span class="fc bfc" id="L263" title="All 2 branches covered.">            for (int l = 1; l &lt; stages; ++l) {</span>
+<span class="fc" id="L264">                sum = sum.add(yDotK[l][j].multiply(b[l]));</span>
+            }
+<span class="fc" id="L266">            y[j] = y[j].add(h.multiply(sum));</span>
+        }
+
+<span class="fc" id="L269">        return y;</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

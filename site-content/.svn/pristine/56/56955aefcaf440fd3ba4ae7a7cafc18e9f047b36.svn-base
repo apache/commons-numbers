@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MultistepFieldIntegrator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode</a> &gt; <span class="el_source">MultistepFieldIntegrator.java</span></div><h1>MultistepFieldIntegrator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode;
+
+import org.apache.commons.math3.Field;
+import org.apache.commons.math3.RealFieldElement;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MathIllegalStateException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.exception.NoBracketingException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.linear.Array2DRowFieldMatrix;
+import org.apache.commons.math3.ode.nonstiff.AdaptiveStepsizeFieldIntegrator;
+import org.apache.commons.math3.ode.nonstiff.DormandPrince853FieldIntegrator;
+import org.apache.commons.math3.ode.sampling.FieldStepHandler;
+import org.apache.commons.math3.ode.sampling.FieldStepInterpolator;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * This class is the base class for multistep integrators for Ordinary
+ * Differential Equations.
+ * &lt;p&gt;We define scaled derivatives s&lt;sub&gt;i&lt;/sub&gt;(n) at step n as:
+ * &lt;pre&gt;
+ * s&lt;sub&gt;1&lt;/sub&gt;(n) = h y'&lt;sub&gt;n&lt;/sub&gt; for first derivative
+ * s&lt;sub&gt;2&lt;/sub&gt;(n) = h&lt;sup&gt;2&lt;/sup&gt;/2 y''&lt;sub&gt;n&lt;/sub&gt; for second derivative
+ * s&lt;sub&gt;3&lt;/sub&gt;(n) = h&lt;sup&gt;3&lt;/sup&gt;/6 y'''&lt;sub&gt;n&lt;/sub&gt; for third derivative
+ * ...
+ * s&lt;sub&gt;k&lt;/sub&gt;(n) = h&lt;sup&gt;k&lt;/sup&gt;/k! y&lt;sup&gt;(k)&lt;/sup&gt;&lt;sub&gt;n&lt;/sub&gt; for k&lt;sup&gt;th&lt;/sup&gt; derivative
+ * &lt;/pre&gt;&lt;/p&gt;
+ * &lt;p&gt;Rather than storing several previous steps separately, this implementation uses
+ * the Nordsieck vector with higher degrees scaled derivatives all taken at the same
+ * step (y&lt;sub&gt;n&lt;/sub&gt;, s&lt;sub&gt;1&lt;/sub&gt;(n) and r&lt;sub&gt;n&lt;/sub&gt;) where r&lt;sub&gt;n&lt;/sub&gt; is defined as:
+ * &lt;pre&gt;
+ * r&lt;sub&gt;n&lt;/sub&gt; = [ s&lt;sub&gt;2&lt;/sub&gt;(n), s&lt;sub&gt;3&lt;/sub&gt;(n) ... s&lt;sub&gt;k&lt;/sub&gt;(n) ]&lt;sup&gt;T&lt;/sup&gt;
+ * &lt;/pre&gt;
+ * (we omit the k index in the notation for clarity)&lt;/p&gt;
+ * &lt;p&gt;
+ * Multistep integrators with Nordsieck representation are highly sensitive to
+ * large step changes because when the step is multiplied by factor a, the
+ * k&lt;sup&gt;th&lt;/sup&gt; component of the Nordsieck vector is multiplied by a&lt;sup&gt;k&lt;/sup&gt;
+ * and the last components are the least accurate ones. The default max growth
+ * factor is therefore set to a quite low value: 2&lt;sup&gt;1/order&lt;/sup&gt;.
+ * &lt;/p&gt;
+ *
+ * @see org.apache.commons.math3.ode.nonstiff.AdamsBashforthFieldIntegrator
+ * @see org.apache.commons.math3.ode.nonstiff.AdamsMoultonFieldIntegrator
+ * @param &lt;T&gt; the type of the field elements
+ * @since 3.6
+ */
+public abstract class MultistepFieldIntegrator&lt;T extends RealFieldElement&lt;T&gt;&gt;
+    extends AdaptiveStepsizeFieldIntegrator&lt;T&gt; {
+
+    /** First scaled derivative (h y'). */
+    protected T[] scaled;
+
+    /** Nordsieck matrix of the higher scaled derivatives.
+     * &lt;p&gt;(h&lt;sup&gt;2&lt;/sup&gt;/2 y'', h&lt;sup&gt;3&lt;/sup&gt;/6 y''' ..., h&lt;sup&gt;k&lt;/sup&gt;/k! y&lt;sup&gt;(k)&lt;/sup&gt;)&lt;/p&gt;
+     */
+    protected Array2DRowFieldMatrix&lt;T&gt; nordsieck;
+
+    /** Starter integrator. */
+    private FirstOrderFieldIntegrator&lt;T&gt; starter;
+
+    /** Number of steps of the multistep method (excluding the one being computed). */
+    private final int nSteps;
+
+    /** Stepsize control exponent. */
+    private double exp;
+
+    /** Safety factor for stepsize control. */
+    private double safety;
+
+    /** Minimal reduction factor for stepsize control. */
+    private double minReduction;
+
+    /** Maximal growth factor for stepsize control. */
+    private double maxGrowth;
+
+    /**
+     * Build a multistep integrator with the given stepsize bounds.
+     * &lt;p&gt;The default starter integrator is set to the {@link
+     * DormandPrince853FieldIntegrator Dormand-Prince 8(5,3)} integrator with
+     * some defaults settings.&lt;/p&gt;
+     * &lt;p&gt;
+     * The default max growth factor is set to a quite low value: 2&lt;sup&gt;1/order&lt;/sup&gt;.
+     * &lt;/p&gt;
+     * @param field field to which the time and state vector elements belong
+     * @param name name of the method
+     * @param nSteps number of steps of the multistep method
+     * (excluding the one being computed)
+     * @param order order of the method
+     * @param minStep minimal step (must be positive even for backward
+     * integration), the last step can be smaller than this
+     * @param maxStep maximal step (must be positive even for backward
+     * integration)
+     * @param scalAbsoluteTolerance allowed absolute error
+     * @param scalRelativeTolerance allowed relative error
+     * @exception NumberIsTooSmallException if number of steps is smaller than 2
+     */
+    protected MultistepFieldIntegrator(final Field&lt;T&gt; field, final String name,
+                                       final int nSteps, final int order,
+                                       final double minStep, final double maxStep,
+                                       final double scalAbsoluteTolerance,
+                                       final double scalRelativeTolerance)
+        throws NumberIsTooSmallException {
+
+<span class="fc" id="L125">        super(field, name, minStep, maxStep, scalAbsoluteTolerance, scalRelativeTolerance);</span>
+
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">        if (nSteps &lt; 2) {</span>
+<span class="nc" id="L128">            throw new NumberIsTooSmallException(</span>
+                  LocalizedFormats.INTEGRATION_METHOD_NEEDS_AT_LEAST_TWO_PREVIOUS_POINTS,
+                  nSteps, 2, true);
+        }
+
+<span class="fc" id="L133">        starter = new DormandPrince853FieldIntegrator&lt;T&gt;(field, minStep, maxStep,</span>
+                                                         scalAbsoluteTolerance,
+                                                         scalRelativeTolerance);
+<span class="fc" id="L136">        this.nSteps = nSteps;</span>
+
+<span class="fc" id="L138">        exp = -1.0 / order;</span>
+
+        // set the default values of the algorithm control parameters
+<span class="fc" id="L141">        setSafety(0.9);</span>
+<span class="fc" id="L142">        setMinReduction(0.2);</span>
+<span class="fc" id="L143">        setMaxGrowth(FastMath.pow(2.0, -exp));</span>
+
+<span class="fc" id="L145">    }</span>
+
+    /**
+     * Build a multistep integrator with the given stepsize bounds.
+     * &lt;p&gt;The default starter integrator is set to the {@link
+     * DormandPrince853FieldIntegrator Dormand-Prince 8(5,3)} integrator with
+     * some defaults settings.&lt;/p&gt;
+     * &lt;p&gt;
+     * The default max growth factor is set to a quite low value: 2&lt;sup&gt;1/order&lt;/sup&gt;.
+     * &lt;/p&gt;
+     * @param field field to which the time and state vector elements belong
+     * @param name name of the method
+     * @param nSteps number of steps of the multistep method
+     * (excluding the one being computed)
+     * @param order order of the method
+     * @param minStep minimal step (must be positive even for backward
+     * integration), the last step can be smaller than this
+     * @param maxStep maximal step (must be positive even for backward
+     * integration)
+     * @param vecAbsoluteTolerance allowed absolute error
+     * @param vecRelativeTolerance allowed relative error
+     */
+    protected MultistepFieldIntegrator(final Field&lt;T&gt; field, final String name, final int nSteps,
+                                       final int order,
+                                       final double minStep, final double maxStep,
+                                       final double[] vecAbsoluteTolerance,
+                                       final double[] vecRelativeTolerance) {
+<span class="fc" id="L172">        super(field, name, minStep, maxStep, vecAbsoluteTolerance, vecRelativeTolerance);</span>
+<span class="fc" id="L173">        starter = new DormandPrince853FieldIntegrator&lt;T&gt;(field, minStep, maxStep,</span>
+                                                         vecAbsoluteTolerance,
+                                                         vecRelativeTolerance);
+<span class="fc" id="L176">        this.nSteps = nSteps;</span>
+
+<span class="fc" id="L178">        exp = -1.0 / order;</span>
+
+        // set the default values of the algorithm control parameters
+<span class="fc" id="L181">        setSafety(0.9);</span>
+<span class="fc" id="L182">        setMinReduction(0.2);</span>
+<span class="fc" id="L183">        setMaxGrowth(FastMath.pow(2.0, -exp));</span>
+
+<span class="fc" id="L185">    }</span>
+
+    /**
+     * Get the starter integrator.
+     * @return starter integrator
+     */
+    public FirstOrderFieldIntegrator&lt;T&gt; getStarterIntegrator() {
+<span class="nc" id="L192">        return starter;</span>
+    }
+
+    /**
+     * Set the starter integrator.
+     * &lt;p&gt;The various step and event handlers for this starter integrator
+     * will be managed automatically by the multi-step integrator. Any
+     * user configuration for these elements will be cleared before use.&lt;/p&gt;
+     * @param starterIntegrator starter integrator
+     */
+    public void setStarterIntegrator(FirstOrderFieldIntegrator&lt;T&gt; starterIntegrator) {
+<span class="fc" id="L203">        this.starter = starterIntegrator;</span>
+<span class="fc" id="L204">    }</span>
+
+    /** Start the integration.
+     * &lt;p&gt;This method computes one step using the underlying starter integrator,
+     * and initializes the Nordsieck vector at step start. The starter integrator
+     * purpose is only to establish initial conditions, it does not really change
+     * time by itself. The top level multistep integrator remains in charge of
+     * handling time propagation and events handling as it will starts its own
+     * computation right from the beginning. In a sense, the starter integrator
+     * can be seen as a dummy one and so it will never trigger any user event nor
+     * call any user step handler.&lt;/p&gt;
+     * @param equations complete set of differential equations to integrate
+     * @param initialState initial state (time, primary and secondary state vectors)
+     * @param t target time for the integration
+     * (can be set to a value smaller than &lt;code&gt;t0&lt;/code&gt; for backward integration)
+     * @exception DimensionMismatchException if arrays dimension do not match equations settings
+     * @exception NumberIsTooSmallException if integration step is too small
+     * @exception MaxCountExceededException if the number of functions evaluations is exceeded
+     * @exception NoBracketingException if the location of an event cannot be bracketed
+     */
+    protected void start(final FieldExpandableODE&lt;T&gt; equations, final FieldODEState&lt;T&gt; initialState, final T t)
+        throws DimensionMismatchException, NumberIsTooSmallException,
+               MaxCountExceededException, NoBracketingException {
+
+        // make sure NO user event nor user step handler is triggered,
+        // this is the task of the top level integrator, not the task
+        // of the starter integrator
+<span class="fc" id="L231">        starter.clearEventHandlers();</span>
+<span class="fc" id="L232">        starter.clearStepHandlers();</span>
+
+        // set up one specific step handler to extract initial Nordsieck vector
+<span class="fc" id="L235">        starter.addStepHandler(new FieldNordsieckInitializer(equations.getMapper(), (nSteps + 3) / 2));</span>
+
+        // start integration, expecting a InitializationCompletedMarkerException
+        try {
+
+<span class="fc" id="L240">            starter.integrate(equations, initialState, t);</span>
+
+            // we should not reach this step
+<span class="fc" id="L243">            throw new MathIllegalStateException(LocalizedFormats.MULTISTEP_STARTER_STOPPED_EARLY);</span>
+
+<span class="fc" id="L245">        } catch (InitializationCompletedMarkerException icme) { // NOPMD</span>
+            // this is the expected nominal interruption of the start integrator
+
+            // count the evaluations used by the starter
+<span class="fc" id="L249">            getEvaluationsCounter().increment(starter.getEvaluations());</span>
+
+        }
+
+        // remove the specific step handler
+<span class="fc" id="L254">        starter.clearStepHandlers();</span>
+
+<span class="fc" id="L256">    }</span>
+
+    /** Initialize the high order scaled derivatives at step start.
+     * @param h step size to use for scaling
+     * @param t first steps times
+     * @param y first steps states
+     * @param yDot first steps derivatives
+     * @return Nordieck vector at first step (h&lt;sup&gt;2&lt;/sup&gt;/2 y''&lt;sub&gt;n&lt;/sub&gt;,
+     * h&lt;sup&gt;3&lt;/sup&gt;/6 y'''&lt;sub&gt;n&lt;/sub&gt; ... h&lt;sup&gt;k&lt;/sup&gt;/k! y&lt;sup&gt;(k)&lt;/sup&gt;&lt;sub&gt;n&lt;/sub&gt;)
+     */
+    protected abstract Array2DRowFieldMatrix&lt;T&gt; initializeHighOrderDerivatives(final T h, final T[] t,
+                                                                               final T[][] y,
+                                                                               final T[][] yDot);
+
+    /** Get the minimal reduction factor for stepsize control.
+     * @return minimal reduction factor
+     */
+    public double getMinReduction() {
+<span class="nc" id="L274">        return minReduction;</span>
+    }
+
+    /** Set the minimal reduction factor for stepsize control.
+     * @param minReduction minimal reduction factor
+     */
+    public void setMinReduction(final double minReduction) {
+<span class="fc" id="L281">        this.minReduction = minReduction;</span>
+<span class="fc" id="L282">    }</span>
+
+    /** Get the maximal growth factor for stepsize control.
+     * @return maximal growth factor
+     */
+    public double getMaxGrowth() {
+<span class="nc" id="L288">        return maxGrowth;</span>
+    }
+
+    /** Set the maximal growth factor for stepsize control.
+     * @param maxGrowth maximal growth factor
+     */
+    public void setMaxGrowth(final double maxGrowth) {
+<span class="fc" id="L295">        this.maxGrowth = maxGrowth;</span>
+<span class="fc" id="L296">    }</span>
+
+    /** Get the safety factor for stepsize control.
+     * @return safety factor
+     */
+    public double getSafety() {
+<span class="nc" id="L302">      return safety;</span>
+    }
+
+    /** Set the safety factor for stepsize control.
+     * @param safety safety factor
+     */
+    public void setSafety(final double safety) {
+<span class="fc" id="L309">      this.safety = safety;</span>
+<span class="fc" id="L310">    }</span>
+
+    /** Get the number of steps of the multistep method (excluding the one being computed).
+     * @return number of steps of the multistep method (excluding the one being computed)
+     */
+    public int getNSteps() {
+<span class="nc" id="L316">      return nSteps;</span>
+    }
+
+    /** Rescale the instance.
+     * &lt;p&gt;Since the scaled and Nordsieck arrays are shared with the caller,
+     * this method has the side effect of rescaling this arrays in the caller too.&lt;/p&gt;
+     * @param newStepSize new step size to use in the scaled and Nordsieck arrays
+     */
+    protected void rescale(final T newStepSize) {
+
+<span class="fc" id="L326">        final T ratio = newStepSize.divide(getStepSize());</span>
+<span class="fc bfc" id="L327" title="All 2 branches covered.">        for (int i = 0; i &lt; scaled.length; ++i) {</span>
+<span class="fc" id="L328">            scaled[i] = scaled[i].multiply(ratio);</span>
+        }
+
+<span class="fc" id="L331">        final T[][] nData = nordsieck.getDataRef();</span>
+<span class="fc" id="L332">        T power = ratio;</span>
+<span class="fc bfc" id="L333" title="All 2 branches covered.">        for (int i = 0; i &lt; nData.length; ++i) {</span>
+<span class="fc" id="L334">            power = power.multiply(ratio);</span>
+<span class="fc" id="L335">            final T[] nDataI = nData[i];</span>
+<span class="fc bfc" id="L336" title="All 2 branches covered.">            for (int j = 0; j &lt; nDataI.length; ++j) {</span>
+<span class="fc" id="L337">                nDataI[j] = nDataI[j].multiply(power);</span>
+            }
+        }
+
+<span class="fc" id="L341">        setStepSize(newStepSize);</span>
+
+<span class="fc" id="L343">    }</span>
+
+
+    /** Compute step grow/shrink factor according to normalized error.
+     * @param error normalized error of the current step
+     * @return grow/shrink factor for next step
+     */
+    protected T computeStepGrowShrinkFactor(final T error) {
+<span class="fc" id="L351">        return MathUtils.min(error.getField().getZero().add(maxGrowth),</span>
+                             MathUtils.max(error.getField().getZero().add(minReduction),
+                                           error.pow(exp).multiply(safety)));
+    }
+
+    /** Specialized step handler storing the first step.
+     */
+    private class FieldNordsieckInitializer implements FieldStepHandler&lt;T&gt; {
+
+        /** Equation mapper. */
+        private final FieldEquationsMapper&lt;T&gt; mapper;
+
+        /** Steps counter. */
+        private int count;
+
+        /** Saved start. */
+        private FieldODEStateAndDerivative&lt;T&gt; savedStart;
+
+        /** First steps times. */
+        private final T[] t;
+
+        /** First steps states. */
+        private final T[][] y;
+
+        /** First steps derivatives. */
+        private final T[][] yDot;
+
+        /** Simple constructor.
+         * @param mapper equation mapper
+         * @param nbStartPoints number of start points (including the initial point)
+         */
+<span class="fc" id="L382">        FieldNordsieckInitializer(final FieldEquationsMapper&lt;T&gt; mapper, final int nbStartPoints) {</span>
+<span class="fc" id="L383">            this.mapper = mapper;</span>
+<span class="fc" id="L384">            this.count  = 0;</span>
+<span class="fc" id="L385">            this.t      = MathArrays.buildArray(getField(), nbStartPoints);</span>
+<span class="fc" id="L386">            this.y      = MathArrays.buildArray(getField(), nbStartPoints, -1);</span>
+<span class="fc" id="L387">            this.yDot   = MathArrays.buildArray(getField(), nbStartPoints, -1);</span>
+<span class="fc" id="L388">        }</span>
+
+        /** {@inheritDoc} */
+        public void handleStep(FieldStepInterpolator&lt;T&gt; interpolator, boolean isLast)
+            throws MaxCountExceededException {
+
+
+<span class="fc bfc" id="L395" title="All 2 branches covered.">            if (count == 0) {</span>
+                // first step, we need to store also the point at the beginning of the step
+<span class="fc" id="L397">                final FieldODEStateAndDerivative&lt;T&gt; prev = interpolator.getPreviousState();</span>
+<span class="fc" id="L398">                savedStart  = prev;</span>
+<span class="fc" id="L399">                t[count]    = prev.getTime();</span>
+<span class="fc" id="L400">                y[count]    = mapper.mapState(prev);</span>
+<span class="fc" id="L401">                yDot[count] = mapper.mapDerivative(prev);</span>
+            }
+
+            // store the point at the end of the step
+<span class="fc" id="L405">            ++count;</span>
+<span class="fc" id="L406">            final FieldODEStateAndDerivative&lt;T&gt; curr = interpolator.getCurrentState();</span>
+<span class="fc" id="L407">            t[count]    = curr.getTime();</span>
+<span class="fc" id="L408">            y[count]    = mapper.mapState(curr);</span>
+<span class="fc" id="L409">            yDot[count] = mapper.mapDerivative(curr);</span>
+
+<span class="fc bfc" id="L411" title="All 2 branches covered.">            if (count == t.length - 1) {</span>
+
+                // this was the last point we needed, we can compute the derivatives
+<span class="fc" id="L414">                setStepSize(t[t.length - 1].subtract(t[0]).divide(t.length - 1));</span>
+
+                // first scaled derivative
+<span class="fc" id="L417">                scaled = MathArrays.buildArray(getField(), yDot[0].length);</span>
+<span class="fc bfc" id="L418" title="All 2 branches covered.">                for (int j = 0; j &lt; scaled.length; ++j) {</span>
+<span class="fc" id="L419">                    scaled[j] = yDot[0][j].multiply(getStepSize());</span>
+                }
+
+                // higher order derivatives
+<span class="fc" id="L423">                nordsieck = initializeHighOrderDerivatives(getStepSize(), t, y, yDot);</span>
+
+                // stop the integrator now that all needed steps have been handled
+<span class="fc" id="L426">                setStepStart(savedStart);</span>
+<span class="fc" id="L427">                throw new InitializationCompletedMarkerException();</span>
+
+            }
+
+<span class="fc" id="L431">        }</span>
+
+        /** {@inheritDoc} */
+        public void init(final FieldODEStateAndDerivative&lt;T&gt; initialState, T finalTime) {
+            // nothing to do
+<span class="fc" id="L436">        }</span>
+
+    }
+
+    /** Marker exception used ONLY to stop the starter integrator after first step. */
+    private static class InitializationCompletedMarkerException
+        extends RuntimeException {
+
+        /** Serializable version identifier. */
+        private static final long serialVersionUID = -1914085471038046418L;
+
+        /** Simple constructor. */
+        InitializationCompletedMarkerException() {
+<span class="fc" id="L449">            super((Throwable) null);</span>
+<span class="fc" id="L450">        }</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

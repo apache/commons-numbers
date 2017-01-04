@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SolutionCallback.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optim.linear</a> &gt; <span class="el_source">SolutionCallback.java</span></div><h1>SolutionCallback.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.optim.linear;
+
+import org.apache.commons.math3.optim.OptimizationData;
+import org.apache.commons.math3.optim.PointValuePair;
+
+/**
+ * A callback object that can be provided to a linear optimizer to keep track
+ * of the best solution found.
+ *
+ * @since 3.3
+ */
+<span class="fc" id="L28">public class SolutionCallback implements OptimizationData {</span>
+    /** The SimplexTableau used by the SimplexSolver. */
+    private SimplexTableau tableau;
+
+    /**
+     * Set the simplex tableau used during the optimization once a feasible
+     * solution has been found.
+     *
+     * @param tableau the simplex tableau containing a feasible solution
+     */
+    void setTableau(final SimplexTableau tableau) {
+<span class="fc" id="L39">        this.tableau = tableau;</span>
+<span class="fc" id="L40">    }</span>
+
+    /**
+     * Retrieve the best solution found so far.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; the returned solution may not be optimal, e.g. in case
+     * the optimizer did reach the iteration limits.
+     *
+     * @return the best solution found so far by the optimizer, or {@code null} if
+     * no feasible solution could be found
+     */
+    public PointValuePair getSolution() {
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        return tableau != null ? tableau.getSolution() : null;</span>
+    }
+
+    /**
+     * Returns if the found solution is optimal.
+     * @return {@code true} if the solution is optimal, {@code false} otherwise
+     */
+    public boolean isSolutionOptimal() {
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        return tableau != null ? tableau.isOptimal() : false;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MidpointStepInterpolator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.nonstiff</a> &gt; <span class="el_source">MidpointStepInterpolator.java</span></div><h1>MidpointStepInterpolator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.nonstiff;
+
+import org.apache.commons.math3.ode.sampling.StepInterpolator;
+
+/**
+ * This class implements a step interpolator for second order
+ * Runge-Kutta integrator.
+ *
+ * &lt;p&gt;This interpolator computes dense output inside the last
+ * step computed. The interpolation equation is consistent with the
+ * integration scheme :
+ * &lt;ul&gt;
+ *   &lt;li&gt;Using reference point at step start:&lt;br&gt;
+ *   y(t&lt;sub&gt;n&lt;/sub&gt; + &amp;theta; h) = y (t&lt;sub&gt;n&lt;/sub&gt;) + &amp;theta; h [(1 - &amp;theta;) y'&lt;sub&gt;1&lt;/sub&gt; + &amp;theta; y'&lt;sub&gt;2&lt;/sub&gt;]
+ *   &lt;/li&gt;
+ *   &lt;li&gt;Using reference point at step end:&lt;br&gt;
+ *   y(t&lt;sub&gt;n&lt;/sub&gt; + &amp;theta; h) = y (t&lt;sub&gt;n&lt;/sub&gt; + h) + (1-&amp;theta;) h [&amp;theta; y'&lt;sub&gt;1&lt;/sub&gt; - (1+&amp;theta;) y'&lt;sub&gt;2&lt;/sub&gt;]
+ *   &lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;/p&gt;
+ *
+ * where &amp;theta; belongs to [0 ; 1] and where y'&lt;sub&gt;1&lt;/sub&gt; and y'&lt;sub&gt;2&lt;/sub&gt; are the two
+ * evaluations of the derivatives already computed during the
+ * step.&lt;/p&gt;
+ *
+ * @see MidpointIntegrator
+ * @since 1.2
+ */
+
+class MidpointStepInterpolator
+  extends RungeKuttaStepInterpolator {
+
+  /** Serializable version identifier */
+  private static final long serialVersionUID = 20111120L;
+
+  /** Simple constructor.
+   * This constructor builds an instance that is not usable yet, the
+   * {@link
+   * org.apache.commons.math3.ode.sampling.AbstractStepInterpolator#reinitialize}
+   * method should be called before using the instance in order to
+   * initialize the internal arrays. This constructor is used only
+   * in order to delay the initialization in some cases. The {@link
+   * RungeKuttaIntegrator} class uses the prototyping design pattern
+   * to create the step interpolators by cloning an uninitialized model
+   * and later initializing the copy.
+   */
+  // CHECKSTYLE: stop RedundantModifier
+  // the public modifier here is needed for serialization
+<span class="fc" id="L66">  public MidpointStepInterpolator() {</span>
+<span class="fc" id="L67">  }</span>
+  // CHECKSTYLE: resume RedundantModifier
+
+  /** Copy constructor.
+   * @param interpolator interpolator to copy from. The copy is a deep
+   * copy: its arrays are separated from the original arrays of the
+   * instance
+   */
+  MidpointStepInterpolator(final MidpointStepInterpolator interpolator) {
+<span class="fc" id="L76">    super(interpolator);</span>
+<span class="fc" id="L77">  }</span>
+
+  /** {@inheritDoc} */
+  @Override
+  protected StepInterpolator doCopy() {
+<span class="fc" id="L82">    return new MidpointStepInterpolator(this);</span>
+  }
+
+
+  /** {@inheritDoc} */
+  @Override
+  protected void computeInterpolatedStateAndDerivatives(final double theta,
+                                          final double oneMinusThetaH) {
+
+<span class="fc" id="L91">    final double coeffDot2 = 2 * theta;</span>
+<span class="fc" id="L92">    final double coeffDot1 = 1 - coeffDot2;</span>
+
+<span class="pc bpc" id="L94" title="1 of 4 branches missed.">    if ((previousState != null) &amp;&amp; (theta &lt;= 0.5)) {</span>
+<span class="fc" id="L95">        final double coeff1    = theta * oneMinusThetaH;</span>
+<span class="fc" id="L96">        final double coeff2    = theta * theta * h;</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        for (int i = 0; i &lt; interpolatedState.length; ++i) {</span>
+<span class="fc" id="L98">            final double yDot1 = yDotK[0][i];</span>
+<span class="fc" id="L99">            final double yDot2 = yDotK[1][i];</span>
+<span class="fc" id="L100">            interpolatedState[i] = previousState[i] + coeff1 * yDot1 + coeff2 * yDot2;</span>
+<span class="fc" id="L101">            interpolatedDerivatives[i] = coeffDot1 * yDot1 + coeffDot2 * yDot2;</span>
+        }
+<span class="fc" id="L103">    } else {</span>
+<span class="fc" id="L104">        final double coeff1    = oneMinusThetaH * theta;</span>
+<span class="fc" id="L105">        final double coeff2    = oneMinusThetaH * (1.0 + theta);</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        for (int i = 0; i &lt; interpolatedState.length; ++i) {</span>
+<span class="fc" id="L107">            final double yDot1 = yDotK[0][i];</span>
+<span class="fc" id="L108">            final double yDot2 = yDotK[1][i];</span>
+<span class="fc" id="L109">            interpolatedState[i] = currentState[i] + coeff1 * yDot1 - coeff2 * yDot2;</span>
+<span class="fc" id="L110">            interpolatedDerivatives[i] = coeffDot1 * yDot1 + coeffDot2 * yDot2;</span>
+        }
+    }
+
+<span class="fc" id="L114">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

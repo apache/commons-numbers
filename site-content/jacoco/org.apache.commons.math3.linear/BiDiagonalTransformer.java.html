@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BiDiagonalTransformer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.linear</a> &gt; <span class="el_source">BiDiagonalTransformer.java</span></div><h1>BiDiagonalTransformer.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.linear;
+
+import org.apache.commons.math3.util.FastMath;
+
+
+/**
+ * Class transforming any matrix to bi-diagonal shape.
+ * &lt;p&gt;Any m &amp;times; n matrix A can be written as the product of three matrices:
+ * A = U &amp;times; B &amp;times; V&lt;sup&gt;T&lt;/sup&gt; with U an m &amp;times; m orthogonal matrix,
+ * B an m &amp;times; n bi-diagonal matrix (lower diagonal if m &amp;lt; n, upper diagonal
+ * otherwise), and V an n &amp;times; n orthogonal matrix.&lt;/p&gt;
+ * &lt;p&gt;Transformation to bi-diagonal shape is often not a goal by itself, but it is
+ * an intermediate step in more general decomposition algorithms like {@link
+ * SingularValueDecomposition Singular Value Decomposition}. This class is therefore
+ * intended for internal use by the library and is not public. As a consequence of
+ * this explicitly limited scope, many methods directly returns references to
+ * internal arrays, not copies.&lt;/p&gt;
+ * @since 2.0
+ */
+class BiDiagonalTransformer {
+
+    /** Householder vectors. */
+    private final double householderVectors[][];
+
+    /** Main diagonal. */
+    private final double[] main;
+
+    /** Secondary diagonal. */
+    private final double[] secondary;
+
+    /** Cached value of U. */
+    private RealMatrix cachedU;
+
+    /** Cached value of B. */
+    private RealMatrix cachedB;
+
+    /** Cached value of V. */
+    private RealMatrix cachedV;
+
+    /**
+     * Build the transformation to bi-diagonal shape of a matrix.
+     * @param matrix the matrix to transform.
+     */
+<span class="fc" id="L61">    BiDiagonalTransformer(RealMatrix matrix) {</span>
+
+<span class="fc" id="L63">        final int m = matrix.getRowDimension();</span>
+<span class="fc" id="L64">        final int n = matrix.getColumnDimension();</span>
+<span class="fc" id="L65">        final int p = FastMath.min(m, n);</span>
+<span class="fc" id="L66">        householderVectors = matrix.getData();</span>
+<span class="fc" id="L67">        main      = new double[p];</span>
+<span class="fc" id="L68">        secondary = new double[p - 1];</span>
+<span class="fc" id="L69">        cachedU   = null;</span>
+<span class="fc" id="L70">        cachedB   = null;</span>
+<span class="fc" id="L71">        cachedV   = null;</span>
+
+        // transform matrix
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if (m &gt;= n) {</span>
+<span class="fc" id="L75">            transformToUpperBiDiagonal();</span>
+        } else {
+<span class="fc" id="L77">            transformToLowerBiDiagonal();</span>
+        }
+
+<span class="fc" id="L80">    }</span>
+
+    /**
+     * Returns the matrix U of the transform.
+     * &lt;p&gt;U is an orthogonal matrix, i.e. its transpose is also its inverse.&lt;/p&gt;
+     * @return the U matrix
+     */
+    public RealMatrix getU() {
+
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        if (cachedU == null) {</span>
+
+<span class="fc" id="L91">            final int m = householderVectors.length;</span>
+<span class="fc" id="L92">            final int n = householderVectors[0].length;</span>
+<span class="fc" id="L93">            final int p = main.length;</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">            final int diagOffset    = (m &gt;= n) ? 0 : 1;</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">            final double[] diagonal = (m &gt;= n) ? main : secondary;</span>
+<span class="fc" id="L96">            double[][] ua = new double[m][m];</span>
+
+            // fill up the part of the matrix not affected by Householder transforms
+<span class="fc bfc" id="L99" title="All 2 branches covered.">            for (int k = m - 1; k &gt;= p; --k) {</span>
+<span class="fc" id="L100">                ua[k][k] = 1;</span>
+            }
+
+            // build up first part of the matrix by applying Householder transforms
+<span class="fc bfc" id="L104" title="All 2 branches covered.">            for (int k = p - 1; k &gt;= diagOffset; --k) {</span>
+<span class="fc" id="L105">                final double[] hK = householderVectors[k];</span>
+<span class="fc" id="L106">                ua[k][k] = 1;</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">                if (hK[k - diagOffset] != 0.0) {</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">                    for (int j = k; j &lt; m; ++j) {</span>
+<span class="fc" id="L109">                        double alpha = 0;</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">                        for (int i = k; i &lt; m; ++i) {</span>
+<span class="fc" id="L111">                            alpha -= ua[i][j] * householderVectors[i][k - diagOffset];</span>
+                        }
+<span class="fc" id="L113">                        alpha /= diagonal[k - diagOffset] * hK[k - diagOffset];</span>
+
+<span class="fc bfc" id="L115" title="All 2 branches covered.">                        for (int i = k; i &lt; m; ++i) {</span>
+<span class="fc" id="L116">                            ua[i][j] += -alpha * householderVectors[i][k - diagOffset];</span>
+                        }
+                    }
+                }
+            }
+<span class="fc bfc" id="L121" title="All 2 branches covered.">            if (diagOffset &gt; 0) {</span>
+<span class="fc" id="L122">                ua[0][0] = 1;</span>
+            }
+<span class="fc" id="L124">            cachedU = MatrixUtils.createRealMatrix(ua);</span>
+        }
+
+        // return the cached matrix
+<span class="fc" id="L128">        return cachedU;</span>
+
+    }
+
+    /**
+     * Returns the bi-diagonal matrix B of the transform.
+     * @return the B matrix
+     */
+    public RealMatrix getB() {
+
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        if (cachedB == null) {</span>
+
+<span class="fc" id="L140">            final int m = householderVectors.length;</span>
+<span class="fc" id="L141">            final int n = householderVectors[0].length;</span>
+<span class="fc" id="L142">            double[][] ba = new double[m][n];</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">            for (int i = 0; i &lt; main.length; ++i) {</span>
+<span class="fc" id="L144">                ba[i][i] = main[i];</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">                if (m &lt; n) {</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">                    if (i &gt; 0) {</span>
+<span class="fc" id="L147">                        ba[i][i-1] = secondary[i - 1];</span>
+                    }
+                } else {
+<span class="fc bfc" id="L150" title="All 2 branches covered.">                    if (i &lt; main.length - 1) {</span>
+<span class="fc" id="L151">                        ba[i][i+1] = secondary[i];</span>
+                    }
+                }
+            }
+<span class="fc" id="L155">            cachedB = MatrixUtils.createRealMatrix(ba);</span>
+        }
+
+        // return the cached matrix
+<span class="fc" id="L159">        return cachedB;</span>
+
+    }
+
+    /**
+     * Returns the matrix V of the transform.
+     * &lt;p&gt;V is an orthogonal matrix, i.e. its transpose is also its inverse.&lt;/p&gt;
+     * @return the V matrix
+     */
+    public RealMatrix getV() {
+
+<span class="fc bfc" id="L170" title="All 2 branches covered.">        if (cachedV == null) {</span>
+
+<span class="fc" id="L172">            final int m = householderVectors.length;</span>
+<span class="fc" id="L173">            final int n = householderVectors[0].length;</span>
+<span class="fc" id="L174">            final int p = main.length;</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">            final int diagOffset    = (m &gt;= n) ? 1 : 0;</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">            final double[] diagonal = (m &gt;= n) ? secondary : main;</span>
+<span class="fc" id="L177">            double[][] va = new double[n][n];</span>
+
+            // fill up the part of the matrix not affected by Householder transforms
+<span class="fc bfc" id="L180" title="All 2 branches covered.">            for (int k = n - 1; k &gt;= p; --k) {</span>
+<span class="fc" id="L181">                va[k][k] = 1;</span>
+            }
+
+            // build up first part of the matrix by applying Householder transforms
+<span class="fc bfc" id="L185" title="All 2 branches covered.">            for (int k = p - 1; k &gt;= diagOffset; --k) {</span>
+<span class="fc" id="L186">                final double[] hK = householderVectors[k - diagOffset];</span>
+<span class="fc" id="L187">                va[k][k] = 1;</span>
+<span class="pc bpc" id="L188" title="1 of 2 branches missed.">                if (hK[k] != 0.0) {</span>
+<span class="fc bfc" id="L189" title="All 2 branches covered.">                    for (int j = k; j &lt; n; ++j) {</span>
+<span class="fc" id="L190">                        double beta = 0;</span>
+<span class="fc bfc" id="L191" title="All 2 branches covered.">                        for (int i = k; i &lt; n; ++i) {</span>
+<span class="fc" id="L192">                            beta -= va[i][j] * hK[i];</span>
+                        }
+<span class="fc" id="L194">                        beta /= diagonal[k - diagOffset] * hK[k];</span>
+
+<span class="fc bfc" id="L196" title="All 2 branches covered.">                        for (int i = k; i &lt; n; ++i) {</span>
+<span class="fc" id="L197">                            va[i][j] += -beta * hK[i];</span>
+                        }
+                    }
+                }
+            }
+<span class="fc bfc" id="L202" title="All 2 branches covered.">            if (diagOffset &gt; 0) {</span>
+<span class="fc" id="L203">                va[0][0] = 1;</span>
+            }
+<span class="fc" id="L205">            cachedV = MatrixUtils.createRealMatrix(va);</span>
+        }
+
+        // return the cached matrix
+<span class="fc" id="L209">        return cachedV;</span>
+
+    }
+
+    /**
+     * Get the Householder vectors of the transform.
+     * &lt;p&gt;Note that since this class is only intended for internal use,
+     * it returns directly a reference to its internal arrays, not a copy.&lt;/p&gt;
+     * @return the main diagonal elements of the B matrix
+     */
+    double[][] getHouseholderVectorsRef() {
+<span class="nc" id="L220">        return householderVectors;</span>
+    }
+
+    /**
+     * Get the main diagonal elements of the matrix B of the transform.
+     * &lt;p&gt;Note that since this class is only intended for internal use,
+     * it returns directly a reference to its internal arrays, not a copy.&lt;/p&gt;
+     * @return the main diagonal elements of the B matrix
+     */
+    double[] getMainDiagonalRef() {
+<span class="nc" id="L230">        return main;</span>
+    }
+
+    /**
+     * Get the secondary diagonal elements of the matrix B of the transform.
+     * &lt;p&gt;Note that since this class is only intended for internal use,
+     * it returns directly a reference to its internal arrays, not a copy.&lt;/p&gt;
+     * @return the secondary diagonal elements of the B matrix
+     */
+    double[] getSecondaryDiagonalRef() {
+<span class="nc" id="L240">        return secondary;</span>
+    }
+
+    /**
+     * Check if the matrix is transformed to upper bi-diagonal.
+     * @return true if the matrix is transformed to upper bi-diagonal
+     */
+    boolean isUpperBiDiagonal() {
+<span class="fc bfc" id="L248" title="All 2 branches covered.">        return householderVectors.length &gt;=  householderVectors[0].length;</span>
+    }
+
+    /**
+     * Transform original matrix to upper bi-diagonal form.
+     * &lt;p&gt;Transformation is done using alternate Householder transforms
+     * on columns and rows.&lt;/p&gt;
+     */
+    private void transformToUpperBiDiagonal() {
+
+<span class="fc" id="L258">        final int m = householderVectors.length;</span>
+<span class="fc" id="L259">        final int n = householderVectors[0].length;</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">        for (int k = 0; k &lt; n; k++) {</span>
+
+            //zero-out a column
+<span class="fc" id="L263">            double xNormSqr = 0;</span>
+<span class="fc bfc" id="L264" title="All 2 branches covered.">            for (int i = k; i &lt; m; ++i) {</span>
+<span class="fc" id="L265">                final double c = householderVectors[i][k];</span>
+<span class="fc" id="L266">                xNormSqr += c * c;</span>
+            }
+<span class="fc" id="L268">            final double[] hK = householderVectors[k];</span>
+<span class="fc bfc" id="L269" title="All 2 branches covered.">            final double a = (hK[k] &gt; 0) ? -FastMath.sqrt(xNormSqr) : FastMath.sqrt(xNormSqr);</span>
+<span class="fc" id="L270">            main[k] = a;</span>
+<span class="pc bpc" id="L271" title="1 of 2 branches missed.">            if (a != 0.0) {</span>
+<span class="fc" id="L272">                hK[k] -= a;</span>
+<span class="fc bfc" id="L273" title="All 2 branches covered.">                for (int j = k + 1; j &lt; n; ++j) {</span>
+<span class="fc" id="L274">                    double alpha = 0;</span>
+<span class="fc bfc" id="L275" title="All 2 branches covered.">                    for (int i = k; i &lt; m; ++i) {</span>
+<span class="fc" id="L276">                        final double[] hI = householderVectors[i];</span>
+<span class="fc" id="L277">                        alpha -= hI[j] * hI[k];</span>
+                    }
+<span class="fc" id="L279">                    alpha /= a * householderVectors[k][k];</span>
+<span class="fc bfc" id="L280" title="All 2 branches covered.">                    for (int i = k; i &lt; m; ++i) {</span>
+<span class="fc" id="L281">                        final double[] hI = householderVectors[i];</span>
+<span class="fc" id="L282">                        hI[j] -= alpha * hI[k];</span>
+                    }
+                }
+            }
+
+<span class="fc bfc" id="L287" title="All 2 branches covered.">            if (k &lt; n - 1) {</span>
+                //zero-out a row
+<span class="fc" id="L289">                xNormSqr = 0;</span>
+<span class="fc bfc" id="L290" title="All 2 branches covered.">                for (int j = k + 1; j &lt; n; ++j) {</span>
+<span class="fc" id="L291">                    final double c = hK[j];</span>
+<span class="fc" id="L292">                    xNormSqr += c * c;</span>
+                }
+<span class="fc bfc" id="L294" title="All 2 branches covered.">                final double b = (hK[k + 1] &gt; 0) ? -FastMath.sqrt(xNormSqr) : FastMath.sqrt(xNormSqr);</span>
+<span class="fc" id="L295">                secondary[k] = b;</span>
+<span class="pc bpc" id="L296" title="1 of 2 branches missed.">                if (b != 0.0) {</span>
+<span class="fc" id="L297">                    hK[k + 1] -= b;</span>
+<span class="fc bfc" id="L298" title="All 2 branches covered.">                    for (int i = k + 1; i &lt; m; ++i) {</span>
+<span class="fc" id="L299">                        final double[] hI = householderVectors[i];</span>
+<span class="fc" id="L300">                        double beta = 0;</span>
+<span class="fc bfc" id="L301" title="All 2 branches covered.">                        for (int j = k + 1; j &lt; n; ++j) {</span>
+<span class="fc" id="L302">                            beta -= hI[j] * hK[j];</span>
+                        }
+<span class="fc" id="L304">                        beta /= b * hK[k + 1];</span>
+<span class="fc bfc" id="L305" title="All 2 branches covered.">                        for (int j = k + 1; j &lt; n; ++j) {</span>
+<span class="fc" id="L306">                            hI[j] -= beta * hK[j];</span>
+                        }
+                    }
+                }
+            }
+
+        }
+<span class="fc" id="L313">    }</span>
+
+    /**
+     * Transform original matrix to lower bi-diagonal form.
+     * &lt;p&gt;Transformation is done using alternate Householder transforms
+     * on rows and columns.&lt;/p&gt;
+     */
+    private void transformToLowerBiDiagonal() {
+
+<span class="fc" id="L322">        final int m = householderVectors.length;</span>
+<span class="fc" id="L323">        final int n = householderVectors[0].length;</span>
+<span class="fc bfc" id="L324" title="All 2 branches covered.">        for (int k = 0; k &lt; m; k++) {</span>
+
+            //zero-out a row
+<span class="fc" id="L327">            final double[] hK = householderVectors[k];</span>
+<span class="fc" id="L328">            double xNormSqr = 0;</span>
+<span class="fc bfc" id="L329" title="All 2 branches covered.">            for (int j = k; j &lt; n; ++j) {</span>
+<span class="fc" id="L330">                final double c = hK[j];</span>
+<span class="fc" id="L331">                xNormSqr += c * c;</span>
+            }
+<span class="fc bfc" id="L333" title="All 2 branches covered.">            final double a = (hK[k] &gt; 0) ? -FastMath.sqrt(xNormSqr) : FastMath.sqrt(xNormSqr);</span>
+<span class="fc" id="L334">            main[k] = a;</span>
+<span class="pc bpc" id="L335" title="1 of 2 branches missed.">            if (a != 0.0) {</span>
+<span class="fc" id="L336">                hK[k] -= a;</span>
+<span class="fc bfc" id="L337" title="All 2 branches covered.">                for (int i = k + 1; i &lt; m; ++i) {</span>
+<span class="fc" id="L338">                    final double[] hI = householderVectors[i];</span>
+<span class="fc" id="L339">                    double alpha = 0;</span>
+<span class="fc bfc" id="L340" title="All 2 branches covered.">                    for (int j = k; j &lt; n; ++j) {</span>
+<span class="fc" id="L341">                        alpha -= hI[j] * hK[j];</span>
+                    }
+<span class="fc" id="L343">                    alpha /= a * householderVectors[k][k];</span>
+<span class="fc bfc" id="L344" title="All 2 branches covered.">                    for (int j = k; j &lt; n; ++j) {</span>
+<span class="fc" id="L345">                        hI[j] -= alpha * hK[j];</span>
+                    }
+                }
+            }
+
+<span class="fc bfc" id="L350" title="All 2 branches covered.">            if (k &lt; m - 1) {</span>
+                //zero-out a column
+<span class="fc" id="L352">                final double[] hKp1 = householderVectors[k + 1];</span>
+<span class="fc" id="L353">                xNormSqr = 0;</span>
+<span class="fc bfc" id="L354" title="All 2 branches covered.">                for (int i = k + 1; i &lt; m; ++i) {</span>
+<span class="fc" id="L355">                    final double c = householderVectors[i][k];</span>
+<span class="fc" id="L356">                    xNormSqr += c * c;</span>
+                }
+<span class="pc bpc" id="L358" title="1 of 2 branches missed.">                final double b = (hKp1[k] &gt; 0) ? -FastMath.sqrt(xNormSqr) : FastMath.sqrt(xNormSqr);</span>
+<span class="fc" id="L359">                secondary[k] = b;</span>
+<span class="pc bpc" id="L360" title="1 of 2 branches missed.">                if (b != 0.0) {</span>
+<span class="fc" id="L361">                    hKp1[k] -= b;</span>
+<span class="fc bfc" id="L362" title="All 2 branches covered.">                    for (int j = k + 1; j &lt; n; ++j) {</span>
+<span class="fc" id="L363">                        double beta = 0;</span>
+<span class="fc bfc" id="L364" title="All 2 branches covered.">                        for (int i = k + 1; i &lt; m; ++i) {</span>
+<span class="fc" id="L365">                            final double[] hI = householderVectors[i];</span>
+<span class="fc" id="L366">                            beta -= hI[j] * hI[k];</span>
+                        }
+<span class="fc" id="L368">                        beta /= b * hKp1[k];</span>
+<span class="fc bfc" id="L369" title="All 2 branches covered.">                        for (int i = k + 1; i &lt; m; ++i) {</span>
+<span class="fc" id="L370">                            final double[] hI = householderVectors[i];</span>
+<span class="fc" id="L371">                            hI[j] -= beta * hI[k];</span>
+                        }
+                    }
+                }
+            }
+
+        }
+<span class="fc" id="L378">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

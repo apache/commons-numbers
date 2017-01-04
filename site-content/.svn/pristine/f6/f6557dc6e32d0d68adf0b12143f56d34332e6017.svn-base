@@ -1,0 +1,458 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.apache.commons.math3.optimization.general;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.io.Serializable;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.util.ArrayList;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.util.List;<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.analysis.differentiation.MultivariateDifferentiableVectorFunction;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.exception.ConvergenceException;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.math3.exception.DimensionMismatchException;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.commons.math3.exception.TooManyEvaluationsException;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.math3.linear.SingularMatrixException;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.commons.math3.optimization.PointVectorValuePair;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.apache.commons.math3.util.FastMath;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.apache.commons.math3.util.Precision;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.junit.Assert;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.junit.Test;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.junit.Ignore;<a name="line.36"></a>
+<span class="sourceLineNo">037</span><a name="line.37"></a>
+<span class="sourceLineNo">038</span>/**<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * &lt;p&gt;Some of the unit tests are re-implementations of the MINPACK &lt;a<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * href="http://www.netlib.org/minpack/ex/file17"&gt;file17&lt;/a&gt; and &lt;a<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * href="http://www.netlib.org/minpack/ex/file22"&gt;file22&lt;/a&gt; test files.<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * The redistribution policy for MINPACK is available &lt;a<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * href="http://www.netlib.org/minpack/disclaimer"&gt;here&lt;/a&gt;, for<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * convenience, it is reproduced below.&lt;/p&gt;<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span> * &lt;table border="0" width="80%" cellpadding="10" align="center" bgcolor="#E0E0E0"&gt;<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * &lt;tr&gt;&lt;td&gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span> *    Minpack Copyright Notice (1999) University of Chicago.<a name="line.48"></a>
+<span class="sourceLineNo">049</span> *    All rights reserved<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * &lt;/td&gt;&lt;/tr&gt;<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * &lt;tr&gt;&lt;td&gt;<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * Redistribution and use in source and binary forms, with or without<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * modification, are permitted provided that the following conditions<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * are met:<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * &lt;ol&gt;<a name="line.55"></a>
+<span class="sourceLineNo">056</span> *  &lt;li&gt;Redistributions of source code must retain the above copyright<a name="line.56"></a>
+<span class="sourceLineNo">057</span> *      notice, this list of conditions and the following disclaimer.&lt;/li&gt;<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * &lt;li&gt;Redistributions in binary form must reproduce the above<a name="line.58"></a>
+<span class="sourceLineNo">059</span> *     copyright notice, this list of conditions and the following<a name="line.59"></a>
+<span class="sourceLineNo">060</span> *     disclaimer in the documentation and/or other materials provided<a name="line.60"></a>
+<span class="sourceLineNo">061</span> *     with the distribution.&lt;/li&gt;<a name="line.61"></a>
+<span class="sourceLineNo">062</span> * &lt;li&gt;The end-user documentation included with the redistribution, if any,<a name="line.62"></a>
+<span class="sourceLineNo">063</span> *     must include the following acknowledgment:<a name="line.63"></a>
+<span class="sourceLineNo">064</span> *     &lt;code&gt;This product includes software developed by the University of<a name="line.64"></a>
+<span class="sourceLineNo">065</span> *           Chicago, as Operator of Argonne National Laboratory.&lt;/code&gt;<a name="line.65"></a>
+<span class="sourceLineNo">066</span> *     Alternately, this acknowledgment may appear in the software itself,<a name="line.66"></a>
+<span class="sourceLineNo">067</span> *     if and wherever such third-party acknowledgments normally appear.&lt;/li&gt;<a name="line.67"></a>
+<span class="sourceLineNo">068</span> * &lt;li&gt;&lt;strong&gt;WARRANTY DISCLAIMER. THE SOFTWARE IS SUPPLIED "AS IS"<a name="line.68"></a>
+<span class="sourceLineNo">069</span> *     WITHOUT WARRANTY OF ANY KIND. THE COPYRIGHT HOLDER, THE<a name="line.69"></a>
+<span class="sourceLineNo">070</span> *     UNITED STATES, THE UNITED STATES DEPARTMENT OF ENERGY, AND<a name="line.70"></a>
+<span class="sourceLineNo">071</span> *     THEIR EMPLOYEES: (1) DISCLAIM ANY WARRANTIES, EXPRESS OR<a name="line.71"></a>
+<span class="sourceLineNo">072</span> *     IMPLIED, INCLUDING BUT NOT LIMITED TO ANY IMPLIED WARRANTIES<a name="line.72"></a>
+<span class="sourceLineNo">073</span> *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE<a name="line.73"></a>
+<span class="sourceLineNo">074</span> *     OR NON-INFRINGEMENT, (2) DO NOT ASSUME ANY LEGAL LIABILITY<a name="line.74"></a>
+<span class="sourceLineNo">075</span> *     OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS, OR<a name="line.75"></a>
+<span class="sourceLineNo">076</span> *     USEFULNESS OF THE SOFTWARE, (3) DO NOT REPRESENT THAT USE OF<a name="line.76"></a>
+<span class="sourceLineNo">077</span> *     THE SOFTWARE WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS, (4)<a name="line.77"></a>
+<span class="sourceLineNo">078</span> *     DO NOT WARRANT THAT THE SOFTWARE WILL FUNCTION<a name="line.78"></a>
+<span class="sourceLineNo">079</span> *     UNINTERRUPTED, THAT IT IS ERROR-FREE OR THAT ANY ERRORS WILL<a name="line.79"></a>
+<span class="sourceLineNo">080</span> *     BE CORRECTED.&lt;/strong&gt;&lt;/li&gt;<a name="line.80"></a>
+<span class="sourceLineNo">081</span> * &lt;li&gt;&lt;strong&gt;LIMITATION OF LIABILITY. IN NO EVENT WILL THE COPYRIGHT<a name="line.81"></a>
+<span class="sourceLineNo">082</span> *     HOLDER, THE UNITED STATES, THE UNITED STATES DEPARTMENT OF<a name="line.82"></a>
+<span class="sourceLineNo">083</span> *     ENERGY, OR THEIR EMPLOYEES: BE LIABLE FOR ANY INDIRECT,<a name="line.83"></a>
+<span class="sourceLineNo">084</span> *     INCIDENTAL, CONSEQUENTIAL, SPECIAL OR PUNITIVE DAMAGES OF<a name="line.84"></a>
+<span class="sourceLineNo">085</span> *     ANY KIND OR NATURE, INCLUDING BUT NOT LIMITED TO LOSS OF<a name="line.85"></a>
+<span class="sourceLineNo">086</span> *     PROFITS OR LOSS OF DATA, FOR ANY REASON WHATSOEVER, WHETHER<a name="line.86"></a>
+<span class="sourceLineNo">087</span> *     SUCH LIABILITY IS ASSERTED ON THE BASIS OF CONTRACT, TORT<a name="line.87"></a>
+<span class="sourceLineNo">088</span> *     (INCLUDING NEGLIGENCE OR STRICT LIABILITY), OR OTHERWISE,<a name="line.88"></a>
+<span class="sourceLineNo">089</span> *     EVEN IF ANY OF SAID PARTIES HAS BEEN WARNED OF THE<a name="line.89"></a>
+<span class="sourceLineNo">090</span> *     POSSIBILITY OF SUCH LOSS OR DAMAGES.&lt;/strong&gt;&lt;/li&gt;<a name="line.90"></a>
+<span class="sourceLineNo">091</span> * &lt;ol&gt;&lt;/td&gt;&lt;/tr&gt;<a name="line.91"></a>
+<span class="sourceLineNo">092</span> * &lt;/table&gt;<a name="line.92"></a>
+<span class="sourceLineNo">093</span><a name="line.93"></a>
+<span class="sourceLineNo">094</span> * @author Argonne National Laboratory. MINPACK project. March 1980 (original fortran minpack tests)<a name="line.94"></a>
+<span class="sourceLineNo">095</span> * @author Burton S. Garbow (original fortran minpack tests)<a name="line.95"></a>
+<span class="sourceLineNo">096</span> * @author Kenneth E. Hillstrom (original fortran minpack tests)<a name="line.96"></a>
+<span class="sourceLineNo">097</span> * @author Jorge J. More (original fortran minpack tests)<a name="line.97"></a>
+<span class="sourceLineNo">098</span> * @author Luc Maisonobe (non-minpack tests and minpack tests Java translation)<a name="line.98"></a>
+<span class="sourceLineNo">099</span> */<a name="line.99"></a>
+<span class="sourceLineNo">100</span>@Deprecated<a name="line.100"></a>
+<span class="sourceLineNo">101</span>public class LevenbergMarquardtOptimizerTest extends AbstractLeastSquaresOptimizerAbstractTest {<a name="line.101"></a>
+<span class="sourceLineNo">102</span><a name="line.102"></a>
+<span class="sourceLineNo">103</span>    @Override<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    public AbstractLeastSquaresOptimizer createOptimizer() {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        return new LevenbergMarquardtOptimizer();<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    }<a name="line.106"></a>
+<span class="sourceLineNo">107</span><a name="line.107"></a>
+<span class="sourceLineNo">108</span>    @Override<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    @Test(expected=SingularMatrixException.class)<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    public void testNonInvertible() {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        /*<a name="line.111"></a>
+<span class="sourceLineNo">112</span>         * Overrides the method from parent class, since the default singularity<a name="line.112"></a>
+<span class="sourceLineNo">113</span>         * threshold (1e-14) does not trigger the expected exception.<a name="line.113"></a>
+<span class="sourceLineNo">114</span>         */<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        LinearProblem problem = new LinearProblem(new double[][] {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>                {  1, 2, -3 },<a name="line.116"></a>
+<span class="sourceLineNo">117</span>                {  2, 1,  3 },<a name="line.117"></a>
+<span class="sourceLineNo">118</span>                { -3, 0, -9 }<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        }, new double[] { 1, 1, 1 });<a name="line.119"></a>
+<span class="sourceLineNo">120</span><a name="line.120"></a>
+<span class="sourceLineNo">121</span>        AbstractLeastSquaresOptimizer optimizer = createOptimizer();<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        PointVectorValuePair optimum = optimizer.optimize(100, problem, problem.target, new double[] { 1, 1, 1 }, new double[] { 0, 0, 0 });<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        Assert.assertTrue(FastMath.sqrt(problem.target.length) * optimizer.getRMS() &gt; 0.6);<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>        optimizer.computeCovariances(optimum.getPoint(), 1.5e-14);<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    }<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>    @Test<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    public void testControlParameters() {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        CircleVectorial circle = new CircleVectorial();<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        circle.addPoint( 30.0,  68.0);<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        circle.addPoint( 50.0,  -6.0);<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        circle.addPoint(110.0, -20.0);<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        circle.addPoint( 35.0,  15.0);<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        circle.addPoint( 45.0,  97.0);<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        checkEstimate(circle, 0.1, 10, 1.0e-14, 1.0e-16, 1.0e-10, false);<a name="line.136"></a>
+<span class="sourceLineNo">137</span>        checkEstimate(circle, 0.1, 10, 1.0e-15, 1.0e-17, 1.0e-10, true);<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        checkEstimate(circle, 0.1,  5, 1.0e-15, 1.0e-16, 1.0e-10, true);<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        circle.addPoint(300, -300);<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        checkEstimate(circle, 0.1, 20, 1.0e-18, 1.0e-16, 1.0e-10, true);<a name="line.140"></a>
+<span class="sourceLineNo">141</span>    }<a name="line.141"></a>
+<span class="sourceLineNo">142</span><a name="line.142"></a>
+<span class="sourceLineNo">143</span>    private void checkEstimate(MultivariateDifferentiableVectorFunction problem,<a name="line.143"></a>
+<span class="sourceLineNo">144</span>                               double initialStepBoundFactor, int maxCostEval,<a name="line.144"></a>
+<span class="sourceLineNo">145</span>                               double costRelativeTolerance, double parRelativeTolerance,<a name="line.145"></a>
+<span class="sourceLineNo">146</span>                               double orthoTolerance, boolean shouldFail) {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        try {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            LevenbergMarquardtOptimizer optimizer<a name="line.148"></a>
+<span class="sourceLineNo">149</span>                = new LevenbergMarquardtOptimizer(initialStepBoundFactor,<a name="line.149"></a>
+<span class="sourceLineNo">150</span>                                                  costRelativeTolerance,<a name="line.150"></a>
+<span class="sourceLineNo">151</span>                                                  parRelativeTolerance,<a name="line.151"></a>
+<span class="sourceLineNo">152</span>                                                  orthoTolerance,<a name="line.152"></a>
+<span class="sourceLineNo">153</span>                                                  Precision.SAFE_MIN);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>            optimizer.optimize(maxCostEval, problem, new double[] { 0, 0, 0, 0, 0 },<a name="line.154"></a>
+<span class="sourceLineNo">155</span>                               new double[] { 1, 1, 1, 1, 1 },<a name="line.155"></a>
+<span class="sourceLineNo">156</span>                               new double[] { 98.680, 47.345 });<a name="line.156"></a>
+<span class="sourceLineNo">157</span>            Assert.assertTrue(!shouldFail);<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        } catch (DimensionMismatchException ee) {<a name="line.158"></a>
+<span class="sourceLineNo">159</span>            Assert.assertTrue(shouldFail);<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        } catch (TooManyEvaluationsException ee) {<a name="line.160"></a>
+<span class="sourceLineNo">161</span>            Assert.assertTrue(shouldFail);<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        }<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    }<a name="line.163"></a>
+<span class="sourceLineNo">164</span><a name="line.164"></a>
+<span class="sourceLineNo">165</span>    // Test is skipped because it fails with the latest code update.<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    @Ignore@Test<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    public void testMath199() {<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        try {<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            QuadraticProblem problem = new QuadraticProblem();<a name="line.169"></a>
+<span class="sourceLineNo">170</span>            problem.addPoint (0, -3.182591015485607);<a name="line.170"></a>
+<span class="sourceLineNo">171</span>            problem.addPoint (1, -2.5581184967730577);<a name="line.171"></a>
+<span class="sourceLineNo">172</span>            problem.addPoint (2, -2.1488478161387325);<a name="line.172"></a>
+<span class="sourceLineNo">173</span>            problem.addPoint (3, -1.9122489313410047);<a name="line.173"></a>
+<span class="sourceLineNo">174</span>            problem.addPoint (4, 1.7785661310051026);<a name="line.174"></a>
+<span class="sourceLineNo">175</span>            LevenbergMarquardtOptimizer optimizer<a name="line.175"></a>
+<span class="sourceLineNo">176</span>                = new LevenbergMarquardtOptimizer(100, 1e-10, 1e-10, 1e-10, 0);<a name="line.176"></a>
+<span class="sourceLineNo">177</span>            optimizer.optimize(100, problem,<a name="line.177"></a>
+<span class="sourceLineNo">178</span>                               new double[] { 0, 0, 0, 0, 0 },<a name="line.178"></a>
+<span class="sourceLineNo">179</span>                               new double[] { 0.0, 4.4e-323, 1.0, 4.4e-323, 0.0 },<a name="line.179"></a>
+<span class="sourceLineNo">180</span>                               new double[] { 0, 0, 0 });<a name="line.180"></a>
+<span class="sourceLineNo">181</span>            Assert.fail("an exception should have been thrown");<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        } catch (ConvergenceException ee) {<a name="line.182"></a>
+<span class="sourceLineNo">183</span>            // expected behavior<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        }<a name="line.184"></a>
+<span class="sourceLineNo">185</span>    }<a name="line.185"></a>
+<span class="sourceLineNo">186</span><a name="line.186"></a>
+<span class="sourceLineNo">187</span>    /**<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     * Non-linear test case: fitting of decay curve (from Chapter 8 of<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     * Bevington's textbook, "Data reduction and analysis for the physical sciences").<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     * XXX The expected ("reference") values may not be accurate and the tolerance too<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     * relaxed for this test to be currently really useful (the issue is under<a name="line.191"></a>
+<span class="sourceLineNo">192</span>     * investigation).<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     */<a name="line.193"></a>
+<span class="sourceLineNo">194</span>    @Test<a name="line.194"></a>
+<span class="sourceLineNo">195</span>    public void testBevington() {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        final double[][] dataPoints = {<a name="line.196"></a>
+<span class="sourceLineNo">197</span>            // column 1 = times<a name="line.197"></a>
+<span class="sourceLineNo">198</span>            { 15, 30, 45, 60, 75, 90, 105, 120, 135, 150,<a name="line.198"></a>
+<span class="sourceLineNo">199</span>              165, 180, 195, 210, 225, 240, 255, 270, 285, 300,<a name="line.199"></a>
+<span class="sourceLineNo">200</span>              315, 330, 345, 360, 375, 390, 405, 420, 435, 450,<a name="line.200"></a>
+<span class="sourceLineNo">201</span>              465, 480, 495, 510, 525, 540, 555, 570, 585, 600,<a name="line.201"></a>
+<span class="sourceLineNo">202</span>              615, 630, 645, 660, 675, 690, 705, 720, 735, 750,<a name="line.202"></a>
+<span class="sourceLineNo">203</span>              765, 780, 795, 810, 825, 840, 855, 870, 885, },<a name="line.203"></a>
+<span class="sourceLineNo">204</span>            // column 2 = measured counts<a name="line.204"></a>
+<span class="sourceLineNo">205</span>            { 775, 479, 380, 302, 185, 157, 137, 119, 110, 89,<a name="line.205"></a>
+<span class="sourceLineNo">206</span>              74, 61, 66, 68, 48, 54, 51, 46, 55, 29,<a name="line.206"></a>
+<span class="sourceLineNo">207</span>              28, 37, 49, 26, 35, 29, 31, 24, 25, 35,<a name="line.207"></a>
+<span class="sourceLineNo">208</span>              24, 30, 26, 28, 21, 18, 20, 27, 17, 17,<a name="line.208"></a>
+<span class="sourceLineNo">209</span>              14, 17, 24, 11, 22, 17, 12, 10, 13, 16,<a name="line.209"></a>
+<span class="sourceLineNo">210</span>              9, 9, 14, 21, 17, 13, 12, 18, 10, },<a name="line.210"></a>
+<span class="sourceLineNo">211</span>        };<a name="line.211"></a>
+<span class="sourceLineNo">212</span><a name="line.212"></a>
+<span class="sourceLineNo">213</span>        final BevingtonProblem problem = new BevingtonProblem();<a name="line.213"></a>
+<span class="sourceLineNo">214</span><a name="line.214"></a>
+<span class="sourceLineNo">215</span>        final int len = dataPoints[0].length;<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        final double[] weights = new double[len];<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        for (int i = 0; i &lt; len; i++) {<a name="line.217"></a>
+<span class="sourceLineNo">218</span>            problem.addPoint(dataPoints[0][i],<a name="line.218"></a>
+<span class="sourceLineNo">219</span>                             dataPoints[1][i]);<a name="line.219"></a>
+<span class="sourceLineNo">220</span><a name="line.220"></a>
+<span class="sourceLineNo">221</span>            weights[i] = 1 / dataPoints[1][i];<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        }<a name="line.222"></a>
+<span class="sourceLineNo">223</span><a name="line.223"></a>
+<span class="sourceLineNo">224</span>        final LevenbergMarquardtOptimizer optimizer<a name="line.224"></a>
+<span class="sourceLineNo">225</span>            = new LevenbergMarquardtOptimizer();<a name="line.225"></a>
+<span class="sourceLineNo">226</span><a name="line.226"></a>
+<span class="sourceLineNo">227</span>        final PointVectorValuePair optimum<a name="line.227"></a>
+<span class="sourceLineNo">228</span>            = optimizer.optimize(100, problem, dataPoints[1], weights,<a name="line.228"></a>
+<span class="sourceLineNo">229</span>                               new double[] { 10, 900, 80, 27, 225 });<a name="line.229"></a>
+<span class="sourceLineNo">230</span><a name="line.230"></a>
+<span class="sourceLineNo">231</span>        final double[] solution = optimum.getPoint();<a name="line.231"></a>
+<span class="sourceLineNo">232</span>        final double[] expectedSolution = { 10.4, 958.3, 131.4, 33.9, 205.0 };<a name="line.232"></a>
+<span class="sourceLineNo">233</span><a name="line.233"></a>
+<span class="sourceLineNo">234</span>        final double[][] covarMatrix = optimizer.computeCovariances(solution, 1e-14);<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        final double[][] expectedCovarMatrix = {<a name="line.235"></a>
+<span class="sourceLineNo">236</span>            { 3.38, -3.69, 27.98, -2.34, -49.24 },<a name="line.236"></a>
+<span class="sourceLineNo">237</span>            { -3.69, 2492.26, 81.89, -69.21, -8.9 },<a name="line.237"></a>
+<span class="sourceLineNo">238</span>            { 27.98, 81.89, 468.99, -44.22, -615.44 },<a name="line.238"></a>
+<span class="sourceLineNo">239</span>            { -2.34, -69.21, -44.22, 6.39, 53.80 },<a name="line.239"></a>
+<span class="sourceLineNo">240</span>            { -49.24, -8.9, -615.44, 53.8, 929.45 }<a name="line.240"></a>
+<span class="sourceLineNo">241</span>        };<a name="line.241"></a>
+<span class="sourceLineNo">242</span><a name="line.242"></a>
+<span class="sourceLineNo">243</span>        final int numParams = expectedSolution.length;<a name="line.243"></a>
+<span class="sourceLineNo">244</span><a name="line.244"></a>
+<span class="sourceLineNo">245</span>        // Check that the computed solution is within the reference error range.<a name="line.245"></a>
+<span class="sourceLineNo">246</span>        for (int i = 0; i &lt; numParams; i++) {<a name="line.246"></a>
+<span class="sourceLineNo">247</span>            final double error = FastMath.sqrt(expectedCovarMatrix[i][i]);<a name="line.247"></a>
+<span class="sourceLineNo">248</span>            Assert.assertEquals("Parameter " + i, expectedSolution[i], solution[i], error);<a name="line.248"></a>
+<span class="sourceLineNo">249</span>        }<a name="line.249"></a>
+<span class="sourceLineNo">250</span><a name="line.250"></a>
+<span class="sourceLineNo">251</span>        // Check that each entry of the computed covariance matrix is within 10%<a name="line.251"></a>
+<span class="sourceLineNo">252</span>        // of the reference matrix entry.<a name="line.252"></a>
+<span class="sourceLineNo">253</span>        for (int i = 0; i &lt; numParams; i++) {<a name="line.253"></a>
+<span class="sourceLineNo">254</span>            for (int j = 0; j &lt; numParams; j++) {<a name="line.254"></a>
+<span class="sourceLineNo">255</span>                Assert.assertEquals("Covariance matrix [" + i + "][" + j + "]",<a name="line.255"></a>
+<span class="sourceLineNo">256</span>                                    expectedCovarMatrix[i][j],<a name="line.256"></a>
+<span class="sourceLineNo">257</span>                                    covarMatrix[i][j],<a name="line.257"></a>
+<span class="sourceLineNo">258</span>                                    FastMath.abs(0.1 * expectedCovarMatrix[i][j]));<a name="line.258"></a>
+<span class="sourceLineNo">259</span>            }<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        }<a name="line.260"></a>
+<span class="sourceLineNo">261</span>    }<a name="line.261"></a>
+<span class="sourceLineNo">262</span><a name="line.262"></a>
+<span class="sourceLineNo">263</span>    @Test<a name="line.263"></a>
+<span class="sourceLineNo">264</span>    public void testCircleFitting2() {<a name="line.264"></a>
+<span class="sourceLineNo">265</span>        final double xCenter = 123.456;<a name="line.265"></a>
+<span class="sourceLineNo">266</span>        final double yCenter = 654.321;<a name="line.266"></a>
+<span class="sourceLineNo">267</span>        final double xSigma = 10;<a name="line.267"></a>
+<span class="sourceLineNo">268</span>        final double ySigma = 15;<a name="line.268"></a>
+<span class="sourceLineNo">269</span>        final double radius = 111.111;<a name="line.269"></a>
+<span class="sourceLineNo">270</span>        // The test is extremely sensitive to the seed.<a name="line.270"></a>
+<span class="sourceLineNo">271</span>        final long seed = 59421061L;<a name="line.271"></a>
+<span class="sourceLineNo">272</span>        final RandomCirclePointGenerator factory<a name="line.272"></a>
+<span class="sourceLineNo">273</span>            = new RandomCirclePointGenerator(xCenter, yCenter, radius,<a name="line.273"></a>
+<span class="sourceLineNo">274</span>                                             xSigma, ySigma,<a name="line.274"></a>
+<span class="sourceLineNo">275</span>                                             seed);<a name="line.275"></a>
+<span class="sourceLineNo">276</span>        final CircleProblem circle = new CircleProblem(xSigma, ySigma);<a name="line.276"></a>
+<span class="sourceLineNo">277</span><a name="line.277"></a>
+<span class="sourceLineNo">278</span>        final int numPoints = 10;<a name="line.278"></a>
+<span class="sourceLineNo">279</span>        for (Vector2D p : factory.generate(numPoints)) {<a name="line.279"></a>
+<span class="sourceLineNo">280</span>            circle.addPoint(p);<a name="line.280"></a>
+<span class="sourceLineNo">281</span>            // System.out.println(p.x + " " + p.y);<a name="line.281"></a>
+<span class="sourceLineNo">282</span>        }<a name="line.282"></a>
+<span class="sourceLineNo">283</span><a name="line.283"></a>
+<span class="sourceLineNo">284</span>        // First guess for the center's coordinates and radius.<a name="line.284"></a>
+<span class="sourceLineNo">285</span>        final double[] init = { 90, 659, 115 };<a name="line.285"></a>
+<span class="sourceLineNo">286</span><a name="line.286"></a>
+<span class="sourceLineNo">287</span>        final LevenbergMarquardtOptimizer optimizer<a name="line.287"></a>
+<span class="sourceLineNo">288</span>            = new LevenbergMarquardtOptimizer();<a name="line.288"></a>
+<span class="sourceLineNo">289</span>        final PointVectorValuePair optimum = optimizer.optimize(100, circle,<a name="line.289"></a>
+<span class="sourceLineNo">290</span>                                                                circle.target(), circle.weight(),<a name="line.290"></a>
+<span class="sourceLineNo">291</span>                                                                init);<a name="line.291"></a>
+<span class="sourceLineNo">292</span><a name="line.292"></a>
+<span class="sourceLineNo">293</span>        final double[] paramFound = optimum.getPoint();<a name="line.293"></a>
+<span class="sourceLineNo">294</span><a name="line.294"></a>
+<span class="sourceLineNo">295</span>        // Retrieve errors estimation.<a name="line.295"></a>
+<span class="sourceLineNo">296</span>        final double[][] covMatrix = optimizer.computeCovariances(paramFound, 1e-14);<a name="line.296"></a>
+<span class="sourceLineNo">297</span>        final double[] asymptoticStandardErrorFound = optimizer.guessParametersErrors();<a name="line.297"></a>
+<span class="sourceLineNo">298</span>        final double[] sigmaFound = new double[covMatrix.length];<a name="line.298"></a>
+<span class="sourceLineNo">299</span>        for (int i = 0; i &lt; covMatrix.length; i++) {<a name="line.299"></a>
+<span class="sourceLineNo">300</span>            sigmaFound[i] = FastMath.sqrt(covMatrix[i][i]);<a name="line.300"></a>
+<span class="sourceLineNo">301</span>//             System.out.println("i=" + i + " value=" + paramFound[i]<a name="line.301"></a>
+<span class="sourceLineNo">302</span>//                                + " sigma=" + sigmaFound[i]<a name="line.302"></a>
+<span class="sourceLineNo">303</span>//                                + " ase=" + asymptoticStandardErrorFound[i]);<a name="line.303"></a>
+<span class="sourceLineNo">304</span>        }<a name="line.304"></a>
+<span class="sourceLineNo">305</span><a name="line.305"></a>
+<span class="sourceLineNo">306</span>        // System.out.println("chi2=" + optimizer.getChiSquare());<a name="line.306"></a>
+<span class="sourceLineNo">307</span><a name="line.307"></a>
+<span class="sourceLineNo">308</span>        // Check that the parameters are found within the assumed error bars.<a name="line.308"></a>
+<span class="sourceLineNo">309</span>        Assert.assertEquals(xCenter, paramFound[0], asymptoticStandardErrorFound[0]);<a name="line.309"></a>
+<span class="sourceLineNo">310</span>        Assert.assertEquals(yCenter, paramFound[1], asymptoticStandardErrorFound[1]);<a name="line.310"></a>
+<span class="sourceLineNo">311</span>        Assert.assertEquals(radius, paramFound[2], asymptoticStandardErrorFound[2]);<a name="line.311"></a>
+<span class="sourceLineNo">312</span>    }<a name="line.312"></a>
+<span class="sourceLineNo">313</span><a name="line.313"></a>
+<span class="sourceLineNo">314</span>    private static class QuadraticProblem implements MultivariateDifferentiableVectorFunction, Serializable {<a name="line.314"></a>
+<span class="sourceLineNo">315</span><a name="line.315"></a>
+<span class="sourceLineNo">316</span>        private static final long serialVersionUID = 7072187082052755854L;<a name="line.316"></a>
+<span class="sourceLineNo">317</span>        private List&lt;Double&gt; x;<a name="line.317"></a>
+<span class="sourceLineNo">318</span>        private List&lt;Double&gt; y;<a name="line.318"></a>
+<span class="sourceLineNo">319</span><a name="line.319"></a>
+<span class="sourceLineNo">320</span>        public QuadraticProblem() {<a name="line.320"></a>
+<span class="sourceLineNo">321</span>            x = new ArrayList&lt;Double&gt;();<a name="line.321"></a>
+<span class="sourceLineNo">322</span>            y = new ArrayList&lt;Double&gt;();<a name="line.322"></a>
+<span class="sourceLineNo">323</span>        }<a name="line.323"></a>
+<span class="sourceLineNo">324</span><a name="line.324"></a>
+<span class="sourceLineNo">325</span>        public void addPoint(double x, double y) {<a name="line.325"></a>
+<span class="sourceLineNo">326</span>            this.x.add(x);<a name="line.326"></a>
+<span class="sourceLineNo">327</span>            this.y.add(y);<a name="line.327"></a>
+<span class="sourceLineNo">328</span>        }<a name="line.328"></a>
+<span class="sourceLineNo">329</span><a name="line.329"></a>
+<span class="sourceLineNo">330</span>        public double[] value(double[] variables) {<a name="line.330"></a>
+<span class="sourceLineNo">331</span>            double[] values = new double[x.size()];<a name="line.331"></a>
+<span class="sourceLineNo">332</span>            for (int i = 0; i &lt; values.length; ++i) {<a name="line.332"></a>
+<span class="sourceLineNo">333</span>                values[i] = (variables[0] * x.get(i) + variables[1]) * x.get(i) + variables[2];<a name="line.333"></a>
+<span class="sourceLineNo">334</span>            }<a name="line.334"></a>
+<span class="sourceLineNo">335</span>            return values;<a name="line.335"></a>
+<span class="sourceLineNo">336</span>        }<a name="line.336"></a>
+<span class="sourceLineNo">337</span><a name="line.337"></a>
+<span class="sourceLineNo">338</span>        public DerivativeStructure[] value(DerivativeStructure[] variables) {<a name="line.338"></a>
+<span class="sourceLineNo">339</span>            DerivativeStructure[] values = new DerivativeStructure[x.size()];<a name="line.339"></a>
+<span class="sourceLineNo">340</span>            for (int i = 0; i &lt; values.length; ++i) {<a name="line.340"></a>
+<span class="sourceLineNo">341</span>                values[i] = (variables[0].multiply(x.get(i)).add(variables[1])).multiply(x.get(i)).add(variables[2]);<a name="line.341"></a>
+<span class="sourceLineNo">342</span>            }<a name="line.342"></a>
+<span class="sourceLineNo">343</span>            return values;<a name="line.343"></a>
+<span class="sourceLineNo">344</span>        }<a name="line.344"></a>
+<span class="sourceLineNo">345</span><a name="line.345"></a>
+<span class="sourceLineNo">346</span>    }<a name="line.346"></a>
+<span class="sourceLineNo">347</span><a name="line.347"></a>
+<span class="sourceLineNo">348</span>    private static class BevingtonProblem<a name="line.348"></a>
+<span class="sourceLineNo">349</span>        implements MultivariateDifferentiableVectorFunction {<a name="line.349"></a>
+<span class="sourceLineNo">350</span>        private List&lt;Double&gt; time;<a name="line.350"></a>
+<span class="sourceLineNo">351</span>        private List&lt;Double&gt; count;<a name="line.351"></a>
+<span class="sourceLineNo">352</span><a name="line.352"></a>
+<span class="sourceLineNo">353</span>        public BevingtonProblem() {<a name="line.353"></a>
+<span class="sourceLineNo">354</span>            time = new ArrayList&lt;Double&gt;();<a name="line.354"></a>
+<span class="sourceLineNo">355</span>            count = new ArrayList&lt;Double&gt;();<a name="line.355"></a>
+<span class="sourceLineNo">356</span>        }<a name="line.356"></a>
+<span class="sourceLineNo">357</span><a name="line.357"></a>
+<span class="sourceLineNo">358</span>        public void addPoint(double t, double c) {<a name="line.358"></a>
+<span class="sourceLineNo">359</span>            time.add(t);<a name="line.359"></a>
+<span class="sourceLineNo">360</span>            count.add(c);<a name="line.360"></a>
+<span class="sourceLineNo">361</span>        }<a name="line.361"></a>
+<span class="sourceLineNo">362</span><a name="line.362"></a>
+<span class="sourceLineNo">363</span>        public double[] value(double[] params) {<a name="line.363"></a>
+<span class="sourceLineNo">364</span>            double[] values = new double[time.size()];<a name="line.364"></a>
+<span class="sourceLineNo">365</span>            for (int i = 0; i &lt; values.length; ++i) {<a name="line.365"></a>
+<span class="sourceLineNo">366</span>                final double t = time.get(i);<a name="line.366"></a>
+<span class="sourceLineNo">367</span>                values[i] = params[0]<a name="line.367"></a>
+<span class="sourceLineNo">368</span>                    + params[1] * FastMath.exp(-t / params[3])<a name="line.368"></a>
+<span class="sourceLineNo">369</span>                    + params[2] * FastMath.exp(-t / params[4]);<a name="line.369"></a>
+<span class="sourceLineNo">370</span>            }<a name="line.370"></a>
+<span class="sourceLineNo">371</span>            return values;<a name="line.371"></a>
+<span class="sourceLineNo">372</span>        }<a name="line.372"></a>
+<span class="sourceLineNo">373</span><a name="line.373"></a>
+<span class="sourceLineNo">374</span>        public DerivativeStructure[] value(DerivativeStructure[] params) {<a name="line.374"></a>
+<span class="sourceLineNo">375</span>            DerivativeStructure[] values = new DerivativeStructure[time.size()];<a name="line.375"></a>
+<span class="sourceLineNo">376</span>            for (int i = 0; i &lt; values.length; ++i) {<a name="line.376"></a>
+<span class="sourceLineNo">377</span>                final double t = time.get(i);<a name="line.377"></a>
+<span class="sourceLineNo">378</span>                values[i] = params[0].add(<a name="line.378"></a>
+<span class="sourceLineNo">379</span>                    params[1].multiply(params[3].reciprocal().multiply(-t).exp())).add(<a name="line.379"></a>
+<span class="sourceLineNo">380</span>                    params[2].multiply(params[4].reciprocal().multiply(-t).exp()));<a name="line.380"></a>
+<span class="sourceLineNo">381</span>            }<a name="line.381"></a>
+<span class="sourceLineNo">382</span>            return values;<a name="line.382"></a>
+<span class="sourceLineNo">383</span>        }<a name="line.383"></a>
+<span class="sourceLineNo">384</span><a name="line.384"></a>
+<span class="sourceLineNo">385</span>    }<a name="line.385"></a>
+<span class="sourceLineNo">386</span>}<a name="line.386"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

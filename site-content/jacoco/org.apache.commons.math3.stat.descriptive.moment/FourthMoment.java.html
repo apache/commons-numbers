@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FourthMoment.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive.moment</a> &gt; <span class="el_source">FourthMoment.java</span></div><h1>FourthMoment.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive.moment;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * Computes a statistic related to the Fourth Central Moment.  Specifically,
+ * what is computed is the sum of
+ * &lt;p&gt;
+ * (x_i - xbar) ^ 4, &lt;/p&gt;
+ * &lt;p&gt;
+ * where the x_i are the
+ * sample observations and xbar is the sample mean. &lt;/p&gt;
+ * &lt;p&gt;
+ * The following recursive updating formula is used: &lt;/p&gt;
+ * &lt;p&gt;
+ * Let &lt;ul&gt;
+ * &lt;li&gt; dev = (current obs - previous mean) &lt;/li&gt;
+ * &lt;li&gt; m2 = previous value of {@link SecondMoment} &lt;/li&gt;
+ * &lt;li&gt; m2 = previous value of {@link ThirdMoment} &lt;/li&gt;
+ * &lt;li&gt; n = number of observations (including current obs) &lt;/li&gt;
+ * &lt;/ul&gt;
+ * Then &lt;/p&gt;
+ * &lt;p&gt;
+ * new value = old value - 4 * (dev/n) * m3 + 6 * (dev/n)^2 * m2 + &lt;br&gt;
+ * [n^2 - 3 * (n-1)] * dev^4 * (n-1) / n^3 &lt;/p&gt;
+ * &lt;p&gt;
+ * Returns &lt;code&gt;Double.NaN&lt;/code&gt; if no data values have been added and
+ * returns &lt;code&gt;0&lt;/code&gt; if there is just one value in the data set. Note that
+ * Double.NaN may also be returned if the input includes NaN and / or infinite
+ * values. &lt;/p&gt;
+ * &lt;p&gt;
+ * &lt;strong&gt;Note that this implementation is not synchronized.&lt;/strong&gt; If
+ * multiple threads access an instance of this class concurrently, and at least
+ * one of the threads invokes the &lt;code&gt;increment()&lt;/code&gt; or
+ * &lt;code&gt;clear()&lt;/code&gt; method, it must be synchronized externally. &lt;/p&gt;
+ *
+ */
+class FourthMoment extends ThirdMoment implements Serializable{
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = 4763990447117157611L;
+
+    /** fourth moment of values that have been added */
+    private double m4;
+
+    /**
+     * Create a FourthMoment instance
+     */
+    FourthMoment() {
+<span class="fc" id="L69">        super();</span>
+<span class="fc" id="L70">        m4 = Double.NaN;</span>
+<span class="fc" id="L71">    }</span>
+
+    /**
+     * Copy constructor, creates a new {@code FourthMoment} identical
+     * to the {@code original}
+     *
+     * @param original the {@code FourthMoment} instance to copy
+     * @throws NullArgumentException if original is null
+     */
+     FourthMoment(FourthMoment original) throws NullArgumentException {
+<span class="nc" id="L81">         super();</span>
+<span class="nc" id="L82">         copy(original, this);</span>
+<span class="nc" id="L83">     }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+     @Override
+    public void increment(final double d) {
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (n &lt; 1) {</span>
+<span class="fc" id="L91">            m4 = 0.0;</span>
+<span class="fc" id="L92">            m3 = 0.0;</span>
+<span class="fc" id="L93">            m2 = 0.0;</span>
+<span class="fc" id="L94">            m1 = 0.0;</span>
+        }
+
+<span class="fc" id="L97">        double prevM3 = m3;</span>
+<span class="fc" id="L98">        double prevM2 = m2;</span>
+
+<span class="fc" id="L100">        super.increment(d);</span>
+
+<span class="fc" id="L102">        double n0 = n;</span>
+
+<span class="fc" id="L104">        m4 = m4 - 4.0 * nDev * prevM3 + 6.0 * nDevSq * prevM2 +</span>
+            ((n0 * n0) - 3 * (n0 -1)) * (nDevSq * nDevSq * (n0 - 1) * n0);
+<span class="fc" id="L106">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getResult() {
+<span class="fc" id="L113">        return m4;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void clear() {
+<span class="fc" id="L121">        super.clear();</span>
+<span class="fc" id="L122">        m4 = Double.NaN;</span>
+<span class="fc" id="L123">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FourthMoment copy() {
+<span class="fc" id="L130">        FourthMoment result = new FourthMoment();</span>
+        // No try-catch or advertised exception because args are guaranteed non-null
+<span class="fc" id="L132">        copy(this, result);</span>
+<span class="fc" id="L133">        return result;</span>
+    }
+
+    /**
+     * Copies source to dest.
+     * &lt;p&gt;Neither source nor dest can be null.&lt;/p&gt;
+     *
+     * @param source FourthMoment to copy
+     * @param dest FourthMoment to copy to
+     * @throws NullArgumentException if either source or dest is null
+     */
+    public static void copy(FourthMoment source, FourthMoment dest)
+        throws NullArgumentException {
+<span class="fc" id="L146">        MathUtils.checkNotNull(source);</span>
+<span class="fc" id="L147">        MathUtils.checkNotNull(dest);</span>
+<span class="fc" id="L148">        ThirdMoment.copy(source, dest);</span>
+<span class="fc" id="L149">        dest.m4 = source.m4;</span>
+<span class="fc" id="L150">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

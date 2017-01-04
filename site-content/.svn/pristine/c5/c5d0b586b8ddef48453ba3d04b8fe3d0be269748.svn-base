@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>GeometricMean.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive.moment</a> &gt; <span class="el_source">GeometricMean.java</span></div><h1>GeometricMean.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive.moment;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.MathIllegalStateException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.stat.descriptive.AbstractStorelessUnivariateStatistic;
+import org.apache.commons.math3.stat.descriptive.StorelessUnivariateStatistic;
+import org.apache.commons.math3.stat.descriptive.summary.SumOfLogs;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * Returns the &lt;a href=&quot;http://www.xycoon.com/geometric_mean.htm&quot;&gt;
+ * geometric mean &lt;/a&gt; of the available values.
+ * &lt;p&gt;
+ * Uses a {@link SumOfLogs} instance to compute sum of logs and returns
+ * &lt;code&gt; exp( 1/n  (sum of logs) ).&lt;/code&gt;  Therefore, &lt;/p&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;If any of values are &lt; 0, the result is &lt;code&gt;NaN.&lt;/code&gt;&lt;/li&gt;
+ * &lt;li&gt;If all values are non-negative and less than
+ * &lt;code&gt;Double.POSITIVE_INFINITY&lt;/code&gt;,  but at least one value is 0, the
+ * result is &lt;code&gt;0.&lt;/code&gt;&lt;/li&gt;
+ * &lt;li&gt;If both &lt;code&gt;Double.POSITIVE_INFINITY&lt;/code&gt; and
+ * &lt;code&gt;Double.NEGATIVE_INFINITY&lt;/code&gt; are among the values, the result is
+ * &lt;code&gt;NaN.&lt;/code&gt;&lt;/li&gt;
+ * &lt;/ul&gt; &lt;/p&gt;
+ * &lt;p&gt;
+ * &lt;strong&gt;Note that this implementation is not synchronized.&lt;/strong&gt; If
+ * multiple threads access an instance of this class concurrently, and at least
+ * one of the threads invokes the &lt;code&gt;increment()&lt;/code&gt; or
+ * &lt;code&gt;clear()&lt;/code&gt; method, it must be synchronized externally.&lt;/p&gt;
+ *
+ *
+ */
+public class GeometricMean extends AbstractStorelessUnivariateStatistic implements Serializable {
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = -8178734905303459453L;
+
+    /** Wrapped SumOfLogs instance */
+    private StorelessUnivariateStatistic sumOfLogs;
+
+    /**
+     * Create a GeometricMean instance
+     */
+<span class="fc" id="L65">    public GeometricMean() {</span>
+<span class="fc" id="L66">        sumOfLogs = new SumOfLogs();</span>
+<span class="fc" id="L67">    }</span>
+
+    /**
+     * Copy constructor, creates a new {@code GeometricMean} identical
+     * to the {@code original}
+     *
+     * @param original the {@code GeometricMean} instance to copy
+     * @throws NullArgumentException if original is null
+     */
+    public GeometricMean(GeometricMean original) throws NullArgumentException {
+<span class="nc" id="L77">        super();</span>
+<span class="nc" id="L78">        copy(original, this);</span>
+<span class="nc" id="L79">    }</span>
+
+    /**
+     * Create a GeometricMean instance using the given SumOfLogs instance
+     * @param sumOfLogs sum of logs instance to use for computation
+     */
+<span class="fc" id="L85">    public GeometricMean(SumOfLogs sumOfLogs) {</span>
+<span class="fc" id="L86">        this.sumOfLogs = sumOfLogs;</span>
+<span class="fc" id="L87">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public GeometricMean copy() {
+<span class="fc" id="L94">        GeometricMean result = new GeometricMean();</span>
+        // no try-catch or advertised exception because args guaranteed non-null
+<span class="fc" id="L96">        copy(this, result);</span>
+<span class="fc" id="L97">        return result;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void increment(final double d) {
+<span class="fc" id="L105">        sumOfLogs.increment(d);</span>
+<span class="fc" id="L106">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getResult() {
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        if (sumOfLogs.getN() &gt; 0) {</span>
+<span class="fc" id="L114">            return FastMath.exp(sumOfLogs.getResult() / sumOfLogs.getN());</span>
+        } else {
+<span class="fc" id="L116">            return Double.NaN;</span>
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void clear() {
+<span class="fc" id="L125">        sumOfLogs.clear();</span>
+<span class="fc" id="L126">    }</span>
+
+    /**
+     * Returns the geometric mean of the entries in the specified portion
+     * of the input array.
+     * &lt;p&gt;
+     * See {@link GeometricMean} for details on the computing algorithm.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     *
+     * @param values input array containing the values
+     * @param begin first array element to include
+     * @param length the number of elements to include
+     * @return the geometric mean or Double.NaN if length = 0 or
+     * any of the values are &amp;lt;= 0.
+     * @throws MathIllegalArgumentException if the input array is null or the array
+     * index parameters are not valid
+     */
+    @Override
+    public double evaluate(
+        final double[] values, final int begin, final int length)
+    throws MathIllegalArgumentException {
+<span class="fc" id="L148">        return FastMath.exp(</span>
+            sumOfLogs.evaluate(values, begin, length) / length);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getN() {
+<span class="fc" id="L156">        return sumOfLogs.getN();</span>
+    }
+
+    /**
+     * &lt;p&gt;Sets the implementation for the sum of logs.&lt;/p&gt;
+     * &lt;p&gt;This method must be activated before any data has been added - i.e.,
+     * before {@link #increment(double) increment} has been used to add data;
+     * otherwise an IllegalStateException will be thrown.&lt;/p&gt;
+     *
+     * @param sumLogImpl the StorelessUnivariateStatistic instance to use
+     * for computing the log sum
+     * @throws MathIllegalStateException if data has already been added
+     *  (i.e if n &gt; 0)
+     */
+    public void setSumLogImpl(StorelessUnivariateStatistic sumLogImpl)
+    throws MathIllegalStateException {
+<span class="fc" id="L172">        checkEmpty();</span>
+<span class="fc" id="L173">        this.sumOfLogs = sumLogImpl;</span>
+<span class="fc" id="L174">    }</span>
+
+    /**
+     * Returns the currently configured sum of logs implementation
+     *
+     * @return the StorelessUnivariateStatistic implementing the log sum
+     */
+    public StorelessUnivariateStatistic getSumLogImpl() {
+<span class="nc" id="L182">        return sumOfLogs;</span>
+    }
+
+    /**
+     * Copies source to dest.
+     * &lt;p&gt;Neither source nor dest can be null.&lt;/p&gt;
+     *
+     * @param source GeometricMean to copy
+     * @param dest GeometricMean to copy to
+     * @throws NullArgumentException if either source or dest is null
+     */
+    public static void copy(GeometricMean source, GeometricMean dest)
+        throws NullArgumentException {
+<span class="fc" id="L195">        MathUtils.checkNotNull(source);</span>
+<span class="fc" id="L196">        MathUtils.checkNotNull(dest);</span>
+<span class="fc" id="L197">        dest.setData(source.getDataRef());</span>
+<span class="fc" id="L198">        dest.sumOfLogs = source.sumOfLogs.copy();</span>
+<span class="fc" id="L199">    }</span>
+
+
+    /**
+     * Throws MathIllegalStateException if n &gt; 0.
+     * @throws MathIllegalStateException if data has been added to this statistic
+     */
+    private void checkEmpty() throws MathIllegalStateException {
+<span class="pc bpc" id="L207" title="1 of 2 branches missed.">        if (getN() &gt; 0) {</span>
+<span class="nc" id="L208">            throw new MathIllegalStateException(</span>
+                    LocalizedFormats.VALUES_ADDED_BEFORE_CONFIGURING_STATISTIC,
+                    getN());
+        }
+<span class="fc" id="L212">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

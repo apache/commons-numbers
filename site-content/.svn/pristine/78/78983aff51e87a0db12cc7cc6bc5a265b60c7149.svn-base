@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>UniformIntegerDistribution.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.distribution</a> &gt; <span class="el_source">UniformIntegerDistribution.java</span></div><h1>UniformIntegerDistribution.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.distribution;
+
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.Well19937c;
+
+/**
+ * Implementation of the uniform integer distribution.
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Uniform_distribution_(discrete)&quot;
+ * &gt;Uniform distribution (discrete), at Wikipedia&lt;/a&gt;
+ *
+ * @since 3.0
+ */
+public class UniformIntegerDistribution extends AbstractIntegerDistribution {
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 20120109L;
+    /** Lower bound (inclusive) of this distribution. */
+    private final int lower;
+    /** Upper bound (inclusive) of this distribution. */
+    private final int upper;
+
+    /**
+     * Creates a new uniform integer distribution using the given lower and
+     * upper bounds (both inclusive).
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; this constructor will implicitly create an instance of
+     * {@link Well19937c} as random generator to be used for sampling only (see
+     * {@link #sample()} and {@link #sample(int)}). In case no sampling is
+     * needed for the created distribution, it is advised to pass {@code null}
+     * as random generator via the appropriate constructors to avoid the
+     * additional initialisation overhead.
+     *
+     * @param lower Lower bound (inclusive) of this distribution.
+     * @param upper Upper bound (inclusive) of this distribution.
+     * @throws NumberIsTooLargeException if {@code lower &gt;= upper}.
+     */
+    public UniformIntegerDistribution(int lower, int upper)
+        throws NumberIsTooLargeException {
+<span class="fc" id="L58">        this(new Well19937c(), lower, upper);</span>
+<span class="fc" id="L59">    }</span>
+
+    /**
+     * Creates a new uniform integer distribution using the given lower and
+     * upper bounds (both inclusive).
+     *
+     * @param rng Random number generator.
+     * @param lower Lower bound (inclusive) of this distribution.
+     * @param upper Upper bound (inclusive) of this distribution.
+     * @throws NumberIsTooLargeException if {@code lower &gt; upper}.
+     * @since 3.1
+     */
+    public UniformIntegerDistribution(RandomGenerator rng,
+                                      int lower,
+                                      int upper)
+        throws NumberIsTooLargeException {
+<span class="fc" id="L75">        super(rng);</span>
+
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (lower &gt; upper) {</span>
+<span class="fc" id="L78">            throw new NumberIsTooLargeException(</span>
+                            LocalizedFormats.LOWER_BOUND_NOT_BELOW_UPPER_BOUND,
+                            lower, upper, true);
+        }
+<span class="fc" id="L82">        this.lower = lower;</span>
+<span class="fc" id="L83">        this.upper = upper;</span>
+<span class="fc" id="L84">    }</span>
+
+    /** {@inheritDoc} */
+    public double probability(int x) {
+<span class="fc bfc" id="L88" title="All 4 branches covered.">        if (x &lt; lower || x &gt; upper) {</span>
+<span class="fc" id="L89">            return 0;</span>
+        }
+<span class="fc" id="L91">        return 1.0 / (upper - lower + 1);</span>
+    }
+
+    /** {@inheritDoc} */
+    public double cumulativeProbability(int x) {
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (x &lt; lower) {</span>
+<span class="fc" id="L97">            return 0;</span>
+        }
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        if (x &gt; upper) {</span>
+<span class="fc" id="L100">            return 1;</span>
+        }
+<span class="fc" id="L102">        return (x - lower + 1.0) / (upper - lower + 1.0);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For lower bound {@code lower} and upper bound {@code upper}, the mean is
+     * {@code 0.5 * (lower + upper)}.
+     */
+    public double getNumericalMean() {
+<span class="fc" id="L112">        return 0.5 * (lower + upper);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For lower bound {@code lower} and upper bound {@code upper}, and
+     * {@code n = upper - lower + 1}, the variance is {@code (n^2 - 1) / 12}.
+     */
+    public double getNumericalVariance() {
+<span class="fc" id="L122">        double n = upper - lower + 1;</span>
+<span class="fc" id="L123">        return (n * n - 1) / 12.0;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The lower bound of the support is equal to the lower bound parameter
+     * of the distribution.
+     *
+     * @return lower bound of the support
+     */
+    public int getSupportLowerBound() {
+<span class="fc" id="L135">        return lower;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The upper bound of the support is equal to the upper bound parameter
+     * of the distribution.
+     *
+     * @return upper bound of the support
+     */
+    public int getSupportUpperBound() {
+<span class="fc" id="L147">        return upper;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The support of this distribution is connected.
+     *
+     * @return {@code true}
+     */
+    public boolean isSupportConnected() {
+<span class="nc" id="L158">        return true;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int sample() {
+<span class="fc" id="L164">        final int max = (upper - lower) + 1;</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        if (max &lt;= 0) {</span>
+            // The range is too wide to fit in a positive int (larger
+            // than 2^31); as it covers more than half the integer range,
+            // we use a simple rejection method.
+            while (true) {
+<span class="fc" id="L170">                final int r = random.nextInt();</span>
+<span class="fc bfc" id="L171" title="All 4 branches covered.">                if (r &gt;= lower &amp;&amp;</span>
+                    r &lt;= upper) {
+<span class="fc" id="L173">                    return r;</span>
+                }
+<span class="fc" id="L175">            }</span>
+        } else {
+            // We can shift the range and directly generate a positive int.
+<span class="fc" id="L178">            return lower + random.nextInt(max);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

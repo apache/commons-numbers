@@ -1,0 +1,207 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.apache.commons.math3.geometry.euclidean.oned;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.text.FieldPosition;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.text.NumberFormat;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.text.ParsePosition;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import java.util.Locale;<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.exception.MathParseException;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.geometry.Vector;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.math3.geometry.VectorFormat;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.commons.math3.util.CompositeFormat;<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>/**<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * Formats a 1D vector in components list format "{x}".<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * &lt;p&gt;The prefix and suffix "{" and "}" can be replaced by<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * any user-defined strings. The number format for components can be configured.&lt;/p&gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * &lt;p&gt;White space is ignored at parse time, even if it is in the prefix, suffix<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * or separator specifications. So even if the default separator does include a space<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * character that is used at format time, both input string "{1}" and<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * " { 1 } " will be parsed without error and the same vector will be<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * returned. In the second case, however, the parse position after parsing will be<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * just after the closing curly brace, i.e. just before the trailing space.&lt;/p&gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * &lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; using "," as a separator may interfere with the grouping separator<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * of the default {@link NumberFormat} for the current locale. Thus it is advised<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * to use a {@link NumberFormat} instance with disabled grouping in such a case.&lt;/p&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span> *<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * @since 3.0<a name="line.44"></a>
+<span class="sourceLineNo">045</span> */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>public class Vector1DFormat extends VectorFormat&lt;Euclidean1D&gt; {<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>    /**<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * Create an instance with default settings.<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     * &lt;p&gt;The instance uses the default prefix, suffix and separator:<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     * "{", "}", and "; " and the default number format for components.&lt;/p&gt;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     */<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    public Vector1DFormat() {<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        super(DEFAULT_PREFIX, DEFAULT_SUFFIX, DEFAULT_SEPARATOR,<a name="line.54"></a>
+<span class="sourceLineNo">055</span>              CompositeFormat.getDefaultNumberFormat());<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    }<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>    /**<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * Create an instance with a custom number format for components.<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * @param format the custom format for components.<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     */<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    public Vector1DFormat(final NumberFormat format) {<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        super(DEFAULT_PREFIX, DEFAULT_SUFFIX, DEFAULT_SEPARATOR, format);<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    }<a name="line.64"></a>
+<span class="sourceLineNo">065</span><a name="line.65"></a>
+<span class="sourceLineNo">066</span>    /**<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * Create an instance with custom prefix, suffix and separator.<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * @param prefix prefix to use instead of the default "{"<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * @param suffix suffix to use instead of the default "}"<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    public Vector1DFormat(final String prefix, final String suffix) {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        super(prefix, suffix, DEFAULT_SEPARATOR, CompositeFormat.getDefaultNumberFormat());<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    }<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>    /**<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * Create an instance with custom prefix, suffix, separator and format<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * for components.<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * @param prefix prefix to use instead of the default "{"<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * @param suffix suffix to use instead of the default "}"<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * @param format the custom format for components.<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     */<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    public Vector1DFormat(final String prefix, final String suffix,<a name="line.82"></a>
+<span class="sourceLineNo">083</span>                         final NumberFormat format) {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        super(prefix, suffix, DEFAULT_SEPARATOR, format);<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    }<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>    /**<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * Returns the default 1D vector format for the current locale.<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * @return the default 1D vector format.<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     */<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    public static Vector1DFormat getInstance() {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        return getInstance(Locale.getDefault());<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    }<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>    /**<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * Returns the default 1D vector format for the given locale.<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * @param locale the specific locale used by the format.<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * @return the 1D vector format specific to the given locale.<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     */<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    public static Vector1DFormat getInstance(final Locale locale) {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        return new Vector1DFormat(CompositeFormat.getDefaultNumberFormat(locale));<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    }<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>    /** {@inheritDoc} */<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    @Override<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    public StringBuffer format(final Vector&lt;Euclidean1D&gt; vector, final StringBuffer toAppendTo,<a name="line.106"></a>
+<span class="sourceLineNo">107</span>                               final FieldPosition pos) {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        final Vector1D p1 = (Vector1D) vector;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        return format(toAppendTo, pos, p1.getX());<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    }<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>    /** {@inheritDoc} */<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    @Override<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    public Vector1D parse(final String source) throws MathParseException {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        ParsePosition parsePosition = new ParsePosition(0);<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        Vector1D result = parse(source, parsePosition);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        if (parsePosition.getIndex() == 0) {<a name="line.117"></a>
+<span class="sourceLineNo">118</span>            throw new MathParseException(source,<a name="line.118"></a>
+<span class="sourceLineNo">119</span>                                         parsePosition.getErrorIndex(),<a name="line.119"></a>
+<span class="sourceLineNo">120</span>                                         Vector1D.class);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        }<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        return result;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    }<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>    /** {@inheritDoc} */<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    @Override<a name="line.126"></a>
+<span class="sourceLineNo">127</span>    public Vector1D parse(final String source, final ParsePosition pos) {<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        final double[] coordinates = parseCoordinates(1, source, pos);<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        if (coordinates == null) {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>            return null;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        }<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        return new Vector1D(coordinates[0]);<a name="line.132"></a>
+<span class="sourceLineNo">133</span>    }<a name="line.133"></a>
+<span class="sourceLineNo">134</span><a name="line.134"></a>
+<span class="sourceLineNo">135</span>}<a name="line.135"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

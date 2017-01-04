@@ -1,0 +1,369 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.stat.regression;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.junit.Assert;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.junit.Before;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.junit.Test;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.TestUtils;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.linear.MatrixUtils;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.linear.RealMatrix;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.linear.RealVector;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.random.CorrelatedRandomVectorGenerator;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.math3.random.JDKRandomGenerator;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.commons.math3.random.GaussianRandomGenerator;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.math3.random.RandomGenerator;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.math3.stat.correlation.Covariance;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>public class GLSMultipleLinearRegressionTest extends MultipleLinearRegressionAbstractTest {<a name="line.33"></a>
+<span class="sourceLineNo">034</span><a name="line.34"></a>
+<span class="sourceLineNo">035</span>    private double[] y;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    private double[][] x;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    private double[][] omega;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    private double[] longley = new double[] {<a name="line.38"></a>
+<span class="sourceLineNo">039</span>            60323,83.0,234289,2356,1590,107608,1947,<a name="line.39"></a>
+<span class="sourceLineNo">040</span>            61122,88.5,259426,2325,1456,108632,1948,<a name="line.40"></a>
+<span class="sourceLineNo">041</span>            60171,88.2,258054,3682,1616,109773,1949,<a name="line.41"></a>
+<span class="sourceLineNo">042</span>            61187,89.5,284599,3351,1650,110929,1950,<a name="line.42"></a>
+<span class="sourceLineNo">043</span>            63221,96.2,328975,2099,3099,112075,1951,<a name="line.43"></a>
+<span class="sourceLineNo">044</span>            63639,98.1,346999,1932,3594,113270,1952,<a name="line.44"></a>
+<span class="sourceLineNo">045</span>            64989,99.0,365385,1870,3547,115094,1953,<a name="line.45"></a>
+<span class="sourceLineNo">046</span>            63761,100.0,363112,3578,3350,116219,1954,<a name="line.46"></a>
+<span class="sourceLineNo">047</span>            66019,101.2,397469,2904,3048,117388,1955,<a name="line.47"></a>
+<span class="sourceLineNo">048</span>            67857,104.6,419180,2822,2857,118734,1956,<a name="line.48"></a>
+<span class="sourceLineNo">049</span>            68169,108.4,442769,2936,2798,120445,1957,<a name="line.49"></a>
+<span class="sourceLineNo">050</span>            66513,110.8,444546,4681,2637,121950,1958,<a name="line.50"></a>
+<span class="sourceLineNo">051</span>            68655,112.6,482704,3813,2552,123366,1959,<a name="line.51"></a>
+<span class="sourceLineNo">052</span>            69564,114.2,502601,3931,2514,125368,1960,<a name="line.52"></a>
+<span class="sourceLineNo">053</span>            69331,115.7,518173,4806,2572,127852,1961,<a name="line.53"></a>
+<span class="sourceLineNo">054</span>            70551,116.9,554894,4007,2827,130081,1962<a name="line.54"></a>
+<span class="sourceLineNo">055</span>        };<a name="line.55"></a>
+<span class="sourceLineNo">056</span><a name="line.56"></a>
+<span class="sourceLineNo">057</span>    @Before<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    @Override<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    public void setUp(){<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        y = new double[]{11.0, 12.0, 13.0, 14.0, 15.0, 16.0};<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        x = new double[6][];<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        x[0] = new double[]{0, 0, 0, 0, 0};<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        x[1] = new double[]{2.0, 0, 0, 0, 0};<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        x[2] = new double[]{0, 3.0, 0, 0, 0};<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        x[3] = new double[]{0, 0, 4.0, 0, 0};<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        x[4] = new double[]{0, 0, 0, 5.0, 0};<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        x[5] = new double[]{0, 0, 0, 0, 6.0};<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        omega = new double[6][];<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        omega[0] = new double[]{1.0, 0, 0, 0, 0, 0};<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        omega[1] = new double[]{0, 2.0, 0, 0, 0, 0};<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        omega[2] = new double[]{0, 0, 3.0, 0, 0, 0};<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        omega[3] = new double[]{0, 0, 0, 4.0, 0, 0};<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        omega[4] = new double[]{0, 0, 0, 0, 5.0, 0};<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        omega[5] = new double[]{0, 0, 0, 0, 0, 6.0};<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        super.setUp();<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    }<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>    @Test(expected=IllegalArgumentException.class)<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    public void cannotAddXSampleData() {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        createRegression().newSampleData(new double[]{}, null, null);<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    }<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>    @Test(expected=IllegalArgumentException.class)<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    public void cannotAddNullYSampleData() {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        createRegression().newSampleData(null, new double[][]{}, null);<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    }<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>    @Test(expected=IllegalArgumentException.class)<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    public void cannotAddSampleDataWithSizeMismatch() {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        double[] y = new double[]{1.0, 2.0};<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        double[][] x = new double[1][];<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        x[0] = new double[]{1.0, 0};<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        createRegression().newSampleData(y, x, null);<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    }<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>    @Test(expected=IllegalArgumentException.class)<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    public void cannotAddNullCovarianceData() {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        createRegression().newSampleData(new double[]{}, new double[][]{}, null);<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    }<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>    @Test(expected=IllegalArgumentException.class)<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    public void notEnoughData() {<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        double[]   reducedY = new double[y.length - 1];<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        double[][] reducedX = new double[x.length - 1][];<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        double[][] reducedO = new double[omega.length - 1][];<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        System.arraycopy(y,     0, reducedY, 0, reducedY.length);<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        System.arraycopy(x,     0, reducedX, 0, reducedX.length);<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        System.arraycopy(omega, 0, reducedO, 0, reducedO.length);<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        createRegression().newSampleData(reducedY, reducedX, reducedO);<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    }<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>    @Test(expected=IllegalArgumentException.class)<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    public void cannotAddCovarianceDataWithSampleSizeMismatch() {<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        double[] y = new double[]{1.0, 2.0};<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        double[][] x = new double[2][];<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        x[0] = new double[]{1.0, 0};<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        x[1] = new double[]{0, 1.0};<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        double[][] omega = new double[1][];<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        omega[0] = new double[]{1.0, 0};<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        createRegression().newSampleData(y, x, omega);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    }<a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
+<span class="sourceLineNo">123</span>    @Test(expected=IllegalArgumentException.class)<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    public void cannotAddCovarianceDataThatIsNotSquare() {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        double[] y = new double[]{1.0, 2.0};<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        double[][] x = new double[2][];<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        x[0] = new double[]{1.0, 0};<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        x[1] = new double[]{0, 1.0};<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        double[][] omega = new double[3][];<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        omega[0] = new double[]{1.0, 0};<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        omega[1] = new double[]{0, 1.0};<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        omega[2] = new double[]{0, 2.0};<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        createRegression().newSampleData(y, x, omega);<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    }<a name="line.134"></a>
+<span class="sourceLineNo">135</span><a name="line.135"></a>
+<span class="sourceLineNo">136</span>    @Override<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    protected GLSMultipleLinearRegression createRegression() {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        GLSMultipleLinearRegression regression = new GLSMultipleLinearRegression();<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        regression.newSampleData(y, x, omega);<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        return regression;<a name="line.140"></a>
+<span class="sourceLineNo">141</span>    }<a name="line.141"></a>
+<span class="sourceLineNo">142</span><a name="line.142"></a>
+<span class="sourceLineNo">143</span>    @Override<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    protected int getNumberOfRegressors() {<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        return x[0].length + 1;<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    }<a name="line.146"></a>
+<span class="sourceLineNo">147</span><a name="line.147"></a>
+<span class="sourceLineNo">148</span>    @Override<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    protected int getSampleSize() {<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        return y.length;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    }<a name="line.151"></a>
+<span class="sourceLineNo">152</span><a name="line.152"></a>
+<span class="sourceLineNo">153</span>    /**<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     * test calculateYVariance<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     */<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    @Test<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    public void testYVariance() {<a name="line.157"></a>
+<span class="sourceLineNo">158</span><a name="line.158"></a>
+<span class="sourceLineNo">159</span>        // assumes: y = new double[]{11.0, 12.0, 13.0, 14.0, 15.0, 16.0};<a name="line.159"></a>
+<span class="sourceLineNo">160</span><a name="line.160"></a>
+<span class="sourceLineNo">161</span>        GLSMultipleLinearRegression model = new GLSMultipleLinearRegression();<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        model.newSampleData(y, x, omega);<a name="line.162"></a>
+<span class="sourceLineNo">163</span>        TestUtils.assertEquals(model.calculateYVariance(), 3.5, 0);<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    }<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    <a name="line.165"></a>
+<span class="sourceLineNo">166</span>    /**<a name="line.166"></a>
+<span class="sourceLineNo">167</span>     * Verifies that setting X, Y and covariance separately has the same effect as newSample(X,Y,cov).<a name="line.167"></a>
+<span class="sourceLineNo">168</span>     */<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    @Test<a name="line.169"></a>
+<span class="sourceLineNo">170</span>    public void testNewSample2() {<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        double[] y = new double[] {1, 2, 3, 4}; <a name="line.171"></a>
+<span class="sourceLineNo">172</span>        double[][] x = new double[][] {<a name="line.172"></a>
+<span class="sourceLineNo">173</span>          {19, 22, 33},<a name="line.173"></a>
+<span class="sourceLineNo">174</span>          {20, 30, 40},<a name="line.174"></a>
+<span class="sourceLineNo">175</span>          {25, 35, 45},<a name="line.175"></a>
+<span class="sourceLineNo">176</span>          {27, 37, 47}   <a name="line.176"></a>
+<span class="sourceLineNo">177</span>        };<a name="line.177"></a>
+<span class="sourceLineNo">178</span>        double[][] covariance = MatrixUtils.createRealIdentityMatrix(4).scalarMultiply(2).getData();<a name="line.178"></a>
+<span class="sourceLineNo">179</span>        GLSMultipleLinearRegression regression = new GLSMultipleLinearRegression();<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        regression.newSampleData(y, x, covariance);<a name="line.180"></a>
+<span class="sourceLineNo">181</span>        RealMatrix combinedX = regression.getX().copy();<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        RealVector combinedY = regression.getY().copy();<a name="line.182"></a>
+<span class="sourceLineNo">183</span>        RealMatrix combinedCovInv = regression.getOmegaInverse();<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        regression.newXSampleData(x);<a name="line.184"></a>
+<span class="sourceLineNo">185</span>        regression.newYSampleData(y);<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        Assert.assertEquals(combinedX, regression.getX());<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        Assert.assertEquals(combinedY, regression.getY());<a name="line.187"></a>
+<span class="sourceLineNo">188</span>        Assert.assertEquals(combinedCovInv, regression.getOmegaInverse());<a name="line.188"></a>
+<span class="sourceLineNo">189</span>    }<a name="line.189"></a>
+<span class="sourceLineNo">190</span>    <a name="line.190"></a>
+<span class="sourceLineNo">191</span>    /**<a name="line.191"></a>
+<span class="sourceLineNo">192</span>     * Verifies that GLS with identity covariance matrix gives the same results<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     * as OLS.<a name="line.193"></a>
+<span class="sourceLineNo">194</span>     */<a name="line.194"></a>
+<span class="sourceLineNo">195</span>    @Test<a name="line.195"></a>
+<span class="sourceLineNo">196</span>    public void testGLSOLSConsistency() {      <a name="line.196"></a>
+<span class="sourceLineNo">197</span>        RealMatrix identityCov = MatrixUtils.createRealIdentityMatrix(16);<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        GLSMultipleLinearRegression glsModel = new GLSMultipleLinearRegression();<a name="line.198"></a>
+<span class="sourceLineNo">199</span>        OLSMultipleLinearRegression olsModel = new OLSMultipleLinearRegression();<a name="line.199"></a>
+<span class="sourceLineNo">200</span>        glsModel.newSampleData(longley, 16, 6);<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        olsModel.newSampleData(longley, 16, 6);<a name="line.201"></a>
+<span class="sourceLineNo">202</span>        glsModel.newCovarianceData(identityCov.getData());<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        double[] olsBeta = olsModel.calculateBeta().toArray();<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        double[] glsBeta = glsModel.calculateBeta().toArray();<a name="line.204"></a>
+<span class="sourceLineNo">205</span>        // TODO:  Should have assertRelativelyEquals(double[], double[], eps) in TestUtils<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        //        Should also add RealVector and RealMatrix versions<a name="line.206"></a>
+<span class="sourceLineNo">207</span>        for (int i = 0; i &lt; olsBeta.length; i++) {<a name="line.207"></a>
+<span class="sourceLineNo">208</span>            TestUtils.assertRelativelyEquals(olsBeta[i], glsBeta[i], 10E-7);<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        }<a name="line.209"></a>
+<span class="sourceLineNo">210</span>    }<a name="line.210"></a>
+<span class="sourceLineNo">211</span>    <a name="line.211"></a>
+<span class="sourceLineNo">212</span>    /**<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     * Generate an error covariance matrix and sample data representing models<a name="line.213"></a>
+<span class="sourceLineNo">214</span>     * with this error structure. Then verify that GLS estimated coefficients,<a name="line.214"></a>
+<span class="sourceLineNo">215</span>     * on average, perform better than OLS.<a name="line.215"></a>
+<span class="sourceLineNo">216</span>     */<a name="line.216"></a>
+<span class="sourceLineNo">217</span>    @Test<a name="line.217"></a>
+<span class="sourceLineNo">218</span>    public void testGLSEfficiency() {<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        RandomGenerator rg = new JDKRandomGenerator();<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        rg.setSeed(200);  // Seed has been selected to generate non-trivial covariance<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        <a name="line.221"></a>
+<span class="sourceLineNo">222</span>        // Assume model has 16 observations (will use Longley data).  Start by generating<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        // non-constant variances for the 16 error terms.<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        final int nObs = 16;<a name="line.224"></a>
+<span class="sourceLineNo">225</span>        double[] sigma = new double[nObs];<a name="line.225"></a>
+<span class="sourceLineNo">226</span>        for (int i = 0; i &lt; nObs; i++) {<a name="line.226"></a>
+<span class="sourceLineNo">227</span>            sigma[i] = 10 * rg.nextDouble();<a name="line.227"></a>
+<span class="sourceLineNo">228</span>        }<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        <a name="line.229"></a>
+<span class="sourceLineNo">230</span>        // Now generate 1000 error vectors to use to estimate the covariance matrix<a name="line.230"></a>
+<span class="sourceLineNo">231</span>        // Columns are draws on N(0, sigma[col])<a name="line.231"></a>
+<span class="sourceLineNo">232</span>        final int numSeeds = 1000;<a name="line.232"></a>
+<span class="sourceLineNo">233</span>        RealMatrix errorSeeds = MatrixUtils.createRealMatrix(numSeeds, nObs);<a name="line.233"></a>
+<span class="sourceLineNo">234</span>        for (int i = 0; i &lt; numSeeds; i++) {<a name="line.234"></a>
+<span class="sourceLineNo">235</span>            for (int j = 0; j &lt; nObs; j++) {<a name="line.235"></a>
+<span class="sourceLineNo">236</span>                errorSeeds.setEntry(i, j, rg.nextGaussian() * sigma[j]);<a name="line.236"></a>
+<span class="sourceLineNo">237</span>            }<a name="line.237"></a>
+<span class="sourceLineNo">238</span>        }<a name="line.238"></a>
+<span class="sourceLineNo">239</span>        <a name="line.239"></a>
+<span class="sourceLineNo">240</span>        // Get covariance matrix for columns<a name="line.240"></a>
+<span class="sourceLineNo">241</span>        RealMatrix cov = (new Covariance(errorSeeds)).getCovarianceMatrix();<a name="line.241"></a>
+<span class="sourceLineNo">242</span>          <a name="line.242"></a>
+<span class="sourceLineNo">243</span>        // Create a CorrelatedRandomVectorGenerator to use to generate correlated errors<a name="line.243"></a>
+<span class="sourceLineNo">244</span>        GaussianRandomGenerator rawGenerator = new GaussianRandomGenerator(rg);<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        double[] errorMeans = new double[nObs];  // Counting on init to 0 here<a name="line.245"></a>
+<span class="sourceLineNo">246</span>        CorrelatedRandomVectorGenerator gen = new CorrelatedRandomVectorGenerator(errorMeans, cov,<a name="line.246"></a>
+<span class="sourceLineNo">247</span>         1.0e-12 * cov.getNorm(), rawGenerator);<a name="line.247"></a>
+<span class="sourceLineNo">248</span>        <a name="line.248"></a>
+<span class="sourceLineNo">249</span>        // Now start generating models.  Use Longley X matrix on LHS<a name="line.249"></a>
+<span class="sourceLineNo">250</span>        // and Longley OLS beta vector as "true" beta.  Generate<a name="line.250"></a>
+<span class="sourceLineNo">251</span>        // Y values by XB + u where u is a CorrelatedRandomVector generated<a name="line.251"></a>
+<span class="sourceLineNo">252</span>        // from cov.<a name="line.252"></a>
+<span class="sourceLineNo">253</span>        OLSMultipleLinearRegression ols = new OLSMultipleLinearRegression();<a name="line.253"></a>
+<span class="sourceLineNo">254</span>        ols.newSampleData(longley, nObs, 6);<a name="line.254"></a>
+<span class="sourceLineNo">255</span>        final RealVector b = ols.calculateBeta().copy();<a name="line.255"></a>
+<span class="sourceLineNo">256</span>        final RealMatrix x = ols.getX().copy();<a name="line.256"></a>
+<span class="sourceLineNo">257</span>        <a name="line.257"></a>
+<span class="sourceLineNo">258</span>        // Create a GLS model to reuse<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        GLSMultipleLinearRegression gls = new GLSMultipleLinearRegression();<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        gls.newSampleData(longley, nObs, 6);<a name="line.260"></a>
+<span class="sourceLineNo">261</span>        gls.newCovarianceData(cov.getData());<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        <a name="line.262"></a>
+<span class="sourceLineNo">263</span>        // Create aggregators for stats measuring model performance<a name="line.263"></a>
+<span class="sourceLineNo">264</span>        DescriptiveStatistics olsBetaStats = new DescriptiveStatistics();<a name="line.264"></a>
+<span class="sourceLineNo">265</span>        DescriptiveStatistics glsBetaStats = new DescriptiveStatistics();<a name="line.265"></a>
+<span class="sourceLineNo">266</span>        <a name="line.266"></a>
+<span class="sourceLineNo">267</span>        // Generate Y vectors for 10000 models, estimate GLS and OLS and<a name="line.267"></a>
+<span class="sourceLineNo">268</span>        // Verify that OLS estimates are better<a name="line.268"></a>
+<span class="sourceLineNo">269</span>        final int nModels = 10000;<a name="line.269"></a>
+<span class="sourceLineNo">270</span>        for (int i = 0; i &lt; nModels; i++) {<a name="line.270"></a>
+<span class="sourceLineNo">271</span>            <a name="line.271"></a>
+<span class="sourceLineNo">272</span>            // Generate y = xb + u with u cov<a name="line.272"></a>
+<span class="sourceLineNo">273</span>            RealVector u = MatrixUtils.createRealVector(gen.nextVector());<a name="line.273"></a>
+<span class="sourceLineNo">274</span>            double[] y = u.add(x.operate(b)).toArray();<a name="line.274"></a>
+<span class="sourceLineNo">275</span>            <a name="line.275"></a>
+<span class="sourceLineNo">276</span>            // Estimate OLS parameters<a name="line.276"></a>
+<span class="sourceLineNo">277</span>            ols.newYSampleData(y);<a name="line.277"></a>
+<span class="sourceLineNo">278</span>            RealVector olsBeta = ols.calculateBeta();<a name="line.278"></a>
+<span class="sourceLineNo">279</span>            <a name="line.279"></a>
+<span class="sourceLineNo">280</span>            // Estimate GLS parameters<a name="line.280"></a>
+<span class="sourceLineNo">281</span>            gls.newYSampleData(y);<a name="line.281"></a>
+<span class="sourceLineNo">282</span>            RealVector glsBeta = gls.calculateBeta();<a name="line.282"></a>
+<span class="sourceLineNo">283</span>            <a name="line.283"></a>
+<span class="sourceLineNo">284</span>            // Record deviations from "true" beta<a name="line.284"></a>
+<span class="sourceLineNo">285</span>            double dist = olsBeta.getDistance(b);<a name="line.285"></a>
+<span class="sourceLineNo">286</span>            olsBetaStats.addValue(dist * dist);<a name="line.286"></a>
+<span class="sourceLineNo">287</span>            dist = glsBeta.getDistance(b);<a name="line.287"></a>
+<span class="sourceLineNo">288</span>            glsBetaStats.addValue(dist * dist);<a name="line.288"></a>
+<span class="sourceLineNo">289</span>            <a name="line.289"></a>
+<span class="sourceLineNo">290</span>        }<a name="line.290"></a>
+<span class="sourceLineNo">291</span>        <a name="line.291"></a>
+<span class="sourceLineNo">292</span>        // Verify that GLS is on average more efficient, lower variance<a name="line.292"></a>
+<span class="sourceLineNo">293</span>        assert(olsBetaStats.getMean() &gt; 1.5 * glsBetaStats.getMean());<a name="line.293"></a>
+<span class="sourceLineNo">294</span>        assert(olsBetaStats.getStandardDeviation() &gt; glsBetaStats.getStandardDeviation());  <a name="line.294"></a>
+<span class="sourceLineNo">295</span>    }<a name="line.295"></a>
+<span class="sourceLineNo">296</span>    <a name="line.296"></a>
+<span class="sourceLineNo">297</span>}<a name="line.297"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

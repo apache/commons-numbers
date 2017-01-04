@@ -1,0 +1,249 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.analysis.integration.gauss;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.apache.commons.math3.exception.DimensionMismatchException;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.util.Pair;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.util.FastMath;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>/**<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * Factory that creates a<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * &lt;a href="http://en.wikipedia.org/wiki/Gauss-Hermite_quadrature"&gt;<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * Gauss-type quadrature rule using Hermite polynomials&lt;/a&gt;<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * of the first kind.<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * Such a quadrature rule allows the calculation of improper integrals<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * of a function<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * &lt;p&gt;<a name="line.30"></a>
+<span class="sourceLineNo">031</span> *  \(f(x) e^{-x^2}\)<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * &lt;/p&gt;&lt;p&gt;<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * Recurrence relation and weights computation follow<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * &lt;a href="http://en.wikipedia.org/wiki/Abramowitz_and_Stegun"&gt;<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * Abramowitz and Stegun, 1964&lt;/a&gt;.<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * &lt;/p&gt;&lt;p&gt;<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * The coefficients of the standard Hermite polynomials grow very rapidly.<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * In order to avoid overflows, each Hermite polynomial is normalized with<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * respect to the underlying scalar product.<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * The initial interval for the application of the bisection method is<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * based on the roots of the previous Hermite polynomial (interlacing).<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * Upper and lower bounds of these roots are provided by &lt;/p&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * &lt;blockquote&gt;<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *  I. Krasikov,<a name="line.44"></a>
+<span class="sourceLineNo">045</span> *  &lt;em&gt;Nonnegative quadratic forms and bounds on orthogonal polynomials&lt;/em&gt;,<a name="line.45"></a>
+<span class="sourceLineNo">046</span> *  Journal of Approximation theory &lt;b&gt;111&lt;/b&gt;, 31-49<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * &lt;/blockquote&gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span> *<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * @since 3.3<a name="line.49"></a>
+<span class="sourceLineNo">050</span> */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>public class HermiteRuleFactory extends BaseRuleFactory&lt;Double&gt; {<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    /** &amp;pi;&lt;sup&gt;1/2&lt;/sup&gt; */<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    private static final double SQRT_PI = 1.77245385090551602729;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    /** &amp;pi;&lt;sup&gt;-1/4&lt;/sup&gt; */<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    private static final double H0 = 7.5112554446494248286e-1;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    /** &amp;pi;&lt;sup&gt;-1/4&lt;/sup&gt; &amp;radic;2 */<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    private static final double H1 = 1.0622519320271969145;<a name="line.57"></a>
+<span class="sourceLineNo">058</span><a name="line.58"></a>
+<span class="sourceLineNo">059</span>    /** {@inheritDoc} */<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    @Override<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    protected Pair&lt;Double[], Double[]&gt; computeRule(int numberOfPoints)<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        throws DimensionMismatchException {<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>        if (numberOfPoints == 1) {<a name="line.64"></a>
+<span class="sourceLineNo">065</span>            // Break recursion.<a name="line.65"></a>
+<span class="sourceLineNo">066</span>            return new Pair&lt;Double[], Double[]&gt;(new Double[] { 0d },<a name="line.66"></a>
+<span class="sourceLineNo">067</span>                                                new Double[] { SQRT_PI });<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        }<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>        // Get previous rule.<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        // If it has not been computed yet it will trigger a recursive call<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        // to this method.<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        final int lastNumPoints = numberOfPoints - 1;<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        final Double[] previousPoints = getRuleInternal(lastNumPoints).getFirst();<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>        // Compute next rule.<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        final Double[] points = new Double[numberOfPoints];<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        final Double[] weights = new Double[numberOfPoints];<a name="line.78"></a>
+<span class="sourceLineNo">079</span><a name="line.79"></a>
+<span class="sourceLineNo">080</span>        final double sqrtTwoTimesLastNumPoints = FastMath.sqrt(2 * lastNumPoints);<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        final double sqrtTwoTimesNumPoints = FastMath.sqrt(2 * numberOfPoints);<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>        // Find i-th root of H[n+1] by bracketing.<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        final int iMax = numberOfPoints / 2;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        for (int i = 0; i &lt; iMax; i++) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>            // Lower-bound of the interval.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>            double a = (i == 0) ? -sqrtTwoTimesLastNumPoints : previousPoints[i - 1].doubleValue();<a name="line.87"></a>
+<span class="sourceLineNo">088</span>            // Upper-bound of the interval.<a name="line.88"></a>
+<span class="sourceLineNo">089</span>            double b = (iMax == 1) ? -0.5 : previousPoints[i].doubleValue();<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>            // H[j-1](a)<a name="line.91"></a>
+<span class="sourceLineNo">092</span>            double hma = H0;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>            // H[j](a)<a name="line.93"></a>
+<span class="sourceLineNo">094</span>            double ha = H1 * a;<a name="line.94"></a>
+<span class="sourceLineNo">095</span>            // H[j-1](b)<a name="line.95"></a>
+<span class="sourceLineNo">096</span>            double hmb = H0;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>            // H[j](b)<a name="line.97"></a>
+<span class="sourceLineNo">098</span>            double hb = H1 * b;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>            for (int j = 1; j &lt; numberOfPoints; j++) {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>                // Compute H[j+1](a) and H[j+1](b)<a name="line.100"></a>
+<span class="sourceLineNo">101</span>                final double jp1 = j + 1;<a name="line.101"></a>
+<span class="sourceLineNo">102</span>                final double s = FastMath.sqrt(2 / jp1);<a name="line.102"></a>
+<span class="sourceLineNo">103</span>                final double sm = FastMath.sqrt(j / jp1);<a name="line.103"></a>
+<span class="sourceLineNo">104</span>                final double hpa = s * a * ha - sm * hma;<a name="line.104"></a>
+<span class="sourceLineNo">105</span>                final double hpb = s * b * hb - sm * hmb;<a name="line.105"></a>
+<span class="sourceLineNo">106</span>                hma = ha;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>                ha = hpa;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>                hmb = hb;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                hb = hpb;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>            }<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>            // Now ha = H[n+1](a), and hma = H[n](a) (same holds for b).<a name="line.112"></a>
+<span class="sourceLineNo">113</span>            // Middle of the interval.<a name="line.113"></a>
+<span class="sourceLineNo">114</span>            double c = 0.5 * (a + b);<a name="line.114"></a>
+<span class="sourceLineNo">115</span>            // P[j-1](c)<a name="line.115"></a>
+<span class="sourceLineNo">116</span>            double hmc = H0;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>            // P[j](c)<a name="line.117"></a>
+<span class="sourceLineNo">118</span>            double hc = H1 * c;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>            boolean done = false;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            while (!done) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>                done = b - a &lt;= Math.ulp(c);<a name="line.121"></a>
+<span class="sourceLineNo">122</span>                hmc = H0;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>                hc = H1 * c;<a name="line.123"></a>
+<span class="sourceLineNo">124</span>                for (int j = 1; j &lt; numberOfPoints; j++) {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>                    // Compute H[j+1](c)<a name="line.125"></a>
+<span class="sourceLineNo">126</span>                    final double jp1 = j + 1;<a name="line.126"></a>
+<span class="sourceLineNo">127</span>                    final double s = FastMath.sqrt(2 / jp1);<a name="line.127"></a>
+<span class="sourceLineNo">128</span>                    final double sm = FastMath.sqrt(j / jp1);<a name="line.128"></a>
+<span class="sourceLineNo">129</span>                    final double hpc = s * c * hc - sm * hmc;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>                    hmc = hc;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>                    hc = hpc;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>                }<a name="line.132"></a>
+<span class="sourceLineNo">133</span>                // Now h = H[n+1](c) and hm = H[n](c).<a name="line.133"></a>
+<span class="sourceLineNo">134</span>                if (!done) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>                    if (ha * hc &lt; 0) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>                        b = c;<a name="line.136"></a>
+<span class="sourceLineNo">137</span>                        hmb = hmc;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>                        hb = hc;<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                    } else {<a name="line.139"></a>
+<span class="sourceLineNo">140</span>                        a = c;<a name="line.140"></a>
+<span class="sourceLineNo">141</span>                        hma = hmc;<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                        ha = hc;<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                    }<a name="line.143"></a>
+<span class="sourceLineNo">144</span>                    c = 0.5 * (a + b);<a name="line.144"></a>
+<span class="sourceLineNo">145</span>                }<a name="line.145"></a>
+<span class="sourceLineNo">146</span>            }<a name="line.146"></a>
+<span class="sourceLineNo">147</span>            final double d = sqrtTwoTimesNumPoints * hmc;<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            final double w = 2 / (d * d);<a name="line.148"></a>
+<span class="sourceLineNo">149</span><a name="line.149"></a>
+<span class="sourceLineNo">150</span>            points[i] = c;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>            weights[i] = w;<a name="line.151"></a>
+<span class="sourceLineNo">152</span><a name="line.152"></a>
+<span class="sourceLineNo">153</span>            final int idx = lastNumPoints - i;<a name="line.153"></a>
+<span class="sourceLineNo">154</span>            points[idx] = -c;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>            weights[idx] = w;<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        }<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>        // If "numberOfPoints" is odd, 0 is a root.<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        // Note: as written, the test for oddness will work for negative<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        // integers too (although it is not necessary here), preventing<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        // a FindBugs warning.<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        if (numberOfPoints % 2 != 0) {<a name="line.162"></a>
+<span class="sourceLineNo">163</span>            double hm = H0;<a name="line.163"></a>
+<span class="sourceLineNo">164</span>            for (int j = 1; j &lt; numberOfPoints; j += 2) {<a name="line.164"></a>
+<span class="sourceLineNo">165</span>                final double jp1 = j + 1;<a name="line.165"></a>
+<span class="sourceLineNo">166</span>                hm = -FastMath.sqrt(j / jp1) * hm;<a name="line.166"></a>
+<span class="sourceLineNo">167</span>            }<a name="line.167"></a>
+<span class="sourceLineNo">168</span>            final double d = sqrtTwoTimesNumPoints * hm;<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            final double w = 2 / (d * d);<a name="line.169"></a>
+<span class="sourceLineNo">170</span><a name="line.170"></a>
+<span class="sourceLineNo">171</span>            points[iMax] = 0d;<a name="line.171"></a>
+<span class="sourceLineNo">172</span>            weights[iMax] = w;<a name="line.172"></a>
+<span class="sourceLineNo">173</span>        }<a name="line.173"></a>
+<span class="sourceLineNo">174</span><a name="line.174"></a>
+<span class="sourceLineNo">175</span>        return new Pair&lt;Double[], Double[]&gt;(points, weights);<a name="line.175"></a>
+<span class="sourceLineNo">176</span>    }<a name="line.176"></a>
+<span class="sourceLineNo">177</span>}<a name="line.177"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

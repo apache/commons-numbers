@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>NordsieckStepInterpolator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.sampling</a> &gt; <span class="el_source">NordsieckStepInterpolator.java</span></div><h1>NordsieckStepInterpolator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.sampling;
+
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.Arrays;
+
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.ode.EquationsMapper;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * This class implements an interpolator for integrators using Nordsieck representation.
+ *
+ * &lt;p&gt;This interpolator computes dense output around the current point.
+ * The interpolation equation is based on Taylor series formulas.
+ *
+ * @see org.apache.commons.math3.ode.nonstiff.AdamsBashforthIntegrator
+ * @see org.apache.commons.math3.ode.nonstiff.AdamsMoultonIntegrator
+ * @since 2.0
+ */
+
+public class NordsieckStepInterpolator extends AbstractStepInterpolator {
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = -7179861704951334960L;
+
+    /** State variation. */
+    protected double[] stateVariation;
+
+    /** Step size used in the first scaled derivative and Nordsieck vector. */
+    private double scalingH;
+
+    /** Reference time for all arrays.
+     * &lt;p&gt;Sometimes, the reference time is the same as previousTime,
+     * sometimes it is the same as currentTime, so we use a separate
+     * field to avoid any confusion.
+     * &lt;/p&gt;
+     */
+    private double referenceTime;
+
+    /** First scaled derivative. */
+    private double[] scaled;
+
+    /** Nordsieck vector. */
+    private Array2DRowRealMatrix nordsieck;
+
+    /** Simple constructor.
+     * This constructor builds an instance that is not usable yet, the
+     * {@link AbstractStepInterpolator#reinitialize} method should be called
+     * before using the instance in order to initialize the internal arrays. This
+     * constructor is used only in order to delay the initialization in
+     * some cases.
+     */
+<span class="fc" id="L73">    public NordsieckStepInterpolator() {</span>
+<span class="fc" id="L74">    }</span>
+
+    /** Copy constructor.
+     * @param interpolator interpolator to copy from. The copy is a deep
+     * copy: its arrays are separated from the original arrays of the
+     * instance
+     */
+    public NordsieckStepInterpolator(final NordsieckStepInterpolator interpolator) {
+<span class="fc" id="L82">        super(interpolator);</span>
+<span class="fc" id="L83">        scalingH      = interpolator.scalingH;</span>
+<span class="fc" id="L84">        referenceTime = interpolator.referenceTime;</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (interpolator.scaled != null) {</span>
+<span class="fc" id="L86">            scaled = interpolator.scaled.clone();</span>
+        }
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        if (interpolator.nordsieck != null) {</span>
+<span class="fc" id="L89">            nordsieck = new Array2DRowRealMatrix(interpolator.nordsieck.getDataRef(), true);</span>
+        }
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">        if (interpolator.stateVariation != null) {</span>
+<span class="fc" id="L92">            stateVariation = interpolator.stateVariation.clone();</span>
+        }
+<span class="fc" id="L94">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    protected StepInterpolator doCopy() {
+<span class="fc" id="L99">        return new NordsieckStepInterpolator(this);</span>
+    }
+
+    /** Reinitialize the instance.
+     * &lt;p&gt;Beware that all arrays &lt;em&gt;must&lt;/em&gt; be references to integrator
+     * arrays, in order to ensure proper update without copy.&lt;/p&gt;
+     * @param y reference to the integrator array holding the state at
+     * the end of the step
+     * @param forward integration direction indicator
+     * @param primaryMapper equations mapper for the primary equations set
+     * @param secondaryMappers equations mappers for the secondary equations sets
+     */
+    @Override
+    public void reinitialize(final double[] y, final boolean forward,
+                             final EquationsMapper primaryMapper,
+                             final EquationsMapper[] secondaryMappers) {
+<span class="fc" id="L115">        super.reinitialize(y, forward, primaryMapper, secondaryMappers);</span>
+<span class="fc" id="L116">        stateVariation = new double[y.length];</span>
+<span class="fc" id="L117">    }</span>
+
+    /** Reinitialize the instance.
+     * &lt;p&gt;Beware that all arrays &lt;em&gt;must&lt;/em&gt; be references to integrator
+     * arrays, in order to ensure proper update without copy.&lt;/p&gt;
+     * @param time time at which all arrays are defined
+     * @param stepSize step size used in the scaled and Nordsieck arrays
+     * @param scaledDerivative reference to the integrator array holding the first
+     * scaled derivative
+     * @param nordsieckVector reference to the integrator matrix holding the
+     * Nordsieck vector
+     */
+    public void reinitialize(final double time, final double stepSize,
+                             final double[] scaledDerivative,
+                             final Array2DRowRealMatrix nordsieckVector) {
+<span class="fc" id="L132">        this.referenceTime = time;</span>
+<span class="fc" id="L133">        this.scalingH      = stepSize;</span>
+<span class="fc" id="L134">        this.scaled        = scaledDerivative;</span>
+<span class="fc" id="L135">        this.nordsieck     = nordsieckVector;</span>
+
+        // make sure the state and derivatives will depend on the new arrays
+<span class="fc" id="L138">        setInterpolatedTime(getInterpolatedTime());</span>
+
+<span class="fc" id="L140">    }</span>
+
+    /** Rescale the instance.
+     * &lt;p&gt;Since the scaled and Nordsieck arrays are shared with the caller,
+     * this method has the side effect of rescaling this arrays in the caller too.&lt;/p&gt;
+     * @param stepSize new step size to use in the scaled and Nordsieck arrays
+     */
+    public void rescale(final double stepSize) {
+
+<span class="fc" id="L149">        final double ratio = stepSize / scalingH;</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        for (int i = 0; i &lt; scaled.length; ++i) {</span>
+<span class="fc" id="L151">            scaled[i] *= ratio;</span>
+        }
+
+<span class="fc" id="L154">        final double[][] nData = nordsieck.getDataRef();</span>
+<span class="fc" id="L155">        double power = ratio;</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        for (int i = 0; i &lt; nData.length; ++i) {</span>
+<span class="fc" id="L157">            power *= ratio;</span>
+<span class="fc" id="L158">            final double[] nDataI = nData[i];</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">            for (int j = 0; j &lt; nDataI.length; ++j) {</span>
+<span class="fc" id="L160">                nDataI[j] *= power;</span>
+            }
+        }
+
+<span class="fc" id="L164">        scalingH = stepSize;</span>
+
+<span class="fc" id="L166">    }</span>
+
+    /**
+     * Get the state vector variation from current to interpolated state.
+     * &lt;p&gt;This method is aimed at computing y(t&lt;sub&gt;interpolation&lt;/sub&gt;)
+     * -y(t&lt;sub&gt;current&lt;/sub&gt;) accurately by avoiding the cancellation errors
+     * that would occur if the subtraction were performed explicitly.&lt;/p&gt;
+     * &lt;p&gt;The returned vector is a reference to a reused array, so
+     * it should not be modified and it should be copied if it needs
+     * to be preserved across several calls.&lt;/p&gt;
+     * @return state vector at time {@link #getInterpolatedTime}
+     * @see #getInterpolatedDerivatives()
+     * @exception MaxCountExceededException if the number of functions evaluations is exceeded
+     */
+    public double[] getInterpolatedStateVariation() throws MaxCountExceededException {
+        // compute and ignore interpolated state
+        // to make sure state variation is computed as a side effect
+<span class="nc" id="L183">        getInterpolatedState();</span>
+<span class="nc" id="L184">        return stateVariation;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected void computeInterpolatedStateAndDerivatives(final double theta, final double oneMinusThetaH) {
+
+<span class="fc" id="L191">        final double x = interpolatedTime - referenceTime;</span>
+<span class="fc" id="L192">        final double normalizedAbscissa = x / scalingH;</span>
+
+<span class="fc" id="L194">        Arrays.fill(stateVariation, 0.0);</span>
+<span class="fc" id="L195">        Arrays.fill(interpolatedDerivatives, 0.0);</span>
+
+        // apply Taylor formula from high order to low order,
+        // for the sake of numerical accuracy
+<span class="fc" id="L199">        final double[][] nData = nordsieck.getDataRef();</span>
+<span class="fc bfc" id="L200" title="All 2 branches covered.">        for (int i = nData.length - 1; i &gt;= 0; --i) {</span>
+<span class="fc" id="L201">            final int order = i + 2;</span>
+<span class="fc" id="L202">            final double[] nDataI = nData[i];</span>
+<span class="fc" id="L203">            final double power = FastMath.pow(normalizedAbscissa, order);</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">            for (int j = 0; j &lt; nDataI.length; ++j) {</span>
+<span class="fc" id="L205">                final double d = nDataI[j] * power;</span>
+<span class="fc" id="L206">                stateVariation[j]          += d;</span>
+<span class="fc" id="L207">                interpolatedDerivatives[j] += order * d;</span>
+            }
+        }
+
+<span class="fc bfc" id="L211" title="All 2 branches covered.">        for (int j = 0; j &lt; currentState.length; ++j) {</span>
+<span class="fc" id="L212">            stateVariation[j] += scaled[j] * normalizedAbscissa;</span>
+<span class="fc" id="L213">            interpolatedState[j] = currentState[j] + stateVariation[j];</span>
+<span class="fc" id="L214">            interpolatedDerivatives[j] =</span>
+                (interpolatedDerivatives[j] + scaled[j] * normalizedAbscissa) / x;
+        }
+
+<span class="fc" id="L218">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public void writeExternal(final ObjectOutput out)
+        throws IOException {
+
+        // save the state of the base class
+<span class="fc" id="L226">        writeBaseExternal(out);</span>
+
+        // save the local attributes
+<span class="fc" id="L229">        out.writeDouble(scalingH);</span>
+<span class="fc" id="L230">        out.writeDouble(referenceTime);</span>
+
+<span class="pc bpc" id="L232" title="1 of 2 branches missed.">        final int n = (currentState == null) ? -1 : currentState.length;</span>
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">        if (scaled == null) {</span>
+<span class="nc" id="L234">            out.writeBoolean(false);</span>
+        } else {
+<span class="fc" id="L236">            out.writeBoolean(true);</span>
+<span class="fc bfc" id="L237" title="All 2 branches covered.">            for (int j = 0; j &lt; n; ++j) {</span>
+<span class="fc" id="L238">                out.writeDouble(scaled[j]);</span>
+            }
+        }
+
+<span class="pc bpc" id="L242" title="1 of 2 branches missed.">        if (nordsieck == null) {</span>
+<span class="nc" id="L243">            out.writeBoolean(false);</span>
+        } else {
+<span class="fc" id="L245">            out.writeBoolean(true);</span>
+<span class="fc" id="L246">            out.writeObject(nordsieck);</span>
+        }
+
+        // we don't save state variation, it will be recomputed
+
+<span class="fc" id="L251">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public void readExternal(final ObjectInput in)
+        throws IOException, ClassNotFoundException {
+
+        // read the base class
+<span class="fc" id="L259">        final double t = readBaseExternal(in);</span>
+
+        // read the local attributes
+<span class="fc" id="L262">        scalingH      = in.readDouble();</span>
+<span class="fc" id="L263">        referenceTime = in.readDouble();</span>
+
+<span class="pc bpc" id="L265" title="1 of 2 branches missed.">        final int n = (currentState == null) ? -1 : currentState.length;</span>
+<span class="fc" id="L266">        final boolean hasScaled = in.readBoolean();</span>
+<span class="pc bpc" id="L267" title="1 of 2 branches missed.">        if (hasScaled) {</span>
+<span class="fc" id="L268">            scaled = new double[n];</span>
+<span class="fc bfc" id="L269" title="All 2 branches covered.">            for (int j = 0; j &lt; n; ++j) {</span>
+<span class="fc" id="L270">                scaled[j] = in.readDouble();</span>
+            }
+        } else {
+<span class="nc" id="L273">            scaled = null;</span>
+        }
+
+<span class="fc" id="L276">        final boolean hasNordsieck = in.readBoolean();</span>
+<span class="pc bpc" id="L277" title="1 of 2 branches missed.">        if (hasNordsieck) {</span>
+<span class="fc" id="L278">            nordsieck = (Array2DRowRealMatrix) in.readObject();</span>
+        } else {
+<span class="nc" id="L280">            nordsieck = null;</span>
+        }
+
+<span class="pc bpc" id="L283" title="2 of 4 branches missed.">        if (hasScaled &amp;&amp; hasNordsieck) {</span>
+            // we can now set the interpolated time and state
+<span class="fc" id="L285">            stateVariation = new double[n];</span>
+<span class="fc" id="L286">            setInterpolatedTime(t);</span>
+        } else {
+<span class="nc" id="L288">            stateVariation = null;</span>
+        }
+
+<span class="fc" id="L291">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

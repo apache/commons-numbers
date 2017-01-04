@@ -1,0 +1,486 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.exception.util;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.util.Locale;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.util.MissingResourceException;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.util.ResourceBundle;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>/**<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * Enumeration for localized messages formats used in exceptions messages.<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * &lt;p&gt;<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * The constants in this enumeration represent the available<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * formats as localized strings. These formats are intended to be<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * localized using simple properties files, using the constant<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * name as the key and the property value as the message format.<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * The source English format is provided in the constants themselves<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * to serve both as a reminder for developers to understand the parameters<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * needed by each format, as a basis for translators to create<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * localized properties files, and as a default format if some<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * translation is missing.<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * &lt;/p&gt;<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * @since 2.2<a name="line.36"></a>
+<span class="sourceLineNo">037</span> */<a name="line.37"></a>
+<span class="sourceLineNo">038</span>public enum LocalizedFormats implements Localizable {<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>    // CHECKSTYLE: stop MultipleVariableDeclarations<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    // CHECKSTYLE: stop JavadocVariable<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>    ARGUMENT_OUTSIDE_DOMAIN("Argument {0} outside domain [{1} ; {2}]"),<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    ARRAY_SIZE_EXCEEDS_MAX_VARIABLES("array size cannot be greater than {0}"),<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    ARRAY_SIZES_SHOULD_HAVE_DIFFERENCE_1("array sizes should have difference 1 ({0} != {1} + 1)"),<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    ARRAY_SUMS_TO_ZERO("array sums to zero"),<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    ASSYMETRIC_EIGEN_NOT_SUPPORTED("eigen decomposition of assymetric matrices not supported yet"),<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    AT_LEAST_ONE_COLUMN("matrix must have at least one column"),<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    AT_LEAST_ONE_ROW("matrix must have at least one row"),<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    BANDWIDTH("bandwidth ({0})"),<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    BESSEL_FUNCTION_BAD_ARGUMENT("Bessel function of order {0} cannot be computed for x = {1}"),<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    BESSEL_FUNCTION_FAILED_CONVERGENCE("Bessel function of order {0} failed to converge for x = {1}"),<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    BINOMIAL_INVALID_PARAMETERS_ORDER("must have n &gt;= k for binomial coefficient (n, k), got k = {0}, n = {1}"),<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    BINOMIAL_NEGATIVE_PARAMETER("must have n &gt;= 0 for binomial coefficient (n, k), got n = {0}"),<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    CANNOT_CLEAR_STATISTIC_CONSTRUCTED_FROM_EXTERNAL_MOMENTS("statistics constructed from external moments cannot be cleared"),<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    CANNOT_COMPUTE_0TH_ROOT_OF_UNITY("cannot compute 0-th root of unity, indefinite result"),<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    CANNOT_COMPUTE_BETA_DENSITY_AT_0_FOR_SOME_ALPHA("cannot compute beta density at 0 when alpha = {0,number}"),<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    CANNOT_COMPUTE_BETA_DENSITY_AT_1_FOR_SOME_BETA("cannot compute beta density at 1 when beta = %.3g"),<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    CANNOT_COMPUTE_NTH_ROOT_FOR_NEGATIVE_N("cannot compute nth root for null or negative n: {0}"),<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    CANNOT_DISCARD_NEGATIVE_NUMBER_OF_ELEMENTS("cannot discard a negative number of elements ({0})"),<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    CANNOT_FORMAT_INSTANCE_AS_3D_VECTOR("cannot format a {0} instance as a 3D vector"),<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    CANNOT_FORMAT_INSTANCE_AS_COMPLEX("cannot format a {0} instance as a complex number"),<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    CANNOT_FORMAT_INSTANCE_AS_REAL_VECTOR("cannot format a {0} instance as a real vector"),<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    CANNOT_FORMAT_OBJECT_TO_FRACTION("cannot format given object as a fraction number"),<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    CANNOT_INCREMENT_STATISTIC_CONSTRUCTED_FROM_EXTERNAL_MOMENTS("statistics constructed from external moments cannot be incremented"),<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    CANNOT_NORMALIZE_A_ZERO_NORM_VECTOR("cannot normalize a zero norm vector"),<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    CANNOT_RETRIEVE_AT_NEGATIVE_INDEX("elements cannot be retrieved from a negative array index {0}"),<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    CANNOT_SET_AT_NEGATIVE_INDEX("cannot set an element at a negative index {0}"),<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    CANNOT_SUBSTITUTE_ELEMENT_FROM_EMPTY_ARRAY("cannot substitute an element from an empty array"),<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    CANNOT_TRANSFORM_TO_DOUBLE("Conversion Exception in Transformation: {0}"),<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    CARDAN_ANGLES_SINGULARITY("Cardan angles singularity"),<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    CLASS_DOESNT_IMPLEMENT_COMPARABLE("class ({0}) does not implement Comparable"),<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    CLOSE_VERTICES("too close vertices near point ({0}, {1}, {2})"),<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    CLOSEST_ORTHOGONAL_MATRIX_HAS_NEGATIVE_DETERMINANT("the closest orthogonal matrix has a negative determinant {0}"),<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    COLUMN_INDEX_OUT_OF_RANGE("column index {0} out of allowed range [{1}, {2}]"),<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    COLUMN_INDEX("column index ({0})"), /* keep */<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    CONSTRAINT("constraint"), /* keep */<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    CONTINUED_FRACTION_INFINITY_DIVERGENCE("Continued fraction convergents diverged to +/- infinity for value {0}"),<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    CONTINUED_FRACTION_NAN_DIVERGENCE("Continued fraction diverged to NaN for value {0}"),<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    CONTRACTION_CRITERIA_SMALLER_THAN_EXPANSION_FACTOR("contraction criteria ({0}) smaller than the expansion factor ({1}).  This would lead to a never ending loop of expansion and contraction as a newly expanded internal storage array would immediately satisfy the criteria for contraction."),<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    CONTRACTION_CRITERIA_SMALLER_THAN_ONE("contraction criteria smaller than one ({0}).  This would lead to a never ending loop of expansion and contraction as an internal storage array length equal to the number of elements would satisfy the contraction criteria."),<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    CONVERGENCE_FAILED("convergence failed"), /* keep */<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    CROSSING_BOUNDARY_LOOPS("some outline boundary loops cross each other"),<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    CROSSOVER_RATE("crossover rate ({0})"),<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    CUMULATIVE_PROBABILITY_RETURNED_NAN("Cumulative probability function returned NaN for argument {0} p = {1}"),<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    DIFFERENT_ROWS_LENGTHS("some rows have length {0} while others have length {1}"),<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    DIFFERENT_ORIG_AND_PERMUTED_DATA("original and permuted data must contain the same elements"),<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    DIGEST_NOT_INITIALIZED("digest not initialized"),<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    DIMENSIONS_MISMATCH_2x2("got {0}x{1} but expected {2}x{3}"), /* keep */<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    DIMENSIONS_MISMATCH_SIMPLE("{0} != {1}"), /* keep */<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    DIMENSIONS_MISMATCH("dimensions mismatch"), /* keep */<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    DISCRETE_CUMULATIVE_PROBABILITY_RETURNED_NAN("Discrete cumulative probability function returned NaN for argument {0}"),<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    DISTRIBUTION_NOT_LOADED("distribution not loaded"),<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    DUPLICATED_ABSCISSA_DIVISION_BY_ZERO("duplicated abscissa {0} causes division by zero"),<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    EDGE_CONNECTED_TO_ONE_FACET("edge joining points ({0}, {1}, {2}) and ({3}, {4}, {5}) is connected to one facet only"),<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    ELITISM_RATE("elitism rate ({0})"),<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    EMPTY_CLUSTER_IN_K_MEANS("empty cluster in k-means"),<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    EMPTY_INTERPOLATION_SAMPLE("sample for interpolation is empty"),<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    EMPTY_POLYNOMIALS_COEFFICIENTS_ARRAY("empty polynomials coefficients array"), /* keep */<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    EMPTY_SELECTED_COLUMN_INDEX_ARRAY("empty selected column index array"),<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    EMPTY_SELECTED_ROW_INDEX_ARRAY("empty selected row index array"),<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    EMPTY_STRING_FOR_IMAGINARY_CHARACTER("empty string for imaginary character"),<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    ENDPOINTS_NOT_AN_INTERVAL("endpoints do not specify an interval: [{0}, {1}]"),<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    EQUAL_VERTICES_IN_SIMPLEX("equal vertices {0} and {1} in simplex configuration"),<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    EULER_ANGLES_SINGULARITY("Euler angles singularity"),<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    EVALUATION("evaluation"), /* keep */<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    EXPANSION_FACTOR_SMALLER_THAN_ONE("expansion factor smaller than one ({0})"),<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    FACET_ORIENTATION_MISMATCH("facets orientation mismatch around edge joining points ({0}, {1}, {2}) and ({3}, {4}, {5})"),<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    FACTORIAL_NEGATIVE_PARAMETER("must have n &gt;= 0 for n!, got n = {0}"),<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    FAILED_BRACKETING("number of iterations={4}, maximum iterations={5}, initial={6}, lower bound={7}, upper bound={8}, final a value={0}, final b value={1}, f(a)={2}, f(b)={3}"),<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    FAILED_FRACTION_CONVERSION("Unable to convert {0} to fraction after {1} iterations"),<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    FIRST_COLUMNS_NOT_INITIALIZED_YET("first {0} columns are not initialized yet"),<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    FIRST_ELEMENT_NOT_ZERO("first element is not 0: {0}"),<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    FIRST_ROWS_NOT_INITIALIZED_YET("first {0} rows are not initialized yet"),<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    FRACTION_CONVERSION_OVERFLOW("Overflow trying to convert {0} to fraction ({1}/{2})"),<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    FUNCTION_NOT_DIFFERENTIABLE("function is not differentiable"),<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    FUNCTION_NOT_POLYNOMIAL("function is not polynomial"),<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    GCD_OVERFLOW_32_BITS("overflow: gcd({0}, {1}) is 2^31"),<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    GCD_OVERFLOW_64_BITS("overflow: gcd({0}, {1}) is 2^63"),<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    HOLE_BETWEEN_MODELS_TIME_RANGES("{0} wide hole between models time ranges"),<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    ILL_CONDITIONED_OPERATOR("condition number {1} is too high "),<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    INCONSISTENT_STATE_AT_2_PI_WRAPPING("inconsistent state at 2\u03c0 wrapping"),<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    INDEX_LARGER_THAN_MAX("the index specified: {0} is larger than the current maximal index {1}"),<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    INDEX_NOT_POSITIVE("index ({0}) is not positive"),<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    INDEX_OUT_OF_RANGE("index {0} out of allowed range [{1}, {2}]"),<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    INDEX("index ({0})"), /* keep */<a name="line.126"></a>
+<span class="sourceLineNo">127</span>    NOT_FINITE_NUMBER("{0} is not a finite number"), /* keep */<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    INFINITE_BOUND("interval bounds must be finite"),<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    ARRAY_ELEMENT("value {0} at index {1}"), /* keep */<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    INFINITE_ARRAY_ELEMENT("Array contains an infinite element, {0} at index {1}"),<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    INFINITE_VALUE_CONVERSION("cannot convert infinite value"),<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    INITIAL_CAPACITY_NOT_POSITIVE("initial capacity ({0}) is not positive"),<a name="line.132"></a>
+<span class="sourceLineNo">133</span>    INITIAL_COLUMN_AFTER_FINAL_COLUMN("initial column {1} after final column {0}"),<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    INITIAL_ROW_AFTER_FINAL_ROW("initial row {1} after final row {0}"),<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    @Deprecated<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    INPUT_DATA_FROM_UNSUPPORTED_DATASOURCE("input data comes from unsupported datasource: {0}, supported sources: {1}, {2}"),<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    INSTANCES_NOT_COMPARABLE_TO_EXISTING_VALUES("instance of class {0} not comparable to existing values"),<a name="line.137"></a>
+<span class="sourceLineNo">138</span>    INSUFFICIENT_DATA("insufficient data"),<a name="line.138"></a>
+<span class="sourceLineNo">139</span>    INSUFFICIENT_DATA_FOR_T_STATISTIC("insufficient data for t statistic, needs at least 2, got {0}"),<a name="line.139"></a>
+<span class="sourceLineNo">140</span>    INSUFFICIENT_DIMENSION("insufficient dimension {0}, must be at least {1}"),<a name="line.140"></a>
+<span class="sourceLineNo">141</span>    DIMENSION("dimension ({0})"), /* keep */<a name="line.141"></a>
+<span class="sourceLineNo">142</span>    INSUFFICIENT_OBSERVED_POINTS_IN_SAMPLE("sample contains {0} observed points, at least {1} are required"),<a name="line.142"></a>
+<span class="sourceLineNo">143</span>    INSUFFICIENT_ROWS_AND_COLUMNS("insufficient data: only {0} rows and {1} columns."),<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    INTEGRATION_METHOD_NEEDS_AT_LEAST_TWO_PREVIOUS_POINTS("multistep method needs at least {0} previous steps, got {1}"),<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    INTERNAL_ERROR("internal error, please fill a bug report at {0}"),<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    INVALID_BINARY_DIGIT("invalid binary digit: {0}"),<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    INVALID_BINARY_CHROMOSOME("binary mutation works on BinaryChromosome only"),<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    INVALID_BRACKETING_PARAMETERS("invalid bracketing parameters:  lower bound={0},  initial={1}, upper bound={2}"),<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    INVALID_FIXED_LENGTH_CHROMOSOME("one-point crossover only works with fixed-length chromosomes"),<a name="line.149"></a>
+<span class="sourceLineNo">150</span>    INVALID_IMPLEMENTATION("required functionality is missing in {0}"),<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    INVALID_INTERVAL_INITIAL_VALUE_PARAMETERS("invalid interval, initial value parameters:  lower={0}, initial={1}, upper={2}"),<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    INVALID_ITERATIONS_LIMITS("invalid iteration limits: min={0}, max={1}"),<a name="line.152"></a>
+<span class="sourceLineNo">153</span>    INVALID_MAX_ITERATIONS("bad value for maximum iterations number: {0}"),<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    NOT_ENOUGH_DATA_REGRESSION("the number of observations is not sufficient to conduct regression"),<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    INVALID_REGRESSION_ARRAY("input data array length = {0} does not match the number of observations = {1} and the number of regressors = {2}"),<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    INVALID_REGRESSION_OBSERVATION("length of regressor array = {0} does not match the number of variables = {1} in the model"),<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    INVALID_ROUNDING_METHOD("invalid rounding method {0}, valid methods: {1} ({2}), {3} ({4}), {5} ({6}), {7} ({8}), {9} ({10}), {11} ({12}), {13} ({14}), {15} ({16})"),<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    ITERATOR_EXHAUSTED("iterator exhausted"),<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    ITERATIONS("iterations"), /* keep */<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    LCM_OVERFLOW_32_BITS("overflow: lcm({0}, {1}) is 2^31"),<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    LCM_OVERFLOW_64_BITS("overflow: lcm({0}, {1}) is 2^63"),<a name="line.161"></a>
+<span class="sourceLineNo">162</span>    LIST_OF_CHROMOSOMES_BIGGER_THAN_POPULATION_SIZE("list of chromosomes bigger than maxPopulationSize"),<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    LOESS_EXPECTS_AT_LEAST_ONE_POINT("Loess expects at least 1 point"),<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    LOWER_BOUND_NOT_BELOW_UPPER_BOUND("lower bound ({0}) must be strictly less than upper bound ({1})"), /* keep */<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    LOWER_ENDPOINT_ABOVE_UPPER_ENDPOINT("lower endpoint ({0}) must be less than or equal to upper endpoint ({1})"),<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    MAP_MODIFIED_WHILE_ITERATING("map has been modified while iterating"),<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    MULTISTEP_STARTER_STOPPED_EARLY("multistep integrator starter stopped early, maybe too large step size"),<a name="line.167"></a>
+<span class="sourceLineNo">168</span>    EVALUATIONS("evaluations"), /* keep */<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    MAX_COUNT_EXCEEDED("maximal count ({0}) exceeded"), /* keep */<a name="line.169"></a>
+<span class="sourceLineNo">170</span>    MAX_ITERATIONS_EXCEEDED("maximal number of iterations ({0}) exceeded"),<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    MINIMAL_STEPSIZE_REACHED_DURING_INTEGRATION("minimal step size ({1,number,0.00E00}) reached, integration needs {0,number,0.00E00}"),<a name="line.171"></a>
+<span class="sourceLineNo">172</span>    MISMATCHED_LOESS_ABSCISSA_ORDINATE_ARRAYS("Loess expects the abscissa and ordinate arrays to be of the same size, but got {0} abscissae and {1} ordinatae"),<a name="line.172"></a>
+<span class="sourceLineNo">173</span>    MUTATION_RATE("mutation rate ({0})"),<a name="line.173"></a>
+<span class="sourceLineNo">174</span>    NAN_ELEMENT_AT_INDEX("element {0} is NaN"),<a name="line.174"></a>
+<span class="sourceLineNo">175</span>    NAN_VALUE_CONVERSION("cannot convert NaN value"),<a name="line.175"></a>
+<span class="sourceLineNo">176</span>    NEGATIVE_BRIGHTNESS_EXPONENT("brightness exponent should be positive or null, but got {0}"),<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    NEGATIVE_COMPLEX_MODULE("negative complex module {0}"),<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    NEGATIVE_ELEMENT_AT_2D_INDEX("element ({0}, {1}) is negative: {2}"),<a name="line.178"></a>
+<span class="sourceLineNo">179</span>    NEGATIVE_ELEMENT_AT_INDEX("element {0} is negative: {1}"),<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    NEGATIVE_NUMBER_OF_SUCCESSES("number of successes must be non-negative ({0})"),<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    NUMBER_OF_SUCCESSES("number of successes ({0})"), /* keep */<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    NEGATIVE_NUMBER_OF_TRIALS("number of trials must be non-negative ({0})"),<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    NUMBER_OF_INTERPOLATION_POINTS("number of interpolation points ({0})"), /* keep */<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    NUMBER_OF_TRIALS("number of trials ({0})"),<a name="line.184"></a>
+<span class="sourceLineNo">185</span>    NOT_CONVEX("vertices do not form a convex hull in CCW winding"),<a name="line.185"></a>
+<span class="sourceLineNo">186</span>    NOT_CONVEX_HYPERPLANES("hyperplanes do not define a convex region"),<a name="line.186"></a>
+<span class="sourceLineNo">187</span>    ROBUSTNESS_ITERATIONS("number of robustness iterations ({0})"),<a name="line.187"></a>
+<span class="sourceLineNo">188</span>    START_POSITION("start position ({0})"), /* keep */<a name="line.188"></a>
+<span class="sourceLineNo">189</span>    NON_CONVERGENT_CONTINUED_FRACTION("Continued fraction convergents failed to converge (in less than {0} iterations) for value {1}"),<a name="line.189"></a>
+<span class="sourceLineNo">190</span>    NON_INVERTIBLE_TRANSFORM("non-invertible affine transform collapses some lines into single points"),<a name="line.190"></a>
+<span class="sourceLineNo">191</span>    NON_POSITIVE_MICROSPHERE_ELEMENTS("number of microsphere elements must be positive, but got {0}"),<a name="line.191"></a>
+<span class="sourceLineNo">192</span>    NON_POSITIVE_POLYNOMIAL_DEGREE("polynomial degree must be positive: degree={0}"),<a name="line.192"></a>
+<span class="sourceLineNo">193</span>    NON_REAL_FINITE_ABSCISSA("all abscissae must be finite real numbers, but {0}-th is {1}"),<a name="line.193"></a>
+<span class="sourceLineNo">194</span>    NON_REAL_FINITE_ORDINATE("all ordinatae must be finite real numbers, but {0}-th is {1}"),<a name="line.194"></a>
+<span class="sourceLineNo">195</span>    NON_REAL_FINITE_WEIGHT("all weights must be finite real numbers, but {0}-th is {1}"),<a name="line.195"></a>
+<span class="sourceLineNo">196</span>    NON_SQUARE_MATRIX("non square ({0}x{1}) matrix"),<a name="line.196"></a>
+<span class="sourceLineNo">197</span>    NORM("Norm ({0})"), /* keep */<a name="line.197"></a>
+<span class="sourceLineNo">198</span>    NORMALIZE_INFINITE("Cannot normalize to an infinite value"),<a name="line.198"></a>
+<span class="sourceLineNo">199</span>    NORMALIZE_NAN("Cannot normalize to NaN"),<a name="line.199"></a>
+<span class="sourceLineNo">200</span>    NOT_ADDITION_COMPATIBLE_MATRICES("{0}x{1} and {2}x{3} matrices are not addition compatible"),<a name="line.200"></a>
+<span class="sourceLineNo">201</span>    NOT_DECREASING_NUMBER_OF_POINTS("points {0} and {1} are not decreasing ({2} &lt; {3})"),<a name="line.201"></a>
+<span class="sourceLineNo">202</span>    NOT_DECREASING_SEQUENCE("points {3} and {2} are not decreasing ({1} &lt; {0})"), /* keep */<a name="line.202"></a>
+<span class="sourceLineNo">203</span>    NOT_ENOUGH_DATA_FOR_NUMBER_OF_PREDICTORS("not enough data ({0} rows) for this many predictors ({1} predictors)"),<a name="line.203"></a>
+<span class="sourceLineNo">204</span>    NOT_ENOUGH_POINTS_IN_SPLINE_PARTITION("spline partition must have at least {0} points, got {1}"),<a name="line.204"></a>
+<span class="sourceLineNo">205</span>    NOT_INCREASING_NUMBER_OF_POINTS("points {0} and {1} are not increasing ({2} &gt; {3})"),<a name="line.205"></a>
+<span class="sourceLineNo">206</span>    NOT_INCREASING_SEQUENCE("points {3} and {2} are not increasing ({1} &gt; {0})"), /* keep */<a name="line.206"></a>
+<span class="sourceLineNo">207</span>    NOT_MULTIPLICATION_COMPATIBLE_MATRICES("{0}x{1} and {2}x{3} matrices are not multiplication compatible"),<a name="line.207"></a>
+<span class="sourceLineNo">208</span>    NOT_POSITIVE_DEFINITE_MATRIX("not positive definite matrix"), /* keep */<a name="line.208"></a>
+<span class="sourceLineNo">209</span>    NON_POSITIVE_DEFINITE_MATRIX("not positive definite matrix: diagonal element at ({1},{1}) is smaller than {2} ({0})"),<a name="line.209"></a>
+<span class="sourceLineNo">210</span>    NON_POSITIVE_DEFINITE_OPERATOR("non positive definite linear operator"), /* keep */<a name="line.210"></a>
+<span class="sourceLineNo">211</span>    NON_SELF_ADJOINT_OPERATOR("non self-adjoint linear operator"), /* keep */<a name="line.211"></a>
+<span class="sourceLineNo">212</span>    NON_SQUARE_OPERATOR("non square ({0}x{1}) linear operator"), /* keep */<a name="line.212"></a>
+<span class="sourceLineNo">213</span>    DEGREES_OF_FREEDOM("degrees of freedom ({0})"), /* keep */<a name="line.213"></a>
+<span class="sourceLineNo">214</span>    NOT_POSITIVE_DEGREES_OF_FREEDOM("degrees of freedom must be positive ({0})"),<a name="line.214"></a>
+<span class="sourceLineNo">215</span>    NOT_POSITIVE_ELEMENT_AT_INDEX("element {0} is not positive: {1}"),<a name="line.215"></a>
+<span class="sourceLineNo">216</span>    NOT_POSITIVE_EXPONENT("invalid exponent {0} (must be positive)"),<a name="line.216"></a>
+<span class="sourceLineNo">217</span>    NUMBER_OF_ELEMENTS_SHOULD_BE_POSITIVE("number of elements should be positive ({0})"),<a name="line.217"></a>
+<span class="sourceLineNo">218</span>    BASE("base ({0})"), /* keep */<a name="line.218"></a>
+<span class="sourceLineNo">219</span>    EXPONENT("exponent ({0})"), /* keep */<a name="line.219"></a>
+<span class="sourceLineNo">220</span>    NOT_POSITIVE_LENGTH("length must be positive ({0})"),<a name="line.220"></a>
+<span class="sourceLineNo">221</span>    LENGTH("length ({0})"), /* keep */<a name="line.221"></a>
+<span class="sourceLineNo">222</span>    NOT_POSITIVE_MEAN("mean must be positive ({0})"),<a name="line.222"></a>
+<span class="sourceLineNo">223</span>    MEAN("mean ({0})"), /* keep */<a name="line.223"></a>
+<span class="sourceLineNo">224</span>    NOT_POSITIVE_NUMBER_OF_SAMPLES("number of sample is not positive: {0}"),<a name="line.224"></a>
+<span class="sourceLineNo">225</span>    NUMBER_OF_SAMPLES("number of samples ({0})"), /* keep */<a name="line.225"></a>
+<span class="sourceLineNo">226</span>    NOT_POSITIVE_PERMUTATION("permutation k ({0}) must be positive"),<a name="line.226"></a>
+<span class="sourceLineNo">227</span>    PERMUTATION_SIZE("permutation size ({0}"), /* keep */<a name="line.227"></a>
+<span class="sourceLineNo">228</span>    NOT_POSITIVE_POISSON_MEAN("the Poisson mean must be positive ({0})"),<a name="line.228"></a>
+<span class="sourceLineNo">229</span>    NOT_POSITIVE_POPULATION_SIZE("population size must be positive ({0})"),<a name="line.229"></a>
+<span class="sourceLineNo">230</span>    POPULATION_SIZE("population size ({0})"), /* keep */<a name="line.230"></a>
+<span class="sourceLineNo">231</span>    NOT_POSITIVE_ROW_DIMENSION("invalid row dimension: {0} (must be positive)"),<a name="line.231"></a>
+<span class="sourceLineNo">232</span>    NOT_POSITIVE_SAMPLE_SIZE("sample size must be positive ({0})"),<a name="line.232"></a>
+<span class="sourceLineNo">233</span>    NOT_POSITIVE_SCALE("scale must be positive ({0})"),<a name="line.233"></a>
+<span class="sourceLineNo">234</span>    SCALE("scale ({0})"), /* keep */<a name="line.234"></a>
+<span class="sourceLineNo">235</span>    NOT_POSITIVE_SHAPE("shape must be positive ({0})"),<a name="line.235"></a>
+<span class="sourceLineNo">236</span>    SHAPE("shape ({0})"), /* keep */<a name="line.236"></a>
+<span class="sourceLineNo">237</span>    NOT_POSITIVE_STANDARD_DEVIATION("standard deviation must be positive ({0})"),<a name="line.237"></a>
+<span class="sourceLineNo">238</span>    STANDARD_DEVIATION("standard deviation ({0})"), /* keep */<a name="line.238"></a>
+<span class="sourceLineNo">239</span>    NOT_POSITIVE_UPPER_BOUND("upper bound must be positive ({0})"),<a name="line.239"></a>
+<span class="sourceLineNo">240</span>    NOT_POSITIVE_WINDOW_SIZE("window size must be positive ({0})"),<a name="line.240"></a>
+<span class="sourceLineNo">241</span>    NOT_POWER_OF_TWO("{0} is not a power of 2"),<a name="line.241"></a>
+<span class="sourceLineNo">242</span>    NOT_POWER_OF_TWO_CONSIDER_PADDING("{0} is not a power of 2, consider padding for fix"),<a name="line.242"></a>
+<span class="sourceLineNo">243</span>    NOT_POWER_OF_TWO_PLUS_ONE("{0} is not a power of 2 plus one"),<a name="line.243"></a>
+<span class="sourceLineNo">244</span>    NOT_STRICTLY_DECREASING_NUMBER_OF_POINTS("points {0} and {1} are not strictly decreasing ({2} &lt;= {3})"),<a name="line.244"></a>
+<span class="sourceLineNo">245</span>    NOT_STRICTLY_DECREASING_SEQUENCE("points {3} and {2} are not strictly decreasing ({1} &lt;= {0})"), /* keep */<a name="line.245"></a>
+<span class="sourceLineNo">246</span>    NOT_STRICTLY_INCREASING_KNOT_VALUES("knot values must be strictly increasing"),<a name="line.246"></a>
+<span class="sourceLineNo">247</span>    NOT_STRICTLY_INCREASING_NUMBER_OF_POINTS("points {0} and {1} are not strictly increasing ({2} &gt;= {3})"),<a name="line.247"></a>
+<span class="sourceLineNo">248</span>    NOT_STRICTLY_INCREASING_SEQUENCE("points {3} and {2} are not strictly increasing ({1} &gt;= {0})"), /* keep */<a name="line.248"></a>
+<span class="sourceLineNo">249</span>    NOT_SUBTRACTION_COMPATIBLE_MATRICES("{0}x{1} and {2}x{3} matrices are not subtraction compatible"),<a name="line.249"></a>
+<span class="sourceLineNo">250</span>    NOT_SUPPORTED_IN_DIMENSION_N("method not supported in dimension {0}"),<a name="line.250"></a>
+<span class="sourceLineNo">251</span>    NOT_SYMMETRIC_MATRIX("not symmetric matrix"),<a name="line.251"></a>
+<span class="sourceLineNo">252</span>    NON_SYMMETRIC_MATRIX("non symmetric matrix: the difference between entries at ({0},{1}) and ({1},{0}) is larger than {2}"), /* keep */<a name="line.252"></a>
+<span class="sourceLineNo">253</span>    NO_BIN_SELECTED("no bin selected"),<a name="line.253"></a>
+<span class="sourceLineNo">254</span>    NO_CONVERGENCE_WITH_ANY_START_POINT("none of the {0} start points lead to convergence"), /* keep */<a name="line.254"></a>
+<span class="sourceLineNo">255</span>    NO_DATA("no data"), /* keep */<a name="line.255"></a>
+<span class="sourceLineNo">256</span>    NO_DEGREES_OF_FREEDOM("no degrees of freedom ({0} measurements, {1} parameters)"),<a name="line.256"></a>
+<span class="sourceLineNo">257</span>    NO_DENSITY_FOR_THIS_DISTRIBUTION("This distribution does not have a density function implemented"),<a name="line.257"></a>
+<span class="sourceLineNo">258</span>    NO_FEASIBLE_SOLUTION("no feasible solution"),<a name="line.258"></a>
+<span class="sourceLineNo">259</span>    NO_OPTIMUM_COMPUTED_YET("no optimum computed yet"), /* keep */<a name="line.259"></a>
+<span class="sourceLineNo">260</span>    NO_REGRESSORS("Regression model must include at least one regressor"),<a name="line.260"></a>
+<span class="sourceLineNo">261</span>    NO_RESULT_AVAILABLE("no result available"),<a name="line.261"></a>
+<span class="sourceLineNo">262</span>    NO_SUCH_MATRIX_ENTRY("no entry at indices ({0}, {1}) in a {2}x{3} matrix"),<a name="line.262"></a>
+<span class="sourceLineNo">263</span>    NAN_NOT_ALLOWED("NaN is not allowed"),<a name="line.263"></a>
+<span class="sourceLineNo">264</span>    NULL_NOT_ALLOWED("null is not allowed"), /* keep */<a name="line.264"></a>
+<span class="sourceLineNo">265</span>    ARRAY_ZERO_LENGTH_OR_NULL_NOT_ALLOWED("a null or zero length array not allowed"),<a name="line.265"></a>
+<span class="sourceLineNo">266</span>    COVARIANCE_MATRIX("covariance matrix"), /* keep */<a name="line.266"></a>
+<span class="sourceLineNo">267</span>    DENOMINATOR("denominator"), /* keep */<a name="line.267"></a>
+<span class="sourceLineNo">268</span>    DENOMINATOR_FORMAT("denominator format"), /* keep */<a name="line.268"></a>
+<span class="sourceLineNo">269</span>    FRACTION("fraction"), /* keep */<a name="line.269"></a>
+<span class="sourceLineNo">270</span>    FUNCTION("function"), /* keep */<a name="line.270"></a>
+<span class="sourceLineNo">271</span>    IMAGINARY_FORMAT("imaginary format"), /* keep */<a name="line.271"></a>
+<span class="sourceLineNo">272</span>    INPUT_ARRAY("input array"), /* keep */<a name="line.272"></a>
+<span class="sourceLineNo">273</span>    NUMERATOR("numerator"), /* keep */<a name="line.273"></a>
+<span class="sourceLineNo">274</span>    NUMERATOR_FORMAT("numerator format"), /* keep */<a name="line.274"></a>
+<span class="sourceLineNo">275</span>    OBJECT_TRANSFORMATION("conversion exception in transformation"), /* keep */<a name="line.275"></a>
+<span class="sourceLineNo">276</span>    REAL_FORMAT("real format"), /* keep */<a name="line.276"></a>
+<span class="sourceLineNo">277</span>    WHOLE_FORMAT("whole format"), /* keep */<a name="line.277"></a>
+<span class="sourceLineNo">278</span>    NUMBER_TOO_LARGE("{0} is larger than the maximum ({1})"), /* keep */<a name="line.278"></a>
+<span class="sourceLineNo">279</span>    NUMBER_TOO_SMALL("{0} is smaller than the minimum ({1})"), /* keep */<a name="line.279"></a>
+<span class="sourceLineNo">280</span>    NUMBER_TOO_LARGE_BOUND_EXCLUDED("{0} is larger than, or equal to, the maximum ({1})"), /* keep */<a name="line.280"></a>
+<span class="sourceLineNo">281</span>    NUMBER_TOO_SMALL_BOUND_EXCLUDED("{0} is smaller than, or equal to, the minimum ({1})"), /* keep */<a name="line.281"></a>
+<span class="sourceLineNo">282</span>    NUMBER_OF_SUCCESS_LARGER_THAN_POPULATION_SIZE("number of successes ({0}) must be less than or equal to population size ({1})"),<a name="line.282"></a>
+<span class="sourceLineNo">283</span>    NUMERATOR_OVERFLOW_AFTER_MULTIPLY("overflow, numerator too large after multiply: {0}"),<a name="line.283"></a>
+<span class="sourceLineNo">284</span>    N_POINTS_GAUSS_LEGENDRE_INTEGRATOR_NOT_SUPPORTED("{0} points Legendre-Gauss integrator not supported, number of points must be in the {1}-{2} range"),<a name="line.284"></a>
+<span class="sourceLineNo">285</span>    OBSERVED_COUNTS_ALL_ZERO("observed counts are all 0 in observed array {0}"),<a name="line.285"></a>
+<span class="sourceLineNo">286</span>    OBSERVED_COUNTS_BOTTH_ZERO_FOR_ENTRY("observed counts are both zero for entry {0}"),<a name="line.286"></a>
+<span class="sourceLineNo">287</span>    BOBYQA_BOUND_DIFFERENCE_CONDITION("the difference between the upper and lower bound must be larger than twice the initial trust region radius ({0})"),<a name="line.287"></a>
+<span class="sourceLineNo">288</span>    OUT_OF_BOUNDS_QUANTILE_VALUE("out of bounds quantile value: {0}, must be in (0, 100]"),<a name="line.288"></a>
+<span class="sourceLineNo">289</span>    OUT_OF_BOUNDS_CONFIDENCE_LEVEL("out of bounds confidence level {0}, must be between {1} and {2}"),<a name="line.289"></a>
+<span class="sourceLineNo">290</span>    OUT_OF_BOUND_SIGNIFICANCE_LEVEL("out of bounds significance level {0}, must be between {1} and {2}"),<a name="line.290"></a>
+<span class="sourceLineNo">291</span>    SIGNIFICANCE_LEVEL("significance level ({0})"), /* keep */<a name="line.291"></a>
+<span class="sourceLineNo">292</span>    OUT_OF_ORDER_ABSCISSA_ARRAY("the abscissae array must be sorted in a strictly increasing order, but the {0}-th element is {1} whereas {2}-th is {3}"),<a name="line.292"></a>
+<span class="sourceLineNo">293</span>    OUT_OF_PLANE("point ({0}, {1}, {2}) is out of plane"),<a name="line.293"></a>
+<span class="sourceLineNo">294</span>    OUT_OF_RANGE_ROOT_OF_UNITY_INDEX("out of range root of unity index {0} (must be in [{1};{2}])"),<a name="line.294"></a>
+<span class="sourceLineNo">295</span>    OUT_OF_RANGE("out of range"), /* keep */<a name="line.295"></a>
+<span class="sourceLineNo">296</span>    OUT_OF_RANGE_SIMPLE("{0} out of [{1}, {2}] range"), /* keep */<a name="line.296"></a>
+<span class="sourceLineNo">297</span>    OUT_OF_RANGE_LEFT("{0} out of ({1}, {2}] range"),<a name="line.297"></a>
+<span class="sourceLineNo">298</span>    OUT_OF_RANGE_RIGHT("{0} out of [{1}, {2}) range"),<a name="line.298"></a>
+<span class="sourceLineNo">299</span>    OUTLINE_BOUNDARY_LOOP_OPEN("an outline boundary loop is open"),<a name="line.299"></a>
+<span class="sourceLineNo">300</span>    OVERFLOW("overflow"), /* keep */<a name="line.300"></a>
+<span class="sourceLineNo">301</span>    OVERFLOW_IN_FRACTION("overflow in fraction {0}/{1}, cannot negate"),<a name="line.301"></a>
+<span class="sourceLineNo">302</span>    OVERFLOW_IN_ADDITION("overflow in addition: {0} + {1}"),<a name="line.302"></a>
+<span class="sourceLineNo">303</span>    OVERFLOW_IN_SUBTRACTION("overflow in subtraction: {0} - {1}"),<a name="line.303"></a>
+<span class="sourceLineNo">304</span>    OVERFLOW_IN_MULTIPLICATION("overflow in multiplication: {0} * {1}"),<a name="line.304"></a>
+<span class="sourceLineNo">305</span>    PERCENTILE_IMPLEMENTATION_CANNOT_ACCESS_METHOD("cannot access {0} method in percentile implementation {1}"),<a name="line.305"></a>
+<span class="sourceLineNo">306</span>    PERCENTILE_IMPLEMENTATION_UNSUPPORTED_METHOD("percentile implementation {0} does not support {1}"),<a name="line.306"></a>
+<span class="sourceLineNo">307</span>    PERMUTATION_EXCEEDS_N("permutation size ({0}) exceeds permuation domain ({1})"), /* keep */<a name="line.307"></a>
+<span class="sourceLineNo">308</span>    POLYNOMIAL("polynomial"), /* keep */<a name="line.308"></a>
+<span class="sourceLineNo">309</span>    POLYNOMIAL_INTERPOLANTS_MISMATCH_SEGMENTS("number of polynomial interpolants must match the number of segments ({0} != {1} - 1)"),<a name="line.309"></a>
+<span class="sourceLineNo">310</span>    POPULATION_LIMIT_NOT_POSITIVE("population limit has to be positive"),<a name="line.310"></a>
+<span class="sourceLineNo">311</span>    POWER_NEGATIVE_PARAMETERS("cannot raise an integral value to a negative power ({0}^{1})"),<a name="line.311"></a>
+<span class="sourceLineNo">312</span>    PROPAGATION_DIRECTION_MISMATCH("propagation direction mismatch"),<a name="line.312"></a>
+<span class="sourceLineNo">313</span>    RANDOMKEY_MUTATION_WRONG_CLASS("RandomKeyMutation works only with RandomKeys, not {0}"),<a name="line.313"></a>
+<span class="sourceLineNo">314</span>    ROOTS_OF_UNITY_NOT_COMPUTED_YET("roots of unity have not been computed yet"),<a name="line.314"></a>
+<span class="sourceLineNo">315</span>    ROTATION_MATRIX_DIMENSIONS("a {0}x{1} matrix cannot be a rotation matrix"),<a name="line.315"></a>
+<span class="sourceLineNo">316</span>    ROW_INDEX_OUT_OF_RANGE("row index {0} out of allowed range [{1}, {2}]"),<a name="line.316"></a>
+<span class="sourceLineNo">317</span>    ROW_INDEX("row index ({0})"), /* keep */<a name="line.317"></a>
+<span class="sourceLineNo">318</span>    SAME_SIGN_AT_ENDPOINTS("function values at endpoints do not have different signs, endpoints: [{0}, {1}], values: [{2}, {3}]"),<a name="line.318"></a>
+<span class="sourceLineNo">319</span>    SAMPLE_SIZE_EXCEEDS_COLLECTION_SIZE("sample size ({0}) exceeds collection size ({1})"), /* keep */<a name="line.319"></a>
+<span class="sourceLineNo">320</span>    SAMPLE_SIZE_LARGER_THAN_POPULATION_SIZE("sample size ({0}) must be less than or equal to population size ({1})"),<a name="line.320"></a>
+<span class="sourceLineNo">321</span>    SIMPLEX_NEED_ONE_POINT("simplex must contain at least one point"),<a name="line.321"></a>
+<span class="sourceLineNo">322</span>    SIMPLE_MESSAGE("{0}"),<a name="line.322"></a>
+<span class="sourceLineNo">323</span>    SINGULAR_MATRIX("matrix is singular"), /* keep */<a name="line.323"></a>
+<span class="sourceLineNo">324</span>    SINGULAR_OPERATOR("operator is singular"),<a name="line.324"></a>
+<span class="sourceLineNo">325</span>    SUBARRAY_ENDS_AFTER_ARRAY_END("subarray ends after array end"),<a name="line.325"></a>
+<span class="sourceLineNo">326</span>    TOO_LARGE_CUTOFF_SINGULAR_VALUE("cutoff singular value is {0}, should be at most {1}"),<a name="line.326"></a>
+<span class="sourceLineNo">327</span>    TOO_LARGE_TOURNAMENT_ARITY("tournament arity ({0}) cannot be bigger than population size ({1})"),<a name="line.327"></a>
+<span class="sourceLineNo">328</span>    TOO_MANY_ELEMENTS_TO_DISCARD_FROM_ARRAY("cannot discard {0} elements from a {1} elements array"),<a name="line.328"></a>
+<span class="sourceLineNo">329</span>    TOO_MANY_REGRESSORS("too many regressors ({0}) specified, only {1} in the model"),<a name="line.329"></a>
+<span class="sourceLineNo">330</span>    TOO_SMALL_COST_RELATIVE_TOLERANCE("cost relative tolerance is too small ({0}), no further reduction in the sum of squares is possible"),<a name="line.330"></a>
+<span class="sourceLineNo">331</span>    TOO_SMALL_INTEGRATION_INTERVAL("too small integration interval: length = {0}"),<a name="line.331"></a>
+<span class="sourceLineNo">332</span>    TOO_SMALL_ORTHOGONALITY_TOLERANCE("orthogonality tolerance is too small ({0}), solution is orthogonal to the jacobian"),<a name="line.332"></a>
+<span class="sourceLineNo">333</span>    TOO_SMALL_PARAMETERS_RELATIVE_TOLERANCE("parameters relative tolerance is too small ({0}), no further improvement in the approximate solution is possible"),<a name="line.333"></a>
+<span class="sourceLineNo">334</span>    TRUST_REGION_STEP_FAILED("trust region step has failed to reduce Q"),<a name="line.334"></a>
+<span class="sourceLineNo">335</span>    TWO_OR_MORE_CATEGORIES_REQUIRED("two or more categories required, got {0}"),<a name="line.335"></a>
+<span class="sourceLineNo">336</span>    TWO_OR_MORE_VALUES_IN_CATEGORY_REQUIRED("two or more values required in each category, one has {0}"),<a name="line.336"></a>
+<span class="sourceLineNo">337</span>    UNABLE_TO_BRACKET_OPTIMUM_IN_LINE_SEARCH("unable to bracket optimum in line search"),<a name="line.337"></a>
+<span class="sourceLineNo">338</span>    UNABLE_TO_COMPUTE_COVARIANCE_SINGULAR_PROBLEM("unable to compute covariances: singular problem"),<a name="line.338"></a>
+<span class="sourceLineNo">339</span>    UNABLE_TO_FIRST_GUESS_HARMONIC_COEFFICIENTS("unable to first guess the harmonic coefficients"),<a name="line.339"></a>
+<span class="sourceLineNo">340</span>    UNABLE_TO_ORTHOGONOLIZE_MATRIX("unable to orthogonalize matrix in {0} iterations"),<a name="line.340"></a>
+<span class="sourceLineNo">341</span>    UNABLE_TO_PERFORM_QR_DECOMPOSITION_ON_JACOBIAN("unable to perform Q.R decomposition on the {0}x{1} jacobian matrix"),<a name="line.341"></a>
+<span class="sourceLineNo">342</span>    UNABLE_TO_SOLVE_SINGULAR_PROBLEM("unable to solve: singular problem"),<a name="line.342"></a>
+<span class="sourceLineNo">343</span>    UNBOUNDED_SOLUTION("unbounded solution"),<a name="line.343"></a>
+<span class="sourceLineNo">344</span>    UNKNOWN_MODE("unknown mode {0}, known modes: {1} ({2}), {3} ({4}), {5} ({6}), {7} ({8}), {9} ({10}) and {11} ({12})"),<a name="line.344"></a>
+<span class="sourceLineNo">345</span>    UNKNOWN_PARAMETER("unknown parameter {0}"),<a name="line.345"></a>
+<span class="sourceLineNo">346</span>    UNMATCHED_ODE_IN_EXPANDED_SET("ode does not match the main ode set in the extended set"),<a name="line.346"></a>
+<span class="sourceLineNo">347</span>    CANNOT_PARSE_AS_TYPE("string \"{0}\" unparseable (from position {1}) as an object of type {2}"), /* keep */<a name="line.347"></a>
+<span class="sourceLineNo">348</span>    CANNOT_PARSE("string \"{0}\" unparseable (from position {1})"), /* keep */<a name="line.348"></a>
+<span class="sourceLineNo">349</span>    UNPARSEABLE_3D_VECTOR("unparseable 3D vector: \"{0}\""),<a name="line.349"></a>
+<span class="sourceLineNo">350</span>    UNPARSEABLE_COMPLEX_NUMBER("unparseable complex number: \"{0}\""),<a name="line.350"></a>
+<span class="sourceLineNo">351</span>    UNPARSEABLE_REAL_VECTOR("unparseable real vector: \"{0}\""),<a name="line.351"></a>
+<span class="sourceLineNo">352</span>    UNSUPPORTED_EXPANSION_MODE("unsupported expansion mode {0}, supported modes are {1} ({2}) and {3} ({4})"),<a name="line.352"></a>
+<span class="sourceLineNo">353</span>    UNSUPPORTED_OPERATION("unsupported operation"), /* keep */<a name="line.353"></a>
+<span class="sourceLineNo">354</span>    ARITHMETIC_EXCEPTION("arithmetic exception"), /* keep */<a name="line.354"></a>
+<span class="sourceLineNo">355</span>    ILLEGAL_STATE("illegal state"), /* keep */<a name="line.355"></a>
+<span class="sourceLineNo">356</span>    USER_EXCEPTION("exception generated in user code"), /* keep */<a name="line.356"></a>
+<span class="sourceLineNo">357</span>    URL_CONTAINS_NO_DATA("URL {0} contains no data"),<a name="line.357"></a>
+<span class="sourceLineNo">358</span>    VALUES_ADDED_BEFORE_CONFIGURING_STATISTIC("{0} values have been added before statistic is configured"),<a name="line.358"></a>
+<span class="sourceLineNo">359</span>    VECTOR_LENGTH_MISMATCH("vector length mismatch: got {0} but expected {1}"),<a name="line.359"></a>
+<span class="sourceLineNo">360</span>    VECTOR_MUST_HAVE_AT_LEAST_ONE_ELEMENT("vector must have at least one element"),<a name="line.360"></a>
+<span class="sourceLineNo">361</span>    WEIGHT_AT_LEAST_ONE_NON_ZERO("weigth array must contain at least one non-zero value"),<a name="line.361"></a>
+<span class="sourceLineNo">362</span>    WRONG_BLOCK_LENGTH("wrong array shape (block length = {0}, expected {1})"),<a name="line.362"></a>
+<span class="sourceLineNo">363</span>    WRONG_NUMBER_OF_POINTS("{0} points are required, got only {1}"),<a name="line.363"></a>
+<span class="sourceLineNo">364</span>    NUMBER_OF_POINTS("number of points ({0})"), /* keep */<a name="line.364"></a>
+<span class="sourceLineNo">365</span>    ZERO_DENOMINATOR("denominator must be different from 0"), /* keep */<a name="line.365"></a>
+<span class="sourceLineNo">366</span>    ZERO_DENOMINATOR_IN_FRACTION("zero denominator in fraction {0}/{1}"),<a name="line.366"></a>
+<span class="sourceLineNo">367</span>    ZERO_FRACTION_TO_DIVIDE_BY("the fraction to divide by must not be zero: {0}/{1}"),<a name="line.367"></a>
+<span class="sourceLineNo">368</span>    ZERO_NORM("zero norm"),<a name="line.368"></a>
+<span class="sourceLineNo">369</span>    ZERO_NORM_FOR_ROTATION_AXIS("zero norm for rotation axis"),<a name="line.369"></a>
+<span class="sourceLineNo">370</span>    ZERO_NORM_FOR_ROTATION_DEFINING_VECTOR("zero norm for rotation defining vector"),<a name="line.370"></a>
+<span class="sourceLineNo">371</span>    ZERO_NOT_ALLOWED("zero not allowed here");<a name="line.371"></a>
+<span class="sourceLineNo">372</span><a name="line.372"></a>
+<span class="sourceLineNo">373</span>    // CHECKSTYLE: resume JavadocVariable<a name="line.373"></a>
+<span class="sourceLineNo">374</span>    // CHECKSTYLE: resume MultipleVariableDeclarations<a name="line.374"></a>
+<span class="sourceLineNo">375</span><a name="line.375"></a>
+<span class="sourceLineNo">376</span><a name="line.376"></a>
+<span class="sourceLineNo">377</span>    /** Source English format. */<a name="line.377"></a>
+<span class="sourceLineNo">378</span>    private final String sourceFormat;<a name="line.378"></a>
+<span class="sourceLineNo">379</span><a name="line.379"></a>
+<span class="sourceLineNo">380</span>    /** Simple constructor.<a name="line.380"></a>
+<span class="sourceLineNo">381</span>     * @param sourceFormat source English format to use when no<a name="line.381"></a>
+<span class="sourceLineNo">382</span>     * localized version is available<a name="line.382"></a>
+<span class="sourceLineNo">383</span>     */<a name="line.383"></a>
+<span class="sourceLineNo">384</span>    LocalizedFormats(final String sourceFormat) {<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        this.sourceFormat = sourceFormat;<a name="line.385"></a>
+<span class="sourceLineNo">386</span>    }<a name="line.386"></a>
+<span class="sourceLineNo">387</span><a name="line.387"></a>
+<span class="sourceLineNo">388</span>    /** {@inheritDoc} */<a name="line.388"></a>
+<span class="sourceLineNo">389</span>    public String getSourceString() {<a name="line.389"></a>
+<span class="sourceLineNo">390</span>        return sourceFormat;<a name="line.390"></a>
+<span class="sourceLineNo">391</span>    }<a name="line.391"></a>
+<span class="sourceLineNo">392</span><a name="line.392"></a>
+<span class="sourceLineNo">393</span>    /** {@inheritDoc} */<a name="line.393"></a>
+<span class="sourceLineNo">394</span>    public String getLocalizedString(final Locale locale) {<a name="line.394"></a>
+<span class="sourceLineNo">395</span>        try {<a name="line.395"></a>
+<span class="sourceLineNo">396</span>            final String path = LocalizedFormats.class.getName().replaceAll("\\.", "/");<a name="line.396"></a>
+<span class="sourceLineNo">397</span>            ResourceBundle bundle =<a name="line.397"></a>
+<span class="sourceLineNo">398</span>                    ResourceBundle.getBundle("assets/" + path, locale);<a name="line.398"></a>
+<span class="sourceLineNo">399</span>            if (bundle.getLocale().getLanguage().equals(locale.getLanguage())) {<a name="line.399"></a>
+<span class="sourceLineNo">400</span>                // the value of the resource is the translated format<a name="line.400"></a>
+<span class="sourceLineNo">401</span>                return bundle.getString(toString());<a name="line.401"></a>
+<span class="sourceLineNo">402</span>            }<a name="line.402"></a>
+<span class="sourceLineNo">403</span><a name="line.403"></a>
+<span class="sourceLineNo">404</span>        } catch (MissingResourceException mre) { // NOPMD<a name="line.404"></a>
+<span class="sourceLineNo">405</span>            // do nothing here<a name="line.405"></a>
+<span class="sourceLineNo">406</span>        }<a name="line.406"></a>
+<span class="sourceLineNo">407</span><a name="line.407"></a>
+<span class="sourceLineNo">408</span>        // either the locale is not supported or the resource is unknown<a name="line.408"></a>
+<span class="sourceLineNo">409</span>        // don't translate and fall back to using the source format<a name="line.409"></a>
+<span class="sourceLineNo">410</span>        return sourceFormat;<a name="line.410"></a>
+<span class="sourceLineNo">411</span><a name="line.411"></a>
+<span class="sourceLineNo">412</span>    }<a name="line.412"></a>
+<span class="sourceLineNo">413</span><a name="line.413"></a>
+<span class="sourceLineNo">414</span>}<a name="line.414"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

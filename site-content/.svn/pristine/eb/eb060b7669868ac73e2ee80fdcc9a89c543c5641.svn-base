@@ -1,0 +1,503 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.apache.commons.math3.ode.events;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.analysis.UnivariateFunction;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.analysis.solvers.AllowedSolution;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.analysis.solvers.BracketedUnivariateSolver;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.analysis.solvers.PegasusSolver;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.analysis.solvers.UnivariateSolver;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.analysis.solvers.UnivariateSolverUtils;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.exception.MaxCountExceededException;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.math3.exception.NoBracketingException;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.commons.math3.ode.EquationsMapper;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.math3.ode.ExpandableStatefulODE;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.math3.ode.sampling.StepInterpolator;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.commons.math3.util.FastMath;<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>/** This class handles the state for one {@link EventHandler<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * event handler} during integration steps.<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * &lt;p&gt;Each time the integrator proposes a step, the event handler<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * switching function should be checked. This class handles the state<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * of one handler during one integration step, with references to the<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * state at the end of the preceding step. This information is used to<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * decide if the handler should trigger an event or not during the<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * proposed step.&lt;/p&gt;<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * @since 1.2<a name="line.43"></a>
+<span class="sourceLineNo">044</span> */<a name="line.44"></a>
+<span class="sourceLineNo">045</span>public class EventState {<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>    /** Event handler. */<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    private final EventHandler handler;<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>    /** Maximal time interval between events handler checks. */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    private final double maxCheckInterval;<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>    /** Convergence threshold for event localization. */<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    private final double convergence;<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>    /** Upper limit in the iteration count for event localization. */<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    private final int maxIterationCount;<a name="line.57"></a>
+<span class="sourceLineNo">058</span><a name="line.58"></a>
+<span class="sourceLineNo">059</span>    /** Equation being integrated. */<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    private ExpandableStatefulODE expandable;<a name="line.60"></a>
+<span class="sourceLineNo">061</span><a name="line.61"></a>
+<span class="sourceLineNo">062</span>    /** Time at the beginning of the step. */<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    private double t0;<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>    /** Value of the events handler at the beginning of the step. */<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    private double g0;<a name="line.66"></a>
+<span class="sourceLineNo">067</span><a name="line.67"></a>
+<span class="sourceLineNo">068</span>    /** Simulated sign of g0 (we cheat when crossing events). */<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    private boolean g0Positive;<a name="line.69"></a>
+<span class="sourceLineNo">070</span><a name="line.70"></a>
+<span class="sourceLineNo">071</span>    /** Indicator of event expected during the step. */<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    private boolean pendingEvent;<a name="line.72"></a>
+<span class="sourceLineNo">073</span><a name="line.73"></a>
+<span class="sourceLineNo">074</span>    /** Occurrence time of the pending event. */<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    private double pendingEventTime;<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>    /** Occurrence time of the previous event. */<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    private double previousEventTime;<a name="line.78"></a>
+<span class="sourceLineNo">079</span><a name="line.79"></a>
+<span class="sourceLineNo">080</span>    /** Integration direction. */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    private boolean forward;<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>    /** Variation direction around pending event.<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     *  (this is considered with respect to the integration direction)<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     */<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    private boolean increasing;<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>    /** Next action indicator. */<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    private EventHandler.Action nextAction;<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>    /** Root-finding algorithm to use to detect state events. */<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    private final UnivariateSolver solver;<a name="line.92"></a>
+<span class="sourceLineNo">093</span><a name="line.93"></a>
+<span class="sourceLineNo">094</span>    /** Simple constructor.<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * @param handler event handler<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * @param maxCheckInterval maximal time interval between switching<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * function checks (this interval prevents missing sign changes in<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * case the integration steps becomes very large)<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * @param convergence convergence threshold in the event time search<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * @param maxIterationCount upper limit of the iteration count in<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     * the event time search<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * @param solver Root-finding algorithm to use to detect state events<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     */<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    public EventState(final EventHandler handler, final double maxCheckInterval,<a name="line.104"></a>
+<span class="sourceLineNo">105</span>                      final double convergence, final int maxIterationCount,<a name="line.105"></a>
+<span class="sourceLineNo">106</span>                      final UnivariateSolver solver) {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        this.handler           = handler;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        this.maxCheckInterval  = maxCheckInterval;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        this.convergence       = FastMath.abs(convergence);<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        this.maxIterationCount = maxIterationCount;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        this.solver            = solver;<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>        // some dummy values ...<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        expandable        = null;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        t0                = Double.NaN;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        g0                = Double.NaN;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        g0Positive        = true;<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        pendingEvent      = false;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        pendingEventTime  = Double.NaN;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        previousEventTime = Double.NaN;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        increasing        = true;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        nextAction        = EventHandler.Action.CONTINUE;<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>    }<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span>    /** Get the underlying event handler.<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     * @return underlying event handler<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     */<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    public EventHandler getEventHandler() {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        return handler;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    }<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>    /** Set the equation.<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     * @param expandable equation being integrated<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     */<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    public void setExpandable(final ExpandableStatefulODE expandable) {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>        this.expandable = expandable;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>    }<a name="line.138"></a>
+<span class="sourceLineNo">139</span><a name="line.139"></a>
+<span class="sourceLineNo">140</span>    /** Get the maximal time interval between events handler checks.<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     * @return maximal time interval between events handler checks<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     */<a name="line.142"></a>
+<span class="sourceLineNo">143</span>    public double getMaxCheckInterval() {<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        return maxCheckInterval;<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    }<a name="line.145"></a>
+<span class="sourceLineNo">146</span><a name="line.146"></a>
+<span class="sourceLineNo">147</span>    /** Get the convergence threshold for event localization.<a name="line.147"></a>
+<span class="sourceLineNo">148</span>     * @return convergence threshold for event localization<a name="line.148"></a>
+<span class="sourceLineNo">149</span>     */<a name="line.149"></a>
+<span class="sourceLineNo">150</span>    public double getConvergence() {<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        return convergence;<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    }<a name="line.152"></a>
+<span class="sourceLineNo">153</span><a name="line.153"></a>
+<span class="sourceLineNo">154</span>    /** Get the upper limit in the iteration count for event localization.<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     * @return upper limit in the iteration count for event localization<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     */<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    public int getMaxIterationCount() {<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        return maxIterationCount;<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    }<a name="line.159"></a>
+<span class="sourceLineNo">160</span><a name="line.160"></a>
+<span class="sourceLineNo">161</span>    /** Reinitialize the beginning of the step.<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     * @param interpolator valid for the current step<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     * @exception MaxCountExceededException if the interpolator throws one because<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     * the number of functions evaluations is exceeded<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     */<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    public void reinitializeBegin(final StepInterpolator interpolator)<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        throws MaxCountExceededException {<a name="line.167"></a>
+<span class="sourceLineNo">168</span><a name="line.168"></a>
+<span class="sourceLineNo">169</span>        t0 = interpolator.getPreviousTime();<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        interpolator.setInterpolatedTime(t0);<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        g0 = handler.g(t0, getCompleteState(interpolator));<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        if (g0 == 0) {<a name="line.172"></a>
+<span class="sourceLineNo">173</span>            // excerpt from MATH-421 issue:<a name="line.173"></a>
+<span class="sourceLineNo">174</span>            // If an ODE solver is setup with an EventHandler that return STOP<a name="line.174"></a>
+<span class="sourceLineNo">175</span>            // when the even is triggered, the integrator stops (which is exactly<a name="line.175"></a>
+<span class="sourceLineNo">176</span>            // the expected behavior). If however the user wants to restart the<a name="line.176"></a>
+<span class="sourceLineNo">177</span>            // solver from the final state reached at the event with the same<a name="line.177"></a>
+<span class="sourceLineNo">178</span>            // configuration (expecting the event to be triggered again at a<a name="line.178"></a>
+<span class="sourceLineNo">179</span>            // later time), then the integrator may fail to start. It can get stuck<a name="line.179"></a>
+<span class="sourceLineNo">180</span>            // at the previous event. The use case for the bug MATH-421 is fairly<a name="line.180"></a>
+<span class="sourceLineNo">181</span>            // general, so events occurring exactly at start in the first step should<a name="line.181"></a>
+<span class="sourceLineNo">182</span>            // be ignored.<a name="line.182"></a>
+<span class="sourceLineNo">183</span><a name="line.183"></a>
+<span class="sourceLineNo">184</span>            // extremely rare case: there is a zero EXACTLY at interval start<a name="line.184"></a>
+<span class="sourceLineNo">185</span>            // we will use the sign slightly after step beginning to force ignoring this zero<a name="line.185"></a>
+<span class="sourceLineNo">186</span>            final double epsilon = FastMath.max(solver.getAbsoluteAccuracy(),<a name="line.186"></a>
+<span class="sourceLineNo">187</span>                                                FastMath.abs(solver.getRelativeAccuracy() * t0));<a name="line.187"></a>
+<span class="sourceLineNo">188</span>            final double tStart = t0 + 0.5 * epsilon;<a name="line.188"></a>
+<span class="sourceLineNo">189</span>            interpolator.setInterpolatedTime(tStart);<a name="line.189"></a>
+<span class="sourceLineNo">190</span>            g0 = handler.g(tStart, getCompleteState(interpolator));<a name="line.190"></a>
+<span class="sourceLineNo">191</span>        }<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        g0Positive = g0 &gt;= 0;<a name="line.192"></a>
+<span class="sourceLineNo">193</span><a name="line.193"></a>
+<span class="sourceLineNo">194</span>    }<a name="line.194"></a>
+<span class="sourceLineNo">195</span><a name="line.195"></a>
+<span class="sourceLineNo">196</span>    /** Get the complete state (primary and secondary).<a name="line.196"></a>
+<span class="sourceLineNo">197</span>     * @param interpolator interpolator to use<a name="line.197"></a>
+<span class="sourceLineNo">198</span>     * @return complete state<a name="line.198"></a>
+<span class="sourceLineNo">199</span>     */<a name="line.199"></a>
+<span class="sourceLineNo">200</span>    private double[] getCompleteState(final StepInterpolator interpolator) {<a name="line.200"></a>
+<span class="sourceLineNo">201</span><a name="line.201"></a>
+<span class="sourceLineNo">202</span>        final double[] complete = new double[expandable.getTotalDimension()];<a name="line.202"></a>
+<span class="sourceLineNo">203</span><a name="line.203"></a>
+<span class="sourceLineNo">204</span>        expandable.getPrimaryMapper().insertEquationData(interpolator.getInterpolatedState(),<a name="line.204"></a>
+<span class="sourceLineNo">205</span>                                                         complete);<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        int index = 0;<a name="line.206"></a>
+<span class="sourceLineNo">207</span>        for (EquationsMapper secondary : expandable.getSecondaryMappers()) {<a name="line.207"></a>
+<span class="sourceLineNo">208</span>            secondary.insertEquationData(interpolator.getInterpolatedSecondaryState(index++),<a name="line.208"></a>
+<span class="sourceLineNo">209</span>                                         complete);<a name="line.209"></a>
+<span class="sourceLineNo">210</span>        }<a name="line.210"></a>
+<span class="sourceLineNo">211</span><a name="line.211"></a>
+<span class="sourceLineNo">212</span>        return complete;<a name="line.212"></a>
+<span class="sourceLineNo">213</span><a name="line.213"></a>
+<span class="sourceLineNo">214</span>    }<a name="line.214"></a>
+<span class="sourceLineNo">215</span><a name="line.215"></a>
+<span class="sourceLineNo">216</span>    /** Evaluate the impact of the proposed step on the event handler.<a name="line.216"></a>
+<span class="sourceLineNo">217</span>     * @param interpolator step interpolator for the proposed step<a name="line.217"></a>
+<span class="sourceLineNo">218</span>     * @return true if the event handler triggers an event before<a name="line.218"></a>
+<span class="sourceLineNo">219</span>     * the end of the proposed step<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     * @exception MaxCountExceededException if the interpolator throws one because<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     * the number of functions evaluations is exceeded<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     * @exception NoBracketingException if the event cannot be bracketed<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     */<a name="line.223"></a>
+<span class="sourceLineNo">224</span>    public boolean evaluateStep(final StepInterpolator interpolator)<a name="line.224"></a>
+<span class="sourceLineNo">225</span>        throws MaxCountExceededException, NoBracketingException {<a name="line.225"></a>
+<span class="sourceLineNo">226</span><a name="line.226"></a>
+<span class="sourceLineNo">227</span>        try {<a name="line.227"></a>
+<span class="sourceLineNo">228</span>            forward = interpolator.isForward();<a name="line.228"></a>
+<span class="sourceLineNo">229</span>            final double t1 = interpolator.getCurrentTime();<a name="line.229"></a>
+<span class="sourceLineNo">230</span>            final double dt = t1 - t0;<a name="line.230"></a>
+<span class="sourceLineNo">231</span>            if (FastMath.abs(dt) &lt; convergence) {<a name="line.231"></a>
+<span class="sourceLineNo">232</span>                // we cannot do anything on such a small step, don't trigger any events<a name="line.232"></a>
+<span class="sourceLineNo">233</span>                return false;<a name="line.233"></a>
+<span class="sourceLineNo">234</span>            }<a name="line.234"></a>
+<span class="sourceLineNo">235</span>            final int    n = FastMath.max(1, (int) FastMath.ceil(FastMath.abs(dt) / maxCheckInterval));<a name="line.235"></a>
+<span class="sourceLineNo">236</span>            final double h = dt / n;<a name="line.236"></a>
+<span class="sourceLineNo">237</span><a name="line.237"></a>
+<span class="sourceLineNo">238</span>            final UnivariateFunction f = new UnivariateFunction() {<a name="line.238"></a>
+<span class="sourceLineNo">239</span>                /** {@inheritDoc} */<a name="line.239"></a>
+<span class="sourceLineNo">240</span>                public double value(final double t) throws LocalMaxCountExceededException {<a name="line.240"></a>
+<span class="sourceLineNo">241</span>                    try {<a name="line.241"></a>
+<span class="sourceLineNo">242</span>                        interpolator.setInterpolatedTime(t);<a name="line.242"></a>
+<span class="sourceLineNo">243</span>                        return handler.g(t, getCompleteState(interpolator));<a name="line.243"></a>
+<span class="sourceLineNo">244</span>                    } catch (MaxCountExceededException mcee) {<a name="line.244"></a>
+<span class="sourceLineNo">245</span>                        throw new LocalMaxCountExceededException(mcee);<a name="line.245"></a>
+<span class="sourceLineNo">246</span>                    }<a name="line.246"></a>
+<span class="sourceLineNo">247</span>                }<a name="line.247"></a>
+<span class="sourceLineNo">248</span>            };<a name="line.248"></a>
+<span class="sourceLineNo">249</span><a name="line.249"></a>
+<span class="sourceLineNo">250</span>            double ta = t0;<a name="line.250"></a>
+<span class="sourceLineNo">251</span>            double ga = g0;<a name="line.251"></a>
+<span class="sourceLineNo">252</span>            for (int i = 0; i &lt; n; ++i) {<a name="line.252"></a>
+<span class="sourceLineNo">253</span><a name="line.253"></a>
+<span class="sourceLineNo">254</span>                // evaluate handler value at the end of the substep<a name="line.254"></a>
+<span class="sourceLineNo">255</span>                final double tb = (i == n - 1) ? t1 : t0 + (i + 1) * h;<a name="line.255"></a>
+<span class="sourceLineNo">256</span>                interpolator.setInterpolatedTime(tb);<a name="line.256"></a>
+<span class="sourceLineNo">257</span>                final double gb = handler.g(tb, getCompleteState(interpolator));<a name="line.257"></a>
+<span class="sourceLineNo">258</span><a name="line.258"></a>
+<span class="sourceLineNo">259</span>                // check events occurrence<a name="line.259"></a>
+<span class="sourceLineNo">260</span>                if (g0Positive ^ (gb &gt;= 0)) {<a name="line.260"></a>
+<span class="sourceLineNo">261</span>                    // there is a sign change: an event is expected during this step<a name="line.261"></a>
+<span class="sourceLineNo">262</span><a name="line.262"></a>
+<span class="sourceLineNo">263</span>                    // variation direction, with respect to the integration direction<a name="line.263"></a>
+<span class="sourceLineNo">264</span>                    increasing = gb &gt;= ga;<a name="line.264"></a>
+<span class="sourceLineNo">265</span><a name="line.265"></a>
+<span class="sourceLineNo">266</span>                    // find the event time making sure we select a solution just at or past the exact root<a name="line.266"></a>
+<span class="sourceLineNo">267</span>                    final double root;<a name="line.267"></a>
+<span class="sourceLineNo">268</span>                    if (solver instanceof BracketedUnivariateSolver&lt;?&gt;) {<a name="line.268"></a>
+<span class="sourceLineNo">269</span>                        @SuppressWarnings("unchecked")<a name="line.269"></a>
+<span class="sourceLineNo">270</span>                        BracketedUnivariateSolver&lt;UnivariateFunction&gt; bracketing =<a name="line.270"></a>
+<span class="sourceLineNo">271</span>                                (BracketedUnivariateSolver&lt;UnivariateFunction&gt;) solver;<a name="line.271"></a>
+<span class="sourceLineNo">272</span>                        root = forward ?<a name="line.272"></a>
+<span class="sourceLineNo">273</span>                               bracketing.solve(maxIterationCount, f, ta, tb, AllowedSolution.RIGHT_SIDE) :<a name="line.273"></a>
+<span class="sourceLineNo">274</span>                               bracketing.solve(maxIterationCount, f, tb, ta, AllowedSolution.LEFT_SIDE);<a name="line.274"></a>
+<span class="sourceLineNo">275</span>                    } else {<a name="line.275"></a>
+<span class="sourceLineNo">276</span>                        final double baseRoot = forward ?<a name="line.276"></a>
+<span class="sourceLineNo">277</span>                                                solver.solve(maxIterationCount, f, ta, tb) :<a name="line.277"></a>
+<span class="sourceLineNo">278</span>                                                solver.solve(maxIterationCount, f, tb, ta);<a name="line.278"></a>
+<span class="sourceLineNo">279</span>                        final int remainingEval = maxIterationCount - solver.getEvaluations();<a name="line.279"></a>
+<span class="sourceLineNo">280</span>                        BracketedUnivariateSolver&lt;UnivariateFunction&gt; bracketing =<a name="line.280"></a>
+<span class="sourceLineNo">281</span>                                new PegasusSolver(solver.getRelativeAccuracy(), solver.getAbsoluteAccuracy());<a name="line.281"></a>
+<span class="sourceLineNo">282</span>                        root = forward ?<a name="line.282"></a>
+<span class="sourceLineNo">283</span>                               UnivariateSolverUtils.forceSide(remainingEval, f, bracketing,<a name="line.283"></a>
+<span class="sourceLineNo">284</span>                                                                   baseRoot, ta, tb, AllowedSolution.RIGHT_SIDE) :<a name="line.284"></a>
+<span class="sourceLineNo">285</span>                               UnivariateSolverUtils.forceSide(remainingEval, f, bracketing,<a name="line.285"></a>
+<span class="sourceLineNo">286</span>                                                                   baseRoot, tb, ta, AllowedSolution.LEFT_SIDE);<a name="line.286"></a>
+<span class="sourceLineNo">287</span>                    }<a name="line.287"></a>
+<span class="sourceLineNo">288</span><a name="line.288"></a>
+<span class="sourceLineNo">289</span>                    if ((!Double.isNaN(previousEventTime)) &amp;&amp;<a name="line.289"></a>
+<span class="sourceLineNo">290</span>                        (FastMath.abs(root - ta) &lt;= convergence) &amp;&amp;<a name="line.290"></a>
+<span class="sourceLineNo">291</span>                        (FastMath.abs(root - previousEventTime) &lt;= convergence)) {<a name="line.291"></a>
+<span class="sourceLineNo">292</span>                        // we have either found nothing or found (again ?) a past event,<a name="line.292"></a>
+<span class="sourceLineNo">293</span>                        // retry the substep excluding this value, and taking care to have the<a name="line.293"></a>
+<span class="sourceLineNo">294</span>                        // required sign in case the g function is noisy around its zero and<a name="line.294"></a>
+<span class="sourceLineNo">295</span>                        // crosses the axis several times<a name="line.295"></a>
+<span class="sourceLineNo">296</span>                        do {<a name="line.296"></a>
+<span class="sourceLineNo">297</span>                            ta = forward ? ta + convergence : ta - convergence;<a name="line.297"></a>
+<span class="sourceLineNo">298</span>                            ga = f.value(ta);<a name="line.298"></a>
+<span class="sourceLineNo">299</span>                        } while ((g0Positive ^ (ga &gt;= 0)) &amp;&amp; (forward ^ (ta &gt;= tb)));<a name="line.299"></a>
+<span class="sourceLineNo">300</span><a name="line.300"></a>
+<span class="sourceLineNo">301</span>                        if (forward ^ (ta &gt;= tb)) {<a name="line.301"></a>
+<span class="sourceLineNo">302</span>                            // we were able to skip this spurious root<a name="line.302"></a>
+<span class="sourceLineNo">303</span>                            --i;<a name="line.303"></a>
+<span class="sourceLineNo">304</span>                        } else {<a name="line.304"></a>
+<span class="sourceLineNo">305</span>                            // we can't avoid this root before the end of the step,<a name="line.305"></a>
+<span class="sourceLineNo">306</span>                            // we have to handle it despite it is close to the former one<a name="line.306"></a>
+<span class="sourceLineNo">307</span>                            // maybe we have two very close roots<a name="line.307"></a>
+<span class="sourceLineNo">308</span>                            pendingEventTime = root;<a name="line.308"></a>
+<span class="sourceLineNo">309</span>                            pendingEvent = true;<a name="line.309"></a>
+<span class="sourceLineNo">310</span>                            return true;<a name="line.310"></a>
+<span class="sourceLineNo">311</span>                        }<a name="line.311"></a>
+<span class="sourceLineNo">312</span>                    } else if (Double.isNaN(previousEventTime) ||<a name="line.312"></a>
+<span class="sourceLineNo">313</span>                               (FastMath.abs(previousEventTime - root) &gt; convergence)) {<a name="line.313"></a>
+<span class="sourceLineNo">314</span>                        pendingEventTime = root;<a name="line.314"></a>
+<span class="sourceLineNo">315</span>                        pendingEvent = true;<a name="line.315"></a>
+<span class="sourceLineNo">316</span>                        return true;<a name="line.316"></a>
+<span class="sourceLineNo">317</span>                    } else {<a name="line.317"></a>
+<span class="sourceLineNo">318</span>                        // no sign change: there is no event for now<a name="line.318"></a>
+<span class="sourceLineNo">319</span>                        ta = tb;<a name="line.319"></a>
+<span class="sourceLineNo">320</span>                        ga = gb;<a name="line.320"></a>
+<span class="sourceLineNo">321</span>                    }<a name="line.321"></a>
+<span class="sourceLineNo">322</span><a name="line.322"></a>
+<span class="sourceLineNo">323</span>                } else {<a name="line.323"></a>
+<span class="sourceLineNo">324</span>                    // no sign change: there is no event for now<a name="line.324"></a>
+<span class="sourceLineNo">325</span>                    ta = tb;<a name="line.325"></a>
+<span class="sourceLineNo">326</span>                    ga = gb;<a name="line.326"></a>
+<span class="sourceLineNo">327</span>                }<a name="line.327"></a>
+<span class="sourceLineNo">328</span><a name="line.328"></a>
+<span class="sourceLineNo">329</span>            }<a name="line.329"></a>
+<span class="sourceLineNo">330</span><a name="line.330"></a>
+<span class="sourceLineNo">331</span>            // no event during the whole step<a name="line.331"></a>
+<span class="sourceLineNo">332</span>            pendingEvent     = false;<a name="line.332"></a>
+<span class="sourceLineNo">333</span>            pendingEventTime = Double.NaN;<a name="line.333"></a>
+<span class="sourceLineNo">334</span>            return false;<a name="line.334"></a>
+<span class="sourceLineNo">335</span><a name="line.335"></a>
+<span class="sourceLineNo">336</span>        } catch (LocalMaxCountExceededException lmcee) {<a name="line.336"></a>
+<span class="sourceLineNo">337</span>            throw lmcee.getException();<a name="line.337"></a>
+<span class="sourceLineNo">338</span>        }<a name="line.338"></a>
+<span class="sourceLineNo">339</span><a name="line.339"></a>
+<span class="sourceLineNo">340</span>    }<a name="line.340"></a>
+<span class="sourceLineNo">341</span><a name="line.341"></a>
+<span class="sourceLineNo">342</span>    /** Get the occurrence time of the event triggered in the current step.<a name="line.342"></a>
+<span class="sourceLineNo">343</span>     * @return occurrence time of the event triggered in the current<a name="line.343"></a>
+<span class="sourceLineNo">344</span>     * step or infinity if no events are triggered<a name="line.344"></a>
+<span class="sourceLineNo">345</span>     */<a name="line.345"></a>
+<span class="sourceLineNo">346</span>    public double getEventTime() {<a name="line.346"></a>
+<span class="sourceLineNo">347</span>        return pendingEvent ?<a name="line.347"></a>
+<span class="sourceLineNo">348</span>               pendingEventTime :<a name="line.348"></a>
+<span class="sourceLineNo">349</span>               (forward ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY);<a name="line.349"></a>
+<span class="sourceLineNo">350</span>    }<a name="line.350"></a>
+<span class="sourceLineNo">351</span><a name="line.351"></a>
+<span class="sourceLineNo">352</span>    /** Acknowledge the fact the step has been accepted by the integrator.<a name="line.352"></a>
+<span class="sourceLineNo">353</span>     * @param t value of the independent &lt;i&gt;time&lt;/i&gt; variable at the<a name="line.353"></a>
+<span class="sourceLineNo">354</span>     * end of the step<a name="line.354"></a>
+<span class="sourceLineNo">355</span>     * @param y array containing the current value of the state vector<a name="line.355"></a>
+<span class="sourceLineNo">356</span>     * at the end of the step<a name="line.356"></a>
+<span class="sourceLineNo">357</span>     */<a name="line.357"></a>
+<span class="sourceLineNo">358</span>    public void stepAccepted(final double t, final double[] y) {<a name="line.358"></a>
+<span class="sourceLineNo">359</span><a name="line.359"></a>
+<span class="sourceLineNo">360</span>        t0 = t;<a name="line.360"></a>
+<span class="sourceLineNo">361</span>        g0 = handler.g(t, y);<a name="line.361"></a>
+<span class="sourceLineNo">362</span><a name="line.362"></a>
+<span class="sourceLineNo">363</span>        if (pendingEvent &amp;&amp; (FastMath.abs(pendingEventTime - t) &lt;= convergence)) {<a name="line.363"></a>
+<span class="sourceLineNo">364</span>            // force the sign to its value "just after the event"<a name="line.364"></a>
+<span class="sourceLineNo">365</span>            previousEventTime = t;<a name="line.365"></a>
+<span class="sourceLineNo">366</span>            g0Positive        = increasing;<a name="line.366"></a>
+<span class="sourceLineNo">367</span>            nextAction        = handler.eventOccurred(t, y, !(increasing ^ forward));<a name="line.367"></a>
+<span class="sourceLineNo">368</span>        } else {<a name="line.368"></a>
+<span class="sourceLineNo">369</span>            g0Positive = g0 &gt;= 0;<a name="line.369"></a>
+<span class="sourceLineNo">370</span>            nextAction = EventHandler.Action.CONTINUE;<a name="line.370"></a>
+<span class="sourceLineNo">371</span>        }<a name="line.371"></a>
+<span class="sourceLineNo">372</span>    }<a name="line.372"></a>
+<span class="sourceLineNo">373</span><a name="line.373"></a>
+<span class="sourceLineNo">374</span>    /** Check if the integration should be stopped at the end of the<a name="line.374"></a>
+<span class="sourceLineNo">375</span>     * current step.<a name="line.375"></a>
+<span class="sourceLineNo">376</span>     * @return true if the integration should be stopped<a name="line.376"></a>
+<span class="sourceLineNo">377</span>     */<a name="line.377"></a>
+<span class="sourceLineNo">378</span>    public boolean stop() {<a name="line.378"></a>
+<span class="sourceLineNo">379</span>        return nextAction == EventHandler.Action.STOP;<a name="line.379"></a>
+<span class="sourceLineNo">380</span>    }<a name="line.380"></a>
+<span class="sourceLineNo">381</span><a name="line.381"></a>
+<span class="sourceLineNo">382</span>    /** Let the event handler reset the state if it wants.<a name="line.382"></a>
+<span class="sourceLineNo">383</span>     * @param t value of the independent &lt;i&gt;time&lt;/i&gt; variable at the<a name="line.383"></a>
+<span class="sourceLineNo">384</span>     * beginning of the next step<a name="line.384"></a>
+<span class="sourceLineNo">385</span>     * @param y array were to put the desired state vector at the beginning<a name="line.385"></a>
+<span class="sourceLineNo">386</span>     * of the next step<a name="line.386"></a>
+<span class="sourceLineNo">387</span>     * @return true if the integrator should reset the derivatives too<a name="line.387"></a>
+<span class="sourceLineNo">388</span>     */<a name="line.388"></a>
+<span class="sourceLineNo">389</span>    public boolean reset(final double t, final double[] y) {<a name="line.389"></a>
+<span class="sourceLineNo">390</span><a name="line.390"></a>
+<span class="sourceLineNo">391</span>        if (!(pendingEvent &amp;&amp; (FastMath.abs(pendingEventTime - t) &lt;= convergence))) {<a name="line.391"></a>
+<span class="sourceLineNo">392</span>            return false;<a name="line.392"></a>
+<span class="sourceLineNo">393</span>        }<a name="line.393"></a>
+<span class="sourceLineNo">394</span><a name="line.394"></a>
+<span class="sourceLineNo">395</span>        if (nextAction == EventHandler.Action.RESET_STATE) {<a name="line.395"></a>
+<span class="sourceLineNo">396</span>            handler.resetState(t, y);<a name="line.396"></a>
+<span class="sourceLineNo">397</span>        }<a name="line.397"></a>
+<span class="sourceLineNo">398</span>        pendingEvent      = false;<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        pendingEventTime  = Double.NaN;<a name="line.399"></a>
+<span class="sourceLineNo">400</span><a name="line.400"></a>
+<span class="sourceLineNo">401</span>        return (nextAction == EventHandler.Action.RESET_STATE) ||<a name="line.401"></a>
+<span class="sourceLineNo">402</span>               (nextAction == EventHandler.Action.RESET_DERIVATIVES);<a name="line.402"></a>
+<span class="sourceLineNo">403</span><a name="line.403"></a>
+<span class="sourceLineNo">404</span>    }<a name="line.404"></a>
+<span class="sourceLineNo">405</span><a name="line.405"></a>
+<span class="sourceLineNo">406</span>    /** Local wrapper to propagate exceptions. */<a name="line.406"></a>
+<span class="sourceLineNo">407</span>    private static class LocalMaxCountExceededException extends RuntimeException {<a name="line.407"></a>
+<span class="sourceLineNo">408</span><a name="line.408"></a>
+<span class="sourceLineNo">409</span>        /** Serializable UID. */<a name="line.409"></a>
+<span class="sourceLineNo">410</span>        private static final long serialVersionUID = 20120901L;<a name="line.410"></a>
+<span class="sourceLineNo">411</span><a name="line.411"></a>
+<span class="sourceLineNo">412</span>        /** Wrapped exception. */<a name="line.412"></a>
+<span class="sourceLineNo">413</span>        private final MaxCountExceededException wrapped;<a name="line.413"></a>
+<span class="sourceLineNo">414</span><a name="line.414"></a>
+<span class="sourceLineNo">415</span>        /** Simple constructor.<a name="line.415"></a>
+<span class="sourceLineNo">416</span>         * @param exception exception to wrap<a name="line.416"></a>
+<span class="sourceLineNo">417</span>         */<a name="line.417"></a>
+<span class="sourceLineNo">418</span>        LocalMaxCountExceededException(final MaxCountExceededException exception) {<a name="line.418"></a>
+<span class="sourceLineNo">419</span>            wrapped = exception;<a name="line.419"></a>
+<span class="sourceLineNo">420</span>        }<a name="line.420"></a>
+<span class="sourceLineNo">421</span><a name="line.421"></a>
+<span class="sourceLineNo">422</span>        /** Get the wrapped exception.<a name="line.422"></a>
+<span class="sourceLineNo">423</span>         * @return wrapped exception<a name="line.423"></a>
+<span class="sourceLineNo">424</span>         */<a name="line.424"></a>
+<span class="sourceLineNo">425</span>        public MaxCountExceededException getException() {<a name="line.425"></a>
+<span class="sourceLineNo">426</span>            return wrapped;<a name="line.426"></a>
+<span class="sourceLineNo">427</span>        }<a name="line.427"></a>
+<span class="sourceLineNo">428</span><a name="line.428"></a>
+<span class="sourceLineNo">429</span>    }<a name="line.429"></a>
+<span class="sourceLineNo">430</span><a name="line.430"></a>
+<span class="sourceLineNo">431</span>}<a name="line.431"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

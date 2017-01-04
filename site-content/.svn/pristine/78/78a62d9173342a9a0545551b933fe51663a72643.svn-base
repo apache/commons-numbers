@@ -1,0 +1,551 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+<title>GaussianFitterTest (Apache Commons Math 3.5 Test API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="GaussianFitterTest (Apache Commons Math 3.5 Test API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/GaussianFitterTest.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+<div class="aboutLanguage"><em><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></em></div>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../org/apache/commons/math3/fitting/GaussianCurveFitterTest.html" title="class in org.apache.commons.math3.fitting"><span class="strong">PREV CLASS</span></a></li>
+<li><a href="../../../../../org/apache/commons/math3/fitting/HarmonicCurveFitterTest.html" title="class in org.apache.commons.math3.fitting"><span class="strong">NEXT CLASS</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/apache/commons/math3/fitting/GaussianFitterTest.html" target="_top">FRAMES</a></li>
+<li><a href="GaussianFitterTest.html" target="_top">NO FRAMES</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>SUMMARY:&nbsp;</li>
+<li>NESTED&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">FIELD</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">METHOD</a></li>
+</ul>
+<ul class="subNavList">
+<li>DETAIL:&nbsp;</li>
+<li><a href="#field_detail">FIELD</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">METHOD</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<p class="subTitle">org.apache.commons.math3.fitting</p>
+<h2 title="Class GaussianFitterTest" class="title">Class GaussianFitterTest</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>org.apache.commons.math3.fitting.GaussianFitterTest</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<div class="block"><strong>Deprecated.</strong></div>
+<br>
+<pre><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Deprecated.html?is-external=true" title="class or interface in java.lang">@Deprecated</a>
+public class <a href="../../../../../src-html/org/apache/commons/math3/fitting/GaussianFitterTest.html#line.30">GaussianFitterTest</a>
+extends <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
+<div class="block">Tests <a href="../../../../../../apidocs/org/apache/commons/math3/fitting/GaussianFitter.html?is-external=true" title="class or interface in org.apache.commons.math3.fitting"><code>GaussianFitter</code></a>.</div>
+<dl><dt><span class="strong">Since:</span></dt>
+  <dd>2.2</dd></dl>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected static double[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fitting/GaussianFitterTest.html#DATASET1">DATASET1</a></strong></code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
+<div class="block">Good data.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected static double[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fitting/GaussianFitterTest.html#DATASET2">DATASET2</a></strong></code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
+<div class="block">Poor data: right of peak not symmetric with left of peak.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected static double[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fitting/GaussianFitterTest.html#DATASET3">DATASET3</a></strong></code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
+<div class="block">Poor data: long tails.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected static double[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fitting/GaussianFitterTest.html#DATASET4">DATASET4</a></strong></code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
+<div class="block">Poor data: right of peak is missing.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected static double[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fitting/GaussianFitterTest.html#DATASET5">DATASET5</a></strong></code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
+<div class="block">Good data, but few points.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../../../org/apache/commons/math3/fitting/GaussianFitterTest.html#GaussianFitterTest()">GaussianFitterTest</a></strong>()</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
+&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fitting/GaussianFitterTest.html#addDatasetToGaussianFitter(double[][], org.apache.commons.math3.fitting.GaussianFitter)">addDatasetToGaussianFitter</a></strong>(double[][]&nbsp;points,
+                                                    <a href="../../../../../../apidocs/org/apache/commons/math3/fitting/GaussianFitter.html?is-external=true" title="class or interface in org.apache.commons.math3.fitting">GaussianFitter</a>&nbsp;fitter)</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
+<div class="block">Adds the specified points to specified <code>GaussianFitter</code>
+ instance.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fitting/GaussianFitterTest.html#testFit01()">testFit01</a></strong>()</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
+<div class="block">Basic.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fitting/GaussianFitterTest.html#testFit02()">testFit02</a></strong>()</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
+<div class="block">Zero points is not enough observed points.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fitting/GaussianFitterTest.html#testFit03()">testFit03</a></strong>()</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
+<div class="block">Two points is not enough observed points.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fitting/GaussianFitterTest.html#testFit04()">testFit04</a></strong>()</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
+<div class="block">Poor data: right of peak not symmetric with left of peak.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fitting/GaussianFitterTest.html#testFit05()">testFit05</a></strong>()</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
+<div class="block">Poor data: long tails.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fitting/GaussianFitterTest.html#testFit06()">testFit06</a></strong>()</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
+<div class="block">Poor data: right of peak is missing.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fitting/GaussianFitterTest.html#testFit07()">testFit07</a></strong>()</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
+<div class="block">Basic with smaller dataset.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fitting/GaussianFitterTest.html#testMath519()">testMath519</a></strong>()</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
+&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/fitting/GaussianFitterTest.html#testMath798()">testMath798</a></strong>()</code>
+<div class="block"><strong>Deprecated.</strong>&nbsp;</div>
+&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="DATASET1">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DATASET1</h4>
+<pre>protected static final&nbsp;double[][] <a href="../../../../../src-html/org/apache/commons/math3/fitting/GaussianFitterTest.html#line.32">DATASET1</a></pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
+<div class="block">Good data.</div>
+</li>
+</ul>
+<a name="DATASET2">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DATASET2</h4>
+<pre>protected static final&nbsp;double[][] <a href="../../../../../src-html/org/apache/commons/math3/fitting/GaussianFitterTest.html#line.65">DATASET2</a></pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
+<div class="block">Poor data: right of peak not symmetric with left of peak.</div>
+</li>
+</ul>
+<a name="DATASET3">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DATASET3</h4>
+<pre>protected static final&nbsp;double[][] <a href="../../../../../src-html/org/apache/commons/math3/fitting/GaussianFitterTest.html#line.99">DATASET3</a></pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
+<div class="block">Poor data: long tails.</div>
+</li>
+</ul>
+<a name="DATASET4">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DATASET4</h4>
+<pre>protected static final&nbsp;double[][] <a href="../../../../../src-html/org/apache/commons/math3/fitting/GaussianFitterTest.html#line.148">DATASET4</a></pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
+<div class="block">Poor data: right of peak is missing.</div>
+</li>
+</ul>
+<a name="DATASET5">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DATASET5</h4>
+<pre>protected static final&nbsp;double[][] <a href="../../../../../src-html/org/apache/commons/math3/fitting/GaussianFitterTest.html#line.165">DATASET5</a></pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
+<div class="block">Good data, but few points.</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="GaussianFitterTest()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>GaussianFitterTest</h4>
+<pre>public&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fitting/GaussianFitterTest.html#line.30">GaussianFitterTest</a>()</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="testFit01()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFit01</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fitting/GaussianFitterTest.html#line.184">testFit01</a>()</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
+<div class="block">Basic.</div>
+</li>
+</ul>
+<a name="testFit02()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFit02</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fitting/GaussianFitterTest.html#line.198">testFit02</a>()</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
+<div class="block">Zero points is not enough observed points.</div>
+</li>
+</ul>
+<a name="testFit03()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFit03</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fitting/GaussianFitterTest.html#line.207">testFit03</a>()</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
+<div class="block">Two points is not enough observed points.</div>
+</li>
+</ul>
+<a name="testFit04()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFit04</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fitting/GaussianFitterTest.html#line.220">testFit04</a>()</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
+<div class="block">Poor data: right of peak not symmetric with left of peak.</div>
+</li>
+</ul>
+<a name="testFit05()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFit05</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fitting/GaussianFitterTest.html#line.234">testFit05</a>()</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
+<div class="block">Poor data: long tails.</div>
+</li>
+</ul>
+<a name="testFit06()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFit06</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fitting/GaussianFitterTest.html#line.248">testFit06</a>()</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
+<div class="block">Poor data: right of peak is missing.</div>
+</li>
+</ul>
+<a name="testFit07()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testFit07</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fitting/GaussianFitterTest.html#line.262">testFit07</a>()</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
+<div class="block">Basic with smaller dataset.</div>
+</li>
+</ul>
+<a name="testMath519()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testMath519</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fitting/GaussianFitterTest.html#line.273">testMath519</a>()</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
+</li>
+</ul>
+<a name="testMath798()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testMath798</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fitting/GaussianFitterTest.html#line.318">testMath798</a>()</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
+</li>
+</ul>
+<a name="addDatasetToGaussianFitter(double[][], org.apache.commons.math3.fitting.GaussianFitter)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>addDatasetToGaussianFitter</h4>
+<pre>protected static&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/fitting/GaussianFitterTest.html#line.357">addDatasetToGaussianFitter</a>(double[][]&nbsp;points,
+                              <a href="../../../../../../apidocs/org/apache/commons/math3/fitting/GaussianFitter.html?is-external=true" title="class or interface in org.apache.commons.math3.fitting">GaussianFitter</a>&nbsp;fitter)</pre>
+<div class="block"><span class="strong">Deprecated.</span>&nbsp;</div>
+<div class="block">Adds the specified points to specified <code>GaussianFitter</code>
+ instance.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>points</code> - data points where first dimension is a point index and
+        second dimension is an array of length two representing the point
+        with the first value corresponding to X and the second value
+        corresponding to Y</dd><dd><code>fitter</code> - fitter to which the points in <code>points</code> should be
+        added as observed points</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/GaussianFitterTest.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+<div class="aboutLanguage"><em><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></em></div>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../org/apache/commons/math3/fitting/GaussianCurveFitterTest.html" title="class in org.apache.commons.math3.fitting"><span class="strong">PREV CLASS</span></a></li>
+<li><a href="../../../../../org/apache/commons/math3/fitting/HarmonicCurveFitterTest.html" title="class in org.apache.commons.math3.fitting"><span class="strong">NEXT CLASS</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/apache/commons/math3/fitting/GaussianFitterTest.html" target="_top">FRAMES</a></li>
+<li><a href="GaussianFitterTest.html" target="_top">NO FRAMES</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>SUMMARY:&nbsp;</li>
+<li>NESTED&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">FIELD</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">METHOD</a></li>
+</ul>
+<ul class="subNavList">
+<li>DETAIL:&nbsp;</li>
+<li><a href="#field_detail">FIELD</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">METHOD</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+<p class="legalCopy"><small>Copyright &#169; 2003&#x2013;2015 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</small></p>
+</body>
+</html>

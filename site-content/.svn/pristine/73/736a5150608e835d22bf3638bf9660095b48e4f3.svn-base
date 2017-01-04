@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>StableRandomGenerator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.random</a> &gt; <span class="el_source">StableRandomGenerator.java</span></div><h1>StableRandomGenerator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.random;
+
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * &lt;p&gt;This class provides a stable normalized random generator. It samples from a stable
+ * distribution with location parameter 0 and scale 1.&lt;/p&gt;
+ *
+ * &lt;p&gt;The implementation uses the Chambers-Mallows-Stuck method as described in
+ * &lt;i&gt;Handbook of computational statistics: concepts and methods&lt;/i&gt; by
+ * James E. Gentle, Wolfgang H&amp;auml;rdle, Yuichi Mori.&lt;/p&gt;
+ *
+ * @since 3.0
+ */
+public class StableRandomGenerator implements NormalizedRandomGenerator {
+    /** Underlying generator. */
+    private final RandomGenerator generator;
+
+    /** stability parameter */
+    private final double alpha;
+
+    /** skewness parameter */
+    private final double beta;
+
+    /** cache of expression value used in generation */
+    private final double zeta;
+
+    /**
+     * Create a new generator.
+     *
+     * @param generator underlying random generator to use
+     * @param alpha Stability parameter. Must be in range (0, 2]
+     * @param beta Skewness parameter. Must be in range [-1, 1]
+     * @throws NullArgumentException if generator is null
+     * @throws OutOfRangeException if {@code alpha &lt;= 0} or {@code alpha &gt; 2}
+     * or {@code beta &lt; -1} or {@code beta &gt; 1}
+     */
+    public StableRandomGenerator(final RandomGenerator generator,
+                                 final double alpha, final double beta)
+<span class="fc" id="L59">        throws NullArgumentException, OutOfRangeException {</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        if (generator == null) {</span>
+<span class="nc" id="L61">            throw new NullArgumentException();</span>
+        }
+
+<span class="fc bfc" id="L64" title="All 4 branches covered.">        if (!(alpha &gt; 0d &amp;&amp; alpha &lt;= 2d)) {</span>
+<span class="fc" id="L65">            throw new OutOfRangeException(LocalizedFormats.OUT_OF_RANGE_LEFT,</span>
+                    alpha, 0, 2);
+        }
+
+<span class="fc bfc" id="L69" title="All 4 branches covered.">        if (!(beta &gt;= -1d &amp;&amp; beta &lt;= 1d)) {</span>
+<span class="fc" id="L70">            throw new OutOfRangeException(LocalizedFormats.OUT_OF_RANGE_SIMPLE,</span>
+                    beta, -1, 1);
+        }
+
+<span class="fc" id="L74">        this.generator = generator;</span>
+<span class="fc" id="L75">        this.alpha = alpha;</span>
+<span class="fc" id="L76">        this.beta = beta;</span>
+<span class="fc bfc" id="L77" title="All 4 branches covered.">        if (alpha &lt; 2d &amp;&amp; beta != 0d) {</span>
+<span class="fc" id="L78">            zeta = beta * FastMath.tan(FastMath.PI * alpha / 2);</span>
+        } else {
+<span class="fc" id="L80">            zeta = 0d;</span>
+        }
+<span class="fc" id="L82">    }</span>
+
+    /**
+     * Generate a random scalar with zero location and unit scale.
+     *
+     * @return a random scalar with zero location and unit scale
+     */
+    public double nextNormalizedDouble() {
+        // we need 2 uniform random numbers to calculate omega and phi
+<span class="fc" id="L91">        double omega = -FastMath.log(generator.nextDouble());</span>
+<span class="fc" id="L92">        double phi = FastMath.PI * (generator.nextDouble() - 0.5);</span>
+
+        // Normal distribution case (Box-Muller algorithm)
+<span class="fc bfc" id="L95" title="All 2 branches covered.">        if (alpha == 2d) {</span>
+<span class="fc" id="L96">            return FastMath.sqrt(2d * omega) * FastMath.sin(phi);</span>
+        }
+
+        double x;
+        // when beta = 0, zeta is zero as well
+        // Thus we can exclude it from the formula
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        if (beta == 0d) {</span>
+            // Cauchy distribution case
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">            if (alpha == 1d) {</span>
+<span class="fc" id="L105">                x = FastMath.tan(phi);</span>
+            } else {
+<span class="nc" id="L107">                x = FastMath.pow(omega * FastMath.cos((1 - alpha) * phi),</span>
+                    1d / alpha - 1d) *
+                    FastMath.sin(alpha * phi) /
+                    FastMath.pow(FastMath.cos(phi), 1d / alpha);
+            }
+        } else {
+            // Generic stable distribution
+<span class="fc" id="L114">            double cosPhi = FastMath.cos(phi);</span>
+            // to avoid rounding errors around alpha = 1
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">            if (FastMath.abs(alpha - 1d) &gt; 1e-8) {</span>
+<span class="fc" id="L117">                double alphaPhi = alpha * phi;</span>
+<span class="fc" id="L118">                double invAlphaPhi = phi - alphaPhi;</span>
+<span class="fc" id="L119">                x = (FastMath.sin(alphaPhi) + zeta * FastMath.cos(alphaPhi)) / cosPhi *</span>
+                    (FastMath.cos(invAlphaPhi) + zeta * FastMath.sin(invAlphaPhi)) /
+                     FastMath.pow(omega * cosPhi, (1 - alpha) / alpha);
+<span class="fc" id="L122">            } else {</span>
+<span class="nc" id="L123">                double betaPhi = FastMath.PI / 2 + beta * phi;</span>
+<span class="nc" id="L124">                x = 2d / FastMath.PI * (betaPhi * FastMath.tan(phi) - beta *</span>
+                    FastMath.log(FastMath.PI / 2d * omega * cosPhi / betaPhi));
+
+<span class="nc bnc" id="L127" title="All 2 branches missed.">                if (alpha != 1d) {</span>
+<span class="nc" id="L128">                    x += beta * FastMath.tan(FastMath.PI * alpha / 2);</span>
+                }
+            }
+        }
+<span class="fc" id="L132">        return x;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

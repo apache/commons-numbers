@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Sphere1D.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.spherical.oned</a> &gt; <span class="el_source">Sphere1D.java</span></div><h1>Sphere1D.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.geometry.spherical.oned;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.MathUnsupportedOperationException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.geometry.Space;
+
+/**
+ * This class implements a one-dimensional sphere (i.e. a circle).
+ * &lt;p&gt;
+ * We use here the topologists definition of the 1-sphere (see
+ * &lt;a href=&quot;http://mathworld.wolfram.com/Sphere.html&quot;&gt;Sphere&lt;/a&gt; on
+ * MathWorld), i.e. the 1-sphere is the one-dimensional closed curve
+ * defined in 2D as x&lt;sup&gt;2&lt;/sup&gt;+y&lt;sup&gt;2&lt;/sup&gt;=1.
+ * &lt;/p&gt;
+ * @since 3.3
+ */
+public class Sphere1D implements Serializable, Space {
+
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 20131218L;
+
+    /** Private constructor for the singleton.
+     */
+<span class="fc" id="L43">    private Sphere1D() {</span>
+<span class="fc" id="L44">    }</span>
+
+    /** Get the unique instance.
+     * @return the unique instance
+     */
+    public static Sphere1D getInstance() {
+<span class="fc" id="L50">        return LazyHolder.INSTANCE;</span>
+    }
+
+    /** {@inheritDoc} */
+    public int getDimension() {
+<span class="fc" id="L55">        return 1;</span>
+    }
+
+    /** {@inheritDoc}
+     * &lt;p&gt;
+     * As the 1-dimension sphere does not have proper sub-spaces,
+     * this method always throws a {@link NoSubSpaceException}
+     * &lt;/p&gt;
+     * @return nothing
+     * @throws NoSubSpaceException in all cases
+     */
+    public Space getSubSpace() throws NoSubSpaceException {
+<span class="fc" id="L67">        throw new NoSubSpaceException();</span>
+    }
+
+    // CHECKSTYLE: stop HideUtilityClassConstructor
+    /** Holder for the instance.
+     * &lt;p&gt;We use here the Initialization On Demand Holder Idiom.&lt;/p&gt;
+     */
+<span class="nc" id="L74">    private static class LazyHolder {</span>
+        /** Cached field instance. */
+<span class="fc" id="L76">        private static final Sphere1D INSTANCE = new Sphere1D();</span>
+    }
+    // CHECKSTYLE: resume HideUtilityClassConstructor
+
+    /** Handle deserialization of the singleton.
+     * @return the singleton instance
+     */
+    private Object readResolve() {
+        // return the singleton instance
+<span class="fc" id="L85">        return LazyHolder.INSTANCE;</span>
+    }
+
+    /** Specialized exception for inexistent sub-space.
+     * &lt;p&gt;
+     * This exception is thrown when attempting to get the sub-space of a one-dimensional space
+     * &lt;/p&gt;
+     */
+    public static class NoSubSpaceException extends MathUnsupportedOperationException {
+
+        /** Serializable UID. */
+        private static final long serialVersionUID = 20140225L;
+
+        /** Simple constructor.
+         */
+        public NoSubSpaceException() {
+<span class="fc" id="L101">            super(LocalizedFormats.NOT_SUPPORTED_IN_DIMENSION_N, 1);</span>
+<span class="fc" id="L102">        }</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

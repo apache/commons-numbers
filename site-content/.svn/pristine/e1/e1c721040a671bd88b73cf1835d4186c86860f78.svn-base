@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BinomialDistribution.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.distribution</a> &gt; <span class="el_source">BinomialDistribution.java</span></div><h1>BinomialDistribution.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.distribution;
+
+import org.apache.commons.math3.exception.NotPositiveException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.Well19937c;
+import org.apache.commons.math3.special.Beta;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * Implementation of the binomial distribution.
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Binomial_distribution&quot;&gt;Binomial distribution (Wikipedia)&lt;/a&gt;
+ * @see &lt;a href=&quot;http://mathworld.wolfram.com/BinomialDistribution.html&quot;&gt;Binomial Distribution (MathWorld)&lt;/a&gt;
+ */
+public class BinomialDistribution extends AbstractIntegerDistribution {
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 6751309484392813623L;
+    /** The number of trials. */
+    private final int numberOfTrials;
+    /** The probability of success. */
+    private final double probabilityOfSuccess;
+
+    /**
+     * Create a binomial distribution with the given number of trials and
+     * probability of success.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; this constructor will implicitly create an instance of
+     * {@link Well19937c} as random generator to be used for sampling only (see
+     * {@link #sample()} and {@link #sample(int)}). In case no sampling is
+     * needed for the created distribution, it is advised to pass {@code null}
+     * as random generator via the appropriate constructors to avoid the
+     * additional initialisation overhead.
+     *
+     * @param trials Number of trials.
+     * @param p Probability of success.
+     * @throws NotPositiveException if {@code trials &lt; 0}.
+     * @throws OutOfRangeException if {@code p &lt; 0} or {@code p &gt; 1}.
+     */
+    public BinomialDistribution(int trials, double p) {
+<span class="fc" id="L58">        this(new Well19937c(), trials, p);</span>
+<span class="fc" id="L59">    }</span>
+
+    /**
+     * Creates a binomial distribution.
+     *
+     * @param rng Random number generator.
+     * @param trials Number of trials.
+     * @param p Probability of success.
+     * @throws NotPositiveException if {@code trials &lt; 0}.
+     * @throws OutOfRangeException if {@code p &lt; 0} or {@code p &gt; 1}.
+     * @since 3.1
+     */
+    public BinomialDistribution(RandomGenerator rng,
+                                int trials,
+                                double p) {
+<span class="fc" id="L74">        super(rng);</span>
+
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">        if (trials &lt; 0) {</span>
+<span class="nc" id="L77">            throw new NotPositiveException(LocalizedFormats.NUMBER_OF_TRIALS,</span>
+                                           trials);
+        }
+<span class="pc bpc" id="L80" title="2 of 4 branches missed.">        if (p &lt; 0 || p &gt; 1) {</span>
+<span class="nc" id="L81">            throw new OutOfRangeException(p, 0, 1);</span>
+        }
+
+<span class="fc" id="L84">        probabilityOfSuccess = p;</span>
+<span class="fc" id="L85">        numberOfTrials = trials;</span>
+<span class="fc" id="L86">    }</span>
+
+    /**
+     * Access the number of trials for this distribution.
+     *
+     * @return the number of trials.
+     */
+    public int getNumberOfTrials() {
+<span class="fc" id="L94">        return numberOfTrials;</span>
+    }
+
+    /**
+     * Access the probability of success for this distribution.
+     *
+     * @return the probability of success.
+     */
+    public double getProbabilityOfSuccess() {
+<span class="fc" id="L103">        return probabilityOfSuccess;</span>
+    }
+
+    /** {@inheritDoc} */
+    public double probability(int x) {
+<span class="fc" id="L108">        final double logProbability = logProbability(x);</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        return logProbability == Double.NEGATIVE_INFINITY ? 0 : FastMath.exp(logProbability);</span>
+    }
+
+    /** {@inheritDoc} **/
+    @Override
+    public double logProbability(int x) {
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (numberOfTrials == 0) {</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">            return (x == 0) ? 0. : Double.NEGATIVE_INFINITY;</span>
+        }
+        double ret;
+<span class="fc bfc" id="L119" title="All 4 branches covered.">        if (x &lt; 0 || x &gt; numberOfTrials) {</span>
+<span class="fc" id="L120">            ret = Double.NEGATIVE_INFINITY;</span>
+        } else {
+<span class="fc" id="L122">            ret = SaddlePointExpansion.logBinomialProbability(x,</span>
+                    numberOfTrials, probabilityOfSuccess,
+                    1.0 - probabilityOfSuccess);
+        }
+<span class="fc" id="L126">        return ret;</span>
+    }
+
+    /** {@inheritDoc} */
+    public double cumulativeProbability(int x) {
+        double ret;
+<span class="fc bfc" id="L132" title="All 2 branches covered.">        if (x &lt; 0) {</span>
+<span class="fc" id="L133">            ret = 0.0;</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        } else if (x &gt;= numberOfTrials) {</span>
+<span class="fc" id="L135">            ret = 1.0;</span>
+        } else {
+<span class="fc" id="L137">            ret = 1.0 - Beta.regularizedBeta(probabilityOfSuccess,</span>
+                    x + 1.0, numberOfTrials - x);
+        }
+<span class="fc" id="L140">        return ret;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For {@code n} trials and probability parameter {@code p}, the mean is
+     * {@code n * p}.
+     */
+    public double getNumericalMean() {
+<span class="fc" id="L150">        return numberOfTrials * probabilityOfSuccess;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For {@code n} trials and probability parameter {@code p}, the variance is
+     * {@code n * p * (1 - p)}.
+     */
+    public double getNumericalVariance() {
+<span class="fc" id="L160">        final double p = probabilityOfSuccess;</span>
+<span class="fc" id="L161">        return numberOfTrials * p * (1 - p);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The lower bound of the support is always 0 except for the probability
+     * parameter {@code p = 1}.
+     *
+     * @return lower bound of the support (0 or the number of trials)
+     */
+    public int getSupportLowerBound() {
+<span class="fc bfc" id="L173" title="All 2 branches covered.">        return probabilityOfSuccess &lt; 1.0 ? 0 : numberOfTrials;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The upper bound of the support is the number of trials except for the
+     * probability parameter {@code p = 0}.
+     *
+     * @return upper bound of the support (number of trials or 0)
+     */
+    public int getSupportUpperBound() {
+<span class="fc bfc" id="L185" title="All 2 branches covered.">        return probabilityOfSuccess &gt; 0.0 ? numberOfTrials : 0;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The support of this distribution is connected.
+     *
+     * @return {@code true}
+     */
+    public boolean isSupportConnected() {
+<span class="nc" id="L196">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BracketingNthOrderBrentSolverDFP.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.dfp</a> &gt; <span class="el_source">BracketingNthOrderBrentSolverDFP.java</span></div><h1>BracketingNthOrderBrentSolverDFP.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.dfp;
+
+
+import org.apache.commons.math3.analysis.RealFieldUnivariateFunction;
+import org.apache.commons.math3.analysis.solvers.AllowedSolution;
+import org.apache.commons.math3.analysis.solvers.FieldBracketingNthOrderBrentSolver;
+import org.apache.commons.math3.exception.NoBracketingException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * This class implements a modification of the &lt;a
+ * href=&quot;http://mathworld.wolfram.com/BrentsMethod.html&quot;&gt; Brent algorithm&lt;/a&gt;.
+ * &lt;p&gt;
+ * The changes with respect to the original Brent algorithm are:
+ * &lt;ul&gt;
+ *   &lt;li&gt;the returned value is chosen in the current interval according
+ *   to user specified {@link AllowedSolution},&lt;/li&gt;
+ *   &lt;li&gt;the maximal order for the invert polynomial root search is
+ *   user-specified instead of being invert quadratic only&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;/p&gt;
+ * The given interval must bracket the root.
+ * @deprecated as of 3.6 replaced with {@link FieldBracketingNthOrderBrentSolver}
+ */
+@Deprecated
+public class BracketingNthOrderBrentSolverDFP extends FieldBracketingNthOrderBrentSolver&lt;Dfp&gt; {
+
+    /**
+     * Construct a solver.
+     *
+     * @param relativeAccuracy Relative accuracy.
+     * @param absoluteAccuracy Absolute accuracy.
+     * @param functionValueAccuracy Function value accuracy.
+     * @param maximalOrder maximal order.
+     * @exception NumberIsTooSmallException if maximal order is lower than 2
+     */
+    public BracketingNthOrderBrentSolverDFP(final Dfp relativeAccuracy,
+                                            final Dfp absoluteAccuracy,
+                                            final Dfp functionValueAccuracy,
+                                            final int maximalOrder)
+        throws NumberIsTooSmallException {
+<span class="fc" id="L60">        super(relativeAccuracy, absoluteAccuracy, functionValueAccuracy, maximalOrder);</span>
+<span class="fc" id="L61">    }</span>
+
+    /**
+     * Get the absolute accuracy.
+     * @return absolute accuracy
+     */
+    @Override
+    public Dfp getAbsoluteAccuracy() {
+<span class="fc" id="L69">        return super.getAbsoluteAccuracy();</span>
+    }
+
+    /**
+     * Get the relative accuracy.
+     * @return relative accuracy
+     */
+    @Override
+    public Dfp getRelativeAccuracy() {
+<span class="nc" id="L78">        return super.getRelativeAccuracy();</span>
+    }
+
+    /**
+     * Get the function accuracy.
+     * @return function accuracy
+     */
+    @Override
+    public Dfp getFunctionValueAccuracy() {
+<span class="fc" id="L87">        return super.getFunctionValueAccuracy();</span>
+    }
+
+    /**
+     * Solve for a zero in the given interval.
+     * A solver may require that the interval brackets a single zero root.
+     * Solvers that do require bracketing should be able to handle the case
+     * where one of the endpoints is itself a root.
+     *
+     * @param maxEval Maximum number of evaluations.
+     * @param f Function to solve.
+     * @param min Lower bound for the interval.
+     * @param max Upper bound for the interval.
+     * @param allowedSolution The kind of solutions that the root-finding algorithm may
+     * accept as solutions.
+     * @return a value where the function is zero.
+     * @exception NullArgumentException if f is null.
+     * @exception NoBracketingException if root cannot be bracketed
+     */
+    public Dfp solve(final int maxEval, final UnivariateDfpFunction f,
+                     final Dfp min, final Dfp max, final AllowedSolution allowedSolution)
+        throws NullArgumentException, NoBracketingException {
+<span class="fc" id="L109">        return solve(maxEval, f, min, max, min.add(max).divide(2), allowedSolution);</span>
+    }
+
+    /**
+     * Solve for a zero in the given interval, start at {@code startValue}.
+     * A solver may require that the interval brackets a single zero root.
+     * Solvers that do require bracketing should be able to handle the case
+     * where one of the endpoints is itself a root.
+     *
+     * @param maxEval Maximum number of evaluations.
+     * @param f Function to solve.
+     * @param min Lower bound for the interval.
+     * @param max Upper bound for the interval.
+     * @param startValue Start value to use.
+     * @param allowedSolution The kind of solutions that the root-finding algorithm may
+     * accept as solutions.
+     * @return a value where the function is zero.
+     * @exception NullArgumentException if f is null.
+     * @exception NoBracketingException if root cannot be bracketed
+     */
+    public Dfp solve(final int maxEval, final UnivariateDfpFunction f,
+                     final Dfp min, final Dfp max, final Dfp startValue,
+                     final AllowedSolution allowedSolution)
+        throws NullArgumentException, NoBracketingException {
+
+        // checks
+<span class="fc" id="L135">        MathUtils.checkNotNull(f);</span>
+
+        // wrap the function
+<span class="fc" id="L138">        RealFieldUnivariateFunction&lt;Dfp&gt; fieldF = new RealFieldUnivariateFunction&lt;Dfp&gt;() {</span>
+
+            /** {@inheritDoc} */
+            public Dfp value(final Dfp x) {
+<span class="fc" id="L142">                return f.value(x);</span>
+            }
+        };
+
+        // delegate to general field solver
+<span class="fc" id="L147">        return solve(maxEval, fieldF, min, max, startValue, allowedSolution);</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

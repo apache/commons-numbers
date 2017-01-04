@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AdamsIntegrator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.nonstiff</a> &gt; <span class="el_source">AdamsIntegrator.java</span></div><h1>AdamsIntegrator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.nonstiff;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.exception.NoBracketingException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.ode.ExpandableStatefulODE;
+import org.apache.commons.math3.ode.MultistepIntegrator;
+
+
+/** Base class for {@link AdamsBashforthIntegrator Adams-Bashforth} and
+ * {@link AdamsMoultonIntegrator Adams-Moulton} integrators.
+ * @since 2.0
+ */
+public abstract class AdamsIntegrator extends MultistepIntegrator {
+
+    /** Transformer. */
+    private final AdamsNordsieckTransformer transformer;
+
+    /**
+     * Build an Adams integrator with the given order and step control parameters.
+     * @param name name of the method
+     * @param nSteps number of steps of the method excluding the one being computed
+     * @param order order of the method
+     * @param minStep minimal step (sign is irrelevant, regardless of
+     * integration direction, forward or backward), the last step can
+     * be smaller than this
+     * @param maxStep maximal step (sign is irrelevant, regardless of
+     * integration direction, forward or backward), the last step can
+     * be smaller than this
+     * @param scalAbsoluteTolerance allowed absolute error
+     * @param scalRelativeTolerance allowed relative error
+     * @exception NumberIsTooSmallException if order is 1 or less
+     */
+    public AdamsIntegrator(final String name, final int nSteps, final int order,
+                           final double minStep, final double maxStep,
+                           final double scalAbsoluteTolerance,
+                           final double scalRelativeTolerance)
+        throws NumberIsTooSmallException {
+<span class="fc" id="L58">        super(name, nSteps, order, minStep, maxStep,</span>
+              scalAbsoluteTolerance, scalRelativeTolerance);
+<span class="fc" id="L60">        transformer = AdamsNordsieckTransformer.getInstance(nSteps);</span>
+<span class="fc" id="L61">    }</span>
+
+    /**
+     * Build an Adams integrator with the given order and step control parameters.
+     * @param name name of the method
+     * @param nSteps number of steps of the method excluding the one being computed
+     * @param order order of the method
+     * @param minStep minimal step (sign is irrelevant, regardless of
+     * integration direction, forward or backward), the last step can
+     * be smaller than this
+     * @param maxStep maximal step (sign is irrelevant, regardless of
+     * integration direction, forward or backward), the last step can
+     * be smaller than this
+     * @param vecAbsoluteTolerance allowed absolute error
+     * @param vecRelativeTolerance allowed relative error
+     * @exception IllegalArgumentException if order is 1 or less
+     */
+    public AdamsIntegrator(final String name, final int nSteps, final int order,
+                           final double minStep, final double maxStep,
+                           final double[] vecAbsoluteTolerance,
+                           final double[] vecRelativeTolerance)
+        throws IllegalArgumentException {
+<span class="fc" id="L83">        super(name, nSteps, order, minStep, maxStep,</span>
+              vecAbsoluteTolerance, vecRelativeTolerance);
+<span class="fc" id="L85">        transformer = AdamsNordsieckTransformer.getInstance(nSteps);</span>
+<span class="fc" id="L86">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public abstract void integrate(final ExpandableStatefulODE equations, final double t)
+        throws NumberIsTooSmallException, DimensionMismatchException,
+               MaxCountExceededException, NoBracketingException;
+
+    /** {@inheritDoc} */
+    @Override
+    protected Array2DRowRealMatrix initializeHighOrderDerivatives(final double h, final double[] t,
+                                                                  final double[][] y,
+                                                                  final double[][] yDot) {
+<span class="fc" id="L99">        return transformer.initializeHighOrderDerivatives(h, t, y, yDot);</span>
+    }
+
+    /** Update the high order scaled derivatives for Adams integrators (phase 1).
+     * &lt;p&gt;The complete update of high order derivatives has a form similar to:
+     * &lt;pre&gt;
+     * r&lt;sub&gt;n+1&lt;/sub&gt; = (s&lt;sub&gt;1&lt;/sub&gt;(n) - s&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u + P&lt;sup&gt;-1&lt;/sup&gt; A P r&lt;sub&gt;n&lt;/sub&gt;
+     * &lt;/pre&gt;
+     * this method computes the P&lt;sup&gt;-1&lt;/sup&gt; A P r&lt;sub&gt;n&lt;/sub&gt; part.&lt;/p&gt;
+     * @param highOrder high order scaled derivatives
+     * (h&lt;sup&gt;2&lt;/sup&gt;/2 y'', ... h&lt;sup&gt;k&lt;/sup&gt;/k! y(k))
+     * @return updated high order derivatives
+     * @see #updateHighOrderDerivativesPhase2(double[], double[], Array2DRowRealMatrix)
+     */
+    public Array2DRowRealMatrix updateHighOrderDerivativesPhase1(final Array2DRowRealMatrix highOrder) {
+<span class="fc" id="L114">        return transformer.updateHighOrderDerivativesPhase1(highOrder);</span>
+    }
+
+    /** Update the high order scaled derivatives Adams integrators (phase 2).
+     * &lt;p&gt;The complete update of high order derivatives has a form similar to:
+     * &lt;pre&gt;
+     * r&lt;sub&gt;n+1&lt;/sub&gt; = (s&lt;sub&gt;1&lt;/sub&gt;(n) - s&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u + P&lt;sup&gt;-1&lt;/sup&gt; A P r&lt;sub&gt;n&lt;/sub&gt;
+     * &lt;/pre&gt;
+     * this method computes the (s&lt;sub&gt;1&lt;/sub&gt;(n) - s&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u part.&lt;/p&gt;
+     * &lt;p&gt;Phase 1 of the update must already have been performed.&lt;/p&gt;
+     * @param start first order scaled derivatives at step start
+     * @param end first order scaled derivatives at step end
+     * @param highOrder high order scaled derivatives, will be modified
+     * (h&lt;sup&gt;2&lt;/sup&gt;/2 y'', ... h&lt;sup&gt;k&lt;/sup&gt;/k! y(k))
+     * @see #updateHighOrderDerivativesPhase1(Array2DRowRealMatrix)
+     */
+    public void updateHighOrderDerivativesPhase2(final double[] start,
+                                                 final double[] end,
+                                                 final Array2DRowRealMatrix highOrder) {
+<span class="fc" id="L133">        transformer.updateHighOrderDerivativesPhase2(start, end, highOrder);</span>
+<span class="fc" id="L134">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RungeKuttaStepInterpolator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.nonstiff</a> &gt; <span class="el_source">RungeKuttaStepInterpolator.java</span></div><h1>RungeKuttaStepInterpolator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.nonstiff;
+
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
+import org.apache.commons.math3.ode.AbstractIntegrator;
+import org.apache.commons.math3.ode.EquationsMapper;
+import org.apache.commons.math3.ode.sampling.AbstractStepInterpolator;
+
+/** This class represents an interpolator over the last step during an
+ * ODE integration for Runge-Kutta and embedded Runge-Kutta integrators.
+ *
+ * @see RungeKuttaIntegrator
+ * @see EmbeddedRungeKuttaIntegrator
+ *
+ * @since 1.2
+ */
+
+abstract class RungeKuttaStepInterpolator
+  extends AbstractStepInterpolator {
+
+    /** Previous state. */
+    protected double[] previousState;
+
+    /** Slopes at the intermediate points */
+    protected double[][] yDotK;
+
+    /** Reference to the integrator. */
+    protected AbstractIntegrator integrator;
+
+  /** Simple constructor.
+   * This constructor builds an instance that is not usable yet, the
+   * {@link #reinitialize} method should be called before using the
+   * instance in order to initialize the internal arrays. This
+   * constructor is used only in order to delay the initialization in
+   * some cases. The {@link RungeKuttaIntegrator} and {@link
+   * EmbeddedRungeKuttaIntegrator} classes use the prototyping design
+   * pattern to create the step interpolators by cloning an
+   * uninitialized model and latter initializing the copy.
+   */
+<span class="fc" id="L59">  protected RungeKuttaStepInterpolator() {</span>
+<span class="fc" id="L60">    previousState = null;</span>
+<span class="fc" id="L61">    yDotK         = null;</span>
+<span class="fc" id="L62">    integrator    = null;</span>
+<span class="fc" id="L63">  }</span>
+
+  /** Copy constructor.
+
+  * &lt;p&gt;The copied interpolator should have been finalized before the
+  * copy, otherwise the copy will not be able to perform correctly any
+  * interpolation and will throw a {@link NullPointerException}
+  * later. Since we don't want this constructor to throw the
+  * exceptions finalization may involve and since we don't want this
+  * method to modify the state of the copied interpolator,
+  * finalization is &lt;strong&gt;not&lt;/strong&gt; done automatically, it
+  * remains under user control.&lt;/p&gt;
+
+  * &lt;p&gt;The copy is a deep copy: its arrays are separated from the
+  * original arrays of the instance.&lt;/p&gt;
+
+  * @param interpolator interpolator to copy from.
+
+  */
+  RungeKuttaStepInterpolator(final RungeKuttaStepInterpolator interpolator) {
+
+<span class="fc" id="L84">    super(interpolator);</span>
+
+<span class="fc bfc" id="L86" title="All 2 branches covered.">    if (interpolator.currentState != null) {</span>
+
+<span class="fc" id="L88">      previousState = interpolator.previousState.clone();</span>
+
+<span class="fc" id="L90">      yDotK = new double[interpolator.yDotK.length][];</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">      for (int k = 0; k &lt; interpolator.yDotK.length; ++k) {</span>
+<span class="fc" id="L92">        yDotK[k] = interpolator.yDotK[k].clone();</span>
+      }
+
+    } else {
+<span class="fc" id="L96">      previousState = null;</span>
+<span class="fc" id="L97">      yDotK = null;</span>
+    }
+
+    // we cannot keep any reference to the equations in the copy
+    // the interpolator should have been finalized before
+<span class="fc" id="L102">    integrator = null;</span>
+
+<span class="fc" id="L104">  }</span>
+
+  /** Reinitialize the instance
+   * &lt;p&gt;Some Runge-Kutta integrators need fewer functions evaluations
+   * than their counterpart step interpolators. So the interpolator
+   * should perform the last evaluations they need by themselves. The
+   * {@link RungeKuttaIntegrator RungeKuttaIntegrator} and {@link
+   * EmbeddedRungeKuttaIntegrator EmbeddedRungeKuttaIntegrator}
+   * abstract classes call this method in order to let the step
+   * interpolator perform the evaluations it needs. These evaluations
+   * will be performed during the call to &lt;code&gt;doFinalize&lt;/code&gt; if
+   * any, i.e. only if the step handler either calls the {@link
+   * AbstractStepInterpolator#finalizeStep finalizeStep} method or the
+   * {@link AbstractStepInterpolator#getInterpolatedState
+   * getInterpolatedState} method (for an interpolator which needs a
+   * finalization) or if it clones the step interpolator.&lt;/p&gt;
+   * @param rkIntegrator integrator being used
+   * @param y reference to the integrator array holding the state at
+   * the end of the step
+   * @param yDotArray reference to the integrator array holding all the
+   * intermediate slopes
+   * @param forward integration direction indicator
+   * @param primaryMapper equations mapper for the primary equations set
+   * @param secondaryMappers equations mappers for the secondary equations sets
+   */
+  public void reinitialize(final AbstractIntegrator rkIntegrator,
+                           final double[] y, final double[][] yDotArray, final boolean forward,
+                           final EquationsMapper primaryMapper,
+                           final EquationsMapper[] secondaryMappers) {
+<span class="fc" id="L133">    reinitialize(y, forward, primaryMapper, secondaryMappers);</span>
+<span class="fc" id="L134">    this.previousState = null;</span>
+<span class="fc" id="L135">    this.yDotK = yDotArray;</span>
+<span class="fc" id="L136">    this.integrator = rkIntegrator;</span>
+<span class="fc" id="L137">  }</span>
+
+  /** {@inheritDoc} */
+  @Override
+  public void shift() {
+<span class="fc" id="L142">    previousState = currentState.clone();</span>
+<span class="fc" id="L143">    super.shift();</span>
+<span class="fc" id="L144">  }</span>
+
+  /** {@inheritDoc} */
+  @Override
+  public void writeExternal(final ObjectOutput out)
+    throws IOException {
+
+    // save the state of the base class
+<span class="fc" id="L152">    writeBaseExternal(out);</span>
+
+    // save the local attributes
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">    final int n = (currentState == null) ? -1 : currentState.length;</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">    for (int i = 0; i &lt; n; ++i) {</span>
+<span class="fc" id="L157">      out.writeDouble(previousState[i]);</span>
+    }
+
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">    final int kMax = (yDotK == null) ? -1 : yDotK.length;</span>
+<span class="fc" id="L161">    out.writeInt(kMax);</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">    for (int k = 0; k &lt; kMax; ++k) {</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">      for (int i = 0; i &lt; n; ++i) {</span>
+<span class="fc" id="L164">        out.writeDouble(yDotK[k][i]);</span>
+      }
+    }
+
+    // we do not save any reference to the equations
+
+<span class="fc" id="L170">  }</span>
+
+  /** {@inheritDoc} */
+  @Override
+  public void readExternal(final ObjectInput in)
+    throws IOException, ClassNotFoundException {
+
+    // read the base class
+<span class="fc" id="L178">    final double t = readBaseExternal(in);</span>
+
+    // read the local attributes
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">    final int n = (currentState == null) ? -1 : currentState.length;</span>
+<span class="pc bpc" id="L182" title="1 of 2 branches missed.">    if (n &lt; 0) {</span>
+<span class="nc" id="L183">      previousState = null;</span>
+    } else {
+<span class="fc" id="L185">      previousState = new double[n];</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">      for (int i = 0; i &lt; n; ++i) {</span>
+<span class="fc" id="L187">        previousState[i] = in.readDouble();</span>
+      }
+    }
+
+<span class="fc" id="L191">    final int kMax = in.readInt();</span>
+<span class="pc bpc" id="L192" title="1 of 2 branches missed.">    yDotK = (kMax &lt; 0) ? null : new double[kMax][];</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">    for (int k = 0; k &lt; kMax; ++k) {</span>
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">      yDotK[k] = (n &lt; 0) ? null : new double[n];</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">      for (int i = 0; i &lt; n; ++i) {</span>
+<span class="fc" id="L196">        yDotK[k][i] = in.readDouble();</span>
+      }
+    }
+
+<span class="fc" id="L200">    integrator = null;</span>
+
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">    if (currentState != null) {</span>
+        // we can now set the interpolated time and state
+<span class="fc" id="L204">        setInterpolatedTime(t);</span>
+    } else {
+<span class="nc" id="L206">        interpolatedTime = t;</span>
+    }
+
+<span class="fc" id="L209">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

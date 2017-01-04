@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AdamsNordsieckTransformer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.nonstiff</a> &gt; <span class="el_source">AdamsNordsieckTransformer.java</span></div><h1>AdamsNordsieckTransformer.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.nonstiff;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.math3.fraction.BigFraction;
+import org.apache.commons.math3.linear.Array2DRowFieldMatrix;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.ArrayFieldVector;
+import org.apache.commons.math3.linear.FieldDecompositionSolver;
+import org.apache.commons.math3.linear.FieldLUDecomposition;
+import org.apache.commons.math3.linear.FieldMatrix;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.QRDecomposition;
+import org.apache.commons.math3.linear.RealMatrix;
+
+/** Transformer to Nordsieck vectors for Adams integrators.
+ * &lt;p&gt;This class is used by {@link AdamsBashforthIntegrator Adams-Bashforth} and
+ * {@link AdamsMoultonIntegrator Adams-Moulton} integrators to convert between
+ * classical representation with several previous first derivatives and Nordsieck
+ * representation with higher order scaled derivatives.&lt;/p&gt;
+ *
+ * &lt;p&gt;We define scaled derivatives s&lt;sub&gt;i&lt;/sub&gt;(n) at step n as:
+ * &lt;pre&gt;
+ * s&lt;sub&gt;1&lt;/sub&gt;(n) = h y'&lt;sub&gt;n&lt;/sub&gt; for first derivative
+ * s&lt;sub&gt;2&lt;/sub&gt;(n) = h&lt;sup&gt;2&lt;/sup&gt;/2 y''&lt;sub&gt;n&lt;/sub&gt; for second derivative
+ * s&lt;sub&gt;3&lt;/sub&gt;(n) = h&lt;sup&gt;3&lt;/sup&gt;/6 y'''&lt;sub&gt;n&lt;/sub&gt; for third derivative
+ * ...
+ * s&lt;sub&gt;k&lt;/sub&gt;(n) = h&lt;sup&gt;k&lt;/sup&gt;/k! y&lt;sup&gt;(k)&lt;/sup&gt;&lt;sub&gt;n&lt;/sub&gt; for k&lt;sup&gt;th&lt;/sup&gt; derivative
+ * &lt;/pre&gt;&lt;/p&gt;
+ *
+ * &lt;p&gt;With the previous definition, the classical representation of multistep methods
+ * uses first derivatives only, i.e. it handles y&lt;sub&gt;n&lt;/sub&gt;, s&lt;sub&gt;1&lt;/sub&gt;(n) and
+ * q&lt;sub&gt;n&lt;/sub&gt; where q&lt;sub&gt;n&lt;/sub&gt; is defined as:
+ * &lt;pre&gt;
+ *   q&lt;sub&gt;n&lt;/sub&gt; = [ s&lt;sub&gt;1&lt;/sub&gt;(n-1) s&lt;sub&gt;1&lt;/sub&gt;(n-2) ... s&lt;sub&gt;1&lt;/sub&gt;(n-(k-1)) ]&lt;sup&gt;T&lt;/sup&gt;
+ * &lt;/pre&gt;
+ * (we omit the k index in the notation for clarity).&lt;/p&gt;
+ *
+ * &lt;p&gt;Another possible representation uses the Nordsieck vector with
+ * higher degrees scaled derivatives all taken at the same step, i.e it handles y&lt;sub&gt;n&lt;/sub&gt;,
+ * s&lt;sub&gt;1&lt;/sub&gt;(n) and r&lt;sub&gt;n&lt;/sub&gt;) where r&lt;sub&gt;n&lt;/sub&gt; is defined as:
+ * &lt;pre&gt;
+ * r&lt;sub&gt;n&lt;/sub&gt; = [ s&lt;sub&gt;2&lt;/sub&gt;(n), s&lt;sub&gt;3&lt;/sub&gt;(n) ... s&lt;sub&gt;k&lt;/sub&gt;(n) ]&lt;sup&gt;T&lt;/sup&gt;
+ * &lt;/pre&gt;
+ * (here again we omit the k index in the notation for clarity)
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;Taylor series formulas show that for any index offset i, s&lt;sub&gt;1&lt;/sub&gt;(n-i) can be
+ * computed from s&lt;sub&gt;1&lt;/sub&gt;(n), s&lt;sub&gt;2&lt;/sub&gt;(n) ... s&lt;sub&gt;k&lt;/sub&gt;(n), the formula being exact
+ * for degree k polynomials.
+ * &lt;pre&gt;
+ * s&lt;sub&gt;1&lt;/sub&gt;(n-i) = s&lt;sub&gt;1&lt;/sub&gt;(n) + &amp;sum;&lt;sub&gt;j&amp;gt;0&lt;/sub&gt; (j+1) (-i)&lt;sup&gt;j&lt;/sup&gt; s&lt;sub&gt;j+1&lt;/sub&gt;(n)
+ * &lt;/pre&gt;
+ * The previous formula can be used with several values for i to compute the transform between
+ * classical representation and Nordsieck vector at step end. The transform between r&lt;sub&gt;n&lt;/sub&gt;
+ * and q&lt;sub&gt;n&lt;/sub&gt; resulting from the Taylor series formulas above is:
+ * &lt;pre&gt;
+ * q&lt;sub&gt;n&lt;/sub&gt; = s&lt;sub&gt;1&lt;/sub&gt;(n) u + P r&lt;sub&gt;n&lt;/sub&gt;
+ * &lt;/pre&gt;
+ * where u is the [ 1 1 ... 1 ]&lt;sup&gt;T&lt;/sup&gt; vector and P is the (k-1)&amp;times;(k-1) matrix built
+ * with the (j+1) (-i)&lt;sup&gt;j&lt;/sup&gt; terms with i being the row number starting from 1 and j being
+ * the column number starting from 1:
+ * &lt;pre&gt;
+ *        [  -2   3   -4    5  ... ]
+ *        [  -4  12  -32   80  ... ]
+ *   P =  [  -6  27 -108  405  ... ]
+ *        [  -8  48 -256 1280  ... ]
+ *        [          ...           ]
+ * &lt;/pre&gt;&lt;/p&gt;
+ *
+ * &lt;p&gt;Changing -i into +i in the formula above can be used to compute a similar transform between
+ * classical representation and Nordsieck vector at step start. The resulting matrix is simply
+ * the absolute value of matrix P.&lt;/p&gt;
+ *
+ * &lt;p&gt;For {@link AdamsBashforthIntegrator Adams-Bashforth} method, the Nordsieck vector
+ * at step n+1 is computed from the Nordsieck vector at step n as follows:
+ * &lt;ul&gt;
+ *   &lt;li&gt;y&lt;sub&gt;n+1&lt;/sub&gt; = y&lt;sub&gt;n&lt;/sub&gt; + s&lt;sub&gt;1&lt;/sub&gt;(n) + u&lt;sup&gt;T&lt;/sup&gt; r&lt;sub&gt;n&lt;/sub&gt;&lt;/li&gt;
+ *   &lt;li&gt;s&lt;sub&gt;1&lt;/sub&gt;(n+1) = h f(t&lt;sub&gt;n+1&lt;/sub&gt;, y&lt;sub&gt;n+1&lt;/sub&gt;)&lt;/li&gt;
+ *   &lt;li&gt;r&lt;sub&gt;n+1&lt;/sub&gt; = (s&lt;sub&gt;1&lt;/sub&gt;(n) - s&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u + P&lt;sup&gt;-1&lt;/sup&gt; A P r&lt;sub&gt;n&lt;/sub&gt;&lt;/li&gt;
+ * &lt;/ul&gt;
+ * where A is a rows shifting matrix (the lower left part is an identity matrix):
+ * &lt;pre&gt;
+ *        [ 0 0   ...  0 0 | 0 ]
+ *        [ ---------------+---]
+ *        [ 1 0   ...  0 0 | 0 ]
+ *    A = [ 0 1   ...  0 0 | 0 ]
+ *        [       ...      | 0 ]
+ *        [ 0 0   ...  1 0 | 0 ]
+ *        [ 0 0   ...  0 1 | 0 ]
+ * &lt;/pre&gt;&lt;/p&gt;
+ *
+ * &lt;p&gt;For {@link AdamsMoultonIntegrator Adams-Moulton} method, the predicted Nordsieck vector
+ * at step n+1 is computed from the Nordsieck vector at step n as follows:
+ * &lt;ul&gt;
+ *   &lt;li&gt;Y&lt;sub&gt;n+1&lt;/sub&gt; = y&lt;sub&gt;n&lt;/sub&gt; + s&lt;sub&gt;1&lt;/sub&gt;(n) + u&lt;sup&gt;T&lt;/sup&gt; r&lt;sub&gt;n&lt;/sub&gt;&lt;/li&gt;
+ *   &lt;li&gt;S&lt;sub&gt;1&lt;/sub&gt;(n+1) = h f(t&lt;sub&gt;n+1&lt;/sub&gt;, Y&lt;sub&gt;n+1&lt;/sub&gt;)&lt;/li&gt;
+ *   &lt;li&gt;R&lt;sub&gt;n+1&lt;/sub&gt; = (s&lt;sub&gt;1&lt;/sub&gt;(n) - s&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u + P&lt;sup&gt;-1&lt;/sup&gt; A P r&lt;sub&gt;n&lt;/sub&gt;&lt;/li&gt;
+ * &lt;/ul&gt;
+ * From this predicted vector, the corrected vector is computed as follows:
+ * &lt;ul&gt;
+ *   &lt;li&gt;y&lt;sub&gt;n+1&lt;/sub&gt; = y&lt;sub&gt;n&lt;/sub&gt; + S&lt;sub&gt;1&lt;/sub&gt;(n+1) + [ -1 +1 -1 +1 ... &amp;plusmn;1 ] r&lt;sub&gt;n+1&lt;/sub&gt;&lt;/li&gt;
+ *   &lt;li&gt;s&lt;sub&gt;1&lt;/sub&gt;(n+1) = h f(t&lt;sub&gt;n+1&lt;/sub&gt;, y&lt;sub&gt;n+1&lt;/sub&gt;)&lt;/li&gt;
+ *   &lt;li&gt;r&lt;sub&gt;n+1&lt;/sub&gt; = R&lt;sub&gt;n+1&lt;/sub&gt; + (s&lt;sub&gt;1&lt;/sub&gt;(n+1) - S&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u&lt;/li&gt;
+ * &lt;/ul&gt;
+ * where the upper case Y&lt;sub&gt;n+1&lt;/sub&gt;, S&lt;sub&gt;1&lt;/sub&gt;(n+1) and R&lt;sub&gt;n+1&lt;/sub&gt; represent the
+ * predicted states whereas the lower case y&lt;sub&gt;n+1&lt;/sub&gt;, s&lt;sub&gt;n+1&lt;/sub&gt; and r&lt;sub&gt;n+1&lt;/sub&gt;
+ * represent the corrected states.&lt;/p&gt;
+ *
+ * &lt;p&gt;We observe that both methods use similar update formulas. In both cases a P&lt;sup&gt;-1&lt;/sup&gt;u
+ * vector and a P&lt;sup&gt;-1&lt;/sup&gt; A P matrix are used that do not depend on the state,
+ * they only depend on k. This class handles these transformations.&lt;/p&gt;
+ *
+ * @since 2.0
+ */
+public class AdamsNordsieckTransformer {
+
+    /** Cache for already computed coefficients. */
+<span class="fc" id="L138">    private static final Map&lt;Integer, AdamsNordsieckTransformer&gt; CACHE =</span>
+        new HashMap&lt;Integer, AdamsNordsieckTransformer&gt;();
+
+    /** Update matrix for the higher order derivatives h&lt;sup&gt;2&lt;/sup&gt;/2 y'', h&lt;sup&gt;3&lt;/sup&gt;/6 y''' ... */
+    private final Array2DRowRealMatrix update;
+
+    /** Update coefficients of the higher order derivatives wrt y'. */
+    private final double[] c1;
+
+    /** Simple constructor.
+     * @param n number of steps of the multistep method
+     * (excluding the one being computed)
+     */
+<span class="fc" id="L151">    private AdamsNordsieckTransformer(final int n) {</span>
+
+<span class="fc" id="L153">        final int rows = n - 1;</span>
+
+        // compute exact coefficients
+<span class="fc" id="L156">        FieldMatrix&lt;BigFraction&gt; bigP = buildP(rows);</span>
+<span class="fc" id="L157">        FieldDecompositionSolver&lt;BigFraction&gt; pSolver =</span>
+            new FieldLUDecomposition&lt;BigFraction&gt;(bigP).getSolver();
+
+<span class="fc" id="L160">        BigFraction[] u = new BigFraction[rows];</span>
+<span class="fc" id="L161">        Arrays.fill(u, BigFraction.ONE);</span>
+<span class="fc" id="L162">        BigFraction[] bigC1 = pSolver.solve(new ArrayFieldVector&lt;BigFraction&gt;(u, false)).toArray();</span>
+
+        // update coefficients are computed by combining transform from
+        // Nordsieck to multistep, then shifting rows to represent step advance
+        // then applying inverse transform
+<span class="fc" id="L167">        BigFraction[][] shiftedP = bigP.getData();</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">        for (int i = shiftedP.length - 1; i &gt; 0; --i) {</span>
+            // shift rows
+<span class="fc" id="L170">            shiftedP[i] = shiftedP[i - 1];</span>
+        }
+<span class="fc" id="L172">        shiftedP[0] = new BigFraction[rows];</span>
+<span class="fc" id="L173">        Arrays.fill(shiftedP[0], BigFraction.ZERO);</span>
+<span class="fc" id="L174">        FieldMatrix&lt;BigFraction&gt; bigMSupdate =</span>
+            pSolver.solve(new Array2DRowFieldMatrix&lt;BigFraction&gt;(shiftedP, false));
+
+        // convert coefficients to double
+<span class="fc" id="L178">        update         = MatrixUtils.bigFractionMatrixToRealMatrix(bigMSupdate);</span>
+<span class="fc" id="L179">        c1             = new double[rows];</span>
+<span class="fc bfc" id="L180" title="All 2 branches covered.">        for (int i = 0; i &lt; rows; ++i) {</span>
+<span class="fc" id="L181">            c1[i] = bigC1[i].doubleValue();</span>
+        }
+
+<span class="fc" id="L184">    }</span>
+
+    /** Get the Nordsieck transformer for a given number of steps.
+     * @param nSteps number of steps of the multistep method
+     * (excluding the one being computed)
+     * @return Nordsieck transformer for the specified number of steps
+     */
+    public static AdamsNordsieckTransformer getInstance(final int nSteps) {
+<span class="fc" id="L192">        synchronized(CACHE) {</span>
+<span class="fc" id="L193">            AdamsNordsieckTransformer t = CACHE.get(nSteps);</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">            if (t == null) {</span>
+<span class="fc" id="L195">                t = new AdamsNordsieckTransformer(nSteps);</span>
+<span class="fc" id="L196">                CACHE.put(nSteps, t);</span>
+            }
+<span class="fc" id="L198">            return t;</span>
+<span class="nc" id="L199">        }</span>
+    }
+
+    /** Get the number of steps of the method
+     * (excluding the one being computed).
+     * @return number of steps of the method
+     * (excluding the one being computed)
+     * @deprecated as of 3.6, this method is not used anymore
+     */
+    @Deprecated
+    public int getNSteps() {
+<span class="nc" id="L210">        return c1.length;</span>
+    }
+
+    /** Build the P matrix.
+     * &lt;p&gt;The P matrix general terms are shifted (j+1) (-i)&lt;sup&gt;j&lt;/sup&gt; terms
+     * with i being the row number starting from 1 and j being the column
+     * number starting from 1:
+     * &lt;pre&gt;
+     *        [  -2   3   -4    5  ... ]
+     *        [  -4  12  -32   80  ... ]
+     *   P =  [  -6  27 -108  405  ... ]
+     *        [  -8  48 -256 1280  ... ]
+     *        [          ...           ]
+     * &lt;/pre&gt;&lt;/p&gt;
+     * @param rows number of rows of the matrix
+     * @return P matrix
+     */
+    private FieldMatrix&lt;BigFraction&gt; buildP(final int rows) {
+
+<span class="fc" id="L229">        final BigFraction[][] pData = new BigFraction[rows][rows];</span>
+
+<span class="fc bfc" id="L231" title="All 2 branches covered.">        for (int i = 1; i &lt;= pData.length; ++i) {</span>
+            // build the P matrix elements from Taylor series formulas
+<span class="fc" id="L233">            final BigFraction[] pI = pData[i - 1];</span>
+<span class="fc" id="L234">            final int factor = -i;</span>
+<span class="fc" id="L235">            int aj = factor;</span>
+<span class="fc bfc" id="L236" title="All 2 branches covered.">            for (int j = 1; j &lt;= pI.length; ++j) {</span>
+<span class="fc" id="L237">                pI[j - 1] = new BigFraction(aj * (j + 1));</span>
+<span class="fc" id="L238">                aj *= factor;</span>
+            }
+        }
+
+<span class="fc" id="L242">        return new Array2DRowFieldMatrix&lt;BigFraction&gt;(pData, false);</span>
+
+    }
+
+    /** Initialize the high order scaled derivatives at step start.
+     * @param h step size to use for scaling
+     * @param t first steps times
+     * @param y first steps states
+     * @param yDot first steps derivatives
+     * @return Nordieck vector at start of first step (h&lt;sup&gt;2&lt;/sup&gt;/2 y''&lt;sub&gt;n&lt;/sub&gt;,
+     * h&lt;sup&gt;3&lt;/sup&gt;/6 y'''&lt;sub&gt;n&lt;/sub&gt; ... h&lt;sup&gt;k&lt;/sup&gt;/k! y&lt;sup&gt;(k)&lt;/sup&gt;&lt;sub&gt;n&lt;/sub&gt;)
+     */
+
+    public Array2DRowRealMatrix initializeHighOrderDerivatives(final double h, final double[] t,
+                                                               final double[][] y,
+                                                               final double[][] yDot) {
+
+        // using Taylor series with di = ti - t0, we get:
+        //  y(ti)  - y(t0)  - di y'(t0) =   di^2 / h^2 s2 + ... +   di^k     / h^k sk + O(h^k)
+        //  y'(ti) - y'(t0)             = 2 di   / h^2 s2 + ... + k di^(k-1) / h^k sk + O(h^(k-1))
+        // we write these relations for i = 1 to i= 1+n/2 as a set of n + 2 linear
+        // equations depending on the Nordsieck vector [s2 ... sk rk], so s2 to sk correspond
+        // to the appropriately truncated Taylor expansion, and rk is the Taylor remainder.
+        // The goal is to have s2 to sk as accurate as possible considering the fact the sum is
+        // truncated and we don't want the error terms to be included in s2 ... sk, so we need
+        // to solve also for the remainder
+<span class="fc" id="L268">        final double[][] a     = new double[c1.length + 1][c1.length + 1];</span>
+<span class="fc" id="L269">        final double[][] b     = new double[c1.length + 1][y[0].length];</span>
+<span class="fc" id="L270">        final double[]   y0    = y[0];</span>
+<span class="fc" id="L271">        final double[]   yDot0 = yDot[0];</span>
+<span class="fc bfc" id="L272" title="All 2 branches covered.">        for (int i = 1; i &lt; y.length; ++i) {</span>
+
+<span class="fc" id="L274">            final double di    = t[i] - t[0];</span>
+<span class="fc" id="L275">            final double ratio = di / h;</span>
+<span class="fc" id="L276">            double dikM1Ohk    =  1 / h;</span>
+
+            // linear coefficients of equations
+            // y(ti) - y(t0) - di y'(t0) and y'(ti) - y'(t0)
+<span class="fc" id="L280">            final double[] aI    = a[2 * i - 2];</span>
+<span class="fc bfc" id="L281" title="All 2 branches covered.">            final double[] aDotI = (2 * i - 1) &lt; a.length ? a[2 * i - 1] : null;</span>
+<span class="fc bfc" id="L282" title="All 2 branches covered.">            for (int j = 0; j &lt; aI.length; ++j) {</span>
+<span class="fc" id="L283">                dikM1Ohk *= ratio;</span>
+<span class="fc" id="L284">                aI[j]     = di      * dikM1Ohk;</span>
+<span class="fc bfc" id="L285" title="All 2 branches covered.">                if (aDotI != null) {</span>
+<span class="fc" id="L286">                    aDotI[j]  = (j + 2) * dikM1Ohk;</span>
+                }
+            }
+
+            // expected value of the previous equations
+<span class="fc" id="L291">            final double[] yI    = y[i];</span>
+<span class="fc" id="L292">            final double[] yDotI = yDot[i];</span>
+<span class="fc" id="L293">            final double[] bI    = b[2 * i - 2];</span>
+<span class="fc bfc" id="L294" title="All 2 branches covered.">            final double[] bDotI = (2 * i - 1) &lt; b.length ? b[2 * i - 1] : null;</span>
+<span class="fc bfc" id="L295" title="All 2 branches covered.">            for (int j = 0; j &lt; yI.length; ++j) {</span>
+<span class="fc" id="L296">                bI[j]    = yI[j] - y0[j] - di * yDot0[j];</span>
+<span class="fc bfc" id="L297" title="All 2 branches covered.">                if (bDotI != null) {</span>
+<span class="fc" id="L298">                    bDotI[j] = yDotI[j] - yDot0[j];</span>
+                }
+            }
+
+        }
+
+        // solve the linear system to get the best estimate of the Nordsieck vector [s2 ... sk],
+        // with the additional terms s(k+1) and c grabbing the parts after the truncated Taylor expansion
+<span class="fc" id="L306">        final QRDecomposition decomposition = new QRDecomposition(new Array2DRowRealMatrix(a, false));</span>
+<span class="fc" id="L307">        final RealMatrix x = decomposition.getSolver().solve(new Array2DRowRealMatrix(b, false));</span>
+
+        // extract just the Nordsieck vector [s2 ... sk]
+<span class="fc" id="L310">        final Array2DRowRealMatrix truncatedX = new Array2DRowRealMatrix(x.getRowDimension() - 1, x.getColumnDimension());</span>
+<span class="fc bfc" id="L311" title="All 2 branches covered.">        for (int i = 0; i &lt; truncatedX.getRowDimension(); ++i) {</span>
+<span class="fc bfc" id="L312" title="All 2 branches covered.">            for (int j = 0; j &lt; truncatedX.getColumnDimension(); ++j) {</span>
+<span class="fc" id="L313">                truncatedX.setEntry(i, j, x.getEntry(i, j));</span>
+            }
+        }
+<span class="fc" id="L316">        return truncatedX;</span>
+
+    }
+
+    /** Update the high order scaled derivatives for Adams integrators (phase 1).
+     * &lt;p&gt;The complete update of high order derivatives has a form similar to:
+     * &lt;pre&gt;
+     * r&lt;sub&gt;n+1&lt;/sub&gt; = (s&lt;sub&gt;1&lt;/sub&gt;(n) - s&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u + P&lt;sup&gt;-1&lt;/sup&gt; A P r&lt;sub&gt;n&lt;/sub&gt;
+     * &lt;/pre&gt;
+     * this method computes the P&lt;sup&gt;-1&lt;/sup&gt; A P r&lt;sub&gt;n&lt;/sub&gt; part.&lt;/p&gt;
+     * @param highOrder high order scaled derivatives
+     * (h&lt;sup&gt;2&lt;/sup&gt;/2 y'', ... h&lt;sup&gt;k&lt;/sup&gt;/k! y(k))
+     * @return updated high order derivatives
+     * @see #updateHighOrderDerivativesPhase2(double[], double[], Array2DRowRealMatrix)
+     */
+    public Array2DRowRealMatrix updateHighOrderDerivativesPhase1(final Array2DRowRealMatrix highOrder) {
+<span class="fc" id="L332">        return update.multiply(highOrder);</span>
+    }
+
+    /** Update the high order scaled derivatives Adams integrators (phase 2).
+     * &lt;p&gt;The complete update of high order derivatives has a form similar to:
+     * &lt;pre&gt;
+     * r&lt;sub&gt;n+1&lt;/sub&gt; = (s&lt;sub&gt;1&lt;/sub&gt;(n) - s&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u + P&lt;sup&gt;-1&lt;/sup&gt; A P r&lt;sub&gt;n&lt;/sub&gt;
+     * &lt;/pre&gt;
+     * this method computes the (s&lt;sub&gt;1&lt;/sub&gt;(n) - s&lt;sub&gt;1&lt;/sub&gt;(n+1)) P&lt;sup&gt;-1&lt;/sup&gt; u part.&lt;/p&gt;
+     * &lt;p&gt;Phase 1 of the update must already have been performed.&lt;/p&gt;
+     * @param start first order scaled derivatives at step start
+     * @param end first order scaled derivatives at step end
+     * @param highOrder high order scaled derivatives, will be modified
+     * (h&lt;sup&gt;2&lt;/sup&gt;/2 y'', ... h&lt;sup&gt;k&lt;/sup&gt;/k! y(k))
+     * @see #updateHighOrderDerivativesPhase1(Array2DRowRealMatrix)
+     */
+    public void updateHighOrderDerivativesPhase2(final double[] start,
+                                                 final double[] end,
+                                                 final Array2DRowRealMatrix highOrder) {
+<span class="fc" id="L351">        final double[][] data = highOrder.getDataRef();</span>
+<span class="fc bfc" id="L352" title="All 2 branches covered.">        for (int i = 0; i &lt; data.length; ++i) {</span>
+<span class="fc" id="L353">            final double[] dataI = data[i];</span>
+<span class="fc" id="L354">            final double c1I = c1[i];</span>
+<span class="fc bfc" id="L355" title="All 2 branches covered.">            for (int j = 0; j &lt; dataI.length; ++j) {</span>
+<span class="fc" id="L356">                dataI[j] += c1I * (start[j] - end[j]);</span>
+            }
+        }
+<span class="fc" id="L359">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

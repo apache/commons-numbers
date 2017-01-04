@@ -1,0 +1,512 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.analysis.solvers;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.complex.Complex;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.complex.ComplexUtils;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.exception.NoBracketingException;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.exception.NoDataException;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.exception.NullArgumentException;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.exception.NumberIsTooLargeException;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.exception.TooManyEvaluationsException;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.math3.exception.util.LocalizedFormats;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.commons.math3.util.FastMath;<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>/**<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * Implements the &lt;a href="http://mathworld.wolfram.com/LaguerresMethod.html"&gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * Laguerre's Method&lt;/a&gt; for root finding of real coefficient polynomials.<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * For reference, see<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * &lt;blockquote&gt;<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *  &lt;b&gt;A First Course in Numerical Analysis&lt;/b&gt;,<a name="line.35"></a>
+<span class="sourceLineNo">036</span> *  ISBN 048641454X, chapter 8.<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * &lt;/blockquote&gt;<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * Laguerre's method is global in the sense that it can start with any initial<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * approximation and be able to solve all roots from that point.<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * The algorithm requires a bracketing condition.<a name="line.40"></a>
+<span class="sourceLineNo">041</span> *<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * @since 1.2<a name="line.42"></a>
+<span class="sourceLineNo">043</span> */<a name="line.43"></a>
+<span class="sourceLineNo">044</span>public class LaguerreSolver extends AbstractPolynomialSolver {<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    /** Default absolute accuracy. */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    private static final double DEFAULT_ABSOLUTE_ACCURACY = 1e-6;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    /** Complex solver. */<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    private final ComplexSolver complexSolver = new ComplexSolver();<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>    /**<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     * Construct a solver with default accuracy (1e-6).<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     */<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    public LaguerreSolver() {<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        this(DEFAULT_ABSOLUTE_ACCURACY);<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    }<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    /**<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * Construct a solver.<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     *<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * @param absoluteAccuracy Absolute accuracy.<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     */<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    public LaguerreSolver(double absoluteAccuracy) {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        super(absoluteAccuracy);<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    }<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    /**<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * Construct a solver.<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     *<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * @param relativeAccuracy Relative accuracy.<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * @param absoluteAccuracy Absolute accuracy.<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     */<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    public LaguerreSolver(double relativeAccuracy,<a name="line.70"></a>
+<span class="sourceLineNo">071</span>                          double absoluteAccuracy) {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        super(relativeAccuracy, absoluteAccuracy);<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    }<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    /**<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * Construct a solver.<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     *<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * @param relativeAccuracy Relative accuracy.<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * @param absoluteAccuracy Absolute accuracy.<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * @param functionValueAccuracy Function value accuracy.<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    public LaguerreSolver(double relativeAccuracy,<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                          double absoluteAccuracy,<a name="line.82"></a>
+<span class="sourceLineNo">083</span>                          double functionValueAccuracy) {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        super(relativeAccuracy, absoluteAccuracy, functionValueAccuracy);<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    }<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>    /**<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * {@inheritDoc}<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     */<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    @Override<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    public double doSolve()<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        throws TooManyEvaluationsException,<a name="line.92"></a>
+<span class="sourceLineNo">093</span>               NumberIsTooLargeException,<a name="line.93"></a>
+<span class="sourceLineNo">094</span>               NoBracketingException {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>        final double min = getMin();<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        final double max = getMax();<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        final double initial = getStartValue();<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        final double functionValueAccuracy = getFunctionValueAccuracy();<a name="line.98"></a>
+<span class="sourceLineNo">099</span><a name="line.99"></a>
+<span class="sourceLineNo">100</span>        verifySequence(min, initial, max);<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>        // Return the initial guess if it is good enough.<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        final double yInitial = computeObjectiveValue(initial);<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        if (FastMath.abs(yInitial) &lt;= functionValueAccuracy) {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>            return initial;<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        }<a name="line.106"></a>
+<span class="sourceLineNo">107</span><a name="line.107"></a>
+<span class="sourceLineNo">108</span>        // Return the first endpoint if it is good enough.<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        final double yMin = computeObjectiveValue(min);<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        if (FastMath.abs(yMin) &lt;= functionValueAccuracy) {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>            return min;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        }<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>        // Reduce interval if min and initial bracket the root.<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        if (yInitial * yMin &lt; 0) {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>            return laguerre(min, initial, yMin, yInitial);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        }<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>        // Return the second endpoint if it is good enough.<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        final double yMax = computeObjectiveValue(max);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        if (FastMath.abs(yMax) &lt;= functionValueAccuracy) {<a name="line.121"></a>
+<span class="sourceLineNo">122</span>            return max;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        }<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>        // Reduce interval if initial and max bracket the root.<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        if (yInitial * yMax &lt; 0) {<a name="line.126"></a>
+<span class="sourceLineNo">127</span>            return laguerre(initial, max, yInitial, yMax);<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        }<a name="line.128"></a>
+<span class="sourceLineNo">129</span><a name="line.129"></a>
+<span class="sourceLineNo">130</span>        throw new NoBracketingException(min, max, yMin, yMax);<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    }<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>    /**<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     * Find a real root in the given interval.<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     *<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     * Despite the bracketing condition, the root returned by<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     * {@link LaguerreSolver.ComplexSolver#solve(Complex[],Complex)} may<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     * not be a real zero inside {@code [min, max]}.<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * For example, &lt;code&gt; p(x) = x&lt;sup&gt;3&lt;/sup&gt; + 1, &lt;/code&gt;<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     * with {@code min = -2}, {@code max = 2}, {@code initial = 0}.<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     * When it occurs, this code calls<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     * {@link LaguerreSolver.ComplexSolver#solveAll(Complex[],Complex)}<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     * in order to obtain all roots and picks up one real root.<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     *<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     * @param lo Lower bound of the search interval.<a name="line.145"></a>
+<span class="sourceLineNo">146</span>     * @param hi Higher bound of the search interval.<a name="line.146"></a>
+<span class="sourceLineNo">147</span>     * @param fLo Function value at the lower bound of the search interval.<a name="line.147"></a>
+<span class="sourceLineNo">148</span>     * @param fHi Function value at the higher bound of the search interval.<a name="line.148"></a>
+<span class="sourceLineNo">149</span>     * @return the point at which the function value is zero.<a name="line.149"></a>
+<span class="sourceLineNo">150</span>     * @deprecated This method should not be part of the public API: It will<a name="line.150"></a>
+<span class="sourceLineNo">151</span>     * be made private in version 4.0.<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     */<a name="line.152"></a>
+<span class="sourceLineNo">153</span>    @Deprecated<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    public double laguerre(double lo, double hi,<a name="line.154"></a>
+<span class="sourceLineNo">155</span>                           double fLo, double fHi) {<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        final Complex c[] = ComplexUtils.convertToComplex(getCoefficients());<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>        final Complex initial = new Complex(0.5 * (lo + hi), 0);<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        final Complex z = complexSolver.solve(c, initial);<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        if (complexSolver.isRoot(lo, hi, z)) {<a name="line.160"></a>
+<span class="sourceLineNo">161</span>            return z.getReal();<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        } else {<a name="line.162"></a>
+<span class="sourceLineNo">163</span>            double r = Double.NaN;<a name="line.163"></a>
+<span class="sourceLineNo">164</span>            // Solve all roots and select the one we are seeking.<a name="line.164"></a>
+<span class="sourceLineNo">165</span>            Complex[] root = complexSolver.solveAll(c, initial);<a name="line.165"></a>
+<span class="sourceLineNo">166</span>            for (int i = 0; i &lt; root.length; i++) {<a name="line.166"></a>
+<span class="sourceLineNo">167</span>                if (complexSolver.isRoot(lo, hi, root[i])) {<a name="line.167"></a>
+<span class="sourceLineNo">168</span>                    r = root[i].getReal();<a name="line.168"></a>
+<span class="sourceLineNo">169</span>                    break;<a name="line.169"></a>
+<span class="sourceLineNo">170</span>                }<a name="line.170"></a>
+<span class="sourceLineNo">171</span>            }<a name="line.171"></a>
+<span class="sourceLineNo">172</span>            return r;<a name="line.172"></a>
+<span class="sourceLineNo">173</span>        }<a name="line.173"></a>
+<span class="sourceLineNo">174</span>    }<a name="line.174"></a>
+<span class="sourceLineNo">175</span><a name="line.175"></a>
+<span class="sourceLineNo">176</span>    /**<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     * Find all complex roots for the polynomial with the given<a name="line.177"></a>
+<span class="sourceLineNo">178</span>     * coefficients, starting from the given initial value.<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     * &lt;p&gt;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>     * Note: This method is not part of the API of {@link BaseUnivariateSolver}.&lt;/p&gt;<a name="line.180"></a>
+<span class="sourceLineNo">181</span>     *<a name="line.181"></a>
+<span class="sourceLineNo">182</span>     * @param coefficients Polynomial coefficients.<a name="line.182"></a>
+<span class="sourceLineNo">183</span>     * @param initial Start value.<a name="line.183"></a>
+<span class="sourceLineNo">184</span>     * @return the full set of complex roots of the polynomial<a name="line.184"></a>
+<span class="sourceLineNo">185</span>     * @throws org.apache.commons.math3.exception.TooManyEvaluationsException<a name="line.185"></a>
+<span class="sourceLineNo">186</span>     * if the maximum number of evaluations is exceeded when solving for one of the roots<a name="line.186"></a>
+<span class="sourceLineNo">187</span>     * @throws NullArgumentException if the {@code coefficients} is<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     * {@code null}.<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     * @throws NoDataException if the {@code coefficients} array is empty.<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     * @since 3.1<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     */<a name="line.191"></a>
+<span class="sourceLineNo">192</span>    public Complex[] solveAllComplex(double[] coefficients,<a name="line.192"></a>
+<span class="sourceLineNo">193</span>                                     double initial)<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        throws NullArgumentException,<a name="line.194"></a>
+<span class="sourceLineNo">195</span>               NoDataException,<a name="line.195"></a>
+<span class="sourceLineNo">196</span>               TooManyEvaluationsException {<a name="line.196"></a>
+<span class="sourceLineNo">197</span>       return solveAllComplex(coefficients, initial, Integer.MAX_VALUE);<a name="line.197"></a>
+<span class="sourceLineNo">198</span>    }<a name="line.198"></a>
+<span class="sourceLineNo">199</span><a name="line.199"></a>
+<span class="sourceLineNo">200</span>    /**<a name="line.200"></a>
+<span class="sourceLineNo">201</span>     * Find all complex roots for the polynomial with the given<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     * coefficients, starting from the given initial value.<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     * &lt;p&gt;<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     * Note: This method is not part of the API of {@link BaseUnivariateSolver}.&lt;/p&gt;<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     *<a name="line.205"></a>
+<span class="sourceLineNo">206</span>     * @param coefficients polynomial coefficients<a name="line.206"></a>
+<span class="sourceLineNo">207</span>     * @param initial start value<a name="line.207"></a>
+<span class="sourceLineNo">208</span>     * @param maxEval maximum number of evaluations<a name="line.208"></a>
+<span class="sourceLineNo">209</span>     * @return the full set of complex roots of the polynomial<a name="line.209"></a>
+<span class="sourceLineNo">210</span>     * @throws org.apache.commons.math3.exception.TooManyEvaluationsException<a name="line.210"></a>
+<span class="sourceLineNo">211</span>     * if the maximum number of evaluations is exceeded when solving for one of the roots<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     * @throws NullArgumentException if the {@code coefficients} is<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     * {@code null}<a name="line.213"></a>
+<span class="sourceLineNo">214</span>     * @throws NoDataException if the {@code coefficients} array is empty<a name="line.214"></a>
+<span class="sourceLineNo">215</span>     * @since 3.5<a name="line.215"></a>
+<span class="sourceLineNo">216</span>     */<a name="line.216"></a>
+<span class="sourceLineNo">217</span>    public Complex[] solveAllComplex(double[] coefficients,<a name="line.217"></a>
+<span class="sourceLineNo">218</span>                                     double initial, int maxEval)<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        throws NullArgumentException,<a name="line.219"></a>
+<span class="sourceLineNo">220</span>               NoDataException,<a name="line.220"></a>
+<span class="sourceLineNo">221</span>               TooManyEvaluationsException {<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        setup(maxEval,<a name="line.222"></a>
+<span class="sourceLineNo">223</span>              new PolynomialFunction(coefficients),<a name="line.223"></a>
+<span class="sourceLineNo">224</span>              Double.NEGATIVE_INFINITY,<a name="line.224"></a>
+<span class="sourceLineNo">225</span>              Double.POSITIVE_INFINITY,<a name="line.225"></a>
+<span class="sourceLineNo">226</span>              initial);<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        return complexSolver.solveAll(ComplexUtils.convertToComplex(coefficients),<a name="line.227"></a>
+<span class="sourceLineNo">228</span>                                      new Complex(initial, 0d));<a name="line.228"></a>
+<span class="sourceLineNo">229</span>    }<a name="line.229"></a>
+<span class="sourceLineNo">230</span><a name="line.230"></a>
+<span class="sourceLineNo">231</span>    /**<a name="line.231"></a>
+<span class="sourceLineNo">232</span>     * Find a complex root for the polynomial with the given coefficients,<a name="line.232"></a>
+<span class="sourceLineNo">233</span>     * starting from the given initial value.<a name="line.233"></a>
+<span class="sourceLineNo">234</span>     * &lt;p&gt;<a name="line.234"></a>
+<span class="sourceLineNo">235</span>     * Note: This method is not part of the API of {@link BaseUnivariateSolver}.&lt;/p&gt;<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     *<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     * @param coefficients Polynomial coefficients.<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     * @param initial Start value.<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     * @return a complex root of the polynomial<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     * @throws org.apache.commons.math3.exception.TooManyEvaluationsException<a name="line.240"></a>
+<span class="sourceLineNo">241</span>     * if the maximum number of evaluations is exceeded.<a name="line.241"></a>
+<span class="sourceLineNo">242</span>     * @throws NullArgumentException if the {@code coefficients} is<a name="line.242"></a>
+<span class="sourceLineNo">243</span>     * {@code null}.<a name="line.243"></a>
+<span class="sourceLineNo">244</span>     * @throws NoDataException if the {@code coefficients} array is empty.<a name="line.244"></a>
+<span class="sourceLineNo">245</span>     * @since 3.1<a name="line.245"></a>
+<span class="sourceLineNo">246</span>     */<a name="line.246"></a>
+<span class="sourceLineNo">247</span>    public Complex solveComplex(double[] coefficients,<a name="line.247"></a>
+<span class="sourceLineNo">248</span>                                double initial)<a name="line.248"></a>
+<span class="sourceLineNo">249</span>        throws NullArgumentException,<a name="line.249"></a>
+<span class="sourceLineNo">250</span>               NoDataException,<a name="line.250"></a>
+<span class="sourceLineNo">251</span>               TooManyEvaluationsException {<a name="line.251"></a>
+<span class="sourceLineNo">252</span>       return solveComplex(coefficients, initial, Integer.MAX_VALUE);<a name="line.252"></a>
+<span class="sourceLineNo">253</span>    }<a name="line.253"></a>
+<span class="sourceLineNo">254</span><a name="line.254"></a>
+<span class="sourceLineNo">255</span>    /**<a name="line.255"></a>
+<span class="sourceLineNo">256</span>     * Find a complex root for the polynomial with the given coefficients,<a name="line.256"></a>
+<span class="sourceLineNo">257</span>     * starting from the given initial value.<a name="line.257"></a>
+<span class="sourceLineNo">258</span>     * &lt;p&gt;<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     * Note: This method is not part of the API of {@link BaseUnivariateSolver}.&lt;/p&gt;<a name="line.259"></a>
+<span class="sourceLineNo">260</span>     *<a name="line.260"></a>
+<span class="sourceLineNo">261</span>     * @param coefficients polynomial coefficients<a name="line.261"></a>
+<span class="sourceLineNo">262</span>     * @param initial start value<a name="line.262"></a>
+<span class="sourceLineNo">263</span>     * @param maxEval maximum number of evaluations<a name="line.263"></a>
+<span class="sourceLineNo">264</span>     * @return a complex root of the polynomial<a name="line.264"></a>
+<span class="sourceLineNo">265</span>     * @throws org.apache.commons.math3.exception.TooManyEvaluationsException<a name="line.265"></a>
+<span class="sourceLineNo">266</span>     * if the maximum number of evaluations is exceeded<a name="line.266"></a>
+<span class="sourceLineNo">267</span>     * @throws NullArgumentException if the {@code coefficients} is<a name="line.267"></a>
+<span class="sourceLineNo">268</span>     * {@code null}<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     * @throws NoDataException if the {@code coefficients} array is empty<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     * @since 3.1<a name="line.270"></a>
+<span class="sourceLineNo">271</span>     */<a name="line.271"></a>
+<span class="sourceLineNo">272</span>    public Complex solveComplex(double[] coefficients,<a name="line.272"></a>
+<span class="sourceLineNo">273</span>                                double initial, int maxEval)<a name="line.273"></a>
+<span class="sourceLineNo">274</span>        throws NullArgumentException,<a name="line.274"></a>
+<span class="sourceLineNo">275</span>               NoDataException,<a name="line.275"></a>
+<span class="sourceLineNo">276</span>               TooManyEvaluationsException {<a name="line.276"></a>
+<span class="sourceLineNo">277</span>        setup(maxEval,<a name="line.277"></a>
+<span class="sourceLineNo">278</span>              new PolynomialFunction(coefficients),<a name="line.278"></a>
+<span class="sourceLineNo">279</span>              Double.NEGATIVE_INFINITY,<a name="line.279"></a>
+<span class="sourceLineNo">280</span>              Double.POSITIVE_INFINITY,<a name="line.280"></a>
+<span class="sourceLineNo">281</span>              initial);<a name="line.281"></a>
+<span class="sourceLineNo">282</span>        return complexSolver.solve(ComplexUtils.convertToComplex(coefficients),<a name="line.282"></a>
+<span class="sourceLineNo">283</span>                                   new Complex(initial, 0d));<a name="line.283"></a>
+<span class="sourceLineNo">284</span>    }<a name="line.284"></a>
+<span class="sourceLineNo">285</span><a name="line.285"></a>
+<span class="sourceLineNo">286</span>    /**<a name="line.286"></a>
+<span class="sourceLineNo">287</span>     * Class for searching all (complex) roots.<a name="line.287"></a>
+<span class="sourceLineNo">288</span>     */<a name="line.288"></a>
+<span class="sourceLineNo">289</span>    private class ComplexSolver {<a name="line.289"></a>
+<span class="sourceLineNo">290</span>        /**<a name="line.290"></a>
+<span class="sourceLineNo">291</span>         * Check whether the given complex root is actually a real zero<a name="line.291"></a>
+<span class="sourceLineNo">292</span>         * in the given interval, within the solver tolerance level.<a name="line.292"></a>
+<span class="sourceLineNo">293</span>         *<a name="line.293"></a>
+<span class="sourceLineNo">294</span>         * @param min Lower bound for the interval.<a name="line.294"></a>
+<span class="sourceLineNo">295</span>         * @param max Upper bound for the interval.<a name="line.295"></a>
+<span class="sourceLineNo">296</span>         * @param z Complex root.<a name="line.296"></a>
+<span class="sourceLineNo">297</span>         * @return {@code true} if z is a real zero.<a name="line.297"></a>
+<span class="sourceLineNo">298</span>         */<a name="line.298"></a>
+<span class="sourceLineNo">299</span>        public boolean isRoot(double min, double max, Complex z) {<a name="line.299"></a>
+<span class="sourceLineNo">300</span>            if (isSequence(min, z.getReal(), max)) {<a name="line.300"></a>
+<span class="sourceLineNo">301</span>                double tolerance = FastMath.max(getRelativeAccuracy() * z.abs(), getAbsoluteAccuracy());<a name="line.301"></a>
+<span class="sourceLineNo">302</span>                return (FastMath.abs(z.getImaginary()) &lt;= tolerance) ||<a name="line.302"></a>
+<span class="sourceLineNo">303</span>                     (z.abs() &lt;= getFunctionValueAccuracy());<a name="line.303"></a>
+<span class="sourceLineNo">304</span>            }<a name="line.304"></a>
+<span class="sourceLineNo">305</span>            return false;<a name="line.305"></a>
+<span class="sourceLineNo">306</span>        }<a name="line.306"></a>
+<span class="sourceLineNo">307</span><a name="line.307"></a>
+<span class="sourceLineNo">308</span>        /**<a name="line.308"></a>
+<span class="sourceLineNo">309</span>         * Find all complex roots for the polynomial with the given<a name="line.309"></a>
+<span class="sourceLineNo">310</span>         * coefficients, starting from the given initial value.<a name="line.310"></a>
+<span class="sourceLineNo">311</span>         *<a name="line.311"></a>
+<span class="sourceLineNo">312</span>         * @param coefficients Polynomial coefficients.<a name="line.312"></a>
+<span class="sourceLineNo">313</span>         * @param initial Start value.<a name="line.313"></a>
+<span class="sourceLineNo">314</span>         * @return the point at which the function value is zero.<a name="line.314"></a>
+<span class="sourceLineNo">315</span>         * @throws org.apache.commons.math3.exception.TooManyEvaluationsException<a name="line.315"></a>
+<span class="sourceLineNo">316</span>         * if the maximum number of evaluations is exceeded.<a name="line.316"></a>
+<span class="sourceLineNo">317</span>         * @throws NullArgumentException if the {@code coefficients} is<a name="line.317"></a>
+<span class="sourceLineNo">318</span>         * {@code null}.<a name="line.318"></a>
+<span class="sourceLineNo">319</span>         * @throws NoDataException if the {@code coefficients} array is empty.<a name="line.319"></a>
+<span class="sourceLineNo">320</span>         */<a name="line.320"></a>
+<span class="sourceLineNo">321</span>        public Complex[] solveAll(Complex coefficients[], Complex initial)<a name="line.321"></a>
+<span class="sourceLineNo">322</span>            throws NullArgumentException,<a name="line.322"></a>
+<span class="sourceLineNo">323</span>                   NoDataException,<a name="line.323"></a>
+<span class="sourceLineNo">324</span>                   TooManyEvaluationsException {<a name="line.324"></a>
+<span class="sourceLineNo">325</span>            if (coefficients == null) {<a name="line.325"></a>
+<span class="sourceLineNo">326</span>                throw new NullArgumentException();<a name="line.326"></a>
+<span class="sourceLineNo">327</span>            }<a name="line.327"></a>
+<span class="sourceLineNo">328</span>            final int n = coefficients.length - 1;<a name="line.328"></a>
+<span class="sourceLineNo">329</span>            if (n == 0) {<a name="line.329"></a>
+<span class="sourceLineNo">330</span>                throw new NoDataException(LocalizedFormats.POLYNOMIAL);<a name="line.330"></a>
+<span class="sourceLineNo">331</span>            }<a name="line.331"></a>
+<span class="sourceLineNo">332</span>            // Coefficients for deflated polynomial.<a name="line.332"></a>
+<span class="sourceLineNo">333</span>            final Complex c[] = new Complex[n + 1];<a name="line.333"></a>
+<span class="sourceLineNo">334</span>            for (int i = 0; i &lt;= n; i++) {<a name="line.334"></a>
+<span class="sourceLineNo">335</span>                c[i] = coefficients[i];<a name="line.335"></a>
+<span class="sourceLineNo">336</span>            }<a name="line.336"></a>
+<span class="sourceLineNo">337</span><a name="line.337"></a>
+<span class="sourceLineNo">338</span>            // Solve individual roots successively.<a name="line.338"></a>
+<span class="sourceLineNo">339</span>            final Complex root[] = new Complex[n];<a name="line.339"></a>
+<span class="sourceLineNo">340</span>            for (int i = 0; i &lt; n; i++) {<a name="line.340"></a>
+<span class="sourceLineNo">341</span>                final Complex subarray[] = new Complex[n - i + 1];<a name="line.341"></a>
+<span class="sourceLineNo">342</span>                System.arraycopy(c, 0, subarray, 0, subarray.length);<a name="line.342"></a>
+<span class="sourceLineNo">343</span>                root[i] = solve(subarray, initial);<a name="line.343"></a>
+<span class="sourceLineNo">344</span>                // Polynomial deflation using synthetic division.<a name="line.344"></a>
+<span class="sourceLineNo">345</span>                Complex newc = c[n - i];<a name="line.345"></a>
+<span class="sourceLineNo">346</span>                Complex oldc = null;<a name="line.346"></a>
+<span class="sourceLineNo">347</span>                for (int j = n - i - 1; j &gt;= 0; j--) {<a name="line.347"></a>
+<span class="sourceLineNo">348</span>                    oldc = c[j];<a name="line.348"></a>
+<span class="sourceLineNo">349</span>                    c[j] = newc;<a name="line.349"></a>
+<span class="sourceLineNo">350</span>                    newc = oldc.add(newc.multiply(root[i]));<a name="line.350"></a>
+<span class="sourceLineNo">351</span>                }<a name="line.351"></a>
+<span class="sourceLineNo">352</span>            }<a name="line.352"></a>
+<span class="sourceLineNo">353</span><a name="line.353"></a>
+<span class="sourceLineNo">354</span>            return root;<a name="line.354"></a>
+<span class="sourceLineNo">355</span>        }<a name="line.355"></a>
+<span class="sourceLineNo">356</span><a name="line.356"></a>
+<span class="sourceLineNo">357</span>        /**<a name="line.357"></a>
+<span class="sourceLineNo">358</span>         * Find a complex root for the polynomial with the given coefficients,<a name="line.358"></a>
+<span class="sourceLineNo">359</span>         * starting from the given initial value.<a name="line.359"></a>
+<span class="sourceLineNo">360</span>         *<a name="line.360"></a>
+<span class="sourceLineNo">361</span>         * @param coefficients Polynomial coefficients.<a name="line.361"></a>
+<span class="sourceLineNo">362</span>         * @param initial Start value.<a name="line.362"></a>
+<span class="sourceLineNo">363</span>         * @return the point at which the function value is zero.<a name="line.363"></a>
+<span class="sourceLineNo">364</span>         * @throws org.apache.commons.math3.exception.TooManyEvaluationsException<a name="line.364"></a>
+<span class="sourceLineNo">365</span>         * if the maximum number of evaluations is exceeded.<a name="line.365"></a>
+<span class="sourceLineNo">366</span>         * @throws NullArgumentException if the {@code coefficients} is<a name="line.366"></a>
+<span class="sourceLineNo">367</span>         * {@code null}.<a name="line.367"></a>
+<span class="sourceLineNo">368</span>         * @throws NoDataException if the {@code coefficients} array is empty.<a name="line.368"></a>
+<span class="sourceLineNo">369</span>         */<a name="line.369"></a>
+<span class="sourceLineNo">370</span>        public Complex solve(Complex coefficients[], Complex initial)<a name="line.370"></a>
+<span class="sourceLineNo">371</span>            throws NullArgumentException,<a name="line.371"></a>
+<span class="sourceLineNo">372</span>                   NoDataException,<a name="line.372"></a>
+<span class="sourceLineNo">373</span>                   TooManyEvaluationsException {<a name="line.373"></a>
+<span class="sourceLineNo">374</span>            if (coefficients == null) {<a name="line.374"></a>
+<span class="sourceLineNo">375</span>                throw new NullArgumentException();<a name="line.375"></a>
+<span class="sourceLineNo">376</span>            }<a name="line.376"></a>
+<span class="sourceLineNo">377</span><a name="line.377"></a>
+<span class="sourceLineNo">378</span>            final int n = coefficients.length - 1;<a name="line.378"></a>
+<span class="sourceLineNo">379</span>            if (n == 0) {<a name="line.379"></a>
+<span class="sourceLineNo">380</span>                throw new NoDataException(LocalizedFormats.POLYNOMIAL);<a name="line.380"></a>
+<span class="sourceLineNo">381</span>            }<a name="line.381"></a>
+<span class="sourceLineNo">382</span><a name="line.382"></a>
+<span class="sourceLineNo">383</span>            final double absoluteAccuracy = getAbsoluteAccuracy();<a name="line.383"></a>
+<span class="sourceLineNo">384</span>            final double relativeAccuracy = getRelativeAccuracy();<a name="line.384"></a>
+<span class="sourceLineNo">385</span>            final double functionValueAccuracy = getFunctionValueAccuracy();<a name="line.385"></a>
+<span class="sourceLineNo">386</span><a name="line.386"></a>
+<span class="sourceLineNo">387</span>            final Complex nC  = new Complex(n, 0);<a name="line.387"></a>
+<span class="sourceLineNo">388</span>            final Complex n1C = new Complex(n - 1, 0);<a name="line.388"></a>
+<span class="sourceLineNo">389</span><a name="line.389"></a>
+<span class="sourceLineNo">390</span>            Complex z = initial;<a name="line.390"></a>
+<span class="sourceLineNo">391</span>            Complex oldz = new Complex(Double.POSITIVE_INFINITY,<a name="line.391"></a>
+<span class="sourceLineNo">392</span>                                       Double.POSITIVE_INFINITY);<a name="line.392"></a>
+<span class="sourceLineNo">393</span>            while (true) {<a name="line.393"></a>
+<span class="sourceLineNo">394</span>                // Compute pv (polynomial value), dv (derivative value), and<a name="line.394"></a>
+<span class="sourceLineNo">395</span>                // d2v (second derivative value) simultaneously.<a name="line.395"></a>
+<span class="sourceLineNo">396</span>                Complex pv = coefficients[n];<a name="line.396"></a>
+<span class="sourceLineNo">397</span>                Complex dv = Complex.ZERO;<a name="line.397"></a>
+<span class="sourceLineNo">398</span>                Complex d2v = Complex.ZERO;<a name="line.398"></a>
+<span class="sourceLineNo">399</span>                for (int j = n-1; j &gt;= 0; j--) {<a name="line.399"></a>
+<span class="sourceLineNo">400</span>                    d2v = dv.add(z.multiply(d2v));<a name="line.400"></a>
+<span class="sourceLineNo">401</span>                    dv = pv.add(z.multiply(dv));<a name="line.401"></a>
+<span class="sourceLineNo">402</span>                    pv = coefficients[j].add(z.multiply(pv));<a name="line.402"></a>
+<span class="sourceLineNo">403</span>                }<a name="line.403"></a>
+<span class="sourceLineNo">404</span>                d2v = d2v.multiply(new Complex(2.0, 0.0));<a name="line.404"></a>
+<span class="sourceLineNo">405</span><a name="line.405"></a>
+<span class="sourceLineNo">406</span>                // Check for convergence.<a name="line.406"></a>
+<span class="sourceLineNo">407</span>                final double tolerance = FastMath.max(relativeAccuracy * z.abs(),<a name="line.407"></a>
+<span class="sourceLineNo">408</span>                                                      absoluteAccuracy);<a name="line.408"></a>
+<span class="sourceLineNo">409</span>                if ((z.subtract(oldz)).abs() &lt;= tolerance) {<a name="line.409"></a>
+<span class="sourceLineNo">410</span>                    return z;<a name="line.410"></a>
+<span class="sourceLineNo">411</span>                }<a name="line.411"></a>
+<span class="sourceLineNo">412</span>                if (pv.abs() &lt;= functionValueAccuracy) {<a name="line.412"></a>
+<span class="sourceLineNo">413</span>                    return z;<a name="line.413"></a>
+<span class="sourceLineNo">414</span>                }<a name="line.414"></a>
+<span class="sourceLineNo">415</span><a name="line.415"></a>
+<span class="sourceLineNo">416</span>                // Now pv != 0, calculate the new approximation.<a name="line.416"></a>
+<span class="sourceLineNo">417</span>                final Complex G = dv.divide(pv);<a name="line.417"></a>
+<span class="sourceLineNo">418</span>                final Complex G2 = G.multiply(G);<a name="line.418"></a>
+<span class="sourceLineNo">419</span>                final Complex H = G2.subtract(d2v.divide(pv));<a name="line.419"></a>
+<span class="sourceLineNo">420</span>                final Complex delta = n1C.multiply((nC.multiply(H)).subtract(G2));<a name="line.420"></a>
+<span class="sourceLineNo">421</span>                // Choose a denominator larger in magnitude.<a name="line.421"></a>
+<span class="sourceLineNo">422</span>                final Complex deltaSqrt = delta.sqrt();<a name="line.422"></a>
+<span class="sourceLineNo">423</span>                final Complex dplus = G.add(deltaSqrt);<a name="line.423"></a>
+<span class="sourceLineNo">424</span>                final Complex dminus = G.subtract(deltaSqrt);<a name="line.424"></a>
+<span class="sourceLineNo">425</span>                final Complex denominator = dplus.abs() &gt; dminus.abs() ? dplus : dminus;<a name="line.425"></a>
+<span class="sourceLineNo">426</span>                // Perturb z if denominator is zero, for instance,<a name="line.426"></a>
+<span class="sourceLineNo">427</span>                // p(x) = x^3 + 1, z = 0.<a name="line.427"></a>
+<span class="sourceLineNo">428</span>                if (denominator.equals(new Complex(0.0, 0.0))) {<a name="line.428"></a>
+<span class="sourceLineNo">429</span>                    z = z.add(new Complex(absoluteAccuracy, absoluteAccuracy));<a name="line.429"></a>
+<span class="sourceLineNo">430</span>                    oldz = new Complex(Double.POSITIVE_INFINITY,<a name="line.430"></a>
+<span class="sourceLineNo">431</span>                                       Double.POSITIVE_INFINITY);<a name="line.431"></a>
+<span class="sourceLineNo">432</span>                } else {<a name="line.432"></a>
+<span class="sourceLineNo">433</span>                    oldz = z;<a name="line.433"></a>
+<span class="sourceLineNo">434</span>                    z = z.subtract(nC.divide(denominator));<a name="line.434"></a>
+<span class="sourceLineNo">435</span>                }<a name="line.435"></a>
+<span class="sourceLineNo">436</span>                incrementEvaluationCount();<a name="line.436"></a>
+<span class="sourceLineNo">437</span>            }<a name="line.437"></a>
+<span class="sourceLineNo">438</span>        }<a name="line.438"></a>
+<span class="sourceLineNo">439</span>    }<a name="line.439"></a>
+<span class="sourceLineNo">440</span>}<a name="line.440"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

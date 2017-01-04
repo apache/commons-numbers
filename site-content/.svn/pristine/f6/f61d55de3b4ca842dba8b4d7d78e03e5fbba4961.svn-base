@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>UniformCrossover.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.genetics</a> &gt; <span class="el_source">UniformCrossover.java</span></div><h1>UniformCrossover.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.genetics;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.random.RandomGenerator;
+
+/**
+ * Perform Uniform Crossover [UX] on the specified chromosomes. A fixed mixing
+ * ratio is used to combine genes from the first and second parents, e.g. using a
+ * ratio of 0.5 would result in approximately 50% of genes coming from each
+ * parent. This is typically a poor method of crossover, but empirical evidence
+ * suggests that it is more exploratory and results in a larger part of the
+ * problem space being searched.
+ * &lt;p&gt;
+ * This crossover policy evaluates each gene of the parent chromosomes by chosing a
+ * uniform random number {@code p} in the range [0, 1]. If {@code p} &amp;lt; {@code ratio},
+ * the parent genes are swapped. This means with a ratio of 0.7, 30% of the genes from the
+ * first parent and 70% from the second parent will be selected for the first offspring (and
+ * vice versa for the second offspring).
+ * &lt;p&gt;
+ * This policy works only on {@link AbstractListChromosome}, and therefore it
+ * is parameterized by T. Moreover, the chromosomes must have same lengths.
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Crossover_%28genetic_algorithm%29&quot;&gt;Crossover techniques (Wikipedia)&lt;/a&gt;
+ * @see &lt;a href=&quot;http://www.obitko.com/tutorials/genetic-algorithms/crossover-mutation.php&quot;&gt;Crossover (Obitko.com)&lt;/a&gt;
+ * @see &lt;a href=&quot;http://www.tomaszgwiazda.com/uniformX.htm&quot;&gt;Uniform crossover&lt;/a&gt;
+ * @param &lt;T&gt; generic type of the {@link AbstractListChromosome}s for crossover
+ * @since 3.1
+ */
+public class UniformCrossover&lt;T&gt; implements CrossoverPolicy {
+
+    /** The mixing ratio. */
+    private final double ratio;
+
+    /**
+     * Creates a new {@link UniformCrossover} policy using the given mixing ratio.
+     *
+     * @param ratio the mixing ratio
+     * @throws OutOfRangeException if the mixing ratio is outside the [0, 1] range
+     */
+<span class="fc" id="L62">    public UniformCrossover(final double ratio) throws OutOfRangeException {</span>
+<span class="fc bfc" id="L63" title="All 4 branches covered.">        if (ratio &lt; 0.0d || ratio &gt; 1.0d) {</span>
+<span class="fc" id="L64">            throw new OutOfRangeException(LocalizedFormats.CROSSOVER_RATE, ratio, 0.0d, 1.0d);</span>
+        }
+<span class="fc" id="L66">        this.ratio = ratio;</span>
+<span class="fc" id="L67">    }</span>
+
+    /**
+     * Returns the mixing ratio used by this {@link CrossoverPolicy}.
+     *
+     * @return the mixing ratio
+     */
+    public double getRatio() {
+<span class="nc" id="L75">        return ratio;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws MathIllegalArgumentException iff one of the chromosomes is
+     *   not an instance of {@link AbstractListChromosome}
+     * @throws DimensionMismatchException if the length of the two chromosomes is different
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public ChromosomePair crossover(final Chromosome first, final Chromosome second)
+        throws DimensionMismatchException, MathIllegalArgumentException {
+
+<span class="fc bfc" id="L89" title="All 4 branches covered.">        if (!(first instanceof AbstractListChromosome&lt;?&gt; &amp;&amp; second instanceof AbstractListChromosome&lt;?&gt;)) {</span>
+<span class="fc" id="L90">            throw new MathIllegalArgumentException(LocalizedFormats.INVALID_FIXED_LENGTH_CHROMOSOME);</span>
+        }
+<span class="fc" id="L92">        return mate((AbstractListChromosome&lt;T&gt;) first, (AbstractListChromosome&lt;T&gt;) second);</span>
+    }
+
+    /**
+     * Helper for {@link #crossover(Chromosome, Chromosome)}. Performs the actual crossover.
+     *
+     * @param first the first chromosome
+     * @param second the second chromosome
+     * @return the pair of new chromosomes that resulted from the crossover
+     * @throws DimensionMismatchException if the length of the two chromosomes is different
+     */
+    private ChromosomePair mate(final AbstractListChromosome&lt;T&gt; first,
+                                final AbstractListChromosome&lt;T&gt; second) throws DimensionMismatchException {
+<span class="fc" id="L105">        final int length = first.getLength();</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        if (length != second.getLength()) {</span>
+<span class="fc" id="L107">            throw new DimensionMismatchException(second.getLength(), length);</span>
+        }
+
+        // array representations of the parents
+<span class="fc" id="L111">        final List&lt;T&gt; parent1Rep = first.getRepresentation();</span>
+<span class="fc" id="L112">        final List&lt;T&gt; parent2Rep = second.getRepresentation();</span>
+        // and of the children
+<span class="fc" id="L114">        final List&lt;T&gt; child1Rep = new ArrayList&lt;T&gt;(length);</span>
+<span class="fc" id="L115">        final List&lt;T&gt; child2Rep = new ArrayList&lt;T&gt;(length);</span>
+
+<span class="fc" id="L117">        final RandomGenerator random = GeneticAlgorithm.getRandomGenerator();</span>
+
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        for (int index = 0; index &lt; length; index++) {</span>
+
+<span class="fc bfc" id="L121" title="All 2 branches covered.">            if (random.nextDouble() &lt; ratio) {</span>
+                // swap the bits -&gt; take other parent
+<span class="fc" id="L123">                child1Rep.add(parent2Rep.get(index));</span>
+<span class="fc" id="L124">                child2Rep.add(parent1Rep.get(index));</span>
+            } else {
+<span class="fc" id="L126">                child1Rep.add(parent1Rep.get(index));</span>
+<span class="fc" id="L127">                child2Rep.add(parent2Rep.get(index));</span>
+            }
+        }
+
+<span class="fc" id="L131">        return new ChromosomePair(first.newFixedLengthChromosome(child1Rep),</span>
+                                  second.newFixedLengthChromosome(child2Rep));
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

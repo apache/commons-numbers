@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>PolynomialFunctionNewtonForm.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.polynomials</a> &gt; <span class="el_source">PolynomialFunctionNewtonForm.java</span></div><h1>PolynomialFunctionNewtonForm.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.analysis.polynomials;
+
+import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;
+import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * Implements the representation of a real polynomial function in
+ * Newton Form. For reference, see &lt;b&gt;Elementary Numerical Analysis&lt;/b&gt;,
+ * ISBN 0070124477, chapter 2.
+ * &lt;p&gt;
+ * The formula of polynomial in Newton form is
+ *     p(x) = a[0] + a[1](x-c[0]) + a[2](x-c[0])(x-c[1]) + ... +
+ *            a[n](x-c[0])(x-c[1])...(x-c[n-1])
+ * Note that the length of a[] is one more than the length of c[]&lt;/p&gt;
+ *
+ * @since 1.2
+ */
+public class PolynomialFunctionNewtonForm implements UnivariateDifferentiableFunction {
+
+    /**
+     * The coefficients of the polynomial, ordered by degree -- i.e.
+     * coefficients[0] is the constant term and coefficients[n] is the
+     * coefficient of x^n where n is the degree of the polynomial.
+     */
+    private double coefficients[];
+
+    /**
+     * Centers of the Newton polynomial.
+     */
+    private final double c[];
+
+    /**
+     * When all c[i] = 0, a[] becomes normal polynomial coefficients,
+     * i.e. a[i] = coefficients[i].
+     */
+    private final double a[];
+
+    /**
+     * Whether the polynomial coefficients are available.
+     */
+    private boolean coefficientsComputed;
+
+    /**
+     * Construct a Newton polynomial with the given a[] and c[]. The order of
+     * centers are important in that if c[] shuffle, then values of a[] would
+     * completely change, not just a permutation of old a[].
+     * &lt;p&gt;
+     * The constructor makes copy of the input arrays and assigns them.&lt;/p&gt;
+     *
+     * @param a Coefficients in Newton form formula.
+     * @param c Centers.
+     * @throws NullArgumentException if any argument is {@code null}.
+     * @throws NoDataException if any array has zero length.
+     * @throws DimensionMismatchException if the size difference between
+     * {@code a} and {@code c} is not equal to 1.
+     */
+    public PolynomialFunctionNewtonForm(double a[], double c[])
+<span class="fc" id="L79">        throws NullArgumentException, NoDataException, DimensionMismatchException {</span>
+
+<span class="fc" id="L81">        verifyInputArray(a, c);</span>
+<span class="fc" id="L82">        this.a = new double[a.length];</span>
+<span class="fc" id="L83">        this.c = new double[c.length];</span>
+<span class="fc" id="L84">        System.arraycopy(a, 0, this.a, 0, a.length);</span>
+<span class="fc" id="L85">        System.arraycopy(c, 0, this.c, 0, c.length);</span>
+<span class="fc" id="L86">        coefficientsComputed = false;</span>
+<span class="fc" id="L87">    }</span>
+
+    /**
+     * Calculate the function value at the given point.
+     *
+     * @param z Point at which the function value is to be computed.
+     * @return the function value.
+     */
+    public double value(double z) {
+<span class="fc" id="L96">       return evaluate(a, c, z);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     * @since 3.1
+     */
+    public DerivativeStructure value(final DerivativeStructure t) {
+<span class="fc" id="L104">        verifyInputArray(a, c);</span>
+
+<span class="fc" id="L106">        final int n = c.length;</span>
+<span class="fc" id="L107">        DerivativeStructure value = new DerivativeStructure(t.getFreeParameters(), t.getOrder(), a[n]);</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">        for (int i = n - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L109">            value = t.subtract(c[i]).multiply(value).add(a[i]);</span>
+        }
+
+<span class="fc" id="L112">        return value;</span>
+
+    }
+
+    /**
+     * Returns the degree of the polynomial.
+     *
+     * @return the degree of the polynomial
+     */
+    public int degree() {
+<span class="fc" id="L122">        return c.length;</span>
+    }
+
+    /**
+     * Returns a copy of coefficients in Newton form formula.
+     * &lt;p&gt;
+     * Changes made to the returned copy will not affect the polynomial.&lt;/p&gt;
+     *
+     * @return a fresh copy of coefficients in Newton form formula
+     */
+    public double[] getNewtonCoefficients() {
+<span class="nc" id="L133">        double[] out = new double[a.length];</span>
+<span class="nc" id="L134">        System.arraycopy(a, 0, out, 0, a.length);</span>
+<span class="nc" id="L135">        return out;</span>
+    }
+
+    /**
+     * Returns a copy of the centers array.
+     * &lt;p&gt;
+     * Changes made to the returned copy will not affect the polynomial.&lt;/p&gt;
+     *
+     * @return a fresh copy of the centers array.
+     */
+    public double[] getCenters() {
+<span class="nc" id="L146">        double[] out = new double[c.length];</span>
+<span class="nc" id="L147">        System.arraycopy(c, 0, out, 0, c.length);</span>
+<span class="nc" id="L148">        return out;</span>
+    }
+
+    /**
+     * Returns a copy of the coefficients array.
+     * &lt;p&gt;
+     * Changes made to the returned copy will not affect the polynomial.&lt;/p&gt;
+     *
+     * @return a fresh copy of the coefficients array.
+     */
+    public double[] getCoefficients() {
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">        if (!coefficientsComputed) {</span>
+<span class="fc" id="L160">            computeCoefficients();</span>
+        }
+<span class="fc" id="L162">        double[] out = new double[coefficients.length];</span>
+<span class="fc" id="L163">        System.arraycopy(coefficients, 0, out, 0, coefficients.length);</span>
+<span class="fc" id="L164">        return out;</span>
+    }
+
+    /**
+     * Evaluate the Newton polynomial using nested multiplication. It is
+     * also called &lt;a href=&quot;http://mathworld.wolfram.com/HornersRule.html&quot;&gt;
+     * Horner's Rule&lt;/a&gt; and takes O(N) time.
+     *
+     * @param a Coefficients in Newton form formula.
+     * @param c Centers.
+     * @param z Point at which the function value is to be computed.
+     * @return the function value.
+     * @throws NullArgumentException if any argument is {@code null}.
+     * @throws NoDataException if any array has zero length.
+     * @throws DimensionMismatchException if the size difference between
+     * {@code a} and {@code c} is not equal to 1.
+     */
+    public static double evaluate(double a[], double c[], double z)
+        throws NullArgumentException, DimensionMismatchException, NoDataException {
+<span class="fc" id="L183">        verifyInputArray(a, c);</span>
+
+<span class="fc" id="L185">        final int n = c.length;</span>
+<span class="fc" id="L186">        double value = a[n];</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">        for (int i = n - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L188">            value = a[i] + (z - c[i]) * value;</span>
+        }
+
+<span class="fc" id="L191">        return value;</span>
+    }
+
+    /**
+     * Calculate the normal polynomial coefficients given the Newton form.
+     * It also uses nested multiplication but takes O(N^2) time.
+     */
+    protected void computeCoefficients() {
+<span class="fc" id="L199">        final int n = degree();</span>
+
+<span class="fc" id="L201">        coefficients = new double[n+1];</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">        for (int i = 0; i &lt;= n; i++) {</span>
+<span class="fc" id="L203">            coefficients[i] = 0.0;</span>
+        }
+
+<span class="fc" id="L206">        coefficients[0] = a[n];</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        for (int i = n-1; i &gt;= 0; i--) {</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">            for (int j = n-i; j &gt; 0; j--) {</span>
+<span class="fc" id="L209">                coefficients[j] = coefficients[j-1] - c[i] * coefficients[j];</span>
+            }
+<span class="fc" id="L211">            coefficients[0] = a[i] - c[i] * coefficients[0];</span>
+        }
+
+<span class="fc" id="L214">        coefficientsComputed = true;</span>
+<span class="fc" id="L215">    }</span>
+
+    /**
+     * Verifies that the input arrays are valid.
+     * &lt;p&gt;
+     * The centers must be distinct for interpolation purposes, but not
+     * for general use. Thus it is not verified here.&lt;/p&gt;
+     *
+     * @param a the coefficients in Newton form formula
+     * @param c the centers
+     * @throws NullArgumentException if any argument is {@code null}.
+     * @throws NoDataException if any array has zero length.
+     * @throws DimensionMismatchException if the size difference between
+     * {@code a} and {@code c} is not equal to 1.
+     * @see org.apache.commons.math3.analysis.interpolation.DividedDifferenceInterpolator#computeDividedDifference(double[],
+     * double[])
+     */
+    protected static void verifyInputArray(double a[], double c[])
+        throws NullArgumentException, NoDataException, DimensionMismatchException {
+<span class="fc" id="L234">        MathUtils.checkNotNull(a);</span>
+<span class="fc" id="L235">        MathUtils.checkNotNull(c);</span>
+<span class="pc bpc" id="L236" title="2 of 4 branches missed.">        if (a.length == 0 || c.length == 0) {</span>
+<span class="nc" id="L237">            throw new NoDataException(LocalizedFormats.EMPTY_POLYNOMIALS_COEFFICIENTS_ARRAY);</span>
+        }
+<span class="fc bfc" id="L239" title="All 2 branches covered.">        if (a.length != c.length + 1) {</span>
+<span class="fc" id="L240">            throw new DimensionMismatchException(LocalizedFormats.ARRAY_SIZES_SHOULD_HAVE_DIFFERENCE_1,</span>
+                                                 a.length, c.length);
+        }
+<span class="fc" id="L243">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.apache.commons.math3.distribution;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.junit.Assert;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.junit.Test;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>/**<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * Test cases for {@link ChiSquaredDistribution}.<a name="line.24"></a>
+<span class="sourceLineNo">025</span> *<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * @see RealDistributionAbstractTest<a name="line.26"></a>
+<span class="sourceLineNo">027</span> */<a name="line.27"></a>
+<span class="sourceLineNo">028</span>public class ChiSquaredDistributionTest extends RealDistributionAbstractTest {<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>    //-------------- Implementations for abstract methods -----------------------<a name="line.30"></a>
+<span class="sourceLineNo">031</span><a name="line.31"></a>
+<span class="sourceLineNo">032</span>    /** Creates the default continuous distribution instance to use in tests. */<a name="line.32"></a>
+<span class="sourceLineNo">033</span>    @Override<a name="line.33"></a>
+<span class="sourceLineNo">034</span>    public ChiSquaredDistribution makeDistribution() {<a name="line.34"></a>
+<span class="sourceLineNo">035</span>        return new ChiSquaredDistribution(5.0);<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    }<a name="line.36"></a>
+<span class="sourceLineNo">037</span><a name="line.37"></a>
+<span class="sourceLineNo">038</span>    /** Creates the default cumulative probability distribution test input values */<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    @Override<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    public double[] makeCumulativeTestPoints() {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        // quantiles computed using R version 2.9.2<a name="line.41"></a>
+<span class="sourceLineNo">042</span>        return new double[] {0.210212602629, 0.554298076728, 0.831211613487, 1.14547622606, 1.61030798696,<a name="line.42"></a>
+<span class="sourceLineNo">043</span>                20.5150056524, 15.0862724694, 12.8325019940, 11.0704976935, 9.23635689978};<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    }<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>    /** Creates the default cumulative probability density test expected values */<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    @Override<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    public double[] makeCumulativeTestValues() {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        return new double[] {0.001, 0.01, 0.025, 0.05, 0.1, 0.999, 0.990, 0.975, 0.950, 0.900};<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    }<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>    /** Creates the default inverse cumulative probability test input values */<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    @Override<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    public double[] makeInverseCumulativeTestPoints() {<a name="line.54"></a>
+<span class="sourceLineNo">055</span>        return new double[] {0, 0.001d, 0.01d, 0.025d, 0.05d, 0.1d, 0.999d,<a name="line.55"></a>
+<span class="sourceLineNo">056</span>                0.990d, 0.975d, 0.950d, 0.900d, 1};<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    }<a name="line.57"></a>
+<span class="sourceLineNo">058</span><a name="line.58"></a>
+<span class="sourceLineNo">059</span>    /** Creates the default inverse cumulative probability density test expected values */<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    @Override<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    public double[] makeInverseCumulativeTestValues() {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        return new double[] {0, 0.210212602629, 0.554298076728, 0.831211613487, 1.14547622606, 1.61030798696,<a name="line.62"></a>
+<span class="sourceLineNo">063</span>                20.5150056524, 15.0862724694, 12.8325019940, 11.0704976935, 9.23635689978,<a name="line.63"></a>
+<span class="sourceLineNo">064</span>                Double.POSITIVE_INFINITY};<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    }<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>    /** Creates the default probability density test expected values */<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    @Override<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    public double[] makeDensityTestValues() {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        return new double[] {0.0115379817652, 0.0415948507811, 0.0665060119842, 0.0919455953114, 0.121472591024,<a name="line.70"></a>
+<span class="sourceLineNo">071</span>                0.000433630076361, 0.00412780610309, 0.00999340341045, 0.0193246438937, 0.0368460089216};<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    }<a name="line.72"></a>
+<span class="sourceLineNo">073</span><a name="line.73"></a>
+<span class="sourceLineNo">074</span> // --------------------- Override tolerance  --------------<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    @Override<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    public void setUp() {<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        super.setUp();<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        setTolerance(1e-9);<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    }<a name="line.79"></a>
+<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">081</span> //---------------------------- Additional test cases -------------------------<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>    @Test<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    public void testSmallDf() {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        setDistribution(new ChiSquaredDistribution(0.1d));<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        setTolerance(1E-4);<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        // quantiles computed using R version 1.8.1 (linux version)<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        setCumulativeTestPoints(new double[] {1.168926E-60, 1.168926E-40, 1.063132E-32,<a name="line.88"></a>
+<span class="sourceLineNo">089</span>                1.144775E-26, 1.168926E-20, 5.472917, 2.175255, 1.13438,<a name="line.89"></a>
+<span class="sourceLineNo">090</span>                0.5318646, 0.1526342});<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        setInverseCumulativeTestValues(getCumulativeTestPoints());<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        setInverseCumulativeTestPoints(getCumulativeTestValues());<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        verifyCumulativeProbabilities();<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        verifyInverseCumulativeProbabilities();<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    }<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>    @Test<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    public void testDfAccessors() {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        ChiSquaredDistribution distribution = (ChiSquaredDistribution) getDistribution();<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        Assert.assertEquals(5d, distribution.getDegreesOfFreedom(), Double.MIN_VALUE);<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    }<a name="line.101"></a>
+<span class="sourceLineNo">102</span><a name="line.102"></a>
+<span class="sourceLineNo">103</span>    @Test<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    public void testDensity() {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        double[] x = new double[]{-0.1, 1e-6, 0.5, 1, 2, 5};<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        //R 2.5: print(dchisq(x, df=1), digits=10)<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        checkDensity(1, x, new double[]{0.00000000000, 398.94208093034, 0.43939128947, 0.24197072452, 0.10377687436, 0.01464498256});<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        //R 2.5: print(dchisq(x, df=0.1), digits=10)<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        checkDensity(0.1, x, new double[]{0.000000000e+00, 2.486453997e+04, 7.464238732e-02, 3.009077718e-02, 9.447299159e-03, 8.827199396e-04});<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        //R 2.5: print(dchisq(x, df=2), digits=10)<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        checkDensity(2, x, new double[]{0.00000000000, 0.49999975000, 0.38940039154, 0.30326532986, 0.18393972059, 0.04104249931});<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        //R 2.5: print(dchisq(x, df=10), digits=10)<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        checkDensity(10, x, new double[]{0.000000000e+00, 1.302082682e-27, 6.337896998e-05, 7.897534632e-04, 7.664155024e-03, 6.680094289e-02});<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    }<a name="line.114"></a>
+<span class="sourceLineNo">115</span><a name="line.115"></a>
+<span class="sourceLineNo">116</span>    private void checkDensity(double df, double[] x, double[] expected) {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        ChiSquaredDistribution d = new ChiSquaredDistribution(df);<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        for (int i = 0; i &lt; x.length; i++) {<a name="line.118"></a>
+<span class="sourceLineNo">119</span>            Assert.assertEquals(expected[i], d.density(x[i]), 1e-5);<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        }<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    }<a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
+<span class="sourceLineNo">123</span>    @Test<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    public void testMoments() {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        final double tol = 1e-9;<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        ChiSquaredDistribution dist;<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>        dist = new ChiSquaredDistribution(1500);<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        Assert.assertEquals(dist.getNumericalMean(), 1500, tol);<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        Assert.assertEquals(dist.getNumericalVariance(), 3000, tol);<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>        dist = new ChiSquaredDistribution(1.12);<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        Assert.assertEquals(dist.getNumericalMean(), 1.12, tol);<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        Assert.assertEquals(dist.getNumericalVariance(), 2.24, tol);<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    }<a name="line.135"></a>
+<span class="sourceLineNo">136</span>}<a name="line.136"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

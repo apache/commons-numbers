@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>NoBracketingException.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.exception</a> &gt; <span class="el_source">NoBracketingException.java</span></div><h1>NoBracketingException.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.exception;
+
+import org.apache.commons.math3.exception.util.Localizable;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+
+/**
+ * Exception to be thrown when function values have the same sign at both
+ * ends of an interval.
+ *
+ * @since 3.0
+ */
+public class NoBracketingException extends MathIllegalArgumentException {
+    /** Serializable version Id. */
+    private static final long serialVersionUID = -3629324471511904459L;
+    /** Lower end of the interval. */
+    private final double lo;
+    /** Higher end of the interval. */
+    private final double hi;
+    /** Value at lower end of the interval. */
+    private final double fLo;
+    /** Value at higher end of the interval. */
+    private final double fHi;
+
+    /**
+     * Construct the exception.
+     *
+     * @param lo Lower end of the interval.
+     * @param hi Higher end of the interval.
+     * @param fLo Value at lower end of the interval.
+     * @param fHi Value at higher end of the interval.
+     */
+    public NoBracketingException(double lo, double hi,
+                                 double fLo, double fHi) {
+<span class="fc" id="L50">        this(LocalizedFormats.SAME_SIGN_AT_ENDPOINTS, lo, hi, fLo, fHi);</span>
+<span class="fc" id="L51">    }</span>
+
+    /**
+     * Construct the exception with a specific context.
+     *
+     * @param specific Contextual information on what caused the exception.
+     * @param lo Lower end of the interval.
+     * @param hi Higher end of the interval.
+     * @param fLo Value at lower end of the interval.
+     * @param fHi Value at higher end of the interval.
+     * @param args Additional arguments.
+     */
+    public NoBracketingException(Localizable specific,
+                                 double lo, double hi,
+                                 double fLo, double fHi,
+                                 Object ... args) {
+<span class="fc" id="L67">        super(specific, Double.valueOf(lo), Double.valueOf(hi), Double.valueOf(fLo), Double.valueOf(fHi), args);</span>
+<span class="fc" id="L68">        this.lo = lo;</span>
+<span class="fc" id="L69">        this.hi = hi;</span>
+<span class="fc" id="L70">        this.fLo = fLo;</span>
+<span class="fc" id="L71">        this.fHi = fHi;</span>
+<span class="fc" id="L72">    }</span>
+
+    /**
+     * Get the lower end of the interval.
+     *
+     * @return the lower end.
+     */
+    public double getLo() {
+<span class="nc" id="L80">        return lo;</span>
+    }
+    /**
+     * Get the higher end of the interval.
+     *
+     * @return the higher end.
+     */
+    public double getHi() {
+<span class="nc" id="L88">        return hi;</span>
+    }
+    /**
+     * Get the value at the lower end of the interval.
+     *
+     * @return the value at the lower end.
+     */
+    public double getFLo() {
+<span class="nc" id="L96">        return fLo;</span>
+    }
+    /**
+     * Get the value at the higher end of the interval.
+     *
+     * @return the value at the higher end.
+     */
+    public double getFHi() {
+<span class="nc" id="L104">        return fHi;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

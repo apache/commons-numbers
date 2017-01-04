@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DefaultFieldMatrixPreservingVisitor.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.linear</a> &gt; <span class="el_source">DefaultFieldMatrixPreservingVisitor.java</span></div><h1>DefaultFieldMatrixPreservingVisitor.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.linear;
+
+import org.apache.commons.math3.FieldElement;
+
+/**
+ * Default implementation of the {@link FieldMatrixPreservingVisitor} interface.
+ * &lt;p&gt;
+ * This class is a convenience to create custom visitors without defining all
+ * methods. This class provides default implementations that do nothing.
+ * &lt;/p&gt;
+ *
+ * @param &lt;T&gt; the type of the field elements
+ * @since 2.0
+ */
+public class DefaultFieldMatrixPreservingVisitor&lt;T extends FieldElement&lt;T&gt;&gt;
+    implements FieldMatrixPreservingVisitor&lt;T&gt; {
+    /** Zero element of the field. */
+    private final T zero;
+
+    /** Build a new instance.
+     * @param zero additive identity of the field
+     */
+<span class="fc" id="L40">    public DefaultFieldMatrixPreservingVisitor(final T zero) {</span>
+<span class="fc" id="L41">        this.zero = zero;</span>
+<span class="fc" id="L42">    }</span>
+
+    /** {@inheritDoc} */
+    public void start(int rows, int columns,
+                      int startRow, int endRow, int startColumn, int endColumn) {
+<span class="fc" id="L47">    }</span>
+
+    /** {@inheritDoc} */
+<span class="nc" id="L50">    public void visit(int row, int column, T value) {}</span>
+
+    /** {@inheritDoc} */
+    public T end() {
+<span class="fc" id="L54">        return zero;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

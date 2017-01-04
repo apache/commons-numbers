@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Incrementor.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.util</a> &gt; <span class="el_source">Incrementor.java</span></div><h1>Incrementor.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.util;
+
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.exception.NullArgumentException;
+
+/**
+ * Utility that increments a counter until a maximum is reached, at
+ * which point, the instance will by default throw a
+ * {@link MaxCountExceededException}.
+ * However, the user is able to override this behaviour by defining a
+ * custom {@link MaxCountExceededCallback callback}, in order to e.g.
+ * select which exception must be thrown.
+ *
+ * @since 3.0
+ * @deprecated Use {@link IntegerSequence.Incrementor} instead.
+ */
+@Deprecated
+public class Incrementor {
+    /**
+     * Upper limit for the counter.
+     */
+    private int maximalCount;
+    /**
+     * Current count.
+     */
+<span class="fc" id="L42">    private int count = 0;</span>
+    /**
+     * Function called at counter exhaustion.
+     */
+    private final MaxCountExceededCallback maxCountCallback;
+
+    /**
+     * Default constructor.
+     * For the new instance to be useful, the maximal count must be set
+     * by calling {@link #setMaximalCount(int) setMaximalCount}.
+     */
+    public Incrementor() {
+<span class="fc" id="L54">        this(0);</span>
+<span class="fc" id="L55">    }</span>
+
+    /**
+     * Defines a maximal count.
+     *
+     * @param max Maximal count.
+     */
+    public Incrementor(int max) {
+<span class="fc" id="L63">        this(max,</span>
+<span class="fc" id="L64">             new MaxCountExceededCallback() {</span>
+                 /** {@inheritDoc} */
+                 public void trigger(int max) throws MaxCountExceededException {
+<span class="fc" id="L67">                     throw new MaxCountExceededException(max);</span>
+                 }
+             });
+<span class="fc" id="L70">    }</span>
+
+    /**
+     * Defines a maximal count and a callback method to be triggered at
+     * counter exhaustion.
+     *
+     * @param max Maximal count.
+     * @param cb Function to be called when the maximal count has been reached.
+     * @throws NullArgumentException if {@code cb} is {@code null}
+     */
+    public Incrementor(int max, MaxCountExceededCallback cb)
+<span class="fc" id="L81">        throws NullArgumentException {</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        if (cb == null){</span>
+<span class="nc" id="L83">            throw new NullArgumentException();</span>
+        }
+<span class="fc" id="L85">        maximalCount = max;</span>
+<span class="fc" id="L86">        maxCountCallback = cb;</span>
+<span class="fc" id="L87">    }</span>
+
+    /**
+     * Sets the upper limit for the counter.
+     * This does not automatically reset the current count to zero (see
+     * {@link #resetCount()}).
+     *
+     * @param max Upper limit of the counter.
+     */
+    public void setMaximalCount(int max) {
+<span class="fc" id="L97">        maximalCount = max;</span>
+<span class="fc" id="L98">    }</span>
+
+    /**
+     * Gets the upper limit of the counter.
+     *
+     * @return the counter upper limit.
+     */
+    public int getMaximalCount() {
+<span class="fc" id="L106">        return maximalCount;</span>
+    }
+
+    /**
+     * Gets the current count.
+     *
+     * @return the current count.
+     */
+    public int getCount() {
+<span class="fc" id="L115">        return count;</span>
+    }
+
+    /**
+     * Checks whether a single increment is allowed.
+     *
+     * @return {@code false} if the next call to {@link #incrementCount(int)
+     * incrementCount} will trigger a {@code MaxCountExceededException},
+     * {@code true} otherwise.
+     */
+    public boolean canIncrement() {
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        return count &lt; maximalCount;</span>
+    }
+
+    /**
+     * Performs multiple increments.
+     * See the other {@link #incrementCount() incrementCount} method).
+     *
+     * @param value Number of increments.
+     * @throws MaxCountExceededException at counter exhaustion.
+     */
+    public void incrementCount(int value) throws MaxCountExceededException {
+<span class="fc bfc" id="L137" title="All 2 branches covered.">        for (int i = 0; i &lt; value; i++) {</span>
+<span class="fc" id="L138">            incrementCount();</span>
+        }
+<span class="fc" id="L140">    }</span>
+
+    /**
+     * Adds one to the current iteration count.
+     * At counter exhaustion, this method will call the
+     * {@link MaxCountExceededCallback#trigger(int) trigger} method of the
+     * callback object passed to the
+     * {@link #Incrementor(int,MaxCountExceededCallback) constructor}.
+     * If not explictly set, a default callback is used that will throw
+     * a {@code MaxCountExceededException}.
+     *
+     * @throws MaxCountExceededException at counter exhaustion, unless a
+     * custom {@link MaxCountExceededCallback callback} has been set at
+     * construction.
+     */
+    public void incrementCount() throws MaxCountExceededException {
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        if (++count &gt; maximalCount) {</span>
+<span class="nc" id="L157">            maxCountCallback.trigger(maximalCount);</span>
+        }
+<span class="fc" id="L159">    }</span>
+
+    /**
+     * Resets the counter to 0.
+     */
+    public void resetCount() {
+<span class="fc" id="L165">        count = 0;</span>
+<span class="fc" id="L166">    }</span>
+
+    /**
+     * Defines a method to be called at counter exhaustion.
+     * The {@link #trigger(int) trigger} method should usually throw an exception.
+     */
+    public interface MaxCountExceededCallback {
+        /**
+         * Function called when the maximal count has been reached.
+         *
+         * @param maximalCount Maximal count.
+         * @throws MaxCountExceededException at counter exhaustion
+         */
+        void trigger(int maximalCount) throws MaxCountExceededException;
+    }
+
+    /** Create an instance that delegates everything to a {@link IntegerSequence.Incrementor}.
+     * &lt;p&gt;
+     * This factory method is intended only as a temporary hack for internal use in
+     * Apache Commons Math 3.X series, when {@code Incrementor} is required in
+     * interface (as a return value or in protected fields). It should &lt;em&gt;not&lt;/em&gt;
+     * be used in other cases. The {@link IntegerSequence.Incrementor} class should
+     * be used instead of {@code Incrementor}.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * All methods are mirrored to the underlying {@link IntegerSequence.Incrementor},
+     * as long as neither {@link #setMaximalCount(int)} nor {@link #resetCount()} are called.
+     * If one of these two methods is called, the created instance becomes independent
+     * of the {@link IntegerSequence.Incrementor} used at creation. The rationale is that
+     * {@link IntegerSequence.Incrementor} cannot change their maximal count and cannot be reset.
+     * &lt;/p&gt;
+     * @param incrementor wrapped {@link IntegerSequence.Incrementor}
+     * @return an incrementor wrapping an {@link IntegerSequence.Incrementor}
+     * @since 3.6
+     */
+    public static Incrementor wrap(final IntegerSequence.Incrementor incrementor) {
+<span class="fc" id="L202">        return new Incrementor() {</span>
+
+            /** Underlying incrementor. */
+            private IntegerSequence.Incrementor delegate;
+
+            {
+                // set up matching values at initialization
+<span class="fc" id="L209">                delegate = incrementor;</span>
+<span class="fc" id="L210">                super.setMaximalCount(delegate.getMaximalCount());</span>
+<span class="fc" id="L211">                super.incrementCount(delegate.getCount());</span>
+<span class="fc" id="L212">            }</span>
+
+            /** {@inheritDoc} */
+            @Override
+            public void setMaximalCount(int max) {
+<span class="nc" id="L217">                super.setMaximalCount(max);</span>
+<span class="nc" id="L218">                delegate = delegate.withMaximalCount(max);</span>
+<span class="nc" id="L219">            }</span>
+
+            /** {@inheritDoc} */
+            @Override
+            public void resetCount() {
+<span class="nc" id="L224">                super.resetCount();</span>
+<span class="nc" id="L225">                delegate = delegate.withStart(0);</span>
+<span class="nc" id="L226">            }</span>
+
+            /** {@inheritDoc} */
+            @Override
+            public void incrementCount() {
+<span class="nc" id="L231">                super.incrementCount();</span>
+<span class="nc" id="L232">                delegate.increment();</span>
+<span class="nc" id="L233">            }</span>
+
+        };
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

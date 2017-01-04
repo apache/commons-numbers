@@ -1,0 +1,687 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>IntervalsSet.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.euclidean.oned</a> &gt; <span class="el_source">IntervalsSet.java</span></div><h1>IntervalsSet.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.euclidean.oned;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import org.apache.commons.math3.geometry.Point;
+import org.apache.commons.math3.geometry.partitioning.AbstractRegion;
+import org.apache.commons.math3.geometry.partitioning.BSPTree;
+import org.apache.commons.math3.geometry.partitioning.BoundaryProjection;
+import org.apache.commons.math3.geometry.partitioning.SubHyperplane;
+import org.apache.commons.math3.util.Precision;
+
+/** This class represents a 1D region: a set of intervals.
+ * @since 3.0
+ */
+public class IntervalsSet extends AbstractRegion&lt;Euclidean1D, Euclidean1D&gt; implements Iterable&lt;double[]&gt; {
+
+    /** Default value for tolerance. */
+    private static final double DEFAULT_TOLERANCE = 1.0e-10;
+
+    /** Build an intervals set representing the whole real line.
+     * @param tolerance tolerance below which points are considered identical.
+     * @since 3.3
+     */
+    public IntervalsSet(final double tolerance) {
+<span class="fc" id="L45">        super(tolerance);</span>
+<span class="fc" id="L46">    }</span>
+
+    /** Build an intervals set corresponding to a single interval.
+     * @param lower lower bound of the interval, must be lesser or equal
+     * to {@code upper} (may be {@code Double.NEGATIVE_INFINITY})
+     * @param upper upper bound of the interval, must be greater or equal
+     * to {@code lower} (may be {@code Double.POSITIVE_INFINITY})
+     * @param tolerance tolerance below which points are considered identical.
+     * @since 3.3
+     */
+    public IntervalsSet(final double lower, final double upper, final double tolerance) {
+<span class="fc" id="L57">        super(buildTree(lower, upper, tolerance), tolerance);</span>
+<span class="fc" id="L58">    }</span>
+
+    /** Build an intervals set from an inside/outside BSP tree.
+     * &lt;p&gt;The leaf nodes of the BSP tree &lt;em&gt;must&lt;/em&gt; have a
+     * {@code Boolean} attribute representing the inside status of
+     * the corresponding cell (true for inside cells, false for outside
+     * cells). In order to avoid building too many small objects, it is
+     * recommended to use the predefined constants
+     * {@code Boolean.TRUE} and {@code Boolean.FALSE}&lt;/p&gt;
+     * @param tree inside/outside BSP tree representing the intervals set
+     * @param tolerance tolerance below which points are considered identical.
+     * @since 3.3
+     */
+    public IntervalsSet(final BSPTree&lt;Euclidean1D&gt; tree, final double tolerance) {
+<span class="fc" id="L72">        super(tree, tolerance);</span>
+<span class="fc" id="L73">    }</span>
+
+    /** Build an intervals set from a Boundary REPresentation (B-rep).
+     * &lt;p&gt;The boundary is provided as a collection of {@link
+     * SubHyperplane sub-hyperplanes}. Each sub-hyperplane has the
+     * interior part of the region on its minus side and the exterior on
+     * its plus side.&lt;/p&gt;
+     * &lt;p&gt;The boundary elements can be in any order, and can form
+     * several non-connected sets (like for example polygons with holes
+     * or a set of disjoints polyhedrons considered as a whole). In
+     * fact, the elements do not even need to be connected together
+     * (their topological connections are not used here). However, if the
+     * boundary does not really separate an inside open from an outside
+     * open (open having here its topological meaning), then subsequent
+     * calls to the {@link
+     * org.apache.commons.math3.geometry.partitioning.Region#checkPoint(org.apache.commons.math3.geometry.Point)
+     * checkPoint} method will not be meaningful anymore.&lt;/p&gt;
+     * &lt;p&gt;If the boundary is empty, the region will represent the whole
+     * space.&lt;/p&gt;
+     * @param boundary collection of boundary elements
+     * @param tolerance tolerance below which points are considered identical.
+     * @since 3.3
+     */
+    public IntervalsSet(final Collection&lt;SubHyperplane&lt;Euclidean1D&gt;&gt; boundary,
+                        final double tolerance) {
+<span class="nc" id="L98">        super(boundary, tolerance);</span>
+<span class="nc" id="L99">    }</span>
+
+    /** Build an intervals set representing the whole real line.
+     * @deprecated as of 3.1 replaced with {@link #IntervalsSet(double)}
+     */
+    @Deprecated
+    public IntervalsSet() {
+<span class="nc" id="L106">        this(DEFAULT_TOLERANCE);</span>
+<span class="nc" id="L107">    }</span>
+
+    /** Build an intervals set corresponding to a single interval.
+     * @param lower lower bound of the interval, must be lesser or equal
+     * to {@code upper} (may be {@code Double.NEGATIVE_INFINITY})
+     * @param upper upper bound of the interval, must be greater or equal
+     * to {@code lower} (may be {@code Double.POSITIVE_INFINITY})
+     * @deprecated as of 3.3 replaced with {@link #IntervalsSet(double, double, double)}
+     */
+    @Deprecated
+    public IntervalsSet(final double lower, final double upper) {
+<span class="nc" id="L118">        this(lower, upper, DEFAULT_TOLERANCE);</span>
+<span class="nc" id="L119">    }</span>
+
+    /** Build an intervals set from an inside/outside BSP tree.
+     * &lt;p&gt;The leaf nodes of the BSP tree &lt;em&gt;must&lt;/em&gt; have a
+     * {@code Boolean} attribute representing the inside status of
+     * the corresponding cell (true for inside cells, false for outside
+     * cells). In order to avoid building too many small objects, it is
+     * recommended to use the predefined constants
+     * {@code Boolean.TRUE} and {@code Boolean.FALSE}&lt;/p&gt;
+     * @param tree inside/outside BSP tree representing the intervals set
+     * @deprecated as of 3.3, replaced with {@link #IntervalsSet(BSPTree, double)}
+     */
+    @Deprecated
+    public IntervalsSet(final BSPTree&lt;Euclidean1D&gt; tree) {
+<span class="nc" id="L133">        this(tree, DEFAULT_TOLERANCE);</span>
+<span class="nc" id="L134">    }</span>
+
+    /** Build an intervals set from a Boundary REPresentation (B-rep).
+     * &lt;p&gt;The boundary is provided as a collection of {@link
+     * SubHyperplane sub-hyperplanes}. Each sub-hyperplane has the
+     * interior part of the region on its minus side and the exterior on
+     * its plus side.&lt;/p&gt;
+     * &lt;p&gt;The boundary elements can be in any order, and can form
+     * several non-connected sets (like for example polygons with holes
+     * or a set of disjoints polyhedrons considered as a whole). In
+     * fact, the elements do not even need to be connected together
+     * (their topological connections are not used here). However, if the
+     * boundary does not really separate an inside open from an outside
+     * open (open having here its topological meaning), then subsequent
+     * calls to the {@link
+     * org.apache.commons.math3.geometry.partitioning.Region#checkPoint(org.apache.commons.math3.geometry.Point)
+     * checkPoint} method will not be meaningful anymore.&lt;/p&gt;
+     * &lt;p&gt;If the boundary is empty, the region will represent the whole
+     * space.&lt;/p&gt;
+     * @param boundary collection of boundary elements
+     * @deprecated as of 3.3, replaced with {@link #IntervalsSet(Collection, double)}
+     */
+    @Deprecated
+    public IntervalsSet(final Collection&lt;SubHyperplane&lt;Euclidean1D&gt;&gt; boundary) {
+<span class="nc" id="L158">        this(boundary, DEFAULT_TOLERANCE);</span>
+<span class="nc" id="L159">    }</span>
+
+    /** Build an inside/outside tree representing a single interval.
+     * @param lower lower bound of the interval, must be lesser or equal
+     * to {@code upper} (may be {@code Double.NEGATIVE_INFINITY})
+     * @param upper upper bound of the interval, must be greater or equal
+     * to {@code lower} (may be {@code Double.POSITIVE_INFINITY})
+     * @param tolerance tolerance below which points are considered identical.
+     * @return the built tree
+     */
+    private static BSPTree&lt;Euclidean1D&gt; buildTree(final double lower, final double upper,
+                                                  final double tolerance) {
+<span class="pc bpc" id="L171" title="1 of 4 branches missed.">        if (Double.isInfinite(lower) &amp;&amp; (lower &lt; 0)) {</span>
+<span class="pc bpc" id="L172" title="3 of 4 branches missed.">            if (Double.isInfinite(upper) &amp;&amp; (upper &gt; 0)) {</span>
+                // the tree must cover the whole real line
+<span class="nc" id="L174">                return new BSPTree&lt;Euclidean1D&gt;(Boolean.TRUE);</span>
+            }
+            // the tree must be open on the negative infinity side
+<span class="fc" id="L177">            final SubHyperplane&lt;Euclidean1D&gt; upperCut =</span>
+                new OrientedPoint(new Vector1D(upper), true, tolerance).wholeHyperplane();
+<span class="fc" id="L179">            return new BSPTree&lt;Euclidean1D&gt;(upperCut,</span>
+                               new BSPTree&lt;Euclidean1D&gt;(Boolean.FALSE),
+                               new BSPTree&lt;Euclidean1D&gt;(Boolean.TRUE),
+                               null);
+        }
+<span class="fc" id="L184">        final SubHyperplane&lt;Euclidean1D&gt; lowerCut =</span>
+            new OrientedPoint(new Vector1D(lower), false, tolerance).wholeHyperplane();
+<span class="pc bpc" id="L186" title="1 of 4 branches missed.">        if (Double.isInfinite(upper) &amp;&amp; (upper &gt; 0)) {</span>
+            // the tree must be open on the positive infinity side
+<span class="fc" id="L188">            return new BSPTree&lt;Euclidean1D&gt;(lowerCut,</span>
+                                            new BSPTree&lt;Euclidean1D&gt;(Boolean.FALSE),
+                                            new BSPTree&lt;Euclidean1D&gt;(Boolean.TRUE),
+                                            null);
+        }
+
+        // the tree must be bounded on the two sides
+<span class="fc" id="L195">        final SubHyperplane&lt;Euclidean1D&gt; upperCut =</span>
+            new OrientedPoint(new Vector1D(upper), true, tolerance).wholeHyperplane();
+<span class="fc" id="L197">        return new BSPTree&lt;Euclidean1D&gt;(lowerCut,</span>
+                                        new BSPTree&lt;Euclidean1D&gt;(Boolean.FALSE),
+                                        new BSPTree&lt;Euclidean1D&gt;(upperCut,
+                                                                 new BSPTree&lt;Euclidean1D&gt;(Boolean.FALSE),
+                                                                 new BSPTree&lt;Euclidean1D&gt;(Boolean.TRUE),
+                                                                 null),
+                                        null);
+
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public IntervalsSet buildNew(final BSPTree&lt;Euclidean1D&gt; tree) {
+<span class="fc" id="L210">        return new IntervalsSet(tree, getTolerance());</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected void computeGeometricalProperties() {
+<span class="pc bpc" id="L216" title="1 of 2 branches missed.">        if (getTree(false).getCut() == null) {</span>
+<span class="nc" id="L217">            setBarycenter((Point&lt;Euclidean1D&gt;) Vector1D.NaN);</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">            setSize(((Boolean) getTree(false).getAttribute()) ? Double.POSITIVE_INFINITY : 0);</span>
+        } else {
+<span class="fc" id="L220">            double size = 0.0;</span>
+<span class="fc" id="L221">            double sum = 0.0;</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">            for (final Interval interval : asList()) {</span>
+<span class="fc" id="L223">                size += interval.getSize();</span>
+<span class="fc" id="L224">                sum  += interval.getSize() * interval.getBarycenter();</span>
+<span class="fc" id="L225">            }</span>
+<span class="fc" id="L226">            setSize(size);</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">            if (Double.isInfinite(size)) {</span>
+<span class="fc" id="L228">                setBarycenter((Point&lt;Euclidean1D&gt;) Vector1D.NaN);</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">            } else if (size &gt;= Precision.SAFE_MIN) {</span>
+<span class="fc" id="L230">                setBarycenter((Point&lt;Euclidean1D&gt;) new Vector1D(sum / size));</span>
+            } else {
+<span class="fc" id="L232">                setBarycenter((Point&lt;Euclidean1D&gt;) ((OrientedPoint) getTree(false).getCut().getHyperplane()).getLocation());</span>
+            }
+        }
+<span class="fc" id="L235">    }</span>
+
+    /** Get the lowest value belonging to the instance.
+     * @return lowest value belonging to the instance
+     * ({@code Double.NEGATIVE_INFINITY} if the instance doesn't
+     * have any low bound, {@code Double.POSITIVE_INFINITY} if the
+     * instance is empty)
+     */
+    public double getInf() {
+<span class="fc" id="L244">        BSPTree&lt;Euclidean1D&gt; node = getTree(false);</span>
+<span class="fc" id="L245">        double  inf  = Double.POSITIVE_INFINITY;</span>
+<span class="fc bfc" id="L246" title="All 2 branches covered.">        while (node.getCut() != null) {</span>
+<span class="fc" id="L247">            final OrientedPoint op = (OrientedPoint) node.getCut().getHyperplane();</span>
+<span class="fc" id="L248">            inf  = op.getLocation().getX();</span>
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">            node = op.isDirect() ? node.getMinus() : node.getPlus();</span>
+<span class="fc" id="L250">        }</span>
+<span class="fc bfc" id="L251" title="All 2 branches covered.">        return ((Boolean) node.getAttribute()) ? Double.NEGATIVE_INFINITY : inf;</span>
+    }
+
+    /** Get the highest value belonging to the instance.
+     * @return highest value belonging to the instance
+     * ({@code Double.POSITIVE_INFINITY} if the instance doesn't
+     * have any high bound, {@code Double.NEGATIVE_INFINITY} if the
+     * instance is empty)
+     */
+    public double getSup() {
+<span class="fc" id="L261">        BSPTree&lt;Euclidean1D&gt; node = getTree(false);</span>
+<span class="fc" id="L262">        double  sup  = Double.NEGATIVE_INFINITY;</span>
+<span class="fc bfc" id="L263" title="All 2 branches covered.">        while (node.getCut() != null) {</span>
+<span class="fc" id="L264">            final OrientedPoint op = (OrientedPoint) node.getCut().getHyperplane();</span>
+<span class="fc" id="L265">            sup  = op.getLocation().getX();</span>
+<span class="fc bfc" id="L266" title="All 2 branches covered.">            node = op.isDirect() ? node.getPlus() : node.getMinus();</span>
+<span class="fc" id="L267">        }</span>
+<span class="fc bfc" id="L268" title="All 2 branches covered.">        return ((Boolean) node.getAttribute()) ? Double.POSITIVE_INFINITY : sup;</span>
+    }
+
+    /** {@inheritDoc}
+     * @since 3.3
+     */
+    @Override
+    public BoundaryProjection&lt;Euclidean1D&gt; projectToBoundary(final Point&lt;Euclidean1D&gt; point) {
+
+        // get position of test point
+<span class="fc" id="L278">        final double x = ((Vector1D) point).getX();</span>
+
+<span class="fc" id="L280">        double previous = Double.NEGATIVE_INFINITY;</span>
+<span class="fc bfc" id="L281" title="All 2 branches covered.">        for (final double[] a : this) {</span>
+<span class="fc bfc" id="L282" title="All 2 branches covered.">            if (x &lt; a[0]) {</span>
+                // the test point lies between the previous and the current intervals
+                // offset will be positive
+<span class="fc" id="L285">                final double previousOffset = x - previous;</span>
+<span class="fc" id="L286">                final double currentOffset  = a[0] - x;</span>
+<span class="pc bpc" id="L287" title="1 of 2 branches missed.">                if (previousOffset &lt; currentOffset) {</span>
+<span class="nc" id="L288">                    return new BoundaryProjection&lt;Euclidean1D&gt;(point, finiteOrNullPoint(previous), previousOffset);</span>
+                } else {
+<span class="fc" id="L290">                    return new BoundaryProjection&lt;Euclidean1D&gt;(point, finiteOrNullPoint(a[0]), currentOffset);</span>
+                }
+<span class="pc bpc" id="L292" title="1 of 2 branches missed.">            } else if (x &lt;= a[1]) {</span>
+                // the test point lies within the current interval
+                // offset will be negative
+<span class="nc" id="L295">                final double offset0 = a[0] - x;</span>
+<span class="nc" id="L296">                final double offset1 = x - a[1];</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">                if (offset0 &lt; offset1) {</span>
+<span class="nc" id="L298">                    return new BoundaryProjection&lt;Euclidean1D&gt;(point, finiteOrNullPoint(a[1]), offset1);</span>
+                } else {
+<span class="nc" id="L300">                    return new BoundaryProjection&lt;Euclidean1D&gt;(point, finiteOrNullPoint(a[0]), offset0);</span>
+                }
+            }
+<span class="fc" id="L303">            previous = a[1];</span>
+<span class="fc" id="L304">        }</span>
+
+        // the test point if past the last sub-interval
+<span class="fc" id="L307">        return new BoundaryProjection&lt;Euclidean1D&gt;(point, finiteOrNullPoint(previous), x - previous);</span>
+
+    }
+
+    /** Build a finite point.
+     * @param x abscissa of the point
+     * @return a new point for finite abscissa, null otherwise
+     */
+    private Vector1D finiteOrNullPoint(final double x) {
+<span class="pc bpc" id="L316" title="1 of 2 branches missed.">        return Double.isInfinite(x) ? null : new Vector1D(x);</span>
+    }
+
+    /** Build an ordered list of intervals representing the instance.
+     * &lt;p&gt;This method builds this intervals set as an ordered list of
+     * {@link Interval Interval} elements. If the intervals set has no
+     * lower limit, the first interval will have its low bound equal to
+     * {@code Double.NEGATIVE_INFINITY}. If the intervals set has
+     * no upper limit, the last interval will have its upper bound equal
+     * to {@code Double.POSITIVE_INFINITY}. An empty tree will
+     * build an empty list while a tree representing the whole real line
+     * will build a one element list with both bounds being
+     * infinite.&lt;/p&gt;
+     * @return a new ordered list containing {@link Interval Interval}
+     * elements
+     */
+    public List&lt;Interval&gt; asList() {
+<span class="fc" id="L333">        final List&lt;Interval&gt; list = new ArrayList&lt;Interval&gt;();</span>
+<span class="fc bfc" id="L334" title="All 2 branches covered.">        for (final double[] a : this) {</span>
+<span class="fc" id="L335">            list.add(new Interval(a[0], a[1]));</span>
+<span class="fc" id="L336">        }</span>
+<span class="fc" id="L337">        return list;</span>
+    }
+
+    /** Get the first leaf node of a tree.
+     * @param root tree root
+     * @return first leaf node
+     */
+    private BSPTree&lt;Euclidean1D&gt; getFirstLeaf(final BSPTree&lt;Euclidean1D&gt; root) {
+
+<span class="fc bfc" id="L346" title="All 2 branches covered.">        if (root.getCut() == null) {</span>
+<span class="fc" id="L347">            return root;</span>
+        }
+
+        // find the smallest internal node
+<span class="fc" id="L351">        BSPTree&lt;Euclidean1D&gt; smallest = null;</span>
+<span class="fc bfc" id="L352" title="All 2 branches covered.">        for (BSPTree&lt;Euclidean1D&gt; n = root; n != null; n = previousInternalNode(n)) {</span>
+<span class="fc" id="L353">            smallest = n;</span>
+        }
+
+<span class="fc" id="L356">        return leafBefore(smallest);</span>
+
+    }
+
+    /** Get the node corresponding to the first interval boundary.
+     * @return smallest internal node,
+     * or null if there are no internal nodes (i.e. the set is either empty or covers the real line)
+     */
+    private BSPTree&lt;Euclidean1D&gt; getFirstIntervalBoundary() {
+
+        // start search at the tree root
+<span class="fc" id="L367">        BSPTree&lt;Euclidean1D&gt; node = getTree(false);</span>
+<span class="fc bfc" id="L368" title="All 2 branches covered.">        if (node.getCut() == null) {</span>
+<span class="fc" id="L369">            return null;</span>
+        }
+
+        // walk tree until we find the smallest internal node
+<span class="fc" id="L373">        node = getFirstLeaf(node).getParent();</span>
+
+        // walk tree until we find an interval boundary
+<span class="pc bpc" id="L376" title="1 of 6 branches missed.">        while (node != null &amp;&amp; !(isIntervalStart(node) || isIntervalEnd(node))) {</span>
+<span class="fc" id="L377">            node = nextInternalNode(node);</span>
+        }
+
+<span class="fc" id="L380">        return node;</span>
+
+    }
+
+    /** Check if an internal node corresponds to the start abscissa of an interval.
+     * @param node internal node to check
+     * @return true if the node corresponds to the start abscissa of an interval
+     */
+    private boolean isIntervalStart(final BSPTree&lt;Euclidean1D&gt; node) {
+
+<span class="fc bfc" id="L390" title="All 2 branches covered.">        if ((Boolean) leafBefore(node).getAttribute()) {</span>
+            // it has an inside cell before it, it may end an interval but not start it
+<span class="fc" id="L392">            return false;</span>
+        }
+
+<span class="fc bfc" id="L395" title="All 2 branches covered.">        if (!(Boolean) leafAfter(node).getAttribute()) {</span>
+            // it has an outside cell after it, it is a dummy cut away from real intervals
+<span class="fc" id="L397">            return false;</span>
+        }
+
+        // the cell has an outside before and an inside after it
+        // it is the start of an interval
+<span class="fc" id="L402">        return true;</span>
+
+    }
+
+    /** Check if an internal node corresponds to the end abscissa of an interval.
+     * @param node internal node to check
+     * @return true if the node corresponds to the end abscissa of an interval
+     */
+    private boolean isIntervalEnd(final BSPTree&lt;Euclidean1D&gt; node) {
+
+<span class="fc bfc" id="L412" title="All 2 branches covered.">        if (!(Boolean) leafBefore(node).getAttribute()) {</span>
+            // it has an outside cell before it, it may start an interval but not end it
+<span class="fc" id="L414">            return false;</span>
+        }
+
+<span class="fc bfc" id="L417" title="All 2 branches covered.">        if ((Boolean) leafAfter(node).getAttribute()) {</span>
+            // it has an inside cell after it, it is a dummy cut in the middle of an interval
+<span class="fc" id="L419">            return false;</span>
+        }
+
+        // the cell has an inside before and an outside after it
+        // it is the end of an interval
+<span class="fc" id="L424">        return true;</span>
+
+    }
+
+    /** Get the next internal node.
+     * @param node current internal node
+     * @return next internal node in ascending order, or null
+     * if this is the last internal node
+     */
+    private BSPTree&lt;Euclidean1D&gt; nextInternalNode(BSPTree&lt;Euclidean1D&gt; node) {
+
+<span class="fc bfc" id="L435" title="All 2 branches covered.">        if (childAfter(node).getCut() != null) {</span>
+            // the next node is in the sub-tree
+<span class="fc" id="L437">            return leafAfter(node).getParent();</span>
+        }
+
+        // there is nothing left deeper in the tree, we backtrack
+<span class="fc bfc" id="L441" title="All 2 branches covered.">        while (isAfterParent(node)) {</span>
+<span class="fc" id="L442">            node = node.getParent();</span>
+        }
+<span class="fc" id="L444">        return node.getParent();</span>
+
+    }
+
+    /** Get the previous internal node.
+     * @param node current internal node
+     * @return previous internal node in ascending order, or null
+     * if this is the first internal node
+     */
+    private BSPTree&lt;Euclidean1D&gt; previousInternalNode(BSPTree&lt;Euclidean1D&gt; node) {
+
+<span class="fc bfc" id="L455" title="All 2 branches covered.">        if (childBefore(node).getCut() != null) {</span>
+            // the next node is in the sub-tree
+<span class="fc" id="L457">            return leafBefore(node).getParent();</span>
+        }
+
+        // there is nothing left deeper in the tree, we backtrack
+<span class="fc bfc" id="L461" title="All 2 branches covered.">        while (isBeforeParent(node)) {</span>
+<span class="fc" id="L462">            node = node.getParent();</span>
+        }
+<span class="fc" id="L464">        return node.getParent();</span>
+
+    }
+
+    /** Find the leaf node just before an internal node.
+     * @param node internal node at which the sub-tree starts
+     * @return leaf node just before the internal node
+     */
+    private BSPTree&lt;Euclidean1D&gt; leafBefore(BSPTree&lt;Euclidean1D&gt; node) {
+
+<span class="fc" id="L474">        node = childBefore(node);</span>
+<span class="fc bfc" id="L475" title="All 2 branches covered.">        while (node.getCut() != null) {</span>
+<span class="fc" id="L476">            node = childAfter(node);</span>
+        }
+
+<span class="fc" id="L479">        return node;</span>
+
+    }
+
+    /** Find the leaf node just after an internal node.
+     * @param node internal node at which the sub-tree starts
+     * @return leaf node just after the internal node
+     */
+    private BSPTree&lt;Euclidean1D&gt; leafAfter(BSPTree&lt;Euclidean1D&gt; node) {
+
+<span class="fc" id="L489">        node = childAfter(node);</span>
+<span class="fc bfc" id="L490" title="All 2 branches covered.">        while (node.getCut() != null) {</span>
+<span class="fc" id="L491">            node = childBefore(node);</span>
+        }
+
+<span class="fc" id="L494">        return node;</span>
+
+    }
+
+    /** Check if a node is the child before its parent in ascending order.
+     * @param node child node considered
+     * @return true is the node has a parent end is before it in ascending order
+     */
+    private boolean isBeforeParent(final BSPTree&lt;Euclidean1D&gt; node) {
+<span class="fc" id="L503">        final BSPTree&lt;Euclidean1D&gt; parent = node.getParent();</span>
+<span class="fc bfc" id="L504" title="All 2 branches covered.">        if (parent == null) {</span>
+<span class="fc" id="L505">            return false;</span>
+        } else {
+<span class="fc bfc" id="L507" title="All 2 branches covered.">            return node == childBefore(parent);</span>
+        }
+    }
+
+    /** Check if a node is the child after its parent in ascending order.
+     * @param node child node considered
+     * @return true is the node has a parent end is after it in ascending order
+     */
+    private boolean isAfterParent(final BSPTree&lt;Euclidean1D&gt; node) {
+<span class="fc" id="L516">        final BSPTree&lt;Euclidean1D&gt; parent = node.getParent();</span>
+<span class="fc bfc" id="L517" title="All 2 branches covered.">        if (parent == null) {</span>
+<span class="fc" id="L518">            return false;</span>
+        } else {
+<span class="fc bfc" id="L520" title="All 2 branches covered.">            return node == childAfter(parent);</span>
+        }
+    }
+
+    /** Find the child node just before an internal node.
+     * @param node internal node at which the sub-tree starts
+     * @return child node just before the internal node
+     */
+    private BSPTree&lt;Euclidean1D&gt; childBefore(BSPTree&lt;Euclidean1D&gt; node) {
+<span class="fc bfc" id="L529" title="All 2 branches covered.">        if (isDirect(node)) {</span>
+            // smaller abscissas are on minus side, larger abscissas are on plus side
+<span class="fc" id="L531">            return node.getMinus();</span>
+        } else {
+            // smaller abscissas are on plus side, larger abscissas are on minus side
+<span class="fc" id="L534">            return node.getPlus();</span>
+        }
+    }
+
+    /** Find the child node just after an internal node.
+     * @param node internal node at which the sub-tree starts
+     * @return child node just after the internal node
+     */
+    private BSPTree&lt;Euclidean1D&gt; childAfter(BSPTree&lt;Euclidean1D&gt; node) {
+<span class="fc bfc" id="L543" title="All 2 branches covered.">        if (isDirect(node)) {</span>
+            // smaller abscissas are on minus side, larger abscissas are on plus side
+<span class="fc" id="L545">            return node.getPlus();</span>
+        } else {
+            // smaller abscissas are on plus side, larger abscissas are on minus side
+<span class="fc" id="L548">            return node.getMinus();</span>
+        }
+    }
+
+    /** Check if an internal node has a direct oriented point.
+     * @param node internal node to check
+     * @return true if the oriented point is direct
+     */
+    private boolean isDirect(final BSPTree&lt;Euclidean1D&gt; node) {
+<span class="fc" id="L557">        return ((OrientedPoint) node.getCut().getHyperplane()).isDirect();</span>
+    }
+
+    /** Get the abscissa of an internal node.
+     * @param node internal node to check
+     * @return abscissa
+     */
+    private double getAngle(final BSPTree&lt;Euclidean1D&gt; node) {
+<span class="fc" id="L565">        return ((OrientedPoint) node.getCut().getHyperplane()).getLocation().getX();</span>
+    }
+
+    /** {@inheritDoc}
+     * &lt;p&gt;
+     * The iterator returns the limit values of sub-intervals in ascending order.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * The iterator does &lt;em&gt;not&lt;/em&gt; support the optional {@code remove} operation.
+     * &lt;/p&gt;
+     * @since 3.3
+     */
+    public Iterator&lt;double[]&gt; iterator() {
+<span class="fc" id="L578">        return new SubIntervalsIterator();</span>
+    }
+
+    /** Local iterator for sub-intervals. */
+    private class SubIntervalsIterator implements Iterator&lt;double[]&gt; {
+
+        /** Current node. */
+        private BSPTree&lt;Euclidean1D&gt; current;
+
+        /** Sub-interval no yet returned. */
+        private double[] pending;
+
+        /** Simple constructor.
+         */
+<span class="fc" id="L592">        SubIntervalsIterator() {</span>
+
+<span class="fc" id="L594">            current = getFirstIntervalBoundary();</span>
+
+<span class="fc bfc" id="L596" title="All 2 branches covered.">            if (current == null) {</span>
+                // all the leaf tree nodes share the same inside/outside status
+<span class="fc bfc" id="L598" title="All 2 branches covered.">                if ((Boolean) getFirstLeaf(getTree(false)).getAttribute()) {</span>
+                    // it is an inside node, it represents the full real line
+<span class="fc" id="L600">                    pending = new double[] {</span>
+                        Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY
+                    };
+                } else {
+<span class="fc" id="L604">                    pending = null;</span>
+                }
+<span class="fc bfc" id="L606" title="All 2 branches covered.">            } else if (isIntervalEnd(current)) {</span>
+                // the first boundary is an interval end,
+                // so the first interval starts at infinity
+<span class="fc" id="L609">                pending = new double[] {</span>
+                    Double.NEGATIVE_INFINITY, getAngle(current)
+                };
+            } else {
+<span class="fc" id="L613">                selectPending();</span>
+            }
+<span class="fc" id="L615">        }</span>
+
+        /** Walk the tree to select the pending sub-interval.
+         */
+        private void selectPending() {
+
+            // look for the start of the interval
+<span class="fc" id="L622">            BSPTree&lt;Euclidean1D&gt; start = current;</span>
+<span class="fc bfc" id="L623" title="All 4 branches covered.">            while (start != null &amp;&amp; !isIntervalStart(start)) {</span>
+<span class="fc" id="L624">                start = nextInternalNode(start);</span>
+            }
+
+<span class="fc bfc" id="L627" title="All 2 branches covered.">            if (start == null) {</span>
+                // we have exhausted the iterator
+<span class="fc" id="L629">                current = null;</span>
+<span class="fc" id="L630">                pending = null;</span>
+<span class="fc" id="L631">                return;</span>
+            }
+
+            // look for the end of the interval
+<span class="fc" id="L635">            BSPTree&lt;Euclidean1D&gt; end = start;</span>
+<span class="fc bfc" id="L636" title="All 4 branches covered.">            while (end != null &amp;&amp; !isIntervalEnd(end)) {</span>
+<span class="fc" id="L637">                end = nextInternalNode(end);</span>
+            }
+
+<span class="fc bfc" id="L640" title="All 2 branches covered.">            if (end != null) {</span>
+
+                // we have identified the interval
+<span class="fc" id="L643">                pending = new double[] {</span>
+                    getAngle(start), getAngle(end)
+                };
+
+                // prepare search for next interval
+<span class="fc" id="L648">                current = end;</span>
+
+            } else {
+
+                // the final interval is open toward infinity
+<span class="fc" id="L653">                pending = new double[] {</span>
+                    getAngle(start), Double.POSITIVE_INFINITY
+                };
+
+                // there won't be any other intervals
+<span class="fc" id="L658">                current = null;</span>
+
+            }
+
+<span class="fc" id="L662">        }</span>
+
+        /** {@inheritDoc} */
+        public boolean hasNext() {
+<span class="fc bfc" id="L666" title="All 2 branches covered.">            return pending != null;</span>
+        }
+
+        /** {@inheritDoc} */
+        public double[] next() {
+<span class="pc bpc" id="L671" title="1 of 2 branches missed.">            if (pending == null) {</span>
+<span class="nc" id="L672">                throw new NoSuchElementException();</span>
+            }
+<span class="fc" id="L674">            final double[] next = pending;</span>
+<span class="fc" id="L675">            selectPending();</span>
+<span class="fc" id="L676">            return next;</span>
+        }
+
+        /** {@inheritDoc} */
+        public void remove() {
+<span class="nc" id="L681">            throw new UnsupportedOperationException();</span>
+        }
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TransformerMap.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.util</a> &gt; <span class="el_source">TransformerMap.java</span></div><h1>TransformerMap.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.util;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+
+/**
+ * This TansformerMap automates the transformation of mixed object types.
+ * It provides a means to set NumberTransformers that will be selected
+ * based on the Class of the object handed to the Maps
+ * &lt;code&gt;double transform(Object o)&lt;/code&gt; method.
+ */
+public class TransformerMap implements NumberTransformer, Serializable {
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = 4605318041528645258L;
+
+    /**
+     * A default Number Transformer for Numbers and numeric Strings.
+     */
+<span class="fc" id="L41">    private NumberTransformer defaultTransformer = null;</span>
+
+    /**
+     * The internal Map.
+     */
+<span class="fc" id="L46">    private Map&lt;Class&lt;?&gt;, NumberTransformer&gt; map = null;</span>
+
+    /**
+     * Build a map containing only the default transformer.
+     */
+<span class="fc" id="L51">    public TransformerMap() {</span>
+<span class="fc" id="L52">        map = new HashMap&lt;Class&lt;?&gt;, NumberTransformer&gt;();</span>
+<span class="fc" id="L53">        defaultTransformer = new DefaultTransformer();</span>
+<span class="fc" id="L54">    }</span>
+
+    /**
+     * Tests if a Class is present in the TransformerMap.
+     * @param key Class to check
+     * @return true|false
+     */
+    public boolean containsClass(Class&lt;?&gt; key) {
+<span class="fc" id="L62">        return map.containsKey(key);</span>
+    }
+
+    /**
+     * Tests if a NumberTransformer is present in the TransformerMap.
+     * @param value NumberTransformer to check
+     * @return true|false
+     */
+    public boolean containsTransformer(NumberTransformer value) {
+<span class="fc" id="L71">        return map.containsValue(value);</span>
+    }
+
+    /**
+     * Returns the Transformer that is mapped to a class
+     * if mapping is not present, this returns null.
+     * @param key The Class of the object
+     * @return the mapped NumberTransformer or null.
+     */
+    public NumberTransformer getTransformer(Class&lt;?&gt; key) {
+<span class="fc" id="L81">        return map.get(key);</span>
+    }
+
+    /**
+     * Sets a Class to Transformer Mapping in the Map. If
+     * the Class is already present, this overwrites that
+     * mapping.
+     * @param key The Class
+     * @param transformer The NumberTransformer
+     * @return the replaced transformer if one is present
+     */
+    public NumberTransformer putTransformer(Class&lt;?&gt; key, NumberTransformer transformer) {
+<span class="fc" id="L93">        return map.put(key, transformer);</span>
+    }
+
+    /**
+     * Removes a Class to Transformer Mapping in the Map.
+     * @param key The Class
+     * @return the removed transformer if one is present or
+     * null if none was present.
+     */
+    public NumberTransformer removeTransformer(Class&lt;?&gt; key) {
+<span class="fc" id="L103">        return map.remove(key);</span>
+    }
+
+    /**
+     * Clears all the Class to Transformer mappings.
+     */
+    public void clear() {
+<span class="fc" id="L110">        map.clear();</span>
+<span class="fc" id="L111">    }</span>
+
+    /**
+     * Returns the Set of Classes used as keys in the map.
+     * @return Set of Classes
+     */
+    public Set&lt;Class&lt;?&gt;&gt; classes() {
+<span class="fc" id="L118">        return map.keySet();</span>
+    }
+
+    /**
+     * Returns the Set of NumberTransformers used as values
+     * in the map.
+     * @return Set of NumberTransformers
+     */
+    public Collection&lt;NumberTransformer&gt; transformers() {
+<span class="fc" id="L127">        return map.values();</span>
+    }
+
+    /**
+     * Attempts to transform the Object against the map of
+     * NumberTransformers. Otherwise it returns Double.NaN.
+     *
+     * @param o the Object to be transformed.
+     * @return the double value of the Object.
+     * @throws MathIllegalArgumentException if the Object can not be
+     * transformed into a Double.
+     * @see org.apache.commons.math3.util.NumberTransformer#transform(java.lang.Object)
+     */
+    public double transform(Object o) throws MathIllegalArgumentException {
+<span class="fc" id="L141">        double value = Double.NaN;</span>
+
+<span class="fc bfc" id="L143" title="All 4 branches covered.">        if (o instanceof Number || o instanceof String) {</span>
+<span class="fc" id="L144">            value = defaultTransformer.transform(o);</span>
+        } else {
+<span class="fc" id="L146">            NumberTransformer trans = getTransformer(o.getClass());</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">            if (trans != null) {</span>
+<span class="fc" id="L148">                value = trans.transform(o);</span>
+            }
+        }
+
+<span class="fc" id="L152">        return value;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(Object other) {
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">        if (this == other) {</span>
+<span class="nc" id="L159">            return true;</span>
+        }
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">        if (other instanceof TransformerMap) {</span>
+<span class="fc" id="L162">            TransformerMap rhs = (TransformerMap) other;</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">            if (! defaultTransformer.equals(rhs.defaultTransformer)) {</span>
+<span class="nc" id="L164">                return false;</span>
+            }
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">            if (map.size() != rhs.map.size()) {</span>
+<span class="nc" id="L167">                return false;</span>
+            }
+<span class="fc bfc" id="L169" title="All 2 branches covered.">            for (Map.Entry&lt;Class&lt;?&gt;, NumberTransformer&gt; entry : map.entrySet()) {</span>
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">                if (! entry.getValue().equals(rhs.map.get(entry.getKey()))) {</span>
+<span class="nc" id="L171">                    return false;</span>
+                }
+<span class="fc" id="L173">            }</span>
+<span class="fc" id="L174">            return true;</span>
+        }
+<span class="nc" id="L176">        return false;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+<span class="nc" id="L182">        int hash = defaultTransformer.hashCode();</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        for (NumberTransformer t : map.values()) {</span>
+<span class="nc" id="L184">            hash = hash * 31 + t.hashCode();</span>
+<span class="nc" id="L185">        }</span>
+<span class="nc" id="L186">        return hash;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

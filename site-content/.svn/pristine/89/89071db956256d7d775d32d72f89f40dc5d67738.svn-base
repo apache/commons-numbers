@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>PolynomialFunctionLagrangeForm.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.polynomials</a> &gt; <span class="el_source">PolynomialFunctionLagrangeForm.java</span></div><h1>PolynomialFunctionLagrangeForm.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.analysis.polynomials;
+
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NonMonotonicSequenceException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+
+/**
+ * Implements the representation of a real polynomial function in
+ * &lt;a href=&quot;http://mathworld.wolfram.com/LagrangeInterpolatingPolynomial.html&quot;&gt;
+ * Lagrange Form&lt;/a&gt;. For reference, see &lt;b&gt;Introduction to Numerical
+ * Analysis&lt;/b&gt;, ISBN 038795452X, chapter 2.
+ * &lt;p&gt;
+ * The approximated function should be smooth enough for Lagrange polynomial
+ * to work well. Otherwise, consider using splines instead.&lt;/p&gt;
+ *
+ * @since 1.2
+ */
+public class PolynomialFunctionLagrangeForm implements UnivariateFunction {
+    /**
+     * The coefficients of the polynomial, ordered by degree -- i.e.
+     * coefficients[0] is the constant term and coefficients[n] is the
+     * coefficient of x^n where n is the degree of the polynomial.
+     */
+    private double coefficients[];
+    /**
+     * Interpolating points (abscissas).
+     */
+    private final double x[];
+    /**
+     * Function values at interpolating points.
+     */
+    private final double y[];
+    /**
+     * Whether the polynomial coefficients are available.
+     */
+    private boolean coefficientsComputed;
+
+    /**
+     * Construct a Lagrange polynomial with the given abscissas and function
+     * values. The order of interpolating points are not important.
+     * &lt;p&gt;
+     * The constructor makes copy of the input arrays and assigns them.&lt;/p&gt;
+     *
+     * @param x interpolating points
+     * @param y function values at interpolating points
+     * @throws DimensionMismatchException if the array lengths are different.
+     * @throws NumberIsTooSmallException if the number of points is less than 2.
+     * @throws NonMonotonicSequenceException
+     * if two abscissae have the same value.
+     */
+    public PolynomialFunctionLagrangeForm(double x[], double y[])
+<span class="fc" id="L72">        throws DimensionMismatchException, NumberIsTooSmallException, NonMonotonicSequenceException {</span>
+<span class="fc" id="L73">        this.x = new double[x.length];</span>
+<span class="fc" id="L74">        this.y = new double[y.length];</span>
+<span class="fc" id="L75">        System.arraycopy(x, 0, this.x, 0, x.length);</span>
+<span class="fc" id="L76">        System.arraycopy(y, 0, this.y, 0, y.length);</span>
+<span class="fc" id="L77">        coefficientsComputed = false;</span>
+
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (!verifyInterpolationArray(x, y, false)) {</span>
+<span class="fc" id="L80">            MathArrays.sortInPlace(this.x, this.y);</span>
+            // Second check in case some abscissa is duplicated.
+<span class="fc" id="L82">            verifyInterpolationArray(this.x, this.y, true);</span>
+        }
+<span class="fc" id="L84">    }</span>
+
+    /**
+     * Calculate the function value at the given point.
+     *
+     * @param z Point at which the function value is to be computed.
+     * @return the function value.
+     * @throws DimensionMismatchException if {@code x} and {@code y} have
+     * different lengths.
+     * @throws org.apache.commons.math3.exception.NonMonotonicSequenceException
+     * if {@code x} is not sorted in strictly increasing order.
+     * @throws NumberIsTooSmallException if the size of {@code x} is less
+     * than 2.
+     */
+    public double value(double z) {
+<span class="fc" id="L99">        return evaluateInternal(x, y, z);</span>
+    }
+
+    /**
+     * Returns the degree of the polynomial.
+     *
+     * @return the degree of the polynomial
+     */
+    public int degree() {
+<span class="fc" id="L108">        return x.length - 1;</span>
+    }
+
+    /**
+     * Returns a copy of the interpolating points array.
+     * &lt;p&gt;
+     * Changes made to the returned copy will not affect the polynomial.&lt;/p&gt;
+     *
+     * @return a fresh copy of the interpolating points array
+     */
+    public double[] getInterpolatingPoints() {
+<span class="nc" id="L119">        double[] out = new double[x.length];</span>
+<span class="nc" id="L120">        System.arraycopy(x, 0, out, 0, x.length);</span>
+<span class="nc" id="L121">        return out;</span>
+    }
+
+    /**
+     * Returns a copy of the interpolating values array.
+     * &lt;p&gt;
+     * Changes made to the returned copy will not affect the polynomial.&lt;/p&gt;
+     *
+     * @return a fresh copy of the interpolating values array
+     */
+    public double[] getInterpolatingValues() {
+<span class="nc" id="L132">        double[] out = new double[y.length];</span>
+<span class="nc" id="L133">        System.arraycopy(y, 0, out, 0, y.length);</span>
+<span class="nc" id="L134">        return out;</span>
+    }
+
+    /**
+     * Returns a copy of the coefficients array.
+     * &lt;p&gt;
+     * Changes made to the returned copy will not affect the polynomial.&lt;/p&gt;
+     * &lt;p&gt;
+     * Note that coefficients computation can be ill-conditioned. Use with caution
+     * and only when it is necessary.&lt;/p&gt;
+     *
+     * @return a fresh copy of the coefficients array
+     */
+    public double[] getCoefficients() {
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">        if (!coefficientsComputed) {</span>
+<span class="fc" id="L149">            computeCoefficients();</span>
+        }
+<span class="fc" id="L151">        double[] out = new double[coefficients.length];</span>
+<span class="fc" id="L152">        System.arraycopy(coefficients, 0, out, 0, coefficients.length);</span>
+<span class="fc" id="L153">        return out;</span>
+    }
+
+    /**
+     * Evaluate the Lagrange polynomial using
+     * &lt;a href=&quot;http://mathworld.wolfram.com/NevillesAlgorithm.html&quot;&gt;
+     * Neville's Algorithm&lt;/a&gt;. It takes O(n^2) time.
+     *
+     * @param x Interpolating points array.
+     * @param y Interpolating values array.
+     * @param z Point at which the function value is to be computed.
+     * @return the function value.
+     * @throws DimensionMismatchException if {@code x} and {@code y} have
+     * different lengths.
+     * @throws NonMonotonicSequenceException
+     * if {@code x} is not sorted in strictly increasing order.
+     * @throws NumberIsTooSmallException if the size of {@code x} is less
+     * than 2.
+     */
+    public static double evaluate(double x[], double y[], double z)
+        throws DimensionMismatchException, NumberIsTooSmallException, NonMonotonicSequenceException {
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        if (verifyInterpolationArray(x, y, false)) {</span>
+<span class="nc" id="L175">            return evaluateInternal(x, y, z);</span>
+        }
+
+        // Array is not sorted.
+<span class="nc" id="L179">        final double[] xNew = new double[x.length];</span>
+<span class="nc" id="L180">        final double[] yNew = new double[y.length];</span>
+<span class="nc" id="L181">        System.arraycopy(x, 0, xNew, 0, x.length);</span>
+<span class="nc" id="L182">        System.arraycopy(y, 0, yNew, 0, y.length);</span>
+
+<span class="nc" id="L184">        MathArrays.sortInPlace(xNew, yNew);</span>
+        // Second check in case some abscissa is duplicated.
+<span class="nc" id="L186">        verifyInterpolationArray(xNew, yNew, true);</span>
+<span class="nc" id="L187">        return evaluateInternal(xNew, yNew, z);</span>
+    }
+
+    /**
+     * Evaluate the Lagrange polynomial using
+     * &lt;a href=&quot;http://mathworld.wolfram.com/NevillesAlgorithm.html&quot;&gt;
+     * Neville's Algorithm&lt;/a&gt;. It takes O(n^2) time.
+     *
+     * @param x Interpolating points array.
+     * @param y Interpolating values array.
+     * @param z Point at which the function value is to be computed.
+     * @return the function value.
+     * @throws DimensionMismatchException if {@code x} and {@code y} have
+     * different lengths.
+     * @throws org.apache.commons.math3.exception.NonMonotonicSequenceException
+     * if {@code x} is not sorted in strictly increasing order.
+     * @throws NumberIsTooSmallException if the size of {@code x} is less
+     * than 2.
+     */
+    private static double evaluateInternal(double x[], double y[], double z) {
+<span class="fc" id="L207">        int nearest = 0;</span>
+<span class="fc" id="L208">        final int n = x.length;</span>
+<span class="fc" id="L209">        final double[] c = new double[n];</span>
+<span class="fc" id="L210">        final double[] d = new double[n];</span>
+<span class="fc" id="L211">        double min_dist = Double.POSITIVE_INFINITY;</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+            // initialize the difference arrays
+<span class="fc" id="L214">            c[i] = y[i];</span>
+<span class="fc" id="L215">            d[i] = y[i];</span>
+            // find out the abscissa closest to z
+<span class="fc" id="L217">            final double dist = FastMath.abs(z - x[i]);</span>
+<span class="fc bfc" id="L218" title="All 2 branches covered.">            if (dist &lt; min_dist) {</span>
+<span class="fc" id="L219">                nearest = i;</span>
+<span class="fc" id="L220">                min_dist = dist;</span>
+            }
+        }
+
+        // initial approximation to the function value at z
+<span class="fc" id="L225">        double value = y[nearest];</span>
+
+<span class="fc bfc" id="L227" title="All 2 branches covered.">        for (int i = 1; i &lt; n; i++) {</span>
+<span class="fc bfc" id="L228" title="All 2 branches covered.">            for (int j = 0; j &lt; n-i; j++) {</span>
+<span class="fc" id="L229">                final double tc = x[j] - z;</span>
+<span class="fc" id="L230">                final double td = x[i+j] - z;</span>
+<span class="fc" id="L231">                final double divider = x[j] - x[i+j];</span>
+                // update the difference arrays
+<span class="fc" id="L233">                final double w = (c[j+1] - d[j]) / divider;</span>
+<span class="fc" id="L234">                c[j] = tc * w;</span>
+<span class="fc" id="L235">                d[j] = td * w;</span>
+            }
+            // sum up the difference terms to get the final value
+<span class="fc bfc" id="L238" title="All 2 branches covered.">            if (nearest &lt; 0.5*(n-i+1)) {</span>
+<span class="fc" id="L239">                value += c[nearest];    // fork down</span>
+            } else {
+<span class="fc" id="L241">                nearest--;</span>
+<span class="fc" id="L242">                value += d[nearest];    // fork up</span>
+            }
+        }
+
+<span class="fc" id="L246">        return value;</span>
+    }
+
+    /**
+     * Calculate the coefficients of Lagrange polynomial from the
+     * interpolation data. It takes O(n^2) time.
+     * Note that this computation can be ill-conditioned: Use with caution
+     * and only when it is necessary.
+     */
+    protected void computeCoefficients() {
+<span class="fc" id="L256">        final int n = degree() + 1;</span>
+<span class="fc" id="L257">        coefficients = new double[n];</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L259">            coefficients[i] = 0.0;</span>
+        }
+
+        // c[] are the coefficients of P(x) = (x-x[0])(x-x[1])...(x-x[n-1])
+<span class="fc" id="L263">        final double[] c = new double[n+1];</span>
+<span class="fc" id="L264">        c[0] = 1.0;</span>
+<span class="fc bfc" id="L265" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc bfc" id="L266" title="All 2 branches covered.">            for (int j = i; j &gt; 0; j--) {</span>
+<span class="fc" id="L267">                c[j] = c[j-1] - c[j] * x[i];</span>
+            }
+<span class="fc" id="L269">            c[0] *= -x[i];</span>
+<span class="fc" id="L270">            c[i+1] = 1;</span>
+        }
+
+<span class="fc" id="L273">        final double[] tc = new double[n];</span>
+<span class="fc bfc" id="L274" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+            // d = (x[i]-x[0])...(x[i]-x[i-1])(x[i]-x[i+1])...(x[i]-x[n-1])
+<span class="fc" id="L276">            double d = 1;</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">            for (int j = 0; j &lt; n; j++) {</span>
+<span class="fc bfc" id="L278" title="All 2 branches covered.">                if (i != j) {</span>
+<span class="fc" id="L279">                    d *= x[i] - x[j];</span>
+                }
+            }
+<span class="fc" id="L282">            final double t = y[i] / d;</span>
+            // Lagrange polynomial is the sum of n terms, each of which is a
+            // polynomial of degree n-1. tc[] are the coefficients of the i-th
+            // numerator Pi(x) = (x-x[0])...(x-x[i-1])(x-x[i+1])...(x-x[n-1]).
+<span class="fc" id="L286">            tc[n-1] = c[n];     // actually c[n] = 1</span>
+<span class="fc" id="L287">            coefficients[n-1] += t * tc[n-1];</span>
+<span class="fc bfc" id="L288" title="All 2 branches covered.">            for (int j = n-2; j &gt;= 0; j--) {</span>
+<span class="fc" id="L289">                tc[j] = c[j+1] + tc[j+1] * x[i];</span>
+<span class="fc" id="L290">                coefficients[j] += t * tc[j];</span>
+            }
+        }
+
+<span class="fc" id="L294">        coefficientsComputed = true;</span>
+<span class="fc" id="L295">    }</span>
+
+    /**
+     * Check that the interpolation arrays are valid.
+     * The arrays features checked by this method are that both arrays have the
+     * same length and this length is at least 2.
+     *
+     * @param x Interpolating points array.
+     * @param y Interpolating values array.
+     * @param abort Whether to throw an exception if {@code x} is not sorted.
+     * @throws DimensionMismatchException if the array lengths are different.
+     * @throws NumberIsTooSmallException if the number of points is less than 2.
+     * @throws org.apache.commons.math3.exception.NonMonotonicSequenceException
+     * if {@code x} is not sorted in strictly increasing order and {@code abort}
+     * is {@code true}.
+     * @return {@code false} if the {@code x} is not sorted in increasing order,
+     * {@code true} otherwise.
+     * @see #evaluate(double[], double[], double)
+     * @see #computeCoefficients()
+     */
+    public static boolean verifyInterpolationArray(double x[], double y[], boolean abort)
+        throws DimensionMismatchException, NumberIsTooSmallException, NonMonotonicSequenceException {
+<span class="fc bfc" id="L317" title="All 2 branches covered.">        if (x.length != y.length) {</span>
+<span class="fc" id="L318">            throw new DimensionMismatchException(x.length, y.length);</span>
+        }
+<span class="fc bfc" id="L320" title="All 2 branches covered.">        if (x.length &lt; 2) {</span>
+<span class="fc" id="L321">            throw new NumberIsTooSmallException(LocalizedFormats.WRONG_NUMBER_OF_POINTS, 2, x.length, true);</span>
+        }
+
+<span class="fc" id="L324">        return MathArrays.checkOrder(x, MathArrays.OrderDirection.INCREASING, true, abort);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

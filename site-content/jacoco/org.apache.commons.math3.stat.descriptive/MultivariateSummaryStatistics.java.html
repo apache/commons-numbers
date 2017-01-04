@@ -1,0 +1,636 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MultivariateSummaryStatistics.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive</a> &gt; <span class="el_source">MultivariateSummaryStatistics.java</span></div><h1>MultivariateSummaryStatistics.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive;
+
+import java.io.Serializable;
+import java.util.Arrays;
+
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MathIllegalStateException;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.stat.descriptive.moment.GeometricMean;
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
+import org.apache.commons.math3.stat.descriptive.moment.VectorialCovariance;
+import org.apache.commons.math3.stat.descriptive.rank.Max;
+import org.apache.commons.math3.stat.descriptive.rank.Min;
+import org.apache.commons.math3.stat.descriptive.summary.Sum;
+import org.apache.commons.math3.stat.descriptive.summary.SumOfLogs;
+import org.apache.commons.math3.stat.descriptive.summary.SumOfSquares;
+import org.apache.commons.math3.util.MathUtils;
+import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.math3.util.Precision;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * &lt;p&gt;Computes summary statistics for a stream of n-tuples added using the
+ * {@link #addValue(double[]) addValue} method. The data values are not stored
+ * in memory, so this class can be used to compute statistics for very large
+ * n-tuple streams.&lt;/p&gt;
+ *
+ * &lt;p&gt;The {@link StorelessUnivariateStatistic} instances used to maintain
+ * summary state and compute statistics are configurable via setters.
+ * For example, the default implementation for the mean can be overridden by
+ * calling {@link #setMeanImpl(StorelessUnivariateStatistic[])}. Actual
+ * parameters to these methods must implement the
+ * {@link StorelessUnivariateStatistic} interface and configuration must be
+ * completed before &lt;code&gt;addValue&lt;/code&gt; is called. No configuration is
+ * necessary to use the default, commons-math provided implementations.&lt;/p&gt;
+ *
+ * &lt;p&gt;To compute statistics for a stream of n-tuples, construct a
+ * MultivariateStatistics instance with dimension n and then use
+ * {@link #addValue(double[])} to add n-tuples. The &lt;code&gt;getXxx&lt;/code&gt;
+ * methods where Xxx is a statistic return an array of &lt;code&gt;double&lt;/code&gt;
+ * values, where for &lt;code&gt;i = 0,...,n-1&lt;/code&gt; the i&lt;sup&gt;th&lt;/sup&gt; array element is the
+ * value of the given statistic for data range consisting of the i&lt;sup&gt;th&lt;/sup&gt; element of
+ * each of the input n-tuples.  For example, if &lt;code&gt;addValue&lt;/code&gt; is called
+ * with actual parameters {0, 1, 2}, then {3, 4, 5} and finally {6, 7, 8},
+ * &lt;code&gt;getSum&lt;/code&gt; will return a three-element array with values
+ * {0+3+6, 1+4+7, 2+5+8}&lt;/p&gt;
+ *
+ * &lt;p&gt;Note: This class is not thread-safe. Use
+ * {@link SynchronizedMultivariateSummaryStatistics} if concurrent access from multiple
+ * threads is required.&lt;/p&gt;
+ *
+ * @since 1.2
+ */
+public class MultivariateSummaryStatistics
+    implements StatisticalMultivariateSummary, Serializable {
+
+    /** Serialization UID */
+    private static final long serialVersionUID = 2271900808994826718L;
+
+    /** Dimension of the data. */
+    private int k;
+
+    /** Count of values that have been added */
+<span class="fc" id="L81">    private long n = 0;</span>
+
+    /** Sum statistic implementation - can be reset by setter. */
+    private StorelessUnivariateStatistic[] sumImpl;
+
+    /** Sum of squares statistic implementation - can be reset by setter. */
+    private StorelessUnivariateStatistic[] sumSqImpl;
+
+    /** Minimum statistic implementation - can be reset by setter. */
+    private StorelessUnivariateStatistic[] minImpl;
+
+    /** Maximum statistic implementation - can be reset by setter. */
+    private StorelessUnivariateStatistic[] maxImpl;
+
+    /** Sum of log statistic implementation - can be reset by setter. */
+    private StorelessUnivariateStatistic[] sumLogImpl;
+
+    /** Geometric mean statistic implementation - can be reset by setter. */
+    private StorelessUnivariateStatistic[] geoMeanImpl;
+
+    /** Mean statistic implementation - can be reset by setter. */
+    private StorelessUnivariateStatistic[] meanImpl;
+
+    /** Covariance statistic implementation - cannot be reset. */
+    private VectorialCovariance covarianceImpl;
+
+    /**
+     * Construct a MultivariateSummaryStatistics instance
+     * @param k dimension of the data
+     * @param isCovarianceBiasCorrected if true, the unbiased sample
+     * covariance is computed, otherwise the biased population covariance
+     * is computed
+     */
+<span class="fc" id="L114">    public MultivariateSummaryStatistics(int k, boolean isCovarianceBiasCorrected) {</span>
+<span class="fc" id="L115">        this.k = k;</span>
+
+<span class="fc" id="L117">        sumImpl     = new StorelessUnivariateStatistic[k];</span>
+<span class="fc" id="L118">        sumSqImpl   = new StorelessUnivariateStatistic[k];</span>
+<span class="fc" id="L119">        minImpl     = new StorelessUnivariateStatistic[k];</span>
+<span class="fc" id="L120">        maxImpl     = new StorelessUnivariateStatistic[k];</span>
+<span class="fc" id="L121">        sumLogImpl  = new StorelessUnivariateStatistic[k];</span>
+<span class="fc" id="L122">        geoMeanImpl = new StorelessUnivariateStatistic[k];</span>
+<span class="fc" id="L123">        meanImpl    = new StorelessUnivariateStatistic[k];</span>
+
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        for (int i = 0; i &lt; k; ++i) {</span>
+<span class="fc" id="L126">            sumImpl[i]     = new Sum();</span>
+<span class="fc" id="L127">            sumSqImpl[i]   = new SumOfSquares();</span>
+<span class="fc" id="L128">            minImpl[i]     = new Min();</span>
+<span class="fc" id="L129">            maxImpl[i]     = new Max();</span>
+<span class="fc" id="L130">            sumLogImpl[i]  = new SumOfLogs();</span>
+<span class="fc" id="L131">            geoMeanImpl[i] = new GeometricMean();</span>
+<span class="fc" id="L132">            meanImpl[i]    = new Mean();</span>
+        }
+
+<span class="fc" id="L135">        covarianceImpl =</span>
+            new VectorialCovariance(k, isCovarianceBiasCorrected);
+
+<span class="fc" id="L138">    }</span>
+
+    /**
+     * Add an n-tuple to the data
+     *
+     * @param value  the n-tuple to add
+     * @throws DimensionMismatchException if the length of the array
+     * does not match the one used at construction
+     */
+    public void addValue(double[] value) throws DimensionMismatchException {
+<span class="fc" id="L148">        checkDimension(value.length);</span>
+<span class="fc bfc" id="L149" title="All 2 branches covered.">        for (int i = 0; i &lt; k; ++i) {</span>
+<span class="fc" id="L150">            double v = value[i];</span>
+<span class="fc" id="L151">            sumImpl[i].increment(v);</span>
+<span class="fc" id="L152">            sumSqImpl[i].increment(v);</span>
+<span class="fc" id="L153">            minImpl[i].increment(v);</span>
+<span class="fc" id="L154">            maxImpl[i].increment(v);</span>
+<span class="fc" id="L155">            sumLogImpl[i].increment(v);</span>
+<span class="fc" id="L156">            geoMeanImpl[i].increment(v);</span>
+<span class="fc" id="L157">            meanImpl[i].increment(v);</span>
+        }
+<span class="fc" id="L159">        covarianceImpl.increment(value);</span>
+<span class="fc" id="L160">        n++;</span>
+<span class="fc" id="L161">    }</span>
+
+    /**
+     * Returns the dimension of the data
+     * @return The dimension of the data
+     */
+    public int getDimension() {
+<span class="fc" id="L168">        return k;</span>
+    }
+
+    /**
+     * Returns the number of available values
+     * @return The number of available values
+     */
+    public long getN() {
+<span class="fc" id="L176">        return n;</span>
+    }
+
+    /**
+     * Returns an array of the results of a statistic.
+     * @param stats univariate statistic array
+     * @return results array
+     */
+    private double[] getResults(StorelessUnivariateStatistic[] stats) {
+<span class="fc" id="L185">        double[] results = new double[stats.length];</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">        for (int i = 0; i &lt; results.length; ++i) {</span>
+<span class="fc" id="L187">            results[i] = stats[i].getResult();</span>
+        }
+<span class="fc" id="L189">        return results;</span>
+    }
+
+    /**
+     * Returns an array whose i&lt;sup&gt;th&lt;/sup&gt; entry is the sum of the
+     * i&lt;sup&gt;th&lt;/sup&gt; entries of the arrays that have been added using
+     * {@link #addValue(double[])}
+     *
+     * @return the array of component sums
+     */
+    public double[] getSum() {
+<span class="fc" id="L200">        return getResults(sumImpl);</span>
+    }
+
+    /**
+     * Returns an array whose i&lt;sup&gt;th&lt;/sup&gt; entry is the sum of squares of the
+     * i&lt;sup&gt;th&lt;/sup&gt; entries of the arrays that have been added using
+     * {@link #addValue(double[])}
+     *
+     * @return the array of component sums of squares
+     */
+    public double[] getSumSq() {
+<span class="fc" id="L211">        return getResults(sumSqImpl);</span>
+    }
+
+    /**
+     * Returns an array whose i&lt;sup&gt;th&lt;/sup&gt; entry is the sum of logs of the
+     * i&lt;sup&gt;th&lt;/sup&gt; entries of the arrays that have been added using
+     * {@link #addValue(double[])}
+     *
+     * @return the array of component log sums
+     */
+    public double[] getSumLog() {
+<span class="fc" id="L222">        return getResults(sumLogImpl);</span>
+    }
+
+    /**
+     * Returns an array whose i&lt;sup&gt;th&lt;/sup&gt; entry is the mean of the
+     * i&lt;sup&gt;th&lt;/sup&gt; entries of the arrays that have been added using
+     * {@link #addValue(double[])}
+     *
+     * @return the array of component means
+     */
+    public double[] getMean() {
+<span class="fc" id="L233">        return getResults(meanImpl);</span>
+    }
+
+    /**
+     * Returns an array whose i&lt;sup&gt;th&lt;/sup&gt; entry is the standard deviation of the
+     * i&lt;sup&gt;th&lt;/sup&gt; entries of the arrays that have been added using
+     * {@link #addValue(double[])}
+     *
+     * @return the array of component standard deviations
+     */
+    public double[] getStandardDeviation() {
+<span class="fc" id="L244">        double[] stdDev = new double[k];</span>
+<span class="fc bfc" id="L245" title="All 2 branches covered.">        if (getN() &lt; 1) {</span>
+<span class="fc" id="L246">            Arrays.fill(stdDev, Double.NaN);</span>
+<span class="fc bfc" id="L247" title="All 2 branches covered.">        } else if (getN() &lt; 2) {</span>
+<span class="fc" id="L248">            Arrays.fill(stdDev, 0.0);</span>
+        } else {
+<span class="fc" id="L250">            RealMatrix matrix = covarianceImpl.getResult();</span>
+<span class="fc bfc" id="L251" title="All 2 branches covered.">            for (int i = 0; i &lt; k; ++i) {</span>
+<span class="fc" id="L252">                stdDev[i] = FastMath.sqrt(matrix.getEntry(i, i));</span>
+            }
+        }
+<span class="fc" id="L255">        return stdDev;</span>
+    }
+
+    /**
+     * Returns the covariance matrix of the values that have been added.
+     *
+     * @return the covariance matrix
+     */
+    public RealMatrix getCovariance() {
+<span class="fc" id="L264">        return covarianceImpl.getResult();</span>
+    }
+
+    /**
+     * Returns an array whose i&lt;sup&gt;th&lt;/sup&gt; entry is the maximum of the
+     * i&lt;sup&gt;th&lt;/sup&gt; entries of the arrays that have been added using
+     * {@link #addValue(double[])}
+     *
+     * @return the array of component maxima
+     */
+    public double[] getMax() {
+<span class="fc" id="L275">        return getResults(maxImpl);</span>
+    }
+
+    /**
+     * Returns an array whose i&lt;sup&gt;th&lt;/sup&gt; entry is the minimum of the
+     * i&lt;sup&gt;th&lt;/sup&gt; entries of the arrays that have been added using
+     * {@link #addValue(double[])}
+     *
+     * @return the array of component minima
+     */
+    public double[] getMin() {
+<span class="fc" id="L286">        return getResults(minImpl);</span>
+    }
+
+    /**
+     * Returns an array whose i&lt;sup&gt;th&lt;/sup&gt; entry is the geometric mean of the
+     * i&lt;sup&gt;th&lt;/sup&gt; entries of the arrays that have been added using
+     * {@link #addValue(double[])}
+     *
+     * @return the array of component geometric means
+     */
+    public double[] getGeometricMean() {
+<span class="fc" id="L297">        return getResults(geoMeanImpl);</span>
+    }
+
+    /**
+     * Generates a text report displaying
+     * summary statistics from values that
+     * have been added.
+     * @return String with line feeds displaying statistics
+     */
+    @Override
+    public String toString() {
+<span class="fc" id="L308">        final String separator = &quot;, &quot;;</span>
+<span class="fc" id="L309">        final String suffix = System.getProperty(&quot;line.separator&quot;);</span>
+<span class="fc" id="L310">        StringBuilder outBuffer = new StringBuilder();</span>
+<span class="fc" id="L311">        outBuffer.append(&quot;MultivariateSummaryStatistics:&quot; + suffix);</span>
+<span class="fc" id="L312">        outBuffer.append(&quot;n: &quot; + getN() + suffix);</span>
+<span class="fc" id="L313">        append(outBuffer, getMin(), &quot;min: &quot;, separator, suffix);</span>
+<span class="fc" id="L314">        append(outBuffer, getMax(), &quot;max: &quot;, separator, suffix);</span>
+<span class="fc" id="L315">        append(outBuffer, getMean(), &quot;mean: &quot;, separator, suffix);</span>
+<span class="fc" id="L316">        append(outBuffer, getGeometricMean(), &quot;geometric mean: &quot;, separator, suffix);</span>
+<span class="fc" id="L317">        append(outBuffer, getSumSq(), &quot;sum of squares: &quot;, separator, suffix);</span>
+<span class="fc" id="L318">        append(outBuffer, getSumLog(), &quot;sum of logarithms: &quot;, separator, suffix);</span>
+<span class="fc" id="L319">        append(outBuffer, getStandardDeviation(), &quot;standard deviation: &quot;, separator, suffix);</span>
+<span class="fc" id="L320">        outBuffer.append(&quot;covariance: &quot; + getCovariance().toString() + suffix);</span>
+<span class="fc" id="L321">        return outBuffer.toString();</span>
+    }
+
+    /**
+     * Append a text representation of an array to a buffer.
+     * @param buffer buffer to fill
+     * @param data data array
+     * @param prefix text prefix
+     * @param separator elements separator
+     * @param suffix text suffix
+     */
+    private void append(StringBuilder buffer, double[] data,
+                        String prefix, String separator, String suffix) {
+<span class="fc" id="L334">        buffer.append(prefix);</span>
+<span class="fc bfc" id="L335" title="All 2 branches covered.">        for (int i = 0; i &lt; data.length; ++i) {</span>
+<span class="fc bfc" id="L336" title="All 2 branches covered.">            if (i &gt; 0) {</span>
+<span class="fc" id="L337">                buffer.append(separator);</span>
+            }
+<span class="fc" id="L339">            buffer.append(data[i]);</span>
+        }
+<span class="fc" id="L341">        buffer.append(suffix);</span>
+<span class="fc" id="L342">    }</span>
+
+    /**
+     * Resets all statistics and storage
+     */
+    public void clear() {
+<span class="fc" id="L348">        this.n = 0;</span>
+<span class="fc bfc" id="L349" title="All 2 branches covered.">        for (int i = 0; i &lt; k; ++i) {</span>
+<span class="fc" id="L350">            minImpl[i].clear();</span>
+<span class="fc" id="L351">            maxImpl[i].clear();</span>
+<span class="fc" id="L352">            sumImpl[i].clear();</span>
+<span class="fc" id="L353">            sumLogImpl[i].clear();</span>
+<span class="fc" id="L354">            sumSqImpl[i].clear();</span>
+<span class="fc" id="L355">            geoMeanImpl[i].clear();</span>
+<span class="fc" id="L356">            meanImpl[i].clear();</span>
+        }
+<span class="fc" id="L358">        covarianceImpl.clear();</span>
+<span class="fc" id="L359">    }</span>
+
+    /**
+     * Returns true iff &lt;code&gt;object&lt;/code&gt; is a &lt;code&gt;MultivariateSummaryStatistics&lt;/code&gt;
+     * instance and all statistics have the same values as this.
+     * @param object the object to test equality against.
+     * @return true if object equals this
+     */
+    @Override
+    public boolean equals(Object object) {
+<span class="fc bfc" id="L369" title="All 2 branches covered.">        if (object == this ) {</span>
+<span class="fc" id="L370">            return true;</span>
+        }
+<span class="fc bfc" id="L372" title="All 2 branches covered.">        if (object instanceof MultivariateSummaryStatistics == false) {</span>
+<span class="fc" id="L373">            return false;</span>
+        }
+<span class="fc" id="L375">        MultivariateSummaryStatistics stat = (MultivariateSummaryStatistics) object;</span>
+<span class="pc bpc" id="L376" title="8 of 18 branches missed.">        return MathArrays.equalsIncludingNaN(stat.getGeometricMean(), getGeometricMean()) &amp;&amp;</span>
+               MathArrays.equalsIncludingNaN(stat.getMax(),           getMax())           &amp;&amp;
+               MathArrays.equalsIncludingNaN(stat.getMean(),          getMean())          &amp;&amp;
+               MathArrays.equalsIncludingNaN(stat.getMin(),           getMin())           &amp;&amp;
+               Precision.equalsIncludingNaN(stat.getN(),             getN())             &amp;&amp;
+               MathArrays.equalsIncludingNaN(stat.getSum(),           getSum())           &amp;&amp;
+               MathArrays.equalsIncludingNaN(stat.getSumSq(),         getSumSq())         &amp;&amp;
+               MathArrays.equalsIncludingNaN(stat.getSumLog(),        getSumLog())        &amp;&amp;
+               stat.getCovariance().equals( getCovariance());
+    }
+
+    /**
+     * Returns hash code based on values of statistics
+     *
+     * @return hash code
+     */
+    @Override
+    public int hashCode() {
+<span class="fc" id="L394">        int result = 31 + MathUtils.hash(getGeometricMean());</span>
+<span class="fc" id="L395">        result = result * 31 + MathUtils.hash(getGeometricMean());</span>
+<span class="fc" id="L396">        result = result * 31 + MathUtils.hash(getMax());</span>
+<span class="fc" id="L397">        result = result * 31 + MathUtils.hash(getMean());</span>
+<span class="fc" id="L398">        result = result * 31 + MathUtils.hash(getMin());</span>
+<span class="fc" id="L399">        result = result * 31 + MathUtils.hash(getN());</span>
+<span class="fc" id="L400">        result = result * 31 + MathUtils.hash(getSum());</span>
+<span class="fc" id="L401">        result = result * 31 + MathUtils.hash(getSumSq());</span>
+<span class="fc" id="L402">        result = result * 31 + MathUtils.hash(getSumLog());</span>
+<span class="fc" id="L403">        result = result * 31 + getCovariance().hashCode();</span>
+<span class="fc" id="L404">        return result;</span>
+    }
+
+    // Getters and setters for statistics implementations
+    /**
+     * Sets statistics implementations.
+     * @param newImpl new implementations for statistics
+     * @param oldImpl old implementations for statistics
+     * @throws DimensionMismatchException if the array dimension
+     * does not match the one used at construction
+     * @throws MathIllegalStateException if data has already been added
+     * (i.e. if n &gt; 0)
+     */
+    private void setImpl(StorelessUnivariateStatistic[] newImpl,
+                         StorelessUnivariateStatistic[] oldImpl) throws MathIllegalStateException,
+                         DimensionMismatchException {
+<span class="fc" id="L420">        checkEmpty();</span>
+<span class="fc" id="L421">        checkDimension(newImpl.length);</span>
+<span class="fc" id="L422">        System.arraycopy(newImpl, 0, oldImpl, 0, newImpl.length);</span>
+<span class="fc" id="L423">    }</span>
+
+    /**
+     * Returns the currently configured Sum implementation
+     *
+     * @return the StorelessUnivariateStatistic implementing the sum
+     */
+    public StorelessUnivariateStatistic[] getSumImpl() {
+<span class="fc" id="L431">        return sumImpl.clone();</span>
+    }
+
+    /**
+     * &lt;p&gt;Sets the implementation for the Sum.&lt;/p&gt;
+     * &lt;p&gt;This method must be activated before any data has been added - i.e.,
+     * before {@link #addValue(double[]) addValue} has been used to add data;
+     * otherwise an IllegalStateException will be thrown.&lt;/p&gt;
+     *
+     * @param sumImpl the StorelessUnivariateStatistic instance to use
+     * for computing the Sum
+     * @throws DimensionMismatchException if the array dimension
+     * does not match the one used at construction
+     * @throws MathIllegalStateException if data has already been added
+     *  (i.e if n &gt; 0)
+     */
+    public void setSumImpl(StorelessUnivariateStatistic[] sumImpl)
+    throws MathIllegalStateException, DimensionMismatchException {
+<span class="fc" id="L449">        setImpl(sumImpl, this.sumImpl);</span>
+<span class="fc" id="L450">    }</span>
+
+    /**
+     * Returns the currently configured sum of squares implementation
+     *
+     * @return the StorelessUnivariateStatistic implementing the sum of squares
+     */
+    public StorelessUnivariateStatistic[] getSumsqImpl() {
+<span class="fc" id="L458">        return sumSqImpl.clone();</span>
+    }
+
+    /**
+     * &lt;p&gt;Sets the implementation for the sum of squares.&lt;/p&gt;
+     * &lt;p&gt;This method must be activated before any data has been added - i.e.,
+     * before {@link #addValue(double[]) addValue} has been used to add data;
+     * otherwise an IllegalStateException will be thrown.&lt;/p&gt;
+     *
+     * @param sumsqImpl the StorelessUnivariateStatistic instance to use
+     * for computing the sum of squares
+     * @throws DimensionMismatchException if the array dimension
+     * does not match the one used at construction
+     * @throws MathIllegalStateException if data has already been added
+     *  (i.e if n &gt; 0)
+     */
+    public void setSumsqImpl(StorelessUnivariateStatistic[] sumsqImpl)
+    throws MathIllegalStateException, DimensionMismatchException {
+<span class="fc" id="L476">        setImpl(sumsqImpl, this.sumSqImpl);</span>
+<span class="fc" id="L477">    }</span>
+
+    /**
+     * Returns the currently configured minimum implementation
+     *
+     * @return the StorelessUnivariateStatistic implementing the minimum
+     */
+    public StorelessUnivariateStatistic[] getMinImpl() {
+<span class="fc" id="L485">        return minImpl.clone();</span>
+    }
+
+    /**
+     * &lt;p&gt;Sets the implementation for the minimum.&lt;/p&gt;
+     * &lt;p&gt;This method must be activated before any data has been added - i.e.,
+     * before {@link #addValue(double[]) addValue} has been used to add data;
+     * otherwise an IllegalStateException will be thrown.&lt;/p&gt;
+     *
+     * @param minImpl the StorelessUnivariateStatistic instance to use
+     * for computing the minimum
+     * @throws DimensionMismatchException if the array dimension
+     * does not match the one used at construction
+     * @throws MathIllegalStateException if data has already been added
+     *  (i.e if n &gt; 0)
+     */
+    public void setMinImpl(StorelessUnivariateStatistic[] minImpl)
+    throws MathIllegalStateException, DimensionMismatchException {
+<span class="fc" id="L503">        setImpl(minImpl, this.minImpl);</span>
+<span class="fc" id="L504">    }</span>
+
+    /**
+     * Returns the currently configured maximum implementation
+     *
+     * @return the StorelessUnivariateStatistic implementing the maximum
+     */
+    public StorelessUnivariateStatistic[] getMaxImpl() {
+<span class="fc" id="L512">        return maxImpl.clone();</span>
+    }
+
+    /**
+     * &lt;p&gt;Sets the implementation for the maximum.&lt;/p&gt;
+     * &lt;p&gt;This method must be activated before any data has been added - i.e.,
+     * before {@link #addValue(double[]) addValue} has been used to add data;
+     * otherwise an IllegalStateException will be thrown.&lt;/p&gt;
+     *
+     * @param maxImpl the StorelessUnivariateStatistic instance to use
+     * for computing the maximum
+     * @throws DimensionMismatchException if the array dimension
+     * does not match the one used at construction
+     * @throws MathIllegalStateException if data has already been added
+     *  (i.e if n &gt; 0)
+     */
+    public void setMaxImpl(StorelessUnivariateStatistic[] maxImpl)
+    throws MathIllegalStateException, DimensionMismatchException{
+<span class="fc" id="L530">        setImpl(maxImpl, this.maxImpl);</span>
+<span class="fc" id="L531">    }</span>
+
+    /**
+     * Returns the currently configured sum of logs implementation
+     *
+     * @return the StorelessUnivariateStatistic implementing the log sum
+     */
+    public StorelessUnivariateStatistic[] getSumLogImpl() {
+<span class="fc" id="L539">        return sumLogImpl.clone();</span>
+    }
+
+    /**
+     * &lt;p&gt;Sets the implementation for the sum of logs.&lt;/p&gt;
+     * &lt;p&gt;This method must be activated before any data has been added - i.e.,
+     * before {@link #addValue(double[]) addValue} has been used to add data;
+     * otherwise an IllegalStateException will be thrown.&lt;/p&gt;
+     *
+     * @param sumLogImpl the StorelessUnivariateStatistic instance to use
+     * for computing the log sum
+     * @throws DimensionMismatchException if the array dimension
+     * does not match the one used at construction
+     * @throws MathIllegalStateException if data has already been added
+     *  (i.e if n &gt; 0)
+     */
+    public void setSumLogImpl(StorelessUnivariateStatistic[] sumLogImpl)
+    throws MathIllegalStateException, DimensionMismatchException{
+<span class="fc" id="L557">        setImpl(sumLogImpl, this.sumLogImpl);</span>
+<span class="fc" id="L558">    }</span>
+
+    /**
+     * Returns the currently configured geometric mean implementation
+     *
+     * @return the StorelessUnivariateStatistic implementing the geometric mean
+     */
+    public StorelessUnivariateStatistic[] getGeoMeanImpl() {
+<span class="fc" id="L566">        return geoMeanImpl.clone();</span>
+    }
+
+    /**
+     * &lt;p&gt;Sets the implementation for the geometric mean.&lt;/p&gt;
+     * &lt;p&gt;This method must be activated before any data has been added - i.e.,
+     * before {@link #addValue(double[]) addValue} has been used to add data;
+     * otherwise an IllegalStateException will be thrown.&lt;/p&gt;
+     *
+     * @param geoMeanImpl the StorelessUnivariateStatistic instance to use
+     * for computing the geometric mean
+     * @throws DimensionMismatchException if the array dimension
+     * does not match the one used at construction
+     * @throws MathIllegalStateException if data has already been added
+     *  (i.e if n &gt; 0)
+     */
+    public void setGeoMeanImpl(StorelessUnivariateStatistic[] geoMeanImpl)
+    throws MathIllegalStateException, DimensionMismatchException {
+<span class="fc" id="L584">        setImpl(geoMeanImpl, this.geoMeanImpl);</span>
+<span class="fc" id="L585">    }</span>
+
+    /**
+     * Returns the currently configured mean implementation
+     *
+     * @return the StorelessUnivariateStatistic implementing the mean
+     */
+    public StorelessUnivariateStatistic[] getMeanImpl() {
+<span class="fc" id="L593">        return meanImpl.clone();</span>
+    }
+
+    /**
+     * &lt;p&gt;Sets the implementation for the mean.&lt;/p&gt;
+     * &lt;p&gt;This method must be activated before any data has been added - i.e.,
+     * before {@link #addValue(double[]) addValue} has been used to add data;
+     * otherwise an IllegalStateException will be thrown.&lt;/p&gt;
+     *
+     * @param meanImpl the StorelessUnivariateStatistic instance to use
+     * for computing the mean
+     * @throws DimensionMismatchException if the array dimension
+     * does not match the one used at construction
+     * @throws MathIllegalStateException if data has already been added
+     *  (i.e if n &gt; 0)
+     */
+    public void setMeanImpl(StorelessUnivariateStatistic[] meanImpl)
+    throws MathIllegalStateException, DimensionMismatchException{
+<span class="fc" id="L611">        setImpl(meanImpl, this.meanImpl);</span>
+<span class="fc" id="L612">    }</span>
+
+    /**
+     * Throws MathIllegalStateException if the statistic is not empty.
+     * @throws MathIllegalStateException if n &gt; 0.
+     */
+    private void checkEmpty() throws MathIllegalStateException {
+<span class="fc bfc" id="L619" title="All 2 branches covered.">        if (n &gt; 0) {</span>
+<span class="fc" id="L620">            throw new MathIllegalStateException(</span>
+                    LocalizedFormats.VALUES_ADDED_BEFORE_CONFIGURING_STATISTIC, n);
+        }
+<span class="fc" id="L623">    }</span>
+
+    /**
+     * Throws DimensionMismatchException if dimension != k.
+     * @param dimension dimension to check
+     * @throws DimensionMismatchException if dimension != k
+     */
+    private void checkDimension(int dimension) throws DimensionMismatchException {
+<span class="fc bfc" id="L631" title="All 2 branches covered.">        if (dimension != k) {</span>
+<span class="fc" id="L632">            throw new DimensionMismatchException(dimension, k);</span>
+        }
+<span class="fc" id="L634">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

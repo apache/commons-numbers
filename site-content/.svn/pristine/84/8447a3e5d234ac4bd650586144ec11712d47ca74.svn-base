@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LaplaceDistribution.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.distribution</a> &gt; <span class="el_source">LaplaceDistribution.java</span></div><h1>LaplaceDistribution.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.distribution;
+
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.Well19937c;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * This class implements the Laplace distribution.
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Laplace_distribution&quot;&gt;Laplace distribution (Wikipedia)&lt;/a&gt;
+ *
+ * @since 3.4
+ */
+public class LaplaceDistribution extends AbstractRealDistribution {
+
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 20141003;
+
+    /** The location parameter. */
+    private final double mu;
+    /** The scale parameter. */
+    private final double beta;
+
+    /**
+     * Build a new instance.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; this constructor will implicitly create an instance of
+     * {@link Well19937c} as random generator to be used for sampling only (see
+     * {@link #sample()} and {@link #sample(int)}). In case no sampling is
+     * needed for the created distribution, it is advised to pass {@code null}
+     * as random generator via the appropriate constructors to avoid the
+     * additional initialisation overhead.
+     *
+     * @param mu location parameter
+     * @param beta scale parameter (must be positive)
+     * @throws NotStrictlyPositiveException if {@code beta &lt;= 0}
+     */
+    public LaplaceDistribution(double mu, double beta) {
+<span class="fc" id="L58">        this(new Well19937c(), mu, beta);</span>
+<span class="fc" id="L59">    }</span>
+
+    /**
+     * Build a new instance.
+     *
+     * @param rng Random number generator
+     * @param mu location parameter
+     * @param beta scale parameter (must be positive)
+     * @throws NotStrictlyPositiveException if {@code beta &lt;= 0}
+     */
+    public LaplaceDistribution(RandomGenerator rng, double mu, double beta) {
+<span class="fc" id="L70">        super(rng);</span>
+
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if (beta &lt;= 0.0) {</span>
+<span class="nc" id="L73">            throw new NotStrictlyPositiveException(LocalizedFormats.NOT_POSITIVE_SCALE, beta);</span>
+        }
+
+<span class="fc" id="L76">        this.mu = mu;</span>
+<span class="fc" id="L77">        this.beta = beta;</span>
+<span class="fc" id="L78">    }</span>
+
+    /**
+     * Access the location parameter, {@code mu}.
+     *
+     * @return the location parameter.
+     */
+    public double getLocation() {
+<span class="fc" id="L86">        return mu;</span>
+    }
+
+    /**
+     * Access the scale parameter, {@code beta}.
+     *
+     * @return the scale parameter.
+     */
+    public double getScale() {
+<span class="fc" id="L95">        return beta;</span>
+    }
+
+    /** {@inheritDoc} */
+    public double density(double x) {
+<span class="fc" id="L100">        return FastMath.exp(-FastMath.abs(x - mu) / beta) / (2.0 * beta);</span>
+    }
+
+    /** {@inheritDoc} */
+    public double cumulativeProbability(double x) {
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        if (x &lt;= mu) {</span>
+<span class="fc" id="L106">            return FastMath.exp((x - mu) / beta) / 2.0;</span>
+        } else {
+<span class="fc" id="L108">            return 1.0 - FastMath.exp((mu - x) / beta) / 2.0;</span>
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double inverseCumulativeProbability(double p) throws OutOfRangeException {
+<span class="fc bfc" id="L115" title="All 4 branches covered.">        if (p &lt; 0.0 || p &gt; 1.0) {</span>
+<span class="fc" id="L116">            throw new OutOfRangeException(p, 0.0, 1.0);</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">        } else if (p == 0) {</span>
+<span class="nc" id="L118">            return Double.NEGATIVE_INFINITY;</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">        } else if (p == 1) {</span>
+<span class="nc" id="L120">            return Double.POSITIVE_INFINITY;</span>
+        }
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        double x = (p &gt; 0.5) ? -Math.log(2.0 - 2.0 * p) : Math.log(2.0 * p);</span>
+<span class="fc" id="L123">        return mu + beta * x;</span>
+    }
+
+    /** {@inheritDoc} */
+    public double getNumericalMean() {
+<span class="nc" id="L128">        return mu;</span>
+    }
+
+    /** {@inheritDoc} */
+    public double getNumericalVariance() {
+<span class="nc" id="L133">        return 2.0 * beta * beta;</span>
+    }
+
+    /** {@inheritDoc} */
+    public double getSupportLowerBound() {
+<span class="fc" id="L138">        return Double.NEGATIVE_INFINITY;</span>
+    }
+
+    /** {@inheritDoc} */
+    public double getSupportUpperBound() {
+<span class="fc" id="L143">        return Double.POSITIVE_INFINITY;</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isSupportLowerBoundInclusive() {
+<span class="fc" id="L148">        return false;</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isSupportUpperBoundInclusive() {
+<span class="fc" id="L153">        return false;</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isSupportConnected() {
+<span class="fc" id="L158">        return true;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

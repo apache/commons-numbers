@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AdaptiveStepsizeFieldIntegrator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.nonstiff</a> &gt; <span class="el_source">AdaptiveStepsizeFieldIntegrator.java</span></div><h1>AdaptiveStepsizeFieldIntegrator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.nonstiff;
+
+import org.apache.commons.math3.Field;
+import org.apache.commons.math3.RealFieldElement;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.ode.AbstractFieldIntegrator;
+import org.apache.commons.math3.ode.FieldEquationsMapper;
+import org.apache.commons.math3.ode.FieldODEState;
+import org.apache.commons.math3.ode.FieldODEStateAndDerivative;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * This abstract class holds the common part of all adaptive
+ * stepsize integrators for Ordinary Differential Equations.
+ *
+ * &lt;p&gt;These algorithms perform integration with stepsize control, which
+ * means the user does not specify the integration step but rather a
+ * tolerance on error. The error threshold is computed as
+ * &lt;pre&gt;
+ * threshold_i = absTol_i + relTol_i * max (abs (ym), abs (ym+1))
+ * &lt;/pre&gt;
+ * where absTol_i is the absolute tolerance for component i of the
+ * state vector and relTol_i is the relative tolerance for the same
+ * component. The user can also use only two scalar values absTol and
+ * relTol which will be used for all components.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * Note that &lt;em&gt;only&lt;/em&gt; the {@link FieldODEState#getState() main part}
+ * of the state vector is used for stepsize control. The {@link
+ * FieldODEState#getSecondaryState(int) secondary parts} of the state
+ * vector are explicitly ignored for stepsize control.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;If the estimated error for ym+1 is such that
+ * &lt;pre&gt;
+ * sqrt((sum (errEst_i / threshold_i)^2 ) / n) &lt; 1
+ * &lt;/pre&gt;
+ *
+ * (where n is the main set dimension) then the step is accepted,
+ * otherwise the step is rejected and a new attempt is made with a new
+ * stepsize.&lt;/p&gt;
+ *
+ * @param &lt;T&gt; the type of the field elements
+ * @since 3.6
+ *
+ */
+
+public abstract class AdaptiveStepsizeFieldIntegrator&lt;T extends RealFieldElement&lt;T&gt;&gt;
+    extends AbstractFieldIntegrator&lt;T&gt; {
+
+    /** Allowed absolute scalar error. */
+    protected double scalAbsoluteTolerance;
+
+    /** Allowed relative scalar error. */
+    protected double scalRelativeTolerance;
+
+    /** Allowed absolute vectorial error. */
+    protected double[] vecAbsoluteTolerance;
+
+    /** Allowed relative vectorial error. */
+    protected double[] vecRelativeTolerance;
+
+    /** Main set dimension. */
+    protected int mainSetDimension;
+
+    /** User supplied initial step. */
+    private T initialStep;
+
+    /** Minimal step. */
+    private T minStep;
+
+    /** Maximal step. */
+    private T maxStep;
+
+    /** Build an integrator with the given stepsize bounds.
+     * The default step handler does nothing.
+     * @param field field to which the time and state vector elements belong
+     * @param name name of the method
+     * @param minStep minimal step (sign is irrelevant, regardless of
+     * integration direction, forward or backward), the last step can
+     * be smaller than this
+     * @param maxStep maximal step (sign is irrelevant, regardless of
+     * integration direction, forward or backward), the last step can
+     * be smaller than this
+     * @param scalAbsoluteTolerance allowed absolute error
+     * @param scalRelativeTolerance allowed relative error
+     */
+    public AdaptiveStepsizeFieldIntegrator(final Field&lt;T&gt; field, final String name,
+                                           final double minStep, final double maxStep,
+                                           final double scalAbsoluteTolerance,
+                                           final double scalRelativeTolerance) {
+
+<span class="fc" id="L115">        super(field, name);</span>
+<span class="fc" id="L116">        setStepSizeControl(minStep, maxStep, scalAbsoluteTolerance, scalRelativeTolerance);</span>
+<span class="fc" id="L117">        resetInternalState();</span>
+
+<span class="fc" id="L119">    }</span>
+
+    /** Build an integrator with the given stepsize bounds.
+     * The default step handler does nothing.
+     * @param field field to which the time and state vector elements belong
+     * @param name name of the method
+     * @param minStep minimal step (sign is irrelevant, regardless of
+     * integration direction, forward or backward), the last step can
+     * be smaller than this
+     * @param maxStep maximal step (sign is irrelevant, regardless of
+     * integration direction, forward or backward), the last step can
+     * be smaller than this
+     * @param vecAbsoluteTolerance allowed absolute error
+     * @param vecRelativeTolerance allowed relative error
+     */
+    public AdaptiveStepsizeFieldIntegrator(final Field&lt;T&gt; field, final String name,
+                                           final double minStep, final double maxStep,
+                                           final double[] vecAbsoluteTolerance,
+                                           final double[] vecRelativeTolerance) {
+
+<span class="fc" id="L139">        super(field, name);</span>
+<span class="fc" id="L140">        setStepSizeControl(minStep, maxStep, vecAbsoluteTolerance, vecRelativeTolerance);</span>
+<span class="fc" id="L141">        resetInternalState();</span>
+
+<span class="fc" id="L143">    }</span>
+
+    /** Set the adaptive step size control parameters.
+     * &lt;p&gt;
+     * A side effect of this method is to also reset the initial
+     * step so it will be automatically computed by the integrator
+     * if {@link #setInitialStepSize(RealFieldElement) setInitialStepSize}
+     * is not called by the user.
+     * &lt;/p&gt;
+     * @param minimalStep minimal step (must be positive even for backward
+     * integration), the last step can be smaller than this
+     * @param maximalStep maximal step (must be positive even for backward
+     * integration)
+     * @param absoluteTolerance allowed absolute error
+     * @param relativeTolerance allowed relative error
+     */
+    public void setStepSizeControl(final double minimalStep, final double maximalStep,
+                                   final double absoluteTolerance,
+                                   final double relativeTolerance) {
+
+<span class="fc" id="L163">        minStep     = getField().getZero().add(FastMath.abs(minimalStep));</span>
+<span class="fc" id="L164">        maxStep     = getField().getZero().add(FastMath.abs(maximalStep));</span>
+<span class="fc" id="L165">        initialStep = getField().getOne().negate();</span>
+
+<span class="fc" id="L167">        scalAbsoluteTolerance = absoluteTolerance;</span>
+<span class="fc" id="L168">        scalRelativeTolerance = relativeTolerance;</span>
+<span class="fc" id="L169">        vecAbsoluteTolerance  = null;</span>
+<span class="fc" id="L170">        vecRelativeTolerance  = null;</span>
+
+<span class="fc" id="L172">    }</span>
+
+    /** Set the adaptive step size control parameters.
+     * &lt;p&gt;
+     * A side effect of this method is to also reset the initial
+     * step so it will be automatically computed by the integrator
+     * if {@link #setInitialStepSize(RealFieldElement) setInitialStepSize}
+     * is not called by the user.
+     * &lt;/p&gt;
+     * @param minimalStep minimal step (must be positive even for backward
+     * integration), the last step can be smaller than this
+     * @param maximalStep maximal step (must be positive even for backward
+     * integration)
+     * @param absoluteTolerance allowed absolute error
+     * @param relativeTolerance allowed relative error
+     */
+    public void setStepSizeControl(final double minimalStep, final double maximalStep,
+                                   final double[] absoluteTolerance,
+                                   final double[] relativeTolerance) {
+
+<span class="fc" id="L192">        minStep     = getField().getZero().add(FastMath.abs(minimalStep));</span>
+<span class="fc" id="L193">        maxStep     = getField().getZero().add(FastMath.abs(maximalStep));</span>
+<span class="fc" id="L194">        initialStep = getField().getOne().negate();</span>
+
+<span class="fc" id="L196">        scalAbsoluteTolerance = 0;</span>
+<span class="fc" id="L197">        scalRelativeTolerance = 0;</span>
+<span class="fc" id="L198">        vecAbsoluteTolerance  = absoluteTolerance.clone();</span>
+<span class="fc" id="L199">        vecRelativeTolerance  = relativeTolerance.clone();</span>
+
+<span class="fc" id="L201">    }</span>
+
+    /** Set the initial step size.
+     * &lt;p&gt;This method allows the user to specify an initial positive
+     * step size instead of letting the integrator guess it by
+     * itself. If this method is not called before integration is
+     * started, the initial step size will be estimated by the
+     * integrator.&lt;/p&gt;
+     * @param initialStepSize initial step size to use (must be positive even
+     * for backward integration ; providing a negative value or a value
+     * outside of the min/max step interval will lead the integrator to
+     * ignore the value and compute the initial step size by itself)
+     */
+    public void setInitialStepSize(final T initialStepSize) {
+<span class="nc bnc" id="L215" title="All 4 branches missed.">        if (initialStepSize.subtract(minStep).getReal() &lt; 0 ||</span>
+            initialStepSize.subtract(maxStep).getReal() &gt; 0) {
+<span class="nc" id="L217">            initialStep = getField().getOne().negate();</span>
+        } else {
+<span class="nc" id="L219">            initialStep = initialStepSize;</span>
+        }
+<span class="nc" id="L221">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    protected void sanityChecks(final FieldODEState&lt;T&gt; eqn, final T t)
+        throws DimensionMismatchException, NumberIsTooSmallException {
+
+<span class="fc" id="L228">        super.sanityChecks(eqn, t);</span>
+
+<span class="fc" id="L230">        mainSetDimension = eqn.getStateDimension();</span>
+
+<span class="fc bfc" id="L232" title="All 4 branches covered.">        if (vecAbsoluteTolerance != null &amp;&amp; vecAbsoluteTolerance.length != mainSetDimension) {</span>
+<span class="fc" id="L233">            throw new DimensionMismatchException(mainSetDimension, vecAbsoluteTolerance.length);</span>
+        }
+
+<span class="pc bpc" id="L236" title="1 of 4 branches missed.">        if (vecRelativeTolerance != null &amp;&amp; vecRelativeTolerance.length != mainSetDimension) {</span>
+<span class="nc" id="L237">            throw new DimensionMismatchException(mainSetDimension, vecRelativeTolerance.length);</span>
+        }
+
+<span class="fc" id="L240">    }</span>
+
+    /** Initialize the integration step.
+     * @param forward forward integration indicator
+     * @param order order of the method
+     * @param scale scaling vector for the state vector (can be shorter than state vector)
+     * @param state0 state at integration start time
+     * @param mapper mapper for all the equations
+     * @return first integration step
+     * @exception MaxCountExceededException if the number of functions evaluations is exceeded
+     * @exception DimensionMismatchException if arrays dimensions do not match equations settings
+     */
+    public T initializeStep(final boolean forward, final int order, final T[] scale,
+                            final FieldODEStateAndDerivative&lt;T&gt; state0,
+                            final FieldEquationsMapper&lt;T&gt; mapper)
+        throws MaxCountExceededException, DimensionMismatchException {
+
+<span class="pc bpc" id="L257" title="1 of 2 branches missed.">        if (initialStep.getReal() &gt; 0) {</span>
+            // use the user provided value
+<span class="nc bnc" id="L259" title="All 2 branches missed.">            return forward ? initialStep : initialStep.negate();</span>
+        }
+
+        // very rough first guess : h = 0.01 * ||y/scale|| / ||y'/scale||
+        // this guess will be used to perform an Euler step
+<span class="fc" id="L264">        final T[] y0    = mapper.mapState(state0);</span>
+<span class="fc" id="L265">        final T[] yDot0 = mapper.mapDerivative(state0);</span>
+<span class="fc" id="L266">        T yOnScale2    = getField().getZero();</span>
+<span class="fc" id="L267">        T yDotOnScale2 = getField().getZero();</span>
+<span class="fc bfc" id="L268" title="All 2 branches covered.">        for (int j = 0; j &lt; scale.length; ++j) {</span>
+<span class="fc" id="L269">            final T ratio    = y0[j].divide(scale[j]);</span>
+<span class="fc" id="L270">            yOnScale2        = yOnScale2.add(ratio.multiply(ratio));</span>
+<span class="fc" id="L271">            final T ratioDot = yDot0[j].divide(scale[j]);</span>
+<span class="fc" id="L272">            yDotOnScale2     = yDotOnScale2.add(ratioDot.multiply(ratioDot));</span>
+        }
+
+<span class="pc bpc" id="L275" title="2 of 4 branches missed.">        T h = (yOnScale2.getReal() &lt; 1.0e-10 || yDotOnScale2.getReal() &lt; 1.0e-10) ?</span>
+              getField().getZero().add(1.0e-6) :
+              yOnScale2.divide(yDotOnScale2).sqrt().multiply(0.01);
+<span class="fc bfc" id="L278" title="All 2 branches covered.">        if (! forward) {</span>
+<span class="fc" id="L279">            h = h.negate();</span>
+        }
+
+        // perform an Euler step using the preceding rough guess
+<span class="fc" id="L283">        final T[] y1 = MathArrays.buildArray(getField(), y0.length);</span>
+<span class="fc bfc" id="L284" title="All 2 branches covered.">        for (int j = 0; j &lt; y0.length; ++j) {</span>
+<span class="fc" id="L285">            y1[j] = y0[j].add(yDot0[j].multiply(h));</span>
+        }
+<span class="fc" id="L287">        final T[] yDot1 = computeDerivatives(state0.getTime().add(h), y1);</span>
+
+        // estimate the second derivative of the solution
+<span class="fc" id="L290">        T yDDotOnScale = getField().getZero();</span>
+<span class="fc bfc" id="L291" title="All 2 branches covered.">        for (int j = 0; j &lt; scale.length; ++j) {</span>
+<span class="fc" id="L292">            final T ratioDotDot = yDot1[j].subtract(yDot0[j]).divide(scale[j]);</span>
+<span class="fc" id="L293">            yDDotOnScale = yDDotOnScale.add(ratioDotDot.multiply(ratioDotDot));</span>
+        }
+<span class="fc" id="L295">        yDDotOnScale = yDDotOnScale.sqrt().divide(h);</span>
+
+        // step size is computed such that
+        // h^order * max (||y'/tol||, ||y''/tol||) = 0.01
+<span class="fc" id="L299">        final T maxInv2 = MathUtils.max(yDotOnScale2.sqrt(), yDDotOnScale);</span>
+<span class="pc bpc" id="L300" title="1 of 2 branches missed.">        final T h1 = maxInv2.getReal() &lt; 1.0e-15 ?</span>
+                     MathUtils.max(getField().getZero().add(1.0e-6), h.abs().multiply(0.001)) :
+                     maxInv2.multiply(100).reciprocal().pow(1.0 / order);
+<span class="fc" id="L303">        h = MathUtils.min(h.abs().multiply(100), h1);</span>
+<span class="fc" id="L304">        h = MathUtils.max(h, state0.getTime().abs().multiply(1.0e-12));  // avoids cancellation when computing t1 - t0</span>
+<span class="fc" id="L305">        h = MathUtils.max(minStep, MathUtils.min(maxStep, h));</span>
+<span class="fc bfc" id="L306" title="All 2 branches covered.">        if (! forward) {</span>
+<span class="fc" id="L307">            h = h.negate();</span>
+        }
+
+<span class="fc" id="L310">        return h;</span>
+
+    }
+
+    /** Filter the integration step.
+     * @param h signed step
+     * @param forward forward integration indicator
+     * @param acceptSmall if true, steps smaller than the minimal value
+     * are silently increased up to this value, if false such small
+     * steps generate an exception
+     * @return a bounded integration step (h if no bound is reach, or a bounded value)
+     * @exception NumberIsTooSmallException if the step is too small and acceptSmall is false
+     */
+    protected T filterStep(final T h, final boolean forward, final boolean acceptSmall)
+        throws NumberIsTooSmallException {
+
+<span class="fc" id="L326">        T filteredH = h;</span>
+<span class="fc bfc" id="L327" title="All 2 branches covered.">        if (h.abs().subtract(minStep).getReal() &lt; 0) {</span>
+<span class="pc bpc" id="L328" title="1 of 2 branches missed.">            if (acceptSmall) {</span>
+<span class="nc bnc" id="L329" title="All 2 branches missed.">                filteredH = forward ? minStep : minStep.negate();</span>
+            } else {
+<span class="fc" id="L331">                throw new NumberIsTooSmallException(LocalizedFormats.MINIMAL_STEPSIZE_REACHED_DURING_INTEGRATION,</span>
+                                                    h.abs().getReal(), minStep.getReal(), true);
+            }
+        }
+
+<span class="fc bfc" id="L336" title="All 2 branches covered.">        if (filteredH.subtract(maxStep).getReal() &gt; 0) {</span>
+<span class="fc" id="L337">            filteredH = maxStep;</span>
+<span class="fc bfc" id="L338" title="All 2 branches covered.">        } else if (filteredH.add(maxStep).getReal() &lt; 0) {</span>
+<span class="fc" id="L339">            filteredH = maxStep.negate();</span>
+        }
+
+<span class="fc" id="L342">        return filteredH;</span>
+
+    }
+
+    /** Reset internal state to dummy values. */
+    protected void resetInternalState() {
+<span class="fc" id="L348">        setStepStart(null);</span>
+<span class="fc" id="L349">        setStepSize(minStep.multiply(maxStep).sqrt());</span>
+<span class="fc" id="L350">    }</span>
+
+    /** Get the minimal step.
+     * @return minimal step
+     */
+    public T getMinStep() {
+<span class="nc" id="L356">        return minStep;</span>
+    }
+
+    /** Get the maximal step.
+     * @return maximal step
+     */
+    public T getMaxStep() {
+<span class="nc" id="L363">        return maxStep;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

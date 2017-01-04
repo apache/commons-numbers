@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>NormalDistribution.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.distribution</a> &gt; <span class="el_source">NormalDistribution.java</span></div><h1>NormalDistribution.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.distribution;
+
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.Well19937c;
+import org.apache.commons.math3.special.Erf;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * Implementation of the normal (gaussian) distribution.
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Normal_distribution&quot;&gt;Normal distribution (Wikipedia)&lt;/a&gt;
+ * @see &lt;a href=&quot;http://mathworld.wolfram.com/NormalDistribution.html&quot;&gt;Normal distribution (MathWorld)&lt;/a&gt;
+ */
+public class NormalDistribution extends AbstractRealDistribution {
+    /**
+     * Default inverse cumulative probability accuracy.
+     * @since 2.1
+     */
+    public static final double DEFAULT_INVERSE_ABSOLUTE_ACCURACY = 1e-9;
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 8589540077390120676L;
+    /** &amp;radic;(2) */
+<span class="fc" id="L44">    private static final double SQRT2 = FastMath.sqrt(2.0);</span>
+    /** Mean of this distribution. */
+    private final double mean;
+    /** Standard deviation of this distribution. */
+    private final double standardDeviation;
+    /** The value of {@code log(sd) + 0.5*log(2*pi)} stored for faster computation. */
+    private final double logStandardDeviationPlusHalfLog2Pi;
+    /** Inverse cumulative probability accuracy. */
+    private final double solverAbsoluteAccuracy;
+
+    /**
+     * Create a normal distribution with mean equal to zero and standard
+     * deviation equal to one.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; this constructor will implicitly create an instance of
+     * {@link Well19937c} as random generator to be used for sampling only (see
+     * {@link #sample()} and {@link #sample(int)}). In case no sampling is
+     * needed for the created distribution, it is advised to pass {@code null}
+     * as random generator via the appropriate constructors to avoid the
+     * additional initialisation overhead.
+     */
+    public NormalDistribution() {
+<span class="fc" id="L66">        this(0, 1);</span>
+<span class="fc" id="L67">    }</span>
+
+    /**
+     * Create a normal distribution using the given mean and standard deviation.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; this constructor will implicitly create an instance of
+     * {@link Well19937c} as random generator to be used for sampling only (see
+     * {@link #sample()} and {@link #sample(int)}). In case no sampling is
+     * needed for the created distribution, it is advised to pass {@code null}
+     * as random generator via the appropriate constructors to avoid the
+     * additional initialisation overhead.
+     *
+     * @param mean Mean for this distribution.
+     * @param sd Standard deviation for this distribution.
+     * @throws NotStrictlyPositiveException if {@code sd &lt;= 0}.
+     */
+    public NormalDistribution(double mean, double sd)
+        throws NotStrictlyPositiveException {
+<span class="fc" id="L85">        this(mean, sd, DEFAULT_INVERSE_ABSOLUTE_ACCURACY);</span>
+<span class="fc" id="L86">    }</span>
+
+    /**
+     * Create a normal distribution using the given mean, standard deviation and
+     * inverse cumulative distribution accuracy.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; this constructor will implicitly create an instance of
+     * {@link Well19937c} as random generator to be used for sampling only (see
+     * {@link #sample()} and {@link #sample(int)}). In case no sampling is
+     * needed for the created distribution, it is advised to pass {@code null}
+     * as random generator via the appropriate constructors to avoid the
+     * additional initialisation overhead.
+     *
+     * @param mean Mean for this distribution.
+     * @param sd Standard deviation for this distribution.
+     * @param inverseCumAccuracy Inverse cumulative probability accuracy.
+     * @throws NotStrictlyPositiveException if {@code sd &lt;= 0}.
+     * @since 2.1
+     */
+    public NormalDistribution(double mean, double sd, double inverseCumAccuracy)
+        throws NotStrictlyPositiveException {
+<span class="fc" id="L107">        this(new Well19937c(), mean, sd, inverseCumAccuracy);</span>
+<span class="fc" id="L108">    }</span>
+
+    /**
+     * Creates a normal distribution.
+     *
+     * @param rng Random number generator.
+     * @param mean Mean for this distribution.
+     * @param sd Standard deviation for this distribution.
+     * @throws NotStrictlyPositiveException if {@code sd &lt;= 0}.
+     * @since 3.3
+     */
+    public NormalDistribution(RandomGenerator rng, double mean, double sd)
+        throws NotStrictlyPositiveException {
+<span class="fc" id="L121">        this(rng, mean, sd, DEFAULT_INVERSE_ABSOLUTE_ACCURACY);</span>
+<span class="fc" id="L122">    }</span>
+
+    /**
+     * Creates a normal distribution.
+     *
+     * @param rng Random number generator.
+     * @param mean Mean for this distribution.
+     * @param sd Standard deviation for this distribution.
+     * @param inverseCumAccuracy Inverse cumulative probability accuracy.
+     * @throws NotStrictlyPositiveException if {@code sd &lt;= 0}.
+     * @since 3.1
+     */
+    public NormalDistribution(RandomGenerator rng,
+                              double mean,
+                              double sd,
+                              double inverseCumAccuracy)
+        throws NotStrictlyPositiveException {
+<span class="fc" id="L139">        super(rng);</span>
+
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        if (sd &lt;= 0) {</span>
+<span class="fc" id="L142">            throw new NotStrictlyPositiveException(LocalizedFormats.STANDARD_DEVIATION, sd);</span>
+        }
+
+<span class="fc" id="L145">        this.mean = mean;</span>
+<span class="fc" id="L146">        standardDeviation = sd;</span>
+<span class="fc" id="L147">        logStandardDeviationPlusHalfLog2Pi = FastMath.log(sd) + 0.5 * FastMath.log(2 * FastMath.PI);</span>
+<span class="fc" id="L148">        solverAbsoluteAccuracy = inverseCumAccuracy;</span>
+<span class="fc" id="L149">    }</span>
+
+    /**
+     * Access the mean.
+     *
+     * @return the mean for this distribution.
+     */
+    public double getMean() {
+<span class="fc" id="L157">        return mean;</span>
+    }
+
+    /**
+     * Access the standard deviation.
+     *
+     * @return the standard deviation for this distribution.
+     */
+    public double getStandardDeviation() {
+<span class="fc" id="L166">        return standardDeviation;</span>
+    }
+
+    /** {@inheritDoc} */
+    public double density(double x) {
+<span class="fc" id="L171">        return FastMath.exp(logDensity(x));</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double logDensity(double x) {
+<span class="fc" id="L177">        final double x0 = x - mean;</span>
+<span class="fc" id="L178">        final double x1 = x0 / standardDeviation;</span>
+<span class="fc" id="L179">        return -0.5 * x1 * x1 - logStandardDeviationPlusHalfLog2Pi;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * If {@code x} is more than 40 standard deviations from the mean, 0 or 1
+     * is returned, as in these cases the actual value is within
+     * {@code Double.MIN_VALUE} of 0 or 1.
+     */
+    public double cumulativeProbability(double x)  {
+<span class="fc" id="L190">        final double dev = x - mean;</span>
+<span class="fc bfc" id="L191" title="All 2 branches covered.">        if (FastMath.abs(dev) &gt; 40 * standardDeviation) {</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">            return dev &lt; 0 ? 0.0d : 1.0d;</span>
+        }
+<span class="fc" id="L194">        return 0.5 * Erf.erfc(-dev / (standardDeviation * SQRT2));</span>
+    }
+
+    /** {@inheritDoc}
+     * @since 3.2
+     */
+    @Override
+    public double inverseCumulativeProbability(final double p) throws OutOfRangeException {
+<span class="fc bfc" id="L202" title="All 4 branches covered.">        if (p &lt; 0.0 || p &gt; 1.0) {</span>
+<span class="fc" id="L203">            throw new OutOfRangeException(p, 0, 1);</span>
+        }
+<span class="fc" id="L205">        return mean + standardDeviation * SQRT2 * Erf.erfInv(2 * p - 1);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated See {@link RealDistribution#cumulativeProbability(double,double)}
+     */
+    @Override@Deprecated
+    public double cumulativeProbability(double x0, double x1)
+        throws NumberIsTooLargeException {
+<span class="fc" id="L216">        return probability(x0, x1);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double probability(double x0,
+                              double x1)
+        throws NumberIsTooLargeException {
+<span class="fc bfc" id="L224" title="All 2 branches covered.">        if (x0 &gt; x1) {</span>
+<span class="fc" id="L225">            throw new NumberIsTooLargeException(LocalizedFormats.LOWER_ENDPOINT_ABOVE_UPPER_ENDPOINT,</span>
+                                                x0, x1, true);
+        }
+<span class="fc" id="L228">        final double denom = standardDeviation * SQRT2;</span>
+<span class="fc" id="L229">        final double v0 = (x0 - mean) / denom;</span>
+<span class="fc" id="L230">        final double v1 = (x1 - mean) / denom;</span>
+<span class="fc" id="L231">        return 0.5 * Erf.erf(v0, v1);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected double getSolverAbsoluteAccuracy() {
+<span class="nc" id="L237">        return solverAbsoluteAccuracy;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For mean parameter {@code mu}, the mean is {@code mu}.
+     */
+    public double getNumericalMean() {
+<span class="fc" id="L246">        return getMean();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For standard deviation parameter {@code s}, the variance is {@code s^2}.
+     */
+    public double getNumericalVariance() {
+<span class="fc" id="L255">        final double s = getStandardDeviation();</span>
+<span class="fc" id="L256">        return s * s;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The lower bound of the support is always negative infinity
+     * no matter the parameters.
+     *
+     * @return lower bound of the support (always
+     * {@code Double.NEGATIVE_INFINITY})
+     */
+    public double getSupportLowerBound() {
+<span class="fc" id="L269">        return Double.NEGATIVE_INFINITY;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The upper bound of the support is always positive infinity
+     * no matter the parameters.
+     *
+     * @return upper bound of the support (always
+     * {@code Double.POSITIVE_INFINITY})
+     */
+    public double getSupportUpperBound() {
+<span class="fc" id="L282">        return Double.POSITIVE_INFINITY;</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isSupportLowerBoundInclusive() {
+<span class="fc" id="L287">        return false;</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isSupportUpperBoundInclusive() {
+<span class="fc" id="L292">        return false;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The support of this distribution is connected.
+     *
+     * @return {@code true}
+     */
+    public boolean isSupportConnected() {
+<span class="nc" id="L303">        return true;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double sample()  {
+<span class="fc" id="L309">        return standardDeviation * random.nextGaussian() + mean;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

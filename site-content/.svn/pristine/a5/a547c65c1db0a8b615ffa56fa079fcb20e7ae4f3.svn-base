@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TiesStrategy.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.ranking</a> &gt; <span class="el_source">TiesStrategy.java</span></div><h1>TiesStrategy.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.stat.ranking;
+
+/**
+ * Strategies for handling tied values in rank transformations.
+ * &lt;ul&gt;
+ * &lt;li&gt;SEQUENTIAL - Ties are assigned ranks in order of occurrence in the original array,
+ * for example (1,3,4,3) is ranked as (1,2,4,3)&lt;/li&gt;
+ * &lt;li&gt;MINIMUM - Tied values are assigned the minimum applicable rank, or the rank
+ * of the first occurrence. For example, (1,3,4,3) is ranked as (1,2,4,2)&lt;/li&gt;
+ * &lt;li&gt;MAXIMUM - Tied values are assigned the maximum applicable rank, or the rank
+ * of the last occurrence. For example, (1,3,4,3) is ranked as (1,3,4,3)&lt;/li&gt;
+ * &lt;li&gt;AVERAGE - Tied values are assigned the average of the applicable ranks.
+ * For example, (1,3,4,3) is ranked as (1,2.5,4,2.5)&lt;/li&gt;
+ * &lt;li&gt;RANDOM - Tied values are assigned a random integer rank from among the
+ * applicable values. The assigned rank will always be an integer, (inclusively)
+ * between the values returned by the MINIMUM and MAXIMUM strategies.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @since 2.0
+ */
+<span class="pc" id="L38">public enum TiesStrategy {</span>
+
+    /** Ties assigned sequential ranks in order of occurrence */
+<span class="fc" id="L41">    SEQUENTIAL,</span>
+
+    /** Ties get the minimum applicable rank */
+<span class="fc" id="L44">    MINIMUM,</span>
+
+    /** Ties get the maximum applicable rank */
+<span class="fc" id="L47">    MAXIMUM,</span>
+
+    /** Ties get the average of applicable ranks */
+<span class="fc" id="L50">    AVERAGE,</span>
+
+    /** Ties get a random integral value from among applicable ranks */
+<span class="fc" id="L53">    RANDOM</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

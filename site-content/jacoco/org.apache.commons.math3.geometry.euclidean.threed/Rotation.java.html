@@ -1,0 +1,1425 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Rotation.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.euclidean.threed</a> &gt; <span class="el_source">Rotation.java</span></div><h1>Rotation.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.geometry.euclidean.threed;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.MathArithmeticException;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathArrays;
+
+/**
+ * This class implements rotations in a three-dimensional space.
+ *
+ * &lt;p&gt;Rotations can be represented by several different mathematical
+ * entities (matrices, axe and angle, Cardan or Euler angles,
+ * quaternions). This class presents an higher level abstraction, more
+ * user-oriented and hiding this implementation details. Well, for the
+ * curious, we use quaternions for the internal representation. The
+ * user can build a rotation from any of these representations, and
+ * any of these representations can be retrieved from a
+ * &lt;code&gt;Rotation&lt;/code&gt; instance (see the various constructors and
+ * getters). In addition, a rotation can also be built implicitly
+ * from a set of vectors and their image.&lt;/p&gt;
+ * &lt;p&gt;This implies that this class can be used to convert from one
+ * representation to another one. For example, converting a rotation
+ * matrix into a set of Cardan angles from can be done using the
+ * following single line of code:&lt;/p&gt;
+ * &lt;pre&gt;
+ * double[] angles = new Rotation(matrix, 1.0e-10).getAngles(RotationOrder.XYZ);
+ * &lt;/pre&gt;
+ * &lt;p&gt;Focus is oriented on what a rotation &lt;em&gt;do&lt;/em&gt; rather than on its
+ * underlying representation. Once it has been built, and regardless of its
+ * internal representation, a rotation is an &lt;em&gt;operator&lt;/em&gt; which basically
+ * transforms three dimensional {@link Vector3D vectors} into other three
+ * dimensional {@link Vector3D vectors}. Depending on the application, the
+ * meaning of these vectors may vary and the semantics of the rotation also.&lt;/p&gt;
+ * &lt;p&gt;For example in an spacecraft attitude simulation tool, users will often
+ * consider the vectors are fixed (say the Earth direction for example) and the
+ * frames change. The rotation transforms the coordinates of the vector in inertial
+ * frame into the coordinates of the same vector in satellite frame. In this
+ * case, the rotation implicitly defines the relation between the two frames.&lt;/p&gt;
+ * &lt;p&gt;Another example could be a telescope control application, where the rotation
+ * would transform the sighting direction at rest into the desired observing
+ * direction when the telescope is pointed towards an object of interest. In this
+ * case the rotation transforms the direction at rest in a topocentric frame
+ * into the sighting direction in the same topocentric frame. This implies in this
+ * case the frame is fixed and the vector moves.&lt;/p&gt;
+ * &lt;p&gt;In many case, both approaches will be combined. In our telescope example,
+ * we will probably also need to transform the observing direction in the topocentric
+ * frame into the observing direction in inertial frame taking into account the observatory
+ * location and the Earth rotation, which would essentially be an application of the
+ * first approach.&lt;/p&gt;
+ *
+ * &lt;p&gt;These examples show that a rotation is what the user wants it to be. This
+ * class does not push the user towards one specific definition and hence does not
+ * provide methods like &lt;code&gt;projectVectorIntoDestinationFrame&lt;/code&gt; or
+ * &lt;code&gt;computeTransformedDirection&lt;/code&gt;. It provides simpler and more generic
+ * methods: {@link #applyTo(Vector3D) applyTo(Vector3D)} and {@link
+ * #applyInverseTo(Vector3D) applyInverseTo(Vector3D)}.&lt;/p&gt;
+ *
+ * &lt;p&gt;Since a rotation is basically a vectorial operator, several rotations can be
+ * composed together and the composite operation &lt;code&gt;r = r&lt;sub&gt;1&lt;/sub&gt; o
+ * r&lt;sub&gt;2&lt;/sub&gt;&lt;/code&gt; (which means that for each vector &lt;code&gt;u&lt;/code&gt;,
+ * &lt;code&gt;r(u) = r&lt;sub&gt;1&lt;/sub&gt;(r&lt;sub&gt;2&lt;/sub&gt;(u))&lt;/code&gt;) is also a rotation. Hence
+ * we can consider that in addition to vectors, a rotation can be applied to other
+ * rotations as well (or to itself). With our previous notations, we would say we
+ * can apply &lt;code&gt;r&lt;sub&gt;1&lt;/sub&gt;&lt;/code&gt; to &lt;code&gt;r&lt;sub&gt;2&lt;/sub&gt;&lt;/code&gt; and the result
+ * we get is &lt;code&gt;r = r&lt;sub&gt;1&lt;/sub&gt; o r&lt;sub&gt;2&lt;/sub&gt;&lt;/code&gt;. For this purpose, the
+ * class provides the methods: {@link #applyTo(Rotation) applyTo(Rotation)} and
+ * {@link #applyInverseTo(Rotation) applyInverseTo(Rotation)}.&lt;/p&gt;
+ *
+ * &lt;p&gt;Rotations are guaranteed to be immutable objects.&lt;/p&gt;
+ *
+ * @see Vector3D
+ * @see RotationOrder
+ * @since 1.2
+ */
+
+public class Rotation implements Serializable {
+
+  /** Identity rotation. */
+<span class="fc" id="L99">  public static final Rotation IDENTITY = new Rotation(1.0, 0.0, 0.0, 0.0, false);</span>
+
+  /** Serializable version identifier */
+  private static final long serialVersionUID = -2153622329907944313L;
+
+  /** Scalar coordinate of the quaternion. */
+  private final double q0;
+
+  /** First coordinate of the vectorial part of the quaternion. */
+  private final double q1;
+
+  /** Second coordinate of the vectorial part of the quaternion. */
+  private final double q2;
+
+  /** Third coordinate of the vectorial part of the quaternion. */
+  private final double q3;
+
+  /** Build a rotation from the quaternion coordinates.
+   * &lt;p&gt;A rotation can be built from a &lt;em&gt;normalized&lt;/em&gt; quaternion,
+   * i.e. a quaternion for which q&lt;sub&gt;0&lt;/sub&gt;&lt;sup&gt;2&lt;/sup&gt; +
+   * q&lt;sub&gt;1&lt;/sub&gt;&lt;sup&gt;2&lt;/sup&gt; + q&lt;sub&gt;2&lt;/sub&gt;&lt;sup&gt;2&lt;/sup&gt; +
+   * q&lt;sub&gt;3&lt;/sub&gt;&lt;sup&gt;2&lt;/sup&gt; = 1. If the quaternion is not normalized,
+   * the constructor can normalize it in a preprocessing step.&lt;/p&gt;
+   * &lt;p&gt;Note that some conventions put the scalar part of the quaternion
+   * as the 4&lt;sup&gt;th&lt;/sup&gt; component and the vector part as the first three
+   * components. This is &lt;em&gt;not&lt;/em&gt; our convention. We put the scalar part
+   * as the first component.&lt;/p&gt;
+   * @param q0 scalar part of the quaternion
+   * @param q1 first coordinate of the vectorial part of the quaternion
+   * @param q2 second coordinate of the vectorial part of the quaternion
+   * @param q3 third coordinate of the vectorial part of the quaternion
+   * @param needsNormalization if true, the coordinates are considered
+   * not to be normalized, a normalization preprocessing step is performed
+   * before using them
+   */
+  public Rotation(double q0, double q1, double q2, double q3,
+<span class="fc" id="L135">                  boolean needsNormalization) {</span>
+
+<span class="fc bfc" id="L137" title="All 2 branches covered.">    if (needsNormalization) {</span>
+      // normalization preprocessing
+<span class="fc" id="L139">      double inv = 1.0 / FastMath.sqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);</span>
+<span class="fc" id="L140">      q0 *= inv;</span>
+<span class="fc" id="L141">      q1 *= inv;</span>
+<span class="fc" id="L142">      q2 *= inv;</span>
+<span class="fc" id="L143">      q3 *= inv;</span>
+    }
+
+<span class="fc" id="L146">    this.q0 = q0;</span>
+<span class="fc" id="L147">    this.q1 = q1;</span>
+<span class="fc" id="L148">    this.q2 = q2;</span>
+<span class="fc" id="L149">    this.q3 = q3;</span>
+
+<span class="fc" id="L151">  }</span>
+
+  /** Build a rotation from an axis and an angle.
+   * &lt;p&gt;
+   * Calling this constructor is equivalent to call
+   * {@link #Rotation(Vector3D, double, RotationConvention)
+   * new Rotation(axis, angle, RotationConvention.VECTOR_OPERATOR)}
+   * &lt;/p&gt;
+   * @param axis axis around which to rotate
+   * @param angle rotation angle.
+   * @exception MathIllegalArgumentException if the axis norm is zero
+   * @deprecated as of 3.6, replaced with {@link #Rotation(Vector3D, double, RotationConvention)}
+   */
+  @Deprecated
+  public Rotation(Vector3D axis, double angle) throws MathIllegalArgumentException {
+<span class="fc" id="L166">      this(axis, angle, RotationConvention.VECTOR_OPERATOR);</span>
+<span class="fc" id="L167">  }</span>
+
+  /** Build a rotation from an axis and an angle.
+   * @param axis axis around which to rotate
+   * @param angle rotation angle
+   * @param convention convention to use for the semantics of the angle
+   * @exception MathIllegalArgumentException if the axis norm is zero
+   * @since 3.6
+   */
+  public Rotation(final Vector3D axis, final double angle, final RotationConvention convention)
+<span class="fc" id="L177">      throws MathIllegalArgumentException {</span>
+
+<span class="fc" id="L179">    double norm = axis.getNorm();</span>
+<span class="fc bfc" id="L180" title="All 2 branches covered.">    if (norm == 0) {</span>
+<span class="fc" id="L181">      throw new MathIllegalArgumentException(LocalizedFormats.ZERO_NORM_FOR_ROTATION_AXIS);</span>
+    }
+
+<span class="fc bfc" id="L184" title="All 2 branches covered.">    double halfAngle = convention == RotationConvention.VECTOR_OPERATOR ? -0.5 * angle : +0.5 * angle;</span>
+<span class="fc" id="L185">    double coeff = FastMath.sin(halfAngle) / norm;</span>
+
+<span class="fc" id="L187">    q0 = FastMath.cos (halfAngle);</span>
+<span class="fc" id="L188">    q1 = coeff * axis.getX();</span>
+<span class="fc" id="L189">    q2 = coeff * axis.getY();</span>
+<span class="fc" id="L190">    q3 = coeff * axis.getZ();</span>
+
+<span class="fc" id="L192">  }</span>
+
+  /** Build a rotation from a 3X3 matrix.
+
+   * &lt;p&gt;Rotation matrices are orthogonal matrices, i.e. unit matrices
+   * (which are matrices for which m.m&lt;sup&gt;T&lt;/sup&gt; = I) with real
+   * coefficients. The module of the determinant of unit matrices is
+   * 1, among the orthogonal 3X3 matrices, only the ones having a
+   * positive determinant (+1) are rotation matrices.&lt;/p&gt;
+
+   * &lt;p&gt;When a rotation is defined by a matrix with truncated values
+   * (typically when it is extracted from a technical sheet where only
+   * four to five significant digits are available), the matrix is not
+   * orthogonal anymore. This constructor handles this case
+   * transparently by using a copy of the given matrix and applying a
+   * correction to the copy in order to perfect its orthogonality. If
+   * the Frobenius norm of the correction needed is above the given
+   * threshold, then the matrix is considered to be too far from a
+   * true rotation matrix and an exception is thrown.&lt;p&gt;
+
+   * @param m rotation matrix
+   * @param threshold convergence threshold for the iterative
+   * orthogonality correction (convergence is reached when the
+   * difference between two steps of the Frobenius norm of the
+   * correction is below this threshold)
+
+   * @exception NotARotationMatrixException if the matrix is not a 3X3
+   * matrix, or if it cannot be transformed into an orthogonal matrix
+   * with the given threshold, or if the determinant of the resulting
+   * orthogonal matrix is negative
+
+   */
+  public Rotation(double[][] m, double threshold)
+<span class="fc" id="L225">    throws NotARotationMatrixException {</span>
+
+    // dimension check
+<span class="pc bpc" id="L228" title="3 of 8 branches missed.">    if ((m.length != 3) || (m[0].length != 3) ||</span>
+        (m[1].length != 3) || (m[2].length != 3)) {
+<span class="fc" id="L230">      throw new NotARotationMatrixException(</span>
+              LocalizedFormats.ROTATION_MATRIX_DIMENSIONS,
+              m.length, m[0].length);
+    }
+
+    // compute a &quot;close&quot; orthogonal matrix
+<span class="fc" id="L236">    double[][] ort = orthogonalizeMatrix(m, threshold);</span>
+
+    // check the sign of the determinant
+<span class="fc" id="L239">    double det = ort[0][0] * (ort[1][1] * ort[2][2] - ort[2][1] * ort[1][2]) -</span>
+                 ort[1][0] * (ort[0][1] * ort[2][2] - ort[2][1] * ort[0][2]) +
+                 ort[2][0] * (ort[0][1] * ort[1][2] - ort[1][1] * ort[0][2]);
+<span class="fc bfc" id="L242" title="All 2 branches covered.">    if (det &lt; 0.0) {</span>
+<span class="fc" id="L243">      throw new NotARotationMatrixException(</span>
+              LocalizedFormats.CLOSEST_ORTHOGONAL_MATRIX_HAS_NEGATIVE_DETERMINANT,
+              det);
+    }
+
+<span class="fc" id="L248">    double[] quat = mat2quat(ort);</span>
+<span class="fc" id="L249">    q0 = quat[0];</span>
+<span class="fc" id="L250">    q1 = quat[1];</span>
+<span class="fc" id="L251">    q2 = quat[2];</span>
+<span class="fc" id="L252">    q3 = quat[3];</span>
+
+<span class="fc" id="L254">  }</span>
+
+  /** Build the rotation that transforms a pair of vectors into another pair.
+
+   * &lt;p&gt;Except for possible scale factors, if the instance were applied to
+   * the pair (u&lt;sub&gt;1&lt;/sub&gt;, u&lt;sub&gt;2&lt;/sub&gt;) it will produce the pair
+   * (v&lt;sub&gt;1&lt;/sub&gt;, v&lt;sub&gt;2&lt;/sub&gt;).&lt;/p&gt;
+
+   * &lt;p&gt;If the angular separation between u&lt;sub&gt;1&lt;/sub&gt; and u&lt;sub&gt;2&lt;/sub&gt; is
+   * not the same as the angular separation between v&lt;sub&gt;1&lt;/sub&gt; and
+   * v&lt;sub&gt;2&lt;/sub&gt;, then a corrected v'&lt;sub&gt;2&lt;/sub&gt; will be used rather than
+   * v&lt;sub&gt;2&lt;/sub&gt;, the corrected vector will be in the (&amp;pm;v&lt;sub&gt;1&lt;/sub&gt;,
+   * +v&lt;sub&gt;2&lt;/sub&gt;) half-plane.&lt;/p&gt;
+
+   * @param u1 first vector of the origin pair
+   * @param u2 second vector of the origin pair
+   * @param v1 desired image of u1 by the rotation
+   * @param v2 desired image of u2 by the rotation
+   * @exception MathArithmeticException if the norm of one of the vectors is zero,
+   * or if one of the pair is degenerated (i.e. the vectors of the pair are collinear)
+   */
+  public Rotation(Vector3D u1, Vector3D u2, Vector3D v1, Vector3D v2)
+<span class="fc" id="L276">      throws MathArithmeticException {</span>
+
+      // build orthonormalized base from u1, u2
+      // this fails when vectors are null or collinear, which is forbidden to define a rotation
+<span class="fc" id="L280">      final Vector3D u3 = u1.crossProduct(u2).normalize();</span>
+<span class="fc" id="L281">      u2 = u3.crossProduct(u1).normalize();</span>
+<span class="fc" id="L282">      u1 = u1.normalize();</span>
+
+      // build an orthonormalized base from v1, v2
+      // this fails when vectors are null or collinear, which is forbidden to define a rotation
+<span class="fc" id="L286">      final Vector3D v3 = v1.crossProduct(v2).normalize();</span>
+<span class="fc" id="L287">      v2 = v3.crossProduct(v1).normalize();</span>
+<span class="fc" id="L288">      v1 = v1.normalize();</span>
+
+      // buid a matrix transforming the first base into the second one
+<span class="fc" id="L291">      final double[][] m = new double[][] {</span>
+          {
+              MathArrays.linearCombination(u1.getX(), v1.getX(), u2.getX(), v2.getX(), u3.getX(), v3.getX()),
+              MathArrays.linearCombination(u1.getY(), v1.getX(), u2.getY(), v2.getX(), u3.getY(), v3.getX()),
+              MathArrays.linearCombination(u1.getZ(), v1.getX(), u2.getZ(), v2.getX(), u3.getZ(), v3.getX())
+          },
+          {
+              MathArrays.linearCombination(u1.getX(), v1.getY(), u2.getX(), v2.getY(), u3.getX(), v3.getY()),
+              MathArrays.linearCombination(u1.getY(), v1.getY(), u2.getY(), v2.getY(), u3.getY(), v3.getY()),
+              MathArrays.linearCombination(u1.getZ(), v1.getY(), u2.getZ(), v2.getY(), u3.getZ(), v3.getY())
+          },
+          {
+              MathArrays.linearCombination(u1.getX(), v1.getZ(), u2.getX(), v2.getZ(), u3.getX(), v3.getZ()),
+              MathArrays.linearCombination(u1.getY(), v1.getZ(), u2.getY(), v2.getZ(), u3.getY(), v3.getZ()),
+              MathArrays.linearCombination(u1.getZ(), v1.getZ(), u2.getZ(), v2.getZ(), u3.getZ(), v3.getZ())
+          }
+      };
+
+<span class="fc" id="L309">      double[] quat = mat2quat(m);</span>
+<span class="fc" id="L310">      q0 = quat[0];</span>
+<span class="fc" id="L311">      q1 = quat[1];</span>
+<span class="fc" id="L312">      q2 = quat[2];</span>
+<span class="fc" id="L313">      q3 = quat[3];</span>
+
+<span class="fc" id="L315">  }</span>
+
+  /** Build one of the rotations that transform one vector into another one.
+
+   * &lt;p&gt;Except for a possible scale factor, if the instance were
+   * applied to the vector u it will produce the vector v. There is an
+   * infinite number of such rotations, this constructor choose the
+   * one with the smallest associated angle (i.e. the one whose axis
+   * is orthogonal to the (u, v) plane). If u and v are collinear, an
+   * arbitrary rotation axis is chosen.&lt;/p&gt;
+
+   * @param u origin vector
+   * @param v desired image of u by the rotation
+   * @exception MathArithmeticException if the norm of one of the vectors is zero
+   */
+<span class="fc" id="L330">  public Rotation(Vector3D u, Vector3D v) throws MathArithmeticException {</span>
+
+<span class="fc" id="L332">    double normProduct = u.getNorm() * v.getNorm();</span>
+<span class="fc bfc" id="L333" title="All 2 branches covered.">    if (normProduct == 0) {</span>
+<span class="fc" id="L334">        throw new MathArithmeticException(LocalizedFormats.ZERO_NORM_FOR_ROTATION_DEFINING_VECTOR);</span>
+    }
+
+<span class="fc" id="L337">    double dot = u.dotProduct(v);</span>
+
+<span class="fc bfc" id="L339" title="All 2 branches covered.">    if (dot &lt; ((2.0e-15 - 1.0) * normProduct)) {</span>
+      // special case u = -v: we select a PI angle rotation around
+      // an arbitrary vector orthogonal to u
+<span class="fc" id="L342">      Vector3D w = u.orthogonal();</span>
+<span class="fc" id="L343">      q0 = 0.0;</span>
+<span class="fc" id="L344">      q1 = -w.getX();</span>
+<span class="fc" id="L345">      q2 = -w.getY();</span>
+<span class="fc" id="L346">      q3 = -w.getZ();</span>
+<span class="fc" id="L347">    } else {</span>
+      // general case: (u, v) defines a plane, we select
+      // the shortest possible rotation: axis orthogonal to this plane
+<span class="fc" id="L350">      q0 = FastMath.sqrt(0.5 * (1.0 + dot / normProduct));</span>
+<span class="fc" id="L351">      double coeff = 1.0 / (2.0 * q0 * normProduct);</span>
+<span class="fc" id="L352">      Vector3D q = v.crossProduct(u);</span>
+<span class="fc" id="L353">      q1 = coeff * q.getX();</span>
+<span class="fc" id="L354">      q2 = coeff * q.getY();</span>
+<span class="fc" id="L355">      q3 = coeff * q.getZ();</span>
+    }
+
+<span class="fc" id="L358">  }</span>
+
+  /** Build a rotation from three Cardan or Euler elementary rotations.
+
+   * &lt;p&gt;
+   * Calling this constructor is equivalent to call
+   * {@link #Rotation(RotationOrder, RotationConvention, double, double, double)
+   * new Rotation(order, RotationConvention.VECTOR_OPERATOR, alpha1, alpha2, alpha3)}
+   * &lt;/p&gt;
+
+   * @param order order of rotations to use
+   * @param alpha1 angle of the first elementary rotation
+   * @param alpha2 angle of the second elementary rotation
+   * @param alpha3 angle of the third elementary rotation
+   * @deprecated as of 3.6, replaced with {@link
+   * #Rotation(RotationOrder, RotationConvention, double, double, double)}
+   */
+  @Deprecated
+  public Rotation(RotationOrder order,
+                  double alpha1, double alpha2, double alpha3) {
+<span class="fc" id="L378">      this(order, RotationConvention.VECTOR_OPERATOR, alpha1, alpha2, alpha3);</span>
+<span class="fc" id="L379">  }</span>
+
+  /** Build a rotation from three Cardan or Euler elementary rotations.
+
+   * &lt;p&gt;Cardan rotations are three successive rotations around the
+   * canonical axes X, Y and Z, each axis being used once. There are
+   * 6 such sets of rotations (XYZ, XZY, YXZ, YZX, ZXY and ZYX). Euler
+   * rotations are three successive rotations around the canonical
+   * axes X, Y and Z, the first and last rotations being around the
+   * same axis. There are 6 such sets of rotations (XYX, XZX, YXY,
+   * YZY, ZXZ and ZYZ), the most popular one being ZXZ.&lt;/p&gt;
+   * &lt;p&gt;Beware that many people routinely use the term Euler angles even
+   * for what really are Cardan angles (this confusion is especially
+   * widespread in the aerospace business where Roll, Pitch and Yaw angles
+   * are often wrongly tagged as Euler angles).&lt;/p&gt;
+
+   * @param order order of rotations to compose, from left to right
+   * (i.e. we will use {@code r1.compose(r2.compose(r3, convention), convention)})
+   * @param convention convention to use for the semantics of the angle
+   * @param alpha1 angle of the first elementary rotation
+   * @param alpha2 angle of the second elementary rotation
+   * @param alpha3 angle of the third elementary rotation
+   * @since 3.6
+   */
+  public Rotation(RotationOrder order, RotationConvention convention,
+<span class="fc" id="L404">                  double alpha1, double alpha2, double alpha3) {</span>
+<span class="fc" id="L405">      Rotation r1 = new Rotation(order.getA1(), alpha1, convention);</span>
+<span class="fc" id="L406">      Rotation r2 = new Rotation(order.getA2(), alpha2, convention);</span>
+<span class="fc" id="L407">      Rotation r3 = new Rotation(order.getA3(), alpha3, convention);</span>
+<span class="fc" id="L408">      Rotation composed = r1.compose(r2.compose(r3, convention), convention);</span>
+<span class="fc" id="L409">      q0 = composed.q0;</span>
+<span class="fc" id="L410">      q1 = composed.q1;</span>
+<span class="fc" id="L411">      q2 = composed.q2;</span>
+<span class="fc" id="L412">      q3 = composed.q3;</span>
+<span class="fc" id="L413">  }</span>
+
+  /** Convert an orthogonal rotation matrix to a quaternion.
+   * @param ort orthogonal rotation matrix
+   * @return quaternion corresponding to the matrix
+   */
+  private static double[] mat2quat(final double[][] ort) {
+
+<span class="fc" id="L421">      final double[] quat = new double[4];</span>
+
+      // There are different ways to compute the quaternions elements
+      // from the matrix. They all involve computing one element from
+      // the diagonal of the matrix, and computing the three other ones
+      // using a formula involving a division by the first element,
+      // which unfortunately can be zero. Since the norm of the
+      // quaternion is 1, we know at least one element has an absolute
+      // value greater or equal to 0.5, so it is always possible to
+      // select the right formula and avoid division by zero and even
+      // numerical inaccuracy. Checking the elements in turn and using
+      // the first one greater than 0.45 is safe (this leads to a simple
+      // test since qi = 0.45 implies 4 qi^2 - 1 = -0.19)
+<span class="fc" id="L434">      double s = ort[0][0] + ort[1][1] + ort[2][2];</span>
+<span class="fc bfc" id="L435" title="All 2 branches covered.">      if (s &gt; -0.19) {</span>
+          // compute q0 and deduce q1, q2 and q3
+<span class="fc" id="L437">          quat[0] = 0.5 * FastMath.sqrt(s + 1.0);</span>
+<span class="fc" id="L438">          double inv = 0.25 / quat[0];</span>
+<span class="fc" id="L439">          quat[1] = inv * (ort[1][2] - ort[2][1]);</span>
+<span class="fc" id="L440">          quat[2] = inv * (ort[2][0] - ort[0][2]);</span>
+<span class="fc" id="L441">          quat[3] = inv * (ort[0][1] - ort[1][0]);</span>
+<span class="fc" id="L442">      } else {</span>
+<span class="fc" id="L443">          s = ort[0][0] - ort[1][1] - ort[2][2];</span>
+<span class="fc bfc" id="L444" title="All 2 branches covered.">          if (s &gt; -0.19) {</span>
+              // compute q1 and deduce q0, q2 and q3
+<span class="fc" id="L446">              quat[1] = 0.5 * FastMath.sqrt(s + 1.0);</span>
+<span class="fc" id="L447">              double inv = 0.25 / quat[1];</span>
+<span class="fc" id="L448">              quat[0] = inv * (ort[1][2] - ort[2][1]);</span>
+<span class="fc" id="L449">              quat[2] = inv * (ort[0][1] + ort[1][0]);</span>
+<span class="fc" id="L450">              quat[3] = inv * (ort[0][2] + ort[2][0]);</span>
+<span class="fc" id="L451">          } else {</span>
+<span class="fc" id="L452">              s = ort[1][1] - ort[0][0] - ort[2][2];</span>
+<span class="fc bfc" id="L453" title="All 2 branches covered.">              if (s &gt; -0.19) {</span>
+                  // compute q2 and deduce q0, q1 and q3
+<span class="fc" id="L455">                  quat[2] = 0.5 * FastMath.sqrt(s + 1.0);</span>
+<span class="fc" id="L456">                  double inv = 0.25 / quat[2];</span>
+<span class="fc" id="L457">                  quat[0] = inv * (ort[2][0] - ort[0][2]);</span>
+<span class="fc" id="L458">                  quat[1] = inv * (ort[0][1] + ort[1][0]);</span>
+<span class="fc" id="L459">                  quat[3] = inv * (ort[2][1] + ort[1][2]);</span>
+<span class="fc" id="L460">              } else {</span>
+                  // compute q3 and deduce q0, q1 and q2
+<span class="fc" id="L462">                  s = ort[2][2] - ort[0][0] - ort[1][1];</span>
+<span class="fc" id="L463">                  quat[3] = 0.5 * FastMath.sqrt(s + 1.0);</span>
+<span class="fc" id="L464">                  double inv = 0.25 / quat[3];</span>
+<span class="fc" id="L465">                  quat[0] = inv * (ort[0][1] - ort[1][0]);</span>
+<span class="fc" id="L466">                  quat[1] = inv * (ort[0][2] + ort[2][0]);</span>
+<span class="fc" id="L467">                  quat[2] = inv * (ort[2][1] + ort[1][2]);</span>
+              }
+          }
+      }
+
+<span class="fc" id="L472">      return quat;</span>
+
+  }
+
+  /** Revert a rotation.
+   * Build a rotation which reverse the effect of another
+   * rotation. This means that if r(u) = v, then r.revert(v) = u. The
+   * instance is not changed.
+   * @return a new rotation whose effect is the reverse of the effect
+   * of the instance
+   */
+  public Rotation revert() {
+<span class="fc" id="L484">    return new Rotation(-q0, q1, q2, q3, false);</span>
+  }
+
+  /** Get the scalar coordinate of the quaternion.
+   * @return scalar coordinate of the quaternion
+   */
+  public double getQ0() {
+<span class="fc" id="L491">    return q0;</span>
+  }
+
+  /** Get the first coordinate of the vectorial part of the quaternion.
+   * @return first coordinate of the vectorial part of the quaternion
+   */
+  public double getQ1() {
+<span class="fc" id="L498">    return q1;</span>
+  }
+
+  /** Get the second coordinate of the vectorial part of the quaternion.
+   * @return second coordinate of the vectorial part of the quaternion
+   */
+  public double getQ2() {
+<span class="fc" id="L505">    return q2;</span>
+  }
+
+  /** Get the third coordinate of the vectorial part of the quaternion.
+   * @return third coordinate of the vectorial part of the quaternion
+   */
+  public double getQ3() {
+<span class="fc" id="L512">    return q3;</span>
+  }
+
+  /** Get the normalized axis of the rotation.
+   * &lt;p&gt;
+   * Calling this method is equivalent to call
+   * {@link #getAxis(RotationConvention) getAxis(RotationConvention.VECTOR_OPERATOR)}
+   * &lt;/p&gt;
+   * @return normalized axis of the rotation
+   * @see #Rotation(Vector3D, double, RotationConvention)
+   * @deprecated as of 3.6, replaced with {@link #getAxis(RotationConvention)}
+   */
+  @Deprecated
+  public Vector3D getAxis() {
+<span class="fc" id="L526">    return getAxis(RotationConvention.VECTOR_OPERATOR);</span>
+  }
+
+  /** Get the normalized axis of the rotation.
+   * &lt;p&gt;
+   * Note that as {@link #getAngle()} always returns an angle
+   * between 0 and &amp;pi;, changing the convention changes the
+   * direction of the axis, not the sign of the angle.
+   * &lt;/p&gt;
+   * @param convention convention to use for the semantics of the angle
+   * @return normalized axis of the rotation
+   * @see #Rotation(Vector3D, double, RotationConvention)
+   * @since 3.6
+   */
+  public Vector3D getAxis(final RotationConvention convention) {
+<span class="fc" id="L541">    final double squaredSine = q1 * q1 + q2 * q2 + q3 * q3;</span>
+<span class="fc bfc" id="L542" title="All 2 branches covered.">    if (squaredSine == 0) {</span>
+<span class="fc bfc" id="L543" title="All 2 branches covered.">      return convention == RotationConvention.VECTOR_OPERATOR ? Vector3D.PLUS_I : Vector3D.MINUS_I;</span>
+    } else {
+<span class="fc bfc" id="L545" title="All 2 branches covered.">        final double sgn = convention == RotationConvention.VECTOR_OPERATOR ? +1 : -1;</span>
+<span class="fc bfc" id="L546" title="All 2 branches covered.">        if (q0 &lt; 0) {</span>
+<span class="fc" id="L547">            final double inverse = sgn / FastMath.sqrt(squaredSine);</span>
+<span class="fc" id="L548">            return new Vector3D(q1 * inverse, q2 * inverse, q3 * inverse);</span>
+        }
+<span class="fc" id="L550">        final double inverse = -sgn / FastMath.sqrt(squaredSine);</span>
+<span class="fc" id="L551">        return new Vector3D(q1 * inverse, q2 * inverse, q3 * inverse);</span>
+    }
+  }
+
+  /** Get the angle of the rotation.
+   * @return angle of the rotation (between 0 and &amp;pi;)
+   * @see #Rotation(Vector3D, double)
+   */
+  public double getAngle() {
+<span class="fc bfc" id="L560" title="All 4 branches covered.">    if ((q0 &lt; -0.1) || (q0 &gt; 0.1)) {</span>
+<span class="fc" id="L561">      return 2 * FastMath.asin(FastMath.sqrt(q1 * q1 + q2 * q2 + q3 * q3));</span>
+<span class="fc bfc" id="L562" title="All 2 branches covered.">    } else if (q0 &lt; 0) {</span>
+<span class="fc" id="L563">      return 2 * FastMath.acos(-q0);</span>
+    }
+<span class="fc" id="L565">    return 2 * FastMath.acos(q0);</span>
+  }
+
+  /** Get the Cardan or Euler angles corresponding to the instance.
+
+   * &lt;p&gt;
+   * Calling this method is equivalent to call
+   * {@link #getAngles(RotationOrder, RotationConvention)
+   * getAngles(order, RotationConvention.VECTOR_OPERATOR)}
+   * &lt;/p&gt;
+
+   * @param order rotation order to use
+   * @return an array of three angles, in the order specified by the set
+   * @exception CardanEulerSingularityException if the rotation is
+   * singular with respect to the angles set specified
+   * @deprecated as of 3.6, replaced with {@link #getAngles(RotationOrder, RotationConvention)}
+   */
+  @Deprecated
+  public double[] getAngles(RotationOrder order)
+      throws CardanEulerSingularityException {
+<span class="fc" id="L585">      return getAngles(order, RotationConvention.VECTOR_OPERATOR);</span>
+  }
+
+  /** Get the Cardan or Euler angles corresponding to the instance.
+
+   * &lt;p&gt;The equations show that each rotation can be defined by two
+   * different values of the Cardan or Euler angles set. For example
+   * if Cardan angles are used, the rotation defined by the angles
+   * a&lt;sub&gt;1&lt;/sub&gt;, a&lt;sub&gt;2&lt;/sub&gt; and a&lt;sub&gt;3&lt;/sub&gt; is the same as
+   * the rotation defined by the angles &amp;pi; + a&lt;sub&gt;1&lt;/sub&gt;, &amp;pi;
+   * - a&lt;sub&gt;2&lt;/sub&gt; and &amp;pi; + a&lt;sub&gt;3&lt;/sub&gt;. This method implements
+   * the following arbitrary choices:&lt;/p&gt;
+   * &lt;ul&gt;
+   *   &lt;li&gt;for Cardan angles, the chosen set is the one for which the
+   *   second angle is between -&amp;pi;/2 and &amp;pi;/2 (i.e its cosine is
+   *   positive),&lt;/li&gt;
+   *   &lt;li&gt;for Euler angles, the chosen set is the one for which the
+   *   second angle is between 0 and &amp;pi; (i.e its sine is positive).&lt;/li&gt;
+   * &lt;/ul&gt;
+
+   * &lt;p&gt;Cardan and Euler angle have a very disappointing drawback: all
+   * of them have singularities. This means that if the instance is
+   * too close to the singularities corresponding to the given
+   * rotation order, it will be impossible to retrieve the angles. For
+   * Cardan angles, this is often called gimbal lock. There is
+   * &lt;em&gt;nothing&lt;/em&gt; to do to prevent this, it is an intrinsic problem
+   * with Cardan and Euler representation (but not a problem with the
+   * rotation itself, which is perfectly well defined). For Cardan
+   * angles, singularities occur when the second angle is close to
+   * -&amp;pi;/2 or +&amp;pi;/2, for Euler angle singularities occur when the
+   * second angle is close to 0 or &amp;pi;, this implies that the identity
+   * rotation is always singular for Euler angles!&lt;/p&gt;
+
+   * @param order rotation order to use
+   * @param convention convention to use for the semantics of the angle
+   * @return an array of three angles, in the order specified by the set
+   * @exception CardanEulerSingularityException if the rotation is
+   * singular with respect to the angles set specified
+   * @since 3.6
+   */
+  public double[] getAngles(RotationOrder order, RotationConvention convention)
+      throws CardanEulerSingularityException {
+
+<span class="fc bfc" id="L628" title="All 2 branches covered.">      if (convention == RotationConvention.VECTOR_OPERATOR) {</span>
+<span class="fc bfc" id="L629" title="All 2 branches covered.">          if (order == RotationOrder.XYZ) {</span>
+
+              // r (Vector3D.plusK) coordinates are :
+              //  sin (theta), -cos (theta) sin (phi), cos (theta) cos (phi)
+              // (-r) (Vector3D.plusI) coordinates are :
+              // cos (psi) cos (theta), -sin (psi) cos (theta), sin (theta)
+              // and we can choose to have theta in the interval [-PI/2 ; +PI/2]
+<span class="fc" id="L636">              Vector3D v1 = applyTo(Vector3D.PLUS_K);</span>
+<span class="fc" id="L637">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_I);</span>
+<span class="fc bfc" id="L638" title="All 4 branches covered.">              if  ((v2.getZ() &lt; -0.9999999999) || (v2.getZ() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L639">                  throw new CardanEulerSingularityException(true);</span>
+              }
+<span class="fc" id="L641">              return new double[] {</span>
+                  FastMath.atan2(-(v1.getY()), v1.getZ()),
+                  FastMath.asin(v2.getZ()),
+                  FastMath.atan2(-(v2.getY()), v2.getX())
+              };
+
+<span class="fc bfc" id="L647" title="All 2 branches covered.">          } else if (order == RotationOrder.XZY) {</span>
+
+              // r (Vector3D.plusJ) coordinates are :
+              // -sin (psi), cos (psi) cos (phi), cos (psi) sin (phi)
+              // (-r) (Vector3D.plusI) coordinates are :
+              // cos (theta) cos (psi), -sin (psi), sin (theta) cos (psi)
+              // and we can choose to have psi in the interval [-PI/2 ; +PI/2]
+<span class="fc" id="L654">              Vector3D v1 = applyTo(Vector3D.PLUS_J);</span>
+<span class="fc" id="L655">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_I);</span>
+<span class="fc bfc" id="L656" title="All 4 branches covered.">              if ((v2.getY() &lt; -0.9999999999) || (v2.getY() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L657">                  throw new CardanEulerSingularityException(true);</span>
+              }
+<span class="fc" id="L659">              return new double[] {</span>
+                  FastMath.atan2(v1.getZ(), v1.getY()),
+                 -FastMath.asin(v2.getY()),
+                  FastMath.atan2(v2.getZ(), v2.getX())
+              };
+
+<span class="fc bfc" id="L665" title="All 2 branches covered.">          } else if (order == RotationOrder.YXZ) {</span>
+
+              // r (Vector3D.plusK) coordinates are :
+              //  cos (phi) sin (theta), -sin (phi), cos (phi) cos (theta)
+              // (-r) (Vector3D.plusJ) coordinates are :
+              // sin (psi) cos (phi), cos (psi) cos (phi), -sin (phi)
+              // and we can choose to have phi in the interval [-PI/2 ; +PI/2]
+<span class="fc" id="L672">              Vector3D v1 = applyTo(Vector3D.PLUS_K);</span>
+<span class="fc" id="L673">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_J);</span>
+<span class="fc bfc" id="L674" title="All 4 branches covered.">              if ((v2.getZ() &lt; -0.9999999999) || (v2.getZ() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L675">                  throw new CardanEulerSingularityException(true);</span>
+              }
+<span class="fc" id="L677">              return new double[] {</span>
+                  FastMath.atan2(v1.getX(), v1.getZ()),
+                 -FastMath.asin(v2.getZ()),
+                  FastMath.atan2(v2.getX(), v2.getY())
+              };
+
+<span class="fc bfc" id="L683" title="All 2 branches covered.">          } else if (order == RotationOrder.YZX) {</span>
+
+              // r (Vector3D.plusI) coordinates are :
+              // cos (psi) cos (theta), sin (psi), -cos (psi) sin (theta)
+              // (-r) (Vector3D.plusJ) coordinates are :
+              // sin (psi), cos (phi) cos (psi), -sin (phi) cos (psi)
+              // and we can choose to have psi in the interval [-PI/2 ; +PI/2]
+<span class="fc" id="L690">              Vector3D v1 = applyTo(Vector3D.PLUS_I);</span>
+<span class="fc" id="L691">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_J);</span>
+<span class="fc bfc" id="L692" title="All 4 branches covered.">              if ((v2.getX() &lt; -0.9999999999) || (v2.getX() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L693">                  throw new CardanEulerSingularityException(true);</span>
+              }
+<span class="fc" id="L695">              return new double[] {</span>
+                  FastMath.atan2(-(v1.getZ()), v1.getX()),
+                  FastMath.asin(v2.getX()),
+                  FastMath.atan2(-(v2.getZ()), v2.getY())
+              };
+
+<span class="fc bfc" id="L701" title="All 2 branches covered.">          } else if (order == RotationOrder.ZXY) {</span>
+
+              // r (Vector3D.plusJ) coordinates are :
+              // -cos (phi) sin (psi), cos (phi) cos (psi), sin (phi)
+              // (-r) (Vector3D.plusK) coordinates are :
+              // -sin (theta) cos (phi), sin (phi), cos (theta) cos (phi)
+              // and we can choose to have phi in the interval [-PI/2 ; +PI/2]
+<span class="fc" id="L708">              Vector3D v1 = applyTo(Vector3D.PLUS_J);</span>
+<span class="fc" id="L709">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_K);</span>
+<span class="fc bfc" id="L710" title="All 4 branches covered.">              if ((v2.getY() &lt; -0.9999999999) || (v2.getY() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L711">                  throw new CardanEulerSingularityException(true);</span>
+              }
+<span class="fc" id="L713">              return new double[] {</span>
+                  FastMath.atan2(-(v1.getX()), v1.getY()),
+                  FastMath.asin(v2.getY()),
+                  FastMath.atan2(-(v2.getX()), v2.getZ())
+              };
+
+<span class="fc bfc" id="L719" title="All 2 branches covered.">          } else if (order == RotationOrder.ZYX) {</span>
+
+              // r (Vector3D.plusI) coordinates are :
+              //  cos (theta) cos (psi), cos (theta) sin (psi), -sin (theta)
+              // (-r) (Vector3D.plusK) coordinates are :
+              // -sin (theta), sin (phi) cos (theta), cos (phi) cos (theta)
+              // and we can choose to have theta in the interval [-PI/2 ; +PI/2]
+<span class="fc" id="L726">              Vector3D v1 = applyTo(Vector3D.PLUS_I);</span>
+<span class="fc" id="L727">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_K);</span>
+<span class="fc bfc" id="L728" title="All 4 branches covered.">              if ((v2.getX() &lt; -0.9999999999) || (v2.getX() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L729">                  throw new CardanEulerSingularityException(true);</span>
+              }
+<span class="fc" id="L731">              return new double[] {</span>
+                  FastMath.atan2(v1.getY(), v1.getX()),
+                 -FastMath.asin(v2.getX()),
+                  FastMath.atan2(v2.getY(), v2.getZ())
+              };
+
+<span class="fc bfc" id="L737" title="All 2 branches covered.">          } else if (order == RotationOrder.XYX) {</span>
+
+              // r (Vector3D.plusI) coordinates are :
+              //  cos (theta), sin (phi1) sin (theta), -cos (phi1) sin (theta)
+              // (-r) (Vector3D.plusI) coordinates are :
+              // cos (theta), sin (theta) sin (phi2), sin (theta) cos (phi2)
+              // and we can choose to have theta in the interval [0 ; PI]
+<span class="fc" id="L744">              Vector3D v1 = applyTo(Vector3D.PLUS_I);</span>
+<span class="fc" id="L745">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_I);</span>
+<span class="fc bfc" id="L746" title="All 4 branches covered.">              if ((v2.getX() &lt; -0.9999999999) || (v2.getX() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L747">                  throw new CardanEulerSingularityException(false);</span>
+              }
+<span class="fc" id="L749">              return new double[] {</span>
+                  FastMath.atan2(v1.getY(), -v1.getZ()),
+                  FastMath.acos(v2.getX()),
+                  FastMath.atan2(v2.getY(), v2.getZ())
+              };
+
+<span class="fc bfc" id="L755" title="All 2 branches covered.">          } else if (order == RotationOrder.XZX) {</span>
+
+              // r (Vector3D.plusI) coordinates are :
+              //  cos (psi), cos (phi1) sin (psi), sin (phi1) sin (psi)
+              // (-r) (Vector3D.plusI) coordinates are :
+              // cos (psi), -sin (psi) cos (phi2), sin (psi) sin (phi2)
+              // and we can choose to have psi in the interval [0 ; PI]
+<span class="fc" id="L762">              Vector3D v1 = applyTo(Vector3D.PLUS_I);</span>
+<span class="fc" id="L763">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_I);</span>
+<span class="fc bfc" id="L764" title="All 4 branches covered.">              if ((v2.getX() &lt; -0.9999999999) || (v2.getX() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L765">                  throw new CardanEulerSingularityException(false);</span>
+              }
+<span class="fc" id="L767">              return new double[] {</span>
+                  FastMath.atan2(v1.getZ(), v1.getY()),
+                  FastMath.acos(v2.getX()),
+                  FastMath.atan2(v2.getZ(), -v2.getY())
+              };
+
+<span class="fc bfc" id="L773" title="All 2 branches covered.">          } else if (order == RotationOrder.YXY) {</span>
+
+              // r (Vector3D.plusJ) coordinates are :
+              //  sin (theta1) sin (phi), cos (phi), cos (theta1) sin (phi)
+              // (-r) (Vector3D.plusJ) coordinates are :
+              // sin (phi) sin (theta2), cos (phi), -sin (phi) cos (theta2)
+              // and we can choose to have phi in the interval [0 ; PI]
+<span class="fc" id="L780">              Vector3D v1 = applyTo(Vector3D.PLUS_J);</span>
+<span class="fc" id="L781">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_J);</span>
+<span class="fc bfc" id="L782" title="All 4 branches covered.">              if ((v2.getY() &lt; -0.9999999999) || (v2.getY() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L783">                  throw new CardanEulerSingularityException(false);</span>
+              }
+<span class="fc" id="L785">              return new double[] {</span>
+                  FastMath.atan2(v1.getX(), v1.getZ()),
+                  FastMath.acos(v2.getY()),
+                  FastMath.atan2(v2.getX(), -v2.getZ())
+              };
+
+<span class="fc bfc" id="L791" title="All 2 branches covered.">          } else if (order == RotationOrder.YZY) {</span>
+
+              // r (Vector3D.plusJ) coordinates are :
+              //  -cos (theta1) sin (psi), cos (psi), sin (theta1) sin (psi)
+              // (-r) (Vector3D.plusJ) coordinates are :
+              // sin (psi) cos (theta2), cos (psi), sin (psi) sin (theta2)
+              // and we can choose to have psi in the interval [0 ; PI]
+<span class="fc" id="L798">              Vector3D v1 = applyTo(Vector3D.PLUS_J);</span>
+<span class="fc" id="L799">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_J);</span>
+<span class="fc bfc" id="L800" title="All 4 branches covered.">              if ((v2.getY() &lt; -0.9999999999) || (v2.getY() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L801">                  throw new CardanEulerSingularityException(false);</span>
+              }
+<span class="fc" id="L803">              return new double[] {</span>
+                  FastMath.atan2(v1.getZ(), -v1.getX()),
+                  FastMath.acos(v2.getY()),
+                  FastMath.atan2(v2.getZ(), v2.getX())
+              };
+
+<span class="fc bfc" id="L809" title="All 2 branches covered.">          } else if (order == RotationOrder.ZXZ) {</span>
+
+              // r (Vector3D.plusK) coordinates are :
+              //  sin (psi1) sin (phi), -cos (psi1) sin (phi), cos (phi)
+              // (-r) (Vector3D.plusK) coordinates are :
+              // sin (phi) sin (psi2), sin (phi) cos (psi2), cos (phi)
+              // and we can choose to have phi in the interval [0 ; PI]
+<span class="fc" id="L816">              Vector3D v1 = applyTo(Vector3D.PLUS_K);</span>
+<span class="fc" id="L817">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_K);</span>
+<span class="fc bfc" id="L818" title="All 4 branches covered.">              if ((v2.getZ() &lt; -0.9999999999) || (v2.getZ() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L819">                  throw new CardanEulerSingularityException(false);</span>
+              }
+<span class="fc" id="L821">              return new double[] {</span>
+                  FastMath.atan2(v1.getX(), -v1.getY()),
+                  FastMath.acos(v2.getZ()),
+                  FastMath.atan2(v2.getX(), v2.getY())
+              };
+
+          } else { // last possibility is ZYZ
+
+              // r (Vector3D.plusK) coordinates are :
+              //  cos (psi1) sin (theta), sin (psi1) sin (theta), cos (theta)
+              // (-r) (Vector3D.plusK) coordinates are :
+              // -sin (theta) cos (psi2), sin (theta) sin (psi2), cos (theta)
+              // and we can choose to have theta in the interval [0 ; PI]
+<span class="fc" id="L834">              Vector3D v1 = applyTo(Vector3D.PLUS_K);</span>
+<span class="fc" id="L835">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_K);</span>
+<span class="fc bfc" id="L836" title="All 4 branches covered.">              if ((v2.getZ() &lt; -0.9999999999) || (v2.getZ() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L837">                  throw new CardanEulerSingularityException(false);</span>
+              }
+<span class="fc" id="L839">              return new double[] {</span>
+                  FastMath.atan2(v1.getY(), v1.getX()),
+                  FastMath.acos(v2.getZ()),
+                  FastMath.atan2(v2.getY(), -v2.getX())
+              };
+
+          }
+      } else {
+<span class="fc bfc" id="L847" title="All 2 branches covered.">          if (order == RotationOrder.XYZ) {</span>
+
+              // r (Vector3D.plusI) coordinates are :
+              //  cos (theta) cos (psi), -cos (theta) sin (psi), sin (theta)
+              // (-r) (Vector3D.plusK) coordinates are :
+              // sin (theta), -sin (phi) cos (theta), cos (phi) cos (theta)
+              // and we can choose to have theta in the interval [-PI/2 ; +PI/2]
+<span class="fc" id="L854">              Vector3D v1 = applyTo(Vector3D.PLUS_I);</span>
+<span class="fc" id="L855">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_K);</span>
+<span class="fc bfc" id="L856" title="All 4 branches covered.">              if ((v2.getX() &lt; -0.9999999999) || (v2.getX() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L857">                  throw new CardanEulerSingularityException(true);</span>
+              }
+<span class="fc" id="L859">              return new double[] {</span>
+                  FastMath.atan2(-v2.getY(), v2.getZ()),
+                  FastMath.asin(v2.getX()),
+                  FastMath.atan2(-v1.getY(), v1.getX())
+              };
+
+<span class="fc bfc" id="L865" title="All 2 branches covered.">          } else if (order == RotationOrder.XZY) {</span>
+
+              // r (Vector3D.plusI) coordinates are :
+              // cos (psi) cos (theta), -sin (psi), cos (psi) sin (theta)
+              // (-r) (Vector3D.plusJ) coordinates are :
+              // -sin (psi), cos (phi) cos (psi), sin (phi) cos (psi)
+              // and we can choose to have psi in the interval [-PI/2 ; +PI/2]
+<span class="fc" id="L872">              Vector3D v1 = applyTo(Vector3D.PLUS_I);</span>
+<span class="fc" id="L873">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_J);</span>
+<span class="fc bfc" id="L874" title="All 4 branches covered.">              if ((v2.getX() &lt; -0.9999999999) || (v2.getX() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L875">                  throw new CardanEulerSingularityException(true);</span>
+              }
+<span class="fc" id="L877">              return new double[] {</span>
+                  FastMath.atan2(v2.getZ(), v2.getY()),
+                 -FastMath.asin(v2.getX()),
+                  FastMath.atan2(v1.getZ(), v1.getX())
+              };
+
+<span class="fc bfc" id="L883" title="All 2 branches covered.">          } else if (order == RotationOrder.YXZ) {</span>
+
+              // r (Vector3D.plusJ) coordinates are :
+              // cos (phi) sin (psi), cos (phi) cos (psi), -sin (phi)
+              // (-r) (Vector3D.plusK) coordinates are :
+              // sin (theta) cos (phi), -sin (phi), cos (theta) cos (phi)
+              // and we can choose to have phi in the interval [-PI/2 ; +PI/2]
+<span class="fc" id="L890">              Vector3D v1 = applyTo(Vector3D.PLUS_J);</span>
+<span class="fc" id="L891">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_K);</span>
+<span class="fc bfc" id="L892" title="All 4 branches covered.">              if ((v2.getY() &lt; -0.9999999999) || (v2.getY() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L893">                  throw new CardanEulerSingularityException(true);</span>
+              }
+<span class="fc" id="L895">              return new double[] {</span>
+                  FastMath.atan2(v2.getX(), v2.getZ()),
+                 -FastMath.asin(v2.getY()),
+                  FastMath.atan2(v1.getX(), v1.getY())
+              };
+
+<span class="fc bfc" id="L901" title="All 2 branches covered.">          } else if (order == RotationOrder.YZX) {</span>
+
+              // r (Vector3D.plusJ) coordinates are :
+              // sin (psi), cos (psi) cos (phi), -cos (psi) sin (phi)
+              // (-r) (Vector3D.plusI) coordinates are :
+              // cos (theta) cos (psi), sin (psi), -sin (theta) cos (psi)
+              // and we can choose to have psi in the interval [-PI/2 ; +PI/2]
+<span class="fc" id="L908">              Vector3D v1 = applyTo(Vector3D.PLUS_J);</span>
+<span class="fc" id="L909">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_I);</span>
+<span class="fc bfc" id="L910" title="All 4 branches covered.">              if ((v2.getY() &lt; -0.9999999999) || (v2.getY() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L911">                  throw new CardanEulerSingularityException(true);</span>
+              }
+<span class="fc" id="L913">              return new double[] {</span>
+                  FastMath.atan2(-v2.getZ(), v2.getX()),
+                  FastMath.asin(v2.getY()),
+                  FastMath.atan2(-v1.getZ(), v1.getY())
+              };
+
+<span class="fc bfc" id="L919" title="All 2 branches covered.">          } else if (order == RotationOrder.ZXY) {</span>
+
+              // r (Vector3D.plusK) coordinates are :
+              //  -cos (phi) sin (theta), sin (phi), cos (phi) cos (theta)
+              // (-r) (Vector3D.plusJ) coordinates are :
+              // -sin (psi) cos (phi), cos (psi) cos (phi), sin (phi)
+              // and we can choose to have phi in the interval [-PI/2 ; +PI/2]
+<span class="fc" id="L926">              Vector3D v1 = applyTo(Vector3D.PLUS_K);</span>
+<span class="fc" id="L927">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_J);</span>
+<span class="fc bfc" id="L928" title="All 4 branches covered.">              if ((v2.getZ() &lt; -0.9999999999) || (v2.getZ() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L929">                  throw new CardanEulerSingularityException(true);</span>
+              }
+<span class="fc" id="L931">              return new double[] {</span>
+                  FastMath.atan2(-v2.getX(), v2.getY()),
+                  FastMath.asin(v2.getZ()),
+                  FastMath.atan2(-v1.getX(), v1.getZ())
+              };
+
+<span class="fc bfc" id="L937" title="All 2 branches covered.">          } else if (order == RotationOrder.ZYX) {</span>
+
+              // r (Vector3D.plusK) coordinates are :
+              //  -sin (theta), cos (theta) sin (phi), cos (theta) cos (phi)
+              // (-r) (Vector3D.plusI) coordinates are :
+              // cos (psi) cos (theta), sin (psi) cos (theta), -sin (theta)
+              // and we can choose to have theta in the interval [-PI/2 ; +PI/2]
+<span class="fc" id="L944">              Vector3D v1 = applyTo(Vector3D.PLUS_K);</span>
+<span class="fc" id="L945">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_I);</span>
+<span class="fc bfc" id="L946" title="All 4 branches covered.">              if  ((v2.getZ() &lt; -0.9999999999) || (v2.getZ() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L947">                  throw new CardanEulerSingularityException(true);</span>
+              }
+<span class="fc" id="L949">              return new double[] {</span>
+                  FastMath.atan2(v2.getY(), v2.getX()),
+                 -FastMath.asin(v2.getZ()),
+                  FastMath.atan2(v1.getY(), v1.getZ())
+              };
+
+<span class="fc bfc" id="L955" title="All 2 branches covered.">          } else if (order == RotationOrder.XYX) {</span>
+
+              // r (Vector3D.plusI) coordinates are :
+              //  cos (theta), sin (phi2) sin (theta), cos (phi2) sin (theta)
+              // (-r) (Vector3D.plusI) coordinates are :
+              // cos (theta), sin (theta) sin (phi1), -sin (theta) cos (phi1)
+              // and we can choose to have theta in the interval [0 ; PI]
+<span class="fc" id="L962">              Vector3D v1 = applyTo(Vector3D.PLUS_I);</span>
+<span class="fc" id="L963">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_I);</span>
+<span class="fc bfc" id="L964" title="All 4 branches covered.">              if ((v2.getX() &lt; -0.9999999999) || (v2.getX() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L965">                  throw new CardanEulerSingularityException(false);</span>
+              }
+<span class="fc" id="L967">              return new double[] {</span>
+                  FastMath.atan2(v2.getY(), -v2.getZ()),
+                  FastMath.acos(v2.getX()),
+                  FastMath.atan2(v1.getY(), v1.getZ())
+              };
+
+<span class="fc bfc" id="L973" title="All 2 branches covered.">          } else if (order == RotationOrder.XZX) {</span>
+
+              // r (Vector3D.plusI) coordinates are :
+              //  cos (psi), -cos (phi2) sin (psi), sin (phi2) sin (psi)
+              // (-r) (Vector3D.plusI) coordinates are :
+              // cos (psi), sin (psi) cos (phi1), sin (psi) sin (phi1)
+              // and we can choose to have psi in the interval [0 ; PI]
+<span class="fc" id="L980">              Vector3D v1 = applyTo(Vector3D.PLUS_I);</span>
+<span class="fc" id="L981">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_I);</span>
+<span class="fc bfc" id="L982" title="All 4 branches covered.">              if ((v2.getX() &lt; -0.9999999999) || (v2.getX() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L983">                  throw new CardanEulerSingularityException(false);</span>
+              }
+<span class="fc" id="L985">              return new double[] {</span>
+                  FastMath.atan2(v2.getZ(), v2.getY()),
+                  FastMath.acos(v2.getX()),
+                  FastMath.atan2(v1.getZ(), -v1.getY())
+              };
+
+<span class="fc bfc" id="L991" title="All 2 branches covered.">          } else if (order == RotationOrder.YXY) {</span>
+
+              // r (Vector3D.plusJ) coordinates are :
+              // sin (phi) sin (theta2), cos (phi), -sin (phi) cos (theta2)
+              // (-r) (Vector3D.plusJ) coordinates are :
+              //  sin (theta1) sin (phi), cos (phi), cos (theta1) sin (phi)
+              // and we can choose to have phi in the interval [0 ; PI]
+<span class="fc" id="L998">              Vector3D v1 = applyTo(Vector3D.PLUS_J);</span>
+<span class="fc" id="L999">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_J);</span>
+<span class="fc bfc" id="L1000" title="All 4 branches covered.">              if ((v2.getY() &lt; -0.9999999999) || (v2.getY() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L1001">                  throw new CardanEulerSingularityException(false);</span>
+              }
+<span class="fc" id="L1003">              return new double[] {</span>
+                  FastMath.atan2(v2.getX(), v2.getZ()),
+                  FastMath.acos(v2.getY()),
+                  FastMath.atan2(v1.getX(), -v1.getZ())
+              };
+
+<span class="fc bfc" id="L1009" title="All 2 branches covered.">          } else if (order == RotationOrder.YZY) {</span>
+
+              // r (Vector3D.plusJ) coordinates are :
+              // sin (psi) cos (theta2), cos (psi), sin (psi) sin (theta2)
+              // (-r) (Vector3D.plusJ) coordinates are :
+              //  -cos (theta1) sin (psi), cos (psi), sin (theta1) sin (psi)
+              // and we can choose to have psi in the interval [0 ; PI]
+<span class="fc" id="L1016">              Vector3D v1 = applyTo(Vector3D.PLUS_J);</span>
+<span class="fc" id="L1017">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_J);</span>
+<span class="fc bfc" id="L1018" title="All 4 branches covered.">              if ((v2.getY() &lt; -0.9999999999) || (v2.getY() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L1019">                  throw new CardanEulerSingularityException(false);</span>
+              }
+<span class="fc" id="L1021">              return new double[] {</span>
+                  FastMath.atan2(v2.getZ(), -v2.getX()),
+                  FastMath.acos(v2.getY()),
+                  FastMath.atan2(v1.getZ(), v1.getX())
+              };
+
+<span class="fc bfc" id="L1027" title="All 2 branches covered.">          } else if (order == RotationOrder.ZXZ) {</span>
+
+              // r (Vector3D.plusK) coordinates are :
+              // sin (phi) sin (psi2), sin (phi) cos (psi2), cos (phi)
+              // (-r) (Vector3D.plusK) coordinates are :
+              //  sin (psi1) sin (phi), -cos (psi1) sin (phi), cos (phi)
+              // and we can choose to have phi in the interval [0 ; PI]
+<span class="fc" id="L1034">              Vector3D v1 = applyTo(Vector3D.PLUS_K);</span>
+<span class="fc" id="L1035">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_K);</span>
+<span class="fc bfc" id="L1036" title="All 4 branches covered.">              if ((v2.getZ() &lt; -0.9999999999) || (v2.getZ() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L1037">                  throw new CardanEulerSingularityException(false);</span>
+              }
+<span class="fc" id="L1039">              return new double[] {</span>
+                  FastMath.atan2(v2.getX(), -v2.getY()),
+                  FastMath.acos(v2.getZ()),
+                  FastMath.atan2(v1.getX(), v1.getY())
+              };
+
+          } else { // last possibility is ZYZ
+
+              // r (Vector3D.plusK) coordinates are :
+              // -sin (theta) cos (psi2), sin (theta) sin (psi2), cos (theta)
+              // (-r) (Vector3D.plusK) coordinates are :
+              //  cos (psi1) sin (theta), sin (psi1) sin (theta), cos (theta)
+              // and we can choose to have theta in the interval [0 ; PI]
+<span class="fc" id="L1052">              Vector3D v1 = applyTo(Vector3D.PLUS_K);</span>
+<span class="fc" id="L1053">              Vector3D v2 = applyInverseTo(Vector3D.PLUS_K);</span>
+<span class="fc bfc" id="L1054" title="All 4 branches covered.">              if ((v2.getZ() &lt; -0.9999999999) || (v2.getZ() &gt; 0.9999999999)) {</span>
+<span class="fc" id="L1055">                  throw new CardanEulerSingularityException(false);</span>
+              }
+<span class="fc" id="L1057">              return new double[] {</span>
+                  FastMath.atan2(v2.getY(), v2.getX()),
+                  FastMath.acos(v2.getZ()),
+                  FastMath.atan2(v1.getY(), -v1.getX())
+              };
+
+          }
+      }
+
+  }
+
+  /** Get the 3X3 matrix corresponding to the instance
+   * @return the matrix corresponding to the instance
+   */
+  public double[][] getMatrix() {
+
+    // products
+<span class="fc" id="L1074">    double q0q0  = q0 * q0;</span>
+<span class="fc" id="L1075">    double q0q1  = q0 * q1;</span>
+<span class="fc" id="L1076">    double q0q2  = q0 * q2;</span>
+<span class="fc" id="L1077">    double q0q3  = q0 * q3;</span>
+<span class="fc" id="L1078">    double q1q1  = q1 * q1;</span>
+<span class="fc" id="L1079">    double q1q2  = q1 * q2;</span>
+<span class="fc" id="L1080">    double q1q3  = q1 * q3;</span>
+<span class="fc" id="L1081">    double q2q2  = q2 * q2;</span>
+<span class="fc" id="L1082">    double q2q3  = q2 * q3;</span>
+<span class="fc" id="L1083">    double q3q3  = q3 * q3;</span>
+
+    // create the matrix
+<span class="fc" id="L1086">    double[][] m = new double[3][];</span>
+<span class="fc" id="L1087">    m[0] = new double[3];</span>
+<span class="fc" id="L1088">    m[1] = new double[3];</span>
+<span class="fc" id="L1089">    m[2] = new double[3];</span>
+
+<span class="fc" id="L1091">    m [0][0] = 2.0 * (q0q0 + q1q1) - 1.0;</span>
+<span class="fc" id="L1092">    m [1][0] = 2.0 * (q1q2 - q0q3);</span>
+<span class="fc" id="L1093">    m [2][0] = 2.0 * (q1q3 + q0q2);</span>
+
+<span class="fc" id="L1095">    m [0][1] = 2.0 * (q1q2 + q0q3);</span>
+<span class="fc" id="L1096">    m [1][1] = 2.0 * (q0q0 + q2q2) - 1.0;</span>
+<span class="fc" id="L1097">    m [2][1] = 2.0 * (q2q3 - q0q1);</span>
+
+<span class="fc" id="L1099">    m [0][2] = 2.0 * (q1q3 - q0q2);</span>
+<span class="fc" id="L1100">    m [1][2] = 2.0 * (q2q3 + q0q1);</span>
+<span class="fc" id="L1101">    m [2][2] = 2.0 * (q0q0 + q3q3) - 1.0;</span>
+
+<span class="fc" id="L1103">    return m;</span>
+
+  }
+
+  /** Apply the rotation to a vector.
+   * @param u vector to apply the rotation to
+   * @return a new vector which is the image of u by the rotation
+   */
+  public Vector3D applyTo(Vector3D u) {
+
+<span class="fc" id="L1113">    double x = u.getX();</span>
+<span class="fc" id="L1114">    double y = u.getY();</span>
+<span class="fc" id="L1115">    double z = u.getZ();</span>
+
+<span class="fc" id="L1117">    double s = q1 * x + q2 * y + q3 * z;</span>
+
+<span class="fc" id="L1119">    return new Vector3D(2 * (q0 * (x * q0 - (q2 * z - q3 * y)) + s * q1) - x,</span>
+                        2 * (q0 * (y * q0 - (q3 * x - q1 * z)) + s * q2) - y,
+                        2 * (q0 * (z * q0 - (q1 * y - q2 * x)) + s * q3) - z);
+
+  }
+
+  /** Apply the rotation to a vector stored in an array.
+   * @param in an array with three items which stores vector to rotate
+   * @param out an array with three items to put result to (it can be the same
+   * array as in)
+   */
+  public void applyTo(final double[] in, final double[] out) {
+
+<span class="fc" id="L1132">      final double x = in[0];</span>
+<span class="fc" id="L1133">      final double y = in[1];</span>
+<span class="fc" id="L1134">      final double z = in[2];</span>
+
+<span class="fc" id="L1136">      final double s = q1 * x + q2 * y + q3 * z;</span>
+
+<span class="fc" id="L1138">      out[0] = 2 * (q0 * (x * q0 - (q2 * z - q3 * y)) + s * q1) - x;</span>
+<span class="fc" id="L1139">      out[1] = 2 * (q0 * (y * q0 - (q3 * x - q1 * z)) + s * q2) - y;</span>
+<span class="fc" id="L1140">      out[2] = 2 * (q0 * (z * q0 - (q1 * y - q2 * x)) + s * q3) - z;</span>
+
+<span class="fc" id="L1142">  }</span>
+
+  /** Apply the inverse of the rotation to a vector.
+   * @param u vector to apply the inverse of the rotation to
+   * @return a new vector which such that u is its image by the rotation
+   */
+  public Vector3D applyInverseTo(Vector3D u) {
+
+<span class="fc" id="L1150">    double x = u.getX();</span>
+<span class="fc" id="L1151">    double y = u.getY();</span>
+<span class="fc" id="L1152">    double z = u.getZ();</span>
+
+<span class="fc" id="L1154">    double s = q1 * x + q2 * y + q3 * z;</span>
+<span class="fc" id="L1155">    double m0 = -q0;</span>
+
+<span class="fc" id="L1157">    return new Vector3D(2 * (m0 * (x * m0 - (q2 * z - q3 * y)) + s * q1) - x,</span>
+                        2 * (m0 * (y * m0 - (q3 * x - q1 * z)) + s * q2) - y,
+                        2 * (m0 * (z * m0 - (q1 * y - q2 * x)) + s * q3) - z);
+
+  }
+
+  /** Apply the inverse of the rotation to a vector stored in an array.
+   * @param in an array with three items which stores vector to rotate
+   * @param out an array with three items to put result to (it can be the same
+   * array as in)
+   */
+  public void applyInverseTo(final double[] in, final double[] out) {
+
+<span class="fc" id="L1170">      final double x = in[0];</span>
+<span class="fc" id="L1171">      final double y = in[1];</span>
+<span class="fc" id="L1172">      final double z = in[2];</span>
+
+<span class="fc" id="L1174">      final double s = q1 * x + q2 * y + q3 * z;</span>
+<span class="fc" id="L1175">      final double m0 = -q0;</span>
+
+<span class="fc" id="L1177">      out[0] = 2 * (m0 * (x * m0 - (q2 * z - q3 * y)) + s * q1) - x;</span>
+<span class="fc" id="L1178">      out[1] = 2 * (m0 * (y * m0 - (q3 * x - q1 * z)) + s * q2) - y;</span>
+<span class="fc" id="L1179">      out[2] = 2 * (m0 * (z * m0 - (q1 * y - q2 * x)) + s * q3) - z;</span>
+
+<span class="fc" id="L1181">  }</span>
+
+  /** Apply the instance to another rotation.
+   * &lt;p&gt;
+   * Calling this method is equivalent to call
+   * {@link #compose(Rotation, RotationConvention)
+   * compose(r, RotationConvention.VECTOR_OPERATOR)}.
+   * &lt;/p&gt;
+   * @param r rotation to apply the rotation to
+   * @return a new rotation which is the composition of r by the instance
+   */
+  public Rotation applyTo(Rotation r) {
+<span class="fc" id="L1193">    return compose(r, RotationConvention.VECTOR_OPERATOR);</span>
+  }
+
+  /** Compose the instance with another rotation.
+   * &lt;p&gt;
+   * If the semantics of the rotations composition corresponds to a
+   * {@link RotationConvention#VECTOR_OPERATOR vector operator} convention,
+   * applying the instance to a rotation is computing the composition
+   * in an order compliant with the following rule : let {@code u} be any
+   * vector and {@code v} its image by {@code r1} (i.e.
+   * {@code r1.applyTo(u) = v}). Let {@code w} be the image of {@code v} by
+   * rotation {@code r2} (i.e. {@code r2.applyTo(v) = w}). Then
+   * {@code w = comp.applyTo(u)}, where
+   * {@code comp = r2.compose(r1, RotationConvention.VECTOR_OPERATOR)}.
+   * &lt;/p&gt;
+   * &lt;p&gt;
+   * If the semantics of the rotations composition corresponds to a
+   * {@link RotationConvention#FRAME_TRANSFORM frame transform} convention,
+   * the application order will be reversed. So keeping the exact same
+   * meaning of all {@code r1}, {@code r2}, {@code u}, {@code v}, {@code w}
+   * and  {@code comp} as above, {@code comp} could also be computed as
+   * {@code comp = r1.compose(r2, RotationConvention.FRAME_TRANSFORM)}.
+   * &lt;/p&gt;
+   * @param r rotation to apply the rotation to
+   * @param convention convention to use for the semantics of the angle
+   * @return a new rotation which is the composition of r by the instance
+   */
+  public Rotation compose(final Rotation r, final RotationConvention convention) {
+<span class="fc bfc" id="L1221" title="All 2 branches covered.">    return convention == RotationConvention.VECTOR_OPERATOR ?</span>
+           composeInternal(r) : r.composeInternal(this);
+  }
+
+  /** Compose the instance with another rotation using vector operator convention.
+   * @param r rotation to apply the rotation to
+   * @return a new rotation which is the composition of r by the instance
+   * using vector operator convention
+   */
+  private Rotation composeInternal(final Rotation r) {
+<span class="fc" id="L1231">    return new Rotation(r.q0 * q0 - (r.q1 * q1 + r.q2 * q2 + r.q3 * q3),</span>
+                        r.q1 * q0 + r.q0 * q1 + (r.q2 * q3 - r.q3 * q2),
+                        r.q2 * q0 + r.q0 * q2 + (r.q3 * q1 - r.q1 * q3),
+                        r.q3 * q0 + r.q0 * q3 + (r.q1 * q2 - r.q2 * q1),
+                        false);
+  }
+
+  /** Apply the inverse of the instance to another rotation.
+   * &lt;p&gt;
+   * Calling this method is equivalent to call
+   * {@link #composeInverse(Rotation, RotationConvention)
+   * composeInverse(r, RotationConvention.VECTOR_OPERATOR)}.
+   * &lt;/p&gt;
+   * @param r rotation to apply the rotation to
+   * @return a new rotation which is the composition of r by the inverse
+   * of the instance
+   */
+  public Rotation applyInverseTo(Rotation r) {
+<span class="fc" id="L1249">    return composeInverse(r, RotationConvention.VECTOR_OPERATOR);</span>
+  }
+
+  /** Compose the inverse of the instance with another rotation.
+   * &lt;p&gt;
+   * If the semantics of the rotations composition corresponds to a
+   * {@link RotationConvention#VECTOR_OPERATOR vector operator} convention,
+   * applying the inverse of the instance to a rotation is computing
+   * the composition in an order compliant with the following rule :
+   * let {@code u} be any vector and {@code v} its image by {@code r1}
+   * (i.e. {@code r1.applyTo(u) = v}). Let {@code w} be the inverse image
+   * of {@code v} by {@code r2} (i.e. {@code r2.applyInverseTo(v) = w}).
+   * Then {@code w = comp.applyTo(u)}, where
+   * {@code comp = r2.composeInverse(r1)}.
+   * &lt;/p&gt;
+   * &lt;p&gt;
+   * If the semantics of the rotations composition corresponds to a
+   * {@link RotationConvention#FRAME_TRANSFORM frame transform} convention,
+   * the application order will be reversed, which means it is the
+   * &lt;em&gt;innermost&lt;/em&gt; rotation that will be reversed. So keeping the exact same
+   * meaning of all {@code r1}, {@code r2}, {@code u}, {@code v}, {@code w}
+   * and  {@code comp} as above, {@code comp} could also be computed as
+   * {@code comp = r1.revert().composeInverse(r2.revert(), RotationConvention.FRAME_TRANSFORM)}.
+   * &lt;/p&gt;
+   * @param r rotation to apply the rotation to
+   * @param convention convention to use for the semantics of the angle
+   * @return a new rotation which is the composition of r by the inverse
+   * of the instance
+   */
+  public Rotation composeInverse(final Rotation r, final RotationConvention convention) {
+<span class="fc bfc" id="L1279" title="All 2 branches covered.">    return convention == RotationConvention.VECTOR_OPERATOR ?</span>
+           composeInverseInternal(r) : r.composeInternal(revert());
+  }
+
+  /** Compose the inverse of the instance with another rotation
+   * using vector operator convention.
+   * @param r rotation to apply the rotation to
+   * @return a new rotation which is the composition of r by the inverse
+   * of the instance using vector operator convention
+   */
+  private Rotation composeInverseInternal(Rotation r) {
+<span class="fc" id="L1290">    return new Rotation(-r.q0 * q0 - (r.q1 * q1 + r.q2 * q2 + r.q3 * q3),</span>
+                        -r.q1 * q0 + r.q0 * q1 + (r.q2 * q3 - r.q3 * q2),
+                        -r.q2 * q0 + r.q0 * q2 + (r.q3 * q1 - r.q1 * q3),
+                        -r.q3 * q0 + r.q0 * q3 + (r.q1 * q2 - r.q2 * q1),
+                        false);
+  }
+
+  /** Perfect orthogonality on a 3X3 matrix.
+   * @param m initial matrix (not exactly orthogonal)
+   * @param threshold convergence threshold for the iterative
+   * orthogonality correction (convergence is reached when the
+   * difference between two steps of the Frobenius norm of the
+   * correction is below this threshold)
+   * @return an orthogonal matrix close to m
+   * @exception NotARotationMatrixException if the matrix cannot be
+   * orthogonalized with the given threshold after 10 iterations
+   */
+  private double[][] orthogonalizeMatrix(double[][] m, double threshold)
+    throws NotARotationMatrixException {
+<span class="fc" id="L1309">    double[] m0 = m[0];</span>
+<span class="fc" id="L1310">    double[] m1 = m[1];</span>
+<span class="fc" id="L1311">    double[] m2 = m[2];</span>
+<span class="fc" id="L1312">    double x00 = m0[0];</span>
+<span class="fc" id="L1313">    double x01 = m0[1];</span>
+<span class="fc" id="L1314">    double x02 = m0[2];</span>
+<span class="fc" id="L1315">    double x10 = m1[0];</span>
+<span class="fc" id="L1316">    double x11 = m1[1];</span>
+<span class="fc" id="L1317">    double x12 = m1[2];</span>
+<span class="fc" id="L1318">    double x20 = m2[0];</span>
+<span class="fc" id="L1319">    double x21 = m2[1];</span>
+<span class="fc" id="L1320">    double x22 = m2[2];</span>
+<span class="fc" id="L1321">    double fn = 0;</span>
+    double fn1;
+
+<span class="fc" id="L1324">    double[][] o = new double[3][3];</span>
+<span class="fc" id="L1325">    double[] o0 = o[0];</span>
+<span class="fc" id="L1326">    double[] o1 = o[1];</span>
+<span class="fc" id="L1327">    double[] o2 = o[2];</span>
+
+    // iterative correction: Xn+1 = Xn - 0.5 * (Xn.Mt.Xn - M)
+<span class="fc" id="L1330">    int i = 0;</span>
+<span class="fc bfc" id="L1331" title="All 2 branches covered.">    while (++i &lt; 11) {</span>
+
+      // Mt.Xn
+<span class="fc" id="L1334">      double mx00 = m0[0] * x00 + m1[0] * x10 + m2[0] * x20;</span>
+<span class="fc" id="L1335">      double mx10 = m0[1] * x00 + m1[1] * x10 + m2[1] * x20;</span>
+<span class="fc" id="L1336">      double mx20 = m0[2] * x00 + m1[2] * x10 + m2[2] * x20;</span>
+<span class="fc" id="L1337">      double mx01 = m0[0] * x01 + m1[0] * x11 + m2[0] * x21;</span>
+<span class="fc" id="L1338">      double mx11 = m0[1] * x01 + m1[1] * x11 + m2[1] * x21;</span>
+<span class="fc" id="L1339">      double mx21 = m0[2] * x01 + m1[2] * x11 + m2[2] * x21;</span>
+<span class="fc" id="L1340">      double mx02 = m0[0] * x02 + m1[0] * x12 + m2[0] * x22;</span>
+<span class="fc" id="L1341">      double mx12 = m0[1] * x02 + m1[1] * x12 + m2[1] * x22;</span>
+<span class="fc" id="L1342">      double mx22 = m0[2] * x02 + m1[2] * x12 + m2[2] * x22;</span>
+
+      // Xn+1
+<span class="fc" id="L1345">      o0[0] = x00 - 0.5 * (x00 * mx00 + x01 * mx10 + x02 * mx20 - m0[0]);</span>
+<span class="fc" id="L1346">      o0[1] = x01 - 0.5 * (x00 * mx01 + x01 * mx11 + x02 * mx21 - m0[1]);</span>
+<span class="fc" id="L1347">      o0[2] = x02 - 0.5 * (x00 * mx02 + x01 * mx12 + x02 * mx22 - m0[2]);</span>
+<span class="fc" id="L1348">      o1[0] = x10 - 0.5 * (x10 * mx00 + x11 * mx10 + x12 * mx20 - m1[0]);</span>
+<span class="fc" id="L1349">      o1[1] = x11 - 0.5 * (x10 * mx01 + x11 * mx11 + x12 * mx21 - m1[1]);</span>
+<span class="fc" id="L1350">      o1[2] = x12 - 0.5 * (x10 * mx02 + x11 * mx12 + x12 * mx22 - m1[2]);</span>
+<span class="fc" id="L1351">      o2[0] = x20 - 0.5 * (x20 * mx00 + x21 * mx10 + x22 * mx20 - m2[0]);</span>
+<span class="fc" id="L1352">      o2[1] = x21 - 0.5 * (x20 * mx01 + x21 * mx11 + x22 * mx21 - m2[1]);</span>
+<span class="fc" id="L1353">      o2[2] = x22 - 0.5 * (x20 * mx02 + x21 * mx12 + x22 * mx22 - m2[2]);</span>
+
+      // correction on each elements
+<span class="fc" id="L1356">      double corr00 = o0[0] - m0[0];</span>
+<span class="fc" id="L1357">      double corr01 = o0[1] - m0[1];</span>
+<span class="fc" id="L1358">      double corr02 = o0[2] - m0[2];</span>
+<span class="fc" id="L1359">      double corr10 = o1[0] - m1[0];</span>
+<span class="fc" id="L1360">      double corr11 = o1[1] - m1[1];</span>
+<span class="fc" id="L1361">      double corr12 = o1[2] - m1[2];</span>
+<span class="fc" id="L1362">      double corr20 = o2[0] - m2[0];</span>
+<span class="fc" id="L1363">      double corr21 = o2[1] - m2[1];</span>
+<span class="fc" id="L1364">      double corr22 = o2[2] - m2[2];</span>
+
+      // Frobenius norm of the correction
+<span class="fc" id="L1367">      fn1 = corr00 * corr00 + corr01 * corr01 + corr02 * corr02 +</span>
+            corr10 * corr10 + corr11 * corr11 + corr12 * corr12 +
+            corr20 * corr20 + corr21 * corr21 + corr22 * corr22;
+
+      // convergence test
+<span class="fc bfc" id="L1372" title="All 2 branches covered.">      if (FastMath.abs(fn1 - fn) &lt;= threshold) {</span>
+<span class="fc" id="L1373">          return o;</span>
+      }
+
+      // prepare next iteration
+<span class="fc" id="L1377">      x00 = o0[0];</span>
+<span class="fc" id="L1378">      x01 = o0[1];</span>
+<span class="fc" id="L1379">      x02 = o0[2];</span>
+<span class="fc" id="L1380">      x10 = o1[0];</span>
+<span class="fc" id="L1381">      x11 = o1[1];</span>
+<span class="fc" id="L1382">      x12 = o1[2];</span>
+<span class="fc" id="L1383">      x20 = o2[0];</span>
+<span class="fc" id="L1384">      x21 = o2[1];</span>
+<span class="fc" id="L1385">      x22 = o2[2];</span>
+<span class="fc" id="L1386">      fn  = fn1;</span>
+
+<span class="fc" id="L1388">    }</span>
+
+    // the algorithm did not converge after 10 iterations
+<span class="fc" id="L1391">    throw new NotARotationMatrixException(</span>
+            LocalizedFormats.UNABLE_TO_ORTHOGONOLIZE_MATRIX,
+            i - 1);
+  }
+
+  /** Compute the &lt;i&gt;distance&lt;/i&gt; between two rotations.
+   * &lt;p&gt;The &lt;i&gt;distance&lt;/i&gt; is intended here as a way to check if two
+   * rotations are almost similar (i.e. they transform vectors the same way)
+   * or very different. It is mathematically defined as the angle of
+   * the rotation r that prepended to one of the rotations gives the other
+   * one:&lt;/p&gt;
+   * &lt;pre&gt;
+   *        r&lt;sub&gt;1&lt;/sub&gt;(r) = r&lt;sub&gt;2&lt;/sub&gt;
+   * &lt;/pre&gt;
+   * &lt;p&gt;This distance is an angle between 0 and &amp;pi;. Its value is the smallest
+   * possible upper bound of the angle in radians between r&lt;sub&gt;1&lt;/sub&gt;(v)
+   * and r&lt;sub&gt;2&lt;/sub&gt;(v) for all possible vectors v. This upper bound is
+   * reached for some v. The distance is equal to 0 if and only if the two
+   * rotations are identical.&lt;/p&gt;
+   * &lt;p&gt;Comparing two rotations should always be done using this value rather
+   * than for example comparing the components of the quaternions. It is much
+   * more stable, and has a geometric meaning. Also comparing quaternions
+   * components is error prone since for example quaternions (0.36, 0.48, -0.48, -0.64)
+   * and (-0.36, -0.48, 0.48, 0.64) represent exactly the same rotation despite
+   * their components are different (they are exact opposites).&lt;/p&gt;
+   * @param r1 first rotation
+   * @param r2 second rotation
+   * @return &lt;i&gt;distance&lt;/i&gt; between r1 and r2
+   */
+  public static double distance(Rotation r1, Rotation r2) {
+<span class="fc" id="L1421">      return r1.composeInverseInternal(r2).getAngle();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

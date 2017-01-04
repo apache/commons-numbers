@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TricubicInterpolatingFunction.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.interpolation</a> &gt; <span class="el_source">TricubicInterpolatingFunction.java</span></div><h1>TricubicInterpolatingFunction.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.analysis.interpolation;
+
+import org.apache.commons.math3.analysis.TrivariateFunction;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.NonMonotonicSequenceException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.util.MathArrays;
+
+/**
+ * Function that implements the
+ * &lt;a href=&quot;http://en.wikipedia.org/wiki/Tricubic_interpolation&quot;&gt;
+ * tricubic spline interpolation&lt;/a&gt;, as proposed in
+ * &lt;blockquote&gt;
+ *  Tricubic interpolation in three dimensions,
+ *  F. Lekien and J. Marsden,
+ *  &lt;em&gt;Int. J. Numer. Meth. Eng&lt;/em&gt; 2005; &lt;b&gt;63&lt;/b&gt;:455-471
+ * &lt;/blockquote&gt;
+ *
+ * @since 3.4.
+ */
+public class TricubicInterpolatingFunction
+    implements TrivariateFunction {
+    /**
+     * Matrix to compute the spline coefficients from the function values
+     * and function derivatives values
+     */
+<span class="fc" id="L44">    private static final double[][] AINV = {</span>
+        { 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { -3,3,0,0,0,0,0,0,-2,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 2,-2,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { -3,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,-3,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 9,-9,-9,9,0,0,0,0,6,3,-6,-3,0,0,0,0,6,-6,3,-3,0,0,0,0,0,0,0,0,0,0,0,0,4,2,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { -6,6,6,-6,0,0,0,0,-3,-3,3,3,0,0,0,0,-4,4,-2,2,0,0,0,0,0,0,0,0,0,0,0,0,-2,-2,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 2,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,2,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { -6,6,6,-6,0,0,0,0,-4,-2,4,2,0,0,0,0,-3,3,-3,3,0,0,0,0,0,0,0,0,0,0,0,0,-2,-1,-2,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 4,-4,-4,4,0,0,0,0,2,2,-2,-2,0,0,0,0,2,-2,2,-2,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,3,0,0,0,0,0,0,-2,-1,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,-2,0,0,0,0,0,0,1,1,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,-1,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,-9,-9,9,0,0,0,0,0,0,0,0,0,0,0,0,6,3,-6,-3,0,0,0,0,6,-6,3,-3,0,0,0,0,4,2,2,1,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-6,6,6,-6,0,0,0,0,0,0,0,0,0,0,0,0,-3,-3,3,3,0,0,0,0,-4,4,-2,2,0,0,0,0,-2,-2,-1,-1,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-6,6,6,-6,0,0,0,0,0,0,0,0,0,0,0,0,-4,-2,4,2,0,0,0,0,-3,3,-3,3,0,0,0,0,-2,-1,-2,-1,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,-4,-4,4,0,0,0,0,0,0,0,0,0,0,0,0,2,2,-2,-2,0,0,0,0,2,-2,2,-2,0,0,0,0,1,1,1,1,0,0,0,0 },
+        {-3,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,-3,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 9,-9,0,0,-9,9,0,0,6,3,0,0,-6,-3,0,0,0,0,0,0,0,0,0,0,6,-6,0,0,3,-3,0,0,0,0,0,0,0,0,0,0,4,2,0,0,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { -6,6,0,0,6,-6,0,0,-3,-3,0,0,3,3,0,0,0,0,0,0,0,0,0,0,-4,4,0,0,-2,2,0,0,0,0,0,0,0,0,0,0,-2,-2,0,0,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,0,0,-1,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,-9,0,0,-9,9,0,0,0,0,0,0,0,0,0,0,6,3,0,0,-6,-3,0,0,0,0,0,0,0,0,0,0,6,-6,0,0,3,-3,0,0,4,2,0,0,2,1,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-6,6,0,0,6,-6,0,0,0,0,0,0,0,0,0,0,-3,-3,0,0,3,3,0,0,0,0,0,0,0,0,0,0,-4,4,0,0,-2,2,0,0,-2,-2,0,0,-1,-1,0,0 },
+        { 9,0,-9,0,-9,0,9,0,0,0,0,0,0,0,0,0,6,0,3,0,-6,0,-3,0,6,0,-6,0,3,0,-3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,2,0,2,0,1,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,9,0,-9,0,-9,0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,3,0,-6,0,-3,0,6,0,-6,0,3,0,-3,0,0,0,0,0,0,0,0,0,4,0,2,0,2,0,1,0 },
+        { -27,27,27,-27,27,-27,-27,27,-18,-9,18,9,18,9,-18,-9,-18,18,-9,9,18,-18,9,-9,-18,18,18,-18,-9,9,9,-9,-12,-6,-6,-3,12,6,6,3,-12,-6,12,6,-6,-3,6,3,-12,12,-6,6,-6,6,-3,3,-8,-4,-4,-2,-4,-2,-2,-1 },
+        { 18,-18,-18,18,-18,18,18,-18,9,9,-9,-9,-9,-9,9,9,12,-12,6,-6,-12,12,-6,6,12,-12,-12,12,6,-6,-6,6,6,6,3,3,-6,-6,-3,-3,6,6,-6,-6,3,3,-3,-3,8,-8,4,-4,4,-4,2,-2,4,4,2,2,2,2,1,1 },
+        { -6,0,6,0,6,0,-6,0,0,0,0,0,0,0,0,0,-3,0,-3,0,3,0,3,0,-4,0,4,0,-2,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,-2,0,-1,0,-1,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,-6,0,6,0,6,0,-6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,0,-3,0,3,0,3,0,-4,0,4,0,-2,0,2,0,0,0,0,0,0,0,0,0,-2,0,-2,0,-1,0,-1,0 },
+        { 18,-18,-18,18,-18,18,18,-18,12,6,-12,-6,-12,-6,12,6,9,-9,9,-9,-9,9,-9,9,12,-12,-12,12,6,-6,-6,6,6,3,6,3,-6,-3,-6,-3,8,4,-8,-4,4,2,-4,-2,6,-6,6,-6,3,-3,3,-3,4,2,4,2,2,1,2,1 },
+        { -12,12,12,-12,12,-12,-12,12,-6,-6,6,6,6,6,-6,-6,-6,6,-6,6,6,-6,6,-6,-8,8,8,-8,-4,4,4,-4,-3,-3,-3,-3,3,3,3,3,-4,-4,4,4,-2,-2,2,2,-4,4,-4,4,-2,2,-2,2,-2,-2,-2,-2,-1,-1,-1,-1 },
+        { 2,0,0,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,2,0,0,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { -6,6,0,0,6,-6,0,0,-4,-2,0,0,4,2,0,0,0,0,0,0,0,0,0,0,-3,3,0,0,-3,3,0,0,0,0,0,0,0,0,0,0,-2,-1,0,0,-2,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 4,-4,0,0,-4,4,0,0,2,2,0,0,-2,-2,0,0,0,0,0,0,0,0,0,0,2,-2,0,0,2,-2,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-6,6,0,0,6,-6,0,0,0,0,0,0,0,0,0,0,-4,-2,0,0,4,2,0,0,0,0,0,0,0,0,0,0,-3,3,0,0,-3,3,0,0,-2,-1,0,0,-2,-1,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,-4,0,0,-4,4,0,0,0,0,0,0,0,0,0,0,2,2,0,0,-2,-2,0,0,0,0,0,0,0,0,0,0,2,-2,0,0,2,-2,0,0,1,1,0,0,1,1,0,0 },
+        { -6,0,6,0,6,0,-6,0,0,0,0,0,0,0,0,0,-4,0,-2,0,4,0,2,0,-3,0,3,0,-3,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,0,-1,0,-2,0,-1,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,-6,0,6,0,6,0,-6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-4,0,-2,0,4,0,2,0,-3,0,3,0,-3,0,3,0,0,0,0,0,0,0,0,0,-2,0,-1,0,-2,0,-1,0 },
+        { 18,-18,-18,18,-18,18,18,-18,12,6,-12,-6,-12,-6,12,6,12,-12,6,-6,-12,12,-6,6,9,-9,-9,9,9,-9,-9,9,8,4,4,2,-8,-4,-4,-2,6,3,-6,-3,6,3,-6,-3,6,-6,3,-3,6,-6,3,-3,4,2,2,1,4,2,2,1 },
+        { -12,12,12,-12,12,-12,-12,12,-6,-6,6,6,6,6,-6,-6,-8,8,-4,4,8,-8,4,-4,-6,6,6,-6,-6,6,6,-6,-4,-4,-2,-2,4,4,2,2,-3,-3,3,3,-3,-3,3,3,-4,4,-2,2,-4,4,-2,2,-2,-2,-1,-1,-2,-2,-1,-1 },
+        { 4,0,-4,0,-4,0,4,0,0,0,0,0,0,0,0,0,2,0,2,0,-2,0,-2,0,2,0,-2,0,2,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,4,0,-4,0,-4,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,2,0,-2,0,-2,0,2,0,-2,0,2,0,-2,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0 },
+        { -12,12,12,-12,12,-12,-12,12,-8,-4,8,4,8,4,-8,-4,-6,6,-6,6,6,-6,6,-6,-6,6,6,-6,-6,6,6,-6,-4,-2,-4,-2,4,2,4,2,-4,-2,4,2,-4,-2,4,2,-3,3,-3,3,-3,3,-3,3,-2,-1,-2,-1,-2,-1,-2,-1 },
+        { 8,-8,-8,8,-8,8,8,-8,4,4,-4,-4,-4,-4,4,4,4,-4,4,-4,-4,4,-4,4,4,-4,-4,4,4,-4,-4,4,2,2,2,2,-2,-2,-2,-2,2,2,-2,-2,2,2,-2,-2,2,-2,2,-2,2,-2,2,-2,1,1,1,1,1,1,1,1 }
+    };
+
+    /** Samples x-coordinates */
+    private final double[] xval;
+    /** Samples y-coordinates */
+    private final double[] yval;
+    /** Samples z-coordinates */
+    private final double[] zval;
+    /** Set of cubic splines patching the whole data grid */
+    private final TricubicFunction[][][] splines;
+
+    /**
+     * @param x Sample values of the x-coordinate, in increasing order.
+     * @param y Sample values of the y-coordinate, in increasing order.
+     * @param z Sample values of the y-coordinate, in increasing order.
+     * @param f Values of the function on every grid point.
+     * @param dFdX Values of the partial derivative of function with respect to x on every grid point.
+     * @param dFdY Values of the partial derivative of function with respect to y on every grid point.
+     * @param dFdZ Values of the partial derivative of function with respect to z on every grid point.
+     * @param d2FdXdY Values of the cross partial derivative of function on every grid point.
+     * @param d2FdXdZ Values of the cross partial derivative of function on every grid point.
+     * @param d2FdYdZ Values of the cross partial derivative of function on every grid point.
+     * @param d3FdXdYdZ Values of the cross partial derivative of function on every grid point.
+     * @throws NoDataException if any of the arrays has zero length.
+     * @throws DimensionMismatchException if the various arrays do not contain the expected number of elements.
+     * @throws NonMonotonicSequenceException if {@code x}, {@code y} or {@code z} are not strictly increasing.
+     */
+    public TricubicInterpolatingFunction(double[] x,
+                                         double[] y,
+                                         double[] z,
+                                         double[][][] f,
+                                         double[][][] dFdX,
+                                         double[][][] dFdY,
+                                         double[][][] dFdZ,
+                                         double[][][] d2FdXdY,
+                                         double[][][] d2FdXdZ,
+                                         double[][][] d2FdYdZ,
+                                         double[][][] d3FdXdYdZ)
+        throws NoDataException,
+               DimensionMismatchException,
+<span class="fc" id="L149">               NonMonotonicSequenceException {</span>
+<span class="fc" id="L150">        final int xLen = x.length;</span>
+<span class="fc" id="L151">        final int yLen = y.length;</span>
+<span class="fc" id="L152">        final int zLen = z.length;</span>
+
+<span class="pc bpc" id="L154" title="5 of 10 branches missed.">        if (xLen == 0 || yLen == 0 || z.length == 0 || f.length == 0 || f[0].length == 0) {</span>
+<span class="nc" id="L155">            throw new NoDataException();</span>
+        }
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        if (xLen != f.length) {</span>
+<span class="fc" id="L158">            throw new DimensionMismatchException(xLen, f.length);</span>
+        }
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        if (xLen != dFdX.length) {</span>
+<span class="fc" id="L161">            throw new DimensionMismatchException(xLen, dFdX.length);</span>
+        }
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        if (xLen != dFdY.length) {</span>
+<span class="fc" id="L164">            throw new DimensionMismatchException(xLen, dFdY.length);</span>
+        }
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        if (xLen != dFdZ.length) {</span>
+<span class="fc" id="L167">            throw new DimensionMismatchException(xLen, dFdZ.length);</span>
+        }
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        if (xLen != d2FdXdY.length) {</span>
+<span class="fc" id="L170">            throw new DimensionMismatchException(xLen, d2FdXdY.length);</span>
+        }
+<span class="fc bfc" id="L172" title="All 2 branches covered.">        if (xLen != d2FdXdZ.length) {</span>
+<span class="fc" id="L173">            throw new DimensionMismatchException(xLen, d2FdXdZ.length);</span>
+        }
+<span class="fc bfc" id="L175" title="All 2 branches covered.">        if (xLen != d2FdYdZ.length) {</span>
+<span class="fc" id="L176">            throw new DimensionMismatchException(xLen, d2FdYdZ.length);</span>
+        }
+<span class="fc bfc" id="L178" title="All 2 branches covered.">        if (xLen != d3FdXdYdZ.length) {</span>
+<span class="fc" id="L179">            throw new DimensionMismatchException(xLen, d3FdXdYdZ.length);</span>
+        }
+
+<span class="fc" id="L182">        MathArrays.checkOrder(x);</span>
+<span class="fc" id="L183">        MathArrays.checkOrder(y);</span>
+<span class="fc" id="L184">        MathArrays.checkOrder(z);</span>
+
+<span class="fc" id="L186">        xval = x.clone();</span>
+<span class="fc" id="L187">        yval = y.clone();</span>
+<span class="fc" id="L188">        zval = z.clone();</span>
+
+<span class="fc" id="L190">        final int lastI = xLen - 1;</span>
+<span class="fc" id="L191">        final int lastJ = yLen - 1;</span>
+<span class="fc" id="L192">        final int lastK = zLen - 1;</span>
+<span class="fc" id="L193">        splines = new TricubicFunction[lastI][lastJ][lastK];</span>
+
+<span class="fc bfc" id="L195" title="All 2 branches covered.">        for (int i = 0; i &lt; lastI; i++) {</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">            if (f[i].length != yLen) {</span>
+<span class="fc" id="L197">                throw new DimensionMismatchException(f[i].length, yLen);</span>
+            }
+<span class="fc bfc" id="L199" title="All 2 branches covered.">            if (dFdX[i].length != yLen) {</span>
+<span class="fc" id="L200">                throw new DimensionMismatchException(dFdX[i].length, yLen);</span>
+            }
+<span class="fc bfc" id="L202" title="All 2 branches covered.">            if (dFdY[i].length != yLen) {</span>
+<span class="fc" id="L203">                throw new DimensionMismatchException(dFdY[i].length, yLen);</span>
+            }
+<span class="fc bfc" id="L205" title="All 2 branches covered.">            if (dFdZ[i].length != yLen) {</span>
+<span class="fc" id="L206">                throw new DimensionMismatchException(dFdZ[i].length, yLen);</span>
+            }
+<span class="fc bfc" id="L208" title="All 2 branches covered.">            if (d2FdXdY[i].length != yLen) {</span>
+<span class="fc" id="L209">                throw new DimensionMismatchException(d2FdXdY[i].length, yLen);</span>
+            }
+<span class="fc bfc" id="L211" title="All 2 branches covered.">            if (d2FdXdZ[i].length != yLen) {</span>
+<span class="fc" id="L212">                throw new DimensionMismatchException(d2FdXdZ[i].length, yLen);</span>
+            }
+<span class="fc bfc" id="L214" title="All 2 branches covered.">            if (d2FdYdZ[i].length != yLen) {</span>
+<span class="fc" id="L215">                throw new DimensionMismatchException(d2FdYdZ[i].length, yLen);</span>
+            }
+<span class="fc bfc" id="L217" title="All 2 branches covered.">            if (d3FdXdYdZ[i].length != yLen) {</span>
+<span class="fc" id="L218">                throw new DimensionMismatchException(d3FdXdYdZ[i].length, yLen);</span>
+            }
+
+<span class="fc" id="L221">            final int ip1 = i + 1;</span>
+<span class="fc" id="L222">            final double xR = xval[ip1] - xval[i];</span>
+<span class="fc bfc" id="L223" title="All 2 branches covered.">            for (int j = 0; j &lt; lastJ; j++) {</span>
+<span class="fc bfc" id="L224" title="All 2 branches covered.">                if (f[i][j].length != zLen) {</span>
+<span class="fc" id="L225">                    throw new DimensionMismatchException(f[i][j].length, zLen);</span>
+                }
+<span class="fc bfc" id="L227" title="All 2 branches covered.">                if (dFdX[i][j].length != zLen) {</span>
+<span class="fc" id="L228">                    throw new DimensionMismatchException(dFdX[i][j].length, zLen);</span>
+                }
+<span class="fc bfc" id="L230" title="All 2 branches covered.">                if (dFdY[i][j].length != zLen) {</span>
+<span class="fc" id="L231">                    throw new DimensionMismatchException(dFdY[i][j].length, zLen);</span>
+                }
+<span class="fc bfc" id="L233" title="All 2 branches covered.">                if (dFdZ[i][j].length != zLen) {</span>
+<span class="fc" id="L234">                    throw new DimensionMismatchException(dFdZ[i][j].length, zLen);</span>
+                }
+<span class="fc bfc" id="L236" title="All 2 branches covered.">                if (d2FdXdY[i][j].length != zLen) {</span>
+<span class="fc" id="L237">                    throw new DimensionMismatchException(d2FdXdY[i][j].length, zLen);</span>
+                }
+<span class="fc bfc" id="L239" title="All 2 branches covered.">                if (d2FdXdZ[i][j].length != zLen) {</span>
+<span class="fc" id="L240">                    throw new DimensionMismatchException(d2FdXdZ[i][j].length, zLen);</span>
+                }
+<span class="fc bfc" id="L242" title="All 2 branches covered.">                if (d2FdYdZ[i][j].length != zLen) {</span>
+<span class="fc" id="L243">                    throw new DimensionMismatchException(d2FdYdZ[i][j].length, zLen);</span>
+                }
+<span class="fc bfc" id="L245" title="All 2 branches covered.">                if (d3FdXdYdZ[i][j].length != zLen) {</span>
+<span class="fc" id="L246">                    throw new DimensionMismatchException(d3FdXdYdZ[i][j].length, zLen);</span>
+                }
+
+<span class="fc" id="L249">                final int jp1 = j + 1;</span>
+<span class="fc" id="L250">                final double yR = yval[jp1] - yval[j];</span>
+<span class="fc" id="L251">                final double xRyR = xR * yR;</span>
+<span class="fc bfc" id="L252" title="All 2 branches covered.">                for (int k = 0; k &lt; lastK; k++) {</span>
+<span class="fc" id="L253">                    final int kp1 = k + 1;</span>
+<span class="fc" id="L254">                    final double zR = zval[kp1] - zval[k];</span>
+<span class="fc" id="L255">                    final double xRzR = xR * zR;</span>
+<span class="fc" id="L256">                    final double yRzR = yR * zR;</span>
+<span class="fc" id="L257">                    final double xRyRzR = xR * yRzR;</span>
+
+<span class="fc" id="L259">                    final double[] beta = new double[] {</span>
+                        f[i][j][k], f[ip1][j][k],
+                        f[i][jp1][k], f[ip1][jp1][k],
+                        f[i][j][kp1], f[ip1][j][kp1],
+                        f[i][jp1][kp1], f[ip1][jp1][kp1],
+
+                        dFdX[i][j][k] * xR, dFdX[ip1][j][k] * xR,
+                        dFdX[i][jp1][k] * xR, dFdX[ip1][jp1][k] * xR,
+                        dFdX[i][j][kp1] * xR, dFdX[ip1][j][kp1] * xR,
+                        dFdX[i][jp1][kp1] * xR, dFdX[ip1][jp1][kp1] * xR,
+
+                        dFdY[i][j][k] * yR, dFdY[ip1][j][k] * yR,
+                        dFdY[i][jp1][k] * yR, dFdY[ip1][jp1][k] * yR,
+                        dFdY[i][j][kp1] * yR, dFdY[ip1][j][kp1] * yR,
+                        dFdY[i][jp1][kp1] * yR, dFdY[ip1][jp1][kp1] * yR,
+
+                        dFdZ[i][j][k] * zR, dFdZ[ip1][j][k] * zR,
+                        dFdZ[i][jp1][k] * zR, dFdZ[ip1][jp1][k] * zR,
+                        dFdZ[i][j][kp1] * zR, dFdZ[ip1][j][kp1] * zR,
+                        dFdZ[i][jp1][kp1] * zR, dFdZ[ip1][jp1][kp1] * zR,
+
+                        d2FdXdY[i][j][k] * xRyR, d2FdXdY[ip1][j][k] * xRyR,
+                        d2FdXdY[i][jp1][k] * xRyR, d2FdXdY[ip1][jp1][k] * xRyR,
+                        d2FdXdY[i][j][kp1] * xRyR, d2FdXdY[ip1][j][kp1] * xRyR,
+                        d2FdXdY[i][jp1][kp1] * xRyR, d2FdXdY[ip1][jp1][kp1] * xRyR,
+
+                        d2FdXdZ[i][j][k] * xRzR, d2FdXdZ[ip1][j][k] * xRzR,
+                        d2FdXdZ[i][jp1][k] * xRzR, d2FdXdZ[ip1][jp1][k] * xRzR,
+                        d2FdXdZ[i][j][kp1] * xRzR, d2FdXdZ[ip1][j][kp1] * xRzR,
+                        d2FdXdZ[i][jp1][kp1] * xRzR, d2FdXdZ[ip1][jp1][kp1] * xRzR,
+
+                        d2FdYdZ[i][j][k] * yRzR, d2FdYdZ[ip1][j][k] * yRzR,
+                        d2FdYdZ[i][jp1][k] * yRzR, d2FdYdZ[ip1][jp1][k] * yRzR,
+                        d2FdYdZ[i][j][kp1] * yRzR, d2FdYdZ[ip1][j][kp1] * yRzR,
+                        d2FdYdZ[i][jp1][kp1] * yRzR, d2FdYdZ[ip1][jp1][kp1] * yRzR,
+
+                        d3FdXdYdZ[i][j][k] * xRyRzR, d3FdXdYdZ[ip1][j][k] * xRyRzR,
+                        d3FdXdYdZ[i][jp1][k] * xRyRzR, d3FdXdYdZ[ip1][jp1][k] * xRyRzR,
+                        d3FdXdYdZ[i][j][kp1] * xRyRzR, d3FdXdYdZ[ip1][j][kp1] * xRyRzR,
+                        d3FdXdYdZ[i][jp1][kp1] * xRyRzR, d3FdXdYdZ[ip1][jp1][kp1] * xRyRzR,
+                    };
+
+<span class="fc" id="L301">                    splines[i][j][k] = new TricubicFunction(computeCoefficients(beta));</span>
+                }
+            }
+        }
+<span class="fc" id="L305">    }</span>
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws OutOfRangeException if any of the variables is outside its interpolation range.
+     */
+    public double value(double x, double y, double z)
+        throws OutOfRangeException {
+<span class="fc" id="L314">        final int i = searchIndex(x, xval);</span>
+<span class="pc bpc" id="L315" title="1 of 2 branches missed.">        if (i == -1) {</span>
+<span class="nc" id="L316">            throw new OutOfRangeException(x, xval[0], xval[xval.length - 1]);</span>
+        }
+<span class="fc" id="L318">        final int j = searchIndex(y, yval);</span>
+<span class="pc bpc" id="L319" title="1 of 2 branches missed.">        if (j == -1) {</span>
+<span class="nc" id="L320">            throw new OutOfRangeException(y, yval[0], yval[yval.length - 1]);</span>
+        }
+<span class="fc" id="L322">        final int k = searchIndex(z, zval);</span>
+<span class="pc bpc" id="L323" title="1 of 2 branches missed.">        if (k == -1) {</span>
+<span class="nc" id="L324">            throw new OutOfRangeException(z, zval[0], zval[zval.length - 1]);</span>
+        }
+
+<span class="fc" id="L327">        final double xN = (x - xval[i]) / (xval[i + 1] - xval[i]);</span>
+<span class="fc" id="L328">        final double yN = (y - yval[j]) / (yval[j + 1] - yval[j]);</span>
+<span class="fc" id="L329">        final double zN = (z - zval[k]) / (zval[k + 1] - zval[k]);</span>
+
+<span class="fc" id="L331">        return splines[i][j][k].value(xN, yN, zN);</span>
+    }
+
+    /**
+     * Indicates whether a point is within the interpolation range.
+     *
+     * @param x First coordinate.
+     * @param y Second coordinate.
+     * @param z Third coordinate.
+     * @return {@code true} if (x, y, z) is a valid point.
+     */
+    public boolean isValidPoint(double x, double y, double z) {
+<span class="nc bnc" id="L343" title="All 12 branches missed.">        if (x &lt; xval[0] ||</span>
+            x &gt; xval[xval.length - 1] ||
+            y &lt; yval[0] ||
+            y &gt; yval[yval.length - 1] ||
+            z &lt; zval[0] ||
+            z &gt; zval[zval.length - 1]) {
+<span class="nc" id="L349">            return false;</span>
+        } else {
+<span class="nc" id="L351">            return true;</span>
+        }
+    }
+
+    /**
+     * @param c Coordinate.
+     * @param val Coordinate samples.
+     * @return the index in {@code val} corresponding to the interval containing {@code c}, or {@code -1}
+     *   if {@code c} is out of the range defined by the end values of {@code val}.
+     */
+    private int searchIndex(double c, double[] val) {
+<span class="pc bpc" id="L362" title="1 of 2 branches missed.">        if (c &lt; val[0]) {</span>
+<span class="nc" id="L363">            return -1;</span>
+        }
+
+<span class="fc" id="L366">        final int max = val.length;</span>
+<span class="pc bpc" id="L367" title="1 of 2 branches missed.">        for (int i = 1; i &lt; max; i++) {</span>
+<span class="fc bfc" id="L368" title="All 2 branches covered.">            if (c &lt;= val[i]) {</span>
+<span class="fc" id="L369">                return i - 1;</span>
+            }
+        }
+
+<span class="nc" id="L373">        return -1;</span>
+    }
+
+    /**
+     * Compute the spline coefficients from the list of function values and
+     * function partial derivatives values at the four corners of a grid
+     * element. They must be specified in the following order:
+     * &lt;ul&gt;
+     *  &lt;li&gt;f(0,0,0)&lt;/li&gt;
+     *  &lt;li&gt;f(1,0,0)&lt;/li&gt;
+     *  &lt;li&gt;f(0,1,0)&lt;/li&gt;
+     *  &lt;li&gt;f(1,1,0)&lt;/li&gt;
+     *  &lt;li&gt;f(0,0,1)&lt;/li&gt;
+     *  &lt;li&gt;f(1,0,1)&lt;/li&gt;
+     *  &lt;li&gt;f(0,1,1)&lt;/li&gt;
+     *  &lt;li&gt;f(1,1,1)&lt;/li&gt;
+     *
+     *  &lt;li&gt;f&lt;sub&gt;x&lt;/sub&gt;(0,0,0)&lt;/li&gt;
+     *  &lt;li&gt;... &lt;em&gt;(same order as above)&lt;/em&gt;&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;x&lt;/sub&gt;(1,1,1)&lt;/li&gt;
+     *
+     *  &lt;li&gt;f&lt;sub&gt;y&lt;/sub&gt;(0,0,0)&lt;/li&gt;
+     *  &lt;li&gt;... &lt;em&gt;(same order as above)&lt;/em&gt;&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;y&lt;/sub&gt;(1,1,1)&lt;/li&gt;
+     *
+     *  &lt;li&gt;f&lt;sub&gt;z&lt;/sub&gt;(0,0,0)&lt;/li&gt;
+     *  &lt;li&gt;... &lt;em&gt;(same order as above)&lt;/em&gt;&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;z&lt;/sub&gt;(1,1,1)&lt;/li&gt;
+     *
+     *  &lt;li&gt;f&lt;sub&gt;xy&lt;/sub&gt;(0,0,0)&lt;/li&gt;
+     *  &lt;li&gt;... &lt;em&gt;(same order as above)&lt;/em&gt;&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;xy&lt;/sub&gt;(1,1,1)&lt;/li&gt;
+     *
+     *  &lt;li&gt;f&lt;sub&gt;xz&lt;/sub&gt;(0,0,0)&lt;/li&gt;
+     *  &lt;li&gt;... &lt;em&gt;(same order as above)&lt;/em&gt;&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;xz&lt;/sub&gt;(1,1,1)&lt;/li&gt;
+     *
+     *  &lt;li&gt;f&lt;sub&gt;yz&lt;/sub&gt;(0,0,0)&lt;/li&gt;
+     *  &lt;li&gt;... &lt;em&gt;(same order as above)&lt;/em&gt;&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;yz&lt;/sub&gt;(1,1,1)&lt;/li&gt;
+     *
+     *  &lt;li&gt;f&lt;sub&gt;xyz&lt;/sub&gt;(0,0,0)&lt;/li&gt;
+     *  &lt;li&gt;... &lt;em&gt;(same order as above)&lt;/em&gt;&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;xyz&lt;/sub&gt;(1,1,1)&lt;/li&gt;
+     * &lt;/ul&gt;
+     * where the subscripts indicate the partial derivative with respect to
+     * the corresponding variable(s).
+     *
+     * @param beta List of function values and function partial derivatives values.
+     * @return the spline coefficients.
+     */
+    private double[] computeCoefficients(double[] beta) {
+<span class="fc" id="L425">        final int sz = 64;</span>
+<span class="fc" id="L426">        final double[] a = new double[sz];</span>
+
+<span class="fc bfc" id="L428" title="All 2 branches covered.">        for (int i = 0; i &lt; sz; i++) {</span>
+<span class="fc" id="L429">            double result = 0;</span>
+<span class="fc" id="L430">            final double[] row = AINV[i];</span>
+<span class="fc bfc" id="L431" title="All 2 branches covered.">            for (int j = 0; j &lt; sz; j++) {</span>
+<span class="fc" id="L432">                result += row[j] * beta[j];</span>
+            }
+<span class="fc" id="L434">            a[i] = result;</span>
+        }
+
+<span class="fc" id="L437">        return a;</span>
+    }
+}
+
+/**
+ * 3D-spline function.
+ *
+ */
+class TricubicFunction
+    implements TrivariateFunction {
+    /** Number of points. */
+    private static final short N = 4;
+    /** Coefficients */
+<span class="fc" id="L450">    private final double[][][] a = new double[N][N][N];</span>
+
+    /**
+     * @param aV List of spline coefficients.
+     */
+<span class="fc" id="L455">    TricubicFunction(double[] aV) {</span>
+<span class="fc bfc" id="L456" title="All 2 branches covered.">        for (int i = 0; i &lt; N; i++) {</span>
+<span class="fc bfc" id="L457" title="All 2 branches covered.">            for (int j = 0; j &lt; N; j++) {</span>
+<span class="fc bfc" id="L458" title="All 2 branches covered.">                for (int k = 0; k &lt; N; k++) {</span>
+<span class="fc" id="L459">                    a[i][j][k] = aV[i + N * (j + N * k)];</span>
+                }
+            }
+        }
+<span class="fc" id="L463">    }</span>
+
+    /**
+     * @param x x-coordinate of the interpolation point.
+     * @param y y-coordinate of the interpolation point.
+     * @param z z-coordinate of the interpolation point.
+     * @return the interpolated value.
+     * @throws OutOfRangeException if {@code x}, {@code y} or
+     * {@code z} are not in the interval {@code [0, 1]}.
+     */
+    public double value(double x, double y, double z)
+        throws OutOfRangeException {
+<span class="pc bpc" id="L475" title="2 of 4 branches missed.">        if (x &lt; 0 || x &gt; 1) {</span>
+<span class="nc" id="L476">            throw new OutOfRangeException(x, 0, 1);</span>
+        }
+<span class="pc bpc" id="L478" title="2 of 4 branches missed.">        if (y &lt; 0 || y &gt; 1) {</span>
+<span class="nc" id="L479">            throw new OutOfRangeException(y, 0, 1);</span>
+        }
+<span class="pc bpc" id="L481" title="2 of 4 branches missed.">        if (z &lt; 0 || z &gt; 1) {</span>
+<span class="nc" id="L482">            throw new OutOfRangeException(z, 0, 1);</span>
+        }
+
+<span class="fc" id="L485">        final double x2 = x * x;</span>
+<span class="fc" id="L486">        final double x3 = x2 * x;</span>
+<span class="fc" id="L487">        final double[] pX = { 1, x, x2, x3 };</span>
+
+<span class="fc" id="L489">        final double y2 = y * y;</span>
+<span class="fc" id="L490">        final double y3 = y2 * y;</span>
+<span class="fc" id="L491">        final double[] pY = { 1, y, y2, y3 };</span>
+
+<span class="fc" id="L493">        final double z2 = z * z;</span>
+<span class="fc" id="L494">        final double z3 = z2 * z;</span>
+<span class="fc" id="L495">        final double[] pZ = { 1, z, z2, z3 };</span>
+
+<span class="fc" id="L497">        double result = 0;</span>
+<span class="fc bfc" id="L498" title="All 2 branches covered.">        for (int i = 0; i &lt; N; i++) {</span>
+<span class="fc bfc" id="L499" title="All 2 branches covered.">            for (int j = 0; j &lt; N; j++) {</span>
+<span class="fc bfc" id="L500" title="All 2 branches covered.">                for (int k = 0; k &lt; N; k++) {</span>
+<span class="fc" id="L501">                    result += a[i][j][k] * pX[i] * pY[j] * pZ[k];</span>
+                }
+            }
+        }
+
+<span class="fc" id="L506">        return result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

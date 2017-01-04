@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FuzzyKMeansClusterer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ml.clustering</a> &gt; <span class="el_source">FuzzyKMeansClusterer.java</span></div><h1>FuzzyKMeansClusterer.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.ml.clustering;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.MathIllegalStateException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.ml.distance.DistanceMeasure;
+import org.apache.commons.math3.ml.distance.EuclideanDistance;
+import org.apache.commons.math3.random.JDKRandomGenerator;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * Fuzzy K-Means clustering algorithm.
+ * &lt;p&gt;
+ * The Fuzzy K-Means algorithm is a variation of the classical K-Means algorithm, with the
+ * major difference that a single data point is not uniquely assigned to a single cluster.
+ * Instead, each point i has a set of weights u&lt;sub&gt;ij&lt;/sub&gt; which indicate the degree of membership
+ * to the cluster j.
+ * &lt;p&gt;
+ * The algorithm then tries to minimize the objective function:
+ * &lt;pre&gt;
+ * J = &amp;#8721;&lt;sub&gt;i=1..C&lt;/sub&gt;&amp;#8721;&lt;sub&gt;k=1..N&lt;/sub&gt; u&lt;sub&gt;ik&lt;/sub&gt;&lt;sup&gt;m&lt;/sup&gt;d&lt;sub&gt;ik&lt;/sub&gt;&lt;sup&gt;2&lt;/sup&gt;
+ * &lt;/pre&gt;
+ * with d&lt;sub&gt;ik&lt;/sub&gt; being the distance between data point i and the cluster center k.
+ * &lt;p&gt;
+ * The algorithm requires two parameters:
+ * &lt;ul&gt;
+ *   &lt;li&gt;k: the number of clusters
+ *   &lt;li&gt;fuzziness: determines the level of cluster fuzziness, larger values lead to fuzzier clusters
+ * &lt;/ul&gt;
+ * Additional, optional parameters:
+ * &lt;ul&gt;
+ *   &lt;li&gt;maxIterations: the maximum number of iterations
+ *   &lt;li&gt;epsilon: the convergence criteria, default is 1e-3
+ * &lt;/ul&gt;
+ * &lt;p&gt;
+ * The fuzzy variant of the K-Means algorithm is more robust with regard to the selection
+ * of the initial cluster centers.
+ *
+ * @param &lt;T&gt; type of the points to cluster
+ * @since 3.3
+ */
+public class FuzzyKMeansClusterer&lt;T extends Clusterable&gt; extends Clusterer&lt;T&gt; {
+
+    /** The default value for the convergence criteria. */
+    private static final double DEFAULT_EPSILON = 1e-3;
+
+    /** The number of clusters. */
+    private final int k;
+
+    /** The maximum number of iterations. */
+    private final int maxIterations;
+
+    /** The fuzziness factor. */
+    private final double fuzziness;
+
+    /** The convergence criteria. */
+    private final double epsilon;
+
+    /** Random generator for choosing initial centers. */
+    private final RandomGenerator random;
+
+    /** The membership matrix. */
+    private double[][] membershipMatrix;
+
+    /** The list of points used in the last call to {@link #cluster(Collection)}. */
+    private List&lt;T&gt; points;
+
+    /** The list of clusters resulting from the last call to {@link #cluster(Collection)}. */
+    private List&lt;CentroidCluster&lt;T&gt;&gt; clusters;
+
+    /**
+     * Creates a new instance of a FuzzyKMeansClusterer.
+     * &lt;p&gt;
+     * The euclidean distance will be used as default distance measure.
+     *
+     * @param k the number of clusters to split the data into
+     * @param fuzziness the fuzziness factor, must be &amp;gt; 1.0
+     * @throws NumberIsTooSmallException if {@code fuzziness &lt;= 1.0}
+     */
+    public FuzzyKMeansClusterer(final int k, final double fuzziness) throws NumberIsTooSmallException {
+<span class="fc" id="L107">        this(k, fuzziness, -1, new EuclideanDistance());</span>
+<span class="fc" id="L108">    }</span>
+
+    /**
+     * Creates a new instance of a FuzzyKMeansClusterer.
+     *
+     * @param k the number of clusters to split the data into
+     * @param fuzziness the fuzziness factor, must be &amp;gt; 1.0
+     * @param maxIterations the maximum number of iterations to run the algorithm for.
+     *   If negative, no maximum will be used.
+     * @param measure the distance measure to use
+     * @throws NumberIsTooSmallException if {@code fuzziness &lt;= 1.0}
+     */
+    public FuzzyKMeansClusterer(final int k, final double fuzziness,
+                                final int maxIterations, final DistanceMeasure measure)
+            throws NumberIsTooSmallException {
+<span class="fc" id="L123">        this(k, fuzziness, maxIterations, measure, DEFAULT_EPSILON, new JDKRandomGenerator());</span>
+<span class="fc" id="L124">    }</span>
+
+    /**
+     * Creates a new instance of a FuzzyKMeansClusterer.
+     *
+     * @param k the number of clusters to split the data into
+     * @param fuzziness the fuzziness factor, must be &amp;gt; 1.0
+     * @param maxIterations the maximum number of iterations to run the algorithm for.
+     *   If negative, no maximum will be used.
+     * @param measure the distance measure to use
+     * @param epsilon the convergence criteria (default is 1e-3)
+     * @param random random generator to use for choosing initial centers
+     * @throws NumberIsTooSmallException if {@code fuzziness &lt;= 1.0}
+     */
+    public FuzzyKMeansClusterer(final int k, final double fuzziness,
+                                final int maxIterations, final DistanceMeasure measure,
+                                final double epsilon, final RandomGenerator random)
+            throws NumberIsTooSmallException {
+
+<span class="fc" id="L143">        super(measure);</span>
+
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        if (fuzziness &lt;= 1.0d) {</span>
+<span class="fc" id="L146">            throw new NumberIsTooSmallException(fuzziness, 1.0, false);</span>
+        }
+<span class="fc" id="L148">        this.k = k;</span>
+<span class="fc" id="L149">        this.fuzziness = fuzziness;</span>
+<span class="fc" id="L150">        this.maxIterations = maxIterations;</span>
+<span class="fc" id="L151">        this.epsilon = epsilon;</span>
+<span class="fc" id="L152">        this.random = random;</span>
+
+<span class="fc" id="L154">        this.membershipMatrix = null;</span>
+<span class="fc" id="L155">        this.points = null;</span>
+<span class="fc" id="L156">        this.clusters = null;</span>
+<span class="fc" id="L157">    }</span>
+
+    /**
+     * Return the number of clusters this instance will use.
+     * @return the number of clusters
+     */
+    public int getK() {
+<span class="fc" id="L164">        return k;</span>
+    }
+
+    /**
+     * Returns the fuzziness factor used by this instance.
+     * @return the fuzziness factor
+     */
+    public double getFuzziness() {
+<span class="fc" id="L172">        return fuzziness;</span>
+    }
+
+    /**
+     * Returns the maximum number of iterations this instance will use.
+     * @return the maximum number of iterations, or -1 if no maximum is set
+     */
+    public int getMaxIterations() {
+<span class="fc" id="L180">        return maxIterations;</span>
+    }
+
+    /**
+     * Returns the convergence criteria used by this instance.
+     * @return the convergence criteria
+     */
+    public double getEpsilon() {
+<span class="fc" id="L188">        return epsilon;</span>
+    }
+
+    /**
+     * Returns the random generator this instance will use.
+     * @return the random generator
+     */
+    public RandomGenerator getRandomGenerator() {
+<span class="fc" id="L196">        return random;</span>
+    }
+
+    /**
+     * Returns the {@code nxk} membership matrix, where {@code n} is the number
+     * of data points and {@code k} the number of clusters.
+     * &lt;p&gt;
+     * The element U&lt;sub&gt;i,j&lt;/sub&gt; represents the membership value for data point {@code i}
+     * to cluster {@code j}.
+     *
+     * @return the membership matrix
+     * @throws MathIllegalStateException if {@link #cluster(Collection)} has not been called before
+     */
+    public RealMatrix getMembershipMatrix() {
+<span class="nc bnc" id="L210" title="All 2 branches missed.">        if (membershipMatrix == null) {</span>
+<span class="nc" id="L211">            throw new MathIllegalStateException();</span>
+        }
+<span class="nc" id="L213">        return MatrixUtils.createRealMatrix(membershipMatrix);</span>
+    }
+
+    /**
+     * Returns an unmodifiable list of the data points used in the last
+     * call to {@link #cluster(Collection)}.
+     * @return the list of data points, or {@code null} if {@link #cluster(Collection)} has
+     *   not been called before.
+     */
+    public List&lt;T&gt; getDataPoints() {
+<span class="nc" id="L223">        return points;</span>
+    }
+
+    /**
+     * Returns the list of clusters resulting from the last call to {@link #cluster(Collection)}.
+     * @return the list of clusters, or {@code null} if {@link #cluster(Collection)} has
+     *   not been called before.
+     */
+    public List&lt;CentroidCluster&lt;T&gt;&gt; getClusters() {
+<span class="nc" id="L232">        return clusters;</span>
+    }
+
+    /**
+     * Get the value of the objective function.
+     * @return the objective function evaluation as double value
+     * @throws MathIllegalStateException if {@link #cluster(Collection)} has not been called before
+     */
+    public double getObjectiveFunctionValue() {
+<span class="nc bnc" id="L241" title="All 4 branches missed.">        if (points == null || clusters == null) {</span>
+<span class="nc" id="L242">            throw new MathIllegalStateException();</span>
+        }
+
+<span class="nc" id="L245">        int i = 0;</span>
+<span class="nc" id="L246">        double objFunction = 0.0;</span>
+<span class="nc bnc" id="L247" title="All 2 branches missed.">        for (final T point : points) {</span>
+<span class="nc" id="L248">            int j = 0;</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">            for (final CentroidCluster&lt;T&gt; cluster : clusters) {</span>
+<span class="nc" id="L250">                final double dist = distance(point, cluster.getCenter());</span>
+<span class="nc" id="L251">                objFunction += (dist * dist) * FastMath.pow(membershipMatrix[i][j], fuzziness);</span>
+<span class="nc" id="L252">                j++;</span>
+<span class="nc" id="L253">            }</span>
+<span class="nc" id="L254">            i++;</span>
+<span class="nc" id="L255">        }</span>
+<span class="nc" id="L256">        return objFunction;</span>
+    }
+
+    /**
+     * Performs Fuzzy K-Means cluster analysis.
+     *
+     * @param dataPoints the points to cluster
+     * @return the list of clusters
+     * @throws MathIllegalArgumentException if the data points are null or the number
+     *     of clusters is larger than the number of data points
+     */
+    @Override
+    public List&lt;CentroidCluster&lt;T&gt;&gt; cluster(final Collection&lt;T&gt; dataPoints)
+            throws MathIllegalArgumentException {
+
+        // sanity checks
+<span class="fc" id="L272">        MathUtils.checkNotNull(dataPoints);</span>
+
+<span class="fc" id="L274">        final int size = dataPoints.size();</span>
+
+        // number of clusters has to be smaller or equal the number of data points
+<span class="pc bpc" id="L277" title="1 of 2 branches missed.">        if (size &lt; k) {</span>
+<span class="nc" id="L278">            throw new NumberIsTooSmallException(size, k, false);</span>
+        }
+
+        // copy the input collection to an unmodifiable list with indexed access
+<span class="fc" id="L282">        points = Collections.unmodifiableList(new ArrayList&lt;T&gt;(dataPoints));</span>
+<span class="fc" id="L283">        clusters = new ArrayList&lt;CentroidCluster&lt;T&gt;&gt;();</span>
+<span class="fc" id="L284">        membershipMatrix = new double[size][k];</span>
+<span class="fc" id="L285">        final double[][] oldMatrix = new double[size][k];</span>
+
+        // if no points are provided, return an empty list of clusters
+<span class="pc bpc" id="L288" title="1 of 2 branches missed.">        if (size == 0) {</span>
+<span class="nc" id="L289">            return clusters;</span>
+        }
+
+<span class="fc" id="L292">        initializeMembershipMatrix();</span>
+
+        // there is at least one point
+<span class="fc" id="L295">        final int pointDimension = points.get(0).getPoint().length;</span>
+<span class="fc bfc" id="L296" title="All 2 branches covered.">        for (int i = 0; i &lt; k; i++) {</span>
+<span class="fc" id="L297">            clusters.add(new CentroidCluster&lt;T&gt;(new DoublePoint(new double[pointDimension])));</span>
+        }
+
+<span class="fc" id="L300">        int iteration = 0;</span>
+<span class="pc bpc" id="L301" title="1 of 2 branches missed.">        final int max = (maxIterations &lt; 0) ? Integer.MAX_VALUE : maxIterations;</span>
+<span class="fc" id="L302">        double difference = 0.0;</span>
+
+        do {
+<span class="fc" id="L305">            saveMembershipMatrix(oldMatrix);</span>
+<span class="fc" id="L306">            updateClusterCenters();</span>
+<span class="fc" id="L307">            updateMembershipMatrix();</span>
+<span class="fc" id="L308">            difference = calculateMaxMembershipChange(oldMatrix);</span>
+<span class="pc bpc" id="L309" title="1 of 4 branches missed.">        } while (difference &gt; epsilon &amp;&amp; ++iteration &lt; max);</span>
+
+<span class="fc" id="L311">        return clusters;</span>
+    }
+
+    /**
+     * Update the cluster centers.
+     */
+    private void updateClusterCenters() {
+<span class="fc" id="L318">        int j = 0;</span>
+<span class="fc" id="L319">        final List&lt;CentroidCluster&lt;T&gt;&gt; newClusters = new ArrayList&lt;CentroidCluster&lt;T&gt;&gt;(k);</span>
+<span class="fc bfc" id="L320" title="All 2 branches covered.">        for (final CentroidCluster&lt;T&gt; cluster : clusters) {</span>
+<span class="fc" id="L321">            final Clusterable center = cluster.getCenter();</span>
+<span class="fc" id="L322">            int i = 0;</span>
+<span class="fc" id="L323">            double[] arr = new double[center.getPoint().length];</span>
+<span class="fc" id="L324">            double sum = 0.0;</span>
+<span class="fc bfc" id="L325" title="All 2 branches covered.">            for (final T point : points) {</span>
+<span class="fc" id="L326">                final double u = FastMath.pow(membershipMatrix[i][j], fuzziness);</span>
+<span class="fc" id="L327">                final double[] pointArr = point.getPoint();</span>
+<span class="fc bfc" id="L328" title="All 2 branches covered.">                for (int idx = 0; idx &lt; arr.length; idx++) {</span>
+<span class="fc" id="L329">                    arr[idx] += u * pointArr[idx];</span>
+                }
+<span class="fc" id="L331">                sum += u;</span>
+<span class="fc" id="L332">                i++;</span>
+<span class="fc" id="L333">            }</span>
+<span class="fc" id="L334">            MathArrays.scaleInPlace(1.0 / sum, arr);</span>
+<span class="fc" id="L335">            newClusters.add(new CentroidCluster&lt;T&gt;(new DoublePoint(arr)));</span>
+<span class="fc" id="L336">            j++;</span>
+<span class="fc" id="L337">        }</span>
+<span class="fc" id="L338">        clusters.clear();</span>
+<span class="fc" id="L339">        clusters = newClusters;</span>
+<span class="fc" id="L340">    }</span>
+
+    /**
+     * Updates the membership matrix and assigns the points to the cluster with
+     * the highest membership.
+     */
+    private void updateMembershipMatrix() {
+<span class="fc bfc" id="L347" title="All 2 branches covered.">        for (int i = 0; i &lt; points.size(); i++) {</span>
+<span class="fc" id="L348">            final T point = points.get(i);</span>
+<span class="fc" id="L349">            double maxMembership = Double.MIN_VALUE;</span>
+<span class="fc" id="L350">            int newCluster = -1;</span>
+<span class="fc bfc" id="L351" title="All 2 branches covered.">            for (int j = 0; j &lt; clusters.size(); j++) {</span>
+<span class="fc" id="L352">                double sum = 0.0;</span>
+<span class="fc" id="L353">                final double distA = FastMath.abs(distance(point, clusters.get(j).getCenter()));</span>
+
+<span class="fc bfc" id="L355" title="All 2 branches covered.">                if (distA != 0.0) {</span>
+<span class="fc bfc" id="L356" title="All 2 branches covered.">                    for (final CentroidCluster&lt;T&gt; c : clusters) {</span>
+<span class="fc" id="L357">                        final double distB = FastMath.abs(distance(point, c.getCenter()));</span>
+<span class="fc bfc" id="L358" title="All 2 branches covered.">                        if (distB == 0.0) {</span>
+<span class="fc" id="L359">                            sum = Double.POSITIVE_INFINITY;</span>
+<span class="fc" id="L360">                            break;</span>
+                        }
+<span class="fc" id="L362">                        sum += FastMath.pow(distA / distB, 2.0 / (fuzziness - 1.0));</span>
+<span class="fc" id="L363">                    }</span>
+                }
+
+                double membership;
+<span class="fc bfc" id="L367" title="All 2 branches covered.">                if (sum == 0.0) {</span>
+<span class="fc" id="L368">                    membership = 1.0;</span>
+<span class="fc bfc" id="L369" title="All 2 branches covered.">                } else if (sum == Double.POSITIVE_INFINITY) {</span>
+<span class="fc" id="L370">                    membership = 0.0;</span>
+                } else {
+<span class="fc" id="L372">                    membership = 1.0 / sum;</span>
+                }
+<span class="fc" id="L374">                membershipMatrix[i][j] = membership;</span>
+
+<span class="fc bfc" id="L376" title="All 2 branches covered.">                if (membershipMatrix[i][j] &gt; maxMembership) {</span>
+<span class="fc" id="L377">                    maxMembership = membershipMatrix[i][j];</span>
+<span class="fc" id="L378">                    newCluster = j;</span>
+                }
+            }
+<span class="fc" id="L381">            clusters.get(newCluster).addPoint(point);</span>
+        }
+<span class="fc" id="L383">    }</span>
+
+    /**
+     * Initialize the membership matrix with random values.
+     */
+    private void initializeMembershipMatrix() {
+<span class="fc bfc" id="L389" title="All 2 branches covered.">        for (int i = 0; i &lt; points.size(); i++) {</span>
+<span class="fc bfc" id="L390" title="All 2 branches covered.">            for (int j = 0; j &lt; k; j++) {</span>
+<span class="fc" id="L391">                membershipMatrix[i][j] = random.nextDouble();</span>
+            }
+<span class="fc" id="L393">            membershipMatrix[i] = MathArrays.normalizeArray(membershipMatrix[i], 1.0);</span>
+        }
+<span class="fc" id="L395">    }</span>
+
+    /**
+     * Calculate the maximum element-by-element change of the membership matrix
+     * for the current iteration.
+     *
+     * @param matrix the membership matrix of the previous iteration
+     * @return the maximum membership matrix change
+     */
+    private double calculateMaxMembershipChange(final double[][] matrix) {
+<span class="fc" id="L405">        double maxMembership = 0.0;</span>
+<span class="fc bfc" id="L406" title="All 2 branches covered.">        for (int i = 0; i &lt; points.size(); i++) {</span>
+<span class="fc bfc" id="L407" title="All 2 branches covered.">            for (int j = 0; j &lt; clusters.size(); j++) {</span>
+<span class="fc" id="L408">                double v = FastMath.abs(membershipMatrix[i][j] - matrix[i][j]);</span>
+<span class="fc" id="L409">                maxMembership = FastMath.max(v, maxMembership);</span>
+            }
+        }
+<span class="fc" id="L412">        return maxMembership;</span>
+    }
+
+    /**
+     * Copy the membership matrix into the provided matrix.
+     *
+     * @param matrix the place to store the membership matrix
+     */
+    private void saveMembershipMatrix(final double[][] matrix) {
+<span class="fc bfc" id="L421" title="All 2 branches covered.">        for (int i = 0; i &lt; points.size(); i++) {</span>
+<span class="fc" id="L422">            System.arraycopy(membershipMatrix[i], 0, matrix[i], 0, clusters.size());</span>
+        }
+<span class="fc" id="L424">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,713 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.analysis.interpolation;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.util.Arrays;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.analysis.BivariateFunction;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.exception.DimensionMismatchException;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.exception.NoDataException;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.exception.OutOfRangeException;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.exception.NonMonotonicSequenceException;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.util.MathArrays;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>/**<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * Function that implements the<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * &lt;a href="http://en.wikipedia.org/wiki/Bicubic_interpolation"&gt;<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * bicubic spline interpolation&lt;/a&gt;. Due to numerical accuracy issues this should not<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * be used.<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * @since 2.1<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * @deprecated as of 3.4 replaced by<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * {@link org.apache.commons.math3.analysis.interpolation.PiecewiseBicubicSplineInterpolatingFunction}<a name="line.35"></a>
+<span class="sourceLineNo">036</span> */<a name="line.36"></a>
+<span class="sourceLineNo">037</span>@Deprecated<a name="line.37"></a>
+<span class="sourceLineNo">038</span>public class BicubicSplineInterpolatingFunction<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    implements BivariateFunction {<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    /** Number of coefficients. */<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    private static final int NUM_COEFF = 16;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    /**<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     * Matrix to compute the spline coefficients from the function values<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * and function derivatives values<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    private static final double[][] AINV = {<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        { 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        { 0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0 },<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        { -3,3,0,0,-2,-1,0,0,0,0,0,0,0,0,0,0 },<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        { 2,-2,0,0,1,1,0,0,0,0,0,0,0,0,0,0 },<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        { 0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0 },<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        { 0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0 },<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        { 0,0,0,0,0,0,0,0,-3,3,0,0,-2,-1,0,0 },<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        { 0,0,0,0,0,0,0,0,2,-2,0,0,1,1,0,0 },<a name="line.54"></a>
+<span class="sourceLineNo">055</span>        { -3,0,3,0,0,0,0,0,-2,0,-1,0,0,0,0,0 },<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        { 0,0,0,0,-3,0,3,0,0,0,0,0,-2,0,-1,0 },<a name="line.56"></a>
+<span class="sourceLineNo">057</span>        { 9,-9,-9,9,6,3,-6,-3,6,-6,3,-3,4,2,2,1 },<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        { -6,6,6,-6,-3,-3,3,3,-4,4,-2,2,-2,-2,-1,-1 },<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        { 2,0,-2,0,0,0,0,0,1,0,1,0,0,0,0,0 },<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        { 0,0,0,0,2,0,-2,0,0,0,0,0,1,0,1,0 },<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        { -6,6,6,-6,-4,-2,4,2,-3,3,-3,3,-2,-1,-2,-1 },<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        { 4,-4,-4,4,2,2,-2,-2,2,-2,2,-2,1,1,1,1 }<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    };<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>    /** Samples x-coordinates */<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    private final double[] xval;<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    /** Samples y-coordinates */<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    private final double[] yval;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    /** Set of cubic splines patching the whole data grid */<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    private final BicubicSplineFunction[][] splines;<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    /**<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     * Partial derivatives.<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * The value of the first index determines the kind of derivatives:<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * 0 = first partial derivatives wrt x<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * 1 = first partial derivatives wrt y<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * 2 = second partial derivatives wrt x<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * 3 = second partial derivatives wrt y<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * 4 = cross partial derivatives<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     */<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    private final BivariateFunction[][][] partialDerivatives;<a name="line.80"></a>
+<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">082</span>    /**<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     * @param x Sample values of the x-coordinate, in increasing order.<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * @param y Sample values of the y-coordinate, in increasing order.<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * @param f Values of the function on every grid point.<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * @param dFdX Values of the partial derivative of function with respect<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * to x on every grid point.<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * @param dFdY Values of the partial derivative of function with respect<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * to y on every grid point.<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * @param d2FdXdY Values of the cross partial derivative of function on<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * every grid point.<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     * @throws DimensionMismatchException if the various arrays do not contain<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * the expected number of elements.<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * @throws NonMonotonicSequenceException if {@code x} or {@code y} are<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * not strictly increasing.<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * @throws NoDataException if any of the arrays has zero length.<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     */<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    public BicubicSplineInterpolatingFunction(double[] x,<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                                              double[] y,<a name="line.99"></a>
+<span class="sourceLineNo">100</span>                                              double[][] f,<a name="line.100"></a>
+<span class="sourceLineNo">101</span>                                              double[][] dFdX,<a name="line.101"></a>
+<span class="sourceLineNo">102</span>                                              double[][] dFdY,<a name="line.102"></a>
+<span class="sourceLineNo">103</span>                                              double[][] d2FdXdY)<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        throws DimensionMismatchException,<a name="line.104"></a>
+<span class="sourceLineNo">105</span>               NoDataException,<a name="line.105"></a>
+<span class="sourceLineNo">106</span>               NonMonotonicSequenceException {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        this(x, y, f, dFdX, dFdY, d2FdXdY, false);<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    }<a name="line.108"></a>
+<span class="sourceLineNo">109</span><a name="line.109"></a>
+<span class="sourceLineNo">110</span>    /**<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     * @param x Sample values of the x-coordinate, in increasing order.<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     * @param y Sample values of the y-coordinate, in increasing order.<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * @param f Values of the function on every grid point.<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     * @param dFdX Values of the partial derivative of function with respect<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * to x on every grid point.<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     * @param dFdY Values of the partial derivative of function with respect<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * to y on every grid point.<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     * @param d2FdXdY Values of the cross partial derivative of function on<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * every grid point.<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * @param initializeDerivatives Whether to initialize the internal data<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     * needed for calling any of the methods that compute the partial derivatives<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     * this function.<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     * @throws DimensionMismatchException if the various arrays do not contain<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     * the expected number of elements.<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     * @throws NonMonotonicSequenceException if {@code x} or {@code y} are<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     * not strictly increasing.<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     * @throws NoDataException if any of the arrays has zero length.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     *<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * @see #partialDerivativeX(double,double)<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     * @see #partialDerivativeY(double,double)<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * @see #partialDerivativeXX(double,double)<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     * @see #partialDerivativeYY(double,double)<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     * @see #partialDerivativeXY(double,double)<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     */<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    public BicubicSplineInterpolatingFunction(double[] x,<a name="line.135"></a>
+<span class="sourceLineNo">136</span>                                              double[] y,<a name="line.136"></a>
+<span class="sourceLineNo">137</span>                                              double[][] f,<a name="line.137"></a>
+<span class="sourceLineNo">138</span>                                              double[][] dFdX,<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                                              double[][] dFdY,<a name="line.139"></a>
+<span class="sourceLineNo">140</span>                                              double[][] d2FdXdY,<a name="line.140"></a>
+<span class="sourceLineNo">141</span>                                              boolean initializeDerivatives)<a name="line.141"></a>
+<span class="sourceLineNo">142</span>        throws DimensionMismatchException,<a name="line.142"></a>
+<span class="sourceLineNo">143</span>               NoDataException,<a name="line.143"></a>
+<span class="sourceLineNo">144</span>               NonMonotonicSequenceException {<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        final int xLen = x.length;<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        final int yLen = y.length;<a name="line.146"></a>
+<span class="sourceLineNo">147</span><a name="line.147"></a>
+<span class="sourceLineNo">148</span>        if (xLen == 0 || yLen == 0 || f.length == 0 || f[0].length == 0) {<a name="line.148"></a>
+<span class="sourceLineNo">149</span>            throw new NoDataException();<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        }<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        if (xLen != f.length) {<a name="line.151"></a>
+<span class="sourceLineNo">152</span>            throw new DimensionMismatchException(xLen, f.length);<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        }<a name="line.153"></a>
+<span class="sourceLineNo">154</span>        if (xLen != dFdX.length) {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>            throw new DimensionMismatchException(xLen, dFdX.length);<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        }<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        if (xLen != dFdY.length) {<a name="line.157"></a>
+<span class="sourceLineNo">158</span>            throw new DimensionMismatchException(xLen, dFdY.length);<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        }<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        if (xLen != d2FdXdY.length) {<a name="line.160"></a>
+<span class="sourceLineNo">161</span>            throw new DimensionMismatchException(xLen, d2FdXdY.length);<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        }<a name="line.162"></a>
+<span class="sourceLineNo">163</span><a name="line.163"></a>
+<span class="sourceLineNo">164</span>        MathArrays.checkOrder(x);<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        MathArrays.checkOrder(y);<a name="line.165"></a>
+<span class="sourceLineNo">166</span><a name="line.166"></a>
+<span class="sourceLineNo">167</span>        xval = x.clone();<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        yval = y.clone();<a name="line.168"></a>
+<span class="sourceLineNo">169</span><a name="line.169"></a>
+<span class="sourceLineNo">170</span>        final int lastI = xLen - 1;<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        final int lastJ = yLen - 1;<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        splines = new BicubicSplineFunction[lastI][lastJ];<a name="line.172"></a>
+<span class="sourceLineNo">173</span><a name="line.173"></a>
+<span class="sourceLineNo">174</span>        for (int i = 0; i &lt; lastI; i++) {<a name="line.174"></a>
+<span class="sourceLineNo">175</span>            if (f[i].length != yLen) {<a name="line.175"></a>
+<span class="sourceLineNo">176</span>                throw new DimensionMismatchException(f[i].length, yLen);<a name="line.176"></a>
+<span class="sourceLineNo">177</span>            }<a name="line.177"></a>
+<span class="sourceLineNo">178</span>            if (dFdX[i].length != yLen) {<a name="line.178"></a>
+<span class="sourceLineNo">179</span>                throw new DimensionMismatchException(dFdX[i].length, yLen);<a name="line.179"></a>
+<span class="sourceLineNo">180</span>            }<a name="line.180"></a>
+<span class="sourceLineNo">181</span>            if (dFdY[i].length != yLen) {<a name="line.181"></a>
+<span class="sourceLineNo">182</span>                throw new DimensionMismatchException(dFdY[i].length, yLen);<a name="line.182"></a>
+<span class="sourceLineNo">183</span>            }<a name="line.183"></a>
+<span class="sourceLineNo">184</span>            if (d2FdXdY[i].length != yLen) {<a name="line.184"></a>
+<span class="sourceLineNo">185</span>                throw new DimensionMismatchException(d2FdXdY[i].length, yLen);<a name="line.185"></a>
+<span class="sourceLineNo">186</span>            }<a name="line.186"></a>
+<span class="sourceLineNo">187</span>            final int ip1 = i + 1;<a name="line.187"></a>
+<span class="sourceLineNo">188</span>            for (int j = 0; j &lt; lastJ; j++) {<a name="line.188"></a>
+<span class="sourceLineNo">189</span>                final int jp1 = j + 1;<a name="line.189"></a>
+<span class="sourceLineNo">190</span>                final double[] beta = new double[] {<a name="line.190"></a>
+<span class="sourceLineNo">191</span>                    f[i][j], f[ip1][j], f[i][jp1], f[ip1][jp1],<a name="line.191"></a>
+<span class="sourceLineNo">192</span>                    dFdX[i][j], dFdX[ip1][j], dFdX[i][jp1], dFdX[ip1][jp1],<a name="line.192"></a>
+<span class="sourceLineNo">193</span>                    dFdY[i][j], dFdY[ip1][j], dFdY[i][jp1], dFdY[ip1][jp1],<a name="line.193"></a>
+<span class="sourceLineNo">194</span>                    d2FdXdY[i][j], d2FdXdY[ip1][j], d2FdXdY[i][jp1], d2FdXdY[ip1][jp1]<a name="line.194"></a>
+<span class="sourceLineNo">195</span>                };<a name="line.195"></a>
+<span class="sourceLineNo">196</span><a name="line.196"></a>
+<span class="sourceLineNo">197</span>                splines[i][j] = new BicubicSplineFunction(computeSplineCoefficients(beta),<a name="line.197"></a>
+<span class="sourceLineNo">198</span>                                                          initializeDerivatives);<a name="line.198"></a>
+<span class="sourceLineNo">199</span>            }<a name="line.199"></a>
+<span class="sourceLineNo">200</span>        }<a name="line.200"></a>
+<span class="sourceLineNo">201</span><a name="line.201"></a>
+<span class="sourceLineNo">202</span>        if (initializeDerivatives) {<a name="line.202"></a>
+<span class="sourceLineNo">203</span>            // Compute all partial derivatives.<a name="line.203"></a>
+<span class="sourceLineNo">204</span>            partialDerivatives = new BivariateFunction[5][lastI][lastJ];<a name="line.204"></a>
+<span class="sourceLineNo">205</span><a name="line.205"></a>
+<span class="sourceLineNo">206</span>            for (int i = 0; i &lt; lastI; i++) {<a name="line.206"></a>
+<span class="sourceLineNo">207</span>                for (int j = 0; j &lt; lastJ; j++) {<a name="line.207"></a>
+<span class="sourceLineNo">208</span>                    final BicubicSplineFunction bcs = splines[i][j];<a name="line.208"></a>
+<span class="sourceLineNo">209</span>                    partialDerivatives[0][i][j] = bcs.partialDerivativeX();<a name="line.209"></a>
+<span class="sourceLineNo">210</span>                    partialDerivatives[1][i][j] = bcs.partialDerivativeY();<a name="line.210"></a>
+<span class="sourceLineNo">211</span>                    partialDerivatives[2][i][j] = bcs.partialDerivativeXX();<a name="line.211"></a>
+<span class="sourceLineNo">212</span>                    partialDerivatives[3][i][j] = bcs.partialDerivativeYY();<a name="line.212"></a>
+<span class="sourceLineNo">213</span>                    partialDerivatives[4][i][j] = bcs.partialDerivativeXY();<a name="line.213"></a>
+<span class="sourceLineNo">214</span>                }<a name="line.214"></a>
+<span class="sourceLineNo">215</span>            }<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        } else {<a name="line.216"></a>
+<span class="sourceLineNo">217</span>            // Partial derivative methods cannot be used.<a name="line.217"></a>
+<span class="sourceLineNo">218</span>            partialDerivatives = null;<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        }<a name="line.219"></a>
+<span class="sourceLineNo">220</span>    }<a name="line.220"></a>
+<span class="sourceLineNo">221</span><a name="line.221"></a>
+<span class="sourceLineNo">222</span>    /**<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     * {@inheritDoc}<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     */<a name="line.224"></a>
+<span class="sourceLineNo">225</span>    public double value(double x, double y)<a name="line.225"></a>
+<span class="sourceLineNo">226</span>        throws OutOfRangeException {<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        final int i = searchIndex(x, xval);<a name="line.227"></a>
+<span class="sourceLineNo">228</span>        final int j = searchIndex(y, yval);<a name="line.228"></a>
+<span class="sourceLineNo">229</span><a name="line.229"></a>
+<span class="sourceLineNo">230</span>        final double xN = (x - xval[i]) / (xval[i + 1] - xval[i]);<a name="line.230"></a>
+<span class="sourceLineNo">231</span>        final double yN = (y - yval[j]) / (yval[j + 1] - yval[j]);<a name="line.231"></a>
+<span class="sourceLineNo">232</span><a name="line.232"></a>
+<span class="sourceLineNo">233</span>        return splines[i][j].value(xN, yN);<a name="line.233"></a>
+<span class="sourceLineNo">234</span>    }<a name="line.234"></a>
+<span class="sourceLineNo">235</span><a name="line.235"></a>
+<span class="sourceLineNo">236</span>    /**<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     * Indicates whether a point is within the interpolation range.<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     *<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     * @param x First coordinate.<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     * @param y Second coordinate.<a name="line.240"></a>
+<span class="sourceLineNo">241</span>     * @return {@code true} if (x, y) is a valid point.<a name="line.241"></a>
+<span class="sourceLineNo">242</span>     * @since 3.3<a name="line.242"></a>
+<span class="sourceLineNo">243</span>     */<a name="line.243"></a>
+<span class="sourceLineNo">244</span>    public boolean isValidPoint(double x, double y) {<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        if (x &lt; xval[0] ||<a name="line.245"></a>
+<span class="sourceLineNo">246</span>            x &gt; xval[xval.length - 1] ||<a name="line.246"></a>
+<span class="sourceLineNo">247</span>            y &lt; yval[0] ||<a name="line.247"></a>
+<span class="sourceLineNo">248</span>            y &gt; yval[yval.length - 1]) {<a name="line.248"></a>
+<span class="sourceLineNo">249</span>            return false;<a name="line.249"></a>
+<span class="sourceLineNo">250</span>        } else {<a name="line.250"></a>
+<span class="sourceLineNo">251</span>            return true;<a name="line.251"></a>
+<span class="sourceLineNo">252</span>        }<a name="line.252"></a>
+<span class="sourceLineNo">253</span>    }<a name="line.253"></a>
+<span class="sourceLineNo">254</span><a name="line.254"></a>
+<span class="sourceLineNo">255</span>    /**<a name="line.255"></a>
+<span class="sourceLineNo">256</span>     * @param x x-coordinate.<a name="line.256"></a>
+<span class="sourceLineNo">257</span>     * @param y y-coordinate.<a name="line.257"></a>
+<span class="sourceLineNo">258</span>     * @return the value at point (x, y) of the first partial derivative with<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     * respect to x.<a name="line.259"></a>
+<span class="sourceLineNo">260</span>     * @throws OutOfRangeException if {@code x} (resp. {@code y}) is outside<a name="line.260"></a>
+<span class="sourceLineNo">261</span>     * the range defined by the boundary values of {@code xval} (resp.<a name="line.261"></a>
+<span class="sourceLineNo">262</span>     * {@code yval}).<a name="line.262"></a>
+<span class="sourceLineNo">263</span>     * @throws NullPointerException if the internal data were not initialized<a name="line.263"></a>
+<span class="sourceLineNo">264</span>     * (cf. {@link #BicubicSplineInterpolatingFunction(double[],double[],double[][],<a name="line.264"></a>
+<span class="sourceLineNo">265</span>     *             double[][],double[][],double[][],boolean) constructor}).<a name="line.265"></a>
+<span class="sourceLineNo">266</span>     */<a name="line.266"></a>
+<span class="sourceLineNo">267</span>    public double partialDerivativeX(double x, double y)<a name="line.267"></a>
+<span class="sourceLineNo">268</span>        throws OutOfRangeException {<a name="line.268"></a>
+<span class="sourceLineNo">269</span>        return partialDerivative(0, x, y);<a name="line.269"></a>
+<span class="sourceLineNo">270</span>    }<a name="line.270"></a>
+<span class="sourceLineNo">271</span>    /**<a name="line.271"></a>
+<span class="sourceLineNo">272</span>     * @param x x-coordinate.<a name="line.272"></a>
+<span class="sourceLineNo">273</span>     * @param y y-coordinate.<a name="line.273"></a>
+<span class="sourceLineNo">274</span>     * @return the value at point (x, y) of the first partial derivative with<a name="line.274"></a>
+<span class="sourceLineNo">275</span>     * respect to y.<a name="line.275"></a>
+<span class="sourceLineNo">276</span>     * @throws OutOfRangeException if {@code x} (resp. {@code y}) is outside<a name="line.276"></a>
+<span class="sourceLineNo">277</span>     * the range defined by the boundary values of {@code xval} (resp.<a name="line.277"></a>
+<span class="sourceLineNo">278</span>     * {@code yval}).<a name="line.278"></a>
+<span class="sourceLineNo">279</span>     * @throws NullPointerException if the internal data were not initialized<a name="line.279"></a>
+<span class="sourceLineNo">280</span>     * (cf. {@link #BicubicSplineInterpolatingFunction(double[],double[],double[][],<a name="line.280"></a>
+<span class="sourceLineNo">281</span>     *             double[][],double[][],double[][],boolean) constructor}).<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     */<a name="line.282"></a>
+<span class="sourceLineNo">283</span>    public double partialDerivativeY(double x, double y)<a name="line.283"></a>
+<span class="sourceLineNo">284</span>        throws OutOfRangeException {<a name="line.284"></a>
+<span class="sourceLineNo">285</span>        return partialDerivative(1, x, y);<a name="line.285"></a>
+<span class="sourceLineNo">286</span>    }<a name="line.286"></a>
+<span class="sourceLineNo">287</span>    /**<a name="line.287"></a>
+<span class="sourceLineNo">288</span>     * @param x x-coordinate.<a name="line.288"></a>
+<span class="sourceLineNo">289</span>     * @param y y-coordinate.<a name="line.289"></a>
+<span class="sourceLineNo">290</span>     * @return the value at point (x, y) of the second partial derivative with<a name="line.290"></a>
+<span class="sourceLineNo">291</span>     * respect to x.<a name="line.291"></a>
+<span class="sourceLineNo">292</span>     * @throws OutOfRangeException if {@code x} (resp. {@code y}) is outside<a name="line.292"></a>
+<span class="sourceLineNo">293</span>     * the range defined by the boundary values of {@code xval} (resp.<a name="line.293"></a>
+<span class="sourceLineNo">294</span>     * {@code yval}).<a name="line.294"></a>
+<span class="sourceLineNo">295</span>     * @throws NullPointerException if the internal data were not initialized<a name="line.295"></a>
+<span class="sourceLineNo">296</span>     * (cf. {@link #BicubicSplineInterpolatingFunction(double[],double[],double[][],<a name="line.296"></a>
+<span class="sourceLineNo">297</span>     *             double[][],double[][],double[][],boolean) constructor}).<a name="line.297"></a>
+<span class="sourceLineNo">298</span>     */<a name="line.298"></a>
+<span class="sourceLineNo">299</span>    public double partialDerivativeXX(double x, double y)<a name="line.299"></a>
+<span class="sourceLineNo">300</span>        throws OutOfRangeException {<a name="line.300"></a>
+<span class="sourceLineNo">301</span>        return partialDerivative(2, x, y);<a name="line.301"></a>
+<span class="sourceLineNo">302</span>    }<a name="line.302"></a>
+<span class="sourceLineNo">303</span>    /**<a name="line.303"></a>
+<span class="sourceLineNo">304</span>     * @param x x-coordinate.<a name="line.304"></a>
+<span class="sourceLineNo">305</span>     * @param y y-coordinate.<a name="line.305"></a>
+<span class="sourceLineNo">306</span>     * @return the value at point (x, y) of the second partial derivative with<a name="line.306"></a>
+<span class="sourceLineNo">307</span>     * respect to y.<a name="line.307"></a>
+<span class="sourceLineNo">308</span>     * @throws OutOfRangeException if {@code x} (resp. {@code y}) is outside<a name="line.308"></a>
+<span class="sourceLineNo">309</span>     * the range defined by the boundary values of {@code xval} (resp.<a name="line.309"></a>
+<span class="sourceLineNo">310</span>     * {@code yval}).<a name="line.310"></a>
+<span class="sourceLineNo">311</span>     * @throws NullPointerException if the internal data were not initialized<a name="line.311"></a>
+<span class="sourceLineNo">312</span>     * (cf. {@link #BicubicSplineInterpolatingFunction(double[],double[],double[][],<a name="line.312"></a>
+<span class="sourceLineNo">313</span>     *             double[][],double[][],double[][],boolean) constructor}).<a name="line.313"></a>
+<span class="sourceLineNo">314</span>     */<a name="line.314"></a>
+<span class="sourceLineNo">315</span>    public double partialDerivativeYY(double x, double y)<a name="line.315"></a>
+<span class="sourceLineNo">316</span>        throws OutOfRangeException {<a name="line.316"></a>
+<span class="sourceLineNo">317</span>        return partialDerivative(3, x, y);<a name="line.317"></a>
+<span class="sourceLineNo">318</span>    }<a name="line.318"></a>
+<span class="sourceLineNo">319</span>    /**<a name="line.319"></a>
+<span class="sourceLineNo">320</span>     * @param x x-coordinate.<a name="line.320"></a>
+<span class="sourceLineNo">321</span>     * @param y y-coordinate.<a name="line.321"></a>
+<span class="sourceLineNo">322</span>     * @return the value at point (x, y) of the second partial cross-derivative.<a name="line.322"></a>
+<span class="sourceLineNo">323</span>     * @throws OutOfRangeException if {@code x} (resp. {@code y}) is outside<a name="line.323"></a>
+<span class="sourceLineNo">324</span>     * the range defined by the boundary values of {@code xval} (resp.<a name="line.324"></a>
+<span class="sourceLineNo">325</span>     * {@code yval}).<a name="line.325"></a>
+<span class="sourceLineNo">326</span>     * @throws NullPointerException if the internal data were not initialized<a name="line.326"></a>
+<span class="sourceLineNo">327</span>     * (cf. {@link #BicubicSplineInterpolatingFunction(double[],double[],double[][],<a name="line.327"></a>
+<span class="sourceLineNo">328</span>     *             double[][],double[][],double[][],boolean) constructor}).<a name="line.328"></a>
+<span class="sourceLineNo">329</span>     */<a name="line.329"></a>
+<span class="sourceLineNo">330</span>    public double partialDerivativeXY(double x, double y)<a name="line.330"></a>
+<span class="sourceLineNo">331</span>        throws OutOfRangeException {<a name="line.331"></a>
+<span class="sourceLineNo">332</span>        return partialDerivative(4, x, y);<a name="line.332"></a>
+<span class="sourceLineNo">333</span>    }<a name="line.333"></a>
+<span class="sourceLineNo">334</span><a name="line.334"></a>
+<span class="sourceLineNo">335</span>    /**<a name="line.335"></a>
+<span class="sourceLineNo">336</span>     * @param which First index in {@link #partialDerivatives}.<a name="line.336"></a>
+<span class="sourceLineNo">337</span>     * @param x x-coordinate.<a name="line.337"></a>
+<span class="sourceLineNo">338</span>     * @param y y-coordinate.<a name="line.338"></a>
+<span class="sourceLineNo">339</span>     * @return the value at point (x, y) of the selected partial derivative.<a name="line.339"></a>
+<span class="sourceLineNo">340</span>     * @throws OutOfRangeException if {@code x} (resp. {@code y}) is outside<a name="line.340"></a>
+<span class="sourceLineNo">341</span>     * the range defined by the boundary values of {@code xval} (resp.<a name="line.341"></a>
+<span class="sourceLineNo">342</span>     * {@code yval}).<a name="line.342"></a>
+<span class="sourceLineNo">343</span>     * @throws NullPointerException if the internal data were not initialized<a name="line.343"></a>
+<span class="sourceLineNo">344</span>     * (cf. {@link #BicubicSplineInterpolatingFunction(double[],double[],double[][],<a name="line.344"></a>
+<span class="sourceLineNo">345</span>     *             double[][],double[][],double[][],boolean) constructor}).<a name="line.345"></a>
+<span class="sourceLineNo">346</span>     */<a name="line.346"></a>
+<span class="sourceLineNo">347</span>    private double partialDerivative(int which, double x, double y)<a name="line.347"></a>
+<span class="sourceLineNo">348</span>        throws OutOfRangeException {<a name="line.348"></a>
+<span class="sourceLineNo">349</span>        final int i = searchIndex(x, xval);<a name="line.349"></a>
+<span class="sourceLineNo">350</span>        final int j = searchIndex(y, yval);<a name="line.350"></a>
+<span class="sourceLineNo">351</span><a name="line.351"></a>
+<span class="sourceLineNo">352</span>        final double xN = (x - xval[i]) / (xval[i + 1] - xval[i]);<a name="line.352"></a>
+<span class="sourceLineNo">353</span>        final double yN = (y - yval[j]) / (yval[j + 1] - yval[j]);<a name="line.353"></a>
+<span class="sourceLineNo">354</span><a name="line.354"></a>
+<span class="sourceLineNo">355</span>        return partialDerivatives[which][i][j].value(xN, yN);<a name="line.355"></a>
+<span class="sourceLineNo">356</span>    }<a name="line.356"></a>
+<span class="sourceLineNo">357</span><a name="line.357"></a>
+<span class="sourceLineNo">358</span>    /**<a name="line.358"></a>
+<span class="sourceLineNo">359</span>     * @param c Coordinate.<a name="line.359"></a>
+<span class="sourceLineNo">360</span>     * @param val Coordinate samples.<a name="line.360"></a>
+<span class="sourceLineNo">361</span>     * @return the index in {@code val} corresponding to the interval<a name="line.361"></a>
+<span class="sourceLineNo">362</span>     * containing {@code c}.<a name="line.362"></a>
+<span class="sourceLineNo">363</span>     * @throws OutOfRangeException if {@code c} is out of the<a name="line.363"></a>
+<span class="sourceLineNo">364</span>     * range defined by the boundary values of {@code val}.<a name="line.364"></a>
+<span class="sourceLineNo">365</span>     */<a name="line.365"></a>
+<span class="sourceLineNo">366</span>    private int searchIndex(double c, double[] val) {<a name="line.366"></a>
+<span class="sourceLineNo">367</span>        final int r = Arrays.binarySearch(val, c);<a name="line.367"></a>
+<span class="sourceLineNo">368</span><a name="line.368"></a>
+<span class="sourceLineNo">369</span>        if (r == -1 ||<a name="line.369"></a>
+<span class="sourceLineNo">370</span>            r == -val.length - 1) {<a name="line.370"></a>
+<span class="sourceLineNo">371</span>            throw new OutOfRangeException(c, val[0], val[val.length - 1]);<a name="line.371"></a>
+<span class="sourceLineNo">372</span>        }<a name="line.372"></a>
+<span class="sourceLineNo">373</span><a name="line.373"></a>
+<span class="sourceLineNo">374</span>        if (r &lt; 0) {<a name="line.374"></a>
+<span class="sourceLineNo">375</span>            // "c" in within an interpolation sub-interval: Return the<a name="line.375"></a>
+<span class="sourceLineNo">376</span>            // index of the sample at the lower end of the sub-interval.<a name="line.376"></a>
+<span class="sourceLineNo">377</span>            return -r - 2;<a name="line.377"></a>
+<span class="sourceLineNo">378</span>        }<a name="line.378"></a>
+<span class="sourceLineNo">379</span>        final int last = val.length - 1;<a name="line.379"></a>
+<span class="sourceLineNo">380</span>        if (r == last) {<a name="line.380"></a>
+<span class="sourceLineNo">381</span>            // "c" is the last sample of the range: Return the index<a name="line.381"></a>
+<span class="sourceLineNo">382</span>            // of the sample at the lower end of the last sub-interval.<a name="line.382"></a>
+<span class="sourceLineNo">383</span>            return last - 1;<a name="line.383"></a>
+<span class="sourceLineNo">384</span>        }<a name="line.384"></a>
+<span class="sourceLineNo">385</span><a name="line.385"></a>
+<span class="sourceLineNo">386</span>        // "c" is another sample point.<a name="line.386"></a>
+<span class="sourceLineNo">387</span>        return r;<a name="line.387"></a>
+<span class="sourceLineNo">388</span>    }<a name="line.388"></a>
+<span class="sourceLineNo">389</span><a name="line.389"></a>
+<span class="sourceLineNo">390</span>    /**<a name="line.390"></a>
+<span class="sourceLineNo">391</span>     * Compute the spline coefficients from the list of function values and<a name="line.391"></a>
+<span class="sourceLineNo">392</span>     * function partial derivatives values at the four corners of a grid<a name="line.392"></a>
+<span class="sourceLineNo">393</span>     * element. They must be specified in the following order:<a name="line.393"></a>
+<span class="sourceLineNo">394</span>     * &lt;ul&gt;<a name="line.394"></a>
+<span class="sourceLineNo">395</span>     *  &lt;li&gt;f(0,0)&lt;/li&gt;<a name="line.395"></a>
+<span class="sourceLineNo">396</span>     *  &lt;li&gt;f(1,0)&lt;/li&gt;<a name="line.396"></a>
+<span class="sourceLineNo">397</span>     *  &lt;li&gt;f(0,1)&lt;/li&gt;<a name="line.397"></a>
+<span class="sourceLineNo">398</span>     *  &lt;li&gt;f(1,1)&lt;/li&gt;<a name="line.398"></a>
+<span class="sourceLineNo">399</span>     *  &lt;li&gt;f&lt;sub&gt;x&lt;/sub&gt;(0,0)&lt;/li&gt;<a name="line.399"></a>
+<span class="sourceLineNo">400</span>     *  &lt;li&gt;f&lt;sub&gt;x&lt;/sub&gt;(1,0)&lt;/li&gt;<a name="line.400"></a>
+<span class="sourceLineNo">401</span>     *  &lt;li&gt;f&lt;sub&gt;x&lt;/sub&gt;(0,1)&lt;/li&gt;<a name="line.401"></a>
+<span class="sourceLineNo">402</span>     *  &lt;li&gt;f&lt;sub&gt;x&lt;/sub&gt;(1,1)&lt;/li&gt;<a name="line.402"></a>
+<span class="sourceLineNo">403</span>     *  &lt;li&gt;f&lt;sub&gt;y&lt;/sub&gt;(0,0)&lt;/li&gt;<a name="line.403"></a>
+<span class="sourceLineNo">404</span>     *  &lt;li&gt;f&lt;sub&gt;y&lt;/sub&gt;(1,0)&lt;/li&gt;<a name="line.404"></a>
+<span class="sourceLineNo">405</span>     *  &lt;li&gt;f&lt;sub&gt;y&lt;/sub&gt;(0,1)&lt;/li&gt;<a name="line.405"></a>
+<span class="sourceLineNo">406</span>     *  &lt;li&gt;f&lt;sub&gt;y&lt;/sub&gt;(1,1)&lt;/li&gt;<a name="line.406"></a>
+<span class="sourceLineNo">407</span>     *  &lt;li&gt;f&lt;sub&gt;xy&lt;/sub&gt;(0,0)&lt;/li&gt;<a name="line.407"></a>
+<span class="sourceLineNo">408</span>     *  &lt;li&gt;f&lt;sub&gt;xy&lt;/sub&gt;(1,0)&lt;/li&gt;<a name="line.408"></a>
+<span class="sourceLineNo">409</span>     *  &lt;li&gt;f&lt;sub&gt;xy&lt;/sub&gt;(0,1)&lt;/li&gt;<a name="line.409"></a>
+<span class="sourceLineNo">410</span>     *  &lt;li&gt;f&lt;sub&gt;xy&lt;/sub&gt;(1,1)&lt;/li&gt;<a name="line.410"></a>
+<span class="sourceLineNo">411</span>     * &lt;/ul&gt;<a name="line.411"></a>
+<span class="sourceLineNo">412</span>     * where the subscripts indicate the partial derivative with respect to<a name="line.412"></a>
+<span class="sourceLineNo">413</span>     * the corresponding variable(s).<a name="line.413"></a>
+<span class="sourceLineNo">414</span>     *<a name="line.414"></a>
+<span class="sourceLineNo">415</span>     * @param beta List of function values and function partial derivatives<a name="line.415"></a>
+<span class="sourceLineNo">416</span>     * values.<a name="line.416"></a>
+<span class="sourceLineNo">417</span>     * @return the spline coefficients.<a name="line.417"></a>
+<span class="sourceLineNo">418</span>     */<a name="line.418"></a>
+<span class="sourceLineNo">419</span>    private double[] computeSplineCoefficients(double[] beta) {<a name="line.419"></a>
+<span class="sourceLineNo">420</span>        final double[] a = new double[NUM_COEFF];<a name="line.420"></a>
+<span class="sourceLineNo">421</span><a name="line.421"></a>
+<span class="sourceLineNo">422</span>        for (int i = 0; i &lt; NUM_COEFF; i++) {<a name="line.422"></a>
+<span class="sourceLineNo">423</span>            double result = 0;<a name="line.423"></a>
+<span class="sourceLineNo">424</span>            final double[] row = AINV[i];<a name="line.424"></a>
+<span class="sourceLineNo">425</span>            for (int j = 0; j &lt; NUM_COEFF; j++) {<a name="line.425"></a>
+<span class="sourceLineNo">426</span>                result += row[j] * beta[j];<a name="line.426"></a>
+<span class="sourceLineNo">427</span>            }<a name="line.427"></a>
+<span class="sourceLineNo">428</span>            a[i] = result;<a name="line.428"></a>
+<span class="sourceLineNo">429</span>        }<a name="line.429"></a>
+<span class="sourceLineNo">430</span><a name="line.430"></a>
+<span class="sourceLineNo">431</span>        return a;<a name="line.431"></a>
+<span class="sourceLineNo">432</span>    }<a name="line.432"></a>
+<span class="sourceLineNo">433</span>}<a name="line.433"></a>
+<span class="sourceLineNo">434</span><a name="line.434"></a>
+<span class="sourceLineNo">435</span>/**<a name="line.435"></a>
+<span class="sourceLineNo">436</span> * 2D-spline function.<a name="line.436"></a>
+<span class="sourceLineNo">437</span> *<a name="line.437"></a>
+<span class="sourceLineNo">438</span> */<a name="line.438"></a>
+<span class="sourceLineNo">439</span>class BicubicSplineFunction implements BivariateFunction {<a name="line.439"></a>
+<span class="sourceLineNo">440</span>    /** Number of points. */<a name="line.440"></a>
+<span class="sourceLineNo">441</span>    private static final short N = 4;<a name="line.441"></a>
+<span class="sourceLineNo">442</span>    /** Coefficients */<a name="line.442"></a>
+<span class="sourceLineNo">443</span>    private final double[][] a;<a name="line.443"></a>
+<span class="sourceLineNo">444</span>    /** First partial derivative along x. */<a name="line.444"></a>
+<span class="sourceLineNo">445</span>    private final BivariateFunction partialDerivativeX;<a name="line.445"></a>
+<span class="sourceLineNo">446</span>    /** First partial derivative along y. */<a name="line.446"></a>
+<span class="sourceLineNo">447</span>    private final BivariateFunction partialDerivativeY;<a name="line.447"></a>
+<span class="sourceLineNo">448</span>    /** Second partial derivative along x. */<a name="line.448"></a>
+<span class="sourceLineNo">449</span>    private final BivariateFunction partialDerivativeXX;<a name="line.449"></a>
+<span class="sourceLineNo">450</span>    /** Second partial derivative along y. */<a name="line.450"></a>
+<span class="sourceLineNo">451</span>    private final BivariateFunction partialDerivativeYY;<a name="line.451"></a>
+<span class="sourceLineNo">452</span>    /** Second crossed partial derivative. */<a name="line.452"></a>
+<span class="sourceLineNo">453</span>    private final BivariateFunction partialDerivativeXY;<a name="line.453"></a>
+<span class="sourceLineNo">454</span><a name="line.454"></a>
+<span class="sourceLineNo">455</span>    /**<a name="line.455"></a>
+<span class="sourceLineNo">456</span>     * Simple constructor.<a name="line.456"></a>
+<span class="sourceLineNo">457</span>     *<a name="line.457"></a>
+<span class="sourceLineNo">458</span>     * @param coeff Spline coefficients.<a name="line.458"></a>
+<span class="sourceLineNo">459</span>     */<a name="line.459"></a>
+<span class="sourceLineNo">460</span>    BicubicSplineFunction(double[] coeff) {<a name="line.460"></a>
+<span class="sourceLineNo">461</span>        this(coeff, false);<a name="line.461"></a>
+<span class="sourceLineNo">462</span>    }<a name="line.462"></a>
+<span class="sourceLineNo">463</span><a name="line.463"></a>
+<span class="sourceLineNo">464</span>    /**<a name="line.464"></a>
+<span class="sourceLineNo">465</span>     * Simple constructor.<a name="line.465"></a>
+<span class="sourceLineNo">466</span>     *<a name="line.466"></a>
+<span class="sourceLineNo">467</span>     * @param coeff Spline coefficients.<a name="line.467"></a>
+<span class="sourceLineNo">468</span>     * @param initializeDerivatives Whether to initialize the internal data<a name="line.468"></a>
+<span class="sourceLineNo">469</span>     * needed for calling any of the methods that compute the partial derivatives<a name="line.469"></a>
+<span class="sourceLineNo">470</span>     * this function.<a name="line.470"></a>
+<span class="sourceLineNo">471</span>     */<a name="line.471"></a>
+<span class="sourceLineNo">472</span>    BicubicSplineFunction(double[] coeff, boolean initializeDerivatives) {<a name="line.472"></a>
+<span class="sourceLineNo">473</span>        a = new double[N][N];<a name="line.473"></a>
+<span class="sourceLineNo">474</span>        for (int i = 0; i &lt; N; i++) {<a name="line.474"></a>
+<span class="sourceLineNo">475</span>            for (int j = 0; j &lt; N; j++) {<a name="line.475"></a>
+<span class="sourceLineNo">476</span>                a[i][j] = coeff[i * N + j];<a name="line.476"></a>
+<span class="sourceLineNo">477</span>            }<a name="line.477"></a>
+<span class="sourceLineNo">478</span>        }<a name="line.478"></a>
+<span class="sourceLineNo">479</span><a name="line.479"></a>
+<span class="sourceLineNo">480</span>        if (initializeDerivatives) {<a name="line.480"></a>
+<span class="sourceLineNo">481</span>            // Compute all partial derivatives functions.<a name="line.481"></a>
+<span class="sourceLineNo">482</span>            final double[][] aX = new double[N][N];<a name="line.482"></a>
+<span class="sourceLineNo">483</span>            final double[][] aY = new double[N][N];<a name="line.483"></a>
+<span class="sourceLineNo">484</span>            final double[][] aXX = new double[N][N];<a name="line.484"></a>
+<span class="sourceLineNo">485</span>            final double[][] aYY = new double[N][N];<a name="line.485"></a>
+<span class="sourceLineNo">486</span>            final double[][] aXY = new double[N][N];<a name="line.486"></a>
+<span class="sourceLineNo">487</span><a name="line.487"></a>
+<span class="sourceLineNo">488</span>            for (int i = 0; i &lt; N; i++) {<a name="line.488"></a>
+<span class="sourceLineNo">489</span>                for (int j = 0; j &lt; N; j++) {<a name="line.489"></a>
+<span class="sourceLineNo">490</span>                    final double c = a[i][j];<a name="line.490"></a>
+<span class="sourceLineNo">491</span>                    aX[i][j] = i * c;<a name="line.491"></a>
+<span class="sourceLineNo">492</span>                    aY[i][j] = j * c;<a name="line.492"></a>
+<span class="sourceLineNo">493</span>                    aXX[i][j] = (i - 1) * aX[i][j];<a name="line.493"></a>
+<span class="sourceLineNo">494</span>                    aYY[i][j] = (j - 1) * aY[i][j];<a name="line.494"></a>
+<span class="sourceLineNo">495</span>                    aXY[i][j] = j * aX[i][j];<a name="line.495"></a>
+<span class="sourceLineNo">496</span>                }<a name="line.496"></a>
+<span class="sourceLineNo">497</span>            }<a name="line.497"></a>
+<span class="sourceLineNo">498</span><a name="line.498"></a>
+<span class="sourceLineNo">499</span>            partialDerivativeX = new BivariateFunction() {<a name="line.499"></a>
+<span class="sourceLineNo">500</span>                    /** {@inheritDoc} */<a name="line.500"></a>
+<span class="sourceLineNo">501</span>                    public double value(double x, double y)  {<a name="line.501"></a>
+<span class="sourceLineNo">502</span>                        final double x2 = x * x;<a name="line.502"></a>
+<span class="sourceLineNo">503</span>                        final double[] pX = {0, 1, x, x2};<a name="line.503"></a>
+<span class="sourceLineNo">504</span><a name="line.504"></a>
+<span class="sourceLineNo">505</span>                        final double y2 = y * y;<a name="line.505"></a>
+<span class="sourceLineNo">506</span>                        final double y3 = y2 * y;<a name="line.506"></a>
+<span class="sourceLineNo">507</span>                        final double[] pY = {1, y, y2, y3};<a name="line.507"></a>
+<span class="sourceLineNo">508</span><a name="line.508"></a>
+<span class="sourceLineNo">509</span>                        return apply(pX, pY, aX);<a name="line.509"></a>
+<span class="sourceLineNo">510</span>                    }<a name="line.510"></a>
+<span class="sourceLineNo">511</span>                };<a name="line.511"></a>
+<span class="sourceLineNo">512</span>            partialDerivativeY = new BivariateFunction() {<a name="line.512"></a>
+<span class="sourceLineNo">513</span>                    /** {@inheritDoc} */<a name="line.513"></a>
+<span class="sourceLineNo">514</span>                    public double value(double x, double y)  {<a name="line.514"></a>
+<span class="sourceLineNo">515</span>                        final double x2 = x * x;<a name="line.515"></a>
+<span class="sourceLineNo">516</span>                        final double x3 = x2 * x;<a name="line.516"></a>
+<span class="sourceLineNo">517</span>                        final double[] pX = {1, x, x2, x3};<a name="line.517"></a>
+<span class="sourceLineNo">518</span><a name="line.518"></a>
+<span class="sourceLineNo">519</span>                        final double y2 = y * y;<a name="line.519"></a>
+<span class="sourceLineNo">520</span>                        final double[] pY = {0, 1, y, y2};<a name="line.520"></a>
+<span class="sourceLineNo">521</span><a name="line.521"></a>
+<span class="sourceLineNo">522</span>                        return apply(pX, pY, aY);<a name="line.522"></a>
+<span class="sourceLineNo">523</span>                    }<a name="line.523"></a>
+<span class="sourceLineNo">524</span>                };<a name="line.524"></a>
+<span class="sourceLineNo">525</span>            partialDerivativeXX = new BivariateFunction() {<a name="line.525"></a>
+<span class="sourceLineNo">526</span>                    /** {@inheritDoc} */<a name="line.526"></a>
+<span class="sourceLineNo">527</span>                    public double value(double x, double y)  {<a name="line.527"></a>
+<span class="sourceLineNo">528</span>                        final double[] pX = {0, 0, 1, x};<a name="line.528"></a>
+<span class="sourceLineNo">529</span><a name="line.529"></a>
+<span class="sourceLineNo">530</span>                        final double y2 = y * y;<a name="line.530"></a>
+<span class="sourceLineNo">531</span>                        final double y3 = y2 * y;<a name="line.531"></a>
+<span class="sourceLineNo">532</span>                        final double[] pY = {1, y, y2, y3};<a name="line.532"></a>
+<span class="sourceLineNo">533</span><a name="line.533"></a>
+<span class="sourceLineNo">534</span>                        return apply(pX, pY, aXX);<a name="line.534"></a>
+<span class="sourceLineNo">535</span>                    }<a name="line.535"></a>
+<span class="sourceLineNo">536</span>                };<a name="line.536"></a>
+<span class="sourceLineNo">537</span>            partialDerivativeYY = new BivariateFunction() {<a name="line.537"></a>
+<span class="sourceLineNo">538</span>                    /** {@inheritDoc} */<a name="line.538"></a>
+<span class="sourceLineNo">539</span>                    public double value(double x, double y)  {<a name="line.539"></a>
+<span class="sourceLineNo">540</span>                        final double x2 = x * x;<a name="line.540"></a>
+<span class="sourceLineNo">541</span>                        final double x3 = x2 * x;<a name="line.541"></a>
+<span class="sourceLineNo">542</span>                        final double[] pX = {1, x, x2, x3};<a name="line.542"></a>
+<span class="sourceLineNo">543</span><a name="line.543"></a>
+<span class="sourceLineNo">544</span>                        final double[] pY = {0, 0, 1, y};<a name="line.544"></a>
+<span class="sourceLineNo">545</span><a name="line.545"></a>
+<span class="sourceLineNo">546</span>                        return apply(pX, pY, aYY);<a name="line.546"></a>
+<span class="sourceLineNo">547</span>                    }<a name="line.547"></a>
+<span class="sourceLineNo">548</span>                };<a name="line.548"></a>
+<span class="sourceLineNo">549</span>            partialDerivativeXY = new BivariateFunction() {<a name="line.549"></a>
+<span class="sourceLineNo">550</span>                    /** {@inheritDoc} */<a name="line.550"></a>
+<span class="sourceLineNo">551</span>                    public double value(double x, double y)  {<a name="line.551"></a>
+<span class="sourceLineNo">552</span>                        final double x2 = x * x;<a name="line.552"></a>
+<span class="sourceLineNo">553</span>                        final double[] pX = {0, 1, x, x2};<a name="line.553"></a>
+<span class="sourceLineNo">554</span><a name="line.554"></a>
+<span class="sourceLineNo">555</span>                        final double y2 = y * y;<a name="line.555"></a>
+<span class="sourceLineNo">556</span>                        final double[] pY = {0, 1, y, y2};<a name="line.556"></a>
+<span class="sourceLineNo">557</span><a name="line.557"></a>
+<span class="sourceLineNo">558</span>                        return apply(pX, pY, aXY);<a name="line.558"></a>
+<span class="sourceLineNo">559</span>                    }<a name="line.559"></a>
+<span class="sourceLineNo">560</span>                };<a name="line.560"></a>
+<span class="sourceLineNo">561</span>        } else {<a name="line.561"></a>
+<span class="sourceLineNo">562</span>            partialDerivativeX = null;<a name="line.562"></a>
+<span class="sourceLineNo">563</span>            partialDerivativeY = null;<a name="line.563"></a>
+<span class="sourceLineNo">564</span>            partialDerivativeXX = null;<a name="line.564"></a>
+<span class="sourceLineNo">565</span>            partialDerivativeYY = null;<a name="line.565"></a>
+<span class="sourceLineNo">566</span>            partialDerivativeXY = null;<a name="line.566"></a>
+<span class="sourceLineNo">567</span>        }<a name="line.567"></a>
+<span class="sourceLineNo">568</span>    }<a name="line.568"></a>
+<span class="sourceLineNo">569</span><a name="line.569"></a>
+<span class="sourceLineNo">570</span>    /**<a name="line.570"></a>
+<span class="sourceLineNo">571</span>     * {@inheritDoc}<a name="line.571"></a>
+<span class="sourceLineNo">572</span>     */<a name="line.572"></a>
+<span class="sourceLineNo">573</span>    public double value(double x, double y) {<a name="line.573"></a>
+<span class="sourceLineNo">574</span>        if (x &lt; 0 || x &gt; 1) {<a name="line.574"></a>
+<span class="sourceLineNo">575</span>            throw new OutOfRangeException(x, 0, 1);<a name="line.575"></a>
+<span class="sourceLineNo">576</span>        }<a name="line.576"></a>
+<span class="sourceLineNo">577</span>        if (y &lt; 0 || y &gt; 1) {<a name="line.577"></a>
+<span class="sourceLineNo">578</span>            throw new OutOfRangeException(y, 0, 1);<a name="line.578"></a>
+<span class="sourceLineNo">579</span>        }<a name="line.579"></a>
+<span class="sourceLineNo">580</span><a name="line.580"></a>
+<span class="sourceLineNo">581</span>        final double x2 = x * x;<a name="line.581"></a>
+<span class="sourceLineNo">582</span>        final double x3 = x2 * x;<a name="line.582"></a>
+<span class="sourceLineNo">583</span>        final double[] pX = {1, x, x2, x3};<a name="line.583"></a>
+<span class="sourceLineNo">584</span><a name="line.584"></a>
+<span class="sourceLineNo">585</span>        final double y2 = y * y;<a name="line.585"></a>
+<span class="sourceLineNo">586</span>        final double y3 = y2 * y;<a name="line.586"></a>
+<span class="sourceLineNo">587</span>        final double[] pY = {1, y, y2, y3};<a name="line.587"></a>
+<span class="sourceLineNo">588</span><a name="line.588"></a>
+<span class="sourceLineNo">589</span>        return apply(pX, pY, a);<a name="line.589"></a>
+<span class="sourceLineNo">590</span>    }<a name="line.590"></a>
+<span class="sourceLineNo">591</span><a name="line.591"></a>
+<span class="sourceLineNo">592</span>    /**<a name="line.592"></a>
+<span class="sourceLineNo">593</span>     * Compute the value of the bicubic polynomial.<a name="line.593"></a>
+<span class="sourceLineNo">594</span>     *<a name="line.594"></a>
+<span class="sourceLineNo">595</span>     * @param pX Powers of the x-coordinate.<a name="line.595"></a>
+<span class="sourceLineNo">596</span>     * @param pY Powers of the y-coordinate.<a name="line.596"></a>
+<span class="sourceLineNo">597</span>     * @param coeff Spline coefficients.<a name="line.597"></a>
+<span class="sourceLineNo">598</span>     * @return the interpolated value.<a name="line.598"></a>
+<span class="sourceLineNo">599</span>     */<a name="line.599"></a>
+<span class="sourceLineNo">600</span>    private double apply(double[] pX, double[] pY, double[][] coeff) {<a name="line.600"></a>
+<span class="sourceLineNo">601</span>        double result = 0;<a name="line.601"></a>
+<span class="sourceLineNo">602</span>        for (int i = 0; i &lt; N; i++) {<a name="line.602"></a>
+<span class="sourceLineNo">603</span>            for (int j = 0; j &lt; N; j++) {<a name="line.603"></a>
+<span class="sourceLineNo">604</span>                result += coeff[i][j] * pX[i] * pY[j];<a name="line.604"></a>
+<span class="sourceLineNo">605</span>            }<a name="line.605"></a>
+<span class="sourceLineNo">606</span>        }<a name="line.606"></a>
+<span class="sourceLineNo">607</span><a name="line.607"></a>
+<span class="sourceLineNo">608</span>        return result;<a name="line.608"></a>
+<span class="sourceLineNo">609</span>    }<a name="line.609"></a>
+<span class="sourceLineNo">610</span><a name="line.610"></a>
+<span class="sourceLineNo">611</span>    /**<a name="line.611"></a>
+<span class="sourceLineNo">612</span>     * @return the partial derivative wrt {@code x}.<a name="line.612"></a>
+<span class="sourceLineNo">613</span>     */<a name="line.613"></a>
+<span class="sourceLineNo">614</span>    public BivariateFunction partialDerivativeX() {<a name="line.614"></a>
+<span class="sourceLineNo">615</span>        return partialDerivativeX;<a name="line.615"></a>
+<span class="sourceLineNo">616</span>    }<a name="line.616"></a>
+<span class="sourceLineNo">617</span>    /**<a name="line.617"></a>
+<span class="sourceLineNo">618</span>     * @return the partial derivative wrt {@code y}.<a name="line.618"></a>
+<span class="sourceLineNo">619</span>     */<a name="line.619"></a>
+<span class="sourceLineNo">620</span>    public BivariateFunction partialDerivativeY() {<a name="line.620"></a>
+<span class="sourceLineNo">621</span>        return partialDerivativeY;<a name="line.621"></a>
+<span class="sourceLineNo">622</span>    }<a name="line.622"></a>
+<span class="sourceLineNo">623</span>    /**<a name="line.623"></a>
+<span class="sourceLineNo">624</span>     * @return the second partial derivative wrt {@code x}.<a name="line.624"></a>
+<span class="sourceLineNo">625</span>     */<a name="line.625"></a>
+<span class="sourceLineNo">626</span>    public BivariateFunction partialDerivativeXX() {<a name="line.626"></a>
+<span class="sourceLineNo">627</span>        return partialDerivativeXX;<a name="line.627"></a>
+<span class="sourceLineNo">628</span>    }<a name="line.628"></a>
+<span class="sourceLineNo">629</span>    /**<a name="line.629"></a>
+<span class="sourceLineNo">630</span>     * @return the second partial derivative wrt {@code y}.<a name="line.630"></a>
+<span class="sourceLineNo">631</span>     */<a name="line.631"></a>
+<span class="sourceLineNo">632</span>    public BivariateFunction partialDerivativeYY() {<a name="line.632"></a>
+<span class="sourceLineNo">633</span>        return partialDerivativeYY;<a name="line.633"></a>
+<span class="sourceLineNo">634</span>    }<a name="line.634"></a>
+<span class="sourceLineNo">635</span>    /**<a name="line.635"></a>
+<span class="sourceLineNo">636</span>     * @return the second partial cross-derivative.<a name="line.636"></a>
+<span class="sourceLineNo">637</span>     */<a name="line.637"></a>
+<span class="sourceLineNo">638</span>    public BivariateFunction partialDerivativeXY() {<a name="line.638"></a>
+<span class="sourceLineNo">639</span>        return partialDerivativeXY;<a name="line.639"></a>
+<span class="sourceLineNo">640</span>    }<a name="line.640"></a>
+<span class="sourceLineNo">641</span>}<a name="line.641"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>MultivariateNormalMixtureModelDistributionTest xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../testapidocs/org/apache/commons/math3/distribution/MultivariateNormalMixtureModelDistributionTest.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math3.distribution;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.exception.NotPositiveException;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.exception.MathArithmeticException;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.util.Pair;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> org.junit.Assert;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> org.junit.Test;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment"> * Test that demonstrates the use of {@link MixtureMultivariateRealDistribution}</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> * in order to create a mixture model composed of {@link MultivariateNormalDistribution</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> * normal distributions}.</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/apache/commons/math3/distribution/MultivariateNormalMixtureModelDistributionTest.html">MultivariateNormalMixtureModelDistributionTest</a> {
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      @Test
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testNonUnitWeightSum() {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] weights = { 1, 2 };
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] means = { { -1.5, 2.0 },
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>                                     { 4.0, 8.2 } };
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][][] covariances = { { { 2.0, -1.1 },
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>                                               { -1.1, 2.0 } },
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>                                             { { 3.5, 1.5 },
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>                                               { 1.5, 3.5 } } };
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          <strong class="jxr_keyword">final</strong> <a href="../../../../../org/apache/commons/math3/distribution/MultivariateNormalMixtureModelDistributionTest.html">MultivariateNormalMixtureModelDistribution</a> d
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>              = create(weights, means, covariances);
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <strong class="jxr_keyword">final</strong> List&lt;Pair&lt;Double, MultivariateNormalDistribution&gt;&gt; comp = d.getComponents();
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          Assert.assertEquals(1d / 3, comp.get(0).getFirst().doubleValue(), Math.ulp(1d));
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          Assert.assertEquals(2d / 3, comp.get(1).getFirst().doubleValue(), Math.ulp(1d));
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      @Test(expected=MathArithmeticException.<strong class="jxr_keyword">class</strong>)
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testWeightSumOverFlow() {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] weights = { 0.5 * Double.MAX_VALUE, 0.51 * Double.MAX_VALUE };
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] means = { { -1.5, 2.0 },
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>                                     { 4.0, 8.2 } };
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][][] covariances = { { { 2.0, -1.1 },
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>                                               { -1.1, 2.0 } },
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>                                             { { 3.5, 1.5 },
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>                                               { 1.5, 3.5 } } };
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          create(weights, means, covariances);
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      }
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      @Test(expected=NotPositiveException.<strong class="jxr_keyword">class</strong>)
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testPreconditionPositiveWeights() {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] negativeWeights = { -0.5, 1.5 };
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] means = { { -1.5, 2.0 },
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                                     { 4.0, 8.2 } };
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][][] covariances = { { { 2.0, -1.1 },
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                                               { -1.1, 2.0 } },
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                                             { { 3.5, 1.5 },
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                                               { 1.5, 3.5 } } };
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          create(negativeWeights, means, covariances);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      }
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_javadoccomment">     * Test the accuracy of the density calculation.</em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      @Test
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testDensities() {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] weights = { 0.3, 0.7 };
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] means = { { -1.5, 2.0 },
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                                     { 4.0, 8.2 } };
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][][] covariances = { { { 2.0, -1.1 },
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>                                               { -1.1, 2.0 } },
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>                                             { { 3.5, 1.5 },
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>                                               { 1.5, 3.5 } } };
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">final</strong> <a href="../../../../../org/apache/commons/math3/distribution/MultivariateNormalMixtureModelDistributionTest.html">MultivariateNormalMixtureModelDistribution</a> d
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              = create(weights, means, covariances);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          <em class="jxr_comment">// Test vectors</em>
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] testValues = { { -1.5, 2 },
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                                          { 4, 8.2 },
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>                                          { 1.5, -2 },
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>                                          { 0, 0 } };
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          <em class="jxr_comment">// Densities that we should get back.</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          <em class="jxr_comment">// Calculated by assigning weights to multivariate normal distribution</em>
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          <em class="jxr_comment">// and summing</em>
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         <em class="jxr_comment">// values from dmvnorm function in R 2.15 CRAN package Mixtools v0.4.</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         <em class="jxr_comment">// Like: .3*dmvnorm(val,mu1,sigma1)+.7*dmvnorm(val,mu2,sigma2)</em>
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] correctDensities = { 0.02862037278930575,
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>                                             0.03523044847314091,
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>                                             0.000416241365629767,
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>                                             0.009932042831700297 };
+<a class="jxr_linenumber" name="L106" href="#L106">106</a> 
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; testValues.length; i++) {
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>             Assert.assertEquals(correctDensities[i], d.density(testValues[i]), Math.ulp(1d));
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         }
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     }
+<a class="jxr_linenumber" name="L111" href="#L111">111</a> 
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a> <em class="jxr_javadoccomment">     * Test the accuracy of sampling from the distribution.</em>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>     @Test
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testSampling() {
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] weights = { 0.3, 0.7 };
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] means = { { -1.5, 2.0 },
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>                                    { 4.0, 8.2 } };
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][][] covariances = { { { 2.0, -1.1 },
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>                                              { -1.1, 2.0 } },
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>                                            { { 3.5, 1.5 },
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>                                              { 1.5, 3.5 } } };
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         <strong class="jxr_keyword">final</strong> <a href="../../../../../org/apache/commons/math3/distribution/MultivariateNormalMixtureModelDistributionTest.html">MultivariateNormalMixtureModelDistribution</a> d
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>             = create(weights, means, covariances);
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         d.reseedRandomGenerator(50);
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> 
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] correctSamples = getCorrectSamples();
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = correctSamples.length;
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] samples = d.sample(n);
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> 
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; n; i++) {
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; samples[i].length; j++) {
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                 Assert.assertEquals(correctSamples[i][j], samples[i][j], 1e-16);
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>             }
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>         }
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>     }
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> 
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">     * Creates a mixture of Gaussian distributions.</em>
+<a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_javadoccomment">     * @param weights Weights.</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">     * @param means Means.</em>
+<a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_javadoccomment">     * @param covariances Covariances.</em>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">     * @return the mixture distribution.</em>
+<a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../org/apache/commons/math3/distribution/MultivariateNormalMixtureModelDistributionTest.html">MultivariateNormalMixtureModelDistribution</a> create(<strong class="jxr_keyword">double</strong>[] weights,
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>                                                               <strong class="jxr_keyword">double</strong>[][] means,
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>                                                               <strong class="jxr_keyword">double</strong>[][][] covariances) {
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <strong class="jxr_keyword">final</strong> List&lt;Pair&lt;Double, MultivariateNormalDistribution&gt;&gt; mvns
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>             = <strong class="jxr_keyword">new</strong> ArrayList&lt;Pair&lt;Double, MultivariateNormalDistribution&gt;&gt;();
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> 
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; weights.length; i++) {
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>             <strong class="jxr_keyword">final</strong> MultivariateNormalDistribution dist
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>                 = <strong class="jxr_keyword">new</strong> MultivariateNormalDistribution(means[i], covariances[i]);
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>             mvns.add(<strong class="jxr_keyword">new</strong> Pair&lt;Double, MultivariateNormalDistribution&gt;(weights[i], dist));
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         }
+<a class="jxr_linenumber" name="L158" href="#L158">158</a> 
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/apache/commons/math3/distribution/MultivariateNormalMixtureModelDistributionTest.html">MultivariateNormalMixtureModelDistribution</a>(mvns);
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     }
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a> <em class="jxr_javadoccomment">     * Values used in {@link #testSampling()}.</em>
+<a class="jxr_linenumber" name="L164" href="#L164">164</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[][] getCorrectSamples() {
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         <em class="jxr_comment">// These were sampled from the MultivariateNormalMixtureModelDistribution class</em>
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <em class="jxr_comment">// with seed 50.</em>
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         <em class="jxr_comment">// They were then fit to a MVN mixture model in R using mixtools.</em>
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         <em class="jxr_comment">// The optimal parameters were:</em>
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         <em class="jxr_comment">// - component weights: {0.3595186, 0.6404814}</em>
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <em class="jxr_comment">// - mean vectors: {-1.645879, 1.989797}, {3.474328, 7.782232}</em>
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         <em class="jxr_comment">// - covariance matrices:</em>
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>         <em class="jxr_comment">//     { 1.397738 -1.167732</em>
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>         <em class="jxr_comment">//       -1.167732 1.801782 }</em>
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>         <em class="jxr_comment">//   and</em>
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <em class="jxr_comment">//     { 3.934593 2.354787</em>
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         <em class="jxr_comment">//       2.354787 4.428024 }</em>
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         <em class="jxr_comment">// It is considered fairly close to the actual test parameters,</em>
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         <em class="jxr_comment">// considering that the sample size is only 100.</em>
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] {
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>             { 6.259990922080121, 11.972954175355897 },
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>             { -2.5296544304801847, 1.0031292519854365 },
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>             { 0.49037886081440396, 0.9758251727325711 },
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>             { 5.022970993312015, 9.289348879616787 },
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>             { -1.686183146603914, 2.007244382745706 },
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>             { -1.4729253946002685, 2.762166644212484 },
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>             { 4.329788143963888, 11.514016497132253 },
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>             { 3.008674596114442, 4.960246550446107 },
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>             { 3.342379304090846, 5.937630105198625 },
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>             { 2.6993068328674754, 7.42190871572571 },
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>             { -2.446569340219571, 1.9687117791378763 },
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>             { 1.922417883170056, 4.917616702617099 },
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>             { -1.1969741543898518, 2.4576126277884387 },
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>             { 2.4216948702967196, 8.227710158117134 },
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>             { 6.701424725804463, 9.098666475042428 },
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>             { 2.9890253545698964, 9.643807939324331 },
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>             { 0.7162632354907799, 8.978811120287553 },
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>             { -2.7548699149775877, 4.1354812280794215 },
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>             { 8.304528180745018, 11.602319388898287 },
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>             { -2.7633253389165926, 2.786173883989795 },
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>             { 1.3322228389460813, 5.447481218602913 },
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>             { -1.8120096092851508, 1.605624499560037 },
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>             { 3.6546253437206504, 8.195304526564376 },
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>             { -2.312349539658588, 1.868941220444169 },
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>             { -1.882322136356522, 2.033795570464242 },
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>             { 4.562770714939441, 7.414967958885031 },
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>             { 4.731882017875329, 8.890676665580747 },
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>             { 3.492186010427425, 8.9005225241848 },
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>             { -1.619700190174894, 3.314060142479045 },
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>             { 3.5466090064003315, 7.75182101001913 },
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>             { 5.455682472787392, 8.143119287755635 },
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>             { -2.3859602945473197, 1.8826732217294837 },
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>             { 3.9095306088680015, 9.258129209626317 },
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>             { 7.443020189508173, 7.837840713329312 },
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>             { 2.136004873917428, 6.917636475958297 },
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>             { -1.7203379410395119, 2.3212878757611524 },
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>             { 4.618991257611526, 12.095065976419436 },
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>             { -0.4837044029854387, 0.8255970441255125 },
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>             { -4.438938966557163, 4.948666297280241 },
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>             { -0.4539625134045906, 4.700922454655341 },
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>             { 2.1285488271265356, 8.457941480487563 },
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>             { 3.4873561871454393, 11.99809827845933 },
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>             { 4.723049431412658, 7.813095742563365 },
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>             { 1.1245583037967455, 5.20587873556688 },
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>             { 1.3411933634409197, 6.069796875785409 },
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>             { 4.585119332463686, 7.967669543767418 },
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>             { 1.3076522817963823, -0.647431033653445 },
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>             { -1.4449446442803178, 1.9400424267464862 },
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>             { -2.069794456383682, 3.5824162107496544 },
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>             { -0.15959481421417276, 1.5466782303315405 },
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>             { -2.0823081278810136, 3.0914366458581437 },
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>             { 3.521944615248141, 10.276112932926408 },
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>             { 1.0164326704884257, 4.342329556442856 },
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>             { 5.3718868590295275, 8.374761158360922 },
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>             { 0.3673656866959396, 8.75168581694866 },
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>             { -2.250268955954753, 1.4610850300996527 },
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>             { -2.312739727403522, 1.5921126297576362 },
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>             { 3.138993360831055, 6.7338392374947365 },
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>             { 2.6978650950790115, 7.941857288979095 },
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>             { 4.387985088655384, 8.253499976968 },
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>             { -1.8928961721456705, 0.23631082388724223 },
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>             { 4.43509029544109, 8.565290285488782 },
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>             { 4.904728034106502, 5.79936660133754 },
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>             { -1.7640371853739507, 2.7343727594167433 },
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>             { 2.4553674733053463, 7.875871017408807 },
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>             { -2.6478965122565006, 4.465127753193949 },
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>             { 3.493873671142299, 10.443093773532448 },
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>             { 1.1321916197409103, 7.127108479263268 },
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>             { -1.7335075535240392, 2.550629648463023 },
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>             { -0.9772679734368084, 4.377196298969238 },
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>             { 3.6388366973980357, 6.947299283206256 },
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>             { 0.27043799318823325, 6.587978599614367 },
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>             { 5.356782352010253, 7.388957912116327 },
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>             { -0.09187745751354681, 0.23612399246659743 },
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>             { 2.903203580353435, 3.8076727621794415 },
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>             { 5.297014824937293, 8.650985262326508 },
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>             { 4.934508602170976, 9.164571423190052 },
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>             { -1.0004911869654256, 4.797064194444461 },
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>             { 6.782491700298046, 11.852373338280497 },
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>             { 2.8983678524536014, 8.303837362117521 },
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>             { 4.805003269830865, 6.790462904325329 },
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>             { -0.8815799740744226, 1.3015810062131394 },
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>             { 5.115138859802104, 6.376895810201089 },
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>             { 4.301239328205988, 8.60546337560793 },
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>             { 3.276423626317666, 9.889429652591947 },
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>             { -4.001924973153122, 4.3353864592328515 },
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>             { 3.9571892554119517, 4.500569057308562 },
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>             { 4.783067027436208, 7.451125480601317 },
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>             { 4.79065438272821, 9.614122776979698 },
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>             { 2.677655270279617, 6.8875223698210135 },
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>             { -1.3714746289327362, 2.3992153193382437 },
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>             { 3.240136859745249, 7.748339397522042 },
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>             { 5.107885374416291, 8.508324480583724 },
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>             { -1.5830830226666048, 0.9139127045208315 },
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>             { -1.1596156791652918, -0.04502759384531929 },
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>             { -0.4670021307952068, 3.6193633227841624 },
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>             { -0.7026065228267798, 0.4811423031997131 },
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>             { -2.719979836732917, 2.5165041618080104 },
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>             { 1.0336754331123372, -0.34966029029320644 },
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>             { 4.743217291882213, 5.750060115251131 }
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         };
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>     }
+<a class="jxr_linenumber" name="L286" href="#L286">286</a> }
+<a class="jxr_linenumber" name="L287" href="#L287">287</a> 
+<a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_javadoccomment"> * Class that implements a mixture of Gaussian ditributions.</em>
+<a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L291" href="#L291">291</a> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/apache/commons/math3/distribution/MultivariateNormalMixtureModelDistributionTest.html">MultivariateNormalMixtureModelDistribution</a>
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>     <strong class="jxr_keyword">extends</strong> MixtureMultivariateRealDistribution&lt;MultivariateNormalDistribution&gt; {
+<a class="jxr_linenumber" name="L293" href="#L293">293</a> 
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/apache/commons/math3/distribution/MultivariateNormalMixtureModelDistributionTest.html">MultivariateNormalMixtureModelDistribution</a>(List&lt;Pair&lt;Double, MultivariateNormalDistribution&gt;&gt; components) {
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>         <strong class="jxr_keyword">super</strong>(components);
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>     }
+<a class="jxr_linenumber" name="L297" href="#L297">297</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

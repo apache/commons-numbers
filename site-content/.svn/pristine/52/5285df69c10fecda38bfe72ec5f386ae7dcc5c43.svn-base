@@ -1,0 +1,1361 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+<title>BlockFieldMatrixTest (Apache Commons Math 3.5 Test API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="BlockFieldMatrixTest (Apache Commons Math 3.5 Test API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/BlockFieldMatrixTest.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+<div class="aboutLanguage"><em><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></em></div>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../org/apache/commons/math3/linear/BiDiagonalTransformerTest.html" title="class in org.apache.commons.math3.linear"><span class="strong">PREV CLASS</span></a></li>
+<li><a href="../../../../../org/apache/commons/math3/linear/BlockRealMatrixTest.html" title="class in org.apache.commons.math3.linear"><span class="strong">NEXT CLASS</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/apache/commons/math3/linear/BlockFieldMatrixTest.html" target="_top">FRAMES</a></li>
+<li><a href="BlockFieldMatrixTest.html" target="_top">NO FRAMES</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>SUMMARY:&nbsp;</li>
+<li>NESTED&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">FIELD</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">METHOD</a></li>
+</ul>
+<ul class="subNavList">
+<li>DETAIL:&nbsp;</li>
+<li><a href="#field_detail">FIELD</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">METHOD</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<p class="subTitle">org.apache.commons.math3.linear</p>
+<h2 title="Class BlockFieldMatrixTest" class="title">Class BlockFieldMatrixTest</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>org.apache.commons.math3.linear.BlockFieldMatrixTest</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<br>
+<pre>public final class <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.40">BlockFieldMatrixTest</a>
+extends <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
+<div class="block">Test cases for the <a href="../../../../../../apidocs/org/apache/commons/math3/linear/BlockFieldMatrix.html?is-external=true" title="class or interface in org.apache.commons.math3.linear"><code>BlockFieldMatrix</code></a> class.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#bigSingular">bigSingular</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#detData">detData</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#detData2">detData2</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected double</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#entryTolerance">entryTolerance</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#id">id</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#luData">luData</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#luDataLUDecomposition">luDataLUDecomposition</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected double</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#normTolerance">normTolerance</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#preMultTest">preMultTest</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#singular">singular</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#subColumn1">subColumn1</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#subColumn3">subColumn3</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#subRow0">subRow0</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#subRow3">subRow3</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#subRows00Cols33">subRows00Cols33</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#subRows01Cols23">subRows01Cols23</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#subRows02Cols13">subRows02Cols13</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#subRows03Cols12">subRows03Cols12</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#subRows03Cols123">subRows03Cols123</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#subRows20Cols123">subRows20Cols123</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#subRows23Cols00">subRows23Cols00</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#subRows31Cols31">subRows31Cols31</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#subTestData">subTestData</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testData">testData</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testData2">testData2</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testData2T">testData2T</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testDataCol3">testDataCol3</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testDataInv">testDataInv</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testDataLU">testDataLU</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testDataMinus">testDataMinus</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testDataPlus2">testDataPlus2</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testDataPlusInv">testDataPlusInv</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testDataRow1">testDataRow1</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testVector">testVector</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testVector2">testVector2</a></strong></code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#BlockFieldMatrixTest()">BlockFieldMatrixTest</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testAdd()">testAdd</a></strong>()</code>
+<div class="block">test add</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testAddFail()">testAddFail</a></strong>()</code>
+<div class="block">test add failure</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testCopyFunctions()">testCopyFunctions</a></strong>()</code>
+<div class="block">test copy functions</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testCopySubMatrix()">testCopySubMatrix</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testDimensions()">testDimensions</a></strong>()</code>
+<div class="block">test dimensions</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testEqualsAndHashCode()">testEqualsAndHashCode</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testExamples()">testExamples</a></strong>()</code>
+<div class="block">test examples in user guide</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testGetColumn()">testGetColumn</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testGetColumnMatrix()">testGetColumnMatrix</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testGetColumnVector()">testGetColumnVector</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testGetEntry()">testGetEntry</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testGetRow()">testGetRow</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testGetRowMatrix()">testGetRowMatrix</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testGetRowVector()">testGetRowVector</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testGetSetColumnLarge()">testGetSetColumnLarge</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testGetSetColumnMatrixLarge()">testGetSetColumnMatrixLarge</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testGetSetColumnVectorLarge()">testGetSetColumnVectorLarge</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testGetSetMatrixLarge()">testGetSetMatrixLarge</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testGetSetRowLarge()">testGetSetRowLarge</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testGetSetRowMatrixLarge()">testGetSetRowMatrixLarge</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testGetSetRowVectorLarge()">testGetSetRowVectorLarge</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testGetSubMatrix()">testGetSubMatrix</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testGetVectors()">testGetVectors</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testMath209()">testMath209</a></strong>()</code>
+<div class="block">test issue MATH-209</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testMultiply()">testMultiply</a></strong>()</code>
+<div class="block">test multiply</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testMultiply2()">testMultiply2</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testOperate()">testOperate</a></strong>()</code>
+<div class="block">test operate</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testOperateLarge()">testOperateLarge</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testOperatePremultiplyLarge()">testOperatePremultiplyLarge</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testPlusMinus()">testPlusMinus</a></strong>()</code>
+<div class="block">test m-n = m + -n</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testPremultiply()">testPremultiply</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testPremultiplyVector()">testPremultiplyVector</a></strong>()</code>
+<div class="block">test preMultiply by vector</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testScalarAdd()">testScalarAdd</a></strong>()</code>
+<div class="block">test scalarAdd</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testSerial()">testSerial</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testSetColumn()">testSetColumn</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testSetColumnMatrix()">testSetColumnMatrix</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testSetColumnVector()">testSetColumnVector</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testSetRow()">testSetRow</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testSetRowMatrix()">testSetRowMatrix</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testSetRowVector()">testSetRowVector</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testSetSubMatrix()">testSetSubMatrix</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testSeveralBlocks()">testSeveralBlocks</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testToString()">testToString</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testTrace()">testTrace</a></strong>()</code>
+<div class="block">test trace</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testTranspose()">testTranspose</a></strong>()</code>
+<div class="block">test transpose</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/apache/commons/math3/linear/BlockFieldMatrixTest.html#testWalk()">testWalk</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="id">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>id</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.43">id</a></pre>
+</li>
+</ul>
+<a name="testData">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testData</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.50">testData</a></pre>
+</li>
+</ul>
+<a name="testDataLU">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testDataLU</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.55">testDataLU</a></pre>
+</li>
+</ul>
+<a name="testDataPlus2">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testDataPlus2</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.60">testDataPlus2</a></pre>
+</li>
+</ul>
+<a name="testDataMinus">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testDataMinus</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.65">testDataMinus</a></pre>
+</li>
+</ul>
+<a name="testDataRow1">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testDataRow1</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.70">testDataRow1</a></pre>
+</li>
+</ul>
+<a name="testDataCol3">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testDataCol3</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.71">testDataCol3</a></pre>
+</li>
+</ul>
+<a name="testDataInv">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testDataInv</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.72">testDataInv</a></pre>
+</li>
+</ul>
+<a name="preMultTest">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>preMultTest</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.77">preMultTest</a></pre>
+</li>
+</ul>
+<a name="testData2">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testData2</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.78">testData2</a></pre>
+</li>
+</ul>
+<a name="testData2T">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testData2T</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.82">testData2T</a></pre>
+</li>
+</ul>
+<a name="testDataPlusInv">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testDataPlusInv</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.87">testDataPlusInv</a></pre>
+</li>
+</ul>
+<a name="luData">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>luData</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.94">luData</a></pre>
+</li>
+</ul>
+<a name="luDataLUDecomposition">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>luDataLUDecomposition</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.99">luDataLUDecomposition</a></pre>
+</li>
+</ul>
+<a name="singular">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>singular</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.106">singular</a></pre>
+</li>
+</ul>
+<a name="bigSingular">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bigSingular</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.107">bigSingular</a></pre>
+</li>
+</ul>
+<a name="detData">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>detData</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.113">detData</a></pre>
+</li>
+</ul>
+<a name="detData2">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>detData2</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.118">detData2</a></pre>
+</li>
+</ul>
+<a name="testVector">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testVector</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.121">testVector</a></pre>
+</li>
+</ul>
+<a name="testVector2">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testVector2</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.122">testVector2</a></pre>
+</li>
+</ul>
+<a name="subTestData">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>subTestData</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.125">subTestData</a></pre>
+</li>
+</ul>
+<a name="subRows02Cols13">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>subRows02Cols13</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.132">subRows02Cols13</a></pre>
+</li>
+</ul>
+<a name="subRows03Cols12">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>subRows03Cols12</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.133">subRows03Cols12</a></pre>
+</li>
+</ul>
+<a name="subRows03Cols123">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>subRows03Cols123</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.134">subRows03Cols123</a></pre>
+</li>
+</ul>
+<a name="subRows20Cols123">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>subRows20Cols123</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.139">subRows20Cols123</a></pre>
+</li>
+</ul>
+<a name="subRows31Cols31">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>subRows31Cols31</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.143">subRows31Cols31</a></pre>
+</li>
+</ul>
+<a name="subRows01Cols23">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>subRows01Cols23</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.145">subRows01Cols23</a></pre>
+</li>
+</ul>
+<a name="subRows23Cols00">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>subRows23Cols00</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.146">subRows23Cols00</a></pre>
+</li>
+</ul>
+<a name="subRows00Cols33">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>subRows00Cols33</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.147">subRows00Cols33</a></pre>
+</li>
+</ul>
+<a name="subRow0">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>subRow0</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.149">subRow0</a></pre>
+</li>
+</ul>
+<a name="subRow3">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>subRow3</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.150">subRow3</a></pre>
+</li>
+</ul>
+<a name="subColumn1">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>subColumn1</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.152">subColumn1</a></pre>
+</li>
+</ul>
+<a name="subColumn3">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>subColumn3</h4>
+<pre>protected&nbsp;<a href="../../../../../../apidocs/org/apache/commons/math3/fraction/Fraction.html?is-external=true" title="class or interface in org.apache.commons.math3.fraction">Fraction</a>[][] <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.153">subColumn3</a></pre>
+</li>
+</ul>
+<a name="entryTolerance">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>entryTolerance</h4>
+<pre>protected&nbsp;double <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.156">entryTolerance</a></pre>
+</li>
+</ul>
+<a name="normTolerance">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>normTolerance</h4>
+<pre>protected&nbsp;double <a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.157">normTolerance</a></pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="BlockFieldMatrixTest()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>BlockFieldMatrixTest</h4>
+<pre>public&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.40">BlockFieldMatrixTest</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="testDimensions()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testDimensions</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.161">testDimensions</a>()</pre>
+<div class="block">test dimensions</div>
+</li>
+</ul>
+<a name="testCopyFunctions()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testCopyFunctions</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.174">testCopyFunctions</a>()</pre>
+<div class="block">test copy functions</div>
+</li>
+</ul>
+<a name="testAdd()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testAdd</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.186">testAdd</a>()</pre>
+<div class="block">test add</div>
+</li>
+</ul>
+<a name="testAddFail()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testAddFail</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.200">testAddFail</a>()</pre>
+<div class="block">test add failure</div>
+</li>
+</ul>
+<a name="testPlusMinus()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testPlusMinus</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.213">testPlusMinus</a>()</pre>
+<div class="block">test m-n = m + -n</div>
+</li>
+</ul>
+<a name="testMultiply()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testMultiply</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.227">testMultiply</a>()</pre>
+<div class="block">test multiply</div>
+</li>
+</ul>
+<a name="testSeveralBlocks()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testSeveralBlocks</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.246">testSeveralBlocks</a>()</pre>
+</li>
+</ul>
+<a name="testMultiply2()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testMultiply2</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.345">testMultiply2</a>()</pre>
+</li>
+</ul>
+<a name="testTrace()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testTrace</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.354">testTrace</a>()</pre>
+<div class="block">test trace</div>
+</li>
+</ul>
+<a name="testScalarAdd()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testScalarAdd</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.368">testScalarAdd</a>()</pre>
+<div class="block">test scalarAdd</div>
+</li>
+</ul>
+<a name="testOperate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testOperate</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.376">testOperate</a>()</pre>
+<div class="block">test operate</div>
+</li>
+</ul>
+<a name="testOperateLarge()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testOperateLarge</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.390">testOperateLarge</a>()</pre>
+</li>
+</ul>
+<a name="testOperatePremultiplyLarge()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testOperatePremultiplyLarge</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.404">testOperatePremultiplyLarge</a>()</pre>
+</li>
+</ul>
+<a name="testMath209()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testMath209</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.419">testMath209</a>()</pre>
+<div class="block">test issue MATH-209</div>
+</li>
+</ul>
+<a name="testTranspose()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testTranspose</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.434">testTranspose</a>()</pre>
+<div class="block">test transpose</div>
+</li>
+</ul>
+<a name="testPremultiplyVector()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testPremultiplyVector</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.446">testPremultiplyVector</a>()</pre>
+<div class="block">test preMultiply by vector</div>
+</li>
+</ul>
+<a name="testPremultiply()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testPremultiply</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.461">testPremultiply</a>()</pre>
+</li>
+</ul>
+<a name="testGetVectors()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testGetVectors</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.483">testGetVectors</a>()</pre>
+</li>
+</ul>
+<a name="testGetEntry()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testGetEntry</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.502">testGetEntry</a>()</pre>
+</li>
+</ul>
+<a name="testExamples()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testExamples</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.515">testExamples</a>()</pre>
+<div class="block">test examples in user guide</div>
+</li>
+</ul>
+<a name="testGetSubMatrix()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testGetSubMatrix</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.569">testGetSubMatrix</a>()</pre>
+</li>
+</ul>
+<a name="testGetSetMatrixLarge()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testGetSetMatrixLarge</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.646">testGetSetMatrixLarge</a>()</pre>
+</li>
+</ul>
+<a name="testCopySubMatrix()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testCopySubMatrix</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.667">testCopySubMatrix</a>()</pre>
+</li>
+</ul>
+<a name="testGetRowMatrix()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testGetRowMatrix</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.742">testGetRowMatrix</a>()</pre>
+</li>
+</ul>
+<a name="testSetRowMatrix()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testSetRowMatrix</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.763">testSetRowMatrix</a>()</pre>
+</li>
+</ul>
+<a name="testGetSetRowMatrixLarge()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testGetSetRowMatrixLarge</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.784">testGetSetRowMatrixLarge</a>()</pre>
+</li>
+</ul>
+<a name="testGetColumnMatrix()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testGetColumnMatrix</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.806">testGetColumnMatrix</a>()</pre>
+</li>
+</ul>
+<a name="testSetColumnMatrix()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testSetColumnMatrix</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.827">testSetColumnMatrix</a>()</pre>
+</li>
+</ul>
+<a name="testGetSetColumnMatrixLarge()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testGetSetColumnMatrixLarge</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.848">testGetSetColumnMatrixLarge</a>()</pre>
+</li>
+</ul>
+<a name="testGetRowVector()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testGetRowVector</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.870">testGetRowVector</a>()</pre>
+</li>
+</ul>
+<a name="testSetRowVector()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testSetRowVector</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.891">testSetRowVector</a>()</pre>
+</li>
+</ul>
+<a name="testGetSetRowVectorLarge()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testGetSetRowVectorLarge</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.912">testGetSetRowVectorLarge</a>()</pre>
+</li>
+</ul>
+<a name="testGetColumnVector()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testGetColumnVector</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.932">testGetColumnVector</a>()</pre>
+</li>
+</ul>
+<a name="testSetColumnVector()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testSetColumnVector</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.953">testSetColumnVector</a>()</pre>
+</li>
+</ul>
+<a name="testGetSetColumnVectorLarge()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testGetSetColumnVectorLarge</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.974">testGetSetColumnVectorLarge</a>()</pre>
+</li>
+</ul>
+<a name="testGetRow()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testGetRow</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.1002">testGetRow</a>()</pre>
+</li>
+</ul>
+<a name="testSetRow()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testSetRow</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.1021">testSetRow</a>()</pre>
+</li>
+</ul>
+<a name="testGetSetRowLarge()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testGetSetRowLarge</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.1041">testGetSetRowLarge</a>()</pre>
+</li>
+</ul>
+<a name="testGetColumn()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testGetColumn</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.1062">testGetColumn</a>()</pre>
+</li>
+</ul>
+<a name="testSetColumn()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testSetColumn</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.1083">testSetColumn</a>()</pre>
+</li>
+</ul>
+<a name="testGetSetColumnLarge()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testGetSetColumnLarge</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.1104">testGetSetColumnLarge</a>()</pre>
+</li>
+</ul>
+<a name="testEqualsAndHashCode()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testEqualsAndHashCode</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.1140">testEqualsAndHashCode</a>()</pre>
+</li>
+</ul>
+<a name="testToString()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testToString</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.1154">testToString</a>()</pre>
+</li>
+</ul>
+<a name="testSetSubMatrix()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testSetSubMatrix</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.1160">testSetSubMatrix</a>()</pre>
+</li>
+</ul>
+<a name="testWalk()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testWalk</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.1243">testWalk</a>()</pre>
+</li>
+</ul>
+<a name="testSerial()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>testSerial</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/apache/commons/math3/linear/BlockFieldMatrixTest.html#line.1330">testSerial</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/BlockFieldMatrixTest.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+<div class="aboutLanguage"><em><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></em></div>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../org/apache/commons/math3/linear/BiDiagonalTransformerTest.html" title="class in org.apache.commons.math3.linear"><span class="strong">PREV CLASS</span></a></li>
+<li><a href="../../../../../org/apache/commons/math3/linear/BlockRealMatrixTest.html" title="class in org.apache.commons.math3.linear"><span class="strong">NEXT CLASS</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/apache/commons/math3/linear/BlockFieldMatrixTest.html" target="_top">FRAMES</a></li>
+<li><a href="BlockFieldMatrixTest.html" target="_top">NO FRAMES</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>SUMMARY:&nbsp;</li>
+<li>NESTED&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">FIELD</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">METHOD</a></li>
+</ul>
+<ul class="subNavList">
+<li>DETAIL:&nbsp;</li>
+<li><a href="#field_detail">FIELD</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">METHOD</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+<p class="legalCopy"><small>Copyright &#169; 2003&#x2013;2015 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</small></p>
+</body>
+</html>

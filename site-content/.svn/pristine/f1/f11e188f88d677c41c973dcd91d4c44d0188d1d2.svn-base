@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>HighamHall54FieldStepInterpolator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.nonstiff</a> &gt; <span class="el_source">HighamHall54FieldStepInterpolator.java</span></div><h1>HighamHall54FieldStepInterpolator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.nonstiff;
+
+import org.apache.commons.math3.Field;
+import org.apache.commons.math3.RealFieldElement;
+import org.apache.commons.math3.ode.FieldEquationsMapper;
+import org.apache.commons.math3.ode.FieldODEStateAndDerivative;
+
+/**
+ * This class represents an interpolator over the last step during an
+ * ODE integration for the 5(4) Higham and Hall integrator.
+ *
+ * @see HighamHall54FieldIntegrator
+ *
+ * @param &lt;T&gt; the type of the field elements
+ * @since 3.6
+ */
+
+class HighamHall54FieldStepInterpolator&lt;T extends RealFieldElement&lt;T&gt;&gt;
+    extends RungeKuttaFieldStepInterpolator&lt;T&gt; {
+
+    /** Simple constructor.
+     * @param field field to which the time and state vector elements belong
+     * @param forward integration direction indicator
+     * @param yDotK slopes at the intermediate points
+     * @param globalPreviousState start of the global step
+     * @param globalCurrentState end of the global step
+     * @param softPreviousState start of the restricted step
+     * @param softCurrentState end of the restricted step
+     * @param mapper equations mapper for the all equations
+     */
+    HighamHall54FieldStepInterpolator(final Field&lt;T&gt; field, final boolean forward,
+                                      final T[][] yDotK,
+                                      final FieldODEStateAndDerivative&lt;T&gt; globalPreviousState,
+                                      final FieldODEStateAndDerivative&lt;T&gt; globalCurrentState,
+                                      final FieldODEStateAndDerivative&lt;T&gt; softPreviousState,
+                                      final FieldODEStateAndDerivative&lt;T&gt; softCurrentState,
+                                      final FieldEquationsMapper&lt;T&gt; mapper) {
+<span class="fc" id="L55">        super(field, forward, yDotK,</span>
+              globalPreviousState, globalCurrentState, softPreviousState, softCurrentState,
+              mapper);
+<span class="fc" id="L58">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    protected HighamHall54FieldStepInterpolator&lt;T&gt; create(final Field&lt;T&gt; newField, final boolean newForward, final T[][] newYDotK,
+                                                          final FieldODEStateAndDerivative&lt;T&gt; newGlobalPreviousState,
+                                                          final FieldODEStateAndDerivative&lt;T&gt; newGlobalCurrentState,
+                                                          final FieldODEStateAndDerivative&lt;T&gt; newSoftPreviousState,
+                                                          final FieldODEStateAndDerivative&lt;T&gt; newSoftCurrentState,
+                                                          final FieldEquationsMapper&lt;T&gt; newMapper) {
+<span class="fc" id="L68">        return new HighamHall54FieldStepInterpolator&lt;T&gt;(newField, newForward, newYDotK,</span>
+                                                        newGlobalPreviousState, newGlobalCurrentState,
+                                                        newSoftPreviousState, newSoftCurrentState,
+                                                        newMapper);
+    }
+
+    /** {@inheritDoc} */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Override
+    protected FieldODEStateAndDerivative&lt;T&gt; computeInterpolatedStateAndDerivatives(final FieldEquationsMapper&lt;T&gt; mapper,
+                                                                                   final T time, final T theta,
+                                                                                   final T thetaH, final T oneMinusThetaH) {
+
+<span class="fc" id="L81">        final T bDot0 = theta.multiply(theta.multiply(theta.multiply( -10.0      ).add( 16.0       )).add(-15.0 /  2.0)).add(1);</span>
+<span class="fc" id="L82">        final T bDot1 = time.getField().getZero();</span>
+<span class="fc" id="L83">        final T bDot2 = theta.multiply(theta.multiply(theta.multiply( 135.0 / 2.0).add(-729.0 / 8.0)).add(459.0 / 16.0));</span>
+<span class="fc" id="L84">        final T bDot3 = theta.multiply(theta.multiply(theta.multiply(-120.0      ).add( 152.0      )).add(-44.0       ));</span>
+<span class="fc" id="L85">        final T bDot4 = theta.multiply(theta.multiply(theta.multiply( 125.0 / 2.0).add(-625.0 / 8.0)).add(375.0 / 16.0));</span>
+<span class="fc" id="L86">        final T bDot5 = theta.multiply(  5.0 /  8.0).multiply(theta.multiply(2).subtract(1));</span>
+        final T[] interpolatedState;
+        final T[] interpolatedDerivatives;
+
+<span class="pc bpc" id="L90" title="1 of 4 branches missed.">        if (getGlobalPreviousState() != null &amp;&amp; theta.getReal() &lt;= 0.5) {</span>
+<span class="fc" id="L91">            final T b0 = thetaH.multiply(theta.multiply(theta.multiply(theta.multiply( -5.0 / 2.0).add(  16.0 /  3.0)).add(-15.0 /  4.0)).add(1));</span>
+<span class="fc" id="L92">            final T b1 = time.getField().getZero();</span>
+<span class="fc" id="L93">            final T b2 = thetaH.multiply(theta.multiply(theta.multiply(theta.multiply(135.0 / 8.0).add(-243.0 /  8.0)).add(459.0 / 32.0)));</span>
+<span class="fc" id="L94">            final T b3 = thetaH.multiply(theta.multiply(theta.multiply(theta.multiply(-30.0      ).add( 152.0 /  3.0)).add(-22.0       )));</span>
+<span class="fc" id="L95">            final T b4 = thetaH.multiply(theta.multiply(theta.multiply(theta.multiply(125.0 / 8.0).add(-625.0 / 24.0)).add(375.0 / 32.0)));</span>
+<span class="fc" id="L96">            final T b5 = thetaH.multiply(theta.multiply(theta.multiply(                                   5.0 / 12.0 ).add( -5.0 / 16.0)));</span>
+<span class="fc" id="L97">            interpolatedState       = previousStateLinearCombination(b0, b1, b2, b3, b4, b5);</span>
+<span class="fc" id="L98">            interpolatedDerivatives = derivativeLinearCombination(bDot0, bDot1, bDot2, bDot3, bDot4, bDot5);</span>
+<span class="fc" id="L99">        } else {</span>
+<span class="fc" id="L100">            final T theta2 = theta.multiply(theta);</span>
+<span class="fc" id="L101">            final T h      = thetaH.divide(theta);</span>
+<span class="fc" id="L102">            final T b0 = h.multiply( theta.multiply(theta.multiply(theta.multiply(theta.multiply(-5.0 / 2.0).add( 16.0 / 3.0)).add( -15.0 /  4.0)).add(  1.0       )).add(  -1.0 / 12.0));</span>
+<span class="fc" id="L103">            final T b1 = time.getField().getZero();</span>
+<span class="fc" id="L104">            final T b2 = h.multiply(theta2.multiply(theta.multiply(theta.multiply(                               135.0 / 8.0 ).add(-243.0 /  8.0)).add(459.0 / 32.0)).add( -27.0 / 32.0));</span>
+<span class="fc" id="L105">            final T b3 = h.multiply(theta2.multiply(theta.multiply(theta.multiply(                               -30.0       ).add( 152.0 /  3.0)).add(-22.0       )).add(  4.0  /  3.0));</span>
+<span class="fc" id="L106">            final T b4 = h.multiply(theta2.multiply(theta.multiply(theta.multiply(                               125.0 / 8.0 ).add(-625.0 / 24.0)).add(375.0 / 32.0)).add(-125.0 / 96.0));</span>
+<span class="fc" id="L107">            final T b5 = h.multiply(theta2.multiply(theta.multiply(                                                                   5.0 / 12.0 ).add(-5.0  / 16.0)).add(  -5.0 / 48.0));</span>
+<span class="fc" id="L108">            interpolatedState       = currentStateLinearCombination(b0, b1, b2, b3, b4, b5);</span>
+<span class="fc" id="L109">            interpolatedDerivatives = derivativeLinearCombination(bDot0, bDot1, bDot2, bDot3, bDot4, bDot5);</span>
+        }
+
+<span class="fc" id="L112">        return new FieldODEStateAndDerivative&lt;T&gt;(time, interpolatedState, interpolatedDerivatives);</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

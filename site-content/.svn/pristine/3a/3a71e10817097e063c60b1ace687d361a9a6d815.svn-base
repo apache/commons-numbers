@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RungeKuttaFieldStepInterpolator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.nonstiff</a> &gt; <span class="el_source">RungeKuttaFieldStepInterpolator.java</span></div><h1>RungeKuttaFieldStepInterpolator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.nonstiff;
+
+import org.apache.commons.math3.Field;
+import org.apache.commons.math3.RealFieldElement;
+import org.apache.commons.math3.ode.FieldEquationsMapper;
+import org.apache.commons.math3.ode.FieldODEStateAndDerivative;
+import org.apache.commons.math3.ode.sampling.AbstractFieldStepInterpolator;
+import org.apache.commons.math3.util.MathArrays;
+
+/** This class represents an interpolator over the last step during an
+ * ODE integration for Runge-Kutta and embedded Runge-Kutta integrators.
+ *
+ * @see RungeKuttaFieldIntegrator
+ * @see EmbeddedRungeKuttaFieldIntegrator
+ *
+ * @param &lt;T&gt; the type of the field elements
+ * @since 3.6
+ */
+
+abstract class RungeKuttaFieldStepInterpolator&lt;T extends RealFieldElement&lt;T&gt;&gt;
+    extends AbstractFieldStepInterpolator&lt;T&gt; {
+
+    /** Field to which the time and state vector elements belong. */
+    private final Field&lt;T&gt; field;
+
+    /** Slopes at the intermediate points. */
+    private final T[][] yDotK;
+
+    /** Simple constructor.
+     * @param field field to which the time and state vector elements belong
+     * @param forward integration direction indicator
+     * @param yDotK slopes at the intermediate points
+     * @param globalPreviousState start of the global step
+     * @param globalCurrentState end of the global step
+     * @param softPreviousState start of the restricted step
+     * @param softCurrentState end of the restricted step
+     * @param mapper equations mapper for the all equations
+     */
+    protected RungeKuttaFieldStepInterpolator(final Field&lt;T&gt; field, final boolean forward,
+                                              final T[][] yDotK,
+                                              final FieldODEStateAndDerivative&lt;T&gt; globalPreviousState,
+                                              final FieldODEStateAndDerivative&lt;T&gt; globalCurrentState,
+                                              final FieldODEStateAndDerivative&lt;T&gt; softPreviousState,
+                                              final FieldODEStateAndDerivative&lt;T&gt; softCurrentState,
+                                              final FieldEquationsMapper&lt;T&gt; mapper) {
+<span class="fc" id="L63">        super(forward, globalPreviousState, globalCurrentState, softPreviousState, softCurrentState, mapper);</span>
+<span class="fc" id="L64">        this.field = field;</span>
+<span class="fc" id="L65">        this.yDotK = MathArrays.buildArray(field, yDotK.length, -1);</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        for (int i = 0; i &lt; yDotK.length; ++i) {</span>
+<span class="fc" id="L67">            this.yDotK[i] = yDotK[i].clone();</span>
+        }
+<span class="fc" id="L69">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    protected RungeKuttaFieldStepInterpolator&lt;T&gt; create(boolean newForward,
+                                                        FieldODEStateAndDerivative&lt;T&gt; newGlobalPreviousState,
+                                                        FieldODEStateAndDerivative&lt;T&gt; newGlobalCurrentState,
+                                                        FieldODEStateAndDerivative&lt;T&gt; newSoftPreviousState,
+                                                        FieldODEStateAndDerivative&lt;T&gt; newSoftCurrentState,
+                                                        FieldEquationsMapper&lt;T&gt; newMapper) {
+<span class="fc" id="L79">        return create(field, newForward, yDotK,</span>
+                      newGlobalPreviousState, newGlobalCurrentState,
+                      newSoftPreviousState, newSoftCurrentState,
+                      newMapper);
+    }
+
+    /** Create a new instance.
+     * @param newField field to which the time and state vector elements belong
+     * @param newForward integration direction indicator
+     * @param newYDotK slopes at the intermediate points
+     * @param newGlobalPreviousState start of the global step
+     * @param newGlobalCurrentState end of the global step
+     * @param newSoftPreviousState start of the restricted step
+     * @param newSoftCurrentState end of the restricted step
+     * @param newMapper equations mapper for the all equations
+     * @return a new instance
+     */
+    protected abstract RungeKuttaFieldStepInterpolator&lt;T&gt; create(Field&lt;T&gt; newField, boolean newForward, T[][] newYDotK,
+                                                                 FieldODEStateAndDerivative&lt;T&gt; newGlobalPreviousState,
+                                                                 FieldODEStateAndDerivative&lt;T&gt; newGlobalCurrentState,
+                                                                 FieldODEStateAndDerivative&lt;T&gt; newSoftPreviousState,
+                                                                 FieldODEStateAndDerivative&lt;T&gt; newSoftCurrentState,
+                                                                 FieldEquationsMapper&lt;T&gt; newMapper);
+
+    /** Compute a state by linear combination added to previous state.
+     * @param coefficients coefficients to apply to the method staged derivatives
+     * @return combined state
+     */
+    protected final T[] previousStateLinearCombination(final T ... coefficients) {
+<span class="fc" id="L108">        return combine(getPreviousState().getState(),</span>
+                       coefficients);
+    }
+
+    /** Compute a state by linear combination added to current state.
+     * @param coefficients coefficients to apply to the method staged derivatives
+     * @return combined state
+     */
+    protected T[] currentStateLinearCombination(final T ... coefficients) {
+<span class="fc" id="L117">        return combine(getCurrentState().getState(),</span>
+                       coefficients);
+    }
+
+    /** Compute a state derivative by linear combination.
+     * @param coefficients coefficients to apply to the method staged derivatives
+     * @return combined state
+     */
+    protected T[] derivativeLinearCombination(final T ... coefficients) {
+<span class="fc" id="L126">        return combine(MathArrays.buildArray(field, yDotK[0].length), coefficients);</span>
+    }
+
+    /** Linearly combine arrays.
+     * @param a array to add to
+     * @param coefficients coefficients to apply to the method staged derivatives
+     * @return a itself, as a convenience for fluent API
+     */
+    private T[] combine(final T[] a, final T ... coefficients) {
+<span class="fc bfc" id="L135" title="All 2 branches covered.">        for (int i = 0; i &lt; a.length; ++i) {</span>
+<span class="fc bfc" id="L136" title="All 2 branches covered.">            for (int k = 0; k &lt; coefficients.length; ++k) {</span>
+<span class="fc" id="L137">                a[i] = a[i].add(coefficients[k].multiply(yDotK[k][i]));</span>
+            }
+        }
+<span class="fc" id="L140">        return a;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

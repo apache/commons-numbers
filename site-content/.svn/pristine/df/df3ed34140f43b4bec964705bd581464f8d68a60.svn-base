@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DimensionMismatchException.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.exception</a> &gt; <span class="el_source">DimensionMismatchException.java</span></div><h1>DimensionMismatchException.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.exception;
+
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.exception.util.Localizable;
+
+/**
+ * Exception to be thrown when two dimensions differ.
+ *
+ * @since 2.2
+ */
+public class DimensionMismatchException extends MathIllegalNumberException {
+    /** Serializable version Id. */
+    private static final long serialVersionUID = -8415396756375798143L;
+    /** Correct dimension. */
+    private final int dimension;
+
+    /**
+     * Construct an exception from the mismatched dimensions.
+     *
+     * @param specific Specific context information pattern.
+     * @param wrong Wrong dimension.
+     * @param expected Expected dimension.
+     */
+    public DimensionMismatchException(Localizable specific,
+                                      int wrong,
+                                      int expected) {
+<span class="fc" id="L43">        super(specific, Integer.valueOf(wrong), Integer.valueOf(expected));</span>
+<span class="fc" id="L44">        dimension = expected;</span>
+<span class="fc" id="L45">    }</span>
+
+    /**
+     * Construct an exception from the mismatched dimensions.
+     *
+     * @param wrong Wrong dimension.
+     * @param expected Expected dimension.
+     */
+    public DimensionMismatchException(int wrong,
+                                      int expected) {
+<span class="fc" id="L55">        this(LocalizedFormats.DIMENSIONS_MISMATCH_SIMPLE, wrong, expected);</span>
+<span class="fc" id="L56">    }</span>
+
+    /**
+     * @return the expected dimension.
+     */
+    public int getDimension() {
+<span class="fc" id="L62">        return dimension;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

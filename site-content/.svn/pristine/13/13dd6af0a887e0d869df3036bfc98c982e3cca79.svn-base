@@ -1,0 +1,661 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>BesselJ xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/apache/commons/math3/special/BesselJ.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math3.special;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.analysis.UnivariateFunction;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.exception.ConvergenceException;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.exception.MathIllegalArgumentException;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.exception.util.LocalizedFormats;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.util.FastMath;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.util.MathArrays;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment"> * This class provides computation methods related to Bessel</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> * functions of the first kind. Detailed descriptions of these functions are</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> * available in &lt;a</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> * href="<a href="http://en.wikipedia.org/wiki/Bessel_function" target="alexandria_uri">http://en.wikipedia.org/wiki/Bessel_function</a>"&gt;Wikipedia&lt;/a&gt;, &lt;a</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> * href="<a href="http://en.wikipedia.org/wiki/Abramowitz_and_Stegun" target="alexandria_uri">http://en.wikipedia.org/wiki/Abramowitz_and_Stegun</a>"&gt;Abrabowitz and</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * Stegun&lt;/a&gt; (Ch. 9-11), and &lt;a href="<a href="http://dlmf.nist.gov/" target="alexandria_uri">http://dlmf.nist.gov/</a>"&gt;DLMF&lt;/a&gt; (Ch. 10).</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * This implementation is based on the rjbesl Fortran routine at</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> * &lt;a href="<a href="http://www.netlib.org/specfun/rjbesl" target="alexandria_uri">http://www.netlib.org/specfun/rjbesl</a>"&gt;Netlib&lt;/a&gt;.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * From the Fortran code: &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> * This program is based on a program written by David J. Sookne (2) that</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment"> * computes values of the Bessel functions J or I of real argument and integer</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment"> * order. Modifications include the restriction of the computation to the J</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment"> * Bessel function of non-negative real argument, the extension of the</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment"> * computation to arbitrary positive order, and the elimination of most</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> * underflow.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> * References:&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment"> * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;"A Note on Backward Recurrence Algorithms," Olver, F. W. J., and Sookne,</em>
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment"> * D. J., Math. Comp. 26, 1972, pp 941-947.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment"> * &lt;li&gt;"Bessel Functions of Real Argument and Integer Order," Sookne, D. J., NBS</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment"> * Jour. of Res. B. 77B, 1973, pp 125-132.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment"> * &lt;/ul&gt; &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment"> * @since 3.4</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/apache/commons/math3/special/BesselJ.html">BesselJ</a>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">implements</strong> <a href="../../../../../org/apache/commons/math3/analysis/UnivariateFunction.html">UnivariateFunction</a> {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <em class="jxr_comment">// Mathematical constants</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      <em class="jxr_javadoccomment">/** -2 / pi */</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> PI2 = 0.636619772367581343075535;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <em class="jxr_javadoccomment">/** first few significant digits of 2pi */</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> TOWPI1 = 6.28125;
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <em class="jxr_javadoccomment">/** 2pi - TWOPI1 to working precision */</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> TWOPI2 = 1.935307179586476925286767e-3;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <em class="jxr_javadoccomment">/** TOWPI1 + TWOPI2 */</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> TWOPI = TOWPI1 + TWOPI2;
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <em class="jxr_comment">// Machine-dependent parameters</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">     * 10.0^K, where K is the largest integer such that ENTEN is</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">     * machine-representable in working precision</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> ENTEN = 1.0e308;
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">     * Decimal significance desired. Should be set to (INT(log_{10}(2) * (it)+1)).</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_javadoccomment">     * Setting NSIG lower will result in decreased accuracy while setting</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_javadoccomment">     * NSIG higher will increase CPU time without increasing accuracy.</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_javadoccomment">     * The truncation error is limited to a relative error of</em>
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>  <em class="jxr_javadoccomment">     * T=.5(10^(-NSIG)).</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> ENSIG = 1.0e16;
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <em class="jxr_javadoccomment">/** 10.0 ** (-K) for the smallest integer K such that K &gt;= NSIG/4 */</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> RTNSIG = 1.0e-4;
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <em class="jxr_javadoccomment">/** Smallest ABS(X) such that X/4 does not underflow */</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> ENMTEN = 8.90e-308;
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     <em class="jxr_javadoccomment">/** Minimum acceptable value for x */</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> X_MIN = 0.0;
+<a class="jxr_linenumber" name="L102" href="#L102">102</a> 
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_javadoccomment">     * Upper limit on the magnitude of x. If abs(x) = n, then at least</em>
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_javadoccomment">     * n iterations of the backward recursion will be executed. The value of</em>
+<a class="jxr_linenumber" name="L106" href="#L106">106</a> <em class="jxr_javadoccomment">     * 10.0 ** 4 is used on every machine.</em>
+<a class="jxr_linenumber" name="L107" href="#L107">107</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> X_MAX = 1.0e4;
+<a class="jxr_linenumber" name="L109" href="#L109">109</a> 
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <em class="jxr_javadoccomment">/** First 25 factorials as doubles */</em>
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] FACT = {
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         1.0, 1.0, 2.0, 6.0, 24.0, 120.0, 720.0, 5040.0, 40320.0, 362880.0,
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         3628800.0, 39916800.0, 479001600.0, 6227020800.0, 87178291200.0,
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         1.307674368e12, 2.0922789888e13, 3.55687428096e14, 6.402373705728e15,
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         1.21645100408832e17, 2.43290200817664e18, 5.109094217170944e19,
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         1.12400072777760768e21, 2.585201673888497664e22,
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         6.2044840173323943936e23
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>     };
+<a class="jxr_linenumber" name="L119" href="#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>     <em class="jxr_javadoccomment">/** Order of the function computed when {@link #value(double)} is used */</em>
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> order;
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> 
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">     * Create a new BesselJ with the given order.</em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">     * @param order order of the function computed when using {@link #value(double)}.</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../org/apache/commons/math3/special/BesselJ.html">BesselJ</a>(<strong class="jxr_keyword">double</strong> order) {
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         <strong class="jxr_keyword">this</strong>.order = order;
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>     }
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> 
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     * Returns the value of the constructed Bessel function of the first kind,</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">     * for the passed argument.</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_javadoccomment">     * @param x Argument</em>
+<a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_javadoccomment">     * @return Value of the Bessel function at x</em>
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if {@code x} is too large relative to {@code order}</em>
+<a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">     * @throws ConvergenceException if the algorithm fails to converge</em>
+<a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">double</strong> x)
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException, <a href="../../../../../org/apache/commons/math3/exception/ConvergenceException.html">ConvergenceException</a> {
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <strong class="jxr_keyword">return</strong> BesselJ.value(order, x);
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>     }
+<a class="jxr_linenumber" name="L145" href="#L145">145</a> 
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">     * Returns the first Bessel function, \(J_{order}(x)\).</em>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     * @param order Order of the Bessel function</em>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">     * @param x Argument</em>
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">     * @return Value of the Bessel function of the first kind, \(J_{order}(x)\)</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">     * @throws MathIllegalArgumentException if {@code x} is too large relative to {@code order}</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">     * @throws ConvergenceException if the algorithm fails to converge</em>
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> value(<strong class="jxr_keyword">double</strong> order, <strong class="jxr_keyword">double</strong> x)
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         <strong class="jxr_keyword">throws</strong> MathIllegalArgumentException, <a href="../../../../../org/apache/commons/math3/exception/ConvergenceException.html">ConvergenceException</a> {
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = (<strong class="jxr_keyword">int</strong>) order;
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> alpha = order - n;
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nb = n + 1;
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>         <strong class="jxr_keyword">final</strong> <a href="../../../../../org/apache/commons/math3/special/BesselJ.html">BesselJResult</a> res = rjBesl(x, alpha, nb);
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <strong class="jxr_keyword">if</strong> (res.nVals &gt;= nb) {
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>             <strong class="jxr_keyword">return</strong> res.vals[n];
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (res.nVals &lt; 0) {
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/apache/commons/math3/exception/MathIllegalArgumentException.html">MathIllegalArgumentException</a>(LocalizedFormats.BESSEL_FUNCTION_BAD_ARGUMENT,order, x);
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (FastMath.abs(res.vals[res.nVals - 1]) &lt; 1e-100) {
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>             <strong class="jxr_keyword">return</strong> res.vals[n]; <em class="jxr_comment">// underflow; return value (will be zero)</em>
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         }
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/apache/commons/math3/exception/ConvergenceException.html">ConvergenceException</a>(LocalizedFormats.BESSEL_FUNCTION_FAILED_CONVERGENCE, order, x);
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>     }
+<a class="jxr_linenumber" name="L171" href="#L171">171</a> 
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">     * Encapsulates the results returned by {@link BesselJ#rjBesl(double, double, int)}.</em>
+<a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">     * {@link #getVals()} returns the computed function values.</em>
+<a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">     * {@link #getnVals()} is the number of values among those returned by {@link #getnVals()}</em>
+<a class="jxr_linenumber" name="L177" href="#L177">177</a> <em class="jxr_javadoccomment">     * that can be considered accurate.</em>
+<a class="jxr_linenumber" name="L178" href="#L178">178</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;&lt;p&gt;</em>
+<a class="jxr_linenumber" name="L179" href="#L179">179</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment">     * &lt;li&gt;nVals &lt; 0: An argument is out of range. For example, nb &lt;= 0, alpha</em>
+<a class="jxr_linenumber" name="L181" href="#L181">181</a> <em class="jxr_javadoccomment">     * &lt; 0 or &gt; 1, or x is too large. In this case, b(0) is set to zero, the</em>
+<a class="jxr_linenumber" name="L182" href="#L182">182</a> <em class="jxr_javadoccomment">     * remainder of the b-vector is not calculated, and nVals is set to</em>
+<a class="jxr_linenumber" name="L183" href="#L183">183</a> <em class="jxr_javadoccomment">     * MIN(nb,0) - 1 so that nVals != nb.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L184" href="#L184">184</a> <em class="jxr_javadoccomment">     * &lt;li&gt;nb &gt; nVals &gt; 0: Not all requested function values could be calculated</em>
+<a class="jxr_linenumber" name="L185" href="#L185">185</a> <em class="jxr_javadoccomment">     * accurately. This usually occurs because nb is much larger than abs(x). In</em>
+<a class="jxr_linenumber" name="L186" href="#L186">186</a> <em class="jxr_javadoccomment">     * this case, b(n) is calculated to the desired accuracy for n &lt; nVals, but</em>
+<a class="jxr_linenumber" name="L187" href="#L187">187</a> <em class="jxr_javadoccomment">     * precision is lost for nVals &lt; n &lt;= nb. If b(n) does not vanish for n &gt;</em>
+<a class="jxr_linenumber" name="L188" href="#L188">188</a> <em class="jxr_javadoccomment">     * nVals (because it is too small to be represented), and b(n)/b(nVals) =</em>
+<a class="jxr_linenumber" name="L189" href="#L189">189</a> <em class="jxr_javadoccomment">     * \(10^{-k}\), then only the first NSIG-k significant figures of b(n) can be</em>
+<a class="jxr_linenumber" name="L190" href="#L190">190</a> <em class="jxr_javadoccomment">     * trusted.&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/apache/commons/math3/special/BesselJ.html">BesselJResult</a> {
+<a class="jxr_linenumber" name="L193" href="#L193">193</a> 
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>         <em class="jxr_javadoccomment">/** Bessel function values */</em>
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] vals;
+<a class="jxr_linenumber" name="L196" href="#L196">196</a> 
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>         <em class="jxr_javadoccomment">/** Valid value count */</em>
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nVals;
+<a class="jxr_linenumber" name="L199" href="#L199">199</a> 
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_javadoccomment">         * Create a new BesselJResult with the given values and valid value count.</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">         * @param b values</em>
+<a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">         * @param n count of valid values</em>
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">public</strong> <a href="../../../../../org/apache/commons/math3/special/BesselJ.html">BesselJResult</a>(<strong class="jxr_keyword">double</strong>[] b, <strong class="jxr_keyword">int</strong> n) {
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>             vals = MathArrays.copyOf(b, b.length);
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>             nVals = n;
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>         }
+<a class="jxr_linenumber" name="L210" href="#L210">210</a> 
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L212" href="#L212">212</a> <em class="jxr_javadoccomment">         * @return the computed function values</em>
+<a class="jxr_linenumber" name="L213" href="#L213">213</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getVals() {
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>             <strong class="jxr_keyword">return</strong> MathArrays.copyOf(vals, vals.length);
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>         }
+<a class="jxr_linenumber" name="L217" href="#L217">217</a> 
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L219" href="#L219">219</a> <em class="jxr_javadoccomment">         * @return the number of valid function values (normally the same as the</em>
+<a class="jxr_linenumber" name="L220" href="#L220">220</a> <em class="jxr_javadoccomment">         *         length of the array returned by {@link #getnVals()})</em>
+<a class="jxr_linenumber" name="L221" href="#L221">221</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getnVals() {
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>             <strong class="jxr_keyword">return</strong> nVals;
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>         }
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>     }
+<a class="jxr_linenumber" name="L226" href="#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L228" href="#L228">228</a> <em class="jxr_javadoccomment">     * Calculates Bessel functions \(J_{n+alpha}(x)\) for</em>
+<a class="jxr_linenumber" name="L229" href="#L229">229</a> <em class="jxr_javadoccomment">     * non-negative argument x, and non-negative order n + alpha.</em>
+<a class="jxr_linenumber" name="L230" href="#L230">230</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L231" href="#L231">231</a> <em class="jxr_javadoccomment">     * Before using the output vector, the user should check that</em>
+<a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">     * nVals = nb, i.e., all orders have been calculated to the desired accuracy.</em>
+<a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">     * See BesselResult class javadoc for details on return values.</em>
+<a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">     * &lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L235" href="#L235">235</a> <em class="jxr_javadoccomment">     * @param x non-negative real argument for which J's are to be calculated</em>
+<a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">     * @param alpha fractional part of order for which J's or exponentially</em>
+<a class="jxr_linenumber" name="L237" href="#L237">237</a> <em class="jxr_javadoccomment">     * scaled J's (\(J\cdot e^{x}\)) are to be calculated. 0 &lt;= alpha &lt; 1.0.</em>
+<a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">     * @param nb integer number of functions to be calculated, nb &gt; 0. The first</em>
+<a class="jxr_linenumber" name="L239" href="#L239">239</a> <em class="jxr_javadoccomment">     * function calculated is of order alpha, and the last is of order</em>
+<a class="jxr_linenumber" name="L240" href="#L240">240</a> <em class="jxr_javadoccomment">     * nb - 1 + alpha.</em>
+<a class="jxr_linenumber" name="L241" href="#L241">241</a> <em class="jxr_javadoccomment">     * @return BesselJResult a vector of the functions</em>
+<a class="jxr_linenumber" name="L242" href="#L242">242</a> <em class="jxr_javadoccomment">     * \(J_{alpha}(x)\) through \(J_{nb-1+alpha}(x)\), or the corresponding exponentially</em>
+<a class="jxr_linenumber" name="L243" href="#L243">243</a> <em class="jxr_javadoccomment">     * scaled functions and an integer output variable indicating possible errors</em>
+<a class="jxr_linenumber" name="L244" href="#L244">244</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../org/apache/commons/math3/special/BesselJ.html">BesselJResult</a> rjBesl(<strong class="jxr_keyword">double</strong> x, <strong class="jxr_keyword">double</strong> alpha, <strong class="jxr_keyword">int</strong> nb) {
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] b = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nb];
+<a class="jxr_linenumber" name="L247" href="#L247">247</a> 
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>         <strong class="jxr_keyword">int</strong> ncalc = 0;
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         <strong class="jxr_keyword">double</strong> alpem = 0;
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>         <strong class="jxr_keyword">double</strong> alp2em = 0;
+<a class="jxr_linenumber" name="L251" href="#L251">251</a> 
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>         <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>         <em class="jxr_comment">// Check for out of range arguments.</em>
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>         <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> magx = (<strong class="jxr_keyword">int</strong>) x;
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>         <strong class="jxr_keyword">if</strong> ((nb &gt; 0) &amp;&amp; (x &gt;= X_MIN) &amp;&amp; (x &lt;= X_MAX) &amp;&amp; (alpha &gt;= 0) &amp;&amp;
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>             (alpha &lt; 1)) {
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>             <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>             <em class="jxr_comment">// Initialize result array to zero.</em>
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>             <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>             ncalc = nb;
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; nb; ++i) {
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>                 b[i] = 0;
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>             }
+<a class="jxr_linenumber" name="L265" href="#L265">265</a> 
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>             <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>             <em class="jxr_comment">// Branch to use 2-term ascending series for small X and asymptotic</em>
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>             <em class="jxr_comment">// form for large X when NB is not too large.</em>
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>             <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>             <strong class="jxr_keyword">double</strong> tempa;
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>             <strong class="jxr_keyword">double</strong> tempb;
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>             <strong class="jxr_keyword">double</strong> tempc;
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>             <strong class="jxr_keyword">double</strong> tover;
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>             <strong class="jxr_keyword">if</strong> (x &lt; RTNSIG) {
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>                 <em class="jxr_comment">// Two-term ascending series for small X.</em>
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>                 tempa = 1;
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>                 alpem = 1 + alpha;
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>                 <strong class="jxr_keyword">double</strong> halfx = 0;
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>                 <strong class="jxr_keyword">if</strong> (x &gt; ENMTEN) {
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>                     halfx = 0.5 * x;
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>                 }
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>                 <strong class="jxr_keyword">if</strong> (alpha != 0) {
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>                     tempa = FastMath.pow(halfx, alpha) /
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>                             (alpha * Gamma.gamma(alpha));
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>                 }
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>                 tempb = 0;
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>                 <strong class="jxr_keyword">if</strong> (x + 1 &gt; 1) {
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>                     tempb = -halfx * halfx;
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>                 }
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>                 b[0] = tempa + (tempa * tempb / alpem);
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>                 <strong class="jxr_keyword">if</strong> ((x != 0) &amp;&amp; (b[0] == 0)) {
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>                     ncalc = 0;
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>                 }
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>                 <strong class="jxr_keyword">if</strong> (nb != 1) {
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>                     <strong class="jxr_keyword">if</strong> (x &lt;= 0) {
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> n = 1; n &lt; nb; ++n) {
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>                             b[n] = 0;
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>                         }
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>                         <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>                         <em class="jxr_comment">// Calculate higher order functions.</em>
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>                         <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>                         tempc = halfx;
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>                         tover = tempb != 0 ? ENMTEN / tempb :  2 * ENMTEN / x;
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> n = 1; n &lt; nb; ++n) {
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>                             tempa /= alpem;
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>                             alpem += 1;
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>                             tempa *= tempc;
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>                             <strong class="jxr_keyword">if</strong> (tempa &lt;= tover * alpem) {
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>                                 tempa = 0;
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>                             }
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>                             b[n] = tempa + (tempa * tempb / alpem);
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>                             <strong class="jxr_keyword">if</strong> ((b[n] == 0) &amp;&amp; (ncalc &gt; n)) {
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>                                 ncalc = n;
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>                             }
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>                         }
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>                     }
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>                 }
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> ((x &gt; 25.0) &amp;&amp; (nb &lt;= magx + 1)) {
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>                 <em class="jxr_comment">// Asymptotic series for X &gt; 25</em>
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xc = FastMath.sqrt(PI2 / x);
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> mul = 0.125 / x;
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xin = mul * mul;
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>                 <strong class="jxr_keyword">int</strong> m = 0;
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>                 <strong class="jxr_keyword">if</strong> (x &gt;= 130.0) {
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>                     m = 4;
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (x &gt;= 35.0) {
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>                     m = 8;
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>                     m = 11;
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>                 }
+<a class="jxr_linenumber" name="L336" href="#L336">336</a> 
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> xm = 4.0 * m;
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>                 <em class="jxr_comment">// Argument reduction for SIN and COS routines.</em>
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>                 <strong class="jxr_keyword">double</strong> t = (<strong class="jxr_keyword">double</strong>) ((<strong class="jxr_keyword">int</strong>) ((x / TWOPI) + 0.5));
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> z = x - t * TOWPI1 - t * TWOPI2 - (alpha + 0.5) / PI2;
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>                 <strong class="jxr_keyword">double</strong> vsin = FastMath.sin(z);
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>                 <strong class="jxr_keyword">double</strong> vcos = FastMath.cos(z);
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>                 <strong class="jxr_keyword">double</strong> gnu = 2 * alpha;
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>                 <strong class="jxr_keyword">double</strong> capq;
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>                 <strong class="jxr_keyword">double</strong> capp;
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>                 <strong class="jxr_keyword">double</strong> s;
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>                 <strong class="jxr_keyword">double</strong> t1;
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>                 <strong class="jxr_keyword">double</strong> xk;
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt;= 2; i++) {
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>                     s = (xm - 1 - gnu) * (xm - 1 + gnu) * xin * 0.5;
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>                     t = (gnu - (xm - 3.0)) * (gnu + (xm - 3.0));
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>                     capp = (s * t) / FACT[2 * m];
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>                     t1 = (gnu - (xm + 1)) * (gnu + (xm + 1));
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>                     capq = (s * t1) / FACT[2 * m + 1];
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>                     xk = xm;
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>                     <strong class="jxr_keyword">int</strong> k = 2 * m;
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>                     t1 = t;
+<a class="jxr_linenumber" name="L360" href="#L360">360</a> 
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 2; j &lt;= m; j++) {
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>                         xk -= 4.0;
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>                         s = (xk - 1 - gnu) * (xk - 1 + gnu);
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>                         t = (gnu - (xk - 3.0)) * (gnu + (xk - 3.0));
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>                         capp = (capp + 1 / FACT[k - 2]) * s * t * xin;
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>                         capq = (capq + 1 / FACT[k - 1]) * s * t1 * xin;
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>                         k -= 2;
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>                         t1 = t;
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>                     }
+<a class="jxr_linenumber" name="L370" href="#L370">370</a> 
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>                     capp += 1;
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>                     capq = (capq + 1) * ((gnu * gnu) - 1) * (0.125 / x);
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>                     b[i - 1] = xc * (capp * vcos - capq * vsin);
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>                     <strong class="jxr_keyword">if</strong> (nb == 1) {
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>                         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/apache/commons/math3/special/BesselJ.html">BesselJResult</a>(MathArrays.copyOf(b, b.length),
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>                                                  ncalc);
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>                     }
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>                     t = vsin;
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>                     vsin = -vcos;
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>                     vcos = t;
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>                     gnu += 2.0;
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>                 }
+<a class="jxr_linenumber" name="L383" href="#L383">383</a> 
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>                 <em class="jxr_comment">// If NB &gt; 2, compute J(X,ORDER+I) I = 2, NB-1</em>
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>                 <strong class="jxr_keyword">if</strong> (nb &gt; 2) {
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>                     gnu = 2 * alpha + 2.0;
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 2; j &lt; nb; ++j) {
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>                         b[j] = gnu * b[j - 1] / x - b[j - 2];
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>                         gnu += 2.0;
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>                     }
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>                 }
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>                 <em class="jxr_comment">// Use recurrence to generate results. First initialize the</em>
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>                 <em class="jxr_comment">// calculation of P*S.</em>
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> nbmx = nb - magx;
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>                 <strong class="jxr_keyword">int</strong> n = magx + 1;
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>                 <strong class="jxr_keyword">int</strong> nstart = 0;
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>                 <strong class="jxr_keyword">int</strong> nend = 0;
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>                 <strong class="jxr_keyword">double</strong> en = 2 * (n + alpha);
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>                 <strong class="jxr_keyword">double</strong> plast = 1;
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>                 <strong class="jxr_keyword">double</strong> p = en / x;
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>                 <strong class="jxr_keyword">double</strong> pold;
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>                 <em class="jxr_comment">// Calculate general significance test.</em>
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>                 <strong class="jxr_keyword">double</strong> test = 2 * ENSIG;
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>                 <strong class="jxr_keyword">boolean</strong> readyToInitialize = false;
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>                 <strong class="jxr_keyword">if</strong> (nbmx &gt;= 3) {
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>                     <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>                     <em class="jxr_comment">// Calculate P*S until N = NB-1. Check for possible</em>
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>                     <em class="jxr_comment">// overflow.</em>
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>                     <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>                     tover = ENTEN / ENSIG;
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>                     nstart = magx + 2;
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>                     nend = nb - 1;
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>                     en = 2 * (nstart - 1 + alpha);
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>                     <strong class="jxr_keyword">double</strong> psave;
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>                     <strong class="jxr_keyword">double</strong> psavel;
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = nstart; k &lt;= nend; k++) {
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>                         n = k;
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>                         en += 2.0;
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>                         pold = plast;
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>                         plast = p;
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>                         p = (en * plast / x) - pold;
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>                         <strong class="jxr_keyword">if</strong> (p &gt; tover) {
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>                             <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>                             <em class="jxr_comment">// To avoid overflow, divide P*S by TOVER. Calculate</em>
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>                             <em class="jxr_comment">// P*S until</em>
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>                             <em class="jxr_comment">// ABS(P) &gt; 1.</em>
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>                             <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>                             tover = ENTEN;
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>                             p /= tover;
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>                             plast /= tover;
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>                             psave = p;
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>                             psavel = plast;
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>                             nstart = n + 1;
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>                             <strong class="jxr_keyword">do</strong> {
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>                                 n += 1;
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>                                 en += 2.0;
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>                                 pold = plast;
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>                                 plast = p;
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>                                 p = (en * plast / x) - pold;
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>                             } <strong class="jxr_keyword">while</strong> (p &lt;= 1);
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>                             tempb = en / x;
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>                             <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>                             <em class="jxr_comment">// Calculate backward test and find NCALC, the</em>
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>                             <em class="jxr_comment">// highest N such that</em>
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>                             <em class="jxr_comment">// the test is passed.</em>
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>                             <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>                             test = pold * plast * (0.5 - 0.5 / (tempb * tempb));
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>                             test /= ENSIG;
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>                             p = plast * tover;
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>                             n -= 1;
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>                             en -= 2.0;
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>                             nend = FastMath.min(nb, n);
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>                             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> l = nstart; l &lt;= nend; l++) {
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>                                 pold = psavel;
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>                                 psavel = psave;
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>                                 psave = (en * psavel / x) - pold;
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>                                 <strong class="jxr_keyword">if</strong> (psave * psavel &gt; test) {
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>                                     ncalc = l - 1;
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>                                     readyToInitialize = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>                                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>                                 }
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>                             }
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>                             ncalc = nend;
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>                             readyToInitialize = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>                             <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>                         }
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>                     }
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>                     <strong class="jxr_keyword">if</strong> (!readyToInitialize) {
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>                         n = nend;
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>                         en = 2 * (n + alpha);
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>                         <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>                         <em class="jxr_comment">// Calculate special significance test for NBMX &gt; 2.</em>
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>                         <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>                         test = FastMath.max(test, FastMath.sqrt(plast * ENSIG) *
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>                                                   FastMath.sqrt(2 * p));
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>                     }
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>                 }
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>                 <em class="jxr_comment">// Calculate P*S until significance test passes.</em>
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>                 <strong class="jxr_keyword">if</strong> (!readyToInitialize) {
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>                     <strong class="jxr_keyword">do</strong> {
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>                         n += 1;
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>                         en += 2.0;
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>                         pold = plast;
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>                         plast = p;
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>                         p = (en * plast / x) - pold;
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>                     } <strong class="jxr_keyword">while</strong> (p &lt; test);
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>                 }
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>                 <em class="jxr_comment">// Initialize the backward recursion and the normalization sum.</em>
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>                 n += 1;
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>                 en += 2.0;
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>                 tempb = 0;
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>                 tempa = 1 / p;
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>                 <strong class="jxr_keyword">int</strong> m = (2 * n) - 4 * (n / 2);
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>                 <strong class="jxr_keyword">double</strong> sum = 0;
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>                 <strong class="jxr_keyword">double</strong> em = (<strong class="jxr_keyword">double</strong>) (n / 2);
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>                 alpem = em - 1 + alpha;
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>                 alp2em = 2 * em + alpha;
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>                 <strong class="jxr_keyword">if</strong> (m != 0) {
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>                     sum = tempa * alpem * alp2em / em;
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>                 }
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>                 nend = n - nb;
+<a class="jxr_linenumber" name="L513" href="#L513">513</a> 
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>                 <strong class="jxr_keyword">boolean</strong> readyToNormalize = false;
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>                 <strong class="jxr_keyword">boolean</strong> calculatedB0 = false;
+<a class="jxr_linenumber" name="L516" href="#L516">516</a> 
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>                 <em class="jxr_comment">// Recur backward via difference equation, calculating (but not</em>
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>                 <em class="jxr_comment">// storing) B(N), until N = NB.</em>
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> l = 1; l &lt;= nend; l++) {
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>                     n -= 1;
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>                     en -= 2.0;
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>                     tempc = tempb;
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>                     tempb = tempa;
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>                     tempa = (en * tempb / x) - tempc;
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>                     m = 2 - m;
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>                     <strong class="jxr_keyword">if</strong> (m != 0) {
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>                         em -= 1;
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>                         alp2em = 2 * em + alpha;
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>                         <strong class="jxr_keyword">if</strong> (n == 1) {
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>                             <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>                         }
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>                         alpem = em - 1 + alpha;
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>                         <strong class="jxr_keyword">if</strong> (alpem == 0) {
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>                             alpem = 1;
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>                         }
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>                         sum = (sum + tempa * alp2em) * alpem / em;
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>                     }
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>                 }
+<a class="jxr_linenumber" name="L541" href="#L541">541</a> 
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>                 <em class="jxr_comment">// Store B(NB).</em>
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>                 b[n - 1] = tempa;
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>                 <strong class="jxr_keyword">if</strong> (nend &gt;= 0) {
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>                     <strong class="jxr_keyword">if</strong> (nb &lt;= 1) {
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>                         alp2em = alpha;
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>                         <strong class="jxr_keyword">if</strong> (alpha + 1 == 1) {
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>                             alp2em = 1;
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>                         }
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>                         sum += b[0] * alp2em;
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>                         readyToNormalize = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>                     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>                         <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>                         <em class="jxr_comment">// Calculate and store B(NB-1).</em>
+<a class="jxr_linenumber" name="L557" href="#L557">557</a>                         <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L558" href="#L558">558</a>                         n -= 1;
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>                         en -= 2.0;
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>                         b[n - 1] = (en * tempa / x) - tempb;
+<a class="jxr_linenumber" name="L561" href="#L561">561</a>                         <strong class="jxr_keyword">if</strong> (n == 1) {
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>                             calculatedB0 = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L563" href="#L563">563</a>                         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>                             m = 2 - m;
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>                             <strong class="jxr_keyword">if</strong> (m != 0) {
+<a class="jxr_linenumber" name="L566" href="#L566">566</a>                                 em -= 1;
+<a class="jxr_linenumber" name="L567" href="#L567">567</a>                                 alp2em = 2 * em + alpha;
+<a class="jxr_linenumber" name="L568" href="#L568">568</a>                                 alpem = em - 1 + alpha;
+<a class="jxr_linenumber" name="L569" href="#L569">569</a>                                 <strong class="jxr_keyword">if</strong> (alpem == 0) {
+<a class="jxr_linenumber" name="L570" href="#L570">570</a>                                     alpem = 1;
+<a class="jxr_linenumber" name="L571" href="#L571">571</a>                                 }
+<a class="jxr_linenumber" name="L572" href="#L572">572</a> 
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>                                 sum = (sum + (b[n - 1] * alp2em)) * alpem / em;
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>                             }
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>                         }
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>                     }
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>                 }
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>                 <strong class="jxr_keyword">if</strong> (!readyToNormalize &amp;&amp; !calculatedB0) {
+<a class="jxr_linenumber" name="L579" href="#L579">579</a>                     nend = n - 2;
+<a class="jxr_linenumber" name="L580" href="#L580">580</a>                     <strong class="jxr_keyword">if</strong> (nend != 0) {
+<a class="jxr_linenumber" name="L581" href="#L581">581</a>                         <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L582" href="#L582">582</a>                         <em class="jxr_comment">// Calculate via difference equation and store B(N),</em>
+<a class="jxr_linenumber" name="L583" href="#L583">583</a>                         <em class="jxr_comment">// until N = 2.</em>
+<a class="jxr_linenumber" name="L584" href="#L584">584</a>                         <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L585" href="#L585">585</a> 
+<a class="jxr_linenumber" name="L586" href="#L586">586</a>                         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> l = 1; l &lt;= nend; l++) {
+<a class="jxr_linenumber" name="L587" href="#L587">587</a>                             n -= 1;
+<a class="jxr_linenumber" name="L588" href="#L588">588</a>                             en -= 2.0;
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>                             b[n - 1] = (en * b[n] / x) - b[n + 1];
+<a class="jxr_linenumber" name="L590" href="#L590">590</a>                             m = 2 - m;
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>                             <strong class="jxr_keyword">if</strong> (m != 0) {
+<a class="jxr_linenumber" name="L592" href="#L592">592</a>                                 em -= 1;
+<a class="jxr_linenumber" name="L593" href="#L593">593</a>                                 alp2em = 2 * em + alpha;
+<a class="jxr_linenumber" name="L594" href="#L594">594</a>                                 alpem = em - 1 + alpha;
+<a class="jxr_linenumber" name="L595" href="#L595">595</a>                                 <strong class="jxr_keyword">if</strong> (alpem == 0) {
+<a class="jxr_linenumber" name="L596" href="#L596">596</a>                                     alpem = 1;
+<a class="jxr_linenumber" name="L597" href="#L597">597</a>                                 }
+<a class="jxr_linenumber" name="L598" href="#L598">598</a> 
+<a class="jxr_linenumber" name="L599" href="#L599">599</a>                                 sum = (sum + b[n - 1] * alp2em) * alpem / em;
+<a class="jxr_linenumber" name="L600" href="#L600">600</a>                             }
+<a class="jxr_linenumber" name="L601" href="#L601">601</a>                         }
+<a class="jxr_linenumber" name="L602" href="#L602">602</a>                     }
+<a class="jxr_linenumber" name="L603" href="#L603">603</a>                 }
+<a class="jxr_linenumber" name="L604" href="#L604">604</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L605" href="#L605">605</a>                 <em class="jxr_comment">// Calculate b[0]</em>
+<a class="jxr_linenumber" name="L606" href="#L606">606</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L607" href="#L607">607</a>                 <strong class="jxr_keyword">if</strong> (!readyToNormalize) {
+<a class="jxr_linenumber" name="L608" href="#L608">608</a>                     <strong class="jxr_keyword">if</strong> (!calculatedB0) {
+<a class="jxr_linenumber" name="L609" href="#L609">609</a>                         b[0] = 2.0 * (alpha + 1) * b[1] / x - b[2];
+<a class="jxr_linenumber" name="L610" href="#L610">610</a>                     }
+<a class="jxr_linenumber" name="L611" href="#L611">611</a>                     em -= 1;
+<a class="jxr_linenumber" name="L612" href="#L612">612</a>                     alp2em = 2 * em + alpha;
+<a class="jxr_linenumber" name="L613" href="#L613">613</a>                     <strong class="jxr_keyword">if</strong> (alp2em == 0) {
+<a class="jxr_linenumber" name="L614" href="#L614">614</a>                         alp2em = 1;
+<a class="jxr_linenumber" name="L615" href="#L615">615</a>                     }
+<a class="jxr_linenumber" name="L616" href="#L616">616</a>                     sum += b[0] * alp2em;
+<a class="jxr_linenumber" name="L617" href="#L617">617</a>                 }
+<a class="jxr_linenumber" name="L618" href="#L618">618</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L619" href="#L619">619</a>                 <em class="jxr_comment">// Normalize. Divide all B(N) by sum.</em>
+<a class="jxr_linenumber" name="L620" href="#L620">620</a>                 <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L621" href="#L621">621</a> 
+<a class="jxr_linenumber" name="L622" href="#L622">622</a>                 <strong class="jxr_keyword">if</strong> (FastMath.abs(alpha) &gt; 1e-16) {
+<a class="jxr_linenumber" name="L623" href="#L623">623</a>                     sum *= Gamma.gamma(alpha) * FastMath.pow(x * 0.5, -alpha);
+<a class="jxr_linenumber" name="L624" href="#L624">624</a>                 }
+<a class="jxr_linenumber" name="L625" href="#L625">625</a>                 tempa = ENMTEN;
+<a class="jxr_linenumber" name="L626" href="#L626">626</a>                 <strong class="jxr_keyword">if</strong> (sum &gt; 1) {
+<a class="jxr_linenumber" name="L627" href="#L627">627</a>                     tempa *= sum;
+<a class="jxr_linenumber" name="L628" href="#L628">628</a>                 }
+<a class="jxr_linenumber" name="L629" href="#L629">629</a> 
+<a class="jxr_linenumber" name="L630" href="#L630">630</a>                 <strong class="jxr_keyword">for</strong> (n = 0; n &lt; nb; n++) {
+<a class="jxr_linenumber" name="L631" href="#L631">631</a>                     <strong class="jxr_keyword">if</strong> (FastMath.abs(b[n]) &lt; tempa) {
+<a class="jxr_linenumber" name="L632" href="#L632">632</a>                         b[n] = 0;
+<a class="jxr_linenumber" name="L633" href="#L633">633</a>                     }
+<a class="jxr_linenumber" name="L634" href="#L634">634</a>                     b[n] /= sum;
+<a class="jxr_linenumber" name="L635" href="#L635">635</a>                 }
+<a class="jxr_linenumber" name="L636" href="#L636">636</a>             }
+<a class="jxr_linenumber" name="L637" href="#L637">637</a>             <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L638" href="#L638">638</a>             <em class="jxr_comment">// Error return -- X, NB, or ALPHA is out of range.</em>
+<a class="jxr_linenumber" name="L639" href="#L639">639</a>             <em class="jxr_comment">// ---------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L640" href="#L640">640</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L641" href="#L641">641</a>             <strong class="jxr_keyword">if</strong> (b.length &gt; 0) {
+<a class="jxr_linenumber" name="L642" href="#L642">642</a>                 b[0] = 0;
+<a class="jxr_linenumber" name="L643" href="#L643">643</a>             }
+<a class="jxr_linenumber" name="L644" href="#L644">644</a>             ncalc = FastMath.min(nb, 0) - 1;
+<a class="jxr_linenumber" name="L645" href="#L645">645</a>         }
+<a class="jxr_linenumber" name="L646" href="#L646">646</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../org/apache/commons/math3/special/BesselJ.html">BesselJResult</a>(MathArrays.copyOf(b, b.length), ncalc);
+<a class="jxr_linenumber" name="L647" href="#L647">647</a>     }
+<a class="jxr_linenumber" name="L648" href="#L648">648</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BaseSecantSolver.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.solvers</a> &gt; <span class="el_source">BaseSecantSolver.java</span></div><h1>BaseSecantSolver.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.analysis.solvers;
+
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.exception.ConvergenceException;
+import org.apache.commons.math3.exception.MathInternalError;
+
+/**
+ * Base class for all bracketing &lt;em&gt;Secant&lt;/em&gt;-based methods for root-finding
+ * (approximating a zero of a univariate real function).
+ *
+ * &lt;p&gt;Implementation of the {@link RegulaFalsiSolver &lt;em&gt;Regula Falsi&lt;/em&gt;} and
+ * {@link IllinoisSolver &lt;em&gt;Illinois&lt;/em&gt;} methods is based on the
+ * following article: M. Dowell and P. Jarratt,
+ * &lt;em&gt;A modified regula falsi method for computing the root of an
+ * equation&lt;/em&gt;, BIT Numerical Mathematics, volume 11, number 2,
+ * pages 168-174, Springer, 1971.&lt;/p&gt;
+ *
+ * &lt;p&gt;Implementation of the {@link PegasusSolver &lt;em&gt;Pegasus&lt;/em&gt;} method is
+ * based on the following article: M. Dowell and P. Jarratt,
+ * &lt;em&gt;The &quot;Pegasus&quot; method for computing the root of an equation&lt;/em&gt;,
+ * BIT Numerical Mathematics, volume 12, number 4, pages 503-508, Springer,
+ * 1972.&lt;/p&gt;
+ *
+ * &lt;p&gt;The {@link SecantSolver &lt;em&gt;Secant&lt;/em&gt;} method is &lt;em&gt;not&lt;/em&gt; a
+ * bracketing method, so it is not implemented here. It has a separate
+ * implementation.&lt;/p&gt;
+ *
+ * @since 3.0
+ */
+public abstract class BaseSecantSolver
+    extends AbstractUnivariateSolver
+    implements BracketedUnivariateSolver&lt;UnivariateFunction&gt; {
+
+    /** Default absolute accuracy. */
+    protected static final double DEFAULT_ABSOLUTE_ACCURACY = 1e-6;
+
+    /** The kinds of solutions that the algorithm may accept. */
+    private AllowedSolution allowed;
+
+    /** The &lt;em&gt;Secant&lt;/em&gt;-based root-finding method to use. */
+    private final Method method;
+
+    /**
+     * Construct a solver.
+     *
+     * @param absoluteAccuracy Absolute accuracy.
+     * @param method &lt;em&gt;Secant&lt;/em&gt;-based root-finding method to use.
+     */
+    protected BaseSecantSolver(final double absoluteAccuracy, final Method method) {
+<span class="fc" id="L68">        super(absoluteAccuracy);</span>
+<span class="fc" id="L69">        this.allowed = AllowedSolution.ANY_SIDE;</span>
+<span class="fc" id="L70">        this.method = method;</span>
+<span class="fc" id="L71">    }</span>
+
+    /**
+     * Construct a solver.
+     *
+     * @param relativeAccuracy Relative accuracy.
+     * @param absoluteAccuracy Absolute accuracy.
+     * @param method &lt;em&gt;Secant&lt;/em&gt;-based root-finding method to use.
+     */
+    protected BaseSecantSolver(final double relativeAccuracy,
+                               final double absoluteAccuracy,
+                               final Method method) {
+<span class="fc" id="L83">        super(relativeAccuracy, absoluteAccuracy);</span>
+<span class="fc" id="L84">        this.allowed = AllowedSolution.ANY_SIDE;</span>
+<span class="fc" id="L85">        this.method = method;</span>
+<span class="fc" id="L86">    }</span>
+
+    /**
+     * Construct a solver.
+     *
+     * @param relativeAccuracy Maximum relative error.
+     * @param absoluteAccuracy Maximum absolute error.
+     * @param functionValueAccuracy Maximum function value error.
+     * @param method &lt;em&gt;Secant&lt;/em&gt;-based root-finding method to use
+     */
+    protected BaseSecantSolver(final double relativeAccuracy,
+                               final double absoluteAccuracy,
+                               final double functionValueAccuracy,
+                               final Method method) {
+<span class="fc" id="L100">        super(relativeAccuracy, absoluteAccuracy, functionValueAccuracy);</span>
+<span class="fc" id="L101">        this.allowed = AllowedSolution.ANY_SIDE;</span>
+<span class="fc" id="L102">        this.method = method;</span>
+<span class="fc" id="L103">    }</span>
+
+    /** {@inheritDoc} */
+    public double solve(final int maxEval, final UnivariateFunction f,
+                        final double min, final double max,
+                        final AllowedSolution allowedSolution) {
+<span class="fc" id="L109">        return solve(maxEval, f, min, max, min + 0.5 * (max - min), allowedSolution);</span>
+    }
+
+    /** {@inheritDoc} */
+    public double solve(final int maxEval, final UnivariateFunction f,
+                        final double min, final double max, final double startValue,
+                        final AllowedSolution allowedSolution) {
+<span class="fc" id="L116">        this.allowed = allowedSolution;</span>
+<span class="fc" id="L117">        return super.solve(maxEval, f, min, max, startValue);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double solve(final int maxEval, final UnivariateFunction f,
+                        final double min, final double max, final double startValue) {
+<span class="fc" id="L124">        return solve(maxEval, f, min, max, startValue, AllowedSolution.ANY_SIDE);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws ConvergenceException if the algorithm failed due to finite
+     * precision.
+     */
+    @Override
+    protected final double doSolve()
+        throws ConvergenceException {
+        // Get initial solution
+<span class="fc" id="L137">        double x0 = getMin();</span>
+<span class="fc" id="L138">        double x1 = getMax();</span>
+<span class="fc" id="L139">        double f0 = computeObjectiveValue(x0);</span>
+<span class="fc" id="L140">        double f1 = computeObjectiveValue(x1);</span>
+
+        // If one of the bounds is the exact root, return it. Since these are
+        // not under-approximations or over-approximations, we can return them
+        // regardless of the allowed solutions.
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        if (f0 == 0.0) {</span>
+<span class="fc" id="L146">            return x0;</span>
+        }
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        if (f1 == 0.0) {</span>
+<span class="fc" id="L149">            return x1;</span>
+        }
+
+        // Verify bracketing of initial solution.
+<span class="fc" id="L153">        verifyBracketing(x0, x1);</span>
+
+        // Get accuracies.
+<span class="fc" id="L156">        final double ftol = getFunctionValueAccuracy();</span>
+<span class="fc" id="L157">        final double atol = getAbsoluteAccuracy();</span>
+<span class="fc" id="L158">        final double rtol = getRelativeAccuracy();</span>
+
+        // Keep track of inverted intervals, meaning that the left bound is
+        // larger than the right bound.
+<span class="fc" id="L162">        boolean inverted = false;</span>
+
+        // Keep finding better approximations.
+        while (true) {
+            // Calculate the next approximation.
+<span class="fc" id="L167">            final double x = x1 - ((f1 * (x1 - x0)) / (f1 - f0));</span>
+<span class="fc" id="L168">            final double fx = computeObjectiveValue(x);</span>
+
+            // If the new approximation is the exact root, return it. Since
+            // this is not an under-approximation or an over-approximation,
+            // we can return it regardless of the allowed solutions.
+<span class="fc bfc" id="L173" title="All 2 branches covered.">            if (fx == 0.0) {</span>
+<span class="fc" id="L174">                return x;</span>
+            }
+
+            // Update the bounds with the new approximation.
+<span class="fc bfc" id="L178" title="All 2 branches covered.">            if (f1 * fx &lt; 0) {</span>
+                // The value of x1 has switched to the other bound, thus inverting
+                // the interval.
+<span class="fc" id="L181">                x0 = x1;</span>
+<span class="fc" id="L182">                f0 = f1;</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">                inverted = !inverted;</span>
+            } else {
+<span class="pc bpc" id="L185" title="1 of 4 branches missed.">                switch (method) {</span>
+                case ILLINOIS:
+<span class="fc" id="L187">                    f0 *= 0.5;</span>
+<span class="fc" id="L188">                    break;</span>
+                case PEGASUS:
+<span class="fc" id="L190">                    f0 *= f1 / (f1 + fx);</span>
+<span class="fc" id="L191">                    break;</span>
+                case REGULA_FALSI:
+                    // Detect early that algorithm is stuck, instead of waiting
+                    // for the maximum number of iterations to be exceeded.
+<span class="fc bfc" id="L195" title="All 2 branches covered.">                    if (x == x1) {</span>
+<span class="fc" id="L196">                        throw new ConvergenceException();</span>
+                    }
+                    break;
+                default:
+                    // Should never happen.
+<span class="nc" id="L201">                    throw new MathInternalError();</span>
+                }
+            }
+            // Update from [x0, x1] to [x0, x].
+<span class="fc" id="L205">            x1 = x;</span>
+<span class="fc" id="L206">            f1 = fx;</span>
+
+            // If the function value of the last approximation is too small,
+            // given the function value accuracy, then we can't get closer to
+            // the root than we already are.
+<span class="fc bfc" id="L211" title="All 2 branches covered.">            if (FastMath.abs(f1) &lt;= ftol) {</span>
+<span class="pc bpc" id="L212" title="1 of 6 branches missed.">                switch (allowed) {</span>
+                case ANY_SIDE:
+<span class="fc" id="L214">                    return x1;</span>
+                case LEFT_SIDE:
+<span class="fc bfc" id="L216" title="All 2 branches covered.">                    if (inverted) {</span>
+<span class="fc" id="L217">                        return x1;</span>
+                    }
+                    break;
+                case RIGHT_SIDE:
+<span class="fc bfc" id="L221" title="All 2 branches covered.">                    if (!inverted) {</span>
+<span class="fc" id="L222">                        return x1;</span>
+                    }
+                    break;
+                case BELOW_SIDE:
+<span class="fc bfc" id="L226" title="All 2 branches covered.">                    if (f1 &lt;= 0) {</span>
+<span class="fc" id="L227">                        return x1;</span>
+                    }
+                    break;
+                case ABOVE_SIDE:
+<span class="fc bfc" id="L231" title="All 2 branches covered.">                    if (f1 &gt;= 0) {</span>
+<span class="fc" id="L232">                        return x1;</span>
+                    }
+                    break;
+                default:
+<span class="nc" id="L236">                    throw new MathInternalError();</span>
+                }
+            }
+
+            // If the current interval is within the given accuracies, we
+            // are satisfied with the current approximation.
+<span class="fc bfc" id="L242" title="All 2 branches covered.">            if (FastMath.abs(x1 - x0) &lt; FastMath.max(rtol * FastMath.abs(x1),</span>
+                                                     atol)) {
+<span class="pc bpc" id="L244" title="1 of 6 branches missed.">                switch (allowed) {</span>
+                case ANY_SIDE:
+<span class="fc" id="L246">                    return x1;</span>
+                case LEFT_SIDE:
+<span class="fc bfc" id="L248" title="All 2 branches covered.">                    return inverted ? x1 : x0;</span>
+                case RIGHT_SIDE:
+<span class="fc bfc" id="L250" title="All 2 branches covered.">                    return inverted ? x0 : x1;</span>
+                case BELOW_SIDE:
+<span class="fc bfc" id="L252" title="All 2 branches covered.">                    return (f1 &lt;= 0) ? x1 : x0;</span>
+                case ABOVE_SIDE:
+<span class="fc bfc" id="L254" title="All 2 branches covered.">                    return (f1 &gt;= 0) ? x1 : x0;</span>
+                default:
+<span class="nc" id="L256">                    throw new MathInternalError();</span>
+                }
+            }
+<span class="fc" id="L259">        }</span>
+    }
+
+    /** &lt;em&gt;Secant&lt;/em&gt;-based root-finding methods. */
+<span class="pc" id="L263">    protected enum Method {</span>
+
+        /**
+         * The {@link RegulaFalsiSolver &lt;em&gt;Regula Falsi&lt;/em&gt;} or
+         * &lt;em&gt;False Position&lt;/em&gt; method.
+         */
+<span class="fc" id="L269">        REGULA_FALSI,</span>
+
+        /** The {@link IllinoisSolver &lt;em&gt;Illinois&lt;/em&gt;} method. */
+<span class="fc" id="L272">        ILLINOIS,</span>
+
+        /** The {@link PegasusSolver &lt;em&gt;Pegasus&lt;/em&gt;} method. */
+<span class="fc" id="L275">        PEGASUS;</span>
+
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RootsOfUnity.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.complex</a> &gt; <span class="el_source">RootsOfUnity.java</span></div><h1>RootsOfUnity.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.complex;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.MathIllegalStateException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.ZeroException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * A helper class for the computation and caching of the {@code n}-th roots of
+ * unity.
+ *
+ * @since 3.0
+ */
+public class RootsOfUnity implements Serializable {
+
+    /** Serializable version id. */
+    private static final long serialVersionUID = 20120201L;
+
+    /** Number of roots of unity. */
+    private int omegaCount;
+
+    /** Real part of the roots. */
+    private double[] omegaReal;
+
+    /**
+     * Imaginary part of the {@code n}-th roots of unity, for positive values
+     * of {@code n}. In this array, the roots are stored in counter-clockwise
+     * order.
+     */
+    private double[] omegaImaginaryCounterClockwise;
+
+    /**
+     * Imaginary part of the {@code n}-th roots of unity, for negative values
+     * of {@code n}. In this array, the roots are stored in clockwise order.
+     */
+    private double[] omegaImaginaryClockwise;
+
+    /**
+     * {@code true} if {@link #computeRoots(int)} was called with a positive
+     * value of its argument {@code n}. In this case, counter-clockwise ordering
+     * of the roots of unity should be used.
+     */
+    private boolean isCounterClockWise;
+
+    /**
+     * Build an engine for computing the {@code n}-th roots of unity.
+     */
+<span class="fc" id="L68">    public RootsOfUnity() {</span>
+
+<span class="fc" id="L70">        omegaCount = 0;</span>
+<span class="fc" id="L71">        omegaReal = null;</span>
+<span class="fc" id="L72">        omegaImaginaryCounterClockwise = null;</span>
+<span class="fc" id="L73">        omegaImaginaryClockwise = null;</span>
+<span class="fc" id="L74">        isCounterClockWise = true;</span>
+<span class="fc" id="L75">    }</span>
+
+    /**
+     * Returns {@code true} if {@link #computeRoots(int)} was called with a
+     * positive value of its argument {@code n}. If {@code true}, then
+     * counter-clockwise ordering of the roots of unity should be used.
+     *
+     * @return {@code true} if the roots of unity are stored in
+     * counter-clockwise order
+     * @throws MathIllegalStateException if no roots of unity have been computed
+     * yet
+     */
+    public synchronized boolean isCounterClockWise()
+            throws MathIllegalStateException {
+
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (omegaCount == 0) {</span>
+<span class="fc" id="L91">            throw new MathIllegalStateException(</span>
+                    LocalizedFormats.ROOTS_OF_UNITY_NOT_COMPUTED_YET);
+        }
+<span class="fc" id="L94">        return isCounterClockWise;</span>
+    }
+
+    /**
+     * &lt;p&gt;
+     * Computes the {@code n}-th roots of unity. The roots are stored in
+     * {@code omega[]}, such that {@code omega[k] = w ^ k}, where
+     * {@code k = 0, ..., n - 1}, {@code w = exp(2 * pi * i / n)} and
+     * {@code i = sqrt(-1)}.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * Note that {@code n} can be positive of negative
+     * &lt;/p&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;{@code abs(n)} is always the number of roots of unity.&lt;/li&gt;
+     * &lt;li&gt;If {@code n &gt; 0}, then the roots are stored in counter-clockwise order.&lt;/li&gt;
+     * &lt;li&gt;If {@code n &lt; 0}, then the roots are stored in clockwise order.&lt;/p&gt;
+     * &lt;/ul&gt;
+     *
+     * @param n the (signed) number of roots of unity to be computed
+     * @throws ZeroException if {@code n = 0}
+     */
+    public synchronized void computeRoots(int n) throws ZeroException {
+
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        if (n == 0) {</span>
+<span class="fc" id="L119">            throw new ZeroException(</span>
+                    LocalizedFormats.CANNOT_COMPUTE_0TH_ROOT_OF_UNITY);
+        }
+
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        isCounterClockWise = n &gt; 0;</span>
+
+        // avoid repetitive calculations
+<span class="fc" id="L126">        final int absN = FastMath.abs(n);</span>
+
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        if (absN == omegaCount) {</span>
+<span class="fc" id="L129">            return;</span>
+        }
+
+        // calculate everything from scratch
+<span class="fc" id="L133">        final double t = 2.0 * FastMath.PI / absN;</span>
+<span class="fc" id="L134">        final double cosT = FastMath.cos(t);</span>
+<span class="fc" id="L135">        final double sinT = FastMath.sin(t);</span>
+<span class="fc" id="L136">        omegaReal = new double[absN];</span>
+<span class="fc" id="L137">        omegaImaginaryCounterClockwise = new double[absN];</span>
+<span class="fc" id="L138">        omegaImaginaryClockwise = new double[absN];</span>
+<span class="fc" id="L139">        omegaReal[0] = 1.0;</span>
+<span class="fc" id="L140">        omegaImaginaryCounterClockwise[0] = 0.0;</span>
+<span class="fc" id="L141">        omegaImaginaryClockwise[0] = 0.0;</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        for (int i = 1; i &lt; absN; i++) {</span>
+<span class="fc" id="L143">            omegaReal[i] = omegaReal[i - 1] * cosT -</span>
+                    omegaImaginaryCounterClockwise[i - 1] * sinT;
+<span class="fc" id="L145">            omegaImaginaryCounterClockwise[i] = omegaReal[i - 1] * sinT +</span>
+                    omegaImaginaryCounterClockwise[i - 1] * cosT;
+<span class="fc" id="L147">            omegaImaginaryClockwise[i] = -omegaImaginaryCounterClockwise[i];</span>
+        }
+<span class="fc" id="L149">        omegaCount = absN;</span>
+<span class="fc" id="L150">    }</span>
+
+    /**
+     * Get the real part of the {@code k}-th {@code n}-th root of unity.
+     *
+     * @param k index of the {@code n}-th root of unity
+     * @return real part of the {@code k}-th {@code n}-th root of unity
+     * @throws MathIllegalStateException if no roots of unity have been
+     * computed yet
+     * @throws MathIllegalArgumentException if {@code k} is out of range
+     */
+    public synchronized double getReal(int k)
+            throws MathIllegalStateException, MathIllegalArgumentException {
+
+<span class="fc bfc" id="L164" title="All 2 branches covered.">        if (omegaCount == 0) {</span>
+<span class="fc" id="L165">            throw new MathIllegalStateException(</span>
+                    LocalizedFormats.ROOTS_OF_UNITY_NOT_COMPUTED_YET);
+        }
+<span class="pc bpc" id="L168" title="2 of 4 branches missed.">        if ((k &lt; 0) || (k &gt;= omegaCount)) {</span>
+<span class="nc" id="L169">            throw new OutOfRangeException(</span>
+                    LocalizedFormats.OUT_OF_RANGE_ROOT_OF_UNITY_INDEX,
+                    Integer.valueOf(k),
+                    Integer.valueOf(0),
+                    Integer.valueOf(omegaCount - 1));
+        }
+
+<span class="fc" id="L176">        return omegaReal[k];</span>
+    }
+
+    /**
+     * Get the imaginary part of the {@code k}-th {@code n}-th root of unity.
+     *
+     * @param k index of the {@code n}-th root of unity
+     * @return imaginary part of the {@code k}-th {@code n}-th root of unity
+     * @throws MathIllegalStateException if no roots of unity have been
+     * computed yet
+     * @throws OutOfRangeException if {@code k} is out of range
+     */
+    public synchronized double getImaginary(int k)
+            throws MathIllegalStateException, OutOfRangeException {
+
+<span class="fc bfc" id="L191" title="All 2 branches covered.">        if (omegaCount == 0) {</span>
+<span class="fc" id="L192">            throw new MathIllegalStateException(</span>
+                    LocalizedFormats.ROOTS_OF_UNITY_NOT_COMPUTED_YET);
+        }
+<span class="pc bpc" id="L195" title="2 of 4 branches missed.">        if ((k &lt; 0) || (k &gt;= omegaCount)) {</span>
+<span class="nc" id="L196">            throw new OutOfRangeException(</span>
+                    LocalizedFormats.OUT_OF_RANGE_ROOT_OF_UNITY_INDEX,
+                    Integer.valueOf(k),
+                    Integer.valueOf(0),
+                    Integer.valueOf(omegaCount - 1));
+        }
+
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">        return isCounterClockWise ? omegaImaginaryCounterClockwise[k] :</span>
+            omegaImaginaryClockwise[k];
+    }
+
+    /**
+     * Returns the number of roots of unity currently stored. If
+     * {@link #computeRoots(int)} was called with {@code n}, then this method
+     * returns {@code abs(n)}. If no roots of unity have been computed yet, this
+     * method returns 0.
+     *
+     * @return the number of roots of unity currently stored
+     */
+    public synchronized int getNumberOfRoots() {
+<span class="fc" id="L216">        return omegaCount;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

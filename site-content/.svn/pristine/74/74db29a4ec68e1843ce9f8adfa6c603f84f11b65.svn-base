@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>OnePointCrossover.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.genetics</a> &gt; <span class="el_source">OnePointCrossover.java</span></div><h1>OnePointCrossover.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.genetics;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+
+
+/**
+ * One point crossover policy. A random crossover point is selected and the
+ * first part from each parent is copied to the corresponding child, and the
+ * second parts are copied crosswise.
+ *
+ * Example:
+ * &lt;pre&gt;
+ * -C- denotes a crossover point
+ *                   -C-                                 -C-
+ * p1 = (1 0 1 0 0 1  | 0 1 1)    X    p2 = (0 1 1 0 1 0  | 1 1 1)
+ *      \------------/ \-----/              \------------/ \-----/
+ *            ||         (*)                       ||        (**)
+ *            VV         (**)                      VV        (*)
+ *      /------------\ /-----\              /------------\ /-----\
+ * c1 = (1 0 1 0 0 1  | 1 1 1)    X    c2 = (0 1 1 0 1 0  | 0 1 1)
+ * &lt;/pre&gt;
+ *
+ * This policy works only on {@link AbstractListChromosome}, and therefore it
+ * is parameterized by T. Moreover, the chromosomes must have same lengths.
+ *
+ * @param &lt;T&gt; generic type of the {@link AbstractListChromosome}s for crossover
+ * @since 2.0
+ *
+ */
+<span class="fc" id="L51">public class OnePointCrossover&lt;T&gt; implements CrossoverPolicy {</span>
+
+    /**
+     * Performs one point crossover. A random crossover point is selected and the
+     * first part from each parent is copied to the corresponding child, and the
+     * second parts are copied crosswise.
+     *
+     * Example:
+     * &lt;pre&gt;
+     * -C- denotes a crossover point
+     *                   -C-                                 -C-
+     * p1 = (1 0 1 0 0 1  | 0 1 1)    X    p2 = (0 1 1 0 1 0  | 1 1 1)
+     *      \------------/ \-----/              \------------/ \-----/
+     *            ||         (*)                       ||        (**)
+     *            VV         (**)                      VV        (*)
+     *      /------------\ /-----\              /------------\ /-----\
+     * c1 = (1 0 1 0 0 1  | 1 1 1)    X    c2 = (0 1 1 0 1 0  | 0 1 1)
+     * &lt;/pre&gt;
+     *
+     * @param first first parent (p1)
+     * @param second second parent (p2)
+     * @return pair of two children (c1,c2)
+     * @throws MathIllegalArgumentException iff one of the chromosomes is
+     *   not an instance of {@link AbstractListChromosome}
+     * @throws DimensionMismatchException if the length of the two chromosomes is different
+     */
+    @SuppressWarnings(&quot;unchecked&quot;) // OK because of instanceof checks
+    public ChromosomePair crossover(final Chromosome first, final Chromosome second)
+        throws DimensionMismatchException, MathIllegalArgumentException {
+
+<span class="pc bpc" id="L81" title="2 of 4 branches missed.">        if (! (first instanceof AbstractListChromosome&lt;?&gt; &amp;&amp; second instanceof AbstractListChromosome&lt;?&gt;)) {</span>
+<span class="nc" id="L82">            throw new MathIllegalArgumentException(LocalizedFormats.INVALID_FIXED_LENGTH_CHROMOSOME);</span>
+        }
+<span class="fc" id="L84">        return crossover((AbstractListChromosome&lt;T&gt;) first, (AbstractListChromosome&lt;T&gt;) second);</span>
+    }
+
+
+    /**
+     * Helper for {@link #crossover(Chromosome, Chromosome)}. Performs the actual crossover.
+     *
+     * @param first the first chromosome.
+     * @param second the second chromosome.
+     * @return the pair of new chromosomes that resulted from the crossover.
+     * @throws DimensionMismatchException if the length of the two chromosomes is different
+     */
+    private ChromosomePair crossover(final AbstractListChromosome&lt;T&gt; first,
+                                     final AbstractListChromosome&lt;T&gt; second) throws DimensionMismatchException {
+<span class="fc" id="L98">        final int length = first.getLength();</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        if (length != second.getLength()) {</span>
+<span class="nc" id="L100">            throw new DimensionMismatchException(second.getLength(), length);</span>
+        }
+
+        // array representations of the parents
+<span class="fc" id="L104">        final List&lt;T&gt; parent1Rep = first.getRepresentation();</span>
+<span class="fc" id="L105">        final List&lt;T&gt; parent2Rep = second.getRepresentation();</span>
+        // and of the children
+<span class="fc" id="L107">        final List&lt;T&gt; child1Rep = new ArrayList&lt;T&gt;(length);</span>
+<span class="fc" id="L108">        final List&lt;T&gt; child2Rep = new ArrayList&lt;T&gt;(length);</span>
+
+        // select a crossover point at random (0 and length makes no sense)
+<span class="fc" id="L111">        final int crossoverIndex = 1 + (GeneticAlgorithm.getRandomGenerator().nextInt(length-2));</span>
+
+        // copy the first part
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        for (int i = 0; i &lt; crossoverIndex; i++) {</span>
+<span class="fc" id="L115">            child1Rep.add(parent1Rep.get(i));</span>
+<span class="fc" id="L116">            child2Rep.add(parent2Rep.get(i));</span>
+        }
+        // and switch the second part
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        for (int i = crossoverIndex; i &lt; length; i++) {</span>
+<span class="fc" id="L120">            child1Rep.add(parent2Rep.get(i));</span>
+<span class="fc" id="L121">            child2Rep.add(parent1Rep.get(i));</span>
+        }
+
+<span class="fc" id="L124">        return new ChromosomePair(first.newFixedLengthChromosome(child1Rep),</span>
+                                  second.newFixedLengthChromosome(child2Rep));
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

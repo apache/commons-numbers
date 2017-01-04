@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractOptimizationProblem.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optim</a> &gt; <span class="el_source">AbstractOptimizationProblem.java</span></div><h1>AbstractOptimizationProblem.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.optim;
+
+import org.apache.commons.math3.exception.TooManyEvaluationsException;
+import org.apache.commons.math3.exception.TooManyIterationsException;
+import org.apache.commons.math3.util.Incrementor;
+
+/**
+ * Base class for implementing optimization problems. It contains the boiler-plate code
+ * for counting the number of evaluations of the objective function and the number of
+ * iterations of the algorithm, and storing the convergence checker.
+ *
+ * @param &lt;PAIR&gt; Type of the point/value pair returned by the optimization algorithm.
+ * @since 3.3
+ */
+public abstract class AbstractOptimizationProblem&lt;PAIR&gt;
+        implements OptimizationProblem&lt;PAIR&gt; {
+
+    /** Callback to use for the evaluation counter. */
+<span class="fc" id="L35">    private static final MaxEvalCallback MAX_EVAL_CALLBACK = new MaxEvalCallback();</span>
+    /** Callback to use for the iteration counter. */
+<span class="fc" id="L37">    private static final MaxIterCallback MAX_ITER_CALLBACK = new MaxIterCallback();</span>
+
+    /** max evaluations */
+    private final int maxEvaluations;
+    /** max iterations */
+    private final int maxIterations;
+    /** Convergence checker. */
+    private final ConvergenceChecker&lt;PAIR&gt; checker;
+
+    /**
+     * Create an {@link AbstractOptimizationProblem} from the given data.
+     *
+     * @param maxEvaluations the number of allowed model function evaluations.
+     * @param maxIterations  the number of allowed iterations.
+     * @param checker        the convergence checker.
+     */
+    protected AbstractOptimizationProblem(final int maxEvaluations,
+                                          final int maxIterations,
+<span class="fc" id="L55">                                          final ConvergenceChecker&lt;PAIR&gt; checker) {</span>
+<span class="fc" id="L56">        this.maxEvaluations = maxEvaluations;</span>
+<span class="fc" id="L57">        this.maxIterations = maxIterations;</span>
+<span class="fc" id="L58">        this.checker = checker;</span>
+<span class="fc" id="L59">    }</span>
+
+    /** {@inheritDoc} */
+    public Incrementor getEvaluationCounter() {
+<span class="fc" id="L63">        return new Incrementor(this.maxEvaluations, MAX_EVAL_CALLBACK);</span>
+    }
+
+    /** {@inheritDoc} */
+    public Incrementor getIterationCounter() {
+<span class="fc" id="L68">        return new Incrementor(this.maxIterations, MAX_ITER_CALLBACK);</span>
+    }
+
+    /** {@inheritDoc} */
+    public ConvergenceChecker&lt;PAIR&gt; getConvergenceChecker() {
+<span class="fc" id="L73">        return checker;</span>
+    }
+
+    /** Defines the action to perform when reaching the maximum number of evaluations. */
+<span class="fc" id="L77">    private static class MaxEvalCallback</span>
+            implements Incrementor.MaxCountExceededCallback {
+        /**
+         * {@inheritDoc}
+         *
+         * @throws TooManyEvaluationsException
+         */
+        public void trigger(int max) {
+<span class="fc" id="L85">            throw new TooManyEvaluationsException(max);</span>
+        }
+    }
+
+    /** Defines the action to perform when reaching the maximum number of evaluations. */
+<span class="fc" id="L90">    private static class MaxIterCallback</span>
+            implements Incrementor.MaxCountExceededCallback {
+        /**
+         * {@inheritDoc}
+         *
+         * @throws TooManyIterationsException
+         */
+        public void trigger(int max) {
+<span class="fc" id="L98">            throw new TooManyIterationsException(max);</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>KolmogorovSmirnovDistribution.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.distribution</a> &gt; <span class="el_source">KolmogorovSmirnovDistribution.java</span></div><h1>KolmogorovSmirnovDistribution.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.distribution;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+
+import org.apache.commons.math3.exception.MathArithmeticException;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.fraction.BigFraction;
+import org.apache.commons.math3.fraction.BigFractionField;
+import org.apache.commons.math3.fraction.FractionConversionException;
+import org.apache.commons.math3.linear.Array2DRowFieldMatrix;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.FieldMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * Implementation of the Kolmogorov-Smirnov distribution.
+ *
+ * &lt;p&gt;
+ * Treats the distribution of the two-sided {@code P(D_n &lt; d)} where
+ * {@code D_n = sup_x |G(x) - G_n (x)|} for the theoretical cdf {@code G} and
+ * the empirical cdf {@code G_n}.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * This implementation is based on [1] with certain quick decisions for extreme
+ * values given in [2].
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * In short, when wanting to evaluate {@code P(D_n &lt; d)}, the method in [1] is
+ * to write {@code d = (k - h) / n} for positive integer {@code k} and
+ * {@code 0 &lt;= h &lt; 1}. Then {@code P(D_n &lt; d) = (n! / n^n) * t_kk}, where
+ * {@code t_kk} is the {@code (k, k)}'th entry in the special matrix
+ * {@code H^n}, i.e. {@code H} to the {@code n}'th power.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * References:
+ * &lt;ul&gt;
+ * &lt;li&gt;[1] &lt;a href=&quot;http://www.jstatsoft.org/v08/i18/&quot;&gt;
+ * Evaluating Kolmogorov's Distribution&lt;/a&gt; by George Marsaglia, Wai
+ * Wan Tsang, and Jingbo Wang&lt;/li&gt;
+ * &lt;li&gt;[2] &lt;a href=&quot;http://www.jstatsoft.org/v39/i11/&quot;&gt;
+ * Computing the Two-Sided Kolmogorov-Smirnov Distribution&lt;/a&gt; by Richard Simard
+ * and Pierre L'Ecuyer&lt;/li&gt;
+ * &lt;/ul&gt;
+ * Note that [1] contains an error in computing h, refer to
+ * &lt;a href=&quot;https://issues.apache.org/jira/browse/MATH-437&quot;&gt;MATH-437&lt;/a&gt; for details.
+ * &lt;/p&gt;
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Kolmogorov-Smirnov_test&quot;&gt;
+ * Kolmogorov-Smirnov test (Wikipedia)&lt;/a&gt;
+ * @deprecated to be removed in version 4.0 -
+ *  use {@link org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest}
+ */
+public class KolmogorovSmirnovDistribution implements Serializable {
+
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = -4670676796862967187L;
+
+    /** Number of observations. */
+    private int n;
+
+    /**
+     * @param n Number of observations
+     * @throws NotStrictlyPositiveException if {@code n &lt;= 0}
+     */
+    public KolmogorovSmirnovDistribution(int n)
+<span class="fc" id="L87">        throws NotStrictlyPositiveException {</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        if (n &lt;= 0) {</span>
+<span class="nc" id="L89">            throw new NotStrictlyPositiveException(LocalizedFormats.NOT_POSITIVE_NUMBER_OF_SAMPLES, n);</span>
+        }
+
+<span class="fc" id="L92">        this.n = n;</span>
+<span class="fc" id="L93">    }</span>
+
+    /**
+     * Calculates {@code P(D_n &lt; d)} using method described in [1] with quick
+     * decisions for extreme values given in [2] (see above). The result is not
+     * exact as with
+     * {@link KolmogorovSmirnovDistribution#cdfExact(double)} because
+     * calculations are based on {@code double} rather than
+     * {@link org.apache.commons.math3.fraction.BigFraction}.
+     *
+     * @param d statistic
+     * @return the two-sided probability of {@code P(D_n &lt; d)}
+     * @throws MathArithmeticException if algorithm fails to convert {@code h}
+     * to a {@link org.apache.commons.math3.fraction.BigFraction} in expressing
+     * {@code d} as {@code (k - h) / m} for integer {@code k, m} and
+     * {@code 0 &lt;= h &lt; 1}.
+     */
+    public double cdf(double d) throws MathArithmeticException {
+<span class="nc" id="L111">        return this.cdf(d, false);</span>
+    }
+
+    /**
+     * Calculates {@code P(D_n &lt; d)} using method described in [1] with quick
+     * decisions for extreme values given in [2] (see above). The result is
+     * exact in the sense that BigFraction/BigReal is used everywhere at the
+     * expense of very slow execution time. Almost never choose this in real
+     * applications unless you are very sure; this is almost solely for
+     * verification purposes. Normally, you would choose
+     * {@link KolmogorovSmirnovDistribution#cdf(double)}
+     *
+     * @param d statistic
+     * @return the two-sided probability of {@code P(D_n &lt; d)}
+     * @throws MathArithmeticException if algorithm fails to convert {@code h}
+     * to a {@link org.apache.commons.math3.fraction.BigFraction} in expressing
+     * {@code d} as {@code (k - h) / m} for integer {@code k, m} and
+     * {@code 0 &lt;= h &lt; 1}.
+     */
+    public double cdfExact(double d) throws MathArithmeticException {
+<span class="nc" id="L131">        return this.cdf(d, true);</span>
+    }
+
+    /**
+     * Calculates {@code P(D_n &lt; d)} using method described in [1] with quick
+     * decisions for extreme values given in [2] (see above).
+     *
+     * @param d statistic
+     * @param exact whether the probability should be calculated exact using
+     * {@link org.apache.commons.math3.fraction.BigFraction} everywhere at the
+     * expense of very slow execution time, or if {@code double} should be used
+     * convenient places to gain speed. Almost never choose {@code true} in real
+     * applications unless you are very sure; {@code true} is almost solely for
+     * verification purposes.
+     * @return the two-sided probability of {@code P(D_n &lt; d)}
+     * @throws MathArithmeticException if algorithm fails to convert {@code h}
+     * to a {@link org.apache.commons.math3.fraction.BigFraction} in expressing
+     * {@code d} as {@code (k - h) / m} for integer {@code k, m} and
+     * {@code 0 &lt;= h &lt; 1}.
+     */
+    public double cdf(double d, boolean exact) throws MathArithmeticException {
+
+<span class="fc" id="L153">        final double ninv = 1 / ((double) n);</span>
+<span class="fc" id="L154">        final double ninvhalf = 0.5 * ninv;</span>
+
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">        if (d &lt;= ninvhalf) {</span>
+
+<span class="nc" id="L158">            return 0;</span>
+
+<span class="pc bpc" id="L160" title="1 of 4 branches missed.">        } else if (ninvhalf &lt; d &amp;&amp; d &lt;= ninv) {</span>
+
+<span class="fc" id="L162">            double res = 1;</span>
+<span class="fc" id="L163">            double f = 2 * d - ninv;</span>
+
+            // n! f^n = n*f * (n-1)*f * ... * 1*x
+<span class="fc bfc" id="L166" title="All 2 branches covered.">            for (int i = 1; i &lt;= n; ++i) {</span>
+<span class="fc" id="L167">                res *= i * f;</span>
+            }
+
+<span class="fc" id="L170">            return res;</span>
+
+<span class="pc bpc" id="L172" title="3 of 4 branches missed.">        } else if (1 - ninv &lt;= d &amp;&amp; d &lt; 1) {</span>
+
+<span class="nc" id="L174">            return 1 - 2 * FastMath.pow(1 - d, n);</span>
+
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">        } else if (1 &lt;= d) {</span>
+
+<span class="nc" id="L178">            return 1;</span>
+        }
+
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">        return exact ? exactK(d) : roundedK(d);</span>
+    }
+
+    /**
+     * Calculates the exact value of {@code P(D_n &lt; d)} using method described
+     * in [1] and {@link org.apache.commons.math3.fraction.BigFraction} (see
+     * above).
+     *
+     * @param d statistic
+     * @return the two-sided probability of {@code P(D_n &lt; d)}
+     * @throws MathArithmeticException if algorithm fails to convert {@code h}
+     * to a {@link org.apache.commons.math3.fraction.BigFraction} in expressing
+     * {@code d} as {@code (k - h) / m} for integer {@code k, m} and
+     * {@code 0 &lt;= h &lt; 1}.
+     */
+    private double exactK(double d) throws MathArithmeticException {
+
+<span class="nc" id="L198">        final int k = (int) FastMath.ceil(n * d);</span>
+
+<span class="nc" id="L200">        final FieldMatrix&lt;BigFraction&gt; H = this.createH(d);</span>
+<span class="nc" id="L201">        final FieldMatrix&lt;BigFraction&gt; Hpower = H.power(n);</span>
+
+<span class="nc" id="L203">        BigFraction pFrac = Hpower.getEntry(k - 1, k - 1);</span>
+
+<span class="nc bnc" id="L205" title="All 2 branches missed.">        for (int i = 1; i &lt;= n; ++i) {</span>
+<span class="nc" id="L206">            pFrac = pFrac.multiply(i).divide(n);</span>
+        }
+
+        /*
+         * BigFraction.doubleValue converts numerator to double and the
+         * denominator to double and divides afterwards. That gives NaN quite
+         * easy. This does not (scale is the number of digits):
+         */
+<span class="nc" id="L214">        return pFrac.bigDecimalValue(20, BigDecimal.ROUND_HALF_UP).doubleValue();</span>
+    }
+
+    /**
+     * Calculates {@code P(D_n &lt; d)} using method described in [1] and doubles
+     * (see above).
+     *
+     * @param d statistic
+     * @return the two-sided probability of {@code P(D_n &lt; d)}
+     * @throws MathArithmeticException if algorithm fails to convert {@code h}
+     * to a {@link org.apache.commons.math3.fraction.BigFraction} in expressing
+     * {@code d} as {@code (k - h) / m} for integer {@code k, m} and
+     * {@code 0 &lt;= h &lt; 1}.
+     */
+    private double roundedK(double d) throws MathArithmeticException {
+
+<span class="fc" id="L230">        final int k = (int) FastMath.ceil(n * d);</span>
+<span class="fc" id="L231">        final FieldMatrix&lt;BigFraction&gt; HBigFraction = this.createH(d);</span>
+<span class="fc" id="L232">        final int m = HBigFraction.getRowDimension();</span>
+
+        /*
+         * Here the rounding part comes into play: use
+         * RealMatrix instead of FieldMatrix&lt;BigFraction&gt;
+         */
+<span class="fc" id="L238">        final RealMatrix H = new Array2DRowRealMatrix(m, m);</span>
+
+<span class="fc bfc" id="L240" title="All 2 branches covered.">        for (int i = 0; i &lt; m; ++i) {</span>
+<span class="fc bfc" id="L241" title="All 2 branches covered.">            for (int j = 0; j &lt; m; ++j) {</span>
+<span class="fc" id="L242">                H.setEntry(i, j, HBigFraction.getEntry(i, j).doubleValue());</span>
+            }
+        }
+
+<span class="fc" id="L246">        final RealMatrix Hpower = H.power(n);</span>
+
+<span class="fc" id="L248">        double pFrac = Hpower.getEntry(k - 1, k - 1);</span>
+
+<span class="fc bfc" id="L250" title="All 2 branches covered.">        for (int i = 1; i &lt;= n; ++i) {</span>
+<span class="fc" id="L251">            pFrac *= (double) i / (double) n;</span>
+        }
+
+<span class="fc" id="L254">        return pFrac;</span>
+    }
+
+    /***
+     * Creates {@code H} of size {@code m x m} as described in [1] (see above).
+     *
+     * @param d statistic
+     * @return H matrix
+     * @throws NumberIsTooLargeException if fractional part is greater than 1
+     * @throws FractionConversionException if algorithm fails to convert
+     * {@code h} to a {@link org.apache.commons.math3.fraction.BigFraction} in
+     * expressing {@code d} as {@code (k - h) / m} for integer {@code k, m} and
+     * {@code 0 &lt;= h &lt; 1}.
+     */
+    private FieldMatrix&lt;BigFraction&gt; createH(double d)
+            throws NumberIsTooLargeException, FractionConversionException {
+
+<span class="fc" id="L271">        int k = (int) FastMath.ceil(n * d);</span>
+
+<span class="fc" id="L273">        int m = 2 * k - 1;</span>
+<span class="fc" id="L274">        double hDouble = k - n * d;</span>
+
+<span class="pc bpc" id="L276" title="1 of 2 branches missed.">        if (hDouble &gt;= 1) {</span>
+<span class="nc" id="L277">            throw new NumberIsTooLargeException(hDouble, 1.0, false);</span>
+        }
+
+<span class="fc" id="L280">        BigFraction h = null;</span>
+
+        try {
+<span class="fc" id="L283">            h = new BigFraction(hDouble, 1.0e-20, 10000);</span>
+<span class="fc" id="L284">        } catch (FractionConversionException e1) {</span>
+            try {
+<span class="fc" id="L286">                h = new BigFraction(hDouble, 1.0e-10, 10000);</span>
+<span class="nc" id="L287">            } catch (FractionConversionException e2) {</span>
+<span class="nc" id="L288">                h = new BigFraction(hDouble, 1.0e-5, 10000);</span>
+<span class="fc" id="L289">            }</span>
+<span class="fc" id="L290">        }</span>
+
+<span class="fc" id="L292">        final BigFraction[][] Hdata = new BigFraction[m][m];</span>
+
+        /*
+         * Start by filling everything with either 0 or 1.
+         */
+<span class="fc bfc" id="L297" title="All 2 branches covered.">        for (int i = 0; i &lt; m; ++i) {</span>
+<span class="fc bfc" id="L298" title="All 2 branches covered.">            for (int j = 0; j &lt; m; ++j) {</span>
+<span class="fc bfc" id="L299" title="All 2 branches covered.">                if (i - j + 1 &lt; 0) {</span>
+<span class="fc" id="L300">                    Hdata[i][j] = BigFraction.ZERO;</span>
+                } else {
+<span class="fc" id="L302">                    Hdata[i][j] = BigFraction.ONE;</span>
+                }
+            }
+        }
+
+        /*
+         * Setting up power-array to avoid calculating the same value twice:
+         * hPowers[0] = h^1 ... hPowers[m-1] = h^m
+         */
+<span class="fc" id="L311">        final BigFraction[] hPowers = new BigFraction[m];</span>
+<span class="fc" id="L312">        hPowers[0] = h;</span>
+<span class="fc bfc" id="L313" title="All 2 branches covered.">        for (int i = 1; i &lt; m; ++i) {</span>
+<span class="fc" id="L314">            hPowers[i] = h.multiply(hPowers[i - 1]);</span>
+        }
+
+        /*
+         * First column and last row has special values (each other reversed).
+         */
+<span class="fc bfc" id="L320" title="All 2 branches covered.">        for (int i = 0; i &lt; m; ++i) {</span>
+<span class="fc" id="L321">            Hdata[i][0] = Hdata[i][0].subtract(hPowers[i]);</span>
+<span class="fc" id="L322">            Hdata[m - 1][i] = Hdata[m - 1][i].subtract(hPowers[m - i - 1]);</span>
+        }
+
+        /*
+         * [1] states: &quot;For 1/2 &lt; h &lt; 1 the bottom left element of the matrix
+         * should be (1 - 2*h^m + (2h - 1)^m )/m!&quot; Since 0 &lt;= h &lt; 1, then if h &gt;
+         * 1/2 is sufficient to check:
+         */
+<span class="fc bfc" id="L330" title="All 2 branches covered.">        if (h.compareTo(BigFraction.ONE_HALF) == 1) {</span>
+<span class="fc" id="L331">            Hdata[m - 1][0] = Hdata[m - 1][0].add(h.multiply(2).subtract(1).pow(m));</span>
+        }
+
+        /*
+         * Aside from the first column and last row, the (i, j)-th element is
+         * 1/(i - j + 1)! if i - j + 1 &gt;= 0, else 0. 1's and 0's are already
+         * put, so only division with (i - j + 1)! is needed in the elements
+         * that have 1's. There is no need to calculate (i - j + 1)! and then
+         * divide - small steps avoid overflows.
+         *
+         * Note that i - j + 1 &gt; 0 &lt;=&gt; i + 1 &gt; j instead of j'ing all the way to
+         * m. Also note that it is started at g = 2 because dividing by 1 isn't
+         * really necessary.
+         */
+<span class="fc bfc" id="L345" title="All 2 branches covered.">        for (int i = 0; i &lt; m; ++i) {</span>
+<span class="fc bfc" id="L346" title="All 2 branches covered.">            for (int j = 0; j &lt; i + 1; ++j) {</span>
+<span class="pc bpc" id="L347" title="1 of 2 branches missed.">                if (i - j + 1 &gt; 0) {</span>
+<span class="fc bfc" id="L348" title="All 2 branches covered.">                    for (int g = 2; g &lt;= i - j + 1; ++g) {</span>
+<span class="fc" id="L349">                        Hdata[i][j] = Hdata[i][j].divide(g);</span>
+                    }
+                }
+            }
+        }
+
+<span class="fc" id="L355">        return new Array2DRowFieldMatrix&lt;BigFraction&gt;(BigFractionField.getInstance(), Hdata);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

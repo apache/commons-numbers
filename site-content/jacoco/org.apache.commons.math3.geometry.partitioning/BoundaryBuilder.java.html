@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BoundaryBuilder.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.partitioning</a> &gt; <span class="el_source">BoundaryBuilder.java</span></div><h1>BoundaryBuilder.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.partitioning;
+
+import org.apache.commons.math3.geometry.Space;
+
+/** Visitor building boundary shell tree.
+ * &lt;p&gt;
+ * The boundary shell is represented as {@link BoundaryAttribute boundary attributes}
+ * at each internal node.
+ * &lt;/p&gt;
+ * @param &lt;S&gt; Type of the space.
+ * @since 3.4
+ */
+<span class="fc" id="L29">class BoundaryBuilder&lt;S extends Space&gt; implements BSPTreeVisitor&lt;S&gt; {</span>
+
+    /** {@inheritDoc} */
+    public Order visitOrder(BSPTree&lt;S&gt; node) {
+<span class="fc" id="L33">        return Order.PLUS_MINUS_SUB;</span>
+    }
+
+    /** {@inheritDoc} */
+    public void visitInternalNode(BSPTree&lt;S&gt; node) {
+
+<span class="fc" id="L39">        SubHyperplane&lt;S&gt; plusOutside = null;</span>
+<span class="fc" id="L40">        SubHyperplane&lt;S&gt; plusInside  = null;</span>
+<span class="fc" id="L41">        NodesSet&lt;S&gt;      splitters   = null;</span>
+
+        // characterize the cut sub-hyperplane,
+        // first with respect to the plus sub-tree
+<span class="fc" id="L45">        final Characterization&lt;S&gt; plusChar = new Characterization&lt;S&gt;(node.getPlus(), node.getCut().copySelf());</span>
+
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        if (plusChar.touchOutside()) {</span>
+            // plusChar.outsideTouching() corresponds to a subset of the cut sub-hyperplane
+            // known to have outside cells on its plus side, we want to check if parts
+            // of this subset do have inside cells on their minus side
+<span class="fc" id="L51">            final Characterization&lt;S&gt; minusChar = new Characterization&lt;S&gt;(node.getMinus(), plusChar.outsideTouching());</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">            if (minusChar.touchInside()) {</span>
+                // this part belongs to the boundary,
+                // it has the outside on its plus side and the inside on its minus side
+<span class="fc" id="L55">                plusOutside = minusChar.insideTouching();</span>
+<span class="fc" id="L56">                splitters = new NodesSet&lt;S&gt;();</span>
+<span class="fc" id="L57">                splitters.addAll(minusChar.getInsideSplitters());</span>
+<span class="fc" id="L58">                splitters.addAll(plusChar.getOutsideSplitters());</span>
+            }
+        }
+
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        if (plusChar.touchInside()) {</span>
+            // plusChar.insideTouching() corresponds to a subset of the cut sub-hyperplane
+            // known to have inside cells on its plus side, we want to check if parts
+            // of this subset do have outside cells on their minus side
+<span class="fc" id="L66">            final Characterization&lt;S&gt; minusChar = new Characterization&lt;S&gt;(node.getMinus(), plusChar.insideTouching());</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">            if (minusChar.touchOutside()) {</span>
+                // this part belongs to the boundary,
+                // it has the inside on its plus side and the outside on its minus side
+<span class="fc" id="L70">                plusInside = minusChar.outsideTouching();</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">                if (splitters == null) {</span>
+<span class="fc" id="L72">                    splitters = new NodesSet&lt;S&gt;();</span>
+                }
+<span class="fc" id="L74">                splitters.addAll(minusChar.getOutsideSplitters());</span>
+<span class="fc" id="L75">                splitters.addAll(plusChar.getInsideSplitters());</span>
+            }
+        }
+
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (splitters != null) {</span>
+            // the parent nodes are natural splitters for boundary sub-hyperplanes
+<span class="fc bfc" id="L81" title="All 2 branches covered.">            for (BSPTree&lt;S&gt; up = node.getParent(); up != null; up = up.getParent()) {</span>
+<span class="fc" id="L82">                splitters.add(up);</span>
+            }
+        }
+
+        // set the boundary attribute at non-leaf nodes
+<span class="fc" id="L87">        node.setAttribute(new BoundaryAttribute&lt;S&gt;(plusOutside, plusInside, splitters));</span>
+
+<span class="fc" id="L89">    }</span>
+
+    /** {@inheritDoc} */
+    public void visitLeafNode(BSPTree&lt;S&gt; node) {
+<span class="fc" id="L93">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

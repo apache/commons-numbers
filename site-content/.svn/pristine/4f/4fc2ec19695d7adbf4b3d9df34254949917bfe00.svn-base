@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FieldODEState.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode</a> &gt; <span class="el_source">FieldODEState.java</span></div><h1>FieldODEState.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode;
+
+import org.apache.commons.math3.Field;
+import org.apache.commons.math3.RealFieldElement;
+import org.apache.commons.math3.util.MathArrays;
+
+/** Container for time, main and secondary state vectors.
+
+ * @see FirstOrderFieldDifferentialEquations
+ * @see FieldSecondaryEquations
+ * @see FirstOrderFieldIntegrator
+ * @see FieldODEStateAndDerivative
+ * @param &lt;T&gt; the type of the field elements
+ * @since 3.6
+ */
+
+public class FieldODEState&lt;T extends RealFieldElement&lt;T&gt;&gt; {
+
+    /** Time. */
+    private final T time;
+
+    /** Main state at time. */
+    private final T[] state;
+
+    /** Secondary state at time. */
+    private final T[][] secondaryState;
+
+    /** Simple constructor.
+     * &lt;p&gt;Calling this constructor is equivalent to call {@link
+     * #FieldODEState(RealFieldElement, RealFieldElement[], RealFieldElement[][])
+     * FieldODEState(time, state, null)}.&lt;/p&gt;
+     * @param time time
+     * @param state state at time
+     */
+    public FieldODEState(T time, T[] state) {
+<span class="fc" id="L53">        this(time, state, null);</span>
+<span class="fc" id="L54">    }</span>
+
+    /** Simple constructor.
+     * @param time time
+     * @param state state at time
+     * @param secondaryState state at time (may be null)
+     */
+<span class="fc" id="L61">    public FieldODEState(T time, T[] state, T[][] secondaryState) {</span>
+<span class="fc" id="L62">        this.time           = time;</span>
+<span class="fc" id="L63">        this.state          = state.clone();</span>
+<span class="fc" id="L64">        this.secondaryState = copy(time.getField(), secondaryState);</span>
+<span class="fc" id="L65">    }</span>
+
+    /** Copy a two-dimensions array.
+     * @param field field to which elements belong
+     * @param original original array (may be null)
+     * @return copied array or null if original array was null
+     */
+    protected T[][] copy(final Field&lt;T&gt; field, final T[][] original) {
+
+        // special handling of null arrays
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (original == null) {</span>
+<span class="fc" id="L76">            return null;</span>
+        }
+
+        // allocate the array
+<span class="fc" id="L80">        final T[][] copied = MathArrays.buildArray(field, original.length, -1);</span>
+
+        // copy content
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        for (int i = 0; i &lt; original.length; ++i) {</span>
+<span class="fc" id="L84">            copied[i] = original[i].clone();</span>
+        }
+
+<span class="fc" id="L87">        return copied;</span>
+
+    }
+
+    /** Get time.
+     * @return time
+     */
+    public T getTime() {
+<span class="fc" id="L95">        return time;</span>
+    }
+
+    /** Get main state dimension.
+     * @return main state dimension
+     */
+    public int getStateDimension() {
+<span class="fc" id="L102">        return state.length;</span>
+    }
+
+    /** Get main state at time.
+     * @return main state at time
+     */
+    public T[] getState() {
+<span class="fc" id="L109">        return state.clone();</span>
+    }
+
+    /** Get the number of secondary states.
+     * @return number of secondary states.
+     */
+    public int getNumberOfSecondaryStates() {
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        return secondaryState == null ? 0 : secondaryState.length;</span>
+    }
+
+    /** Get secondary state dimension.
+     * @param index index of the secondary set as returned
+     * by {@link FieldExpandableODE#addSecondaryEquations(FieldSecondaryEquations)}
+     * (beware index 0 corresponds to main state, additional states start at 1)
+     * @return secondary state dimension
+     */
+    public int getSecondaryStateDimension(final int index) {
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        return index == 0 ? state.length : secondaryState[index - 1].length;</span>
+    }
+
+    /** Get secondary state at time.
+     * @param index index of the secondary set as returned
+     * by {@link FieldExpandableODE#addSecondaryEquations(FieldSecondaryEquations)}
+     * (beware index 0 corresponds to main state, additional states start at 1)
+     * @return secondary state at time
+     */
+    public T[] getSecondaryState(final int index) {
+<span class="fc bfc" id="L136" title="All 2 branches covered.">        return index == 0 ? state.clone() : secondaryState[index - 1].clone();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

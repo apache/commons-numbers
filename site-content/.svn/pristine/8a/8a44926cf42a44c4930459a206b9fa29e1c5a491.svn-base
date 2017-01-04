@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ChiSquaredDistribution.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.distribution</a> &gt; <span class="el_source">ChiSquaredDistribution.java</span></div><h1>ChiSquaredDistribution.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.distribution;
+
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.Well19937c;
+
+/**
+ * Implementation of the chi-squared distribution.
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Chi-squared_distribution&quot;&gt;Chi-squared distribution (Wikipedia)&lt;/a&gt;
+ * @see &lt;a href=&quot;http://mathworld.wolfram.com/Chi-SquaredDistribution.html&quot;&gt;Chi-squared Distribution (MathWorld)&lt;/a&gt;
+ */
+public class ChiSquaredDistribution extends AbstractRealDistribution {
+    /**
+     * Default inverse cumulative probability accuracy
+     * @since 2.1
+     */
+    public static final double DEFAULT_INVERSE_ABSOLUTE_ACCURACY = 1e-9;
+    /** Serializable version identifier */
+    private static final long serialVersionUID = -8352658048349159782L;
+    /** Internal Gamma distribution. */
+    private final GammaDistribution gamma;
+    /** Inverse cumulative probability accuracy */
+    private final double solverAbsoluteAccuracy;
+
+    /**
+     * Create a Chi-Squared distribution with the given degrees of freedom.
+     *
+     * @param degreesOfFreedom Degrees of freedom.
+     */
+    public ChiSquaredDistribution(double degreesOfFreedom) {
+<span class="fc" id="L47">        this(degreesOfFreedom, DEFAULT_INVERSE_ABSOLUTE_ACCURACY);</span>
+<span class="fc" id="L48">    }</span>
+
+    /**
+     * Create a Chi-Squared distribution with the given degrees of freedom and
+     * inverse cumulative probability accuracy.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; this constructor will implicitly create an instance of
+     * {@link Well19937c} as random generator to be used for sampling only (see
+     * {@link #sample()} and {@link #sample(int)}). In case no sampling is
+     * needed for the created distribution, it is advised to pass {@code null}
+     * as random generator via the appropriate constructors to avoid the
+     * additional initialisation overhead.
+     *
+     * @param degreesOfFreedom Degrees of freedom.
+     * @param inverseCumAccuracy the maximum absolute error in inverse
+     * cumulative probability estimates (defaults to
+     * {@link #DEFAULT_INVERSE_ABSOLUTE_ACCURACY}).
+     * @since 2.1
+     */
+    public ChiSquaredDistribution(double degreesOfFreedom,
+                                  double inverseCumAccuracy) {
+<span class="fc" id="L69">        this(new Well19937c(), degreesOfFreedom, inverseCumAccuracy);</span>
+<span class="fc" id="L70">    }</span>
+
+    /**
+     * Create a Chi-Squared distribution with the given degrees of freedom.
+     *
+     * @param rng Random number generator.
+     * @param degreesOfFreedom Degrees of freedom.
+     * @since 3.3
+     */
+    public ChiSquaredDistribution(RandomGenerator rng, double degreesOfFreedom) {
+<span class="fc" id="L80">        this(rng, degreesOfFreedom, DEFAULT_INVERSE_ABSOLUTE_ACCURACY);</span>
+<span class="fc" id="L81">    }</span>
+
+    /**
+     * Create a Chi-Squared distribution with the given degrees of freedom and
+     * inverse cumulative probability accuracy.
+     *
+     * @param rng Random number generator.
+     * @param degreesOfFreedom Degrees of freedom.
+     * @param inverseCumAccuracy the maximum absolute error in inverse
+     * cumulative probability estimates (defaults to
+     * {@link #DEFAULT_INVERSE_ABSOLUTE_ACCURACY}).
+     * @since 3.1
+     */
+    public ChiSquaredDistribution(RandomGenerator rng,
+                                  double degreesOfFreedom,
+                                  double inverseCumAccuracy) {
+<span class="fc" id="L97">        super(rng);</span>
+
+<span class="fc" id="L99">        gamma = new GammaDistribution(degreesOfFreedom / 2, 2);</span>
+<span class="fc" id="L100">        solverAbsoluteAccuracy = inverseCumAccuracy;</span>
+<span class="fc" id="L101">    }</span>
+
+    /**
+     * Access the number of degrees of freedom.
+     *
+     * @return the degrees of freedom.
+     */
+    public double getDegreesOfFreedom() {
+<span class="fc" id="L109">        return gamma.getShape() * 2.0;</span>
+    }
+
+    /** {@inheritDoc} */
+    public double density(double x) {
+<span class="fc" id="L114">        return gamma.density(x);</span>
+    }
+
+    /** {@inheritDoc} **/
+    @Override
+    public double logDensity(double x) {
+<span class="fc" id="L120">        return gamma.logDensity(x);</span>
+    }
+
+    /** {@inheritDoc} */
+    public double cumulativeProbability(double x)  {
+<span class="fc" id="L125">        return gamma.cumulativeProbability(x);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected double getSolverAbsoluteAccuracy() {
+<span class="fc" id="L131">        return solverAbsoluteAccuracy;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For {@code k} degrees of freedom, the mean is {@code k}.
+     */
+    public double getNumericalMean() {
+<span class="fc" id="L140">        return getDegreesOfFreedom();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return {@code 2 * k}, where {@code k} is the number of degrees of freedom.
+     */
+    public double getNumericalVariance() {
+<span class="fc" id="L149">        return 2 * getDegreesOfFreedom();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The lower bound of the support is always 0 no matter the
+     * degrees of freedom.
+     *
+     * @return zero.
+     */
+    public double getSupportLowerBound() {
+<span class="fc" id="L161">        return 0;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The upper bound of the support is always positive infinity no matter the
+     * degrees of freedom.
+     *
+     * @return {@code Double.POSITIVE_INFINITY}.
+     */
+    public double getSupportUpperBound() {
+<span class="fc" id="L173">        return Double.POSITIVE_INFINITY;</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isSupportLowerBoundInclusive() {
+<span class="fc" id="L178">        return true;</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isSupportUpperBoundInclusive() {
+<span class="fc" id="L183">        return false;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The support of this distribution is connected.
+     *
+     * @return {@code true}
+     */
+    public boolean isSupportConnected() {
+<span class="fc" id="L194">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FastHadamardTransformer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.transform</a> &gt; <span class="el_source">FastHadamardTransformer.java</span></div><h1>FastHadamardTransformer.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.transform;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.analysis.FunctionUtils;
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.util.ArithmeticUtils;
+
+/**
+ * Implements the &lt;a href=&quot;http://www.archive.chipcenter.com/dsp/DSP000517F1.html&quot;&gt;Fast Hadamard Transform&lt;/a&gt; (FHT).
+ * Transformation of an input vector x to the output vector y.
+ * &lt;p&gt;
+ * In addition to transformation of real vectors, the Hadamard transform can
+ * transform integer vectors into integer vectors. However, this integer transform
+ * cannot be inverted directly. Due to a scaling factor it may lead to rational results.
+ * As an example, the inverse transform of integer vector (0, 1, 0, 1) is rational
+ * vector (1/2, -1/2, 0, 0).
+ *
+ * @since 2.0
+ */
+<span class="fc" id="L39">public class FastHadamardTransformer implements RealTransformer, Serializable {</span>
+
+    /** Serializable version identifier. */
+    static final long serialVersionUID = 20120211L;
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws MathIllegalArgumentException if the length of the data array is
+     * not a power of two
+     */
+    public double[] transform(final double[] f, final TransformType type) {
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        if (type == TransformType.FORWARD) {</span>
+<span class="fc" id="L52">            return fht(f);</span>
+        }
+<span class="fc" id="L54">        return TransformUtils.scaleArray(fht(f), 1.0 / f.length);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws org.apache.commons.math3.exception.NonMonotonicSequenceException
+     *   if the lower bound is greater than, or equal to the upper bound
+     * @throws org.apache.commons.math3.exception.NotStrictlyPositiveException
+     *   if the number of sample points is negative
+     * @throws MathIllegalArgumentException if the number of sample points is not a power of two
+     */
+    public double[] transform(final UnivariateFunction f,
+        final double min, final double max, final int n,
+        final TransformType type) {
+
+<span class="nc" id="L70">        return transform(FunctionUtils.sample(f, min, max, n), type);</span>
+    }
+
+    /**
+     * Returns the forward transform of the specified integer data set.The
+     * integer transform cannot be inverted directly, due to a scaling factor
+     * which may lead to double results.
+     *
+     * @param f the integer data array to be transformed (signal)
+     * @return the integer transformed array (spectrum)
+     * @throws MathIllegalArgumentException if the length of the data array is not a power of two
+     */
+    public int[] transform(final int[] f) {
+<span class="fc" id="L83">        return fht(f);</span>
+    }
+
+    /**
+     * The FHT (Fast Hadamard Transformation) which uses only subtraction and
+     * addition. Requires {@code N * log2(N) = n * 2^n} additions.
+     *
+     * &lt;h3&gt;Short Table of manual calculation for N=8&lt;/h3&gt;
+     * &lt;ol&gt;
+     * &lt;li&gt;&lt;b&gt;x&lt;/b&gt; is the input vector to be transformed,&lt;/li&gt;
+     * &lt;li&gt;&lt;b&gt;y&lt;/b&gt; is the output vector (Fast Hadamard transform of &lt;b&gt;x&lt;/b&gt;),&lt;/li&gt;
+     * &lt;li&gt;a and b are helper rows.&lt;/li&gt;
+     * &lt;/ol&gt;
+     * &lt;table align=&quot;center&quot; border=&quot;1&quot; cellpadding=&quot;3&quot;&gt;
+     * &lt;tbody align=&quot;center&quot;&gt;
+     * &lt;tr&gt;
+     *     &lt;th&gt;x&lt;/th&gt;
+     *     &lt;th&gt;a&lt;/th&gt;
+     *     &lt;th&gt;b&lt;/th&gt;
+     *     &lt;th&gt;y&lt;/th&gt;
+     * &lt;/tr&gt;
+     * &lt;tr&gt;
+     *     &lt;th&gt;x&lt;sub&gt;0&lt;/sub&gt;&lt;/th&gt;
+     *     &lt;td&gt;a&lt;sub&gt;0&lt;/sub&gt; = x&lt;sub&gt;0&lt;/sub&gt; + x&lt;sub&gt;1&lt;/sub&gt;&lt;/td&gt;
+     *     &lt;td&gt;b&lt;sub&gt;0&lt;/sub&gt; = a&lt;sub&gt;0&lt;/sub&gt; + a&lt;sub&gt;1&lt;/sub&gt;&lt;/td&gt;
+     *     &lt;td&gt;y&lt;sub&gt;0&lt;/sub&gt; = b&lt;sub&gt;0&lt;/sub &gt;+ b&lt;sub&gt;1&lt;/sub&gt;&lt;/td&gt;
+     * &lt;/tr&gt;
+     * &lt;tr&gt;
+     *     &lt;th&gt;x&lt;sub&gt;1&lt;/sub&gt;&lt;/th&gt;
+     *     &lt;td&gt;a&lt;sub&gt;1&lt;/sub&gt; = x&lt;sub&gt;2&lt;/sub&gt; + x&lt;sub&gt;3&lt;/sub&gt;&lt;/td&gt;
+     *     &lt;td&gt;b&lt;sub&gt;0&lt;/sub&gt; = a&lt;sub&gt;2&lt;/sub&gt; + a&lt;sub&gt;3&lt;/sub&gt;&lt;/td&gt;
+     *     &lt;td&gt;y&lt;sub&gt;0&lt;/sub&gt; = b&lt;sub&gt;2&lt;/sub&gt; + b&lt;sub&gt;3&lt;/sub&gt;&lt;/td&gt;
+     * &lt;/tr&gt;
+     * &lt;tr&gt;
+     *     &lt;th&gt;x&lt;sub&gt;2&lt;/sub&gt;&lt;/th&gt;
+     *     &lt;td&gt;a&lt;sub&gt;2&lt;/sub&gt; = x&lt;sub&gt;4&lt;/sub&gt; + x&lt;sub&gt;5&lt;/sub&gt;&lt;/td&gt;
+     *     &lt;td&gt;b&lt;sub&gt;0&lt;/sub&gt; = a&lt;sub&gt;4&lt;/sub&gt; + a&lt;sub&gt;5&lt;/sub&gt;&lt;/td&gt;
+     *     &lt;td&gt;y&lt;sub&gt;0&lt;/sub&gt; = b&lt;sub&gt;4&lt;/sub&gt; + b&lt;sub&gt;5&lt;/sub&gt;&lt;/td&gt;
+     * &lt;/tr&gt;
+     * &lt;tr&gt;
+     *     &lt;th&gt;x&lt;sub&gt;3&lt;/sub&gt;&lt;/th&gt;
+     *     &lt;td&gt;a&lt;sub&gt;3&lt;/sub&gt; = x&lt;sub&gt;6&lt;/sub&gt; + x&lt;sub&gt;7&lt;/sub&gt;&lt;/td&gt;
+     *     &lt;td&gt;b&lt;sub&gt;0&lt;/sub&gt; = a&lt;sub&gt;6&lt;/sub&gt; + a&lt;sub&gt;7&lt;/sub&gt;&lt;/td&gt;
+     *     &lt;td&gt;y&lt;sub&gt;0&lt;/sub&gt; = b&lt;sub&gt;6&lt;/sub&gt; + b&lt;sub&gt;7&lt;/sub&gt;&lt;/td&gt;
+     * &lt;/tr&gt;
+     * &lt;tr&gt;
+     *     &lt;th&gt;x&lt;sub&gt;4&lt;/sub&gt;&lt;/th&gt;
+     *     &lt;td&gt;a&lt;sub&gt;0&lt;/sub&gt; = x&lt;sub&gt;0&lt;/sub&gt; - x&lt;sub&gt;1&lt;/sub&gt;&lt;/td&gt;
+     *     &lt;td&gt;b&lt;sub&gt;0&lt;/sub&gt; = a&lt;sub&gt;0&lt;/sub&gt; - a&lt;sub&gt;1&lt;/sub&gt;&lt;/td&gt;
+     *     &lt;td&gt;y&lt;sub&gt;0&lt;/sub&gt; = b&lt;sub&gt;0&lt;/sub&gt; - b&lt;sub&gt;1&lt;/sub&gt;&lt;/td&gt;
+     * &lt;/tr&gt;
+     * &lt;tr&gt;
+     *     &lt;th&gt;x&lt;sub&gt;5&lt;/sub&gt;&lt;/th&gt;
+     *     &lt;td&gt;a&lt;sub&gt;1&lt;/sub&gt; = x&lt;sub&gt;2&lt;/sub&gt; - x&lt;sub&gt;3&lt;/sub&gt;&lt;/td&gt;
+     *     &lt;td&gt;b&lt;sub&gt;0&lt;/sub&gt; = a&lt;sub&gt;2&lt;/sub&gt; - a&lt;sub&gt;3&lt;/sub&gt;&lt;/td&gt;
+     *     &lt;td&gt;y&lt;sub&gt;0&lt;/sub&gt; = b&lt;sub&gt;2&lt;/sub&gt; - b&lt;sub&gt;3&lt;/sub&gt;&lt;/td&gt;
+     * &lt;/tr&gt;
+     * &lt;tr&gt;
+     *     &lt;th&gt;x&lt;sub&gt;6&lt;/sub&gt;&lt;/th&gt;
+     *     &lt;td&gt;a&lt;sub&gt;2&lt;/sub&gt; = x&lt;sub&gt;4&lt;/sub&gt; - x&lt;sub&gt;5&lt;/sub&gt;&lt;/td&gt;
+     *     &lt;td&gt;b&lt;sub&gt;0&lt;/sub&gt; = a&lt;sub&gt;4&lt;/sub&gt; - a&lt;sub&gt;5&lt;/sub&gt;&lt;/td&gt;
+     *     &lt;td&gt;y&lt;sub&gt;0&lt;/sub&gt; = b&lt;sub&gt;4&lt;/sub&gt; - b&lt;sub&gt;5&lt;/sub&gt;&lt;/td&gt;
+     * &lt;/tr&gt;
+     * &lt;tr&gt;
+     *     &lt;th&gt;x&lt;sub&gt;7&lt;/sub&gt;&lt;/th&gt;
+     *     &lt;td&gt;a&lt;sub&gt;3&lt;/sub&gt; = x&lt;sub&gt;6&lt;/sub&gt; - x&lt;sub&gt;7&lt;/sub&gt;&lt;/td&gt;
+     *     &lt;td&gt;b&lt;sub&gt;0&lt;/sub&gt; = a&lt;sub&gt;6&lt;/sub&gt; - a&lt;sub&gt;7&lt;/sub&gt;&lt;/td&gt;
+     *     &lt;td&gt;y&lt;sub&gt;0&lt;/sub&gt; = b&lt;sub&gt;6&lt;/sub&gt; - b&lt;sub&gt;7&lt;/sub&gt;&lt;/td&gt;
+     * &lt;/tr&gt;
+     * &lt;/tbody&gt;
+     * &lt;/table&gt;
+     *
+     * &lt;h3&gt;How it works&lt;/h3&gt;
+     * &lt;ol&gt;
+     * &lt;li&gt;Construct a matrix with {@code N} rows and {@code n + 1} columns,
+     * {@code hadm[n+1][N]}.&lt;br/&gt;
+     * &lt;em&gt;(If I use [x][y] it always means [row-offset][column-offset] of a
+     * Matrix with n rows and m columns. Its entries go from M[0][0]
+     * to M[n][N])&lt;/em&gt;&lt;/li&gt;
+     * &lt;li&gt;Place the input vector {@code x[N]} in the first column of the
+     * matrix {@code hadm}.&lt;/li&gt;
+     * &lt;li&gt;The entries of the submatrix {@code D_top} are calculated as follows
+     *     &lt;ul&gt;
+     *         &lt;li&gt;{@code D_top} goes from entry {@code [0][1]} to
+     *         {@code [N / 2 - 1][n + 1]},&lt;/li&gt;
+     *         &lt;li&gt;the columns of {@code D_top} are the pairwise mutually
+     *         exclusive sums of the previous column.&lt;/li&gt;
+     *     &lt;/ul&gt;
+     * &lt;/li&gt;
+     * &lt;li&gt;The entries of the submatrix {@code D_bottom} are calculated as
+     * follows
+     *     &lt;ul&gt;
+     *         &lt;li&gt;{@code D_bottom} goes from entry {@code [N / 2][1]} to
+     *         {@code [N][n + 1]},&lt;/li&gt;
+     *         &lt;li&gt;the columns of {@code D_bottom} are the pairwise differences
+     *         of the previous column.&lt;/li&gt;
+     *     &lt;/ul&gt;
+     * &lt;/li&gt;
+     * &lt;li&gt;The consputation of {@code D_top} and {@code D_bottom} are best
+     * understood with the above example (for {@code N = 8}).
+     * &lt;li&gt;The output vector {@code y} is now in the last column of
+     * {@code hadm}.&lt;/li&gt;
+     * &lt;li&gt;&lt;em&gt;Algorithm from &lt;a href=&quot;http://www.archive.chipcenter.com/dsp/DSP000517F1.html&quot;&gt;chipcenter&lt;/a&gt;.&lt;/em&gt;&lt;/li&gt;
+     * &lt;/ol&gt;
+     * &lt;h3&gt;Visually&lt;/h3&gt;
+     * &lt;table border=&quot;1&quot; align=&quot;center&quot; cellpadding=&quot;3&quot;&gt;
+     * &lt;tbody align=&quot;center&quot;&gt;
+     * &lt;tr&gt;
+     *     &lt;td&gt;&lt;/td&gt;&lt;th&gt;0&lt;/th&gt;&lt;th&gt;1&lt;/th&gt;&lt;th&gt;2&lt;/th&gt;&lt;th&gt;3&lt;/th&gt;
+     *     &lt;th&gt;&amp;hellip;&lt;/th&gt;
+     *     &lt;th&gt;n + 1&lt;/th&gt;
+     * &lt;/tr&gt;
+     * &lt;tr&gt;
+     *     &lt;th&gt;0&lt;/th&gt;
+     *     &lt;td&gt;x&lt;sub&gt;0&lt;/sub&gt;&lt;/td&gt;
+     *     &lt;td colspan=&quot;5&quot; rowspan=&quot;5&quot; align=&quot;center&quot; valign=&quot;middle&quot;&gt;
+     *         &amp;uarr;&lt;br/&gt;
+     *         &amp;larr; D&lt;sub&gt;top&lt;/sub&gt; &amp;rarr;&lt;br/&gt;
+     *         &amp;darr;
+     *     &lt;/td&gt;
+     * &lt;/tr&gt;
+     * &lt;tr&gt;&lt;th&gt;1&lt;/th&gt;&lt;td&gt;x&lt;sub&gt;1&lt;/sub&gt;&lt;/td&gt;&lt;/tr&gt;
+     * &lt;tr&gt;&lt;th&gt;2&lt;/th&gt;&lt;td&gt;x&lt;sub&gt;2&lt;/sub&gt;&lt;/td&gt;&lt;/tr&gt;
+     * &lt;tr&gt;&lt;th&gt;&amp;hellip;&lt;/th&gt;&lt;td&gt;&amp;hellip;&lt;/td&gt;&lt;/tr&gt;
+     * &lt;tr&gt;&lt;th&gt;N / 2 - 1&lt;/th&gt;&lt;td&gt;x&lt;sub&gt;N/2-1&lt;/sub&gt;&lt;/td&gt;&lt;/tr&gt;
+     * &lt;tr&gt;
+     *     &lt;th&gt;N / 2&lt;/th&gt;
+     *     &lt;td&gt;x&lt;sub&gt;N/2&lt;/sub&gt;&lt;/td&gt;
+     *     &lt;td colspan=&quot;5&quot; rowspan=&quot;5&quot; align=&quot;center&quot; valign=&quot;middle&quot;&gt;
+     *         &amp;uarr;&lt;br/&gt;
+     *         &amp;larr; D&lt;sub&gt;bottom&lt;/sub&gt; &amp;rarr;&lt;br/&gt;
+     *         &amp;darr;
+     *     &lt;/td&gt;
+     * &lt;/tr&gt;
+     * &lt;tr&gt;&lt;th&gt;N / 2 + 1&lt;/th&gt;&lt;td&gt;x&lt;sub&gt;N/2+1&lt;/sub&gt;&lt;/td&gt;&lt;/tr&gt;
+     * &lt;tr&gt;&lt;th&gt;N / 2 + 2&lt;/th&gt;&lt;td&gt;x&lt;sub&gt;N/2+2&lt;/sub&gt;&lt;/td&gt;&lt;/tr&gt;
+     * &lt;tr&gt;&lt;th&gt;&amp;hellip;&lt;/th&gt;&lt;td&gt;&amp;hellip;&lt;/td&gt;&lt;/tr&gt;
+     * &lt;tr&gt;&lt;th&gt;N&lt;/th&gt;&lt;td&gt;x&lt;sub&gt;N&lt;/sub&gt;&lt;/td&gt;&lt;/tr&gt;
+     * &lt;/tbody&gt;
+     * &lt;/table&gt;
+     *
+     * @param x the real data array to be transformed
+     * @return the real transformed array, {@code y}
+     * @throws MathIllegalArgumentException if the length of the data array is not a power of two
+     */
+    protected double[] fht(double[] x) throws MathIllegalArgumentException {
+
+<span class="fc" id="L230">        final int n     = x.length;</span>
+<span class="fc" id="L231">        final int halfN = n / 2;</span>
+
+<span class="fc bfc" id="L233" title="All 2 branches covered.">        if (!ArithmeticUtils.isPowerOfTwo(n)) {</span>
+<span class="fc" id="L234">            throw new MathIllegalArgumentException(</span>
+                    LocalizedFormats.NOT_POWER_OF_TWO,
+                    Integer.valueOf(n));
+        }
+
+        /*
+         * Instead of creating a matrix with p+1 columns and n rows, we use two
+         * one dimension arrays which we are used in an alternating way.
+         */
+<span class="fc" id="L243">        double[] yPrevious = new double[n];</span>
+<span class="fc" id="L244">        double[] yCurrent  = x.clone();</span>
+
+        // iterate from left to right (column)
+<span class="fc bfc" id="L247" title="All 2 branches covered.">        for (int j = 1; j &lt; n; j &lt;&lt;= 1) {</span>
+
+            // switch columns
+<span class="fc" id="L250">            final double[] yTmp = yCurrent;</span>
+<span class="fc" id="L251">            yCurrent  = yPrevious;</span>
+<span class="fc" id="L252">            yPrevious = yTmp;</span>
+
+            // iterate from top to bottom (row)
+<span class="fc bfc" id="L255" title="All 2 branches covered.">            for (int i = 0; i &lt; halfN; ++i) {</span>
+                // Dtop: the top part works with addition
+<span class="fc" id="L257">                final int twoI = 2 * i;</span>
+<span class="fc" id="L258">                yCurrent[i] = yPrevious[twoI] + yPrevious[twoI + 1];</span>
+            }
+<span class="fc bfc" id="L260" title="All 2 branches covered.">            for (int i = halfN; i &lt; n; ++i) {</span>
+                // Dbottom: the bottom part works with subtraction
+<span class="fc" id="L262">                final int twoI = 2 * i;</span>
+<span class="fc" id="L263">                yCurrent[i] = yPrevious[twoI - n] - yPrevious[twoI - n + 1];</span>
+            }
+        }
+
+<span class="fc" id="L267">        return yCurrent;</span>
+
+    }
+
+    /**
+     * Returns the forward transform of the specified integer data set. The FHT
+     * (Fast Hadamard Transform) uses only subtraction and addition.
+     *
+     * @param x the integer data array to be transformed
+     * @return the integer transformed array, {@code y}
+     * @throws MathIllegalArgumentException if the length of the data array is not a power of two
+     */
+    protected int[] fht(int[] x) throws MathIllegalArgumentException {
+
+<span class="fc" id="L281">        final int n     = x.length;</span>
+<span class="fc" id="L282">        final int halfN = n / 2;</span>
+
+<span class="pc bpc" id="L284" title="1 of 2 branches missed.">        if (!ArithmeticUtils.isPowerOfTwo(n)) {</span>
+<span class="nc" id="L285">            throw new MathIllegalArgumentException(</span>
+                    LocalizedFormats.NOT_POWER_OF_TWO,
+                    Integer.valueOf(n));
+        }
+
+        /*
+         * Instead of creating a matrix with p+1 columns and n rows, we use two
+         * one dimension arrays which we are used in an alternating way.
+         */
+<span class="fc" id="L294">        int[] yPrevious = new int[n];</span>
+<span class="fc" id="L295">        int[] yCurrent  = x.clone();</span>
+
+        // iterate from left to right (column)
+<span class="fc bfc" id="L298" title="All 2 branches covered.">        for (int j = 1; j &lt; n; j &lt;&lt;= 1) {</span>
+
+            // switch columns
+<span class="fc" id="L301">            final int[] yTmp = yCurrent;</span>
+<span class="fc" id="L302">            yCurrent  = yPrevious;</span>
+<span class="fc" id="L303">            yPrevious = yTmp;</span>
+
+            // iterate from top to bottom (row)
+<span class="fc bfc" id="L306" title="All 2 branches covered.">            for (int i = 0; i &lt; halfN; ++i) {</span>
+                // Dtop: the top part works with addition
+<span class="fc" id="L308">                final int twoI = 2 * i;</span>
+<span class="fc" id="L309">                yCurrent[i] = yPrevious[twoI] + yPrevious[twoI + 1];</span>
+            }
+<span class="fc bfc" id="L311" title="All 2 branches covered.">            for (int i = halfN; i &lt; n; ++i) {</span>
+                // Dbottom: the bottom part works with subtraction
+<span class="fc" id="L313">                final int twoI = 2 * i;</span>
+<span class="fc" id="L314">                yCurrent[i] = yPrevious[twoI - n] - yPrevious[twoI - n + 1];</span>
+            }
+        }
+
+        // return the last computed output vector y
+<span class="fc" id="L319">        return yCurrent;</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

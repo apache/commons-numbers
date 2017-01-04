@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SumOfLogs.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive.summary</a> &gt; <span class="el_source">SumOfLogs.java</span></div><h1>SumOfLogs.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive.summary;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.stat.descriptive.AbstractStorelessUnivariateStatistic;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * Returns the sum of the natural logs for this collection of values.
+ * &lt;p&gt;
+ * Uses {@link org.apache.commons.math3.util.FastMath#log(double)} to compute the logs.
+ * Therefore,
+ * &lt;ul&gt;
+ * &lt;li&gt;If any of values are &amp;lt; 0, the result is &lt;code&gt;NaN.&lt;/code&gt;&lt;/li&gt;
+ * &lt;li&gt;If all values are non-negative and less than
+ * &lt;code&gt;Double.POSITIVE_INFINITY&lt;/code&gt;,  but at least one value is 0, the
+ * result is &lt;code&gt;Double.NEGATIVE_INFINITY.&lt;/code&gt;&lt;/li&gt;
+ * &lt;li&gt;If both &lt;code&gt;Double.POSITIVE_INFINITY&lt;/code&gt; and
+ * &lt;code&gt;Double.NEGATIVE_INFINITY&lt;/code&gt; are among the values, the result is
+ * &lt;code&gt;NaN.&lt;/code&gt;&lt;/li&gt;
+ * &lt;/ul&gt;&lt;/p&gt;
+ * &lt;p&gt;
+ * &lt;strong&gt;Note that this implementation is not synchronized.&lt;/strong&gt; If
+ * multiple threads access an instance of this class concurrently, and at least
+ * one of the threads invokes the &lt;code&gt;increment()&lt;/code&gt; or
+ * &lt;code&gt;clear()&lt;/code&gt; method, it must be synchronized externally.&lt;/p&gt;
+ *
+ */
+public class SumOfLogs extends AbstractStorelessUnivariateStatistic implements Serializable {
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = -370076995648386763L;
+
+    /**Number of values that have been added */
+    private int n;
+
+    /**
+     * The currently running value
+     */
+    private double value;
+
+    /**
+     * Create a SumOfLogs instance
+     */
+<span class="fc" id="L64">    public SumOfLogs() {</span>
+<span class="fc" id="L65">       value = 0d;</span>
+<span class="fc" id="L66">       n = 0;</span>
+<span class="fc" id="L67">    }</span>
+
+    /**
+     * Copy constructor, creates a new {@code SumOfLogs} identical
+     * to the {@code original}
+     *
+     * @param original the {@code SumOfLogs} instance to copy
+     * @throws NullArgumentException if original is null
+     */
+<span class="nc" id="L76">    public SumOfLogs(SumOfLogs original) throws NullArgumentException {</span>
+<span class="nc" id="L77">        copy(original, this);</span>
+<span class="nc" id="L78">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void increment(final double d) {
+<span class="fc" id="L85">        value += FastMath.log(d);</span>
+<span class="fc" id="L86">        n++;</span>
+<span class="fc" id="L87">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getResult() {
+<span class="fc" id="L94">        return value;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getN() {
+<span class="fc" id="L101">        return n;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void clear() {
+<span class="fc" id="L109">        value = 0d;</span>
+<span class="fc" id="L110">        n = 0;</span>
+<span class="fc" id="L111">    }</span>
+
+    /**
+     * Returns the sum of the natural logs of the entries in the specified portion of
+     * the input array, or &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray
+     * is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     * &lt;p&gt;
+     * See {@link SumOfLogs}.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the sum of the natural logs of the values or 0 if
+     * length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     *  parameters are not valid
+     */
+    @Override
+    public double evaluate(final double[] values, final int begin, final int length)
+    throws MathIllegalArgumentException {
+<span class="fc" id="L133">        double sumLog = Double.NaN;</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">        if (test(values, begin, length, true)) {</span>
+<span class="fc" id="L135">            sumLog = 0.0;</span>
+<span class="fc bfc" id="L136" title="All 2 branches covered.">            for (int i = begin; i &lt; begin + length; i++) {</span>
+<span class="fc" id="L137">                sumLog += FastMath.log(values[i]);</span>
+            }
+        }
+<span class="fc" id="L140">        return sumLog;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SumOfLogs copy() {
+<span class="fc" id="L148">        SumOfLogs result = new SumOfLogs();</span>
+        // No try-catch or advertised exception here because args are valid
+<span class="fc" id="L150">        copy(this, result);</span>
+<span class="fc" id="L151">        return result;</span>
+    }
+
+    /**
+     * Copies source to dest.
+     * &lt;p&gt;Neither source nor dest can be null.&lt;/p&gt;
+     *
+     * @param source SumOfLogs to copy
+     * @param dest SumOfLogs to copy to
+     * @throws NullArgumentException if either source or dest is null
+     */
+    public static void copy(SumOfLogs source, SumOfLogs dest)
+        throws NullArgumentException {
+<span class="fc" id="L164">        MathUtils.checkNotNull(source);</span>
+<span class="fc" id="L165">        MathUtils.checkNotNull(dest);</span>
+<span class="fc" id="L166">        dest.setData(source.getDataRef());</span>
+<span class="fc" id="L167">        dest.n = source.n;</span>
+<span class="fc" id="L168">        dest.value = source.value;</span>
+<span class="fc" id="L169">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

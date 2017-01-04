@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>PreconditionedIterativeLinearSolver.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.linear</a> &gt; <span class="el_source">PreconditionedIterativeLinearSolver.java</span></div><h1>PreconditionedIterativeLinearSolver.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.linear;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.util.IterationManager;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * &lt;p&gt;
+ * This abstract class defines preconditioned iterative solvers. When A is
+ * ill-conditioned, instead of solving system A &amp;middot; x = b directly, it is
+ * preferable to solve either
+ * &lt;center&gt;
+ * (M &amp;middot; A) &amp;middot; x = M &amp;middot; b
+ * &lt;/center&gt;
+ * (left preconditioning), or
+ * &lt;center&gt;
+ * (A &amp;middot; M) &amp;middot; y = b, &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;followed by
+ * M &amp;middot; y = x
+ * &lt;/center&gt;
+ * (right preconditioning), where M approximates in some way A&lt;sup&gt;-1&lt;/sup&gt;,
+ * while matrix-vector products of the type M &amp;middot; y remain comparatively
+ * easy to compute. In this library, M (not M&lt;sup&gt;-1&lt;/sup&gt;!) is called the
+ * &lt;em&gt;preconditionner&lt;/em&gt;.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * Concrete implementations of this abstract class must be provided with the
+ * preconditioner M, as a {@link RealLinearOperator}.
+ * &lt;/p&gt;
+ *
+ * @since 3.0
+ */
+public abstract class PreconditionedIterativeLinearSolver
+    extends IterativeLinearSolver {
+
+    /**
+     * Creates a new instance of this class, with default iteration manager.
+     *
+     * @param maxIterations the maximum number of iterations
+     */
+    public PreconditionedIterativeLinearSolver(final int maxIterations) {
+<span class="fc" id="L59">        super(maxIterations);</span>
+<span class="fc" id="L60">    }</span>
+
+    /**
+     * Creates a new instance of this class, with custom iteration manager.
+     *
+     * @param manager the custom iteration manager
+     * @throws NullArgumentException if {@code manager} is {@code null}
+     */
+    public PreconditionedIterativeLinearSolver(final IterationManager manager)
+        throws NullArgumentException {
+<span class="nc" id="L70">        super(manager);</span>
+<span class="nc" id="L71">    }</span>
+
+    /**
+     * Returns an estimate of the solution to the linear system A &amp;middot; x =
+     * b.
+     *
+     * @param a the linear operator A of the system
+     * @param m the preconditioner, M (can be {@code null})
+     * @param b the right-hand side vector
+     * @param x0 the initial guess of the solution
+     * @return a new vector containing the solution
+     * @throws NullArgumentException if one of the parameters is {@code null}
+     * @throws NonSquareOperatorException if {@code a} or {@code m} is not
+     * square
+     * @throws DimensionMismatchException if {@code m}, {@code b} or
+     * {@code x0} have dimensions inconsistent with {@code a}
+     * @throws MaxCountExceededException at exhaustion of the iteration count,
+     * unless a custom
+     * {@link org.apache.commons.math3.util.Incrementor.MaxCountExceededCallback callback}
+     * has been set at construction of the {@link IterationManager}
+     */
+    public RealVector solve(final RealLinearOperator a,
+        final RealLinearOperator m, final RealVector b, final RealVector x0)
+        throws NullArgumentException, NonSquareOperatorException,
+        DimensionMismatchException, MaxCountExceededException {
+<span class="nc" id="L96">        MathUtils.checkNotNull(x0);</span>
+<span class="nc" id="L97">        return solveInPlace(a, m, b, x0.copy());</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public RealVector solve(final RealLinearOperator a, final RealVector b)
+        throws NullArgumentException, NonSquareOperatorException,
+        DimensionMismatchException, MaxCountExceededException {
+<span class="fc" id="L105">        MathUtils.checkNotNull(a);</span>
+<span class="fc" id="L106">        final RealVector x = new ArrayRealVector(a.getColumnDimension());</span>
+<span class="fc" id="L107">        x.set(0.);</span>
+<span class="fc" id="L108">        return solveInPlace(a, null, b, x);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public RealVector solve(final RealLinearOperator a, final RealVector b,
+                            final RealVector x0)
+        throws NullArgumentException, NonSquareOperatorException,
+        DimensionMismatchException, MaxCountExceededException {
+<span class="fc" id="L117">        MathUtils.checkNotNull(x0);</span>
+<span class="fc" id="L118">        return solveInPlace(a, null, b, x0.copy());</span>
+    }
+
+    /**
+     * Performs all dimension checks on the parameters of
+     * {@link #solve(RealLinearOperator, RealLinearOperator, RealVector, RealVector) solve}
+     * and
+     * {@link #solveInPlace(RealLinearOperator, RealLinearOperator, RealVector, RealVector) solveInPlace},
+     * and throws an exception if one of the checks fails.
+     *
+     * @param a the linear operator A of the system
+     * @param m the preconditioner, M (can be {@code null})
+     * @param b the right-hand side vector
+     * @param x0 the initial guess of the solution
+     * @throws NullArgumentException if one of the parameters is {@code null}
+     * @throws NonSquareOperatorException if {@code a} or {@code m} is not
+     * square
+     * @throws DimensionMismatchException if {@code m}, {@code b} or
+     * {@code x0} have dimensions inconsistent with {@code a}
+     */
+    protected static void checkParameters(final RealLinearOperator a,
+        final RealLinearOperator m, final RealVector b, final RealVector x0)
+        throws NullArgumentException, NonSquareOperatorException,
+        DimensionMismatchException {
+<span class="fc" id="L142">        checkParameters(a, b, x0);</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">        if (m != null) {</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">            if (m.getColumnDimension() != m.getRowDimension()) {</span>
+<span class="fc" id="L145">                throw new NonSquareOperatorException(m.getColumnDimension(),</span>
+                                                     m.getRowDimension());
+            }
+<span class="fc bfc" id="L148" title="All 2 branches covered.">            if (m.getRowDimension() != a.getRowDimension()) {</span>
+<span class="fc" id="L149">                throw new DimensionMismatchException(m.getRowDimension(),</span>
+                                                     a.getRowDimension());
+            }
+        }
+<span class="fc" id="L153">    }</span>
+
+    /**
+     * Returns an estimate of the solution to the linear system A &amp;middot; x =
+     * b.
+     *
+     * @param a the linear operator A of the system
+     * @param m the preconditioner, M (can be {@code null})
+     * @param b the right-hand side vector
+     * @return a new vector containing the solution
+     * @throws NullArgumentException if one of the parameters is {@code null}
+     * @throws NonSquareOperatorException if {@code a} or {@code m} is not
+     * square
+     * @throws DimensionMismatchException if {@code m} or {@code b} have
+     * dimensions inconsistent with {@code a}
+     * @throws MaxCountExceededException at exhaustion of the iteration count,
+     * unless a custom
+     * {@link org.apache.commons.math3.util.Incrementor.MaxCountExceededCallback callback}
+     * has been set at construction of the {@link IterationManager}
+     */
+    public RealVector solve(RealLinearOperator a, RealLinearOperator m,
+        RealVector b) throws NullArgumentException, NonSquareOperatorException,
+        DimensionMismatchException, MaxCountExceededException {
+<span class="fc" id="L176">        MathUtils.checkNotNull(a);</span>
+<span class="fc" id="L177">        final RealVector x = new ArrayRealVector(a.getColumnDimension());</span>
+<span class="fc" id="L178">        return solveInPlace(a, m, b, x);</span>
+    }
+
+    /**
+     * Returns an estimate of the solution to the linear system A &amp;middot; x =
+     * b. The solution is computed in-place (initial guess is modified).
+     *
+     * @param a the linear operator A of the system
+     * @param m the preconditioner, M (can be {@code null})
+     * @param b the right-hand side vector
+     * @param x0 the initial guess of the solution
+     * @return a reference to {@code x0} (shallow copy) updated with the
+     * solution
+     * @throws NullArgumentException if one of the parameters is {@code null}
+     * @throws NonSquareOperatorException if {@code a} or {@code m} is not
+     * square
+     * @throws DimensionMismatchException if {@code m}, {@code b} or
+     * {@code x0} have dimensions inconsistent with {@code a}
+     * @throws MaxCountExceededException at exhaustion of the iteration count,
+     * unless a custom
+     * {@link org.apache.commons.math3.util.Incrementor.MaxCountExceededCallback callback}
+     * has been set at construction of the {@link IterationManager}
+     */
+    public abstract RealVector solveInPlace(RealLinearOperator a,
+        RealLinearOperator m, RealVector b, RealVector x0) throws
+        NullArgumentException, NonSquareOperatorException,
+        DimensionMismatchException, MaxCountExceededException;
+
+    /** {@inheritDoc} */
+    @Override
+    public RealVector solveInPlace(final RealLinearOperator a,
+        final RealVector b, final RealVector x0) throws
+        NullArgumentException, NonSquareOperatorException,
+        DimensionMismatchException, MaxCountExceededException {
+<span class="fc" id="L212">        return solveInPlace(a, null, b, x0);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

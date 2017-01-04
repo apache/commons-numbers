@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>KohonenUpdateAction.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ml.neuralnet.sofm</a> &gt; <span class="el_source">KohonenUpdateAction.java</span></div><h1>KohonenUpdateAction.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ml.neuralnet.sofm;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.apache.commons.math3.analysis.function.Gaussian;
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.ml.distance.DistanceMeasure;
+import org.apache.commons.math3.ml.neuralnet.MapUtils;
+import org.apache.commons.math3.ml.neuralnet.Network;
+import org.apache.commons.math3.ml.neuralnet.Neuron;
+import org.apache.commons.math3.ml.neuralnet.UpdateAction;
+
+/**
+ * Update formula for &lt;a href=&quot;http://en.wikipedia.org/wiki/Kohonen&quot;&gt;
+ * Kohonen's Self-Organizing Map&lt;/a&gt;.
+ * &lt;br/&gt;
+ * The {@link #update(Network,double[]) update} method modifies the
+ * features {@code w} of the &quot;winning&quot; neuron and its neighbours
+ * according to the following rule:
+ * &lt;code&gt;
+ *  w&lt;sub&gt;new&lt;/sub&gt; = w&lt;sub&gt;old&lt;/sub&gt; + &amp;alpha; e&lt;sup&gt;(-d / &amp;sigma;)&lt;/sup&gt; * (sample - w&lt;sub&gt;old&lt;/sub&gt;)
+ * &lt;/code&gt;
+ * where
+ * &lt;ul&gt;
+ *  &lt;li&gt;&amp;alpha; is the current &lt;em&gt;learning rate&lt;/em&gt;, &lt;/li&gt;
+ *  &lt;li&gt;&amp;sigma; is the current &lt;em&gt;neighbourhood size&lt;/em&gt;, and&lt;/li&gt;
+ *  &lt;li&gt;{@code d} is the number of links to traverse in order to reach
+ *   the neuron from the winning neuron.&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;br/&gt;
+ * This class is thread-safe as long as the arguments passed to the
+ * {@link #KohonenUpdateAction(DistanceMeasure,LearningFactorFunction,
+ * NeighbourhoodSizeFunction) constructor} are instances of thread-safe
+ * classes.
+ * &lt;br/&gt;
+ * Each call to the {@link #update(Network,double[]) update} method
+ * will increment the internal counter used to compute the current
+ * values for
+ * &lt;ul&gt;
+ *  &lt;li&gt;the &lt;em&gt;learning rate&lt;/em&gt;, and&lt;/li&gt;
+ *  &lt;li&gt;the &lt;em&gt;neighbourhood size&lt;/em&gt;.&lt;/li&gt;
+ * &lt;/ul&gt;
+ * Consequently, the function instances that compute those values (passed
+ * to the constructor of this class) must take into account whether this
+ * class's instance will be shared by multiple threads, as this will impact
+ * the training process.
+ *
+ * @since 3.3
+ */
+public class KohonenUpdateAction implements UpdateAction {
+    /** Distance function. */
+    private final DistanceMeasure distance;
+    /** Learning factor update function. */
+    private final LearningFactorFunction learningFactor;
+    /** Neighbourhood size update function. */
+    private final NeighbourhoodSizeFunction neighbourhoodSize;
+    /** Number of calls to {@link #update(Network,double[])}. */
+<span class="fc" id="L77">    private final AtomicLong numberOfCalls = new AtomicLong(0);</span>
+
+    /**
+     * @param distance Distance function.
+     * @param learningFactor Learning factor update function.
+     * @param neighbourhoodSize Neighbourhood size update function.
+     */
+    public KohonenUpdateAction(DistanceMeasure distance,
+                               LearningFactorFunction learningFactor,
+<span class="fc" id="L86">                               NeighbourhoodSizeFunction neighbourhoodSize) {</span>
+<span class="fc" id="L87">        this.distance = distance;</span>
+<span class="fc" id="L88">        this.learningFactor = learningFactor;</span>
+<span class="fc" id="L89">        this.neighbourhoodSize = neighbourhoodSize;</span>
+<span class="fc" id="L90">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    public void update(Network net,
+                       double[] features) {
+<span class="fc" id="L97">        final long numCalls = numberOfCalls.incrementAndGet() - 1;</span>
+<span class="fc" id="L98">        final double currentLearning = learningFactor.value(numCalls);</span>
+<span class="fc" id="L99">        final Neuron best = findAndUpdateBestNeuron(net,</span>
+                                                    features,
+                                                    currentLearning);
+
+<span class="fc" id="L103">        final int currentNeighbourhood = neighbourhoodSize.value(numCalls);</span>
+        // The farther away the neighbour is from the winning neuron, the
+        // smaller the learning rate will become.
+<span class="fc" id="L106">        final Gaussian neighbourhoodDecay</span>
+            = new Gaussian(currentLearning,
+                           0,
+                           currentNeighbourhood);
+
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        if (currentNeighbourhood &gt; 0) {</span>
+            // Initial set of neurons only contains the winning neuron.
+<span class="fc" id="L113">            Collection&lt;Neuron&gt; neighbours = new HashSet&lt;Neuron&gt;();</span>
+<span class="fc" id="L114">            neighbours.add(best);</span>
+            // Winning neuron must be excluded from the neighbours.
+<span class="fc" id="L116">            final HashSet&lt;Neuron&gt; exclude = new HashSet&lt;Neuron&gt;();</span>
+<span class="fc" id="L117">            exclude.add(best);</span>
+
+<span class="fc" id="L119">            int radius = 1;</span>
+            do {
+                // Retrieve immediate neighbours of the current set of neurons.
+<span class="fc" id="L122">                neighbours = net.getNeighbours(neighbours, exclude);</span>
+
+                // Update all the neighbours.
+<span class="fc bfc" id="L125" title="All 2 branches covered.">                for (Neuron n : neighbours) {</span>
+<span class="fc" id="L126">                    updateNeighbouringNeuron(n, features, neighbourhoodDecay.value(radius));</span>
+<span class="fc" id="L127">                }</span>
+
+                // Add the neighbours to the exclude list so that they will
+                // not be update more than once per training step.
+<span class="fc" id="L131">                exclude.addAll(neighbours);</span>
+<span class="fc" id="L132">                ++radius;</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">            } while (radius &lt;= currentNeighbourhood);</span>
+        }
+<span class="fc" id="L135">    }</span>
+
+    /**
+     * Retrieves the number of calls to the {@link #update(Network,double[]) update}
+     * method.
+     *
+     * @return the current number of calls.
+     */
+    public long getNumberOfCalls() {
+<span class="nc" id="L144">        return numberOfCalls.get();</span>
+    }
+
+    /**
+     * Tries to update a neuron.
+     *
+     * @param n Neuron to be updated.
+     * @param features Training data.
+     * @param learningRate Learning factor.
+     * @return {@code true} if the update succeeded, {@code true} if a
+     * concurrent update has been detected.
+     */
+    private boolean attemptNeuronUpdate(Neuron n,
+                                        double[] features,
+                                        double learningRate) {
+<span class="fc" id="L159">        final double[] expect = n.getFeatures();</span>
+<span class="fc" id="L160">        final double[] update = computeFeatures(expect,</span>
+                                                features,
+                                                learningRate);
+
+<span class="fc" id="L164">        return n.compareAndSetFeatures(expect, update);</span>
+    }
+
+    /**
+     * Atomically updates the given neuron.
+     *
+     * @param n Neuron to be updated.
+     * @param features Training data.
+     * @param learningRate Learning factor.
+     */
+    private void updateNeighbouringNeuron(Neuron n,
+                                          double[] features,
+                                          double learningRate) {
+        while (true) {
+<span class="fc bfc" id="L178" title="All 2 branches covered.">            if (attemptNeuronUpdate(n, features, learningRate)) {</span>
+<span class="fc" id="L179">                break;</span>
+            }
+        }
+<span class="fc" id="L182">    }</span>
+
+    /**
+     * Searches for the neuron whose features are closest to the given
+     * sample, and atomically updates its features.
+     *
+     * @param net Network.
+     * @param features Sample data.
+     * @param learningRate Current learning factor.
+     * @return the winning neuron.
+     */
+    private Neuron findAndUpdateBestNeuron(Network net,
+                                           double[] features,
+                                           double learningRate) {
+        while (true) {
+<span class="fc" id="L197">            final Neuron best = MapUtils.findBest(features, net, distance);</span>
+
+<span class="fc bfc" id="L199" title="All 2 branches covered.">            if (attemptNeuronUpdate(best, features, learningRate)) {</span>
+<span class="fc" id="L200">                return best;</span>
+            }
+
+            // If another thread modified the state of the winning neuron,
+            // it may not be the best match anymore for the given training
+            // sample: Hence, the winner search is performed again.
+<span class="fc" id="L206">        }</span>
+    }
+
+    /**
+     * Computes the new value of the features set.
+     *
+     * @param current Current values of the features.
+     * @param sample Training data.
+     * @param learningRate Learning factor.
+     * @return the new values for the features.
+     */
+    private double[] computeFeatures(double[] current,
+                                     double[] sample,
+                                     double learningRate) {
+<span class="fc" id="L220">        final ArrayRealVector c = new ArrayRealVector(current, false);</span>
+<span class="fc" id="L221">        final ArrayRealVector s = new ArrayRealVector(sample, false);</span>
+        // c + learningRate * (s - c)
+<span class="fc" id="L223">        return s.subtract(c).mapMultiplyToSelf(learningRate).add(c).toArray();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

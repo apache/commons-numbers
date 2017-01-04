@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BaseAbstractUnivariateSolver.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.solvers</a> &gt; <span class="el_source">BaseAbstractUnivariateSolver.java</span></div><h1>BaseAbstractUnivariateSolver.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.analysis.solvers;
+
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.exception.NoBracketingException;
+import org.apache.commons.math3.exception.TooManyEvaluationsException;
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.util.IntegerSequence;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * Provide a default implementation for several functions useful to generic
+ * solvers.
+ * The default values for relative and function tolerances are 1e-14
+ * and 1e-15, respectively. It is however highly recommended to not
+ * rely on the default, but rather carefully consider values that match
+ * user's expectations, as well as the specifics of each implementation.
+ *
+ * @param &lt;FUNC&gt; Type of function to solve.
+ *
+ * @since 2.0
+ */
+public abstract class BaseAbstractUnivariateSolver&lt;FUNC extends UnivariateFunction&gt;
+    implements BaseUnivariateSolver&lt;FUNC&gt; {
+    /** Default relative accuracy. */
+    private static final double DEFAULT_RELATIVE_ACCURACY = 1e-14;
+    /** Default function value accuracy. */
+    private static final double DEFAULT_FUNCTION_VALUE_ACCURACY = 1e-15;
+    /** Function value accuracy. */
+    private final double functionValueAccuracy;
+    /** Absolute accuracy. */
+    private final double absoluteAccuracy;
+    /** Relative accuracy. */
+    private final double relativeAccuracy;
+    /** Evaluations counter. */
+    private IntegerSequence.Incrementor evaluations;
+    /** Lower end of search interval. */
+    private double searchMin;
+    /** Higher end of search interval. */
+    private double searchMax;
+    /** Initial guess. */
+    private double searchStart;
+    /** Function to solve. */
+    private FUNC function;
+
+    /**
+     * Construct a solver with given absolute accuracy.
+     *
+     * @param absoluteAccuracy Maximum absolute error.
+     */
+    protected BaseAbstractUnivariateSolver(final double absoluteAccuracy) {
+<span class="fc" id="L70">        this(DEFAULT_RELATIVE_ACCURACY,</span>
+             absoluteAccuracy,
+             DEFAULT_FUNCTION_VALUE_ACCURACY);
+<span class="fc" id="L73">    }</span>
+
+    /**
+     * Construct a solver with given accuracies.
+     *
+     * @param relativeAccuracy Maximum relative error.
+     * @param absoluteAccuracy Maximum absolute error.
+     */
+    protected BaseAbstractUnivariateSolver(final double relativeAccuracy,
+                                           final double absoluteAccuracy) {
+<span class="fc" id="L83">        this(relativeAccuracy,</span>
+             absoluteAccuracy,
+             DEFAULT_FUNCTION_VALUE_ACCURACY);
+<span class="fc" id="L86">    }</span>
+
+    /**
+     * Construct a solver with given accuracies.
+     *
+     * @param relativeAccuracy Maximum relative error.
+     * @param absoluteAccuracy Maximum absolute error.
+     * @param functionValueAccuracy Maximum function value error.
+     */
+    protected BaseAbstractUnivariateSolver(final double relativeAccuracy,
+                                           final double absoluteAccuracy,
+<span class="fc" id="L97">                                           final double functionValueAccuracy) {</span>
+<span class="fc" id="L98">        this.absoluteAccuracy      = absoluteAccuracy;</span>
+<span class="fc" id="L99">        this.relativeAccuracy      = relativeAccuracy;</span>
+<span class="fc" id="L100">        this.functionValueAccuracy = functionValueAccuracy;</span>
+<span class="fc" id="L101">        this.evaluations           = IntegerSequence.Incrementor.create();</span>
+<span class="fc" id="L102">    }</span>
+
+    /** {@inheritDoc} */
+    public int getMaxEvaluations() {
+<span class="nc" id="L106">        return evaluations.getMaximalCount();</span>
+    }
+    /** {@inheritDoc} */
+    public int getEvaluations() {
+<span class="fc" id="L110">        return evaluations.getCount();</span>
+    }
+    /**
+     * @return the lower end of the search interval.
+     */
+    public double getMin() {
+<span class="fc" id="L116">        return searchMin;</span>
+    }
+    /**
+     * @return the higher end of the search interval.
+     */
+    public double getMax() {
+<span class="fc" id="L122">        return searchMax;</span>
+    }
+    /**
+     * @return the initial guess.
+     */
+    public double getStartValue() {
+<span class="fc" id="L128">        return searchStart;</span>
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public double getAbsoluteAccuracy() {
+<span class="fc" id="L134">        return absoluteAccuracy;</span>
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public double getRelativeAccuracy() {
+<span class="fc" id="L140">        return relativeAccuracy;</span>
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public double getFunctionValueAccuracy() {
+<span class="fc" id="L146">        return functionValueAccuracy;</span>
+    }
+
+    /**
+     * Compute the objective function value.
+     *
+     * @param point Point at which the objective function must be evaluated.
+     * @return the objective function value at specified point.
+     * @throws TooManyEvaluationsException if the maximal number of evaluations
+     * is exceeded.
+     */
+    protected double computeObjectiveValue(double point)
+        throws TooManyEvaluationsException {
+<span class="fc" id="L159">        incrementEvaluationCount();</span>
+<span class="fc" id="L160">        return function.value(point);</span>
+    }
+
+    /**
+     * Prepare for computation.
+     * Subclasses must call this method if they override any of the
+     * {@code solve} methods.
+     *
+     * @param f Function to solve.
+     * @param min Lower bound for the interval.
+     * @param max Upper bound for the interval.
+     * @param startValue Start value to use.
+     * @param maxEval Maximum number of evaluations.
+     * @exception NullArgumentException if f is null
+     */
+    protected void setup(int maxEval,
+                         FUNC f,
+                         double min, double max,
+                         double startValue)
+        throws NullArgumentException {
+        // Checks.
+<span class="fc" id="L181">        MathUtils.checkNotNull(f);</span>
+
+        // Reset.
+<span class="fc" id="L184">        searchMin = min;</span>
+<span class="fc" id="L185">        searchMax = max;</span>
+<span class="fc" id="L186">        searchStart = startValue;</span>
+<span class="fc" id="L187">        function = f;</span>
+<span class="fc" id="L188">        evaluations = evaluations.withMaximalCount(maxEval).withStart(0);</span>
+<span class="fc" id="L189">    }</span>
+
+    /** {@inheritDoc} */
+    public double solve(int maxEval, FUNC f, double min, double max, double startValue)
+        throws TooManyEvaluationsException,
+               NoBracketingException {
+        // Initialization.
+<span class="fc" id="L196">        setup(maxEval, f, min, max, startValue);</span>
+
+        // Perform computation.
+<span class="fc" id="L199">        return doSolve();</span>
+    }
+
+    /** {@inheritDoc} */
+    public double solve(int maxEval, FUNC f, double min, double max) {
+<span class="fc" id="L204">        return solve(maxEval, f, min, max, min + 0.5 * (max - min));</span>
+    }
+
+    /** {@inheritDoc} */
+    public double solve(int maxEval, FUNC f, double startValue)
+        throws TooManyEvaluationsException,
+               NoBracketingException {
+<span class="fc" id="L211">        return solve(maxEval, f, Double.NaN, Double.NaN, startValue);</span>
+    }
+
+    /**
+     * Method for implementing actual optimization algorithms in derived
+     * classes.
+     *
+     * @return the root.
+     * @throws TooManyEvaluationsException if the maximal number of evaluations
+     * is exceeded.
+     * @throws NoBracketingException if the initial search interval does not bracket
+     * a root and the solver requires it.
+     */
+    protected abstract double doSolve()
+        throws TooManyEvaluationsException, NoBracketingException;
+
+    /**
+     * Check whether the function takes opposite signs at the endpoints.
+     *
+     * @param lower Lower endpoint.
+     * @param upper Upper endpoint.
+     * @return {@code true} if the function values have opposite signs at the
+     * given points.
+     */
+    protected boolean isBracketing(final double lower,
+                                   final double upper) {
+<span class="fc" id="L237">        return UnivariateSolverUtils.isBracketing(function, lower, upper);</span>
+    }
+
+    /**
+     * Check whether the arguments form a (strictly) increasing sequence.
+     *
+     * @param start First number.
+     * @param mid Second number.
+     * @param end Third number.
+     * @return {@code true} if the arguments form an increasing sequence.
+     */
+    protected boolean isSequence(final double start,
+                                 final double mid,
+                                 final double end) {
+<span class="fc" id="L251">        return UnivariateSolverUtils.isSequence(start, mid, end);</span>
+    }
+
+    /**
+     * Check that the endpoints specify an interval.
+     *
+     * @param lower Lower endpoint.
+     * @param upper Upper endpoint.
+     * @throws NumberIsTooLargeException if {@code lower &gt;= upper}.
+     */
+    protected void verifyInterval(final double lower,
+                                  final double upper)
+        throws NumberIsTooLargeException {
+<span class="fc" id="L264">        UnivariateSolverUtils.verifyInterval(lower, upper);</span>
+<span class="fc" id="L265">    }</span>
+
+    /**
+     * Check that {@code lower &lt; initial &lt; upper}.
+     *
+     * @param lower Lower endpoint.
+     * @param initial Initial value.
+     * @param upper Upper endpoint.
+     * @throws NumberIsTooLargeException if {@code lower &gt;= initial} or
+     * {@code initial &gt;= upper}.
+     */
+    protected void verifySequence(final double lower,
+                                  final double initial,
+                                  final double upper)
+        throws NumberIsTooLargeException {
+<span class="fc" id="L280">        UnivariateSolverUtils.verifySequence(lower, initial, upper);</span>
+<span class="fc" id="L281">    }</span>
+
+    /**
+     * Check that the endpoints specify an interval and the function takes
+     * opposite signs at the endpoints.
+     *
+     * @param lower Lower endpoint.
+     * @param upper Upper endpoint.
+     * @throws NullArgumentException if the function has not been set.
+     * @throws NoBracketingException if the function has the same sign at
+     * the endpoints.
+     */
+    protected void verifyBracketing(final double lower,
+                                    final double upper)
+        throws NullArgumentException,
+               NoBracketingException {
+<span class="fc" id="L297">        UnivariateSolverUtils.verifyBracketing(function, lower, upper);</span>
+<span class="fc" id="L298">    }</span>
+
+    /**
+     * Increment the evaluation count by one.
+     * Method {@link #computeObjectiveValue(double)} calls this method internally.
+     * It is provided for subclasses that do not exclusively use
+     * {@code computeObjectiveValue} to solve the function.
+     * See e.g. {@link AbstractUnivariateDifferentiableSolver}.
+     *
+     * @throws TooManyEvaluationsException when the allowed number of function
+     * evaluations has been exhausted.
+     */
+    protected void incrementEvaluationCount()
+        throws TooManyEvaluationsException {
+        try {
+<span class="fc" id="L313">            evaluations.increment();</span>
+<span class="fc" id="L314">        } catch (MaxCountExceededException e) {</span>
+<span class="fc" id="L315">            throw new TooManyEvaluationsException(e.getMax());</span>
+<span class="fc" id="L316">        }</span>
+<span class="fc" id="L317">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>HessenbergTransformer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.linear</a> &gt; <span class="el_source">HessenbergTransformer.java</span></div><h1>HessenbergTransformer.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.linear;
+
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.Precision;
+
+/**
+ * Class transforming a general real matrix to Hessenberg form.
+ * &lt;p&gt;A m &amp;times; m matrix A can be written as the product of three matrices: A = P
+ * &amp;times; H &amp;times; P&lt;sup&gt;T&lt;/sup&gt; with P an orthogonal matrix and H a Hessenberg
+ * matrix. Both P and H are m &amp;times; m matrices.&lt;/p&gt;
+ * &lt;p&gt;Transformation to Hessenberg form is often not a goal by itself, but it is an
+ * intermediate step in more general decomposition algorithms like
+ * {@link EigenDecomposition eigen decomposition}. This class is therefore
+ * intended for internal use by the library and is not public. As a consequence
+ * of this explicitly limited scope, many methods directly returns references to
+ * internal arrays, not copies.&lt;/p&gt;
+ * &lt;p&gt;This class is based on the method orthes in class EigenvalueDecomposition
+ * from the &lt;a href=&quot;http://math.nist.gov/javanumerics/jama/&quot;&gt;JAMA&lt;/a&gt; library.&lt;/p&gt;
+ *
+ * @see &lt;a href=&quot;http://mathworld.wolfram.com/HessenbergDecomposition.html&quot;&gt;MathWorld&lt;/a&gt;
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Householder_transformation&quot;&gt;Householder Transformations&lt;/a&gt;
+ * @since 3.1
+ */
+class HessenbergTransformer {
+    /** Householder vectors. */
+    private final double householderVectors[][];
+    /** Temporary storage vector. */
+    private final double ort[];
+    /** Cached value of P. */
+    private RealMatrix cachedP;
+    /** Cached value of Pt. */
+    private RealMatrix cachedPt;
+    /** Cached value of H. */
+    private RealMatrix cachedH;
+
+    /**
+     * Build the transformation to Hessenberg form of a general matrix.
+     *
+     * @param matrix matrix to transform
+     * @throws NonSquareMatrixException if the matrix is not square
+     */
+<span class="fc" id="L59">    HessenbergTransformer(final RealMatrix matrix) {</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (!matrix.isSquare()) {</span>
+<span class="fc" id="L61">            throw new NonSquareMatrixException(matrix.getRowDimension(),</span>
+                    matrix.getColumnDimension());
+        }
+
+<span class="fc" id="L65">        final int m = matrix.getRowDimension();</span>
+<span class="fc" id="L66">        householderVectors = matrix.getData();</span>
+<span class="fc" id="L67">        ort = new double[m];</span>
+<span class="fc" id="L68">        cachedP = null;</span>
+<span class="fc" id="L69">        cachedPt = null;</span>
+<span class="fc" id="L70">        cachedH = null;</span>
+
+        // transform matrix
+<span class="fc" id="L73">        transform();</span>
+<span class="fc" id="L74">    }</span>
+
+    /**
+     * Returns the matrix P of the transform.
+     * &lt;p&gt;P is an orthogonal matrix, i.e. its inverse is also its transpose.&lt;/p&gt;
+     *
+     * @return the P matrix
+     */
+    public RealMatrix getP() {
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (cachedP == null) {</span>
+<span class="fc" id="L84">            final int n = householderVectors.length;</span>
+<span class="fc" id="L85">            final int high = n - 1;</span>
+<span class="fc" id="L86">            final double[][] pa = new double[n][n];</span>
+
+<span class="fc bfc" id="L88" title="All 2 branches covered.">            for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">                for (int j = 0; j &lt; n; j++) {</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">                    pa[i][j] = (i == j) ? 1 : 0;</span>
+                }
+            }
+
+<span class="fc bfc" id="L94" title="All 2 branches covered.">            for (int m = high - 1; m &gt;= 1; m--) {</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">                if (householderVectors[m][m - 1] != 0.0) {</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">                    for (int i = m + 1; i &lt;= high; i++) {</span>
+<span class="fc" id="L97">                        ort[i] = householderVectors[i][m - 1];</span>
+                    }
+
+<span class="fc bfc" id="L100" title="All 2 branches covered.">                    for (int j = m; j &lt;= high; j++) {</span>
+<span class="fc" id="L101">                        double g = 0.0;</span>
+
+<span class="fc bfc" id="L103" title="All 2 branches covered.">                        for (int i = m; i &lt;= high; i++) {</span>
+<span class="fc" id="L104">                            g += ort[i] * pa[i][j];</span>
+                        }
+
+                        // Double division avoids possible underflow
+<span class="fc" id="L108">                        g = (g / ort[m]) / householderVectors[m][m - 1];</span>
+
+<span class="fc bfc" id="L110" title="All 2 branches covered.">                        for (int i = m; i &lt;= high; i++) {</span>
+<span class="fc" id="L111">                            pa[i][j] += g * ort[i];</span>
+                        }
+                    }
+                }
+            }
+
+<span class="fc" id="L117">            cachedP = MatrixUtils.createRealMatrix(pa);</span>
+        }
+<span class="fc" id="L119">        return cachedP;</span>
+    }
+
+    /**
+     * Returns the transpose of the matrix P of the transform.
+     * &lt;p&gt;P is an orthogonal matrix, i.e. its inverse is also its transpose.&lt;/p&gt;
+     *
+     * @return the transpose of the P matrix
+     */
+    public RealMatrix getPT() {
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">        if (cachedPt == null) {</span>
+<span class="fc" id="L130">            cachedPt = getP().transpose();</span>
+        }
+
+        // return the cached matrix
+<span class="fc" id="L134">        return cachedPt;</span>
+    }
+
+    /**
+     * Returns the Hessenberg matrix H of the transform.
+     *
+     * @return the H matrix
+     */
+    public RealMatrix getH() {
+<span class="fc bfc" id="L143" title="All 2 branches covered.">        if (cachedH == null) {</span>
+<span class="fc" id="L144">            final int m = householderVectors.length;</span>
+<span class="fc" id="L145">            final double[][] h = new double[m][m];</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">            for (int i = 0; i &lt; m; ++i) {</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">                if (i &gt; 0) {</span>
+                    // copy the entry of the lower sub-diagonal
+<span class="fc" id="L149">                    h[i][i - 1] = householderVectors[i][i - 1];</span>
+                }
+
+                // copy upper triangular part of the matrix
+<span class="fc bfc" id="L153" title="All 2 branches covered.">                for (int j = i; j &lt; m; ++j) {</span>
+<span class="fc" id="L154">                    h[i][j] = householderVectors[i][j];</span>
+                }
+            }
+<span class="fc" id="L157">            cachedH = MatrixUtils.createRealMatrix(h);</span>
+        }
+
+        // return the cached matrix
+<span class="fc" id="L161">        return cachedH;</span>
+    }
+
+    /**
+     * Get the Householder vectors of the transform.
+     * &lt;p&gt;Note that since this class is only intended for internal use, it returns
+     * directly a reference to its internal arrays, not a copy.&lt;/p&gt;
+     *
+     * @return the main diagonal elements of the B matrix
+     */
+    double[][] getHouseholderVectorsRef() {
+<span class="nc" id="L172">        return householderVectors;</span>
+    }
+
+    /**
+     * Transform original matrix to Hessenberg form.
+     * &lt;p&gt;Transformation is done using Householder transforms.&lt;/p&gt;
+     */
+    private void transform() {
+<span class="fc" id="L180">        final int n = householderVectors.length;</span>
+<span class="fc" id="L181">        final int high = n - 1;</span>
+
+<span class="fc bfc" id="L183" title="All 2 branches covered.">        for (int m = 1; m &lt;= high - 1; m++) {</span>
+            // Scale column.
+<span class="fc" id="L185">            double scale = 0;</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">            for (int i = m; i &lt;= high; i++) {</span>
+<span class="fc" id="L187">                scale += FastMath.abs(householderVectors[i][m - 1]);</span>
+            }
+
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">            if (!Precision.equals(scale, 0)) {</span>
+                // Compute Householder transformation.
+<span class="fc" id="L192">                double h = 0;</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">                for (int i = high; i &gt;= m; i--) {</span>
+<span class="fc" id="L194">                    ort[i] = householderVectors[i][m - 1] / scale;</span>
+<span class="fc" id="L195">                    h += ort[i] * ort[i];</span>
+                }
+<span class="fc bfc" id="L197" title="All 2 branches covered.">                final double g = (ort[m] &gt; 0) ? -FastMath.sqrt(h) : FastMath.sqrt(h);</span>
+
+<span class="fc" id="L199">                h -= ort[m] * g;</span>
+<span class="fc" id="L200">                ort[m] -= g;</span>
+
+                // Apply Householder similarity transformation
+                // H = (I - u*u' / h) * H * (I - u*u' / h)
+
+<span class="fc bfc" id="L205" title="All 2 branches covered.">                for (int j = m; j &lt; n; j++) {</span>
+<span class="fc" id="L206">                    double f = 0;</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">                    for (int i = high; i &gt;= m; i--) {</span>
+<span class="fc" id="L208">                        f += ort[i] * householderVectors[i][j];</span>
+                    }
+<span class="fc" id="L210">                    f /= h;</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">                    for (int i = m; i &lt;= high; i++) {</span>
+<span class="fc" id="L212">                        householderVectors[i][j] -= f * ort[i];</span>
+                    }
+                }
+
+<span class="fc bfc" id="L216" title="All 2 branches covered.">                for (int i = 0; i &lt;= high; i++) {</span>
+<span class="fc" id="L217">                    double f = 0;</span>
+<span class="fc bfc" id="L218" title="All 2 branches covered.">                    for (int j = high; j &gt;= m; j--) {</span>
+<span class="fc" id="L219">                        f += ort[j] * householderVectors[i][j];</span>
+                    }
+<span class="fc" id="L221">                    f /= h;</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">                    for (int j = m; j &lt;= high; j++) {</span>
+<span class="fc" id="L223">                        householderVectors[i][j] -= f * ort[j];</span>
+                    }
+                }
+
+<span class="fc" id="L227">                ort[m] = scale * ort[m];</span>
+<span class="fc" id="L228">                householderVectors[m][m - 1] = scale * g;</span>
+            }
+        }
+<span class="fc" id="L231">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

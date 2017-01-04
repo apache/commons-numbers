@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RandomAdaptor.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.random</a> &gt; <span class="el_source">RandomAdaptor.java</span></div><h1>RandomAdaptor.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.random;
+
+import java.util.Random;
+
+/**
+ * Extension of &lt;code&gt;java.util.Random&lt;/code&gt; wrapping a
+ * {@link RandomGenerator}.
+ *
+ * @since 1.1
+ */
+public class RandomAdaptor extends Random implements RandomGenerator {
+
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 2306581345647615033L;
+
+    /** Wrapped randomGenerator instance */
+    private final RandomGenerator randomGenerator;
+
+    /**
+     * Prevent instantiation without a generator argument
+     */
+    @SuppressWarnings(&quot;unused&quot;)
+<span class="nc" id="L39">    private RandomAdaptor() { randomGenerator = null; }</span>
+
+    /**
+     * Construct a RandomAdaptor wrapping the supplied RandomGenerator.
+     *
+     * @param randomGenerator  the wrapped generator
+     */
+<span class="fc" id="L46">    public RandomAdaptor(RandomGenerator randomGenerator) {</span>
+<span class="fc" id="L47">        this.randomGenerator = randomGenerator;</span>
+<span class="fc" id="L48">    }</span>
+
+    /**
+     * Factory method to create a &lt;code&gt;Random&lt;/code&gt; using the supplied
+     * &lt;code&gt;RandomGenerator&lt;/code&gt;.
+     *
+     * @param randomGenerator  wrapped RandomGenerator instance
+     * @return a Random instance wrapping the RandomGenerator
+     */
+    public static Random createAdaptor(RandomGenerator randomGenerator) {
+<span class="fc" id="L58">        return new RandomAdaptor(randomGenerator);</span>
+    }
+
+    /**
+     * Returns the next pseudorandom, uniformly distributed
+     * &lt;code&gt;boolean&lt;/code&gt; value from this random number generator's
+     * sequence.
+     *
+     * @return  the next pseudorandom, uniformly distributed
+     * &lt;code&gt;boolean&lt;/code&gt; value from this random number generator's
+     * sequence
+     */
+    @Override
+    public boolean nextBoolean() {
+<span class="fc" id="L72">        return randomGenerator.nextBoolean();</span>
+    }
+
+     /**
+     * Generates random bytes and places them into a user-supplied
+     * byte array.  The number of random bytes produced is equal to
+     * the length of the byte array.
+     *
+     * @param bytes the non-null byte array in which to put the
+     * random bytes
+     */
+    @Override
+    public void nextBytes(byte[] bytes) {
+<span class="fc" id="L85">        randomGenerator.nextBytes(bytes);</span>
+<span class="fc" id="L86">    }</span>
+
+     /**
+     * Returns the next pseudorandom, uniformly distributed
+     * &lt;code&gt;double&lt;/code&gt; value between &lt;code&gt;0.0&lt;/code&gt; and
+     * &lt;code&gt;1.0&lt;/code&gt; from this random number generator's sequence.
+     *
+     * @return  the next pseudorandom, uniformly distributed
+     *  &lt;code&gt;double&lt;/code&gt; value between &lt;code&gt;0.0&lt;/code&gt; and
+     *  &lt;code&gt;1.0&lt;/code&gt; from this random number generator's sequence
+     */
+    @Override
+    public double nextDouble() {
+<span class="fc" id="L99">        return randomGenerator.nextDouble();</span>
+    }
+
+    /**
+     * Returns the next pseudorandom, uniformly distributed &lt;code&gt;float&lt;/code&gt;
+     * value between &lt;code&gt;0.0&lt;/code&gt; and &lt;code&gt;1.0&lt;/code&gt; from this random
+     * number generator's sequence.
+     *
+     * @return  the next pseudorandom, uniformly distributed &lt;code&gt;float&lt;/code&gt;
+     * value between &lt;code&gt;0.0&lt;/code&gt; and &lt;code&gt;1.0&lt;/code&gt; from this
+     * random number generator's sequence
+     */
+    @Override
+    public float nextFloat() {
+<span class="fc" id="L113">        return randomGenerator.nextFloat();</span>
+    }
+
+    /**
+     * Returns the next pseudorandom, Gaussian (&quot;normally&quot;) distributed
+     * &lt;code&gt;double&lt;/code&gt; value with mean &lt;code&gt;0.0&lt;/code&gt; and standard
+     * deviation &lt;code&gt;1.0&lt;/code&gt; from this random number generator's sequence.
+     *
+     * @return  the next pseudorandom, Gaussian (&quot;normally&quot;) distributed
+     * &lt;code&gt;double&lt;/code&gt; value with mean &lt;code&gt;0.0&lt;/code&gt; and
+     * standard deviation &lt;code&gt;1.0&lt;/code&gt; from this random number
+     *  generator's sequence
+     */
+    @Override
+    public double nextGaussian() {
+<span class="fc" id="L128">        return randomGenerator.nextGaussian();</span>
+    }
+
+     /**
+     * Returns the next pseudorandom, uniformly distributed &lt;code&gt;int&lt;/code&gt;
+     * value from this random number generator's sequence.
+     * All 2&lt;font size=&quot;-1&quot;&gt;&lt;sup&gt;32&lt;/sup&gt;&lt;/font&gt; possible {@code int} values
+     * should be produced with  (approximately) equal probability.
+     *
+     * @return the next pseudorandom, uniformly distributed &lt;code&gt;int&lt;/code&gt;
+     *  value from this random number generator's sequence
+     */
+    @Override
+    public int nextInt() {
+<span class="fc" id="L142">        return randomGenerator.nextInt();</span>
+    }
+
+    /**
+     * Returns a pseudorandom, uniformly distributed {@code int} value
+     * between 0 (inclusive) and the specified value (exclusive), drawn from
+     * this random number generator's sequence.
+     *
+     * @param n the bound on the random number to be returned.  Must be
+     * positive.
+     * @return  a pseudorandom, uniformly distributed {@code int}
+     * value between 0 (inclusive) and n (exclusive).
+     * @throws IllegalArgumentException  if n is not positive.
+     */
+    @Override
+    public int nextInt(int n) {
+<span class="fc" id="L158">        return randomGenerator.nextInt(n);</span>
+    }
+
+    /**
+     * Returns the next pseudorandom, uniformly distributed &lt;code&gt;long&lt;/code&gt;
+     * value from this random number generator's sequence.  All
+     * 2&lt;font size=&quot;-1&quot;&gt;&lt;sup&gt;64&lt;/sup&gt;&lt;/font&gt; possible {@code long} values
+     * should be produced with (approximately) equal probability.
+     *
+     * @return  the next pseudorandom, uniformly distributed &lt;code&gt;long&lt;/code&gt;
+     *value from this random number generator's sequence
+     */
+    @Override
+    public long nextLong() {
+<span class="fc" id="L172">        return randomGenerator.nextLong();</span>
+    }
+
+    /** {@inheritDoc} */
+    public void setSeed(int seed) {
+<span class="nc bnc" id="L177" title="All 2 branches missed.">        if (randomGenerator != null) {  // required to avoid NPE in constructor</span>
+<span class="nc" id="L178">            randomGenerator.setSeed(seed);</span>
+        }
+<span class="nc" id="L180">    }</span>
+
+    /** {@inheritDoc} */
+    public void setSeed(int[] seed) {
+<span class="nc bnc" id="L184" title="All 2 branches missed.">        if (randomGenerator != null) {  // required to avoid NPE in constructor</span>
+<span class="nc" id="L185">            randomGenerator.setSeed(seed);</span>
+        }
+<span class="nc" id="L187">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public void setSeed(long seed) {
+<span class="fc bfc" id="L192" title="All 2 branches covered.">        if (randomGenerator != null) {  // required to avoid NPE in constructor</span>
+<span class="fc" id="L193">            randomGenerator.setSeed(seed);</span>
+        }
+<span class="fc" id="L195">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

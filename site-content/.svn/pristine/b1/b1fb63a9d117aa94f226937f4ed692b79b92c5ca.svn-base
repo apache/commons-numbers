@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SubLine.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.euclidean.threed</a> &gt; <span class="el_source">SubLine.java</span></div><h1>SubLine.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.euclidean.threed;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.geometry.Point;
+import org.apache.commons.math3.geometry.euclidean.oned.Euclidean1D;
+import org.apache.commons.math3.geometry.euclidean.oned.Interval;
+import org.apache.commons.math3.geometry.euclidean.oned.IntervalsSet;
+import org.apache.commons.math3.geometry.euclidean.oned.Vector1D;
+import org.apache.commons.math3.geometry.partitioning.Region.Location;
+
+/** This class represents a subset of a {@link Line}.
+ * @since 3.0
+ */
+public class SubLine {
+
+    /** Default value for tolerance. */
+    private static final double DEFAULT_TOLERANCE = 1.0e-10;
+
+    /** Underlying line. */
+    private final Line line;
+
+    /** Remaining region of the hyperplane. */
+    private final IntervalsSet remainingRegion;
+
+    /** Simple constructor.
+     * @param line underlying line
+     * @param remainingRegion remaining region of the line
+     */
+<span class="fc" id="L48">    public SubLine(final Line line, final IntervalsSet remainingRegion) {</span>
+<span class="fc" id="L49">        this.line            = line;</span>
+<span class="fc" id="L50">        this.remainingRegion = remainingRegion;</span>
+<span class="fc" id="L51">    }</span>
+
+    /** Create a sub-line from two endpoints.
+     * @param start start point
+     * @param end end point
+     * @param tolerance tolerance below which points are considered identical
+     * @exception MathIllegalArgumentException if the points are equal
+     * @since 3.3
+     */
+    public SubLine(final Vector3D start, final Vector3D end, final double tolerance)
+        throws MathIllegalArgumentException {
+<span class="fc" id="L62">        this(new Line(start, end, tolerance), buildIntervalSet(start, end, tolerance));</span>
+<span class="fc" id="L63">    }</span>
+
+    /** Create a sub-line from two endpoints.
+     * @param start start point
+     * @param end end point
+     * @exception MathIllegalArgumentException if the points are equal
+     * @deprecated as of 3.3, replaced with {@link #SubLine(Vector3D, Vector3D, double)}
+     */
+    public SubLine(final Vector3D start, final Vector3D end)
+        throws MathIllegalArgumentException {
+<span class="nc" id="L73">        this(start, end, DEFAULT_TOLERANCE);</span>
+<span class="nc" id="L74">    }</span>
+
+    /** Create a sub-line from a segment.
+     * @param segment single segment forming the sub-line
+     * @exception MathIllegalArgumentException if the segment endpoints are equal
+     */
+    public SubLine(final Segment segment) throws MathIllegalArgumentException {
+<span class="fc" id="L81">        this(segment.getLine(),</span>
+             buildIntervalSet(segment.getStart(), segment.getEnd(), segment.getLine().getTolerance()));
+<span class="fc" id="L83">    }</span>
+
+    /** Get the endpoints of the sub-line.
+     * &lt;p&gt;
+     * A subline may be any arbitrary number of disjoints segments, so the endpoints
+     * are provided as a list of endpoint pairs. Each element of the list represents
+     * one segment, and each segment contains a start point at index 0 and an end point
+     * at index 1. If the sub-line is unbounded in the negative infinity direction,
+     * the start point of the first segment will have infinite coordinates. If the
+     * sub-line is unbounded in the positive infinity direction, the end point of the
+     * last segment will have infinite coordinates. So a sub-line covering the whole
+     * line will contain just one row and both elements of this row will have infinite
+     * coordinates. If the sub-line is empty, the returned list will contain 0 segments.
+     * &lt;/p&gt;
+     * @return list of segments endpoints
+     */
+    public List&lt;Segment&gt; getSegments() {
+
+<span class="fc" id="L101">        final List&lt;Interval&gt; list = remainingRegion.asList();</span>
+<span class="fc" id="L102">        final List&lt;Segment&gt; segments = new ArrayList&lt;Segment&gt;(list.size());</span>
+
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        for (final Interval interval : list) {</span>
+<span class="fc" id="L105">            final Vector3D start = line.toSpace((Point&lt;Euclidean1D&gt;) new Vector1D(interval.getInf()));</span>
+<span class="fc" id="L106">            final Vector3D end   = line.toSpace((Point&lt;Euclidean1D&gt;) new Vector1D(interval.getSup()));</span>
+<span class="fc" id="L107">            segments.add(new Segment(start, end, line));</span>
+<span class="fc" id="L108">        }</span>
+
+<span class="fc" id="L110">        return segments;</span>
+
+    }
+
+    /** Get the intersection of the instance and another sub-line.
+     * &lt;p&gt;
+     * This method is related to the {@link Line#intersection(Line)
+     * intersection} method in the {@link Line Line} class, but in addition
+     * to compute the point along infinite lines, it also checks the point
+     * lies on both sub-line ranges.
+     * &lt;/p&gt;
+     * @param subLine other sub-line which may intersect instance
+     * @param includeEndPoints if true, endpoints are considered to belong to
+     * instance (i.e. they are closed sets) and may be returned, otherwise endpoints
+     * are considered to not belong to instance (i.e. they are open sets) and intersection
+     * occurring on endpoints lead to null being returned
+     * @return the intersection point if there is one, null if the sub-lines don't intersect
+     */
+    public Vector3D intersection(final SubLine subLine, final boolean includeEndPoints) {
+
+        // compute the intersection on infinite line
+<span class="fc" id="L131">        Vector3D v1D = line.intersection(subLine.line);</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">        if (v1D == null) {</span>
+<span class="fc" id="L133">            return null;</span>
+        }
+
+        // check location of point with respect to first sub-line
+<span class="fc" id="L137">        Location loc1 = remainingRegion.checkPoint((Point&lt;Euclidean1D&gt;) line.toSubSpace((Point&lt;Euclidean3D&gt;) v1D));</span>
+
+        // check location of point with respect to second sub-line
+<span class="fc" id="L140">        Location loc2 = subLine.remainingRegion.checkPoint((Point&lt;Euclidean1D&gt;) subLine.line.toSubSpace((Point&lt;Euclidean3D&gt;) v1D));</span>
+
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        if (includeEndPoints) {</span>
+<span class="fc bfc" id="L143" title="All 4 branches covered.">            return ((loc1 != Location.OUTSIDE) &amp;&amp; (loc2 != Location.OUTSIDE)) ? v1D : null;</span>
+        } else {
+<span class="fc bfc" id="L145" title="All 4 branches covered.">            return ((loc1 == Location.INSIDE) &amp;&amp; (loc2 == Location.INSIDE)) ? v1D : null;</span>
+        }
+
+    }
+
+    /** Build an interval set from two points.
+     * @param start start point
+     * @param end end point
+     * @return an interval set
+     * @param tolerance tolerance below which points are considered identical
+     * @exception MathIllegalArgumentException if the points are equal
+     */
+    private static IntervalsSet buildIntervalSet(final Vector3D start, final Vector3D end, final double tolerance)
+        throws MathIllegalArgumentException {
+<span class="fc" id="L159">        final Line line = new Line(start, end, tolerance);</span>
+<span class="fc" id="L160">        return new IntervalsSet(line.toSubSpace((Point&lt;Euclidean3D&gt;) start).getX(),</span>
+                                line.toSubSpace((Point&lt;Euclidean3D&gt;) end).getX(),
+                                tolerance);
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

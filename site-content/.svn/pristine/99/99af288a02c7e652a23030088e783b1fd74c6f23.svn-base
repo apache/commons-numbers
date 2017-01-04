@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AklToussaintHeuristic.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.euclidean.twod.hull</a> &gt; <span class="el_source">AklToussaintHeuristic.java</span></div><h1>AklToussaintHeuristic.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.euclidean.twod.hull;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
+
+/**
+ * A simple heuristic to improve the performance of convex hull algorithms.
+ * &lt;p&gt;
+ * The heuristic is based on the idea of a convex quadrilateral, which is formed by
+ * four points with the lowest and highest x / y coordinates. Any point that lies inside
+ * this quadrilateral can not be part of the convex hull and can thus be safely discarded
+ * before generating the convex hull itself.
+ * &lt;p&gt;
+ * The complexity of the operation is O(n), and may greatly improve the time it takes to
+ * construct the convex hull afterwards, depending on the point distribution.
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Convex_hull_algorithms#Akl-Toussaint_heuristic&quot;&gt;
+ * Akl-Toussaint heuristic (Wikipedia)&lt;/a&gt;
+ * @since 3.3
+ */
+public final class AklToussaintHeuristic {
+
+    /** Hide utility constructor. */
+<span class="nc" id="L43">    private AklToussaintHeuristic() {</span>
+<span class="nc" id="L44">    }</span>
+
+    /**
+     * Returns a point set that is reduced by all points for which it is safe to assume
+     * that they are not part of the convex hull.
+     *
+     * @param points the original point set
+     * @return a reduced point set, useful as input for convex hull algorithms
+     */
+    public static Collection&lt;Vector2D&gt; reducePoints(final Collection&lt;Vector2D&gt; points) {
+
+        // find the leftmost point
+<span class="fc" id="L56">        int size = 0;</span>
+<span class="fc" id="L57">        Vector2D minX = null;</span>
+<span class="fc" id="L58">        Vector2D maxX = null;</span>
+<span class="fc" id="L59">        Vector2D minY = null;</span>
+<span class="fc" id="L60">        Vector2D maxY = null;</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        for (Vector2D p : points) {</span>
+<span class="fc bfc" id="L62" title="All 4 branches covered.">            if (minX == null || p.getX() &lt; minX.getX()) {</span>
+<span class="fc" id="L63">                minX = p;</span>
+            }
+<span class="fc bfc" id="L65" title="All 4 branches covered.">            if (maxX == null || p.getX() &gt; maxX.getX()) {</span>
+<span class="fc" id="L66">                maxX = p;</span>
+            }
+<span class="fc bfc" id="L68" title="All 4 branches covered.">            if (minY == null || p.getY() &lt; minY.getY()) {</span>
+<span class="fc" id="L69">                minY = p;</span>
+            }
+<span class="fc bfc" id="L71" title="All 4 branches covered.">            if (maxY == null || p.getY() &gt; maxY.getY()) {</span>
+<span class="fc" id="L72">                maxY = p;</span>
+            }
+<span class="fc" id="L74">            size++;</span>
+<span class="fc" id="L75">        }</span>
+
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        if (size &lt; 4) {</span>
+<span class="nc" id="L78">            return points;</span>
+        }
+
+<span class="fc" id="L81">        final List&lt;Vector2D&gt; quadrilateral = buildQuadrilateral(minY, maxX, maxY, minX);</span>
+        // if the quadrilateral is not well formed, e.g. only 2 points, do not attempt to reduce
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (quadrilateral.size() &lt; 3) {</span>
+<span class="nc" id="L84">            return points;</span>
+        }
+
+<span class="fc" id="L87">        final List&lt;Vector2D&gt; reducedPoints = new ArrayList&lt;Vector2D&gt;(quadrilateral);</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        for (final Vector2D p : points) {</span>
+            // check all points if they are within the quadrilateral
+            // in which case they can not be part of the convex hull
+<span class="fc bfc" id="L91" title="All 2 branches covered.">            if (!insideQuadrilateral(p, quadrilateral)) {</span>
+<span class="fc" id="L92">                reducedPoints.add(p);</span>
+            }
+<span class="fc" id="L94">        }</span>
+
+<span class="fc" id="L96">        return reducedPoints;</span>
+    }
+
+    /**
+     * Build the convex quadrilateral with the found corner points (with min/max x/y coordinates).
+     *
+     * @param points the respective points with min/max x/y coordinate
+     * @return the quadrilateral
+     */
+    private static List&lt;Vector2D&gt; buildQuadrilateral(final Vector2D... points) {
+<span class="fc" id="L106">        List&lt;Vector2D&gt; quadrilateral = new ArrayList&lt;Vector2D&gt;();</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        for (Vector2D p : points) {</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">            if (!quadrilateral.contains(p)) {</span>
+<span class="fc" id="L109">                quadrilateral.add(p);</span>
+            }
+        }
+<span class="fc" id="L112">        return quadrilateral;</span>
+    }
+
+    /**
+     * Checks if the given point is located within the convex quadrilateral.
+     * @param point the point to check
+     * @param quadrilateralPoints the convex quadrilateral, represented by 4 points
+     * @return {@code true} if the point is inside the quadrilateral, {@code false} otherwise
+     */
+    private static boolean insideQuadrilateral(final Vector2D point,
+                                               final List&lt;Vector2D&gt; quadrilateralPoints) {
+
+<span class="fc" id="L124">        Vector2D p1 = quadrilateralPoints.get(0);</span>
+<span class="fc" id="L125">        Vector2D p2 = quadrilateralPoints.get(1);</span>
+
+<span class="fc bfc" id="L127" title="All 4 branches covered.">        if (point.equals(p1) || point.equals(p2)) {</span>
+<span class="fc" id="L128">            return true;</span>
+        }
+
+        // get the location of the point relative to the first two vertices
+<span class="fc" id="L132">        final double last = point.crossProduct(p1, p2);</span>
+<span class="fc" id="L133">        final int size = quadrilateralPoints.size();</span>
+        // loop through the rest of the vertices
+<span class="fc bfc" id="L135" title="All 2 branches covered.">        for (int i = 1; i &lt; size; i++) {</span>
+<span class="fc" id="L136">            p1 = p2;</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">            p2 = quadrilateralPoints.get((i + 1) == size ? 0 : i + 1);</span>
+
+<span class="pc bpc" id="L139" title="1 of 4 branches missed.">            if (point.equals(p1) || point.equals(p2)) {</span>
+<span class="fc" id="L140">                return true;</span>
+            }
+
+            // do side of line test: multiply the last location with this location
+            // if they are the same sign then the operation will yield a positive result
+            // -x * -y = +xy, x * y = +xy, -x * y = -xy, x * -y = -xy
+<span class="fc bfc" id="L146" title="All 2 branches covered.">            if (last * point.crossProduct(p1, p2) &lt; 0) {</span>
+<span class="fc" id="L147">                return false;</span>
+            }
+        }
+<span class="fc" id="L150">        return true;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

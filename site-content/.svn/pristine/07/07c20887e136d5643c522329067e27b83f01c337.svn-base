@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractStepInterpolator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.sampling</a> &gt; <span class="el_source">AbstractStepInterpolator.java</span></div><h1>AbstractStepInterpolator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.sampling;
+
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.ode.EquationsMapper;
+
+/** This abstract class represents an interpolator over the last step
+ * during an ODE integration.
+ *
+ * &lt;p&gt;The various ODE integrators provide objects extending this class
+ * to the step handlers. The handlers can use these objects to
+ * retrieve the state vector at intermediate times between the
+ * previous and the current grid points (dense output).&lt;/p&gt;
+ *
+ * @see org.apache.commons.math3.ode.FirstOrderIntegrator
+ * @see org.apache.commons.math3.ode.SecondOrderIntegrator
+ * @see StepHandler
+ *
+ * @since 1.2
+ *
+ */
+
+public abstract class AbstractStepInterpolator
+  implements StepInterpolator {
+
+  /** current time step */
+  protected double h;
+
+  /** current state */
+  protected double[] currentState;
+
+  /** interpolated time */
+  protected double interpolatedTime;
+
+  /** interpolated state */
+  protected double[] interpolatedState;
+
+  /** interpolated derivatives */
+  protected double[] interpolatedDerivatives;
+
+  /** interpolated primary state */
+  protected double[] interpolatedPrimaryState;
+
+  /** interpolated primary derivatives */
+  protected double[] interpolatedPrimaryDerivatives;
+
+  /** interpolated secondary state */
+  protected double[][] interpolatedSecondaryState;
+
+  /** interpolated secondary derivatives */
+  protected double[][] interpolatedSecondaryDerivatives;
+
+  /** global previous time */
+  private double globalPreviousTime;
+
+  /** global current time */
+  private double globalCurrentTime;
+
+  /** soft previous time */
+  private double softPreviousTime;
+
+  /** soft current time */
+  private double softCurrentTime;
+
+  /** indicate if the step has been finalized or not. */
+  private boolean finalized;
+
+  /** integration direction. */
+  private boolean forward;
+
+  /** indicator for dirty state. */
+  private boolean dirtyState;
+
+  /** Equations mapper for the primary equations set. */
+  private EquationsMapper primaryMapper;
+
+  /** Equations mappers for the secondary equations sets. */
+  private EquationsMapper[] secondaryMappers;
+
+  /** Simple constructor.
+   * This constructor builds an instance that is not usable yet, the
+   * {@link #reinitialize} method should be called before using the
+   * instance in order to initialize the internal arrays. This
+   * constructor is used only in order to delay the initialization in
+   * some cases. As an example, the {@link
+   * org.apache.commons.math3.ode.nonstiff.EmbeddedRungeKuttaIntegrator}
+   * class uses the prototyping design pattern to create the step
+   * interpolators by cloning an uninitialized model and latter
+   * initializing the copy.
+   */
+<span class="fc" id="L111">  protected AbstractStepInterpolator() {</span>
+<span class="fc" id="L112">    globalPreviousTime = Double.NaN;</span>
+<span class="fc" id="L113">    globalCurrentTime  = Double.NaN;</span>
+<span class="fc" id="L114">    softPreviousTime   = Double.NaN;</span>
+<span class="fc" id="L115">    softCurrentTime    = Double.NaN;</span>
+<span class="fc" id="L116">    h                  = Double.NaN;</span>
+<span class="fc" id="L117">    interpolatedTime   = Double.NaN;</span>
+<span class="fc" id="L118">    currentState       = null;</span>
+<span class="fc" id="L119">    finalized          = false;</span>
+<span class="fc" id="L120">    this.forward       = true;</span>
+<span class="fc" id="L121">    this.dirtyState    = true;</span>
+<span class="fc" id="L122">    primaryMapper      = null;</span>
+<span class="fc" id="L123">    secondaryMappers   = null;</span>
+<span class="fc" id="L124">    allocateInterpolatedArrays(-1);</span>
+<span class="fc" id="L125">  }</span>
+
+  /** Simple constructor.
+   * @param y reference to the integrator array holding the state at
+   * the end of the step
+   * @param forward integration direction indicator
+   * @param primaryMapper equations mapper for the primary equations set
+   * @param secondaryMappers equations mappers for the secondary equations sets
+   */
+  protected AbstractStepInterpolator(final double[] y, final boolean forward,
+                                     final EquationsMapper primaryMapper,
+<span class="fc" id="L136">                                     final EquationsMapper[] secondaryMappers) {</span>
+
+<span class="fc" id="L138">    globalPreviousTime    = Double.NaN;</span>
+<span class="fc" id="L139">    globalCurrentTime     = Double.NaN;</span>
+<span class="fc" id="L140">    softPreviousTime      = Double.NaN;</span>
+<span class="fc" id="L141">    softCurrentTime       = Double.NaN;</span>
+<span class="fc" id="L142">    h                     = Double.NaN;</span>
+<span class="fc" id="L143">    interpolatedTime      = Double.NaN;</span>
+<span class="fc" id="L144">    currentState          = y;</span>
+<span class="fc" id="L145">    finalized             = false;</span>
+<span class="fc" id="L146">    this.forward          = forward;</span>
+<span class="fc" id="L147">    this.dirtyState       = true;</span>
+<span class="fc" id="L148">    this.primaryMapper    = primaryMapper;</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">    this.secondaryMappers = (secondaryMappers == null) ? null : secondaryMappers.clone();</span>
+<span class="fc" id="L150">    allocateInterpolatedArrays(y.length);</span>
+
+<span class="fc" id="L152">  }</span>
+
+  /** Copy constructor.
+
+   * &lt;p&gt;The copied interpolator should have been finalized before the
+   * copy, otherwise the copy will not be able to perform correctly
+   * any derivative computation and will throw a {@link
+   * NullPointerException} later. Since we don't want this constructor
+   * to throw the exceptions finalization may involve and since we
+   * don't want this method to modify the state of the copied
+   * interpolator, finalization is &lt;strong&gt;not&lt;/strong&gt; done
+   * automatically, it remains under user control.&lt;/p&gt;
+
+   * &lt;p&gt;The copy is a deep copy: its arrays are separated from the
+   * original arrays of the instance.&lt;/p&gt;
+
+   * @param interpolator interpolator to copy from.
+
+   */
+<span class="fc" id="L171">  protected AbstractStepInterpolator(final AbstractStepInterpolator interpolator) {</span>
+
+<span class="fc" id="L173">    globalPreviousTime = interpolator.globalPreviousTime;</span>
+<span class="fc" id="L174">    globalCurrentTime  = interpolator.globalCurrentTime;</span>
+<span class="fc" id="L175">    softPreviousTime   = interpolator.softPreviousTime;</span>
+<span class="fc" id="L176">    softCurrentTime    = interpolator.softCurrentTime;</span>
+<span class="fc" id="L177">    h                  = interpolator.h;</span>
+<span class="fc" id="L178">    interpolatedTime   = interpolator.interpolatedTime;</span>
+
+<span class="fc bfc" id="L180" title="All 2 branches covered.">    if (interpolator.currentState == null) {</span>
+<span class="fc" id="L181">        currentState     = null;</span>
+<span class="fc" id="L182">        primaryMapper    = null;</span>
+<span class="fc" id="L183">        secondaryMappers = null;</span>
+<span class="fc" id="L184">        allocateInterpolatedArrays(-1);</span>
+    } else {
+<span class="fc" id="L186">      currentState                     = interpolator.currentState.clone();</span>
+<span class="fc" id="L187">      interpolatedState                = interpolator.interpolatedState.clone();</span>
+<span class="fc" id="L188">      interpolatedDerivatives          = interpolator.interpolatedDerivatives.clone();</span>
+<span class="fc" id="L189">      interpolatedPrimaryState         = interpolator.interpolatedPrimaryState.clone();</span>
+<span class="fc" id="L190">      interpolatedPrimaryDerivatives   = interpolator.interpolatedPrimaryDerivatives.clone();</span>
+<span class="fc" id="L191">      interpolatedSecondaryState       = new double[interpolator.interpolatedSecondaryState.length][];</span>
+<span class="fc" id="L192">      interpolatedSecondaryDerivatives = new double[interpolator.interpolatedSecondaryDerivatives.length][];</span>
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">      for (int i = 0; i &lt; interpolatedSecondaryState.length; ++i) {</span>
+<span class="nc" id="L194">          interpolatedSecondaryState[i]       = interpolator.interpolatedSecondaryState[i].clone();</span>
+<span class="nc" id="L195">          interpolatedSecondaryDerivatives[i] = interpolator.interpolatedSecondaryDerivatives[i].clone();</span>
+      }
+    }
+
+<span class="fc" id="L199">    finalized        = interpolator.finalized;</span>
+<span class="fc" id="L200">    forward          = interpolator.forward;</span>
+<span class="fc" id="L201">    dirtyState       = interpolator.dirtyState;</span>
+<span class="fc" id="L202">    primaryMapper    = interpolator.primaryMapper;</span>
+<span class="fc bfc" id="L203" title="All 2 branches covered.">    secondaryMappers = (interpolator.secondaryMappers == null) ?</span>
+                       null : interpolator.secondaryMappers.clone();
+
+<span class="fc" id="L206">  }</span>
+
+  /** Allocate the various interpolated states arrays.
+   * @param dimension total dimension (negative if arrays should be set to null)
+   */
+  private void allocateInterpolatedArrays(final int dimension) {
+<span class="fc bfc" id="L212" title="All 2 branches covered.">      if (dimension &lt; 0) {</span>
+<span class="fc" id="L213">          interpolatedState                = null;</span>
+<span class="fc" id="L214">          interpolatedDerivatives          = null;</span>
+<span class="fc" id="L215">          interpolatedPrimaryState         = null;</span>
+<span class="fc" id="L216">          interpolatedPrimaryDerivatives   = null;</span>
+<span class="fc" id="L217">          interpolatedSecondaryState       = null;</span>
+<span class="fc" id="L218">          interpolatedSecondaryDerivatives = null;</span>
+      } else {
+<span class="fc" id="L220">          interpolatedState                = new double[dimension];</span>
+<span class="fc" id="L221">          interpolatedDerivatives          = new double[dimension];</span>
+<span class="fc" id="L222">          interpolatedPrimaryState         = new double[primaryMapper.getDimension()];</span>
+<span class="fc" id="L223">          interpolatedPrimaryDerivatives   = new double[primaryMapper.getDimension()];</span>
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">          if (secondaryMappers == null) {</span>
+<span class="nc" id="L225">              interpolatedSecondaryState       = null;</span>
+<span class="nc" id="L226">              interpolatedSecondaryDerivatives = null;</span>
+          } else {
+<span class="fc" id="L228">              interpolatedSecondaryState       = new double[secondaryMappers.length][];</span>
+<span class="fc" id="L229">              interpolatedSecondaryDerivatives = new double[secondaryMappers.length][];</span>
+<span class="fc bfc" id="L230" title="All 2 branches covered.">              for (int i = 0; i &lt; secondaryMappers.length; ++i) {</span>
+<span class="fc" id="L231">                  interpolatedSecondaryState[i]       = new double[secondaryMappers[i].getDimension()];</span>
+<span class="fc" id="L232">                  interpolatedSecondaryDerivatives[i] = new double[secondaryMappers[i].getDimension()];</span>
+              }
+          }
+      }
+<span class="fc" id="L236">  }</span>
+
+  /** Reinitialize the instance
+   * @param y reference to the integrator array holding the state at the end of the step
+   * @param isForward integration direction indicator
+   * @param primary equations mapper for the primary equations set
+   * @param secondary equations mappers for the secondary equations sets
+   */
+  protected void reinitialize(final double[] y, final boolean isForward,
+                              final EquationsMapper primary,
+                              final EquationsMapper[] secondary) {
+
+<span class="fc" id="L248">    globalPreviousTime    = Double.NaN;</span>
+<span class="fc" id="L249">    globalCurrentTime     = Double.NaN;</span>
+<span class="fc" id="L250">    softPreviousTime      = Double.NaN;</span>
+<span class="fc" id="L251">    softCurrentTime       = Double.NaN;</span>
+<span class="fc" id="L252">    h                     = Double.NaN;</span>
+<span class="fc" id="L253">    interpolatedTime      = Double.NaN;</span>
+<span class="fc" id="L254">    currentState          = y;</span>
+<span class="fc" id="L255">    finalized             = false;</span>
+<span class="fc" id="L256">    this.forward          = isForward;</span>
+<span class="fc" id="L257">    this.dirtyState       = true;</span>
+<span class="fc" id="L258">    this.primaryMapper    = primary;</span>
+<span class="fc" id="L259">    this.secondaryMappers = secondary.clone();</span>
+<span class="fc" id="L260">    allocateInterpolatedArrays(y.length);</span>
+
+<span class="fc" id="L262">  }</span>
+
+  /** {@inheritDoc} */
+   public StepInterpolator copy() throws MaxCountExceededException {
+
+     // finalize the step before performing copy
+<span class="fc" id="L268">     finalizeStep();</span>
+
+     // create the new independent instance
+<span class="fc" id="L271">     return doCopy();</span>
+
+   }
+
+   /** Really copy the finalized instance.
+    * &lt;p&gt;This method is called by {@link #copy()} after the
+    * step has been finalized. It must perform a deep copy
+    * to have an new instance completely independent for the
+    * original instance.
+    * @return a copy of the finalized instance
+    */
+   protected abstract StepInterpolator doCopy();
+
+  /** Shift one step forward.
+   * Copy the current time into the previous time, hence preparing the
+   * interpolator for future calls to {@link #storeTime storeTime}
+   */
+  public void shift() {
+<span class="fc" id="L289">    globalPreviousTime = globalCurrentTime;</span>
+<span class="fc" id="L290">    softPreviousTime   = globalPreviousTime;</span>
+<span class="fc" id="L291">    softCurrentTime    = globalCurrentTime;</span>
+<span class="fc" id="L292">  }</span>
+
+  /** Store the current step time.
+   * @param t current time
+   */
+  public void storeTime(final double t) {
+
+<span class="fc" id="L299">    globalCurrentTime = t;</span>
+<span class="fc" id="L300">    softCurrentTime   = globalCurrentTime;</span>
+<span class="fc" id="L301">    h                 = globalCurrentTime - globalPreviousTime;</span>
+<span class="fc" id="L302">    setInterpolatedTime(t);</span>
+
+    // the step is not finalized anymore
+<span class="fc" id="L305">    finalized  = false;</span>
+
+<span class="fc" id="L307">  }</span>
+
+  /** Restrict step range to a limited part of the global step.
+   * &lt;p&gt;
+   * This method can be used to restrict a step and make it appear
+   * as if the original step was smaller. Calling this method
+   * &lt;em&gt;only&lt;/em&gt; changes the value returned by {@link #getPreviousTime()},
+   * it does not change any other property
+   * &lt;/p&gt;
+   * @param softPreviousTime start of the restricted step
+   * @since 2.2
+   */
+  public void setSoftPreviousTime(final double softPreviousTime) {
+<span class="fc" id="L320">      this.softPreviousTime = softPreviousTime;</span>
+<span class="fc" id="L321">  }</span>
+
+  /** Restrict step range to a limited part of the global step.
+   * &lt;p&gt;
+   * This method can be used to restrict a step and make it appear
+   * as if the original step was smaller. Calling this method
+   * &lt;em&gt;only&lt;/em&gt; changes the value returned by {@link #getCurrentTime()},
+   * it does not change any other property
+   * &lt;/p&gt;
+   * @param softCurrentTime end of the restricted step
+   * @since 2.2
+   */
+  public void setSoftCurrentTime(final double softCurrentTime) {
+<span class="fc" id="L334">      this.softCurrentTime  = softCurrentTime;</span>
+<span class="fc" id="L335">  }</span>
+
+  /**
+   * Get the previous global grid point time.
+   * @return previous global grid point time
+   */
+  public double getGlobalPreviousTime() {
+<span class="fc" id="L342">    return globalPreviousTime;</span>
+  }
+
+  /**
+   * Get the current global grid point time.
+   * @return current global grid point time
+   */
+  public double getGlobalCurrentTime() {
+<span class="fc" id="L350">    return globalCurrentTime;</span>
+  }
+
+  /**
+   * Get the previous soft grid point time.
+   * @return previous soft grid point time
+   * @see #setSoftPreviousTime(double)
+   */
+  public double getPreviousTime() {
+<span class="fc" id="L359">    return softPreviousTime;</span>
+  }
+
+  /**
+   * Get the current soft grid point time.
+   * @return current soft grid point time
+   * @see #setSoftCurrentTime(double)
+   */
+  public double getCurrentTime() {
+<span class="fc" id="L368">    return softCurrentTime;</span>
+  }
+
+  /** {@inheritDoc} */
+  public double getInterpolatedTime() {
+<span class="fc" id="L373">    return interpolatedTime;</span>
+  }
+
+  /** {@inheritDoc} */
+  public void setInterpolatedTime(final double time) {
+<span class="fc" id="L378">      interpolatedTime = time;</span>
+<span class="fc" id="L379">      dirtyState       = true;</span>
+<span class="fc" id="L380">  }</span>
+
+  /** {@inheritDoc} */
+  public boolean isForward() {
+<span class="fc" id="L384">    return forward;</span>
+  }
+
+  /** Compute the state and derivatives at the interpolated time.
+   * This is the main processing method that should be implemented by
+   * the derived classes to perform the interpolation.
+   * @param theta normalized interpolation abscissa within the step
+   * (theta is zero at the previous time step and one at the current time step)
+   * @param oneMinusThetaH time gap between the interpolated time and
+   * the current time
+   * @exception MaxCountExceededException if the number of functions evaluations is exceeded
+   */
+  protected abstract void computeInterpolatedStateAndDerivatives(double theta,
+                                                                 double oneMinusThetaH)
+      throws MaxCountExceededException;
+
+  /** Lazy evaluation of complete interpolated state.
+   * @exception MaxCountExceededException if the number of functions evaluations is exceeded
+   */
+  private void evaluateCompleteInterpolatedState()
+      throws MaxCountExceededException {
+      // lazy evaluation of the state
+<span class="fc bfc" id="L406" title="All 2 branches covered.">      if (dirtyState) {</span>
+<span class="fc" id="L407">          final double oneMinusThetaH = globalCurrentTime - interpolatedTime;</span>
+<span class="pc bpc" id="L408" title="1 of 2 branches missed.">          final double theta = (h == 0) ? 0 : (h - oneMinusThetaH) / h;</span>
+<span class="fc" id="L409">          computeInterpolatedStateAndDerivatives(theta, oneMinusThetaH);</span>
+<span class="fc" id="L410">          dirtyState = false;</span>
+      }
+<span class="fc" id="L412">  }</span>
+
+  /** {@inheritDoc} */
+  public double[] getInterpolatedState() throws MaxCountExceededException {
+<span class="fc" id="L416">      evaluateCompleteInterpolatedState();</span>
+<span class="fc" id="L417">      primaryMapper.extractEquationData(interpolatedState,</span>
+                                        interpolatedPrimaryState);
+<span class="fc" id="L419">      return interpolatedPrimaryState;</span>
+  }
+
+  /** {@inheritDoc} */
+  public double[] getInterpolatedDerivatives() throws MaxCountExceededException {
+<span class="fc" id="L424">      evaluateCompleteInterpolatedState();</span>
+<span class="fc" id="L425">      primaryMapper.extractEquationData(interpolatedDerivatives,</span>
+                                        interpolatedPrimaryDerivatives);
+<span class="fc" id="L427">      return interpolatedPrimaryDerivatives;</span>
+  }
+
+  /** {@inheritDoc} */
+  public double[] getInterpolatedSecondaryState(final int index) throws MaxCountExceededException {
+<span class="fc" id="L432">      evaluateCompleteInterpolatedState();</span>
+<span class="fc" id="L433">      secondaryMappers[index].extractEquationData(interpolatedState,</span>
+                                                  interpolatedSecondaryState[index]);
+<span class="fc" id="L435">      return interpolatedSecondaryState[index];</span>
+  }
+
+  /** {@inheritDoc} */
+  public double[] getInterpolatedSecondaryDerivatives(final int index) throws MaxCountExceededException {
+<span class="nc" id="L440">      evaluateCompleteInterpolatedState();</span>
+<span class="nc" id="L441">      secondaryMappers[index].extractEquationData(interpolatedDerivatives,</span>
+                                                  interpolatedSecondaryDerivatives[index]);
+<span class="nc" id="L443">      return interpolatedSecondaryDerivatives[index];</span>
+  }
+
+  /**
+   * Finalize the step.
+
+   * &lt;p&gt;Some embedded Runge-Kutta integrators need fewer functions
+   * evaluations than their counterpart step interpolators. These
+   * interpolators should perform the last evaluations they need by
+   * themselves only if they need them. This method triggers these
+   * extra evaluations. It can be called directly by the user step
+   * handler and it is called automatically if {@link
+   * #setInterpolatedTime} is called.&lt;/p&gt;
+
+   * &lt;p&gt;Once this method has been called, &lt;strong&gt;no&lt;/strong&gt; other
+   * evaluation will be performed on this step. If there is a need to
+   * have some side effects between the step handler and the
+   * differential equations (for example update some data in the
+   * equations once the step has been done), it is advised to call
+   * this method explicitly from the step handler before these side
+   * effects are set up. If the step handler induces no side effect,
+   * then this method can safely be ignored, it will be called
+   * transparently as needed.&lt;/p&gt;
+
+   * &lt;p&gt;&lt;strong&gt;Warning&lt;/strong&gt;: since the step interpolator provided
+   * to the step handler as a parameter of the {@link
+   * StepHandler#handleStep handleStep} is valid only for the duration
+   * of the {@link StepHandler#handleStep handleStep} call, one cannot
+   * simply store a reference and reuse it later. One should first
+   * finalize the instance, then copy this finalized instance into a
+   * new object that can be kept.&lt;/p&gt;
+
+   * &lt;p&gt;This method calls the protected &lt;code&gt;doFinalize&lt;/code&gt; method
+   * if it has never been called during this step and set a flag
+   * indicating that it has been called once. It is the &lt;code&gt;
+   * doFinalize&lt;/code&gt; method which should perform the evaluations.
+   * This wrapping prevents from calling &lt;code&gt;doFinalize&lt;/code&gt; several
+   * times and hence evaluating the differential equations too often.
+   * Therefore, subclasses are not allowed not reimplement it, they
+   * should rather reimplement &lt;code&gt;doFinalize&lt;/code&gt;.&lt;/p&gt;
+
+   * @exception MaxCountExceededException if the number of functions evaluations is exceeded
+
+   */
+  public final void finalizeStep() throws MaxCountExceededException {
+<span class="fc bfc" id="L488" title="All 2 branches covered.">    if (! finalized) {</span>
+<span class="fc" id="L489">      doFinalize();</span>
+<span class="fc" id="L490">      finalized = true;</span>
+    }
+<span class="fc" id="L492">  }</span>
+
+  /**
+   * Really finalize the step.
+   * The default implementation of this method does nothing.
+   * @exception MaxCountExceededException if the number of functions evaluations is exceeded
+   */
+  protected void doFinalize() throws MaxCountExceededException {
+<span class="fc" id="L500">  }</span>
+
+  /** {@inheritDoc} */
+  public abstract void writeExternal(ObjectOutput out)
+    throws IOException;
+
+  /** {@inheritDoc} */
+  public abstract void readExternal(ObjectInput in)
+    throws IOException, ClassNotFoundException;
+
+  /** Save the base state of the instance.
+   * This method performs step finalization if it has not been done
+   * before.
+   * @param out stream where to save the state
+   * @exception IOException in case of write error
+   */
+  protected void writeBaseExternal(final ObjectOutput out)
+    throws IOException {
+
+<span class="pc bpc" id="L519" title="1 of 2 branches missed.">    if (currentState == null) {</span>
+<span class="nc" id="L520">        out.writeInt(-1);</span>
+    } else {
+<span class="fc" id="L522">        out.writeInt(currentState.length);</span>
+    }
+<span class="fc" id="L524">    out.writeDouble(globalPreviousTime);</span>
+<span class="fc" id="L525">    out.writeDouble(globalCurrentTime);</span>
+<span class="fc" id="L526">    out.writeDouble(softPreviousTime);</span>
+<span class="fc" id="L527">    out.writeDouble(softCurrentTime);</span>
+<span class="fc" id="L528">    out.writeDouble(h);</span>
+<span class="fc" id="L529">    out.writeBoolean(forward);</span>
+<span class="fc" id="L530">    out.writeObject(primaryMapper);</span>
+<span class="fc" id="L531">    out.write(secondaryMappers.length);</span>
+<span class="pc bpc" id="L532" title="1 of 2 branches missed.">    for (final EquationsMapper  mapper : secondaryMappers) {</span>
+<span class="nc" id="L533">        out.writeObject(mapper);</span>
+    }
+
+<span class="pc bpc" id="L536" title="1 of 2 branches missed.">    if (currentState != null) {</span>
+<span class="fc bfc" id="L537" title="All 2 branches covered.">        for (int i = 0; i &lt; currentState.length; ++i) {</span>
+<span class="fc" id="L538">            out.writeDouble(currentState[i]);</span>
+        }
+    }
+
+<span class="fc" id="L542">    out.writeDouble(interpolatedTime);</span>
+
+    // we do not store the interpolated state,
+    // it will be recomputed as needed after reading
+
+    try {
+        // finalize the step (and don't bother saving the now true flag)
+<span class="fc" id="L549">        finalizeStep();</span>
+<span class="nc" id="L550">    } catch (MaxCountExceededException mcee) {</span>
+<span class="nc" id="L551">        final IOException ioe = new IOException(mcee.getLocalizedMessage());</span>
+<span class="nc" id="L552">        ioe.initCause(mcee);</span>
+<span class="nc" id="L553">        throw ioe;</span>
+<span class="fc" id="L554">    }</span>
+
+<span class="fc" id="L556">  }</span>
+
+  /** Read the base state of the instance.
+   * This method does &lt;strong&gt;neither&lt;/strong&gt; set the interpolated
+   * time nor state. It is up to the derived class to reset it
+   * properly calling the {@link #setInterpolatedTime} method later,
+   * once all rest of the object state has been set up properly.
+   * @param in stream where to read the state from
+   * @return interpolated time to be set later by the caller
+   * @exception IOException in case of read error
+   * @exception ClassNotFoundException if an equation mapper class
+   * cannot be found
+   */
+  protected double readBaseExternal(final ObjectInput in)
+    throws IOException, ClassNotFoundException {
+
+<span class="fc" id="L572">    final int dimension = in.readInt();</span>
+<span class="fc" id="L573">    globalPreviousTime  = in.readDouble();</span>
+<span class="fc" id="L574">    globalCurrentTime   = in.readDouble();</span>
+<span class="fc" id="L575">    softPreviousTime    = in.readDouble();</span>
+<span class="fc" id="L576">    softCurrentTime     = in.readDouble();</span>
+<span class="fc" id="L577">    h                   = in.readDouble();</span>
+<span class="fc" id="L578">    forward             = in.readBoolean();</span>
+<span class="fc" id="L579">    primaryMapper       = (EquationsMapper) in.readObject();</span>
+<span class="fc" id="L580">    secondaryMappers    = new EquationsMapper[in.read()];</span>
+<span class="pc bpc" id="L581" title="1 of 2 branches missed.">    for (int i = 0; i &lt; secondaryMappers.length; ++i) {</span>
+<span class="nc" id="L582">        secondaryMappers[i] = (EquationsMapper) in.readObject();</span>
+    }
+<span class="fc" id="L584">    dirtyState          = true;</span>
+
+<span class="pc bpc" id="L586" title="1 of 2 branches missed.">    if (dimension &lt; 0) {</span>
+<span class="nc" id="L587">        currentState = null;</span>
+    } else {
+<span class="fc" id="L589">        currentState  = new double[dimension];</span>
+<span class="fc bfc" id="L590" title="All 2 branches covered.">        for (int i = 0; i &lt; currentState.length; ++i) {</span>
+<span class="fc" id="L591">            currentState[i] = in.readDouble();</span>
+        }
+    }
+
+    // we do NOT handle the interpolated time and state here
+<span class="fc" id="L596">    interpolatedTime = Double.NaN;</span>
+<span class="fc" id="L597">    allocateInterpolatedArrays(dimension);</span>
+
+<span class="fc" id="L599">    finalized = true;</span>
+
+<span class="fc" id="L601">    return in.readDouble();</span>
+
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

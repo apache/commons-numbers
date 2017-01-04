@@ -1,0 +1,262 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.ml.clustering;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.util.Arrays;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.util.List;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.exception.MathIllegalArgumentException;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.exception.NullArgumentException;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.junit.Assert;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.junit.Test;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>public class DBSCANClustererTest {<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>    @Test<a name="line.29"></a>
+<span class="sourceLineNo">030</span>    public void testCluster() {<a name="line.30"></a>
+<span class="sourceLineNo">031</span>        // Test data generated using: http://people.cs.nctu.edu.tw/~rsliang/dbscan/testdatagen.html<a name="line.31"></a>
+<span class="sourceLineNo">032</span>        final DoublePoint[] points = new DoublePoint[] {<a name="line.32"></a>
+<span class="sourceLineNo">033</span>                new DoublePoint(new double[] { 83.08303244924173, 58.83387754182331 }),<a name="line.33"></a>
+<span class="sourceLineNo">034</span>                new DoublePoint(new double[] { 45.05445510940626, 23.469642649637535 }),<a name="line.34"></a>
+<span class="sourceLineNo">035</span>                new DoublePoint(new double[] { 14.96417921432294, 69.0264096390456 }),<a name="line.35"></a>
+<span class="sourceLineNo">036</span>                new DoublePoint(new double[] { 73.53189604333602, 34.896145021310076 }),<a name="line.36"></a>
+<span class="sourceLineNo">037</span>                new DoublePoint(new double[] { 73.28498173551634, 33.96860806993209 }),<a name="line.37"></a>
+<span class="sourceLineNo">038</span>                new DoublePoint(new double[] { 73.45828098873608, 33.92584423092194 }),<a name="line.38"></a>
+<span class="sourceLineNo">039</span>                new DoublePoint(new double[] { 73.9657889183145, 35.73191006924026 }),<a name="line.39"></a>
+<span class="sourceLineNo">040</span>                new DoublePoint(new double[] { 74.0074097183533, 36.81735596177168 }),<a name="line.40"></a>
+<span class="sourceLineNo">041</span>                new DoublePoint(new double[] { 73.41247541410848, 34.27314856695011 }),<a name="line.41"></a>
+<span class="sourceLineNo">042</span>                new DoublePoint(new double[] { 73.9156256353017, 36.83206791547127 }),<a name="line.42"></a>
+<span class="sourceLineNo">043</span>                new DoublePoint(new double[] { 74.81499205809087, 37.15682749846019 }),<a name="line.43"></a>
+<span class="sourceLineNo">044</span>                new DoublePoint(new double[] { 74.03144880081527, 37.57399178552441 }),<a name="line.44"></a>
+<span class="sourceLineNo">045</span>                new DoublePoint(new double[] { 74.51870941207744, 38.674258946906775 }),<a name="line.45"></a>
+<span class="sourceLineNo">046</span>                new DoublePoint(new double[] { 74.50754595105536, 35.58903978415765 }),<a name="line.46"></a>
+<span class="sourceLineNo">047</span>                new DoublePoint(new double[] { 74.51322752749547, 36.030572259100154 }),<a name="line.47"></a>
+<span class="sourceLineNo">048</span>                new DoublePoint(new double[] { 59.27900996617973, 46.41091720294207 }),<a name="line.48"></a>
+<span class="sourceLineNo">049</span>                new DoublePoint(new double[] { 59.73744793841615, 46.20015558367595 }),<a name="line.49"></a>
+<span class="sourceLineNo">050</span>                new DoublePoint(new double[] { 58.81134076672606, 45.71150126331486 }),<a name="line.50"></a>
+<span class="sourceLineNo">051</span>                new DoublePoint(new double[] { 58.52225539437495, 47.416083617601544 }),<a name="line.51"></a>
+<span class="sourceLineNo">052</span>                new DoublePoint(new double[] { 58.218626647023484, 47.36228902172297 }),<a name="line.52"></a>
+<span class="sourceLineNo">053</span>                new DoublePoint(new double[] { 60.27139669447206, 46.606106348801404 }),<a name="line.53"></a>
+<span class="sourceLineNo">054</span>                new DoublePoint(new double[] { 60.894962462363765, 46.976924697402865 }),<a name="line.54"></a>
+<span class="sourceLineNo">055</span>                new DoublePoint(new double[] { 62.29048673878424, 47.66970563563518 }),<a name="line.55"></a>
+<span class="sourceLineNo">056</span>                new DoublePoint(new double[] { 61.03857608977705, 46.212924720020965 }),<a name="line.56"></a>
+<span class="sourceLineNo">057</span>                new DoublePoint(new double[] { 60.16916214139201, 45.18193661351688 }),<a name="line.57"></a>
+<span class="sourceLineNo">058</span>                new DoublePoint(new double[] { 59.90036905976012, 47.555364347063005 }),<a name="line.58"></a>
+<span class="sourceLineNo">059</span>                new DoublePoint(new double[] { 62.33003634144552, 47.83941489877179 }),<a name="line.59"></a>
+<span class="sourceLineNo">060</span>                new DoublePoint(new double[] { 57.86035536718555, 47.31117930193432 }),<a name="line.60"></a>
+<span class="sourceLineNo">061</span>                new DoublePoint(new double[] { 58.13715479685925, 48.985960494028404 }),<a name="line.61"></a>
+<span class="sourceLineNo">062</span>                new DoublePoint(new double[] { 56.131923963548616, 46.8508904252667 }),<a name="line.62"></a>
+<span class="sourceLineNo">063</span>                new DoublePoint(new double[] { 55.976329887053, 47.46384037658572 }),<a name="line.63"></a>
+<span class="sourceLineNo">064</span>                new DoublePoint(new double[] { 56.23245975235477, 47.940035191131756 }),<a name="line.64"></a>
+<span class="sourceLineNo">065</span>                new DoublePoint(new double[] { 58.51687048212625, 46.622885352699086 }),<a name="line.65"></a>
+<span class="sourceLineNo">066</span>                new DoublePoint(new double[] { 57.85411081905477, 45.95394361577928 }),<a name="line.66"></a>
+<span class="sourceLineNo">067</span>                new DoublePoint(new double[] { 56.445776311447844, 45.162093662656844 }),<a name="line.67"></a>
+<span class="sourceLineNo">068</span>                new DoublePoint(new double[] { 57.36691949656233, 47.50097194337286 }),<a name="line.68"></a>
+<span class="sourceLineNo">069</span>                new DoublePoint(new double[] { 58.243626387557015, 46.114052729681134 }),<a name="line.69"></a>
+<span class="sourceLineNo">070</span>                new DoublePoint(new double[] { 56.27224595635198, 44.799080066150054 }),<a name="line.70"></a>
+<span class="sourceLineNo">071</span>                new DoublePoint(new double[] { 57.606924816500396, 46.94291057763621 }),<a name="line.71"></a>
+<span class="sourceLineNo">072</span>                new DoublePoint(new double[] { 30.18714230041951, 13.877149710431695 }),<a name="line.72"></a>
+<span class="sourceLineNo">073</span>                new DoublePoint(new double[] { 30.449448810657486, 13.490778346545994 }),<a name="line.73"></a>
+<span class="sourceLineNo">074</span>                new DoublePoint(new double[] { 30.295018390286714, 13.264889000216499 }),<a name="line.74"></a>
+<span class="sourceLineNo">075</span>                new DoublePoint(new double[] { 30.160201832884923, 11.89278262341395 }),<a name="line.75"></a>
+<span class="sourceLineNo">076</span>                new DoublePoint(new double[] { 31.341509791789576, 15.282655921997502 }),<a name="line.76"></a>
+<span class="sourceLineNo">077</span>                new DoublePoint(new double[] { 31.68601630325429, 14.756873246748 }),<a name="line.77"></a>
+<span class="sourceLineNo">078</span>                new DoublePoint(new double[] { 29.325963742565364, 12.097849250072613 }),<a name="line.78"></a>
+<span class="sourceLineNo">079</span>                new DoublePoint(new double[] { 29.54820742388256, 13.613295356975868 }),<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                new DoublePoint(new double[] { 28.79359608888626, 10.36352064087987 }),<a name="line.80"></a>
+<span class="sourceLineNo">081</span>                new DoublePoint(new double[] { 31.01284597092308, 12.788479208014905 }),<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                new DoublePoint(new double[] { 27.58509216737002, 11.47570110601373 }),<a name="line.82"></a>
+<span class="sourceLineNo">083</span>                new DoublePoint(new double[] { 28.593799561727792, 10.780998203903437 }),<a name="line.83"></a>
+<span class="sourceLineNo">084</span>                new DoublePoint(new double[] { 31.356105766724795, 15.080316198524088 }),<a name="line.84"></a>
+<span class="sourceLineNo">085</span>                new DoublePoint(new double[] { 31.25948503636755, 13.674329151166603 }),<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                new DoublePoint(new double[] { 32.31590076372959, 14.95261758659035 }),<a name="line.86"></a>
+<span class="sourceLineNo">087</span>                new DoublePoint(new double[] { 30.460413702763617, 15.88402809202671 }),<a name="line.87"></a>
+<span class="sourceLineNo">088</span>                new DoublePoint(new double[] { 32.56178203062154, 14.586076852632686 }),<a name="line.88"></a>
+<span class="sourceLineNo">089</span>                new DoublePoint(new double[] { 32.76138648530468, 16.239837325178087 }),<a name="line.89"></a>
+<span class="sourceLineNo">090</span>                new DoublePoint(new double[] { 30.1829453331884, 14.709592407103628 }),<a name="line.90"></a>
+<span class="sourceLineNo">091</span>                new DoublePoint(new double[] { 29.55088173528202, 15.0651247180067 }),<a name="line.91"></a>
+<span class="sourceLineNo">092</span>                new DoublePoint(new double[] { 29.004155302187428, 14.089665298582986 }),<a name="line.92"></a>
+<span class="sourceLineNo">093</span>                new DoublePoint(new double[] { 29.339624439831823, 13.29096065578051 }),<a name="line.93"></a>
+<span class="sourceLineNo">094</span>                new DoublePoint(new double[] { 30.997460327576846, 14.551914158277214 }),<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                new DoublePoint(new double[] { 30.66784126125276, 16.269703107886016 })<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        };<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>        final DBSCANClusterer&lt;DoublePoint&gt; transformer =<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                new DBSCANClusterer&lt;DoublePoint&gt;(2.0, 5);<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        final List&lt;Cluster&lt;DoublePoint&gt;&gt; clusters = transformer.cluster(Arrays.asList(points));<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>        final List&lt;DoublePoint&gt; clusterOne =<a name="line.102"></a>
+<span class="sourceLineNo">103</span>                Arrays.asList(points[3], points[4], points[5], points[6], points[7], points[8], points[9], points[10],<a name="line.103"></a>
+<span class="sourceLineNo">104</span>                              points[11], points[12], points[13], points[14]);<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        final List&lt;DoublePoint&gt; clusterTwo =<a name="line.105"></a>
+<span class="sourceLineNo">106</span>                Arrays.asList(points[15], points[16], points[17], points[18], points[19], points[20], points[21],<a name="line.106"></a>
+<span class="sourceLineNo">107</span>                              points[22], points[23], points[24], points[25], points[26], points[27], points[28],<a name="line.107"></a>
+<span class="sourceLineNo">108</span>                              points[29], points[30], points[31], points[32], points[33], points[34], points[35],<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                              points[36], points[37], points[38]);<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        final List&lt;DoublePoint&gt; clusterThree =<a name="line.110"></a>
+<span class="sourceLineNo">111</span>                Arrays.asList(points[39], points[40], points[41], points[42], points[43], points[44], points[45],<a name="line.111"></a>
+<span class="sourceLineNo">112</span>                              points[46], points[47], points[48], points[49], points[50], points[51], points[52],<a name="line.112"></a>
+<span class="sourceLineNo">113</span>                              points[53], points[54], points[55], points[56], points[57], points[58], points[59],<a name="line.113"></a>
+<span class="sourceLineNo">114</span>                              points[60], points[61], points[62]);<a name="line.114"></a>
+<span class="sourceLineNo">115</span><a name="line.115"></a>
+<span class="sourceLineNo">116</span>        boolean cluster1Found = false;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        boolean cluster2Found = false;<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        boolean cluster3Found = false;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        Assert.assertEquals(3, clusters.size());<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        for (final Cluster&lt;DoublePoint&gt; cluster : clusters) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>            if (cluster.getPoints().containsAll(clusterOne)) {<a name="line.121"></a>
+<span class="sourceLineNo">122</span>                cluster1Found = true;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>            }<a name="line.123"></a>
+<span class="sourceLineNo">124</span>            if (cluster.getPoints().containsAll(clusterTwo)) {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>                cluster2Found = true;<a name="line.125"></a>
+<span class="sourceLineNo">126</span>            }<a name="line.126"></a>
+<span class="sourceLineNo">127</span>            if (cluster.getPoints().containsAll(clusterThree)) {<a name="line.127"></a>
+<span class="sourceLineNo">128</span>                cluster3Found = true;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>            }<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        }<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        Assert.assertTrue(cluster1Found);<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        Assert.assertTrue(cluster2Found);<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        Assert.assertTrue(cluster3Found);<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    }<a name="line.134"></a>
+<span class="sourceLineNo">135</span><a name="line.135"></a>
+<span class="sourceLineNo">136</span>    @Test<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    public void testSingleLink() {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        final DoublePoint[] points = {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                new DoublePoint(new int[] {10, 10}), // A<a name="line.139"></a>
+<span class="sourceLineNo">140</span>                new DoublePoint(new int[] {12, 9}),<a name="line.140"></a>
+<span class="sourceLineNo">141</span>                new DoublePoint(new int[] {10, 8}),<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                new DoublePoint(new int[] {8, 8}),<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                new DoublePoint(new int[] {8, 6}),<a name="line.143"></a>
+<span class="sourceLineNo">144</span>                new DoublePoint(new int[] {7, 7}),<a name="line.144"></a>
+<span class="sourceLineNo">145</span>                new DoublePoint(new int[] {5, 6}),  // B<a name="line.145"></a>
+<span class="sourceLineNo">146</span>                new DoublePoint(new int[] {14, 8}), // C<a name="line.146"></a>
+<span class="sourceLineNo">147</span>                new DoublePoint(new int[] {7, 15}), // N - Noise, should not be present<a name="line.147"></a>
+<span class="sourceLineNo">148</span>                new DoublePoint(new int[] {17, 8}), // D - single-link connected to C should not be present<a name="line.148"></a>
+<span class="sourceLineNo">149</span>                <a name="line.149"></a>
+<span class="sourceLineNo">150</span>        };<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        <a name="line.151"></a>
+<span class="sourceLineNo">152</span>        final DBSCANClusterer&lt;DoublePoint&gt; clusterer = new DBSCANClusterer&lt;DoublePoint&gt;(3, 3);<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        List&lt;Cluster&lt;DoublePoint&gt;&gt; clusters = clusterer.cluster(Arrays.asList(points));<a name="line.153"></a>
+<span class="sourceLineNo">154</span>        <a name="line.154"></a>
+<span class="sourceLineNo">155</span>        Assert.assertEquals(1, clusters.size());<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        <a name="line.156"></a>
+<span class="sourceLineNo">157</span>        final List&lt;DoublePoint&gt; clusterOne =<a name="line.157"></a>
+<span class="sourceLineNo">158</span>                Arrays.asList(points[0], points[1], points[2], points[3], points[4], points[5], points[6], points[7]);<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        Assert.assertTrue(clusters.get(0).getPoints().containsAll(clusterOne));<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    }<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    <a name="line.161"></a>
+<span class="sourceLineNo">162</span>    @Test<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    public void testGetEps() {<a name="line.163"></a>
+<span class="sourceLineNo">164</span>        final DBSCANClusterer&lt;DoublePoint&gt; transformer = new DBSCANClusterer&lt;DoublePoint&gt;(2.0, 5);<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        Assert.assertEquals(2.0, transformer.getEps(), 0.0);<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    }<a name="line.166"></a>
+<span class="sourceLineNo">167</span><a name="line.167"></a>
+<span class="sourceLineNo">168</span>    @Test<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    public void testGetMinPts() {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        final DBSCANClusterer&lt;DoublePoint&gt; transformer = new DBSCANClusterer&lt;DoublePoint&gt;(2.0, 5);<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        Assert.assertEquals(5, transformer.getMinPts());<a name="line.171"></a>
+<span class="sourceLineNo">172</span>    }<a name="line.172"></a>
+<span class="sourceLineNo">173</span><a name="line.173"></a>
+<span class="sourceLineNo">174</span>    @Test(expected = MathIllegalArgumentException.class)<a name="line.174"></a>
+<span class="sourceLineNo">175</span>    public void testNegativeEps() {<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        new DBSCANClusterer&lt;DoublePoint&gt;(-2.0, 5);<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    }<a name="line.177"></a>
+<span class="sourceLineNo">178</span><a name="line.178"></a>
+<span class="sourceLineNo">179</span>    @Test(expected = MathIllegalArgumentException.class)<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    public void testNegativeMinPts() {<a name="line.180"></a>
+<span class="sourceLineNo">181</span>        new DBSCANClusterer&lt;DoublePoint&gt;(2.0, -5);<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    }<a name="line.182"></a>
+<span class="sourceLineNo">183</span><a name="line.183"></a>
+<span class="sourceLineNo">184</span>    @Test(expected = NullArgumentException.class)<a name="line.184"></a>
+<span class="sourceLineNo">185</span>    public void testNullDataset() {<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        DBSCANClusterer&lt;DoublePoint&gt; clusterer = new DBSCANClusterer&lt;DoublePoint&gt;(2.0, 5);<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        clusterer.cluster(null);<a name="line.187"></a>
+<span class="sourceLineNo">188</span>    }<a name="line.188"></a>
+<span class="sourceLineNo">189</span><a name="line.189"></a>
+<span class="sourceLineNo">190</span>}<a name="line.190"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

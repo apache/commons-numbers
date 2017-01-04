@@ -1,0 +1,570 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>TestUtilsTest xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../testapidocs/org/apache/commons/math3/stat/inference/TestUtilsTest.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math3.stat.inference;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.distribution.NormalDistribution;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.exception.DimensionMismatchException;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.exception.NotPositiveException;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.exception.NotStrictlyPositiveException;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.exception.NullArgumentException;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.exception.NumberIsTooSmallException;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.exception.OutOfRangeException;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.stat.descriptive.SummaryStatistics;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.util.FastMath;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> org.junit.Assert;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> org.junit.Test;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> * Test cases for the TestUtils class.</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../org/apache/commons/math3/stat/inference/TestUtilsTest.html">TestUtilsTest</a> {
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      @Test
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testChiSquare() {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          <em class="jxr_comment">// Target values computed using R version 1.8.1</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <em class="jxr_comment">// Some assembly required ;-)</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <em class="jxr_comment">//      Use sum((obs - exp)^2/exp) for the chi-square statistic and</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          <em class="jxr_comment">//      1 - pchisq(sum((obs - exp)^2/exp), length(obs) - 1) for the p-value</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">long</strong>[] observed = {10, 9, 11};
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">double</strong>[] expected = {10, 10, 10};
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          Assert.assertEquals(<span class="jxr_string">"chi-square statistic"</span>, 0.2,  TestUtils.chiSquare(expected, observed), 10E-12);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          Assert.assertEquals(<span class="jxr_string">"chi-square p-value"</span>, 0.904837418036, TestUtils.chiSquareTest(expected, observed), 1E-10);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">long</strong>[] observed1 = { 500, 623, 72, 70, 31 };
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">double</strong>[] expected1 = { 485, 541, 82, 61, 37 };
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          Assert.assertEquals( <span class="jxr_string">"chi-square test statistic"</span>, 9.023307936427388, TestUtils.chiSquare(expected1, observed1), 1E-10);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          Assert.assertEquals(<span class="jxr_string">"chi-square p-value"</span>, 0.06051952647453607, TestUtils.chiSquareTest(expected1, observed1), 1E-9);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          Assert.assertTrue(<span class="jxr_string">"chi-square test reject"</span>, TestUtils.chiSquareTest(expected1, observed1, 0.07));
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          Assert.assertTrue(<span class="jxr_string">"chi-square test accept"</span>, !TestUtils.chiSquareTest(expected1, observed1, 0.05));
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              TestUtils.chiSquareTest(expected1, observed1, 95);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              Assert.fail(<span class="jxr_string">"alpha out of range, OutOfRangeException expected"</span>);
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          } <strong class="jxr_keyword">catch</strong> (OutOfRangeException ex) {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">long</strong>[] tooShortObs = { 0 };
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">double</strong>[] tooShortEx = { 1 };
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              TestUtils.chiSquare(tooShortEx, tooShortObs);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>              Assert.fail(<span class="jxr_string">"arguments too short, DimensionMismatchException expected"</span>);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          } <strong class="jxr_keyword">catch</strong> (DimensionMismatchException ex) {
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>              <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <em class="jxr_comment">// unmatched arrays</em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">long</strong>[] unMatchedObs = { 0, 1, 2, 3 };
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">double</strong>[] unMatchedEx = { 1, 1, 2 };
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>              TestUtils.chiSquare(unMatchedEx, unMatchedObs);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              Assert.fail(<span class="jxr_string">"arrays have different lengths, DimensionMismatchException expected"</span>);
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          } <strong class="jxr_keyword">catch</strong> (DimensionMismatchException ex) {
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>              <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          }
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          <em class="jxr_comment">// 0 expected count</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          expected[0] = 0;
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              TestUtils.chiSquareTest(expected, observed, .01);
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>              Assert.fail(<span class="jxr_string">"bad expected count, NotStrictlyPositiveException expected"</span>);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          } <strong class="jxr_keyword">catch</strong> (NotStrictlyPositiveException ex) {
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>              <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          }
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          <em class="jxr_comment">// negative observed count</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          expected[0] = 1;
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          observed[0] = -1;
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>             TestUtils.chiSquareTest(expected, observed, .01);
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>             Assert.fail(<span class="jxr_string">"bad expected count, NotPositiveException expected"</span>);
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         } <strong class="jxr_keyword">catch</strong> (NotPositiveException ex) {
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         }
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> 
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>     }
+<a class="jxr_linenumber" name="L107" href="#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     @Test
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testChiSquareIndependence() {
+<a class="jxr_linenumber" name="L110" href="#L110">110</a> 
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <em class="jxr_comment">// Target values computed using R version 1.8.1</em>
+<a class="jxr_linenumber" name="L112" href="#L112">112</a> 
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">long</strong>[][] counts = { {40, 22, 43}, {91, 21, 28}, {60, 10, 22}};
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         Assert.assertEquals( <span class="jxr_string">"chi-square test statistic"</span>, 22.709027688, TestUtils.chiSquare(counts), 1E-9);
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         Assert.assertEquals(<span class="jxr_string">"chi-square p-value"</span>, 0.000144751460134, TestUtils.chiSquareTest(counts), 1E-9);
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         Assert.assertTrue(<span class="jxr_string">"chi-square test reject"</span>, TestUtils.chiSquareTest(counts, 0.0002));
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         Assert.assertTrue(<span class="jxr_string">"chi-square test accept"</span>, !TestUtils.chiSquareTest(counts, 0.0001));
+<a class="jxr_linenumber" name="L118" href="#L118">118</a> 
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         <strong class="jxr_keyword">long</strong>[][] counts2 = {{10, 15}, {30, 40}, {60, 90} };
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         Assert.assertEquals( <span class="jxr_string">"chi-square test statistic"</span>, 0.168965517241, TestUtils.chiSquare(counts2), 1E-9);
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         Assert.assertEquals(<span class="jxr_string">"chi-square p-value"</span>,0.918987499852, TestUtils.chiSquareTest(counts2), 1E-9);
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         Assert.assertTrue(<span class="jxr_string">"chi-square test accept"</span>, !TestUtils.chiSquareTest(counts2, 0.1));
+<a class="jxr_linenumber" name="L123" href="#L123">123</a> 
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         <em class="jxr_comment">// ragged input array</em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         <strong class="jxr_keyword">long</strong>[][] counts3 = { {40, 22, 43}, {91, 21, 28}, {60, 10}};
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>             TestUtils.chiSquare(counts3);
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>             Assert.fail(<span class="jxr_string">"Expecting DimensionMismatchException"</span>);
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         } <strong class="jxr_keyword">catch</strong> (DimensionMismatchException ex) {
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         }
+<a class="jxr_linenumber" name="L132" href="#L132">132</a> 
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <em class="jxr_comment">// insufficient data</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>         <strong class="jxr_keyword">long</strong>[][] counts4 = {{40, 22, 43}};
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>             TestUtils.chiSquare(counts4);
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>             Assert.fail(<span class="jxr_string">"Expecting DimensionMismatchException"</span>);
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         } <strong class="jxr_keyword">catch</strong> (DimensionMismatchException ex) {
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>         }
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         <strong class="jxr_keyword">long</strong>[][] counts5 = {{40}, {40}, {30}, {10}};
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>             TestUtils.chiSquare(counts5);
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>             Assert.fail(<span class="jxr_string">"Expecting DimensionMismatchException"</span>);
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         } <strong class="jxr_keyword">catch</strong> (DimensionMismatchException ex) {
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         }
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> 
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>         <em class="jxr_comment">// negative counts</em>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <strong class="jxr_keyword">long</strong>[][] counts6 = {{10, -2}, {30, 40}, {60, 90} };
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>             TestUtils.chiSquare(counts6);
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>             Assert.fail(<span class="jxr_string">"Expecting NotPositiveException"</span>);
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>         } <strong class="jxr_keyword">catch</strong> (NotPositiveException ex) {
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         }
+<a class="jxr_linenumber" name="L157" href="#L157">157</a> 
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <em class="jxr_comment">// bad alpha</em>
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>             TestUtils.chiSquareTest(counts, 0);
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>             Assert.fail(<span class="jxr_string">"Expecting OutOfRangeException"</span>);
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         } <strong class="jxr_keyword">catch</strong> (OutOfRangeException ex) {
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         }
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>     }
+<a class="jxr_linenumber" name="L166" href="#L166">166</a> 
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>     @Test
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testChiSquareLargeTestStatistic() {
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         <strong class="jxr_keyword">double</strong>[] exp = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>                 3389119.5, 649136.6, 285745.4, 25357364.76, 11291189.78, 543628.0,
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>                 232921.0, 437665.75
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         };
+<a class="jxr_linenumber" name="L173" href="#L173">173</a> 
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         <strong class="jxr_keyword">long</strong>[] obs = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[] {
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>                 2372383, 584222, 257170, 17750155, 7903832, 489265, 209628, 393899
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>         };
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>         org.apache.commons.math3.stat.inference.ChiSquareTest csti =
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>             <strong class="jxr_keyword">new</strong> org.apache.commons.math3.stat.inference.ChiSquareTest();
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         <strong class="jxr_keyword">double</strong> cst = csti.chiSquareTest(exp, obs);
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         Assert.assertEquals(<span class="jxr_string">"chi-square p-value"</span>, 0.0, cst, 1E-3);
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         Assert.assertEquals( <span class="jxr_string">"chi-square test statistic"</span>,
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>                 114875.90421929007, TestUtils.chiSquare(exp, obs), 1E-9);
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>     }
+<a class="jxr_linenumber" name="L184" href="#L184">184</a> 
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>     <em class="jxr_javadoccomment">/** Contingency table containing zeros - PR # 32531 */</em>
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>     @Test
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testChiSquareZeroCount() {
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         <em class="jxr_comment">// Target values computed using R version 1.8.1</em>
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>         <strong class="jxr_keyword">long</strong>[][] counts = { {40, 0, 4}, {91, 1, 2}, {60, 2, 0}};
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         Assert.assertEquals( <span class="jxr_string">"chi-square test statistic"</span>, 9.67444662263,
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>                 TestUtils.chiSquare(counts), 1E-9);
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>         Assert.assertEquals(<span class="jxr_string">"chi-square p-value"</span>, 0.0462835770603,
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>                 TestUtils.chiSquareTest(counts), 1E-9);
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>     }
+<a class="jxr_linenumber" name="L195" href="#L195">195</a> 
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[] tooShortObs = { 1.0 };
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[] emptyObs = {};
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <strong class="jxr_keyword">private</strong> SummaryStatistics emptyStats = <strong class="jxr_keyword">new</strong> SummaryStatistics();
+<a class="jxr_linenumber" name="L199" href="#L199">199</a> 
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>     @Test
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testOneSampleT() {
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>         <strong class="jxr_keyword">double</strong>[] observed =
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>             {93.0, 103.0, 95.0, 101.0, 91.0, 105.0, 96.0, 94.0, 101.0,  88.0, 98.0, 94.0, 101.0, 92.0, 95.0 };
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         <strong class="jxr_keyword">double</strong> mu = 100.0;
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>         SummaryStatistics sampleStats = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>         sampleStats = <strong class="jxr_keyword">new</strong> SummaryStatistics();
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; observed.length; i++) {
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>             sampleStats.addValue(observed[i]);
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>         }
+<a class="jxr_linenumber" name="L210" href="#L210">210</a> 
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         <em class="jxr_comment">// Target comparison values computed using R version 1.8.1 (Linux version)</em>
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>         Assert.assertEquals(<span class="jxr_string">"t statistic"</span>,  -2.81976445346,
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>                 TestUtils.t(mu, observed), 10E-10);
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         Assert.assertEquals(<span class="jxr_string">"t statistic"</span>,  -2.81976445346,
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>                 TestUtils.t(mu, sampleStats), 10E-10);
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>         Assert.assertEquals(<span class="jxr_string">"p value"</span>, 0.0136390585873,
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>                 TestUtils.tTest(mu, observed), 10E-10);
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         Assert.assertEquals(<span class="jxr_string">"p value"</span>, 0.0136390585873,
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>                 TestUtils.tTest(mu, sampleStats), 10E-10);
+<a class="jxr_linenumber" name="L220" href="#L220">220</a> 
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>             TestUtils.t(mu, (<strong class="jxr_keyword">double</strong>[]) <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>             Assert.fail(<span class="jxr_string">"arguments too short, NullArgumentException expected"</span>);
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>         } <strong class="jxr_keyword">catch</strong> (NullArgumentException ex) {
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>         }
+<a class="jxr_linenumber" name="L227" href="#L227">227</a> 
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>             TestUtils.t(mu, (SummaryStatistics) <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>             Assert.fail(<span class="jxr_string">"arguments too short, NullArgumentException expected"</span>);
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>         } <strong class="jxr_keyword">catch</strong> (NullArgumentException ex) {
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>         }
+<a class="jxr_linenumber" name="L234" href="#L234">234</a> 
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>             TestUtils.t(mu, emptyObs);
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>             Assert.fail(<span class="jxr_string">"arguments too short, NumberIsTooSmallException expected"</span>);
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>         } <strong class="jxr_keyword">catch</strong> (NumberIsTooSmallException ex) {
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>         }
+<a class="jxr_linenumber" name="L241" href="#L241">241</a> 
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>             TestUtils.t(mu, emptyStats);
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>             Assert.fail(<span class="jxr_string">"arguments too short, NumberIsTooSmallException expected"</span>);
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>         } <strong class="jxr_keyword">catch</strong> (NumberIsTooSmallException ex) {
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>         }
+<a class="jxr_linenumber" name="L248" href="#L248">248</a> 
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>             TestUtils.t(mu, tooShortObs);
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>             Assert.fail(<span class="jxr_string">"insufficient data to compute t statistic, NumberIsTooSmallException expected"</span>);
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>         } <strong class="jxr_keyword">catch</strong> (NumberIsTooSmallException ex) {
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>         }
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>             TestUtils.tTest(mu, tooShortObs);
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>             Assert.fail(<span class="jxr_string">"insufficient data to perform t test, NumberIsTooSmallException expected"</span>);
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>         } <strong class="jxr_keyword">catch</strong> (NumberIsTooSmallException ex) {
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>         }
+<a class="jxr_linenumber" name="L261" href="#L261">261</a> 
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>             TestUtils.t(mu, (SummaryStatistics) <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>             Assert.fail(<span class="jxr_string">"insufficient data to compute t statistic, NullArgumentException expected"</span>);
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         } <strong class="jxr_keyword">catch</strong> (NullArgumentException ex) {
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         }
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>             TestUtils.tTest(mu, (SummaryStatistics) <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>             Assert.fail(<span class="jxr_string">"insufficient data to perform t test, NullArgumentException expected"</span>);
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>         } <strong class="jxr_keyword">catch</strong> (NullArgumentException ex) {
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>         }
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>     }
+<a class="jxr_linenumber" name="L275" href="#L275">275</a> 
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>     @Test
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testOneSampleTTest() {
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>         <strong class="jxr_keyword">double</strong>[] oneSidedP =
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>             {2d, 0d, 6d, 6d, 3d, 3d, 2d, 3d, -6d, 6d, 6d, 6d, 3d, 0d, 1d, 1d, 0d, 2d, 3d, 3d };
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>         SummaryStatistics oneSidedPStats = <strong class="jxr_keyword">new</strong> SummaryStatistics();
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; oneSidedP.length; i++) {
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>             oneSidedPStats.addValue(oneSidedP[i]);
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>         }
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         <em class="jxr_comment">// Target comparison values computed using R version 1.8.1 (Linux version)</em>
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>         Assert.assertEquals(<span class="jxr_string">"one sample t stat"</span>, 3.86485535541,
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>                 TestUtils.t(0d, oneSidedP), 10E-10);
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>         Assert.assertEquals(<span class="jxr_string">"one sample t stat"</span>, 3.86485535541,
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>                 TestUtils.t(0d, oneSidedPStats),1E-10);
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>         Assert.assertEquals(<span class="jxr_string">"one sample p value"</span>, 0.000521637019637,
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>                 TestUtils.tTest(0d, oneSidedP) / 2d, 10E-10);
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>         Assert.assertEquals(<span class="jxr_string">"one sample p value"</span>, 0.000521637019637,
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>                 TestUtils.tTest(0d, oneSidedPStats) / 2d, 10E-5);
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>         Assert.assertTrue(<span class="jxr_string">"one sample t-test reject"</span>, TestUtils.tTest(0d, oneSidedP, 0.01));
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>         Assert.assertTrue(<span class="jxr_string">"one sample t-test reject"</span>, TestUtils.tTest(0d, oneSidedPStats, 0.01));
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>         Assert.assertTrue(<span class="jxr_string">"one sample t-test accept"</span>, !TestUtils.tTest(0d, oneSidedP, 0.0001));
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         Assert.assertTrue(<span class="jxr_string">"one sample t-test accept"</span>, !TestUtils.tTest(0d, oneSidedPStats, 0.0001));
+<a class="jxr_linenumber" name="L297" href="#L297">297</a> 
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>             TestUtils.tTest(0d, oneSidedP, 95);
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>             Assert.fail(<span class="jxr_string">"alpha out of range, OutOfRangeException expected"</span>);
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>         } <strong class="jxr_keyword">catch</strong> (OutOfRangeException ex) {
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>         }
+<a class="jxr_linenumber" name="L304" href="#L304">304</a> 
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>             TestUtils.tTest(0d, oneSidedPStats, 95);
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>             Assert.fail(<span class="jxr_string">"alpha out of range, OutOfRangeException expected"</span>);
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>         } <strong class="jxr_keyword">catch</strong> (OutOfRangeException ex) {
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>         }
+<a class="jxr_linenumber" name="L311" href="#L311">311</a> 
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>     }
+<a class="jxr_linenumber" name="L313" href="#L313">313</a> 
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>     @Test
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testTwoSampleTHeterscedastic() {
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>         <strong class="jxr_keyword">double</strong>[] sample1 = { 7d, -4d, 18d, 17d, -3d, -5d, 1d, 10d, 11d, -2d };
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>         <strong class="jxr_keyword">double</strong>[] sample2 = { -1d, 12d, -1d, -3d, 3d, -5d, 5d, 2d, -11d, -1d, -3d };
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>         SummaryStatistics sampleStats1 = <strong class="jxr_keyword">new</strong> SummaryStatistics();
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; sample1.length; i++) {
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>             sampleStats1.addValue(sample1[i]);
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>         }
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>         SummaryStatistics sampleStats2 = <strong class="jxr_keyword">new</strong> SummaryStatistics();
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; sample2.length; i++) {
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>             sampleStats2.addValue(sample2[i]);
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>         }
+<a class="jxr_linenumber" name="L326" href="#L326">326</a> 
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>         <em class="jxr_comment">// Target comparison values computed using R version 1.8.1 (Linux version)</em>
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>         Assert.assertEquals(<span class="jxr_string">"two sample heteroscedastic t stat"</span>, 1.60371728768,
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>                 TestUtils.t(sample1, sample2), 1E-10);
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>         Assert.assertEquals(<span class="jxr_string">"two sample heteroscedastic t stat"</span>, 1.60371728768,
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>                 TestUtils.t(sampleStats1, sampleStats2), 1E-10);
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>         Assert.assertEquals(<span class="jxr_string">"two sample heteroscedastic p value"</span>, 0.128839369622,
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>                 TestUtils.tTest(sample1, sample2), 1E-10);
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>         Assert.assertEquals(<span class="jxr_string">"two sample heteroscedastic p value"</span>, 0.128839369622,
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>                 TestUtils.tTest(sampleStats1, sampleStats2), 1E-10);
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>         Assert.assertTrue(<span class="jxr_string">"two sample heteroscedastic t-test reject"</span>,
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>                 TestUtils.tTest(sample1, sample2, 0.2));
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>         Assert.assertTrue(<span class="jxr_string">"two sample heteroscedastic t-test reject"</span>,
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>                 TestUtils.tTest(sampleStats1, sampleStats2, 0.2));
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>         Assert.assertTrue(<span class="jxr_string">"two sample heteroscedastic t-test accept"</span>,
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>                 !TestUtils.tTest(sample1, sample2, 0.1));
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>         Assert.assertTrue(<span class="jxr_string">"two sample heteroscedastic t-test accept"</span>,
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>                 !TestUtils.tTest(sampleStats1, sampleStats2, 0.1));
+<a class="jxr_linenumber" name="L344" href="#L344">344</a> 
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>             TestUtils.tTest(sample1, sample2, .95);
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>             Assert.fail(<span class="jxr_string">"alpha out of range, OutOfRangeException expected"</span>);
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>         } <strong class="jxr_keyword">catch</strong> (OutOfRangeException ex) {
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>         }
+<a class="jxr_linenumber" name="L351" href="#L351">351</a> 
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>             TestUtils.tTest(sampleStats1, sampleStats2, .95);
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>             Assert.fail(<span class="jxr_string">"alpha out of range, OutOfRangeException expected"</span>);
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>         } <strong class="jxr_keyword">catch</strong> (OutOfRangeException ex) {
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>         }
+<a class="jxr_linenumber" name="L358" href="#L358">358</a> 
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>             TestUtils.tTest(sample1, tooShortObs, .01);
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>             Assert.fail(<span class="jxr_string">"insufficient data, NumberIsTooSmallException expected"</span>);
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>         } <strong class="jxr_keyword">catch</strong> (NumberIsTooSmallException ex) {
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>         }
+<a class="jxr_linenumber" name="L365" href="#L365">365</a> 
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>             TestUtils.tTest(sampleStats1, (SummaryStatistics) <strong class="jxr_keyword">null</strong>, .01);
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>             Assert.fail(<span class="jxr_string">"insufficient data, NullArgumentException expected"</span>);
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>         } <strong class="jxr_keyword">catch</strong> (NullArgumentException ex) {
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>         }
+<a class="jxr_linenumber" name="L372" href="#L372">372</a> 
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>             TestUtils.tTest(sample1, tooShortObs);
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>             Assert.fail(<span class="jxr_string">"insufficient data, NumberIsTooSmallException expected"</span>);
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>         } <strong class="jxr_keyword">catch</strong> (NumberIsTooSmallException ex) {
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>         }
+<a class="jxr_linenumber" name="L379" href="#L379">379</a> 
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>             TestUtils.tTest(sampleStats1, (SummaryStatistics) <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>             Assert.fail(<span class="jxr_string">"insufficient data, NullArgumentException expected"</span>);
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>         } <strong class="jxr_keyword">catch</strong> (NullArgumentException ex) {
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>         }
+<a class="jxr_linenumber" name="L386" href="#L386">386</a> 
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>             TestUtils.t(sample1, tooShortObs);
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>             Assert.fail(<span class="jxr_string">"insufficient data, NumberIsTooSmallException expected"</span>);
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>         } <strong class="jxr_keyword">catch</strong> (NumberIsTooSmallException ex) {
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         }
+<a class="jxr_linenumber" name="L393" href="#L393">393</a> 
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>             TestUtils.t(sampleStats1, (SummaryStatistics) <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>             Assert.fail(<span class="jxr_string">"insufficient data, NullArgumentException expected"</span>);
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>         } <strong class="jxr_keyword">catch</strong> (NullArgumentException ex) {
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>             <em class="jxr_comment">// expected</em>
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>         }
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>     }
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>     @Test
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testTwoSampleTHomoscedastic() {
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>         <strong class="jxr_keyword">double</strong>[] sample1 ={2, 4, 6, 8, 10, 97};
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>         <strong class="jxr_keyword">double</strong>[] sample2 = {4, 6, 8, 10, 16};
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>         SummaryStatistics sampleStats1 = <strong class="jxr_keyword">new</strong> SummaryStatistics();
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; sample1.length; i++) {
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>             sampleStats1.addValue(sample1[i]);
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>         }
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>         SummaryStatistics sampleStats2 = <strong class="jxr_keyword">new</strong> SummaryStatistics();
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; sample2.length; i++) {
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>             sampleStats2.addValue(sample2[i]);
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>         }
+<a class="jxr_linenumber" name="L413" href="#L413">413</a> 
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>         <em class="jxr_comment">// Target comparison values computed using R version 1.8.1 (Linux version)</em>
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>         Assert.assertEquals(<span class="jxr_string">"two sample homoscedastic t stat"</span>, 0.73096310086,
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>                 TestUtils.homoscedasticT(sample1, sample2), 10E-11);
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>         Assert.assertEquals(<span class="jxr_string">"two sample homoscedastic p value"</span>, 0.4833963785,
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>                 TestUtils.homoscedasticTTest(sampleStats1, sampleStats2), 1E-10);
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>         Assert.assertTrue(<span class="jxr_string">"two sample homoscedastic t-test reject"</span>,
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>                 TestUtils.homoscedasticTTest(sample1, sample2, 0.49));
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>         Assert.assertTrue(<span class="jxr_string">"two sample homoscedastic t-test accept"</span>,
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>                 !TestUtils.homoscedasticTTest(sample1, sample2, 0.48));
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>     }
+<a class="jxr_linenumber" name="L424" href="#L424">424</a> 
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>     @Test
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testSmallSamples() {
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>         <strong class="jxr_keyword">double</strong>[] sample1 = {1d, 3d};
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>         <strong class="jxr_keyword">double</strong>[] sample2 = {4d, 5d};
+<a class="jxr_linenumber" name="L429" href="#L429">429</a> 
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>         <em class="jxr_comment">// Target values computed using R, version 1.8.1 (linux version)</em>
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>         Assert.assertEquals(-2.2360679775, TestUtils.t(sample1, sample2),
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>                 1E-10);
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>         Assert.assertEquals(0.198727388935, TestUtils.tTest(sample1, sample2),
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>                 1E-10);
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>     }
+<a class="jxr_linenumber" name="L436" href="#L436">436</a> 
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>     @Test
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testPaired() {
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>         <strong class="jxr_keyword">double</strong>[] sample1 = {1d, 3d, 5d, 7d};
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>         <strong class="jxr_keyword">double</strong>[] sample2 = {0d, 6d, 11d, 2d};
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>         <strong class="jxr_keyword">double</strong>[] sample3 = {5d, 7d, 8d, 10d};
+<a class="jxr_linenumber" name="L442" href="#L442">442</a> 
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>         <em class="jxr_comment">// Target values computed using R, version 1.8.1 (linux version)</em>
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>         Assert.assertEquals(-0.3133, TestUtils.pairedT(sample1, sample2), 1E-4);
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>         Assert.assertEquals(0.774544295819, TestUtils.pairedTTest(sample1, sample2), 1E-10);
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>         Assert.assertEquals(0.001208, TestUtils.pairedTTest(sample1, sample3), 1E-6);
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>         Assert.assertFalse(TestUtils.pairedTTest(sample1, sample3, .001));
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>         Assert.assertTrue(TestUtils.pairedTTest(sample1, sample3, .002));
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>     }
+<a class="jxr_linenumber" name="L450" href="#L450">450</a> 
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[] classA =
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>       {93.0, 103.0, 95.0, 101.0};
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[] classB =
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>       {99.0, 92.0, 102.0, 100.0, 102.0};
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[] classC =
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>       {110.0, 115.0, 111.0, 117.0, 128.0};
+<a class="jxr_linenumber" name="L457" href="#L457">457</a> 
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>     <strong class="jxr_keyword">private</strong> List&lt;<strong class="jxr_keyword">double</strong>[]&gt; classes = <strong class="jxr_keyword">new</strong> ArrayList&lt;<strong class="jxr_keyword">double</strong>[]&gt;();
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>     <strong class="jxr_keyword">private</strong> OneWayAnova oneWayAnova = <strong class="jxr_keyword">new</strong> OneWayAnova();
+<a class="jxr_linenumber" name="L460" href="#L460">460</a> 
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>     @Test
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testOneWayAnovaUtils() {
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>         classes.add(classA);
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>         classes.add(classB);
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>         classes.add(classC);
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>         Assert.assertEquals(oneWayAnova.anovaFValue(classes),
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>                 TestUtils.oneWayAnovaFValue(classes), 10E-12);
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>         Assert.assertEquals(oneWayAnova.anovaPValue(classes),
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>                 TestUtils.oneWayAnovaPValue(classes), 10E-12);
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>         Assert.assertEquals(oneWayAnova.anovaTest(classes, 0.01),
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>                 TestUtils.oneWayAnovaTest(classes, 0.01));
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>     }
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>     @Test
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testGTestGoodnesOfFit() <strong class="jxr_keyword">throws</strong> Exception {
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>         <strong class="jxr_keyword">double</strong>[] exp = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[]{
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>             0.54d, 0.40d, 0.05d, 0.01d
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>         };
+<a class="jxr_linenumber" name="L478" href="#L478">478</a> 
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>         <strong class="jxr_keyword">long</strong>[] obs = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[]{
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>             70, 79, 3, 4
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>         };
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>         Assert.assertEquals(<span class="jxr_string">"G test statistic"</span>,
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>                 13.144799, TestUtils.g(exp, obs), 1E-5);
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>         <strong class="jxr_keyword">double</strong> p_gtgf = TestUtils.gTest(exp, obs);
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>         Assert.assertEquals(<span class="jxr_string">"g-Test p-value"</span>, 0.004333, p_gtgf, 1E-5);
+<a class="jxr_linenumber" name="L486" href="#L486">486</a> 
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>         Assert.assertTrue(TestUtils.gTest(exp, obs, 0.05));
+<a class="jxr_linenumber" name="L488" href="#L488">488</a> }
+<a class="jxr_linenumber" name="L489" href="#L489">489</a> 
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>     @Test
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testGTestIndependance() <strong class="jxr_keyword">throws</strong> Exception {
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>         <strong class="jxr_keyword">long</strong>[] obs1 = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[]{
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>             268, 199, 42
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>         };
+<a class="jxr_linenumber" name="L495" href="#L495">495</a> 
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>         <strong class="jxr_keyword">long</strong>[] obs2 = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[]{
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>             807, 759, 184
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>         };
+<a class="jxr_linenumber" name="L499" href="#L499">499</a> 
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>         <strong class="jxr_keyword">double</strong> g = TestUtils.gDataSetsComparison(obs1, obs2);
+<a class="jxr_linenumber" name="L501" href="#L501">501</a> 
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>         Assert.assertEquals(<span class="jxr_string">"G test statistic"</span>,
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>                 7.3008170, g, 1E-4);
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>         <strong class="jxr_keyword">double</strong> p_gti = TestUtils.gTestDataSetsComparison(obs1, obs2);
+<a class="jxr_linenumber" name="L505" href="#L505">505</a> 
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>         Assert.assertEquals(<span class="jxr_string">"g-Test p-value"</span>, 0.0259805, p_gti, 1E-4);
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>         Assert.assertTrue(TestUtils.gTestDataSetsComparison(obs1, obs2, 0.05));
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>     }
+<a class="jxr_linenumber" name="L509" href="#L509">509</a> 
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>     @Test
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRootLogLikelihood() {
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>         <em class="jxr_comment">// positive where k11 is bigger than expected.</em>
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>         Assert.assertTrue(TestUtils.rootLogLikelihoodRatio(904, 21060, 1144, 283012) &gt; 0.0);
+<a class="jxr_linenumber" name="L514" href="#L514">514</a> 
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>         <em class="jxr_comment">// negative because k11 is lower than expected</em>
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>         Assert.assertTrue(TestUtils.rootLogLikelihoodRatio(36, 21928, 60280, 623876) &lt; 0.0);
+<a class="jxr_linenumber" name="L517" href="#L517">517</a> 
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>         Assert.assertEquals(FastMath.sqrt(2.772589), TestUtils.rootLogLikelihoodRatio(1, 0, 0, 1), 0.000001);
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>         Assert.assertEquals(-FastMath.sqrt(2.772589), TestUtils.rootLogLikelihoodRatio(0, 1, 1, 0), 0.000001);
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>         Assert.assertEquals(FastMath.sqrt(27.72589), TestUtils.rootLogLikelihoodRatio(10, 0, 0, 10), 0.00001);
+<a class="jxr_linenumber" name="L521" href="#L521">521</a> 
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>         Assert.assertEquals(FastMath.sqrt(39.33052), TestUtils.rootLogLikelihoodRatio(5, 1995, 0, 100000), 0.00001);
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>         Assert.assertEquals(-FastMath.sqrt(39.33052), TestUtils.rootLogLikelihoodRatio(0, 100000, 5, 1995), 0.00001);
+<a class="jxr_linenumber" name="L524" href="#L524">524</a> 
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>         Assert.assertEquals(FastMath.sqrt(4730.737), TestUtils.rootLogLikelihoodRatio(1000, 1995, 1000, 100000), 0.001);
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>         Assert.assertEquals(-FastMath.sqrt(4730.737), TestUtils.rootLogLikelihoodRatio(1000, 100000, 1000, 1995), 0.001);
+<a class="jxr_linenumber" name="L527" href="#L527">527</a> 
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>         Assert.assertEquals(FastMath.sqrt(5734.343), TestUtils.rootLogLikelihoodRatio(1000, 1000, 1000, 100000), 0.001);
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>         Assert.assertEquals(FastMath.sqrt(5714.932), TestUtils.rootLogLikelihoodRatio(1000, 1000, 1000, 99000), 0.001);
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>     }
+<a class="jxr_linenumber" name="L531" href="#L531">531</a> 
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>     @Test
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testKSOneSample() <strong class="jxr_keyword">throws</strong> Exception {
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>        <strong class="jxr_keyword">final</strong> NormalDistribution unitNormal = <strong class="jxr_keyword">new</strong> NormalDistribution(0d, 1d);
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>        <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] sample = KolmogorovSmirnovTestTest.gaussian;
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>        <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tol = KolmogorovSmirnovTestTest.TOLERANCE;
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>        Assert.assertEquals(0.3172069207622391, TestUtils.kolmogorovSmirnovTest(unitNormal, sample), tol);
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>        Assert.assertEquals(0.0932947561266756, TestUtils.kolmogorovSmirnovStatistic(unitNormal, sample), tol);
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>     }
+<a class="jxr_linenumber" name="L540" href="#L540">540</a> 
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>     @Test
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testKSTwoSample() <strong class="jxr_keyword">throws</strong> Exception {
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tol = KolmogorovSmirnovTestTest.TOLERANCE;
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] smallSample1 = {
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>             6, 7, 9, 13, 19, 21, 22, 23, 24
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>         };
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] smallSample2 = {
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>             10, 11, 12, 16, 20, 27, 28, 32, 44, 54
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>         };
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>         Assert
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>             .assertEquals(0.105577085453247, TestUtils.kolmogorovSmirnovTest(smallSample1, smallSample2, false), tol);
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> d = TestUtils.kolmogorovSmirnovStatistic(smallSample1, smallSample2);
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>         Assert.assertEquals(0.5, d, tol);
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>         Assert
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>         .assertEquals(0.105577085453247, TestUtils.exactP(d, smallSample1.length,smallSample2.length, false), tol);
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>     }
+<a class="jxr_linenumber" name="L557" href="#L557">557</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

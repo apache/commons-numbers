@@ -1,0 +1,848 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.special;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.apache.commons.math3.exception.MathIllegalArgumentException;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.junit.Assert;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.junit.Test;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>/**<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * @version $Id$<a name="line.24"></a>
+<span class="sourceLineNo">025</span> */<a name="line.25"></a>
+<span class="sourceLineNo">026</span>public class BesselJTest {<a name="line.26"></a>
+<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">028</span>    /**<a name="line.28"></a>
+<span class="sourceLineNo">029</span>     * Reference data for the {@link BesselJ#value(double, double)} function. This data<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     * was generated with the following &lt;a href="http://www.r-project.org/"&gt;R&lt;/a&gt; script.<a name="line.30"></a>
+<span class="sourceLineNo">031</span>     *<a name="line.31"></a>
+<span class="sourceLineNo">032</span>     * &lt;pre&gt;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>     * smallxs = 10 ** (-(seq(0,8,.5)))<a name="line.33"></a>
+<span class="sourceLineNo">034</span>     * medxs = seq(1,20)<a name="line.34"></a>
+<span class="sourceLineNo">035</span>     * near.eight = 8 + seq(-.5,.5,.1)<a name="line.35"></a>
+<span class="sourceLineNo">036</span>     * largexs = c(10,30,100,300,1000)<a name="line.36"></a>
+<span class="sourceLineNo">037</span>     * xs = unique(sort(c(smallxs, medxs, near.eight,largexs)))<a name="line.37"></a>
+<span class="sourceLineNo">038</span>     *          <a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * for (n in c(0:15, 30, 100)) {<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     * for (x in xs) {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     * val = format( besselJ(x,n), digits=20 )<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * s = paste("{", n, ",", x, ",", val, "},")<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     * print(s)<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * }<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     * }<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     * &lt;/pre&gt;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     */<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    private static final double[][] BESSEL_J_REF = {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        { 0 , 1e-08 , 1 },<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        { 0 , 3.16227766016838e-08 , 0.99999999999999977796 },<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        { 0 , 1e-07 , 0.99999999999999744649 },<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        { 0 , 3.16227766016838e-07 , 0.99999999999997501998 },<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        { 0 , 1e-06 , 0.99999999999974997777 },<a name="line.53"></a>
+<span class="sourceLineNo">054</span>        { 0 , 3.16227766016838e-06 , 0.99999999999749999979 },<a name="line.54"></a>
+<span class="sourceLineNo">055</span>        { 0 , 1e-05 , 0.99999999997499999793 },<a name="line.55"></a>
+<span class="sourceLineNo">056</span>        { 0 , 3.16227766016838e-05 , 0.99999999974999997931 },<a name="line.56"></a>
+<span class="sourceLineNo">057</span>        { 0 , 1e-04 , 0.99999999750000001519 },<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        { 0 , 0.000316227766016838 , 0.99999997500000015194 },<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        { 0 , 0.001 , 0.9999997500000156192 },<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        { 0 , 0.00316227766016838 , 0.99999750000156251151 },<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        { 0 , 0.01 , 0.99997500015624951608 },<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        { 0 , 0.0316227766016838 , 0.9997500156245660019 },<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        { 0 , 0.1 , 0.99750156206604001508 },<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        { 0 , 0.316227766016838 , 0.97515581664971295872 },<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        { 0 , 1 , 0.76519768655796649437 },<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        { 0 , 2 , 0.22389077914123567403 },<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        { 0 , 3 , -0.26005195490193344643 },<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        { 0 , 4 , -0.39714980986384734729 },<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        { 0 , 5 , -0.177596771314338292 },<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        { 0 , 6 , 0.15064525725099692233 },<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        { 0 , 7 , 0.3000792705195556298 },<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        { 0 , 7.5 , 0.26633965788037838873 },<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        { 0 , 7.6 , 0.25160183384997636402 },<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        { 0 , 7.7 , 0.23455913958646437689 },<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        { 0 , 7.8 , 0.21540780774626291927 },<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        { 0 , 7.9 , 0.19436184484127824734 },<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        { 0 , 8 , 0.17165080713755390129 },<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        { 0 , 8.1 , 0.14751745404437766052 },<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        { 0 , 8.2 , 0.12221530178413773926 },<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        { 0 , 8.3 , 0.09600610089501022959 },<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        { 0 , 8.4 , 0.069157261656985186127 },<a name="line.81"></a>
+<span class="sourceLineNo">082</span>        { 0 , 8.5 , 0.041939251842934503756 },<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        { 0 , 9 , -0.090333611182876139001 },<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        { 0 , 10 , -0.24593576445134832098 },<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        { 0 , 11 , -0.17119030040719609986 },<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        { 0 , 12 , 0.0476893107968335353 },<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        { 0 , 13 , 0.20692610237706782206 },<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        { 0 , 14 , 0.17107347611045864433 },<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        { 0 , 15 , -0.014224472826780772475 },<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        { 0 , 16 , -0.17489907398362919411 },<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        { 0 , 17 , -0.16985425215118354902 },<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        { 0 , 18 , -0.013355805721984111492 },<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        { 0 , 19 , 0.14662943965965119508 },<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        { 0 , 20 , 0.16702466434058313438 },<a name="line.94"></a>
+<span class="sourceLineNo">095</span>        { 0 , 30 , -0.086367983581040239094 },<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        { 0 , 100 , 0.019985850304223118368 },<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        { 0 , 300 , -0.033298554876305661021 },<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        { 0 , 1000 , 0.024786686152420175921 },<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        { 1 , 1e-08 , 5.0000000000000001046e-09 },<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        { 1 , 3.16227766016838e-08 , 1.5811388300841892647e-08 },<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        { 1 , 1e-07 , 4.999999999999993818e-08 },<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        { 1 , 3.16227766016838e-07 , 1.5811388300841697432e-07 },<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        { 1 , 1e-06 , 4.9999999999993750869e-07 },<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        { 1 , 3.16227766016838e-06 , 1.5811388300822132559e-06 },<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        { 1 , 1e-05 , 4.9999999999375003889e-06 },<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        { 1 , 3.16227766016838e-05 , 1.5811388298865475016e-05 },<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        { 1 , 1e-04 , 4.9999999937500002646e-05 },<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        { 1 , 0.000316227766016838 , 0.00015811388103199544184 },<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        { 1 , 0.001 , 0.00049999993750000253697 },<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        { 1 , 0.00316227766016838 , 0.0015811368536614756226 },<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        { 1 , 0.01 , 0.0049999375002604158624 },<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        { 1 , 0.0316227766016838 , 0.015809411959653556917 },<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        { 1 , 0.1 , 0.049937526036241998428 },<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        { 1 , 0.316227766016838 , 0.15614567743386048582 },<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        { 1 , 1 , 0.44005058574493355339 },<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        { 1 , 2 , 0.57672480775687340326 },<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        { 1 , 3 , 0.33905895852593642692 },<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        { 1 , 4 , -0.066043328023549133232 },<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        { 1 , 5 , -0.32757913759146523036 },<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        { 1 , 6 , -0.27668385812756562947 },<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        { 1 , 7 , -0.0046828234823458325664 },<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        { 1 , 7.5 , 0.13524842757970551022 },<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        { 1 , 7.6 , 0.15921376839635667522 },<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        { 1 , 7.7 , 0.18131271532458800855 },<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        { 1 , 7.8 , 0.20135687275589611578 },<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        { 1 , 7.9 , 0.21917939992175122788 },<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        { 1 , 8 , 0.23463634685391462908 },<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        { 1 , 8.1 , 0.2476077669815928417 },<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        { 1 , 8.2 , 0.25799859764868082745 },<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        { 1 , 8.3 , 0.26573930204186430037 },<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        { 1 , 8.4 , 0.27078626827683538458 },<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        { 1 , 8.5 , 0.27312196367405372488 },<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        { 1 , 9 , 0.24531178657332528004 },<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        { 1 , 10 , 0.043472746168861438332 },<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        { 1 , 11 , -0.17678529895672151495 },<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        { 1 , 12 , -0.2234471044906276016 },<a name="line.136"></a>
+<span class="sourceLineNo">137</span>        { 1 , 13 , -0.070318052121778371055 },<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        { 1 , 14 , 0.13337515469879324126 },<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        { 1 , 15 , 0.20510403861352277666 },<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        { 1 , 16 , 0.090397175661304188243 },<a name="line.140"></a>
+<span class="sourceLineNo">141</span>        { 1 , 17 , -0.097668492757780639435 },<a name="line.141"></a>
+<span class="sourceLineNo">142</span>        { 1 , 18 , -0.18799488548806958521 },<a name="line.142"></a>
+<span class="sourceLineNo">143</span>        { 1 , 19 , -0.10570143114240927729 },<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        { 1 , 20 , 0.066833124175850036619 },<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        { 1 , 30 , -0.1187510626166229516 },<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        { 1 , 100 , -0.077145352014112156258 },<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        { 1 , 300 , -0.031887431377499955709 },<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        { 1 , 1000 , 0.0047283119070895248195 },<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        { 2 , 1e-08 , 1.2499999999999999739e-17 },<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        { 2 , 3.16227766016838e-08 , 1.2499999999999998506e-16 },<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        { 2 , 1e-07 , 1.2499999999999988152e-15 },<a name="line.151"></a>
+<span class="sourceLineNo">152</span>        { 2 , 3.16227766016838e-07 , 1.2499999999999894672e-14 },<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        { 2 , 1e-06 , 1.249999999999895719e-13 },<a name="line.153"></a>
+<span class="sourceLineNo">154</span>        { 2 , 3.16227766016838e-06 , 1.2499999999989582746e-12 },<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        { 2 , 1e-05 , 1.2499999999895835475e-11 },<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        { 2 , 3.16227766016838e-05 , 1.2499999998958334818e-10 },<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        { 2 , 1e-04 , 1.2499999989583335487e-09 },<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        { 2 , 0.000316227766016838 , 1.2499999895833333493e-08 },<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        { 2 , 0.001 , 1.2499998958333367811e-07 },<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        { 2 , 0.00316227766016838 , 1.2499989583336589057e-06 },<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        { 2 , 0.01 , 1.2499895833658854395e-05 },<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        { 2 , 0.0316227766016838 , 0.00012498958365884872863 },<a name="line.162"></a>
+<span class="sourceLineNo">163</span>        { 2 , 0.1 , 0.0012489586587999190141 },<a name="line.163"></a>
+<span class="sourceLineNo">164</span>        { 2 , 0.316227766016838 , 0.012396158312196680837 },<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        { 2 , 1 , 0.11490348493190047363 },<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        { 2 , 2 , 0.35283402861563772923 },<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        { 2 , 3 , 0.48609126058589108288 },<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        { 2 , 4 , 0.36412814585207281537 },<a name="line.168"></a>
+<span class="sourceLineNo">169</span>        { 2 , 5 , 0.046565116277752213736 },<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        { 2 , 6 , -0.24287320996018546548 },<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        { 2 , 7 , -0.3014172200859401296 },<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        { 2 , 7.5 , -0.23027341052579025638 },<a name="line.172"></a>
+<span class="sourceLineNo">173</span>        { 2 , 7.6 , -0.20970347374567196996 },<a name="line.173"></a>
+<span class="sourceLineNo">174</span>        { 2 , 7.7 , -0.18746492781384410664 },<a name="line.174"></a>
+<span class="sourceLineNo">175</span>        { 2 , 7.8 , -0.16377784037295622932 },<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        { 2 , 7.9 , -0.13887338916488553564 },<a name="line.176"></a>
+<span class="sourceLineNo">177</span>        { 2 , 8 , -0.11299172042407523708 },<a name="line.177"></a>
+<span class="sourceLineNo">178</span>        { 2 , 8.1 , -0.086379733802009056598 },<a name="line.178"></a>
+<span class="sourceLineNo">179</span>        { 2 , 8.2 , -0.059288814552752158726 },<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        { 2 , 8.3 , -0.031972534137934507936 },<a name="line.180"></a>
+<span class="sourceLineNo">181</span>        { 2 , 8.4 , -0.0046843406386910518141 },<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        { 2 , 8.5 , 0.022324739609784025052 },<a name="line.182"></a>
+<span class="sourceLineNo">183</span>        { 2 , 9 , 0.14484734153250397592 },<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        { 2 , 10 , 0.25463031368512062391 },<a name="line.184"></a>
+<span class="sourceLineNo">185</span>        { 2 , 11 , 0.13904751877870125121 },<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        { 2 , 12 , -0.084930494878604809172 },<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        { 2 , 13 , -0.21774426424195678087 },<a name="line.187"></a>
+<span class="sourceLineNo">188</span>        { 2 , 14 , -0.15201988258205964555 },<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        { 2 , 15 , 0.041571677975250471981 },<a name="line.189"></a>
+<span class="sourceLineNo">190</span>        { 2 , 16 , 0.18619872094129222284 },<a name="line.190"></a>
+<span class="sourceLineNo">191</span>        { 2 , 17 , 0.15836384123850347216 },<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        { 2 , 18 , -0.0075325148878013998069 },<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        { 2 , 19 , -0.15775590609569428713 },<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        { 2 , 20 , -0.16034135192299814321 },<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        { 2 , 30 , 0.07845124607326538213 },<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        { 2 , 100 , -0.021528757344505360799 },<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        { 2 , 300 , 0.033085972000455661501 },<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        { 2 , 1000 , -0.024777229528605997089 },<a name="line.198"></a>
+<span class="sourceLineNo">199</span>        { 3 , 1e-08 , 2.0833333333333334614e-26 },<a name="line.199"></a>
+<span class="sourceLineNo">200</span>        { 3 , 3.16227766016838e-08 , 6.5880784586841223417e-25 },<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        { 3 , 1e-07 , 2.0833333333333317693e-23 },<a name="line.201"></a>
+<span class="sourceLineNo">202</span>        { 3 , 3.16227766016838e-07 , 6.5880784586840819929e-22 },<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        { 3 , 1e-06 , 2.0833333333332027799e-20 },<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        { 3 , 3.16227766016838e-06 , 6.5880784586800051603e-19 },<a name="line.204"></a>
+<span class="sourceLineNo">205</span>        { 3 , 1e-05 , 2.0833333333203129762e-17 },<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        { 3 , 3.16227766016838e-05 , 6.5880784582723696076e-16 },<a name="line.206"></a>
+<span class="sourceLineNo">207</span>        { 3 , 1e-04 , 2.083333332031250315e-14 },<a name="line.207"></a>
+<span class="sourceLineNo">208</span>        { 3 , 0.000316227766016838 , 6.5880784175086335665e-13 },<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        { 3 , 0.001 , 2.0833332031250032117e-11 },<a name="line.209"></a>
+<span class="sourceLineNo">210</span>        { 3 , 0.00316227766016838 , 6.5880743411361163135e-10 },<a name="line.210"></a>
+<span class="sourceLineNo">211</span>        { 3 , 0.01 , 2.083320312532551971e-08 },<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        { 3 , 0.0316227766016838 , 6.5876667140741846331e-07 },<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        { 3 , 0.1 , 2.0820315754756265453e-05 },<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        { 3 , 0.316227766016838 , 0.00065470057642003857534 },<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        { 3 , 1 , 0.019563353982668403586 },<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        { 3 , 2 , 0.1289432494744020552 },<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        { 3 , 3 , 0.30906272225525166508 },<a name="line.217"></a>
+<span class="sourceLineNo">218</span>        { 3 , 4 , 0.43017147387562193472 },<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        { 3 , 5 , 0.36483123061366695694 },<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        { 3 , 6 , 0.11476838482077529602 },<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        { 3 , 7 , -0.16755558799533423753 },<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        { 3 , 7.5 , -0.25806091319346030621 },<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        { 3 , 7.6 , -0.26958401773618401176 },<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        { 3 , 7.7 , -0.27869709340970183487 },<a name="line.224"></a>
+<span class="sourceLineNo">225</span>        { 3 , 7.8 , -0.28534550884459158882 },<a name="line.225"></a>
+<span class="sourceLineNo">226</span>        { 3 , 7.9 , -0.2894950400052375139 },<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        { 3 , 8 , -0.29113220706595221987 },<a name="line.227"></a>
+<span class="sourceLineNo">228</span>        { 3 , 8.1 , -0.29026442564925164502 },<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        { 3 , 8.2 , -0.28691997060124291297 },<a name="line.229"></a>
+<span class="sourceLineNo">230</span>        { 3 , 8.3 , -0.28114775222882071315 },<a name="line.230"></a>
+<span class="sourceLineNo">231</span>        { 3 , 8.4 , -0.27301690667621203445 },<a name="line.231"></a>
+<span class="sourceLineNo">232</span>        { 3 , 8.5 , -0.26261620385768480457 },<a name="line.232"></a>
+<span class="sourceLineNo">233</span>        { 3 , 9 , -0.1809351903366568648 },<a name="line.233"></a>
+<span class="sourceLineNo">234</span>        { 3 , 10 , 0.058379379305186815396 },<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        { 3 , 11 , 0.22734803305806741691 },<a name="line.235"></a>
+<span class="sourceLineNo">236</span>        { 3 , 12 , 0.19513693953109267909 },<a name="line.236"></a>
+<span class="sourceLineNo">237</span>        { 3 , 13 , 0.0033198169704070513292 },<a name="line.237"></a>
+<span class="sourceLineNo">238</span>        { 3 , 14 , -0.17680940686509599713 },<a name="line.238"></a>
+<span class="sourceLineNo">239</span>        { 3 , 15 , -0.19401825782012263599 },<a name="line.239"></a>
+<span class="sourceLineNo">240</span>        { 3 , 16 , -0.043847495425981139472 },<a name="line.240"></a>
+<span class="sourceLineNo">241</span>        { 3 , 17 , 0.13493057304919323092 },<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        { 3 , 18 , 0.18632099329078039007 },<a name="line.242"></a>
+<span class="sourceLineNo">243</span>        { 3 , 19 , 0.072489661438052577225 },<a name="line.243"></a>
+<span class="sourceLineNo">244</span>        { 3 , 20 , -0.098901394560449676363 },<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        { 3 , 30 , 0.12921122875972501642 },<a name="line.245"></a>
+<span class="sourceLineNo">246</span>        { 3 , 100 , 0.076284201720331942798 },<a name="line.246"></a>
+<span class="sourceLineNo">247</span>        { 3 , 300 , 0.032328577670839367397 },<a name="line.247"></a>
+<span class="sourceLineNo">248</span>        { 3 , 1000 , -0.0048274208252039483777 },<a name="line.248"></a>
+<span class="sourceLineNo">249</span>        { 4 , 1e-08 , 2.6041666666666666342e-35 },<a name="line.249"></a>
+<span class="sourceLineNo">250</span>        { 4 , 3.16227766016838e-08 , 2.6041666666666659714e-33 },<a name="line.250"></a>
+<span class="sourceLineNo">251</span>        { 4 , 1e-07 , 2.6041666666666649861e-31 },<a name="line.251"></a>
+<span class="sourceLineNo">252</span>        { 4 , 3.16227766016838e-07 , 2.6041666666666531276e-29 },<a name="line.252"></a>
+<span class="sourceLineNo">253</span>        { 4 , 1e-06 , 2.6041666666665358894e-27 },<a name="line.253"></a>
+<span class="sourceLineNo">254</span>        { 4 , 3.16227766016838e-06 , 2.6041666666653639536e-25 },<a name="line.254"></a>
+<span class="sourceLineNo">255</span>        { 4 , 1e-05 , 2.6041666666536465525e-23 },<a name="line.255"></a>
+<span class="sourceLineNo">256</span>        { 4 , 3.16227766016838e-05 , 2.604166666536458817e-21 },<a name="line.256"></a>
+<span class="sourceLineNo">257</span>        { 4 , 1e-04 , 2.6041666653645840559e-19 },<a name="line.257"></a>
+<span class="sourceLineNo">258</span>        { 4 , 0.000316227766016838 , 2.6041666536458338462e-17 },<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        { 4 , 0.001 , 2.6041665364583368871e-15 },<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        { 4 , 0.00316227766016838 , 2.604165364583604802e-13 },<a name="line.260"></a>
+<span class="sourceLineNo">261</span>        { 4 , 0.01 , 2.6041536458604605458e-11 },<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        { 4 , 0.0316227766016838 , 2.6040364610459735901e-09 },<a name="line.262"></a>
+<span class="sourceLineNo">263</span>        { 4 , 0.1 , 2.6028648545684040871e-07 },<a name="line.263"></a>
+<span class="sourceLineNo">264</span>        { 4 , 0.316227766016838 , 2.5911729278009268374e-05 },<a name="line.264"></a>
+<span class="sourceLineNo">265</span>        { 4 , 1 , 0.002476638964109955255 },<a name="line.265"></a>
+<span class="sourceLineNo">266</span>        { 4 , 2 , 0.033995719807568429427 },<a name="line.266"></a>
+<span class="sourceLineNo">267</span>        { 4 , 3 , 0.13203418392461221953 },<a name="line.267"></a>
+<span class="sourceLineNo">268</span>        { 4 , 4 , 0.28112906496136008672 },<a name="line.268"></a>
+<span class="sourceLineNo">269</span>        { 4 , 5 , 0.39123236045864817623 },<a name="line.269"></a>
+<span class="sourceLineNo">270</span>        { 4 , 6 , 0.35764159478096080313 },<a name="line.270"></a>
+<span class="sourceLineNo">271</span>        { 4 , 7 , 0.15779814466136793394 },<a name="line.271"></a>
+<span class="sourceLineNo">272</span>        { 4 , 7.5 , 0.02382467997102201071 },<a name="line.272"></a>
+<span class="sourceLineNo">273</span>        { 4 , 7.6 , -0.0031260139407891210546 },<a name="line.273"></a>
+<span class="sourceLineNo">274</span>        { 4 , 7.7 , -0.029701638479430046702 },<a name="line.274"></a>
+<span class="sourceLineNo">275</span>        { 4 , 7.8 , -0.055718704892114230554 },<a name="line.275"></a>
+<span class="sourceLineNo">276</span>        { 4 , 7.9 , -0.080996261472003727722 },<a name="line.276"></a>
+<span class="sourceLineNo">277</span>        { 4 , 8 , -0.10535743487538892782 },<a name="line.277"></a>
+<span class="sourceLineNo">278</span>        { 4 , 8.1 , -0.12863095186410331006 },<a name="line.278"></a>
+<span class="sourceLineNo">279</span>        { 4 , 8.2 , -0.15065262735059631316 },<a name="line.279"></a>
+<span class="sourceLineNo">280</span>        { 4 , 8.3 , -0.17126680482265874139 },<a name="line.280"></a>
+<span class="sourceLineNo">281</span>        { 4 , 8.4 , -0.19032773555860327264 },<a name="line.281"></a>
+<span class="sourceLineNo">282</span>        { 4 , 8.5 , -0.2077008835093262229 },<a name="line.282"></a>
+<span class="sourceLineNo">283</span>        { 4 , 9 , -0.26547080175694187654 },<a name="line.283"></a>
+<span class="sourceLineNo">284</span>        { 4 , 10 , -0.21960268610200855965 },<a name="line.284"></a>
+<span class="sourceLineNo">285</span>        { 4 , 11 , -0.015039500747028132846 },<a name="line.285"></a>
+<span class="sourceLineNo">286</span>        { 4 , 12 , 0.18249896464415113484 },<a name="line.286"></a>
+<span class="sourceLineNo">287</span>        { 4 , 13 , 0.21927648745906774819 },<a name="line.287"></a>
+<span class="sourceLineNo">288</span>        { 4 , 14 , 0.076244422497018474183 },<a name="line.288"></a>
+<span class="sourceLineNo">289</span>        { 4 , 15 , -0.11917898110329952499 },<a name="line.289"></a>
+<span class="sourceLineNo">290</span>        { 4 , 16 , -0.20264153172603513453 },<a name="line.290"></a>
+<span class="sourceLineNo">291</span>        { 4 , 17 , -0.11074128604467056713 },<a name="line.291"></a>
+<span class="sourceLineNo">292</span>        { 4 , 18 , 0.069639512651394869236 },<a name="line.292"></a>
+<span class="sourceLineNo">293</span>        { 4 , 19 , 0.18064737812876355272 },<a name="line.293"></a>
+<span class="sourceLineNo">294</span>        { 4 , 20 , 0.13067093355486322781 },<a name="line.294"></a>
+<span class="sourceLineNo">295</span>        { 4 , 30 , -0.05260900032132037607 },<a name="line.295"></a>
+<span class="sourceLineNo">296</span>        { 4 , 100 , 0.026105809447725277644 },<a name="line.296"></a>
+<span class="sourceLineNo">297</span>        { 4 , 300 , -0.032439400447038871378 },<a name="line.297"></a>
+<span class="sourceLineNo">298</span>        { 4 , 1000 , 0.024748265003654772859 },<a name="line.298"></a>
+<span class="sourceLineNo">299</span>        { 5 , 1e-08 , 2.6041666666666666817e-44 },<a name="line.299"></a>
+<span class="sourceLineNo">300</span>        { 5 , 3.16227766016838e-08 , 8.2350980733551520153e-42 },<a name="line.300"></a>
+<span class="sourceLineNo">301</span>        { 5 , 1e-07 , 2.6041666666666648818e-39 },<a name="line.301"></a>
+<span class="sourceLineNo">302</span>        { 5 , 3.16227766016838e-07 , 8.2350980733551185479e-37 },<a name="line.302"></a>
+<span class="sourceLineNo">303</span>        { 5 , 1e-06 , 2.6041666666665576923e-34 },<a name="line.303"></a>
+<span class="sourceLineNo">304</span>        { 5 , 3.16227766016838e-06 , 8.2350980733517218878e-32 },<a name="line.304"></a>
+<span class="sourceLineNo">305</span>        { 5 , 1e-05 , 2.6041666666558171668e-29 },<a name="line.305"></a>
+<span class="sourceLineNo">306</span>        { 5 , 3.16227766016838e-05 , 8.2350980730120282499e-27 },<a name="line.306"></a>
+<span class="sourceLineNo">307</span>        { 5 , 1e-04 , 2.6041666655815978351e-24 },<a name="line.307"></a>
+<span class="sourceLineNo">308</span>        { 5 , 0.000316227766016838 , 8.2350980390422474771e-22 },<a name="line.308"></a>
+<span class="sourceLineNo">309</span>        { 5 , 0.001 , 2.6041665581597245947e-19 },<a name="line.309"></a>
+<span class="sourceLineNo">310</span>        { 5 , 0.00316227766016838 , 8.2350946420649040367e-17 },<a name="line.310"></a>
+<span class="sourceLineNo">311</span>        { 5 , 0.01 , 2.6041558159915982186e-14 },<a name="line.311"></a>
+<span class="sourceLineNo">312</span>        { 5 , 0.0316227766016838 , 8.2347549503960048977e-12 },<a name="line.312"></a>
+<span class="sourceLineNo">313</span>        { 5 , 0.1 , 2.6030817909644421178e-09 },<a name="line.313"></a>
+<span class="sourceLineNo">314</span>        { 5 , 0.316227766016838 , 8.2008463739855235578e-07 },<a name="line.314"></a>
+<span class="sourceLineNo">315</span>        { 5 , 1 , 0.00024975773021123438876 },<a name="line.315"></a>
+<span class="sourceLineNo">316</span>        { 5 , 2 , 0.0070396297558716850601 },<a name="line.316"></a>
+<span class="sourceLineNo">317</span>        { 5 , 3 , 0.043028434877047584683 },<a name="line.317"></a>
+<span class="sourceLineNo">318</span>        { 5 , 4 , 0.13208665604709826646 },<a name="line.318"></a>
+<span class="sourceLineNo">319</span>        { 5 , 5 , 0.26114054612017006951 },<a name="line.319"></a>
+<span class="sourceLineNo">320</span>        { 5 , 6 , 0.36208707488717239986 },<a name="line.320"></a>
+<span class="sourceLineNo">321</span>        { 5 , 7 , 0.34789632475118331678 },<a name="line.321"></a>
+<span class="sourceLineNo">322</span>        { 5 , 7.5 , 0.28347390516255044357 },<a name="line.322"></a>
+<span class="sourceLineNo">323</span>        { 5 , 7.6 , 0.26629347674587972028 },<a name="line.323"></a>
+<span class="sourceLineNo">324</span>        { 5 , 7.7 , 0.2478382482362680439 },<a name="line.324"></a>
+<span class="sourceLineNo">325</span>        { 5 , 7.8 , 0.22819811921165392143 },<a name="line.325"></a>
+<span class="sourceLineNo">326</span>        { 5 , 7.9 , 0.20747350940067682545 },<a name="line.326"></a>
+<span class="sourceLineNo">327</span>        { 5 , 8 , 0.18577477219056331981 },<a name="line.327"></a>
+<span class="sourceLineNo">328</span>        { 5 , 8.1 , 0.16322151022791506203 },<a name="line.328"></a>
+<span class="sourceLineNo">329</span>        { 5 , 8.2 , 0.13994179757627084326 },<a name="line.329"></a>
+<span class="sourceLineNo">330</span>        { 5 , 8.3 , 0.11607131384553516507 },<a name="line.330"></a>
+<span class="sourceLineNo">331</span>        { 5 , 8.4 , 0.091752396620399440108 },<a name="line.331"></a>
+<span class="sourceLineNo">332</span>        { 5 , 8.5 , 0.067133019378318919967 },<a name="line.332"></a>
+<span class="sourceLineNo">333</span>        { 5 , 9 , -0.055038855669513706004 },<a name="line.333"></a>
+<span class="sourceLineNo">334</span>        { 5 , 10 , -0.23406152818679362704 },<a name="line.334"></a>
+<span class="sourceLineNo">335</span>        { 5 , 11 , -0.23828585178317879256 },<a name="line.335"></a>
+<span class="sourceLineNo">336</span>        { 5 , 12 , -0.073470963101658584571 },<a name="line.336"></a>
+<span class="sourceLineNo">337</span>        { 5 , 13 , 0.13161955992748081146 },<a name="line.337"></a>
+<span class="sourceLineNo">338</span>        { 5 , 14 , 0.22037764829196368477 },<a name="line.338"></a>
+<span class="sourceLineNo">339</span>        { 5 , 15 , 0.1304561345650295523 },<a name="line.339"></a>
+<span class="sourceLineNo">340</span>        { 5 , 16 , -0.057473270437036434732 },<a name="line.340"></a>
+<span class="sourceLineNo">341</span>        { 5 , 17 , -0.18704411942315585238 },<a name="line.341"></a>
+<span class="sourceLineNo">342</span>        { 5 , 18 , -0.15537009877904933708 },<a name="line.342"></a>
+<span class="sourceLineNo">343</span>        { 5 , 19 , 0.0035723925109004857348 },<a name="line.343"></a>
+<span class="sourceLineNo">344</span>        { 5 , 20 , 0.15116976798239498136 },<a name="line.344"></a>
+<span class="sourceLineNo">345</span>        { 5 , 30 , -0.14324029551207712041 },<a name="line.345"></a>
+<span class="sourceLineNo">346</span>        { 5 , 100 , -0.074195736964513925304 },<a name="line.346"></a>
+<span class="sourceLineNo">347</span>        { 5 , 300 , -0.03319362834942707341 },<a name="line.347"></a>
+<span class="sourceLineNo">348</span>        { 5 , 1000 , 0.0050254069452331864842 },<a name="line.348"></a>
+<span class="sourceLineNo">349</span>        { 6 , 1e-08 , 2.170138888888889163e-53 },<a name="line.349"></a>
+<span class="sourceLineNo">350</span>        { 6 , 3.16227766016838e-08 , 2.1701388888888880947e-50 },<a name="line.350"></a>
+<span class="sourceLineNo">351</span>        { 6 , 1e-07 , 2.1701388888888875174e-47 },<a name="line.351"></a>
+<span class="sourceLineNo">352</span>        { 6 , 3.16227766016838e-07 , 2.170138888888880604e-44 },<a name="line.352"></a>
+<span class="sourceLineNo">353</span>        { 6 , 1e-06 , 2.1701388888888106952e-41 },<a name="line.353"></a>
+<span class="sourceLineNo">354</span>        { 6 , 3.16227766016838e-06 , 2.1701388888881133808e-38 },<a name="line.354"></a>
+<span class="sourceLineNo">355</span>        { 6 , 1e-05 , 2.1701388888811393588e-35 },<a name="line.355"></a>
+<span class="sourceLineNo">356</span>        { 6 , 3.16227766016838e-05 , 2.1701388888113848269e-32 },<a name="line.356"></a>
+<span class="sourceLineNo">357</span>        { 6 , 1e-04 , 2.1701388881138396044e-29 },<a name="line.357"></a>
+<span class="sourceLineNo">358</span>        { 6 , 0.000316227766016838 , 2.1701388811383932341e-26 },<a name="line.358"></a>
+<span class="sourceLineNo">359</span>        { 6 , 0.001 , 2.1701388113839301844e-23 },<a name="line.359"></a>
+<span class="sourceLineNo">360</span>        { 6 , 0.00316227766016838 , 2.1701381138394068717e-20 },<a name="line.360"></a>
+<span class="sourceLineNo">361</span>        { 6 , 0.01 , 2.1701311384049674283e-17 },<a name="line.361"></a>
+<span class="sourceLineNo">362</span>        { 6 , 0.0316227766016838 , 2.1700613851395740978e-14 },<a name="line.362"></a>
+<span class="sourceLineNo">363</span>        { 6 , 0.1 , 2.1693639603760032489e-11 },<a name="line.363"></a>
+<span class="sourceLineNo">364</span>        { 6 , 0.316227766016838 , 2.1624004918010960028e-08 },<a name="line.364"></a>
+<span class="sourceLineNo">365</span>        { 6 , 1 , 2.0938338002389272967e-05 },<a name="line.365"></a>
+<span class="sourceLineNo">366</span>        { 6 , 2 , 0.0012024289717899932714 },<a name="line.366"></a>
+<span class="sourceLineNo">367</span>        { 6 , 3 , 0.011393932332213070266 },<a name="line.367"></a>
+<span class="sourceLineNo">368</span>        { 6 , 4 , 0.049087575156385579445 },<a name="line.368"></a>
+<span class="sourceLineNo">369</span>        { 6 , 5 , 0.13104873178169201831 },<a name="line.369"></a>
+<span class="sourceLineNo">370</span>        { 6 , 6 , 0.24583686336432652997 },<a name="line.370"></a>
+<span class="sourceLineNo">371</span>        { 6 , 7 , 0.33919660498317966146 },<a name="line.371"></a>
+<span class="sourceLineNo">372</span>        { 6 , 7.5 , 0.35414052691237862813 },<a name="line.372"></a>
+<span class="sourceLineNo">373</span>        { 6 , 7.6 , 0.35351216755378872536 },<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        { 6 , 7.7 , 0.35156949333172621275 },<a name="line.374"></a>
+<span class="sourceLineNo">375</span>        { 6 , 7.8 , 0.3482803961891063893 },<a name="line.375"></a>
+<span class="sourceLineNo">376</span>        { 6 , 7.9 , 0.34362095691589844559 },<a name="line.376"></a>
+<span class="sourceLineNo">377</span>        { 6 , 8 , 0.33757590011359311921 },<a name="line.377"></a>
+<span class="sourceLineNo">378</span>        { 6 , 8.1 , 0.33013898918251699532 },<a name="line.378"></a>
+<span class="sourceLineNo">379</span>        { 6 , 8.2 , 0.32131335610214611931 },<a name="line.379"></a>
+<span class="sourceLineNo">380</span>        { 6 , 8.3 , 0.3111117612630625584 },<a name="line.380"></a>
+<span class="sourceLineNo">381</span>        { 6 , 8.4 , 0.29955677915431688785 },<a name="line.381"></a>
+<span class="sourceLineNo">382</span>        { 6 , 8.5 , 0.28668090630734854862 },<a name="line.382"></a>
+<span class="sourceLineNo">383</span>        { 6 , 9 , 0.20431651767970440692 },<a name="line.383"></a>
+<span class="sourceLineNo">384</span>        { 6 , 10 , -0.014458842084785107282 },<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        { 6 , 11 , -0.20158400087404348966 },<a name="line.385"></a>
+<span class="sourceLineNo">386</span>        { 6 , 12 , -0.24372476722886662892 },<a name="line.386"></a>
+<span class="sourceLineNo">387</span>        { 6 , 13 , -0.1180306721302363665 },<a name="line.387"></a>
+<span class="sourceLineNo">388</span>        { 6 , 14 , 0.081168183425812737153 },<a name="line.388"></a>
+<span class="sourceLineNo">389</span>        { 6 , 15 , 0.20614973747998591169 },<a name="line.389"></a>
+<span class="sourceLineNo">390</span>        { 6 , 16 , 0.16672073770288736716 },<a name="line.390"></a>
+<span class="sourceLineNo">391</span>        { 6 , 17 , 0.00071533344281418307069 },<a name="line.391"></a>
+<span class="sourceLineNo">392</span>        { 6 , 18 , -0.15595623419531115528 },<a name="line.392"></a>
+<span class="sourceLineNo">393</span>        { 6 , 19 , -0.17876717154407903432 },<a name="line.393"></a>
+<span class="sourceLineNo">394</span>        { 6 , 20 , -0.055086049563665764883 },<a name="line.394"></a>
+<span class="sourceLineNo">395</span>        { 6 , 30 , 0.0048622351506280026001 },<a name="line.395"></a>
+<span class="sourceLineNo">396</span>        { 6 , 100 , -0.033525383144176669481 },<a name="line.396"></a>
+<span class="sourceLineNo">397</span>        { 6 , 300 , 0.031332946168724638836 },<a name="line.397"></a>
+<span class="sourceLineNo">398</span>        { 6 , 1000 , -0.024698010934202440508 },<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        { 7 , 1e-08 , 1.5500992063492066701e-62 },<a name="line.399"></a>
+<span class="sourceLineNo">400</span>        { 7 , 3.16227766016838e-08 , 4.9018440912828279875e-59 },<a name="line.400"></a>
+<span class="sourceLineNo">401</span>        { 7 , 1e-07 , 1.5500992063492053031e-55 },<a name="line.401"></a>
+<span class="sourceLineNo">402</span>        { 7 , 3.16227766016838e-07 , 4.9018440912828133382e-52 },<a name="line.402"></a>
+<span class="sourceLineNo">403</span>        { 7 , 1e-06 , 1.55009920634915736e-48 },<a name="line.403"></a>
+<span class="sourceLineNo">404</span>        { 7 , 3.16227766016838e-06 , 4.9018440912812964979e-45 },<a name="line.404"></a>
+<span class="sourceLineNo">405</span>        { 7 , 1e-05 , 1.550099206344363137e-41 },<a name="line.405"></a>
+<span class="sourceLineNo">406</span>        { 7 , 3.16227766016838e-05 , 4.9018440911296494971e-38 },<a name="line.406"></a>
+<span class="sourceLineNo">407</span>        { 7 , 1e-04 , 1.5500992058648010339e-34 },<a name="line.407"></a>
+<span class="sourceLineNo">408</span>        { 7 , 0.000316227766016838 , 4.9018440759645687969e-31 },<a name="line.408"></a>
+<span class="sourceLineNo">409</span>        { 7 , 0.001 , 1.5500991579086071003e-27 },<a name="line.409"></a>
+<span class="sourceLineNo">410</span>        { 7 , 0.00316227766016838 , 4.9018425594567649302e-24 },<a name="line.410"></a>
+<span class="sourceLineNo">411</span>        { 7 , 0.01 , 1.550094362295914728e-20 },<a name="line.411"></a>
+<span class="sourceLineNo">412</span>        { 7 , 0.0316227766016838 , 4.9016909107824929132e-17 },<a name="line.412"></a>
+<span class="sourceLineNo">413</span>        { 7 , 0.1 , 1.5496148676202282287e-13 },<a name="line.413"></a>
+<span class="sourceLineNo">414</span>        { 7 , 0.316227766016838 , 4.8865470861431505644e-10 },<a name="line.414"></a>
+<span class="sourceLineNo">415</span>        { 7 , 1 , 1.5023258174368078499e-06 },<a name="line.415"></a>
+<span class="sourceLineNo">416</span>        { 7 , 2 , 0.00017494407486827416175 },<a name="line.416"></a>
+<span class="sourceLineNo">417</span>        { 7 , 3 , 0.0025472944518046929108 },<a name="line.417"></a>
+<span class="sourceLineNo">418</span>        { 7 , 4 , 0.015176069422058449318 },<a name="line.418"></a>
+<span class="sourceLineNo">419</span>        { 7 , 5 , 0.053376410155890716136 },<a name="line.419"></a>
+<span class="sourceLineNo">420</span>        { 7 , 6 , 0.12958665184148068783 },<a name="line.420"></a>
+<span class="sourceLineNo">421</span>        { 7 , 7 , 0.23358356950569605925 },<a name="line.421"></a>
+<span class="sourceLineNo">422</span>        { 7 , 7.5 , 0.28315093789725531703 },<a name="line.422"></a>
+<span class="sourceLineNo">423</span>        { 7 , 7.6 , 0.29188362991799726709 },<a name="line.423"></a>
+<span class="sourceLineNo">424</span>        { 7 , 7.7 , 0.30006226085213638655 },<a name="line.424"></a>
+<span class="sourceLineNo">425</span>        { 7 , 7.8 , 0.30761787492543296585 },<a name="line.425"></a>
+<span class="sourceLineNo">426</span>        { 7 , 7.9 , 0.31448237452220684229 },<a name="line.426"></a>
+<span class="sourceLineNo">427</span>        { 7 , 8 , 0.32058907797982633125 },<a name="line.427"></a>
+<span class="sourceLineNo">428</span>        { 7 , 8.1 , 0.3258732885609990082 },<a name="line.428"></a>
+<span class="sourceLineNo">429</span>        { 7 , 8.2 , 0.33027286989028453723 },<a name="line.429"></a>
+<span class="sourceLineNo">430</span>        { 7 , 8.3 , 0.33372882292033839713 },<a name="line.430"></a>
+<span class="sourceLineNo">431</span>        { 7 , 8.4 , 0.33618585931433897507 },<a name="line.431"></a>
+<span class="sourceLineNo">432</span>        { 7 , 8.5 , 0.33759296599676130723 },<a name="line.432"></a>
+<span class="sourceLineNo">433</span>        { 7 , 9 , 0.32746087924245292911 },<a name="line.433"></a>
+<span class="sourceLineNo">434</span>        { 7 , 10 , 0.21671091768505151842 },<a name="line.434"></a>
+<span class="sourceLineNo">435</span>        { 7 , 11 , 0.018376032647858614455 },<a name="line.435"></a>
+<span class="sourceLineNo">436</span>        { 7 , 12 , -0.17025380412720803047 },<a name="line.436"></a>
+<span class="sourceLineNo">437</span>        { 7 , 13 , -0.24057094958616048741 },<a name="line.437"></a>
+<span class="sourceLineNo">438</span>        { 7 , 14 , -0.15080491964126707671 },<a name="line.438"></a>
+<span class="sourceLineNo">439</span>        { 7 , 15 , 0.034463655418959161791 },<a name="line.439"></a>
+<span class="sourceLineNo">440</span>        { 7 , 16 , 0.18251382371420196704 },<a name="line.440"></a>
+<span class="sourceLineNo">441</span>        { 7 , 17 , 0.1875490606769070201 },<a name="line.441"></a>
+<span class="sourceLineNo">442</span>        { 7 , 18 , 0.051399275982175231248 },<a name="line.442"></a>
+<span class="sourceLineNo">443</span>        { 7 , 19 , -0.11647797453873988405 },<a name="line.443"></a>
+<span class="sourceLineNo">444</span>        { 7 , 20 , -0.18422139772059445417 },<a name="line.444"></a>
+<span class="sourceLineNo">445</span>        { 7 , 30 , 0.1451851895723283159 },<a name="line.445"></a>
+<span class="sourceLineNo">446</span>        { 7 , 100 , 0.070172690987212724134 },<a name="line.446"></a>
+<span class="sourceLineNo">447</span>        { 7 , 300 , 0.034446946196176060628 },<a name="line.447"></a>
+<span class="sourceLineNo">448</span>        { 7 , 1000 , -0.0053217830764436153956 },<a name="line.448"></a>
+<span class="sourceLineNo">449</span>        { 8 , 1e-08 , 9.6881200396825412359e-72 },<a name="line.449"></a>
+<span class="sourceLineNo">450</span>        { 8 , 3.16227766016838e-08 , 9.6881200396825359082e-68 },<a name="line.450"></a>
+<span class="sourceLineNo">451</span>        { 8 , 1e-07 , 9.6881200396825335915e-64 },<a name="line.451"></a>
+<span class="sourceLineNo">452</span>        { 8 , 3.16227766016838e-07 , 9.6881200396825091166e-60 },<a name="line.452"></a>
+<span class="sourceLineNo">453</span>        { 8 , 1e-06 , 9.6881200396822669073e-56 },<a name="line.453"></a>
+<span class="sourceLineNo">454</span>        { 8 , 3.16227766016838e-06 , 9.6881200396798449492e-52 },<a name="line.454"></a>
+<span class="sourceLineNo">455</span>        { 8 , 1e-05 , 9.6881200396556345156e-48 },<a name="line.455"></a>
+<span class="sourceLineNo">456</span>        { 8 , 3.16227766016838e-05 , 9.6881200394134308774e-44 },<a name="line.456"></a>
+<span class="sourceLineNo">457</span>        { 8 , 1e-04 , 9.6881200369913995322e-40 },<a name="line.457"></a>
+<span class="sourceLineNo">458</span>        { 8 , 0.000316227766016838 , 9.688120012771098157e-36 },<a name="line.458"></a>
+<span class="sourceLineNo">459</span>        { 8 , 0.001 , 9.6881197705681010442e-32 },<a name="line.459"></a>
+<span class="sourceLineNo">460</span>        { 8 , 0.00316227766016838 , 9.688117348538421731e-28 },<a name="line.460"></a>
+<span class="sourceLineNo">461</span>        { 8 , 0.01 , 9.6880931282716245736e-24 },<a name="line.461"></a>
+<span class="sourceLineNo">462</span>        { 8 , 0.0316227766016838 , 9.6878509286008909493e-20 },<a name="line.462"></a>
+<span class="sourceLineNo">463</span>        { 8 , 0.1 , 9.6854292315946525669e-16 },<a name="line.463"></a>
+<span class="sourceLineNo">464</span>        { 8 , 0.316227766016838 , 9.6612422089625085973e-12 },<a name="line.464"></a>
+<span class="sourceLineNo">465</span>        { 8 , 1 , 9.4223441726045005392e-08 },<a name="line.465"></a>
+<span class="sourceLineNo">466</span>        { 8 , 2 , 2.2179552287925904881e-05 },<a name="line.466"></a>
+<span class="sourceLineNo">467</span>        { 8 , 3 , 0.00049344177620883479096 },<a name="line.467"></a>
+<span class="sourceLineNo">468</span>        { 8 , 4 , 0.0040286678208190035769 },<a name="line.468"></a>
+<span class="sourceLineNo">469</span>        { 8 , 5 , 0.018405216654802002835 },<a name="line.469"></a>
+<span class="sourceLineNo">470</span>        { 8 , 6 , 0.056531990932461785582 },<a name="line.470"></a>
+<span class="sourceLineNo">471</span>        { 8 , 7 , 0.12797053402821254031 },<a name="line.471"></a>
+<span class="sourceLineNo">472</span>        { 8 , 7.5 , 0.17440789049583127479 },<a name="line.472"></a>
+<span class="sourceLineNo">473</span>        { 8 , 7.6 , 0.18416820334778524759 },<a name="line.473"></a>
+<span class="sourceLineNo">474</span>        { 8 , 7.7 , 0.19399825367215817185 },<a name="line.474"></a>
+<span class="sourceLineNo">475</span>        { 8 , 7.8 , 0.20385425111295268907 },<a name="line.475"></a>
+<span class="sourceLineNo">476</span>        { 8 , 7.9 , 0.21368958021206302389 },<a name="line.476"></a>
+<span class="sourceLineNo">477</span>        { 8 , 8 , 0.22345498635110294661 },<a name="line.477"></a>
+<span class="sourceLineNo">478</span>        { 8 , 8.1 , 0.23309879351550599758 },<a name="line.478"></a>
+<span class="sourceLineNo">479</span>        { 8 , 8.2 , 0.24256715346663235144 },<a name="line.479"></a>
+<span class="sourceLineNo">480</span>        { 8 , 8.3 , 0.25180432559052018382 },<a name="line.480"></a>
+<span class="sourceLineNo">481</span>        { 8 , 8.4 , 0.26075298636958132992 },<a name="line.481"></a>
+<span class="sourceLineNo">482</span>        { 8 , 8.5 , 0.26935456709908189854 },<a name="line.482"></a>
+<span class="sourceLineNo">483</span>        { 8 , 9 , 0.30506707225300011554 },<a name="line.483"></a>
+<span class="sourceLineNo">484</span>        { 8 , 10 , 0.31785412684385727644 },<a name="line.484"></a>
+<span class="sourceLineNo">485</span>        { 8 , 11 , 0.22497167878949989039 },<a name="line.485"></a>
+<span class="sourceLineNo">486</span>        { 8 , 12 , 0.045095329080457241533 },<a name="line.486"></a>
+<span class="sourceLineNo">487</span>        { 8 , 13 , -0.14104573511639803551 },<a name="line.487"></a>
+<span class="sourceLineNo">488</span>        { 8 , 14 , -0.23197310306707982774 },<a name="line.488"></a>
+<span class="sourceLineNo">489</span>        { 8 , 15 , -0.17398365908895732646 },<a name="line.489"></a>
+<span class="sourceLineNo">490</span>        { 8 , 16 , -0.0070211419529606520704 },<a name="line.490"></a>
+<span class="sourceLineNo">491</span>        { 8 , 17 , 0.1537368341734622057 },<a name="line.491"></a>
+<span class="sourceLineNo">492</span>        { 8 , 18 , 0.19593344884811411677 },<a name="line.492"></a>
+<span class="sourceLineNo">493</span>        { 8 , 19 , 0.092941295568165452345 },<a name="line.493"></a>
+<span class="sourceLineNo">494</span>        { 8 , 20 , -0.073868928840750344711 },<a name="line.494"></a>
+<span class="sourceLineNo">495</span>        { 8 , 30 , 0.062890853316458550371 },<a name="line.495"></a>
+<span class="sourceLineNo">496</span>        { 8 , 100 , 0.043349559882386451415 },<a name="line.496"></a>
+<span class="sourceLineNo">497</span>        { 8 , 300 , -0.029725422012903089664 },<a name="line.497"></a>
+<span class="sourceLineNo">498</span>        { 8 , 1000 , 0.02462350597113223058 } ,<a name="line.498"></a>
+<span class="sourceLineNo">499</span>        { 9 , 1e-08 , 5.382288910934745386e-81 },<a name="line.499"></a>
+<span class="sourceLineNo">500</span>        { 9 , 3.16227766016838e-08 , 1.702029198362092975e-76 },<a name="line.500"></a>
+<span class="sourceLineNo">501</span>        { 9 , 1e-07 , 5.3822889109347404393e-72 },<a name="line.501"></a>
+<span class="sourceLineNo">502</span>        { 9 , 3.16227766016838e-07 , 1.7020291983620889989e-67 },<a name="line.502"></a>
+<span class="sourceLineNo">503</span>        { 9 , 1e-06 , 5.3822889109346077433e-63 },<a name="line.503"></a>
+<span class="sourceLineNo">504</span>        { 9 , 3.16227766016838e-06 , 1.7020291983616675345e-58 },<a name="line.504"></a>
+<span class="sourceLineNo">505</span>        { 9 , 1e-05 , 5.3822889109212923968e-54 },<a name="line.505"></a>
+<span class="sourceLineNo">506</span>        { 9 , 3.16227766016838e-05 , 1.7020291983195439884e-49 },<a name="line.506"></a>
+<span class="sourceLineNo">507</span>        { 9 , 1e-04 , 5.3822889095891748719e-45 },<a name="line.507"></a>
+<span class="sourceLineNo">508</span>        { 9 , 0.000316227766016838 , 1.7020291941070210695e-40 },<a name="line.508"></a>
+<span class="sourceLineNo">509</span>        { 9 , 0.001 , 5.382288776377523226e-36 },<a name="line.509"></a>
+<span class="sourceLineNo">510</span>        { 9 , 0.00316227766016838 , 1.7020287728548427703e-31 },<a name="line.510"></a>
+<span class="sourceLineNo">511</span>        { 9 , 0.01 , 5.3822754552277587118e-27 },<a name="line.511"></a>
+<span class="sourceLineNo">512</span>        { 9 , 0.0316227766016838 , 1.7019866481156611902e-22 },<a name="line.512"></a>
+<span class="sourceLineNo">513</span>        { 9 , 0.1 , 5.3809434916023306372e-18 },<a name="line.513"></a>
+<span class="sourceLineNo">514</span>        { 9 , 0.316227766016838 , 1.6977789573201714453e-13 },<a name="line.514"></a>
+<span class="sourceLineNo">515</span>        { 9 , 1 , 5.2492501799118757129e-09 },<a name="line.515"></a>
+<span class="sourceLineNo">516</span>        { 9 , 2 , 2.492343435133064173e-06 },<a name="line.516"></a>
+<span class="sourceLineNo">517</span>        { 9 , 3 , 8.4395021309091773631e-05 },<a name="line.517"></a>
+<span class="sourceLineNo">518</span>        { 9 , 4 , 0.00093860186121756401367 },<a name="line.518"></a>
+<span class="sourceLineNo">519</span>        { 9 , 5 , 0.005520283139475687037 },<a name="line.519"></a>
+<span class="sourceLineNo">520</span>        { 9 , 6 , 0.021165323978417364265 },<a name="line.520"></a>
+<span class="sourceLineNo">521</span>        { 9 , 7 , 0.058920508273075426764 },<a name="line.521"></a>
+<span class="sourceLineNo">522</span>        { 9 , 7.5 , 0.088919228493851462658 },<a name="line.522"></a>
+<span class="sourceLineNo">523</span>        { 9 , 7.6 , 0.095838903445761125521 },<a name="line.523"></a>
+<span class="sourceLineNo">524</span>        { 9 , 7.7 , 0.10305099353156887965 },<a name="line.524"></a>
+<span class="sourceLineNo">525</span>        { 9 , 7.8 , 0.11054469146011103309 },<a name="line.525"></a>
+<span class="sourceLineNo">526</span>        { 9 , 7.9 , 0.11830664869209804591 },<a name="line.526"></a>
+<span class="sourceLineNo">527</span>        { 9 , 8 , 0.12632089472237958971 },<a name="line.527"></a>
+<span class="sourceLineNo">528</span>        { 9 , 8.1 , 0.13456877270419806414 },<a name="line.528"></a>
+<span class="sourceLineNo">529</span>        { 9 , 8.2 , 0.14302889297143717151 },<a name="line.529"></a>
+<span class="sourceLineNo">530</span>        { 9 , 8.3 , 0.15167710592885710885 },<a name="line.530"></a>
+<span class="sourceLineNo">531</span>        { 9 , 8.4 , 0.16048649567533976312 },<a name="line.531"></a>
+<span class="sourceLineNo">532</span>        { 9 , 8.5 , 0.16942739560151048872 },<a name="line.532"></a>
+<span class="sourceLineNo">533</span>        { 9 , 9 , 0.2148805825406584491 },<a name="line.533"></a>
+<span class="sourceLineNo">534</span>        { 9 , 10 , 0.29185568526512006837 },<a name="line.534"></a>
+<span class="sourceLineNo">535</span>        { 9 , 11 , 0.30885550013686852155 },<a name="line.535"></a>
+<span class="sourceLineNo">536</span>        { 9 , 12 , 0.23038090956781773211 },<a name="line.536"></a>
+<span class="sourceLineNo">537</span>        { 9 , 13 , 0.066976198673670619965 },<a name="line.537"></a>
+<span class="sourceLineNo">538</span>        { 9 , 14 , -0.11430719814968128001 },<a name="line.538"></a>
+<span class="sourceLineNo">539</span>        { 9 , 15 , -0.22004622511384699934 },<a name="line.539"></a>
+<span class="sourceLineNo">540</span>        { 9 , 16 , -0.18953496566716260263 },<a name="line.540"></a>
+<span class="sourceLineNo">541</span>        { 9 , 17 , -0.042855569690119083015 },<a name="line.541"></a>
+<span class="sourceLineNo">542</span>        { 9 , 18 , 0.12276378966059287023 },<a name="line.542"></a>
+<span class="sourceLineNo">543</span>        { 9 , 19 , 0.19474432870140553908 },<a name="line.543"></a>
+<span class="sourceLineNo">544</span>        { 9 , 20 , 0.12512625464799415065 },<a name="line.544"></a>
+<span class="sourceLineNo">545</span>        { 9 , 30 , -0.11164340113688375755 },<a name="line.545"></a>
+<span class="sourceLineNo">546</span>        { 9 , 100 , -0.063236761406030891908 },<a name="line.546"></a>
+<span class="sourceLineNo">547</span>        { 9 , 300 , -0.036032302036864222172 },<a name="line.547"></a>
+<span class="sourceLineNo">548</span>        { 9 , 1000 , 0.0057157591719817308837 },<a name="line.548"></a>
+<span class="sourceLineNo">549</span>        { 10 , 1e-08 , 2.6911444554673727331e-90 },<a name="line.549"></a>
+<span class="sourceLineNo">550</span>        { 10 , 3.16227766016838e-08 , 2.6911444554673710334e-85 },<a name="line.550"></a>
+<span class="sourceLineNo">551</span>        { 10 , 1e-07 , 2.6911444554673703522e-80 },<a name="line.551"></a>
+<span class="sourceLineNo">552</span>        { 10 , 3.16227766016838e-07 , 2.6911444554673646193e-75 },<a name="line.552"></a>
+<span class="sourceLineNo">553</span>        { 10 , 1e-06 , 2.6911444554673096152e-70 },<a name="line.553"></a>
+<span class="sourceLineNo">554</span>        { 10 , 3.16227766016838e-06 , 2.6911444554667591352e-65 },<a name="line.554"></a>
+<span class="sourceLineNo">555</span>        { 10 , 1e-05 , 2.6911444554612582946e-60 },<a name="line.555"></a>
+<span class="sourceLineNo">556</span>        { 10 , 3.16227766016838e-05 , 2.6911444554062112799e-55 },<a name="line.556"></a>
+<span class="sourceLineNo">557</span>        { 10 , 1e-04 , 2.6911444548557502587e-50 },<a name="line.557"></a>
+<span class="sourceLineNo">558</span>        { 10 , 0.000316227766016838 , 2.691144449351135505e-45 },<a name="line.558"></a>
+<span class="sourceLineNo">559</span>        { 10 , 0.001 , 2.6911443943049990395e-40 },<a name="line.559"></a>
+<span class="sourceLineNo">560</span>        { 10 , 0.00316227766016838 , 2.6911438438436965201e-35 },<a name="line.560"></a>
+<span class="sourceLineNo">561</span>        { 10 , 0.01 , 2.6911383392363445476e-30 },<a name="line.561"></a>
+<span class="sourceLineNo">562</span>        { 10 , 0.0316227766016838 , 2.691083293730485964e-25 },<a name="line.562"></a>
+<span class="sourceLineNo">563</span>        { 10 , 0.1 , 2.6905328954342172306e-20 },<a name="line.563"></a>
+<span class="sourceLineNo">564</span>        { 10 , 0.316227766016838 , 2.6850345850670040022e-15 },<a name="line.564"></a>
+<span class="sourceLineNo">565</span>        { 10 , 1 , 2.630615123687452921e-10 },<a name="line.565"></a>
+<span class="sourceLineNo">566</span>        { 10 , 2 , 2.5153862827167368199e-07 },<a name="line.566"></a>
+<span class="sourceLineNo">567</span>        { 10 , 3 , 1.292835164571588302e-05 },<a name="line.567"></a>
+<span class="sourceLineNo">568</span>        { 10 , 4 , 0.00019504055466003448463 },<a name="line.568"></a>
+<span class="sourceLineNo">569</span>        { 10 , 5 , 0.0014678026473104743583 },<a name="line.569"></a>
+<span class="sourceLineNo">570</span>        { 10 , 6 , 0.0069639810027903158857 },<a name="line.570"></a>
+<span class="sourceLineNo">571</span>        { 10 , 7 , 0.023539344388267140901 },<a name="line.571"></a>
+<span class="sourceLineNo">572</span>        { 10 , 7.5 , 0.038998257889412211996 },<a name="line.572"></a>
+<span class="sourceLineNo">573</span>        { 10 , 7.6 , 0.042818673234280582585 },<a name="line.573"></a>
+<span class="sourceLineNo">574</span>        { 10 , 7.7 , 0.04690017276527555512 },<a name="line.574"></a>
+<span class="sourceLineNo">575</span>        { 10 , 7.8 , 0.051248883025765065713 },<a name="line.575"></a>
+<span class="sourceLineNo">576</span>        { 10 , 7.9 , 0.055869872504109699407 },<a name="line.576"></a>
+<span class="sourceLineNo">577</span>        { 10 , 8 , 0.060767026774251164944 },<a name="line.577"></a>
+<span class="sourceLineNo">578</span>        { 10 , 8.1 , 0.065942923604934144954 },<a name="line.578"></a>
+<span class="sourceLineNo">579</span>        { 10 , 8.2 , 0.071398709153595626975 },<a name="line.579"></a>
+<span class="sourceLineNo">580</span>        { 10 , 8.3 , 0.077133976423868738648 },<a name="line.580"></a>
+<span class="sourceLineNo">581</span>        { 10 , 8.4 , 0.083146647220432454151 },<a name="line.581"></a>
+<span class="sourceLineNo">582</span>        { 10 , 8.5 , 0.089432858880587384753 },<a name="line.582"></a>
+<span class="sourceLineNo">583</span>        { 10 , 9 , 0.12469409282831672714 },<a name="line.583"></a>
+<span class="sourceLineNo">584</span>        { 10 , 10 , 0.20748610663335886883 },<a name="line.584"></a>
+<span class="sourceLineNo">585</span>        { 10 , 11 , 0.28042823052537591 },<a name="line.585"></a>
+<span class="sourceLineNo">586</span>        { 10 , 12 , 0.300476035271269315 },<a name="line.586"></a>
+<span class="sourceLineNo">587</span>        { 10 , 13 , 0.23378201020301889179 },<a name="line.587"></a>
+<span class="sourceLineNo">588</span>        { 10 , 14 , 0.085006705446061009424 },<a name="line.588"></a>
+<span class="sourceLineNo">589</span>        { 10 , 15 , -0.09007181104765905888 },<a name="line.589"></a>
+<span class="sourceLineNo">590</span>        { 10 , 16 , -0.20620569442259728543 },<a name="line.590"></a>
+<span class="sourceLineNo">591</span>        { 10 , 17 , -0.19911331972770593413 },<a name="line.591"></a>
+<span class="sourceLineNo">592</span>        { 10 , 18 , -0.073169659187521246535 },<a name="line.592"></a>
+<span class="sourceLineNo">593</span>        { 10 , 19 , 0.091553331622639774756 },<a name="line.593"></a>
+<span class="sourceLineNo">594</span>        { 10 , 20 , 0.18648255802394508862 },<a name="line.594"></a>
+<span class="sourceLineNo">595</span>        { 10 , 30 , -0.129876893998588816 },<a name="line.595"></a>
+<span class="sourceLineNo">596</span>        { 10 , 100 , -0.054732176935472012791 },<a name="line.596"></a>
+<span class="sourceLineNo">597</span>        { 10 , 300 , 0.027563483890691235778 },<a name="line.597"></a>
+<span class="sourceLineNo">598</span>        { 10 , 1000 , -0.02452062230603655954 },<a name="line.598"></a>
+<span class="sourceLineNo">599</span>        { 30 , 1e-08 , 3.511074584737334481e-282 },<a name="line.599"></a>
+<span class="sourceLineNo">600</span>        { 30 , 3.16227766016838e-08 , 3.5110745847373276748e-267 },<a name="line.600"></a>
+<span class="sourceLineNo">601</span>        { 30 , 1e-07 , 3.5110745847373271436e-252 },<a name="line.601"></a>
+<span class="sourceLineNo">602</span>        { 30 , 3.16227766016838e-07 , 3.5110745847373244839e-237 },<a name="line.602"></a>
+<span class="sourceLineNo">603</span>        { 30 , 1e-06 , 3.5110745847372989351e-222 },<a name="line.603"></a>
+<span class="sourceLineNo">604</span>        { 30 , 3.16227766016838e-06 , 3.511074584737044636e-207 },<a name="line.604"></a>
+<span class="sourceLineNo">605</span>        { 30 , 1e-05 , 3.5110745847345094386e-192 },<a name="line.605"></a>
+<span class="sourceLineNo">606</span>        { 30 , 3.16227766016838e-05 , 3.5110745847090235522e-177 },<a name="line.606"></a>
+<span class="sourceLineNo">607</span>        { 30 , 1e-04 , 3.5110745844541855471e-162 },<a name="line.607"></a>
+<span class="sourceLineNo">608</span>        { 30 , 0.000316227766016838 , 3.5110745819058229075e-147 },<a name="line.608"></a>
+<span class="sourceLineNo">609</span>        { 30 , 0.001 , 3.5110745564222159037e-132 },<a name="line.609"></a>
+<span class="sourceLineNo">610</span>        { 30 , 0.00316227766016838 , 3.5110743015861690319e-117 },<a name="line.610"></a>
+<span class="sourceLineNo">611</span>        { 30 , 0.01 , 3.5110717532266786188e-102 },<a name="line.611"></a>
+<span class="sourceLineNo">612</span>        { 30 , 0.0316227766016838 , 3.5110462697303107185e-87 },<a name="line.612"></a>
+<span class="sourceLineNo">613</span>        { 30 , 0.1 , 3.5107914446214635799e-72 },<a name="line.613"></a>
+<span class="sourceLineNo">614</span>        { 30 , 0.316227766016838 , 3.5082441787554764315e-57 },<a name="line.614"></a>
+<span class="sourceLineNo">615</span>        { 30 , 1 , 3.4828697942514824077e-42 },<a name="line.615"></a>
+<span class="sourceLineNo">616</span>        { 30 , 2 , 3.6502562664740960186e-33 },<a name="line.616"></a>
+<span class="sourceLineNo">617</span>        { 30 , 3 , 6.7223399381463293316e-28 },<a name="line.617"></a>
+<span class="sourceLineNo">618</span>        { 30 , 4 , 3.5570357020361055268e-24 },<a name="line.618"></a>
+<span class="sourceLineNo">619</span>        { 30 , 5 , 2.6711772782507989195e-21 },<a name="line.619"></a>
+<span class="sourceLineNo">620</span>        { 30 , 6 , 5.7984683652785706951e-19 },<a name="line.620"></a>
+<span class="sourceLineNo">621</span>        { 30 , 7 , 5.3172607940100176027e-17 },<a name="line.621"></a>
+<span class="sourceLineNo">622</span>        { 30 , 7.5 , 3.9705139492720914996e-16 },<a name="line.622"></a>
+<span class="sourceLineNo">623</span>        { 30 , 7.6 , 5.8351206236969734897e-16 },<a name="line.623"></a>
+<span class="sourceLineNo">624</span>        { 30 , 7.7 , 8.5295046954365007979e-16 },<a name="line.624"></a>
+<span class="sourceLineNo">625</span>        { 30 , 7.8 , 1.240300099862031423e-15 },<a name="line.625"></a>
+<span class="sourceLineNo">626</span>        { 30 , 7.9 , 1.7943809060373146352e-15 },<a name="line.626"></a>
+<span class="sourceLineNo">627</span>        { 30 , 8 , 2.5830997825663086363e-15 },<a name="line.627"></a>
+<span class="sourceLineNo">628</span>        { 30 , 8.1 , 3.7004810818946501642e-15 },<a name="line.628"></a>
+<span class="sourceLineNo">629</span>        { 30 , 8.2 , 5.2761304350589830578e-15 },<a name="line.629"></a>
+<span class="sourceLineNo">630</span>        { 30 , 8.3 , 7.4879207291538333461e-15 },<a name="line.630"></a>
+<span class="sourceLineNo">631</span>        { 30 , 8.4 , 1.057892772982890842e-14 },<a name="line.631"></a>
+<span class="sourceLineNo">632</span>        { 30 , 8.5 , 1.4879948521285087748e-14 },<a name="line.632"></a>
+<span class="sourceLineNo">633</span>        { 30 , 9 , 7.6921564693354977569e-14 },<a name="line.633"></a>
+<span class="sourceLineNo">634</span>        { 30 , 10 , 1.5510960782574666161e-12 },<a name="line.634"></a>
+<span class="sourceLineNo">635</span>        { 30 , 11 , 2.2735383676316185421e-11 },<a name="line.635"></a>
+<span class="sourceLineNo">636</span>        { 30 , 12 , 2.5522590430344176732e-10 },<a name="line.636"></a>
+<span class="sourceLineNo">637</span>        { 30 , 13 , 2.2828783239868354402e-09 },<a name="line.637"></a>
+<span class="sourceLineNo">638</span>        { 30 , 14 , 1.6775399533577877891e-08 },<a name="line.638"></a>
+<span class="sourceLineNo">639</span>        { 30 , 15 , 1.0374710201078721135e-07 },<a name="line.639"></a>
+<span class="sourceLineNo">640</span>        { 30 , 16 , 5.5052386643076382366e-07 },<a name="line.640"></a>
+<span class="sourceLineNo">641</span>        { 30 , 17 , 2.5460065118711982301e-06 },<a name="line.641"></a>
+<span class="sourceLineNo">642</span>        { 30 , 18 , 1.0393652487465728599e-05 },<a name="line.642"></a>
+<span class="sourceLineNo">643</span>        { 30 , 19 , 3.7849142225173515583e-05 },<a name="line.643"></a>
+<span class="sourceLineNo">644</span>        { 30 , 20 , 0.00012401536360354329497 },<a name="line.644"></a>
+<span class="sourceLineNo">645</span>        { 30 , 30 , 0.14393585001030734238 },<a name="line.645"></a>
+<span class="sourceLineNo">646</span>        { 30 , 100 , 0.081460129581172213697 },<a name="line.646"></a>
+<span class="sourceLineNo">647</span>        { 30 , 300 , -0.029514887800373371812 },<a name="line.647"></a>
+<span class="sourceLineNo">648</span>        { 30 , 1000 , -0.020271896981075843147 },<a name="line.648"></a>
+<span class="sourceLineNo">649</span>        { 100 , 1e-08 , 0 },<a name="line.649"></a>
+<span class="sourceLineNo">650</span>        { 100 , 3.16227766016838e-08 , 0 },<a name="line.650"></a>
+<span class="sourceLineNo">651</span>        { 100 , 1e-07 , 0 },<a name="line.651"></a>
+<span class="sourceLineNo">652</span>        { 100 , 3.16227766016838e-07 , 0 },<a name="line.652"></a>
+<span class="sourceLineNo">653</span>        { 100 , 1e-06 , 0 },<a name="line.653"></a>
+<span class="sourceLineNo">654</span>        { 100 , 3.16227766016838e-06 , 0 },<a name="line.654"></a>
+<span class="sourceLineNo">655</span>        { 100 , 1e-05 , 0 },<a name="line.655"></a>
+<span class="sourceLineNo">656</span>        { 100 , 3.16227766016838e-05 , 0 },<a name="line.656"></a>
+<span class="sourceLineNo">657</span>        { 100 , 1e-04 , 0 },<a name="line.657"></a>
+<span class="sourceLineNo">658</span>        { 100 , 0.000316227766016838 , 0 },<a name="line.658"></a>
+<span class="sourceLineNo">659</span>        { 100 , 0.001 , 0 },<a name="line.659"></a>
+<span class="sourceLineNo">660</span>        { 100 , 0.00316227766016838 , 0 },<a name="line.660"></a>
+<span class="sourceLineNo">661</span>        { 100 , 0.01 , 0 },<a name="line.661"></a>
+<span class="sourceLineNo">662</span>        { 100 , 0.0316227766016838 , 0 },<a name="line.662"></a>
+<span class="sourceLineNo">663</span>        { 100 , 0.1 , 8.4525165351217888791e-289 },<a name="line.663"></a>
+<span class="sourceLineNo">664</span>        { 100 , 0.316227766016838 , 8.4506337559752745816e-239 },<a name="line.664"></a>
+<span class="sourceLineNo">665</span>        { 100 , 1 , 8.4318287896267070128e-189 },<a name="line.665"></a>
+<span class="sourceLineNo">666</span>        { 100 , 2 , 1.0609531124391718917e-158 },<a name="line.666"></a>
+<span class="sourceLineNo">667</span>        { 100 , 3 , 4.260360181132621405e-141 },<a name="line.667"></a>
+<span class="sourceLineNo">668</span>        { 100 , 4 , 1.305547836452271925e-128 },<a name="line.668"></a>
+<span class="sourceLineNo">669</span>        { 100 , 5 , 6.2677893955418752099e-119 },<a name="line.669"></a>
+<span class="sourceLineNo">670</span>        { 100 , 6 , 5.0513258541507019365e-111 },<a name="line.670"></a>
+<span class="sourceLineNo">671</span>        { 100 , 7 , 2.4215591572118171706e-104 },<a name="line.671"></a>
+<span class="sourceLineNo">672</span>        { 100 , 7.5 , 2.3583800455568589368e-101 },<a name="line.672"></a>
+<span class="sourceLineNo">673</span>        { 100 , 7.6 , 8.8352979458474109476e-101 },<a name="line.673"></a>
+<span class="sourceLineNo">674</span>        { 100 , 7.7 , 3.253025120751429903e-100 },<a name="line.674"></a>
+<span class="sourceLineNo">675</span>        { 100 , 7.8 , 1.1776236102157393805e-99 },<a name="line.675"></a>
+<span class="sourceLineNo">676</span>        { 100 , 7.9 , 4.1933885427120016432e-99 },<a name="line.676"></a>
+<span class="sourceLineNo">677</span>        { 100 , 8 , 1.4694094093552327336e-98 },<a name="line.677"></a>
+<span class="sourceLineNo">678</span>        { 100 , 8.1 , 5.0688862671208964077e-98 },<a name="line.678"></a>
+<span class="sourceLineNo">679</span>        { 100 , 8.2 , 1.7220304874625643909e-97 },<a name="line.679"></a>
+<span class="sourceLineNo">680</span>        { 100 , 8.3 , 5.7635248300942440709e-97 },<a name="line.680"></a>
+<span class="sourceLineNo">681</span>        { 100 , 8.4 , 1.9011188242236321325e-96 },<a name="line.681"></a>
+<span class="sourceLineNo">682</span>        { 100 , 8.5 , 6.182346491260611201e-96 },<a name="line.682"></a>
+<span class="sourceLineNo">683</span>        { 100 , 9 , 1.8369106342703587456e-93 },<a name="line.683"></a>
+<span class="sourceLineNo">684</span>        { 100 , 10 , 6.5973160641553802341e-89 },<a name="line.684"></a>
+<span class="sourceLineNo">685</span>        { 100 , 11 , 8.6297901331738815878e-85 },<a name="line.685"></a>
+<span class="sourceLineNo">686</span>        { 100 , 12 , 4.8983704457507876536e-81 },<a name="line.686"></a>
+<span class="sourceLineNo">687</span>        { 100 , 13 , 1.3781127544328333402e-77 },<a name="line.687"></a>
+<span class="sourceLineNo">688</span>        { 100 , 14 , 2.1310751903146119988e-74 },<a name="line.688"></a>
+<span class="sourceLineNo">689</span>        { 100 , 15 , 1.9660095611249536378e-71 },<a name="line.689"></a>
+<span class="sourceLineNo">690</span>        { 100 , 16 , 1.1559435724349575529e-68 },<a name="line.690"></a>
+<span class="sourceLineNo">691</span>        { 100 , 17 , 4.5721265690179434188e-66 },<a name="line.691"></a>
+<span class="sourceLineNo">692</span>        { 100 , 18 , 1.2722370655682102766e-63 },<a name="line.692"></a>
+<span class="sourceLineNo">693</span>        { 100 , 19 , 2.5856336302772506687e-61 },<a name="line.693"></a>
+<span class="sourceLineNo">694</span>        { 100 , 20 , 3.9617550943362506795e-59 },<a name="line.694"></a>
+<span class="sourceLineNo">695</span>        { 100 , 30 , 4.5788015281752424119e-42 },<a name="line.695"></a>
+<span class="sourceLineNo">696</span>        { 100 , 100 , 0.09636667329586150188 },<a name="line.696"></a>
+<span class="sourceLineNo">697</span>        { 100 , 300 , -0.014491227064785699996 },<a name="line.697"></a>
+<span class="sourceLineNo">698</span>        { 100 , 1000 , 0.011676135007802557891 },<a name="line.698"></a>
+<span class="sourceLineNo">699</span>        { 300 , 1e-08 , 0 },<a name="line.699"></a>
+<span class="sourceLineNo">700</span>        { 300 , 3.16227766016838e-08 , 0 },<a name="line.700"></a>
+<span class="sourceLineNo">701</span>        { 300 , 1e-07 , 0 },<a name="line.701"></a>
+<span class="sourceLineNo">702</span>        { 300 , 3.16227766016838e-07 , 0 },<a name="line.702"></a>
+<span class="sourceLineNo">703</span>        { 300 , 1e-06 , 0 },<a name="line.703"></a>
+<span class="sourceLineNo">704</span>        { 300 , 3.16227766016838e-06 , 0 },<a name="line.704"></a>
+<span class="sourceLineNo">705</span>        { 300 , 1e-05 , 0 },<a name="line.705"></a>
+<span class="sourceLineNo">706</span>        { 300 , 3.16227766016838e-05 , 0 },<a name="line.706"></a>
+<span class="sourceLineNo">707</span>        { 300 , 1e-04 , 0 },<a name="line.707"></a>
+<span class="sourceLineNo">708</span>        { 300 , 0.000316227766016838 , 0 },<a name="line.708"></a>
+<span class="sourceLineNo">709</span>        { 300 , 0.001 , 0 },<a name="line.709"></a>
+<span class="sourceLineNo">710</span>        { 300 , 0.00316227766016838 , 0 },<a name="line.710"></a>
+<span class="sourceLineNo">711</span>        { 300 , 0.01 , 0 },<a name="line.711"></a>
+<span class="sourceLineNo">712</span>        { 300 , 0.0316227766016838 , 0 },<a name="line.712"></a>
+<span class="sourceLineNo">713</span>        { 300 , 0.1 , 0 },<a name="line.713"></a>
+<span class="sourceLineNo">714</span>        { 300 , 0.316227766016838 , 0 },<a name="line.714"></a>
+<span class="sourceLineNo">715</span>        { 300 , 1 , 0 },<a name="line.715"></a>
+<span class="sourceLineNo">716</span>        { 300 , 2 , 0 },<a name="line.716"></a>
+<span class="sourceLineNo">717</span>        { 300 , 3 , 0 },<a name="line.717"></a>
+<span class="sourceLineNo">718</span>        { 300 , 4 , 0 },<a name="line.718"></a>
+<span class="sourceLineNo">719</span>        { 300 , 5 , 0 },<a name="line.719"></a>
+<span class="sourceLineNo">720</span>        { 300 , 6 , 0 },<a name="line.720"></a>
+<span class="sourceLineNo">721</span>        { 300 , 7 , 0 },<a name="line.721"></a>
+<span class="sourceLineNo">722</span>        { 300 , 7.5 , 0 },<a name="line.722"></a>
+<span class="sourceLineNo">723</span>        { 300 , 7.6 , 0 },<a name="line.723"></a>
+<span class="sourceLineNo">724</span>        { 300 , 7.7 , 0 },<a name="line.724"></a>
+<span class="sourceLineNo">725</span>        { 300 , 7.8 , 0 },<a name="line.725"></a>
+<span class="sourceLineNo">726</span>        { 300 , 7.9 , 0 },<a name="line.726"></a>
+<span class="sourceLineNo">727</span>        { 300 , 8 , 0 },<a name="line.727"></a>
+<span class="sourceLineNo">728</span>        { 300 , 8.1 , 0 },<a name="line.728"></a>
+<span class="sourceLineNo">729</span>        { 300 , 8.2 , 0 },<a name="line.729"></a>
+<span class="sourceLineNo">730</span>        { 300 , 8.3 , 0 },<a name="line.730"></a>
+<span class="sourceLineNo">731</span>        { 300 , 8.4 , 0 },<a name="line.731"></a>
+<span class="sourceLineNo">732</span>        { 300 , 8.5 , 0 },<a name="line.732"></a>
+<span class="sourceLineNo">733</span>        { 300 , 9 , 0 },<a name="line.733"></a>
+<span class="sourceLineNo">734</span>        { 300 , 10 , 0 },<a name="line.734"></a>
+<span class="sourceLineNo">735</span>        { 300 , 11 , 0 },<a name="line.735"></a>
+<span class="sourceLineNo">736</span>        { 300 , 12 , 0 },<a name="line.736"></a>
+<span class="sourceLineNo">737</span>        { 300 , 13 , 0 },<a name="line.737"></a>
+<span class="sourceLineNo">738</span>        { 300 , 14 , 0 },<a name="line.738"></a>
+<span class="sourceLineNo">739</span>        { 300 , 15 , 0 },<a name="line.739"></a>
+<span class="sourceLineNo">740</span>        { 300 , 16 , 0 },<a name="line.740"></a>
+<span class="sourceLineNo">741</span>        { 300 , 17 , 0 },<a name="line.741"></a>
+<span class="sourceLineNo">742</span>        { 300 , 18 , 0 },<a name="line.742"></a>
+<span class="sourceLineNo">743</span>        { 300 , 19 , 0 },<a name="line.743"></a>
+<span class="sourceLineNo">744</span>        { 300 , 20 , 0 },<a name="line.744"></a>
+<span class="sourceLineNo">745</span>        { 300 , 30 , 1.0388021531643495593e-262 },<a name="line.745"></a>
+<span class="sourceLineNo">746</span>        { 300 , 100 , 3.5203666218469330448e-109 },<a name="line.746"></a>
+<span class="sourceLineNo">747</span>        { 300 , 300 , 0.066818398128979980544 },<a name="line.747"></a>
+<span class="sourceLineNo">748</span>        { 300 , 1000 , 0.00046782803879124944908 }<a name="line.748"></a>
+<span class="sourceLineNo">749</span>    };<a name="line.749"></a>
+<span class="sourceLineNo">750</span><a name="line.750"></a>
+<span class="sourceLineNo">751</span>    @Test<a name="line.751"></a>
+<span class="sourceLineNo">752</span>    public void testBesselJ() {<a name="line.752"></a>
+<span class="sourceLineNo">753</span>        final double tol = 1e-15;<a name="line.753"></a>
+<span class="sourceLineNo">754</span><a name="line.754"></a>
+<span class="sourceLineNo">755</span>        for (int i = 0; i &lt; BESSEL_J_REF.length; i++) {<a name="line.755"></a>
+<span class="sourceLineNo">756</span>            final double[] data = BESSEL_J_REF[i];<a name="line.756"></a>
+<span class="sourceLineNo">757</span>            final double order = data[0];<a name="line.757"></a>
+<span class="sourceLineNo">758</span>            final double x = data[1];<a name="line.758"></a>
+<span class="sourceLineNo">759</span>            final double expected = data[2];<a name="line.759"></a>
+<span class="sourceLineNo">760</span>            final double actual = BesselJ.value(order, x);<a name="line.760"></a>
+<span class="sourceLineNo">761</span><a name="line.761"></a>
+<span class="sourceLineNo">762</span>            String msg = "" + order + " @ " + x;<a name="line.762"></a>
+<span class="sourceLineNo">763</span>            Assert.assertEquals(msg, expected, actual, tol);<a name="line.763"></a>
+<span class="sourceLineNo">764</span>        }<a name="line.764"></a>
+<span class="sourceLineNo">765</span>    }<a name="line.765"></a>
+<span class="sourceLineNo">766</span>    <a name="line.766"></a>
+<span class="sourceLineNo">767</span>    @Test(expected=MathIllegalArgumentException.class)<a name="line.767"></a>
+<span class="sourceLineNo">768</span>    public void testIAEBadOrder() {<a name="line.768"></a>
+<span class="sourceLineNo">769</span>        BesselJ.value(-1, 1);<a name="line.769"></a>
+<span class="sourceLineNo">770</span>    }<a name="line.770"></a>
+<span class="sourceLineNo">771</span>    <a name="line.771"></a>
+<span class="sourceLineNo">772</span>    @Test(expected=MathIllegalArgumentException.class)<a name="line.772"></a>
+<span class="sourceLineNo">773</span>    public void testIAEBadArgument() {<a name="line.773"></a>
+<span class="sourceLineNo">774</span>        BesselJ.value(1, 100000);<a name="line.774"></a>
+<span class="sourceLineNo">775</span>    }<a name="line.775"></a>
+<span class="sourceLineNo">776</span>}<a name="line.776"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

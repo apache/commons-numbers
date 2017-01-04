@@ -1,0 +1,642 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BicubicSplineInterpolatingFunction.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.interpolation</a> &gt; <span class="el_source">BicubicSplineInterpolatingFunction.java</span></div><h1>BicubicSplineInterpolatingFunction.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.analysis.interpolation;
+
+import java.util.Arrays;
+import org.apache.commons.math3.analysis.BivariateFunction;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.NonMonotonicSequenceException;
+import org.apache.commons.math3.util.MathArrays;
+
+/**
+ * Function that implements the
+ * &lt;a href=&quot;http://en.wikipedia.org/wiki/Bicubic_interpolation&quot;&gt;
+ * bicubic spline interpolation&lt;/a&gt;. Due to numerical accuracy issues this should not
+ * be used.
+ *
+ * @since 2.1
+ * @deprecated as of 3.4 replaced by
+ * {@link org.apache.commons.math3.analysis.interpolation.PiecewiseBicubicSplineInterpolatingFunction}
+ */
+@Deprecated
+public class BicubicSplineInterpolatingFunction
+    implements BivariateFunction {
+    /** Number of coefficients. */
+    private static final int NUM_COEFF = 16;
+    /**
+     * Matrix to compute the spline coefficients from the function values
+     * and function derivatives values
+     */
+<span class="fc" id="L46">    private static final double[][] AINV = {</span>
+        { 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0 },
+        { -3,3,0,0,-2,-1,0,0,0,0,0,0,0,0,0,0 },
+        { 2,-2,0,0,1,1,0,0,0,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0 },
+        { 0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0 },
+        { 0,0,0,0,0,0,0,0,-3,3,0,0,-2,-1,0,0 },
+        { 0,0,0,0,0,0,0,0,2,-2,0,0,1,1,0,0 },
+        { -3,0,3,0,0,0,0,0,-2,0,-1,0,0,0,0,0 },
+        { 0,0,0,0,-3,0,3,0,0,0,0,0,-2,0,-1,0 },
+        { 9,-9,-9,9,6,3,-6,-3,6,-6,3,-3,4,2,2,1 },
+        { -6,6,6,-6,-3,-3,3,3,-4,4,-2,2,-2,-2,-1,-1 },
+        { 2,0,-2,0,0,0,0,0,1,0,1,0,0,0,0,0 },
+        { 0,0,0,0,2,0,-2,0,0,0,0,0,1,0,1,0 },
+        { -6,6,6,-6,-4,-2,4,2,-3,3,-3,3,-2,-1,-2,-1 },
+        { 4,-4,-4,4,2,2,-2,-2,2,-2,2,-2,1,1,1,1 }
+    };
+
+    /** Samples x-coordinates */
+    private final double[] xval;
+    /** Samples y-coordinates */
+    private final double[] yval;
+    /** Set of cubic splines patching the whole data grid */
+    private final BicubicSplineFunction[][] splines;
+    /**
+     * Partial derivatives.
+     * The value of the first index determines the kind of derivatives:
+     * 0 = first partial derivatives wrt x
+     * 1 = first partial derivatives wrt y
+     * 2 = second partial derivatives wrt x
+     * 3 = second partial derivatives wrt y
+     * 4 = cross partial derivatives
+     */
+    private final BivariateFunction[][][] partialDerivatives;
+
+    /**
+     * @param x Sample values of the x-coordinate, in increasing order.
+     * @param y Sample values of the y-coordinate, in increasing order.
+     * @param f Values of the function on every grid point.
+     * @param dFdX Values of the partial derivative of function with respect
+     * to x on every grid point.
+     * @param dFdY Values of the partial derivative of function with respect
+     * to y on every grid point.
+     * @param d2FdXdY Values of the cross partial derivative of function on
+     * every grid point.
+     * @throws DimensionMismatchException if the various arrays do not contain
+     * the expected number of elements.
+     * @throws NonMonotonicSequenceException if {@code x} or {@code y} are
+     * not strictly increasing.
+     * @throws NoDataException if any of the arrays has zero length.
+     */
+    public BicubicSplineInterpolatingFunction(double[] x,
+                                              double[] y,
+                                              double[][] f,
+                                              double[][] dFdX,
+                                              double[][] dFdY,
+                                              double[][] d2FdXdY)
+        throws DimensionMismatchException,
+               NoDataException,
+               NonMonotonicSequenceException {
+<span class="fc" id="L107">        this(x, y, f, dFdX, dFdY, d2FdXdY, false);</span>
+<span class="fc" id="L108">    }</span>
+
+    /**
+     * @param x Sample values of the x-coordinate, in increasing order.
+     * @param y Sample values of the y-coordinate, in increasing order.
+     * @param f Values of the function on every grid point.
+     * @param dFdX Values of the partial derivative of function with respect
+     * to x on every grid point.
+     * @param dFdY Values of the partial derivative of function with respect
+     * to y on every grid point.
+     * @param d2FdXdY Values of the cross partial derivative of function on
+     * every grid point.
+     * @param initializeDerivatives Whether to initialize the internal data
+     * needed for calling any of the methods that compute the partial derivatives
+     * this function.
+     * @throws DimensionMismatchException if the various arrays do not contain
+     * the expected number of elements.
+     * @throws NonMonotonicSequenceException if {@code x} or {@code y} are
+     * not strictly increasing.
+     * @throws NoDataException if any of the arrays has zero length.
+     *
+     * @see #partialDerivativeX(double,double)
+     * @see #partialDerivativeY(double,double)
+     * @see #partialDerivativeXX(double,double)
+     * @see #partialDerivativeYY(double,double)
+     * @see #partialDerivativeXY(double,double)
+     */
+    public BicubicSplineInterpolatingFunction(double[] x,
+                                              double[] y,
+                                              double[][] f,
+                                              double[][] dFdX,
+                                              double[][] dFdY,
+                                              double[][] d2FdXdY,
+                                              boolean initializeDerivatives)
+        throws DimensionMismatchException,
+               NoDataException,
+<span class="fc" id="L144">               NonMonotonicSequenceException {</span>
+<span class="fc" id="L145">        final int xLen = x.length;</span>
+<span class="fc" id="L146">        final int yLen = y.length;</span>
+
+<span class="pc bpc" id="L148" title="4 of 8 branches missed.">        if (xLen == 0 || yLen == 0 || f.length == 0 || f[0].length == 0) {</span>
+<span class="nc" id="L149">            throw new NoDataException();</span>
+        }
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        if (xLen != f.length) {</span>
+<span class="fc" id="L152">            throw new DimensionMismatchException(xLen, f.length);</span>
+        }
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        if (xLen != dFdX.length) {</span>
+<span class="fc" id="L155">            throw new DimensionMismatchException(xLen, dFdX.length);</span>
+        }
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        if (xLen != dFdY.length) {</span>
+<span class="fc" id="L158">            throw new DimensionMismatchException(xLen, dFdY.length);</span>
+        }
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        if (xLen != d2FdXdY.length) {</span>
+<span class="fc" id="L161">            throw new DimensionMismatchException(xLen, d2FdXdY.length);</span>
+        }
+
+<span class="fc" id="L164">        MathArrays.checkOrder(x);</span>
+<span class="fc" id="L165">        MathArrays.checkOrder(y);</span>
+
+<span class="fc" id="L167">        xval = x.clone();</span>
+<span class="fc" id="L168">        yval = y.clone();</span>
+
+<span class="fc" id="L170">        final int lastI = xLen - 1;</span>
+<span class="fc" id="L171">        final int lastJ = yLen - 1;</span>
+<span class="fc" id="L172">        splines = new BicubicSplineFunction[lastI][lastJ];</span>
+
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        for (int i = 0; i &lt; lastI; i++) {</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">            if (f[i].length != yLen) {</span>
+<span class="fc" id="L176">                throw new DimensionMismatchException(f[i].length, yLen);</span>
+            }
+<span class="fc bfc" id="L178" title="All 2 branches covered.">            if (dFdX[i].length != yLen) {</span>
+<span class="fc" id="L179">                throw new DimensionMismatchException(dFdX[i].length, yLen);</span>
+            }
+<span class="fc bfc" id="L181" title="All 2 branches covered.">            if (dFdY[i].length != yLen) {</span>
+<span class="fc" id="L182">                throw new DimensionMismatchException(dFdY[i].length, yLen);</span>
+            }
+<span class="fc bfc" id="L184" title="All 2 branches covered.">            if (d2FdXdY[i].length != yLen) {</span>
+<span class="fc" id="L185">                throw new DimensionMismatchException(d2FdXdY[i].length, yLen);</span>
+            }
+<span class="fc" id="L187">            final int ip1 = i + 1;</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">            for (int j = 0; j &lt; lastJ; j++) {</span>
+<span class="fc" id="L189">                final int jp1 = j + 1;</span>
+<span class="fc" id="L190">                final double[] beta = new double[] {</span>
+                    f[i][j], f[ip1][j], f[i][jp1], f[ip1][jp1],
+                    dFdX[i][j], dFdX[ip1][j], dFdX[i][jp1], dFdX[ip1][jp1],
+                    dFdY[i][j], dFdY[ip1][j], dFdY[i][jp1], dFdY[ip1][jp1],
+                    d2FdXdY[i][j], d2FdXdY[ip1][j], d2FdXdY[i][jp1], d2FdXdY[ip1][jp1]
+                };
+
+<span class="fc" id="L197">                splines[i][j] = new BicubicSplineFunction(computeSplineCoefficients(beta),</span>
+                                                          initializeDerivatives);
+            }
+        }
+
+<span class="fc bfc" id="L202" title="All 2 branches covered.">        if (initializeDerivatives) {</span>
+            // Compute all partial derivatives.
+<span class="fc" id="L204">            partialDerivatives = new BivariateFunction[5][lastI][lastJ];</span>
+
+<span class="fc bfc" id="L206" title="All 2 branches covered.">            for (int i = 0; i &lt; lastI; i++) {</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">                for (int j = 0; j &lt; lastJ; j++) {</span>
+<span class="fc" id="L208">                    final BicubicSplineFunction bcs = splines[i][j];</span>
+<span class="fc" id="L209">                    partialDerivatives[0][i][j] = bcs.partialDerivativeX();</span>
+<span class="fc" id="L210">                    partialDerivatives[1][i][j] = bcs.partialDerivativeY();</span>
+<span class="fc" id="L211">                    partialDerivatives[2][i][j] = bcs.partialDerivativeXX();</span>
+<span class="fc" id="L212">                    partialDerivatives[3][i][j] = bcs.partialDerivativeYY();</span>
+<span class="fc" id="L213">                    partialDerivatives[4][i][j] = bcs.partialDerivativeXY();</span>
+                }
+            }
+        } else {
+            // Partial derivative methods cannot be used.
+<span class="fc" id="L218">            partialDerivatives = null;</span>
+        }
+<span class="fc" id="L220">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    public double value(double x, double y)
+        throws OutOfRangeException {
+<span class="fc" id="L227">        final int i = searchIndex(x, xval);</span>
+<span class="fc" id="L228">        final int j = searchIndex(y, yval);</span>
+
+<span class="fc" id="L230">        final double xN = (x - xval[i]) / (xval[i + 1] - xval[i]);</span>
+<span class="fc" id="L231">        final double yN = (y - yval[j]) / (yval[j + 1] - yval[j]);</span>
+
+<span class="fc" id="L233">        return splines[i][j].value(xN, yN);</span>
+    }
+
+    /**
+     * Indicates whether a point is within the interpolation range.
+     *
+     * @param x First coordinate.
+     * @param y Second coordinate.
+     * @return {@code true} if (x, y) is a valid point.
+     * @since 3.3
+     */
+    public boolean isValidPoint(double x, double y) {
+<span class="pc bpc" id="L245" title="2 of 8 branches missed.">        if (x &lt; xval[0] ||</span>
+            x &gt; xval[xval.length - 1] ||
+            y &lt; yval[0] ||
+            y &gt; yval[yval.length - 1]) {
+<span class="fc" id="L249">            return false;</span>
+        } else {
+<span class="fc" id="L251">            return true;</span>
+        }
+    }
+
+    /**
+     * @param x x-coordinate.
+     * @param y y-coordinate.
+     * @return the value at point (x, y) of the first partial derivative with
+     * respect to x.
+     * @throws OutOfRangeException if {@code x} (resp. {@code y}) is outside
+     * the range defined by the boundary values of {@code xval} (resp.
+     * {@code yval}).
+     * @throws NullPointerException if the internal data were not initialized
+     * (cf. {@link #BicubicSplineInterpolatingFunction(double[],double[],double[][],
+     *             double[][],double[][],double[][],boolean) constructor}).
+     */
+    public double partialDerivativeX(double x, double y)
+        throws OutOfRangeException {
+<span class="fc" id="L269">        return partialDerivative(0, x, y);</span>
+    }
+    /**
+     * @param x x-coordinate.
+     * @param y y-coordinate.
+     * @return the value at point (x, y) of the first partial derivative with
+     * respect to y.
+     * @throws OutOfRangeException if {@code x} (resp. {@code y}) is outside
+     * the range defined by the boundary values of {@code xval} (resp.
+     * {@code yval}).
+     * @throws NullPointerException if the internal data were not initialized
+     * (cf. {@link #BicubicSplineInterpolatingFunction(double[],double[],double[][],
+     *             double[][],double[][],double[][],boolean) constructor}).
+     */
+    public double partialDerivativeY(double x, double y)
+        throws OutOfRangeException {
+<span class="fc" id="L285">        return partialDerivative(1, x, y);</span>
+    }
+    /**
+     * @param x x-coordinate.
+     * @param y y-coordinate.
+     * @return the value at point (x, y) of the second partial derivative with
+     * respect to x.
+     * @throws OutOfRangeException if {@code x} (resp. {@code y}) is outside
+     * the range defined by the boundary values of {@code xval} (resp.
+     * {@code yval}).
+     * @throws NullPointerException if the internal data were not initialized
+     * (cf. {@link #BicubicSplineInterpolatingFunction(double[],double[],double[][],
+     *             double[][],double[][],double[][],boolean) constructor}).
+     */
+    public double partialDerivativeXX(double x, double y)
+        throws OutOfRangeException {
+<span class="nc" id="L301">        return partialDerivative(2, x, y);</span>
+    }
+    /**
+     * @param x x-coordinate.
+     * @param y y-coordinate.
+     * @return the value at point (x, y) of the second partial derivative with
+     * respect to y.
+     * @throws OutOfRangeException if {@code x} (resp. {@code y}) is outside
+     * the range defined by the boundary values of {@code xval} (resp.
+     * {@code yval}).
+     * @throws NullPointerException if the internal data were not initialized
+     * (cf. {@link #BicubicSplineInterpolatingFunction(double[],double[],double[][],
+     *             double[][],double[][],double[][],boolean) constructor}).
+     */
+    public double partialDerivativeYY(double x, double y)
+        throws OutOfRangeException {
+<span class="nc" id="L317">        return partialDerivative(3, x, y);</span>
+    }
+    /**
+     * @param x x-coordinate.
+     * @param y y-coordinate.
+     * @return the value at point (x, y) of the second partial cross-derivative.
+     * @throws OutOfRangeException if {@code x} (resp. {@code y}) is outside
+     * the range defined by the boundary values of {@code xval} (resp.
+     * {@code yval}).
+     * @throws NullPointerException if the internal data were not initialized
+     * (cf. {@link #BicubicSplineInterpolatingFunction(double[],double[],double[][],
+     *             double[][],double[][],double[][],boolean) constructor}).
+     */
+    public double partialDerivativeXY(double x, double y)
+        throws OutOfRangeException {
+<span class="fc" id="L332">        return partialDerivative(4, x, y);</span>
+    }
+
+    /**
+     * @param which First index in {@link #partialDerivatives}.
+     * @param x x-coordinate.
+     * @param y y-coordinate.
+     * @return the value at point (x, y) of the selected partial derivative.
+     * @throws OutOfRangeException if {@code x} (resp. {@code y}) is outside
+     * the range defined by the boundary values of {@code xval} (resp.
+     * {@code yval}).
+     * @throws NullPointerException if the internal data were not initialized
+     * (cf. {@link #BicubicSplineInterpolatingFunction(double[],double[],double[][],
+     *             double[][],double[][],double[][],boolean) constructor}).
+     */
+    private double partialDerivative(int which, double x, double y)
+        throws OutOfRangeException {
+<span class="fc" id="L349">        final int i = searchIndex(x, xval);</span>
+<span class="fc" id="L350">        final int j = searchIndex(y, yval);</span>
+
+<span class="fc" id="L352">        final double xN = (x - xval[i]) / (xval[i + 1] - xval[i]);</span>
+<span class="fc" id="L353">        final double yN = (y - yval[j]) / (yval[j + 1] - yval[j]);</span>
+
+<span class="fc" id="L355">        return partialDerivatives[which][i][j].value(xN, yN);</span>
+    }
+
+    /**
+     * @param c Coordinate.
+     * @param val Coordinate samples.
+     * @return the index in {@code val} corresponding to the interval
+     * containing {@code c}.
+     * @throws OutOfRangeException if {@code c} is out of the
+     * range defined by the boundary values of {@code val}.
+     */
+    private int searchIndex(double c, double[] val) {
+<span class="fc" id="L367">        final int r = Arrays.binarySearch(val, c);</span>
+
+<span class="fc bfc" id="L369" title="All 4 branches covered.">        if (r == -1 ||</span>
+            r == -val.length - 1) {
+<span class="fc" id="L371">            throw new OutOfRangeException(c, val[0], val[val.length - 1]);</span>
+        }
+
+<span class="fc bfc" id="L374" title="All 2 branches covered.">        if (r &lt; 0) {</span>
+            // &quot;c&quot; in within an interpolation sub-interval: Return the
+            // index of the sample at the lower end of the sub-interval.
+<span class="fc" id="L377">            return -r - 2;</span>
+        }
+<span class="fc" id="L379">        final int last = val.length - 1;</span>
+<span class="fc bfc" id="L380" title="All 2 branches covered.">        if (r == last) {</span>
+            // &quot;c&quot; is the last sample of the range: Return the index
+            // of the sample at the lower end of the last sub-interval.
+<span class="fc" id="L383">            return last - 1;</span>
+        }
+
+        // &quot;c&quot; is another sample point.
+<span class="fc" id="L387">        return r;</span>
+    }
+
+    /**
+     * Compute the spline coefficients from the list of function values and
+     * function partial derivatives values at the four corners of a grid
+     * element. They must be specified in the following order:
+     * &lt;ul&gt;
+     *  &lt;li&gt;f(0,0)&lt;/li&gt;
+     *  &lt;li&gt;f(1,0)&lt;/li&gt;
+     *  &lt;li&gt;f(0,1)&lt;/li&gt;
+     *  &lt;li&gt;f(1,1)&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;x&lt;/sub&gt;(0,0)&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;x&lt;/sub&gt;(1,0)&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;x&lt;/sub&gt;(0,1)&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;x&lt;/sub&gt;(1,1)&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;y&lt;/sub&gt;(0,0)&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;y&lt;/sub&gt;(1,0)&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;y&lt;/sub&gt;(0,1)&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;y&lt;/sub&gt;(1,1)&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;xy&lt;/sub&gt;(0,0)&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;xy&lt;/sub&gt;(1,0)&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;xy&lt;/sub&gt;(0,1)&lt;/li&gt;
+     *  &lt;li&gt;f&lt;sub&gt;xy&lt;/sub&gt;(1,1)&lt;/li&gt;
+     * &lt;/ul&gt;
+     * where the subscripts indicate the partial derivative with respect to
+     * the corresponding variable(s).
+     *
+     * @param beta List of function values and function partial derivatives
+     * values.
+     * @return the spline coefficients.
+     */
+    private double[] computeSplineCoefficients(double[] beta) {
+<span class="fc" id="L420">        final double[] a = new double[NUM_COEFF];</span>
+
+<span class="fc bfc" id="L422" title="All 2 branches covered.">        for (int i = 0; i &lt; NUM_COEFF; i++) {</span>
+<span class="fc" id="L423">            double result = 0;</span>
+<span class="fc" id="L424">            final double[] row = AINV[i];</span>
+<span class="fc bfc" id="L425" title="All 2 branches covered.">            for (int j = 0; j &lt; NUM_COEFF; j++) {</span>
+<span class="fc" id="L426">                result += row[j] * beta[j];</span>
+            }
+<span class="fc" id="L428">            a[i] = result;</span>
+        }
+
+<span class="fc" id="L431">        return a;</span>
+    }
+}
+
+/**
+ * 2D-spline function.
+ *
+ */
+class BicubicSplineFunction implements BivariateFunction {
+    /** Number of points. */
+    private static final short N = 4;
+    /** Coefficients */
+    private final double[][] a;
+    /** First partial derivative along x. */
+    private final BivariateFunction partialDerivativeX;
+    /** First partial derivative along y. */
+    private final BivariateFunction partialDerivativeY;
+    /** Second partial derivative along x. */
+    private final BivariateFunction partialDerivativeXX;
+    /** Second partial derivative along y. */
+    private final BivariateFunction partialDerivativeYY;
+    /** Second crossed partial derivative. */
+    private final BivariateFunction partialDerivativeXY;
+
+    /**
+     * Simple constructor.
+     *
+     * @param coeff Spline coefficients.
+     */
+    BicubicSplineFunction(double[] coeff) {
+<span class="nc" id="L461">        this(coeff, false);</span>
+<span class="nc" id="L462">    }</span>
+
+    /**
+     * Simple constructor.
+     *
+     * @param coeff Spline coefficients.
+     * @param initializeDerivatives Whether to initialize the internal data
+     * needed for calling any of the methods that compute the partial derivatives
+     * this function.
+     */
+<span class="fc" id="L472">    BicubicSplineFunction(double[] coeff, boolean initializeDerivatives) {</span>
+<span class="fc" id="L473">        a = new double[N][N];</span>
+<span class="fc bfc" id="L474" title="All 2 branches covered.">        for (int i = 0; i &lt; N; i++) {</span>
+<span class="fc bfc" id="L475" title="All 2 branches covered.">            for (int j = 0; j &lt; N; j++) {</span>
+<span class="fc" id="L476">                a[i][j] = coeff[i * N + j];</span>
+            }
+        }
+
+<span class="fc bfc" id="L480" title="All 2 branches covered.">        if (initializeDerivatives) {</span>
+            // Compute all partial derivatives functions.
+<span class="fc" id="L482">            final double[][] aX = new double[N][N];</span>
+<span class="fc" id="L483">            final double[][] aY = new double[N][N];</span>
+<span class="fc" id="L484">            final double[][] aXX = new double[N][N];</span>
+<span class="fc" id="L485">            final double[][] aYY = new double[N][N];</span>
+<span class="fc" id="L486">            final double[][] aXY = new double[N][N];</span>
+
+<span class="fc bfc" id="L488" title="All 2 branches covered.">            for (int i = 0; i &lt; N; i++) {</span>
+<span class="fc bfc" id="L489" title="All 2 branches covered.">                for (int j = 0; j &lt; N; j++) {</span>
+<span class="fc" id="L490">                    final double c = a[i][j];</span>
+<span class="fc" id="L491">                    aX[i][j] = i * c;</span>
+<span class="fc" id="L492">                    aY[i][j] = j * c;</span>
+<span class="fc" id="L493">                    aXX[i][j] = (i - 1) * aX[i][j];</span>
+<span class="fc" id="L494">                    aYY[i][j] = (j - 1) * aY[i][j];</span>
+<span class="fc" id="L495">                    aXY[i][j] = j * aX[i][j];</span>
+                }
+            }
+
+<span class="fc" id="L499">            partialDerivativeX = new BivariateFunction() {</span>
+                    /** {@inheritDoc} */
+                    public double value(double x, double y)  {
+<span class="fc" id="L502">                        final double x2 = x * x;</span>
+<span class="fc" id="L503">                        final double[] pX = {0, 1, x, x2};</span>
+
+<span class="fc" id="L505">                        final double y2 = y * y;</span>
+<span class="fc" id="L506">                        final double y3 = y2 * y;</span>
+<span class="fc" id="L507">                        final double[] pY = {1, y, y2, y3};</span>
+
+<span class="fc" id="L509">                        return apply(pX, pY, aX);</span>
+                    }
+                };
+<span class="fc" id="L512">            partialDerivativeY = new BivariateFunction() {</span>
+                    /** {@inheritDoc} */
+                    public double value(double x, double y)  {
+<span class="fc" id="L515">                        final double x2 = x * x;</span>
+<span class="fc" id="L516">                        final double x3 = x2 * x;</span>
+<span class="fc" id="L517">                        final double[] pX = {1, x, x2, x3};</span>
+
+<span class="fc" id="L519">                        final double y2 = y * y;</span>
+<span class="fc" id="L520">                        final double[] pY = {0, 1, y, y2};</span>
+
+<span class="fc" id="L522">                        return apply(pX, pY, aY);</span>
+                    }
+                };
+<span class="fc" id="L525">            partialDerivativeXX = new BivariateFunction() {</span>
+                    /** {@inheritDoc} */
+                    public double value(double x, double y)  {
+<span class="nc" id="L528">                        final double[] pX = {0, 0, 1, x};</span>
+
+<span class="nc" id="L530">                        final double y2 = y * y;</span>
+<span class="nc" id="L531">                        final double y3 = y2 * y;</span>
+<span class="nc" id="L532">                        final double[] pY = {1, y, y2, y3};</span>
+
+<span class="nc" id="L534">                        return apply(pX, pY, aXX);</span>
+                    }
+                };
+<span class="fc" id="L537">            partialDerivativeYY = new BivariateFunction() {</span>
+                    /** {@inheritDoc} */
+                    public double value(double x, double y)  {
+<span class="nc" id="L540">                        final double x2 = x * x;</span>
+<span class="nc" id="L541">                        final double x3 = x2 * x;</span>
+<span class="nc" id="L542">                        final double[] pX = {1, x, x2, x3};</span>
+
+<span class="nc" id="L544">                        final double[] pY = {0, 0, 1, y};</span>
+
+<span class="nc" id="L546">                        return apply(pX, pY, aYY);</span>
+                    }
+                };
+<span class="fc" id="L549">            partialDerivativeXY = new BivariateFunction() {</span>
+                    /** {@inheritDoc} */
+                    public double value(double x, double y)  {
+<span class="fc" id="L552">                        final double x2 = x * x;</span>
+<span class="fc" id="L553">                        final double[] pX = {0, 1, x, x2};</span>
+
+<span class="fc" id="L555">                        final double y2 = y * y;</span>
+<span class="fc" id="L556">                        final double[] pY = {0, 1, y, y2};</span>
+
+<span class="fc" id="L558">                        return apply(pX, pY, aXY);</span>
+                    }
+                };
+<span class="fc" id="L561">        } else {</span>
+<span class="fc" id="L562">            partialDerivativeX = null;</span>
+<span class="fc" id="L563">            partialDerivativeY = null;</span>
+<span class="fc" id="L564">            partialDerivativeXX = null;</span>
+<span class="fc" id="L565">            partialDerivativeYY = null;</span>
+<span class="fc" id="L566">            partialDerivativeXY = null;</span>
+        }
+<span class="fc" id="L568">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    public double value(double x, double y) {
+<span class="pc bpc" id="L574" title="2 of 4 branches missed.">        if (x &lt; 0 || x &gt; 1) {</span>
+<span class="nc" id="L575">            throw new OutOfRangeException(x, 0, 1);</span>
+        }
+<span class="pc bpc" id="L577" title="2 of 4 branches missed.">        if (y &lt; 0 || y &gt; 1) {</span>
+<span class="nc" id="L578">            throw new OutOfRangeException(y, 0, 1);</span>
+        }
+
+<span class="fc" id="L581">        final double x2 = x * x;</span>
+<span class="fc" id="L582">        final double x3 = x2 * x;</span>
+<span class="fc" id="L583">        final double[] pX = {1, x, x2, x3};</span>
+
+<span class="fc" id="L585">        final double y2 = y * y;</span>
+<span class="fc" id="L586">        final double y3 = y2 * y;</span>
+<span class="fc" id="L587">        final double[] pY = {1, y, y2, y3};</span>
+
+<span class="fc" id="L589">        return apply(pX, pY, a);</span>
+    }
+
+    /**
+     * Compute the value of the bicubic polynomial.
+     *
+     * @param pX Powers of the x-coordinate.
+     * @param pY Powers of the y-coordinate.
+     * @param coeff Spline coefficients.
+     * @return the interpolated value.
+     */
+    private double apply(double[] pX, double[] pY, double[][] coeff) {
+<span class="fc" id="L601">        double result = 0;</span>
+<span class="fc bfc" id="L602" title="All 2 branches covered.">        for (int i = 0; i &lt; N; i++) {</span>
+<span class="fc bfc" id="L603" title="All 2 branches covered.">            for (int j = 0; j &lt; N; j++) {</span>
+<span class="fc" id="L604">                result += coeff[i][j] * pX[i] * pY[j];</span>
+            }
+        }
+
+<span class="fc" id="L608">        return result;</span>
+    }
+
+    /**
+     * @return the partial derivative wrt {@code x}.
+     */
+    public BivariateFunction partialDerivativeX() {
+<span class="fc" id="L615">        return partialDerivativeX;</span>
+    }
+    /**
+     * @return the partial derivative wrt {@code y}.
+     */
+    public BivariateFunction partialDerivativeY() {
+<span class="fc" id="L621">        return partialDerivativeY;</span>
+    }
+    /**
+     * @return the second partial derivative wrt {@code x}.
+     */
+    public BivariateFunction partialDerivativeXX() {
+<span class="fc" id="L627">        return partialDerivativeXX;</span>
+    }
+    /**
+     * @return the second partial derivative wrt {@code y}.
+     */
+    public BivariateFunction partialDerivativeYY() {
+<span class="fc" id="L633">        return partialDerivativeYY;</span>
+    }
+    /**
+     * @return the second partial cross-derivative.
+     */
+    public BivariateFunction partialDerivativeXY() {
+<span class="fc" id="L639">        return partialDerivativeXY;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,888 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>StatUtils.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat</a> &gt; <span class="el_source">StatUtils.java</span></div><h1>StatUtils.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat;
+
+import java.util.List;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.NotPositiveException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.UnivariateStatistic;
+import org.apache.commons.math3.stat.descriptive.moment.GeometricMean;
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
+import org.apache.commons.math3.stat.descriptive.moment.Variance;
+import org.apache.commons.math3.stat.descriptive.rank.Max;
+import org.apache.commons.math3.stat.descriptive.rank.Min;
+import org.apache.commons.math3.stat.descriptive.rank.Percentile;
+import org.apache.commons.math3.stat.descriptive.summary.Product;
+import org.apache.commons.math3.stat.descriptive.summary.Sum;
+import org.apache.commons.math3.stat.descriptive.summary.SumOfLogs;
+import org.apache.commons.math3.stat.descriptive.summary.SumOfSquares;
+
+/**
+ * StatUtils provides static methods for computing statistics based on data
+ * stored in double[] arrays.
+ *
+ */
+public final class StatUtils {
+
+    /** sum */
+<span class="fc" id="L49">    private static final UnivariateStatistic SUM = new Sum();</span>
+
+    /** sumSq */
+<span class="fc" id="L52">    private static final UnivariateStatistic SUM_OF_SQUARES = new SumOfSquares();</span>
+
+    /** prod */
+<span class="fc" id="L55">    private static final UnivariateStatistic PRODUCT = new Product();</span>
+
+    /** sumLog */
+<span class="fc" id="L58">    private static final UnivariateStatistic SUM_OF_LOGS = new SumOfLogs();</span>
+
+    /** min */
+<span class="fc" id="L61">    private static final UnivariateStatistic MIN = new Min();</span>
+
+    /** max */
+<span class="fc" id="L64">    private static final UnivariateStatistic MAX = new Max();</span>
+
+    /** mean */
+<span class="fc" id="L67">    private static final UnivariateStatistic MEAN = new Mean();</span>
+
+    /** variance */
+<span class="fc" id="L70">    private static final Variance VARIANCE = new Variance();</span>
+
+    /** percentile */
+<span class="fc" id="L73">    private static final Percentile PERCENTILE = new Percentile();</span>
+
+    /** geometric mean */
+<span class="fc" id="L76">    private static final GeometricMean GEOMETRIC_MEAN = new GeometricMean();</span>
+
+    /**
+     * Private Constructor
+     */
+<span class="nc" id="L81">    private StatUtils() {</span>
+<span class="nc" id="L82">    }</span>
+
+    /**
+     * Returns the sum of the values in the input array, or
+     * &lt;code&gt;Double.NaN&lt;/code&gt; if the array is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the input array
+     * is null.&lt;/p&gt;
+     *
+     * @param values  array of values to sum
+     * @return the sum of the values or &lt;code&gt;Double.NaN&lt;/code&gt; if the array
+     * is empty
+     * @throws MathIllegalArgumentException if the array is null
+     */
+    public static double sum(final double[] values)
+    throws MathIllegalArgumentException {
+<span class="fc" id="L98">        return SUM.evaluate(values);</span>
+    }
+
+    /**
+     * Returns the sum of the entries in the specified portion of
+     * the input array, or &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray
+     * is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the sum of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     *  parameters are not valid
+     */
+    public static double sum(final double[] values, final int begin,
+            final int length) throws MathIllegalArgumentException {
+<span class="fc" id="L117">        return SUM.evaluate(values, begin, length);</span>
+    }
+
+    /**
+     * Returns the sum of the squares of the entries in the input array, or
+     * &lt;code&gt;Double.NaN&lt;/code&gt; if the array is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     *
+     * @param values  input array
+     * @return the sum of the squared values or &lt;code&gt;Double.NaN&lt;/code&gt; if the
+     * array is empty
+     * @throws MathIllegalArgumentException if the array is null
+     */
+    public static double sumSq(final double[] values) throws MathIllegalArgumentException {
+<span class="fc" id="L132">        return SUM_OF_SQUARES.evaluate(values);</span>
+    }
+
+    /**
+     * Returns the sum of the squares of the entries in the specified portion of
+     * the input array, or &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray
+     * is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the sum of the squares of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     * parameters are not valid
+     */
+    public static double sumSq(final double[] values, final int begin,
+            final int length) throws MathIllegalArgumentException {
+<span class="fc" id="L151">        return SUM_OF_SQUARES.evaluate(values, begin, length);</span>
+    }
+
+    /**
+     * Returns the product of the entries in the input array, or
+     * &lt;code&gt;Double.NaN&lt;/code&gt; if the array is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @return the product of the values or Double.NaN if the array is empty
+     * @throws MathIllegalArgumentException if the array is null
+     */
+    public static double product(final double[] values)
+    throws MathIllegalArgumentException {
+<span class="fc" id="L166">        return PRODUCT.evaluate(values);</span>
+    }
+
+    /**
+     * Returns the product of the entries in the specified portion of
+     * the input array, or &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray
+     * is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the product of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     * parameters are not valid
+     */
+    public static double product(final double[] values, final int begin,
+            final int length) throws MathIllegalArgumentException {
+<span class="fc" id="L185">        return PRODUCT.evaluate(values, begin, length);</span>
+    }
+
+    /**
+     * Returns the sum of the natural logs of the entries in the input array, or
+     * &lt;code&gt;Double.NaN&lt;/code&gt; if the array is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     * &lt;p&gt;
+     * See {@link org.apache.commons.math3.stat.descriptive.summary.SumOfLogs}.
+     * &lt;/p&gt;
+     *
+     * @param values the input array
+     * @return the sum of the natural logs of the values or Double.NaN if
+     * the array is empty
+     * @throws MathIllegalArgumentException if the array is null
+     */
+    public static double sumLog(final double[] values)
+    throws MathIllegalArgumentException {
+<span class="fc" id="L204">        return SUM_OF_LOGS.evaluate(values);</span>
+    }
+
+    /**
+     * Returns the sum of the natural logs of the entries in the specified portion of
+     * the input array, or &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray
+     * is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     * &lt;p&gt;
+     * See {@link org.apache.commons.math3.stat.descriptive.summary.SumOfLogs}.
+     * &lt;/p&gt;
+     *
+     * @param values the input array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the sum of the natural logs of the values or Double.NaN if
+     * length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     * parameters are not valid
+     */
+    public static double sumLog(final double[] values, final int begin,
+            final int length) throws MathIllegalArgumentException {
+<span class="fc" id="L227">        return SUM_OF_LOGS.evaluate(values, begin, length);</span>
+    }
+
+    /**
+     * Returns the arithmetic mean of the entries in the input array, or
+     * &lt;code&gt;Double.NaN&lt;/code&gt; if the array is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     * &lt;p&gt;
+     * See {@link org.apache.commons.math3.stat.descriptive.moment.Mean} for
+     * details on the computing algorithm.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @return the mean of the values or Double.NaN if the array is empty
+     * @throws MathIllegalArgumentException if the array is null
+     */
+    public static double mean(final double[] values)
+    throws MathIllegalArgumentException {
+<span class="fc" id="L245">        return MEAN.evaluate(values);</span>
+    }
+
+    /**
+     * Returns the arithmetic mean of the entries in the specified portion of
+     * the input array, or &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray
+     * is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     * &lt;p&gt;
+     * See {@link org.apache.commons.math3.stat.descriptive.moment.Mean} for
+     * details on the computing algorithm.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the mean of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     * parameters are not valid
+     */
+    public static double mean(final double[] values, final int begin,
+            final int length) throws MathIllegalArgumentException {
+<span class="fc" id="L267">        return MEAN.evaluate(values, begin, length);</span>
+    }
+
+    /**
+     * Returns the geometric mean of the entries in the input array, or
+     * &lt;code&gt;Double.NaN&lt;/code&gt; if the array is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     * &lt;p&gt;
+     * See {@link org.apache.commons.math3.stat.descriptive.moment.GeometricMean}
+     * for details on the computing algorithm.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @return the geometric mean of the values or Double.NaN if the array is empty
+     * @throws MathIllegalArgumentException if the array is null
+     */
+    public static double geometricMean(final double[] values)
+    throws MathIllegalArgumentException {
+<span class="fc" id="L285">        return GEOMETRIC_MEAN.evaluate(values);</span>
+    }
+
+    /**
+     * Returns the geometric mean of the entries in the specified portion of
+     * the input array, or &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray
+     * is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     * &lt;p&gt;
+     * See {@link org.apache.commons.math3.stat.descriptive.moment.GeometricMean}
+     * for details on the computing algorithm.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the geometric mean of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     * parameters are not valid
+     */
+    public static double geometricMean(final double[] values, final int begin,
+            final int length) throws MathIllegalArgumentException {
+<span class="fc" id="L307">        return GEOMETRIC_MEAN.evaluate(values, begin, length);</span>
+    }
+
+
+    /**
+     * Returns the variance of the entries in the input array, or
+     * &lt;code&gt;Double.NaN&lt;/code&gt; if the array is empty.
+     *
+     * &lt;p&gt;This method returns the bias-corrected sample variance (using {@code n - 1} in
+     * the denominator).  Use {@link #populationVariance(double[])} for the non-bias-corrected
+     * population variance.&lt;/p&gt;
+     * &lt;p&gt;
+     * See {@link org.apache.commons.math3.stat.descriptive.moment.Variance} for
+     * details on the computing algorithm.&lt;/p&gt;
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @return the variance of the values or Double.NaN if the array is empty
+     * @throws MathIllegalArgumentException if the array is null
+     */
+    public static double variance(final double[] values) throws MathIllegalArgumentException {
+<span class="fc" id="L331">        return VARIANCE.evaluate(values);</span>
+    }
+
+    /**
+     * Returns the variance of the entries in the specified portion of
+     * the input array, or &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray
+     * is empty.
+     *
+     * &lt;p&gt;This method returns the bias-corrected sample variance (using {@code n - 1} in
+     * the denominator).  Use {@link #populationVariance(double[], int, int)} for the non-bias-corrected
+     * population variance.&lt;/p&gt;
+     * &lt;p&gt;
+     * See {@link org.apache.commons.math3.stat.descriptive.moment.Variance} for
+     * details on the computing algorithm.&lt;/p&gt;
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null or the
+     * array index parameters are not valid.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the variance of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     *  parameters are not valid
+     */
+    public static double variance(final double[] values, final int begin,
+            final int length) throws MathIllegalArgumentException {
+<span class="fc" id="L360">        return VARIANCE.evaluate(values, begin, length);</span>
+    }
+
+    /**
+     * Returns the variance of the entries in the specified portion of
+     * the input array, using the precomputed mean value.  Returns
+     * &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray is empty.
+     *
+     * &lt;p&gt;This method returns the bias-corrected sample variance (using {@code n - 1} in
+     * the denominator).  Use {@link #populationVariance(double[], double, int, int)} for the non-bias-corrected
+     * population variance.&lt;/p&gt;
+     * &lt;p&gt;
+     * See {@link org.apache.commons.math3.stat.descriptive.moment.Variance} for
+     * details on the computing algorithm.&lt;/p&gt;
+     * &lt;p&gt;
+     * The formula used assumes that the supplied mean value is the arithmetic
+     * mean of the sample data, not a known population parameter.  This method
+     * is supplied only to save computation when the mean has already been
+     * computed.&lt;/p&gt;
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null or the
+     * array index parameters are not valid.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param mean the precomputed mean value
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the variance of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     *  parameters are not valid
+     */
+    public static double variance(final double[] values, final double mean,
+            final int begin, final int length) throws MathIllegalArgumentException {
+<span class="fc" id="L395">        return VARIANCE.evaluate(values, mean, begin, length);</span>
+    }
+
+    /**
+     * Returns the variance of the entries in the input array, using the
+     * precomputed mean value.  Returns &lt;code&gt;Double.NaN&lt;/code&gt; if the array
+     * is empty.
+     *
+     * &lt;p&gt;This method returns the bias-corrected sample variance (using {@code n - 1} in
+     * the denominator).  Use {@link #populationVariance(double[], double)} for the non-bias-corrected
+     * population variance.&lt;/p&gt;
+     * &lt;p&gt;
+     * See {@link org.apache.commons.math3.stat.descriptive.moment.Variance} for
+     * details on the computing algorithm.&lt;/p&gt;
+     * &lt;p&gt;
+     * The formula used assumes that the supplied mean value is the arithmetic
+     * mean of the sample data, not a known population parameter.  This method
+     * is supplied only to save computation when the mean has already been
+     * computed.&lt;/p&gt;
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param mean the precomputed mean value
+     * @return the variance of the values or Double.NaN if the array is empty
+     * @throws MathIllegalArgumentException if the array is null
+     */
+    public static double variance(final double[] values, final double mean)
+    throws MathIllegalArgumentException {
+<span class="fc" id="L426">        return VARIANCE.evaluate(values, mean);</span>
+    }
+
+    /**
+     * Returns the &lt;a href=&quot;http://en.wikibooks.org/wiki/Statistics/Summary/Variance&quot;&gt;
+     * population variance&lt;/a&gt; of the entries in the input array, or
+     * &lt;code&gt;Double.NaN&lt;/code&gt; if the array is empty.
+     * &lt;p&gt;
+     * See {@link org.apache.commons.math3.stat.descriptive.moment.Variance} for
+     * details on the formula and computing algorithm.&lt;/p&gt;
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @return the population variance of the values or Double.NaN if the array is empty
+     * @throws MathIllegalArgumentException if the array is null
+     */
+    public static double populationVariance(final double[] values)
+    throws MathIllegalArgumentException {
+<span class="nc" id="L447">        return new Variance(false).evaluate(values);</span>
+    }
+
+    /**
+     * Returns the &lt;a href=&quot;http://en.wikibooks.org/wiki/Statistics/Summary/Variance&quot;&gt;
+     * population variance&lt;/a&gt; of the entries in the specified portion of
+     * the input array, or &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray
+     * is empty.
+     * &lt;p&gt;
+     * See {@link org.apache.commons.math3.stat.descriptive.moment.Variance} for
+     * details on the computing algorithm.&lt;/p&gt;
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null or the
+     * array index parameters are not valid.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the population variance of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     *  parameters are not valid
+     */
+    public static double populationVariance(final double[] values, final int begin,
+            final int length) throws MathIllegalArgumentException {
+<span class="fc" id="L473">        return new Variance(false).evaluate(values, begin, length);</span>
+    }
+
+    /**
+     * Returns the &lt;a href=&quot;http://en.wikibooks.org/wiki/Statistics/Summary/Variance&quot;&gt;
+     * population variance&lt;/a&gt; of the entries in the specified portion of
+     * the input array, using the precomputed mean value.  Returns
+     * &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray is empty.
+     * &lt;p&gt;
+     * See {@link org.apache.commons.math3.stat.descriptive.moment.Variance} for
+     * details on the computing algorithm.&lt;/p&gt;
+     * &lt;p&gt;
+     * The formula used assumes that the supplied mean value is the arithmetic
+     * mean of the sample data, not a known population parameter.  This method
+     * is supplied only to save computation when the mean has already been
+     * computed.&lt;/p&gt;
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null or the
+     * array index parameters are not valid.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param mean the precomputed mean value
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the population variance of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     *  parameters are not valid
+     */
+    public static double populationVariance(final double[] values, final double mean,
+            final int begin, final int length) throws MathIllegalArgumentException {
+<span class="fc" id="L505">        return new Variance(false).evaluate(values, mean, begin, length);</span>
+    }
+
+    /**
+     * Returns the &lt;a href=&quot;http://en.wikibooks.org/wiki/Statistics/Summary/Variance&quot;&gt;
+     * population variance&lt;/a&gt; of the entries in the input array, using the
+     * precomputed mean value.  Returns &lt;code&gt;Double.NaN&lt;/code&gt; if the array
+     * is empty.
+     * &lt;p&gt;
+     * See {@link org.apache.commons.math3.stat.descriptive.moment.Variance} for
+     * details on the computing algorithm.&lt;/p&gt;
+     * &lt;p&gt;
+     * The formula used assumes that the supplied mean value is the arithmetic
+     * mean of the sample data, not a known population parameter.  This method
+     * is supplied only to save computation when the mean has already been
+     * computed.&lt;/p&gt;
+     * &lt;p&gt;
+     * Returns 0 for a single-value (i.e. length = 1) sample.&lt;/p&gt;
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param mean the precomputed mean value
+     * @return the population variance of the values or Double.NaN if the array is empty
+     * @throws MathIllegalArgumentException if the array is null
+     */
+    public static double populationVariance(final double[] values, final double mean)
+    throws MathIllegalArgumentException {
+<span class="nc" id="L533">        return new Variance(false).evaluate(values, mean);</span>
+    }
+
+    /**
+     * Returns the maximum of the entries in the input array, or
+     * &lt;code&gt;Double.NaN&lt;/code&gt; if the array is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     * &lt;p&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;The result is &lt;code&gt;NaN&lt;/code&gt; iff all values are &lt;code&gt;NaN&lt;/code&gt;
+     * (i.e. &lt;code&gt;NaN&lt;/code&gt; values have no impact on the value of the statistic).&lt;/li&gt;
+     * &lt;li&gt;If any of the values equals &lt;code&gt;Double.POSITIVE_INFINITY&lt;/code&gt;,
+     * the result is &lt;code&gt;Double.POSITIVE_INFINITY.&lt;/code&gt;&lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     *
+     * @param values the input array
+     * @return the maximum of the values or Double.NaN if the array is empty
+     * @throws MathIllegalArgumentException if the array is null
+     */
+    public static double max(final double[] values) throws MathIllegalArgumentException {
+<span class="fc" id="L554">        return MAX.evaluate(values);</span>
+    }
+
+    /**
+     * Returns the maximum of the entries in the specified portion of
+     * the input array, or &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray
+     * is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null or
+     * the array index parameters are not valid.&lt;/p&gt;
+     * &lt;p&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;The result is &lt;code&gt;NaN&lt;/code&gt; iff all values are &lt;code&gt;NaN&lt;/code&gt;
+     * (i.e. &lt;code&gt;NaN&lt;/code&gt; values have no impact on the value of the statistic).&lt;/li&gt;
+     * &lt;li&gt;If any of the values equals &lt;code&gt;Double.POSITIVE_INFINITY&lt;/code&gt;,
+     * the result is &lt;code&gt;Double.POSITIVE_INFINITY.&lt;/code&gt;&lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the maximum of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     * parameters are not valid
+     */
+    public static double max(final double[] values, final int begin,
+            final int length) throws MathIllegalArgumentException {
+<span class="fc" id="L581">        return MAX.evaluate(values, begin, length);</span>
+    }
+
+     /**
+     * Returns the minimum of the entries in the input array, or
+     * &lt;code&gt;Double.NaN&lt;/code&gt; if the array is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     * &lt;p&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;The result is &lt;code&gt;NaN&lt;/code&gt; iff all values are &lt;code&gt;NaN&lt;/code&gt;
+     * (i.e. &lt;code&gt;NaN&lt;/code&gt; values have no impact on the value of the statistic).&lt;/li&gt;
+     * &lt;li&gt;If any of the values equals &lt;code&gt;Double.NEGATIVE_INFINITY&lt;/code&gt;,
+     * the result is &lt;code&gt;Double.NEGATIVE_INFINITY.&lt;/code&gt;&lt;/li&gt;
+     * &lt;/ul&gt; &lt;/p&gt;
+     *
+     * @param values the input array
+     * @return the minimum of the values or Double.NaN if the array is empty
+     * @throws MathIllegalArgumentException if the array is null
+     */
+    public static double min(final double[] values) throws MathIllegalArgumentException {
+<span class="fc" id="L602">        return MIN.evaluate(values);</span>
+    }
+
+     /**
+     * Returns the minimum of the entries in the specified portion of
+     * the input array, or &lt;code&gt;Double.NaN&lt;/code&gt; if the designated subarray
+     * is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null or
+     * the array index parameters are not valid.&lt;/p&gt;
+     * &lt;p&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;The result is &lt;code&gt;NaN&lt;/code&gt; iff all values are &lt;code&gt;NaN&lt;/code&gt;
+     * (i.e. &lt;code&gt;NaN&lt;/code&gt; values have no impact on the value of the statistic).&lt;/li&gt;
+     * &lt;li&gt;If any of the values equals &lt;code&gt;Double.NEGATIVE_INFINITY&lt;/code&gt;,
+     * the result is &lt;code&gt;Double.NEGATIVE_INFINITY.&lt;/code&gt;&lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the minimum of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     * parameters are not valid
+     */
+    public static double min(final double[] values, final int begin,
+            final int length) throws MathIllegalArgumentException {
+<span class="fc" id="L629">        return MIN.evaluate(values, begin, length);</span>
+    }
+
+    /**
+     * Returns an estimate of the &lt;code&gt;p&lt;/code&gt;th percentile of the values
+     * in the &lt;code&gt;values&lt;/code&gt; array.
+     * &lt;p&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;Returns &lt;code&gt;Double.NaN&lt;/code&gt; if &lt;code&gt;values&lt;/code&gt; has length
+     * &lt;code&gt;0&lt;/code&gt;&lt;/li&gt;&lt;/p&gt;
+     * &lt;li&gt;Returns (for any value of &lt;code&gt;p&lt;/code&gt;) &lt;code&gt;values[0]&lt;/code&gt;
+     *  if &lt;code&gt;values&lt;/code&gt; has length &lt;code&gt;1&lt;/code&gt;&lt;/li&gt;
+     * &lt;li&gt;Throws &lt;code&gt;IllegalArgumentException&lt;/code&gt; if &lt;code&gt;values&lt;/code&gt;
+     * is null  or p is not a valid quantile value (p must be greater than 0
+     * and less than or equal to 100)&lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     * &lt;p&gt;
+     * See {@link org.apache.commons.math3.stat.descriptive.rank.Percentile} for
+     * a description of the percentile estimation algorithm used.&lt;/p&gt;
+     *
+     * @param values input array of values
+     * @param p the percentile value to compute
+     * @return the percentile value or Double.NaN if the array is empty
+     * @throws MathIllegalArgumentException if &lt;code&gt;values&lt;/code&gt; is null
+     * or p is invalid
+     */
+    public static double percentile(final double[] values, final double p)
+    throws MathIllegalArgumentException {
+<span class="fc" id="L657">            return PERCENTILE.evaluate(values,p);</span>
+    }
+
+     /**
+     * Returns an estimate of the &lt;code&gt;p&lt;/code&gt;th percentile of the values
+     * in the &lt;code&gt;values&lt;/code&gt; array, starting with the element in (0-based)
+     * position &lt;code&gt;begin&lt;/code&gt; in the array and including &lt;code&gt;length&lt;/code&gt;
+     * values.
+     * &lt;p&gt;
+     * &lt;ul&gt;
+     * &lt;li&gt;Returns &lt;code&gt;Double.NaN&lt;/code&gt; if &lt;code&gt;length = 0&lt;/code&gt;&lt;/li&gt;
+     * &lt;li&gt;Returns (for any value of &lt;code&gt;p&lt;/code&gt;) &lt;code&gt;values[begin]&lt;/code&gt;
+     *  if &lt;code&gt;length = 1 &lt;/code&gt;&lt;/li&gt;
+     * &lt;li&gt;Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if &lt;code&gt;values&lt;/code&gt;
+     *  is null , &lt;code&gt;begin&lt;/code&gt; or &lt;code&gt;length&lt;/code&gt; is invalid, or
+     * &lt;code&gt;p&lt;/code&gt; is not a valid quantile value (p must be greater than 0
+     * and less than or equal to 100)&lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     * &lt;p&gt;
+     * See {@link org.apache.commons.math3.stat.descriptive.rank.Percentile} for
+     * a description of the percentile estimation algorithm used.&lt;/p&gt;
+     *
+     * @param values array of input values
+     * @param p  the percentile to compute
+     * @param begin  the first (0-based) element to include in the computation
+     * @param length  the number of array elements to include
+     * @return  the percentile value
+     * @throws MathIllegalArgumentException if the parameters are not valid or the
+     * input array is null
+     */
+    public static double percentile(final double[] values, final int begin,
+            final int length, final double p) throws MathIllegalArgumentException {
+<span class="fc" id="L689">        return PERCENTILE.evaluate(values, begin, length, p);</span>
+    }
+
+    /**
+     * Returns the sum of the (signed) differences between corresponding elements of the
+     * input arrays -- i.e., sum(sample1[i] - sample2[i]).
+     *
+     * @param sample1  the first array
+     * @param sample2  the second array
+     * @return sum of paired differences
+     * @throws DimensionMismatchException if the arrays do not have the same
+     * (positive) length.
+     * @throws NoDataException if the sample arrays are empty.
+     */
+    public static double sumDifference(final double[] sample1, final double[] sample2)
+    throws DimensionMismatchException, NoDataException {
+<span class="fc" id="L705">        int n = sample1.length;</span>
+<span class="fc bfc" id="L706" title="All 2 branches covered.">        if (n != sample2.length) {</span>
+<span class="fc" id="L707">            throw new DimensionMismatchException(n, sample2.length);</span>
+        }
+<span class="pc bpc" id="L709" title="1 of 2 branches missed.">        if (n &lt;= 0) {</span>
+<span class="nc" id="L710">            throw new NoDataException(LocalizedFormats.INSUFFICIENT_DIMENSION);</span>
+        }
+<span class="fc" id="L712">        double result = 0;</span>
+<span class="fc bfc" id="L713" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L714">            result += sample1[i] - sample2[i];</span>
+        }
+<span class="fc" id="L716">        return result;</span>
+    }
+
+    /**
+     * Returns the mean of the (signed) differences between corresponding elements of the
+     * input arrays -- i.e., sum(sample1[i] - sample2[i]) / sample1.length.
+     *
+     * @param sample1  the first array
+     * @param sample2  the second array
+     * @return mean of paired differences
+     * @throws DimensionMismatchException if the arrays do not have the same
+     * (positive) length.
+     * @throws NoDataException if the sample arrays are empty.
+     */
+    public static double meanDifference(final double[] sample1, final double[] sample2)
+    throws DimensionMismatchException, NoDataException{
+<span class="fc" id="L732">        return sumDifference(sample1, sample2) / sample1.length;</span>
+    }
+
+    /**
+     * Returns the variance of the (signed) differences between corresponding elements of the
+     * input arrays -- i.e., var(sample1[i] - sample2[i]).
+     *
+     * @param sample1  the first array
+     * @param sample2  the second array
+     * @param meanDifference   the mean difference between corresponding entries
+     * @see #meanDifference(double[],double[])
+     * @return variance of paired differences
+     * @throws DimensionMismatchException if the arrays do not have the same
+     * length.
+     * @throws NumberIsTooSmallException if the arrays length is less than 2.
+     */
+    public static double varianceDifference(final double[] sample1,
+            final double[] sample2, double meanDifference) throws DimensionMismatchException,
+            NumberIsTooSmallException {
+<span class="fc" id="L751">        double sum1 = 0d;</span>
+<span class="fc" id="L752">        double sum2 = 0d;</span>
+<span class="fc" id="L753">        double diff = 0d;</span>
+<span class="fc" id="L754">        int n = sample1.length;</span>
+<span class="fc bfc" id="L755" title="All 2 branches covered.">        if (n != sample2.length) {</span>
+<span class="fc" id="L756">            throw new DimensionMismatchException(n, sample2.length);</span>
+        }
+<span class="fc bfc" id="L758" title="All 2 branches covered.">        if (n &lt; 2) {</span>
+<span class="fc" id="L759">            throw new NumberIsTooSmallException(n, 2, true);</span>
+        }
+<span class="fc bfc" id="L761" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L762">            diff = sample1[i] - sample2[i];</span>
+<span class="fc" id="L763">            sum1 += (diff - meanDifference) *(diff - meanDifference);</span>
+<span class="fc" id="L764">            sum2 += diff - meanDifference;</span>
+        }
+<span class="fc" id="L766">        return (sum1 - (sum2 * sum2 / n)) / (n - 1);</span>
+    }
+
+    /**
+     * Normalize (standardize) the sample, so it is has a mean of 0 and a standard deviation of 1.
+     *
+     * @param sample Sample to normalize.
+     * @return normalized (standardized) sample.
+     * @since 2.2
+     */
+    public static double[] normalize(final double[] sample) {
+<span class="fc" id="L777">        DescriptiveStatistics stats = new DescriptiveStatistics();</span>
+
+        // Add the data from the series to stats
+<span class="fc bfc" id="L780" title="All 2 branches covered.">        for (int i = 0; i &lt; sample.length; i++) {</span>
+<span class="fc" id="L781">            stats.addValue(sample[i]);</span>
+        }
+
+        // Compute mean and standard deviation
+<span class="fc" id="L785">        double mean = stats.getMean();</span>
+<span class="fc" id="L786">        double standardDeviation = stats.getStandardDeviation();</span>
+
+        // initialize the standardizedSample, which has the same length as the sample
+<span class="fc" id="L789">        double[] standardizedSample = new double[sample.length];</span>
+
+<span class="fc bfc" id="L791" title="All 2 branches covered.">        for (int i = 0; i &lt; sample.length; i++) {</span>
+            // z = (x- mean)/standardDeviation
+<span class="fc" id="L793">            standardizedSample[i] = (sample[i] - mean) / standardDeviation;</span>
+        }
+<span class="fc" id="L795">        return standardizedSample;</span>
+    }
+
+    /**
+     * Returns the sample mode(s).  The mode is the most frequently occurring
+     * value in the sample. If there is a unique value with maximum frequency,
+     * this value is returned as the only element of the output array. Otherwise,
+     * the returned array contains the maximum frequency elements in increasing
+     * order.  For example, if {@code sample} is {0, 12, 5, 6, 0, 13, 5, 17},
+     * the returned array will have length two, with 0 in the first element and
+     * 5 in the second.
+     *
+     * &lt;p&gt;NaN values are ignored when computing the mode - i.e., NaNs will never
+     * appear in the output array.  If the sample includes only NaNs or has
+     * length 0, an empty array is returned.&lt;/p&gt;
+     *
+     * @param sample input data
+     * @return array of array of the most frequently occurring element(s) sorted in ascending order.
+     * @throws MathIllegalArgumentException if the indices are invalid or the array is null
+     * @since 3.3
+     */
+    public static double[] mode(double[] sample) throws MathIllegalArgumentException {
+<span class="fc bfc" id="L817" title="All 2 branches covered.">        if (sample == null) {</span>
+<span class="fc" id="L818">            throw new NullArgumentException(LocalizedFormats.INPUT_ARRAY);</span>
+        }
+<span class="fc" id="L820">        return getMode(sample, 0, sample.length);</span>
+    }
+
+    /**
+     * Returns the sample mode(s).  The mode is the most frequently occurring
+     * value in the sample. If there is a unique value with maximum frequency,
+     * this value is returned as the only element of the output array. Otherwise,
+     * the returned array contains the maximum frequency elements in increasing
+     * order.  For example, if {@code sample} is {0, 12, 5, 6, 0, 13, 5, 17},
+     * the returned array will have length two, with 0 in the first element and
+     * 5 in the second.
+     *
+     * &lt;p&gt;NaN values are ignored when computing the mode - i.e., NaNs will never
+     * appear in the output array.  If the sample includes only NaNs or has
+     * length 0, an empty array is returned.&lt;/p&gt;
+     *
+     * @param sample input data
+     * @param begin index (0-based) of the first array element to include
+     * @param length the number of elements to include
+     *
+     * @return array of array of the most frequently occurring element(s) sorted in ascending order.
+     * @throws MathIllegalArgumentException if the indices are invalid or the array is null
+     * @since 3.3
+     */
+    public static double[] mode(double[] sample, final int begin, final int length) {
+<span class="nc bnc" id="L845" title="All 2 branches missed.">        if (sample == null) {</span>
+<span class="nc" id="L846">            throw new NullArgumentException(LocalizedFormats.INPUT_ARRAY);</span>
+        }
+
+<span class="nc bnc" id="L849" title="All 2 branches missed.">        if (begin &lt; 0) {</span>
+<span class="nc" id="L850">            throw new NotPositiveException(LocalizedFormats.START_POSITION, Integer.valueOf(begin));</span>
+        }
+
+<span class="nc bnc" id="L853" title="All 2 branches missed.">        if (length &lt; 0) {</span>
+<span class="nc" id="L854">            throw new NotPositiveException(LocalizedFormats.LENGTH, Integer.valueOf(length));</span>
+        }
+
+<span class="nc" id="L857">        return getMode(sample, begin, length);</span>
+    }
+
+    /**
+     * Private helper method.
+     * Assumes parameters have been validated.
+     * @param values input data
+     * @param begin index (0-based) of the first array element to include
+     * @param length the number of elements to include
+     * @return array of array of the most frequently occurring element(s) sorted in ascending order.
+     */
+    private static double[] getMode(double[] values, final int begin, final int length) {
+        // Add the values to the frequency table
+<span class="fc" id="L870">        Frequency freq = new Frequency();</span>
+<span class="fc bfc" id="L871" title="All 2 branches covered.">        for (int i = begin; i &lt; begin + length; i++) {</span>
+<span class="fc" id="L872">            final double value = values[i];</span>
+<span class="fc bfc" id="L873" title="All 2 branches covered.">            if (!Double.isNaN(value)) {</span>
+<span class="fc" id="L874">                freq.addValue(Double.valueOf(value));</span>
+            }
+        }
+<span class="fc" id="L877">        List&lt;Comparable&lt;?&gt;&gt; list = freq.getMode();</span>
+        // Convert the list to an array of primitive double
+<span class="fc" id="L879">        double[] modes = new double[list.size()];</span>
+<span class="fc" id="L880">        int i = 0;</span>
+<span class="fc bfc" id="L881" title="All 2 branches covered.">        for(Comparable&lt;?&gt; c : list) {</span>
+<span class="fc" id="L882">            modes[i++] = ((Double) c).doubleValue();</span>
+<span class="fc" id="L883">        }</span>
+<span class="fc" id="L884">        return modes;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

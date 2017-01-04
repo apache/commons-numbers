@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LogisticDistribution.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.distribution</a> &gt; <span class="el_source">LogisticDistribution.java</span></div><h1>LogisticDistribution.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.distribution;
+
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.Well19937c;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * This class implements the Logistic distribution.
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Logistic_distribution&quot;&gt;Logistic Distribution (Wikipedia)&lt;/a&gt;
+ * @see &lt;a href=&quot;http://mathworld.wolfram.com/LogisticDistribution.html&quot;&gt;Logistic Distribution (Mathworld)&lt;/a&gt;
+ *
+ * @since 3.4
+ */
+public class LogisticDistribution extends AbstractRealDistribution {
+
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 20141003;
+
+    /** The location parameter. */
+    private final double mu;
+    /** The scale parameter. */
+    private final double s;
+
+    /**
+     * Build a new instance.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; this constructor will implicitly create an instance of
+     * {@link Well19937c} as random generator to be used for sampling only (see
+     * {@link #sample()} and {@link #sample(int)}). In case no sampling is
+     * needed for the created distribution, it is advised to pass {@code null}
+     * as random generator via the appropriate constructors to avoid the
+     * additional initialisation overhead.
+     *
+     * @param mu location parameter
+     * @param s scale parameter (must be positive)
+     * @throws NotStrictlyPositiveException if {@code beta &lt;= 0}
+     */
+    public LogisticDistribution(double mu, double s) {
+<span class="fc" id="L60">        this(new Well19937c(), mu, s);</span>
+<span class="fc" id="L61">    }</span>
+
+    /**
+     * Build a new instance.
+     *
+     * @param rng Random number generator
+     * @param mu location parameter
+     * @param s scale parameter (must be positive)
+     * @throws NotStrictlyPositiveException if {@code beta &lt;= 0}
+     */
+    public LogisticDistribution(RandomGenerator rng, double mu, double s) {
+<span class="fc" id="L72">        super(rng);</span>
+
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        if (s &lt;= 0.0) {</span>
+<span class="nc" id="L75">            throw new NotStrictlyPositiveException(LocalizedFormats.NOT_POSITIVE_SCALE, s);</span>
+        }
+
+<span class="fc" id="L78">        this.mu = mu;</span>
+<span class="fc" id="L79">        this.s = s;</span>
+<span class="fc" id="L80">    }</span>
+
+    /**
+     * Access the location parameter, {@code mu}.
+     *
+     * @return the location parameter.
+     */
+    public double getLocation() {
+<span class="fc" id="L88">        return mu;</span>
+    }
+
+    /**
+     * Access the scale parameter, {@code s}.
+     *
+     * @return the scale parameter.
+     */
+    public double getScale() {
+<span class="fc" id="L97">        return s;</span>
+    }
+
+    /** {@inheritDoc} */
+    public double density(double x) {
+<span class="fc" id="L102">        double z = (x - mu) / s;</span>
+<span class="fc" id="L103">        double v = FastMath.exp(-z);</span>
+<span class="fc" id="L104">        return 1 / s * v / ((1.0 + v) * (1.0 + v));</span>
+    }
+
+    /** {@inheritDoc} */
+    public double cumulativeProbability(double x) {
+<span class="fc" id="L109">        double z = 1 / s * (x - mu);</span>
+<span class="fc" id="L110">        return 1.0 / (1.0 + FastMath.exp(-z));</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double inverseCumulativeProbability(double p) throws OutOfRangeException {
+<span class="fc bfc" id="L116" title="All 4 branches covered.">        if (p &lt; 0.0 || p &gt; 1.0) {</span>
+<span class="fc" id="L117">            throw new OutOfRangeException(p, 0.0, 1.0);</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">        } else if (p == 0) {</span>
+<span class="nc" id="L119">            return 0.0;</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">        } else if (p == 1) {</span>
+<span class="nc" id="L121">            return Double.POSITIVE_INFINITY;</span>
+        }
+<span class="fc" id="L123">        return s * Math.log(p / (1.0 - p)) + mu;</span>
+    }
+
+    /** {@inheritDoc} */
+    public double getNumericalMean() {
+<span class="nc" id="L128">        return mu;</span>
+    }
+
+    /** {@inheritDoc} */
+    public double getNumericalVariance() {
+<span class="nc" id="L133">        return (MathUtils.PI_SQUARED / 3.0) * (1.0 / (s * s));</span>
+    }
+
+    /** {@inheritDoc} */
+    public double getSupportLowerBound() {
+<span class="fc" id="L138">        return Double.NEGATIVE_INFINITY;</span>
+    }
+
+    /** {@inheritDoc} */
+    public double getSupportUpperBound() {
+<span class="fc" id="L143">        return Double.POSITIVE_INFINITY;</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isSupportLowerBoundInclusive() {
+<span class="fc" id="L148">        return false;</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isSupportUpperBoundInclusive() {
+<span class="fc" id="L153">        return false;</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isSupportConnected() {
+<span class="fc" id="L158">        return true;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

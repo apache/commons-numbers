@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>package org.apache.commons.math3.ode.sampling;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.apache.commons.math3.RealFieldElement;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.exception.MaxCountExceededException;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.ode.FieldODEStateAndDerivative;<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>/**<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * This interface represents a handler that should be called after<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * each successful step.<a name="line.26"></a>
+<span class="sourceLineNo">027</span> *<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * &lt;p&gt;The ODE integrators compute the evolution of the state vector at<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * some grid points that depend on their own internal algorithm. Once<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * they have found a new grid point (possibly after having computed<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * several evaluation of the derivative at intermediate points), they<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * provide it to objects implementing this interface. These objects<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * typically either ignore the intermediate steps and wait for the<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * last one, store the points in an ephemeris, or forward them to<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * specialized processing or output methods.&lt;/p&gt;<a name="line.35"></a>
+<span class="sourceLineNo">036</span> *<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * @see org.apache.commons.math3.ode.FirstOrderFieldIntegrator<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * @see FieldStepInterpolator<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * @param &lt;T&gt; the type of the field elements<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * @since 3.6<a name="line.40"></a>
+<span class="sourceLineNo">041</span> */<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>public interface FieldStepHandler&lt;T extends RealFieldElement&lt;T&gt;&gt; {<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>    /** Initialize step handler at the start of an ODE integration.<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     * &lt;p&gt;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * This method is called once at the start of the integration. It<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     * may be used by the step handler to initialize some internal data<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * if needed.<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     * &lt;/p&gt;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     * @param initialState initial time, state vector and derivative<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     * @param finalTime target time for the integration<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     */<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    void init(FieldODEStateAndDerivative&lt;T&gt; initialState, T finalTime);<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>    /**<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * Handle the last accepted step<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     * @param interpolator interpolator for the last accepted step. For<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * efficiency purposes, the various integrators reuse the same<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * object on each call, so if the instance wants to keep it across<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * all calls (for example to provide at the end of the integration a<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     * continuous model valid throughout the integration range, as the<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * {@link org.apache.commons.math3.ode.ContinuousOutputModel<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * ContinuousOutputModel} class does), it should build a local copy<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * using the clone method of the interpolator and store this copy.<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     * Keeping only a reference to the interpolator and reusing it will<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * result in unpredictable behavior (potentially crashing the application).<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * @param isLast true if the step is the last one<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * @exception MaxCountExceededException if the interpolator throws one because<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * the number of functions evaluations is exceeded<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     */<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    void handleStep(FieldStepInterpolator&lt;T&gt; interpolator, boolean isLast)<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        throws MaxCountExceededException;<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>}<a name="line.75"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

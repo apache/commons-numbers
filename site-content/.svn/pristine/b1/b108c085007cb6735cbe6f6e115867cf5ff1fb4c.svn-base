@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Sum.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive.summary</a> &gt; <span class="el_source">Sum.java</span></div><h1>Sum.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive.summary;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.stat.descriptive.AbstractStorelessUnivariateStatistic;
+import org.apache.commons.math3.util.MathUtils;
+
+
+/**
+  * Returns the sum of the available values.
+ * &lt;p&gt;
+ * If there are no values in the dataset, then 0 is returned.
+ * If any of the values are
+ * &lt;code&gt;NaN&lt;/code&gt;, then &lt;code&gt;NaN&lt;/code&gt; is returned.&lt;/p&gt;
+ * &lt;p&gt;
+ * &lt;strong&gt;Note that this implementation is not synchronized.&lt;/strong&gt; If
+ * multiple threads access an instance of this class concurrently, and at least
+ * one of the threads invokes the &lt;code&gt;increment()&lt;/code&gt; or
+ * &lt;code&gt;clear()&lt;/code&gt; method, it must be synchronized externally.&lt;/p&gt;
+ *
+ */
+public class Sum extends AbstractStorelessUnivariateStatistic implements Serializable {
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = -8231831954703408316L;
+
+    /** */
+    private long n;
+
+    /**
+     * The currently running sum.
+     */
+    private double value;
+
+    /**
+     * Create a Sum instance
+     */
+<span class="fc" id="L56">    public Sum() {</span>
+<span class="fc" id="L57">        n = 0;</span>
+<span class="fc" id="L58">        value = 0;</span>
+<span class="fc" id="L59">    }</span>
+
+    /**
+     * Copy constructor, creates a new {@code Sum} identical
+     * to the {@code original}
+     *
+     * @param original the {@code Sum} instance to copy
+     * @throws NullArgumentException if original is null
+     */
+<span class="nc" id="L68">    public Sum(Sum original) throws NullArgumentException {</span>
+<span class="nc" id="L69">        copy(original, this);</span>
+<span class="nc" id="L70">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void increment(final double d) {
+<span class="fc" id="L77">        value += d;</span>
+<span class="fc" id="L78">        n++;</span>
+<span class="fc" id="L79">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getResult() {
+<span class="fc" id="L86">        return value;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getN() {
+<span class="fc" id="L93">        return n;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void clear() {
+<span class="fc" id="L101">        value = 0;</span>
+<span class="fc" id="L102">        n = 0;</span>
+<span class="fc" id="L103">    }</span>
+
+    /**
+     * The sum of the entries in the specified portion of
+     * the input array, or 0 if the designated subarray
+     * is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if the array is null.&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the sum of the values or 0 if length = 0
+     * @throws MathIllegalArgumentException if the array is null or the array index
+     *  parameters are not valid
+     */
+    @Override
+    public double evaluate(final double[] values, final int begin, final int length)
+    throws MathIllegalArgumentException {
+<span class="fc" id="L122">        double sum = Double.NaN;</span>
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">        if (test(values, begin, length, true)) {</span>
+<span class="fc" id="L124">            sum = 0.0;</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">            for (int i = begin; i &lt; begin + length; i++) {</span>
+<span class="fc" id="L126">                sum += values[i];</span>
+            }
+        }
+<span class="fc" id="L129">        return sum;</span>
+    }
+
+    /**
+     * The weighted sum of the entries in the specified portion of
+     * the input array, or 0 if the designated subarray
+     * is empty.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if any of the following are true:
+     * &lt;ul&gt;&lt;li&gt;the values array is null&lt;/li&gt;
+     *     &lt;li&gt;the weights array is null&lt;/li&gt;
+     *     &lt;li&gt;the weights array does not have the same length as the values array&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains one or more infinite values&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains one or more NaN values&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains negative values&lt;/li&gt;
+     *     &lt;li&gt;the start and length arguments do not determine a valid array&lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     * &lt;p&gt;
+     * Uses the formula, &lt;pre&gt;
+     *    weighted sum = &amp;Sigma;(values[i] * weights[i])
+     * &lt;/pre&gt;&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param weights the weights array
+     * @param begin index of the first array element to include
+     * @param length the number of elements to include
+     * @return the sum of the values or 0 if length = 0
+     * @throws MathIllegalArgumentException if the parameters are not valid
+     * @since 2.1
+     */
+    public double evaluate(final double[] values, final double[] weights,
+        final int begin, final int length) throws MathIllegalArgumentException {
+<span class="fc" id="L161">        double sum = Double.NaN;</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">        if (test(values, weights, begin, length, true)) {</span>
+<span class="fc" id="L163">            sum = 0.0;</span>
+<span class="fc bfc" id="L164" title="All 2 branches covered.">            for (int i = begin; i &lt; begin + length; i++) {</span>
+<span class="fc" id="L165">                sum += values[i] * weights[i];</span>
+            }
+        }
+<span class="fc" id="L168">        return sum;</span>
+    }
+
+    /**
+     * The weighted sum of the entries in the the input array.
+     * &lt;p&gt;
+     * Throws &lt;code&gt;MathIllegalArgumentException&lt;/code&gt; if any of the following are true:
+     * &lt;ul&gt;&lt;li&gt;the values array is null&lt;/li&gt;
+     *     &lt;li&gt;the weights array is null&lt;/li&gt;
+     *     &lt;li&gt;the weights array does not have the same length as the values array&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains one or more infinite values&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains one or more NaN values&lt;/li&gt;
+     *     &lt;li&gt;the weights array contains negative values&lt;/li&gt;
+     * &lt;/ul&gt;&lt;/p&gt;
+     * &lt;p&gt;
+     * Uses the formula, &lt;pre&gt;
+     *    weighted sum = &amp;Sigma;(values[i] * weights[i])
+     * &lt;/pre&gt;&lt;/p&gt;
+     *
+     * @param values the input array
+     * @param weights the weights array
+     * @return the sum of the values or Double.NaN if length = 0
+     * @throws MathIllegalArgumentException if the parameters are not valid
+     * @since 2.1
+     */
+    public double evaluate(final double[] values, final double[] weights)
+    throws MathIllegalArgumentException {
+<span class="nc" id="L195">        return evaluate(values, weights, 0, values.length);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Sum copy() {
+<span class="fc" id="L203">        Sum result = new Sum();</span>
+        // No try-catch or advertised exception because args are valid
+<span class="fc" id="L205">        copy(this, result);</span>
+<span class="fc" id="L206">        return result;</span>
+    }
+
+    /**
+     * Copies source to dest.
+     * &lt;p&gt;Neither source nor dest can be null.&lt;/p&gt;
+     *
+     * @param source Sum to copy
+     * @param dest Sum to copy to
+     * @throws NullArgumentException if either source or dest is null
+     */
+    public static void copy(Sum source, Sum dest)
+        throws NullArgumentException {
+<span class="fc" id="L219">        MathUtils.checkNotNull(source);</span>
+<span class="fc" id="L220">        MathUtils.checkNotNull(dest);</span>
+<span class="fc" id="L221">        dest.setData(source.getDataRef());</span>
+<span class="fc" id="L222">        dest.n = source.n;</span>
+<span class="fc" id="L223">        dest.value = source.value;</span>
+<span class="fc" id="L224">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

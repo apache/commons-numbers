@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Vertex.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.spherical.twod</a> &gt; <span class="el_source">Vertex.java</span></div><h1>Vertex.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.spherical.twod;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/** Spherical polygons boundary vertex.
+ * @see SphericalPolygonsSet#getBoundaryLoops()
+ * @see Edge
+ * @since 3.3
+ */
+public class Vertex {
+
+    /** Vertex location. */
+    private final S2Point location;
+
+    /** Incoming edge. */
+    private Edge incoming;
+
+    /** Outgoing edge. */
+    private Edge outgoing;
+
+    /** Circles bound with this vertex. */
+    private final List&lt;Circle&gt; circles;
+
+    /** Build a non-processed vertex not owned by any node yet.
+     * @param location vertex location
+     */
+<span class="fc" id="L44">    Vertex(final S2Point location) {</span>
+<span class="fc" id="L45">        this.location = location;</span>
+<span class="fc" id="L46">        this.incoming = null;</span>
+<span class="fc" id="L47">        this.outgoing = null;</span>
+<span class="fc" id="L48">        this.circles  = new ArrayList&lt;Circle&gt;();</span>
+<span class="fc" id="L49">    }</span>
+
+    /** Get Vertex location.
+     * @return vertex location
+     */
+    public S2Point getLocation() {
+<span class="fc" id="L55">        return location;</span>
+    }
+
+    /** Bind a circle considered to contain this vertex.
+     * @param circle circle to bind with this vertex
+     */
+    void bindWith(final Circle circle) {
+<span class="fc" id="L62">        circles.add(circle);</span>
+<span class="fc" id="L63">    }</span>
+
+    /** Get the common circle bound with both the instance and another vertex, if any.
+     * &lt;p&gt;
+     * When two vertices are both bound to the same circle, this means they are
+     * already handled by node associated with this circle, so there is no need
+     * to create a cut hyperplane for them.
+     * &lt;/p&gt;
+     * @param vertex other vertex to check instance against
+     * @return circle bound with both the instance and another vertex, or null if the
+     * two vertices do not share a circle yet
+     */
+    Circle sharedCircleWith(final Vertex vertex) {
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        for (final Circle circle1 : circles) {</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">            for (final Circle circle2 : vertex.circles) {</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">                if (circle1 == circle2) {</span>
+<span class="nc" id="L79">                    return circle1;</span>
+                }
+<span class="fc" id="L81">            }</span>
+<span class="fc" id="L82">        }</span>
+<span class="fc" id="L83">        return null;</span>
+    }
+
+    /** Set incoming edge.
+     * &lt;p&gt;
+     * The circle supporting the incoming edge is automatically bound
+     * with the instance.
+     * &lt;/p&gt;
+     * @param incoming incoming edge
+     */
+    void setIncoming(final Edge incoming) {
+<span class="fc" id="L94">        this.incoming = incoming;</span>
+<span class="fc" id="L95">        bindWith(incoming.getCircle());</span>
+<span class="fc" id="L96">    }</span>
+
+    /** Get incoming edge.
+     * @return incoming edge
+     */
+    public Edge getIncoming() {
+<span class="fc" id="L102">        return incoming;</span>
+    }
+
+    /** Set outgoing edge.
+     * &lt;p&gt;
+     * The circle supporting the outgoing edge is automatically bound
+     * with the instance.
+     * &lt;/p&gt;
+     * @param outgoing outgoing edge
+     */
+    void setOutgoing(final Edge outgoing) {
+<span class="fc" id="L113">        this.outgoing = outgoing;</span>
+<span class="fc" id="L114">        bindWith(outgoing.getCircle());</span>
+<span class="fc" id="L115">    }</span>
+
+    /** Get outgoing edge.
+     * @return outgoing edge
+     */
+    public Edge getOutgoing() {
+<span class="fc" id="L121">        return outgoing;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

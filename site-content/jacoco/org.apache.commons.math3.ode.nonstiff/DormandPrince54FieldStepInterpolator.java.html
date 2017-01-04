@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DormandPrince54FieldStepInterpolator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.nonstiff</a> &gt; <span class="el_source">DormandPrince54FieldStepInterpolator.java</span></div><h1>DormandPrince54FieldStepInterpolator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.nonstiff;
+
+import org.apache.commons.math3.Field;
+import org.apache.commons.math3.RealFieldElement;
+import org.apache.commons.math3.ode.FieldEquationsMapper;
+import org.apache.commons.math3.ode.FieldODEStateAndDerivative;
+
+/**
+ * This class represents an interpolator over the last step during an
+ * ODE integration for the 5(4) Dormand-Prince integrator.
+ *
+ * @see DormandPrince54Integrator
+ *
+ * @param &lt;T&gt; the type of the field elements
+ * @since 3.6
+ */
+
+class DormandPrince54FieldStepInterpolator&lt;T extends RealFieldElement&lt;T&gt;&gt;
+      extends RungeKuttaFieldStepInterpolator&lt;T&gt; {
+
+    /** Last row of the Butcher-array internal weights, element 0. */
+    private final T a70;
+
+    // element 1 is zero, so it is neither stored nor used
+
+    /** Last row of the Butcher-array internal weights, element 2. */
+    private final T a72;
+
+    /** Last row of the Butcher-array internal weights, element 3. */
+    private final T a73;
+
+    /** Last row of the Butcher-array internal weights, element 4. */
+    private final T a74;
+
+    /** Last row of the Butcher-array internal weights, element 5. */
+    private final T a75;
+
+    /** Shampine (1986) Dense output, element 0. */
+    private final T d0;
+
+    // element 1 is zero, so it is neither stored nor used
+
+    /** Shampine (1986) Dense output, element 2. */
+    private final T d2;
+
+    /** Shampine (1986) Dense output, element 3. */
+    private final T d3;
+
+    /** Shampine (1986) Dense output, element 4. */
+    private final T d4;
+
+    /** Shampine (1986) Dense output, element 5. */
+    private final T d5;
+
+    /** Shampine (1986) Dense output, element 6. */
+    private final T d6;
+
+    /** Simple constructor.
+     * @param field field to which the time and state vector elements belong
+     * @param forward integration direction indicator
+     * @param yDotK slopes at the intermediate points
+     * @param globalPreviousState start of the global step
+     * @param globalCurrentState end of the global step
+     * @param softPreviousState start of the restricted step
+     * @param softCurrentState end of the restricted step
+     * @param mapper equations mapper for the all equations
+     */
+    DormandPrince54FieldStepInterpolator(final Field&lt;T&gt; field, final boolean forward,
+                                         final T[][] yDotK,
+                                         final FieldODEStateAndDerivative&lt;T&gt; globalPreviousState,
+                                         final FieldODEStateAndDerivative&lt;T&gt; globalCurrentState,
+                                         final FieldODEStateAndDerivative&lt;T&gt; softPreviousState,
+                                         final FieldODEStateAndDerivative&lt;T&gt; softCurrentState,
+                                         final FieldEquationsMapper&lt;T&gt; mapper) {
+<span class="fc" id="L92">        super(field, forward, yDotK,</span>
+              globalPreviousState, globalCurrentState, softPreviousState, softCurrentState,
+              mapper);
+<span class="fc" id="L95">        final T one = field.getOne();</span>
+<span class="fc" id="L96">        a70 = one.multiply(   35.0).divide( 384.0);</span>
+<span class="fc" id="L97">        a72 = one.multiply(  500.0).divide(1113.0);</span>
+<span class="fc" id="L98">        a73 = one.multiply(  125.0).divide( 192.0);</span>
+<span class="fc" id="L99">        a74 = one.multiply(-2187.0).divide(6784.0);</span>
+<span class="fc" id="L100">        a75 = one.multiply(   11.0).divide(  84.0);</span>
+<span class="fc" id="L101">        d0  = one.multiply(-12715105075.0).divide( 11282082432.0);</span>
+<span class="fc" id="L102">        d2  = one.multiply( 87487479700.0).divide( 32700410799.0);</span>
+<span class="fc" id="L103">        d3  = one.multiply(-10690763975.0).divide(  1880347072.0);</span>
+<span class="fc" id="L104">        d4  = one.multiply(701980252875.0).divide(199316789632.0);</span>
+<span class="fc" id="L105">        d5  = one.multiply( -1453857185.0).divide(   822651844.0);</span>
+<span class="fc" id="L106">        d6  = one.multiply(    69997945.0).divide(    29380423.0);</span>
+<span class="fc" id="L107">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    protected DormandPrince54FieldStepInterpolator&lt;T&gt; create(final Field&lt;T&gt; newField, final boolean newForward, final T[][] newYDotK,
+                                                                 final FieldODEStateAndDerivative&lt;T&gt; newGlobalPreviousState,
+                                                                 final FieldODEStateAndDerivative&lt;T&gt; newGlobalCurrentState,
+                                                                 final FieldODEStateAndDerivative&lt;T&gt; newSoftPreviousState,
+                                                                 final FieldODEStateAndDerivative&lt;T&gt; newSoftCurrentState,
+                                                                 final FieldEquationsMapper&lt;T&gt; newMapper) {
+<span class="fc" id="L117">        return new DormandPrince54FieldStepInterpolator&lt;T&gt;(newField, newForward, newYDotK,</span>
+                                                           newGlobalPreviousState, newGlobalCurrentState,
+                                                           newSoftPreviousState, newSoftCurrentState,
+                                                           newMapper);
+    }
+    /** {@inheritDoc} */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Override
+    protected FieldODEStateAndDerivative&lt;T&gt; computeInterpolatedStateAndDerivatives(final FieldEquationsMapper&lt;T&gt; mapper,
+                                                                                   final T time, final T theta,
+                                                                                   final T thetaH, final T oneMinusThetaH) {
+
+        // interpolate
+<span class="fc" id="L130">        final T one      = time.getField().getOne();</span>
+<span class="fc" id="L131">        final T eta      = one.subtract(theta);</span>
+<span class="fc" id="L132">        final T twoTheta = theta.multiply(2);</span>
+<span class="fc" id="L133">        final T dot2     = one.subtract(twoTheta);</span>
+<span class="fc" id="L134">        final T dot3     = theta.multiply(theta.multiply(-3).add(2));</span>
+<span class="fc" id="L135">        final T dot4     = twoTheta.multiply(theta.multiply(twoTheta.subtract(3)).add(1));</span>
+        final T[] interpolatedState;
+        final T[] interpolatedDerivatives;
+<span class="pc bpc" id="L138" title="1 of 4 branches missed.">        if (getGlobalPreviousState() != null &amp;&amp; theta.getReal() &lt;= 0.5) {</span>
+<span class="fc" id="L139">            final T f1        = thetaH;</span>
+<span class="fc" id="L140">            final T f2        = f1.multiply(eta);</span>
+<span class="fc" id="L141">            final T f3        = f2.multiply(theta);</span>
+<span class="fc" id="L142">            final T f4        = f3.multiply(eta);</span>
+<span class="fc" id="L143">            final T coeff0    = f1.multiply(a70).</span>
+                                subtract(f2.multiply(a70.subtract(1))).
+                                add(f3.multiply(a70.multiply(2).subtract(1))).
+                                add(f4.multiply(d0));
+<span class="fc" id="L147">            final T coeff1    = time.getField().getZero();</span>
+<span class="fc" id="L148">            final T coeff2    = f1.multiply(a72).</span>
+                                subtract(f2.multiply(a72)).
+                                add(f3.multiply(a72.multiply(2))).
+                                add(f4.multiply(d2));
+<span class="fc" id="L152">            final T coeff3    = f1.multiply(a73).</span>
+                                subtract(f2.multiply(a73)).
+                                add(f3.multiply(a73.multiply(2))).
+                                add(f4.multiply(d3));
+<span class="fc" id="L156">            final T coeff4    = f1.multiply(a74).</span>
+                                subtract(f2.multiply(a74)).
+                                add(f3.multiply(a74.multiply(2))).
+                                add(f4.multiply(d4));
+<span class="fc" id="L160">            final T coeff5    = f1.multiply(a75).</span>
+                                subtract(f2.multiply(a75)).
+                                add(f3.multiply(a75.multiply(2))).
+                                add(f4.multiply(d5));
+<span class="fc" id="L164">            final T coeff6    = f4.multiply(d6).subtract(f3);</span>
+<span class="fc" id="L165">            final T coeffDot0 = a70.</span>
+                                subtract(dot2.multiply(a70.subtract(1))).
+                                add(dot3.multiply(a70.multiply(2).subtract(1))).
+                                add(dot4.multiply(d0));
+<span class="fc" id="L169">            final T coeffDot1 = time.getField().getZero();</span>
+<span class="fc" id="L170">            final T coeffDot2 = a72.</span>
+                                subtract(dot2.multiply(a72)).
+                                add(dot3.multiply(a72.multiply(2))).
+                                add(dot4.multiply(d2));
+<span class="fc" id="L174">            final T coeffDot3 = a73.</span>
+                                subtract(dot2.multiply(a73)).
+                                add(dot3.multiply(a73.multiply(2))).
+                                add(dot4.multiply(d3));
+<span class="fc" id="L178">            final T coeffDot4 = a74.</span>
+                                subtract(dot2.multiply(a74)).
+                                add(dot3.multiply(a74.multiply(2))).
+                                add(dot4.multiply(d4));
+<span class="fc" id="L182">            final T coeffDot5 = a75.</span>
+                                subtract(dot2.multiply(a75)).
+                                add(dot3.multiply(a75.multiply(2))).
+                                add(dot4.multiply(d5));
+<span class="fc" id="L186">            final T coeffDot6 = dot4.multiply(d6).subtract(dot3);</span>
+<span class="fc" id="L187">            interpolatedState       = previousStateLinearCombination(coeff0, coeff1, coeff2, coeff3,</span>
+                                                                     coeff4, coeff5, coeff6);
+<span class="fc" id="L189">            interpolatedDerivatives = derivativeLinearCombination(coeffDot0, coeffDot1, coeffDot2, coeffDot3,</span>
+                                                                  coeffDot4, coeffDot5, coeffDot6);
+<span class="fc" id="L191">        } else {</span>
+<span class="fc" id="L192">            final T f1        = oneMinusThetaH.negate();</span>
+<span class="fc" id="L193">            final T f2        = oneMinusThetaH.multiply(theta);</span>
+<span class="fc" id="L194">            final T f3        = f2.multiply(theta);</span>
+<span class="fc" id="L195">            final T f4        = f3.multiply(eta);</span>
+<span class="fc" id="L196">            final T coeff0    = f1.multiply(a70).</span>
+                                subtract(f2.multiply(a70.subtract(1))).
+                                add(f3.multiply(a70.multiply(2).subtract(1))).
+                                add(f4.multiply(d0));
+<span class="fc" id="L200">            final T coeff1    = time.getField().getZero();</span>
+<span class="fc" id="L201">            final T coeff2    = f1.multiply(a72).</span>
+                                subtract(f2.multiply(a72)).
+                                add(f3.multiply(a72.multiply(2))).
+                                add(f4.multiply(d2));
+<span class="fc" id="L205">            final T coeff3    = f1.multiply(a73).</span>
+                                subtract(f2.multiply(a73)).
+                                add(f3.multiply(a73.multiply(2))).
+                                add(f4.multiply(d3));
+<span class="fc" id="L209">            final T coeff4    = f1.multiply(a74).</span>
+                                subtract(f2.multiply(a74)).
+                                add(f3.multiply(a74.multiply(2))).
+                                add(f4.multiply(d4));
+<span class="fc" id="L213">            final T coeff5    = f1.multiply(a75).</span>
+                                subtract(f2.multiply(a75)).
+                                add(f3.multiply(a75.multiply(2))).
+                                add(f4.multiply(d5));
+<span class="fc" id="L217">            final T coeff6    = f4.multiply(d6).subtract(f3);</span>
+<span class="fc" id="L218">            final T coeffDot0 = a70.</span>
+                                subtract(dot2.multiply(a70.subtract(1))).
+                                add(dot3.multiply(a70.multiply(2).subtract(1))).
+                                add(dot4.multiply(d0));
+<span class="fc" id="L222">            final T coeffDot1 = time.getField().getZero();</span>
+<span class="fc" id="L223">            final T coeffDot2 = a72.</span>
+                                subtract(dot2.multiply(a72)).
+                                add(dot3.multiply(a72.multiply(2))).
+                                add(dot4.multiply(d2));
+<span class="fc" id="L227">            final T coeffDot3 = a73.</span>
+                                subtract(dot2.multiply(a73)).
+                                add(dot3.multiply(a73.multiply(2))).
+                                add(dot4.multiply(d3));
+<span class="fc" id="L231">            final T coeffDot4 = a74.</span>
+                                subtract(dot2.multiply(a74)).
+                                add(dot3.multiply(a74.multiply(2))).
+                                add(dot4.multiply(d4));
+<span class="fc" id="L235">            final T coeffDot5 = a75.</span>
+                                subtract(dot2.multiply(a75)).
+                                add(dot3.multiply(a75.multiply(2))).
+                                add(dot4.multiply(d5));
+<span class="fc" id="L239">            final T coeffDot6 = dot4.multiply(d6).subtract(dot3);</span>
+<span class="fc" id="L240">            interpolatedState       = currentStateLinearCombination(coeff0, coeff1, coeff2, coeff3,</span>
+                                                                    coeff4, coeff5, coeff6);
+<span class="fc" id="L242">            interpolatedDerivatives = derivativeLinearCombination(coeffDot0, coeffDot1, coeffDot2, coeffDot3,</span>
+                                                                  coeffDot4, coeffDot5, coeffDot6);
+        }
+<span class="fc" id="L245">        return new FieldODEStateAndDerivative&lt;T&gt;(time, interpolatedState, interpolatedDerivatives);</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

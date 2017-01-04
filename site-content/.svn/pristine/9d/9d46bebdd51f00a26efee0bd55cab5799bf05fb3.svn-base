@@ -1,0 +1,93 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<title>Apache Commons Math 3.6.1 Reference Package org.apache.commons.math3.util</title>
+		<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="style" />
+	</head>
+	<body>
+
+		<h3>
+        	<a href="package-summary.html" target="classFrame">org.apache.commons.math3.util</a>
+      	</h3>
+
+      	<h3>Classes</h3>
+
+      	<ul>
+      		          	<li>
+            	<a href="ArithmeticUtilsTest.html" target="classFrame">ArithmeticUtilsTest</a>
+          	</li>
+          	          	<li>
+            	<a href="BigRealFieldTest.html" target="classFrame">BigRealFieldTest</a>
+          	</li>
+          	          	<li>
+            	<a href="BigRealTest.html" target="classFrame">BigRealTest</a>
+          	</li>
+          	          	<li>
+            	<a href="CombinationsTest.html" target="classFrame">CombinationsTest</a>
+          	</li>
+          	          	<li>
+            	<a href="CombinatoricsUtilsTest.html" target="classFrame">CombinatoricsUtilsTest</a>
+          	</li>
+          	          	<li>
+            	<a href="ContinuedFractionTest.html" target="classFrame">ContinuedFractionTest</a>
+          	</li>
+          	          	<li>
+            	<a href="Decimal64Test.html" target="classFrame">Decimal64Test</a>
+          	</li>
+          	          	<li>
+            	<a href="DefaultTransformerTest.html" target="classFrame">DefaultTransformerTest</a>
+          	</li>
+          	          	<li>
+            	<a href="DoubleArrayAbstractTest.html" target="classFrame">DoubleArrayAbstractTest</a>
+          	</li>
+          	          	<li>
+            	<a href="FastMathStrictComparisonTest.html" target="classFrame">FastMathStrictComparisonTest</a>
+          	</li>
+          	          	<li>
+            	<a href="FastMathTest.html" target="classFrame">FastMathTest</a>
+          	</li>
+          	          	<li>
+            	<a href="IncrementorTest.html" target="classFrame">IncrementorTest</a>
+          	</li>
+          	          	<li>
+            	<a href="IntegerSequenceTest.html" target="classFrame">IntegerSequenceTest</a>
+          	</li>
+          	          	<li>
+            	<a href="MathArraysTest.html" target="classFrame">MathArraysTest</a>
+          	</li>
+          	          	<li>
+            	<a href="MathUtilsTest.html" target="classFrame">MathUtilsTest</a>
+          	</li>
+          	          	<li>
+            	<a href="MultidimensionalCounterTest.html" target="classFrame">MultidimensionalCounterTest</a>
+          	</li>
+          	          	<li>
+            	<a href="PairTest.html" target="classFrame">MyInteger</a>
+          	</li>
+          	          	<li>
+            	<a href="OpenIntToDoubleHashMapTest.html" target="classFrame">OpenIntToDoubleHashMapTest</a>
+          	</li>
+          	          	<li>
+            	<a href="OpenIntToFieldTest.html" target="classFrame">OpenIntToFieldTest</a>
+          	</li>
+          	          	<li>
+            	<a href="PairTest.html" target="classFrame">PairTest</a>
+          	</li>
+          	          	<li>
+            	<a href="PrecisionTest.html" target="classFrame">PrecisionTest</a>
+          	</li>
+          	          	<li>
+            	<a href="ResizableDoubleArrayTest.html" target="classFrame">ResizableDoubleArrayTest</a>
+          	</li>
+          	          	<li>
+            	<a href="TestBean.html" target="classFrame">TestBean</a>
+          	</li>
+          	          	<li>
+            	<a href="TransformerMapTest.html" target="classFrame">TransformerMapTest</a>
+          	</li>
+          	      	</ul>
+
+	</body>
+</html>

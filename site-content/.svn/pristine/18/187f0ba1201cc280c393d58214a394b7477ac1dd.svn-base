@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Region.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.partitioning</a> &gt; <span class="el_source">Region.java</span></div><h1>Region.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.partitioning;
+
+import org.apache.commons.math3.geometry.Space;
+import org.apache.commons.math3.geometry.Point;
+
+/** This interface represents a region of a space as a partition.
+
+ * &lt;p&gt;Region are subsets of a space, they can be infinite (whole
+ * space, half space, infinite stripe ...) or finite (polygons in 2D,
+ * polyhedrons in 3D ...). Their main characteristic is to separate
+ * points that are considered to be &lt;em&gt;inside&lt;/em&gt; the region from
+ * points considered to be &lt;em&gt;outside&lt;/em&gt; of it. In between, there
+ * may be points on the &lt;em&gt;boundary&lt;/em&gt; of the region.&lt;/p&gt;
+
+ * &lt;p&gt;This implementation is limited to regions for which the boundary
+ * is composed of several {@link SubHyperplane sub-hyperplanes},
+ * including regions with no boundary at all: the whole space and the
+ * empty region. They are not necessarily finite and not necessarily
+ * path-connected. They can contain holes.&lt;/p&gt;
+
+ * &lt;p&gt;Regions can be combined using the traditional sets operations :
+ * union, intersection, difference and symetric difference (exclusive
+ * or) for the binary operations, complement for the unary
+ * operation.&lt;/p&gt;
+
+ * &lt;p&gt;
+ * Note that this interface is &lt;em&gt;not&lt;/em&gt; intended to be implemented
+ * by Apache Commons Math users, it is only intended to be implemented
+ * within the library itself. New methods may be added even for minor
+ * versions, which breaks compatibility for external implementations.
+ * &lt;/p&gt;
+
+ * @param &lt;S&gt; Type of the space.
+
+ * @since 3.0
+ */
+public interface Region&lt;S extends Space&gt; {
+
+    /** Enumerate for the location of a point with respect to the region. */
+<span class="pc" id="L56">    enum Location {</span>
+        /** Code for points inside the partition. */
+<span class="fc" id="L58">        INSIDE,</span>
+
+        /** Code for points outside of the partition. */
+<span class="fc" id="L61">        OUTSIDE,</span>
+
+        /** Code for points on the partition boundary. */
+<span class="fc" id="L64">        BOUNDARY;</span>
+    }
+
+    /** Build a region using the instance as a prototype.
+     * &lt;p&gt;This method allow to create new instances without knowing
+     * exactly the type of the region. It is an application of the
+     * prototype design pattern.&lt;/p&gt;
+     * &lt;p&gt;The leaf nodes of the BSP tree &lt;em&gt;must&lt;/em&gt; have a
+     * {@code Boolean} attribute representing the inside status of
+     * the corresponding cell (true for inside cells, false for outside
+     * cells). In order to avoid building too many small objects, it is
+     * recommended to use the predefined constants
+     * {@code Boolean.TRUE} and {@code Boolean.FALSE}. The
+     * tree also &lt;em&gt;must&lt;/em&gt; have either null internal nodes or
+     * internal nodes representing the boundary as specified in the
+     * {@link #getTree getTree} method).&lt;/p&gt;
+     * @param newTree inside/outside BSP tree representing the new region
+     * @return the built region
+     */
+    Region&lt;S&gt; buildNew(BSPTree&lt;S&gt; newTree);
+
+    /** Copy the instance.
+     * &lt;p&gt;The instance created is completely independant of the original
+     * one. A deep copy is used, none of the underlying objects are
+     * shared (except for the underlying tree {@code Boolean}
+     * attributes and immutable objects).&lt;/p&gt;
+     * @return a new region, copy of the instance
+     */
+    Region&lt;S&gt; copySelf();
+
+    /** Check if the instance is empty.
+     * @return true if the instance is empty
+     */
+    boolean isEmpty();
+
+    /** Check if the sub-tree starting at a given node is empty.
+     * @param node root node of the sub-tree (&lt;em&gt;must&lt;/em&gt; have {@link
+     * Region Region} tree semantics, i.e. the leaf nodes must have
+     * {@code Boolean} attributes representing an inside/outside
+     * property)
+     * @return true if the sub-tree starting at the given node is empty
+     */
+    boolean isEmpty(final BSPTree&lt;S&gt; node);
+
+    /** Check if the instance covers the full space.
+     * @return true if the instance covers the full space
+     */
+    boolean isFull();
+
+    /** Check if the sub-tree starting at a given node covers the full space.
+     * @param node root node of the sub-tree (&lt;em&gt;must&lt;/em&gt; have {@link
+     * Region Region} tree semantics, i.e. the leaf nodes must have
+     * {@code Boolean} attributes representing an inside/outside
+     * property)
+     * @return true if the sub-tree starting at the given node covers the full space
+     */
+    boolean isFull(final BSPTree&lt;S&gt; node);
+
+    /** Check if the instance entirely contains another region.
+     * @param region region to check against the instance
+     * @return true if the instance contains the specified tree
+     */
+    boolean contains(final Region&lt;S&gt; region);
+
+    /** Check a point with respect to the region.
+     * @param point point to check
+     * @return a code representing the point status: either {@link
+     * Location#INSIDE}, {@link Location#OUTSIDE} or {@link Location#BOUNDARY}
+     */
+    Location checkPoint(final Point&lt;S&gt; point);
+
+    /** Project a point on the boundary of the region.
+     * @param point point to check
+     * @return projection of the point on the boundary
+     * @since 3.3
+     */
+    BoundaryProjection&lt;S&gt; projectToBoundary(final Point&lt;S&gt; point);
+
+    /** Get the underlying BSP tree.
+
+     * &lt;p&gt;Regions are represented by an underlying inside/outside BSP
+     * tree whose leaf attributes are {@code Boolean} instances
+     * representing inside leaf cells if the attribute value is
+     * {@code true} and outside leaf cells if the attribute is
+     * {@code false}. These leaf attributes are always present and
+     * guaranteed to be non null.&lt;/p&gt;
+
+     * &lt;p&gt;In addition to the leaf attributes, the internal nodes which
+     * correspond to cells split by cut sub-hyperplanes may contain
+     * {@link BoundaryAttribute BoundaryAttribute} objects representing
+     * the parts of the corresponding cut sub-hyperplane that belong to
+     * the boundary. When the boundary attributes have been computed,
+     * all internal nodes are guaranteed to have non-null
+     * attributes, however some {@link BoundaryAttribute
+     * BoundaryAttribute} instances may have their {@link
+     * BoundaryAttribute#getPlusInside() getPlusInside} and {@link
+     * BoundaryAttribute#getPlusOutside() getPlusOutside} methods both
+     * returning null if the corresponding cut sub-hyperplane does not
+     * have any parts belonging to the boundary.&lt;/p&gt;
+
+     * &lt;p&gt;Since computing the boundary is not always required and can be
+     * time-consuming for large trees, these internal nodes attributes
+     * are computed using lazy evaluation only when required by setting
+     * the {@code includeBoundaryAttributes} argument to
+     * {@code true}. Once computed, these attributes remain in the
+     * tree, which implies that in this case, further calls to the
+     * method for the same region will always include these attributes
+     * regardless of the value of the
+     * {@code includeBoundaryAttributes} argument.&lt;/p&gt;
+
+     * @param includeBoundaryAttributes if true, the boundary attributes
+     * at internal nodes are guaranteed to be included (they may be
+     * included even if the argument is false, if they have already been
+     * computed due to a previous call)
+     * @return underlying BSP tree
+     * @see BoundaryAttribute
+     */
+    BSPTree&lt;S&gt; getTree(final boolean includeBoundaryAttributes);
+
+    /** Get the size of the boundary.
+     * @return the size of the boundary (this is 0 in 1D, a length in
+     * 2D, an area in 3D ...)
+     */
+    double getBoundarySize();
+
+    /** Get the size of the instance.
+     * @return the size of the instance (this is a length in 1D, an area
+     * in 2D, a volume in 3D ...)
+     */
+    double getSize();
+
+    /** Get the barycenter of the instance.
+     * @return an object representing the barycenter
+     */
+    Point&lt;S&gt; getBarycenter();
+
+    /** Compute the relative position of the instance with respect to an
+     * hyperplane.
+     * @param hyperplane reference hyperplane
+     * @return one of {@link Side#PLUS Side.PLUS}, {@link Side#MINUS
+     * Side.MINUS}, {@link Side#BOTH Side.BOTH} or {@link Side#HYPER
+     * Side.HYPER} (the latter result can occur only if the tree
+     * contains only one cut hyperplane)
+     * @deprecated as of 3.6, this method which was only intended for
+     * internal use is not used anymore
+     */
+    @Deprecated
+    Side side(final Hyperplane&lt;S&gt; hyperplane);
+
+    /** Get the parts of a sub-hyperplane that are contained in the region.
+     * &lt;p&gt;The parts of the sub-hyperplane that belong to the boundary are
+     * &lt;em&gt;not&lt;/em&gt; included in the resulting parts.&lt;/p&gt;
+     * @param sub sub-hyperplane traversing the region
+     * @return filtered sub-hyperplane
+     */
+    SubHyperplane&lt;S&gt; intersection(final SubHyperplane&lt;S&gt; sub);
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

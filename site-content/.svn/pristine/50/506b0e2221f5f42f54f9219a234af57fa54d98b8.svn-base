@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractFieldStepInterpolator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.sampling</a> &gt; <span class="el_source">AbstractFieldStepInterpolator.java</span></div><h1>AbstractFieldStepInterpolator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.sampling;
+
+import org.apache.commons.math3.RealFieldElement;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.ode.FieldEquationsMapper;
+import org.apache.commons.math3.ode.FieldODEStateAndDerivative;
+
+/** This abstract class represents an interpolator over the last step
+ * during an ODE integration.
+ *
+ * &lt;p&gt;The various ODE integrators provide objects extending this class
+ * to the step handlers. The handlers can use these objects to
+ * retrieve the state vector at intermediate times between the
+ * previous and the current grid points (dense output).&lt;/p&gt;
+ *
+ * @see org.apache.commons.math3.ode.FirstOrderFieldIntegrator
+ * @see StepHandler
+ *
+ * @param &lt;T&gt; the type of the field elements
+ * @since 3.6
+ */
+
+public abstract class AbstractFieldStepInterpolator&lt;T extends RealFieldElement&lt;T&gt;&gt;
+    implements FieldStepInterpolator&lt;T&gt; {
+
+    /** Global previous state. */
+    private final FieldODEStateAndDerivative&lt;T&gt; globalPreviousState;
+
+    /** Global current state. */
+    private final FieldODEStateAndDerivative&lt;T&gt; globalCurrentState;
+
+    /** Soft previous state. */
+    private final FieldODEStateAndDerivative&lt;T&gt; softPreviousState;
+
+    /** Soft current state. */
+    private final FieldODEStateAndDerivative&lt;T&gt; softCurrentState;
+
+    /** integration direction. */
+    private final boolean forward;
+
+    /** Mapper for ODE equations primary and secondary components. */
+    private FieldEquationsMapper&lt;T&gt; mapper;
+
+    /** Simple constructor.
+     * @param isForward integration direction indicator
+     * @param globalPreviousState start of the global step
+     * @param globalCurrentState end of the global step
+     * @param softPreviousState start of the restricted step
+     * @param softCurrentState end of the restricted step
+     * @param equationsMapper mapper for ODE equations primary and secondary components
+     */
+    protected AbstractFieldStepInterpolator(final boolean isForward,
+                                            final FieldODEStateAndDerivative&lt;T&gt; globalPreviousState,
+                                            final FieldODEStateAndDerivative&lt;T&gt; globalCurrentState,
+                                            final FieldODEStateAndDerivative&lt;T&gt; softPreviousState,
+                                            final FieldODEStateAndDerivative&lt;T&gt; softCurrentState,
+<span class="fc" id="L74">                                            final FieldEquationsMapper&lt;T&gt; equationsMapper) {</span>
+<span class="fc" id="L75">        this.forward             = isForward;</span>
+<span class="fc" id="L76">        this.globalPreviousState = globalPreviousState;</span>
+<span class="fc" id="L77">        this.globalCurrentState  = globalCurrentState;</span>
+<span class="fc" id="L78">        this.softPreviousState   = softPreviousState;</span>
+<span class="fc" id="L79">        this.softCurrentState    = softCurrentState;</span>
+<span class="fc" id="L80">        this.mapper              = equationsMapper;</span>
+<span class="fc" id="L81">    }</span>
+
+    /** Create a new restricted version of the instance.
+     * &lt;p&gt;
+     * The instance is not changed at all.
+     * &lt;/p&gt;
+     * @param previousState start of the restricted step
+     * @param currentState end of the restricted step
+     * @return restricted version of the instance
+     * @see #getPreviousState()
+     * @see #getCurrentState()
+     */
+    public AbstractFieldStepInterpolator&lt;T&gt; restrictStep(final FieldODEStateAndDerivative&lt;T&gt; previousState,
+                                                         final FieldODEStateAndDerivative&lt;T&gt; currentState) {
+<span class="fc" id="L95">        return create(forward, globalPreviousState, globalCurrentState, previousState, currentState, mapper);</span>
+    }
+
+    /** Create a new instance.
+     * @param newForward integration direction indicator
+     * @param newGlobalPreviousState start of the global step
+     * @param newGlobalCurrentState end of the global step
+     * @param newSoftPreviousState start of the restricted step
+     * @param newSoftCurrentState end of the restricted step
+     * @param newMapper equations mapper for the all equations
+     * @return a new instance
+     */
+    protected abstract AbstractFieldStepInterpolator&lt;T&gt; create(boolean newForward,
+                                                               FieldODEStateAndDerivative&lt;T&gt; newGlobalPreviousState,
+                                                               FieldODEStateAndDerivative&lt;T&gt; newGlobalCurrentState,
+                                                               FieldODEStateAndDerivative&lt;T&gt; newSoftPreviousState,
+                                                               FieldODEStateAndDerivative&lt;T&gt; newSoftCurrentState,
+                                                               FieldEquationsMapper&lt;T&gt; newMapper);
+
+    /**
+     * Get the previous global grid point state.
+     * @return previous global grid point state
+     */
+    public FieldODEStateAndDerivative&lt;T&gt; getGlobalPreviousState() {
+<span class="fc" id="L119">        return globalPreviousState;</span>
+    }
+
+    /**
+     * Get the current global grid point state.
+     * @return current global grid point state
+     */
+    public FieldODEStateAndDerivative&lt;T&gt; getGlobalCurrentState() {
+<span class="fc" id="L127">        return globalCurrentState;</span>
+    }
+
+    /** {@inheritDoc} */
+    public FieldODEStateAndDerivative&lt;T&gt; getPreviousState() {
+<span class="fc" id="L132">        return softPreviousState;</span>
+    }
+
+    /** {@inheritDoc} */
+    public FieldODEStateAndDerivative&lt;T&gt; getCurrentState() {
+<span class="fc" id="L137">        return softCurrentState;</span>
+    }
+
+    /** {@inheritDoc} */
+    public FieldODEStateAndDerivative&lt;T&gt; getInterpolatedState(final T time) {
+<span class="fc" id="L142">        final T thetaH         = time.subtract(globalPreviousState.getTime());</span>
+<span class="fc" id="L143">        final T oneMinusThetaH = globalCurrentState.getTime().subtract(time);</span>
+<span class="fc" id="L144">        final T theta          = thetaH.divide(globalCurrentState.getTime().subtract(globalPreviousState.getTime()));</span>
+<span class="fc" id="L145">        return computeInterpolatedStateAndDerivatives(mapper, time, theta, thetaH, oneMinusThetaH);</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isForward() {
+<span class="fc" id="L150">        return forward;</span>
+    }
+
+    /** Compute the state and derivatives at the interpolated time.
+     * This is the main processing method that should be implemented by
+     * the derived classes to perform the interpolation.
+     * @param equationsMapper mapper for ODE equations primary and secondary components
+     * @param time interpolation time
+     * @param theta normalized interpolation abscissa within the step
+     * (theta is zero at the previous time step and one at the current time step)
+     * @param thetaH time gap between the previous time and the interpolated time
+     * @param oneMinusThetaH time gap between the interpolated time and
+     * the current time
+     * @return interpolated state and derivatives
+     * @exception MaxCountExceededException if the number of functions evaluations is exceeded
+     */
+    protected abstract FieldODEStateAndDerivative&lt;T&gt; computeInterpolatedStateAndDerivatives(FieldEquationsMapper&lt;T&gt; equationsMapper,
+                                                                                            T time, T theta,
+                                                                                            T thetaH, T oneMinusThetaH)
+        throws MaxCountExceededException;
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

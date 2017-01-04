@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AbstractIntegerDistribution.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.distribution</a> &gt; <span class="el_source">AbstractIntegerDistribution.java</span></div><h1>AbstractIntegerDistribution.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.distribution;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.MathInternalError;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.util.FastMath;
+
+/**
+ * Base class for integer-valued discrete distributions.  Default
+ * implementations are provided for some of the methods that do not vary
+ * from distribution to distribution.
+ *
+ */
+public abstract class AbstractIntegerDistribution implements IntegerDistribution, Serializable {
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = -1146319659338487221L;
+
+    /**
+     * RandomData instance used to generate samples from the distribution.
+     * @deprecated As of 3.1, to be removed in 4.0. Please use the
+     * {@link #random} instance variable instead.
+     */
+<span class="pc" id="L45">    @Deprecated</span>
+    protected final org.apache.commons.math3.random.RandomDataImpl randomData =
+        new org.apache.commons.math3.random.RandomDataImpl();
+
+    /**
+     * RNG instance used to generate samples from the distribution.
+     * @since 3.1
+     */
+    protected final RandomGenerator random;
+
+    /**
+     * @deprecated As of 3.1, to be removed in 4.0. Please use
+     * {@link #AbstractIntegerDistribution(RandomGenerator)} instead.
+     */
+    @Deprecated
+<span class="nc" id="L60">    protected AbstractIntegerDistribution() {</span>
+        // Legacy users are only allowed to access the deprecated &quot;randomData&quot;.
+        // New users are forbidden to use this constructor.
+<span class="nc" id="L63">        random = null;</span>
+<span class="nc" id="L64">    }</span>
+
+    /**
+     * @param rng Random number generator.
+     * @since 3.1
+     */
+<span class="fc" id="L70">    protected AbstractIntegerDistribution(RandomGenerator rng) {</span>
+<span class="fc" id="L71">        random = rng;</span>
+<span class="fc" id="L72">    }</span>
+
+    /**
+     * {@inheritDoc}
+     *
+     * The default implementation uses the identity
+     * &lt;p&gt;{@code P(x0 &lt; X &lt;= x1) = P(X &lt;= x1) - P(X &lt;= x0)}&lt;/p&gt;
+     */
+    public double cumulativeProbability(int x0, int x1) throws NumberIsTooLargeException {
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        if (x1 &lt; x0) {</span>
+<span class="fc" id="L82">            throw new NumberIsTooLargeException(LocalizedFormats.LOWER_ENDPOINT_ABOVE_UPPER_ENDPOINT,</span>
+                    x0, x1, true);
+        }
+<span class="fc" id="L85">        return cumulativeProbability(x1) - cumulativeProbability(x0);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The default implementation returns
+     * &lt;ul&gt;
+     * &lt;li&gt;{@link #getSupportLowerBound()} for {@code p = 0},&lt;/li&gt;
+     * &lt;li&gt;{@link #getSupportUpperBound()} for {@code p = 1}, and&lt;/li&gt;
+     * &lt;li&gt;{@link #solveInverseCumulativeProbability(double, int, int)} for
+     *     {@code 0 &lt; p &lt; 1}.&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+    public int inverseCumulativeProbability(final double p) throws OutOfRangeException {
+<span class="fc bfc" id="L100" title="All 4 branches covered.">        if (p &lt; 0.0 || p &gt; 1.0) {</span>
+<span class="fc" id="L101">            throw new OutOfRangeException(p, 0, 1);</span>
+        }
+
+<span class="fc" id="L104">        int lower = getSupportLowerBound();</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        if (p == 0.0) {</span>
+<span class="fc" id="L106">            return lower;</span>
+        }
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">        if (lower == Integer.MIN_VALUE) {</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">            if (checkedCumulativeProbability(lower) &gt;= p) {</span>
+<span class="nc" id="L110">                return lower;</span>
+            }
+        } else {
+<span class="fc" id="L113">            lower -= 1; // this ensures cumulativeProbability(lower) &lt; p, which</span>
+                        // is important for the solving step
+        }
+
+<span class="fc" id="L117">        int upper = getSupportUpperBound();</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        if (p == 1.0) {</span>
+<span class="fc" id="L119">            return upper;</span>
+        }
+
+        // use the one-sided Chebyshev inequality to narrow the bracket
+        // cf. AbstractRealDistribution.inverseCumulativeProbability(double)
+<span class="fc" id="L124">        final double mu = getNumericalMean();</span>
+<span class="fc" id="L125">        final double sigma = FastMath.sqrt(getNumericalVariance());</span>
+<span class="pc bpc" id="L126" title="3 of 10 branches missed.">        final boolean chebyshevApplies = !(Double.isInfinite(mu) || Double.isNaN(mu) ||</span>
+                Double.isInfinite(sigma) || Double.isNaN(sigma) || sigma == 0.0);
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        if (chebyshevApplies) {</span>
+<span class="fc" id="L129">            double k = FastMath.sqrt((1.0 - p) / p);</span>
+<span class="fc" id="L130">            double tmp = mu - k * sigma;</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">            if (tmp &gt; lower) {</span>
+<span class="fc" id="L132">                lower = ((int) FastMath.ceil(tmp)) - 1;</span>
+            }
+<span class="fc" id="L134">            k = 1.0 / k;</span>
+<span class="fc" id="L135">            tmp = mu + k * sigma;</span>
+<span class="fc bfc" id="L136" title="All 2 branches covered.">            if (tmp &lt; upper) {</span>
+<span class="fc" id="L137">                upper = ((int) FastMath.ceil(tmp)) - 1;</span>
+            }
+        }
+
+<span class="fc" id="L141">        return solveInverseCumulativeProbability(p, lower, upper);</span>
+    }
+
+    /**
+     * This is a utility function used by {@link
+     * #inverseCumulativeProbability(double)}. It assumes {@code 0 &lt; p &lt; 1} and
+     * that the inverse cumulative probability lies in the bracket {@code
+     * (lower, upper]}. The implementation does simple bisection to find the
+     * smallest {@code p}-quantile &lt;code&gt;inf{x in Z | P(X&lt;=x) &gt;= p}&lt;/code&gt;.
+     *
+     * @param p the cumulative probability
+     * @param lower a value satisfying {@code cumulativeProbability(lower) &lt; p}
+     * @param upper a value satisfying {@code p &lt;= cumulativeProbability(upper)}
+     * @return the smallest {@code p}-quantile of this distribution
+     */
+    protected int solveInverseCumulativeProbability(final double p, int lower, int upper) {
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        while (lower + 1 &lt; upper) {</span>
+<span class="fc" id="L158">            int xm = (lower + upper) / 2;</span>
+<span class="pc bpc" id="L159" title="1 of 4 branches missed.">            if (xm &lt; lower || xm &gt; upper) {</span>
+                /*
+                 * Overflow.
+                 * There will never be an overflow in both calculation methods
+                 * for xm at the same time
+                 */
+<span class="fc" id="L165">                xm = lower + (upper - lower) / 2;</span>
+            }
+
+<span class="fc" id="L168">            double pm = checkedCumulativeProbability(xm);</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">            if (pm &gt;= p) {</span>
+<span class="fc" id="L170">                upper = xm;</span>
+            } else {
+<span class="fc" id="L172">                lower = xm;</span>
+            }
+<span class="fc" id="L174">        }</span>
+<span class="fc" id="L175">        return upper;</span>
+    }
+
+    /** {@inheritDoc} */
+    public void reseedRandomGenerator(long seed) {
+<span class="fc" id="L180">        random.setSeed(seed);</span>
+<span class="fc" id="L181">        randomData.reSeed(seed);</span>
+<span class="fc" id="L182">    }</span>
+
+    /**
+     * {@inheritDoc}
+     *
+     * The default implementation uses the
+     * &lt;a href=&quot;http://en.wikipedia.org/wiki/Inverse_transform_sampling&quot;&gt;
+     * inversion method&lt;/a&gt;.
+     */
+    public int sample() {
+<span class="fc" id="L192">        return inverseCumulativeProbability(random.nextDouble());</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The default implementation generates the sample by calling
+     * {@link #sample()} in a loop.
+     */
+    public int[] sample(int sampleSize) {
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">        if (sampleSize &lt;= 0) {</span>
+<span class="nc" id="L203">            throw new NotStrictlyPositiveException(</span>
+                    LocalizedFormats.NUMBER_OF_SAMPLES, sampleSize);
+        }
+<span class="fc" id="L206">        int[] out = new int[sampleSize];</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        for (int i = 0; i &lt; sampleSize; i++) {</span>
+<span class="fc" id="L208">            out[i] = sample();</span>
+        }
+<span class="fc" id="L210">        return out;</span>
+    }
+
+    /**
+     * Computes the cumulative probability function and checks for {@code NaN}
+     * values returned. Throws {@code MathInternalError} if the value is
+     * {@code NaN}. Rethrows any exception encountered evaluating the cumulative
+     * probability function. Throws {@code MathInternalError} if the cumulative
+     * probability function returns {@code NaN}.
+     *
+     * @param argument input value
+     * @return the cumulative probability
+     * @throws MathInternalError if the cumulative probability is {@code NaN}
+     */
+    private double checkedCumulativeProbability(int argument)
+        throws MathInternalError {
+<span class="fc" id="L226">        double result = Double.NaN;</span>
+<span class="fc" id="L227">        result = cumulativeProbability(argument);</span>
+<span class="pc bpc" id="L228" title="1 of 2 branches missed.">        if (Double.isNaN(result)) {</span>
+<span class="nc" id="L229">            throw new MathInternalError(LocalizedFormats</span>
+                    .DISCRETE_CUMULATIVE_PROBABILITY_RETURNED_NAN, argument);
+        }
+<span class="fc" id="L232">        return result;</span>
+    }
+
+    /**
+     * For a random variable {@code X} whose values are distributed according to
+     * this distribution, this method returns {@code log(P(X = x))}, where
+     * {@code log} is the natural logarithm. In other words, this method
+     * represents the logarithm of the probability mass function (PMF) for the
+     * distribution. Note that due to the floating point precision and
+     * under/overflow issues, this method will for some distributions be more
+     * precise and faster than computing the logarithm of
+     * {@link #probability(int)}.
+     * &lt;p&gt;
+     * The default implementation simply computes the logarithm of {@code probability(x)}.&lt;/p&gt;
+     *
+     * @param x the point at which the PMF is evaluated
+     * @return the logarithm of the value of the probability mass function at {@code x}
+     */
+    public double logProbability(int x) {
+<span class="fc" id="L251">        return FastMath.log(probability(x));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,998 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>PSquarePercentile.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive.rank</a> &gt; <span class="el_source">PSquarePercentile.java</span></div><h1>PSquarePercentile.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive.rank;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.analysis.interpolation.LinearInterpolator;
+import org.apache.commons.math3.analysis.interpolation.NevilleInterpolator;
+import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
+import org.apache.commons.math3.exception.InsufficientDataException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.stat.descriptive.AbstractStorelessUnivariateStatistic;
+import org.apache.commons.math3.stat.descriptive.StorelessUnivariateStatistic;
+import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.math3.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
+
+/**
+ * A {@link StorelessUnivariateStatistic} estimating percentiles using the
+ * &lt;ahref=http://www.cs.wustl.edu/~jain/papers/ftp/psqr.pdf&gt;P&lt;SUP&gt;2&lt;/SUP&gt;&lt;/a&gt;
+ * Algorithm as explained by &lt;a href=http://www.cse.wustl.edu/~jain/&gt;Raj
+ * Jain&lt;/a&gt; and Imrich Chlamtac in
+ * &lt;a href=http://www.cse.wustl.edu/~jain/papers/psqr.htm&gt;P&lt;SUP&gt;2&lt;/SUP&gt; Algorithm
+ * for Dynamic Calculation of Quantiles and Histogram Without Storing
+ * Observations&lt;/a&gt;.
+ * &lt;p&gt;
+ * Note: This implementation is not synchronized and produces an approximate
+ * result. For small samples, where data can be stored and processed in memory,
+ * {@link Percentile} should be used.&lt;/p&gt;
+ *
+ */
+public class PSquarePercentile extends AbstractStorelessUnivariateStatistic
+        implements StorelessUnivariateStatistic, Serializable {
+
+    /**
+     * The maximum array size used for psquare algorithm
+     */
+    private static final int PSQUARE_CONSTANT = 5;
+
+    /**
+     * A Default quantile needed in case if user prefers to use default no
+     * argument constructor.
+     */
+    private static final double DEFAULT_QUANTILE_DESIRED = 50d;
+
+    /**
+     * Serial ID
+     */
+    private static final long serialVersionUID = 2283912083175715479L;
+
+    /**
+     * A decimal formatter for print convenience
+     */
+<span class="fc" id="L78">    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat(</span>
+            &quot;00.00&quot;);
+
+    /**
+     * Initial list of 5 numbers corresponding to 5 markers. &lt;b&gt;NOTE:&lt;/b&gt;watch
+     * out for the add methods that are overloaded
+     */
+<span class="fc" id="L85">    private final List&lt;Double&gt; initialFive = new FixedCapacityList&lt;Double&gt;(</span>
+            PSQUARE_CONSTANT);
+
+    /**
+     * The quantile needed should be in range of 0-1. The constructor
+     * {@link #PSquarePercentile(double)} ensures that passed in percentile is
+     * divided by 100.
+     */
+    private final double quantile;
+
+    /**
+     * lastObservation is the last observation value/input sample. No need to
+     * serialize
+     */
+    private transient double lastObservation;
+
+    /**
+     * Markers is the marker collection object which comes to effect
+     * only after 5 values are inserted
+     */
+<span class="fc" id="L105">    private PSquareMarkers markers = null;</span>
+
+    /**
+     * Computed p value (i,e percentile value of data set hither to received)
+     */
+<span class="fc" id="L110">    private double pValue = Double.NaN;</span>
+
+    /**
+     * Counter to count the values/observations accepted into this data set
+     */
+    private long countOfObservations;
+
+    /**
+     * Constructs a PSquarePercentile with the specific percentile value.
+     * @param p the percentile
+     * @throws OutOfRangeException  if p is not greater than 0 and less
+     * than or equal to 100
+     */
+<span class="fc" id="L123">    public PSquarePercentile(final double p) {</span>
+<span class="fc bfc" id="L124" title="All 4 branches covered.">        if (p &gt; 100 || p &lt; 0) {</span>
+<span class="fc" id="L125">            throw new OutOfRangeException(LocalizedFormats.OUT_OF_RANGE,</span>
+                    p, 0, 100);
+        }
+<span class="fc" id="L128">        this.quantile = p / 100d;// always set it within (0,1]</span>
+<span class="fc" id="L129">    }</span>
+
+    /**
+     * Default constructor that assumes a {@link #DEFAULT_QUANTILE_DESIRED
+     * default quantile} needed
+     */
+    PSquarePercentile() {
+<span class="fc" id="L136">        this(DEFAULT_QUANTILE_DESIRED);</span>
+<span class="fc" id="L137">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+<span class="fc" id="L144">        double result = getResult();</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        result = Double.isNaN(result) ? 37 : result;</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        final double markersHash = markers == null ? 0 : markers.hashCode();</span>
+<span class="fc" id="L147">        final double[] toHash = {result, quantile, markersHash, countOfObservations};</span>
+<span class="fc" id="L148">        return Arrays.hashCode(toHash);</span>
+    }
+
+    /**
+     * Returns true iff {@code o} is a {@code PSquarePercentile} returning the
+     * same values as this for {@code getResult()} and {@code getN()} and also
+     * having equal markers
+     *
+     * @param o object to compare
+     * @return true if {@code o} is a {@code PSquarePercentile} with
+     * equivalent internal state
+     */
+    @Override
+    public boolean equals(Object o) {
+<span class="fc" id="L162">        boolean result = false;</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        if (this == o) {</span>
+<span class="fc" id="L164">            result = true;</span>
+<span class="fc bfc" id="L165" title="All 4 branches covered.">        } else if (o != null &amp;&amp; o instanceof PSquarePercentile) {</span>
+<span class="fc" id="L166">            PSquarePercentile that = (PSquarePercentile) o;</span>
+<span class="fc bfc" id="L167" title="All 4 branches covered.">            boolean isNotNull = markers != null &amp;&amp; that.markers != null;</span>
+<span class="fc bfc" id="L168" title="All 4 branches covered.">            boolean isNull = markers == null &amp;&amp; that.markers == null;</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">            result = isNotNull ? markers.equals(that.markers) : isNull;</span>
+            // markers as in the case of first
+            // five observations
+<span class="fc bfc" id="L172" title="All 4 branches covered.">            result = result &amp;&amp; getN() == that.getN();</span>
+        }
+<span class="fc" id="L174">        return result;</span>
+    }
+
+    /**
+     * {@inheritDoc}The internal state updated due to the new value in this
+     * context is basically of the marker positions and computation of the
+     * approximate quantile.
+     *
+     * @param observation the observation currently being added.
+     */
+    @Override
+    public void increment(final double observation) {
+        // Increment counter
+<span class="fc" id="L187">        countOfObservations++;</span>
+
+        // Store last observation
+<span class="fc" id="L190">        this.lastObservation = observation;</span>
+
+        // 0. Use Brute force for &lt;5
+<span class="fc bfc" id="L193" title="All 2 branches covered.">        if (markers == null) {</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">            if (initialFive.add(observation)) {</span>
+<span class="fc" id="L195">                Collections.sort(initialFive);</span>
+<span class="fc" id="L196">                pValue =</span>
+                        initialFive
+                                .get((int) (quantile * (initialFive.size() - 1)));
+<span class="fc" id="L199">                return;</span>
+            }
+            // 1. Initialize once after 5th observation
+<span class="fc" id="L202">            markers = newMarkers(initialFive, quantile);</span>
+        }
+        // 2. process a Data Point and return pValue
+<span class="fc" id="L205">        pValue = markers.processDataPoint(observation);</span>
+<span class="fc" id="L206">    }</span>
+
+    /**
+     * Returns a string containing the last observation, the current estimate
+     * of the quantile and all markers.
+     *
+     * @return string representation of state data
+     */
+    @Override
+    public String toString() {
+
+<span class="fc bfc" id="L217" title="All 2 branches covered.">        if (markers == null) {</span>
+<span class="fc" id="L218">            return String.format(&quot;obs=%s pValue=%s&quot;,</span>
+                    DECIMAL_FORMAT.format(lastObservation),
+                    DECIMAL_FORMAT.format(pValue));
+        } else {
+<span class="fc" id="L222">            return String.format(&quot;obs=%s markers=%s&quot;,</span>
+                    DECIMAL_FORMAT.format(lastObservation), markers.toString());
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getN() {
+<span class="fc" id="L231">        return countOfObservations;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public StorelessUnivariateStatistic copy() {
+        // multiply quantile by 100 now as anyway constructor divides it by 100
+<span class="fc" id="L240">        PSquarePercentile copy = new PSquarePercentile(100d * quantile);</span>
+
+<span class="fc bfc" id="L242" title="All 2 branches covered.">        if (markers != null) {</span>
+<span class="fc" id="L243">            copy.markers = (PSquareMarkers) markers.clone();</span>
+        }
+<span class="fc" id="L245">        copy.countOfObservations = countOfObservations;</span>
+<span class="fc" id="L246">        copy.pValue = pValue;</span>
+<span class="fc" id="L247">        copy.initialFive.clear();</span>
+<span class="fc" id="L248">        copy.initialFive.addAll(initialFive);</span>
+<span class="fc" id="L249">        return copy;</span>
+    }
+
+    /**
+     * Returns the quantile estimated by this statistic in the range [0.0-1.0]
+     *
+     * @return quantile estimated by {@link #getResult()}
+     */
+    public double quantile() {
+<span class="fc" id="L258">        return quantile;</span>
+    }
+
+    /**
+     * {@inheritDoc}. This basically clears all the markers, the
+     * initialFive list and sets countOfObservations to 0.
+     */
+    @Override
+    public void clear() {
+<span class="fc" id="L267">        markers = null;</span>
+<span class="fc" id="L268">        initialFive.clear();</span>
+<span class="fc" id="L269">        countOfObservations = 0L;</span>
+<span class="fc" id="L270">        pValue = Double.NaN;</span>
+<span class="fc" id="L271">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getResult() {
+<span class="fc bfc" id="L278" title="All 2 branches covered.">        if (Double.compare(quantile, 1d) == 0) {</span>
+<span class="fc" id="L279">            pValue = maximum();</span>
+<span class="fc bfc" id="L280" title="All 2 branches covered.">        } else if (Double.compare(quantile, 0d) == 0) {</span>
+<span class="fc" id="L281">            pValue = minimum();</span>
+        }
+<span class="fc" id="L283">        return pValue;</span>
+    }
+
+    /**
+     * @return maximum in the data set added to this statistic
+     */
+    private double maximum() {
+<span class="fc" id="L290">        double val = Double.NaN;</span>
+<span class="fc bfc" id="L291" title="All 2 branches covered.">        if (markers != null) {</span>
+<span class="fc" id="L292">            val = markers.height(PSQUARE_CONSTANT);</span>
+<span class="fc bfc" id="L293" title="All 2 branches covered.">        } else if (!initialFive.isEmpty()) {</span>
+<span class="fc" id="L294">            val = initialFive.get(initialFive.size() - 1);</span>
+        }
+<span class="fc" id="L296">        return val;</span>
+    }
+
+    /**
+     * @return minimum in the data set added to this statistic
+     */
+    private double minimum() {
+<span class="fc" id="L303">        double val = Double.NaN;</span>
+<span class="fc bfc" id="L304" title="All 2 branches covered.">        if (markers != null) {</span>
+<span class="fc" id="L305">            val = markers.height(1);</span>
+<span class="fc bfc" id="L306" title="All 2 branches covered.">        } else if (!initialFive.isEmpty()) {</span>
+<span class="fc" id="L307">            val = initialFive.get(0);</span>
+        }
+<span class="fc" id="L309">        return val;</span>
+    }
+
+    /**
+     * Markers is an encapsulation of the five markers/buckets as indicated in
+     * the original works.
+     */
+    private static class Markers implements PSquareMarkers, Serializable {
+        /**
+         * Serial version id
+         */
+        private static final long serialVersionUID = 1L;
+
+        /** Low marker index */
+        private static final int LOW = 2;
+
+        /** High marker index */
+        private static final int HIGH = 4;
+
+        /**
+         * Array of 5+1 Markers (The first marker is dummy just so we
+         * can match the rest of indexes [1-5] indicated in the original works
+         * which follows unit based index)
+         */
+        private final Marker[] markerArray;
+
+        /**
+         * Kth cell belonging to [1-5] of the markerArray. No need for
+         * this to be serialized
+         */
+<span class="fc" id="L339">        private transient int k = -1;</span>
+
+        /**
+         * Constructor
+         *
+         * @param theMarkerArray marker array to be used
+         */
+<span class="fc" id="L346">        private Markers(final Marker[] theMarkerArray) {</span>
+<span class="fc" id="L347">            MathUtils.checkNotNull(theMarkerArray);</span>
+<span class="fc" id="L348">            markerArray = theMarkerArray;</span>
+<span class="fc bfc" id="L349" title="All 2 branches covered.">            for (int i = 1; i &lt; PSQUARE_CONSTANT; i++) {</span>
+<span class="fc" id="L350">                markerArray[i].previous(markerArray[i - 1])</span>
+                        .next(markerArray[i + 1]).index(i);
+            }
+<span class="fc" id="L353">            markerArray[0].previous(markerArray[0]).next(markerArray[1])</span>
+                    .index(0);
+<span class="fc" id="L355">            markerArray[5].previous(markerArray[4]).next(markerArray[5])</span>
+                    .index(5);
+<span class="fc" id="L357">        }</span>
+
+        /**
+         * Constructor
+         *
+         * @param initialFive elements required to build Marker
+         * @param p quantile required to be computed
+         */
+        private Markers(final List&lt;Double&gt; initialFive, final double p) {
+<span class="fc" id="L366">            this(createMarkerArray(initialFive, p));</span>
+<span class="fc" id="L367">        }</span>
+
+        /**
+         * Creates a marker array using initial five elements and a quantile
+         *
+         * @param initialFive list of initial five elements
+         * @param p the pth quantile
+         * @return Marker array
+         */
+        private static Marker[] createMarkerArray(
+                final List&lt;Double&gt; initialFive, final double p) {
+<span class="fc bfc" id="L378" title="All 2 branches covered.">            final int countObserved =</span>
+                    initialFive == null ? -1 : initialFive.size();
+<span class="fc bfc" id="L380" title="All 2 branches covered.">            if (countObserved &lt; PSQUARE_CONSTANT) {</span>
+<span class="fc" id="L381">                throw new InsufficientDataException(</span>
+                        LocalizedFormats.INSUFFICIENT_OBSERVED_POINTS_IN_SAMPLE,
+                        countObserved, PSQUARE_CONSTANT);
+            }
+<span class="fc" id="L385">            Collections.sort(initialFive);</span>
+<span class="fc" id="L386">            return new Marker[] {</span>
+                    new Marker(),// Null Marker
+                    new Marker(initialFive.get(0), 1, 0, 1),
+                    new Marker(initialFive.get(1), 1 + 2 * p, p / 2, 2),
+                    new Marker(initialFive.get(2), 1 + 4 * p, p, 3),
+                    new Marker(initialFive.get(3), 3 + 2 * p, (1 + p) / 2, 4),
+                    new Marker(initialFive.get(4), 5, 1, 5) };
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int hashCode() {
+<span class="fc" id="L400">            return Arrays.deepHashCode(markerArray);</span>
+        }
+
+        /**
+         * {@inheritDoc}.This equals method basically checks for marker array to
+         * be deep equals.
+         *
+         * @param o is the other object
+         * @return true if the object compares with this object are equivalent
+         */
+        @Override
+        public boolean equals(Object o) {
+<span class="fc" id="L412">            boolean result = false;</span>
+<span class="fc bfc" id="L413" title="All 2 branches covered.">            if (this == o) {</span>
+<span class="fc" id="L414">                result = true;</span>
+<span class="fc bfc" id="L415" title="All 4 branches covered.">            } else if (o != null &amp;&amp; o instanceof Markers) {</span>
+<span class="fc" id="L416">                Markers that = (Markers) o;</span>
+<span class="fc" id="L417">                result = Arrays.deepEquals(markerArray, that.markerArray);</span>
+            }
+<span class="fc" id="L419">            return result;</span>
+        }
+
+        /**
+         * Process a data point
+         *
+         * @param inputDataPoint is the data point passed
+         * @return computed percentile
+         */
+        public double processDataPoint(final double inputDataPoint) {
+
+            // 1. Find cell and update minima and maxima
+<span class="fc" id="L431">            final int kthCell = findCellAndUpdateMinMax(inputDataPoint);</span>
+
+            // 2. Increment positions
+<span class="fc" id="L434">            incrementPositions(1, kthCell + 1, 5);</span>
+
+            // 2a. Update desired position with increments
+<span class="fc" id="L437">            updateDesiredPositions();</span>
+
+            // 3. Adjust heights of m[2-4] if necessary
+<span class="fc" id="L440">            adjustHeightsOfMarkers();</span>
+
+            // 4. Return percentile
+<span class="fc" id="L443">            return getPercentileValue();</span>
+        }
+
+        /**
+         * Returns the percentile computed thus far.
+         *
+         * @return height of mid point marker
+         */
+        public double getPercentileValue() {
+<span class="fc" id="L452">            return height(3);</span>
+        }
+
+        /**
+         * Finds the cell where the input observation / value fits.
+         *
+         * @param observation the input value to be checked for
+         * @return kth cell (of the markers ranging from 1-5) where observed
+         *         sample fits
+         */
+        private int findCellAndUpdateMinMax(final double observation) {
+<span class="fc" id="L463">            k = -1;</span>
+<span class="fc bfc" id="L464" title="All 2 branches covered.">            if (observation &lt; height(1)) {</span>
+<span class="fc" id="L465">                markerArray[1].markerHeight = observation;</span>
+<span class="fc" id="L466">                k = 1;</span>
+<span class="fc bfc" id="L467" title="All 2 branches covered.">            } else if (observation &lt; height(2)) {</span>
+<span class="fc" id="L468">                k = 1;</span>
+<span class="fc bfc" id="L469" title="All 2 branches covered.">            } else if (observation &lt; height(3)) {</span>
+<span class="fc" id="L470">                k = 2;</span>
+<span class="fc bfc" id="L471" title="All 2 branches covered.">            } else if (observation &lt; height(4)) {</span>
+<span class="fc" id="L472">                k = 3;</span>
+<span class="fc bfc" id="L473" title="All 2 branches covered.">            } else if (observation &lt;= height(5)) {</span>
+<span class="fc" id="L474">                k = 4;</span>
+            } else {
+<span class="fc" id="L476">                markerArray[5].markerHeight = observation;</span>
+<span class="fc" id="L477">                k = 4;</span>
+            }
+<span class="fc" id="L479">            return k;</span>
+        }
+
+        /**
+         * Adjust marker heights by setting quantile estimates to middle markers.
+         */
+        private void adjustHeightsOfMarkers() {
+<span class="fc bfc" id="L486" title="All 2 branches covered.">            for (int i = LOW; i &lt;= HIGH; i++) {</span>
+<span class="fc" id="L487">                estimate(i);</span>
+            }
+<span class="fc" id="L489">        }</span>
+
+        /**
+         * {@inheritDoc}
+         */
+        public double estimate(final int index) {
+<span class="fc bfc" id="L495" title="All 4 branches covered.">            if (index &lt; LOW || index &gt; HIGH) {</span>
+<span class="fc" id="L496">                throw new OutOfRangeException(index, LOW, HIGH);</span>
+            }
+<span class="fc" id="L498">            return markerArray[index].estimate();</span>
+        }
+
+        /**
+         * Increment positions by d. Refer to algorithm paper for the
+         * definition of d.
+         *
+         * @param d The increment value for the position
+         * @param startIndex start index of the marker array
+         * @param endIndex end index of the marker array
+         */
+        private void incrementPositions(final int d, final int startIndex,
+                final int endIndex) {
+<span class="fc bfc" id="L511" title="All 2 branches covered.">            for (int i = startIndex; i &lt;= endIndex; i++) {</span>
+<span class="fc" id="L512">                markerArray[i].incrementPosition(d);</span>
+            }
+<span class="fc" id="L514">        }</span>
+
+        /**
+         * Desired positions incremented by bucket width. The bucket width is
+         * basically the desired increments.
+         */
+        private void updateDesiredPositions() {
+<span class="fc bfc" id="L521" title="All 2 branches covered.">            for (int i = 1; i &lt; markerArray.length; i++) {</span>
+<span class="fc" id="L522">                markerArray[i].updateDesiredPosition();</span>
+            }
+<span class="fc" id="L524">        }</span>
+
+        /**
+         * Sets previous and next markers after default read is done.
+         *
+         * @param anInputStream the input stream to be deserialized
+         * @throws ClassNotFoundException thrown when a desired class not found
+         * @throws IOException thrown due to any io errors
+         */
+        private void readObject(ObjectInputStream anInputStream)
+                throws ClassNotFoundException, IOException {
+            // always perform the default de-serialization first
+<span class="fc" id="L536">            anInputStream.defaultReadObject();</span>
+            // Build links
+<span class="fc bfc" id="L538" title="All 2 branches covered.">            for (int i = 1; i &lt; PSQUARE_CONSTANT; i++) {</span>
+<span class="fc" id="L539">                markerArray[i].previous(markerArray[i - 1])</span>
+                        .next(markerArray[i + 1]).index(i);
+            }
+<span class="fc" id="L542">            markerArray[0].previous(markerArray[0]).next(markerArray[1])</span>
+                    .index(0);
+<span class="fc" id="L544">            markerArray[5].previous(markerArray[4]).next(markerArray[5])</span>
+                    .index(5);
+<span class="fc" id="L546">        }</span>
+
+        /**
+         * Return marker height given index
+         *
+         * @param markerIndex index of marker within (1,6)
+         * @return marker height
+         */
+        public double height(final int markerIndex) {
+<span class="fc bfc" id="L555" title="All 4 branches covered.">            if (markerIndex &gt;= markerArray.length || markerIndex &lt;= 0) {</span>
+<span class="fc" id="L556">                throw new OutOfRangeException(markerIndex, 1,</span>
+                        markerArray.length);
+            }
+<span class="fc" id="L559">            return markerArray[markerIndex].markerHeight;</span>
+        }
+
+        /**
+         * {@inheritDoc}.Clone Markers
+         *
+         * @return cloned object
+         */
+        @Override
+        public Object clone() {
+<span class="fc" id="L569">            return new Markers(new Marker[] { new Marker(),</span>
+                    (Marker) markerArray[1].clone(),
+                    (Marker) markerArray[2].clone(),
+                    (Marker) markerArray[3].clone(),
+                    (Marker) markerArray[4].clone(),
+                    (Marker) markerArray[5].clone() });
+
+        }
+
+        /**
+         * Returns string representation of the Marker array.
+         *
+         * @return Markers as a string
+         */
+        @Override
+        public String toString() {
+<span class="fc" id="L585">            return String.format(&quot;m1=[%s],m2=[%s],m3=[%s],m4=[%s],m5=[%s]&quot;,</span>
+                    markerArray[1].toString(), markerArray[2].toString(),
+                    markerArray[3].toString(), markerArray[4].toString(),
+                    markerArray[5].toString());
+        }
+
+    }
+
+    /**
+     * The class modeling the attributes of the marker of the P-square algorithm
+     */
+    private static class Marker implements Serializable, Cloneable {
+
+        /**
+         * Serial Version ID
+         */
+        private static final long serialVersionUID = -3575879478288538431L;
+
+        /**
+         * The marker index which is just a serial number for the marker in the
+         * marker array of 5+1.
+         */
+        private int index;
+
+        /**
+         * The integral marker position. Refer to the variable n in the original
+         * works.
+         */
+        private double intMarkerPosition;
+
+        /**
+         * Desired marker position. Refer to the variable n' in the original
+         * works.
+         */
+        private double desiredMarkerPosition;
+
+        /**
+         * Marker height or the quantile. Refer to the variable q in the
+         * original works.
+         */
+        private double markerHeight;
+
+        /**
+         * Desired marker increment. Refer to the variable dn' in the original
+         * works.
+         */
+        private double desiredMarkerIncrement;
+
+        /**
+         * Next and previous markers for easy linked navigation in loops. this
+         * is not serialized as they can be rebuilt during deserialization.
+         */
+        private transient Marker next;
+
+        /**
+         * The previous marker links
+         */
+        private transient Marker previous;
+
+        /**
+         * Nonlinear interpolator
+         */
+<span class="fc" id="L647">        private final UnivariateInterpolator nonLinear =</span>
+                new NevilleInterpolator();
+
+        /**
+         * Linear interpolator which is not serializable
+         */
+<span class="fc" id="L653">        private transient UnivariateInterpolator linear =</span>
+                new LinearInterpolator();
+
+        /**
+         * Default constructor
+         */
+<span class="fc" id="L659">        private Marker() {</span>
+<span class="fc" id="L660">            this.next = this.previous = this;</span>
+<span class="fc" id="L661">        }</span>
+
+        /**
+         * Constructor of the marker with parameters
+         *
+         * @param heightOfMarker represent the quantile value
+         * @param makerPositionDesired represent the desired marker position
+         * @param markerPositionIncrement represent increments for position
+         * @param markerPositionNumber represent the position number of marker
+         */
+        private Marker(double heightOfMarker, double makerPositionDesired,
+                double markerPositionIncrement, double markerPositionNumber) {
+<span class="fc" id="L673">            this();</span>
+<span class="fc" id="L674">            this.markerHeight = heightOfMarker;</span>
+<span class="fc" id="L675">            this.desiredMarkerPosition = makerPositionDesired;</span>
+<span class="fc" id="L676">            this.desiredMarkerIncrement = markerPositionIncrement;</span>
+<span class="fc" id="L677">            this.intMarkerPosition = markerPositionNumber;</span>
+<span class="fc" id="L678">        }</span>
+
+        /**
+         * Sets the previous marker.
+         *
+         * @param previousMarker the previous marker to the current marker in
+         *            the array of markers
+         * @return this instance
+         */
+        private Marker previous(final Marker previousMarker) {
+<span class="fc" id="L688">            MathUtils.checkNotNull(previousMarker);</span>
+<span class="fc" id="L689">            this.previous = previousMarker;</span>
+<span class="fc" id="L690">            return this;</span>
+        }
+
+        /**
+         * Sets the next marker.
+         *
+         * @param nextMarker the next marker to the current marker in the array
+         *            of markers
+         * @return this instance
+         */
+        private Marker next(final Marker nextMarker) {
+<span class="fc" id="L701">            MathUtils.checkNotNull(nextMarker);</span>
+<span class="fc" id="L702">            this.next = nextMarker;</span>
+<span class="fc" id="L703">            return this;</span>
+        }
+
+        /**
+         * Sets the index of the marker.
+         *
+         * @param indexOfMarker the array index of the marker in marker array
+         * @return this instance
+         */
+        private Marker index(final int indexOfMarker) {
+<span class="fc" id="L713">            this.index = indexOfMarker;</span>
+<span class="fc" id="L714">            return this;</span>
+        }
+
+        /**
+         * Update desired Position with increment.
+         */
+        private void updateDesiredPosition() {
+<span class="fc" id="L721">            desiredMarkerPosition += desiredMarkerIncrement;</span>
+<span class="fc" id="L722">        }</span>
+
+        /**
+         * Increment Position by d.
+         *
+         * @param d a delta value to increment
+         */
+        private void incrementPosition(final int d) {
+<span class="fc" id="L730">            intMarkerPosition += d;</span>
+<span class="fc" id="L731">        }</span>
+
+        /**
+         * Difference between desired and actual position
+         *
+         * @return difference between desired and actual position
+         */
+        private double difference() {
+<span class="fc" id="L739">            return desiredMarkerPosition - intMarkerPosition;</span>
+        }
+
+        /**
+         * Estimate the quantile for the current marker.
+         *
+         * @return estimated quantile
+         */
+        private double estimate() {
+<span class="fc" id="L748">            final double di = difference();</span>
+<span class="fc bfc" id="L749" title="All 2 branches covered.">            final boolean isNextHigher =</span>
+                    next.intMarkerPosition - intMarkerPosition &gt; 1;
+<span class="fc bfc" id="L751" title="All 2 branches covered.">            final boolean isPreviousLower =</span>
+                    previous.intMarkerPosition - intMarkerPosition &lt; -1;
+
+<span class="fc bfc" id="L754" title="All 8 branches covered.">            if (di &gt;= 1 &amp;&amp; isNextHigher || di &lt;= -1 &amp;&amp; isPreviousLower) {</span>
+<span class="fc bfc" id="L755" title="All 2 branches covered.">                final int d = di &gt;= 0 ? 1 : -1;</span>
+<span class="fc" id="L756">                final double[] xval =</span>
+                        new double[] { previous.intMarkerPosition,
+                                intMarkerPosition, next.intMarkerPosition };
+<span class="fc" id="L759">                final double[] yval =</span>
+                        new double[] { previous.markerHeight, markerHeight,
+                                next.markerHeight };
+<span class="fc" id="L762">                final double xD = intMarkerPosition + d;</span>
+
+<span class="fc" id="L764">                UnivariateFunction univariateFunction =</span>
+                        nonLinear.interpolate(xval, yval);
+<span class="fc" id="L766">                markerHeight = univariateFunction.value(xD);</span>
+
+                // If parabolic estimate is bad then turn linear
+<span class="fc bfc" id="L769" title="All 2 branches covered.">                if (isEstimateBad(yval, markerHeight)) {</span>
+<span class="fc bfc" id="L770" title="All 2 branches covered.">                    int delta = xD - xval[1] &gt; 0 ? 1 : -1;</span>
+<span class="fc" id="L771">                    final double[] xBad =</span>
+                            new double[] { xval[1], xval[1 + delta] };
+<span class="fc" id="L773">                    final double[] yBad =</span>
+                            new double[] { yval[1], yval[1 + delta] };
+<span class="fc" id="L775">                    MathArrays.sortInPlace(xBad, yBad);// since d can be +/- 1</span>
+<span class="fc" id="L776">                    univariateFunction = linear.interpolate(xBad, yBad);</span>
+<span class="fc" id="L777">                    markerHeight = univariateFunction.value(xD);</span>
+                }
+<span class="fc" id="L779">                incrementPosition(d);</span>
+            }
+<span class="fc" id="L781">            return markerHeight;</span>
+        }
+
+        /**
+         * Check if parabolic/nonlinear estimate is bad by checking if the
+         * ordinate found is beyond the y[0] and y[2].
+         *
+         * @param y the array to get the bounds
+         * @param yD the estimate
+         * @return true if yD is a bad estimate
+         */
+        private boolean isEstimateBad(final double[] y, final double yD) {
+<span class="fc bfc" id="L793" title="All 4 branches covered.">            return yD &lt;= y[0] || yD &gt;= y[2];</span>
+        }
+
+        /**
+         * {@inheritDoc}&lt;i&gt;This equals method checks for marker attributes and
+         * as well checks if navigation pointers (next and previous) are the same
+         * between this and passed in object&lt;/i&gt;
+         *
+         * @param o Other object
+         * @return true if this equals passed in other object o
+         */
+        @Override
+        public boolean equals(Object o) {
+<span class="fc" id="L806">            boolean result = false;</span>
+<span class="pc bpc" id="L807" title="1 of 2 branches missed.">            if (this == o) {</span>
+<span class="nc" id="L808">                result = true;</span>
+<span class="pc bpc" id="L809" title="2 of 4 branches missed.">            } else if (o != null &amp;&amp; o instanceof Marker) {</span>
+<span class="fc" id="L810">                Marker that = (Marker) o;</span>
+
+<span class="fc bfc" id="L812" title="All 2 branches covered.">                result = Double.compare(markerHeight, that.markerHeight) == 0;</span>
+<span class="pc bpc" id="L813" title="1 of 4 branches missed.">                result =</span>
+                        result &amp;&amp;
+                                Double.compare(intMarkerPosition,
+                                        that.intMarkerPosition) == 0;
+<span class="fc bfc" id="L817" title="All 4 branches covered.">                result =</span>
+                        result &amp;&amp;
+                                Double.compare(desiredMarkerPosition,
+                                        that.desiredMarkerPosition) == 0;
+<span class="pc bpc" id="L821" title="1 of 4 branches missed.">                result =</span>
+                        result &amp;&amp;
+                                Double.compare(desiredMarkerIncrement,
+                                        that.desiredMarkerIncrement) == 0;
+
+<span class="pc bpc" id="L826" title="1 of 4 branches missed.">                result = result &amp;&amp; next.index == that.next.index;</span>
+<span class="pc bpc" id="L827" title="1 of 4 branches missed.">                result = result &amp;&amp; previous.index == that.previous.index;</span>
+            }
+<span class="fc" id="L829">            return result;</span>
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public int hashCode() {
+<span class="fc" id="L835">            return Arrays.hashCode(new double[] {markerHeight, intMarkerPosition,</span>
+                desiredMarkerIncrement, desiredMarkerPosition, previous.index, next.index});
+        }
+
+        /**
+         * Read Object to deserialize.
+         *
+         * @param anInstream Stream Object data
+         * @throws IOException thrown for IO Errors
+         * @throws ClassNotFoundException thrown for class not being found
+         */
+        private void readObject(ObjectInputStream anInstream)
+                throws ClassNotFoundException, IOException {
+<span class="fc" id="L848">            anInstream.defaultReadObject();</span>
+<span class="fc" id="L849">            previous=next=this;</span>
+<span class="fc" id="L850">            linear = new LinearInterpolator();</span>
+<span class="fc" id="L851">        }</span>
+
+        /**
+         * Clone this instance.
+         *
+         * @return cloned marker
+         */
+        @Override
+        public Object clone() {
+<span class="fc" id="L860">            return new Marker(markerHeight, desiredMarkerPosition,</span>
+                    desiredMarkerIncrement, intMarkerPosition);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String toString() {
+<span class="fc" id="L869">            return String.format(</span>
+                    &quot;index=%.0f,n=%.0f,np=%.2f,q=%.2f,dn=%.2f,prev=%d,next=%d&quot;,
+                    (double) index, Precision.round(intMarkerPosition, 0),
+                    Precision.round(desiredMarkerPosition, 2),
+                    Precision.round(markerHeight, 2),
+                    Precision.round(desiredMarkerIncrement, 2), previous.index,
+                    next.index);
+        }
+    }
+
+    /**
+     * A simple fixed capacity list that has an upper bound to growth.
+     * Once its capacity is reached, {@code add} is a no-op, returning
+     * {@code false}.
+     *
+     * @param &lt;E&gt;
+     */
+    private static class FixedCapacityList&lt;E&gt; extends ArrayList&lt;E&gt; implements
+            Serializable {
+        /**
+         * Serialization Version Id
+         */
+        private static final long serialVersionUID = 2283952083075725479L;
+        /**
+         * Capacity of the list
+         */
+        private final int capacity;
+
+        /**
+         * This constructor constructs the list with given capacity and as well
+         * as stores the capacity
+         *
+         * @param fixedCapacity the capacity to be fixed for this list
+         */
+        FixedCapacityList(final int fixedCapacity) {
+<span class="fc" id="L904">            super(fixedCapacity);</span>
+<span class="fc" id="L905">            this.capacity = fixedCapacity;</span>
+<span class="fc" id="L906">        }</span>
+
+        /**
+         * {@inheritDoc} In addition it checks if the {@link #size()} returns a
+         * size that is within capacity and if true it adds; otherwise the list
+         * contents are unchanged and {@code false} is returned.
+         *
+         * @return true if addition is successful and false otherwise
+         */
+        @Override
+        public boolean add(final E e) {
+<span class="fc bfc" id="L917" title="All 2 branches covered.">            return size() &lt; capacity ? super.add(e) : false;</span>
+        }
+
+        /**
+         * {@inheritDoc} In addition it checks if the sum of Collection size and
+         * this instance's {@link #size()} returns a value that is within
+         * capacity and if true it adds the collection; otherwise the list
+         * contents are unchanged and {@code false} is returned.
+         *
+         * @return true if addition is successful and false otherwise
+         */
+        @Override
+        public boolean addAll(Collection&lt;? extends E&gt; collection) {
+<span class="pc bpc" id="L930" title="2 of 4 branches missed.">            boolean isCollectionLess =</span>
+                    collection != null &amp;&amp;
+                            collection.size() + size() &lt;= capacity;
+<span class="pc bpc" id="L933" title="1 of 2 branches missed.">            return isCollectionLess ? super.addAll(collection) : false;</span>
+        }
+    }
+
+    /**
+     * A creation method to build Markers
+     *
+     * @param initialFive list of initial five elements
+     * @param p the quantile desired
+     * @return an instance of PSquareMarkers
+     */
+    public static PSquareMarkers newMarkers(final List&lt;Double&gt; initialFive,
+            final double p) {
+<span class="fc" id="L946">        return new Markers(initialFive, p);</span>
+    }
+
+    /**
+     * An interface that encapsulates abstractions of the
+     * P-square algorithm markers as is explained in the original works. This
+     * interface is exposed with protected access to help in testability.
+     */
+    protected interface PSquareMarkers extends Cloneable {
+        /**
+         * Returns Percentile value computed thus far.
+         *
+         * @return percentile
+         */
+        double getPercentileValue();
+
+        /**
+         * A clone function to clone the current instance. It's created as an
+         * interface method as well for convenience though Cloneable is just a
+         * marker interface.
+         *
+         * @return clone of this instance
+         */
+        Object clone();
+
+        /**
+         * Returns the marker height (or percentile) of a given marker index.
+         *
+         * @param markerIndex is the index of marker in the marker array
+         * @return percentile value of the marker index passed
+         * @throws OutOfRangeException in case the index is not within [1-5]
+         */
+        double height(final int markerIndex);
+
+        /**
+         * Process a data point by moving the marker heights based on estimator.
+         *
+         * @param inputDataPoint is the data point passed
+         * @return computed percentile
+         */
+        double processDataPoint(final double inputDataPoint);
+
+        /**
+         * An Estimate of the percentile value of a given Marker
+         *
+         * @param index the marker's index in the array of markers
+         * @return percentile estimate
+         * @throws OutOfRangeException in case if index is not within [1-5]
+         */
+        double estimate(final int index);
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,659 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * See the License for the specific language governing permissions and<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * limitations under the License.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> */<a name="line.16"></a>
+<span class="sourceLineNo">017</span>package org.apache.commons.math3.geometry.euclidean.twod;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.awt.geom.AffineTransform;<a name="line.19"></a>
+<span class="sourceLineNo">020</span><a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.commons.math3.exception.MathIllegalArgumentException;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.math3.exception.util.LocalizedFormats;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.commons.math3.geometry.Point;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.commons.math3.geometry.Vector;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.commons.math3.geometry.euclidean.oned.Euclidean1D;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.commons.math3.geometry.euclidean.oned.IntervalsSet;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.math3.geometry.euclidean.oned.OrientedPoint;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.commons.math3.geometry.euclidean.oned.Vector1D;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.math3.geometry.partitioning.Embedding;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.math3.geometry.partitioning.Hyperplane;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.commons.math3.geometry.partitioning.SubHyperplane;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.apache.commons.math3.geometry.partitioning.Transform;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.apache.commons.math3.util.FastMath;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.apache.commons.math3.util.MathArrays;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.apache.commons.math3.util.MathUtils;<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span>/** This class represents an oriented line in the 2D plane.<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">039</span> * &lt;p&gt;An oriented line can be defined either by prolongating a line<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * segment between two points past these points, or by one point and<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * an angular direction (in trigonometric orientation).&lt;/p&gt;<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span> * &lt;p&gt;Since it is oriented the two half planes at its two sides are<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * unambiguously identified as a left half plane and a right half<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * plane. This can be used to identify the interior and the exterior<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * in a simple way by local properties only when part of a line is<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * used to define part of a polygon boundary.&lt;/p&gt;<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span> * &lt;p&gt;A line can also be used to completely define a reference frame<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * in the plane. It is sufficient to select one specific point in the<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * line (the orthogonal projection of the original reference frame on<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * the line) and to use the unit vector in the line direction and the<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * orthogonal vector oriented from left half plane to right half<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * plane. We define two coordinates by the process, the<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * &lt;em&gt;abscissa&lt;/em&gt; along the line, and the &lt;em&gt;offset&lt;/em&gt; across<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * the line. All points of the plane are uniquely identified by these<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * two coordinates. The line is the set of points at zero offset, the<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * left half plane is the set of points with negative offsets and the<a name="line.58"></a>
+<span class="sourceLineNo">059</span> * right half plane is the set of points with positive offsets.&lt;/p&gt;<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span> * @since 3.0<a name="line.61"></a>
+<span class="sourceLineNo">062</span> */<a name="line.62"></a>
+<span class="sourceLineNo">063</span>public class Line implements Hyperplane&lt;Euclidean2D&gt;, Embedding&lt;Euclidean2D, Euclidean1D&gt; {<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>    /** Default value for tolerance. */<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    private static final double DEFAULT_TOLERANCE = 1.0e-10;<a name="line.66"></a>
+<span class="sourceLineNo">067</span><a name="line.67"></a>
+<span class="sourceLineNo">068</span>    /** Angle with respect to the abscissa axis. */<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    private double angle;<a name="line.69"></a>
+<span class="sourceLineNo">070</span><a name="line.70"></a>
+<span class="sourceLineNo">071</span>    /** Cosine of the line angle. */<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    private double cos;<a name="line.72"></a>
+<span class="sourceLineNo">073</span><a name="line.73"></a>
+<span class="sourceLineNo">074</span>    /** Sine of the line angle. */<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    private double sin;<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>    /** Offset of the frame origin. */<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    private double originOffset;<a name="line.78"></a>
+<span class="sourceLineNo">079</span><a name="line.79"></a>
+<span class="sourceLineNo">080</span>    /** Tolerance below which points are considered identical. */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    private final double tolerance;<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>    /** Reverse line. */<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    private Line reverse;<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span>    /** Build a line from two points.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * &lt;p&gt;The line is oriented from p1 to p2&lt;/p&gt;<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * @param p1 first point<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * @param p2 second point<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * @param tolerance tolerance below which points are considered identical<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * @since 3.3<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     */<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    public Line(final Vector2D p1, final Vector2D p2, final double tolerance) {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        reset(p1, p2);<a name="line.94"></a>
+<span class="sourceLineNo">095</span>        this.tolerance = tolerance;<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    }<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>    /** Build a line from a point and an angle.<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * @param p point belonging to the line<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * @param angle angle of the line with respect to abscissa axis<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     * @param tolerance tolerance below which points are considered identical<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * @since 3.3<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     */<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    public Line(final Vector2D p, final double angle, final double tolerance) {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        reset(p, angle);<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        this.tolerance = tolerance;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    }<a name="line.107"></a>
+<span class="sourceLineNo">108</span><a name="line.108"></a>
+<span class="sourceLineNo">109</span>    /** Build a line from its internal characteristics.<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     * @param angle angle of the line with respect to abscissa axis<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     * @param cos cosine of the angle<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     * @param sin sine of the angle<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * @param originOffset offset of the origin<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     * @param tolerance tolerance below which points are considered identical<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * @since 3.3<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     */<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    private Line(final double angle, final double cos, final double sin,<a name="line.117"></a>
+<span class="sourceLineNo">118</span>                 final double originOffset, final double tolerance) {<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        this.angle        = angle;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        this.cos          = cos;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        this.sin          = sin;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        this.originOffset = originOffset;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        this.tolerance    = tolerance;<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        this.reverse      = null;<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    }<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span>    /** Build a line from two points.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     * &lt;p&gt;The line is oriented from p1 to p2&lt;/p&gt;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * @param p1 first point<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     * @param p2 second point<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * @deprecated as of 3.3, replaced with {@link #Line(Vector2D, Vector2D, double)}<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     */<a name="line.132"></a>
+<span class="sourceLineNo">133</span>    @Deprecated<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    public Line(final Vector2D p1, final Vector2D p2) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        this(p1, p2, DEFAULT_TOLERANCE);<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
+<span class="sourceLineNo">137</span><a name="line.137"></a>
+<span class="sourceLineNo">138</span>    /** Build a line from a point and an angle.<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     * @param p point belonging to the line<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     * @param angle angle of the line with respect to abscissa axis<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     * @deprecated as of 3.3, replaced with {@link #Line(Vector2D, double, double)}<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     */<a name="line.142"></a>
+<span class="sourceLineNo">143</span>    @Deprecated<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    public Line(final Vector2D p, final double angle) {<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        this(p, angle, DEFAULT_TOLERANCE);<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    }<a name="line.146"></a>
+<span class="sourceLineNo">147</span><a name="line.147"></a>
+<span class="sourceLineNo">148</span>    /** Copy constructor.<a name="line.148"></a>
+<span class="sourceLineNo">149</span>     * &lt;p&gt;The created instance is completely independent from the<a name="line.149"></a>
+<span class="sourceLineNo">150</span>     * original instance, it is a deep copy.&lt;/p&gt;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>     * @param line line to copy<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     */<a name="line.152"></a>
+<span class="sourceLineNo">153</span>    public Line(final Line line) {<a name="line.153"></a>
+<span class="sourceLineNo">154</span>        angle        = MathUtils.normalizeAngle(line.angle, FastMath.PI);<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        cos          = line.cos;<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        sin          = line.sin;<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        originOffset = line.originOffset;<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        tolerance    = line.tolerance;<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        reverse      = null;<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    }<a name="line.160"></a>
+<span class="sourceLineNo">161</span><a name="line.161"></a>
+<span class="sourceLineNo">162</span>    /** {@inheritDoc} */<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    public Line copySelf() {<a name="line.163"></a>
+<span class="sourceLineNo">164</span>        return new Line(this);<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    }<a name="line.165"></a>
+<span class="sourceLineNo">166</span><a name="line.166"></a>
+<span class="sourceLineNo">167</span>    /** Reset the instance as if built from two points.<a name="line.167"></a>
+<span class="sourceLineNo">168</span>     * &lt;p&gt;The line is oriented from p1 to p2&lt;/p&gt;<a name="line.168"></a>
+<span class="sourceLineNo">169</span>     * @param p1 first point<a name="line.169"></a>
+<span class="sourceLineNo">170</span>     * @param p2 second point<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     */<a name="line.171"></a>
+<span class="sourceLineNo">172</span>    public void reset(final Vector2D p1, final Vector2D p2) {<a name="line.172"></a>
+<span class="sourceLineNo">173</span>        unlinkReverse();<a name="line.173"></a>
+<span class="sourceLineNo">174</span>        final double dx = p2.getX() - p1.getX();<a name="line.174"></a>
+<span class="sourceLineNo">175</span>        final double dy = p2.getY() - p1.getY();<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        final double d = FastMath.hypot(dx, dy);<a name="line.176"></a>
+<span class="sourceLineNo">177</span>        if (d == 0.0) {<a name="line.177"></a>
+<span class="sourceLineNo">178</span>            angle        = 0.0;<a name="line.178"></a>
+<span class="sourceLineNo">179</span>            cos          = 1.0;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>            sin          = 0.0;<a name="line.180"></a>
+<span class="sourceLineNo">181</span>            originOffset = p1.getY();<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        } else {<a name="line.182"></a>
+<span class="sourceLineNo">183</span>            angle        = FastMath.PI + FastMath.atan2(-dy, -dx);<a name="line.183"></a>
+<span class="sourceLineNo">184</span>            cos          = dx / d;<a name="line.184"></a>
+<span class="sourceLineNo">185</span>            sin          = dy / d;<a name="line.185"></a>
+<span class="sourceLineNo">186</span>            originOffset = MathArrays.linearCombination(p2.getX(), p1.getY(), -p1.getX(), p2.getY()) / d;<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        }<a name="line.187"></a>
+<span class="sourceLineNo">188</span>    }<a name="line.188"></a>
+<span class="sourceLineNo">189</span><a name="line.189"></a>
+<span class="sourceLineNo">190</span>    /** Reset the instance as if built from a line and an angle.<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     * @param p point belonging to the line<a name="line.191"></a>
+<span class="sourceLineNo">192</span>     * @param alpha angle of the line with respect to abscissa axis<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     */<a name="line.193"></a>
+<span class="sourceLineNo">194</span>    public void reset(final Vector2D p, final double alpha) {<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        unlinkReverse();<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        this.angle   = MathUtils.normalizeAngle(alpha, FastMath.PI);<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        cos          = FastMath.cos(this.angle);<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        sin          = FastMath.sin(this.angle);<a name="line.198"></a>
+<span class="sourceLineNo">199</span>        originOffset = MathArrays.linearCombination(cos, p.getY(), -sin, p.getX());<a name="line.199"></a>
+<span class="sourceLineNo">200</span>    }<a name="line.200"></a>
+<span class="sourceLineNo">201</span><a name="line.201"></a>
+<span class="sourceLineNo">202</span>    /** Revert the instance.<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     */<a name="line.203"></a>
+<span class="sourceLineNo">204</span>    public void revertSelf() {<a name="line.204"></a>
+<span class="sourceLineNo">205</span>        unlinkReverse();<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        if (angle &lt; FastMath.PI) {<a name="line.206"></a>
+<span class="sourceLineNo">207</span>            angle += FastMath.PI;<a name="line.207"></a>
+<span class="sourceLineNo">208</span>        } else {<a name="line.208"></a>
+<span class="sourceLineNo">209</span>            angle -= FastMath.PI;<a name="line.209"></a>
+<span class="sourceLineNo">210</span>        }<a name="line.210"></a>
+<span class="sourceLineNo">211</span>        cos          = -cos;<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        sin          = -sin;<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        originOffset = -originOffset;<a name="line.213"></a>
+<span class="sourceLineNo">214</span>    }<a name="line.214"></a>
+<span class="sourceLineNo">215</span><a name="line.215"></a>
+<span class="sourceLineNo">216</span>    /** Unset the link between an instance and its reverse.<a name="line.216"></a>
+<span class="sourceLineNo">217</span>     */<a name="line.217"></a>
+<span class="sourceLineNo">218</span>    private void unlinkReverse() {<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        if (reverse != null) {<a name="line.219"></a>
+<span class="sourceLineNo">220</span>            reverse.reverse = null;<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        }<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        reverse = null;<a name="line.222"></a>
+<span class="sourceLineNo">223</span>    }<a name="line.223"></a>
+<span class="sourceLineNo">224</span><a name="line.224"></a>
+<span class="sourceLineNo">225</span>    /** Get the reverse of the instance.<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     * &lt;p&gt;Get a line with reversed orientation with respect to the<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     * instance.&lt;/p&gt;<a name="line.227"></a>
+<span class="sourceLineNo">228</span>     * &lt;p&gt;<a name="line.228"></a>
+<span class="sourceLineNo">229</span>     * As long as neither the instance nor its reverse are modified<a name="line.229"></a>
+<span class="sourceLineNo">230</span>     * (i.e. as long as none of the {@link #reset(Vector2D, Vector2D)},<a name="line.230"></a>
+<span class="sourceLineNo">231</span>     * {@link #reset(Vector2D, double)}, {@link #revertSelf()},<a name="line.231"></a>
+<span class="sourceLineNo">232</span>     * {@link #setAngle(double)} or {@link #setOriginOffset(double)}<a name="line.232"></a>
+<span class="sourceLineNo">233</span>     * methods are called), then the line and its reverse remain linked<a name="line.233"></a>
+<span class="sourceLineNo">234</span>     * together so that {@code line.getReverse().getReverse() == line}.<a name="line.234"></a>
+<span class="sourceLineNo">235</span>     * When one of the line is modified, the link is deleted as both<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     * instance becomes independent.<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     * &lt;/p&gt;<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     * @return a new line, with orientation opposite to the instance orientation<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     */<a name="line.239"></a>
+<span class="sourceLineNo">240</span>    public Line getReverse() {<a name="line.240"></a>
+<span class="sourceLineNo">241</span>        if (reverse == null) {<a name="line.241"></a>
+<span class="sourceLineNo">242</span>            reverse = new Line((angle &lt; FastMath.PI) ? (angle + FastMath.PI) : (angle - FastMath.PI),<a name="line.242"></a>
+<span class="sourceLineNo">243</span>                               -cos, -sin, -originOffset, tolerance);<a name="line.243"></a>
+<span class="sourceLineNo">244</span>            reverse.reverse = this;<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        }<a name="line.245"></a>
+<span class="sourceLineNo">246</span>        return reverse;<a name="line.246"></a>
+<span class="sourceLineNo">247</span>    }<a name="line.247"></a>
+<span class="sourceLineNo">248</span><a name="line.248"></a>
+<span class="sourceLineNo">249</span>    /** Transform a space point into a sub-space point.<a name="line.249"></a>
+<span class="sourceLineNo">250</span>     * @param vector n-dimension point of the space<a name="line.250"></a>
+<span class="sourceLineNo">251</span>     * @return (n-1)-dimension point of the sub-space corresponding to<a name="line.251"></a>
+<span class="sourceLineNo">252</span>     * the specified space point<a name="line.252"></a>
+<span class="sourceLineNo">253</span>     */<a name="line.253"></a>
+<span class="sourceLineNo">254</span>    public Vector1D toSubSpace(Vector&lt;Euclidean2D&gt; vector) {<a name="line.254"></a>
+<span class="sourceLineNo">255</span>        return toSubSpace((Point&lt;Euclidean2D&gt;) vector);<a name="line.255"></a>
+<span class="sourceLineNo">256</span>    }<a name="line.256"></a>
+<span class="sourceLineNo">257</span><a name="line.257"></a>
+<span class="sourceLineNo">258</span>    /** Transform a sub-space point into a space point.<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     * @param vector (n-1)-dimension point of the sub-space<a name="line.259"></a>
+<span class="sourceLineNo">260</span>     * @return n-dimension point of the space corresponding to the<a name="line.260"></a>
+<span class="sourceLineNo">261</span>     * specified sub-space point<a name="line.261"></a>
+<span class="sourceLineNo">262</span>     */<a name="line.262"></a>
+<span class="sourceLineNo">263</span>    public Vector2D toSpace(Vector&lt;Euclidean1D&gt; vector) {<a name="line.263"></a>
+<span class="sourceLineNo">264</span>        return toSpace((Point&lt;Euclidean1D&gt;) vector);<a name="line.264"></a>
+<span class="sourceLineNo">265</span>    }<a name="line.265"></a>
+<span class="sourceLineNo">266</span><a name="line.266"></a>
+<span class="sourceLineNo">267</span>    /** {@inheritDoc} */<a name="line.267"></a>
+<span class="sourceLineNo">268</span>    public Vector1D toSubSpace(final Point&lt;Euclidean2D&gt; point) {<a name="line.268"></a>
+<span class="sourceLineNo">269</span>        Vector2D p2 = (Vector2D) point;<a name="line.269"></a>
+<span class="sourceLineNo">270</span>        return new Vector1D(MathArrays.linearCombination(cos, p2.getX(), sin, p2.getY()));<a name="line.270"></a>
+<span class="sourceLineNo">271</span>    }<a name="line.271"></a>
+<span class="sourceLineNo">272</span><a name="line.272"></a>
+<span class="sourceLineNo">273</span>    /** {@inheritDoc} */<a name="line.273"></a>
+<span class="sourceLineNo">274</span>    public Vector2D toSpace(final Point&lt;Euclidean1D&gt; point) {<a name="line.274"></a>
+<span class="sourceLineNo">275</span>        final double abscissa = ((Vector1D) point).getX();<a name="line.275"></a>
+<span class="sourceLineNo">276</span>        return new Vector2D(MathArrays.linearCombination(abscissa, cos, -originOffset, sin),<a name="line.276"></a>
+<span class="sourceLineNo">277</span>                            MathArrays.linearCombination(abscissa, sin,  originOffset, cos));<a name="line.277"></a>
+<span class="sourceLineNo">278</span>    }<a name="line.278"></a>
+<span class="sourceLineNo">279</span><a name="line.279"></a>
+<span class="sourceLineNo">280</span>    /** Get the intersection point of the instance and another line.<a name="line.280"></a>
+<span class="sourceLineNo">281</span>     * @param other other line<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     * @return intersection point of the instance and the other line<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     * or null if there are no intersection points<a name="line.283"></a>
+<span class="sourceLineNo">284</span>     */<a name="line.284"></a>
+<span class="sourceLineNo">285</span>    public Vector2D intersection(final Line other) {<a name="line.285"></a>
+<span class="sourceLineNo">286</span>        final double d = MathArrays.linearCombination(sin, other.cos, -other.sin, cos);<a name="line.286"></a>
+<span class="sourceLineNo">287</span>        if (FastMath.abs(d) &lt; tolerance) {<a name="line.287"></a>
+<span class="sourceLineNo">288</span>            return null;<a name="line.288"></a>
+<span class="sourceLineNo">289</span>        }<a name="line.289"></a>
+<span class="sourceLineNo">290</span>        return new Vector2D(MathArrays.linearCombination(cos, other.originOffset, -other.cos, originOffset) / d,<a name="line.290"></a>
+<span class="sourceLineNo">291</span>                            MathArrays.linearCombination(sin, other.originOffset, -other.sin, originOffset) / d);<a name="line.291"></a>
+<span class="sourceLineNo">292</span>    }<a name="line.292"></a>
+<span class="sourceLineNo">293</span><a name="line.293"></a>
+<span class="sourceLineNo">294</span>    /** {@inheritDoc}<a name="line.294"></a>
+<span class="sourceLineNo">295</span>     * @since 3.3<a name="line.295"></a>
+<span class="sourceLineNo">296</span>     */<a name="line.296"></a>
+<span class="sourceLineNo">297</span>    public Point&lt;Euclidean2D&gt; project(Point&lt;Euclidean2D&gt; point) {<a name="line.297"></a>
+<span class="sourceLineNo">298</span>        return toSpace(toSubSpace(point));<a name="line.298"></a>
+<span class="sourceLineNo">299</span>    }<a name="line.299"></a>
+<span class="sourceLineNo">300</span><a name="line.300"></a>
+<span class="sourceLineNo">301</span>    /** {@inheritDoc}<a name="line.301"></a>
+<span class="sourceLineNo">302</span>     * @since 3.3<a name="line.302"></a>
+<span class="sourceLineNo">303</span>     */<a name="line.303"></a>
+<span class="sourceLineNo">304</span>    public double getTolerance() {<a name="line.304"></a>
+<span class="sourceLineNo">305</span>        return tolerance;<a name="line.305"></a>
+<span class="sourceLineNo">306</span>    }<a name="line.306"></a>
+<span class="sourceLineNo">307</span><a name="line.307"></a>
+<span class="sourceLineNo">308</span>    /** {@inheritDoc} */<a name="line.308"></a>
+<span class="sourceLineNo">309</span>    public SubLine wholeHyperplane() {<a name="line.309"></a>
+<span class="sourceLineNo">310</span>        return new SubLine(this, new IntervalsSet(tolerance));<a name="line.310"></a>
+<span class="sourceLineNo">311</span>    }<a name="line.311"></a>
+<span class="sourceLineNo">312</span><a name="line.312"></a>
+<span class="sourceLineNo">313</span>    /** Build a region covering the whole space.<a name="line.313"></a>
+<span class="sourceLineNo">314</span>     * @return a region containing the instance (really a {@link<a name="line.314"></a>
+<span class="sourceLineNo">315</span>     * PolygonsSet PolygonsSet} instance)<a name="line.315"></a>
+<span class="sourceLineNo">316</span>     */<a name="line.316"></a>
+<span class="sourceLineNo">317</span>    public PolygonsSet wholeSpace() {<a name="line.317"></a>
+<span class="sourceLineNo">318</span>        return new PolygonsSet(tolerance);<a name="line.318"></a>
+<span class="sourceLineNo">319</span>    }<a name="line.319"></a>
+<span class="sourceLineNo">320</span><a name="line.320"></a>
+<span class="sourceLineNo">321</span>    /** Get the offset (oriented distance) of a parallel line.<a name="line.321"></a>
+<span class="sourceLineNo">322</span>     * &lt;p&gt;This method should be called only for parallel lines otherwise<a name="line.322"></a>
+<span class="sourceLineNo">323</span>     * the result is not meaningful.&lt;/p&gt;<a name="line.323"></a>
+<span class="sourceLineNo">324</span>     * &lt;p&gt;The offset is 0 if both lines are the same, it is<a name="line.324"></a>
+<span class="sourceLineNo">325</span>     * positive if the line is on the right side of the instance and<a name="line.325"></a>
+<span class="sourceLineNo">326</span>     * negative if it is on the left side, according to its natural<a name="line.326"></a>
+<span class="sourceLineNo">327</span>     * orientation.&lt;/p&gt;<a name="line.327"></a>
+<span class="sourceLineNo">328</span>     * @param line line to check<a name="line.328"></a>
+<span class="sourceLineNo">329</span>     * @return offset of the line<a name="line.329"></a>
+<span class="sourceLineNo">330</span>     */<a name="line.330"></a>
+<span class="sourceLineNo">331</span>    public double getOffset(final Line line) {<a name="line.331"></a>
+<span class="sourceLineNo">332</span>        return originOffset +<a name="line.332"></a>
+<span class="sourceLineNo">333</span>               (MathArrays.linearCombination(cos, line.cos, sin, line.sin) &gt; 0 ? -line.originOffset : line.originOffset);<a name="line.333"></a>
+<span class="sourceLineNo">334</span>    }<a name="line.334"></a>
+<span class="sourceLineNo">335</span><a name="line.335"></a>
+<span class="sourceLineNo">336</span>    /** Get the offset (oriented distance) of a vector.<a name="line.336"></a>
+<span class="sourceLineNo">337</span>     * @param vector vector to check<a name="line.337"></a>
+<span class="sourceLineNo">338</span>     * @return offset of the vector<a name="line.338"></a>
+<span class="sourceLineNo">339</span>     */<a name="line.339"></a>
+<span class="sourceLineNo">340</span>    public double getOffset(Vector&lt;Euclidean2D&gt; vector) {<a name="line.340"></a>
+<span class="sourceLineNo">341</span>        return getOffset((Point&lt;Euclidean2D&gt;) vector);<a name="line.341"></a>
+<span class="sourceLineNo">342</span>    }<a name="line.342"></a>
+<span class="sourceLineNo">343</span><a name="line.343"></a>
+<span class="sourceLineNo">344</span>    /** {@inheritDoc} */<a name="line.344"></a>
+<span class="sourceLineNo">345</span>    public double getOffset(final Point&lt;Euclidean2D&gt; point) {<a name="line.345"></a>
+<span class="sourceLineNo">346</span>        Vector2D p2 = (Vector2D) point;<a name="line.346"></a>
+<span class="sourceLineNo">347</span>        return MathArrays.linearCombination(sin, p2.getX(), -cos, p2.getY(), 1.0, originOffset);<a name="line.347"></a>
+<span class="sourceLineNo">348</span>    }<a name="line.348"></a>
+<span class="sourceLineNo">349</span><a name="line.349"></a>
+<span class="sourceLineNo">350</span>    /** {@inheritDoc} */<a name="line.350"></a>
+<span class="sourceLineNo">351</span>    public boolean sameOrientationAs(final Hyperplane&lt;Euclidean2D&gt; other) {<a name="line.351"></a>
+<span class="sourceLineNo">352</span>        final Line otherL = (Line) other;<a name="line.352"></a>
+<span class="sourceLineNo">353</span>        return MathArrays.linearCombination(sin, otherL.sin, cos, otherL.cos) &gt;= 0.0;<a name="line.353"></a>
+<span class="sourceLineNo">354</span>    }<a name="line.354"></a>
+<span class="sourceLineNo">355</span><a name="line.355"></a>
+<span class="sourceLineNo">356</span>    /** Get one point from the plane.<a name="line.356"></a>
+<span class="sourceLineNo">357</span>     * @param abscissa desired abscissa for the point<a name="line.357"></a>
+<span class="sourceLineNo">358</span>     * @param offset desired offset for the point<a name="line.358"></a>
+<span class="sourceLineNo">359</span>     * @return one point in the plane, with given abscissa and offset<a name="line.359"></a>
+<span class="sourceLineNo">360</span>     * relative to the line<a name="line.360"></a>
+<span class="sourceLineNo">361</span>     */<a name="line.361"></a>
+<span class="sourceLineNo">362</span>    public Vector2D getPointAt(final Vector1D abscissa, final double offset) {<a name="line.362"></a>
+<span class="sourceLineNo">363</span>        final double x       = abscissa.getX();<a name="line.363"></a>
+<span class="sourceLineNo">364</span>        final double dOffset = offset - originOffset;<a name="line.364"></a>
+<span class="sourceLineNo">365</span>        return new Vector2D(MathArrays.linearCombination(x, cos,  dOffset, sin),<a name="line.365"></a>
+<span class="sourceLineNo">366</span>                            MathArrays.linearCombination(x, sin, -dOffset, cos));<a name="line.366"></a>
+<span class="sourceLineNo">367</span>    }<a name="line.367"></a>
+<span class="sourceLineNo">368</span><a name="line.368"></a>
+<span class="sourceLineNo">369</span>    /** Check if the line contains a point.<a name="line.369"></a>
+<span class="sourceLineNo">370</span>     * @param p point to check<a name="line.370"></a>
+<span class="sourceLineNo">371</span>     * @return true if p belongs to the line<a name="line.371"></a>
+<span class="sourceLineNo">372</span>     */<a name="line.372"></a>
+<span class="sourceLineNo">373</span>    public boolean contains(final Vector2D p) {<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        return FastMath.abs(getOffset(p)) &lt; tolerance;<a name="line.374"></a>
+<span class="sourceLineNo">375</span>    }<a name="line.375"></a>
+<span class="sourceLineNo">376</span><a name="line.376"></a>
+<span class="sourceLineNo">377</span>    /** Compute the distance between the instance and a point.<a name="line.377"></a>
+<span class="sourceLineNo">378</span>     * &lt;p&gt;This is a shortcut for invoking FastMath.abs(getOffset(p)),<a name="line.378"></a>
+<span class="sourceLineNo">379</span>     * and provides consistency with what is in the<a name="line.379"></a>
+<span class="sourceLineNo">380</span>     * org.apache.commons.math3.geometry.euclidean.threed.Line class.&lt;/p&gt;<a name="line.380"></a>
+<span class="sourceLineNo">381</span>     *<a name="line.381"></a>
+<span class="sourceLineNo">382</span>     * @param p to check<a name="line.382"></a>
+<span class="sourceLineNo">383</span>     * @return distance between the instance and the point<a name="line.383"></a>
+<span class="sourceLineNo">384</span>     * @since 3.1<a name="line.384"></a>
+<span class="sourceLineNo">385</span>     */<a name="line.385"></a>
+<span class="sourceLineNo">386</span>    public double distance(final Vector2D p) {<a name="line.386"></a>
+<span class="sourceLineNo">387</span>        return FastMath.abs(getOffset(p));<a name="line.387"></a>
+<span class="sourceLineNo">388</span>    }<a name="line.388"></a>
+<span class="sourceLineNo">389</span><a name="line.389"></a>
+<span class="sourceLineNo">390</span>    /** Check the instance is parallel to another line.<a name="line.390"></a>
+<span class="sourceLineNo">391</span>     * @param line other line to check<a name="line.391"></a>
+<span class="sourceLineNo">392</span>     * @return true if the instance is parallel to the other line<a name="line.392"></a>
+<span class="sourceLineNo">393</span>     * (they can have either the same or opposite orientations)<a name="line.393"></a>
+<span class="sourceLineNo">394</span>     */<a name="line.394"></a>
+<span class="sourceLineNo">395</span>    public boolean isParallelTo(final Line line) {<a name="line.395"></a>
+<span class="sourceLineNo">396</span>        return FastMath.abs(MathArrays.linearCombination(sin, line.cos, -cos, line.sin)) &lt; tolerance;<a name="line.396"></a>
+<span class="sourceLineNo">397</span>    }<a name="line.397"></a>
+<span class="sourceLineNo">398</span><a name="line.398"></a>
+<span class="sourceLineNo">399</span>    /** Translate the line to force it passing by a point.<a name="line.399"></a>
+<span class="sourceLineNo">400</span>     * @param p point by which the line should pass<a name="line.400"></a>
+<span class="sourceLineNo">401</span>     */<a name="line.401"></a>
+<span class="sourceLineNo">402</span>    public void translateToPoint(final Vector2D p) {<a name="line.402"></a>
+<span class="sourceLineNo">403</span>        originOffset = MathArrays.linearCombination(cos, p.getY(), -sin, p.getX());<a name="line.403"></a>
+<span class="sourceLineNo">404</span>    }<a name="line.404"></a>
+<span class="sourceLineNo">405</span><a name="line.405"></a>
+<span class="sourceLineNo">406</span>    /** Get the angle of the line.<a name="line.406"></a>
+<span class="sourceLineNo">407</span>     * @return the angle of the line with respect to the abscissa axis<a name="line.407"></a>
+<span class="sourceLineNo">408</span>     */<a name="line.408"></a>
+<span class="sourceLineNo">409</span>    public double getAngle() {<a name="line.409"></a>
+<span class="sourceLineNo">410</span>        return MathUtils.normalizeAngle(angle, FastMath.PI);<a name="line.410"></a>
+<span class="sourceLineNo">411</span>    }<a name="line.411"></a>
+<span class="sourceLineNo">412</span><a name="line.412"></a>
+<span class="sourceLineNo">413</span>    /** Set the angle of the line.<a name="line.413"></a>
+<span class="sourceLineNo">414</span>     * @param angle new angle of the line with respect to the abscissa axis<a name="line.414"></a>
+<span class="sourceLineNo">415</span>     */<a name="line.415"></a>
+<span class="sourceLineNo">416</span>    public void setAngle(final double angle) {<a name="line.416"></a>
+<span class="sourceLineNo">417</span>        unlinkReverse();<a name="line.417"></a>
+<span class="sourceLineNo">418</span>        this.angle = MathUtils.normalizeAngle(angle, FastMath.PI);<a name="line.418"></a>
+<span class="sourceLineNo">419</span>        cos        = FastMath.cos(this.angle);<a name="line.419"></a>
+<span class="sourceLineNo">420</span>        sin        = FastMath.sin(this.angle);<a name="line.420"></a>
+<span class="sourceLineNo">421</span>    }<a name="line.421"></a>
+<span class="sourceLineNo">422</span><a name="line.422"></a>
+<span class="sourceLineNo">423</span>    /** Get the offset of the origin.<a name="line.423"></a>
+<span class="sourceLineNo">424</span>     * @return the offset of the origin<a name="line.424"></a>
+<span class="sourceLineNo">425</span>     */<a name="line.425"></a>
+<span class="sourceLineNo">426</span>    public double getOriginOffset() {<a name="line.426"></a>
+<span class="sourceLineNo">427</span>        return originOffset;<a name="line.427"></a>
+<span class="sourceLineNo">428</span>    }<a name="line.428"></a>
+<span class="sourceLineNo">429</span><a name="line.429"></a>
+<span class="sourceLineNo">430</span>    /** Set the offset of the origin.<a name="line.430"></a>
+<span class="sourceLineNo">431</span>     * @param offset offset of the origin<a name="line.431"></a>
+<span class="sourceLineNo">432</span>     */<a name="line.432"></a>
+<span class="sourceLineNo">433</span>    public void setOriginOffset(final double offset) {<a name="line.433"></a>
+<span class="sourceLineNo">434</span>        unlinkReverse();<a name="line.434"></a>
+<span class="sourceLineNo">435</span>        originOffset = offset;<a name="line.435"></a>
+<span class="sourceLineNo">436</span>    }<a name="line.436"></a>
+<span class="sourceLineNo">437</span><a name="line.437"></a>
+<span class="sourceLineNo">438</span>    /** Get a {@link org.apache.commons.math3.geometry.partitioning.Transform<a name="line.438"></a>
+<span class="sourceLineNo">439</span>     * Transform} embedding an affine transform.<a name="line.439"></a>
+<span class="sourceLineNo">440</span>     * @param transform affine transform to embed (must be inversible<a name="line.440"></a>
+<span class="sourceLineNo">441</span>     * otherwise the {@link<a name="line.441"></a>
+<span class="sourceLineNo">442</span>     * org.apache.commons.math3.geometry.partitioning.Transform#apply(Hyperplane)<a name="line.442"></a>
+<span class="sourceLineNo">443</span>     * apply(Hyperplane)} method would work only for some lines, and<a name="line.443"></a>
+<span class="sourceLineNo">444</span>     * fail for other ones)<a name="line.444"></a>
+<span class="sourceLineNo">445</span>     * @return a new transform that can be applied to either {@link<a name="line.445"></a>
+<span class="sourceLineNo">446</span>     * Vector2D Vector2D}, {@link Line Line} or {@link<a name="line.446"></a>
+<span class="sourceLineNo">447</span>     * org.apache.commons.math3.geometry.partitioning.SubHyperplane<a name="line.447"></a>
+<span class="sourceLineNo">448</span>     * SubHyperplane} instances<a name="line.448"></a>
+<span class="sourceLineNo">449</span>     * @exception MathIllegalArgumentException if the transform is non invertible<a name="line.449"></a>
+<span class="sourceLineNo">450</span>     * @deprecated as of 3.6, replaced with {@link #getTransform(double, double, double, double, double, double)}<a name="line.450"></a>
+<span class="sourceLineNo">451</span>     */<a name="line.451"></a>
+<span class="sourceLineNo">452</span>    @Deprecated<a name="line.452"></a>
+<span class="sourceLineNo">453</span>    public static Transform&lt;Euclidean2D, Euclidean1D&gt; getTransform(final AffineTransform transform)<a name="line.453"></a>
+<span class="sourceLineNo">454</span>        throws MathIllegalArgumentException {<a name="line.454"></a>
+<span class="sourceLineNo">455</span>        final double[] m = new double[6];<a name="line.455"></a>
+<span class="sourceLineNo">456</span>        transform.getMatrix(m);<a name="line.456"></a>
+<span class="sourceLineNo">457</span>        return new LineTransform(m[0], m[1], m[2], m[3], m[4], m[5]);<a name="line.457"></a>
+<span class="sourceLineNo">458</span>    }<a name="line.458"></a>
+<span class="sourceLineNo">459</span><a name="line.459"></a>
+<span class="sourceLineNo">460</span>    /** Get a {@link org.apache.commons.math3.geometry.partitioning.Transform<a name="line.460"></a>
+<span class="sourceLineNo">461</span>     * Transform} embedding an affine transform.<a name="line.461"></a>
+<span class="sourceLineNo">462</span>     * @param cXX transform factor between input abscissa and output abscissa<a name="line.462"></a>
+<span class="sourceLineNo">463</span>     * @param cYX transform factor between input abscissa and output ordinate<a name="line.463"></a>
+<span class="sourceLineNo">464</span>     * @param cXY transform factor between input ordinate and output abscissa<a name="line.464"></a>
+<span class="sourceLineNo">465</span>     * @param cYY transform factor between input ordinate and output ordinate<a name="line.465"></a>
+<span class="sourceLineNo">466</span>     * @param cX1 transform addendum for output abscissa<a name="line.466"></a>
+<span class="sourceLineNo">467</span>     * @param cY1 transform addendum for output ordinate<a name="line.467"></a>
+<span class="sourceLineNo">468</span>     * @return a new transform that can be applied to either {@link<a name="line.468"></a>
+<span class="sourceLineNo">469</span>     * Vector2D Vector2D}, {@link Line Line} or {@link<a name="line.469"></a>
+<span class="sourceLineNo">470</span>     * org.apache.commons.math3.geometry.partitioning.SubHyperplane<a name="line.470"></a>
+<span class="sourceLineNo">471</span>     * SubHyperplane} instances<a name="line.471"></a>
+<span class="sourceLineNo">472</span>     * @exception MathIllegalArgumentException if the transform is non invertible<a name="line.472"></a>
+<span class="sourceLineNo">473</span>     * @since 3.6<a name="line.473"></a>
+<span class="sourceLineNo">474</span>     */<a name="line.474"></a>
+<span class="sourceLineNo">475</span>    public static Transform&lt;Euclidean2D, Euclidean1D&gt; getTransform(final double cXX,<a name="line.475"></a>
+<span class="sourceLineNo">476</span>                                                                   final double cYX,<a name="line.476"></a>
+<span class="sourceLineNo">477</span>                                                                   final double cXY,<a name="line.477"></a>
+<span class="sourceLineNo">478</span>                                                                   final double cYY,<a name="line.478"></a>
+<span class="sourceLineNo">479</span>                                                                   final double cX1,<a name="line.479"></a>
+<span class="sourceLineNo">480</span>                                                                   final double cY1)<a name="line.480"></a>
+<span class="sourceLineNo">481</span>        throws MathIllegalArgumentException {<a name="line.481"></a>
+<span class="sourceLineNo">482</span>        return new LineTransform(cXX, cYX, cXY, cYY, cX1, cY1);<a name="line.482"></a>
+<span class="sourceLineNo">483</span>    }<a name="line.483"></a>
+<span class="sourceLineNo">484</span><a name="line.484"></a>
+<span class="sourceLineNo">485</span>    /** Class embedding an affine transform.<a name="line.485"></a>
+<span class="sourceLineNo">486</span>     * &lt;p&gt;This class is used in order to apply an affine transform to a<a name="line.486"></a>
+<span class="sourceLineNo">487</span>     * line. Using a specific object allow to perform some computations<a name="line.487"></a>
+<span class="sourceLineNo">488</span>     * on the transform only once even if the same transform is to be<a name="line.488"></a>
+<span class="sourceLineNo">489</span>     * applied to a large number of lines (for example to a large<a name="line.489"></a>
+<span class="sourceLineNo">490</span>     * polygon)./&lt;p&gt;<a name="line.490"></a>
+<span class="sourceLineNo">491</span>     */<a name="line.491"></a>
+<span class="sourceLineNo">492</span>    private static class LineTransform implements Transform&lt;Euclidean2D, Euclidean1D&gt; {<a name="line.492"></a>
+<span class="sourceLineNo">493</span><a name="line.493"></a>
+<span class="sourceLineNo">494</span>        /** Transform factor between input abscissa and output abscissa. */<a name="line.494"></a>
+<span class="sourceLineNo">495</span>        private double cXX;<a name="line.495"></a>
+<span class="sourceLineNo">496</span><a name="line.496"></a>
+<span class="sourceLineNo">497</span>        /** Transform factor between input abscissa and output ordinate. */<a name="line.497"></a>
+<span class="sourceLineNo">498</span>        private double cYX;<a name="line.498"></a>
+<span class="sourceLineNo">499</span><a name="line.499"></a>
+<span class="sourceLineNo">500</span>        /** Transform factor between input ordinate and output abscissa. */<a name="line.500"></a>
+<span class="sourceLineNo">501</span>        private double cXY;<a name="line.501"></a>
+<span class="sourceLineNo">502</span><a name="line.502"></a>
+<span class="sourceLineNo">503</span>        /** Transform factor between input ordinate and output ordinate. */<a name="line.503"></a>
+<span class="sourceLineNo">504</span>        private double cYY;<a name="line.504"></a>
+<span class="sourceLineNo">505</span><a name="line.505"></a>
+<span class="sourceLineNo">506</span>        /** Transform addendum for output abscissa. */<a name="line.506"></a>
+<span class="sourceLineNo">507</span>        private double cX1;<a name="line.507"></a>
+<span class="sourceLineNo">508</span><a name="line.508"></a>
+<span class="sourceLineNo">509</span>        /** Transform addendum for output ordinate. */<a name="line.509"></a>
+<span class="sourceLineNo">510</span>        private double cY1;<a name="line.510"></a>
+<span class="sourceLineNo">511</span><a name="line.511"></a>
+<span class="sourceLineNo">512</span>        /** cXY * cY1 - cYY * cX1. */<a name="line.512"></a>
+<span class="sourceLineNo">513</span>        private double c1Y;<a name="line.513"></a>
+<span class="sourceLineNo">514</span><a name="line.514"></a>
+<span class="sourceLineNo">515</span>        /** cXX * cY1 - cYX * cX1. */<a name="line.515"></a>
+<span class="sourceLineNo">516</span>        private double c1X;<a name="line.516"></a>
+<span class="sourceLineNo">517</span><a name="line.517"></a>
+<span class="sourceLineNo">518</span>        /** cXX * cYY - cYX * cXY. */<a name="line.518"></a>
+<span class="sourceLineNo">519</span>        private double c11;<a name="line.519"></a>
+<span class="sourceLineNo">520</span><a name="line.520"></a>
+<span class="sourceLineNo">521</span>        /** Build an affine line transform from a n {@code AffineTransform}.<a name="line.521"></a>
+<span class="sourceLineNo">522</span>         * @param cXX transform factor between input abscissa and output abscissa<a name="line.522"></a>
+<span class="sourceLineNo">523</span>         * @param cYX transform factor between input abscissa and output ordinate<a name="line.523"></a>
+<span class="sourceLineNo">524</span>         * @param cXY transform factor between input ordinate and output abscissa<a name="line.524"></a>
+<span class="sourceLineNo">525</span>         * @param cYY transform factor between input ordinate and output ordinate<a name="line.525"></a>
+<span class="sourceLineNo">526</span>         * @param cX1 transform addendum for output abscissa<a name="line.526"></a>
+<span class="sourceLineNo">527</span>         * @param cY1 transform addendum for output ordinate<a name="line.527"></a>
+<span class="sourceLineNo">528</span>         * @exception MathIllegalArgumentException if the transform is non invertible<a name="line.528"></a>
+<span class="sourceLineNo">529</span>         * @since 3.6<a name="line.529"></a>
+<span class="sourceLineNo">530</span>         */<a name="line.530"></a>
+<span class="sourceLineNo">531</span>        LineTransform(final double cXX, final double cYX, final double cXY,<a name="line.531"></a>
+<span class="sourceLineNo">532</span>                      final double cYY, final double cX1, final double cY1)<a name="line.532"></a>
+<span class="sourceLineNo">533</span>            throws MathIllegalArgumentException {<a name="line.533"></a>
+<span class="sourceLineNo">534</span><a name="line.534"></a>
+<span class="sourceLineNo">535</span>            this.cXX = cXX;<a name="line.535"></a>
+<span class="sourceLineNo">536</span>            this.cYX = cYX;<a name="line.536"></a>
+<span class="sourceLineNo">537</span>            this.cXY = cXY;<a name="line.537"></a>
+<span class="sourceLineNo">538</span>            this.cYY = cYY;<a name="line.538"></a>
+<span class="sourceLineNo">539</span>            this.cX1 = cX1;<a name="line.539"></a>
+<span class="sourceLineNo">540</span>            this.cY1 = cY1;<a name="line.540"></a>
+<span class="sourceLineNo">541</span><a name="line.541"></a>
+<span class="sourceLineNo">542</span>            c1Y = MathArrays.linearCombination(cXY, cY1, -cYY, cX1);<a name="line.542"></a>
+<span class="sourceLineNo">543</span>            c1X = MathArrays.linearCombination(cXX, cY1, -cYX, cX1);<a name="line.543"></a>
+<span class="sourceLineNo">544</span>            c11 = MathArrays.linearCombination(cXX, cYY, -cYX, cXY);<a name="line.544"></a>
+<span class="sourceLineNo">545</span><a name="line.545"></a>
+<span class="sourceLineNo">546</span>            if (FastMath.abs(c11) &lt; 1.0e-20) {<a name="line.546"></a>
+<span class="sourceLineNo">547</span>                throw new MathIllegalArgumentException(LocalizedFormats.NON_INVERTIBLE_TRANSFORM);<a name="line.547"></a>
+<span class="sourceLineNo">548</span>            }<a name="line.548"></a>
+<span class="sourceLineNo">549</span><a name="line.549"></a>
+<span class="sourceLineNo">550</span>        }<a name="line.550"></a>
+<span class="sourceLineNo">551</span><a name="line.551"></a>
+<span class="sourceLineNo">552</span>        /** {@inheritDoc} */<a name="line.552"></a>
+<span class="sourceLineNo">553</span>        public Vector2D apply(final Point&lt;Euclidean2D&gt; point) {<a name="line.553"></a>
+<span class="sourceLineNo">554</span>            final Vector2D p2D = (Vector2D) point;<a name="line.554"></a>
+<span class="sourceLineNo">555</span>            final double  x   = p2D.getX();<a name="line.555"></a>
+<span class="sourceLineNo">556</span>            final double  y   = p2D.getY();<a name="line.556"></a>
+<span class="sourceLineNo">557</span>            return new Vector2D(MathArrays.linearCombination(cXX, x, cXY, y, cX1, 1),<a name="line.557"></a>
+<span class="sourceLineNo">558</span>                                MathArrays.linearCombination(cYX, x, cYY, y, cY1, 1));<a name="line.558"></a>
+<span class="sourceLineNo">559</span>        }<a name="line.559"></a>
+<span class="sourceLineNo">560</span><a name="line.560"></a>
+<span class="sourceLineNo">561</span>        /** {@inheritDoc} */<a name="line.561"></a>
+<span class="sourceLineNo">562</span>        public Line apply(final Hyperplane&lt;Euclidean2D&gt; hyperplane) {<a name="line.562"></a>
+<span class="sourceLineNo">563</span>            final Line   line    = (Line) hyperplane;<a name="line.563"></a>
+<span class="sourceLineNo">564</span>            final double rOffset = MathArrays.linearCombination(c1X, line.cos, c1Y, line.sin, c11, line.originOffset);<a name="line.564"></a>
+<span class="sourceLineNo">565</span>            final double rCos    = MathArrays.linearCombination(cXX, line.cos, cXY, line.sin);<a name="line.565"></a>
+<span class="sourceLineNo">566</span>            final double rSin    = MathArrays.linearCombination(cYX, line.cos, cYY, line.sin);<a name="line.566"></a>
+<span class="sourceLineNo">567</span>            final double inv     = 1.0 / FastMath.sqrt(rSin * rSin + rCos * rCos);<a name="line.567"></a>
+<span class="sourceLineNo">568</span>            return new Line(FastMath.PI + FastMath.atan2(-rSin, -rCos),<a name="line.568"></a>
+<span class="sourceLineNo">569</span>                            inv * rCos, inv * rSin,<a name="line.569"></a>
+<span class="sourceLineNo">570</span>                            inv * rOffset, line.tolerance);<a name="line.570"></a>
+<span class="sourceLineNo">571</span>        }<a name="line.571"></a>
+<span class="sourceLineNo">572</span><a name="line.572"></a>
+<span class="sourceLineNo">573</span>        /** {@inheritDoc} */<a name="line.573"></a>
+<span class="sourceLineNo">574</span>        public SubHyperplane&lt;Euclidean1D&gt; apply(final SubHyperplane&lt;Euclidean1D&gt; sub,<a name="line.574"></a>
+<span class="sourceLineNo">575</span>                                                final Hyperplane&lt;Euclidean2D&gt; original,<a name="line.575"></a>
+<span class="sourceLineNo">576</span>                                                final Hyperplane&lt;Euclidean2D&gt; transformed) {<a name="line.576"></a>
+<span class="sourceLineNo">577</span>            final OrientedPoint op     = (OrientedPoint) sub.getHyperplane();<a name="line.577"></a>
+<span class="sourceLineNo">578</span>            final Line originalLine    = (Line) original;<a name="line.578"></a>
+<span class="sourceLineNo">579</span>            final Line transformedLine = (Line) transformed;<a name="line.579"></a>
+<span class="sourceLineNo">580</span>            final Vector1D newLoc =<a name="line.580"></a>
+<span class="sourceLineNo">581</span>                transformedLine.toSubSpace(apply(originalLine.toSpace(op.getLocation())));<a name="line.581"></a>
+<span class="sourceLineNo">582</span>            return new OrientedPoint(newLoc, op.isDirect(), originalLine.tolerance).wholeHyperplane();<a name="line.582"></a>
+<span class="sourceLineNo">583</span>        }<a name="line.583"></a>
+<span class="sourceLineNo">584</span><a name="line.584"></a>
+<span class="sourceLineNo">585</span>    }<a name="line.585"></a>
+<span class="sourceLineNo">586</span><a name="line.586"></a>
+<span class="sourceLineNo">587</span>}<a name="line.587"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

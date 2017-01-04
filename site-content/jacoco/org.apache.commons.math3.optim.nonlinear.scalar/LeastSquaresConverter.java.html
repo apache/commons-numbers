@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LeastSquaresConverter.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optim.nonlinear.scalar</a> &gt; <span class="el_source">LeastSquaresConverter.java</span></div><h1>LeastSquaresConverter.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.optim.nonlinear.scalar;
+
+import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.analysis.MultivariateVectorFunction;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.linear.RealMatrix;
+
+/**
+ * This class converts
+ * {@link MultivariateVectorFunction vectorial objective functions} to
+ * {@link MultivariateFunction scalar objective functions}
+ * when the goal is to minimize them.
+ * &lt;br/&gt;
+ * This class is mostly used when the vectorial objective function represents
+ * a theoretical result computed from a point set applied to a model and
+ * the models point must be adjusted to fit the theoretical result to some
+ * reference observations. The observations may be obtained for example from
+ * physical measurements whether the model is built from theoretical
+ * considerations.
+ * &lt;br/&gt;
+ * This class computes a possibly weighted squared sum of the residuals, which is
+ * a scalar value. The residuals are the difference between the theoretical model
+ * (i.e. the output of the vectorial objective function) and the observations. The
+ * class implements the {@link MultivariateFunction} interface and can therefore be
+ * minimized by any optimizer supporting scalar objectives functions.This is one way
+ * to perform a least square estimation. There are other ways to do this without using
+ * this converter, as some optimization algorithms directly support vectorial objective
+ * functions.
+ * &lt;br/&gt;
+ * This class support combination of residuals with or without weights and correlations.
+  *
+ * @see MultivariateFunction
+ * @see MultivariateVectorFunction
+ * @since 2.0
+ */
+
+public class LeastSquaresConverter implements MultivariateFunction {
+    /** Underlying vectorial function. */
+    private final MultivariateVectorFunction function;
+    /** Observations to be compared to objective function to compute residuals. */
+    private final double[] observations;
+    /** Optional weights for the residuals. */
+    private final double[] weights;
+    /** Optional scaling matrix (weight and correlations) for the residuals. */
+    private final RealMatrix scale;
+
+    /**
+     * Builds a simple converter for uncorrelated residuals with identical
+     * weights.
+     *
+     * @param function vectorial residuals function to wrap
+     * @param observations observations to be compared to objective function to compute residuals
+     */
+    public LeastSquaresConverter(final MultivariateVectorFunction function,
+<span class="fc" id="L72">                                 final double[] observations) {</span>
+<span class="fc" id="L73">        this.function     = function;</span>
+<span class="fc" id="L74">        this.observations = observations.clone();</span>
+<span class="fc" id="L75">        this.weights      = null;</span>
+<span class="fc" id="L76">        this.scale        = null;</span>
+<span class="fc" id="L77">    }</span>
+
+    /**
+     * Builds a simple converter for uncorrelated residuals with the
+     * specified weights.
+     * &lt;p&gt;
+     * The scalar objective function value is computed as:
+     * &lt;pre&gt;
+     * objective = &amp;sum;weight&lt;sub&gt;i&lt;/sub&gt;(observation&lt;sub&gt;i&lt;/sub&gt;-objective&lt;sub&gt;i&lt;/sub&gt;)&lt;sup&gt;2&lt;/sup&gt;
+     * &lt;/pre&gt;
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * Weights can be used for example to combine residuals with different standard
+     * deviations. As an example, consider a residuals array in which even elements
+     * are angular measurements in degrees with a 0.01&amp;deg; standard deviation and
+     * odd elements are distance measurements in meters with a 15m standard deviation.
+     * In this case, the weights array should be initialized with value
+     * 1.0/(0.01&lt;sup&gt;2&lt;/sup&gt;) in the even elements and 1.0/(15.0&lt;sup&gt;2&lt;/sup&gt;) in the
+     * odd elements (i.e. reciprocals of variances).
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * The array computed by the objective function, the observations array and the
+     * weights array must have consistent sizes or a {@link DimensionMismatchException}
+     * will be triggered while computing the scalar objective.
+     * &lt;/p&gt;
+     *
+     * @param function vectorial residuals function to wrap
+     * @param observations observations to be compared to objective function to compute residuals
+     * @param weights weights to apply to the residuals
+     * @throws DimensionMismatchException if the observations vector and the weights
+     * vector dimensions do not match (objective function dimension is checked only when
+     * the {@link #value(double[])} method is called)
+     */
+    public LeastSquaresConverter(final MultivariateVectorFunction function,
+                                 final double[] observations,
+<span class="fc" id="L112">                                 final double[] weights) {</span>
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">        if (observations.length != weights.length) {</span>
+<span class="nc" id="L114">            throw new DimensionMismatchException(observations.length, weights.length);</span>
+        }
+<span class="fc" id="L116">        this.function     = function;</span>
+<span class="fc" id="L117">        this.observations = observations.clone();</span>
+<span class="fc" id="L118">        this.weights      = weights.clone();</span>
+<span class="fc" id="L119">        this.scale        = null;</span>
+<span class="fc" id="L120">    }</span>
+
+    /**
+     * Builds a simple converter for correlated residuals with the
+     * specified weights.
+     * &lt;p&gt;
+     * The scalar objective function value is computed as:
+     * &lt;pre&gt;
+     * objective = y&lt;sup&gt;T&lt;/sup&gt;y with y = scale&amp;times;(observation-objective)
+     * &lt;/pre&gt;
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * The array computed by the objective function, the observations array and the
+     * the scaling matrix must have consistent sizes or a {@link DimensionMismatchException}
+     * will be triggered while computing the scalar objective.
+     * &lt;/p&gt;
+     *
+     * @param function vectorial residuals function to wrap
+     * @param observations observations to be compared to objective function to compute residuals
+     * @param scale scaling matrix
+     * @throws DimensionMismatchException if the observations vector and the scale
+     * matrix dimensions do not match (objective function dimension is checked only when
+     * the {@link #value(double[])} method is called)
+     */
+    public LeastSquaresConverter(final MultivariateVectorFunction function,
+                                 final double[] observations,
+<span class="fc" id="L146">                                 final RealMatrix scale) {</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">        if (observations.length != scale.getColumnDimension()) {</span>
+<span class="nc" id="L148">            throw new DimensionMismatchException(observations.length, scale.getColumnDimension());</span>
+        }
+<span class="fc" id="L150">        this.function     = function;</span>
+<span class="fc" id="L151">        this.observations = observations.clone();</span>
+<span class="fc" id="L152">        this.weights      = null;</span>
+<span class="fc" id="L153">        this.scale        = scale.copy();</span>
+<span class="fc" id="L154">    }</span>
+
+    /** {@inheritDoc} */
+    public double value(final double[] point) {
+        // compute residuals
+<span class="fc" id="L159">        final double[] residuals = function.value(point);</span>
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">        if (residuals.length != observations.length) {</span>
+<span class="nc" id="L161">            throw new DimensionMismatchException(residuals.length, observations.length);</span>
+        }
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        for (int i = 0; i &lt; residuals.length; ++i) {</span>
+<span class="fc" id="L164">            residuals[i] -= observations[i];</span>
+        }
+
+        // compute sum of squares
+<span class="fc" id="L168">        double sumSquares = 0;</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        if (weights != null) {</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">            for (int i = 0; i &lt; residuals.length; ++i) {</span>
+<span class="fc" id="L171">                final double ri = residuals[i];</span>
+<span class="fc" id="L172">                sumSquares +=  weights[i] * ri * ri;</span>
+            }
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        } else if (scale != null) {</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">            for (final double yi : scale.operate(residuals)) {</span>
+<span class="fc" id="L176">                sumSquares += yi * yi;</span>
+            }
+        } else {
+<span class="fc bfc" id="L179" title="All 2 branches covered.">            for (final double ri : residuals) {</span>
+<span class="fc" id="L180">                sumSquares += ri * ri;</span>
+            }
+        }
+
+<span class="fc" id="L184">        return sumSquares;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

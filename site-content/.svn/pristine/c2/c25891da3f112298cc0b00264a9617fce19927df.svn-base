@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ParameterJacobianWrapper.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode</a> &gt; <span class="el_source">ParameterJacobianWrapper.java</span></div><h1>ParameterJacobianWrapper.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.ode;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+
+/** Wrapper class to compute Jacobian matrices by finite differences for ODE
+ *  which do not compute them by themselves.
+ *
+ * @since 3.0
+ */
+class ParameterJacobianWrapper implements ParameterJacobianProvider {
+
+    /** Main ODE set. */
+    private final FirstOrderDifferentialEquations fode;
+
+    /** Raw ODE without Jacobian computation skill to be wrapped into a ParameterJacobianProvider. */
+    private final ParameterizedODE pode;
+
+    /** Steps for finite difference computation of the Jacobian df/dp w.r.t. parameters. */
+    private final Map&lt;String, Double&gt; hParam;
+
+    /** Wrap a {@link ParameterizedODE} into a {@link ParameterJacobianProvider}.
+     * @param fode main first order differential equations set
+     * @param pode secondary problem, without parameter Jacobian computation skill
+     * @param paramsAndSteps parameters and steps to compute the Jacobians df/dp
+     * @see JacobianMatrices#setParameterStep(String, double)
+     */
+    ParameterJacobianWrapper(final FirstOrderDifferentialEquations fode,
+                             final ParameterizedODE pode,
+<span class="fc" id="L51">                             final ParameterConfiguration[] paramsAndSteps) {</span>
+<span class="fc" id="L52">        this.fode = fode;</span>
+<span class="fc" id="L53">        this.pode = pode;</span>
+<span class="fc" id="L54">        this.hParam = new HashMap&lt;String, Double&gt;();</span>
+
+        // set up parameters for jacobian computation
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        for (final ParameterConfiguration param : paramsAndSteps) {</span>
+<span class="fc" id="L58">            final String name = param.getParameterName();</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">            if (pode.isSupported(name)) {</span>
+<span class="fc" id="L60">                hParam.put(name, param.getHP());</span>
+            }
+        }
+<span class="fc" id="L63">    }</span>
+
+    /** {@inheritDoc} */
+    public Collection&lt;String&gt; getParametersNames() {
+<span class="nc" id="L67">        return pode.getParametersNames();</span>
+    }
+
+    /** {@inheritDoc} */
+    public boolean isSupported(String name) {
+<span class="fc" id="L72">        return pode.isSupported(name);</span>
+    }
+
+    /** {@inheritDoc} */
+    public void computeParameterJacobian(double t, double[] y, double[] yDot,
+                                         String paramName, double[] dFdP)
+        throws DimensionMismatchException, MaxCountExceededException {
+
+<span class="fc" id="L80">        final int n = fode.getDimension();</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (pode.isSupported(paramName)) {</span>
+<span class="fc" id="L82">            final double[] tmpDot = new double[n];</span>
+
+            // compute the jacobian df/dp w.r.t. parameter
+<span class="fc" id="L85">            final double p  = pode.getParameter(paramName);</span>
+<span class="fc" id="L86">            final double hP = hParam.get(paramName);</span>
+<span class="fc" id="L87">            pode.setParameter(paramName, p + hP);</span>
+<span class="fc" id="L88">            fode.computeDerivatives(t, y, tmpDot);</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">            for (int i = 0; i &lt; n; ++i) {</span>
+<span class="fc" id="L90">                dFdP[i] = (tmpDot[i] - yDot[i]) / hP;</span>
+            }
+<span class="fc" id="L92">            pode.setParameter(paramName, p);</span>
+<span class="fc" id="L93">        } else {</span>
+<span class="nc" id="L94">            Arrays.fill(dFdP, 0, n, 0.0);</span>
+        }
+
+<span class="fc" id="L97">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

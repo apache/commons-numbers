@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BigReal.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.util</a> &gt; <span class="el_source">BigReal.java</span></div><h1>BigReal.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.util;
+
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
+import java.math.RoundingMode;
+
+import org.apache.commons.math3.Field;
+import org.apache.commons.math3.FieldElement;
+import org.apache.commons.math3.exception.MathArithmeticException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+
+/**
+ * Arbitrary precision decimal number.
+ * &lt;p&gt;
+ * This class is a simple wrapper around the standard &lt;code&gt;BigDecimal&lt;/code&gt;
+ * in order to implement the {@link FieldElement} interface.
+ * &lt;/p&gt;
+ * @since 2.0
+ */
+public class BigReal implements FieldElement&lt;BigReal&gt;, Comparable&lt;BigReal&gt;, Serializable {
+
+    /** A big real representing 0. */
+<span class="fc" id="L42">    public static final BigReal ZERO = new BigReal(BigDecimal.ZERO);</span>
+
+    /** A big real representing 1. */
+<span class="fc" id="L45">    public static final BigReal ONE = new BigReal(BigDecimal.ONE);</span>
+
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 4984534880991310382L;
+
+    /** Underlying BigDecimal. */
+    private final BigDecimal d;
+
+    /** Rounding mode for divisions. **/
+<span class="fc" id="L54">    private RoundingMode roundingMode = RoundingMode.HALF_UP;</span>
+
+    /*** BigDecimal scale ***/
+<span class="fc" id="L57">    private int scale = 64;</span>
+
+    /** Build an instance from a BigDecimal.
+     * @param val value of the instance
+     */
+<span class="fc" id="L62">    public BigReal(BigDecimal val) {</span>
+<span class="fc" id="L63">        d =  val;</span>
+<span class="fc" id="L64">    }</span>
+
+    /** Build an instance from a BigInteger.
+     * @param val value of the instance
+     */
+<span class="fc" id="L69">    public BigReal(BigInteger val) {</span>
+<span class="fc" id="L70">        d = new BigDecimal(val);</span>
+<span class="fc" id="L71">    }</span>
+
+    /** Build an instance from an unscaled BigInteger.
+     * @param unscaledVal unscaled value
+     * @param scale scale to use
+     */
+<span class="fc" id="L77">    public BigReal(BigInteger unscaledVal, int scale) {</span>
+<span class="fc" id="L78">        d = new BigDecimal(unscaledVal, scale);</span>
+<span class="fc" id="L79">    }</span>
+
+    /** Build an instance from an unscaled BigInteger.
+     * @param unscaledVal unscaled value
+     * @param scale scale to use
+     * @param mc to used
+     */
+<span class="fc" id="L86">    public BigReal(BigInteger unscaledVal, int scale, MathContext mc) {</span>
+<span class="fc" id="L87">        d = new BigDecimal(unscaledVal, scale, mc);</span>
+<span class="fc" id="L88">    }</span>
+
+    /** Build an instance from a BigInteger.
+     * @param val value of the instance
+     * @param mc context to use
+     */
+<span class="fc" id="L94">    public BigReal(BigInteger val, MathContext mc) {</span>
+<span class="fc" id="L95">        d = new BigDecimal(val, mc);</span>
+<span class="fc" id="L96">    }</span>
+
+    /** Build an instance from a characters representation.
+     * @param in character representation of the value
+     */
+<span class="fc" id="L101">    public BigReal(char[] in) {</span>
+<span class="fc" id="L102">        d = new BigDecimal(in);</span>
+<span class="fc" id="L103">    }</span>
+
+    /** Build an instance from a characters representation.
+     * @param in character representation of the value
+     * @param offset offset of the first character to analyze
+     * @param len length of the array slice to analyze
+     */
+<span class="fc" id="L110">    public BigReal(char[] in, int offset, int len) {</span>
+<span class="fc" id="L111">        d = new BigDecimal(in, offset, len);</span>
+<span class="fc" id="L112">    }</span>
+
+    /** Build an instance from a characters representation.
+     * @param in character representation of the value
+     * @param offset offset of the first character to analyze
+     * @param len length of the array slice to analyze
+     * @param mc context to use
+     */
+<span class="fc" id="L120">    public BigReal(char[] in, int offset, int len, MathContext mc) {</span>
+<span class="fc" id="L121">        d = new BigDecimal(in, offset, len, mc);</span>
+<span class="fc" id="L122">    }</span>
+
+    /** Build an instance from a characters representation.
+     * @param in character representation of the value
+     * @param mc context to use
+     */
+<span class="fc" id="L128">    public BigReal(char[] in, MathContext mc) {</span>
+<span class="fc" id="L129">        d = new BigDecimal(in, mc);</span>
+<span class="fc" id="L130">    }</span>
+
+    /** Build an instance from a double.
+     * @param val value of the instance
+     */
+<span class="fc" id="L135">    public BigReal(double val) {</span>
+<span class="fc" id="L136">        d = new BigDecimal(val);</span>
+<span class="fc" id="L137">    }</span>
+
+    /** Build an instance from a double.
+     * @param val value of the instance
+     * @param mc context to use
+     */
+<span class="fc" id="L143">    public BigReal(double val, MathContext mc) {</span>
+<span class="fc" id="L144">        d = new BigDecimal(val, mc);</span>
+<span class="fc" id="L145">    }</span>
+
+    /** Build an instance from an int.
+     * @param val value of the instance
+     */
+<span class="fc" id="L150">    public BigReal(int val) {</span>
+<span class="fc" id="L151">        d = new BigDecimal(val);</span>
+<span class="fc" id="L152">    }</span>
+
+    /** Build an instance from an int.
+     * @param val value of the instance
+     * @param mc context to use
+     */
+<span class="fc" id="L158">    public BigReal(int val, MathContext mc) {</span>
+<span class="fc" id="L159">        d = new BigDecimal(val, mc);</span>
+<span class="fc" id="L160">    }</span>
+
+    /** Build an instance from a long.
+     * @param val value of the instance
+     */
+<span class="fc" id="L165">    public BigReal(long val) {</span>
+<span class="fc" id="L166">        d = new BigDecimal(val);</span>
+<span class="fc" id="L167">    }</span>
+
+    /** Build an instance from a long.
+     * @param val value of the instance
+     * @param mc context to use
+     */
+<span class="fc" id="L173">    public BigReal(long val, MathContext mc) {</span>
+<span class="fc" id="L174">        d = new BigDecimal(val, mc);</span>
+<span class="fc" id="L175">    }</span>
+
+    /** Build an instance from a String representation.
+     * @param val character representation of the value
+     */
+<span class="fc" id="L180">    public BigReal(String val) {</span>
+<span class="fc" id="L181">        d = new BigDecimal(val);</span>
+<span class="fc" id="L182">    }</span>
+
+    /** Build an instance from a String representation.
+     * @param val character representation of the value
+     * @param mc context to use
+     */
+<span class="fc" id="L188">    public BigReal(String val, MathContext mc)  {</span>
+<span class="fc" id="L189">        d = new BigDecimal(val, mc);</span>
+<span class="fc" id="L190">    }</span>
+
+    /***
+     * Gets the rounding mode for division operations
+     * The default is {@code RoundingMode.HALF_UP}
+     * @return the rounding mode.
+     * @since 2.1
+     */
+    public RoundingMode getRoundingMode() {
+<span class="nc" id="L199">        return roundingMode;</span>
+    }
+
+    /***
+     * Sets the rounding mode for decimal divisions.
+     * @param roundingMode rounding mode for decimal divisions
+     * @since 2.1
+     */
+    public void setRoundingMode(RoundingMode roundingMode) {
+<span class="nc" id="L208">        this.roundingMode = roundingMode;</span>
+<span class="nc" id="L209">    }</span>
+
+    /***
+     * Sets the scale for division operations.
+     * The default is 64
+     * @return the scale
+     * @since 2.1
+     */
+    public int getScale() {
+<span class="fc" id="L218">        return scale;</span>
+    }
+
+    /***
+     * Sets the scale for division operations.
+     * @param scale scale for division operations
+     * @since 2.1
+     */
+    public void setScale(int scale) {
+<span class="nc" id="L227">        this.scale = scale;</span>
+<span class="nc" id="L228">    }</span>
+
+    /** {@inheritDoc} */
+    public BigReal add(BigReal a) {
+<span class="fc" id="L232">        return new BigReal(d.add(a.d));</span>
+    }
+
+    /** {@inheritDoc} */
+    public BigReal subtract(BigReal a) {
+<span class="fc" id="L237">        return new BigReal(d.subtract(a.d));</span>
+    }
+
+    /** {@inheritDoc} */
+    public BigReal negate() {
+<span class="fc" id="L242">        return new BigReal(d.negate());</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws MathArithmeticException if {@code a} is zero
+     */
+    public BigReal divide(BigReal a) throws MathArithmeticException {
+        try {
+<span class="fc" id="L252">            return new BigReal(d.divide(a.d, scale, roundingMode));</span>
+<span class="fc" id="L253">        } catch (ArithmeticException e) {</span>
+            // Division by zero has occurred
+<span class="fc" id="L255">            throw new MathArithmeticException(LocalizedFormats.ZERO_NOT_ALLOWED);</span>
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws MathArithmeticException if {@code this} is zero
+     */
+    public BigReal reciprocal() throws MathArithmeticException {
+        try {
+<span class="fc" id="L266">            return new BigReal(BigDecimal.ONE.divide(d, scale, roundingMode));</span>
+<span class="fc" id="L267">        } catch (ArithmeticException e) {</span>
+            // Division by zero has occurred
+<span class="fc" id="L269">            throw new MathArithmeticException(LocalizedFormats.ZERO_NOT_ALLOWED);</span>
+        }
+    }
+
+    /** {@inheritDoc} */
+    public BigReal multiply(BigReal a) {
+<span class="fc" id="L275">        return new BigReal(d.multiply(a.d));</span>
+    }
+
+    /** {@inheritDoc} */
+    public BigReal multiply(final int n) {
+<span class="fc" id="L280">        return new BigReal(d.multiply(new BigDecimal(n)));</span>
+    }
+
+    /** {@inheritDoc} */
+    public int compareTo(BigReal a) {
+<span class="fc" id="L285">        return d.compareTo(a.d);</span>
+    }
+
+    /** Get the double value corresponding to the instance.
+     * @return double value corresponding to the instance
+     */
+    public double doubleValue() {
+<span class="fc" id="L292">        return d.doubleValue();</span>
+    }
+
+    /** Get the BigDecimal value corresponding to the instance.
+     * @return BigDecimal value corresponding to the instance
+     */
+    public BigDecimal bigDecimalValue() {
+<span class="fc" id="L299">        return d;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(Object other) {
+<span class="fc bfc" id="L305" title="All 2 branches covered.">        if (this == other){</span>
+<span class="fc" id="L306">            return true;</span>
+        }
+
+<span class="fc bfc" id="L309" title="All 2 branches covered.">        if (other instanceof BigReal){</span>
+<span class="fc" id="L310">            return d.equals(((BigReal) other).d);</span>
+        }
+<span class="fc" id="L312">        return false;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+<span class="fc" id="L318">        return d.hashCode();</span>
+    }
+
+    /** {@inheritDoc} */
+    public Field&lt;BigReal&gt; getField() {
+<span class="nc" id="L323">        return BigRealField.getInstance();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

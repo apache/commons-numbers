@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Pair.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.util</a> &gt; <span class="el_source">Pair.java</span></div><h1>Pair.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.util;
+
+/**
+ * Generic pair.
+ * &lt;br/&gt;
+ * Although the instances of this class are immutable, it is impossible
+ * to ensure that the references passed to the constructor will not be
+ * modified by the caller.
+ *
+ * @param &lt;K&gt; Key type.
+ * @param &lt;V&gt; Value type.
+ *
+ * @since 3.0
+ */
+public class Pair&lt;K, V&gt; {
+    /** Key. */
+    private final K key;
+    /** Value. */
+    private final V value;
+
+    /**
+     * Create an entry representing a mapping from the specified key to the
+     * specified value.
+     *
+     * @param k Key (first element of the pair).
+     * @param v Value (second element of the pair).
+     */
+<span class="fc" id="L44">    public Pair(K k, V v) {</span>
+<span class="fc" id="L45">        key = k;</span>
+<span class="fc" id="L46">        value = v;</span>
+<span class="fc" id="L47">    }</span>
+
+    /**
+     * Create an entry representing the same mapping as the specified entry.
+     *
+     * @param entry Entry to copy.
+     */
+    public Pair(Pair&lt;? extends K, ? extends V&gt; entry) {
+<span class="nc" id="L55">        this(entry.getKey(), entry.getValue());</span>
+<span class="nc" id="L56">    }</span>
+
+    /**
+     * Get the key.
+     *
+     * @return the key (first element of the pair).
+     */
+    public K getKey() {
+<span class="fc" id="L64">        return key;</span>
+    }
+
+    /**
+     * Get the value.
+     *
+     * @return the value (second element of the pair).
+     */
+    public V getValue() {
+<span class="fc" id="L73">        return value;</span>
+    }
+
+    /**
+     * Get the first element of the pair.
+     *
+     * @return the first element of the pair.
+     * @since 3.1
+     */
+    public K getFirst() {
+<span class="fc" id="L83">        return key;</span>
+    }
+
+    /**
+     * Get the second element of the pair.
+     *
+     * @return the second element of the pair.
+     * @since 3.1
+     */
+    public V getSecond() {
+<span class="fc" id="L93">        return value;</span>
+    }
+
+    /**
+     * Compare the specified object with this entry for equality.
+     *
+     * @param o Object.
+     * @return {@code true} if the given object is also a map entry and
+     * the two entries represent the same mapping.
+     */
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (this == o) {</span>
+<span class="nc" id="L106">            return true;</span>
+        }
+<span class="fc bfc" id="L108" title="All 2 branches covered.">        if (!(o instanceof Pair)) {</span>
+<span class="fc" id="L109">            return false;</span>
+        } else {
+<span class="fc" id="L111">            Pair&lt;?, ?&gt; oP = (Pair&lt;?, ?&gt;) o;</span>
+<span class="pc bpc" id="L112" title="2 of 12 branches missed.">            return (key == null ?</span>
+                    oP.key == null :
+                    key.equals(oP.key)) &amp;&amp;
+                (value == null ?
+                 oP.value == null :
+                 value.equals(oP.value));
+        }
+    }
+
+    /**
+     * Compute a hash code.
+     *
+     * @return the hash code value.
+     */
+    @Override
+    public int hashCode() {
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">        int result = key == null ? 0 : key.hashCode();</span>
+
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">        final int h = value == null ? 0 : value.hashCode();</span>
+<span class="fc" id="L131">        result = 37 * result + h ^ (h &gt;&gt;&gt; 16);</span>
+
+<span class="fc" id="L133">        return result;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+<span class="fc" id="L139">        return &quot;[&quot; + getKey() + &quot;, &quot; + getValue() + &quot;]&quot;;</span>
+    }
+
+    /**
+     * Convenience factory method that calls the
+     * {@link #Pair(Object, Object) constructor}.
+     *
+     * @param &lt;K&gt; the key type
+     * @param &lt;V&gt; the value type
+     * @param k First element of the pair.
+     * @param v Second element of the pair.
+     * @return a new {@code Pair} containing {@code k} and {@code v}.
+     * @since 3.3
+     */
+    public static &lt;K, V&gt; Pair&lt;K, V&gt; create(K k, V v) {
+<span class="fc" id="L154">        return new Pair&lt;K, V&gt;(k, v);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

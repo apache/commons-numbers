@@ -1,0 +1,545 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+<title>ListUnivariateImpl (Apache Commons Math 3.5 Test API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="ListUnivariateImpl (Apache Commons Math 3.5 Test API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/ListUnivariateImpl.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+<div class="aboutLanguage"><em><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></em></div>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../../org/apache/commons/math3/stat/descriptive/DescriptiveStatisticsTest.html" title="class in org.apache.commons.math3.stat.descriptive"><span class="strong">PREV CLASS</span></a></li>
+<li><a href="../../../../../../org/apache/commons/math3/stat/descriptive/ListUnivariateImplTest.html" title="class in org.apache.commons.math3.stat.descriptive"><span class="strong">NEXT CLASS</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../../index.html?org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html" target="_top">FRAMES</a></li>
+<li><a href="ListUnivariateImpl.html" target="_top">NO FRAMES</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>SUMMARY:&nbsp;</li>
+<li>NESTED&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">FIELD</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">METHOD</a></li>
+</ul>
+<ul class="subNavList">
+<li>DETAIL:&nbsp;</li>
+<li><a href="#field_detail">FIELD</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">METHOD</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<p class="subTitle">org.apache.commons.math3.stat.descriptive</p>
+<h2 title="Class ListUnivariateImpl" class="title">Class ListUnivariateImpl</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.descriptive">org.apache.commons.math3.stat.descriptive.DescriptiveStatistics</a></li>
+<li>
+<ul class="inheritance">
+<li>org.apache.commons.math3.stat.descriptive.ListUnivariateImpl</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="http://docs.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/StatisticalSummary.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.descriptive">StatisticalSummary</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public class <a href="../../../../../../src-html/org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#line.32">ListUnivariateImpl</a>
+extends <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.descriptive">DescriptiveStatistics</a>
+implements <a href="http://docs.oracle.com/javase/6/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../../serialized-form.html#org.apache.commons.math3.stat.descriptive.ListUnivariateImpl">Serialized Form</a></dd></dl>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="http://docs.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#list">list</a></strong></code>
+<div class="block">Holds a reference to a list - GENERICs are going to make
+ our lives easier here as we could only accept List<Number></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../../../apidocs/org/apache/commons/math3/util/NumberTransformer.html?is-external=true" title="class or interface in org.apache.commons.math3.util">NumberTransformer</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#transformer">transformer</a></strong></code>
+<div class="block">Number Transformer maps Objects to Number for us.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.apache.commons.math3.stat.descriptive.DescriptiveStatistics">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;org.apache.commons.math3.stat.descriptive.<a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.descriptive">DescriptiveStatistics</a></h3>
+<code><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#INFINITE_WINDOW" title="class or interface in org.apache.commons.math3.stat.descriptive">INFINITE_WINDOW</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#windowSize" title="class or interface in org.apache.commons.math3.stat.descriptive">windowSize</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#ListUnivariateImpl()">ListUnivariateImpl</a></strong>()</code>
+<div class="block">No argument Constructor</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#ListUnivariateImpl(java.util.List)">ListUnivariateImpl</a></strong>(<a href="http://docs.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;list)</code>
+<div class="block">Construct a ListUnivariate with a specific List.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#ListUnivariateImpl(java.util.List, org.apache.commons.math3.util.NumberTransformer)">ListUnivariateImpl</a></strong>(<a href="http://docs.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;list,
+                                    <a href="../../../../../../../apidocs/org/apache/commons/math3/util/NumberTransformer.html?is-external=true" title="class or interface in org.apache.commons.math3.util">NumberTransformer</a>&nbsp;transformer)</code>
+<div class="block">Construct a ListUnivariate with a specific List.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#addObject(java.lang.Object)">addObject</a></strong>(<a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;o)</code>
+<div class="block">Adds an object to this list.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#addValue(double)">addValue</a></strong>(double&nbsp;v)</code></td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>double</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#apply(org.apache.commons.math3.stat.descriptive.UnivariateStatistic)">apply</a></strong>(<a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/UnivariateStatistic.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.descriptive">UnivariateStatistic</a>&nbsp;stat)</code>
+<div class="block">Apply the given statistic to this univariate collection.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#clear()">clear</a></strong>()</code>
+<div class="block">Clears all statistics.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>double</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#getElement(int)">getElement</a></strong>(int&nbsp;index)</code></td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#getN()">getN</a></strong>()</code></td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../../apidocs/org/apache/commons/math3/util/NumberTransformer.html?is-external=true" title="class or interface in org.apache.commons.math3.util">NumberTransformer</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#getTransformer()">getTransformer</a></strong>()</code>
+<div class="block">Access the number transformer.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>double[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#getValues()">getValues</a></strong>()</code></td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#setTransformer(org.apache.commons.math3.util.NumberTransformer)">setTransformer</a></strong>(<a href="../../../../../../../apidocs/org/apache/commons/math3/util/NumberTransformer.html?is-external=true" title="class or interface in org.apache.commons.math3.util">NumberTransformer</a>&nbsp;transformer)</code>
+<div class="block">Modify the number transformer.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#setWindowSize(int)">setWindowSize</a></strong>(int&nbsp;windowSize)</code></td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.apache.commons.math3.stat.descriptive.DescriptiveStatistics">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.apache.commons.math3.stat.descriptive.<a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.descriptive">DescriptiveStatistics</a></h3>
+<code><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#copy()" title="class or interface in org.apache.commons.math3.stat.descriptive">copy</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#copy(org.apache.commons.math3.stat.descriptive.DescriptiveStatistics, org.apache.commons.math3.stat.descriptive.DescriptiveStatistics)" title="class or interface in org.apache.commons.math3.stat.descriptive">copy</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getGeometricMean()" title="class or interface in org.apache.commons.math3.stat.descriptive">getGeometricMean</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getGeometricMeanImpl()" title="class or interface in org.apache.commons.math3.stat.descriptive">getGeometricMeanImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getKurtosis()" title="class or interface in org.apache.commons.math3.stat.descriptive">getKurtosis</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getKurtosisImpl()" title="class or interface in org.apache.commons.math3.stat.descriptive">getKurtosisImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getMax()" title="class or interface in org.apache.commons.math3.stat.descriptive">getMax</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getMaxImpl()" title="class or interface in org.apache.commons.math3.stat.descriptive">getMaxImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getMean()" title="class or interface in org.apache.commons.math3.stat.descriptive">getMean</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getMeanImpl()" title="class or interface in org.apache.commons.math3.stat.descriptive">getMeanImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getMin()" title="class or interface in org.apache.commons.math3.stat.descriptive">getMin</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getMinImpl()" title="class or interface in org.apache.commons.math3.stat.descriptive">getMinImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getPercentile(double)" title="class or interface in org.apache.commons.math3.stat.descriptive">getPercentile</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getPercentileImpl()" title="class or interface in org.apache.commons.math3.stat.descriptive">getPercentileImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getPopulationVariance()" title="class or interface in org.apache.commons.math3.stat.descriptive">getPopulationVariance</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getQuadraticMean()" title="class or interface in org.apache.commons.math3.stat.descriptive">getQuadraticMean</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getSkewness()" title="class or interface in org.apache.commons.math3.stat.descriptive">getSkewness</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getSkewnessImpl()" title="class or interface in org.apache.commons.math3.stat.descriptive">getSkewnessImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getSortedValues()" title="class or interface in org.apache.commons.math3.stat.descriptive">getSortedValues</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getStandardDeviation()" title="class or interface in org.apache.commons.math3.stat.descriptive">getStandardDeviation</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getSum()" title="class or interface in org.apache.commons.math3.stat.descriptive">getSum</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getSumImpl()" title="class or interface in org.apache.commons.math3.stat.descriptive">getSumImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getSumsq()" title="class or interface in org.apache.commons.math3.stat.descriptive">getSumsq</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getSumsqImpl()" title="class or interface in org.apache.commons.math3.stat.descriptive">getSumsqImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getVariance()" title="class or interface in org.apache.commons.math3.stat.descriptive">getVariance</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getVarianceImpl()" title="class or interface in org.apache.commons.math3.stat.descriptive">getVarianceImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getWindowSize()" title="class or interface in org.apache.commons.math3.stat.descriptive">getWindowSize</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#removeMostRecentValue()" title="class or interface in org.apache.commons.math3.stat.descriptive">removeMostRecentValue</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#replaceMostRecentValue(double)" title="class or interface in org.apache.commons.math3.stat.descriptive">replaceMostRecentValue</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#setGeometricMeanImpl(org.apache.commons.math3.stat.descriptive.UnivariateStatistic)" title="class or interface in org.apache.commons.math3.stat.descriptive">setGeometricMeanImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#setKurtosisImpl(org.apache.commons.math3.stat.descriptive.UnivariateStatistic)" title="class or interface in org.apache.commons.math3.stat.descriptive">setKurtosisImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#setMaxImpl(org.apache.commons.math3.stat.descriptive.UnivariateStatistic)" title="class or interface in org.apache.commons.math3.stat.descriptive">setMaxImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#setMeanImpl(org.apache.commons.math3.stat.descriptive.UnivariateStatistic)" title="class or interface in org.apache.commons.math3.stat.descriptive">setMeanImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#setMinImpl(org.apache.commons.math3.stat.descriptive.UnivariateStatistic)" title="class or interface in org.apache.commons.math3.stat.descriptive">setMinImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#setPercentileImpl(org.apache.commons.math3.stat.descriptive.UnivariateStatistic)" title="class or interface in org.apache.commons.math3.stat.descriptive">setPercentileImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#setSkewnessImpl(org.apache.commons.math3.stat.descriptive.UnivariateStatistic)" title="class or interface in org.apache.commons.math3.stat.descriptive">setSkewnessImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#setSumImpl(org.apache.commons.math3.stat.descriptive.UnivariateStatistic)" title="class or interface in org.apache.commons.math3.stat.descriptive">setSumImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#setSumsqImpl(org.apache.commons.math3.stat.descriptive.UnivariateStatistic)" title="class or interface in org.apache.commons.math3.stat.descriptive">setSumsqImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#setVarianceImpl(org.apache.commons.math3.stat.descriptive.UnivariateStatistic)" title="class or interface in org.apache.commons.math3.stat.descriptive">setVarianceImpl</a>, <a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#toString()" title="class or interface in org.apache.commons.math3.stat.descriptive">toString</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="list">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>list</h4>
+<pre>protected&nbsp;<a href="http://docs.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt; <a href="../../../../../../src-html/org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#line.41">list</a></pre>
+<div class="block">Holds a reference to a list - GENERICs are going to make
+ our lives easier here as we could only accept List<Number></div>
+</li>
+</ul>
+<a name="transformer">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>transformer</h4>
+<pre>protected&nbsp;<a href="../../../../../../../apidocs/org/apache/commons/math3/util/NumberTransformer.html?is-external=true" title="class or interface in org.apache.commons.math3.util">NumberTransformer</a> <a href="../../../../../../src-html/org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#line.44">transformer</a></pre>
+<div class="block">Number Transformer maps Objects to Number for us.</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="ListUnivariateImpl()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ListUnivariateImpl</h4>
+<pre>public&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#line.49">ListUnivariateImpl</a>()</pre>
+<div class="block">No argument Constructor</div>
+</li>
+</ul>
+<a name="ListUnivariateImpl(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ListUnivariateImpl</h4>
+<pre>public&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#line.57">ListUnivariateImpl</a>(<a href="http://docs.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;list)</pre>
+<div class="block">Construct a ListUnivariate with a specific List.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>list</code> - The list that will back this DescriptiveStatistics</dd></dl>
+</li>
+</ul>
+<a name="ListUnivariateImpl(java.util.List, org.apache.commons.math3.util.NumberTransformer)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>ListUnivariateImpl</h4>
+<pre>public&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#line.66">ListUnivariateImpl</a>(<a href="http://docs.oracle.com/javase/6/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&gt;&nbsp;list,
+                  <a href="../../../../../../../apidocs/org/apache/commons/math3/util/NumberTransformer.html?is-external=true" title="class or interface in org.apache.commons.math3.util">NumberTransformer</a>&nbsp;transformer)</pre>
+<div class="block">Construct a ListUnivariate with a specific List.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>list</code> - The list that will back this DescriptiveStatistics</dd><dd><code>transformer</code> - the number transformer used to convert the list items.</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="getValues()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getValues</h4>
+<pre>public&nbsp;double[]&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#line.74">getValues</a>()</pre>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getValues()" title="class or interface in org.apache.commons.math3.stat.descriptive">getValues</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.descriptive">DescriptiveStatistics</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="getElement(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getElement</h4>
+<pre>public&nbsp;double&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#line.99">getElement</a>(int&nbsp;index)</pre>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getElement(int)" title="class or interface in org.apache.commons.math3.stat.descriptive">getElement</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.descriptive">DescriptiveStatistics</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="getN()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getN</h4>
+<pre>public&nbsp;long&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#line.122">getN</a>()</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/StatisticalSummary.html?is-external=true#getN()" title="class or interface in org.apache.commons.math3.stat.descriptive">getN</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/StatisticalSummary.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.descriptive">StatisticalSummary</a></code></dd>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#getN()" title="class or interface in org.apache.commons.math3.stat.descriptive">getN</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.descriptive">DescriptiveStatistics</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="addValue(double)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addValue</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#line.140">addValue</a>(double&nbsp;v)</pre>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#addValue(double)" title="class or interface in org.apache.commons.math3.stat.descriptive">addValue</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.descriptive">DescriptiveStatistics</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="addObject(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addObject</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#line.148">addObject</a>(<a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;o)</pre>
+<div class="block">Adds an object to this list.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>o</code> - Object to add to the list</dd></dl>
+</li>
+</ul>
+<a name="clear()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clear</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#line.158">clear</a>()</pre>
+<div class="block">Clears all statistics.
+ <p>
+ <strong>N.B.: </strong> This method has the side effect of clearing the underlying list.</div>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#clear()" title="class or interface in org.apache.commons.math3.stat.descriptive">clear</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.descriptive">DescriptiveStatistics</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="apply(org.apache.commons.math3.stat.descriptive.UnivariateStatistic)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>apply</h4>
+<pre>public&nbsp;double&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#line.168">apply</a>(<a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/UnivariateStatistic.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.descriptive">UnivariateStatistic</a>&nbsp;stat)</pre>
+<div class="block">Apply the given statistic to this univariate collection.</div>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#apply(org.apache.commons.math3.stat.descriptive.UnivariateStatistic)" title="class or interface in org.apache.commons.math3.stat.descriptive">apply</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.descriptive">DescriptiveStatistics</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>stat</code> - the statistic to apply</dd>
+<dt><span class="strong">Returns:</span></dt><dd>the computed value of the statistic.</dd></dl>
+</li>
+</ul>
+<a name="getTransformer()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTransformer</h4>
+<pre>public&nbsp;<a href="../../../../../../../apidocs/org/apache/commons/math3/util/NumberTransformer.html?is-external=true" title="class or interface in org.apache.commons.math3.util">NumberTransformer</a>&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#line.181">getTransformer</a>()</pre>
+<div class="block">Access the number transformer.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the number transformer.</dd></dl>
+</li>
+</ul>
+<a name="setTransformer(org.apache.commons.math3.util.NumberTransformer)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTransformer</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#line.189">setTransformer</a>(<a href="../../../../../../../apidocs/org/apache/commons/math3/util/NumberTransformer.html?is-external=true" title="class or interface in org.apache.commons.math3.util">NumberTransformer</a>&nbsp;transformer)</pre>
+<div class="block">Modify the number transformer.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>transformer</code> - the new number transformer.</dd></dl>
+</li>
+</ul>
+<a name="setWindowSize(int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>setWindowSize</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html#line.195">setWindowSize</a>(int&nbsp;windowSize)</pre>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true#setWindowSize(int)" title="class or interface in org.apache.commons.math3.stat.descriptive">setWindowSize</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../apidocs/org/apache/commons/math3/stat/descriptive/DescriptiveStatistics.html?is-external=true" title="class or interface in org.apache.commons.math3.stat.descriptive">DescriptiveStatistics</a></code></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/ListUnivariateImpl.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+<div class="aboutLanguage"><em><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></em></div>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../../org/apache/commons/math3/stat/descriptive/DescriptiveStatisticsTest.html" title="class in org.apache.commons.math3.stat.descriptive"><span class="strong">PREV CLASS</span></a></li>
+<li><a href="../../../../../../org/apache/commons/math3/stat/descriptive/ListUnivariateImplTest.html" title="class in org.apache.commons.math3.stat.descriptive"><span class="strong">NEXT CLASS</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../../index.html?org/apache/commons/math3/stat/descriptive/ListUnivariateImpl.html" target="_top">FRAMES</a></li>
+<li><a href="ListUnivariateImpl.html" target="_top">NO FRAMES</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>SUMMARY:&nbsp;</li>
+<li>NESTED&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">FIELD</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">METHOD</a></li>
+</ul>
+<ul class="subNavList">
+<li>DETAIL:&nbsp;</li>
+<li><a href="#field_detail">FIELD</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">CONSTR</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">METHOD</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+<p class="legalCopy"><small>Copyright &#169; 2003&#x2013;2015 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</small></p>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ThirdMoment.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.stat.descriptive.moment</a> &gt; <span class="el_source">ThirdMoment.java</span></div><h1>ThirdMoment.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.stat.descriptive.moment;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.util.MathUtils;
+
+
+/**
+ * Computes a statistic related to the Third Central Moment.  Specifically,
+ * what is computed is the sum of cubed deviations from the sample mean.
+ * &lt;p&gt;
+ * The following recursive updating formula is used:&lt;/p&gt;
+ * &lt;p&gt;
+ * Let &lt;ul&gt;
+ * &lt;li&gt; dev = (current obs - previous mean) &lt;/li&gt;
+ * &lt;li&gt; m2 = previous value of {@link SecondMoment} &lt;/li&gt;
+ * &lt;li&gt; n = number of observations (including current obs) &lt;/li&gt;
+ * &lt;/ul&gt;
+ * Then&lt;/p&gt;
+ * &lt;p&gt;
+ * new value = old value - 3 * (dev/n) * m2 + (n-1) * (n -2) * (dev^3/n^2)&lt;/p&gt;
+ * &lt;p&gt;
+ * Returns &lt;code&gt;Double.NaN&lt;/code&gt; if no data values have been added and
+ * returns &lt;code&gt;0&lt;/code&gt; if there is just one value in the data set.
+ * Note that Double.NaN may also be returned if the input includes NaN
+ * and / or infinite values.&lt;/p&gt;
+ * &lt;p&gt;
+ * &lt;strong&gt;Note that this implementation is not synchronized.&lt;/strong&gt; If
+ * multiple threads access an instance of this class concurrently, and at least
+ * one of the threads invokes the &lt;code&gt;increment()&lt;/code&gt; or
+ * &lt;code&gt;clear()&lt;/code&gt; method, it must be synchronized externally.&lt;/p&gt;
+ *
+ */
+class ThirdMoment extends SecondMoment implements Serializable {
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = -7818711964045118679L;
+
+    /** third moment of values that have been added */
+    protected double m3;
+
+     /**
+     * Square of deviation of most recently added value from previous first
+     * moment, normalized by previous sample size.  Retained to prevent
+     * repeated computation in higher order moments.  nDevSq = nDev * nDev.
+     */
+    protected double nDevSq;
+
+    /**
+     * Create a FourthMoment instance
+     */
+    ThirdMoment() {
+<span class="fc" id="L70">        super();</span>
+<span class="fc" id="L71">        m3 = Double.NaN;</span>
+<span class="fc" id="L72">        nDevSq = Double.NaN;</span>
+<span class="fc" id="L73">    }</span>
+
+    /**
+     * Copy constructor, creates a new {@code ThirdMoment} identical
+     * to the {@code original}
+     *
+     * @param original the {@code ThirdMoment} instance to copy
+     * @throws NullArgumentException if orginal is null
+     */
+<span class="fc" id="L82">    ThirdMoment(ThirdMoment original) throws NullArgumentException {</span>
+<span class="fc" id="L83">        copy(original, this);</span>
+<span class="fc" id="L84">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void increment(final double d) {
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (n &lt; 1) {</span>
+<span class="fc" id="L92">            m3 = m2 = m1 = 0.0;</span>
+        }
+
+<span class="fc" id="L95">        double prevM2 = m2;</span>
+<span class="fc" id="L96">        super.increment(d);</span>
+<span class="fc" id="L97">        nDevSq = nDev * nDev;</span>
+<span class="fc" id="L98">        double n0 = n;</span>
+<span class="fc" id="L99">        m3 = m3 - 3.0 * nDev * prevM2 + (n0 - 1) * (n0 - 2) * nDevSq * dev;</span>
+<span class="fc" id="L100">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getResult() {
+<span class="fc" id="L107">        return m3;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void clear() {
+<span class="fc" id="L115">        super.clear();</span>
+<span class="fc" id="L116">        m3 = Double.NaN;</span>
+<span class="fc" id="L117">        nDevSq = Double.NaN;</span>
+<span class="fc" id="L118">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ThirdMoment copy() {
+<span class="fc" id="L125">        ThirdMoment result = new ThirdMoment();</span>
+        // No try-catch or advertised exception because args are guaranteed non-null
+<span class="fc" id="L127">        copy(this, result);</span>
+<span class="fc" id="L128">        return result;</span>
+    }
+
+    /**
+     * Copies source to dest.
+     * &lt;p&gt;Neither source nor dest can be null.&lt;/p&gt;
+     *
+     * @param source ThirdMoment to copy
+     * @param dest ThirdMoment to copy to
+     * @throws NullArgumentException if either source or dest is null
+     */
+    public static void copy(ThirdMoment source, ThirdMoment dest)
+        throws NullArgumentException {
+<span class="fc" id="L141">        MathUtils.checkNotNull(source);</span>
+<span class="fc" id="L142">        MathUtils.checkNotNull(dest);</span>
+<span class="fc" id="L143">        SecondMoment.copy(source, dest);</span>
+<span class="fc" id="L144">        dest.m3 = source.m3;</span>
+<span class="fc" id="L145">        dest.nDevSq = source.nDevSq;</span>
+<span class="fc" id="L146">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

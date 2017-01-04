@@ -1,0 +1,795 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>EigenDecompositionTest xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../testapidocs/org/apache/commons/math3/linear/EigenDecompositionTest.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one or more</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * contributor license agreements.  See the NOTICE file distributed with</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * this work for additional information regarding copyright ownership.</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> * The ASF licenses this file to You under the Apache License, Version 2.0</em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * (the "License"); you may not use this file except in compliance with</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *      <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">package</strong> org.apache.commons.math3.linear;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.Random;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.distribution.NormalDistribution;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.util.FastMath;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.util.Precision;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.util.MathArrays;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.math3.exception.MathUnsupportedOperationException;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> org.junit.After;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> org.junit.Assert;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> org.junit.Before;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> org.junit.Ignore;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> org.junit.Test;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/apache/commons/math3/linear/EigenDecompositionTest.html">EigenDecompositionTest</a> {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">double</strong>[] refValues;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">private</strong> RealMatrix matrix;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      @Test
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testDimension1() {
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          RealMatrix matrix =
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>              MatrixUtils.createRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] { { 1.5 } });
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          EigenDecomposition ed;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(matrix);
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          Assert.assertEquals(1.5, ed.getRealEigenvalue(0), 1.0e-15);
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      }
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      @Test
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testDimension2() {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          RealMatrix matrix =
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>              MatrixUtils.createRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] {
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>                      { 59.0, 12.0 },
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>                      { 12.0, 66.0 }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>              });
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          EigenDecomposition ed;
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(matrix);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          Assert.assertEquals(75.0, ed.getRealEigenvalue(0), 1.0e-15);
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          Assert.assertEquals(50.0, ed.getRealEigenvalue(1), 1.0e-15);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      }
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      @Test
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testDimension3() {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          RealMatrix matrix =
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              MatrixUtils.createRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                                     {  39632.0, -4824.0, -16560.0 },
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                                     {  -4824.0,  8693.0,   7920.0 },
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                                     { -16560.0,  7920.0,  17300.0 }
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                                 });
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          EigenDecomposition ed;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(matrix);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          Assert.assertEquals(50000.0, ed.getRealEigenvalue(0), 3.0e-11);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          Assert.assertEquals(12500.0, ed.getRealEigenvalue(1), 3.0e-11);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          Assert.assertEquals( 3125.0, ed.getRealEigenvalue(2), 3.0e-11);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      @Test
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testDimension3MultipleRoot() {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          RealMatrix matrix =
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              MatrixUtils.createRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                      {  5,   10,   15 },
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                      { 10,   20,   30 },
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                      { 15,   30,   45 }
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>              });
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          EigenDecomposition ed;
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(matrix);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          Assert.assertEquals(70.0, ed.getRealEigenvalue(0), 3.0e-11);
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          Assert.assertEquals(0.0,  ed.getRealEigenvalue(1), 3.0e-11);
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          Assert.assertEquals(0.0,  ed.getRealEigenvalue(2), 3.0e-11);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      }
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      @Test
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testDimension4WithSplit() {
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          RealMatrix matrix =
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>              MatrixUtils.createRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] {
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>                                     {  0.784, -0.288,  0.000,  0.000 },
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>                                     { -0.288,  0.616,  0.000,  0.000 },
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>                                     {  0.000,  0.000,  0.164, -0.048 },
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>                                     {  0.000,  0.000, -0.048,  0.136 }
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>                                });
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         EigenDecomposition ed;
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(matrix);
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         Assert.assertEquals(1.0, ed.getRealEigenvalue(0), 1.0e-15);
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         Assert.assertEquals(0.4, ed.getRealEigenvalue(1), 1.0e-15);
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         Assert.assertEquals(0.2, ed.getRealEigenvalue(2), 1.0e-15);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         Assert.assertEquals(0.1, ed.getRealEigenvalue(3), 1.0e-15);
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     }
+<a class="jxr_linenumber" name="L108" href="#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     @Test
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testDimension4WithoutSplit() {
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         RealMatrix matrix =
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>             MatrixUtils.createRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] {
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>                                    {  0.5608, -0.2016,  0.1152, -0.2976 },
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>                                    { -0.2016,  0.4432, -0.2304,  0.1152 },
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>                                    {  0.1152, -0.2304,  0.3088, -0.1344 },
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>                                    { -0.2976,  0.1152, -0.1344,  0.3872 }
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>                                });
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         EigenDecomposition ed;
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(matrix);
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         Assert.assertEquals(1.0, ed.getRealEigenvalue(0), 1.0e-15);
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         Assert.assertEquals(0.4, ed.getRealEigenvalue(1), 1.0e-15);
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         Assert.assertEquals(0.2, ed.getRealEigenvalue(2), 1.0e-15);
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         Assert.assertEquals(0.1, ed.getRealEigenvalue(3), 1.0e-15);
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>     }
+<a class="jxr_linenumber" name="L125" href="#L125">125</a> 
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     <em class="jxr_comment">// the following test triggered an ArrayIndexOutOfBoundsException in commons-math 2.0</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>     @Test
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testMath308() {
+<a class="jxr_linenumber" name="L129" href="#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <strong class="jxr_keyword">double</strong>[] mainTridiagonal = {
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>             22.330154644539597, 46.65485522478641, 17.393672330044705, 54.46687435351116, 80.17800767709437
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         };
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">double</strong>[] secondaryTridiagonal = {
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>             13.04450406501361, -5.977590941539671, 2.9040909856707517, 7.1570352792841225
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         };
+<a class="jxr_linenumber" name="L136" href="#L136">136</a> 
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>         <em class="jxr_comment">// the reference values have been computed using routine DSTEMR</em>
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         <em class="jxr_comment">// from the fortran library LAPACK version 3.2.1</em>
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>         <strong class="jxr_keyword">double</strong>[] refEigenValues = {
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>             82.044413207204002, 53.456697699894512, 52.536278520113882, 18.847969733754262, 14.138204224043099
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         };
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         RealVector[] refEigenVectors = {
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>             <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { -0.000462690386766, -0.002118073109055,  0.011530080757413,  0.252322434584915,  0.967572088232592 }),
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>             <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {  0.314647769490148,  0.750806415553905, -0.167700312025760, -0.537092972407375,  0.143854968127780 }),
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>             <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {  0.222368839324646,  0.514921891363332, -0.021377019336614,  0.801196801016305, -0.207446991247740 }),
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>             <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { -0.713933751051495,  0.190582113553930, -0.671410443368332,  0.056056055955050, -0.006541576993581 }),
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>             <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { -0.584677060845929,  0.367177264979103,  0.721453187784497, -0.052971054621812,  0.005740715188257 })
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>         };
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> 
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         EigenDecomposition decomposition;
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         decomposition = <strong class="jxr_keyword">new</strong> EigenDecomposition(mainTridiagonal, secondaryTridiagonal);
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> 
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <strong class="jxr_keyword">double</strong>[] eigenValues = decomposition.getRealEigenvalues();
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; refEigenValues.length; ++i) {
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>             Assert.assertEquals(refEigenValues[i], eigenValues[i], 1.0e-5);
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>             Assert.assertEquals(0, refEigenVectors[i].subtract(decomposition.getEigenvector(i)).getNorm(), 2.0e-7);
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         }
+<a class="jxr_linenumber" name="L158" href="#L158">158</a> 
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>     }
+<a class="jxr_linenumber" name="L160" href="#L160">160</a> 
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>     @Test
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testMathpbx02() {
+<a class="jxr_linenumber" name="L163" href="#L163">163</a> 
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         <strong class="jxr_keyword">double</strong>[] mainTridiagonal = {
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>               7484.860960227216, 18405.28129035345, 13855.225609560746,
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>              10016.708722343366, 559.8117399576674, 6750.190788301587,
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>                 71.21428769782159
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         };
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         <strong class="jxr_keyword">double</strong>[] secondaryTridiagonal = {
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>              -4175.088570476366,1975.7955858241994,5193.178422374075,
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>               1995.286659169179,75.34535882933804,-234.0808002076056
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         };
+<a class="jxr_linenumber" name="L173" href="#L173">173</a> 
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         <em class="jxr_comment">// the reference values have been computed using routine DSTEMR</em>
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>         <em class="jxr_comment">// from the fortran library LAPACK version 3.2.1</em>
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>         <strong class="jxr_keyword">double</strong>[] refEigenValues = {
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>                 20654.744890306974412,16828.208208485466457,
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>                 6893.155912634994820,6757.083016675340332,
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>                 5887.799885688558788,64.309089923240379,
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>                 57.992628792736340
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         };
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         RealVector[] refEigenVectors = {
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>                 <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {-0.270356342026904, 0.852811091326997, 0.399639490702077, 0.198794657813990, 0.019739323307666, 0.000106983022327, -0.000001216636321}),
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>                 <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {0.179995273578326,-0.402807848153042,0.701870993525734,0.555058211014888,0.068079148898236,0.000509139115227,-0.000007112235617}),
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>                 <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {-0.399582721284727,-0.056629954519333,-0.514406488522827,0.711168164518580,0.225548081276367,0.125943999652923,-0.004321507456014}),
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>                 <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {0.058515721572821,0.010200130057739,0.063516274916536,-0.090696087449378,-0.017148420432597,0.991318870265707,-0.034707338554096}),
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>                 <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {0.855205995537564,0.327134656629775,-0.265382397060548,0.282690729026706,0.105736068025572,-0.009138126622039,0.000367751821196}),
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>                 <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {-0.002913069901144,-0.005177515777101,0.041906334478672,-0.109315918416258,0.436192305456741,0.026307315639535,0.891797507436344}),
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>                 <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {-0.005738311176435,-0.010207611670378,0.082662420517928,-0.215733886094368,0.861606487840411,-0.025478530652759,-0.451080697503958})
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         };
+<a class="jxr_linenumber" name="L191" href="#L191">191</a> 
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>         <em class="jxr_comment">// the following line triggers the exception</em>
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>         EigenDecomposition decomposition;
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>         decomposition = <strong class="jxr_keyword">new</strong> EigenDecomposition(mainTridiagonal, secondaryTridiagonal);
+<a class="jxr_linenumber" name="L195" href="#L195">195</a> 
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <strong class="jxr_keyword">double</strong>[] eigenValues = decomposition.getRealEigenvalues();
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; refEigenValues.length; ++i) {
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>             Assert.assertEquals(refEigenValues[i], eigenValues[i], 1.0e-3);
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>             <strong class="jxr_keyword">if</strong> (refEigenVectors[i].dotProduct(decomposition.getEigenvector(i)) &lt; 0) {
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>                 Assert.assertEquals(0, refEigenVectors[i].add(decomposition.getEigenvector(i)).getNorm(), 1.0e-5);
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>                 Assert.assertEquals(0, refEigenVectors[i].subtract(decomposition.getEigenvector(i)).getNorm(), 1.0e-5);
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>             }
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         }
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> 
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>     }
+<a class="jxr_linenumber" name="L207" href="#L207">207</a> 
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>     @Test
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testMathpbx03() {
+<a class="jxr_linenumber" name="L210" href="#L210">210</a> 
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         <strong class="jxr_keyword">double</strong>[] mainTridiagonal = {
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>             1809.0978259647177,3395.4763425956166,1832.1894584712693,3804.364873592377,
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>             806.0482458637571,2403.656427234185,28.48691431556015
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         };
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         <strong class="jxr_keyword">double</strong>[] secondaryTridiagonal = {
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>             -656.8932064545833,-469.30804108920734,-1021.7714889369421,
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>             -1152.540497328983,-939.9765163817368,-12.885877015422391
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         };
+<a class="jxr_linenumber" name="L219" href="#L219">219</a> 
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <em class="jxr_comment">// the reference values have been computed using routine DSTEMR</em>
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>         <em class="jxr_comment">// from the fortran library LAPACK version 3.2.1</em>
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <strong class="jxr_keyword">double</strong>[] refEigenValues = {
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>             4603.121913685183245,3691.195818048970978,2743.442955402465032,1657.596442107321764,
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>             1336.797819095331306,30.129865209677519,17.035352085224986
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>         };
+<a class="jxr_linenumber" name="L226" href="#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>         RealVector[] refEigenVectors = {
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>             <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {-0.036249830202337,0.154184732411519,-0.346016328392363,0.867540105133093,-0.294483395433451,0.125854235969548,-0.000354507444044}),
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>             <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {-0.318654191697157,0.912992309960507,-0.129270874079777,-0.184150038178035,0.096521712579439,-0.070468788536461,0.000247918177736}),
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>             <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {-0.051394668681147,0.073102235876933,0.173502042943743,-0.188311980310942,-0.327158794289386,0.905206581432676,-0.004296342252659}),
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>             <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {0.838150199198361,0.193305209055716,-0.457341242126146,-0.166933875895419,0.094512811358535,0.119062381338757,-0.000941755685226}),
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>             <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {0.438071395458547,0.314969169786246,0.768480630802146,0.227919171600705,-0.193317045298647,-0.170305467485594,0.001677380536009}),
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>             <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {-0.003726503878741,-0.010091946369146,-0.067152015137611,-0.113798146542187,-0.313123000097908,-0.118940107954918,0.932862311396062}),
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>             <strong class="jxr_keyword">new</strong> ArrayRealVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {0.009373003194332,0.025570377559400,0.170955836081348,0.291954519805750,0.807824267665706,0.320108347088646,0.360202112392266}),
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>         };
+<a class="jxr_linenumber" name="L236" href="#L236">236</a> 
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>         <em class="jxr_comment">// the following line triggers the exception</em>
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>         EigenDecomposition decomposition;
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>         decomposition = <strong class="jxr_keyword">new</strong> EigenDecomposition(mainTridiagonal, secondaryTridiagonal);
+<a class="jxr_linenumber" name="L240" href="#L240">240</a> 
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>         <strong class="jxr_keyword">double</strong>[] eigenValues = decomposition.getRealEigenvalues();
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; refEigenValues.length; ++i) {
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>             Assert.assertEquals(refEigenValues[i], eigenValues[i], 1.0e-4);
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>             <strong class="jxr_keyword">if</strong> (refEigenVectors[i].dotProduct(decomposition.getEigenvector(i)) &lt; 0) {
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>                 Assert.assertEquals(0, refEigenVectors[i].add(decomposition.getEigenvector(i)).getNorm(), 1.0e-5);
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>                 Assert.assertEquals(0, refEigenVectors[i].subtract(decomposition.getEigenvector(i)).getNorm(), 1.0e-5);
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>             }
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         }
+<a class="jxr_linenumber" name="L250" href="#L250">250</a> 
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>     }
+<a class="jxr_linenumber" name="L252" href="#L252">252</a> 
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>     <em class="jxr_javadoccomment">/** test a matrix already in tridiagonal form. */</em>
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>     @Test
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testTridiagonal() {
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>         Random r = <strong class="jxr_keyword">new</strong> Random(4366663527842l);
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>         <strong class="jxr_keyword">double</strong>[] ref = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[30];
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; ref.length; ++i) {
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>             <strong class="jxr_keyword">if</strong> (i &lt; 5) {
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>                 ref[i] = 2 * r.nextDouble() - 1;
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>                 ref[i] = 0.0001 * r.nextDouble() + 6;
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>             }
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>         }
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         Arrays.sort(ref);
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         TriDiagonalTransformer t =
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>             <strong class="jxr_keyword">new</strong> TriDiagonalTransformer(createTestMatrix(r, ref));
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>         EigenDecomposition ed;
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>         ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(t.getMainDiagonalRef(), t.getSecondaryDiagonalRef());
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>         <strong class="jxr_keyword">double</strong>[] eigenValues = ed.getRealEigenvalues();
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>         Assert.assertEquals(ref.length, eigenValues.length);
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; ref.length; ++i) {
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>             Assert.assertEquals(ref[ref.length - i - 1], eigenValues[i], 2.0e-14);
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>         }
+<a class="jxr_linenumber" name="L275" href="#L275">275</a> 
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>     }
+<a class="jxr_linenumber" name="L277" href="#L277">277</a> 
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>     <em class="jxr_javadoccomment">/** test dimensions */</em>
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>     @Test
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testDimensions() {
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> m = matrix.getRowDimension();
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>         EigenDecomposition ed;
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>         ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(matrix);
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         Assert.assertEquals(m, ed.getV().getRowDimension());
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>         Assert.assertEquals(m, ed.getV().getColumnDimension());
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>         Assert.assertEquals(m, ed.getD().getColumnDimension());
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>         Assert.assertEquals(m, ed.getD().getColumnDimension());
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>         Assert.assertEquals(m, ed.getVT().getRowDimension());
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>         Assert.assertEquals(m, ed.getVT().getColumnDimension());
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>     }
+<a class="jxr_linenumber" name="L291" href="#L291">291</a> 
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>     <em class="jxr_javadoccomment">/** test eigenvalues */</em>
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>     @Test
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testEigenvalues() {
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>         EigenDecomposition ed;
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(matrix);
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>         <strong class="jxr_keyword">double</strong>[] eigenValues = ed.getRealEigenvalues();
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>         Assert.assertEquals(refValues.length, eigenValues.length);
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; refValues.length; ++i) {
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>             Assert.assertEquals(refValues[i], eigenValues[i], 3.0e-15);
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>         }
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>     }
+<a class="jxr_linenumber" name="L303" href="#L303">303</a> 
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>     <em class="jxr_javadoccomment">/** test eigenvalues for a big matrix. */</em>
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>     @Test
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testBigMatrix() {
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>         Random r = <strong class="jxr_keyword">new</strong> Random(17748333525117l);
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>         <strong class="jxr_keyword">double</strong>[] bigValues = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[200];
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; bigValues.length; ++i) {
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>             bigValues[i] = 2 * r.nextDouble() - 1;
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         }
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>         Arrays.sort(bigValues);
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>         EigenDecomposition ed;
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>         ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(createTestMatrix(r, bigValues));
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>         <strong class="jxr_keyword">double</strong>[] eigenValues = ed.getRealEigenvalues();
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>         Assert.assertEquals(bigValues.length, eigenValues.length);
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; bigValues.length; ++i) {
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>             Assert.assertEquals(bigValues[bigValues.length - i - 1], eigenValues[i], 2.0e-14);
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         }
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>     }
+<a class="jxr_linenumber" name="L321" href="#L321">321</a> 
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>     @Test
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testSymmetric() {
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>         RealMatrix symmetric = MatrixUtils.createRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] {
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>                 {4, 1, 1},
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>                 {1, 2, 3},
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>                 {1, 3, 6}
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>         });
+<a class="jxr_linenumber" name="L329" href="#L329">329</a> 
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>         EigenDecomposition ed;
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>         ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(symmetric);
+<a class="jxr_linenumber" name="L332" href="#L332">332</a> 
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>         RealMatrix d = ed.getD();
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>         RealMatrix v = ed.getV();
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>         RealMatrix vT = ed.getVT();
+<a class="jxr_linenumber" name="L336" href="#L336">336</a> 
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>         <strong class="jxr_keyword">double</strong> norm = v.multiply(d).multiply(vT).subtract(symmetric).getNorm();
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>         Assert.assertEquals(0, norm, 6.0e-13);
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>     }
+<a class="jxr_linenumber" name="L340" href="#L340">340</a> 
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>     @Test
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testSquareRoot() {
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] data = {
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>             { 33, 24,  7 },
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>             { 24, 57, 11 },
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>             {  7, 11,  9 }
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>         };
+<a class="jxr_linenumber" name="L348" href="#L348">348</a> 
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>         <strong class="jxr_keyword">final</strong> EigenDecomposition dec = <strong class="jxr_keyword">new</strong> EigenDecomposition(MatrixUtils.createRealMatrix(data));
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>         <strong class="jxr_keyword">final</strong> RealMatrix sqrtM = dec.getSquareRoot();
+<a class="jxr_linenumber" name="L351" href="#L351">351</a> 
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>         <em class="jxr_comment">// Reconstruct initial matrix.</em>
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>         <strong class="jxr_keyword">final</strong> RealMatrix m = sqrtM.multiply(sqrtM);
+<a class="jxr_linenumber" name="L354" href="#L354">354</a> 
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> dim = data.length;
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> r = 0; r &lt; dim; r++) {
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> c = 0; c &lt; dim; c++) {
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>                 Assert.assertEquals(<span class="jxr_string">"m["</span> + r + <span class="jxr_string">"]["</span> + c + <span class="jxr_string">"]"</span>,
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>                                     data[r][c], m.getEntry(r, c), 1e-13);
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>             }
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>         }
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>     }
+<a class="jxr_linenumber" name="L363" href="#L363">363</a> 
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>     @Test(expected=MathUnsupportedOperationException.<strong class="jxr_keyword">class</strong>)
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testSquareRootNonSymmetric() {
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] data = {
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>             { 1,  2, 4 },
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>             { 2,  3, 5 },
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>             { 11, 5, 9 }
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         };
+<a class="jxr_linenumber" name="L371" href="#L371">371</a> 
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>         <strong class="jxr_keyword">final</strong> EigenDecomposition dec = <strong class="jxr_keyword">new</strong> EigenDecomposition(MatrixUtils.createRealMatrix(data));
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>         @SuppressWarnings(<span class="jxr_string">"unused"</span>)
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>         <strong class="jxr_keyword">final</strong> RealMatrix sqrtM = dec.getSquareRoot();
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>     }
+<a class="jxr_linenumber" name="L376" href="#L376">376</a> 
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>     @Test(expected=MathUnsupportedOperationException.<strong class="jxr_keyword">class</strong>)
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testSquareRootNonPositiveDefinite() {
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] data = {
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>             { 1, 2,  4 },
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>             { 2, 3,  5 },
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>             { 4, 5, -9 }
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>         };
+<a class="jxr_linenumber" name="L384" href="#L384">384</a> 
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>         <strong class="jxr_keyword">final</strong> EigenDecomposition dec = <strong class="jxr_keyword">new</strong> EigenDecomposition(MatrixUtils.createRealMatrix(data));
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>         @SuppressWarnings(<span class="jxr_string">"unused"</span>)
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>         <strong class="jxr_keyword">final</strong> RealMatrix sqrtM = dec.getSquareRoot();
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>     }
+<a class="jxr_linenumber" name="L389" href="#L389">389</a> 
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>     @Test
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testUnsymmetric() {
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         <em class="jxr_comment">// Vandermonde matrix V(x;i,j) = x_i^{n - j} with x = (-1,-2,3,4)</em>
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>         <strong class="jxr_keyword">double</strong>[][] vData = { { -1.0, 1.0, -1.0, 1.0 },
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>                              { -8.0, 4.0, -2.0, 1.0 },
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>                              { 27.0, 9.0,  3.0, 1.0 },
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>                              { 64.0, 16.0, 4.0, 1.0 } };
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>         checkUnsymmetricMatrix(MatrixUtils.createRealMatrix(vData));
+<a class="jxr_linenumber" name="L398" href="#L398">398</a> 
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>         RealMatrix randMatrix = MatrixUtils.createRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] {
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>                 {0,  1,     0,     0},
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>                 {1,  0,     2.e-7, 0},
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>                 {0, -2.e-7, 0,     1},
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>                 {0,  0,     1,     0}
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>         });
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>         checkUnsymmetricMatrix(randMatrix);
+<a class="jxr_linenumber" name="L406" href="#L406">406</a> 
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>         <em class="jxr_comment">// from http://eigen.tuxfamily.org/dox/classEigen_1_1RealSchur.html</em>
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>         <strong class="jxr_keyword">double</strong>[][] randData2 = {
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>                 {  0.680, -0.3300, -0.2700, -0.717, -0.687,  0.0259 },
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>                 { -0.211,  0.5360,  0.0268,  0.214, -0.198,  0.6780 },
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>                 {  0.566, -0.4440,  0.9040, -0.967, -0.740,  0.2250 },
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>                 {  0.597,  0.1080,  0.8320, -0.514, -0.782, -0.4080 },
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>                 {  0.823, -0.0452,  0.2710, -0.726,  0.998,  0.2750 },
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>                 { -0.605,  0.2580,  0.4350,  0.608, -0.563,  0.0486 }
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>         };
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>         checkUnsymmetricMatrix(MatrixUtils.createRealMatrix(randData2));
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>     }
+<a class="jxr_linenumber" name="L418" href="#L418">418</a> 
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>     @Test
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>     @Ignore
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRandomUnsymmetricMatrix() {
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> run = 0; run &lt; 100; run++) {
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>             Random r = <strong class="jxr_keyword">new</strong> Random(System.currentTimeMillis());
+<a class="jxr_linenumber" name="L424" href="#L424">424</a> 
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>             <em class="jxr_comment">// matrix size</em>
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>             <strong class="jxr_keyword">int</strong> size = r.nextInt(20) + 4;
+<a class="jxr_linenumber" name="L427" href="#L427">427</a> 
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>             <strong class="jxr_keyword">double</strong>[][] data = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[size][size];
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; size; i++) {
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; size; j++) {
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>                     data[i][j] = r.nextInt(100);
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>                 }
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>             }
+<a class="jxr_linenumber" name="L434" href="#L434">434</a> 
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>             RealMatrix m = MatrixUtils.createRealMatrix(data);
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>             checkUnsymmetricMatrix(m);
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>         }
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>     }
+<a class="jxr_linenumber" name="L439" href="#L439">439</a> 
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L441" href="#L441">441</a> <em class="jxr_javadoccomment">     * Tests the porting of a bugfix in Jama-1.0.3 (from changelog):</em>
+<a class="jxr_linenumber" name="L442" href="#L442">442</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L443" href="#L443">443</a> <em class="jxr_javadoccomment">     *  Patched hqr2 method in Jama.EigenvalueDecomposition to avoid infinite loop;</em>
+<a class="jxr_linenumber" name="L444" href="#L444">444</a> <em class="jxr_javadoccomment">     *  Thanks Frederic Devernay &lt;frederic.devernay@m4x.org&gt;</em>
+<a class="jxr_linenumber" name="L445" href="#L445">445</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>     @Test
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testMath1051() {
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>         <strong class="jxr_keyword">double</strong>[][] data = {
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>                 {0,0,0,0,0},
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>                 {0,0,0,0,1},
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>                 {0,0,0,1,0},
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>                 {1,1,0,0,1},
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>                 {1,0,1,0,1}
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>         };
+<a class="jxr_linenumber" name="L455" href="#L455">455</a> 
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>         RealMatrix m = MatrixUtils.createRealMatrix(data);
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>         checkUnsymmetricMatrix(m);
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>     }
+<a class="jxr_linenumber" name="L459" href="#L459">459</a> 
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>     @Test
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>     @Ignore
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testNormalDistributionUnsymmetricMatrix() {
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> run = 0; run &lt; 100; run++) {
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>             Random r = <strong class="jxr_keyword">new</strong> Random(System.currentTimeMillis());
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>             NormalDistribution dist = <strong class="jxr_keyword">new</strong> NormalDistribution(0.0, r.nextDouble() * 5);
+<a class="jxr_linenumber" name="L466" href="#L466">466</a> 
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>             <em class="jxr_comment">// matrix size</em>
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>             <strong class="jxr_keyword">int</strong> size = r.nextInt(20) + 4;
+<a class="jxr_linenumber" name="L469" href="#L469">469</a> 
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>             <strong class="jxr_keyword">double</strong>[][] data = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[size][size];
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; size; i++) {
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; size; j++) {
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>                     data[i][j] = dist.sample();
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>                 }
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>             }
+<a class="jxr_linenumber" name="L476" href="#L476">476</a> 
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>             RealMatrix m = MatrixUtils.createRealMatrix(data);
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>             checkUnsymmetricMatrix(m);
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>         }
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>     }
+<a class="jxr_linenumber" name="L481" href="#L481">481</a> 
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>     @Test
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testMath848() {
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>         <strong class="jxr_keyword">double</strong>[][] data = {
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>                 { 0.1849449280, -0.0646971046,  0.0774755812, -0.0969651755, -0.0692648806,  0.3282344352, -0.0177423074,  0.2063136340},
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>                 {-0.0742700134, -0.0289063030, -0.0017269460, -0.0375550146, -0.0487737922, -0.2616837868, -0.0821201295, -0.2530000167},
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>                 { 0.2549910127,  0.0995733692, -0.0009718388,  0.0149282808,  0.1791878897, -0.0823182816,  0.0582629256,  0.3219545182},
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>                 {-0.0694747557, -0.1880649148, -0.2740630911,  0.0720096468, -0.1800836914, -0.3518996425,  0.2486747833,  0.6257938167},
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>                 { 0.0536360918, -0.1339297778,  0.2241579764, -0.0195327484, -0.0054103808,  0.0347564518,  0.5120802482, -0.0329902864},
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>                 {-0.5933332356, -0.2488721082,  0.2357173629,  0.0177285473,  0.0856630593, -0.3567126300, -0.1600668126, -0.1010899621},
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>                 {-0.0514349819, -0.0854319435,  0.1125050061,  0.0063453560, -0.2250000688, -0.2209343090,  0.1964623477, -0.1512329924},
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>                 { 0.0197395947, -0.1997170581, -0.1425959019, -0.2749477910, -0.0969467073,  0.0603688520, -0.2826905192,  0.1794315473}};
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>         RealMatrix m = MatrixUtils.createRealMatrix(data);
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>         checkUnsymmetricMatrix(m);
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>     }
+<a class="jxr_linenumber" name="L496" href="#L496">496</a> 
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L498" href="#L498">498</a> <em class="jxr_javadoccomment">     * Checks that the eigen decomposition of a general (unsymmetric) matrix is valid by</em>
+<a class="jxr_linenumber" name="L499" href="#L499">499</a> <em class="jxr_javadoccomment">     * checking: A*V = V*D</em>
+<a class="jxr_linenumber" name="L500" href="#L500">500</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> checkUnsymmetricMatrix(<strong class="jxr_keyword">final</strong> RealMatrix m) {
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>             EigenDecomposition ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(m);
+<a class="jxr_linenumber" name="L504" href="#L504">504</a> 
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>             RealMatrix d = ed.getD();
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>             RealMatrix v = ed.getV();
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>             <em class="jxr_comment">//RealMatrix vT = ed.getVT();</em>
+<a class="jxr_linenumber" name="L508" href="#L508">508</a> 
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>             RealMatrix x = m.multiply(v);
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>             RealMatrix y = v.multiply(d);
+<a class="jxr_linenumber" name="L511" href="#L511">511</a> 
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>             <strong class="jxr_keyword">double</strong> diffNorm = x.subtract(y).getNorm();
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>             Assert.assertTrue(<span class="jxr_string">"The norm of (X-Y) is too large: "</span> + diffNorm + <span class="jxr_string">", matrix="</span> + m.toString(),
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>                     x.subtract(y).getNorm() &lt; 1000 * Precision.EPSILON * FastMath.max(x.getNorm(), y.getNorm()));
+<a class="jxr_linenumber" name="L515" href="#L515">515</a> 
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>             RealMatrix invV = <strong class="jxr_keyword">new</strong> LUDecomposition(v).getSolver().getInverse();
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>             <strong class="jxr_keyword">double</strong> norm = v.multiply(d).multiply(invV).subtract(m).getNorm();
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>             Assert.assertEquals(0.0, norm, 1.0e-10);
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>         } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>             Assert.fail(<span class="jxr_string">"Failed to create EigenDecomposition for matrix "</span> + m.toString() + <span class="jxr_string">", ex="</span> + e.toString());
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>         }
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>     }
+<a class="jxr_linenumber" name="L523" href="#L523">523</a> 
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>     <em class="jxr_javadoccomment">/** test eigenvectors */</em>
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>     @Test
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testEigenvectors() {
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>         EigenDecomposition ed;
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>         ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(matrix);
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; matrix.getRowDimension(); ++i) {
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>             <strong class="jxr_keyword">double</strong> lambda = ed.getRealEigenvalue(i);
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>             RealVector v  = ed.getEigenvector(i);
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>             RealVector mV = matrix.operate(v);
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>             Assert.assertEquals(0, mV.subtract(v.mapMultiplyToSelf(lambda)).getNorm(), 1.0e-13);
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>         }
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>     }
+<a class="jxr_linenumber" name="L536" href="#L536">536</a> 
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>     <em class="jxr_javadoccomment">/** test A = VDVt */</em>
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>     @Test
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testAEqualVDVt() {
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>         EigenDecomposition ed;
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>         ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(matrix);
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>         RealMatrix v  = ed.getV();
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>         RealMatrix d  = ed.getD();
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>         RealMatrix vT = ed.getVT();
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>         <strong class="jxr_keyword">double</strong> norm = v.multiply(d).multiply(vT).subtract(matrix).getNorm();
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>         Assert.assertEquals(0, norm, 6.0e-13);
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>     }
+<a class="jxr_linenumber" name="L548" href="#L548">548</a> 
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>     <em class="jxr_javadoccomment">/** test that V is orthogonal */</em>
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>     @Test
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testVOrthogonal() {
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>         RealMatrix v = <strong class="jxr_keyword">new</strong> EigenDecomposition(matrix).getV();
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>         RealMatrix vTv = v.transpose().multiply(v);
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>         RealMatrix id  = MatrixUtils.createRealIdentityMatrix(vTv.getRowDimension());
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>         Assert.assertEquals(0, vTv.subtract(id).getNorm(), 2.0e-13);
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>     }
+<a class="jxr_linenumber" name="L557" href="#L557">557</a> 
+<a class="jxr_linenumber" name="L558" href="#L558">558</a>     <em class="jxr_javadoccomment">/** test diagonal matrix */</em>
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>     @Test
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testDiagonal() {
+<a class="jxr_linenumber" name="L561" href="#L561">561</a>         <strong class="jxr_keyword">double</strong>[] diagonal = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { -3.0, -2.0, 2.0, 5.0 };
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>         RealMatrix m = MatrixUtils.createRealDiagonalMatrix(diagonal);
+<a class="jxr_linenumber" name="L563" href="#L563">563</a>         EigenDecomposition ed;
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>         ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(m);
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>         Assert.assertEquals(diagonal[0], ed.getRealEigenvalue(3), 2.0e-15);
+<a class="jxr_linenumber" name="L566" href="#L566">566</a>         Assert.assertEquals(diagonal[1], ed.getRealEigenvalue(2), 2.0e-15);
+<a class="jxr_linenumber" name="L567" href="#L567">567</a>         Assert.assertEquals(diagonal[2], ed.getRealEigenvalue(1), 2.0e-15);
+<a class="jxr_linenumber" name="L568" href="#L568">568</a>         Assert.assertEquals(diagonal[3], ed.getRealEigenvalue(0), 2.0e-15);
+<a class="jxr_linenumber" name="L569" href="#L569">569</a>     }
+<a class="jxr_linenumber" name="L570" href="#L570">570</a> 
+<a class="jxr_linenumber" name="L571" href="#L571">571</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L572" href="#L572">572</a> <em class="jxr_javadoccomment">     * Matrix with eigenvalues {8, -1, -1}</em>
+<a class="jxr_linenumber" name="L573" href="#L573">573</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>     @Test
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testRepeatedEigenvalue() {
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>         RealMatrix repeated = MatrixUtils.createRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] {
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>                 {3,  2,  4},
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>                 {2,  0,  2},
+<a class="jxr_linenumber" name="L579" href="#L579">579</a>                 {4,  2,  3}
+<a class="jxr_linenumber" name="L580" href="#L580">580</a>         });
+<a class="jxr_linenumber" name="L581" href="#L581">581</a>         EigenDecomposition ed;
+<a class="jxr_linenumber" name="L582" href="#L582">582</a>         ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(repeated);
+<a class="jxr_linenumber" name="L583" href="#L583">583</a>         checkEigenValues((<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {8, -1, -1}), ed, 1E-12);
+<a class="jxr_linenumber" name="L584" href="#L584">584</a>         checkEigenVector((<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {2, 1, 2}), ed, 1E-12);
+<a class="jxr_linenumber" name="L585" href="#L585">585</a>     }
+<a class="jxr_linenumber" name="L586" href="#L586">586</a> 
+<a class="jxr_linenumber" name="L587" href="#L587">587</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L588" href="#L588">588</a> <em class="jxr_javadoccomment">     * Matrix with eigenvalues {2, 0, 12}</em>
+<a class="jxr_linenumber" name="L589" href="#L589">589</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L590" href="#L590">590</a>     @Test
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testDistinctEigenvalues() {
+<a class="jxr_linenumber" name="L592" href="#L592">592</a>         RealMatrix distinct = MatrixUtils.createRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] {
+<a class="jxr_linenumber" name="L593" href="#L593">593</a>                 {3, 1, -4},
+<a class="jxr_linenumber" name="L594" href="#L594">594</a>                 {1, 3, -4},
+<a class="jxr_linenumber" name="L595" href="#L595">595</a>                 {-4, -4, 8}
+<a class="jxr_linenumber" name="L596" href="#L596">596</a>         });
+<a class="jxr_linenumber" name="L597" href="#L597">597</a>         EigenDecomposition ed;
+<a class="jxr_linenumber" name="L598" href="#L598">598</a>         ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(distinct);
+<a class="jxr_linenumber" name="L599" href="#L599">599</a>         checkEigenValues((<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {2, 0, 12}), ed, 1E-12);
+<a class="jxr_linenumber" name="L600" href="#L600">600</a>         checkEigenVector((<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {1, -1, 0}), ed, 1E-12);
+<a class="jxr_linenumber" name="L601" href="#L601">601</a>         checkEigenVector((<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {1, 1, 1}), ed, 1E-12);
+<a class="jxr_linenumber" name="L602" href="#L602">602</a>         checkEigenVector((<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {-1, -1, 2}), ed, 1E-12);
+<a class="jxr_linenumber" name="L603" href="#L603">603</a>     }
+<a class="jxr_linenumber" name="L604" href="#L604">604</a> 
+<a class="jxr_linenumber" name="L605" href="#L605">605</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L606" href="#L606">606</a> <em class="jxr_javadoccomment">     * Verifies operation on indefinite matrix</em>
+<a class="jxr_linenumber" name="L607" href="#L607">607</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L608" href="#L608">608</a>     @Test
+<a class="jxr_linenumber" name="L609" href="#L609">609</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testZeroDivide() {
+<a class="jxr_linenumber" name="L610" href="#L610">610</a>         RealMatrix indefinite = MatrixUtils.createRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong> [][] {
+<a class="jxr_linenumber" name="L611" href="#L611">611</a>                 { 0.0, 1.0, -1.0 },
+<a class="jxr_linenumber" name="L612" href="#L612">612</a>                 { 1.0, 1.0, 0.0 },
+<a class="jxr_linenumber" name="L613" href="#L613">613</a>                 { -1.0,0.0, 1.0 }
+<a class="jxr_linenumber" name="L614" href="#L614">614</a>         });
+<a class="jxr_linenumber" name="L615" href="#L615">615</a>         EigenDecomposition ed;
+<a class="jxr_linenumber" name="L616" href="#L616">616</a>         ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(indefinite);
+<a class="jxr_linenumber" name="L617" href="#L617">617</a>         checkEigenValues((<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {2, 1, -1}), ed, 1E-12);
+<a class="jxr_linenumber" name="L618" href="#L618">618</a>         <strong class="jxr_keyword">double</strong> isqrt3 = 1/FastMath.sqrt(3.0);
+<a class="jxr_linenumber" name="L619" href="#L619">619</a>         checkEigenVector((<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {isqrt3,isqrt3,-isqrt3}), ed, 1E-12);
+<a class="jxr_linenumber" name="L620" href="#L620">620</a>         <strong class="jxr_keyword">double</strong> isqrt2 = 1/FastMath.sqrt(2.0);
+<a class="jxr_linenumber" name="L621" href="#L621">621</a>         checkEigenVector((<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {0.0,-isqrt2,-isqrt2}), ed, 1E-12);
+<a class="jxr_linenumber" name="L622" href="#L622">622</a>         <strong class="jxr_keyword">double</strong> isqrt6 = 1/FastMath.sqrt(6.0);
+<a class="jxr_linenumber" name="L623" href="#L623">623</a>         checkEigenVector((<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {2*isqrt6,-isqrt6,isqrt6}), ed, 1E-12);
+<a class="jxr_linenumber" name="L624" href="#L624">624</a>     }
+<a class="jxr_linenumber" name="L625" href="#L625">625</a> 
+<a class="jxr_linenumber" name="L626" href="#L626">626</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L627" href="#L627">627</a> <em class="jxr_javadoccomment">     * Verifies operation on very small values.</em>
+<a class="jxr_linenumber" name="L628" href="#L628">628</a> <em class="jxr_javadoccomment">     * Matrix with eigenvalues {2e-100, 0, 12e-100}</em>
+<a class="jxr_linenumber" name="L629" href="#L629">629</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L630" href="#L630">630</a>     @Test
+<a class="jxr_linenumber" name="L631" href="#L631">631</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testTinyValues() {
+<a class="jxr_linenumber" name="L632" href="#L632">632</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> tiny = 1e-100;
+<a class="jxr_linenumber" name="L633" href="#L633">633</a>         RealMatrix distinct = MatrixUtils.createRealMatrix(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[][] {
+<a class="jxr_linenumber" name="L634" href="#L634">634</a>                 {3, 1, -4},
+<a class="jxr_linenumber" name="L635" href="#L635">635</a>                 {1, 3, -4},
+<a class="jxr_linenumber" name="L636" href="#L636">636</a>                 {-4, -4, 8}
+<a class="jxr_linenumber" name="L637" href="#L637">637</a>         });
+<a class="jxr_linenumber" name="L638" href="#L638">638</a>         distinct = distinct.scalarMultiply(tiny);
+<a class="jxr_linenumber" name="L639" href="#L639">639</a> 
+<a class="jxr_linenumber" name="L640" href="#L640">640</a>         <strong class="jxr_keyword">final</strong> EigenDecomposition ed = <strong class="jxr_keyword">new</strong> EigenDecomposition(distinct);
+<a class="jxr_linenumber" name="L641" href="#L641">641</a>         checkEigenValues(MathArrays.scale(tiny, <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {2, 0, 12}), ed, 1e-12 * tiny);
+<a class="jxr_linenumber" name="L642" href="#L642">642</a>         checkEigenVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {1, -1, 0}, ed, 1e-12);
+<a class="jxr_linenumber" name="L643" href="#L643">643</a>         checkEigenVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {1, 1, 1}, ed, 1e-12);
+<a class="jxr_linenumber" name="L644" href="#L644">644</a>         checkEigenVector(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {-1, -1, 2}, ed, 1e-12);
+<a class="jxr_linenumber" name="L645" href="#L645">645</a>     }
+<a class="jxr_linenumber" name="L646" href="#L646">646</a> 
+<a class="jxr_linenumber" name="L647" href="#L647">647</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L648" href="#L648">648</a> <em class="jxr_javadoccomment">     * Verifies that the given EigenDecomposition has eigenvalues equivalent to</em>
+<a class="jxr_linenumber" name="L649" href="#L649">649</a> <em class="jxr_javadoccomment">     * the targetValues, ignoring the order of the values and allowing</em>
+<a class="jxr_linenumber" name="L650" href="#L650">650</a> <em class="jxr_javadoccomment">     * values to differ by tolerance.</em>
+<a class="jxr_linenumber" name="L651" href="#L651">651</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L652" href="#L652">652</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> checkEigenValues(<strong class="jxr_keyword">double</strong>[] targetValues,
+<a class="jxr_linenumber" name="L653" href="#L653">653</a>             EigenDecomposition ed, <strong class="jxr_keyword">double</strong> tolerance) {
+<a class="jxr_linenumber" name="L654" href="#L654">654</a>         <strong class="jxr_keyword">double</strong>[] observed = ed.getRealEigenvalues();
+<a class="jxr_linenumber" name="L655" href="#L655">655</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; observed.length; i++) {
+<a class="jxr_linenumber" name="L656" href="#L656">656</a>             Assert.assertTrue(isIncludedValue(observed[i], targetValues, tolerance));
+<a class="jxr_linenumber" name="L657" href="#L657">657</a>             Assert.assertTrue(isIncludedValue(targetValues[i], observed, tolerance));
+<a class="jxr_linenumber" name="L658" href="#L658">658</a>         }
+<a class="jxr_linenumber" name="L659" href="#L659">659</a>     }
+<a class="jxr_linenumber" name="L660" href="#L660">660</a> 
+<a class="jxr_linenumber" name="L661" href="#L661">661</a> 
+<a class="jxr_linenumber" name="L662" href="#L662">662</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L663" href="#L663">663</a> <em class="jxr_javadoccomment">     * Returns true iff there is an entry within tolerance of value in</em>
+<a class="jxr_linenumber" name="L664" href="#L664">664</a> <em class="jxr_javadoccomment">     * searchArray.</em>
+<a class="jxr_linenumber" name="L665" href="#L665">665</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L666" href="#L666">666</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isIncludedValue(<strong class="jxr_keyword">double</strong> value, <strong class="jxr_keyword">double</strong>[] searchArray,
+<a class="jxr_linenumber" name="L667" href="#L667">667</a>             <strong class="jxr_keyword">double</strong> tolerance) {
+<a class="jxr_linenumber" name="L668" href="#L668">668</a>        <strong class="jxr_keyword">boolean</strong> found = false;
+<a class="jxr_linenumber" name="L669" href="#L669">669</a>        <strong class="jxr_keyword">int</strong> i = 0;
+<a class="jxr_linenumber" name="L670" href="#L670">670</a>        <strong class="jxr_keyword">while</strong> (!found &amp;&amp; i &lt; searchArray.length) {
+<a class="jxr_linenumber" name="L671" href="#L671">671</a>            <strong class="jxr_keyword">if</strong> (FastMath.abs(value - searchArray[i]) &lt; tolerance) {
+<a class="jxr_linenumber" name="L672" href="#L672">672</a>                found = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L673" href="#L673">673</a>            }
+<a class="jxr_linenumber" name="L674" href="#L674">674</a>            i++;
+<a class="jxr_linenumber" name="L675" href="#L675">675</a>        }
+<a class="jxr_linenumber" name="L676" href="#L676">676</a>        <strong class="jxr_keyword">return</strong> found;
+<a class="jxr_linenumber" name="L677" href="#L677">677</a>     }
+<a class="jxr_linenumber" name="L678" href="#L678">678</a> 
+<a class="jxr_linenumber" name="L679" href="#L679">679</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L680" href="#L680">680</a> <em class="jxr_javadoccomment">     * Returns true iff eigenVector is a scalar multiple of one of the columns</em>
+<a class="jxr_linenumber" name="L681" href="#L681">681</a> <em class="jxr_javadoccomment">     * of ed.getV().  Does not try linear combinations - i.e., should only be</em>
+<a class="jxr_linenumber" name="L682" href="#L682">682</a> <em class="jxr_javadoccomment">     * used to find vectors in one-dimensional eigenspaces.</em>
+<a class="jxr_linenumber" name="L683" href="#L683">683</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L684" href="#L684">684</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> checkEigenVector(<strong class="jxr_keyword">double</strong>[] eigenVector,
+<a class="jxr_linenumber" name="L685" href="#L685">685</a>             EigenDecomposition ed, <strong class="jxr_keyword">double</strong> tolerance) {
+<a class="jxr_linenumber" name="L686" href="#L686">686</a>         Assert.assertTrue(isIncludedColumn(eigenVector, ed.getV(), tolerance));
+<a class="jxr_linenumber" name="L687" href="#L687">687</a>     }
+<a class="jxr_linenumber" name="L688" href="#L688">688</a> 
+<a class="jxr_linenumber" name="L689" href="#L689">689</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L690" href="#L690">690</a> <em class="jxr_javadoccomment">     * Returns true iff there is a column that is a scalar multiple of column</em>
+<a class="jxr_linenumber" name="L691" href="#L691">691</a> <em class="jxr_javadoccomment">     * in searchMatrix (modulo tolerance)</em>
+<a class="jxr_linenumber" name="L692" href="#L692">692</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L693" href="#L693">693</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isIncludedColumn(<strong class="jxr_keyword">double</strong>[] column, RealMatrix searchMatrix,
+<a class="jxr_linenumber" name="L694" href="#L694">694</a>             <strong class="jxr_keyword">double</strong> tolerance) {
+<a class="jxr_linenumber" name="L695" href="#L695">695</a>         <strong class="jxr_keyword">boolean</strong> found = false;
+<a class="jxr_linenumber" name="L696" href="#L696">696</a>         <strong class="jxr_keyword">int</strong> i = 0;
+<a class="jxr_linenumber" name="L697" href="#L697">697</a>         <strong class="jxr_keyword">while</strong> (!found &amp;&amp; i &lt; searchMatrix.getColumnDimension()) {
+<a class="jxr_linenumber" name="L698" href="#L698">698</a>             <strong class="jxr_keyword">double</strong> multiplier = 1.0;
+<a class="jxr_linenumber" name="L699" href="#L699">699</a>             <strong class="jxr_keyword">boolean</strong> matching = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L700" href="#L700">700</a>             <strong class="jxr_keyword">int</strong> j = 0;
+<a class="jxr_linenumber" name="L701" href="#L701">701</a>             <strong class="jxr_keyword">while</strong> (matching &amp;&amp; j &lt; searchMatrix.getRowDimension()) {
+<a class="jxr_linenumber" name="L702" href="#L702">702</a>                 <strong class="jxr_keyword">double</strong> colEntry = searchMatrix.getEntry(j, i);
+<a class="jxr_linenumber" name="L703" href="#L703">703</a>                 <em class="jxr_comment">// Use the first entry where both are non-zero as scalar</em>
+<a class="jxr_linenumber" name="L704" href="#L704">704</a>                 <strong class="jxr_keyword">if</strong> (FastMath.abs(multiplier - 1.0) &lt;= FastMath.ulp(1.0) &amp;&amp; FastMath.abs(colEntry) &gt; 1E-14
+<a class="jxr_linenumber" name="L705" href="#L705">705</a>                         &amp;&amp; FastMath.abs(column[j]) &gt; 1e-14) {
+<a class="jxr_linenumber" name="L706" href="#L706">706</a>                     multiplier = colEntry / column[j];
+<a class="jxr_linenumber" name="L707" href="#L707">707</a>                 }
+<a class="jxr_linenumber" name="L708" href="#L708">708</a>                 <strong class="jxr_keyword">if</strong> (FastMath.abs(column[j] * multiplier - colEntry) &gt; tolerance) {
+<a class="jxr_linenumber" name="L709" href="#L709">709</a>                     matching = false;
+<a class="jxr_linenumber" name="L710" href="#L710">710</a>                 }
+<a class="jxr_linenumber" name="L711" href="#L711">711</a>                 j++;
+<a class="jxr_linenumber" name="L712" href="#L712">712</a>             }
+<a class="jxr_linenumber" name="L713" href="#L713">713</a>             found = matching;
+<a class="jxr_linenumber" name="L714" href="#L714">714</a>             i++;
+<a class="jxr_linenumber" name="L715" href="#L715">715</a>         }
+<a class="jxr_linenumber" name="L716" href="#L716">716</a>         <strong class="jxr_keyword">return</strong> found;
+<a class="jxr_linenumber" name="L717" href="#L717">717</a>     }
+<a class="jxr_linenumber" name="L718" href="#L718">718</a> 
+<a class="jxr_linenumber" name="L719" href="#L719">719</a>     @Before
+<a class="jxr_linenumber" name="L720" href="#L720">720</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> setUp() {
+<a class="jxr_linenumber" name="L721" href="#L721">721</a>         refValues = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {
+<a class="jxr_linenumber" name="L722" href="#L722">722</a>                 2.003, 2.002, 2.001, 1.001, 1.000, 0.001
+<a class="jxr_linenumber" name="L723" href="#L723">723</a>         };
+<a class="jxr_linenumber" name="L724" href="#L724">724</a>         matrix = createTestMatrix(<strong class="jxr_keyword">new</strong> Random(35992629946426l), refValues);
+<a class="jxr_linenumber" name="L725" href="#L725">725</a>     }
+<a class="jxr_linenumber" name="L726" href="#L726">726</a> 
+<a class="jxr_linenumber" name="L727" href="#L727">727</a>     @After
+<a class="jxr_linenumber" name="L728" href="#L728">728</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> tearDown() {
+<a class="jxr_linenumber" name="L729" href="#L729">729</a>         refValues = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L730" href="#L730">730</a>         matrix    = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L731" href="#L731">731</a>     }
+<a class="jxr_linenumber" name="L732" href="#L732">732</a> 
+<a class="jxr_linenumber" name="L733" href="#L733">733</a>     <strong class="jxr_keyword">static</strong> RealMatrix createTestMatrix(<strong class="jxr_keyword">final</strong> Random r, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] eigenValues) {
+<a class="jxr_linenumber" name="L734" href="#L734">734</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> n = eigenValues.length;
+<a class="jxr_linenumber" name="L735" href="#L735">735</a>         <strong class="jxr_keyword">final</strong> RealMatrix v = createOrthogonalMatrix(r, n);
+<a class="jxr_linenumber" name="L736" href="#L736">736</a>         <strong class="jxr_keyword">final</strong> RealMatrix d = MatrixUtils.createRealDiagonalMatrix(eigenValues);
+<a class="jxr_linenumber" name="L737" href="#L737">737</a>         <strong class="jxr_keyword">return</strong> v.multiply(d).multiply(v.transpose());
+<a class="jxr_linenumber" name="L738" href="#L738">738</a>     }
+<a class="jxr_linenumber" name="L739" href="#L739">739</a> 
+<a class="jxr_linenumber" name="L740" href="#L740">740</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> RealMatrix createOrthogonalMatrix(<strong class="jxr_keyword">final</strong> Random r, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> size) {
+<a class="jxr_linenumber" name="L741" href="#L741">741</a> 
+<a class="jxr_linenumber" name="L742" href="#L742">742</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[][] data = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[size][size];
+<a class="jxr_linenumber" name="L743" href="#L743">743</a> 
+<a class="jxr_linenumber" name="L744" href="#L744">744</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; size; ++i) {
+<a class="jxr_linenumber" name="L745" href="#L745">745</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] dataI = data[i];
+<a class="jxr_linenumber" name="L746" href="#L746">746</a>             <strong class="jxr_keyword">double</strong> norm2 = 0;
+<a class="jxr_linenumber" name="L747" href="#L747">747</a>             <strong class="jxr_keyword">do</strong> {
+<a class="jxr_linenumber" name="L748" href="#L748">748</a> 
+<a class="jxr_linenumber" name="L749" href="#L749">749</a>                 <em class="jxr_comment">// generate randomly row I</em>
+<a class="jxr_linenumber" name="L750" href="#L750">750</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; size; ++j) {
+<a class="jxr_linenumber" name="L751" href="#L751">751</a>                     dataI[j] = 2 * r.nextDouble() - 1;
+<a class="jxr_linenumber" name="L752" href="#L752">752</a>                 }
+<a class="jxr_linenumber" name="L753" href="#L753">753</a> 
+<a class="jxr_linenumber" name="L754" href="#L754">754</a>                 <em class="jxr_comment">// project the row in the subspace orthogonal to previous rows</em>
+<a class="jxr_linenumber" name="L755" href="#L755">755</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> k = 0; k &lt; i; ++k) {
+<a class="jxr_linenumber" name="L756" href="#L756">756</a>                     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] dataK = data[k];
+<a class="jxr_linenumber" name="L757" href="#L757">757</a>                     <strong class="jxr_keyword">double</strong> dotProduct = 0;
+<a class="jxr_linenumber" name="L758" href="#L758">758</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; size; ++j) {
+<a class="jxr_linenumber" name="L759" href="#L759">759</a>                         dotProduct += dataI[j] * dataK[j];
+<a class="jxr_linenumber" name="L760" href="#L760">760</a>                     }
+<a class="jxr_linenumber" name="L761" href="#L761">761</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; size; ++j) {
+<a class="jxr_linenumber" name="L762" href="#L762">762</a>                         dataI[j] -= dotProduct * dataK[j];
+<a class="jxr_linenumber" name="L763" href="#L763">763</a>                     }
+<a class="jxr_linenumber" name="L764" href="#L764">764</a>                 }
+<a class="jxr_linenumber" name="L765" href="#L765">765</a> 
+<a class="jxr_linenumber" name="L766" href="#L766">766</a>                 <em class="jxr_comment">// normalize the row</em>
+<a class="jxr_linenumber" name="L767" href="#L767">767</a>                 norm2 = 0;
+<a class="jxr_linenumber" name="L768" href="#L768">768</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> dataIJ : dataI) {
+<a class="jxr_linenumber" name="L769" href="#L769">769</a>                     norm2 += dataIJ * dataIJ;
+<a class="jxr_linenumber" name="L770" href="#L770">770</a>                 }
+<a class="jxr_linenumber" name="L771" href="#L771">771</a>                 <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong> inv = 1.0 / FastMath.sqrt(norm2);
+<a class="jxr_linenumber" name="L772" href="#L772">772</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> j = 0; j &lt; size; ++j) {
+<a class="jxr_linenumber" name="L773" href="#L773">773</a>                     dataI[j] *= inv;
+<a class="jxr_linenumber" name="L774" href="#L774">774</a>                 }
+<a class="jxr_linenumber" name="L775" href="#L775">775</a> 
+<a class="jxr_linenumber" name="L776" href="#L776">776</a>             } <strong class="jxr_keyword">while</strong> (norm2 * size &lt; 0.01);
+<a class="jxr_linenumber" name="L777" href="#L777">777</a>         }
+<a class="jxr_linenumber" name="L778" href="#L778">778</a> 
+<a class="jxr_linenumber" name="L779" href="#L779">779</a>         <strong class="jxr_keyword">return</strong> MatrixUtils.createRealMatrix(data);
+<a class="jxr_linenumber" name="L780" href="#L780">780</a> 
+<a class="jxr_linenumber" name="L781" href="#L781">781</a>     }
+<a class="jxr_linenumber" name="L782" href="#L782">782</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.</div>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Segment.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.euclidean.twod</a> &gt; <span class="el_source">Segment.java</span></div><h1>Segment.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.euclidean.twod;
+
+import org.apache.commons.math3.geometry.Point;
+import org.apache.commons.math3.util.FastMath;
+
+/** Simple container for a two-points segment.
+ * @since 3.0
+ */
+public class Segment {
+
+    /** Start point of the segment. */
+    private final Vector2D start;
+
+    /** End point of the segment. */
+    private final Vector2D end;
+
+    /** Line containing the segment. */
+    private final Line     line;
+
+    /** Build a segment.
+     * @param start start point of the segment
+     * @param end end point of the segment
+     * @param line line containing the segment
+     */
+<span class="fc" id="L41">    public Segment(final Vector2D start, final Vector2D end, final Line line) {</span>
+<span class="fc" id="L42">        this.start  = start;</span>
+<span class="fc" id="L43">        this.end    = end;</span>
+<span class="fc" id="L44">        this.line   = line;</span>
+<span class="fc" id="L45">    }</span>
+
+    /** Get the start point of the segment.
+     * @return start point of the segment
+     */
+    public Vector2D getStart() {
+<span class="fc" id="L51">        return start;</span>
+    }
+
+    /** Get the end point of the segment.
+     * @return end point of the segment
+     */
+    public Vector2D getEnd() {
+<span class="fc" id="L58">        return end;</span>
+    }
+
+    /** Get the line containing the segment.
+     * @return line containing the segment
+     */
+    public Line getLine() {
+<span class="fc" id="L65">        return line;</span>
+    }
+
+    /** Calculates the shortest distance from a point to this line segment.
+     * &lt;p&gt;
+     * If the perpendicular extension from the point to the line does not
+     * cross in the bounds of the line segment, the shortest distance to
+     * the two end points will be returned.
+     * &lt;/p&gt;
+     *
+     * Algorithm adapted from:
+     * &lt;a href=&quot;http://www.codeguru.com/forum/printthread.php?s=cc8cf0596231f9a7dba4da6e77c29db3&amp;t=194400&amp;pp=15&amp;page=1&quot;&gt;
+     * Thread @ Codeguru&lt;/a&gt;
+     *
+     * @param p to check
+     * @return distance between the instance and the point
+     * @since 3.1
+     */
+    public double distance(final Vector2D p) {
+<span class="fc" id="L84">        final double deltaX = end.getX() - start.getX();</span>
+<span class="fc" id="L85">        final double deltaY = end.getY() - start.getY();</span>
+
+<span class="fc" id="L87">        final double r = ((p.getX() - start.getX()) * deltaX + (p.getY() - start.getY()) * deltaY) /</span>
+                         (deltaX * deltaX + deltaY * deltaY);
+
+        // r == 0 =&gt; P = startPt
+        // r == 1 =&gt; P = endPt
+        // r &lt; 0 =&gt; P is on the backward extension of the segment
+        // r &gt; 1 =&gt; P is on the forward extension of the segment
+        // 0 &lt; r &lt; 1 =&gt; P is on the segment
+
+        // if point isn't on the line segment, just return the shortest distance to the end points
+<span class="pc bpc" id="L97" title="2 of 4 branches missed.">        if (r &lt; 0 || r &gt; 1) {</span>
+<span class="nc" id="L98">            final double dist1 = getStart().distance((Point&lt;Euclidean2D&gt;) p);</span>
+<span class="nc" id="L99">            final double dist2 = getEnd().distance((Point&lt;Euclidean2D&gt;) p);</span>
+
+<span class="nc" id="L101">            return FastMath.min(dist1, dist2);</span>
+        }
+        else {
+            // find point on line and see if it is in the line segment
+<span class="fc" id="L105">            final double px = start.getX() + r * deltaX;</span>
+<span class="fc" id="L106">            final double py = start.getY() + r * deltaY;</span>
+
+<span class="fc" id="L108">            final Vector2D interPt = new Vector2D(px, py);</span>
+<span class="fc" id="L109">            return interPt.distance((Point&lt;Euclidean2D&gt;) p);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RegionFactory.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.partitioning</a> &gt; <span class="el_source">RegionFactory.java</span></div><h1>RegionFactory.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.partitioning;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.geometry.Point;
+import org.apache.commons.math3.geometry.Space;
+import org.apache.commons.math3.geometry.partitioning.BSPTree.VanishingCutHandler;
+import org.apache.commons.math3.geometry.partitioning.Region.Location;
+import org.apache.commons.math3.geometry.partitioning.SubHyperplane.SplitSubHyperplane;
+
+/** This class is a factory for {@link Region}.
+
+ * @param &lt;S&gt; Type of the space.
+
+ * @since 3.0
+ */
+public class RegionFactory&lt;S extends Space&gt; {
+
+    /** Visitor removing internal nodes attributes. */
+    private final NodesCleaner nodeCleaner;
+
+    /** Simple constructor.
+     */
+<span class="fc" id="L43">    public RegionFactory() {</span>
+<span class="fc" id="L44">        nodeCleaner = new NodesCleaner();</span>
+<span class="fc" id="L45">    }</span>
+
+    /** Build a convex region from a collection of bounding hyperplanes.
+     * @param hyperplanes collection of bounding hyperplanes
+     * @return a new convex region, or null if the collection is empty
+     */
+    public Region&lt;S&gt; buildConvex(final Hyperplane&lt;S&gt; ... hyperplanes) {
+<span class="pc bpc" id="L52" title="2 of 4 branches missed.">        if ((hyperplanes == null) || (hyperplanes.length == 0)) {</span>
+<span class="nc" id="L53">            return null;</span>
+        }
+
+        // use the first hyperplane to build the right class
+<span class="fc" id="L57">        final Region&lt;S&gt; region = hyperplanes[0].wholeSpace();</span>
+
+        // chop off parts of the space
+<span class="fc" id="L60">        BSPTree&lt;S&gt; node = region.getTree(false);</span>
+<span class="fc" id="L61">        node.setAttribute(Boolean.TRUE);</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        for (final Hyperplane&lt;S&gt; hyperplane : hyperplanes) {</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">            if (node.insertCut(hyperplane)) {</span>
+<span class="fc" id="L64">                node.setAttribute(null);</span>
+<span class="fc" id="L65">                node.getPlus().setAttribute(Boolean.FALSE);</span>
+<span class="fc" id="L66">                node = node.getMinus();</span>
+<span class="fc" id="L67">                node.setAttribute(Boolean.TRUE);</span>
+            } else {
+                // the hyperplane could not be inserted in the current leaf node
+                // either it is completely outside (which means the input hyperplanes
+                // are wrong), or it is parallel to a previous hyperplane
+<span class="fc" id="L72">                SubHyperplane&lt;S&gt; s = hyperplane.wholeHyperplane();</span>
+<span class="pc bpc" id="L73" title="1 of 4 branches missed.">                for (BSPTree&lt;S&gt; tree = node; tree.getParent() != null &amp;&amp; s != null; tree = tree.getParent()) {</span>
+<span class="fc" id="L74">                    final Hyperplane&lt;S&gt;         other = tree.getParent().getCut().getHyperplane();</span>
+<span class="fc" id="L75">                    final SplitSubHyperplane&lt;S&gt; split = s.split(other);</span>
+<span class="pc bfc" id="L76" title="All 3 branches covered.">                    switch (split.getSide()) {</span>
+                        case HYPER :
+                            // the hyperplane is parallel to a previous hyperplane
+<span class="fc bfc" id="L79" title="All 2 branches covered.">                            if (!hyperplane.sameOrientationAs(other)) {</span>
+                                // this hyperplane is opposite to the other one,
+                                // the region is thinner than the tolerance, we consider it empty
+<span class="fc" id="L82">                                return getComplement(hyperplanes[0].wholeSpace());</span>
+                            }
+                            // the hyperplane is an extension of an already known hyperplane, we just ignore it
+                            break;
+                        case PLUS :
+                        // the hyperplane is outside of the current convex zone,
+                        // the input hyperplanes are inconsistent
+<span class="fc" id="L89">                        throw new MathIllegalArgumentException(LocalizedFormats.NOT_CONVEX_HYPERPLANES);</span>
+                        default :
+<span class="fc" id="L91">                            s = split.getMinus();</span>
+                    }
+                }
+            }
+        }
+
+<span class="fc" id="L97">        return region;</span>
+
+    }
+
+    /** Compute the union of two regions.
+     * @param region1 first region (will be unusable after the operation as
+     * parts of it will be reused in the new region)
+     * @param region2 second region (will be unusable after the operation as
+     * parts of it will be reused in the new region)
+     * @return a new region, result of {@code region1 union region2}
+     */
+    public Region&lt;S&gt; union(final Region&lt;S&gt; region1, final Region&lt;S&gt; region2) {
+<span class="fc" id="L109">        final BSPTree&lt;S&gt; tree =</span>
+            region1.getTree(false).merge(region2.getTree(false), new UnionMerger());
+<span class="fc" id="L111">        tree.visit(nodeCleaner);</span>
+<span class="fc" id="L112">        return region1.buildNew(tree);</span>
+    }
+
+    /** Compute the intersection of two regions.
+     * @param region1 first region (will be unusable after the operation as
+     * parts of it will be reused in the new region)
+     * @param region2 second region (will be unusable after the operation as
+     * parts of it will be reused in the new region)
+     * @return a new region, result of {@code region1 intersection region2}
+     */
+    public Region&lt;S&gt; intersection(final Region&lt;S&gt; region1, final Region&lt;S&gt; region2) {
+<span class="fc" id="L123">        final BSPTree&lt;S&gt; tree =</span>
+            region1.getTree(false).merge(region2.getTree(false), new IntersectionMerger());
+<span class="fc" id="L125">        tree.visit(nodeCleaner);</span>
+<span class="fc" id="L126">        return region1.buildNew(tree);</span>
+    }
+
+    /** Compute the symmetric difference (exclusive or) of two regions.
+     * @param region1 first region (will be unusable after the operation as
+     * parts of it will be reused in the new region)
+     * @param region2 second region (will be unusable after the operation as
+     * parts of it will be reused in the new region)
+     * @return a new region, result of {@code region1 xor region2}
+     */
+    public Region&lt;S&gt; xor(final Region&lt;S&gt; region1, final Region&lt;S&gt; region2) {
+<span class="fc" id="L137">        final BSPTree&lt;S&gt; tree =</span>
+            region1.getTree(false).merge(region2.getTree(false), new XorMerger());
+<span class="fc" id="L139">        tree.visit(nodeCleaner);</span>
+<span class="fc" id="L140">        return region1.buildNew(tree);</span>
+    }
+
+    /** Compute the difference of two regions.
+     * @param region1 first region (will be unusable after the operation as
+     * parts of it will be reused in the new region)
+     * @param region2 second region (will be unusable after the operation as
+     * parts of it will be reused in the new region)
+     * @return a new region, result of {@code region1 minus region2}
+     */
+    public Region&lt;S&gt; difference(final Region&lt;S&gt; region1, final Region&lt;S&gt; region2) {
+<span class="fc" id="L151">        final BSPTree&lt;S&gt; tree =</span>
+            region1.getTree(false).merge(region2.getTree(false), new DifferenceMerger(region1, region2));
+<span class="fc" id="L153">        tree.visit(nodeCleaner);</span>
+<span class="fc" id="L154">        return region1.buildNew(tree);</span>
+    }
+
+    /** Get the complement of the region (exchanged interior/exterior).
+     * @param region region to complement, it will not modified, a new
+     * region independent region will be built
+     * @return a new region, complement of the specified one
+     */
+    /** Get the complement of the region (exchanged interior/exterior).
+     * @param region region to complement, it will not modified, a new
+     * region independent region will be built
+     * @return a new region, complement of the specified one
+     */
+    public Region&lt;S&gt; getComplement(final Region&lt;S&gt; region) {
+<span class="fc" id="L168">        return region.buildNew(recurseComplement(region.getTree(false)));</span>
+    }
+
+    /** Recursively build the complement of a BSP tree.
+     * @param node current node of the original tree
+     * @return new tree, complement of the node
+     */
+    private BSPTree&lt;S&gt; recurseComplement(final BSPTree&lt;S&gt; node) {
+
+        // transform the tree, except for boundary attribute splitters
+<span class="fc" id="L178">        final Map&lt;BSPTree&lt;S&gt;, BSPTree&lt;S&gt;&gt; map = new HashMap&lt;BSPTree&lt;S&gt;, BSPTree&lt;S&gt;&gt;();</span>
+<span class="fc" id="L179">        final BSPTree&lt;S&gt; transformedTree = recurseComplement(node, map);</span>
+
+        // set up the boundary attributes splitters
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        for (final Map.Entry&lt;BSPTree&lt;S&gt;, BSPTree&lt;S&gt;&gt; entry : map.entrySet()) {</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">            if (entry.getKey().getCut() != null) {</span>
+                @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L185">                BoundaryAttribute&lt;S&gt; original = (BoundaryAttribute&lt;S&gt;) entry.getKey().getAttribute();</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">                if (original != null) {</span>
+                    @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L188">                    BoundaryAttribute&lt;S&gt; transformed = (BoundaryAttribute&lt;S&gt;) entry.getValue().getAttribute();</span>
+<span class="fc bfc" id="L189" title="All 2 branches covered.">                    for (final BSPTree&lt;S&gt; splitter : original.getSplitters()) {</span>
+<span class="fc" id="L190">                        transformed.getSplitters().add(map.get(splitter));</span>
+<span class="fc" id="L191">                    }</span>
+                }
+            }
+<span class="fc" id="L194">        }</span>
+
+<span class="fc" id="L196">        return transformedTree;</span>
+
+    }
+
+    /** Recursively build the complement of a BSP tree.
+     * @param node current node of the original tree
+     * @param map transformed nodes map
+     * @return new tree, complement of the node
+     */
+    private BSPTree&lt;S&gt; recurseComplement(final BSPTree&lt;S&gt; node,
+                                         final Map&lt;BSPTree&lt;S&gt;, BSPTree&lt;S&gt;&gt; map) {
+
+        final BSPTree&lt;S&gt; transformedNode;
+<span class="fc bfc" id="L209" title="All 2 branches covered.">        if (node.getCut() == null) {</span>
+<span class="fc bfc" id="L210" title="All 2 branches covered.">            transformedNode = new BSPTree&lt;S&gt;(((Boolean) node.getAttribute()) ? Boolean.FALSE : Boolean.TRUE);</span>
+        } else {
+
+            @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L214">            BoundaryAttribute&lt;S&gt; attribute = (BoundaryAttribute&lt;S&gt;) node.getAttribute();</span>
+<span class="fc bfc" id="L215" title="All 2 branches covered.">            if (attribute != null) {</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">                final SubHyperplane&lt;S&gt; plusOutside =</span>
+                        (attribute.getPlusInside() == null) ? null : attribute.getPlusInside().copySelf();
+<span class="fc bfc" id="L218" title="All 2 branches covered.">                final SubHyperplane&lt;S&gt; plusInside  =</span>
+                        (attribute.getPlusOutside() == null) ? null : attribute.getPlusOutside().copySelf();
+                // we start with an empty list of splitters, it will be filled in out of recursion
+<span class="fc" id="L221">                attribute = new BoundaryAttribute&lt;S&gt;(plusOutside, plusInside, new NodesSet&lt;S&gt;());</span>
+            }
+
+<span class="fc" id="L224">            transformedNode = new BSPTree&lt;S&gt;(node.getCut().copySelf(),</span>
+                                             recurseComplement(node.getPlus(),  map),
+                                             recurseComplement(node.getMinus(), map),
+                                             attribute);
+        }
+
+<span class="fc" id="L230">        map.put(node, transformedNode);</span>
+<span class="fc" id="L231">        return transformedNode;</span>
+
+    }
+
+    /** BSP tree leaf merger computing union of two regions. */
+<span class="fc" id="L236">    private class UnionMerger implements BSPTree.LeafMerger&lt;S&gt; {</span>
+        /** {@inheritDoc} */
+        public BSPTree&lt;S&gt; merge(final BSPTree&lt;S&gt; leaf, final BSPTree&lt;S&gt; tree,
+                                final BSPTree&lt;S&gt; parentTree,
+                                final boolean isPlusChild, final boolean leafFromInstance) {
+<span class="fc bfc" id="L241" title="All 2 branches covered.">            if ((Boolean) leaf.getAttribute()) {</span>
+                // the leaf node represents an inside cell
+<span class="fc" id="L243">                leaf.insertInTree(parentTree, isPlusChild, new VanishingToLeaf(true));</span>
+<span class="fc" id="L244">                return leaf;</span>
+            }
+            // the leaf node represents an outside cell
+<span class="fc" id="L247">            tree.insertInTree(parentTree, isPlusChild, new VanishingToLeaf(false));</span>
+<span class="fc" id="L248">            return tree;</span>
+        }
+    }
+
+    /** BSP tree leaf merger computing intersection of two regions. */
+<span class="fc" id="L253">    private class IntersectionMerger implements BSPTree.LeafMerger&lt;S&gt; {</span>
+        /** {@inheritDoc} */
+        public BSPTree&lt;S&gt; merge(final BSPTree&lt;S&gt; leaf, final BSPTree&lt;S&gt; tree,
+                                final BSPTree&lt;S&gt; parentTree,
+                                final boolean isPlusChild, final boolean leafFromInstance) {
+<span class="fc bfc" id="L258" title="All 2 branches covered.">            if ((Boolean) leaf.getAttribute()) {</span>
+                // the leaf node represents an inside cell
+<span class="fc" id="L260">                tree.insertInTree(parentTree, isPlusChild, new VanishingToLeaf(true));</span>
+<span class="fc" id="L261">                return tree;</span>
+            }
+            // the leaf node represents an outside cell
+<span class="fc" id="L264">            leaf.insertInTree(parentTree, isPlusChild, new VanishingToLeaf(false));</span>
+<span class="fc" id="L265">            return leaf;</span>
+        }
+    }
+
+    /** BSP tree leaf merger computing symmetric difference (exclusive or) of two regions. */
+<span class="fc" id="L270">    private class XorMerger implements BSPTree.LeafMerger&lt;S&gt; {</span>
+        /** {@inheritDoc} */
+        public BSPTree&lt;S&gt; merge(final BSPTree&lt;S&gt; leaf, final BSPTree&lt;S&gt; tree,
+                                final BSPTree&lt;S&gt; parentTree, final boolean isPlusChild,
+                                final boolean leafFromInstance) {
+<span class="fc" id="L275">            BSPTree&lt;S&gt; t = tree;</span>
+<span class="fc bfc" id="L276" title="All 2 branches covered.">            if ((Boolean) leaf.getAttribute()) {</span>
+                // the leaf node represents an inside cell
+<span class="fc" id="L278">                t = recurseComplement(t);</span>
+            }
+<span class="fc" id="L280">            t.insertInTree(parentTree, isPlusChild, new VanishingToLeaf(true));</span>
+<span class="fc" id="L281">            return t;</span>
+        }
+    }
+
+    /** BSP tree leaf merger computing difference of two regions. */
+    private class DifferenceMerger implements BSPTree.LeafMerger&lt;S&gt;, VanishingCutHandler&lt;S&gt; {
+
+        /** Region to subtract from. */
+        private final Region&lt;S&gt; region1;
+
+        /** Region to subtract. */
+        private final Region&lt;S&gt; region2;
+
+        /** Simple constructor.
+         * @param region1 region to subtract from
+         * @param region2 region to subtract
+         */
+<span class="fc" id="L298">        DifferenceMerger(final Region&lt;S&gt; region1, final Region&lt;S&gt; region2) {</span>
+<span class="fc" id="L299">            this.region1 = region1.copySelf();</span>
+<span class="fc" id="L300">            this.region2 = region2.copySelf();</span>
+<span class="fc" id="L301">        }</span>
+
+        /** {@inheritDoc} */
+        public BSPTree&lt;S&gt; merge(final BSPTree&lt;S&gt; leaf, final BSPTree&lt;S&gt; tree,
+                                final BSPTree&lt;S&gt; parentTree, final boolean isPlusChild,
+                                final boolean leafFromInstance) {
+<span class="fc bfc" id="L307" title="All 2 branches covered.">            if ((Boolean) leaf.getAttribute()) {</span>
+                // the leaf node represents an inside cell
+<span class="fc bfc" id="L309" title="All 2 branches covered.">                final BSPTree&lt;S&gt; argTree =</span>
+                    recurseComplement(leafFromInstance ? tree : leaf);
+<span class="fc" id="L311">                argTree.insertInTree(parentTree, isPlusChild, this);</span>
+<span class="fc" id="L312">                return argTree;</span>
+            }
+            // the leaf node represents an outside cell
+<span class="fc bfc" id="L315" title="All 2 branches covered.">            final BSPTree&lt;S&gt; instanceTree =</span>
+                leafFromInstance ? leaf : tree;
+<span class="fc" id="L317">            instanceTree.insertInTree(parentTree, isPlusChild, this);</span>
+<span class="fc" id="L318">            return instanceTree;</span>
+        }
+
+        /** {@inheritDoc} */
+        public BSPTree&lt;S&gt; fixNode(final BSPTree&lt;S&gt; node) {
+            // get a representative point in the degenerate cell
+<span class="fc" id="L324">            final BSPTree&lt;S&gt; cell = node.pruneAroundConvexCell(Boolean.TRUE, Boolean.FALSE, null);</span>
+<span class="fc" id="L325">            final Region&lt;S&gt; r = region1.buildNew(cell);</span>
+<span class="fc" id="L326">            final Point&lt;S&gt; p = r.getBarycenter();</span>
+<span class="pc bpc" id="L327" title="3 of 4 branches missed.">            return new BSPTree&lt;S&gt;(region1.checkPoint(p) == Location.INSIDE &amp;&amp;</span>
+                                  region2.checkPoint(p) == Location.OUTSIDE);
+        }
+
+    }
+
+    /** Visitor removing internal nodes attributes. */
+<span class="fc" id="L334">    private class NodesCleaner implements  BSPTreeVisitor&lt;S&gt; {</span>
+
+        /** {@inheritDoc} */
+        public Order visitOrder(final BSPTree&lt;S&gt; node) {
+<span class="fc" id="L338">            return Order.PLUS_SUB_MINUS;</span>
+        }
+
+        /** {@inheritDoc} */
+        public void visitInternalNode(final BSPTree&lt;S&gt; node) {
+<span class="fc" id="L343">            node.setAttribute(null);</span>
+<span class="fc" id="L344">        }</span>
+
+        /** {@inheritDoc} */
+        public void visitLeafNode(final BSPTree&lt;S&gt; node) {
+<span class="fc" id="L348">        }</span>
+
+    }
+
+    /** Handler replacing nodes with vanishing cuts with leaf nodes. */
+    private class VanishingToLeaf implements VanishingCutHandler&lt;S&gt; {
+
+        /** Inside/outside indocator to use for ambiguous nodes. */
+        private final boolean inside;
+
+        /** Simple constructor.
+         * @param inside inside/outside indicator to use for ambiguous nodes
+         */
+<span class="fc" id="L361">        VanishingToLeaf(final boolean inside) {</span>
+<span class="fc" id="L362">            this.inside = inside;</span>
+<span class="fc" id="L363">        }</span>
+
+        /** {@inheritDoc} */
+        public BSPTree&lt;S&gt; fixNode(final BSPTree&lt;S&gt; node) {
+<span class="nc bnc" id="L367" title="All 2 branches missed.">            if (node.getPlus().getAttribute().equals(node.getMinus().getAttribute())) {</span>
+                // no ambiguity
+<span class="nc" id="L369">                return new BSPTree&lt;S&gt;(node.getPlus().getAttribute());</span>
+            } else {
+                // ambiguous node
+<span class="nc" id="L372">                return new BSPTree&lt;S&gt;(inside);</span>
+            }
+        }
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

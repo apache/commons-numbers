@@ -1,0 +1,1593 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BlockFieldMatrix.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.linear</a> &gt; <span class="el_source">BlockFieldMatrix.java</span></div><h1>BlockFieldMatrix.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.linear;
+
+import java.io.Serializable;
+
+import org.apache.commons.math3.Field;
+import org.apache.commons.math3.FieldElement;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * Cache-friendly implementation of FieldMatrix using a flat arrays to store
+ * square blocks of the matrix.
+ * &lt;p&gt;
+ * This implementation is specially designed to be cache-friendly. Square blocks are
+ * stored as small arrays and allow efficient traversal of data both in row major direction
+ * and columns major direction, one block at a time. This greatly increases performances
+ * for algorithms that use crossed directions loops like multiplication or transposition.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * The size of square blocks is a static parameter. It may be tuned according to the cache
+ * size of the target computer processor. As a rule of thumbs, it should be the largest
+ * value that allows three blocks to be simultaneously cached (this is necessary for example
+ * for matrix multiplication). The default value is to use 36x36 blocks.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * The regular blocks represent {@link #BLOCK_SIZE} x {@link #BLOCK_SIZE} squares. Blocks
+ * at right hand side and bottom side which may be smaller to fit matrix dimensions. The square
+ * blocks are flattened in row major order in single dimension arrays which are therefore
+ * {@link #BLOCK_SIZE}&lt;sup&gt;2&lt;/sup&gt; elements long for regular blocks. The blocks are themselves
+ * organized in row major order.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * As an example, for a block size of 36x36, a 100x60 matrix would be stored in 6 blocks.
+ * Block 0 would be a Field[1296] array holding the upper left 36x36 square, block 1 would be
+ * a Field[1296] array holding the upper center 36x36 square, block 2 would be a Field[1008]
+ * array holding the upper right 36x28 rectangle, block 3 would be a Field[864] array holding
+ * the lower left 24x36 rectangle, block 4 would be a Field[864] array holding the lower center
+ * 24x36 rectangle and block 5 would be a Field[672] array holding the lower right 24x28
+ * rectangle.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * The layout complexity overhead versus simple mapping of matrices to java
+ * arrays is negligible for small matrices (about 1%). The gain from cache efficiency leads
+ * to up to 3-fold improvements for matrices of moderate to large size.
+ * &lt;/p&gt;
+ * @param &lt;T&gt; the type of the field elements
+ * @since 2.0
+ */
+public class BlockFieldMatrix&lt;T extends FieldElement&lt;T&gt;&gt; extends AbstractFieldMatrix&lt;T&gt; implements Serializable {
+    /** Block size. */
+    public static final int BLOCK_SIZE = 36;
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = -4602336630143123183L;
+    /** Blocks of matrix entries. */
+    private final T blocks[][];
+    /** Number of rows of the matrix. */
+    private final int rows;
+    /** Number of columns of the matrix. */
+    private final int columns;
+    /** Number of block rows of the matrix. */
+    private final int blockRows;
+    /** Number of block columns of the matrix. */
+    private final int blockColumns;
+
+    /**
+     * Create a new matrix with the supplied row and column dimensions.
+     *
+     * @param field Field to which the elements belong.
+     * @param rows Number of rows in the new matrix.
+     * @param columns Number of columns in the new matrix.
+     * @throws NotStrictlyPositiveException if row or column dimension is not
+     * positive.
+     */
+    public BlockFieldMatrix(final Field&lt;T&gt; field, final int rows,
+                            final int columns)
+        throws NotStrictlyPositiveException {
+<span class="fc" id="L102">        super(field, rows, columns);</span>
+<span class="fc" id="L103">        this.rows    = rows;</span>
+<span class="fc" id="L104">        this.columns = columns;</span>
+
+        // number of blocks
+<span class="fc" id="L107">        blockRows    = (rows    + BLOCK_SIZE - 1) / BLOCK_SIZE;</span>
+<span class="fc" id="L108">        blockColumns = (columns + BLOCK_SIZE - 1) / BLOCK_SIZE;</span>
+
+        // allocate storage blocks, taking care of smaller ones at right and bottom
+<span class="fc" id="L111">        blocks = createBlocksLayout(field, rows, columns);</span>
+<span class="fc" id="L112">    }</span>
+
+    /**
+     * Create a new dense matrix copying entries from raw layout data.
+     * &lt;p&gt;The input array &lt;em&gt;must&lt;/em&gt; already be in raw layout.&lt;/p&gt;
+     * &lt;p&gt;Calling this constructor is equivalent to call:
+     * &lt;pre&gt;matrix = new BlockFieldMatrix&lt;T&gt;(getField(), rawData.length, rawData[0].length,
+     *                                   toBlocksLayout(rawData), false);&lt;/pre&gt;
+     * &lt;/p&gt;
+     *
+     * @param rawData Data for the new matrix, in raw layout.
+     * @throws DimensionMismatchException if the {@code blockData} shape is
+     * inconsistent with block layout.
+     * @see #BlockFieldMatrix(int, int, FieldElement[][], boolean)
+     */
+    public BlockFieldMatrix(final T[][] rawData)
+        throws DimensionMismatchException {
+<span class="fc" id="L129">        this(rawData.length, rawData[0].length, toBlocksLayout(rawData), false);</span>
+<span class="fc" id="L130">    }</span>
+
+    /**
+     * Create a new dense matrix copying entries from block layout data.
+     * &lt;p&gt;The input array &lt;em&gt;must&lt;/em&gt; already be in blocks layout.&lt;/p&gt;
+     * @param rows  the number of rows in the new matrix
+     * @param columns  the number of columns in the new matrix
+     * @param blockData data for new matrix
+     * @param copyArray if true, the input array will be copied, otherwise
+     * it will be referenced
+     *
+     * @throws DimensionMismatchException if the {@code blockData} shape is
+     * inconsistent with block layout.
+     * @throws NotStrictlyPositiveException if row or column dimension is not
+     * positive.
+     * @see #createBlocksLayout(Field, int, int)
+     * @see #toBlocksLayout(FieldElement[][])
+     * @see #BlockFieldMatrix(FieldElement[][])
+     */
+    public BlockFieldMatrix(final int rows, final int columns,
+                            final T[][] blockData, final boolean copyArray)
+        throws DimensionMismatchException, NotStrictlyPositiveException {
+<span class="fc" id="L152">        super(extractField(blockData), rows, columns);</span>
+<span class="fc" id="L153">        this.rows    = rows;</span>
+<span class="fc" id="L154">        this.columns = columns;</span>
+
+        // number of blocks
+<span class="fc" id="L157">        blockRows    = (rows    + BLOCK_SIZE - 1) / BLOCK_SIZE;</span>
+<span class="fc" id="L158">        blockColumns = (columns + BLOCK_SIZE - 1) / BLOCK_SIZE;</span>
+
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">        if (copyArray) {</span>
+            // allocate storage blocks, taking care of smaller ones at right and bottom
+<span class="nc" id="L162">            blocks = MathArrays.buildArray(getField(), blockRows * blockColumns, -1);</span>
+        } else {
+            // reference existing array
+<span class="fc" id="L165">            blocks = blockData;</span>
+        }
+
+<span class="fc" id="L168">        int index = 0;</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        for (int iBlock = 0; iBlock &lt; blockRows; ++iBlock) {</span>
+<span class="fc" id="L170">            final int iHeight = blockHeight(iBlock);</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">            for (int jBlock = 0; jBlock &lt; blockColumns; ++jBlock, ++index) {</span>
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">                if (blockData[index].length != iHeight * blockWidth(jBlock)) {</span>
+<span class="nc" id="L173">                    throw new DimensionMismatchException(blockData[index].length,</span>
+                                                         iHeight * blockWidth(jBlock));
+                }
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">                if (copyArray) {</span>
+<span class="nc" id="L177">                    blocks[index] = blockData[index].clone();</span>
+                }
+            }
+        }
+<span class="fc" id="L181">    }</span>
+
+    /**
+     * Convert a data array from raw layout to blocks layout.
+     * &lt;p&gt;
+     * Raw layout is the straightforward layout where element at row i and
+     * column j is in array element &lt;code&gt;rawData[i][j]&lt;/code&gt;. Blocks layout
+     * is the layout used in {@link BlockFieldMatrix} instances, where the matrix
+     * is split in square blocks (except at right and bottom side where blocks may
+     * be rectangular to fit matrix size) and each block is stored in a flattened
+     * one-dimensional array.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * This method creates an array in blocks layout from an input array in raw layout.
+     * It can be used to provide the array argument of the {@link
+     * #BlockFieldMatrix(int, int, FieldElement[][], boolean)}
+     * constructor.
+     * &lt;/p&gt;
+     * @param &lt;T&gt; Type of the field elements.
+     * @param rawData Data array in raw layout.
+     * @return a new data array containing the same entries but in blocks layout
+     * @throws DimensionMismatchException if {@code rawData} is not rectangular
+     *  (not all rows have the same length).
+     * @see #createBlocksLayout(Field, int, int)
+     * @see #BlockFieldMatrix(int, int, FieldElement[][], boolean)
+     */
+    public static &lt;T extends FieldElement&lt;T&gt;&gt; T[][] toBlocksLayout(final T[][] rawData)
+        throws DimensionMismatchException {
+
+<span class="fc" id="L210">        final int rows         = rawData.length;</span>
+<span class="fc" id="L211">        final int columns      = rawData[0].length;</span>
+<span class="fc" id="L212">        final int blockRows    = (rows    + BLOCK_SIZE - 1) / BLOCK_SIZE;</span>
+<span class="fc" id="L213">        final int blockColumns = (columns + BLOCK_SIZE - 1) / BLOCK_SIZE;</span>
+
+        // safety checks
+<span class="fc bfc" id="L216" title="All 2 branches covered.">        for (int i = 0; i &lt; rawData.length; ++i) {</span>
+<span class="fc" id="L217">            final int length = rawData[i].length;</span>
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">            if (length != columns) {</span>
+<span class="nc" id="L219">                throw new DimensionMismatchException(columns, length);</span>
+            }
+        }
+
+        // convert array
+<span class="fc" id="L224">        final Field&lt;T&gt; field = extractField(rawData);</span>
+<span class="fc" id="L225">        final T[][] blocks = MathArrays.buildArray(field, blockRows * blockColumns, -1);</span>
+<span class="fc" id="L226">        int blockIndex = 0;</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">        for (int iBlock = 0; iBlock &lt; blockRows; ++iBlock) {</span>
+<span class="fc" id="L228">            final int pStart  = iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L229">            final int pEnd    = FastMath.min(pStart + BLOCK_SIZE, rows);</span>
+<span class="fc" id="L230">            final int iHeight = pEnd - pStart;</span>
+<span class="fc bfc" id="L231" title="All 2 branches covered.">            for (int jBlock = 0; jBlock &lt; blockColumns; ++jBlock) {</span>
+<span class="fc" id="L232">                final int qStart = jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L233">                final int qEnd   = FastMath.min(qStart + BLOCK_SIZE, columns);</span>
+<span class="fc" id="L234">                final int jWidth = qEnd - qStart;</span>
+
+                // allocate new block
+<span class="fc" id="L237">                final T[] block = MathArrays.buildArray(field, iHeight * jWidth);</span>
+<span class="fc" id="L238">                blocks[blockIndex] = block;</span>
+
+                // copy data
+<span class="fc" id="L241">                int index = 0;</span>
+<span class="fc bfc" id="L242" title="All 2 branches covered.">                for (int p = pStart; p &lt; pEnd; ++p) {</span>
+<span class="fc" id="L243">                    System.arraycopy(rawData[p], qStart, block, index, jWidth);</span>
+<span class="fc" id="L244">                    index += jWidth;</span>
+                }
+
+<span class="fc" id="L247">                ++blockIndex;</span>
+            }
+        }
+
+<span class="fc" id="L251">        return blocks;</span>
+    }
+
+    /**
+     * Create a data array in blocks layout.
+     * &lt;p&gt;
+     * This method can be used to create the array argument of the {@link
+     * #BlockFieldMatrix(int, int, FieldElement[][], boolean)}
+     * constructor.
+     * &lt;/p&gt;
+     * @param &lt;T&gt; Type of the field elements.
+     * @param field Field to which the elements belong.
+     * @param rows Number of rows in the new matrix.
+     * @param columns Number of columns in the new matrix.
+     * @return a new data array in blocks layout.
+     * @see #toBlocksLayout(FieldElement[][])
+     * @see #BlockFieldMatrix(int, int, FieldElement[][], boolean)
+     */
+    public static &lt;T extends FieldElement&lt;T&gt;&gt; T[][] createBlocksLayout(final Field&lt;T&gt; field,
+                                                                       final int rows, final int columns) {
+<span class="fc" id="L271">        final int blockRows    = (rows    + BLOCK_SIZE - 1) / BLOCK_SIZE;</span>
+<span class="fc" id="L272">        final int blockColumns = (columns + BLOCK_SIZE - 1) / BLOCK_SIZE;</span>
+
+<span class="fc" id="L274">        final T[][] blocks = MathArrays.buildArray(field, blockRows * blockColumns, -1);</span>
+<span class="fc" id="L275">        int blockIndex = 0;</span>
+<span class="fc bfc" id="L276" title="All 2 branches covered.">        for (int iBlock = 0; iBlock &lt; blockRows; ++iBlock) {</span>
+<span class="fc" id="L277">            final int pStart  = iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L278">            final int pEnd    = FastMath.min(pStart + BLOCK_SIZE, rows);</span>
+<span class="fc" id="L279">            final int iHeight = pEnd - pStart;</span>
+<span class="fc bfc" id="L280" title="All 2 branches covered.">            for (int jBlock = 0; jBlock &lt; blockColumns; ++jBlock) {</span>
+<span class="fc" id="L281">                final int qStart = jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L282">                final int qEnd   = FastMath.min(qStart + BLOCK_SIZE, columns);</span>
+<span class="fc" id="L283">                final int jWidth = qEnd - qStart;</span>
+<span class="fc" id="L284">                blocks[blockIndex] = MathArrays.buildArray(field, iHeight * jWidth);</span>
+<span class="fc" id="L285">                ++blockIndex;</span>
+            }
+        }
+
+<span class="fc" id="L289">        return blocks;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public FieldMatrix&lt;T&gt; createMatrix(final int rowDimension,
+                                       final int columnDimension)
+        throws NotStrictlyPositiveException {
+<span class="fc" id="L297">        return new BlockFieldMatrix&lt;T&gt;(getField(), rowDimension,</span>
+                                       columnDimension);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public FieldMatrix&lt;T&gt; copy() {
+
+        // create an empty matrix
+<span class="fc" id="L306">        BlockFieldMatrix&lt;T&gt; copied = new BlockFieldMatrix&lt;T&gt;(getField(), rows, columns);</span>
+
+        // copy the blocks
+<span class="fc bfc" id="L309" title="All 2 branches covered.">        for (int i = 0; i &lt; blocks.length; ++i) {</span>
+<span class="fc" id="L310">            System.arraycopy(blocks[i], 0, copied.blocks[i], 0, blocks[i].length);</span>
+        }
+
+<span class="fc" id="L313">        return copied;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public FieldMatrix&lt;T&gt; add(final FieldMatrix&lt;T&gt; m)
+        throws MatrixDimensionMismatchException {
+        try {
+<span class="fc" id="L321">            return add((BlockFieldMatrix&lt;T&gt;) m);</span>
+<span class="nc" id="L322">        } catch (ClassCastException cce) {</span>
+
+            // safety check
+<span class="nc" id="L325">            checkAdditionCompatible(m);</span>
+
+<span class="nc" id="L327">            final BlockFieldMatrix&lt;T&gt; out = new BlockFieldMatrix&lt;T&gt;(getField(), rows, columns);</span>
+
+            // perform addition block-wise, to ensure good cache behavior
+<span class="nc" id="L330">            int blockIndex = 0;</span>
+<span class="nc bnc" id="L331" title="All 2 branches missed.">            for (int iBlock = 0; iBlock &lt; out.blockRows; ++iBlock) {</span>
+<span class="nc bnc" id="L332" title="All 2 branches missed.">                for (int jBlock = 0; jBlock &lt; out.blockColumns; ++jBlock) {</span>
+
+                    // perform addition on the current block
+<span class="nc" id="L335">                    final T[] outBlock = out.blocks[blockIndex];</span>
+<span class="nc" id="L336">                    final T[] tBlock   = blocks[blockIndex];</span>
+<span class="nc" id="L337">                    final int      pStart   = iBlock * BLOCK_SIZE;</span>
+<span class="nc" id="L338">                    final int      pEnd     = FastMath.min(pStart + BLOCK_SIZE, rows);</span>
+<span class="nc" id="L339">                    final int      qStart   = jBlock * BLOCK_SIZE;</span>
+<span class="nc" id="L340">                    final int      qEnd     = FastMath.min(qStart + BLOCK_SIZE, columns);</span>
+<span class="nc" id="L341">                    int k = 0;</span>
+<span class="nc bnc" id="L342" title="All 2 branches missed.">                    for (int p = pStart; p &lt; pEnd; ++p) {</span>
+<span class="nc bnc" id="L343" title="All 2 branches missed.">                        for (int q = qStart; q &lt; qEnd; ++q) {</span>
+<span class="nc" id="L344">                            outBlock[k] = tBlock[k].add(m.getEntry(p, q));</span>
+<span class="nc" id="L345">                            ++k;</span>
+                        }
+                    }
+
+                    // go to next block
+<span class="nc" id="L350">                    ++blockIndex;</span>
+
+                }
+            }
+
+<span class="nc" id="L355">            return out;</span>
+        }
+    }
+
+    /**
+     * Compute the sum of {@code this} and {@code m}.
+     *
+     * @param m matrix to be added
+     * @return {@code this + m}
+     * @throws MatrixDimensionMismatchException if {@code m} is not the same
+     * size as {@code this}
+     */
+    public BlockFieldMatrix&lt;T&gt; add(final BlockFieldMatrix&lt;T&gt; m)
+        throws MatrixDimensionMismatchException {
+
+        // safety check
+<span class="fc" id="L371">        checkAdditionCompatible(m);</span>
+
+<span class="fc" id="L373">        final BlockFieldMatrix&lt;T&gt; out = new BlockFieldMatrix&lt;T&gt;(getField(), rows, columns);</span>
+
+        // perform addition block-wise, to ensure good cache behavior
+<span class="fc bfc" id="L376" title="All 2 branches covered.">        for (int blockIndex = 0; blockIndex &lt; out.blocks.length; ++blockIndex) {</span>
+<span class="fc" id="L377">            final T[] outBlock = out.blocks[blockIndex];</span>
+<span class="fc" id="L378">            final T[] tBlock   = blocks[blockIndex];</span>
+<span class="fc" id="L379">            final T[] mBlock   = m.blocks[blockIndex];</span>
+<span class="fc bfc" id="L380" title="All 2 branches covered.">            for (int k = 0; k &lt; outBlock.length; ++k) {</span>
+<span class="fc" id="L381">                outBlock[k] = tBlock[k].add(mBlock[k]);</span>
+            }
+        }
+
+<span class="fc" id="L385">        return out;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public FieldMatrix&lt;T&gt; subtract(final FieldMatrix&lt;T&gt; m)
+        throws MatrixDimensionMismatchException {
+        try {
+<span class="fc" id="L393">            return subtract((BlockFieldMatrix&lt;T&gt;) m);</span>
+<span class="nc" id="L394">        } catch (ClassCastException cce) {</span>
+
+            // safety check
+<span class="nc" id="L397">            checkSubtractionCompatible(m);</span>
+
+<span class="nc" id="L399">            final BlockFieldMatrix&lt;T&gt; out = new BlockFieldMatrix&lt;T&gt;(getField(), rows, columns);</span>
+
+            // perform subtraction block-wise, to ensure good cache behavior
+<span class="nc" id="L402">            int blockIndex = 0;</span>
+<span class="nc bnc" id="L403" title="All 2 branches missed.">            for (int iBlock = 0; iBlock &lt; out.blockRows; ++iBlock) {</span>
+<span class="nc bnc" id="L404" title="All 2 branches missed.">                for (int jBlock = 0; jBlock &lt; out.blockColumns; ++jBlock) {</span>
+
+                    // perform subtraction on the current block
+<span class="nc" id="L407">                    final T[] outBlock = out.blocks[blockIndex];</span>
+<span class="nc" id="L408">                    final T[] tBlock   = blocks[blockIndex];</span>
+<span class="nc" id="L409">                    final int      pStart   = iBlock * BLOCK_SIZE;</span>
+<span class="nc" id="L410">                    final int      pEnd     = FastMath.min(pStart + BLOCK_SIZE, rows);</span>
+<span class="nc" id="L411">                    final int      qStart   = jBlock * BLOCK_SIZE;</span>
+<span class="nc" id="L412">                    final int      qEnd     = FastMath.min(qStart + BLOCK_SIZE, columns);</span>
+<span class="nc" id="L413">                    int k = 0;</span>
+<span class="nc bnc" id="L414" title="All 2 branches missed.">                    for (int p = pStart; p &lt; pEnd; ++p) {</span>
+<span class="nc bnc" id="L415" title="All 2 branches missed.">                        for (int q = qStart; q &lt; qEnd; ++q) {</span>
+<span class="nc" id="L416">                            outBlock[k] = tBlock[k].subtract(m.getEntry(p, q));</span>
+<span class="nc" id="L417">                            ++k;</span>
+                        }
+                    }
+
+                    // go to next block
+<span class="nc" id="L422">                    ++blockIndex;</span>
+
+                }
+            }
+
+<span class="nc" id="L427">            return out;</span>
+        }
+    }
+
+    /**
+     * Compute {@code this - m}.
+     *
+     * @param m matrix to be subtracted
+     * @return {@code this - m}
+     * @throws MatrixDimensionMismatchException if {@code m} is not the same
+     * size as {@code this}
+     */
+    public BlockFieldMatrix&lt;T&gt; subtract(final BlockFieldMatrix&lt;T&gt; m) throws MatrixDimensionMismatchException {
+        // safety check
+<span class="fc" id="L441">        checkSubtractionCompatible(m);</span>
+
+<span class="fc" id="L443">        final BlockFieldMatrix&lt;T&gt; out = new BlockFieldMatrix&lt;T&gt;(getField(), rows, columns);</span>
+
+        // perform subtraction block-wise, to ensure good cache behavior
+<span class="fc bfc" id="L446" title="All 2 branches covered.">        for (int blockIndex = 0; blockIndex &lt; out.blocks.length; ++blockIndex) {</span>
+<span class="fc" id="L447">            final T[] outBlock = out.blocks[blockIndex];</span>
+<span class="fc" id="L448">            final T[] tBlock   = blocks[blockIndex];</span>
+<span class="fc" id="L449">            final T[] mBlock   = m.blocks[blockIndex];</span>
+<span class="fc bfc" id="L450" title="All 2 branches covered.">            for (int k = 0; k &lt; outBlock.length; ++k) {</span>
+<span class="fc" id="L451">                outBlock[k] = tBlock[k].subtract(mBlock[k]);</span>
+            }
+        }
+
+<span class="fc" id="L455">        return out;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public FieldMatrix&lt;T&gt; scalarAdd(final T d) {
+<span class="fc" id="L461">        final BlockFieldMatrix&lt;T&gt; out = new BlockFieldMatrix&lt;T&gt;(getField(), rows, columns);</span>
+
+        // perform subtraction block-wise, to ensure good cache behavior
+<span class="fc bfc" id="L464" title="All 2 branches covered.">        for (int blockIndex = 0; blockIndex &lt; out.blocks.length; ++blockIndex) {</span>
+<span class="fc" id="L465">            final T[] outBlock = out.blocks[blockIndex];</span>
+<span class="fc" id="L466">            final T[] tBlock   = blocks[blockIndex];</span>
+<span class="fc bfc" id="L467" title="All 2 branches covered.">            for (int k = 0; k &lt; outBlock.length; ++k) {</span>
+<span class="fc" id="L468">                outBlock[k] = tBlock[k].add(d);</span>
+            }
+        }
+
+<span class="fc" id="L472">        return out;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public FieldMatrix&lt;T&gt; scalarMultiply(final T d) {
+
+<span class="fc" id="L479">        final BlockFieldMatrix&lt;T&gt; out = new BlockFieldMatrix&lt;T&gt;(getField(), rows, columns);</span>
+
+        // perform subtraction block-wise, to ensure good cache behavior
+<span class="fc bfc" id="L482" title="All 2 branches covered.">        for (int blockIndex = 0; blockIndex &lt; out.blocks.length; ++blockIndex) {</span>
+<span class="fc" id="L483">            final T[] outBlock = out.blocks[blockIndex];</span>
+<span class="fc" id="L484">            final T[] tBlock   = blocks[blockIndex];</span>
+<span class="fc bfc" id="L485" title="All 2 branches covered.">            for (int k = 0; k &lt; outBlock.length; ++k) {</span>
+<span class="fc" id="L486">                outBlock[k] = tBlock[k].multiply(d);</span>
+            }
+        }
+
+<span class="fc" id="L490">        return out;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public FieldMatrix&lt;T&gt; multiply(final FieldMatrix&lt;T&gt; m)
+        throws DimensionMismatchException {
+        try {
+<span class="fc" id="L498">            return multiply((BlockFieldMatrix&lt;T&gt;) m);</span>
+<span class="nc" id="L499">        } catch (ClassCastException cce) {</span>
+
+            // safety check
+<span class="nc" id="L502">            checkMultiplicationCompatible(m);</span>
+
+<span class="nc" id="L504">            final BlockFieldMatrix&lt;T&gt; out = new BlockFieldMatrix&lt;T&gt;(getField(), rows, m.getColumnDimension());</span>
+<span class="nc" id="L505">            final T zero = getField().getZero();</span>
+
+            // perform multiplication block-wise, to ensure good cache behavior
+<span class="nc" id="L508">            int blockIndex = 0;</span>
+<span class="nc bnc" id="L509" title="All 2 branches missed.">            for (int iBlock = 0; iBlock &lt; out.blockRows; ++iBlock) {</span>
+
+<span class="nc" id="L511">                final int pStart = iBlock * BLOCK_SIZE;</span>
+<span class="nc" id="L512">                final int pEnd   = FastMath.min(pStart + BLOCK_SIZE, rows);</span>
+
+<span class="nc bnc" id="L514" title="All 2 branches missed.">                for (int jBlock = 0; jBlock &lt; out.blockColumns; ++jBlock) {</span>
+
+<span class="nc" id="L516">                    final int qStart = jBlock * BLOCK_SIZE;</span>
+<span class="nc" id="L517">                    final int qEnd   = FastMath.min(qStart + BLOCK_SIZE, m.getColumnDimension());</span>
+
+                    // select current block
+<span class="nc" id="L520">                    final T[] outBlock = out.blocks[blockIndex];</span>
+
+                    // perform multiplication on current block
+<span class="nc bnc" id="L523" title="All 2 branches missed.">                    for (int kBlock = 0; kBlock &lt; blockColumns; ++kBlock) {</span>
+<span class="nc" id="L524">                        final int kWidth      = blockWidth(kBlock);</span>
+<span class="nc" id="L525">                        final T[] tBlock = blocks[iBlock * blockColumns + kBlock];</span>
+<span class="nc" id="L526">                        final int rStart      = kBlock * BLOCK_SIZE;</span>
+<span class="nc" id="L527">                        int k = 0;</span>
+<span class="nc bnc" id="L528" title="All 2 branches missed.">                        for (int p = pStart; p &lt; pEnd; ++p) {</span>
+<span class="nc" id="L529">                            final int lStart = (p - pStart) * kWidth;</span>
+<span class="nc" id="L530">                            final int lEnd   = lStart + kWidth;</span>
+<span class="nc bnc" id="L531" title="All 2 branches missed.">                            for (int q = qStart; q &lt; qEnd; ++q) {</span>
+<span class="nc" id="L532">                                T sum = zero;</span>
+<span class="nc" id="L533">                                int r = rStart;</span>
+<span class="nc bnc" id="L534" title="All 2 branches missed.">                                for (int l = lStart; l &lt; lEnd; ++l) {</span>
+<span class="nc" id="L535">                                    sum = sum.add(tBlock[l].multiply(m.getEntry(r, q)));</span>
+<span class="nc" id="L536">                                    ++r;</span>
+                                }
+<span class="nc" id="L538">                                outBlock[k] = outBlock[k].add(sum);</span>
+<span class="nc" id="L539">                                ++k;</span>
+                            }
+                        }
+                    }
+
+                    // go to next block
+<span class="nc" id="L545">                    ++blockIndex;</span>
+
+                }
+            }
+
+<span class="nc" id="L550">            return out;</span>
+        }
+    }
+
+    /**
+     * Returns the result of postmultiplying {@code this} by {@code m}.
+     *
+     * @param m matrix to postmultiply by
+     * @return {@code this * m}
+     * @throws DimensionMismatchException if the matrices are not compatible.
+     */
+    public BlockFieldMatrix&lt;T&gt; multiply(BlockFieldMatrix&lt;T&gt; m)
+        throws DimensionMismatchException {
+
+        // safety check
+<span class="fc" id="L565">        checkMultiplicationCompatible(m);</span>
+
+<span class="fc" id="L567">        final BlockFieldMatrix&lt;T&gt; out = new BlockFieldMatrix&lt;T&gt;(getField(), rows, m.columns);</span>
+<span class="fc" id="L568">        final T zero = getField().getZero();</span>
+
+        // perform multiplication block-wise, to ensure good cache behavior
+<span class="fc" id="L571">        int blockIndex = 0;</span>
+<span class="fc bfc" id="L572" title="All 2 branches covered.">        for (int iBlock = 0; iBlock &lt; out.blockRows; ++iBlock) {</span>
+
+<span class="fc" id="L574">            final int pStart = iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L575">            final int pEnd   = FastMath.min(pStart + BLOCK_SIZE, rows);</span>
+
+<span class="fc bfc" id="L577" title="All 2 branches covered.">            for (int jBlock = 0; jBlock &lt; out.blockColumns; ++jBlock) {</span>
+<span class="fc" id="L578">                final int jWidth = out.blockWidth(jBlock);</span>
+<span class="fc" id="L579">                final int jWidth2 = jWidth  + jWidth;</span>
+<span class="fc" id="L580">                final int jWidth3 = jWidth2 + jWidth;</span>
+<span class="fc" id="L581">                final int jWidth4 = jWidth3 + jWidth;</span>
+
+                // select current block
+<span class="fc" id="L584">                final T[] outBlock = out.blocks[blockIndex];</span>
+
+                // perform multiplication on current block
+<span class="fc bfc" id="L587" title="All 2 branches covered.">                for (int kBlock = 0; kBlock &lt; blockColumns; ++kBlock) {</span>
+<span class="fc" id="L588">                    final int kWidth = blockWidth(kBlock);</span>
+<span class="fc" id="L589">                    final T[] tBlock = blocks[iBlock * blockColumns + kBlock];</span>
+<span class="fc" id="L590">                    final T[] mBlock = m.blocks[kBlock * m.blockColumns + jBlock];</span>
+<span class="fc" id="L591">                    int k = 0;</span>
+<span class="fc bfc" id="L592" title="All 2 branches covered.">                    for (int p = pStart; p &lt; pEnd; ++p) {</span>
+<span class="fc" id="L593">                        final int lStart = (p - pStart) * kWidth;</span>
+<span class="fc" id="L594">                        final int lEnd   = lStart + kWidth;</span>
+<span class="fc bfc" id="L595" title="All 2 branches covered.">                        for (int nStart = 0; nStart &lt; jWidth; ++nStart) {</span>
+<span class="fc" id="L596">                            T sum = zero;</span>
+<span class="fc" id="L597">                            int l = lStart;</span>
+<span class="fc" id="L598">                            int n = nStart;</span>
+<span class="fc bfc" id="L599" title="All 2 branches covered.">                            while (l &lt; lEnd - 3) {</span>
+<span class="fc" id="L600">                                sum = sum.</span>
+                                      add(tBlock[l].multiply(mBlock[n])).
+                                      add(tBlock[l + 1].multiply(mBlock[n + jWidth])).
+                                      add(tBlock[l + 2].multiply(mBlock[n + jWidth2])).
+                                      add(tBlock[l + 3].multiply(mBlock[n + jWidth3]));
+<span class="fc" id="L605">                                l += 4;</span>
+<span class="fc" id="L606">                                n += jWidth4;</span>
+                            }
+<span class="fc bfc" id="L608" title="All 2 branches covered.">                            while (l &lt; lEnd) {</span>
+<span class="fc" id="L609">                                sum = sum.add(tBlock[l++].multiply(mBlock[n]));</span>
+<span class="fc" id="L610">                                n += jWidth;</span>
+                            }
+<span class="fc" id="L612">                            outBlock[k] = outBlock[k].add(sum);</span>
+<span class="fc" id="L613">                            ++k;</span>
+                        }
+                    }
+                }
+
+                // go to next block
+<span class="fc" id="L619">                ++blockIndex;</span>
+            }
+        }
+
+<span class="fc" id="L623">        return out;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public T[][] getData() {
+
+<span class="fc" id="L630">        final T[][] data = MathArrays.buildArray(getField(), getRowDimension(), getColumnDimension());</span>
+<span class="fc" id="L631">        final int lastColumns = columns - (blockColumns - 1) * BLOCK_SIZE;</span>
+
+<span class="fc bfc" id="L633" title="All 2 branches covered.">        for (int iBlock = 0; iBlock &lt; blockRows; ++iBlock) {</span>
+<span class="fc" id="L634">            final int pStart = iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L635">            final int pEnd   = FastMath.min(pStart + BLOCK_SIZE, rows);</span>
+<span class="fc" id="L636">            int regularPos   = 0;</span>
+<span class="fc" id="L637">            int lastPos      = 0;</span>
+<span class="fc bfc" id="L638" title="All 2 branches covered.">            for (int p = pStart; p &lt; pEnd; ++p) {</span>
+<span class="fc" id="L639">                final T[] dataP = data[p];</span>
+<span class="fc" id="L640">                int blockIndex = iBlock * blockColumns;</span>
+<span class="fc" id="L641">                int dataPos    = 0;</span>
+<span class="fc bfc" id="L642" title="All 2 branches covered.">                for (int jBlock = 0; jBlock &lt; blockColumns - 1; ++jBlock) {</span>
+<span class="fc" id="L643">                    System.arraycopy(blocks[blockIndex++], regularPos, dataP, dataPos, BLOCK_SIZE);</span>
+<span class="fc" id="L644">                    dataPos += BLOCK_SIZE;</span>
+                }
+<span class="fc" id="L646">                System.arraycopy(blocks[blockIndex], lastPos, dataP, dataPos, lastColumns);</span>
+<span class="fc" id="L647">                regularPos += BLOCK_SIZE;</span>
+<span class="fc" id="L648">                lastPos    += lastColumns;</span>
+            }
+        }
+
+<span class="fc" id="L652">        return data;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public FieldMatrix&lt;T&gt; getSubMatrix(final int startRow, final int endRow,
+                                       final int startColumn,
+                                       final int endColumn)
+        throws OutOfRangeException, NumberIsTooSmallException {
+        // safety checks
+<span class="fc" id="L662">        checkSubMatrixIndex(startRow, endRow, startColumn, endColumn);</span>
+
+        // create the output matrix
+<span class="fc" id="L665">        final BlockFieldMatrix&lt;T&gt; out =</span>
+            new BlockFieldMatrix&lt;T&gt;(getField(), endRow - startRow + 1, endColumn - startColumn + 1);
+
+        // compute blocks shifts
+<span class="fc" id="L669">        final int blockStartRow    = startRow    / BLOCK_SIZE;</span>
+<span class="fc" id="L670">        final int rowsShift        = startRow    % BLOCK_SIZE;</span>
+<span class="fc" id="L671">        final int blockStartColumn = startColumn / BLOCK_SIZE;</span>
+<span class="fc" id="L672">        final int columnsShift     = startColumn % BLOCK_SIZE;</span>
+
+        // perform extraction block-wise, to ensure good cache behavior
+<span class="fc" id="L675">        int pBlock = blockStartRow;</span>
+<span class="fc bfc" id="L676" title="All 2 branches covered.">        for (int iBlock = 0; iBlock &lt; out.blockRows; ++iBlock) {</span>
+<span class="fc" id="L677">            final int iHeight = out.blockHeight(iBlock);</span>
+<span class="fc" id="L678">            int qBlock = blockStartColumn;</span>
+<span class="fc bfc" id="L679" title="All 2 branches covered.">            for (int jBlock = 0; jBlock &lt; out.blockColumns; ++jBlock) {</span>
+<span class="fc" id="L680">                final int jWidth = out.blockWidth(jBlock);</span>
+
+                // handle one block of the output matrix
+<span class="fc" id="L683">                final int      outIndex = iBlock * out.blockColumns + jBlock;</span>
+<span class="fc" id="L684">                final T[] outBlock = out.blocks[outIndex];</span>
+<span class="fc" id="L685">                final int      index    = pBlock * blockColumns + qBlock;</span>
+<span class="fc" id="L686">                final int      width    = blockWidth(qBlock);</span>
+
+<span class="fc" id="L688">                final int heightExcess = iHeight + rowsShift - BLOCK_SIZE;</span>
+<span class="fc" id="L689">                final int widthExcess  = jWidth + columnsShift - BLOCK_SIZE;</span>
+<span class="fc bfc" id="L690" title="All 2 branches covered.">                if (heightExcess &gt; 0) {</span>
+                    // the submatrix block spans on two blocks rows from the original matrix
+<span class="fc bfc" id="L692" title="All 2 branches covered.">                    if (widthExcess &gt; 0) {</span>
+                        // the submatrix block spans on two blocks columns from the original matrix
+<span class="fc" id="L694">                        final int width2 = blockWidth(qBlock + 1);</span>
+<span class="fc" id="L695">                        copyBlockPart(blocks[index], width,</span>
+                                      rowsShift, BLOCK_SIZE,
+                                      columnsShift, BLOCK_SIZE,
+                                      outBlock, jWidth, 0, 0);
+<span class="fc" id="L699">                        copyBlockPart(blocks[index + 1], width2,</span>
+                                      rowsShift, BLOCK_SIZE,
+                                      0, widthExcess,
+                                      outBlock, jWidth, 0, jWidth - widthExcess);
+<span class="fc" id="L703">                        copyBlockPart(blocks[index + blockColumns], width,</span>
+                                      0, heightExcess,
+                                      columnsShift, BLOCK_SIZE,
+                                      outBlock, jWidth, iHeight - heightExcess, 0);
+<span class="fc" id="L707">                        copyBlockPart(blocks[index + blockColumns + 1], width2,</span>
+                                      0, heightExcess,
+                                      0, widthExcess,
+                                      outBlock, jWidth, iHeight - heightExcess, jWidth - widthExcess);
+<span class="fc" id="L711">                    } else {</span>
+                        // the submatrix block spans on one block column from the original matrix
+<span class="fc" id="L713">                        copyBlockPart(blocks[index], width,</span>
+                                      rowsShift, BLOCK_SIZE,
+                                      columnsShift, jWidth + columnsShift,
+                                      outBlock, jWidth, 0, 0);
+<span class="fc" id="L717">                        copyBlockPart(blocks[index + blockColumns], width,</span>
+                                      0, heightExcess,
+                                      columnsShift, jWidth + columnsShift,
+                                      outBlock, jWidth, iHeight - heightExcess, 0);
+                    }
+                } else {
+                    // the submatrix block spans on one block row from the original matrix
+<span class="fc bfc" id="L724" title="All 2 branches covered.">                    if (widthExcess &gt; 0) {</span>
+                        // the submatrix block spans on two blocks columns from the original matrix
+<span class="fc" id="L726">                        final int width2 = blockWidth(qBlock + 1);</span>
+<span class="fc" id="L727">                        copyBlockPart(blocks[index], width,</span>
+                                      rowsShift, iHeight + rowsShift,
+                                      columnsShift, BLOCK_SIZE,
+                                      outBlock, jWidth, 0, 0);
+<span class="fc" id="L731">                        copyBlockPart(blocks[index + 1], width2,</span>
+                                      rowsShift, iHeight + rowsShift,
+                                      0, widthExcess,
+                                      outBlock, jWidth, 0, jWidth - widthExcess);
+<span class="fc" id="L735">                    } else {</span>
+                        // the submatrix block spans on one block column from the original matrix
+<span class="fc" id="L737">                        copyBlockPart(blocks[index], width,</span>
+                                      rowsShift, iHeight + rowsShift,
+                                      columnsShift, jWidth + columnsShift,
+                                      outBlock, jWidth, 0, 0);
+                    }
+               }
+<span class="fc" id="L743">                ++qBlock;</span>
+            }
+<span class="fc" id="L745">            ++pBlock;</span>
+        }
+
+<span class="fc" id="L748">        return out;</span>
+    }
+
+    /**
+     * Copy a part of a block into another one
+     * &lt;p&gt;This method can be called only when the specified part fits in both
+     * blocks, no verification is done here.&lt;/p&gt;
+     * @param srcBlock source block
+     * @param srcWidth source block width ({@link #BLOCK_SIZE} or smaller)
+     * @param srcStartRow start row in the source block
+     * @param srcEndRow end row (exclusive) in the source block
+     * @param srcStartColumn start column in the source block
+     * @param srcEndColumn end column (exclusive) in the source block
+     * @param dstBlock destination block
+     * @param dstWidth destination block width ({@link #BLOCK_SIZE} or smaller)
+     * @param dstStartRow start row in the destination block
+     * @param dstStartColumn start column in the destination block
+     */
+    private void copyBlockPart(final T[] srcBlock, final int srcWidth,
+                               final int srcStartRow, final int srcEndRow,
+                               final int srcStartColumn, final int srcEndColumn,
+                               final T[] dstBlock, final int dstWidth,
+                               final int dstStartRow, final int dstStartColumn) {
+<span class="fc" id="L771">        final int length = srcEndColumn - srcStartColumn;</span>
+<span class="fc" id="L772">        int srcPos = srcStartRow * srcWidth + srcStartColumn;</span>
+<span class="fc" id="L773">        int dstPos = dstStartRow * dstWidth + dstStartColumn;</span>
+<span class="fc bfc" id="L774" title="All 2 branches covered.">        for (int srcRow = srcStartRow; srcRow &lt; srcEndRow; ++srcRow) {</span>
+<span class="fc" id="L775">            System.arraycopy(srcBlock, srcPos, dstBlock, dstPos, length);</span>
+<span class="fc" id="L776">            srcPos += srcWidth;</span>
+<span class="fc" id="L777">            dstPos += dstWidth;</span>
+        }
+<span class="fc" id="L779">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public void setSubMatrix(final T[][] subMatrix, final int row,
+                             final int column)
+        throws DimensionMismatchException, OutOfRangeException,
+        NoDataException, NullArgumentException {
+        // safety checks
+<span class="fc" id="L788">        MathUtils.checkNotNull(subMatrix);</span>
+<span class="fc" id="L789">        final int refLength = subMatrix[0].length;</span>
+<span class="fc bfc" id="L790" title="All 2 branches covered.">        if (refLength == 0) {</span>
+<span class="fc" id="L791">            throw new NoDataException(LocalizedFormats.AT_LEAST_ONE_COLUMN);</span>
+        }
+<span class="fc" id="L793">        final int endRow    = row + subMatrix.length - 1;</span>
+<span class="fc" id="L794">        final int endColumn = column + refLength - 1;</span>
+<span class="fc" id="L795">        checkSubMatrixIndex(row, endRow, column, endColumn);</span>
+<span class="fc bfc" id="L796" title="All 2 branches covered.">        for (final T[] subRow : subMatrix) {</span>
+<span class="fc bfc" id="L797" title="All 2 branches covered.">            if (subRow.length != refLength) {</span>
+<span class="fc" id="L798">                throw new DimensionMismatchException(refLength, subRow.length);</span>
+            }
+        }
+
+        // compute blocks bounds
+<span class="fc" id="L803">        final int blockStartRow    = row / BLOCK_SIZE;</span>
+<span class="fc" id="L804">        final int blockEndRow      = (endRow + BLOCK_SIZE) / BLOCK_SIZE;</span>
+<span class="fc" id="L805">        final int blockStartColumn = column / BLOCK_SIZE;</span>
+<span class="fc" id="L806">        final int blockEndColumn   = (endColumn + BLOCK_SIZE) / BLOCK_SIZE;</span>
+
+        // perform copy block-wise, to ensure good cache behavior
+<span class="fc bfc" id="L809" title="All 2 branches covered.">        for (int iBlock = blockStartRow; iBlock &lt; blockEndRow; ++iBlock) {</span>
+<span class="fc" id="L810">            final int iHeight  = blockHeight(iBlock);</span>
+<span class="fc" id="L811">            final int firstRow = iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L812">            final int iStart   = FastMath.max(row,    firstRow);</span>
+<span class="fc" id="L813">            final int iEnd     = FastMath.min(endRow + 1, firstRow + iHeight);</span>
+
+<span class="fc bfc" id="L815" title="All 2 branches covered.">            for (int jBlock = blockStartColumn; jBlock &lt; blockEndColumn; ++jBlock) {</span>
+<span class="fc" id="L816">                final int jWidth      = blockWidth(jBlock);</span>
+<span class="fc" id="L817">                final int firstColumn = jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L818">                final int jStart      = FastMath.max(column,    firstColumn);</span>
+<span class="fc" id="L819">                final int jEnd        = FastMath.min(endColumn + 1, firstColumn + jWidth);</span>
+<span class="fc" id="L820">                final int jLength     = jEnd - jStart;</span>
+
+                // handle one block, row by row
+<span class="fc" id="L823">                final T[] block = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc bfc" id="L824" title="All 2 branches covered.">                for (int i = iStart; i &lt; iEnd; ++i) {</span>
+<span class="fc" id="L825">                    System.arraycopy(subMatrix[i - row], jStart - column,</span>
+                                     block, (i - firstRow) * jWidth + (jStart - firstColumn),
+                                     jLength);
+                }
+
+            }
+        }
+<span class="fc" id="L832">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public FieldMatrix&lt;T&gt; getRowMatrix(final int row)
+        throws OutOfRangeException {
+<span class="fc" id="L838">        checkRowIndex(row);</span>
+<span class="fc" id="L839">        final BlockFieldMatrix&lt;T&gt; out = new BlockFieldMatrix&lt;T&gt;(getField(), 1, columns);</span>
+
+        // perform copy block-wise, to ensure good cache behavior
+<span class="fc" id="L842">        final int iBlock  = row / BLOCK_SIZE;</span>
+<span class="fc" id="L843">        final int iRow    = row - iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L844">        int outBlockIndex = 0;</span>
+<span class="fc" id="L845">        int outIndex      = 0;</span>
+<span class="fc" id="L846">        T[] outBlock = out.blocks[outBlockIndex];</span>
+<span class="fc bfc" id="L847" title="All 2 branches covered.">        for (int jBlock = 0; jBlock &lt; blockColumns; ++jBlock) {</span>
+<span class="fc" id="L848">            final int jWidth     = blockWidth(jBlock);</span>
+<span class="fc" id="L849">            final T[] block = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc" id="L850">            final int available  = outBlock.length - outIndex;</span>
+<span class="fc bfc" id="L851" title="All 2 branches covered.">            if (jWidth &gt; available) {</span>
+<span class="fc" id="L852">                System.arraycopy(block, iRow * jWidth, outBlock, outIndex, available);</span>
+<span class="fc" id="L853">                outBlock = out.blocks[++outBlockIndex];</span>
+<span class="fc" id="L854">                System.arraycopy(block, iRow * jWidth, outBlock, 0, jWidth - available);</span>
+<span class="fc" id="L855">                outIndex = jWidth - available;</span>
+            } else {
+<span class="fc" id="L857">                System.arraycopy(block, iRow * jWidth, outBlock, outIndex, jWidth);</span>
+<span class="fc" id="L858">                outIndex += jWidth;</span>
+            }
+        }
+
+<span class="fc" id="L862">        return out;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setRowMatrix(final int row, final FieldMatrix&lt;T&gt; matrix)
+        throws MatrixDimensionMismatchException, OutOfRangeException {
+        try {
+<span class="fc" id="L870">            setRowMatrix(row, (BlockFieldMatrix&lt;T&gt;) matrix);</span>
+<span class="nc" id="L871">        } catch (ClassCastException cce) {</span>
+<span class="nc" id="L872">            super.setRowMatrix(row, matrix);</span>
+<span class="fc" id="L873">        }</span>
+<span class="fc" id="L874">    }</span>
+
+    /**
+     * Sets the entries in row number &lt;code&gt;row&lt;/code&gt;
+     * as a row matrix.  Row indices start at 0.
+     *
+     * @param row the row to be set
+     * @param matrix row matrix (must have one row and the same number of columns
+     * as the instance)
+     * @throws MatrixDimensionMismatchException if the matrix dimensions do
+     * not match one instance row.
+     * @throws OutOfRangeException if the specified row index is invalid.
+     */
+    public void setRowMatrix(final int row, final BlockFieldMatrix&lt;T&gt; matrix)
+        throws MatrixDimensionMismatchException, OutOfRangeException {
+<span class="fc" id="L889">        checkRowIndex(row);</span>
+<span class="fc" id="L890">        final int nCols = getColumnDimension();</span>
+<span class="pc bpc" id="L891" title="1 of 4 branches missed.">        if ((matrix.getRowDimension() != 1) ||</span>
+            (matrix.getColumnDimension() != nCols)) {
+<span class="fc" id="L893">            throw new MatrixDimensionMismatchException(matrix.getRowDimension(),</span>
+                                                       matrix.getColumnDimension(),
+                                                       1, nCols);
+        }
+
+        // perform copy block-wise, to ensure good cache behavior
+<span class="fc" id="L899">        final int iBlock = row / BLOCK_SIZE;</span>
+<span class="fc" id="L900">        final int iRow   = row - iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L901">        int mBlockIndex  = 0;</span>
+<span class="fc" id="L902">        int mIndex       = 0;</span>
+<span class="fc" id="L903">        T[] mBlock  = matrix.blocks[mBlockIndex];</span>
+<span class="fc bfc" id="L904" title="All 2 branches covered.">        for (int jBlock = 0; jBlock &lt; blockColumns; ++jBlock) {</span>
+<span class="fc" id="L905">            final int jWidth     = blockWidth(jBlock);</span>
+<span class="fc" id="L906">            final T[] block = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc" id="L907">            final int available  = mBlock.length - mIndex;</span>
+<span class="fc bfc" id="L908" title="All 2 branches covered.">            if (jWidth &gt; available) {</span>
+<span class="fc" id="L909">                System.arraycopy(mBlock, mIndex, block, iRow * jWidth, available);</span>
+<span class="fc" id="L910">                mBlock = matrix.blocks[++mBlockIndex];</span>
+<span class="fc" id="L911">                System.arraycopy(mBlock, 0, block, iRow * jWidth, jWidth - available);</span>
+<span class="fc" id="L912">                mIndex = jWidth - available;</span>
+            } else {
+<span class="fc" id="L914">                System.arraycopy(mBlock, mIndex, block, iRow * jWidth, jWidth);</span>
+<span class="fc" id="L915">                mIndex += jWidth;</span>
+           }
+        }
+<span class="fc" id="L918">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public FieldMatrix&lt;T&gt; getColumnMatrix(final int column)
+        throws OutOfRangeException {
+<span class="fc" id="L924">        checkColumnIndex(column);</span>
+<span class="fc" id="L925">        final BlockFieldMatrix&lt;T&gt; out = new BlockFieldMatrix&lt;T&gt;(getField(), rows, 1);</span>
+
+        // perform copy block-wise, to ensure good cache behavior
+<span class="fc" id="L928">        final int jBlock  = column / BLOCK_SIZE;</span>
+<span class="fc" id="L929">        final int jColumn = column - jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L930">        final int jWidth  = blockWidth(jBlock);</span>
+<span class="fc" id="L931">        int outBlockIndex = 0;</span>
+<span class="fc" id="L932">        int outIndex      = 0;</span>
+<span class="fc" id="L933">        T[] outBlock = out.blocks[outBlockIndex];</span>
+<span class="fc bfc" id="L934" title="All 2 branches covered.">        for (int iBlock = 0; iBlock &lt; blockRows; ++iBlock) {</span>
+<span class="fc" id="L935">            final int iHeight = blockHeight(iBlock);</span>
+<span class="fc" id="L936">            final T[] block = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc bfc" id="L937" title="All 2 branches covered.">            for (int i = 0; i &lt; iHeight; ++i) {</span>
+<span class="fc bfc" id="L938" title="All 2 branches covered.">                if (outIndex &gt;= outBlock.length) {</span>
+<span class="fc" id="L939">                    outBlock = out.blocks[++outBlockIndex];</span>
+<span class="fc" id="L940">                    outIndex = 0;</span>
+                }
+<span class="fc" id="L942">                outBlock[outIndex++] = block[i * jWidth + jColumn];</span>
+            }
+        }
+
+<span class="fc" id="L946">        return out;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setColumnMatrix(final int column, final FieldMatrix&lt;T&gt; matrix)
+        throws MatrixDimensionMismatchException, OutOfRangeException {
+        try {
+<span class="fc" id="L954">            setColumnMatrix(column, (BlockFieldMatrix&lt;T&gt;) matrix);</span>
+<span class="nc" id="L955">        } catch (ClassCastException cce) {</span>
+<span class="nc" id="L956">            super.setColumnMatrix(column, matrix);</span>
+<span class="fc" id="L957">        }</span>
+<span class="fc" id="L958">    }</span>
+
+    /**
+     * Sets the entries in column number {@code column}
+     * as a column matrix.  Column indices start at 0.
+     *
+     * @param column Column to be set.
+     * @param matrix Column matrix (must have one column and the same number of rows
+     * as the instance).
+     * @throws MatrixDimensionMismatchException if the matrix dimensions do
+     * not match one instance column.
+     * @throws OutOfRangeException if the specified column index is invalid.
+     */
+    void setColumnMatrix(final int column, final BlockFieldMatrix&lt;T&gt; matrix)
+        throws MatrixDimensionMismatchException, OutOfRangeException {
+<span class="fc" id="L973">        checkColumnIndex(column);</span>
+<span class="fc" id="L974">        final int nRows = getRowDimension();</span>
+<span class="pc bpc" id="L975" title="1 of 4 branches missed.">        if ((matrix.getRowDimension() != nRows) ||</span>
+            (matrix.getColumnDimension() != 1)) {
+<span class="fc" id="L977">            throw new MatrixDimensionMismatchException(matrix.getRowDimension(),</span>
+                                                       matrix.getColumnDimension(),
+                                                       nRows, 1);
+        }
+
+        // perform copy block-wise, to ensure good cache behavior
+<span class="fc" id="L983">        final int jBlock  = column / BLOCK_SIZE;</span>
+<span class="fc" id="L984">        final int jColumn = column - jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L985">        final int jWidth  = blockWidth(jBlock);</span>
+<span class="fc" id="L986">        int mBlockIndex = 0;</span>
+<span class="fc" id="L987">        int mIndex      = 0;</span>
+<span class="fc" id="L988">        T[] mBlock = matrix.blocks[mBlockIndex];</span>
+<span class="fc bfc" id="L989" title="All 2 branches covered.">        for (int iBlock = 0; iBlock &lt; blockRows; ++iBlock) {</span>
+<span class="fc" id="L990">            final int iHeight = blockHeight(iBlock);</span>
+<span class="fc" id="L991">            final T[] block = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc bfc" id="L992" title="All 2 branches covered.">            for (int i = 0; i &lt; iHeight; ++i) {</span>
+<span class="fc bfc" id="L993" title="All 2 branches covered.">                if (mIndex &gt;= mBlock.length) {</span>
+<span class="fc" id="L994">                    mBlock = matrix.blocks[++mBlockIndex];</span>
+<span class="fc" id="L995">                    mIndex = 0;</span>
+                }
+<span class="fc" id="L997">                block[i * jWidth + jColumn] = mBlock[mIndex++];</span>
+            }
+        }
+<span class="fc" id="L1000">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public FieldVector&lt;T&gt; getRowVector(final int row)
+        throws OutOfRangeException {
+<span class="fc" id="L1006">        checkRowIndex(row);</span>
+<span class="fc" id="L1007">        final T[] outData = MathArrays.buildArray(getField(), columns);</span>
+
+        // perform copy block-wise, to ensure good cache behavior
+<span class="fc" id="L1010">        final int iBlock  = row / BLOCK_SIZE;</span>
+<span class="fc" id="L1011">        final int iRow    = row - iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1012">        int outIndex      = 0;</span>
+<span class="fc bfc" id="L1013" title="All 2 branches covered.">        for (int jBlock = 0; jBlock &lt; blockColumns; ++jBlock) {</span>
+<span class="fc" id="L1014">            final int jWidth     = blockWidth(jBlock);</span>
+<span class="fc" id="L1015">            final T[] block = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc" id="L1016">            System.arraycopy(block, iRow * jWidth, outData, outIndex, jWidth);</span>
+<span class="fc" id="L1017">            outIndex += jWidth;</span>
+        }
+
+<span class="fc" id="L1020">        return new ArrayFieldVector&lt;T&gt;(getField(), outData, false);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setRowVector(final int row, final FieldVector&lt;T&gt; vector)
+        throws MatrixDimensionMismatchException, OutOfRangeException {
+        try {
+<span class="fc" id="L1028">            setRow(row, ((ArrayFieldVector&lt;T&gt;) vector).getDataRef());</span>
+<span class="nc" id="L1029">        } catch (ClassCastException cce) {</span>
+<span class="nc" id="L1030">            super.setRowVector(row, vector);</span>
+<span class="fc" id="L1031">        }</span>
+<span class="fc" id="L1032">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public FieldVector&lt;T&gt; getColumnVector(final int column)
+        throws OutOfRangeException {
+<span class="fc" id="L1038">        checkColumnIndex(column);</span>
+<span class="fc" id="L1039">        final T[] outData = MathArrays.buildArray(getField(), rows);</span>
+
+        // perform copy block-wise, to ensure good cache behavior
+<span class="fc" id="L1042">        final int jBlock  = column / BLOCK_SIZE;</span>
+<span class="fc" id="L1043">        final int jColumn = column - jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1044">        final int jWidth  = blockWidth(jBlock);</span>
+<span class="fc" id="L1045">        int outIndex      = 0;</span>
+<span class="fc bfc" id="L1046" title="All 2 branches covered.">        for (int iBlock = 0; iBlock &lt; blockRows; ++iBlock) {</span>
+<span class="fc" id="L1047">            final int iHeight = blockHeight(iBlock);</span>
+<span class="fc" id="L1048">            final T[] block = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc bfc" id="L1049" title="All 2 branches covered.">            for (int i = 0; i &lt; iHeight; ++i) {</span>
+<span class="fc" id="L1050">                outData[outIndex++] = block[i * jWidth + jColumn];</span>
+            }
+        }
+
+<span class="fc" id="L1054">        return new ArrayFieldVector&lt;T&gt;(getField(), outData, false);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setColumnVector(final int column, final FieldVector&lt;T&gt; vector)
+        throws OutOfRangeException, MatrixDimensionMismatchException {
+        try {
+<span class="fc" id="L1062">            setColumn(column, ((ArrayFieldVector&lt;T&gt;) vector).getDataRef());</span>
+<span class="nc" id="L1063">        } catch (ClassCastException cce) {</span>
+<span class="nc" id="L1064">            super.setColumnVector(column, vector);</span>
+<span class="fc" id="L1065">        }</span>
+<span class="fc" id="L1066">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public T[] getRow(final int row) throws OutOfRangeException {
+<span class="fc" id="L1071">        checkRowIndex(row);</span>
+<span class="fc" id="L1072">        final T[] out = MathArrays.buildArray(getField(), columns);</span>
+
+        // perform copy block-wise, to ensure good cache behavior
+<span class="fc" id="L1075">        final int iBlock  = row / BLOCK_SIZE;</span>
+<span class="fc" id="L1076">        final int iRow    = row - iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1077">        int outIndex      = 0;</span>
+<span class="fc bfc" id="L1078" title="All 2 branches covered.">        for (int jBlock = 0; jBlock &lt; blockColumns; ++jBlock) {</span>
+<span class="fc" id="L1079">            final int jWidth     = blockWidth(jBlock);</span>
+<span class="fc" id="L1080">            final T[] block = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc" id="L1081">            System.arraycopy(block, iRow * jWidth, out, outIndex, jWidth);</span>
+<span class="fc" id="L1082">            outIndex += jWidth;</span>
+        }
+
+<span class="fc" id="L1085">        return out;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setRow(final int row, final T[] array)
+        throws OutOfRangeException, MatrixDimensionMismatchException {
+<span class="fc" id="L1092">        checkRowIndex(row);</span>
+<span class="fc" id="L1093">        final int nCols = getColumnDimension();</span>
+<span class="fc bfc" id="L1094" title="All 2 branches covered.">        if (array.length != nCols) {</span>
+<span class="fc" id="L1095">            throw new MatrixDimensionMismatchException(1, array.length, 1, nCols);</span>
+        }
+
+        // perform copy block-wise, to ensure good cache behavior
+<span class="fc" id="L1099">        final int iBlock  = row / BLOCK_SIZE;</span>
+<span class="fc" id="L1100">        final int iRow    = row - iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1101">        int outIndex      = 0;</span>
+<span class="fc bfc" id="L1102" title="All 2 branches covered.">        for (int jBlock = 0; jBlock &lt; blockColumns; ++jBlock) {</span>
+<span class="fc" id="L1103">            final int jWidth     = blockWidth(jBlock);</span>
+<span class="fc" id="L1104">            final T[] block = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc" id="L1105">            System.arraycopy(array, outIndex, block, iRow * jWidth, jWidth);</span>
+<span class="fc" id="L1106">            outIndex += jWidth;</span>
+        }
+<span class="fc" id="L1108">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public T[] getColumn(final int column) throws OutOfRangeException {
+<span class="fc" id="L1113">        checkColumnIndex(column);</span>
+<span class="fc" id="L1114">        final T[] out = MathArrays.buildArray(getField(), rows);</span>
+
+        // perform copy block-wise, to ensure good cache behavior
+<span class="fc" id="L1117">        final int jBlock  = column / BLOCK_SIZE;</span>
+<span class="fc" id="L1118">        final int jColumn = column - jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1119">        final int jWidth  = blockWidth(jBlock);</span>
+<span class="fc" id="L1120">        int outIndex      = 0;</span>
+<span class="fc bfc" id="L1121" title="All 2 branches covered.">        for (int iBlock = 0; iBlock &lt; blockRows; ++iBlock) {</span>
+<span class="fc" id="L1122">            final int iHeight = blockHeight(iBlock);</span>
+<span class="fc" id="L1123">            final T[] block = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc bfc" id="L1124" title="All 2 branches covered.">            for (int i = 0; i &lt; iHeight; ++i) {</span>
+<span class="fc" id="L1125">                out[outIndex++] = block[i * jWidth + jColumn];</span>
+            }
+        }
+
+<span class="fc" id="L1129">        return out;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setColumn(final int column, final T[] array)
+        throws MatrixDimensionMismatchException, OutOfRangeException {
+<span class="fc" id="L1136">        checkColumnIndex(column);</span>
+<span class="fc" id="L1137">        final int nRows = getRowDimension();</span>
+<span class="fc bfc" id="L1138" title="All 2 branches covered.">        if (array.length != nRows) {</span>
+<span class="fc" id="L1139">            throw new MatrixDimensionMismatchException(array.length, 1, nRows, 1);</span>
+        }
+
+        // perform copy block-wise, to ensure good cache behavior
+<span class="fc" id="L1143">        final int jBlock  = column / BLOCK_SIZE;</span>
+<span class="fc" id="L1144">        final int jColumn = column - jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1145">        final int jWidth  = blockWidth(jBlock);</span>
+<span class="fc" id="L1146">        int outIndex      = 0;</span>
+<span class="fc bfc" id="L1147" title="All 2 branches covered.">        for (int iBlock = 0; iBlock &lt; blockRows; ++iBlock) {</span>
+<span class="fc" id="L1148">            final int iHeight = blockHeight(iBlock);</span>
+<span class="fc" id="L1149">            final T[] block = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc bfc" id="L1150" title="All 2 branches covered.">            for (int i = 0; i &lt; iHeight; ++i) {</span>
+<span class="fc" id="L1151">                block[i * jWidth + jColumn] = array[outIndex++];</span>
+            }
+        }
+<span class="fc" id="L1154">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public T getEntry(final int row, final int column)
+        throws OutOfRangeException {
+<span class="fc" id="L1160">        checkRowIndex(row);</span>
+<span class="fc" id="L1161">        checkColumnIndex(column);</span>
+
+<span class="fc" id="L1163">        final int iBlock = row    / BLOCK_SIZE;</span>
+<span class="fc" id="L1164">        final int jBlock = column / BLOCK_SIZE;</span>
+<span class="fc" id="L1165">        final int k      = (row    - iBlock * BLOCK_SIZE) * blockWidth(jBlock) +</span>
+            (column - jBlock * BLOCK_SIZE);
+
+<span class="fc" id="L1168">        return blocks[iBlock * blockColumns + jBlock][k];</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setEntry(final int row, final int column, final T value)
+        throws OutOfRangeException {
+<span class="fc" id="L1175">        checkRowIndex(row);</span>
+<span class="fc" id="L1176">        checkColumnIndex(column);</span>
+
+<span class="fc" id="L1178">        final int iBlock = row    / BLOCK_SIZE;</span>
+<span class="fc" id="L1179">        final int jBlock = column / BLOCK_SIZE;</span>
+<span class="fc" id="L1180">        final int k      = (row    - iBlock * BLOCK_SIZE) * blockWidth(jBlock) +</span>
+            (column - jBlock * BLOCK_SIZE);
+
+<span class="fc" id="L1183">        blocks[iBlock * blockColumns + jBlock][k] = value;</span>
+<span class="fc" id="L1184">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public void addToEntry(final int row, final int column, final T increment)
+        throws OutOfRangeException {
+<span class="nc" id="L1190">        checkRowIndex(row);</span>
+<span class="nc" id="L1191">        checkColumnIndex(column);</span>
+
+<span class="nc" id="L1193">        final int iBlock = row    / BLOCK_SIZE;</span>
+<span class="nc" id="L1194">        final int jBlock = column / BLOCK_SIZE;</span>
+<span class="nc" id="L1195">        final int k      = (row    - iBlock * BLOCK_SIZE) * blockWidth(jBlock) +</span>
+            (column - jBlock * BLOCK_SIZE);
+<span class="nc" id="L1197">        final T[] blockIJ = blocks[iBlock * blockColumns + jBlock];</span>
+
+<span class="nc" id="L1199">        blockIJ[k] = blockIJ[k].add(increment);</span>
+<span class="nc" id="L1200">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public void multiplyEntry(final int row, final int column, final T factor)
+        throws OutOfRangeException {
+<span class="nc" id="L1206">        checkRowIndex(row);</span>
+<span class="nc" id="L1207">        checkColumnIndex(column);</span>
+
+<span class="nc" id="L1209">        final int iBlock = row    / BLOCK_SIZE;</span>
+<span class="nc" id="L1210">        final int jBlock = column / BLOCK_SIZE;</span>
+<span class="nc" id="L1211">        final int k      = (row    - iBlock * BLOCK_SIZE) * blockWidth(jBlock) +</span>
+            (column - jBlock * BLOCK_SIZE);
+<span class="nc" id="L1213">        final T[] blockIJ = blocks[iBlock * blockColumns + jBlock];</span>
+
+<span class="nc" id="L1215">        blockIJ[k] = blockIJ[k].multiply(factor);</span>
+<span class="nc" id="L1216">    }</span>
+
+    /** {@inheritDoc} */
+    @Override
+    public FieldMatrix&lt;T&gt; transpose() {
+<span class="fc" id="L1221">        final int nRows = getRowDimension();</span>
+<span class="fc" id="L1222">        final int nCols = getColumnDimension();</span>
+<span class="fc" id="L1223">        final BlockFieldMatrix&lt;T&gt; out = new BlockFieldMatrix&lt;T&gt;(getField(), nCols, nRows);</span>
+
+        // perform transpose block-wise, to ensure good cache behavior
+<span class="fc" id="L1226">        int blockIndex = 0;</span>
+<span class="fc bfc" id="L1227" title="All 2 branches covered.">        for (int iBlock = 0; iBlock &lt; blockColumns; ++iBlock) {</span>
+<span class="fc bfc" id="L1228" title="All 2 branches covered.">            for (int jBlock = 0; jBlock &lt; blockRows; ++jBlock) {</span>
+
+                // transpose current block
+<span class="fc" id="L1231">                final T[] outBlock = out.blocks[blockIndex];</span>
+<span class="fc" id="L1232">                final T[] tBlock   = blocks[jBlock * blockColumns + iBlock];</span>
+<span class="fc" id="L1233">                final int      pStart   = iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1234">                final int      pEnd     = FastMath.min(pStart + BLOCK_SIZE, columns);</span>
+<span class="fc" id="L1235">                final int      qStart   = jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1236">                final int      qEnd     = FastMath.min(qStart + BLOCK_SIZE, rows);</span>
+<span class="fc" id="L1237">                int k = 0;</span>
+<span class="fc bfc" id="L1238" title="All 2 branches covered.">                for (int p = pStart; p &lt; pEnd; ++p) {</span>
+<span class="fc" id="L1239">                    final int lInc = pEnd - pStart;</span>
+<span class="fc" id="L1240">                    int l = p - pStart;</span>
+<span class="fc bfc" id="L1241" title="All 2 branches covered.">                    for (int q = qStart; q &lt; qEnd; ++q) {</span>
+<span class="fc" id="L1242">                        outBlock[k] = tBlock[l];</span>
+<span class="fc" id="L1243">                        ++k;</span>
+<span class="fc" id="L1244">                        l+= lInc;</span>
+                    }
+                }
+
+                // go to next block
+<span class="fc" id="L1249">                ++blockIndex;</span>
+
+            }
+        }
+
+<span class="fc" id="L1254">        return out;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int getRowDimension() {
+<span class="fc" id="L1260">        return rows;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int getColumnDimension() {
+<span class="fc" id="L1266">        return columns;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public T[] operate(final T[] v) throws DimensionMismatchException {
+<span class="fc bfc" id="L1272" title="All 2 branches covered.">        if (v.length != columns) {</span>
+<span class="fc" id="L1273">            throw new DimensionMismatchException(v.length, columns);</span>
+        }
+<span class="fc" id="L1275">        final T[] out = MathArrays.buildArray(getField(), rows);</span>
+<span class="fc" id="L1276">        final T zero = getField().getZero();</span>
+
+        // perform multiplication block-wise, to ensure good cache behavior
+<span class="fc bfc" id="L1279" title="All 2 branches covered.">        for (int iBlock = 0; iBlock &lt; blockRows; ++iBlock) {</span>
+<span class="fc" id="L1280">            final int pStart = iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1281">            final int pEnd   = FastMath.min(pStart + BLOCK_SIZE, rows);</span>
+<span class="fc bfc" id="L1282" title="All 2 branches covered.">            for (int jBlock = 0; jBlock &lt; blockColumns; ++jBlock) {</span>
+<span class="fc" id="L1283">                final T[] block  = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc" id="L1284">                final int      qStart = jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1285">                final int      qEnd   = FastMath.min(qStart + BLOCK_SIZE, columns);</span>
+<span class="fc" id="L1286">                int k = 0;</span>
+<span class="fc bfc" id="L1287" title="All 2 branches covered.">                for (int p = pStart; p &lt; pEnd; ++p) {</span>
+<span class="fc" id="L1288">                    T sum = zero;</span>
+<span class="fc" id="L1289">                    int q = qStart;</span>
+<span class="fc bfc" id="L1290" title="All 2 branches covered.">                    while (q &lt; qEnd - 3) {</span>
+<span class="fc" id="L1291">                        sum = sum.</span>
+                              add(block[k].multiply(v[q])).
+                              add(block[k + 1].multiply(v[q + 1])).
+                              add(block[k + 2].multiply(v[q + 2])).
+                              add(block[k + 3].multiply(v[q + 3]));
+<span class="fc" id="L1296">                        k += 4;</span>
+<span class="fc" id="L1297">                        q += 4;</span>
+                    }
+<span class="fc bfc" id="L1299" title="All 2 branches covered.">                    while (q &lt; qEnd) {</span>
+<span class="fc" id="L1300">                        sum = sum.add(block[k++].multiply(v[q++]));</span>
+                    }
+<span class="fc" id="L1302">                    out[p] = out[p].add(sum);</span>
+                }
+            }
+        }
+
+<span class="fc" id="L1307">        return out;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public T[] preMultiply(final T[] v) throws DimensionMismatchException {
+
+<span class="fc bfc" id="L1314" title="All 2 branches covered.">        if (v.length != rows) {</span>
+<span class="fc" id="L1315">            throw new DimensionMismatchException(v.length, rows);</span>
+        }
+<span class="fc" id="L1317">        final T[] out = MathArrays.buildArray(getField(), columns);</span>
+<span class="fc" id="L1318">        final T zero = getField().getZero();</span>
+
+        // perform multiplication block-wise, to ensure good cache behavior
+<span class="fc bfc" id="L1321" title="All 2 branches covered.">        for (int jBlock = 0; jBlock &lt; blockColumns; ++jBlock) {</span>
+<span class="fc" id="L1322">            final int jWidth  = blockWidth(jBlock);</span>
+<span class="fc" id="L1323">            final int jWidth2 = jWidth  + jWidth;</span>
+<span class="fc" id="L1324">            final int jWidth3 = jWidth2 + jWidth;</span>
+<span class="fc" id="L1325">            final int jWidth4 = jWidth3 + jWidth;</span>
+<span class="fc" id="L1326">            final int qStart = jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1327">            final int qEnd   = FastMath.min(qStart + BLOCK_SIZE, columns);</span>
+<span class="fc bfc" id="L1328" title="All 2 branches covered.">            for (int iBlock = 0; iBlock &lt; blockRows; ++iBlock) {</span>
+<span class="fc" id="L1329">                final T[] block  = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc" id="L1330">                final int      pStart = iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1331">                final int      pEnd   = FastMath.min(pStart + BLOCK_SIZE, rows);</span>
+<span class="fc bfc" id="L1332" title="All 2 branches covered.">                for (int q = qStart; q &lt; qEnd; ++q) {</span>
+<span class="fc" id="L1333">                    int k = q - qStart;</span>
+<span class="fc" id="L1334">                    T sum = zero;</span>
+<span class="fc" id="L1335">                    int p = pStart;</span>
+<span class="fc bfc" id="L1336" title="All 2 branches covered.">                    while (p &lt; pEnd - 3) {</span>
+<span class="fc" id="L1337">                        sum = sum.</span>
+                              add(block[k].multiply(v[p])).
+                              add(block[k + jWidth].multiply(v[p + 1])).
+                              add(block[k + jWidth2].multiply(v[p + 2])).
+                              add(block[k + jWidth3].multiply(v[p + 3]));
+<span class="fc" id="L1342">                        k += jWidth4;</span>
+<span class="fc" id="L1343">                        p += 4;</span>
+                    }
+<span class="fc bfc" id="L1345" title="All 2 branches covered.">                    while (p &lt; pEnd) {</span>
+<span class="fc" id="L1346">                        sum = sum.add(block[k].multiply(v[p++]));</span>
+<span class="fc" id="L1347">                        k += jWidth;</span>
+                    }
+<span class="fc" id="L1349">                    out[q] = out[q].add(sum);</span>
+                }
+            }
+        }
+
+<span class="fc" id="L1354">        return out;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public T walkInRowOrder(final FieldMatrixChangingVisitor&lt;T&gt; visitor) {
+<span class="fc" id="L1360">        visitor.start(rows, columns, 0, rows - 1, 0, columns - 1);</span>
+<span class="fc bfc" id="L1361" title="All 2 branches covered.">        for (int iBlock = 0; iBlock &lt; blockRows; ++iBlock) {</span>
+<span class="fc" id="L1362">            final int pStart = iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1363">            final int pEnd   = FastMath.min(pStart + BLOCK_SIZE, rows);</span>
+<span class="fc bfc" id="L1364" title="All 2 branches covered.">            for (int p = pStart; p &lt; pEnd; ++p) {</span>
+<span class="fc bfc" id="L1365" title="All 2 branches covered.">                for (int jBlock = 0; jBlock &lt; blockColumns; ++jBlock) {</span>
+<span class="fc" id="L1366">                    final int jWidth = blockWidth(jBlock);</span>
+<span class="fc" id="L1367">                    final int qStart = jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1368">                    final int qEnd   = FastMath.min(qStart + BLOCK_SIZE, columns);</span>
+<span class="fc" id="L1369">                    final T[] block = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc" id="L1370">                    int k = (p - pStart) * jWidth;</span>
+<span class="fc bfc" id="L1371" title="All 2 branches covered.">                    for (int q = qStart; q &lt; qEnd; ++q) {</span>
+<span class="fc" id="L1372">                        block[k] = visitor.visit(p, q, block[k]);</span>
+<span class="fc" id="L1373">                        ++k;</span>
+                    }
+                }
+             }
+        }
+<span class="fc" id="L1378">        return visitor.end();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public T walkInRowOrder(final FieldMatrixPreservingVisitor&lt;T&gt; visitor) {
+<span class="fc" id="L1384">        visitor.start(rows, columns, 0, rows - 1, 0, columns - 1);</span>
+<span class="fc bfc" id="L1385" title="All 2 branches covered.">        for (int iBlock = 0; iBlock &lt; blockRows; ++iBlock) {</span>
+<span class="fc" id="L1386">            final int pStart = iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1387">            final int pEnd   = FastMath.min(pStart + BLOCK_SIZE, rows);</span>
+<span class="fc bfc" id="L1388" title="All 2 branches covered.">            for (int p = pStart; p &lt; pEnd; ++p) {</span>
+<span class="fc bfc" id="L1389" title="All 2 branches covered.">                for (int jBlock = 0; jBlock &lt; blockColumns; ++jBlock) {</span>
+<span class="fc" id="L1390">                    final int jWidth = blockWidth(jBlock);</span>
+<span class="fc" id="L1391">                    final int qStart = jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1392">                    final int qEnd   = FastMath.min(qStart + BLOCK_SIZE, columns);</span>
+<span class="fc" id="L1393">                    final T[] block = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc" id="L1394">                    int k = (p - pStart) * jWidth;</span>
+<span class="fc bfc" id="L1395" title="All 2 branches covered.">                    for (int q = qStart; q &lt; qEnd; ++q) {</span>
+<span class="fc" id="L1396">                        visitor.visit(p, q, block[k]);</span>
+<span class="fc" id="L1397">                        ++k;</span>
+                    }
+                }
+             }
+        }
+<span class="fc" id="L1402">        return visitor.end();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public T walkInRowOrder(final FieldMatrixChangingVisitor&lt;T&gt; visitor,
+                            final int startRow, final int endRow,
+                            final int startColumn, final int endColumn)
+        throws OutOfRangeException, NumberIsTooSmallException {
+<span class="fc" id="L1411">        checkSubMatrixIndex(startRow, endRow, startColumn, endColumn);</span>
+<span class="fc" id="L1412">        visitor.start(rows, columns, startRow, endRow, startColumn, endColumn);</span>
+<span class="fc bfc" id="L1413" title="All 2 branches covered.">        for (int iBlock = startRow / BLOCK_SIZE; iBlock &lt; 1 + endRow / BLOCK_SIZE; ++iBlock) {</span>
+<span class="fc" id="L1414">            final int p0     = iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1415">            final int pStart = FastMath.max(startRow, p0);</span>
+<span class="fc" id="L1416">            final int pEnd   = FastMath.min((iBlock + 1) * BLOCK_SIZE, 1 + endRow);</span>
+<span class="fc bfc" id="L1417" title="All 2 branches covered.">            for (int p = pStart; p &lt; pEnd; ++p) {</span>
+<span class="fc bfc" id="L1418" title="All 2 branches covered.">                for (int jBlock = startColumn / BLOCK_SIZE; jBlock &lt; 1 + endColumn / BLOCK_SIZE; ++jBlock) {</span>
+<span class="fc" id="L1419">                    final int jWidth = blockWidth(jBlock);</span>
+<span class="fc" id="L1420">                    final int q0     = jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1421">                    final int qStart = FastMath.max(startColumn, q0);</span>
+<span class="fc" id="L1422">                    final int qEnd   = FastMath.min((jBlock + 1) * BLOCK_SIZE, 1 + endColumn);</span>
+<span class="fc" id="L1423">                    final T[] block = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc" id="L1424">                    int k = (p - p0) * jWidth + qStart - q0;</span>
+<span class="fc bfc" id="L1425" title="All 2 branches covered.">                    for (int q = qStart; q &lt; qEnd; ++q) {</span>
+<span class="fc" id="L1426">                        block[k] = visitor.visit(p, q, block[k]);</span>
+<span class="fc" id="L1427">                        ++k;</span>
+                    }
+                }
+             }
+        }
+<span class="fc" id="L1432">        return visitor.end();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public T walkInRowOrder(final FieldMatrixPreservingVisitor&lt;T&gt; visitor,
+                            final int startRow, final int endRow,
+                            final int startColumn, final int endColumn)
+        throws OutOfRangeException, NumberIsTooSmallException {
+<span class="fc" id="L1441">        checkSubMatrixIndex(startRow, endRow, startColumn, endColumn);</span>
+<span class="fc" id="L1442">        visitor.start(rows, columns, startRow, endRow, startColumn, endColumn);</span>
+<span class="fc bfc" id="L1443" title="All 2 branches covered.">        for (int iBlock = startRow / BLOCK_SIZE; iBlock &lt; 1 + endRow / BLOCK_SIZE; ++iBlock) {</span>
+<span class="fc" id="L1444">            final int p0     = iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1445">            final int pStart = FastMath.max(startRow, p0);</span>
+<span class="fc" id="L1446">            final int pEnd   = FastMath.min((iBlock + 1) * BLOCK_SIZE, 1 + endRow);</span>
+<span class="fc bfc" id="L1447" title="All 2 branches covered.">            for (int p = pStart; p &lt; pEnd; ++p) {</span>
+<span class="fc bfc" id="L1448" title="All 2 branches covered.">                for (int jBlock = startColumn / BLOCK_SIZE; jBlock &lt; 1 + endColumn / BLOCK_SIZE; ++jBlock) {</span>
+<span class="fc" id="L1449">                    final int jWidth = blockWidth(jBlock);</span>
+<span class="fc" id="L1450">                    final int q0     = jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1451">                    final int qStart = FastMath.max(startColumn, q0);</span>
+<span class="fc" id="L1452">                    final int qEnd   = FastMath.min((jBlock + 1) * BLOCK_SIZE, 1 + endColumn);</span>
+<span class="fc" id="L1453">                    final T[] block = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc" id="L1454">                    int k = (p - p0) * jWidth + qStart - q0;</span>
+<span class="fc bfc" id="L1455" title="All 2 branches covered.">                    for (int q = qStart; q &lt; qEnd; ++q) {</span>
+<span class="fc" id="L1456">                        visitor.visit(p, q, block[k]);</span>
+<span class="fc" id="L1457">                        ++k;</span>
+                    }
+                }
+             }
+        }
+<span class="fc" id="L1462">        return visitor.end();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public T walkInOptimizedOrder(final FieldMatrixChangingVisitor&lt;T&gt; visitor) {
+<span class="fc" id="L1468">        visitor.start(rows, columns, 0, rows - 1, 0, columns - 1);</span>
+<span class="fc" id="L1469">        int blockIndex = 0;</span>
+<span class="fc bfc" id="L1470" title="All 2 branches covered.">        for (int iBlock = 0; iBlock &lt; blockRows; ++iBlock) {</span>
+<span class="fc" id="L1471">            final int pStart = iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1472">            final int pEnd   = FastMath.min(pStart + BLOCK_SIZE, rows);</span>
+<span class="fc bfc" id="L1473" title="All 2 branches covered.">            for (int jBlock = 0; jBlock &lt; blockColumns; ++jBlock) {</span>
+<span class="fc" id="L1474">                final int qStart = jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1475">                final int qEnd   = FastMath.min(qStart + BLOCK_SIZE, columns);</span>
+<span class="fc" id="L1476">                final T[] block = blocks[blockIndex];</span>
+<span class="fc" id="L1477">                int k = 0;</span>
+<span class="fc bfc" id="L1478" title="All 2 branches covered.">                for (int p = pStart; p &lt; pEnd; ++p) {</span>
+<span class="fc bfc" id="L1479" title="All 2 branches covered.">                    for (int q = qStart; q &lt; qEnd; ++q) {</span>
+<span class="fc" id="L1480">                        block[k] = visitor.visit(p, q, block[k]);</span>
+<span class="fc" id="L1481">                        ++k;</span>
+                    }
+                }
+<span class="fc" id="L1484">                ++blockIndex;</span>
+            }
+        }
+<span class="fc" id="L1487">        return visitor.end();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public T walkInOptimizedOrder(final FieldMatrixPreservingVisitor&lt;T&gt; visitor) {
+<span class="fc" id="L1493">        visitor.start(rows, columns, 0, rows - 1, 0, columns - 1);</span>
+<span class="fc" id="L1494">        int blockIndex = 0;</span>
+<span class="fc bfc" id="L1495" title="All 2 branches covered.">        for (int iBlock = 0; iBlock &lt; blockRows; ++iBlock) {</span>
+<span class="fc" id="L1496">            final int pStart = iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1497">            final int pEnd   = FastMath.min(pStart + BLOCK_SIZE, rows);</span>
+<span class="fc bfc" id="L1498" title="All 2 branches covered.">            for (int jBlock = 0; jBlock &lt; blockColumns; ++jBlock) {</span>
+<span class="fc" id="L1499">                final int qStart = jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1500">                final int qEnd   = FastMath.min(qStart + BLOCK_SIZE, columns);</span>
+<span class="fc" id="L1501">                final T[] block = blocks[blockIndex];</span>
+<span class="fc" id="L1502">                int k = 0;</span>
+<span class="fc bfc" id="L1503" title="All 2 branches covered.">                for (int p = pStart; p &lt; pEnd; ++p) {</span>
+<span class="fc bfc" id="L1504" title="All 2 branches covered.">                    for (int q = qStart; q &lt; qEnd; ++q) {</span>
+<span class="fc" id="L1505">                        visitor.visit(p, q, block[k]);</span>
+<span class="fc" id="L1506">                        ++k;</span>
+                    }
+                }
+<span class="fc" id="L1509">                ++blockIndex;</span>
+            }
+        }
+<span class="fc" id="L1512">        return visitor.end();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public T walkInOptimizedOrder(final FieldMatrixChangingVisitor&lt;T&gt; visitor,
+                                  final int startRow, final int endRow,
+                                  final int startColumn, final int endColumn)
+        throws OutOfRangeException, NumberIsTooSmallException {
+<span class="fc" id="L1521">        checkSubMatrixIndex(startRow, endRow, startColumn, endColumn);</span>
+<span class="fc" id="L1522">        visitor.start(rows, columns, startRow, endRow, startColumn, endColumn);</span>
+<span class="fc bfc" id="L1523" title="All 2 branches covered.">        for (int iBlock = startRow / BLOCK_SIZE; iBlock &lt; 1 + endRow / BLOCK_SIZE; ++iBlock) {</span>
+<span class="fc" id="L1524">            final int p0     = iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1525">            final int pStart = FastMath.max(startRow, p0);</span>
+<span class="fc" id="L1526">            final int pEnd   = FastMath.min((iBlock + 1) * BLOCK_SIZE, 1 + endRow);</span>
+<span class="fc bfc" id="L1527" title="All 2 branches covered.">            for (int jBlock = startColumn / BLOCK_SIZE; jBlock &lt; 1 + endColumn / BLOCK_SIZE; ++jBlock) {</span>
+<span class="fc" id="L1528">                final int jWidth = blockWidth(jBlock);</span>
+<span class="fc" id="L1529">                final int q0     = jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1530">                final int qStart = FastMath.max(startColumn, q0);</span>
+<span class="fc" id="L1531">                final int qEnd   = FastMath.min((jBlock + 1) * BLOCK_SIZE, 1 + endColumn);</span>
+<span class="fc" id="L1532">                final T[] block = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc bfc" id="L1533" title="All 2 branches covered.">                for (int p = pStart; p &lt; pEnd; ++p) {</span>
+<span class="fc" id="L1534">                    int k = (p - p0) * jWidth + qStart - q0;</span>
+<span class="fc bfc" id="L1535" title="All 2 branches covered.">                    for (int q = qStart; q &lt; qEnd; ++q) {</span>
+<span class="fc" id="L1536">                        block[k] = visitor.visit(p, q, block[k]);</span>
+<span class="fc" id="L1537">                        ++k;</span>
+                    }
+                }
+            }
+        }
+<span class="fc" id="L1542">        return visitor.end();</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public T walkInOptimizedOrder(final FieldMatrixPreservingVisitor&lt;T&gt; visitor,
+                                  final int startRow, final int endRow,
+                                  final int startColumn, final int endColumn)
+        throws OutOfRangeException, NumberIsTooSmallException {
+<span class="fc" id="L1551">        checkSubMatrixIndex(startRow, endRow, startColumn, endColumn);</span>
+<span class="fc" id="L1552">        visitor.start(rows, columns, startRow, endRow, startColumn, endColumn);</span>
+<span class="fc bfc" id="L1553" title="All 2 branches covered.">        for (int iBlock = startRow / BLOCK_SIZE; iBlock &lt; 1 + endRow / BLOCK_SIZE; ++iBlock) {</span>
+<span class="fc" id="L1554">            final int p0     = iBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1555">            final int pStart = FastMath.max(startRow, p0);</span>
+<span class="fc" id="L1556">            final int pEnd   = FastMath.min((iBlock + 1) * BLOCK_SIZE, 1 + endRow);</span>
+<span class="fc bfc" id="L1557" title="All 2 branches covered.">            for (int jBlock = startColumn / BLOCK_SIZE; jBlock &lt; 1 + endColumn / BLOCK_SIZE; ++jBlock) {</span>
+<span class="fc" id="L1558">                final int jWidth = blockWidth(jBlock);</span>
+<span class="fc" id="L1559">                final int q0     = jBlock * BLOCK_SIZE;</span>
+<span class="fc" id="L1560">                final int qStart = FastMath.max(startColumn, q0);</span>
+<span class="fc" id="L1561">                final int qEnd   = FastMath.min((jBlock + 1) * BLOCK_SIZE, 1 + endColumn);</span>
+<span class="fc" id="L1562">                final T[] block = blocks[iBlock * blockColumns + jBlock];</span>
+<span class="fc bfc" id="L1563" title="All 2 branches covered.">                for (int p = pStart; p &lt; pEnd; ++p) {</span>
+<span class="fc" id="L1564">                    int k = (p - p0) * jWidth + qStart - q0;</span>
+<span class="fc bfc" id="L1565" title="All 2 branches covered.">                    for (int q = qStart; q &lt; qEnd; ++q) {</span>
+<span class="fc" id="L1566">                        visitor.visit(p, q, block[k]);</span>
+<span class="fc" id="L1567">                        ++k;</span>
+                    }
+                }
+            }
+        }
+<span class="fc" id="L1572">        return visitor.end();</span>
+    }
+
+    /**
+     * Get the height of a block.
+     * @param blockRow row index (in block sense) of the block
+     * @return height (number of rows) of the block
+     */
+    private int blockHeight(final int blockRow) {
+<span class="fc bfc" id="L1581" title="All 2 branches covered.">        return (blockRow == blockRows - 1) ? rows - blockRow * BLOCK_SIZE : BLOCK_SIZE;</span>
+    }
+
+    /**
+     * Get the width of a block.
+     * @param blockColumn column index (in block sense) of the block
+     * @return width (number of columns) of the block
+     */
+    private int blockWidth(final int blockColumn) {
+<span class="fc bfc" id="L1590" title="All 2 branches covered.">        return (blockColumn == blockColumns - 1) ? columns - blockColumn * BLOCK_SIZE : BLOCK_SIZE;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

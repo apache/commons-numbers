@@ -1,0 +1,23 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+<title>org.apache.commons.math3.fraction (Apache Commons Math 3.5 Test API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<h1 class="bar"><a href="../../../../../org/apache/commons/math3/fraction/package-summary.html" target="classFrame">org.apache.commons.math3.fraction</a></h1>
+<div class="indexContainer">
+<h2 title="Classes">Classes</h2>
+<ul title="Classes">
+<li><a href="BigFractionFieldTest.html" title="class in org.apache.commons.math3.fraction" target="classFrame">BigFractionFieldTest</a></li>
+<li><a href="BigFractionFormatTest.html" title="class in org.apache.commons.math3.fraction" target="classFrame">BigFractionFormatTest</a></li>
+<li><a href="BigFractionTest.html" title="class in org.apache.commons.math3.fraction" target="classFrame">BigFractionTest</a></li>
+<li><a href="FractionFieldTest.html" title="class in org.apache.commons.math3.fraction" target="classFrame">FractionFieldTest</a></li>
+<li><a href="FractionFormatTest.html" title="class in org.apache.commons.math3.fraction" target="classFrame">FractionFormatTest</a></li>
+<li><a href="FractionTest.html" title="class in org.apache.commons.math3.fraction" target="classFrame">FractionTest</a></li>
+</ul>
+</div>
+</body>
+</html>

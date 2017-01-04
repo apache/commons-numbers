@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>HighamHall54FieldIntegrator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.ode.nonstiff</a> &gt; <span class="el_source">HighamHall54FieldIntegrator.java</span></div><h1>HighamHall54FieldIntegrator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.ode.nonstiff;
+
+import org.apache.commons.math3.Field;
+import org.apache.commons.math3.RealFieldElement;
+import org.apache.commons.math3.ode.FieldEquationsMapper;
+import org.apache.commons.math3.ode.FieldODEStateAndDerivative;
+import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.math3.util.MathUtils;
+
+
+/**
+ * This class implements the 5(4) Higham and Hall integrator for
+ * Ordinary Differential Equations.
+ *
+ * &lt;p&gt;This integrator is an embedded Runge-Kutta integrator
+ * of order 5(4) used in local extrapolation mode (i.e. the solution
+ * is computed using the high order formula) with stepsize control
+ * (and automatic step initialization) and continuous output. This
+ * method uses 7 functions evaluations per step.&lt;/p&gt;
+ *
+ * @param &lt;T&gt; the type of the field elements
+ * @since 3.6
+ */
+
+public class HighamHall54FieldIntegrator&lt;T extends RealFieldElement&lt;T&gt;&gt;
+    extends EmbeddedRungeKuttaFieldIntegrator&lt;T&gt; {
+
+    /** Integrator method name. */
+    private static final String METHOD_NAME = &quot;Higham-Hall 5(4)&quot;;
+
+    /** Error weights Butcher array. */
+    private final T[] e ;
+
+    /** Simple constructor.
+     * Build a fifth order Higham and Hall integrator with the given step bounds
+     * @param field field to which the time and state vector elements belong
+     * @param minStep minimal step (sign is irrelevant, regardless of
+     * integration direction, forward or backward), the last step can
+     * be smaller than this
+     * @param maxStep maximal step (sign is irrelevant, regardless of
+     * integration direction, forward or backward), the last step can
+     * be smaller than this
+     * @param scalAbsoluteTolerance allowed absolute error
+     * @param scalRelativeTolerance allowed relative error
+     */
+    public HighamHall54FieldIntegrator(final Field&lt;T&gt; field,
+                                       final double minStep, final double maxStep,
+                                       final double scalAbsoluteTolerance,
+                                       final double scalRelativeTolerance) {
+<span class="fc" id="L67">        super(field, METHOD_NAME, -1,</span>
+              minStep, maxStep, scalAbsoluteTolerance, scalRelativeTolerance);
+<span class="fc" id="L69">        e = MathArrays.buildArray(field, 7);</span>
+<span class="fc" id="L70">        e[0] = fraction(-1,  20);</span>
+<span class="fc" id="L71">        e[1] = field.getZero();</span>
+<span class="fc" id="L72">        e[2] = fraction(81, 160);</span>
+<span class="fc" id="L73">        e[3] = fraction(-6,   5);</span>
+<span class="fc" id="L74">        e[4] = fraction(25,  32);</span>
+<span class="fc" id="L75">        e[5] = fraction( 1,  16);</span>
+<span class="fc" id="L76">        e[6] = fraction(-1,  10);</span>
+<span class="fc" id="L77">    }</span>
+
+    /** Simple constructor.
+     * Build a fifth order Higham and Hall integrator with the given step bounds
+     * @param field field to which the time and state vector elements belong
+     * @param minStep minimal step (sign is irrelevant, regardless of
+     * integration direction, forward or backward), the last step can
+     * be smaller than this
+     * @param maxStep maximal step (sign is irrelevant, regardless of
+     * integration direction, forward or backward), the last step can
+     * be smaller than this
+     * @param vecAbsoluteTolerance allowed absolute error
+     * @param vecRelativeTolerance allowed relative error
+     */
+    public HighamHall54FieldIntegrator(final Field&lt;T&gt; field,
+                                       final double minStep, final double maxStep,
+                                       final double[] vecAbsoluteTolerance,
+                                       final double[] vecRelativeTolerance) {
+<span class="fc" id="L95">        super(field, METHOD_NAME, -1,</span>
+              minStep, maxStep, vecAbsoluteTolerance, vecRelativeTolerance);
+<span class="fc" id="L97">        e = MathArrays.buildArray(field, 7);</span>
+<span class="fc" id="L98">        e[0] = fraction(-1,  20);</span>
+<span class="fc" id="L99">        e[1] = field.getZero();</span>
+<span class="fc" id="L100">        e[2] = fraction(81, 160);</span>
+<span class="fc" id="L101">        e[3] = fraction(-6,   5);</span>
+<span class="fc" id="L102">        e[4] = fraction(25,  32);</span>
+<span class="fc" id="L103">        e[5] = fraction( 1,  16);</span>
+<span class="fc" id="L104">        e[6] = fraction(-1,  10);</span>
+<span class="fc" id="L105">    }</span>
+
+    /** {@inheritDoc} */
+    public T[] getC() {
+<span class="fc" id="L109">        final T[] c = MathArrays.buildArray(getField(), 6);</span>
+<span class="fc" id="L110">        c[0] = fraction(2, 9);</span>
+<span class="fc" id="L111">        c[1] = fraction(1, 3);</span>
+<span class="fc" id="L112">        c[2] = fraction(1, 2);</span>
+<span class="fc" id="L113">        c[3] = fraction(3, 5);</span>
+<span class="fc" id="L114">        c[4] = getField().getOne();</span>
+<span class="fc" id="L115">        c[5] = getField().getOne();</span>
+<span class="fc" id="L116">        return c;</span>
+    }
+
+    /** {@inheritDoc} */
+    public T[][] getA() {
+<span class="fc" id="L121">        final T[][] a = MathArrays.buildArray(getField(), 6, -1);</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        for (int i = 0; i &lt; a.length; ++i) {</span>
+<span class="fc" id="L123">            a[i] = MathArrays.buildArray(getField(), i + 1);</span>
+        }
+<span class="fc" id="L125">        a[0][0] = fraction(     2,     9);</span>
+<span class="fc" id="L126">        a[1][0] = fraction(     1,    12);</span>
+<span class="fc" id="L127">        a[1][1] = fraction(     1,     4);</span>
+<span class="fc" id="L128">        a[2][0] = fraction(     1,     8);</span>
+<span class="fc" id="L129">        a[2][1] = getField().getZero();</span>
+<span class="fc" id="L130">        a[2][2] = fraction(     3,     8);</span>
+<span class="fc" id="L131">        a[3][0] = fraction(    91,   500);</span>
+<span class="fc" id="L132">        a[3][1] = fraction(   -27,   100);</span>
+<span class="fc" id="L133">        a[3][2] = fraction(    78,   125);</span>
+<span class="fc" id="L134">        a[3][3] = fraction(     8,   125);</span>
+<span class="fc" id="L135">        a[4][0] = fraction(   -11,    20);</span>
+<span class="fc" id="L136">        a[4][1] = fraction(    27,    20);</span>
+<span class="fc" id="L137">        a[4][2] = fraction(    12,     5);</span>
+<span class="fc" id="L138">        a[4][3] = fraction(   -36,     5);</span>
+<span class="fc" id="L139">        a[4][4] = fraction(     5,     1);</span>
+<span class="fc" id="L140">        a[5][0] = fraction(     1,    12);</span>
+<span class="fc" id="L141">        a[5][1] = getField().getZero();</span>
+<span class="fc" id="L142">        a[5][2] = fraction(    27,    32);</span>
+<span class="fc" id="L143">        a[5][3] = fraction(    -4,     3);</span>
+<span class="fc" id="L144">        a[5][4] = fraction(   125,    96);</span>
+<span class="fc" id="L145">        a[5][5] = fraction(     5,    48);</span>
+<span class="fc" id="L146">        return a;</span>
+    }
+
+    /** {@inheritDoc} */
+    public T[] getB() {
+<span class="fc" id="L151">        final T[] b = MathArrays.buildArray(getField(), 7);</span>
+<span class="fc" id="L152">        b[0] = fraction(  1, 12);</span>
+<span class="fc" id="L153">        b[1] = getField().getZero();</span>
+<span class="fc" id="L154">        b[2] = fraction( 27, 32);</span>
+<span class="fc" id="L155">        b[3] = fraction( -4,  3);</span>
+<span class="fc" id="L156">        b[4] = fraction(125, 96);</span>
+<span class="fc" id="L157">        b[5] = fraction(  5, 48);</span>
+<span class="fc" id="L158">        b[6] = getField().getZero();</span>
+<span class="fc" id="L159">        return b;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected HighamHall54FieldStepInterpolator&lt;T&gt;
+        createInterpolator(final boolean forward, T[][] yDotK,
+                           final FieldODEStateAndDerivative&lt;T&gt; globalPreviousState,
+                           final FieldODEStateAndDerivative&lt;T&gt; globalCurrentState, final FieldEquationsMapper&lt;T&gt; mapper) {
+<span class="fc" id="L168">        return new HighamHall54FieldStepInterpolator&lt;T&gt;(getField(), forward, yDotK,</span>
+                                                        globalPreviousState, globalCurrentState,
+                                                        globalPreviousState, globalCurrentState,
+                                                        mapper);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int getOrder() {
+<span class="fc" id="L177">        return 5;</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected T estimateError(final T[][] yDotK, final T[] y0, final T[] y1, final T h) {
+
+<span class="fc" id="L184">        T error = getField().getZero();</span>
+
+<span class="fc bfc" id="L186" title="All 2 branches covered.">        for (int j = 0; j &lt; mainSetDimension; ++j) {</span>
+<span class="fc" id="L187">            T errSum = yDotK[0][j].multiply(e[0]);</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">            for (int l = 1; l &lt; e.length; ++l) {</span>
+<span class="fc" id="L189">                errSum = errSum.add(yDotK[l][j].multiply(e[l]));</span>
+            }
+
+<span class="fc" id="L192">            final T yScale = MathUtils.max(y0[j].abs(), y1[j].abs());</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">            final T tol    = (vecAbsoluteTolerance == null) ?</span>
+                             yScale.multiply(scalRelativeTolerance).add(scalAbsoluteTolerance) :
+                             yScale.multiply(vecRelativeTolerance[j]).add(vecAbsoluteTolerance[j]);
+<span class="fc" id="L196">            final T ratio  = h.multiply(errSum).divide(tol);</span>
+<span class="fc" id="L197">            error = error.add(ratio.multiply(ratio));</span>
+
+        }
+
+<span class="fc" id="L201">        return error.divide(mainSetDimension).sqrt();</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

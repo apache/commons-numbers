@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>IterationManager.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.util</a> &gt; <span class="el_source">IterationManager.java</span></div><h1>IterationManager.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.util;
+
+import java.util.Collection;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import org.apache.commons.math3.exception.MaxCountExceededException;
+
+/**
+ * This abstract class provides a general framework for managing iterative
+ * algorithms. The maximum number of iterations can be set, and methods are
+ * provided to monitor the current iteration count. A lightweight event
+ * framework is also provided.
+ *
+ */
+public class IterationManager {
+
+    /** Keeps a count of the number of iterations. */
+    private IntegerSequence.Incrementor iterations;
+
+    /** The collection of all listeners attached to this iterative algorithm. */
+    private final Collection&lt;IterationListener&gt; listeners;
+
+    /**
+     * Creates a new instance of this class.
+     *
+     * @param maxIterations the maximum number of iterations
+     */
+<span class="fc" id="L44">    public IterationManager(final int maxIterations) {</span>
+<span class="fc" id="L45">        this.iterations = IntegerSequence.Incrementor.create().withMaximalCount(maxIterations);</span>
+<span class="fc" id="L46">        this.listeners = new CopyOnWriteArrayList&lt;IterationListener&gt;();</span>
+<span class="fc" id="L47">    }</span>
+
+    /**
+     * Creates a new instance of this class.
+     *
+     * @param maxIterations the maximum number of iterations
+     * @param callBack the function to be called when the maximum number of
+     * iterations has been reached
+     * @throws org.apache.commons.math3.exception.NullArgumentException if {@code callBack} is {@code null}
+     * @since 3.1
+     * @deprecated as of 3.6, replaced with {@link #IterationManager(int,
+     * org.apache.commons.math3.util.IntegerSequence.Incrementor.MaxCountExceededCallback)}
+     */
+    @Deprecated
+    public IterationManager(final int maxIterations,
+                            final Incrementor.MaxCountExceededCallback callBack) {
+<span class="nc" id="L63">        this(maxIterations, new IntegerSequence.Incrementor.MaxCountExceededCallback() {</span>
+            /** {@inheritDoc} */
+            public void trigger(final int maximalCount) throws MaxCountExceededException {
+<span class="nc" id="L66">                callBack.trigger(maximalCount);</span>
+<span class="nc" id="L67">            }</span>
+        });
+<span class="nc" id="L69">    }</span>
+
+    /**
+     * Creates a new instance of this class.
+     *
+     * @param maxIterations the maximum number of iterations
+     * @param callBack the function to be called when the maximum number of
+     * iterations has been reached
+     * @throws org.apache.commons.math3.exception.NullArgumentException if {@code callBack} is {@code null}
+     * @since 3.6
+     */
+    public IterationManager(final int maxIterations,
+<span class="nc" id="L81">                            final IntegerSequence.Incrementor.MaxCountExceededCallback callBack) {</span>
+<span class="nc" id="L82">        this.iterations = IntegerSequence.Incrementor.create().withMaximalCount(maxIterations).withCallback(callBack);</span>
+<span class="nc" id="L83">        this.listeners = new CopyOnWriteArrayList&lt;IterationListener&gt;();</span>
+<span class="nc" id="L84">    }</span>
+
+    /**
+     * Attaches a listener to this manager.
+     *
+     * @param listener A {@code IterationListener} object.
+     */
+    public void addIterationListener(final IterationListener listener) {
+<span class="fc" id="L92">        listeners.add(listener);</span>
+<span class="fc" id="L93">    }</span>
+
+    /**
+     * Informs all registered listeners that the initial phase (prior to the
+     * main iteration loop) has been completed.
+     *
+     * @param e The {@link IterationEvent} object.
+     */
+    public void fireInitializationEvent(final IterationEvent e) {
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        for (IterationListener l : listeners) {</span>
+<span class="fc" id="L103">            l.initializationPerformed(e);</span>
+<span class="fc" id="L104">        }</span>
+<span class="fc" id="L105">    }</span>
+
+    /**
+     * Informs all registered listeners that a new iteration (in the main
+     * iteration loop) has been performed.
+     *
+     * @param e The {@link IterationEvent} object.
+     */
+    public void fireIterationPerformedEvent(final IterationEvent e) {
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        for (IterationListener l : listeners) {</span>
+<span class="fc" id="L115">            l.iterationPerformed(e);</span>
+<span class="fc" id="L116">        }</span>
+<span class="fc" id="L117">    }</span>
+
+    /**
+     * Informs all registered listeners that a new iteration (in the main
+     * iteration loop) has been started.
+     *
+     * @param e The {@link IterationEvent} object.
+     */
+    public void fireIterationStartedEvent(final IterationEvent e) {
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        for (IterationListener l : listeners) {</span>
+<span class="fc" id="L127">            l.iterationStarted(e);</span>
+<span class="fc" id="L128">        }</span>
+<span class="fc" id="L129">    }</span>
+
+    /**
+     * Informs all registered listeners that the final phase (post-iterations)
+     * has been completed.
+     *
+     * @param e The {@link IterationEvent} object.
+     */
+    public void fireTerminationEvent(final IterationEvent e) {
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        for (IterationListener l : listeners) {</span>
+<span class="fc" id="L139">            l.terminationPerformed(e);</span>
+<span class="fc" id="L140">        }</span>
+<span class="fc" id="L141">    }</span>
+
+    /**
+     * Returns the number of iterations of this solver, 0 if no iterations has
+     * been performed yet.
+     *
+     * @return the number of iterations.
+     */
+    public int getIterations() {
+<span class="fc" id="L150">        return iterations.getCount();</span>
+    }
+
+    /**
+     * Returns the maximum number of iterations.
+     *
+     * @return the maximum number of iterations.
+     */
+    public int getMaxIterations() {
+<span class="nc" id="L159">        return iterations.getMaximalCount();</span>
+    }
+
+    /**
+     * Increments the iteration count by one, and throws an exception if the
+     * maximum number of iterations is reached. This method should be called at
+     * the beginning of a new iteration.
+     *
+     * @throws MaxCountExceededException if the maximum number of iterations is
+     * reached.
+     */
+    public void incrementIterationCount()
+        throws MaxCountExceededException {
+<span class="fc" id="L172">        iterations.increment();</span>
+<span class="fc" id="L173">    }</span>
+
+    /**
+     * Removes the specified iteration listener from the list of listeners
+     * currently attached to {@code this} object. Attempting to remove a
+     * listener which was &lt;em&gt;not&lt;/em&gt; previously registered does not cause any
+     * error.
+     *
+     * @param listener The {@link IterationListener} to be removed.
+     */
+    public void removeIterationListener(final IterationListener listener) {
+<span class="nc" id="L184">        listeners.remove(listener);</span>
+<span class="nc" id="L185">    }</span>
+
+    /**
+     * Sets the iteration count to 0. This method must be called during the
+     * initial phase.
+     */
+    public void resetIterationCount() {
+<span class="fc" id="L192">        iterations = iterations.withStart(0);</span>
+<span class="fc" id="L193">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

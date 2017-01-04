@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BSPTreeVisitor.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.geometry.partitioning</a> &gt; <span class="el_source">BSPTreeVisitor.java</span></div><h1>BSPTreeVisitor.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.geometry.partitioning;
+
+import org.apache.commons.math3.geometry.Space;
+
+/** This interface is used to visit {@link BSPTree BSP tree} nodes.
+
+ * &lt;p&gt;Navigation through {@link BSPTree BSP trees} can be done using
+ * two different point of views:&lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;
+ *     the first one is in a node-oriented way using the {@link
+ *     BSPTree#getPlus}, {@link BSPTree#getMinus} and {@link
+ *     BSPTree#getParent} methods. Terminal nodes without associated
+ *     {@link SubHyperplane sub-hyperplanes} can be visited this way,
+ *     there is no constraint in the visit order, and it is possible
+ *     to visit either all nodes or only a subset of the nodes
+ *   &lt;/li&gt;
+ *   &lt;li&gt;
+ *     the second one is in a sub-hyperplane-oriented way using
+ *     classes implementing this interface which obeys the visitor
+ *     design pattern. The visit order is provided by the visitor as
+ *     each node is first encountered. Each node is visited exactly
+ *     once.
+ *   &lt;/li&gt;
+ * &lt;/ul&gt;
+
+ * @param &lt;S&gt; Type of the space.
+
+ * @see BSPTree
+ * @see SubHyperplane
+
+ * @since 3.0
+ */
+public interface BSPTreeVisitor&lt;S extends Space&gt; {
+
+    /** Enumerate for visit order with respect to plus sub-tree, minus sub-tree and cut sub-hyperplane. */
+<span class="pc" id="L53">    enum Order {</span>
+        /** Indicator for visit order plus sub-tree, then minus sub-tree,
+         * and last cut sub-hyperplane.
+         */
+<span class="fc" id="L57">        PLUS_MINUS_SUB,</span>
+
+        /** Indicator for visit order plus sub-tree, then cut sub-hyperplane,
+         * and last minus sub-tree.
+         */
+<span class="fc" id="L62">        PLUS_SUB_MINUS,</span>
+
+        /** Indicator for visit order minus sub-tree, then plus sub-tree,
+         * and last cut sub-hyperplane.
+         */
+<span class="fc" id="L67">        MINUS_PLUS_SUB,</span>
+
+        /** Indicator for visit order minus sub-tree, then cut sub-hyperplane,
+         * and last plus sub-tree.
+         */
+<span class="fc" id="L72">        MINUS_SUB_PLUS,</span>
+
+        /** Indicator for visit order cut sub-hyperplane, then plus sub-tree,
+         * and last minus sub-tree.
+         */
+<span class="fc" id="L77">        SUB_PLUS_MINUS,</span>
+
+        /** Indicator for visit order cut sub-hyperplane, then minus sub-tree,
+         * and last plus sub-tree.
+         */
+<span class="fc" id="L82">        SUB_MINUS_PLUS;</span>
+    }
+
+    /** Determine the visit order for this node.
+     * &lt;p&gt;Before attempting to visit an internal node, this method is
+     * called to determine the desired ordering of the visit. It is
+     * guaranteed that this method will be called before {@link
+     * #visitInternalNode visitInternalNode} for a given node, it will be
+     * called exactly once for each internal node.&lt;/p&gt;
+     * @param node BSP node guaranteed to have a non null cut sub-hyperplane
+     * @return desired visit order, must be one of
+     * {@link Order#PLUS_MINUS_SUB}, {@link Order#PLUS_SUB_MINUS},
+     * {@link Order#MINUS_PLUS_SUB}, {@link Order#MINUS_SUB_PLUS},
+     * {@link Order#SUB_PLUS_MINUS}, {@link Order#SUB_MINUS_PLUS}
+     */
+    Order visitOrder(BSPTree&lt;S&gt; node);
+
+    /** Visit a BSP tree node node having a non-null sub-hyperplane.
+     * &lt;p&gt;It is guaranteed that this method will be called after {@link
+     * #visitOrder visitOrder} has been called for a given node,
+     * it wil be called exactly once for each internal node.&lt;/p&gt;
+     * @param node BSP node guaranteed to have a non null cut sub-hyperplane
+     * @see #visitLeafNode
+     */
+    void visitInternalNode(BSPTree&lt;S&gt; node);
+
+    /** Visit a leaf BSP tree node node having a null sub-hyperplane.
+     * @param node leaf BSP node having a null sub-hyperplane
+     * @see #visitInternalNode
+     */
+    void visitLeafNode(BSPTree&lt;S&gt; node);
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

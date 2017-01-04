@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RandomGeneratorFactory.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.random</a> &gt; <span class="el_source">RandomGeneratorFactory.java</span></div><h1>RandomGeneratorFactory.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.random;
+
+import java.util.Random;
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+
+/**
+ * Utilities for creating {@link RandomGenerator} instances.
+ *
+ * @since 3.3
+ */
+public class RandomGeneratorFactory {
+    /**
+     * Class contains only static methods.
+     */
+<span class="nc" id="L31">    private RandomGeneratorFactory() {}</span>
+
+    /**
+     * Creates a {@link RandomDataGenerator} instance that wraps a
+     * {@link Random} instance.
+     *
+     * @param rng JDK {@link Random} instance that will generate the
+     * the random data.
+     * @return the given RNG, wrapped in a {@link RandomGenerator}.
+     */
+    public static RandomGenerator createRandomGenerator(final Random rng) {
+<span class="fc" id="L42">        return new RandomGenerator() {</span>
+            /** {@inheritDoc} */
+            public void setSeed(int seed) {
+<span class="fc" id="L45">                rng.setSeed((long) seed);</span>
+<span class="fc" id="L46">            }</span>
+
+            /** {@inheritDoc} */
+            public void setSeed(int[] seed) {
+<span class="nc" id="L50">                rng.setSeed(convertToLong(seed));</span>
+<span class="nc" id="L51">            }</span>
+
+            /** {@inheritDoc} */
+            public void setSeed(long seed) {
+<span class="fc" id="L55">                rng.setSeed(seed);</span>
+<span class="fc" id="L56">            }</span>
+
+            /** {@inheritDoc} */
+            public void nextBytes(byte[] bytes) {
+<span class="fc" id="L60">                rng.nextBytes(bytes);</span>
+<span class="fc" id="L61">            }</span>
+
+            /** {@inheritDoc} */
+            public int nextInt() {
+<span class="fc" id="L65">                return rng.nextInt();</span>
+            }
+
+            /** {@inheritDoc} */
+            public int nextInt(int n) {
+<span class="fc bfc" id="L70" title="All 2 branches covered.">                if (n &lt;= 0) {</span>
+<span class="fc" id="L71">                    throw new NotStrictlyPositiveException(n);</span>
+                }
+<span class="fc" id="L73">                return rng.nextInt(n);</span>
+            }
+
+            /** {@inheritDoc} */
+            public long nextLong() {
+<span class="fc" id="L78">                return rng.nextLong();</span>
+            }
+
+            /** {@inheritDoc} */
+            public boolean nextBoolean() {
+<span class="fc" id="L83">                return rng.nextBoolean();</span>
+            }
+
+            /** {@inheritDoc} */
+            public float nextFloat() {
+<span class="fc" id="L88">                return rng.nextFloat();</span>
+            }
+
+            /** {@inheritDoc} */
+            public double nextDouble() {
+<span class="fc" id="L93">                return rng.nextDouble();</span>
+            }
+
+            /** {@inheritDoc} */
+            public double nextGaussian() {
+<span class="fc" id="L98">                return rng.nextGaussian();</span>
+            }
+        };
+    }
+
+    /**
+     * Converts seed from one representation to another.
+     *
+     * @param seed Original seed.
+     * @return the converted seed.
+     */
+    public static long convertToLong(int[] seed) {
+        // The following number is the largest prime that fits
+        // in 32 bits (i.e. 2^32 - 5).
+<span class="nc" id="L112">        final long prime = 4294967291l;</span>
+
+<span class="nc" id="L114">        long combined = 0l;</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        for (int s : seed) {</span>
+<span class="nc" id="L116">            combined = combined * prime + s;</span>
+        }
+
+<span class="nc" id="L119">        return combined;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

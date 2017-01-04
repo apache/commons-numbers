@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>UnivariateOptimizer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.optim.univariate</a> &gt; <span class="el_source">UnivariateOptimizer.java</span></div><h1>UnivariateOptimizer.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.optim.univariate;
+
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.optim.BaseOptimizer;
+import org.apache.commons.math3.optim.OptimizationData;
+import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
+import org.apache.commons.math3.optim.ConvergenceChecker;
+import org.apache.commons.math3.exception.TooManyEvaluationsException;
+
+/**
+ * Base class for a univariate scalar function optimizer.
+ *
+ * @since 3.1
+ */
+public abstract class UnivariateOptimizer
+    extends BaseOptimizer&lt;UnivariatePointValuePair&gt; {
+    /** Objective function. */
+    private UnivariateFunction function;
+    /** Type of optimization. */
+    private GoalType goal;
+    /** Initial guess. */
+    private double start;
+    /** Lower bound. */
+    private double min;
+    /** Upper bound. */
+    private double max;
+
+    /**
+     * @param checker Convergence checker.
+     */
+    protected UnivariateOptimizer(ConvergenceChecker&lt;UnivariatePointValuePair&gt; checker) {
+<span class="fc" id="L48">        super(checker);</span>
+<span class="fc" id="L49">    }</span>
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param optData Optimization data. In addition to those documented in
+     * {@link BaseOptimizer#parseOptimizationData(OptimizationData[])
+     * BaseOptimizer}, this method will register the following data:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@link GoalType}&lt;/li&gt;
+     *  &lt;li&gt;{@link SearchInterval}&lt;/li&gt;
+     *  &lt;li&gt;{@link UnivariateObjectiveFunction}&lt;/li&gt;
+     * &lt;/ul&gt;
+     * @return {@inheritDoc}
+     * @throws TooManyEvaluationsException if the maximal number of
+     * evaluations is exceeded.
+     */
+    @Override
+    public UnivariatePointValuePair optimize(OptimizationData... optData)
+        throws TooManyEvaluationsException {
+        // Perform computation.
+<span class="fc" id="L70">        return super.optimize(optData);</span>
+    }
+
+    /**
+     * @return the optimization type.
+     */
+    public GoalType getGoalType() {
+<span class="fc" id="L77">        return goal;</span>
+    }
+
+    /**
+     * Scans the list of (required and optional) optimization data that
+     * characterize the problem.
+     *
+     * @param optData Optimization data.
+     * The following data will be looked for:
+     * &lt;ul&gt;
+     *  &lt;li&gt;{@link GoalType}&lt;/li&gt;
+     *  &lt;li&gt;{@link SearchInterval}&lt;/li&gt;
+     *  &lt;li&gt;{@link UnivariateObjectiveFunction}&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+    @Override
+    protected void parseOptimizationData(OptimizationData... optData) {
+        // Allow base class to register its own data.
+<span class="fc" id="L95">        super.parseOptimizationData(optData);</span>
+
+        // The existing values (as set by the previous call) are reused if
+        // not provided in the argument list.
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        for (OptimizationData data : optData) {</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">            if (data instanceof SearchInterval) {</span>
+<span class="fc" id="L101">                final SearchInterval interval = (SearchInterval) data;</span>
+<span class="fc" id="L102">                min = interval.getMin();</span>
+<span class="fc" id="L103">                max = interval.getMax();</span>
+<span class="fc" id="L104">                start = interval.getStartValue();</span>
+<span class="fc" id="L105">                continue;</span>
+            }
+<span class="fc bfc" id="L107" title="All 2 branches covered.">            if (data instanceof UnivariateObjectiveFunction) {</span>
+<span class="fc" id="L108">                function = ((UnivariateObjectiveFunction) data).getObjectiveFunction();</span>
+<span class="fc" id="L109">                continue;</span>
+            }
+<span class="fc bfc" id="L111" title="All 2 branches covered.">            if (data instanceof GoalType) {</span>
+<span class="fc" id="L112">                goal = (GoalType) data;</span>
+<span class="fc" id="L113">                continue;</span>
+            }
+        }
+<span class="fc" id="L116">    }</span>
+
+    /**
+     * @return the initial guess.
+     */
+    public double getStartValue() {
+<span class="fc" id="L122">        return start;</span>
+    }
+    /**
+     * @return the lower bounds.
+     */
+    public double getMin() {
+<span class="fc" id="L128">        return min;</span>
+    }
+    /**
+     * @return the upper bounds.
+     */
+    public double getMax() {
+<span class="fc" id="L134">        return max;</span>
+    }
+
+    /**
+     * Computes the objective function value.
+     * This method &lt;em&gt;must&lt;/em&gt; be called by subclasses to enforce the
+     * evaluation counter limit.
+     *
+     * @param x Point at which the objective function must be evaluated.
+     * @return the objective function value at the specified point.
+     * @throws TooManyEvaluationsException if the maximal number of
+     * evaluations is exceeded.
+     */
+    protected double computeObjectiveValue(double x) {
+<span class="fc" id="L148">        super.incrementEvaluationCount();</span>
+<span class="fc" id="L149">        return function.value(x);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

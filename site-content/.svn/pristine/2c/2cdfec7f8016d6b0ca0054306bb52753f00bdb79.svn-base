@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>PoissonDistribution.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.distribution</a> &gt; <span class="el_source">PoissonDistribution.java</span></div><h1>PoissonDistribution.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.distribution;
+
+import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.Well19937c;
+import org.apache.commons.math3.special.Gamma;
+import org.apache.commons.math3.util.CombinatoricsUtils;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * Implementation of the Poisson distribution.
+ *
+ * @see &lt;a href=&quot;http://en.wikipedia.org/wiki/Poisson_distribution&quot;&gt;Poisson distribution (Wikipedia)&lt;/a&gt;
+ * @see &lt;a href=&quot;http://mathworld.wolfram.com/PoissonDistribution.html&quot;&gt;Poisson distribution (MathWorld)&lt;/a&gt;
+ */
+public class PoissonDistribution extends AbstractIntegerDistribution {
+    /**
+     * Default maximum number of iterations for cumulative probability calculations.
+     * @since 2.1
+     */
+    public static final int DEFAULT_MAX_ITERATIONS = 10000000;
+    /**
+     * Default convergence criterion.
+     * @since 2.1
+     */
+    public static final double DEFAULT_EPSILON = 1e-12;
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = -3349935121172596109L;
+    /** Distribution used to compute normal approximation. */
+    private final NormalDistribution normal;
+    /** Distribution needed for the {@link #sample()} method. */
+    private final ExponentialDistribution exponential;
+    /** Mean of the distribution. */
+    private final double mean;
+
+    /**
+     * Maximum number of iterations for cumulative probability. Cumulative
+     * probabilities are estimated using either Lanczos series approximation
+     * of {@link Gamma#regularizedGammaP(double, double, double, int)}
+     * or continued fraction approximation of
+     * {@link Gamma#regularizedGammaQ(double, double, double, int)}.
+     */
+    private final int maxIterations;
+
+    /** Convergence criterion for cumulative probability. */
+    private final double epsilon;
+
+    /**
+     * Creates a new Poisson distribution with specified mean.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; this constructor will implicitly create an instance of
+     * {@link Well19937c} as random generator to be used for sampling only (see
+     * {@link #sample()} and {@link #sample(int)}). In case no sampling is
+     * needed for the created distribution, it is advised to pass {@code null}
+     * as random generator via the appropriate constructors to avoid the
+     * additional initialisation overhead.
+     *
+     * @param p the Poisson mean
+     * @throws NotStrictlyPositiveException if {@code p &lt;= 0}.
+     */
+    public PoissonDistribution(double p) throws NotStrictlyPositiveException {
+<span class="fc" id="L80">        this(p, DEFAULT_EPSILON, DEFAULT_MAX_ITERATIONS);</span>
+<span class="fc" id="L81">    }</span>
+
+    /**
+     * Creates a new Poisson distribution with specified mean, convergence
+     * criterion and maximum number of iterations.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; this constructor will implicitly create an instance of
+     * {@link Well19937c} as random generator to be used for sampling only (see
+     * {@link #sample()} and {@link #sample(int)}). In case no sampling is
+     * needed for the created distribution, it is advised to pass {@code null}
+     * as random generator via the appropriate constructors to avoid the
+     * additional initialisation overhead.
+     *
+     * @param p Poisson mean.
+     * @param epsilon Convergence criterion for cumulative probabilities.
+     * @param maxIterations the maximum number of iterations for cumulative
+     * probabilities.
+     * @throws NotStrictlyPositiveException if {@code p &lt;= 0}.
+     * @since 2.1
+     */
+    public PoissonDistribution(double p, double epsilon, int maxIterations)
+    throws NotStrictlyPositiveException {
+<span class="fc" id="L103">        this(new Well19937c(), p, epsilon, maxIterations);</span>
+<span class="fc" id="L104">    }</span>
+
+    /**
+     * Creates a new Poisson distribution with specified mean, convergence
+     * criterion and maximum number of iterations.
+     *
+     * @param rng Random number generator.
+     * @param p Poisson mean.
+     * @param epsilon Convergence criterion for cumulative probabilities.
+     * @param maxIterations the maximum number of iterations for cumulative
+     * probabilities.
+     * @throws NotStrictlyPositiveException if {@code p &lt;= 0}.
+     * @since 3.1
+     */
+    public PoissonDistribution(RandomGenerator rng,
+                               double p,
+                               double epsilon,
+                               int maxIterations)
+    throws NotStrictlyPositiveException {
+<span class="fc" id="L123">        super(rng);</span>
+
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (p &lt;= 0) {</span>
+<span class="fc" id="L126">            throw new NotStrictlyPositiveException(LocalizedFormats.MEAN, p);</span>
+        }
+<span class="fc" id="L128">        mean = p;</span>
+<span class="fc" id="L129">        this.epsilon = epsilon;</span>
+<span class="fc" id="L130">        this.maxIterations = maxIterations;</span>
+
+        // Use the same RNG instance as the parent class.
+<span class="fc" id="L133">        normal = new NormalDistribution(rng, p, FastMath.sqrt(p),</span>
+                                        NormalDistribution.DEFAULT_INVERSE_ABSOLUTE_ACCURACY);
+<span class="fc" id="L135">        exponential = new ExponentialDistribution(rng, 1,</span>
+                                                  ExponentialDistribution.DEFAULT_INVERSE_ABSOLUTE_ACCURACY);
+<span class="fc" id="L137">    }</span>
+
+    /**
+     * Creates a new Poisson distribution with the specified mean and
+     * convergence criterion.
+     *
+     * @param p Poisson mean.
+     * @param epsilon Convergence criterion for cumulative probabilities.
+     * @throws NotStrictlyPositiveException if {@code p &lt;= 0}.
+     * @since 2.1
+     */
+    public PoissonDistribution(double p, double epsilon)
+    throws NotStrictlyPositiveException {
+<span class="nc" id="L150">        this(p, epsilon, DEFAULT_MAX_ITERATIONS);</span>
+<span class="nc" id="L151">    }</span>
+
+    /**
+     * Creates a new Poisson distribution with the specified mean and maximum
+     * number of iterations.
+     *
+     * @param p Poisson mean.
+     * @param maxIterations Maximum number of iterations for cumulative
+     * probabilities.
+     * @since 2.1
+     */
+    public PoissonDistribution(double p, int maxIterations) {
+<span class="nc" id="L163">        this(p, DEFAULT_EPSILON, maxIterations);</span>
+<span class="nc" id="L164">    }</span>
+
+    /**
+     * Get the mean for the distribution.
+     *
+     * @return the mean for the distribution.
+     */
+    public double getMean() {
+<span class="fc" id="L172">        return mean;</span>
+    }
+
+    /** {@inheritDoc} */
+    public double probability(int x) {
+<span class="fc" id="L177">        final double logProbability = logProbability(x);</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">        return logProbability == Double.NEGATIVE_INFINITY ? 0 : FastMath.exp(logProbability);</span>
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public double logProbability(int x) {
+        double ret;
+<span class="pc bpc" id="L185" title="1 of 4 branches missed.">        if (x &lt; 0 || x == Integer.MAX_VALUE) {</span>
+<span class="fc" id="L186">            ret = Double.NEGATIVE_INFINITY;</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">        } else if (x == 0) {</span>
+<span class="fc" id="L188">            ret = -mean;</span>
+        } else {
+<span class="fc" id="L190">            ret = -SaddlePointExpansion.getStirlingError(x) -</span>
+                  SaddlePointExpansion.getDeviancePart(x, mean) -
+                  0.5 * FastMath.log(MathUtils.TWO_PI) - 0.5 * FastMath.log(x);
+        }
+<span class="fc" id="L194">        return ret;</span>
+    }
+
+    /** {@inheritDoc} */
+    public double cumulativeProbability(int x) {
+<span class="fc bfc" id="L199" title="All 2 branches covered.">        if (x &lt; 0) {</span>
+<span class="fc" id="L200">            return 0;</span>
+        }
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">        if (x == Integer.MAX_VALUE) {</span>
+<span class="nc" id="L203">            return 1;</span>
+        }
+<span class="fc" id="L205">        return Gamma.regularizedGammaQ((double) x + 1, mean, epsilon,</span>
+                                       maxIterations);
+    }
+
+    /**
+     * Calculates the Poisson distribution function using a normal
+     * approximation. The {@code N(mean, sqrt(mean))} distribution is used
+     * to approximate the Poisson distribution. The computation uses
+     * &quot;half-correction&quot; (evaluating the normal distribution function at
+     * {@code x + 0.5}).
+     *
+     * @param x Upper bound, inclusive.
+     * @return the distribution function value calculated using a normal
+     * approximation.
+     */
+    public double normalApproximateProbability(int x)  {
+        // calculate the probability using half-correction
+<span class="fc" id="L222">        return normal.cumulativeProbability(x + 0.5);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For mean parameter {@code p}, the mean is {@code p}.
+     */
+    public double getNumericalMean() {
+<span class="fc" id="L231">        return getMean();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * For mean parameter {@code p}, the variance is {@code p}.
+     */
+    public double getNumericalVariance() {
+<span class="fc" id="L240">        return getMean();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The lower bound of the support is always 0 no matter the mean parameter.
+     *
+     * @return lower bound of the support (always 0)
+     */
+    public int getSupportLowerBound() {
+<span class="fc" id="L251">        return 0;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The upper bound of the support is positive infinity,
+     * regardless of the parameter values. There is no integer infinity,
+     * so this method returns {@code Integer.MAX_VALUE}.
+     *
+     * @return upper bound of the support (always {@code Integer.MAX_VALUE} for
+     * positive infinity)
+     */
+    public int getSupportUpperBound() {
+<span class="fc" id="L265">        return Integer.MAX_VALUE;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The support of this distribution is connected.
+     *
+     * @return {@code true}
+     */
+    public boolean isSupportConnected() {
+<span class="nc" id="L276">        return true;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     * &lt;p&gt;
+     * &lt;strong&gt;Algorithm Description&lt;/strong&gt;:
+     * &lt;ul&gt;
+     *  &lt;li&gt;For small means, uses simulation of a Poisson process
+     *   using Uniform deviates, as described
+     *   &lt;a href=&quot;http://mathaa.epfl.ch/cours/PMMI2001/interactive/rng7.htm&quot;&gt; here&lt;/a&gt;.
+     *   The Poisson process (and hence value returned) is bounded by 1000 * mean.
+     *  &lt;/li&gt;
+     *  &lt;li&gt;For large means, uses the rejection algorithm described in
+     *   &lt;blockquote&gt;
+     *    Devroye, Luc. (1981).&lt;i&gt;The Computer Generation of Poisson Random Variables&lt;/i&gt;&lt;br&gt;
+     *    &lt;strong&gt;Computing&lt;/strong&gt; vol. 26 pp. 197-207.&lt;br&gt;
+     *   &lt;/blockquote&gt;
+     *  &lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;/p&gt;
+     *
+     * @return a random value.
+     * @since 2.2
+     */
+    @Override
+    public int sample() {
+<span class="fc" id="L303">        return (int) FastMath.min(nextPoisson(mean), Integer.MAX_VALUE);</span>
+    }
+
+    /**
+     * @param meanPoisson Mean of the Poisson distribution.
+     * @return the next sample.
+     */
+    private long nextPoisson(double meanPoisson) {
+<span class="fc" id="L311">        final double pivot = 40.0d;</span>
+<span class="fc bfc" id="L312" title="All 2 branches covered.">        if (meanPoisson &lt; pivot) {</span>
+<span class="fc" id="L313">            double p = FastMath.exp(-meanPoisson);</span>
+<span class="fc" id="L314">            long n = 0;</span>
+<span class="fc" id="L315">            double r = 1.0d;</span>
+<span class="fc" id="L316">            double rnd = 1.0d;</span>
+
+<span class="pc bpc" id="L318" title="1 of 2 branches missed.">            while (n &lt; 1000 * meanPoisson) {</span>
+<span class="fc" id="L319">                rnd = random.nextDouble();</span>
+<span class="fc" id="L320">                r *= rnd;</span>
+<span class="fc bfc" id="L321" title="All 2 branches covered.">                if (r &gt;= p) {</span>
+<span class="fc" id="L322">                    n++;</span>
+                } else {
+<span class="fc" id="L324">                    return n;</span>
+                }
+            }
+<span class="nc" id="L327">            return n;</span>
+        } else {
+<span class="fc" id="L329">            final double lambda = FastMath.floor(meanPoisson);</span>
+<span class="fc" id="L330">            final double lambdaFractional = meanPoisson - lambda;</span>
+<span class="fc" id="L331">            final double logLambda = FastMath.log(lambda);</span>
+<span class="fc" id="L332">            final double logLambdaFactorial = CombinatoricsUtils.factorialLog((int) lambda);</span>
+<span class="fc bfc" id="L333" title="All 2 branches covered.">            final long y2 = lambdaFractional &lt; Double.MIN_VALUE ? 0 : nextPoisson(lambdaFractional);</span>
+<span class="fc" id="L334">            final double delta = FastMath.sqrt(lambda * FastMath.log(32 * lambda / FastMath.PI + 1));</span>
+<span class="fc" id="L335">            final double halfDelta = delta / 2;</span>
+<span class="fc" id="L336">            final double twolpd = 2 * lambda + delta;</span>
+<span class="fc" id="L337">            final double a1 = FastMath.sqrt(FastMath.PI * twolpd) * FastMath.exp(1 / (8 * lambda));</span>
+<span class="fc" id="L338">            final double a2 = (twolpd / delta) * FastMath.exp(-delta * (1 + delta) / twolpd);</span>
+<span class="fc" id="L339">            final double aSum = a1 + a2 + 1;</span>
+<span class="fc" id="L340">            final double p1 = a1 / aSum;</span>
+<span class="fc" id="L341">            final double p2 = a2 / aSum;</span>
+<span class="fc" id="L342">            final double c1 = 1 / (8 * lambda);</span>
+
+<span class="fc" id="L344">            double x = 0;</span>
+<span class="fc" id="L345">            double y = 0;</span>
+<span class="fc" id="L346">            double v = 0;</span>
+<span class="fc" id="L347">            int a = 0;</span>
+<span class="fc" id="L348">            double t = 0;</span>
+<span class="fc" id="L349">            double qr = 0;</span>
+<span class="fc" id="L350">            double qa = 0;</span>
+            for (;;) {
+<span class="fc" id="L352">                final double u = random.nextDouble();</span>
+<span class="fc bfc" id="L353" title="All 2 branches covered.">                if (u &lt;= p1) {</span>
+<span class="fc" id="L354">                    final double n = random.nextGaussian();</span>
+<span class="fc" id="L355">                    x = n * FastMath.sqrt(lambda + halfDelta) - 0.5d;</span>
+<span class="pc bpc" id="L356" title="1 of 4 branches missed.">                    if (x &gt; delta || x &lt; -lambda) {</span>
+<span class="nc" id="L357">                        continue;</span>
+                    }
+<span class="fc bfc" id="L359" title="All 2 branches covered.">                    y = x &lt; 0 ? FastMath.floor(x) : FastMath.ceil(x);</span>
+<span class="fc" id="L360">                    final double e = exponential.sample();</span>
+<span class="fc" id="L361">                    v = -e - (n * n / 2) + c1;</span>
+<span class="fc" id="L362">                } else {</span>
+<span class="fc bfc" id="L363" title="All 2 branches covered.">                    if (u &gt; p1 + p2) {</span>
+<span class="fc" id="L364">                        y = lambda;</span>
+<span class="fc" id="L365">                        break;</span>
+                    } else {
+<span class="fc" id="L367">                        x = delta + (twolpd / delta) * exponential.sample();</span>
+<span class="fc" id="L368">                        y = FastMath.ceil(x);</span>
+<span class="fc" id="L369">                        v = -exponential.sample() - delta * (x + 1) / twolpd;</span>
+                    }
+                }
+<span class="fc bfc" id="L372" title="All 2 branches covered.">                a = x &lt; 0 ? 1 : 0;</span>
+<span class="fc" id="L373">                t = y * (y + 1) / (2 * lambda);</span>
+<span class="fc bfc" id="L374" title="All 4 branches covered.">                if (v &lt; -t &amp;&amp; a == 0) {</span>
+<span class="fc" id="L375">                    y = lambda + y;</span>
+<span class="fc" id="L376">                    break;</span>
+                }
+<span class="fc" id="L378">                qr = t * ((2 * y + 1) / (6 * lambda) - 1);</span>
+<span class="fc" id="L379">                qa = qr - (t * t) / (3 * (lambda + a * (y + 1)));</span>
+<span class="fc bfc" id="L380" title="All 2 branches covered.">                if (v &lt; qa) {</span>
+<span class="fc" id="L381">                    y = lambda + y;</span>
+<span class="fc" id="L382">                    break;</span>
+                }
+<span class="fc bfc" id="L384" title="All 2 branches covered.">                if (v &gt; qr) {</span>
+<span class="fc" id="L385">                    continue;</span>
+                }
+<span class="fc bfc" id="L387" title="All 2 branches covered.">                if (v &lt; y * logLambda - CombinatoricsUtils.factorialLog((int) (y + lambda)) + logLambdaFactorial) {</span>
+<span class="fc" id="L388">                    y = lambda + y;</span>
+<span class="fc" id="L389">                    break;</span>
+                }
+<span class="fc" id="L391">            }</span>
+<span class="fc" id="L392">            return y2 + (long) y;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

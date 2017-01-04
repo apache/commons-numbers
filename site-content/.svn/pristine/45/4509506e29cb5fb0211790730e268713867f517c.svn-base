@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>OpenIntToDoubleHashMap.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.util</a> &gt; <span class="el_source">OpenIntToDoubleHashMap.java</span></div><h1>OpenIntToDoubleHashMap.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.util;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.util.ConcurrentModificationException;
+import java.util.NoSuchElementException;
+
+/**
+ * Open addressed map from int to double.
+ * &lt;p&gt;This class provides a dedicated map from integers to doubles with a
+ * much smaller memory overhead than standard &lt;code&gt;java.util.Map&lt;/code&gt;.&lt;/p&gt;
+ * &lt;p&gt;This class is not synchronized. The specialized iterators returned by
+ * {@link #iterator()} are fail-fast: they throw a
+ * &lt;code&gt;ConcurrentModificationException&lt;/code&gt; when they detect the map has been
+ * modified during iteration.&lt;/p&gt;
+ * @since 2.0
+ */
+public class OpenIntToDoubleHashMap implements Serializable {
+
+    /** Status indicator for free table entries. */
+    protected static final byte FREE    = 0;
+
+    /** Status indicator for full table entries. */
+    protected static final byte FULL    = 1;
+
+    /** Status indicator for removed table entries. */
+    protected static final byte REMOVED = 2;
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = -3646337053166149105L;
+
+    /** Load factor for the map. */
+    private static final float LOAD_FACTOR = 0.5f;
+
+    /** Default starting size.
+     * &lt;p&gt;This must be a power of two for bit mask to work properly. &lt;/p&gt;
+     */
+    private static final int DEFAULT_EXPECTED_SIZE = 16;
+
+    /** Multiplier for size growth when map fills up.
+     * &lt;p&gt;This must be a power of two for bit mask to work properly. &lt;/p&gt;
+     */
+    private static final int RESIZE_MULTIPLIER = 2;
+
+    /** Number of bits to perturb the index when probing for collision resolution. */
+    private static final int PERTURB_SHIFT = 5;
+
+    /** Keys table. */
+    private int[] keys;
+
+    /** Values table. */
+    private double[] values;
+
+    /** States table. */
+    private byte[] states;
+
+    /** Return value for missing entries. */
+    private final double missingEntries;
+
+    /** Current size of the map. */
+    private int size;
+
+    /** Bit mask for hash values. */
+    private int mask;
+
+    /** Modifications count. */
+    private transient int count;
+
+    /**
+     * Build an empty map with default size and using NaN for missing entries.
+     */
+    public OpenIntToDoubleHashMap() {
+<span class="fc" id="L91">        this(DEFAULT_EXPECTED_SIZE, Double.NaN);</span>
+<span class="fc" id="L92">    }</span>
+
+    /**
+     * Build an empty map with default size
+     * @param missingEntries value to return when a missing entry is fetched
+     */
+    public OpenIntToDoubleHashMap(final double missingEntries) {
+<span class="fc" id="L99">        this(DEFAULT_EXPECTED_SIZE, missingEntries);</span>
+<span class="fc" id="L100">    }</span>
+
+    /**
+     * Build an empty map with specified size and using NaN for missing entries.
+     * @param expectedSize expected number of elements in the map
+     */
+    public OpenIntToDoubleHashMap(final int expectedSize) {
+<span class="fc" id="L107">        this(expectedSize, Double.NaN);</span>
+<span class="fc" id="L108">    }</span>
+
+    /**
+     * Build an empty map with specified size.
+     * @param expectedSize expected number of elements in the map
+     * @param missingEntries value to return when a missing entry is fetched
+     */
+    public OpenIntToDoubleHashMap(final int expectedSize,
+<span class="fc" id="L116">                                  final double missingEntries) {</span>
+<span class="fc" id="L117">        final int capacity = computeCapacity(expectedSize);</span>
+<span class="fc" id="L118">        keys   = new int[capacity];</span>
+<span class="fc" id="L119">        values = new double[capacity];</span>
+<span class="fc" id="L120">        states = new byte[capacity];</span>
+<span class="fc" id="L121">        this.missingEntries = missingEntries;</span>
+<span class="fc" id="L122">        mask   = capacity - 1;</span>
+<span class="fc" id="L123">    }</span>
+
+    /**
+     * Copy constructor.
+     * @param source map to copy
+     */
+<span class="fc" id="L129">    public OpenIntToDoubleHashMap(final OpenIntToDoubleHashMap source) {</span>
+<span class="fc" id="L130">        final int length = source.keys.length;</span>
+<span class="fc" id="L131">        keys = new int[length];</span>
+<span class="fc" id="L132">        System.arraycopy(source.keys, 0, keys, 0, length);</span>
+<span class="fc" id="L133">        values = new double[length];</span>
+<span class="fc" id="L134">        System.arraycopy(source.values, 0, values, 0, length);</span>
+<span class="fc" id="L135">        states = new byte[length];</span>
+<span class="fc" id="L136">        System.arraycopy(source.states, 0, states, 0, length);</span>
+<span class="fc" id="L137">        missingEntries = source.missingEntries;</span>
+<span class="fc" id="L138">        size  = source.size;</span>
+<span class="fc" id="L139">        mask  = source.mask;</span>
+<span class="fc" id="L140">        count = source.count;</span>
+<span class="fc" id="L141">    }</span>
+
+    /**
+     * Compute the capacity needed for a given size.
+     * @param expectedSize expected size of the map
+     * @return capacity to use for the specified size
+     */
+    private static int computeCapacity(final int expectedSize) {
+<span class="fc bfc" id="L149" title="All 2 branches covered.">        if (expectedSize == 0) {</span>
+<span class="fc" id="L150">            return 1;</span>
+        }
+<span class="fc" id="L152">        final int capacity   = (int) FastMath.ceil(expectedSize / LOAD_FACTOR);</span>
+<span class="fc" id="L153">        final int powerOfTwo = Integer.highestOneBit(capacity);</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        if (powerOfTwo == capacity) {</span>
+<span class="fc" id="L155">            return capacity;</span>
+        }
+<span class="fc" id="L157">        return nextPowerOfTwo(capacity);</span>
+    }
+
+    /**
+     * Find the smallest power of two greater than the input value
+     * @param i input value
+     * @return smallest power of two greater than the input value
+     */
+    private static int nextPowerOfTwo(final int i) {
+<span class="fc" id="L166">        return Integer.highestOneBit(i) &lt;&lt; 1;</span>
+    }
+
+    /**
+     * Get the stored value associated with the given key
+     * @param key key associated with the data
+     * @return data associated with the key
+     */
+    public double get(final int key) {
+
+<span class="fc" id="L176">        final int hash  = hashOf(key);</span>
+<span class="fc" id="L177">        int index = hash &amp; mask;</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">        if (containsKey(key, index)) {</span>
+<span class="fc" id="L179">            return values[index];</span>
+        }
+
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        if (states[index] == FREE) {</span>
+<span class="fc" id="L183">            return missingEntries;</span>
+        }
+
+<span class="fc" id="L186">        int j = index;</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">        for (int perturb = perturb(hash); states[index] != FREE; perturb &gt;&gt;= PERTURB_SHIFT) {</span>
+<span class="fc" id="L188">            j = probe(perturb, j);</span>
+<span class="fc" id="L189">            index = j &amp; mask;</span>
+<span class="fc bfc" id="L190" title="All 2 branches covered.">            if (containsKey(key, index)) {</span>
+<span class="fc" id="L191">                return values[index];</span>
+            }
+        }
+
+<span class="fc" id="L195">        return missingEntries;</span>
+
+    }
+
+    /**
+     * Check if a value is associated with a key.
+     * @param key key to check
+     * @return true if a value is associated with key
+     */
+    public boolean containsKey(final int key) {
+
+<span class="fc" id="L206">        final int hash  = hashOf(key);</span>
+<span class="fc" id="L207">        int index = hash &amp; mask;</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">        if (containsKey(key, index)) {</span>
+<span class="fc" id="L209">            return true;</span>
+        }
+
+<span class="fc bfc" id="L212" title="All 2 branches covered.">        if (states[index] == FREE) {</span>
+<span class="fc" id="L213">            return false;</span>
+        }
+
+<span class="fc" id="L216">        int j = index;</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">        for (int perturb = perturb(hash); states[index] != FREE; perturb &gt;&gt;= PERTURB_SHIFT) {</span>
+<span class="fc" id="L218">            j = probe(perturb, j);</span>
+<span class="fc" id="L219">            index = j &amp; mask;</span>
+<span class="fc bfc" id="L220" title="All 2 branches covered.">            if (containsKey(key, index)) {</span>
+<span class="fc" id="L221">                return true;</span>
+            }
+        }
+
+<span class="fc" id="L225">        return false;</span>
+
+    }
+
+    /**
+     * Get an iterator over map elements.
+     * &lt;p&gt;The specialized iterators returned are fail-fast: they throw a
+     * &lt;code&gt;ConcurrentModificationException&lt;/code&gt; when they detect the map
+     * has been modified during iteration.&lt;/p&gt;
+     * @return iterator over the map elements
+     */
+    public Iterator iterator() {
+<span class="fc" id="L237">        return new Iterator();</span>
+    }
+
+    /**
+     * Perturb the hash for starting probing.
+     * @param hash initial hash
+     * @return perturbed hash
+     */
+    private static int perturb(final int hash) {
+<span class="fc" id="L246">        return hash &amp; 0x7fffffff;</span>
+    }
+
+    /**
+     * Find the index at which a key should be inserted
+     * @param key key to lookup
+     * @return index at which key should be inserted
+     */
+    private int findInsertionIndex(final int key) {
+<span class="fc" id="L255">        return findInsertionIndex(keys, states, key, mask);</span>
+    }
+
+    /**
+     * Find the index at which a key should be inserted
+     * @param keys keys table
+     * @param states states table
+     * @param key key to lookup
+     * @param mask bit mask for hash values
+     * @return index at which key should be inserted
+     */
+    private static int findInsertionIndex(final int[] keys, final byte[] states,
+                                          final int key, final int mask) {
+<span class="fc" id="L268">        final int hash = hashOf(key);</span>
+<span class="fc" id="L269">        int index = hash &amp; mask;</span>
+<span class="fc bfc" id="L270" title="All 2 branches covered.">        if (states[index] == FREE) {</span>
+<span class="fc" id="L271">            return index;</span>
+<span class="fc bfc" id="L272" title="All 4 branches covered.">        } else if (states[index] == FULL &amp;&amp; keys[index] == key) {</span>
+<span class="fc" id="L273">            return changeIndexSign(index);</span>
+        }
+
+<span class="fc" id="L276">        int perturb = perturb(hash);</span>
+<span class="fc" id="L277">        int j = index;</span>
+<span class="fc bfc" id="L278" title="All 2 branches covered.">        if (states[index] == FULL) {</span>
+            while (true) {
+<span class="fc" id="L280">                j = probe(perturb, j);</span>
+<span class="fc" id="L281">                index = j &amp; mask;</span>
+<span class="fc" id="L282">                perturb &gt;&gt;= PERTURB_SHIFT;</span>
+
+<span class="fc bfc" id="L284" title="All 4 branches covered.">                if (states[index] != FULL || keys[index] == key) {</span>
+<span class="fc" id="L285">                    break;</span>
+                }
+            }
+        }
+
+<span class="fc bfc" id="L290" title="All 2 branches covered.">        if (states[index] == FREE) {</span>
+<span class="fc" id="L291">            return index;</span>
+<span class="fc bfc" id="L292" title="All 2 branches covered.">        } else if (states[index] == FULL) {</span>
+            // due to the loop exit condition,
+            // if (states[index] == FULL) then keys[index] == key
+<span class="fc" id="L295">            return changeIndexSign(index);</span>
+        }
+
+<span class="fc" id="L298">        final int firstRemoved = index;</span>
+        while (true) {
+<span class="fc" id="L300">            j = probe(perturb, j);</span>
+<span class="fc" id="L301">            index = j &amp; mask;</span>
+
+<span class="fc bfc" id="L303" title="All 2 branches covered.">            if (states[index] == FREE) {</span>
+<span class="fc" id="L304">                return firstRemoved;</span>
+<span class="fc bfc" id="L305" title="All 4 branches covered.">            } else if (states[index] == FULL &amp;&amp; keys[index] == key) {</span>
+<span class="fc" id="L306">                return changeIndexSign(index);</span>
+            }
+
+<span class="fc" id="L309">            perturb &gt;&gt;= PERTURB_SHIFT;</span>
+
+        }
+
+    }
+
+    /**
+     * Compute next probe for collision resolution
+     * @param perturb perturbed hash
+     * @param j previous probe
+     * @return next probe
+     */
+    private static int probe(final int perturb, final int j) {
+<span class="fc" id="L322">        return (j &lt;&lt; 2) + j + perturb + 1;</span>
+    }
+
+    /**
+     * Change the index sign
+     * @param index initial index
+     * @return changed index
+     */
+    private static int changeIndexSign(final int index) {
+<span class="fc" id="L331">        return -index - 1;</span>
+    }
+
+    /**
+     * Get the number of elements stored in the map.
+     * @return number of elements stored in the map
+     */
+    public int size() {
+<span class="fc" id="L339">        return size;</span>
+    }
+
+
+    /**
+     * Remove the value associated with a key.
+     * @param key key to which the value is associated
+     * @return removed value
+     */
+    public double remove(final int key) {
+
+<span class="fc" id="L350">        final int hash  = hashOf(key);</span>
+<span class="fc" id="L351">        int index = hash &amp; mask;</span>
+<span class="fc bfc" id="L352" title="All 2 branches covered.">        if (containsKey(key, index)) {</span>
+<span class="fc" id="L353">            return doRemove(index);</span>
+        }
+
+<span class="fc bfc" id="L356" title="All 2 branches covered.">        if (states[index] == FREE) {</span>
+<span class="fc" id="L357">            return missingEntries;</span>
+        }
+
+<span class="fc" id="L360">        int j = index;</span>
+<span class="fc bfc" id="L361" title="All 2 branches covered.">        for (int perturb = perturb(hash); states[index] != FREE; perturb &gt;&gt;= PERTURB_SHIFT) {</span>
+<span class="fc" id="L362">            j = probe(perturb, j);</span>
+<span class="fc" id="L363">            index = j &amp; mask;</span>
+<span class="fc bfc" id="L364" title="All 2 branches covered.">            if (containsKey(key, index)) {</span>
+<span class="fc" id="L365">                return doRemove(index);</span>
+            }
+        }
+
+<span class="fc" id="L369">        return missingEntries;</span>
+
+    }
+
+    /**
+     * Check if the tables contain an element associated with specified key
+     * at specified index.
+     * @param key key to check
+     * @param index index to check
+     * @return true if an element is associated with key at index
+     */
+    private boolean containsKey(final int key, final int index) {
+<span class="fc bfc" id="L381" title="All 6 branches covered.">        return (key != 0 || states[index] == FULL) &amp;&amp; keys[index] == key;</span>
+    }
+
+    /**
+     * Remove an element at specified index.
+     * @param index index of the element to remove
+     * @return removed value
+     */
+    private double doRemove(int index) {
+<span class="fc" id="L390">        keys[index]   = 0;</span>
+<span class="fc" id="L391">        states[index] = REMOVED;</span>
+<span class="fc" id="L392">        final double previous = values[index];</span>
+<span class="fc" id="L393">        values[index] = missingEntries;</span>
+<span class="fc" id="L394">        --size;</span>
+<span class="fc" id="L395">        ++count;</span>
+<span class="fc" id="L396">        return previous;</span>
+    }
+
+    /**
+     * Put a value associated with a key in the map.
+     * @param key key to which value is associated
+     * @param value value to put in the map
+     * @return previous value associated with the key
+     */
+    public double put(final int key, final double value) {
+<span class="fc" id="L406">        int index = findInsertionIndex(key);</span>
+<span class="fc" id="L407">        double previous = missingEntries;</span>
+<span class="fc" id="L408">        boolean newMapping = true;</span>
+<span class="fc bfc" id="L409" title="All 2 branches covered.">        if (index &lt; 0) {</span>
+<span class="fc" id="L410">            index = changeIndexSign(index);</span>
+<span class="fc" id="L411">            previous = values[index];</span>
+<span class="fc" id="L412">            newMapping = false;</span>
+        }
+<span class="fc" id="L414">        keys[index]   = key;</span>
+<span class="fc" id="L415">        states[index] = FULL;</span>
+<span class="fc" id="L416">        values[index] = value;</span>
+<span class="fc bfc" id="L417" title="All 2 branches covered.">        if (newMapping) {</span>
+<span class="fc" id="L418">            ++size;</span>
+<span class="fc bfc" id="L419" title="All 2 branches covered.">            if (shouldGrowTable()) {</span>
+<span class="fc" id="L420">                growTable();</span>
+            }
+<span class="fc" id="L422">            ++count;</span>
+        }
+<span class="fc" id="L424">        return previous;</span>
+
+    }
+
+    /**
+     * Grow the tables.
+     */
+    private void growTable() {
+
+<span class="fc" id="L433">        final int oldLength      = states.length;</span>
+<span class="fc" id="L434">        final int[] oldKeys      = keys;</span>
+<span class="fc" id="L435">        final double[] oldValues = values;</span>
+<span class="fc" id="L436">        final byte[] oldStates   = states;</span>
+
+<span class="fc" id="L438">        final int newLength = RESIZE_MULTIPLIER * oldLength;</span>
+<span class="fc" id="L439">        final int[] newKeys = new int[newLength];</span>
+<span class="fc" id="L440">        final double[] newValues = new double[newLength];</span>
+<span class="fc" id="L441">        final byte[] newStates = new byte[newLength];</span>
+<span class="fc" id="L442">        final int newMask = newLength - 1;</span>
+<span class="fc bfc" id="L443" title="All 2 branches covered.">        for (int i = 0; i &lt; oldLength; ++i) {</span>
+<span class="fc bfc" id="L444" title="All 2 branches covered.">            if (oldStates[i] == FULL) {</span>
+<span class="fc" id="L445">                final int key = oldKeys[i];</span>
+<span class="fc" id="L446">                final int index = findInsertionIndex(newKeys, newStates, key, newMask);</span>
+<span class="fc" id="L447">                newKeys[index]   = key;</span>
+<span class="fc" id="L448">                newValues[index] = oldValues[i];</span>
+<span class="fc" id="L449">                newStates[index] = FULL;</span>
+            }
+        }
+
+<span class="fc" id="L453">        mask   = newMask;</span>
+<span class="fc" id="L454">        keys   = newKeys;</span>
+<span class="fc" id="L455">        values = newValues;</span>
+<span class="fc" id="L456">        states = newStates;</span>
+
+<span class="fc" id="L458">    }</span>
+
+    /**
+     * Check if tables should grow due to increased size.
+     * @return true if  tables should grow
+     */
+    private boolean shouldGrowTable() {
+<span class="fc bfc" id="L465" title="All 2 branches covered.">        return size &gt; (mask + 1) * LOAD_FACTOR;</span>
+    }
+
+    /**
+     * Compute the hash value of a key
+     * @param key key to hash
+     * @return hash value of the key
+     */
+    private static int hashOf(final int key) {
+<span class="fc" id="L474">        final int h = key ^ ((key &gt;&gt;&gt; 20) ^ (key &gt;&gt;&gt; 12));</span>
+<span class="fc" id="L475">        return h ^ (h &gt;&gt;&gt; 7) ^ (h &gt;&gt;&gt; 4);</span>
+    }
+
+
+    /** Iterator class for the map. */
+    public class Iterator {
+
+        /** Reference modification count. */
+        private final int referenceCount;
+
+        /** Index of current element. */
+        private int current;
+
+        /** Index of next element. */
+        private int next;
+
+        /**
+         * Simple constructor.
+         */
+<span class="fc" id="L494">        private Iterator() {</span>
+
+            // preserve the modification count of the map to detect concurrent modifications later
+<span class="fc" id="L497">            referenceCount = count;</span>
+
+            // initialize current index
+<span class="fc" id="L500">            next = -1;</span>
+            try {
+<span class="fc" id="L502">                advance();</span>
+<span class="fc" id="L503">            } catch (NoSuchElementException nsee) { // NOPMD</span>
+                // ignored
+<span class="fc" id="L505">            }</span>
+
+<span class="fc" id="L507">        }</span>
+
+        /**
+         * Check if there is a next element in the map.
+         * @return true if there is a next element
+         */
+        public boolean hasNext() {
+<span class="fc bfc" id="L514" title="All 2 branches covered.">            return next &gt;= 0;</span>
+        }
+
+        /**
+         * Get the key of current entry.
+         * @return key of current entry
+         * @exception ConcurrentModificationException if the map is modified during iteration
+         * @exception NoSuchElementException if there is no element left in the map
+         */
+        public int key()
+            throws ConcurrentModificationException, NoSuchElementException {
+<span class="pc bpc" id="L525" title="1 of 2 branches missed.">            if (referenceCount != count) {</span>
+<span class="nc" id="L526">                throw new ConcurrentModificationException();</span>
+            }
+<span class="pc bpc" id="L528" title="1 of 2 branches missed.">            if (current &lt; 0) {</span>
+<span class="nc" id="L529">                throw new NoSuchElementException();</span>
+            }
+<span class="fc" id="L531">            return keys[current];</span>
+        }
+
+        /**
+         * Get the value of current entry.
+         * @return value of current entry
+         * @exception ConcurrentModificationException if the map is modified during iteration
+         * @exception NoSuchElementException if there is no element left in the map
+         */
+        public double value()
+            throws ConcurrentModificationException, NoSuchElementException {
+<span class="pc bpc" id="L542" title="1 of 2 branches missed.">            if (referenceCount != count) {</span>
+<span class="nc" id="L543">                throw new ConcurrentModificationException();</span>
+            }
+<span class="pc bpc" id="L545" title="1 of 2 branches missed.">            if (current &lt; 0) {</span>
+<span class="nc" id="L546">                throw new NoSuchElementException();</span>
+            }
+<span class="fc" id="L548">            return values[current];</span>
+        }
+
+        /**
+         * Advance iterator one step further.
+         * @exception ConcurrentModificationException if the map is modified during iteration
+         * @exception NoSuchElementException if there is no element left in the map
+         */
+        public void advance()
+            throws ConcurrentModificationException, NoSuchElementException {
+
+<span class="fc bfc" id="L559" title="All 2 branches covered.">            if (referenceCount != count) {</span>
+<span class="fc" id="L560">                throw new ConcurrentModificationException();</span>
+            }
+
+            // advance on step
+<span class="fc" id="L564">            current = next;</span>
+
+            // prepare next step
+            try {
+<span class="fc bfc" id="L568" title="All 2 branches covered.">                while (states[++next] != FULL) { // NOPMD</span>
+                    // nothing to do
+                }
+<span class="fc" id="L571">            } catch (ArrayIndexOutOfBoundsException e) {</span>
+<span class="fc" id="L572">                next = -2;</span>
+<span class="fc bfc" id="L573" title="All 2 branches covered.">                if (current &lt; 0) {</span>
+<span class="fc" id="L574">                    throw new NoSuchElementException();</span>
+                }
+<span class="fc" id="L576">            }</span>
+
+<span class="fc" id="L578">        }</span>
+
+    }
+
+    /**
+     * Read a serialized object.
+     * @param stream input stream
+     * @throws IOException if object cannot be read
+     * @throws ClassNotFoundException if the class corresponding
+     * to the serialized object cannot be found
+     */
+    private void readObject(final ObjectInputStream stream)
+        throws IOException, ClassNotFoundException {
+<span class="fc" id="L591">        stream.defaultReadObject();</span>
+<span class="fc" id="L592">        count = 0;</span>
+<span class="fc" id="L593">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

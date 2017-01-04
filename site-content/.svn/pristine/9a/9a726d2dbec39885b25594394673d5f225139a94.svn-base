@@ -1,0 +1,274 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<title>Apache Commons Math 3.6.1 Reference Package org.apache.commons.math3.distribution</title>
+		<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="style" />
+	</head>
+	<body>
+		      	<div class="overview">
+        	<ul>
+          		<li>
+            		<a href="../../../../../overview-summary.html">Overview</a>
+          		</li>
+          		<li class="selected">Package</li>
+        	</ul>
+      	</div>
+      	<div class="framenoframe">
+        	<ul>
+          		<li>
+            		<a href="../../../../../index.html" target="_top">FRAMES</a>
+          		</li>
+          		<li>
+            		<a href="package-summary.html" target="_top">NO FRAMES</a>
+          		</li>
+        	</ul>
+      	</div>
+		
+		      	<h2>Package org.apache.commons.math3.distribution</h2>
+
+		<table class="summary">
+        	<thead>
+          		<tr>
+            		<th>Class Summary</th>
+          		</tr>
+        	</thead>
+        	<tbody>
+        		            	<tr>
+              		<td>
+                		<a href="AbstractIntegerDistribution.html" target="classFrame">AbstractIntegerDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="AbstractMultivariateRealDistribution.html" target="classFrame">AbstractMultivariateRealDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="AbstractRealDistribution.html" target="classFrame">AbstractRealDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="BetaDistribution.html" target="classFrame">BetaDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="BinomialDistribution.html" target="classFrame">BinomialDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="CauchyDistribution.html" target="classFrame">CauchyDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="BetaDistribution.html" target="classFrame">ChengBetaSampler</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="ChiSquaredDistribution.html" target="classFrame">ChiSquaredDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="ConstantRealDistribution.html" target="classFrame">ConstantRealDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="EnumeratedDistribution.html" target="classFrame">EnumeratedDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="EnumeratedIntegerDistribution.html" target="classFrame">EnumeratedIntegerDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="EnumeratedRealDistribution.html" target="classFrame">EnumeratedRealDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="ExponentialDistribution.html" target="classFrame">ExponentialDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="FDistribution.html" target="classFrame">FDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="GammaDistribution.html" target="classFrame">GammaDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="GeometricDistribution.html" target="classFrame">GeometricDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="GumbelDistribution.html" target="classFrame">GumbelDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="HypergeometricDistribution.html" target="classFrame">HypergeometricDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="IntegerDistribution.html" target="classFrame">IntegerDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="KolmogorovSmirnovDistribution.html" target="classFrame">KolmogorovSmirnovDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="LaplaceDistribution.html" target="classFrame">LaplaceDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="LevyDistribution.html" target="classFrame">LevyDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="LogNormalDistribution.html" target="classFrame">LogNormalDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="LogisticDistribution.html" target="classFrame">LogisticDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MixtureMultivariateNormalDistribution.html" target="classFrame">MixtureMultivariateNormalDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MixtureMultivariateRealDistribution.html" target="classFrame">MixtureMultivariateRealDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MultivariateNormalDistribution.html" target="classFrame">MultivariateNormalDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="MultivariateRealDistribution.html" target="classFrame">MultivariateRealDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="NakagamiDistribution.html" target="classFrame">NakagamiDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="NormalDistribution.html" target="classFrame">NormalDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="ParetoDistribution.html" target="classFrame">ParetoDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="PascalDistribution.html" target="classFrame">PascalDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="PoissonDistribution.html" target="classFrame">PoissonDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="RealDistribution.html" target="classFrame">RealDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="SaddlePointExpansion.html" target="classFrame">SaddlePointExpansion</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="TDistribution.html" target="classFrame">TDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="TriangularDistribution.html" target="classFrame">TriangularDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="UniformIntegerDistribution.html" target="classFrame">UniformIntegerDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="UniformRealDistribution.html" target="classFrame">UniformRealDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="WeibullDistribution.html" target="classFrame">WeibullDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="ZipfDistribution.html" target="classFrame">ZipfDistribution</a>
+              		</td>
+            	</tr>
+				            	<tr>
+              		<td>
+                		<a href="ZipfDistribution.html" target="classFrame">ZipfRejectionInversionSampler</a>
+              		</td>
+            	</tr>
+				        	</tbody>
+      	</table>
+		
+		      	<div class="overview">
+        	<ul>
+          		<li>
+            		<a href="../../../../../overview-summary.html">Overview</a>
+          		</li>
+          		<li class="selected">Package</li>
+        	</ul>
+      	</div>
+      	<div class="framenoframe">
+        	<ul>
+          		<li>
+            		<a href="../../../../../index.html" target="_top">FRAMES</a>
+          		</li>
+          		<li>
+            		<a href="package-summary.html" target="_top">NO FRAMES</a>
+          		</li>
+        	</ul>
+      	</div>
+				<hr />
+		<div id="footer">
+			Copyright &#169; 2003&#x2013;2016 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All rights reserved.
+		</div>
+	</body>
+</html>

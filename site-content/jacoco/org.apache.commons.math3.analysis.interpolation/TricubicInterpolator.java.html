@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TricubicInterpolator.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.interpolation</a> &gt; <span class="el_source">TricubicInterpolator.java</span></div><h1>TricubicInterpolator.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.analysis.interpolation;
+
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.NonMonotonicSequenceException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.apache.commons.math3.util.MathArrays;
+
+/**
+ * Generates a tricubic interpolating function.
+ *
+ * @since 3.4
+ */
+<span class="fc" id="L30">public class TricubicInterpolator</span>
+    implements TrivariateGridInterpolator {
+    /**
+     * {@inheritDoc}
+     */
+    public TricubicInterpolatingFunction interpolate(final double[] xval,
+                                                     final double[] yval,
+                                                     final double[] zval,
+                                                     final double[][][] fval)
+        throws NoDataException, NumberIsTooSmallException,
+               DimensionMismatchException, NonMonotonicSequenceException {
+<span class="pc bpc" id="L41" title="4 of 8 branches missed.">        if (xval.length == 0 || yval.length == 0 || zval.length == 0 || fval.length == 0) {</span>
+<span class="nc" id="L42">            throw new NoDataException();</span>
+        }
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (xval.length != fval.length) {</span>
+<span class="fc" id="L45">            throw new DimensionMismatchException(xval.length, fval.length);</span>
+        }
+
+<span class="fc" id="L48">        MathArrays.checkOrder(xval);</span>
+<span class="fc" id="L49">        MathArrays.checkOrder(yval);</span>
+<span class="fc" id="L50">        MathArrays.checkOrder(zval);</span>
+
+<span class="fc" id="L52">        final int xLen = xval.length;</span>
+<span class="fc" id="L53">        final int yLen = yval.length;</span>
+<span class="fc" id="L54">        final int zLen = zval.length;</span>
+
+        // Approximation to the partial derivatives using finite differences.
+<span class="fc" id="L57">        final double[][][] dFdX = new double[xLen][yLen][zLen];</span>
+<span class="fc" id="L58">        final double[][][] dFdY = new double[xLen][yLen][zLen];</span>
+<span class="fc" id="L59">        final double[][][] dFdZ = new double[xLen][yLen][zLen];</span>
+<span class="fc" id="L60">        final double[][][] d2FdXdY = new double[xLen][yLen][zLen];</span>
+<span class="fc" id="L61">        final double[][][] d2FdXdZ = new double[xLen][yLen][zLen];</span>
+<span class="fc" id="L62">        final double[][][] d2FdYdZ = new double[xLen][yLen][zLen];</span>
+<span class="fc" id="L63">        final double[][][] d3FdXdYdZ = new double[xLen][yLen][zLen];</span>
+
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        for (int i = 1; i &lt; xLen - 1; i++) {</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">            if (yval.length != fval[i].length) {</span>
+<span class="fc" id="L67">                throw new DimensionMismatchException(yval.length, fval[i].length);</span>
+            }
+
+<span class="fc" id="L70">            final int nI = i + 1;</span>
+<span class="fc" id="L71">            final int pI = i - 1;</span>
+
+<span class="fc" id="L73">            final double nX = xval[nI];</span>
+<span class="fc" id="L74">            final double pX = xval[pI];</span>
+
+<span class="fc" id="L76">            final double deltaX = nX - pX;</span>
+
+<span class="fc bfc" id="L78" title="All 2 branches covered.">            for (int j = 1; j &lt; yLen - 1; j++) {</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">                if (zval.length != fval[i][j].length) {</span>
+<span class="fc" id="L80">                    throw new DimensionMismatchException(zval.length, fval[i][j].length);</span>
+                }
+
+<span class="fc" id="L83">                final int nJ = j + 1;</span>
+<span class="fc" id="L84">                final int pJ = j - 1;</span>
+
+<span class="fc" id="L86">                final double nY = yval[nJ];</span>
+<span class="fc" id="L87">                final double pY = yval[pJ];</span>
+
+<span class="fc" id="L89">                final double deltaY = nY - pY;</span>
+<span class="fc" id="L90">                final double deltaXY = deltaX * deltaY;</span>
+
+<span class="fc bfc" id="L92" title="All 2 branches covered.">                for (int k = 1; k &lt; zLen - 1; k++) {</span>
+<span class="fc" id="L93">                    final int nK = k + 1;</span>
+<span class="fc" id="L94">                    final int pK = k - 1;</span>
+
+<span class="fc" id="L96">                    final double nZ = zval[nK];</span>
+<span class="fc" id="L97">                    final double pZ = zval[pK];</span>
+
+<span class="fc" id="L99">                    final double deltaZ = nZ - pZ;</span>
+
+<span class="fc" id="L101">                    dFdX[i][j][k] = (fval[nI][j][k] - fval[pI][j][k]) / deltaX;</span>
+<span class="fc" id="L102">                    dFdY[i][j][k] = (fval[i][nJ][k] - fval[i][pJ][k]) / deltaY;</span>
+<span class="fc" id="L103">                    dFdZ[i][j][k] = (fval[i][j][nK] - fval[i][j][pK]) / deltaZ;</span>
+
+<span class="fc" id="L105">                    final double deltaXZ = deltaX * deltaZ;</span>
+<span class="fc" id="L106">                    final double deltaYZ = deltaY * deltaZ;</span>
+
+<span class="fc" id="L108">                    d2FdXdY[i][j][k] = (fval[nI][nJ][k] - fval[nI][pJ][k] - fval[pI][nJ][k] + fval[pI][pJ][k]) / deltaXY;</span>
+<span class="fc" id="L109">                    d2FdXdZ[i][j][k] = (fval[nI][j][nK] - fval[nI][j][pK] - fval[pI][j][nK] + fval[pI][j][pK]) / deltaXZ;</span>
+<span class="fc" id="L110">                    d2FdYdZ[i][j][k] = (fval[i][nJ][nK] - fval[i][nJ][pK] - fval[i][pJ][nK] + fval[i][pJ][pK]) / deltaYZ;</span>
+
+<span class="fc" id="L112">                    final double deltaXYZ = deltaXY * deltaZ;</span>
+
+<span class="fc" id="L114">                    d3FdXdYdZ[i][j][k] = (fval[nI][nJ][nK] - fval[nI][pJ][nK] -</span>
+                                          fval[pI][nJ][nK] + fval[pI][pJ][nK] -
+                                          fval[nI][nJ][pK] + fval[nI][pJ][pK] +
+                                          fval[pI][nJ][pK] - fval[pI][pJ][pK]) / deltaXYZ;
+                }
+            }
+        }
+
+        // Create the interpolating function.
+<span class="fc" id="L123">        return new TricubicInterpolatingFunction(xval, yval, zval, fval,</span>
+                                                 dFdX, dFdY, dFdZ,
+                                                 d2FdXdY, d2FdXdZ, d2FdYdZ,
+<span class="fc" id="L126">                                                 d3FdXdYdZ) {</span>
+            /** {@inheritDoc} */
+            @Override
+            public boolean isValidPoint(double x, double y, double z) {
+<span class="nc bnc" id="L130" title="All 12 branches missed.">                if (x &lt; xval[1] ||</span>
+                    x &gt; xval[xval.length - 2] ||
+                    y &lt; yval[1] ||
+                    y &gt; yval[yval.length - 2] ||
+                    z &lt; zval[1] ||
+                    z &gt; zval[zval.length - 2]) {
+<span class="nc" id="L136">                    return false;</span>
+                } else {
+<span class="nc" id="L138">                    return true;</span>
+                }
+            }
+        };
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

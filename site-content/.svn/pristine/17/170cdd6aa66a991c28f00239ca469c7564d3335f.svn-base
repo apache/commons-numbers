@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ProperFractionFormat.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.fraction</a> &gt; <span class="el_source">ProperFractionFormat.java</span></div><h1>ProperFractionFormat.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.math3.fraction;
+
+import java.text.FieldPosition;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+
+import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.MathUtils;
+
+/**
+ * Formats a Fraction number in proper format.  The number format for each of
+ * the whole number, numerator and, denominator can be configured.
+ * &lt;p&gt;
+ * Minus signs are only allowed in the whole number part - i.e.,
+ * &quot;-3 1/2&quot; is legitimate and denotes -7/2, but &quot;-3 -1/2&quot; is invalid and
+ * will result in a &lt;code&gt;ParseException&lt;/code&gt;.&lt;/p&gt;
+ *
+ * @since 1.1
+ */
+public class ProperFractionFormat extends FractionFormat {
+
+    /** Serializable version identifier */
+    private static final long serialVersionUID = 760934726031766749L;
+
+    /** The format used for the whole number. */
+    private NumberFormat wholeFormat;
+
+    /**
+     * Create a proper formatting instance with the default number format for
+     * the whole, numerator, and denominator.
+     */
+    public ProperFractionFormat() {
+<span class="nc" id="L51">        this(getDefaultNumberFormat());</span>
+<span class="nc" id="L52">    }</span>
+
+    /**
+     * Create a proper formatting instance with a custom number format for the
+     * whole, numerator, and denominator.
+     * @param format the custom format for the whole, numerator, and
+     *        denominator.
+     */
+    public ProperFractionFormat(NumberFormat format) {
+<span class="fc" id="L61">        this(format, (NumberFormat)format.clone(), (NumberFormat)format.clone());</span>
+<span class="fc" id="L62">    }</span>
+
+    /**
+     * Create a proper formatting instance with a custom number format for each
+     * of the whole, numerator, and denominator.
+     * @param wholeFormat the custom format for the whole.
+     * @param numeratorFormat the custom format for the numerator.
+     * @param denominatorFormat the custom format for the denominator.
+     */
+    public ProperFractionFormat(NumberFormat wholeFormat,
+            NumberFormat numeratorFormat,
+            NumberFormat denominatorFormat)
+    {
+<span class="fc" id="L75">        super(numeratorFormat, denominatorFormat);</span>
+<span class="fc" id="L76">        setWholeFormat(wholeFormat);</span>
+<span class="fc" id="L77">    }</span>
+
+    /**
+     * Formats a {@link Fraction} object to produce a string.  The fraction
+     * is output in proper format.
+     *
+     * @param fraction the object to format.
+     * @param toAppendTo where the text is to be appended
+     * @param pos On input: an alignment field, if desired. On output: the
+     *            offsets of the alignment field
+     * @return the value passed in as toAppendTo.
+     */
+    @Override
+    public StringBuffer format(Fraction fraction, StringBuffer toAppendTo,
+            FieldPosition pos) {
+
+<span class="fc" id="L93">        pos.setBeginIndex(0);</span>
+<span class="fc" id="L94">        pos.setEndIndex(0);</span>
+
+<span class="fc" id="L96">        int num = fraction.getNumerator();</span>
+<span class="fc" id="L97">        int den = fraction.getDenominator();</span>
+<span class="fc" id="L98">        int whole = num / den;</span>
+<span class="fc" id="L99">        num %= den;</span>
+
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        if (whole != 0) {</span>
+<span class="fc" id="L102">            getWholeFormat().format(whole, toAppendTo, pos);</span>
+<span class="fc" id="L103">            toAppendTo.append(' ');</span>
+<span class="fc" id="L104">            num = FastMath.abs(num);</span>
+        }
+<span class="fc" id="L106">        getNumeratorFormat().format(num, toAppendTo, pos);</span>
+<span class="fc" id="L107">        toAppendTo.append(&quot; / &quot;);</span>
+<span class="fc" id="L108">        getDenominatorFormat().format(den, toAppendTo, pos);</span>
+
+<span class="fc" id="L110">        return toAppendTo;</span>
+    }
+
+    /**
+     * Access the whole format.
+     * @return the whole format.
+     */
+    public NumberFormat getWholeFormat() {
+<span class="fc" id="L118">        return wholeFormat;</span>
+    }
+
+    /**
+     * Parses a string to produce a {@link Fraction} object.  This method
+     * expects the string to be formatted as a proper fraction.
+     * &lt;p&gt;
+     * Minus signs are only allowed in the whole number part - i.e.,
+     * &quot;-3 1/2&quot; is legitimate and denotes -7/2, but &quot;-3 -1/2&quot; is invalid and
+     * will result in a &lt;code&gt;ParseException&lt;/code&gt;.&lt;/p&gt;
+     *
+     * @param source the string to parse
+     * @param pos input/ouput parsing parameter.
+     * @return the parsed {@link Fraction} object.
+     */
+    @Override
+    public Fraction parse(String source, ParsePosition pos) {
+        // try to parse improper fraction
+<span class="fc" id="L136">        Fraction ret = super.parse(source, pos);</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">        if (ret != null) {</span>
+<span class="fc" id="L138">            return ret;</span>
+        }
+
+<span class="fc" id="L141">        int initialIndex = pos.getIndex();</span>
+
+        // parse whitespace
+<span class="fc" id="L144">        parseAndIgnoreWhitespace(source, pos);</span>
+
+        // parse whole
+<span class="fc" id="L147">        Number whole = getWholeFormat().parse(source, pos);</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        if (whole == null) {</span>
+            // invalid integer number
+            // set index back to initial, error index should already be set
+            // character examined.
+<span class="fc" id="L152">            pos.setIndex(initialIndex);</span>
+<span class="fc" id="L153">            return null;</span>
+        }
+
+        // parse whitespace
+<span class="fc" id="L157">        parseAndIgnoreWhitespace(source, pos);</span>
+
+        // parse numerator
+<span class="fc" id="L160">        Number num = getNumeratorFormat().parse(source, pos);</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">        if (num == null) {</span>
+            // invalid integer number
+            // set index back to initial, error index should already be set
+            // character examined.
+<span class="fc" id="L165">            pos.setIndex(initialIndex);</span>
+<span class="fc" id="L166">            return null;</span>
+        }
+
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        if (num.intValue() &lt; 0) {</span>
+            // minus signs should be leading, invalid expression
+<span class="fc" id="L171">            pos.setIndex(initialIndex);</span>
+<span class="fc" id="L172">            return null;</span>
+        }
+
+        // parse '/'
+<span class="fc" id="L176">        int startIndex = pos.getIndex();</span>
+<span class="fc" id="L177">        char c = parseNextCharacter(source, pos);</span>
+<span class="pc bpc" id="L178" title="2 of 3 branches missed.">        switch (c) {</span>
+        case 0 :
+            // no '/'
+            // return num as a fraction
+<span class="nc" id="L182">            return new Fraction(num.intValue(), 1);</span>
+        case '/' :
+            // found '/', continue parsing denominator
+<span class="fc" id="L185">            break;</span>
+        default :
+            // invalid '/'
+            // set index back to initial, error index should be the last
+            // character examined.
+<span class="nc" id="L190">            pos.setIndex(initialIndex);</span>
+<span class="nc" id="L191">            pos.setErrorIndex(startIndex);</span>
+<span class="nc" id="L192">            return null;</span>
+        }
+
+        // parse whitespace
+<span class="fc" id="L196">        parseAndIgnoreWhitespace(source, pos);</span>
+
+        // parse denominator
+<span class="fc" id="L199">        Number den = getDenominatorFormat().parse(source, pos);</span>
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">        if (den == null) {</span>
+            // invalid integer number
+            // set index back to initial, error index should already be set
+            // character examined.
+<span class="nc" id="L204">            pos.setIndex(initialIndex);</span>
+<span class="nc" id="L205">            return null;</span>
+        }
+
+<span class="fc bfc" id="L208" title="All 2 branches covered.">        if (den.intValue() &lt; 0) {</span>
+            // minus signs must be leading, invalid
+<span class="fc" id="L210">            pos.setIndex(initialIndex);</span>
+<span class="fc" id="L211">            return null;</span>
+        }
+
+<span class="fc" id="L214">        int w = whole.intValue();</span>
+<span class="fc" id="L215">        int n = num.intValue();</span>
+<span class="fc" id="L216">        int d = den.intValue();</span>
+<span class="fc" id="L217">        return new Fraction(((FastMath.abs(w) * d) + n) * MathUtils.copySign(1, w), d);</span>
+    }
+
+    /**
+     * Modify the whole format.
+     * @param format The new whole format value.
+     * @throws NullArgumentException if {@code format} is {@code null}.
+     */
+    public void setWholeFormat(NumberFormat format) {
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">        if (format == null) {</span>
+<span class="nc" id="L227">            throw new NullArgumentException(LocalizedFormats.WHOLE_FORMAT);</span>
+        }
+<span class="fc" id="L229">        this.wholeFormat = format;</span>
+<span class="fc" id="L230">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

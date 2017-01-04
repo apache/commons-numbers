@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>NewtonRaphsonSolver.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Math</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.math3.analysis.solvers</a> &gt; <span class="el_source">NewtonRaphsonSolver.java</span></div><h1>NewtonRaphsonSolver.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.math3.analysis.solvers;
+
+import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;
+import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.exception.TooManyEvaluationsException;
+
+/**
+ * Implements &lt;a href=&quot;http://mathworld.wolfram.com/NewtonsMethod.html&quot;&gt;
+ * Newton's Method&lt;/a&gt; for finding zeros of real univariate differentiable
+ * functions.
+ *
+ * @since 3.1
+ */
+public class NewtonRaphsonSolver extends AbstractUnivariateDifferentiableSolver {
+    /** Default absolute accuracy. */
+    private static final double DEFAULT_ABSOLUTE_ACCURACY = 1e-6;
+
+    /**
+     * Construct a solver.
+     */
+    public NewtonRaphsonSolver() {
+<span class="fc" id="L40">        this(DEFAULT_ABSOLUTE_ACCURACY);</span>
+<span class="fc" id="L41">    }</span>
+    /**
+     * Construct a solver.
+     *
+     * @param absoluteAccuracy Absolute accuracy.
+     */
+    public NewtonRaphsonSolver(double absoluteAccuracy) {
+<span class="fc" id="L48">        super(absoluteAccuracy);</span>
+<span class="fc" id="L49">    }</span>
+
+    /**
+     * Find a zero near the midpoint of {@code min} and {@code max}.
+     *
+     * @param f Function to solve.
+     * @param min Lower bound for the interval.
+     * @param max Upper bound for the interval.
+     * @param maxEval Maximum number of evaluations.
+     * @return the value where the function is zero.
+     * @throws org.apache.commons.math3.exception.TooManyEvaluationsException
+     * if the maximum evaluation count is exceeded.
+     * @throws org.apache.commons.math3.exception.NumberIsTooLargeException
+     * if {@code min &gt;= max}.
+     */
+    @Override
+    public double solve(int maxEval, final UnivariateDifferentiableFunction f,
+                        final double min, final double max)
+        throws TooManyEvaluationsException {
+<span class="fc" id="L68">        return super.solve(maxEval, f, UnivariateSolverUtils.midpoint(min, max));</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected double doSolve()
+        throws TooManyEvaluationsException {
+<span class="fc" id="L77">        final double startValue = getStartValue();</span>
+<span class="fc" id="L78">        final double absoluteAccuracy = getAbsoluteAccuracy();</span>
+
+<span class="fc" id="L80">        double x0 = startValue;</span>
+        double x1;
+        while (true) {
+<span class="fc" id="L83">            final DerivativeStructure y0 = computeObjectiveValueAndDerivative(x0);</span>
+<span class="fc" id="L84">            x1 = x0 - (y0.getValue() / y0.getPartialDerivative(1));</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">            if (FastMath.abs(x1 - x0) &lt;= absoluteAccuracy) {</span>
+<span class="fc" id="L86">                return x1;</span>
+            }
+
+<span class="fc" id="L89">            x0 = x1;</span>
+<span class="fc" id="L90">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

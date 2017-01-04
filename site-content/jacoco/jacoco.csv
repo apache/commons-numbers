@@ -1,0 +1,1103 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Apache Commons Math,org.apache.commons.math3.complex,ComplexField.LazyHolder,3,6,0,0,1,1,1,1,1,1
+Apache Commons Math,org.apache.commons.math3.complex,ComplexFormat,139,291,17,21,33,76,18,22,5,15
+Apache Commons Math,org.apache.commons.math3.complex,Quaternion,52,619,6,26,6,74,6,40,1,29
+Apache Commons Math,org.apache.commons.math3.complex,ComplexField,2,11,0,0,1,6,1,5,1,5
+Apache Commons Math,org.apache.commons.math3.complex,Complex,44,1175,14,168,9,198,16,124,3,46
+Apache Commons Math,org.apache.commons.math3.complex,RootsOfUnity,32,204,5,19,2,40,5,13,0,6
+Apache Commons Math,org.apache.commons.math3.complex,ComplexUtils,3,52,0,4,1,7,1,4,1,2
+Apache Commons Math,org.apache.commons.math3.ml.clustering.evaluation,SumOfClusterVariances,0,54,1,5,0,13,1,4,0,2
+Apache Commons Math,org.apache.commons.math3.ml.clustering.evaluation,ClusterEvaluator,8,98,1,11,3,19,2,9,1,4
+Apache Commons Math,org.apache.commons.math3.optim.univariate,SearchInterval,19,43,3,3,2,12,3,5,0,5
+Apache Commons Math,org.apache.commons.math3.optim.univariate,BracketFinder,44,359,10,36,9,83,13,22,5,7
+Apache Commons Math,org.apache.commons.math3.optim.univariate,MultiStartUnivariateOptimizer.new Comparator() {...},6,33,3,5,1,7,3,3,0,2
+Apache Commons Math,org.apache.commons.math3.optim.univariate,MultiStartUnivariateOptimizer,13,213,2,18,2,48,2,14,0,6
+Apache Commons Math,org.apache.commons.math3.optim.univariate,UnivariatePointValuePair,0,15,0,0,0,6,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.optim.univariate,UnivariateOptimizer,0,84,0,8,0,24,0,12,0,8
+Apache Commons Math,org.apache.commons.math3.optim.univariate,BrentOptimizer,23,470,5,69,6,108,5,37,0,5
+Apache Commons Math,org.apache.commons.math3.optim.univariate,SimpleUnivariateValueChecker,0,67,1,9,0,15,1,7,0,3
+Apache Commons Math,org.apache.commons.math3.optim.univariate,UnivariateObjectiveFunction,0,9,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.twod.util,LocationFinder.Location,0,15,0,0,0,6,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.twod.util,LocationFinder,4,58,1,5,1,11,1,4,0,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.twod.util,TopographicErrorHistogram,120,0,10,0,25,0,7,0,2,0
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.twod.util,UnifiedDistanceMatrix,318,0,28,0,55,0,18,0,4,0
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.twod.util,SmoothedDataHistogram,119,0,8,0,24,0,6,0,2,0
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.twod.util,QuantizationError,109,0,8,0,22,0,6,0,2,0
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.twod.util,HitHistogram,92,0,8,0,22,0,6,0,2,0
+Apache Commons Math,org.apache.commons.math3.special,Gamma,18,1020,6,92,4,160,7,55,1,12
+Apache Commons Math,org.apache.commons.math3.special,BesselJ,68,1298,19,113,11,241,20,51,2,3
+Apache Commons Math,org.apache.commons.math3.special,Beta,50,805,5,83,8,108,9,47,4,8
+Apache Commons Math,org.apache.commons.math3.special,BesselJ.BesselJResult,10,12,0,0,2,4,2,1,2,1
+Apache Commons Math,org.apache.commons.math3.special,Gamma.new ContinuedFraction() {...},0,27,0,0,0,3,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.special,Beta.new ContinuedFraction() {...},0,87,0,2,0,8,0,4,0,3
+Apache Commons Math,org.apache.commons.math3.special,Erf,3,503,0,28,1,80,1,19,1,5
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning.utilities,AVLTree.Skew,5,43,0,0,0,4,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning.utilities,AVLTree.new Object() {...},2,17,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning.utilities,AVLTree.Node,0,737,3,107,0,196,3,71,0,15
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning.utilities,AVLTree,21,136,9,27,4,38,9,18,1,8
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning.utilities,OrderedTuple,593,0,94,0,123,0,59,0,12,0
+Apache Commons Math,org.apache.commons.math3.geometry,VectorFormat,37,150,1,15,12,37,8,12,7,5
+Apache Commons Math,org.apache.commons.math3.transform,TransformUtils,38,254,4,10,8,24,5,9,2,5
+Apache Commons Math,org.apache.commons.math3.transform,FastFourierTransformer.MultiDimensionalComplexMatrix,46,263,8,22,8,52,6,16,0,7
+Apache Commons Math,org.apache.commons.math3.transform,FastSineTransformer,0,247,0,14,0,38,0,11,0,4
+Apache Commons Math,org.apache.commons.math3.transform,DctNormalization,5,33,0,0,0,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.transform,TransformType,5,33,0,0,0,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.transform,FastHadamardTransformer,21,208,1,17,2,38,2,13,1,5
+Apache Commons Math,org.apache.commons.math3.transform,FastFourierTransformer,30,1379,9,54,4,166,9,33,0,10
+Apache Commons Math,org.apache.commons.math3.transform,DftNormalization,5,33,0,0,0,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.transform,FastFourierTransformer.new Object() {...},2,17,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.transform,FastCosineTransformer,0,303,0,14,0,43,0,11,0,4
+Apache Commons Math,org.apache.commons.math3.transform,DstNormalization,5,33,0,0,0,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.stat,Frequency,32,551,9,47,10,142,8,57,1,36
+Apache Commons Math,org.apache.commons.math3.stat,StatUtils,55,411,7,23,12,80,8,42,4,31
+Apache Commons Math,org.apache.commons.math3.stat,Frequency.NaturalComparator,0,7,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,SplineInterpolator,0,330,0,12,0,37,0,8,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,BicubicSplineInterpolator,4,308,3,31,1,48,3,19,0,5
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,SmoothingPolynomialBicubicSplineInterpolator,20,266,5,27,5,45,6,14,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,BicubicSplineInterpolatingFunction,16,1791,6,48,3,81,8,32,2,11
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,MicrosphereInterpolatingFunction,32,220,8,22,6,42,8,10,0,3
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,LinearInterpolator,0,108,0,8,0,17,0,6,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,TricubicInterpolator.new TricubicInterpolatingFunction() {...},58,26,12,0,3,1,7,1,1,1
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,UnivariatePeriodicInterpolator,0,165,0,6,0,28,0,6,0,3
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,FieldHermiteInterpolator,0,415,0,30,0,62,0,19,0,4
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,NevilleInterpolator,0,9,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,PiecewiseBicubicSplineInterpolator,4,37,4,10,1,7,4,5,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,BicubicInterpolator,4,188,3,9,1,28,3,5,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,InterpolatingMicrosphere.Facet,0,9,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,BicubicInterpolatingFunction,4,1664,6,42,1,63,6,24,0,6
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,BicubicSplineFunction,25,316,4,18,4,50,5,15,1,8
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,TricubicSplineInterpolatingFunction,68,17988,10,70,6,97,10,35,0,5
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,UnivariatePeriodicInterpolator.new UnivariateFunction() {...},0,23,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,BicubicSplineFunction.new BivariateFunction() {...},54,9,0,0,5,1,1,1,1,1
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,BicubicSplineFunction.new BivariateFunction() {...},54,9,0,0,5,1,1,1,1,1
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,BicubicSplineFunction.new BivariateFunction() {...},0,67,0,0,0,7,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,BicubicSplineFunction.new BivariateFunction() {...},0,67,0,0,0,7,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,BicubicSplineFunction.new BivariateFunction() {...},0,63,0,0,0,6,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,BicubicInterpolator.new BicubicInterpolatingFunction() {...},0,58,0,8,0,4,0,6,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,DividedDifferenceInterpolator,0,100,0,4,0,17,0,5,0,3
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,MicrosphereProjectionInterpolator.new MultivariateFunction() {...},0,30,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,AkimaSplineInterpolator,27,480,3,23,3,60,3,14,0,4
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,MicrosphereInterpolator,12,37,2,2,2,10,2,3,0,3
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,InterpolatingMicrosphere2D,9,38,0,2,3,5,2,2,2,1
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,TricubicFunction,30,202,6,18,3,25,6,8,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,TricubicInterpolatingFunction,126,18146,22,70,9,104,17,35,1,5
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,TricubicSplineInterpolator,4,577,4,50,1,78,4,27,0,4
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,MicrosphereInterpolatingFunction.MicrosphereSurfaceElement,0,37,0,2,0,13,0,7,0,6
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,LoessInterpolator,33,544,4,48,6,109,6,30,2,8
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,HermiteInterpolator,0,402,0,28,0,62,0,21,0,7
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,InterpolatingMicrosphere.FacetData,0,15,0,0,0,6,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,InterpolatingMicrosphere,118,277,11,31,21,57,13,19,3,8
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,PiecewiseBicubicSplineInterpolatingFunction,61,255,16,36,5,48,13,17,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,BicubicFunction,20,139,4,10,2,21,4,6,0,3
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,TricubicSplineFunction,30,202,6,18,3,25,6,8,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,TricubicInterpolator,4,502,4,16,1,51,4,8,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.interpolation,MicrosphereProjectionInterpolator,38,78,8,8,6,17,8,3,0,3
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.oned,Euclidean1D.LazyHolder,3,6,0,0,1,1,1,1,1,1
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.oned,IntervalsSet,102,602,15,77,19,122,17,60,5,26
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.oned,SubOrientedPoint,2,46,0,4,1,10,1,6,1,4
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.oned,Interval,12,77,0,10,4,15,4,11,4,6
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.oned,IntervalsSet.SubIntervalsIterator,8,162,1,21,2,31,2,14,1,4
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.oned,Vector1D,11,339,1,15,3,71,2,41,1,34
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.oned,Vector1DFormat,15,77,1,3,3,18,2,9,1,8
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.oned,Euclidean1D,0,13,0,0,0,6,0,5,0,5
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.oned,Euclidean1D.NoSubSpaceException,0,11,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.oned,OrientedPoint,31,53,2,4,8,12,7,9,6,7
+Apache Commons Math,org.apache.commons.math3.analysis.integration,LegendreGaussIntegrator,30,447,1,12,3,46,2,12,1,5
+Apache Commons Math,org.apache.commons.math3.analysis.integration,SimpsonIntegrator,34,89,5,7,6,20,5,5,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.integration,TrapezoidIntegrator,20,159,4,10,5,33,4,8,1,4
+Apache Commons Math,org.apache.commons.math3.analysis.integration,BaseAbstractUnivariateIntegrator,13,133,1,3,3,39,2,15,1,14
+Apache Commons Math,org.apache.commons.math3.analysis.integration,IterativeLegendreGaussIntegrator,7,155,1,7,1,32,1,9,0,6
+Apache Commons Math,org.apache.commons.math3.analysis.integration,MidPointIntegrator,10,145,3,9,2,30,3,8,0,5
+Apache Commons Math,org.apache.commons.math3.analysis.integration,RombergIntegrator,20,141,4,8,5,30,4,6,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.integration,IterativeLegendreGaussIntegrator.new UnivariateFunction() {...},0,11,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ml.distance,EuclideanDistance,0,7,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ml.distance,ChebyshevDistance,0,7,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ml.distance,CanberraDistance,0,53,0,6,0,8,0,5,0,2
+Apache Commons Math,org.apache.commons.math3.ml.distance,EarthMoversDistance,0,37,0,2,0,9,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.ml.distance,ManhattanDistance,0,7,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.stat.inference,ChiSquareTest,26,572,8,56,3,98,8,35,0,11
+Apache Commons Math,org.apache.commons.math3.stat.inference,BinomialTest,48,125,7,19,7,30,7,10,0,3
+Apache Commons Math,org.apache.commons.math3.stat.inference,MannWhitneyUTest,10,184,0,10,3,31,1,11,1,6
+Apache Commons Math,org.apache.commons.math3.stat.inference,OneWayAnova,11,267,2,18,1,52,2,15,0,7
+Apache Commons Math,org.apache.commons.math3.stat.inference,TestUtils,65,226,0,0,13,44,12,40,12,40
+Apache Commons Math,org.apache.commons.math3.stat.inference,AlternativeHypothesis,5,43,0,0,0,4,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.stat.inference,GTest,14,552,6,50,2,80,6,33,0,11
+Apache Commons Math,org.apache.commons.math3.stat.inference,BinomialTest.new Object() {...},3,23,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.stat.inference,OneWayAnova.AnovaStats,0,12,0,0,0,5,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.stat.inference,KolmogorovSmirnovTest,456,1654,62,146,69,300,51,86,4,29
+Apache Commons Math,org.apache.commons.math3.stat.inference,TTest,23,584,1,23,3,77,2,41,1,30
+Apache Commons Math,org.apache.commons.math3.stat.inference,WilcoxonSignedRankTest,18,290,2,34,5,55,3,24,1,8
+Apache Commons Math,org.apache.commons.math3.ml.clustering,DBSCANClusterer,0,219,0,28,0,55,0,22,0,8
+Apache Commons Math,org.apache.commons.math3.ml.clustering,DoublePoint,6,47,1,3,2,12,2,6,1,5
+Apache Commons Math,org.apache.commons.math3.ml.clustering,KMeansPlusPlusClusterer.new Object() {...},26,0,0,0,1,0,1,0,1,0
+Apache Commons Math,org.apache.commons.math3.ml.clustering,KMeansPlusPlusClusterer.EmptyClusterStrategy,9,49,0,0,0,5,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.ml.clustering,CentroidCluster,0,9,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ml.clustering,DBSCANClusterer.PointStatus,9,29,0,0,0,3,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.ml.clustering,FuzzyKMeansClusterer,98,513,14,42,21,104,13,33,4,14
+Apache Commons Math,org.apache.commons.math3.ml.clustering,KMeansPlusPlusClusterer,252,454,38,50,65,104,31,31,8,9
+Apache Commons Math,org.apache.commons.math3.ml.clustering,Cluster,0,17,0,0,0,6,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.ml.clustering,Clusterer,0,17,0,0,0,5,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.ml.clustering,MultiKMeansPlusPlusClusterer,9,58,0,4,3,16,3,5,3,3
+Apache Commons Math,org.apache.commons.math3.optimization.univariate,UnivariatePointValuePair,0,15,0,0,0,6,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.optimization.univariate,BrentOptimizer,23,470,5,69,6,109,5,37,0,5
+Apache Commons Math,org.apache.commons.math3.optimization.univariate,BracketFinder,80,324,16,30,17,76,17,18,5,7
+Apache Commons Math,org.apache.commons.math3.optimization.univariate,BaseAbstractUnivariateOptimizer,8,94,2,2,2,27,2,11,0,11
+Apache Commons Math,org.apache.commons.math3.optimization.univariate,UnivariateMultiStartOptimizer.new Comparator() {...},6,33,3,5,1,7,3,3,0,2
+Apache Commons Math,org.apache.commons.math3.optimization.univariate,UnivariateMultiStartOptimizer,24,134,4,10,5,28,6,9,2,6
+Apache Commons Math,org.apache.commons.math3.optimization.univariate,SimpleUnivariateValueChecker,6,67,2,8,3,15,3,6,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,AllowedSolution,5,63,0,0,0,6,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,SecantSolver,11,93,1,9,5,26,3,6,2,2
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,BaseSecantSolver,12,262,3,45,3,65,3,33,0,7
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,IllinoisSolver,18,5,0,0,6,2,3,1,3,1
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,BaseAbstractUnivariateSolver,4,149,0,0,1,43,1,21,1,21
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,BrentSolver,6,344,1,39,2,80,2,24,1,5
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,LaguerreSolver,91,150,8,8,17,29,10,8,4,6
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,AbstractPolynomialSolver,11,19,0,0,4,6,2,3,2,3
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,RegulaFalsiSolver,18,5,0,0,6,2,3,1,3,1
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,MullerSolver2,19,238,5,15,6,48,6,8,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,BracketingNthOrderBrentSolver.new Object() {...},5,35,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,AbstractDifferentiableUnivariateSolver,6,23,0,0,2,7,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,BaseSecantSolver.new Object() {...},8,57,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,AbstractUnivariateDifferentiableSolver,6,28,0,0,2,7,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,PegasusSolver,5,18,0,0,2,6,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,BaseSecantSolver.Method,5,43,0,0,0,4,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,BracketingNthOrderBrentSolver,4,662,1,65,1,130,1,43,0,9
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,BisectionSolver,5,57,0,4,2,17,1,5,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,LaguerreSolver.ComplexSolver,28,318,8,22,5,60,7,12,0,4
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,FieldBracketingNthOrderBrentSolver.new Object() {...},5,35,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,RiddersSolver,13,166,4,12,6,45,5,7,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,FieldBracketingNthOrderBrentSolver,44,652,5,61,7,120,8,37,3,7
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,UnivariateSolverUtils,129,358,19,49,27,68,15,32,2,11
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,AbstractUnivariateSolver,0,15,0,0,0,6,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,NewtonRaphsonSolver,0,54,0,2,0,14,0,5,0,4
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,MullerSolver,11,320,5,31,5,58,6,17,1,4
+Apache Commons Math,org.apache.commons.math3.analysis.solvers,NewtonSolver,0,46,0,2,0,12,0,5,0,4
+Apache Commons Math,org.apache.commons.math3.stat.regression,MillerUpdatingRegression,512,2528,66,208,76,426,57,104,2,22
+Apache Commons Math,org.apache.commons.math3.stat.regression,ModelSpecificationException,0,5,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.stat.regression,GLSMultipleLinearRegression,21,95,0,2,3,21,1,7,1,6
+Apache Commons Math,org.apache.commons.math3.stat.regression,SimpleRegression,400,1183,44,80,45,174,33,61,2,30
+Apache Commons Math,org.apache.commons.math3.stat.regression,OLSMultipleLinearRegression,0,223,0,12,0,42,0,18,0,12
+Apache Commons Math,org.apache.commons.math3.stat.regression,AbstractMultipleLinearRegression,38,402,6,42,6,76,7,37,1,19
+Apache Commons Math,org.apache.commons.math3.stat.regression,RegressionResults,174,314,28,30,34,53,28,18,4,13
+Apache Commons Math,org.apache.commons.math3.optimization.linear,LinearObjectiveFunction,22,73,4,4,4,19,6,8,2,8
+Apache Commons Math,org.apache.commons.math3.optimization.linear,Relationship,8,60,0,3,1,11,2,6,2,4
+Apache Commons Math,org.apache.commons.math3.optimization.linear,SimplexTableau,49,1010,11,117,6,163,14,82,3,29
+Apache Commons Math,org.apache.commons.math3.optimization.linear,LinearConstraint,74,73,7,5,16,20,9,8,3,8
+Apache Commons Math,org.apache.commons.math3.optimization.linear,Relationship.new Object() {...},2,17,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.optimization.linear,UnboundedSolutionException,0,6,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.optimization.linear,SimplexSolver,0,342,0,54,0,78,0,34,0,7
+Apache Commons Math,org.apache.commons.math3.optimization.linear,AbstractLinearOptimizer,7,58,1,1,1,19,1,10,0,10
+Apache Commons Math,org.apache.commons.math3.optimization.linear,NoFeasibleSolutionException,0,6,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.fitting,AbstractCurveFitter.TheoreticalValuesFunction.new MultivariateMatrixFunction() {...},0,36,0,2,0,6,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.fitting,AbstractCurveFitter.TheoreticalValuesFunction.new MultivariateVectorFunction() {...},0,36,0,2,0,6,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.fitting,GaussianFitter.ParameterGuesser,21,319,6,28,5,51,6,19,0,8
+Apache Commons Math,org.apache.commons.math3.fitting,HarmonicCurveFitter,7,104,0,4,1,19,1,7,1,5
+Apache Commons Math,org.apache.commons.math3.fitting,GaussianCurveFitter.ParameterGuesser,21,324,6,28,5,51,6,19,0,8
+Apache Commons Math,org.apache.commons.math3.fitting,GaussianCurveFitter.new Gaussian.Parametric() {...},0,38,0,0,0,11,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.fitting,CurveFitter,6,135,0,2,2,23,1,8,1,7
+Apache Commons Math,org.apache.commons.math3.fitting,AbstractCurveFitter,0,16,0,0,0,4,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.fitting,HarmonicFitter.ParameterGuesser,4,464,2,28,1,92,2,18,0,5
+Apache Commons Math,org.apache.commons.math3.fitting,CurveFitter.TheoreticalValuesFunction,0,25,0,0,0,5,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.fitting,SimpleCurveFitter,20,84,0,2,2,17,2,4,2,3
+Apache Commons Math,org.apache.commons.math3.fitting,WeightedObservedPoint,0,21,0,0,0,8,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.fitting,GaussianCurveFitter.ParameterGuesser.new Comparator() {...},40,24,15,5,15,8,10,2,0,2
+Apache Commons Math,org.apache.commons.math3.fitting,GaussianCurveFitter,0,111,0,4,0,20,0,8,0,6
+Apache Commons Math,org.apache.commons.math3.fitting,PolynomialFitter,8,11,0,0,1,3,1,2,1,2
+Apache Commons Math,org.apache.commons.math3.fitting,GaussianFitter.new Gaussian.Parametric() {...},1,40,0,0,1,10,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.fitting,WeightedObservedPoints,0,41,0,0,0,11,0,6,0,6
+Apache Commons Math,org.apache.commons.math3.fitting,HarmonicCurveFitter.ParameterGuesser,4,478,2,28,1,93,2,18,0,5
+Apache Commons Math,org.apache.commons.math3.fitting,PolynomialCurveFitter,11,99,1,3,2,19,2,6,1,5
+Apache Commons Math,org.apache.commons.math3.fitting,GaussianFitter,0,25,0,0,0,6,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.fitting,GaussianFitter.ParameterGuesser.new Comparator() {...},40,24,15,5,15,8,10,2,0,2
+Apache Commons Math,org.apache.commons.math3.fitting,AbstractCurveFitter.TheoreticalValuesFunction,0,43,0,2,0,11,0,4,0,3
+Apache Commons Math,org.apache.commons.math3.fitting,CurveFitter.TheoreticalValuesFunction.new MultivariateVectorFunction() {...},0,42,0,2,0,7,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.fitting,CurveFitter.TheoreticalValuesFunction.new MultivariateMatrixFunction() {...},0,42,0,2,0,7,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.fitting,HarmonicFitter,0,20,0,0,0,4,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.optim.linear,SolutionCallback,0,25,0,4,0,5,0,6,0,4
+Apache Commons Math,org.apache.commons.math3.optim.linear,SimplexTableau,49,1132,11,127,6,192,14,92,3,34
+Apache Commons Math,org.apache.commons.math3.optim.linear,PivotSelectionRule,9,29,0,0,0,3,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.optim.linear,UnboundedSolutionException,0,6,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.optim.linear,LinearObjectiveFunction,14,77,4,4,3,20,5,9,1,9
+Apache Commons Math,org.apache.commons.math3.optim.linear,Relationship.new Object() {...},2,17,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.optim.linear,LinearConstraintSet,29,17,2,0,4,5,2,2,1,2
+Apache Commons Math,org.apache.commons.math3.optim.linear,LinearOptimizer,0,64,0,8,0,18,0,10,0,6
+Apache Commons Math,org.apache.commons.math3.optim.linear,NonNegativeConstraint,0,9,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optim.linear,NoFeasibleSolutionException,0,6,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.optim.linear,SimplexSolver,18,400,3,61,6,97,5,39,2,10
+Apache Commons Math,org.apache.commons.math3.optim.linear,LinearConstraint,60,87,6,6,15,21,7,10,2,9
+Apache Commons Math,org.apache.commons.math3.optim.linear,Relationship,8,60,0,3,1,11,2,6,2,4
+Apache Commons Math,org.apache.commons.math3.analysis.differentiation,SparseGradient.new Field() {...},0,14,0,0,0,4,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.analysis.differentiation,FiniteDifferencesDifferentiator.new UnivariateDifferentiableVectorFunction() {...},0,121,0,10,0,16,0,8,0,3
+Apache Commons Math,org.apache.commons.math3.analysis.differentiation,FiniteDifferencesDifferentiator.new UnivariateDifferentiableFunction() {...},0,82,0,4,0,9,0,5,0,3
+Apache Commons Math,org.apache.commons.math3.analysis.differentiation,FiniteDifferencesDifferentiator.new UnivariateDifferentiableMatrixFunction() {...},0,157,0,14,0,18,0,10,0,3
+Apache Commons Math,org.apache.commons.math3.analysis.differentiation,GradientFunction,0,68,0,4,0,14,0,4,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.differentiation,DerivativeStructure.new Field() {...},0,34,0,0,0,4,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.analysis.differentiation,DerivativeStructure,0,1750,2,68,0,279,2,116,0,83
+Apache Commons Math,org.apache.commons.math3.analysis.differentiation,JacobianFunction,0,82,0,6,0,15,0,5,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.differentiation,SparseGradient,23,1794,6,106,4,245,6,125,0,75
+Apache Commons Math,org.apache.commons.math3.analysis.differentiation,FiniteDifferencesDifferentiator,0,248,0,14,0,42,0,15,0,8
+Apache Commons Math,org.apache.commons.math3.analysis.differentiation,DSCompiler,6,3655,2,294,2,562,2,195,0,49
+Apache Commons Math,org.apache.commons.math3.analysis.differentiation,DerivativeStructure.DataTransferObject,0,22,0,0,0,6,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.integration.gauss,LegendreRuleFactory,0,321,0,24,0,60,0,14,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.integration.gauss,SymmetricGaussIntegrator,0,104,0,6,0,25,0,6,0,3
+Apache Commons Math,org.apache.commons.math3.analysis.integration.gauss,LegendreHighPrecisionRuleFactory,0,514,0,24,0,98,0,15,0,3
+Apache Commons Math,org.apache.commons.math3.analysis.integration.gauss,HermiteRuleFactory,0,334,0,24,0,68,0,14,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.integration.gauss,BaseRuleFactory,19,134,2,8,2,27,2,8,0,5
+Apache Commons Math,org.apache.commons.math3.analysis.integration.gauss,GaussIntegrator,8,92,1,3,1,21,1,7,0,6
+Apache Commons Math,org.apache.commons.math3.analysis.integration.gauss,GaussIntegratorFactory,0,117,0,2,0,18,0,9,0,8
+Apache Commons Math,org.apache.commons.math3.optimization.fitting,HarmonicFitter.ParameterGuesser,4,464,2,28,1,92,2,18,0,5
+Apache Commons Math,org.apache.commons.math3.optimization.fitting,GaussianFitter,0,25,0,0,0,6,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.optimization.fitting,WeightedObservedPoint,0,21,0,0,0,8,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.optimization.fitting,CurveFitter,37,101,1,3,10,22,4,7,3,6
+Apache Commons Math,org.apache.commons.math3.optimization.fitting,GaussianFitter.new Gaussian.Parametric() {...},1,40,0,0,1,10,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.optimization.fitting,CurveFitter.OldTheoreticalValuesFunction.new MultivariateMatrixFunction() {...},0,42,0,2,0,7,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.optimization.fitting,CurveFitter.TheoreticalValuesFunction,121,0,8,0,21,0,7,0,3,0
+Apache Commons Math,org.apache.commons.math3.optimization.fitting,GaussianFitter.ParameterGuesser,21,319,6,28,5,51,6,19,0,8
+Apache Commons Math,org.apache.commons.math3.optimization.fitting,CurveFitter.OldTheoreticalValuesFunction,0,47,0,2,0,10,0,4,0,3
+Apache Commons Math,org.apache.commons.math3.optimization.fitting,PolynomialFitter,26,14,0,0,5,4,3,2,3,2
+Apache Commons Math,org.apache.commons.math3.optimization.fitting,GaussianFitter.ParameterGuesser.new Comparator() {...},40,24,15,5,15,8,10,2,0,2
+Apache Commons Math,org.apache.commons.math3.optimization.fitting,HarmonicFitter,0,20,0,0,0,4,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.analysis.function,Sqrt,4,9,0,0,1,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.function,Pow,0,7,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Gaussian.Parametric,0,124,0,6,0,21,0,7,0,4
+Apache Commons Math,org.apache.commons.math3.analysis.function,Floor,0,6,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Logistic.Parametric,27,156,0,6,2,25,1,6,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.function,Subtract,7,0,0,0,2,0,2,0,2,0
+Apache Commons Math,org.apache.commons.math3.analysis.function,StepFunction,0,78,0,14,0,19,0,9,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Inverse,4,10,0,0,1,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.function,Sin,0,13,0,0,0,4,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.analysis.function,Atan,7,6,0,0,2,2,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Abs,0,6,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Add,0,7,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Minus,5,9,0,0,1,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.function,Max,0,7,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Expm1,7,6,0,0,2,2,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Cbrt,7,6,0,0,2,2,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Multiply,0,7,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Ulp,0,6,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Log10,7,6,0,0,2,2,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Logistic,4,94,0,2,1,13,1,5,1,4
+Apache Commons Math,org.apache.commons.math3.analysis.function,Atan2,7,0,0,0,2,0,2,0,2,0
+Apache Commons Math,org.apache.commons.math3.analysis.function,Tanh,7,6,0,0,2,2,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Acosh,13,0,0,0,4,0,4,0,4,0
+Apache Commons Math,org.apache.commons.math3.analysis.function,Rint,0,6,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Atanh,13,0,0,0,4,0,4,0,4,0
+Apache Commons Math,org.apache.commons.math3.analysis.function,Min,0,7,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Log1p,7,6,0,0,2,2,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Sinc,6,353,2,24,1,50,3,15,1,4
+Apache Commons Math,org.apache.commons.math3.analysis.function,Sinh,7,6,0,0,2,2,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Asin,7,6,0,0,2,2,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Gaussian,4,207,0,14,1,37,1,13,1,6
+Apache Commons Math,org.apache.commons.math3.analysis.function,Exp,7,6,0,0,2,2,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Cos,4,9,0,0,1,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.function,HarmonicOscillator.Parametric,0,88,0,4,0,17,0,6,0,4
+Apache Commons Math,org.apache.commons.math3.analysis.function,Logit,9,168,0,16,3,27,2,12,2,4
+Apache Commons Math,org.apache.commons.math3.analysis.function,Ceil,0,6,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Sigmoid,4,161,0,8,1,28,1,9,1,5
+Apache Commons Math,org.apache.commons.math3.analysis.function,Asinh,13,0,0,0,4,0,4,0,4,0
+Apache Commons Math,org.apache.commons.math3.analysis.function,Logit.Parametric,30,33,0,4,4,8,1,5,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.function,Identity,5,7,0,0,1,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.function,Constant,5,19,0,0,1,5,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.function,Cosh,4,9,0,0,1,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.function,Power,4,16,0,0,1,5,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.function,HarmonicOscillator,4,98,0,4,1,17,1,6,1,4
+Apache Commons Math,org.apache.commons.math3.analysis.function,Sigmoid.Parametric,0,57,0,4,0,11,0,6,0,4
+Apache Commons Math,org.apache.commons.math3.analysis.function,Acos,7,6,0,0,2,2,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Signum,0,6,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Divide,0,7,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.function,Log,4,9,0,0,1,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.analysis.function,Tan,7,6,0,0,2,2,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.moment,GeometricMean,22,91,1,3,5,28,3,12,2,11
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.moment,FirstMoment,6,106,0,2,3,32,1,8,1,7
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.moment,Mean,8,181,3,9,4,43,4,14,1,11
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.moment,FourthMoment,6,107,0,2,3,26,1,7,1,6
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.moment,Kurtosis,6,245,3,13,3,47,4,14,1,9
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.moment,VectorialMean,22,103,4,12,7,20,5,9,1,5
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.moment,Variance,53,435,14,32,10,101,17,27,3,18
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.moment,SemiVariance.Direction,9,37,0,0,0,7,2,3,2,3
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.moment,SemiVariance,91,142,0,12,23,32,9,14,9,8
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.moment,ThirdMoment,0,109,0,2,0,29,0,8,0,7
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.moment,Skewness,9,237,2,14,3,51,3,15,1,9
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.moment,StandardDeviation,41,96,0,0,9,28,5,12,5,12
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.moment,SecondMoment,8,67,0,2,3,20,1,7,1,6
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.moment,VectorialCovariance,60,214,9,19,13,39,9,12,1,6
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,RegionFactory.IntersectionMerger,0,35,0,2,0,6,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,AbstractSubHyperplane,14,199,2,14,1,34,3,15,1,9
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,BoundarySizeVisitor,0,39,0,4,0,12,0,7,0,5
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,RegionFactory.XorMerger,0,30,0,2,0,6,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,RegionFactory.DifferenceMerger,8,74,3,7,0,15,2,6,0,3
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,AbstractRegion,66,607,18,72,10,133,18,57,3,26
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,BoundaryProjector,2,216,4,26,0,51,4,20,0,9
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,RegionFactory.NodesCleaner,0,13,0,0,0,5,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,NodesSet,0,49,0,6,0,14,0,7,0,4
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,BSPTree,90,922,14,85,22,200,14,65,2,24
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,BSPTree.new BSPTree.VanishingCutHandler() {...},13,0,0,0,2,0,2,0,2,0
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,BSPTree.new Object() {...},9,63,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,RegionFactory.UnionMerger,0,35,0,2,0,6,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,BoundaryAttribute,6,21,0,0,2,8,1,4,1,4
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,RegionFactory,2,341,3,32,1,58,3,24,0,9
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,Characterization.new Object() {...},3,23,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,Characterization,4,171,2,18,1,42,2,19,0,10
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,AbstractRegion.new Comparator() {...},0,25,0,4,0,4,0,4,0,2
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,AbstractRegion.new BSPTreeVisitor() {...},0,25,1,3,0,7,1,5,0,4
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,RegionFactory.new Object() {...},2,17,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,AbstractRegion.new Object() {...},3,23,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,BoundaryProjection,0,21,0,0,0,8,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,InsideFinder,205,0,50,0,42,0,30,0,4,0
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,InsideFinder.new Object() {...},26,0,0,0,1,0,1,0,1,0
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,RegionFactory.VanishingToLeaf,22,9,2,0,3,3,2,1,1,1
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,BSPTreeVisitor.Order,5,73,0,0,0,7,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,BoundaryBuilder,0,104,0,14,0,27,0,11,0,4
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,SubHyperplane.SplitSubHyperplane,0,44,1,11,0,13,1,9,0,4
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,Region.Location,9,39,0,0,0,4,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.geometry.partitioning,Side,5,53,0,0,0,5,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.linear,LUDecomposition,0,440,0,54,0,84,0,35,0,8
+Apache Commons Math,org.apache.commons.math3.linear,SymmLQ.State,34,960,9,51,7,171,9,35,0,14
+Apache Commons Math,org.apache.commons.math3.linear,SingularMatrixException,0,6,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.linear,PreconditionedIterativeLinearSolver,14,87,0,6,4,19,2,9,2,6
+Apache Commons Math,org.apache.commons.math3.linear,RealVectorFormat,18,227,0,22,6,56,5,21,5,10
+Apache Commons Math,org.apache.commons.math3.linear,FieldLUDecomposition.Solver,11,517,2,52,2,80,2,31,0,6
+Apache Commons Math,org.apache.commons.math3.linear,OpenMapRealVector,106,1049,11,113,23,268,15,95,5,43
+Apache Commons Math,org.apache.commons.math3.linear,HessenbergTransformer,3,503,3,51,1,75,4,29,1,5
+Apache Commons Math,org.apache.commons.math3.linear,BlockFieldMatrix,506,3774,34,230,96,617,22,162,2,50
+Apache Commons Math,org.apache.commons.math3.linear,MatrixUtils.FractionMatrixConverter,0,26,0,0,0,7,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.linear,RealVector,8,876,0,82,2,206,2,90,2,49
+Apache Commons Math,org.apache.commons.math3.linear,ArrayRealVector,56,1752,4,140,12,355,6,133,2,65
+Apache Commons Math,org.apache.commons.math3.linear,EigenDecomposition,139,1953,18,146,21,278,18,85,4,17
+Apache Commons Math,org.apache.commons.math3.linear,QRDecomposition,0,449,0,42,0,77,0,30,0,9
+Apache Commons Math,org.apache.commons.math3.linear,OpenMapRealVector.OpenMapSparseIterator,5,29,0,0,1,7,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.linear,JacobiPreconditioner.new RealLinearOperator() {...},8,20,0,0,2,2,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.linear,NonPositiveDefiniteOperatorException,0,6,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.linear,SymmLQ,56,198,2,8,13,40,7,10,5,7
+Apache Commons Math,org.apache.commons.math3.linear,SparseRealVector,0,3,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.linear,SchurTransformer,9,1368,7,83,1,186,7,48,0,10
+Apache Commons Math,org.apache.commons.math3.linear,AbstractFieldMatrix,321,1938,39,203,52,360,34,149,6,56
+Apache Commons Math,org.apache.commons.math3.linear,SchurTransformer.ShiftInfo,0,3,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.linear,MatrixUtils,230,1092,42,116,45,216,37,80,3,35
+Apache Commons Math,org.apache.commons.math3.linear,ArrayFieldVector,373,1567,18,96,71,283,20,110,6,67
+Apache Commons Math,org.apache.commons.math3.linear,SparseFieldMatrix,142,114,8,2,29,24,8,10,4,9
+Apache Commons Math,org.apache.commons.math3.linear,AbstractFieldMatrix.new DefaultFieldMatrixPreservingVisitor() {...},0,17,0,0,0,3,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.linear,AbstractFieldMatrix.new DefaultFieldMatrixPreservingVisitor() {...},0,31,0,0,0,6,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.linear,AbstractFieldMatrix.new DefaultFieldMatrixChangingVisitor() {...},0,25,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.linear,DefaultRealMatrixPreservingVisitor,1,6,0,0,1,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.linear,RealVector.Entry,0,29,0,0,0,9,0,5,0,5
+Apache Commons Math,org.apache.commons.math3.linear,Array2DRowFieldMatrix,114,993,9,83,22,177,12,68,4,30
+Apache Commons Math,org.apache.commons.math3.linear,RRQRDecomposition.Solver,7,29,0,0,1,7,1,4,1,4
+Apache Commons Math,org.apache.commons.math3.linear,RealVector.2.UnmodifiableEntry,0,18,0,0,0,3,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.linear,EigenDecomposition.Solver,8,337,2,36,2,63,2,23,0,6
+Apache Commons Math,org.apache.commons.math3.linear,NonSymmetricMatrixException,9,30,0,0,3,5,3,1,3,1
+Apache Commons Math,org.apache.commons.math3.linear,Array2DRowRealMatrix,30,1007,7,89,5,188,7,72,0,31
+Apache Commons Math,org.apache.commons.math3.linear,NonSquareOperatorException,0,6,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.linear,DefaultIterativeLinearSolverEvent,11,49,3,1,2,17,3,6,1,6
+Apache Commons Math,org.apache.commons.math3.linear,LUDecomposition.Solver,0,335,0,38,0,55,0,24,0,5
+Apache Commons Math,org.apache.commons.math3.linear,BiDiagonalTransformer,13,987,7,103,3,155,10,55,3,7
+Apache Commons Math,org.apache.commons.math3.linear,IterativeLinearSolverEvent,6,5,0,0,2,2,2,1,2,1
+Apache Commons Math,org.apache.commons.math3.linear,BlockRealMatrix,194,4078,14,264,37,686,11,182,1,53
+Apache Commons Math,org.apache.commons.math3.linear,NonPositiveDefiniteMatrixException,9,37,0,0,3,7,3,1,3,1
+Apache Commons Math,org.apache.commons.math3.linear,DefaultFieldMatrixPreservingVisitor,1,10,0,0,1,5,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.linear,SingularValueDecomposition.new DefaultRealMatrixPreservingVisitor() {...},0,23,0,0,0,3,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.linear,DiagonalMatrix,3,409,1,37,1,84,1,42,0,24
+Apache Commons Math,org.apache.commons.math3.linear,OpenMapRealMatrix,76,375,4,20,18,81,4,24,2,14
+Apache Commons Math,org.apache.commons.math3.linear,DefaultRealMatrixChangingVisitor,2,6,0,0,1,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.linear,RealMatrixFormat,29,372,3,41,11,90,10,30,7,11
+Apache Commons Math,org.apache.commons.math3.linear,IllConditionedOperatorException,11,0,0,0,2,0,1,0,1,0
+Apache Commons Math,org.apache.commons.math3.linear,NonSquareMatrixException,0,6,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.linear,RectangularCholeskyDecomposition,26,300,2,26,2,54,2,16,0,4
+Apache Commons Math,org.apache.commons.math3.linear,SingularOperatorException,6,0,0,0,2,0,1,0,1,0
+Apache Commons Math,org.apache.commons.math3.linear,JacobiPreconditioner,7,106,1,7,1,22,1,9,0,6
+Apache Commons Math,org.apache.commons.math3.linear,OpenMapRealVector.OpenMapEntry,10,18,0,0,2,5,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.linear,ConjugateGradient,18,227,3,15,7,58,5,8,2,2
+Apache Commons Math,org.apache.commons.math3.linear,IterativeLinearSolver,34,58,0,6,10,14,3,6,3,3
+Apache Commons Math,org.apache.commons.math3.linear,CholeskyDecomposition,0,229,0,22,0,43,0,17,0,6
+Apache Commons Math,org.apache.commons.math3.linear,RealVector.new RealVector() {...},10,199,0,0,2,44,2,41,2,41
+Apache Commons Math,org.apache.commons.math3.linear,RealVector.new Iterator() {...},0,54,0,4,0,9,0,6,0,4
+Apache Commons Math,org.apache.commons.math3.linear,RealVector.SparseEntryIterator,9,84,2,12,3,19,3,9,1,4
+Apache Commons Math,org.apache.commons.math3.linear,MatrixDimensionMismatchException,0,44,0,0,0,6,0,5,0,5
+Apache Commons Math,org.apache.commons.math3.linear,NonSelfAdjointOperatorException,0,6,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.linear,SparseFieldVector,317,911,36,76,72,203,38,71,12,41
+Apache Commons Math,org.apache.commons.math3.linear,RealVector.2.new Iterator() {...},4,31,0,0,1,5,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.linear,RealVector.2.new Iterator() {...},4,31,0,0,1,5,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.linear,SingularValueDecomposition.Solver,0,76,0,6,0,16,0,8,0,5
+Apache Commons Math,org.apache.commons.math3.linear,RRQRDecomposition,1,210,2,18,1,47,2,15,0,7
+Apache Commons Math,org.apache.commons.math3.linear,SingularValueDecomposition,26,1972,13,171,3,263,14,92,1,12
+Apache Commons Math,org.apache.commons.math3.linear,QRDecomposition.Solver,0,506,0,44,0,84,0,27,0,5
+Apache Commons Math,org.apache.commons.math3.linear,AbstractRealMatrix.new DefaultRealMatrixPreservingVisitor() {...},0,30,0,0,0,6,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.linear,AbstractRealMatrix.new DefaultRealMatrixPreservingVisitor() {...},0,16,0,0,0,3,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.linear,AbstractRealMatrix.new RealMatrixPreservingVisitor() {...},0,23,0,0,0,6,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.linear,AbstractRealMatrix.new DefaultRealMatrixChangingVisitor() {...},0,24,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.linear,AbstractRealMatrix.new RealMatrixPreservingVisitor() {...},0,44,0,2,0,11,0,5,0,4
+Apache Commons Math,org.apache.commons.math3.linear,FieldLUDecomposition,11,472,2,52,0,81,2,32,0,7
+Apache Commons Math,org.apache.commons.math3.linear,MatrixUtils.BigFractionMatrixConverter,0,26,0,0,0,7,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.linear,CholeskyDecomposition.Solver,9,284,0,28,2,46,2,17,2,3
+Apache Commons Math,org.apache.commons.math3.linear,TriDiagonalTransformer,3,568,0,46,1,87,1,30,1,7
+Apache Commons Math,org.apache.commons.math3.linear,AbstractRealMatrix,209,1755,22,176,35,331,19,134,4,50
+Apache Commons Math,org.apache.commons.math3.linear,DefaultFieldMatrixChangingVisitor,2,10,0,0,1,5,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.linear,RealLinearOperator,6,3,0,0,2,1,2,1,2,1
+Apache Commons Math,org.apache.commons.math3.primes,Primes,3,123,0,26,2,29,1,16,1,3
+Apache Commons Math,org.apache.commons.math3.primes,SmallPrimes,15,2255,4,30,6,53,5,18,1,5
+Apache Commons Math,org.apache.commons.math3.primes,PollardRho,219,0,22,0,62,0,15,0,4,0
+Apache Commons Math,org.apache.commons.math3.stat.interval,ClopperPearsonInterval,0,106,2,2,0,14,2,2,0,2
+Apache Commons Math,org.apache.commons.math3.stat.interval,WilsonScoreInterval,0,99,0,0,0,13,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.stat.interval,IntervalUtils,3,92,0,10,2,17,1,11,1,6
+Apache Commons Math,org.apache.commons.math3.stat.interval,AgrestiCoullInterval,0,67,0,0,0,10,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.stat.interval,ConfidenceInterval,61,39,3,3,3,12,4,5,1,5
+Apache Commons Math,org.apache.commons.math3.stat.interval,NormalApproximationInterval,0,52,0,0,0,7,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.oned,NeuronString.SerializationProxy,0,17,0,0,0,5,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.oned,NeuronString,39,237,4,18,5,40,6,13,2,6
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.twod,NeuronSquareMesh2D.SerializationProxy,0,27,0,0,0,7,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.twod,NeuronSquareMesh2D.HorizontalDirection,5,43,0,0,0,4,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.twod,NeuronSquareMesh2D,111,864,10,139,20,152,11,80,3,11
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.twod,NeuronSquareMesh2D.VerticalDirection,5,43,0,0,0,4,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.twod,NeuronSquareMesh2D.new Object() {...},8,61,0,0,0,3,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.analysis.polynomials,PolynomialSplineFunction,69,221,11,19,10,36,8,16,1,8
+Apache Commons Math,org.apache.commons.math3.analysis.polynomials,PolynomialFunctionLagrangeForm,82,450,3,31,15,73,5,22,3,7
+Apache Commons Math,org.apache.commons.math3.analysis.polynomials,PolynomialFunctionNewtonForm,37,258,3,15,7,44,5,14,2,8
+Apache Commons Math,org.apache.commons.math3.analysis.polynomials,PolynomialsUtils.JacobiKey,3,38,4,4,1,8,4,3,0,3
+Apache Commons Math,org.apache.commons.math3.analysis.polynomials,PolynomialsUtils.new PolynomialsUtils.RecurrenceCoefficientsGenerator() {...},0,22,0,0,0,3,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.polynomials,PolynomialsUtils.new PolynomialsUtils.RecurrenceCoefficientsGenerator() {...},0,38,0,0,0,3,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.polynomials,PolynomialsUtils.new PolynomialsUtils.RecurrenceCoefficientsGenerator() {...},0,23,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.polynomials,PolynomialsUtils.new PolynomialsUtils.RecurrenceCoefficientsGenerator() {...},0,97,0,0,0,8,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.polynomials,PolynomialsUtils.new PolynomialsUtils.RecurrenceCoefficientsGenerator() {...},0,32,0,0,0,3,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis.polynomials,PolynomialFunction.Parametric,0,31,0,2,0,8,0,4,0,3
+Apache Commons Math,org.apache.commons.math3.analysis.polynomials,PolynomialFunction,122,471,15,47,24,84,14,34,3,14
+Apache Commons Math,org.apache.commons.math3.analysis.polynomials,PolynomialsUtils,8,442,0,20,2,71,1,19,1,9
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.vector.jacobian,GaussNewtonOptimizer,8,249,3,23,2,55,3,14,0,4
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.vector.jacobian,LevenbergMarquardtOptimizer,80,2081,19,187,10,362,18,97,0,12
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.vector.jacobian,AbstractLeastSquaresOptimizer,8,200,2,12,2,40,2,18,0,13
+Apache Commons Math,org.apache.commons.math3.genetics,CycleCrossover,6,194,1,21,2,41,2,14,1,4
+Apache Commons Math,org.apache.commons.math3.genetics,ChromosomePair,15,15,0,0,1,6,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.genetics,RandomKey,32,305,3,29,4,61,4,24,1,11
+Apache Commons Math,org.apache.commons.math3.genetics,NPointCrossover,9,160,1,15,2,34,2,10,1,3
+Apache Commons Math,org.apache.commons.math3.genetics,ElitisticListPopulation,0,87,0,6,0,19,0,8,0,5
+Apache Commons Math,org.apache.commons.math3.genetics,UniformCrossover,3,125,0,14,1,23,1,10,1,3
+Apache Commons Math,org.apache.commons.math3.genetics,OnePointCrossover,14,95,3,7,2,17,3,5,0,3
+Apache Commons Math,org.apache.commons.math3.genetics,Chromosome,2,54,1,7,1,15,2,8,1,5
+Apache Commons Math,org.apache.commons.math3.genetics,ListPopulation,36,178,5,17,8,38,4,20,1,12
+Apache Commons Math,org.apache.commons.math3.genetics,BinaryChromosome,2,96,1,15,1,21,1,12,0,5
+Apache Commons Math,org.apache.commons.math3.genetics,TournamentSelection,26,62,1,3,4,12,3,4,2,3
+Apache Commons Math,org.apache.commons.math3.genetics,AbstractListChromosome,1,49,1,1,0,11,1,6,0,6
+Apache Commons Math,org.apache.commons.math3.genetics,OrderedCrossover,0,171,0,14,0,36,0,10,0,3
+Apache Commons Math,org.apache.commons.math3.genetics,FixedElapsedTime,14,35,1,5,3,8,2,4,1,2
+Apache Commons Math,org.apache.commons.math3.genetics,TournamentSelection.new ListPopulation() {...},2,7,0,0,1,1,1,1,1,1
+Apache Commons Math,org.apache.commons.math3.genetics,RandomKeyMutation,13,33,1,1,1,8,1,2,0,2
+Apache Commons Math,org.apache.commons.math3.genetics,BinaryMutation,7,41,1,3,1,8,1,3,0,2
+Apache Commons Math,org.apache.commons.math3.genetics,FixedGenerationCount,12,26,1,3,2,9,2,3,1,2
+Apache Commons Math,org.apache.commons.math3.genetics,GeneticAlgorithm,25,149,6,12,4,37,7,14,1,11
+Apache Commons Math,org.apache.commons.math3.genetics,InvalidRepresentationException,0,5,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,LeastSquaresFactory,57,77,0,6,6,16,6,8,6,5
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,LeastSquaresFactory.LocalLeastSquaresProblem.UnweightedEvaluation,0,25,0,0,0,8,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,OptimumImpl,8,40,0,0,2,12,2,8,2,8
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,GaussNewtonOptimizer.Decomposition.new GaussNewtonOptimizer.Decomposition() {...},0,40,0,0,0,7,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,GaussNewtonOptimizer.Decomposition.new GaussNewtonOptimizer.Decomposition() {...},0,14,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,GaussNewtonOptimizer.Decomposition,9,49,0,0,0,5,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,GaussNewtonOptimizer.Decomposition.new GaussNewtonOptimizer.Decomposition() {...},0,39,0,0,0,7,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,GaussNewtonOptimizer.Decomposition.new GaussNewtonOptimizer.Decomposition() {...},0,27,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,LeastSquaresFactory.new ConvergenceChecker() {...},0,31,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,LeastSquaresFactory.new LeastSquaresAdapter() {...},14,0,0,0,3,0,2,0,2,0
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,LeastSquaresFactory.new LeastSquaresAdapter() {...},0,16,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,LeastSquaresAdapter,0,35,0,0,0,10,0,8,0,8
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,LeastSquaresBuilder,5,90,0,0,2,22,1,14,1,14
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,AbstractEvaluation,0,76,0,2,0,17,0,6,0,5
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,LeastSquaresFactory.LocalLeastSquaresProblem,2,99,1,9,0,17,1,9,0,5
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,LeastSquaresFactory.LocalValueAndJacobianFunction,0,40,0,0,0,8,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,LevenbergMarquardtOptimizer,90,1997,16,186,13,358,20,99,5,13
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,EvaluationRmsChecker,5,31,0,4,2,7,1,4,1,2
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,LevenbergMarquardtOptimizer.InternalData,0,21,0,0,0,8,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,DenseWeightedEvaluation,0,29,0,0,0,7,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,LeastSquaresFactory.LocalLeastSquaresProblem.LazyUnweightedEvaluation,20,14,0,0,3,5,3,1,3,1
+Apache Commons Math,org.apache.commons.math3.fitting.leastsquares,GaussNewtonOptimizer,28,174,1,17,6,35,5,11,4,3
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.summary,SumOfLogs,6,92,1,3,3,27,2,9,1,8
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.summary,Sum,14,122,2,6,4,33,4,11,2,9
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.summary,Product,6,130,2,6,3,34,3,12,1,10
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.summary,SumOfSquares,6,95,1,3,3,27,2,9,1,8
+Apache Commons Math,org.apache.commons.math3.optim,SimpleValueChecker,0,71,1,9,0,15,1,7,0,3
+Apache Commons Math,org.apache.commons.math3.optim,BaseMultivariateOptimizer,10,174,2,28,1,36,2,20,0,7
+Apache Commons Math,org.apache.commons.math3.optim,PointVectorValuePair,6,66,3,9,0,11,3,10,0,7
+Apache Commons Math,org.apache.commons.math3.optim,BaseMultiStartMultivariateOptimizer,14,219,4,30,3,51,4,17,0,4
+Apache Commons Math,org.apache.commons.math3.optim,AbstractConvergenceChecker,0,15,0,0,0,6,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.optim,SimpleBounds,0,41,0,0,0,11,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.optim,BaseOptimizer.MaxEvalCallback,0,9,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optim,PointVectorValuePair.DataTransferObject,0,22,0,0,0,5,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optim,AbstractOptimizationProblem,0,40,0,0,0,10,0,5,0,5
+Apache Commons Math,org.apache.commons.math3.optim,BaseOptimizer.MaxIterCallback,0,9,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optim,BaseOptimizer,13,104,0,6,4,27,2,13,2,10
+Apache Commons Math,org.apache.commons.math3.optim,PointValuePair.DataTransferObject,0,20,0,0,0,5,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optim,AbstractOptimizationProblem.MaxEvalCallback,0,9,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optim,MaxEval,11,11,1,1,2,5,2,2,1,2
+Apache Commons Math,org.apache.commons.math3.optim,AbstractOptimizationProblem.MaxIterCallback,0,9,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optim,MaxIter,11,11,1,1,2,5,2,2,1,2
+Apache Commons Math,org.apache.commons.math3.optim,SimpleVectorValueChecker,0,83,0,12,0,20,0,9,0,3
+Apache Commons Math,org.apache.commons.math3.optim,InitialGuess,0,13,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optim,PointValuePair,4,45,2,4,0,8,2,6,0,5
+Apache Commons Math,org.apache.commons.math3.optim,SimplePointChecker,0,85,2,10,0,20,2,7,0,3
+Apache Commons Math,org.apache.commons.math3.stat.clustering,Cluster,0,23,0,0,0,8,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.stat.clustering,DBSCANClusterer,0,210,0,28,0,53,0,21,0,7
+Apache Commons Math,org.apache.commons.math3.stat.clustering,KMeansPlusPlusClusterer,45,616,14,78,8,158,12,45,0,10
+Apache Commons Math,org.apache.commons.math3.stat.clustering,KMeansPlusPlusClusterer.EmptyClusterStrategy,5,53,0,0,0,5,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.stat.clustering,KMeansPlusPlusClusterer.new Object() {...},3,23,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.stat.clustering,EuclideanDoublePoint,6,85,1,7,2,16,2,9,1,6
+Apache Commons Math,org.apache.commons.math3.stat.clustering,DBSCANClusterer.PointStatus,9,29,0,0,0,3,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.stat.clustering,EuclideanIntegerPoint,6,84,1,7,2,16,2,9,1,6
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.twod,Circle.CircleTransform,0,43,0,0,0,7,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.twod,Circle,6,218,0,2,1,43,1,24,1,23
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.twod,EdgesBuilder,7,251,1,23,1,52,1,18,0,7
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.twod,Vertex,2,77,1,5,1,23,1,10,0,8
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.twod,S2Point,3,221,4,16,1,41,4,21,0,15
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.twod,Sphere2D.LazyHolder,3,6,0,0,1,1,1,1,1,1
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.twod,Sphere2D,2,9,0,0,1,5,1,4,1,4
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.twod,SubCircle,0,82,0,8,0,13,0,7,0,3
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.twod,SphericalPolygonsSet,23,733,13,69,7,137,11,45,0,15
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.twod,Edge,35,236,1,11,3,45,1,14,0,9
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.twod,PropertiesComputer,10,192,3,13,3,39,3,14,0,9
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.14.new UnivariateFunction() {...},0,25,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.6.new UnivariateFunction() {...},38,0,2,0,5,0,3,0,2,0
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new DifferentiableUnivariateFunction() {...},32,0,2,0,6,0,4,0,3,0
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new UnivariateFunction() {...},0,33,0,2,0,5,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new UnivariateFunction() {...},0,27,0,2,0,5,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new UnivariateDifferentiableFunction() {...},21,27,2,2,4,5,2,3,1,2
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new UnivariateFunction() {...},0,33,0,2,0,5,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new UnivariateDifferentiableFunction() {...},27,33,2,2,4,5,2,3,1,2
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new UnivariateDifferentiableFunction() {...},27,33,2,2,4,5,2,3,1,2
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new DifferentiableUnivariateFunction() {...},38,0,2,0,6,0,4,0,3,0
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new DifferentiableUnivariateFunction() {...},38,0,2,0,6,0,4,0,3,0
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.3.new UnivariateFunction() {...},42,0,2,0,7,0,3,0,2,0
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.18.new MultivariateMatrixFunction() {...},0,80,0,6,0,14,0,5,0,2
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.16.new MultivariateFunction() {...},65,0,4,0,9,0,4,0,2,0
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.16.new MultivariateVectorFunction() {...},0,66,0,4,0,13,0,4,0,2
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new UnivariateFunction() {...},0,16,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new UnivariateFunction() {...},0,16,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new MultivariateFunction() {...},0,45,0,2,0,5,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new UnivariateFunction() {...},0,24,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new DifferentiableUnivariateFunction() {...},0,16,0,0,0,3,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new UnivariateDifferentiableFunction() {...},27,67,2,3,3,12,3,3,1,2
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new DifferentiableMultivariateFunction() {...},6,16,0,0,1,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new MultivariateDifferentiableFunction() {...},32,127,3,11,4,22,4,6,1,2
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new DifferentiableMultivariateVectorFunction() {...},0,16,0,0,0,3,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.new MultivariateDifferentiableVectorFunction() {...},27,152,3,13,3,26,3,8,0,3
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils,18,145,0,6,4,26,4,21,4,18
+Apache Commons Math,org.apache.commons.math3.analysis,FunctionUtils.9.new UnivariateFunction() {...},56,0,6,0,9,0,5,0,2,0
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.sofm.util,QuasiSigmoidDecayFunction,0,83,0,6,0,18,0,5,0,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.sofm.util,ExponentialDecayFunction,0,70,0,8,0,13,0,6,0,2
+Apache Commons Math,org.apache.commons.math3.random,EmpiricalDistribution.ArrayDataAdapter,0,67,0,4,0,13,0,5,0,3
+Apache Commons Math,org.apache.commons.math3.random,CorrelatedRandomVectorGenerator,50,103,3,7,12,19,4,7,2,4
+Apache Commons Math,org.apache.commons.math3.random,RandomDataGenerator,124,645,17,53,24,123,14,56,2,33
+Apache Commons Math,org.apache.commons.math3.random,Well19937a,7,157,0,0,2,22,1,4,1,4
+Apache Commons Math,org.apache.commons.math3.random,Well19937c,0,180,0,0,0,26,0,5,0,5
+Apache Commons Math,org.apache.commons.math3.random,ValueServer,33,352,2,23,7,73,3,38,1,25
+Apache Commons Math,org.apache.commons.math3.random,MersenneTwister,8,486,1,27,2,74,1,22,0,9
+Apache Commons Math,org.apache.commons.math3.random,EmpiricalDistribution.StreamDataAdapter,0,78,0,4,0,23,0,5,0,3
+Apache Commons Math,org.apache.commons.math3.random,UncorrelatedRandomVectorGenerator,8,70,1,3,1,16,1,4,0,3
+Apache Commons Math,org.apache.commons.math3.random,Well512a,15,117,0,0,4,17,2,3,2,3
+Apache Commons Math,org.apache.commons.math3.random,RandomGeneratorFactory.new RandomGenerator() {...},6,59,0,2,2,16,1,12,1,11
+Apache Commons Math,org.apache.commons.math3.random,HaltonSequenceGenerator,0,493,0,16,0,33,0,15,0,7
+Apache Commons Math,org.apache.commons.math3.random,EmpiricalDistribution.DataAdapter,0,6,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.random,RandomDataImpl,185,13,0,0,38,5,32,2,32,2
+Apache Commons Math,org.apache.commons.math3.random,SynchronizedRandomGenerator,15,40,0,0,6,12,3,9,3,9
+Apache Commons Math,org.apache.commons.math3.random,RandomGeneratorFactory,32,5,2,0,6,1,3,1,2,1
+Apache Commons Math,org.apache.commons.math3.random,SobolSequenceGenerator,54,443,6,36,15,86,6,23,0,8
+Apache Commons Math,org.apache.commons.math3.random,EmpiricalDistribution,57,742,6,46,22,140,13,51,7,31
+Apache Commons Math,org.apache.commons.math3.random,StableRandomGenerator,80,170,5,19,6,27,4,10,0,2
+Apache Commons Math,org.apache.commons.math3.random,BitsStreamGenerator,86,228,13,15,13,51,9,18,2,11
+Apache Commons Math,org.apache.commons.math3.random,GaussianRandomGenerator,0,10,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.random,ISAACRandom,30,992,1,19,5,124,2,21,1,12
+Apache Commons Math,org.apache.commons.math3.random,Well1024a,7,130,0,0,2,20,1,4,1,4
+Apache Commons Math,org.apache.commons.math3.random,AbstractWell,0,241,0,8,0,39,0,11,0,7
+Apache Commons Math,org.apache.commons.math3.random,RandomAdaptor,22,53,4,2,7,16,5,12,3,11
+Apache Commons Math,org.apache.commons.math3.random,UnitSphereRandomVectorGenerator,0,66,0,4,0,16,0,5,0,3
+Apache Commons Math,org.apache.commons.math3.random,AbstractRandomGenerator,35,169,5,17,7,40,5,17,1,10
+Apache Commons Math,org.apache.commons.math3.random,Well44497b,7,185,0,2,2,26,1,5,1,4
+Apache Commons Math,org.apache.commons.math3.random,Well44497a,15,161,0,2,4,22,2,4,2,3
+Apache Commons Math,org.apache.commons.math3.random,UniformRandomGenerator,0,20,0,0,0,5,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.random,JDKRandomGenerator,5,14,0,0,2,7,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.optimization,MultivariateDifferentiableMultiStartOptimizer,0,6,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.optimization,DifferentiableMultivariateMultiStartOptimizer,6,0,0,0,2,0,1,0,1,0
+Apache Commons Math,org.apache.commons.math3.optimization,BaseMultivariateVectorMultiStartOptimizer.new Comparator() {...},3,64,2,6,1,11,2,5,0,3
+Apache Commons Math,org.apache.commons.math3.optimization,Target,0,13,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optimization,GoalType,9,29,0,0,0,4,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.optimization,SimpleBounds,0,23,0,0,0,6,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.optimization,BaseMultivariateMultiStartOptimizer,31,105,5,9,8,24,6,8,1,6
+Apache Commons Math,org.apache.commons.math3.optimization,BaseMultivariateVectorMultiStartOptimizer,21,125,3,11,5,29,4,10,1,6
+Apache Commons Math,org.apache.commons.math3.optimization,MultivariateMultiStartOptimizer,0,6,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.optimization,DifferentiableMultivariateVectorMultiStartOptimizer,6,0,0,0,2,0,1,0,1,0
+Apache Commons Math,org.apache.commons.math3.optimization,SimplePointChecker,6,85,2,10,3,20,3,7,1,3
+Apache Commons Math,org.apache.commons.math3.optimization,InitialGuess,0,13,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optimization,AbstractConvergenceChecker,9,24,0,0,4,8,1,4,1,4
+Apache Commons Math,org.apache.commons.math3.optimization,Weight,20,13,2,0,5,4,2,2,1,2
+Apache Commons Math,org.apache.commons.math3.optimization,PointVectorValuePair,6,66,3,9,0,11,3,10,0,7
+Apache Commons Math,org.apache.commons.math3.optimization,PointValuePair.DataTransferObject,0,20,0,0,0,5,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optimization,LeastSquaresConverter,25,175,3,15,3,35,3,10,0,4
+Apache Commons Math,org.apache.commons.math3.optimization,PointValuePair,4,45,2,4,0,8,2,6,0,5
+Apache Commons Math,org.apache.commons.math3.optimization,SimpleValueChecker,6,71,1,9,3,15,2,7,1,3
+Apache Commons Math,org.apache.commons.math3.optimization,BaseMultivariateMultiStartOptimizer.new Comparator() {...},11,32,5,3,2,6,4,2,0,2
+Apache Commons Math,org.apache.commons.math3.optimization,PointVectorValuePair.DataTransferObject,0,22,0,0,0,5,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optimization,SimpleVectorValueChecker,6,83,0,12,3,20,1,9,1,3
+Apache Commons Math,org.apache.commons.math3.optimization,MultivariateDifferentiableVectorMultiStartOptimizer,0,6,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,DormandPrince853StepInterpolator,21,1578,5,43,4,116,5,29,0,10
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,DormandPrince853FieldStepInterpolator,0,2259,1,7,0,158,1,7,0,4
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,ThreeEighthesFieldIntegrator,0,172,0,2,0,24,0,6,0,5
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,RungeKuttaFieldStepInterpolator,0,113,0,6,0,14,0,9,0,6
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,AdamsMoultonIntegrator.Corrector,13,132,2,6,0,21,2,6,0,4
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,ThreeEighthesStepInterpolator,0,308,1,7,0,38,1,7,0,4
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,LutherFieldStepInterpolator,0,778,1,3,0,48,1,4,0,3
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,AdamsMoultonFieldIntegrator.Corrector,15,157,2,6,0,21,2,6,0,4
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,AdamsIntegrator,0,48,0,0,0,10,0,5,0,5
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,ClassicalRungeKuttaStepInterpolator,0,269,1,7,0,35,1,7,0,4
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,MidpointStepInterpolator,0,150,1,7,0,24,1,7,0,4
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,AdamsFieldStepInterpolator,18,206,0,6,1,30,1,7,1,4
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,AdamsNordsieckFieldTransformer,5,500,0,32,1,73,0,23,0,7
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,LutherStepInterpolator,0,722,1,7,0,50,1,8,0,5
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,GillStepInterpolator,0,307,1,7,0,43,1,8,0,5
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,AdaptiveStepsizeFieldIntegrator,90,448,14,28,9,72,13,19,3,8
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,MidpointFieldIntegrator,0,77,0,0,0,13,0,5,0,5
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,GraggBulirschStoerStepInterpolator,59,842,15,43,9,127,14,25,0,10
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,HighamHall54StepInterpolator,0,449,1,7,0,41,1,7,0,4
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,MidpointFieldStepInterpolator,0,128,1,3,0,16,1,4,0,3
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,MidpointIntegrator,0,42,0,0,0,5,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,HighamHall54Integrator,0,331,0,6,0,19,0,8,0,5
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,AdamsMoultonFieldIntegrator,6,410,1,29,1,58,1,17,0,3
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,AdamsBashforthFieldIntegrator,19,466,2,34,1,65,2,20,0,4
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,LutherFieldIntegrator,0,448,0,2,0,47,0,6,0,5
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,EmbeddedRungeKuttaFieldIntegrator,9,723,0,50,3,95,3,33,3,8
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,EulerIntegrator,0,25,0,0,0,5,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,ClassicalRungeKuttaFieldIntegrator,0,166,0,2,0,24,0,6,0,5
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,ClassicalRungeKuttaIntegrator,0,88,0,0,0,5,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,LutherIntegrator,0,288,0,0,0,6,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,RungeKuttaStepInterpolator,18,223,7,23,2,49,7,14,0,6
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,DormandPrince54Integrator,0,318,0,4,0,16,0,7,0,5
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,RungeKuttaFieldIntegrator,9,571,1,39,1,71,1,23,0,4
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,GillIntegrator,0,117,0,0,0,5,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,DormandPrince853Integrator,0,895,0,6,0,23,0,8,0,5
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,HighamHall54FieldStepInterpolator,0,439,1,3,0,30,1,4,0,3
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,AdamsBashforthIntegrator,40,433,3,35,4,82,3,20,0,4
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,GraggBulirschStoerIntegrator,25,1985,22,212,7,301,22,109,0,13
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,AdamsNordsieckTransformer,9,464,0,32,2,72,1,23,1,7
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,AdaptiveStepsizeIntegrator,17,395,7,39,3,79,6,29,0,12
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,EmbeddedRungeKuttaIntegrator,0,626,0,54,0,108,0,36,0,9
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,DormandPrince54StepInterpolator,0,454,1,15,0,62,1,13,0,6
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,GillFieldStepInterpolator,0,296,1,3,0,33,1,4,0,3
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,EulerFieldIntegrator,0,47,0,0,0,8,0,5,0,5
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,DormandPrince54FieldStepInterpolator,0,918,1,3,0,64,1,4,0,3
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,AdamsMoultonIntegrator,29,382,2,30,4,75,2,17,0,3
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,GillFieldIntegrator,0,202,0,2,0,28,0,6,0,5
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,DormandPrince54FieldIntegrator,0,566,0,6,0,68,0,11,0,8
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,DormandPrince853FieldIntegrator,5,1978,1,7,1,213,1,11,0,8
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,ClassicalRungeKuttaFieldStepInterpolator,0,254,1,3,0,26,1,4,0,3
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,RungeKuttaIntegrator,7,543,1,43,1,81,1,24,0,3
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,EulerFieldStepInterpolator,0,83,1,3,0,9,1,4,0,3
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,EulerStepInterpolator,0,100,1,7,0,13,1,7,0,4
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,AdamsFieldIntegrator,0,52,0,0,0,10,0,5,0,5
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,ThreeEighthesFieldStepInterpolator,0,277,1,3,0,27,1,4,0,3
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,HighamHall54FieldIntegrator,0,591,0,8,0,74,0,12,0,8
+Apache Commons Math,org.apache.commons.math3.ode.nonstiff,ThreeEighthesIntegrator,0,88,0,0,0,5,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ode.events,FilterType.new Object() {...},5,35,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.ode.events,FilterType.new FilterType() {...},8,112,2,36,2,39,2,24,0,3
+Apache Commons Math,org.apache.commons.math3.ode.events,FilterType.new FilterType() {...},8,112,2,36,2,39,2,24,0,3
+Apache Commons Math,org.apache.commons.math3.ode.events,FieldEventState,166,379,27,37,19,68,21,22,3,8
+Apache Commons Math,org.apache.commons.math3.ode.events,Action,9,49,0,0,0,5,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.ode.events,EventState.new UnivariateFunction() {...},6,24,0,0,2,3,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ode.events,FilterType,9,29,0,0,0,4,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.ode.events,EventHandler.Action,9,49,0,0,0,5,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.ode.events,EventFilter,24,237,2,20,4,42,3,13,1,4
+Apache Commons Math,org.apache.commons.math3.ode.events,EventState.LocalMaxCountExceededException,9,0,0,0,4,0,2,0,2,0
+Apache Commons Math,org.apache.commons.math3.ode.events,Transformer,5,63,0,0,0,6,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.ode.events,Transformer.new Transformer() {...},0,13,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ode.events,Transformer.new Transformer() {...},0,8,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ode.events,Transformer.new Transformer() {...},0,8,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ode.events,Transformer.new Transformer() {...},0,9,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ode.events,Transformer.new Transformer() {...},0,14,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ode.events,FieldEventState.new RealFieldUnivariateFunction() {...},0,18,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ode.events,EventState,53,551,10,64,8,95,12,38,3,10
+Apache Commons Math,org.apache.commons.math3.util,CombinatoricsUtils,17,685,2,96,3,115,4,56,2,9
+Apache Commons Math,org.apache.commons.math3.util,FastMath.lnMant,3,3,0,0,1,2,1,1,1,1
+Apache Commons Math,org.apache.commons.math3.util,MathArrays.Position,5,33,0,0,0,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.util,FastMath.ExpIntTable,3,5,0,0,1,3,1,1,1,1
+Apache Commons Math,org.apache.commons.math3.util,ResizableDoubleArray.new Object() {...},2,17,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.util,TransformerMap,36,134,8,12,10,31,8,14,1,11
+Apache Commons Math,org.apache.commons.math3.util,KthSelector,0,211,1,37,0,47,1,23,0,5
+Apache Commons Math,org.apache.commons.math3.util,FastMath.Split,9,234,1,21,1,37,1,17,0,7
+Apache Commons Math,org.apache.commons.math3.util,CompositeFormat,3,214,1,27,1,53,2,21,1,8
+Apache Commons Math,org.apache.commons.math3.util,IterationManager,33,98,0,8,9,27,4,13,4,9
+Apache Commons Math,org.apache.commons.math3.util,Incrementor.new Incrementor() {...},25,20,0,0,9,5,3,1,3,1
+Apache Commons Math,org.apache.commons.math3.util,Incrementor.new Incrementor.MaxCountExceededCallback() {...},0,9,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.util,Decimal64,58,613,2,12,11,85,11,67,9,62
+Apache Commons Math,org.apache.commons.math3.util,ArithmeticUtils,87,945,10,140,21,194,16,87,9,19
+Apache Commons Math,org.apache.commons.math3.util,FastMathCalc,1920,0,62,0,277,0,49,0,18,0
+Apache Commons Math,org.apache.commons.math3.util,MathArrays,195,2429,46,245,34,464,35,172,6,54
+Apache Commons Math,org.apache.commons.math3.util,MultidimensionalCounter,30,229,2,22,4,45,2,18,1,7
+Apache Commons Math,org.apache.commons.math3.util,Decimal64Field,0,16,0,0,0,7,0,6,0,6
+Apache Commons Math,org.apache.commons.math3.util,Pair,13,111,5,15,3,19,6,14,1,9
+Apache Commons Math,org.apache.commons.math3.util,Incrementor,9,74,1,7,2,23,1,14,0,11
+Apache Commons Math,org.apache.commons.math3.util,BigReal,13,400,0,4,6,76,4,33,4,31
+Apache Commons Math,org.apache.commons.math3.util,MedianOf3PivotingStrategy,0,66,0,10,0,14,0,7,0,2
+Apache Commons Math,org.apache.commons.math3.util,FastMath.ExpFracTable,3,5,0,0,1,3,1,1,1,1
+Apache Commons Math,org.apache.commons.math3.util,IntegerSequence,3,12,0,0,1,2,1,2,1,2
+Apache Commons Math,org.apache.commons.math3.util,CentralPivotingStrategy,15,3,0,0,2,1,1,1,1,1
+Apache Commons Math,org.apache.commons.math3.util,MultidimensionalCounter.Iterator,11,93,1,7,3,16,4,7,3,4
+Apache Commons Math,org.apache.commons.math3.util,Combinations.IterationOrder,5,23,0,0,0,2,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.util,FastMathLiteralArrays,3,33548,0,0,1,10,1,6,1,6
+Apache Commons Math,org.apache.commons.math3.util,Combinations.SingletonIterator,8,21,1,1,2,8,2,3,1,3
+Apache Commons Math,org.apache.commons.math3.util,Combinations.LexicographicIterator,12,181,3,15,4,38,4,9,1,3
+Apache Commons Math,org.apache.commons.math3.util,ContinuedFraction,56,103,7,9,8,31,9,4,2,3
+Apache Commons Math,org.apache.commons.math3.util,MathUtils,43,209,22,44,5,38,17,32,1,15
+Apache Commons Math,org.apache.commons.math3.util,BigRealField.LazyHolder,3,6,0,0,1,1,1,1,1,1
+Apache Commons Math,org.apache.commons.math3.util,Precision,92,636,33,98,4,105,25,67,4,19
+Apache Commons Math,org.apache.commons.math3.util,OpenIntToDoubleHashMap.Iterator,16,97,4,12,4,24,4,9,0,5
+Apache Commons Math,org.apache.commons.math3.util,ResizableDoubleArray,122,992,11,78,20,208,18,76,7,42
+Apache Commons Math,org.apache.commons.math3.util,OpenIntToDoubleHashMap,0,682,0,68,0,157,0,58,0,24
+Apache Commons Math,org.apache.commons.math3.util,IntegerSequence.Incrementor.new IntegerSequence.Incrementor.MaxCountExceededCallback() {...},0,9,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.util,ResizableDoubleArray.ExpansionMode,5,33,0,0,0,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.util,BigRealField,2,11,0,0,1,6,1,5,1,5
+Apache Commons Math,org.apache.commons.math3.util,IterationEvent,0,10,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.util,Combinations,4,64,1,5,1,15,1,8,0,6
+Apache Commons Math,org.apache.commons.math3.util,Combinations.new Object() {...},1,11,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.util,OpenIntToFieldHashMap,12,695,0,68,5,155,2,57,2,23
+Apache Commons Math,org.apache.commons.math3.util,IntegerSequence.Range,0,48,0,4,0,9,0,5,0,3
+Apache Commons Math,org.apache.commons.math3.util,DefaultTransformer,2,44,0,6,1,11,1,6,1,3
+Apache Commons Math,org.apache.commons.math3.util,FastMath.CodyWaite,0,92,0,2,0,24,0,5,0,4
+Apache Commons Math,org.apache.commons.math3.util,MathArrays.PairDoubleInteger,0,15,0,0,0,6,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.util,OpenIntToFieldHashMap.Iterator,17,96,4,12,5,23,4,9,0,5
+Apache Commons Math,org.apache.commons.math3.util,Combinations.LexicographicComparator,0,114,0,14,0,26,0,10,0,3
+Apache Commons Math,org.apache.commons.math3.util,FastMath,235,8230,53,775,38,1434,46,462,4,87
+Apache Commons Math,org.apache.commons.math3.util,MathArrays.OrderDirection,5,33,0,0,0,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.util,IntegerSequence.Incrementor,17,157,1,13,4,32,3,20,2,14
+Apache Commons Math,org.apache.commons.math3.util,IterationManager.new IntegerSequence.Incrementor.MaxCountExceededCallback() {...},11,0,0,0,3,0,2,0,2,0
+Apache Commons Math,org.apache.commons.math3.util,RandomPivotingStrategy,18,6,0,0,2,3,1,1,1,1
+Apache Commons Math,org.apache.commons.math3.util,MathArrays.new Comparator() {...},0,9,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.util,MathArrays.new Object() {...},4,33,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.util,MathArrays.new Comparator() {...},0,9,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.distribution.fitting,MultivariateNormalMixtureExpectationMaximization.DataRow,21,47,4,2,6,9,4,4,2,3
+Apache Commons Math,org.apache.commons.math3.distribution.fitting,MultivariateNormalMixtureExpectationMaximization,26,634,3,51,3,101,3,30,0,6
+Apache Commons Math,org.apache.commons.math3.geometry.enclosing,EnclosingBall,0,55,0,4,0,11,0,9,0,7
+Apache Commons Math,org.apache.commons.math3.geometry.enclosing,WelzlEncloser,4,207,1,19,1,45,1,14,0,5
+Apache Commons Math,org.apache.commons.math3.dfp,Dfp.new Object() {...},8,53,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.dfp,DfpField,43,748,7,39,11,156,17,46,10,30
+Apache Commons Math,org.apache.commons.math3.dfp,BracketingNthOrderBrentSolverDFP.new RealFieldUnivariateFunction() {...},0,14,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.dfp,Dfp,361,5244,81,699,82,1014,83,427,5,108
+Apache Commons Math,org.apache.commons.math3.dfp,BracketingNthOrderBrentSolverDFP,4,46,0,0,1,8,1,5,1,5
+Apache Commons Math,org.apache.commons.math3.dfp,DfpDec,125,563,12,100,25,109,22,56,10,9
+Apache Commons Math,org.apache.commons.math3.dfp,DfpField.RoundingMode,5,93,0,0,0,9,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.dfp,DfpDec.new Object() {...},8,53,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.dfp,DfpMath,183,1679,40,154,36,337,30,88,2,19
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.noderiv,CMAESOptimizer.Sigma,0,35,0,4,0,7,0,4,0,2
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.noderiv,SimplexOptimizer,4,151,3,19,1,34,3,14,0,6
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.noderiv,BOBYQAOptimizer.PathIsExploredException,12,0,0,0,2,0,1,0,1,0
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.noderiv,CMAESOptimizer.PopulationSize,6,11,1,1,1,5,1,2,0,2
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.noderiv,MultiDirectionalSimplex,7,173,0,8,2,42,1,13,1,9
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.noderiv,PowellOptimizer,22,402,4,32,3,86,4,22,0,8
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.noderiv,SimplexOptimizer.new MultivariateFunction() {...},0,11,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.noderiv,SimplexOptimizer.new Comparator() {...},0,30,0,2,0,4,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.noderiv,CMAESOptimizer.ValuePenaltyPair,0,9,0,0,0,4,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.noderiv,CMAESOptimizer,201,2434,36,182,32,351,32,117,5,35
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.noderiv,CMAESOptimizer.FitnessFunction,43,143,7,15,9,27,5,11,1,4
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.noderiv,CMAESOptimizer.DoubleIndex,36,15,6,0,7,5,5,2,2,2
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.noderiv,AbstractSimplex,98,379,13,41,12,75,14,27,1,13
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.noderiv,BOBYQAOptimizer,922,5971,105,519,151,1004,90,243,1,12
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.noderiv,NelderMeadSimplex,10,408,1,31,3,77,2,23,1,8
+Apache Commons Math,org.apache.commons.math3.filter,DefaultProcessModel,40,33,0,0,4,12,2,6,2,6
+Apache Commons Math,org.apache.commons.math3.filter,KalmanFilter,79,301,8,22,10,55,11,16,3,9
+Apache Commons Math,org.apache.commons.math3.filter,DefaultMeasurementModel,11,15,0,0,2,6,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet,Network.NeuronIdentifierComparator,1,22,1,3,0,4,1,3,0,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet,MapUtils,346,86,32,8,72,20,22,6,6,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet,Network,53,547,9,39,10,106,11,33,2,18
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet,FeatureInitializerFactory.new FeatureInitializer() {...},0,31,0,0,0,5,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet,FeatureInitializerFactory.new FeatureInitializer() {...},0,17,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet,FeatureInitializerFactory,18,27,0,0,2,3,2,3,2,3
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet,SquareNeighbourhood,5,33,0,0,0,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet,Neuron.SerializationProxy,0,17,0,0,0,5,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet,Neuron,20,143,2,10,3,31,3,14,1,10
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet,MapUtils.PairNeuronDouble,0,17,0,0,0,6,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet,MapUtils.PairNeuronDouble.new Comparator() {...},0,9,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet,Network.SerializationProxy,0,27,0,0,0,7,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optimization.general,NonLinearConjugateGradientOptimizer,31,335,7,27,8,65,8,16,2,5
+Apache Commons Math,org.apache.commons.math3.optimization.general,AbstractDifferentiableOptimizer,37,0,0,0,6,0,4,0,4,0
+Apache Commons Math,org.apache.commons.math3.optimization.general,NonLinearConjugateGradientOptimizer.LineSearchFunction,0,63,0,4,0,11,0,4,0,2
+Apache Commons Math,org.apache.commons.math3.optimization.general,GaussNewtonOptimizer,24,232,3,19,6,53,5,11,2,3
+Apache Commons Math,org.apache.commons.math3.optimization.general,AbstractLeastSquaresOptimizer,69,405,2,20,15,68,7,26,5,17
+Apache Commons Math,org.apache.commons.math3.optimization.general,AbstractScalarDifferentiableOptimizer,3,28,0,0,1,6,1,4,1,4
+Apache Commons Math,org.apache.commons.math3.optimization.general,ConjugateGradientFormula,9,29,0,0,0,4,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.optimization.general,LevenbergMarquardtOptimizer,92,2060,21,181,11,360,18,93,0,10
+Apache Commons Math,org.apache.commons.math3.optimization.general,NonLinearConjugateGradientOptimizer.IdentityPreconditioner,0,7,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.stat.descriptive,SynchronizedSummaryStatistics,82,77,0,0,29,30,13,24,13,24
+Apache Commons Math,org.apache.commons.math3.stat.descriptive,SynchronizedMultivariateSummaryStatistics,0,104,0,0,0,41,0,31,0,31
+Apache Commons Math,org.apache.commons.math3.stat.descriptive,SummaryStatistics,96,874,19,41,28,158,28,42,9,31
+Apache Commons Math,org.apache.commons.math3.stat.descriptive,AggregateSummaryStatistics.AggregatingSummaryStatistics,41,22,8,0,7,8,6,2,2,2
+Apache Commons Math,org.apache.commons.math3.stat.descriptive,SynchronizedDescriptiveStatistics,19,73,0,0,4,28,2,14,2,14
+Apache Commons Math,org.apache.commons.math3.stat.descriptive,MultivariateSummaryStatistics,0,742,8,36,0,136,8,50,0,36
+Apache Commons Math,org.apache.commons.math3.stat.descriptive,AbstractUnivariateStatistic,68,60,10,2,12,11,7,10,2,9
+Apache Commons Math,org.apache.commons.math3.stat.descriptive,AbstractStorelessUnivariateStatistic,7,111,1,17,1,23,1,15,0,7
+Apache Commons Math,org.apache.commons.math3.stat.descriptive,DescriptiveStatistics,89,765,3,21,15,138,4,59,1,50
+Apache Commons Math,org.apache.commons.math3.stat.descriptive,StatisticalSummaryValues,0,225,5,11,0,39,5,14,0,11
+Apache Commons Math,org.apache.commons.math3.stat.descriptive,AggregateSummaryStatistics,135,272,9,15,26,55,14,15,5,12
+Apache Commons Math,org.apache.commons.math3.distribution,MixtureMultivariateRealDistribution,20,238,3,19,2,43,3,14,0,6
+Apache Commons Math,org.apache.commons.math3.distribution,BetaDistribution,44,186,9,11,9,42,9,20,2,17
+Apache Commons Math,org.apache.commons.math3.distribution,WeibullDistribution,19,273,4,18,7,59,7,24,3,17
+Apache Commons Math,org.apache.commons.math3.distribution,LogisticDistribution,24,122,3,7,5,24,5,14,2,12
+Apache Commons Math,org.apache.commons.math3.distribution,ZipfDistribution,2,253,0,24,1,55,1,27,1,15
+Apache Commons Math,org.apache.commons.math3.distribution,TDistribution,0,185,1,13,0,43,1,22,0,16
+Apache Commons Math,org.apache.commons.math3.distribution,AbstractIntegerDistribution,38,243,9,35,7,54,9,23,1,9
+Apache Commons Math,org.apache.commons.math3.distribution,HypergeometricDistribution,5,371,1,27,2,66,2,31,1,18
+Apache Commons Math,org.apache.commons.math3.distribution,MultivariateNormalDistribution,60,257,6,22,10,47,6,16,1,7
+Apache Commons Math,org.apache.commons.math3.distribution,AbstractMultivariateRealDistribution,7,38,1,3,1,12,1,5,0,4
+Apache Commons Math,org.apache.commons.math3.distribution,GeometricDistribution,16,138,2,16,3,28,4,17,2,10
+Apache Commons Math,org.apache.commons.math3.distribution,LogNormalDistribution,7,283,2,16,2,57,3,28,1,21
+Apache Commons Math,org.apache.commons.math3.distribution,ChiSquaredDistribution,0,77,0,0,0,22,0,16,0,16
+Apache Commons Math,org.apache.commons.math3.distribution,TriangularDistribution,8,402,4,36,3,55,7,27,3,11
+Apache Commons Math,org.apache.commons.math3.distribution,MixtureMultivariateNormalDistribution,5,48,0,2,2,9,1,4,1,3
+Apache Commons Math,org.apache.commons.math3.distribution,LevyDistribution,18,131,3,7,7,26,6,14,3,12
+Apache Commons Math,org.apache.commons.math3.distribution,GammaDistribution,49,458,4,28,9,76,6,30,2,18
+Apache Commons Math,org.apache.commons.math3.distribution,AbstractRealDistribution.new UnivariateFunction() {...},0,17,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.distribution,AbstractRealDistribution,23,272,5,39,5,59,7,26,2,9
+Apache Commons Math,org.apache.commons.math3.distribution,EnumeratedIntegerDistribution,0,371,0,30,0,65,0,28,0,13
+Apache Commons Math,org.apache.commons.math3.distribution,BinomialDistribution,19,147,3,21,3,29,4,20,1,11
+Apache Commons Math,org.apache.commons.math3.distribution,CauchyDistribution,17,137,0,10,6,30,4,19,4,14
+Apache Commons Math,org.apache.commons.math3.distribution,ConstantRealDistribution,2,65,0,8,1,16,1,16,1,12
+Apache Commons Math,org.apache.commons.math3.distribution,PascalDistribution,19,161,3,9,3,32,4,14,1,11
+Apache Commons Math,org.apache.commons.math3.distribution,NakagamiDistribution,16,154,2,4,2,26,2,16,0,15
+Apache Commons Math,org.apache.commons.math3.distribution,GumbelDistribution,27,110,3,7,5,24,5,14,2,12
+Apache Commons Math,org.apache.commons.math3.distribution,NormalDistribution,5,231,0,12,2,45,2,27,2,21
+Apache Commons Math,org.apache.commons.math3.distribution,UniformIntegerDistribution,2,146,0,16,1,28,1,17,1,9
+Apache Commons Math,org.apache.commons.math3.distribution,EnumeratedDistribution,75,233,17,25,16,44,14,15,2,6
+Apache Commons Math,org.apache.commons.math3.distribution,ExponentialDistribution,11,252,0,24,4,61,3,28,3,16
+Apache Commons Math,org.apache.commons.math3.distribution,EnumeratedRealDistribution,10,431,3,37,1,80,3,34,0,17
+Apache Commons Math,org.apache.commons.math3.distribution,BetaDistribution.ChengBetaSampler,3,280,0,22,1,48,1,14,1,3
+Apache Commons Math,org.apache.commons.math3.distribution,FDistribution,0,241,0,12,0,53,0,24,0,18
+Apache Commons Math,org.apache.commons.math3.distribution,LaplaceDistribution,22,134,3,11,5,24,5,16,2,12
+Apache Commons Math,org.apache.commons.math3.distribution,UniformRealDistribution,15,158,0,14,5,30,3,20,3,13
+Apache Commons Math,org.apache.commons.math3.distribution,ParetoDistribution,19,196,1,13,5,39,3,24,2,18
+Apache Commons Math,org.apache.commons.math3.distribution,SaddlePointExpansion,19,368,1,15,3,39,2,11,1,4
+Apache Commons Math,org.apache.commons.math3.distribution,PoissonDistribution,19,496,4,40,8,97,7,32,3,14
+Apache Commons Math,org.apache.commons.math3.distribution,KolmogorovSmirnovDistribution,105,377,12,36,16,59,13,18,3,4
+Apache Commons Math,org.apache.commons.math3.distribution,ZipfDistribution.ZipfRejectionInversionSampler,8,180,3,11,3,27,3,11,0,7
+Apache Commons Math,org.apache.commons.math3.fraction,FractionConversionException,0,37,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.fraction,BigFractionField,0,13,0,0,0,7,0,6,0,6
+Apache Commons Math,org.apache.commons.math3.fraction,AbstractFormat,21,102,3,9,5,33,5,14,2,11
+Apache Commons Math,org.apache.commons.math3.fraction,FractionFormat,25,172,1,12,8,43,7,14,6,8
+Apache Commons Math,org.apache.commons.math3.fraction,FractionField.LazyHolder,3,6,0,0,1,1,1,1,1,1
+Apache Commons Math,org.apache.commons.math3.fraction,ProperBigFractionFormat,29,199,4,23,9,58,5,16,1,6
+Apache Commons Math,org.apache.commons.math3.fraction,ProperFractionFormat,31,191,4,15,9,54,5,12,1,6
+Apache Commons Math,org.apache.commons.math3.fraction,BigFractionFormat,33,209,2,19,8,53,7,18,5,9
+Apache Commons Math,org.apache.commons.math3.fraction,BigFractionField.LazyHolder,3,6,0,0,1,1,1,1,1,1
+Apache Commons Math,org.apache.commons.math3.fraction,Fraction,26,895,8,90,4,167,8,73,0,32
+Apache Commons Math,org.apache.commons.math3.fraction,FractionField,0,13,0,0,0,7,0,6,0,6
+Apache Commons Math,org.apache.commons.math3.fraction,BigFraction,117,1212,26,126,25,250,27,104,3,52
+Apache Commons Math,org.apache.commons.math3.exception.util,DummyLocalizable,15,0,0,0,6,0,4,0,4,0
+Apache Commons Math,org.apache.commons.math3.exception.util,ArgUtils,3,56,1,7,1,8,2,4,1,1
+Apache Commons Math,org.apache.commons.math3.exception.util,ExceptionContext,3,342,0,20,1,79,1,27,1,17
+Apache Commons Math,org.apache.commons.math3.exception.util,LocalizedFormats,1,3665,1,1,1,339,1,6,0,6
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod.hull,AklToussaintHeuristic,7,219,3,41,4,44,4,22,1,3
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod.hull,MonotoneChain.new Comparator() {...},0,28,0,2,0,6,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod.hull,ConvexHull2D,4,279,2,28,1,53,2,19,0,6
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod.hull,AbstractConvexHullGenerator2D,0,52,0,2,0,16,0,6,0,5
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod.hull,MonotoneChain,8,236,4,28,2,50,5,16,1,4
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar,LineSearch.new UnivariateFunction() {...},0,49,0,2,0,6,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar,MultivariateFunctionMappingAdapter.LowerBoundMapper,0,18,0,0,0,5,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar,MultivariateFunctionMappingAdapter.NoBoundsMapper,0,7,0,0,0,3,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar,MultivariateFunctionMappingAdapter.LowerUpperBoundMapper,0,27,0,0,0,6,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar,ObjectiveFunctionGradient,0,9,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar,MultiStartMultivariateOptimizer,0,41,0,0,0,11,0,5,0,5
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar,MultivariateFunctionPenaltyAdapter,29,159,3,17,3,26,3,9,0,2
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar,MultivariateFunctionMappingAdapter,21,165,2,16,2,26,2,11,0,4
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar,LineSearch,0,88,0,0,0,11,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar,MultivariateOptimizer,0,56,0,6,0,15,0,8,0,5
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar,GradientMultivariateOptimizer,0,42,1,3,0,10,1,5,0,4
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar,MultivariateFunctionMappingAdapter.UpperBoundMapper,0,20,0,0,0,5,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar,ObjectiveFunction,0,9,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar,LeastSquaresConverter,25,175,3,15,3,35,3,10,0,4
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar,GoalType,9,29,0,0,0,3,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar,MultiStartMultivariateOptimizer.new Comparator() {...},11,31,5,3,2,6,4,2,0,2
+Apache Commons Math,org.apache.commons.math3.optimization.direct,BaseAbstractMultivariateVectorOptimizer,95,158,11,11,18,41,13,17,7,12
+Apache Commons Math,org.apache.commons.math3.optimization.direct,PowellOptimizer.LineSearch,0,55,0,0,0,9,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optimization.direct,BOBYQAOptimizer,922,5971,105,519,151,1004,90,243,1,12
+Apache Commons Math,org.apache.commons.math3.optimization.direct,BaseAbstractMultivariateOptimizer,20,294,5,33,3,62,6,29,1,15
+Apache Commons Math,org.apache.commons.math3.optimization.direct,MultivariateFunctionMappingAdapter.NoBoundsMapper,0,7,0,0,0,4,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.optimization.direct,MultivariateFunctionMappingAdapter.UpperBoundMapper,0,20,0,0,0,5,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.optimization.direct,AbstractSimplex,98,379,13,41,12,75,14,27,1,13
+Apache Commons Math,org.apache.commons.math3.optimization.direct,MultivariateFunctionPenaltyAdapter,29,159,3,17,3,26,3,9,0,2
+Apache Commons Math,org.apache.commons.math3.optimization.direct,SimplexOptimizer,10,145,1,17,3,32,2,14,1,6
+Apache Commons Math,org.apache.commons.math3.optimization.direct,BOBYQAOptimizer.PathIsExploredException,12,0,0,0,2,0,1,0,1,0
+Apache Commons Math,org.apache.commons.math3.optimization.direct,MultivariateFunctionMappingAdapter,21,164,2,16,2,26,2,11,0,4
+Apache Commons Math,org.apache.commons.math3.optimization.direct,PowellOptimizer,21,386,3,29,3,83,3,20,0,7
+Apache Commons Math,org.apache.commons.math3.optimization.direct,CMAESOptimizer,259,2453,39,177,40,354,36,117,7,38
+Apache Commons Math,org.apache.commons.math3.optimization.direct,PowellOptimizer.LineSearch.new UnivariateFunction() {...},0,49,0,2,0,6,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.optimization.direct,CMAESOptimizer.PopulationSize,6,11,1,1,1,5,1,2,0,2
+Apache Commons Math,org.apache.commons.math3.optimization.direct,SimplexOptimizer.new MultivariateFunction() {...},0,11,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optimization.direct,SimplexOptimizer.new Comparator() {...},0,30,0,2,0,4,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.optimization.direct,MultiDirectionalSimplex,7,173,0,8,2,42,1,13,1,9
+Apache Commons Math,org.apache.commons.math3.optimization.direct,NelderMeadSimplex,10,408,1,31,3,77,2,23,1,8
+Apache Commons Math,org.apache.commons.math3.optimization.direct,MultivariateFunctionMappingAdapter.LowerUpperBoundMapper,0,27,0,0,0,6,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.optimization.direct,BaseAbstractMultivariateSimpleBoundsOptimizer,3,42,0,0,1,4,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.optimization.direct,CMAESOptimizer.DoubleIndex,36,15,6,0,7,5,5,2,2,2
+Apache Commons Math,org.apache.commons.math3.optimization.direct,CMAESOptimizer.FitnessFunction,43,136,7,13,9,26,5,11,1,5
+Apache Commons Math,org.apache.commons.math3.optimization.direct,CMAESOptimizer.Sigma,0,35,0,4,0,7,0,4,0,2
+Apache Commons Math,org.apache.commons.math3.optimization.direct,MultivariateFunctionMappingAdapter.LowerBoundMapper,0,18,0,0,0,5,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.exception,MathArithmeticException,4,36,0,0,1,10,1,4,1,4
+Apache Commons Math,org.apache.commons.math3.exception,DimensionMismatchException,0,25,0,0,0,6,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.exception,MathParseException,18,23,0,0,3,3,1,1,1,1
+Apache Commons Math,org.apache.commons.math3.exception,MathIllegalStateException,19,27,0,0,5,8,2,4,2,4
+Apache Commons Math,org.apache.commons.math3.exception,NumberIsTooSmallException,0,34,0,2,0,8,0,5,0,4
+Apache Commons Math,org.apache.commons.math3.exception,MathRuntimeException,25,0,0,0,7,0,4,0,4,0
+Apache Commons Math,org.apache.commons.math3.exception,ConvergenceException,0,14,0,0,0,5,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.exception,NumberIsTooLargeException,0,34,0,2,0,8,0,5,0,4
+Apache Commons Math,org.apache.commons.math3.exception,MultiDimensionMismatchException,16,36,0,0,4,6,3,3,3,3
+Apache Commons Math,org.apache.commons.math3.exception,NotFiniteNumberException,0,12,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.exception,MaxCountExceededException,0,30,0,0,0,7,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.exception,NullArgumentException,0,11,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.exception,NotStrictlyPositiveException,0,13,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.exception,OutOfRangeException,0,34,0,0,0,8,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.exception,NonMonotonicSequenceException,0,68,0,6,0,12,0,9,0,6
+Apache Commons Math,org.apache.commons.math3.exception,ZeroException,0,12,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.exception,TooManyIterationsException,0,10,0,0,0,3,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.exception,NoDataException,0,10,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.exception,TooManyEvaluationsException,0,10,0,0,0,3,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.exception,InsufficientDataException,0,11,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.exception,MathIllegalNumberException,0,24,0,0,0,5,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.exception,NoBracketingException,12,52,0,0,4,8,4,2,4,2
+Apache Commons Math,org.apache.commons.math3.exception,MathIllegalArgumentException,4,21,0,0,1,6,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.exception,NotPositiveException,0,13,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.exception,MathUnsupportedOperationException,11,20,0,0,3,6,3,2,3,2
+Apache Commons Math,org.apache.commons.math3.exception,MathInternalError,29,0,0,0,7,0,3,0,3,0
+Apache Commons Math,org.apache.commons.math3.exception,NotANumberException,0,8,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,PSquarePercentile.FixedCapacityList,2,38,3,5,0,6,3,4,0,3
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,Min,6,107,0,12,3,29,1,14,1,8
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,PSquarePercentile.Marker,3,483,7,43,1,62,7,33,0,15
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,PSquarePercentile.Markers,0,590,0,38,0,68,0,35,0,16
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,Percentile.new Object() {...},4,29,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,Percentile.EstimationType.new Percentile.EstimationType() {...},0,33,0,4,0,4,0,4,0,2
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,Percentile.EstimationType.new Percentile.EstimationType() {...},0,46,0,4,0,4,0,4,0,2
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,Percentile.EstimationType.new Percentile.EstimationType() {...},0,40,0,4,0,4,0,4,0,2
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,Percentile.EstimationType.new Percentile.EstimationType() {...},0,44,0,4,0,4,0,4,0,2
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,Percentile.EstimationType.new Percentile.EstimationType() {...},0,31,0,4,0,4,0,4,0,2
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,Percentile.EstimationType.new Percentile.EstimationType() {...},0,24,0,2,0,3,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,Percentile.EstimationType.new Percentile.EstimationType() {...},0,32,0,4,0,4,0,4,0,2
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,Percentile.EstimationType.new Percentile.EstimationType() {...},0,33,0,2,0,4,0,4,0,3
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,Percentile.EstimationType.new Percentile.EstimationType() {...},0,59,0,4,0,7,0,5,0,3
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,Max,6,107,0,12,3,29,1,14,1,8
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,PSquarePercentile,0,383,0,48,0,72,0,39,0,15
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,Percentile.EstimationType,5,227,0,8,0,30,1,11,1,7
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,Percentile.EstimationType.new Percentile.EstimationType() {...},0,46,0,4,0,4,0,4,0,2
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,Median,13,29,0,0,3,6,2,4,2,4
+Apache Commons Math,org.apache.commons.math3.stat.descriptive.rank,Percentile,37,472,3,42,10,103,4,47,2,25
+Apache Commons Math,org.apache.commons.math3.stat.ranking,NaturalRanking,40,512,2,54,13,114,5,44,3,14
+Apache Commons Math,org.apache.commons.math3.stat.ranking,TiesStrategy,5,63,0,0,0,6,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.stat.ranking,NaturalRanking.new Object() {...},10,69,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.stat.ranking,NaturalRanking.IntDoublePair,0,21,0,0,0,7,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.stat.ranking,NaNStrategy,5,63,0,0,0,6,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.ode,ExpandableStatefulODE.SecondaryComponent,0,24,0,0,0,7,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.ode,UnknownParameterException,0,16,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ode,MultistepIntegrator.new FirstOrderDifferentialEquations() {...},19,0,0,0,4,0,3,0,3,0
+Apache Commons Math,org.apache.commons.math3.ode,MultistepFieldIntegrator.FieldNordsieckInitializer,0,201,0,6,0,28,0,6,0,3
+Apache Commons Math,org.apache.commons.math3.ode,ParameterConfiguration,0,19,0,0,0,8,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.ode,AbstractFieldIntegrator.new Comparator() {...},0,20,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ode,JacobianMatrices.MainStateJacobianWrapper,8,90,1,5,1,18,1,6,0,4
+Apache Commons Math,org.apache.commons.math3.ode,FieldExpandableODE,0,142,0,4,0,28,0,7,0,5
+Apache Commons Math,org.apache.commons.math3.ode,ContinuousOutputFieldModel,14,619,4,46,2,107,4,30,0,9
+Apache Commons Math,org.apache.commons.math3.ode,AbstractIntegrator,10,612,2,54,2,133,4,49,2,23
+Apache Commons Math,org.apache.commons.math3.ode,FieldODEState,0,106,0,10,0,19,0,14,0,9
+Apache Commons Math,org.apache.commons.math3.ode,MultistepFieldIntegrator.InitializationCompletedMarkerException,0,5,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.ode,ParameterJacobianWrapper,9,113,2,6,2,22,3,5,1,3
+Apache Commons Math,org.apache.commons.math3.ode,AbstractParameterizable,16,59,0,8,5,13,2,7,2,3
+Apache Commons Math,org.apache.commons.math3.ode,ParameterizedWrapper,35,0,2,0,12,0,8,0,7,0
+Apache Commons Math,org.apache.commons.math3.ode,ContinuousOutputModel,22,537,3,45,3,108,5,32,2,11
+Apache Commons Math,org.apache.commons.math3.ode,EquationsMapper,16,43,2,2,2,12,2,5,0,5
+Apache Commons Math,org.apache.commons.math3.ode,MultistepIntegrator.NordsieckInitializer,54,220,2,8,6,36,2,6,0,3
+Apache Commons Math,org.apache.commons.math3.ode,FirstOrderConverter,0,75,0,0,0,14,0,3,0,3
+Apache Commons Math,org.apache.commons.math3.ode,MultistepFieldIntegrator,25,246,1,7,6,47,6,12,5,9
+Apache Commons Math,org.apache.commons.math3.ode,MultistepIntegrator.InitializationCompletedMarkerException,0,5,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.ode,FieldODEStateAndDerivative,0,49,0,2,0,8,0,5,0,4
+Apache Commons Math,org.apache.commons.math3.ode,FieldEquationsMapper,0,355,0,26,0,60,0,22,0,9
+Apache Commons Math,org.apache.commons.math3.ode,JacobianMatrices.JacobiansSecondaryEquations,9,252,5,21,1,38,5,11,0,3
+Apache Commons Math,org.apache.commons.math3.ode,ExpandableStatefulODE,57,289,4,14,7,57,6,20,2,15
+Apache Commons Math,org.apache.commons.math3.ode,JacobianMatrices.MismatchedEquations,6,0,0,0,2,0,1,0,1,0
+Apache Commons Math,org.apache.commons.math3.ode,MultistepIntegrator,36,165,2,2,6,37,6,9,4,9
+Apache Commons Math,org.apache.commons.math3.ode,AbstractFieldIntegrator,15,552,6,44,3,118,8,46,2,27
+Apache Commons Math,org.apache.commons.math3.ode,JacobianMatrices,44,358,9,25,9,67,9,19,0,11
+Apache Commons Math,org.apache.commons.math3.ode,AbstractIntegrator.new Comparator() {...},0,18,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,Line,27,271,4,12,7,46,8,21,4,17
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,PolyhedronsSet.FacetsContributionVisitor,9,94,2,6,2,23,2,7,0,5
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,Segment,0,21,0,0,0,8,0,4,0,4
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,Vector3D,0,984,0,46,0,140,0,71,0,48
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,PolyhedronsSet.RotationTransform,0,119,0,2,0,19,0,5,0,4
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,FieldRotation,0,5846,3,191,0,460,3,143,0,49
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,PolyhedronsSet,57,921,16,78,16,120,18,49,4,16
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,RotationOrder,0,124,0,0,0,22,0,6,0,6
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,OutlineExtractor,192,0,14,0,34,0,10,0,3,0
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,FieldVector3D,0,2021,0,72,0,245,0,118,0,82
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,PolyhedronsSet.TranslationTransform,0,60,0,2,0,12,0,5,0,4
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,OutlineExtractor.BoundaryProjector,329,0,34,0,59,0,23,0,6,0
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,SubPlane,0,182,1,11,0,27,1,8,0,3
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,Euclidean3D.LazyHolder,3,6,0,0,1,1,1,1,1,1
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,SubLine,6,154,0,14,2,26,1,13,1,6
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,Euclidean3D,0,11,0,0,0,6,0,5,0,5
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,SphericalCoordinates.DataTransferObject,0,25,0,0,0,6,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,Plane,106,580,3,19,26,91,11,37,8,29
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,Rotation,0,3885,3,187,0,400,3,125,0,33
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,SphereGenerator,0,660,0,8,0,32,0,7,0,3
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,SphericalCoordinates,0,1484,2,2,0,117,2,11,0,11
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,CardanEulerSingularityException,0,10,0,2,0,2,0,2,0,1
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,NotARotationMatrixException,0,5,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,RotationConvention,5,33,0,0,0,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.threed,Vector3DFormat,15,93,1,3,3,18,2,9,1,8
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.oned,ArcsSet.Split,0,32,0,6,0,13,0,7,0,4
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.oned,LimitAngle,4,75,1,5,1,15,2,12,1,10
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.oned,Arc,3,132,0,16,1,22,1,14,1,6
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.oned,SubLimitAngle,0,38,0,2,0,7,0,6,0,5
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.oned,ArcsSet.SubArcsIterator,4,176,2,24,1,36,2,16,0,5
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.oned,S1Point,3,89,2,8,1,23,2,14,0,11
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.oned,Sphere1D.NoSubSpaceException,0,11,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.oned,ArcsSet,116,1066,15,111,18,211,13,80,1,29
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.oned,Sphere1D.LazyHolder,3,6,0,0,1,1,1,1,1,1
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.oned,Sphere1D,0,13,0,0,0,6,0,5,0,5
+Apache Commons Math,org.apache.commons.math3.geometry.spherical.oned,ArcsSet.InconsistentStateAt2PiWrapping,0,6,0,0,0,2,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.ode.sampling,StepNormalizer,19,268,1,33,5,54,3,23,2,7
+Apache Commons Math,org.apache.commons.math3.ode.sampling,StepNormalizerBounds,9,69,0,0,0,11,2,4,2,4
+Apache Commons Math,org.apache.commons.math3.ode.sampling,AbstractFieldStepInterpolator,0,83,0,0,0,18,0,8,0,8
+Apache Commons Math,org.apache.commons.math3.ode.sampling,NordsieckStepInterpolator,27,386,11,27,7,80,12,17,1,9
+Apache Commons Math,org.apache.commons.math3.ode.sampling,FieldStepNormalizer,250,0,32,0,47,0,24,0,8,0
+Apache Commons Math,org.apache.commons.math3.ode.sampling,StepNormalizerMode,9,29,0,0,0,3,2,2,2,2
+Apache Commons Math,org.apache.commons.math3.ode.sampling,DummyStepHandler,9,0,0,0,6,0,5,0,5,0
+Apache Commons Math,org.apache.commons.math3.ode.sampling,AbstractStepInterpolator,92,651,9,25,15,170,10,33,1,25
+Apache Commons Math,org.apache.commons.math3.ode.sampling,DummyStepHandler.LazyHolder,9,0,0,0,2,0,2,0,2,0
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod,Line,131,471,5,15,30,77,11,35,7,29
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod,SubLine,6,323,0,28,2,47,1,22,1,8
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod,PolygonsSet.new Object() {...},2,17,0,0,0,1,0,1,0,1
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod,Vector2DFormat,18,82,1,3,4,17,3,8,2,7
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod,PolygonsSet.Edge,0,76,0,0,0,21,0,7,0,7
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod,Vector2D,384,282,18,16,52,54,34,23,22,18
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod,NestedLoops,280,0,28,0,60,0,20,0,6,0
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod,Line.LineTransform,7,184,1,1,1,27,1,4,0,4
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod,DiskGenerator,0,297,0,6,0,23,0,6,0,3
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod,PolygonsSet.ConnectableSegment,0,54,0,0,0,20,0,10,0,10
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod,Euclidean2D,0,11,0,0,0,6,0,5,0,5
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod,PolygonsSet.SegmentsBuilder,5,171,3,15,0,36,3,13,0,7
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod,Euclidean2D.LazyHolder,3,6,0,0,1,1,1,1,1,1
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod,PolygonsSet,239,1032,38,135,47,210,33,75,4,17
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod,Segment,14,97,2,2,3,16,2,5,0,5
+Apache Commons Math,org.apache.commons.math3.geometry.euclidean.twod,PolygonsSet.Vertex,0,79,0,6,0,24,0,11,0,8
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.sofm,NeighbourhoodSizeFunctionFactory,3,14,0,0,1,2,1,2,1,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.sofm,KohonenTrainingTask,0,27,0,2,0,8,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.sofm,NeighbourhoodSizeFunctionFactory.new NeighbourhoodSizeFunction() {...},0,30,0,0,0,3,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.sofm,NeighbourhoodSizeFunctionFactory.new NeighbourhoodSizeFunction() {...},0,30,0,0,0,3,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.sofm,LearningFactorFunctionFactory.new LearningFactorFunction() {...},0,28,0,0,0,3,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.sofm,LearningFactorFunctionFactory.new LearningFactorFunction() {...},0,28,0,0,0,3,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.sofm,LearningFactorFunctionFactory,3,50,0,8,1,6,1,6,1,2
+Apache Commons Math,org.apache.commons.math3.ml.neuralnet.sofm,KohonenUpdateAction,4,159,1,9,1,38,2,10,1,6
+Apache Commons Math,org.apache.commons.math3.stat.correlation,StorelessCovariance,56,162,7,15,9,27,7,16,3,9
+Apache Commons Math,org.apache.commons.math3.stat.correlation,PearsonsCorrelation,15,386,3,27,2,72,3,25,0,13
+Apache Commons Math,org.apache.commons.math3.stat.correlation,StorelessBivariateCovariance,20,155,2,2,3,26,3,5,1,5
+Apache Commons Math,org.apache.commons.math3.stat.correlation,Covariance,41,226,4,12,3,47,5,17,1,13
+Apache Commons Math,org.apache.commons.math3.stat.correlation,KendallsCorrelation,13,407,1,31,3,85,2,22,1,7
+Apache Commons Math,org.apache.commons.math3.stat.correlation,SpearmansCorrelation,13,289,5,27,3,55,6,22,1,11
+Apache Commons Math,org.apache.commons.math3.stat.correlation,KendallsCorrelation.new Comparator() {...},0,26,0,2,0,3,0,3,0,2
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.vector,MultiStartMultivariateVectorOptimizer.new Comparator() {...},8,53,4,2,2,9,3,3,0,3
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.vector,JacobianMultivariateVectorOptimizer,0,42,0,4,0,10,0,6,0,4
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.vector,MultiStartMultivariateVectorOptimizer,0,41,0,0,0,11,0,5,0,5
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.vector,MultivariateVectorOptimizer,0,96,0,10,0,24,0,13,0,8
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.vector,Weight,20,13,2,0,5,4,2,2,1,2
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.vector,ModelFunction,0,9,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.vector,ModelFunctionJacobian,0,9,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.vector,Target,0,13,0,0,0,4,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.gradient,NonLinearConjugateGradientOptimizer.Formula,5,33,0,0,0,3,1,3,1,3
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.gradient,NonLinearConjugateGradientOptimizer.IdentityPreconditioner,0,7,0,0,0,2,0,2,0,2
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.gradient,NonLinearConjugateGradientOptimizer,30,297,5,28,7,60,7,19,2,7
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.gradient,NonLinearConjugateGradientOptimizer.BracketingStep,9,0,0,0,4,0,2,0,2,0
+Apache Commons Math,org.apache.commons.math3.optim.nonlinear.scalar.gradient,NonLinearConjugateGradientOptimizer.new Object() {...},2,17,0,0,0,1,0,1,0,1
