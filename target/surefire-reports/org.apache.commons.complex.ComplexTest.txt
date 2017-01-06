@@ -1,15 +1,15 @@
 -------------------------------------------------------------------------------
 Test set: org.apache.commons.complex.ComplexTest
 -------------------------------------------------------------------------------
-Tests run: 137, Failures: 6, Errors: 2, Skipped: 1, Time elapsed: 0.184 sec <<< FAILURE! - in org.apache.commons.complex.ComplexTest
-testReciprocalReal(org.apache.commons.complex.ComplexTest)  Time elapsed: 0.008 sec  <<< FAILURE!
+Tests run: 137, Failures: 6, Errors: 2, Skipped: 1, Time elapsed: 0.125 sec <<< FAILURE! - in org.apache.commons.complex.ComplexTest
+testReciprocalReal(org.apache.commons.complex.ComplexTest)  Time elapsed: 0.007 sec  <<< FAILURE!
 java.lang.AssertionError: null
 	at org.junit.Assert.fail(Assert.java:86)
 	at org.junit.Assert.assertTrue(Assert.java:41)
 	at org.junit.Assert.assertTrue(Assert.java:52)
 	at org.apache.commons.complex.ComplexTest.testReciprocalReal(ComplexTest.java:298)
 
-testFloatingPointEqualsWithAllowedDeltaNaN(org.apache.commons.complex.ComplexTest)  Time elapsed: 0.001 sec  <<< FAILURE!
+testFloatingPointEqualsWithAllowedDeltaNaN(org.apache.commons.complex.ComplexTest)  Time elapsed: 0 sec  <<< FAILURE!
 java.lang.AssertionError: null
 	at org.junit.Assert.fail(Assert.java:86)
 	at org.junit.Assert.assertTrue(Assert.java:41)
@@ -17,7 +17,7 @@ java.lang.AssertionError: null
 	at org.junit.Assert.assertFalse(Assert.java:74)
 	at org.apache.commons.complex.ComplexTest.testFloatingPointEqualsWithAllowedDeltaNaN(ComplexTest.java:557)
 
-testFloatingPointEqualsWithRelativeToleranceNaN(org.apache.commons.complex.ComplexTest)  Time elapsed: 0.032 sec  <<< ERROR!
+testFloatingPointEqualsWithRelativeToleranceNaN(org.apache.commons.complex.ComplexTest)  Time elapsed: 0.017 sec  <<< ERROR!
 java.lang.StackOverflowError: null
 	at org.apache.commons.complex.Complex.equals(Complex.java)
 	at org.apache.commons.complex.Complex.equals(Complex.java:1312)
@@ -1044,14 +1044,14 @@ java.lang.StackOverflowError: null
 	at org.apache.commons.complex.Complex.equals(Complex.java:1312)
 	at org.apache.commons.complex.Complex.equals(Complex.java:1312)
 
-testFloatingPointEqualsWithAllowedDelta(org.apache.commons.complex.ComplexTest)  Time elapsed: 0.001 sec  <<< FAILURE!
+testFloatingPointEqualsWithAllowedDelta(org.apache.commons.complex.ComplexTest)  Time elapsed: 0 sec  <<< FAILURE!
 java.lang.AssertionError: null
 	at org.junit.Assert.fail(Assert.java:86)
 	at org.junit.Assert.assertTrue(Assert.java:41)
 	at org.junit.Assert.assertTrue(Assert.java:52)
 	at org.apache.commons.complex.ComplexTest.testFloatingPointEqualsWithAllowedDelta(ComplexTest.java:546)
 
-testFloatingPointEqualsNaN(org.apache.commons.complex.ComplexTest)  Time elapsed: 0.001 sec  <<< FAILURE!
+testFloatingPointEqualsNaN(org.apache.commons.complex.ComplexTest)  Time elapsed: 0 sec  <<< FAILURE!
 java.lang.AssertionError: null
 	at org.junit.Assert.fail(Assert.java:86)
 	at org.junit.Assert.assertTrue(Assert.java:41)
@@ -1059,14 +1059,14 @@ java.lang.AssertionError: null
 	at org.junit.Assert.assertFalse(Assert.java:74)
 	at org.apache.commons.complex.ComplexTest.testFloatingPointEqualsNaN(ComplexTest.java:533)
 
-testMath221(org.apache.commons.complex.ComplexTest)  Time elapsed: 0.001 sec  <<< FAILURE!
+testMath221(org.apache.commons.complex.ComplexTest)  Time elapsed: 0 sec  <<< FAILURE!
 java.lang.AssertionError: null
 	at org.junit.Assert.fail(Assert.java:86)
 	at org.junit.Assert.assertTrue(Assert.java:41)
 	at org.junit.Assert.assertTrue(Assert.java:52)
 	at org.apache.commons.complex.ComplexTest.testMath221(ComplexTest.java:1207)
 
-testFloatingPointEqualsWithRelativeTolerance(org.apache.commons.complex.ComplexTest)  Time elapsed: 0.014 sec  <<< ERROR!
+testFloatingPointEqualsWithRelativeTolerance(org.apache.commons.complex.ComplexTest)  Time elapsed: 0.011 sec  <<< ERROR!
 java.lang.StackOverflowError: null
 	at org.apache.commons.complex.Complex.equals(Complex.java)
 	at org.apache.commons.complex.Complex.equals(Complex.java:1312)
@@ -2093,7 +2093,7 @@ java.lang.StackOverflowError: null
 	at org.apache.commons.complex.Complex.equals(Complex.java:1312)
 	at org.apache.commons.complex.Complex.equals(Complex.java:1312)
 
-testFloatingPointEquals(org.apache.commons.complex.ComplexTest)  Time elapsed: 0 sec  <<< FAILURE!
+testFloatingPointEquals(org.apache.commons.complex.ComplexTest)  Time elapsed: 0.001 sec  <<< FAILURE!
 java.lang.AssertionError: null
 	at org.junit.Assert.fail(Assert.java:86)
 	at org.junit.Assert.assertTrue(Assert.java:41)

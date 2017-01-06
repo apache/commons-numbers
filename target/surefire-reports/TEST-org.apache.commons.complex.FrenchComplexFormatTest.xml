@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.apache.commons.complex.FrenchComplexFormatTest" time="0.009" tests="31" errors="0" skipped="0" failures="0">
+<testsuite name="org.apache.commons.complex.FrenchComplexFormatTest" time="0" tests="31" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64"/>
@@ -61,17 +61,17 @@
   <testcase name="testParseNegativeImaginary" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
   <testcase name="testConstructorSingleFormat" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
   <testcase name="testParseSimpleWithDecimals" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
-  <testcase name="testZeroImaginary" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0.002"/>
-  <testcase name="testDifferentImaginaryChar" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0.001"/>
-  <testcase name="testFormatNumber" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0.001"/>
+  <testcase name="testZeroImaginary" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
+  <testcase name="testDifferentImaginaryChar" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
+  <testcase name="testFormatNumber" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
   <testcase name="testNan" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
   <testcase name="testSimpleWithDecimalsTrunc" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
   <testcase name="testGetRealFormat" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
-  <testcase name="testParseNegativeBoth" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0.001"/>
+  <testcase name="testParseNegativeBoth" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
   <testcase name="testParseNegativeReal" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
   <testcase name="testGetImaginaryFormat" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
   <testcase name="testParseSimpleWithDecimalsTrunc" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
-  <testcase name="testNegativeInfinity" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0.001"/>
+  <testcase name="testNegativeInfinity" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
   <testcase name="testTrimOneImaginary" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
   <testcase name="testPaseNegativeInfinity" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
   <testcase name="testParseDifferentImaginaryChar" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
@@ -82,11 +82,11 @@
   <testcase name="testNegativeReal" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
   <testcase name="testNegativeImaginary" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
   <testcase name="testParseSimpleNoDecimals" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
-  <testcase name="testPositiveInfinity" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0.002"/>
+  <testcase name="testPositiveInfinity" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
   <testcase name="testForgottenImaginaryCharacter" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
   <testcase name="testParseZeroReal" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
   <testcase name="testParseNan" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
-  <testcase name="testParseZeroImaginary" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0.001"/>
+  <testcase name="testParseZeroImaginary" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
   <testcase name="testParsePositiveInfinity" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
   <testcase name="testSimpleWithDecimals" classname="org.apache.commons.complex.FrenchComplexFormatTest" time="0"/>
 </testsuite>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.apache.commons.complex.ComplexUtilsTest" time="0.07" tests="14" errors="9" skipped="0" failures="0">
+<testsuite name="org.apache.commons.complex.ComplexUtilsTest" time="0.041" tests="14" errors="9" skipped="0" failures="0">
   <properties>
     <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64"/>
@@ -58,7 +58,7 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="sun.cpu.isalist" value=""/>
   </properties>
-  <testcase name="testInterleavedToComplex" classname="org.apache.commons.complex.ComplexUtilsTest" time="0">
+  <testcase name="testInterleavedToComplex" classname="org.apache.commons.complex.ComplexUtilsTest" time="0.001">
     <error type="java.lang.StackOverflowError:">java.lang.StackOverflowError: null
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java)
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
@@ -1086,9 +1086,9 @@
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
 </error>
   </testcase>
-  <testcase name="testExtractionMethods" classname="org.apache.commons.complex.ComplexUtilsTest" time="0">
+  <testcase name="testExtractionMethods" classname="org.apache.commons.complex.ComplexUtilsTest" time="0.004">
     <error type="java.lang.StackOverflowError:">java.lang.StackOverflowError: null
-	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
+	at org.apache.commons.complex.TestUtils.equals(TestUtils.java)
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
@@ -2116,9 +2116,9 @@
   </testcase>
   <testcase name="testPolar2ComplexInf" classname="org.apache.commons.complex.ComplexUtilsTest" time="0"/>
   <testcase name="testPolar2ComplexNaN" classname="org.apache.commons.complex.ComplexUtilsTest" time="0"/>
-  <testcase name="testComplexToImaginary" classname="org.apache.commons.complex.ComplexUtilsTest" time="0.013">
+  <testcase name="testComplexToImaginary" classname="org.apache.commons.complex.ComplexUtilsTest" time="0.006">
     <error type="java.lang.StackOverflowError:">java.lang.StackOverflowError: null
-	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
+	at org.apache.commons.complex.TestUtils.equals(TestUtils.java)
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
@@ -3144,10 +3144,10 @@
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
 </error>
   </testcase>
-  <testcase name="testInitialize" classname="org.apache.commons.complex.ComplexUtilsTest" time="0.002"/>
-  <testcase name="testSplit2Complex" classname="org.apache.commons.complex.ComplexUtilsTest" time="0.015">
+  <testcase name="testInitialize" classname="org.apache.commons.complex.ComplexUtilsTest" time="0.006"/>
+  <testcase name="testSplit2Complex" classname="org.apache.commons.complex.ComplexUtilsTest" time="0.002">
     <error type="java.lang.StackOverflowError:">java.lang.StackOverflowError: null
-	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
+	at org.apache.commons.complex.TestUtils.equals(TestUtils.java)
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
@@ -4173,16 +4173,16 @@
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
 </error>
   </testcase>
-  <testcase name="testPolar2ComplexIllegalModulus" classname="org.apache.commons.complex.ComplexUtilsTest" time="0">
+  <testcase name="testPolar2ComplexIllegalModulus" classname="org.apache.commons.complex.ComplexUtilsTest" time="0.001">
     <error message="Unexpected exception, expected&lt;java.lang.IllegalArgumentException&gt; but was&lt;java.lang.RuntimeException&gt;" type="java.lang.Exception"><![CDATA[java.lang.Exception: Unexpected exception, expected<java.lang.IllegalArgumentException> but was<java.lang.RuntimeException>
 	at org.apache.commons.complex.ComplexUtils.illegalArgument(ComplexUtils.java:1407)
 	at org.apache.commons.complex.ComplexUtils.polar2Complex(ComplexUtils.java:55)
 	at org.apache.commons.complex.ComplexUtilsTest.testPolar2ComplexIllegalModulus(ComplexUtilsTest.java:207)
 ]]></error>
   </testcase>
-  <testcase name="testComplexToReal" classname="org.apache.commons.complex.ComplexUtilsTest" time="0.009">
+  <testcase name="testComplexToReal" classname="org.apache.commons.complex.ComplexUtilsTest" time="0.008">
     <error type="java.lang.StackOverflowError:">java.lang.StackOverflowError: null
-	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
+	at org.apache.commons.complex.TestUtils.equals(TestUtils.java)
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
@@ -5208,9 +5208,9 @@
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
 </error>
   </testcase>
-  <testcase name="testImaginaryToComplex" classname="org.apache.commons.complex.ComplexUtilsTest" time="0.01">
+  <testcase name="testImaginaryToComplex" classname="org.apache.commons.complex.ComplexUtilsTest" time="0.005">
     <error type="java.lang.StackOverflowError:">java.lang.StackOverflowError: null
-	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
+	at org.apache.commons.complex.TestUtils.equals(TestUtils.java)
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
@@ -6236,7 +6236,7 @@
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
 </error>
   </testcase>
-  <testcase name="testComplexToInterleaved" classname="org.apache.commons.complex.ComplexUtilsTest" time="0.011">
+  <testcase name="testComplexToInterleaved" classname="org.apache.commons.complex.ComplexUtilsTest" time="0.004">
     <error type="java.lang.StackOverflowError:">java.lang.StackOverflowError: null
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
@@ -7265,8 +7265,8 @@
 </error>
   </testcase>
   <testcase name="testCExtract" classname="org.apache.commons.complex.ComplexUtilsTest" time="0"/>
-  <testcase name="testPolar2Complex" classname="org.apache.commons.complex.ComplexUtilsTest" time="0.001"/>
-  <testcase name="testRealToComplex" classname="org.apache.commons.complex.ComplexUtilsTest" time="0.009">
+  <testcase name="testPolar2Complex" classname="org.apache.commons.complex.ComplexUtilsTest" time="0"/>
+  <testcase name="testRealToComplex" classname="org.apache.commons.complex.ComplexUtilsTest" time="0.004">
     <error type="java.lang.StackOverflowError:">java.lang.StackOverflowError: null
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)
 	at org.apache.commons.complex.TestUtils.equals(TestUtils.java:390)

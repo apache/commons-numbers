@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: org.apache.commons.complex.QuaternionTest
 -------------------------------------------------------------------------------
-Tests run: 19, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 0.016 sec <<< FAILURE! - in org.apache.commons.complex.QuaternionTest
-testIsUnitQuaternion(org.apache.commons.complex.QuaternionTest)  Time elapsed: 0.005 sec  <<< ERROR!
+Tests run: 19, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 0.007 sec <<< FAILURE! - in org.apache.commons.complex.QuaternionTest
+testIsUnitQuaternion(org.apache.commons.complex.QuaternionTest)  Time elapsed: 0.001 sec  <<< ERROR!
 java.lang.StackOverflowError: null
 	at org.apache.commons.complex.Quaternion.equals(Quaternion.java)
 	at org.apache.commons.complex.Quaternion.equals(Quaternion.java:480)
@@ -1031,7 +1031,7 @@ java.lang.StackOverflowError: null
 
 testQuaternionEquals2(org.apache.commons.complex.QuaternionTest)  Time elapsed: 0.001 sec  <<< ERROR!
 java.lang.StackOverflowError: null
-	at org.apache.commons.complex.Quaternion.equals(Quaternion.java:480)
+	at org.apache.commons.complex.Quaternion.equals(Quaternion.java)
 	at org.apache.commons.complex.Quaternion.equals(Quaternion.java:480)
 	at org.apache.commons.complex.Quaternion.equals(Quaternion.java:480)
 	at org.apache.commons.complex.Quaternion.equals(Quaternion.java:480)
@@ -2056,7 +2056,7 @@ java.lang.StackOverflowError: null
 	at org.apache.commons.complex.Quaternion.equals(Quaternion.java:480)
 	at org.apache.commons.complex.Quaternion.equals(Quaternion.java:480)
 
-testQuaternionEquals(org.apache.commons.complex.QuaternionTest)  Time elapsed: 0.009 sec  <<< ERROR!
+testQuaternionEquals(org.apache.commons.complex.QuaternionTest)  Time elapsed: 0.003 sec  <<< ERROR!
 java.lang.StackOverflowError: null
 	at org.apache.commons.complex.Quaternion.equals(Quaternion.java:480)
 	at org.apache.commons.complex.Quaternion.equals(Quaternion.java:480)

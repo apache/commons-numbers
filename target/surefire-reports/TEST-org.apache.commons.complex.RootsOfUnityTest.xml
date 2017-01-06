@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.apache.commons.complex.RootsOfUnityTest" time="0" tests="6" errors="0" skipped="0" failures="0">
+<testsuite name="org.apache.commons.complex.RootsOfUnityTest" time="0" tests="6" errors="3" skipped="0" failures="0">
   <properties>
     <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64"/>
@@ -60,8 +60,23 @@
   </properties>
   <testcase name="testZeroNumberOfRoots" classname="org.apache.commons.complex.RootsOfUnityTest" time="0"/>
   <testcase name="testComputeRoots" classname="org.apache.commons.complex.RootsOfUnityTest" time="0"/>
+  <testcase name="testMathIllegalState1" classname="org.apache.commons.complex.RootsOfUnityTest" time="0">
+    <error message="Unexpected exception, expected&lt;java.lang.IllegalStateException&gt; but was&lt;java.lang.IllegalArgumentException&gt;" type="java.lang.Exception"><![CDATA[java.lang.Exception: Unexpected exception, expected<java.lang.IllegalStateException> but was<java.lang.IllegalArgumentException>
+	at org.apache.commons.complex.RootsOfUnity.getReal(RootsOfUnity.java:159)
+	at org.apache.commons.complex.RootsOfUnityTest.testMathIllegalState1(RootsOfUnityTest.java:33)
+]]></error>
+  </testcase>
+  <testcase name="testMathIllegalState2" classname="org.apache.commons.complex.RootsOfUnityTest" time="0">
+    <error message="Unexpected exception, expected&lt;java.lang.IllegalStateException&gt; but was&lt;java.lang.IllegalArgumentException&gt;" type="java.lang.Exception"><![CDATA[java.lang.Exception: Unexpected exception, expected<java.lang.IllegalStateException> but was<java.lang.IllegalArgumentException>
+	at org.apache.commons.complex.RootsOfUnity.getImaginary(RootsOfUnity.java:180)
+	at org.apache.commons.complex.RootsOfUnityTest.testMathIllegalState2(RootsOfUnityTest.java:39)
+]]></error>
+  </testcase>
+  <testcase name="testMathIllegalState3" classname="org.apache.commons.complex.RootsOfUnityTest" time="0">
+    <error message="Unexpected exception, expected&lt;java.lang.IllegalStateException&gt; but was&lt;java.lang.IllegalArgumentException&gt;" type="java.lang.Exception"><![CDATA[java.lang.Exception: Unexpected exception, expected<java.lang.IllegalStateException> but was<java.lang.IllegalArgumentException>
+	at org.apache.commons.complex.RootsOfUnity.isCounterClockWise(RootsOfUnity.java:88)
+	at org.apache.commons.complex.RootsOfUnityTest.testMathIllegalState3(RootsOfUnityTest.java:45)
+]]></error>
+  </testcase>
   <testcase name="testGetNumberOfRoots" classname="org.apache.commons.complex.RootsOfUnityTest" time="0"/>
-  <testcase name="testMathIllegalArgument1" classname="org.apache.commons.complex.RootsOfUnityTest" time="0"/>
-  <testcase name="testMathIllegalArgument2" classname="org.apache.commons.complex.RootsOfUnityTest" time="0"/>
-  <testcase name="testMathIllegalArgument3" classname="org.apache.commons.complex.RootsOfUnityTest" time="0"/>
 </testsuite>

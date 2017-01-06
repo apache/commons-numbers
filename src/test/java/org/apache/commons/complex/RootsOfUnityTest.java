@@ -16,6 +16,7 @@
  */
 package org.apache.commons.complex;
 
+import org.apache.commons.complex.RootsOfUnity;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,20 +27,20 @@ import org.junit.Test;
  */
 public class RootsOfUnityTest {
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testMathIllegalArgument1() {
+    @Test(expected = IllegalStateException.class)
+    public void testMathIllegalState1() {
         final RootsOfUnity roots = new RootsOfUnity();
         roots.getReal(0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testMathIllegalArgument2() {
+    @Test(expected = IllegalStateException.class)
+    public void testMathIllegalState2() {
         final RootsOfUnity roots = new RootsOfUnity();
         roots.getImaginary(0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testMathIllegalArgument3() {
+    @Test(expected = IllegalStateException.class)
+    public void testMathIllegalState3() {
         final RootsOfUnity roots = new RootsOfUnity();
         roots.isCounterClockWise();
     }
