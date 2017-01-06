@@ -40,34 +40,34 @@
  |                                                                      |
  +======================================================================+
 --->
-Apache Commons Math
-===================
+Apache Commons Complex
+======================
 
-[![Build Status](https://travis-ci.org/apache/commons-math.svg?branch=master)](https://travis-ci.org/apache/commons-math)
-[![Coverage Status](https://coveralls.io/repos/apache/commons-math/badge.svg?branch=master&service=github)](https://coveralls.io/github/apache/commons-math?branch=master)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-math3/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-math3/)
+[![Build Status](https://travis-ci.org/apache/commons-complex.svg?branch=master)](https://travis-ci.org/apache/commons-complex)
+[![Coverage Status](https://coveralls.io/repos/apache/commons-complex/badge.svg?branch=master&service=github)](https://coveralls.io/github/apache/commons-complex?branch=master)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-complex/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-complex/)
 [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
-The Apache Commons Math project is a library of lightweight, self-contained mathematics and statistics components addressing the most common practical problems not immediately available in the Java programming language or commons-lang.
+The Apache Commons Complex project provides self-contained components addressing the most common practical problems involving Java computing with complex numbers.
 
 Documentation
 -------------
 
-More information can be found on the [homepage](https://commons.apache.org/proper/commons-math).
-The [JavaDoc](https://commons.apache.org/proper/commons-math/apidocs) can be browsed.
+More information can be found on the [homepage](https://commons.apache.org/proper/commons-complex).
+The [JavaDoc](https://commons.apache.org/proper/commons-complex/apidocs) can be browsed.
 Questions related to the usage of Apache Commons Math should be posted to the [user mailing list][ml].
 
 Where can I get the latest release?
 -----------------------------------
-You can download source and binaries from our [download page](https://commons.apache.org/proper/commons-math/download_math.cgi).
+You can download source and binaries from our [download page](https://commons.apache.org/proper/commons-complex/download_complex.cgi).
 
 Alternatively you can pull it from the central Maven repositories:
 
 ```xml
 <dependency>
   <groupId>org.apache.commons</groupId>
-  <artifactId>commons-math3</artifactId>
-  <version>3.5</version>
+  <artifactId>commons-complex</artifactId>
+  <version>1.0</version>
 </dependency>
 ```
 
