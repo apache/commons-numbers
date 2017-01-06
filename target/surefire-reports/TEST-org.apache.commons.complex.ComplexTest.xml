@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.apache.commons.complex.ComplexTest" time="0.095" tests="137" errors="2" skipped="1" failures="6">
+<testsuite name="org.apache.commons.complex.ComplexTest" time="0.143" tests="137" errors="2" skipped="1" failures="6">
   <properties>
     <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64"/>
@@ -58,7 +58,7 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="sun.cpu.isalist" value=""/>
   </properties>
-  <testcase name="testReciprocalReal" classname="org.apache.commons.complex.ComplexTest" time="0.007">
+  <testcase name="testReciprocalReal" classname="org.apache.commons.complex.ComplexTest" time="0.008">
     <failure type="java.lang.AssertionError:">java.lang.AssertionError: null
 	at org.junit.Assert.fail(Assert.java:86)
 	at org.junit.Assert.assertTrue(Assert.java:41)
@@ -67,7 +67,7 @@
 </failure>
   </testcase>
   <testcase name="testReciprocalZero" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testFloatingPointEqualsWithAllowedDeltaNaN" classname="org.apache.commons.complex.ComplexTest" time="0">
+  <testcase name="testFloatingPointEqualsWithAllowedDeltaNaN" classname="org.apache.commons.complex.ComplexTest" time="0.001">
     <failure type="java.lang.AssertionError:">java.lang.AssertionError: null
 	at org.junit.Assert.fail(Assert.java:86)
 	at org.junit.Assert.assertTrue(Assert.java:41)
@@ -78,17 +78,17 @@
   </testcase>
   <testcase name="testNthRoot_cornercase_NAN_Inf" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testTanhInf" classname="org.apache.commons.complex.ComplexTest" time="0.003"/>
-  <testcase name="testTanhNaN" classname="org.apache.commons.complex.ComplexTest" time="0"/>
+  <testcase name="testTanhNaN" classname="org.apache.commons.complex.ComplexTest" time="0.001"/>
   <testcase name="testConjugateNaN" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testScalarDivideNaN" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testScalarMultiplyInf" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testScalarMultiplyNaN" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testDivideImaginary" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testExpInf1" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testExpInf2" classname="org.apache.commons.complex.ComplexTest" time="0.001"/>
+  <testcase name="testExpInf2" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testExpInf3" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testExpInf4" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testExpInf5" classname="org.apache.commons.complex.ComplexTest" time="0"/>
+  <testcase name="testExpInf5" classname="org.apache.commons.complex.ComplexTest" time="0.001"/>
   <testcase name="testExpInf6" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testExpInf7" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testExpInf8" classname="org.apache.commons.complex.ComplexTest" time="0"/>
@@ -96,20 +96,20 @@
   <testcase name="testAcosNaN" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testEqualsClass" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testAbs" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testAdd" classname="org.apache.commons.complex.ComplexTest" time="0"/>
+  <testcase name="testAdd" classname="org.apache.commons.complex.ComplexTest" time="0.001"/>
   <testcase name="testCos" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testExp" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testLog" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testPow" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testSin" classname="org.apache.commons.complex.ComplexTest" time="0"/>
+  <testcase name="testSin" classname="org.apache.commons.complex.ComplexTest" time="0.001"/>
   <testcase name="testTan" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testSubtract" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testScalarAdd" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testScalarPow" classname="org.apache.commons.complex.ComplexTest" time="0"/>
+  <testcase name="testScalarPow" classname="org.apache.commons.complex.ComplexTest" time="0.001"/>
   <testcase name="testDivideNaNInf" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testAtanI" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testAcos" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testAsin" classname="org.apache.commons.complex.ComplexTest" time="0"/>
+  <testcase name="testAsin" classname="org.apache.commons.complex.ComplexTest" time="0.001"/>
   <testcase name="testAtan" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testCosh" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testJava" classname="org.apache.commons.complex.ComplexTest" time="0">
@@ -119,9 +119,9 @@
   <testcase name="testTanh" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testAsinInf" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testAsinNaN" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testAtanInf" classname="org.apache.commons.complex.ComplexTest" time="0.001"/>
+  <testcase name="testAtanInf" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testAtanNaN" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testFloatingPointEqualsWithRelativeToleranceNaN" classname="org.apache.commons.complex.ComplexTest" time="0.017">
+  <testcase name="testFloatingPointEqualsWithRelativeToleranceNaN" classname="org.apache.commons.complex.ComplexTest" time="0.032">
     <error type="java.lang.StackOverflowError:">java.lang.StackOverflowError: null
 	at org.apache.commons.complex.Complex.equals(Complex.java)
 	at org.apache.commons.complex.Complex.equals(Complex.java:1312)
@@ -1152,7 +1152,7 @@
   <testcase name="testReciprocal" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testScalarAddInf" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testScalarAddNaN" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testFloatingPointEqualsWithAllowedDelta" classname="org.apache.commons.complex.ComplexTest" time="0">
+  <testcase name="testFloatingPointEqualsWithAllowedDelta" classname="org.apache.commons.complex.ComplexTest" time="0.001">
     <failure type="java.lang.AssertionError:">java.lang.AssertionError: null
 	at org.junit.Assert.fail(Assert.java:86)
 	at org.junit.Assert.assertTrue(Assert.java:41)
@@ -1170,7 +1170,7 @@
   <testcase name="testPowZero" classname="org.apache.commons.complex.ComplexTest" time="0.001"/>
   <testcase name="testScalarPowInf" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testScalarMultiply" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testSqrtImaginaryZero" classname="org.apache.commons.complex.ComplexTest" time="0"/>
+  <testcase name="testSqrtImaginaryZero" classname="org.apache.commons.complex.ComplexTest" time="0.001"/>
   <testcase name="testSqrtRealPositive" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testEqualsNull" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testEqualsSame" classname="org.apache.commons.complex.ComplexTest" time="0"/>
@@ -1179,11 +1179,11 @@
   <testcase name="testSqrtRealNegative" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testScalarPowNaNBase" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testGetArgument" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testSqrtPolar" classname="org.apache.commons.complex.ComplexTest" time="0.005"/>
+  <testcase name="testSqrtPolar" classname="org.apache.commons.complex.ComplexTest" time="0.006"/>
   <testcase name="testMultiplyNaN" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testLogZero" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testConjugate" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testFloatingPointEqualsNaN" classname="org.apache.commons.complex.ComplexTest" time="0">
+  <testcase name="testFloatingPointEqualsNaN" classname="org.apache.commons.complex.ComplexTest" time="0.001">
     <failure type="java.lang.AssertionError:">java.lang.AssertionError: null
 	at org.junit.Assert.fail(Assert.java:86)
 	at org.junit.Assert.assertTrue(Assert.java:41)
@@ -1193,14 +1193,14 @@
 </failure>
   </testcase>
   <testcase name="testMultiplyInfInf" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testNthRoot_normal_fourthRoot" classname="org.apache.commons.complex.ComplexTest" time="0.001"/>
+  <testcase name="testNthRoot_normal_fourthRoot" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testMultiplyNaNInf" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testEqualsImaginaryDifference" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testScalarSubtractInf" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testScalarSubtractNaN" classname="org.apache.commons.complex.ComplexTest" time="0"/>
+  <testcase name="testScalarSubtractNaN" classname="org.apache.commons.complex.ComplexTest" time="0.001"/>
   <testcase name="testTanCritical" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testPowNaNBase" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testMath221" classname="org.apache.commons.complex.ComplexTest" time="0">
+  <testcase name="testMath221" classname="org.apache.commons.complex.ComplexTest" time="0.001">
     <failure type="java.lang.AssertionError:">java.lang.AssertionError: null
 	at org.junit.Assert.fail(Assert.java:86)
 	at org.junit.Assert.assertTrue(Assert.java:41)
@@ -1209,7 +1209,7 @@
 </failure>
   </testcase>
   <testcase name="testNthRoot_cornercase_thirdRoot_imaginaryPartEmpty" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testFloatingPointEqualsWithRelativeTolerance" classname="org.apache.commons.complex.ComplexTest" time="0.011">
+  <testcase name="testFloatingPointEqualsWithRelativeTolerance" classname="org.apache.commons.complex.ComplexTest" time="0.014">
     <error type="java.lang.StackOverflowError:">java.lang.StackOverflowError: null
 	at org.apache.commons.complex.Complex.equals(Complex.java)
 	at org.apache.commons.complex.Complex.equals(Complex.java:1312)
@@ -2247,10 +2247,10 @@
   <testcase name="testSqrtRealZero" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testSqrtImaginaryNegative" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testFloatingPointEqualsPrecondition1" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testFloatingPointEqualsPrecondition2" classname="org.apache.commons.complex.ComplexTest" time="0.001"/>
+  <testcase name="testFloatingPointEqualsPrecondition2" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testReciprocalInf" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testReciprocalNaN" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testFloatingPointEquals" classname="org.apache.commons.complex.ComplexTest" time="0.001">
+  <testcase name="testFloatingPointEquals" classname="org.apache.commons.complex.ComplexTest" time="0">
     <failure type="java.lang.AssertionError:">java.lang.AssertionError: null
 	at org.junit.Assert.fail(Assert.java:86)
 	at org.junit.Assert.assertTrue(Assert.java:41)
@@ -2271,7 +2271,7 @@
   <testcase name="testMultiply" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testDivideReal" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testDivideZero" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testEqualsNaN" classname="org.apache.commons.complex.ComplexTest" time="0"/>
+  <testcase name="testEqualsNaN" classname="org.apache.commons.complex.ComplexTest" time="0.001"/>
   <testcase name="testLogInf" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testLogNaN" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testNegate" classname="org.apache.commons.complex.ComplexTest" time="0"/>
@@ -2279,7 +2279,7 @@
   <testcase name="testConjugateInfiinite" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testSinhInf" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testSinhNaN" classname="org.apache.commons.complex.ComplexTest" time="0"/>
-  <testcase name="testSerial" classname="org.apache.commons.complex.ComplexTest" time="0.044"/>
+  <testcase name="testSerial" classname="org.apache.commons.complex.ComplexTest" time="0.064"/>
   <testcase name="testSinInf" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testSinNaN" classname="org.apache.commons.complex.ComplexTest" time="0"/>
   <testcase name="testSqrt1z" classname="org.apache.commons.complex.ComplexTest" time="0"/>

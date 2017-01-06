@@ -1,19 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: org.apache.commons.complex.RootsOfUnityTest
 -------------------------------------------------------------------------------
-Tests run: 6, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 0.001 sec <<< FAILURE! - in org.apache.commons.complex.RootsOfUnityTest
-testMathIllegalState1(org.apache.commons.complex.RootsOfUnityTest)  Time elapsed: 0 sec  <<< ERROR!
-java.lang.Exception: Unexpected exception, expected<java.lang.IllegalStateException> but was<java.lang.IllegalArgumentException>
-	at org.apache.commons.complex.RootsOfUnity.getReal(RootsOfUnity.java:159)
-	at org.apache.commons.complex.RootsOfUnityTest.testMathIllegalState1(RootsOfUnityTest.java:33)
-
-testMathIllegalState2(org.apache.commons.complex.RootsOfUnityTest)  Time elapsed: 0 sec  <<< ERROR!
-java.lang.Exception: Unexpected exception, expected<java.lang.IllegalStateException> but was<java.lang.IllegalArgumentException>
-	at org.apache.commons.complex.RootsOfUnity.getImaginary(RootsOfUnity.java:180)
-	at org.apache.commons.complex.RootsOfUnityTest.testMathIllegalState2(RootsOfUnityTest.java:39)
-
-testMathIllegalState3(org.apache.commons.complex.RootsOfUnityTest)  Time elapsed: 0 sec  <<< ERROR!
-java.lang.Exception: Unexpected exception, expected<java.lang.IllegalStateException> but was<java.lang.IllegalArgumentException>
-	at org.apache.commons.complex.RootsOfUnity.isCounterClockWise(RootsOfUnity.java:88)
-	at org.apache.commons.complex.RootsOfUnityTest.testMathIllegalState3(RootsOfUnityTest.java:45)
-
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 sec - in org.apache.commons.complex.RootsOfUnityTest
