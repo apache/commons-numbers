@@ -1404,11 +1404,11 @@ public class ComplexUtils {
     }
 
     private static void illegalArgument() {
-    	throw new RuntimeException("ComplexUtils: Illegal argument");
+    	throw new IllegalArgumentException("ComplexUtils: Illegal argument");
     }
 
     private static void outOfRange() {
-    	throw new RuntimeException("ComplexUtils: Out of range");
+    	throw new IllegalArgumentException("ComplexUtils: Out of range");
     }
 
 }
