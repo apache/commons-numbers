@@ -936,8 +936,10 @@ public class ComplexTest {
 
    @Test
    public void testPowZero() {
-       TestUtils.assertSame(Complex.NaN,
-               Complex.ZERO.pow(Complex.ONE));
+       TestUtils.assertEquals(Complex.ZERO,
+              Complex.ZERO.pow(Complex.ONE), 10e-12);
+       TestUtils.assertEquals(Complex.ZERO,
+               Complex.ZERO.pow(new Complex(2, 0)), 10e-12);
        TestUtils.assertSame(Complex.NaN,
                Complex.ZERO.pow(Complex.ZERO));
        TestUtils.assertSame(Complex.NaN,
@@ -994,8 +996,10 @@ public class ComplexTest {
 
    @Test
    public void testScalarPowZero() {
-       TestUtils.assertSame(Complex.NaN, Complex.ZERO.pow(1.0));
+       TestUtils.assertEquals(Complex.ZERO, Complex.ZERO.pow(1.0), 10e-12);
+       TestUtils.assertEquals(Complex.ZERO, Complex.ZERO.pow(2.0), 10e-12);
        TestUtils.assertSame(Complex.NaN, Complex.ZERO.pow(0.0));
+       TestUtils.assertSame(Complex.NaN, Complex.ZERO.pow(-1.0));
        TestUtils.assertEquals(Complex.ONE, Complex.ONE.pow(0.0), 10e-12);
        TestUtils.assertEquals(Complex.ONE, Complex.I.pow(0.0), 10e-12);
        TestUtils.assertEquals(Complex.ONE, new Complex(-1, 3).pow(0.0), 10e-12);
