@@ -16,186 +16,101 @@
  */
 package org.apache.commons.complex;
 
-import java.io.Serializable;
-
 /**
- * A helper class for the computation and caching of the {@code n}-th roots of
- * unity.
- *
- * @since 3.0
+ * Computation of the {@code n}-th roots of unity.
  */
-public class RootsOfUnity implements Serializable {
-
-    /** Serializable version id. */
-    private static final long serialVersionUID = 20120201L;
-
-    /** Error messages */
-    private static String ROOTS_OF_UNITY_NOT_COMPUTED_YET = "Roots of Unity not computed yet";
-    private static String CANNOT_COMPUTE_ZEROTH_ROOT_OF_UNITY = "Cannot compute zeroth root of unity";
-    private static String OUT_OF_RANGE = "Value out of range";
-
+public class RootsOfUnity {
+    /** 2 * &pi; */
+    private static final double TWO_PI = 2 * Math.PI;
     /** Number of roots of unity. */
-    private int omegaCount;
-
-    /** Real part of the roots. */
-    private double[] omegaReal;
-
+    private final int omegaCount;
+    /** The roots. */
+    private final Complex[] omega;
     /**
-     * Imaginary part of the {@code n}-th roots of unity, for positive values
-     * of {@code n}. In this array, the roots are stored in counter-clockwise
-     * order.
+     * {@code true} if the constructor was called with a positive
+     * value of its argument {@code n}.
      */
-    private double[] omegaImaginaryCounterClockwise;
+    private final boolean isCounterClockwise;
 
     /**
-     * Imaginary part of the {@code n}-th roots of unity, for negative values
-     * of {@code n}. In this array, the roots are stored in clockwise order.
-     */
-    private double[] omegaImaginaryClockwise;
-
-    /**
-     * {@code true} if {@link #computeRoots(int)} was called with a positive
-     * value of its argument {@code n}. In this case, counter-clockwise ordering
-     * of the roots of unity should be used.
-     */
-    private boolean isCounterClockWise;
-
-    /**
-     * Build an engine for computing the {@code n}-th roots of unity.
-     */
-    public RootsOfUnity() {
-
-        omegaCount = 0;
-        omegaReal = null;
-        omegaImaginaryCounterClockwise = null;
-        omegaImaginaryClockwise = null;
-        isCounterClockWise = true;
-    }
-
-    /**
-     * Returns {@code true} if {@link #computeRoots(int)} was called with a
-     * positive value of its argument {@code n}. If {@code true}, then
-     * counter-clockwise ordering of the roots of unity should be used.
+     * Computes the {@code n}-th roots of unity.
      *
-     * @return {@code true} if the roots of unity are stored in
-     * counter-clockwise order
-     * @throws IllegalArgumentException if no roots of unity have been computed
-     * yet
-     */
-    public synchronized boolean isCounterClockWise() {
-
-        if (omegaCount == 0) {
-            throw new IllegalArgumentException(ROOTS_OF_UNITY_NOT_COMPUTED_YET);
-        }
-        return isCounterClockWise;
-    }
-
-    /**
-     * <p>
-     * Computes the {@code n}-th roots of unity. The roots are stored in
+     * The roots are stored in an array
      * {@code omega[]}, such that {@code omega[k] = w ^ k}, where
      * {@code k = 0, ..., n - 1}, {@code w = exp(2 * pi * i / n)} and
      * {@code i = sqrt(-1)}.
-     * </p>
-     * <p>
-     * Note that {@code n} can be positive of negative
-     * </p>
+     *
+     * <p>{@code n} can be positive of negative ({@code abs(n)} is always
+     * the number of roots of unity):</p>
      * <ul>
-     * <li>{@code abs(n)} is always the number of roots of unity.</li>
-     * <li>If {@code n > 0}, then the roots are stored in counter-clockwise order.</li>
-     * <li>If {@code n < 0}, then the roots are stored in clockwise order.</p>
+     *  <li>If {@code n > 0}, then the roots are stored in counter-clockwise order.</li>
+     *  <li>If {@code n < 0}, then the roots are stored in clockwise order.</li>
      * </ul>
      *
-     * @param n the (signed) number of roots of unity to be computed
-     * @throws IllegalArgumentException if {@code n = 0}
+     * @param n The (signed) number of roots of unity to be computed.
+     * @throws IllegalArgumentException if {@code n == 0}?
      */
-    public synchronized void computeRoots(int n) {
-
+    public RootsOfUnity(int n) {
         if (n == 0) {
-            throw new IllegalArgumentException(CANNOT_COMPUTE_ZEROTH_ROOT_OF_UNITY);
+            throw new IllegalArgumentException("Zero-th root");
         }
 
-        isCounterClockWise = n > 0;
+        omegaCount = Math.abs(n);
+        isCounterClockwise = n > 0;
 
-        // avoid repetitive calculations
-        final int absN = Math.abs(n);
-
-        if (absN == omegaCount) {
-            return;
-        }
-
-        // calculate everything from scratch
-        final double t = 2.0 * Math.PI / absN;
+        omega = new Complex[omegaCount];
+        final double t = TWO_PI / omegaCount;
         final double cosT = Math.cos(t);
         final double sinT = Math.sin(t);
-        omegaReal = new double[absN];
-        omegaImaginaryCounterClockwise = new double[absN];
-        omegaImaginaryClockwise = new double[absN];
-        omegaReal[0] = 1.0;
-        omegaImaginaryCounterClockwise[0] = 0.0;
-        omegaImaginaryClockwise[0] = 0.0;
-        for (int i = 1; i < absN; i++) {
-            omegaReal[i] = omegaReal[i - 1] * cosT -
-                    omegaImaginaryCounterClockwise[i - 1] * sinT;
-            omegaImaginaryCounterClockwise[i] = omegaReal[i - 1] * sinT +
-                    omegaImaginaryCounterClockwise[i - 1] * cosT;
-            omegaImaginaryClockwise[i] = -omegaImaginaryCounterClockwise[i];
+
+        double previousReal = 1;
+        double previousImag = 0;
+        omega[0] = new Complex(previousReal, previousImag);
+        for (int i = 1; i < omegaCount; i++) {
+            final double real = previousReal * cosT - previousImag * sinT;
+            final double imag = previousReal * sinT + previousImag * cosT;
+
+            omega[i] = isCounterClockwise ?
+                new Complex(real, imag) :
+                new Complex(real, -imag);
+
+            previousReal = real;
+            previousImag = imag;
         }
-        omegaCount = absN;
     }
 
     /**
-     * Get the real part of the {@code k}-th {@code n}-th root of unity.
+     * Returns {@code true} if {@link #RootsOfUnity(int)} was called with a
+     * positive value of its argument {@code n}.
+     * If {@code true}, then the imaginary parts of the successive roots are
+     * {@link #getRoot(int) returned} in counter-clockwise order.
      *
-     * @param k index of the {@code n}-th root of unity
-     * @return real part of the {@code k}-th {@code n}-th root of unity
-     * @throws IllegalArgumentException if no roots of unity have been
-     * computed yet
-     * @throws IllegalArgumentException if {@code k} is out of range
+     * @return {@code true} if the roots of unity are stored in
+     * counter-clockwise order.
      */
-    public synchronized double getReal(int k) {
-
-        if (omegaCount == 0) {
-            throw new IllegalArgumentException(ROOTS_OF_UNITY_NOT_COMPUTED_YET);
-        }
-        if ((k < 0) || (k >= omegaCount)) {
-            throw new IllegalArgumentException(OUT_OF_RANGE);
-        }
-
-        return omegaReal[k];
+    public boolean isCounterClockwise() {
+        return isCounterClockwise;
     }
 
     /**
-     * Get the imaginary part of the {@code k}-th {@code n}-th root of unity.
+     * Gets the {@code k}-th among the computed roots of unity.
      *
-     * @param k index of the {@code n}-th root of unity
-     * @return imaginary part of the {@code k}-th {@code n}-th root of unity
-     * @throws IllegalArgumentException if no roots of unity have been
-     * computed yet
-     * @throws IllegalArgumentException if {@code k} is out of range
+     * @param k Index of the requested value.
+     * @return the {@code k}-th among the {@code N}-th root of unity
+     * where {@code N} is the absolute value of the argument passed
+     * to the constructor.
+     * @throws IndexOutOfBoundsException if {@code k} is out of range.
      */
-    public synchronized double getImaginary(int k) {
-
-    	if (omegaCount == 0) {
-            throw new IllegalArgumentException(ROOTS_OF_UNITY_NOT_COMPUTED_YET);
-        }
-        if ((k < 0) || (k >= omegaCount)) {
-            throw new IllegalArgumentException(OUT_OF_RANGE);
-        }
-
-        return isCounterClockWise ? omegaImaginaryCounterClockwise[k] :
-            omegaImaginaryClockwise[k];
+    public Complex getRoot(int k) {
+        return omega[k];
     }
 
     /**
-     * Returns the number of roots of unity currently stored. If
-     * {@link #computeRoots(int)} was called with {@code n}, then this method
-     * returns {@code abs(n)}. If no roots of unity have been computed yet, this
-     * method returns 0.
+     * Gets the number of roots of unity.
      *
-     * @return the number of roots of unity currently stored
+     * @return the number of roots of unity.
      */
-    public synchronized int getNumberOfRoots() {
+    public int getNumberOfRoots() {
         return omegaCount;
     }
 }

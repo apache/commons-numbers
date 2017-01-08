@@ -25,74 +25,60 @@ import org.junit.Test;
  *
  */
 public class RootsOfUnityTest {
-
     @Test(expected = IllegalArgumentException.class)
-    public void testMathIllegalArgument1() {
-        final RootsOfUnity roots = new RootsOfUnity();
-        roots.getReal(0);
+    public void testPrecondition() {
+        new RootsOfUnity(0);
     }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testMathIllegalArgument2() {
-        final RootsOfUnity roots = new RootsOfUnity();
-        roots.getImaginary(0);
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testGetRootPrecondition1() {
+        final int n = 3;
+        final RootsOfUnity roots = new RootsOfUnity(n);
+        roots.getRoot(-1);
     }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testMathIllegalArgument3() {
-        final RootsOfUnity roots = new RootsOfUnity();
-        roots.isCounterClockWise();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testZeroNumberOfRoots() {
-        final RootsOfUnity roots = new RootsOfUnity();
-        roots.computeRoots(0);
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testGetRootPrecondition2() {
+        final int n = -2;
+        final RootsOfUnity roots = new RootsOfUnity(n);
+        roots.getRoot(2);
     }
 
     @Test
-    public void testGetNumberOfRoots() {
-        final RootsOfUnity roots = new RootsOfUnity();
-        Assert.assertEquals("", 0, roots.getNumberOfRoots());
-        roots.computeRoots(5);
-        Assert.assertEquals("", 5, roots.getNumberOfRoots());
-        /*
-         * Testing -5 right after 5 is important, as the roots in this case are
-         * not recomputed.
-         */
-        roots.computeRoots(-5);
-        Assert.assertEquals("", 5, roots.getNumberOfRoots());
-        roots.computeRoots(6);
-        Assert.assertEquals("", 6, roots.getNumberOfRoots());
+    public void testGetNumberOfRoots1() {
+        final int n = 5;
+        final RootsOfUnity roots = new RootsOfUnity(n);
+        Assert.assertEquals(n, roots.getNumberOfRoots());
+        Assert.assertTrue(roots.isCounterClockwise());
+    }
+    @Test
+    public void testGetNumberOfRoots2() {
+        final int n = -4;
+        final RootsOfUnity roots = new RootsOfUnity(n);
+        Assert.assertEquals(Math.abs(n), roots.getNumberOfRoots());
+        Assert.assertFalse(roots.isCounterClockwise());
     }
 
     @Test
     public void testComputeRoots() {
-        final RootsOfUnity roots = new RootsOfUnity();
+        final double tol = Math.ulp(1d);
+        final org.apache.commons.math3.complex.RootsOfUnity cmRoots =
+            new org.apache.commons.math3.complex.RootsOfUnity();
         for (int n = -10; n < 11; n++) {
-            /*
-             * Testing -n right after n is important, as the roots in this case
-             * are not recomputed.
-             */
+            final int absN = Math.abs(n);
             if (n != 0) {
-                roots.computeRoots(n);
-                doTestComputeRoots(roots);
-                roots.computeRoots(-n);
-                doTestComputeRoots(roots);
+                cmRoots.computeRoots(n);
+                final RootsOfUnity roots = new RootsOfUnity(n);
+                for (int k = 0; k < absN; k++) {
+                    final Complex z = roots.getRoot(k);
+                    Assert.assertEquals("n=" + n + " k=" + k,
+                                        cmRoots.getReal(k),
+                                        z.getReal(),
+                                        tol);
+                    Assert.assertEquals("n=" + n + " k=" + k,
+                                        cmRoots.getImaginary(k),
+                                        z.getImaginary(),
+                                        tol);
+                }
             }
-        }
-    }
-
-    private void doTestComputeRoots(final RootsOfUnity roots) {
-        final int n = roots.isCounterClockWise() ? roots.getNumberOfRoots() :
-            -roots.getNumberOfRoots();
-        final double tol = 10 * Math.ulp(1.0);
-        for (int k = 0; k < n; k++) {
-            final double t = 2.0 * Math.PI * k / n;
-            @SuppressWarnings("boxing")
-            final String msg = String.format("n = %d, k = %d", n, k);
-            Assert.assertEquals(msg, Math.cos(t), roots.getReal(k), tol);
-            Assert.assertEquals(msg, Math.sin(t), roots.getImaginary(k), tol);
         }
     }
 }
