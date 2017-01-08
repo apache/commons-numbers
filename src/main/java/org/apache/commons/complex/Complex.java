@@ -363,8 +363,8 @@ public class Complex implements Serializable  {
      * @since 3.3
      */
     public static boolean equals(Complex x, Complex y, int maxUlps) {
-        return equals(x.real, y.real) &&
-            equals(x.imaginary, y.imaginary);
+        return Precision.equals(x.real, y.real, maxUlps) &&
+            Precision.equals(x.imaginary, y.imaginary, maxUlps);
     }
 
     /**
@@ -397,8 +397,8 @@ public class Complex implements Serializable  {
      * @since 3.3
      */
     public static boolean equals(Complex x, Complex y, double eps) {
-        return equals(x.real, y.real) &&
-            equals(x.imaginary, y.imaginary);
+        return Precision.equals(x.real, y.real, eps) &&
+            Precision.equals(x.imaginary, y.imaginary, eps);
     }
 
     /**
@@ -418,8 +418,8 @@ public class Complex implements Serializable  {
      */
     public static boolean equalsWithRelativeTolerance(Complex x, Complex y,
                                                       double eps) {
-        return equalsWithRelativeTolerance(x.real, y.real, eps) &&
-            equalsWithRelativeTolerance(x.imaginary, y.imaginary, eps);
+        return Precision.equalsWithRelativeTolerance(x.real, y.real, eps) &&
+            Precision.equalsWithRelativeTolerance(x.imaginary, y.imaginary, eps);
     }
 
     /**

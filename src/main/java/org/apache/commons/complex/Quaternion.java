@@ -306,10 +306,10 @@ public final class Quaternion implements Serializable {
      */
     public boolean equals(final Quaternion q,
                           final double eps) {
-        return equals(q0, q.getQ0(), eps) &&
-            equals(q1, q.getQ1(), eps) &&
-            equals(q2, q.getQ2(), eps) &&
-            equals(q3, q.getQ3(), eps);
+        return Precision.equals(q0, q.getQ0(), eps) &&
+            Precision.equals(q1, q.getQ1(), eps) &&
+            Precision.equals(q2, q.getQ2(), eps) &&
+            Precision.equals(q3, q.getQ3(), eps);
     }
 
     /**
@@ -321,7 +321,7 @@ public final class Quaternion implements Serializable {
      * {@code false} otherwise
      */
     public boolean isUnitQuaternion(double eps) {
-        return equals(getNorm(), 1d, eps);
+        return Precision.equals(getNorm(), 1d, eps);
     }
 
     /**
@@ -463,22 +463,5 @@ public final class Quaternion implements Serializable {
 
         return s.toString();
     }
-
-    /**
-     * Returns {@code true} if there is no double value strictly between the
-     * arguments or the difference between them is within the range of allowed
-     * error (inclusive). Returns {@code false} if either of the arguments
-     * is NaN.
-     *
-     * @param x First value.
-     * @param y Second value.
-     * @param eps Amount of allowed absolute error.
-     * @return {@code true} if the values are two adjacent floating point
-     * numbers or they are within range of each other.
-     */
-    private static boolean equals(double x, double y, double eps) {
-        return equals(x, y, 1) || Math.abs(y - x) <= eps;
-    }
-
 
 }
