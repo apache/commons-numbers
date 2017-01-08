@@ -52,7 +52,8 @@ public class ComplexUtils {
      * @since 1.1
      */
     public static Complex polar2Complex(double r, double theta) {
-        if (r < 0) { illegalArgument();
+        if (r < 0) {
+            throw new NegativeModulusException(r);
         }
         return new Complex(r * Math.cos(theta), r * Math.sin(theta));
     }
@@ -71,7 +72,7 @@ public class ComplexUtils {
         final Complex[] c = new Complex[length];
         for (int x = 0; x < length; x++) {
             if (r[x] < 0) {
-                illegalArgument();
+                throw new NegativeModulusException(r[x]);
             }
             c[x] = new Complex(r[x] * Math.cos(theta[x]), r[x] * Math.sin(theta[x]));
         }
@@ -743,7 +744,7 @@ public class ComplexUtils {
      */
     public static double[][] complex2Interleaved(Complex[][] c, int interleavedDim) {
         if (interleavedDim > 1 || interleavedDim < 0) {
-            outOfRange();
+            new IndexOutOfRangeException(interleavedDim);
         }
         final int width = c.length;
         final int height = c[0].length;
@@ -796,7 +797,7 @@ public class ComplexUtils {
      */
     public static double[][][] complex2Interleaved(Complex[][][] c, int interleavedDim) {
         if (interleavedDim > 2 || interleavedDim < 0) {
-            outOfRange();
+            new IndexOutOfRangeException(interleavedDim);
         }
         int width = c.length;
         int height = c[0].length;
@@ -864,7 +865,7 @@ public class ComplexUtils {
      */
     public static float[][] complex2InterleavedFloat(Complex[][] c, int interleavedDim) {
         if (interleavedDim > 1 || interleavedDim < 0) {
-            outOfRange();
+            new IndexOutOfRangeException(interleavedDim);
         }
         final int width = c.length;
         final int height = c[0].length;
@@ -918,7 +919,7 @@ public class ComplexUtils {
      */
     public static float[][][] complex2InterleavedFloat(Complex[][][] c, int interleavedDim) {
         if (interleavedDim > 2 || interleavedDim < 0) {
-            outOfRange();
+            new IndexOutOfRangeException(interleavedDim);
         }
         final int width = c.length;
         final int height = c[0].length;
@@ -986,7 +987,7 @@ public class ComplexUtils {
      */
     public static Complex[][] interleaved2Complex(double[][] d, int interleavedDim) {
         if (interleavedDim > 1 || interleavedDim < 0) {
-            outOfRange();
+            new IndexOutOfRangeException(interleavedDim);
         }
         final int width = d.length;
         final int height = d[0].length;
@@ -1035,7 +1036,7 @@ public class ComplexUtils {
      */
     public static Complex[][][] interleaved2Complex(double[][][] d, int interleavedDim) {
         if (interleavedDim > 2 || interleavedDim < 0) {
-            outOfRange();
+            new IndexOutOfRangeException(interleavedDim);
         }
         final int width = d.length;
         final int height = d[0].length;
@@ -1098,7 +1099,7 @@ public class ComplexUtils {
      */
     public static Complex[][] interleaved2Complex(float[][] d, int interleavedDim) {
         if (interleavedDim > 1 || interleavedDim < 0) {
-            outOfRange();
+            new IndexOutOfRangeException(interleavedDim);
         }
         final int width = d.length;
         final int height = d[0].length;
@@ -1147,7 +1148,7 @@ public class ComplexUtils {
      */
     public static Complex[][][] interleaved2Complex(float[][][] d, int interleavedDim) {
         if (interleavedDim > 2 || interleavedDim < 0) {
-            outOfRange();
+            new IndexOutOfRangeException(interleavedDim);
         }
         final int width = d.length;
         final int height = d[0].length;
@@ -1403,12 +1404,27 @@ public class ComplexUtils {
         return d;
     }
 
-    private static void illegalArgument() {
-    	throw new RuntimeException("ComplexUtils: Illegal argument");
+    /**
+     * Exception to be throw when a negative value is passed as the modulus.
+     */
+    private static class NegativeModulusException extends IllegalArgumentException {
+        /**
+         * @param r Wrong modulus.
+         */
+        NegativeModulusException(double r) {
+            super("Modulus is negative: " + r);
+        }
     }
 
-    private static void outOfRange() {
-    	throw new RuntimeException("ComplexUtils: Out of range");
+    /**
+     * Exception to be throw when an out-of-range index value is passed.
+     */
+    private static class IndexOutOfRangeException extends IllegalArgumentException {
+        /**
+         * @param i Wrong index.
+         */
+        IndexOutOfRangeException(int i) {
+            super("Out of range: " + i);
+        }
     }
-
 }

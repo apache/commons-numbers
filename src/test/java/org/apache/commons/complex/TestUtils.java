@@ -181,8 +181,8 @@ public class TestUtils {
     public static void assertContains(String msg, Complex[] values,
                                       Complex z, double epsilon) {
         for (Complex value : values) {
-            if (equals(value.getReal(), z.getReal(), epsilon) &&
-                equals(value.getImaginary(), z.getImaginary(), epsilon)) {
+            if (Precision.equals(value.getReal(), z.getReal(), epsilon) &&
+                Precision.equals(value.getImaginary(), z.getImaginary(), epsilon)) {
                 return;
             }
         }
@@ -212,7 +212,7 @@ public class TestUtils {
     public static void assertContains(String msg, double[] values,
             double x, double epsilon) {
         for (double value : values) {
-            if (equals(value, x, epsilon)) {
+            if (Precision.equals(value, x, epsilon)) {
                 return;
             }
         }
@@ -374,23 +374,6 @@ public class TestUtils {
         return positiveMassCount;
     }
 
-	/**
-     * Returns {@code true} if there is no double value strictly between the
-     * arguments or the difference between them is within the range of allowed
-     * error (inclusive). Returns {@code false} if either of the arguments
-     * is NaN.
-     *
-     * @param x First value.
-     * @param y Second value.
-     * @param eps Amount of allowed absolute error.
-     * @return {@code true} if the values are two adjacent floating point
-     * numbers or they are within range of each other.
-     */
-    private static boolean equals(double x, double y, double eps) {
-        return equals(x, y, 1) || Math.abs(y - x) <= eps;
-    }
-
-
     /**
      * Returns true if the arguments are both NaN, are equal or are within the range
      * of allowed error (inclusive).
@@ -416,7 +399,7 @@ public class TestUtils {
      * @since 2.2
      */
     private static boolean equalsIncludingNaN(double x, double y) {
-        return (x != x || y != y) ? !(x != x ^ y != y) : equals(x, y, 1);
+        return (x != x || y != y) ? !(x != x ^ y != y) : Precision.equals(x, y, 1);
     }
 
 
