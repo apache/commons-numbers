@@ -864,6 +864,15 @@ public class Complex implements Serializable  {
      */
     public Complex pow(Complex x) {
         checkNotNull(x);
+        if (real == 0 && imaginary == 0) {
+            if (x.real > 0 && x.imaginary == 0) {
+                // 0 raised to positive number is 0
+                return ZERO;
+            } else {
+                // 0 raised to anything else is NaN
+                return NaN;
+            }
+        }
         return this.log().multiply(x).exp();
     }
 
@@ -875,6 +884,15 @@ public class Complex implements Serializable  {
      * @see #pow(Complex)
      */
      public Complex pow(double x) {
+        if (real == 0 && imaginary == 0) {
+            if (x > 0) {
+                // 0 raised to positive number is 0
+                return ZERO;
+            } else {
+                // 0 raised to anything else is NaN
+                return NaN;
+            }
+        }
         return this.log().multiply(x).exp();
     }
 

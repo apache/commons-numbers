@@ -768,14 +768,15 @@ public class ComplexTest {
 
     @Test
     public void testExp() {
+        final double tol = Math.ulp(1d);
         Complex z = new Complex(3, 4);
         Complex expected = new Complex(-13.12878, -15.20078);
         TestUtils.assertEquals(expected, z.exp(), 1.0e-5);
         TestUtils.assertEquals(Complex.ONE,
-                Complex.ZERO.exp(), 10e-12);
+                Complex.ZERO.exp(), tol);
         Complex iPi = Complex.I.multiply(new Complex(pi,0));
         TestUtils.assertEquals(Complex.ONE.negate(),
-                iPi.exp(), 10e-12);
+                iPi.exp(), tol);
     }
 
     @Test
@@ -866,21 +867,22 @@ public class ComplexTest {
 
     @Test
     public void testLogInf() {
+        final double tol = Math.ulp(1d);
         TestUtils.assertEquals(new Complex(inf, pi / 2),
-                oneInf.log(), 10e-12);
+                oneInf.log(), tol);
         TestUtils.assertEquals(new Complex(inf, -pi / 2),
-                oneNegInf.log(), 10e-12);
-        TestUtils.assertEquals(infZero, infOne.log(), 10e-12);
+                oneNegInf.log(), tol);
+        TestUtils.assertEquals(infZero, infOne.log(), tol);
         TestUtils.assertEquals(new Complex(inf, pi),
-                negInfOne.log(), 10e-12);
+                negInfOne.log(), tol);
         TestUtils.assertEquals(new Complex(inf, pi / 4),
-                infInf.log(), 10e-12);
+                infInf.log(), tol);
         TestUtils.assertEquals(new Complex(inf, -pi / 4),
-                infNegInf.log(), 10e-12);
+                infNegInf.log(), tol);
         TestUtils.assertEquals(new Complex(inf, 3d * pi / 4),
-                negInfInf.log(), 10e-12);
+                negInfInf.log(), tol);
         TestUtils.assertEquals(new Complex(inf, - 3d * pi / 4),
-                negInfNegInf.log(), 10e-12);
+                negInfNegInf.log(), tol);
     }
 
     @Test
@@ -936,18 +938,21 @@ public class ComplexTest {
 
    @Test
    public void testPowZero() {
-       TestUtils.assertSame(Complex.NaN,
-               Complex.ZERO.pow(Complex.ONE));
+       final double tol = Math.ulp(1d);
+       TestUtils.assertEquals(Complex.ZERO,
+              Complex.ZERO.pow(Complex.ONE), tol);
+       TestUtils.assertEquals(Complex.ZERO,
+               Complex.ZERO.pow(new Complex(2, 0)), tol);
        TestUtils.assertSame(Complex.NaN,
                Complex.ZERO.pow(Complex.ZERO));
        TestUtils.assertSame(Complex.NaN,
                Complex.ZERO.pow(Complex.I));
        TestUtils.assertEquals(Complex.ONE,
-               Complex.ONE.pow(Complex.ZERO), 10e-12);
+               Complex.ONE.pow(Complex.ZERO), tol);
        TestUtils.assertEquals(Complex.ONE,
-               Complex.I.pow(Complex.ZERO), 10e-12);
+               Complex.I.pow(Complex.ZERO), tol);
        TestUtils.assertEquals(Complex.ONE,
-               new Complex(-1, 3).pow(Complex.ZERO), 10e-12);
+               new Complex(-1, 3).pow(Complex.ZERO), tol);
    }
 
     @Test
@@ -994,11 +999,14 @@ public class ComplexTest {
 
    @Test
    public void testScalarPowZero() {
-       TestUtils.assertSame(Complex.NaN, Complex.ZERO.pow(1.0));
+       final double tol = Math.ulp(1d);
+       TestUtils.assertEquals(Complex.ZERO, Complex.ZERO.pow(1.0), tol);
+       TestUtils.assertEquals(Complex.ZERO, Complex.ZERO.pow(2.0), tol);
        TestUtils.assertSame(Complex.NaN, Complex.ZERO.pow(0.0));
-       TestUtils.assertEquals(Complex.ONE, Complex.ONE.pow(0.0), 10e-12);
-       TestUtils.assertEquals(Complex.ONE, Complex.I.pow(0.0), 10e-12);
-       TestUtils.assertEquals(Complex.ONE, new Complex(-1, 3).pow(0.0), 10e-12);
+       TestUtils.assertSame(Complex.NaN, Complex.ZERO.pow(-1.0));
+       TestUtils.assertEquals(Complex.ONE, Complex.ONE.pow(0.0), tol);
+       TestUtils.assertEquals(Complex.ONE, Complex.I.pow(0.0), tol);
+       TestUtils.assertEquals(Complex.ONE, new Complex(-1, 3).pow(0.0), tol);
    }
 
     @Test
@@ -1086,15 +1094,16 @@ public class ComplexTest {
 
     @Test
     public void testSqrtPolar() {
+        final double tol = 1e-12;
         double r = 1;
         for (int i = 0; i < 5; i++) {
             r += i;
             double theta = 0;
-            for (int j =0; j < 11; j++) {
-                theta += pi /12;
+            for (int j = 0; j < 11; j++) {
+                theta += pi / 12;
                 Complex z = ComplexUtils.polar2Complex(r, theta);
                 Complex sqrtz = ComplexUtils.polar2Complex(Math.sqrt(r), theta / 2);
-                TestUtils.assertEquals(sqrtz, z.sqrt(), 10e-12);
+                TestUtils.assertEquals(sqrtz, z.sqrt(), tol);
             }
         }
     }
