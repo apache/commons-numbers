@@ -40,17 +40,17 @@
  |                                                                      |
  +======================================================================+
 --->
-Apache Commons Numbers
+Apache Commons Numbers Core
 ===================
 
-The Apache Commons Numbers project provides number types and utilities.
+Basic utilities.
 
 Documentation
 -------------
 
 More information can be found on the [homepage](https://commons.apache.org/proper/commons-numbers).
 The [JavaDoc](https://commons.apache.org/proper/commons-numbers/javadocs/api-release) can be browsed.
-Questions related to the usage of Apache Commons Numbers should be posted to the [user mailing list][ml].
+Questions related to the usage of Apache Commons Numbers Core should be posted to the [user mailing list][ml].
 
 Where can I get the latest release?
 -----------------------------------
@@ -61,7 +61,7 @@ Alternatively you can pull it from the central Maven repositories:
 ```xml
 <dependency>
   <groupId>org.apache.commons</groupId>
-  <artifactId>commons-numbers-parent</artifactId>
+  <artifactId>commons-numbers-core</artifactId>
   <version>1.0</version>
 </dependency>
 ```
@@ -85,7 +85,7 @@ Code is under the [Apache Licence v2](https://www.apache.org/licenses/LICENSE-2.
 
 Donations
 ---------
-You like Apache Commons Numbers? Then [donate back to the ASF](https://www.apache.org/foundation/contributing.html) to support the development.
+You like Apache Commons Numbers Core? Then [donate back to the ASF](https://www.apache.org/foundation/contributing.html) to support the development.
 
 Additional Resources
 --------------------
