@@ -1,23 +1,30 @@
-This document summarizes a discussion that took place on the "dev" ML:
-  http://markmail.org/message/7lnus64entdwj4vo
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-The conclusions reported here are based on ideas presented in this blog post:
-  http://nvie.com/posts/a-successful-git-branching-model/
+This document summarizes the development process of Commons Numbers:
 
-1. The "master" branch can only contain released code; i.e. the only
-   accepted commits are the result of a merge from the "release" branch
-   (from a release candidate that passed a vote).
-2. Contents that is candidate for being released must be merged into the
-   "release" branch, from the "develop" branch.
-3. The "develop" branch collects all modifications that will be part
+1. The "master" branch collects all modifications that will be part
    of the next release.
-   Usually, changes should not be committed directly to the "develop"
+   Usually, non trivial changes should not be committed directly to the "master"
    branch; they should be merged from a branch specifically created for
    that purpose (see next point).
-4. Work on an identified issue (bug fix or new feature) must be done in a
+2. Work on an identified issue (bug fix or new feature) must be done in a
    new branch named after its corresponding report in the bug-tracking
-   system (JIRA), e.g. "feature-MATH-1319".
+   system (JIRA), e.g. "feature-NUMBERS-123".
    After completion, and in the absence of technical objections, the feature
-   branch is merged into the "develop" branch, using the "--no-ff" git
+   branch is merged into the "master" branch, using the "--no-ff" git
    option.
    That feature branch is then deleted.
