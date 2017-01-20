@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -15,39 +15,40 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v0_0_1.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <groupId>org.apache.commons</groupId>
     <artifactId>commons-parent</artifactId>
     <version>41</version>
   </parent>
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.commons</groupId>
-  <artifactId>commons-complex</artifactId>
+  <artifactId>commons-numbers-parent</artifactId>
+  <packaging>pom</packaging>
   <version>1.0-SNAPSHOT</version>
-  <name>Apache Commons Complex</name>
+  <name>Apache Commons Numbers</name>
 
-  <inceptionYear>2016</inceptionYear>
-  <description>The Apache Commons Complex project provides self-contained components addressing the most common practical problems involving Java computing with complex numbers.</description>
-
-  <url>http://commons.apache.org/proper/commons-complex/</url>
+  <inceptionYear>2017</inceptionYear>
+  <description>The Apache Commons Numbers project provides number types and utilities.</description>
+  <url>http://commons.apache.org/proper/commons-numbers/</url>
 
   <issueManagement>
     <system>jira</system>
-    <url>http://issues.apache.org/jira/browse/COMPLEX</url>
+    <url>http://issues.apache.org/jira/browse/NUMBERS</url>
   </issueManagement>
 
   <scm>
-    <connection>scm:git:http://git-wip-us.apache.org/repos/asf/commons-complex.git</connection>
-    <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/commons-complex.git</developerConnection>
-    <url>https://git-wip-us.apache.org/repos/asf?p=commons-complex.git</url>
+    <connection>scm:git:http://git-wip-us.apache.org/repos/asf/commons-numbers.git</connection>
+    <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/commons-numbers.git</developerConnection>
+    <url>https://git-wip-us.apache.org/repos/asf?p=commons-numbers.git</url>
   </scm>
 
   <distributionManagement>
     <site>
       <id>apache.website</id>
       <name>Apache Commons Site</name>
-      <url>scm:svn:https://svn.apache.org/repos/infra/websites/production/commons/content/proper/commons-complex/</url>
+      <url>scm:svn:https://svn.apache.org/repos/infra/websites/production/commons/content/proper/commons-numbers/</url>
     </site>
   </distributionManagement>
 
@@ -57,48 +58,54 @@
       <id>ericbarnhill</id>
       <email>ericbarnhill at apache dot org</email>
     </developer>
+    <developer>
+      <name>Gilles Sadowski</name>
+      <id>erans</id>
+      <email>erans at apache dot org</email>
+    </developer>
   </developers>
+
+  <contributors>
+    <contributor>
+      <name>Raymond DeCampo</name>
+    </contributor>
+  </contributors>
 
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-math3</artifactId>
-      <version>3.6.1</version>
+      <version>4.12</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
 
   <properties>
-    <!-- Do not change: "math" is the name of the component even if the
+    <!-- Do not change: "numbers" is the name of the component even if the
          name of the base package evolves with major release numbers
          (see "commons.osgi.symbolicName", below). -->
-    <!-- TODO: when releasing 4.0, the properties below need to be updated, and
-         the 3.x release artifacts need to be put int commons.release.3  -->
-    <commons.componentid>complex</commons.componentid>
+    <commons.componentid>numbers</commons.componentid>
     <!-- This value must reflect the current name of the base package. -->
-    <commons.osgi.symbolicName>org.apache.commons.complex</commons.osgi.symbolicName>
+    <commons.osgi.symbolicName>org.apache.commons.numbers</commons.osgi.symbolicName>
+    <!-- OSGi -->
+    <commons.osgi.export>org.apache.commons.numbers</commons.osgi.export>
     <!-- do not use snapshot suffix here -->
     <commons.release.version>1.0</commons.release.version>
-    <commons.release.desc>(requires Java 1.5+)</commons.release.desc>
+    <commons.release.desc>(requires Java 7+)</commons.release.desc>
     <!-- <commons.rc.version>RC1</commons.rc.version> -->
     <commons.binary.suffix>-bin</commons.binary.suffix>
 
-    <commons.jira.id>COMPLEX</commons.jira.id>
-    <commons.jira.pid>12310485</commons.jira.pid>
+    <commons.jira.id>NUMBERS</commons.jira.id>
+    <commons.jira.pid>12320720</commons.jira.pid>
     <commons.encoding>UTF-8</commons.encoding>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <maven.compiler.target>1.7</maven.compiler.target>
-    <math.pmd.version>3.5</math.pmd.version>
-    <math.findbugs.version>3.0.2</math.findbugs.version>
-    <math.checkstyle.version>2.17</math.checkstyle.version>
-    <math.clirr.version>2.7</math.clirr.version>
+    <maven.compiler.source>1.6</maven.compiler.source>
+    <maven.compiler.target>1.6</maven.compiler.target>
+    <numbers.pmd.version>3.5</numbers.pmd.version>
+    <numbers.findbugs.version>3.0.2</numbers.findbugs.version>
+    <numbers.checkstyle.version>2.17</numbers.checkstyle.version>
+    <numbers.clirr.version>2.7</numbers.clirr.version>
+    <!-- Workaround to avoid duplicating config files. -->
+    <numbers.parent.dir>${basedir}</numbers.parent.dir>
 
     <!-- Temporary fix to support Java 8 -->
     <commons.jacoco.version>0.7.5.201505241946</commons.jacoco.version>
@@ -110,70 +117,61 @@
     <commons.jacoco.lineRatio>0.85</commons.jacoco.lineRatio>
     <commons.jacoco.haltOnFailure>false</commons.jacoco.haltOnFailure>
 
-    <commons.site.path>complex</commons.site.path>
-    <commons.scmPubUrl>https://svn.apache.org/repos/infra/websites/production/commons/content/proper/commons-complex</commons.scmPubUrl>
+    <commons.site.path>numbers</commons.site.path>
+    <commons.scmPubUrl>https://svn.apache.org/repos/infra/websites/production/commons/content/proper/commons-numbers</commons.scmPubUrl>
     <commons.scmPubCheckoutDirectory>site-content</commons.scmPubCheckoutDirectory>
 
     <!-- Temporary fix to replace svn-based build number with git-based build number -->
     <buildnumber.skip>true</buildnumber.skip>
-    <math.jgit.buildnumber.version>1.2.10</math.jgit.buildnumber.version>
+    <numbers.jgit.buildnumber.version>1.2.10</numbers.jgit.buildnumber.version>
     <implementation.build>${git.revision}; ${maven.build.timestamp}</implementation.build>
 
     <!-- Override default buildNumber timestamp format, needed for coveralls plugin -->
     <maven.buildNumber.timestampFormat>{0,date,yyyy-MM-dd HH:mm:ssZ}</maven.buildNumber.timestampFormat>
+
+    <!--
+        Override so that "mvn commons:download-page" will generates a web page
+        referring to the files created by the "dist-archive" module.
+        Temporary workaround?
+    -->
+    <commons.release.name>commons-numbers-${project.version}</commons.release.name>
   </properties>
 
   <build>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <includes>
-                <include>**/*Test.java</include>
-                <include>**/*TestBinary.java</include>
-                <include>**/*TestPermutations.java</include>
-              </includes>
-              <excludes>
-                <exclude>**/*AbstractTest.java</exclude>
-              </excludes>
-          </configuration>
-        </plugin>
-        <plugin>
-          <artifactId>maven-assembly-plugin</artifactId>
-          <configuration>
-            <descriptors>
-              <descriptor>src/main/assembly/src.xml</descriptor>
-              <descriptor>src/main/assembly/bin.xml</descriptor>
-            </descriptors>
-            <!-- There are a lot of long file names. Suppress the warnings. -->
-            <tarLongFileMode>gnu</tarLongFileMode>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>clirr-maven-plugin</artifactId>
-          <version>${math.clirr.version}</version>
-          <configuration>
-            <minSeverity>${minSeverity}</minSeverity>
-            <ignoredDifferencesFile>${basedir}/clirr-ignored.xml</ignoredDifferencesFile>
-          </configuration>
-          <executions>
-            <execution>
-              <goals>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
+    <plugins>
       <plugin>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <version>${math.pmd.version}</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.5.1</version>
         <configuration>
-          <targetJdk>${maven.compiler.target}</targetJdk>
-          <skipEmptyReport>false</skipEmptyReport>
-          <rulesets>
-            <ruleset>${basedir}/pmd-ruleset.xml</ruleset>
-          </rulesets>
+          <compilerArgs>
+            <!-- <arg>-verbose</arg> -->
+            <arg>-Xlint:all,-options,-path</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>**/*Test.java</include>
+          </includes>
+          <excludes>
+            <exclude>**/*AbstractTest.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptors>
+            <descriptor>src/assembly/src.xml</descriptor>
+            <descriptor>src/assembly/bin.xml</descriptor>
+          </descriptors>
+          <!-- There are a lot of long file names. Suppress the warnings. -->
+          <tarLongFileMode>gnu</tarLongFileMode>
         </configuration>
       </plugin>
       <plugin>
@@ -187,93 +185,98 @@
       </plugin>
 
       <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
         <executions>
           <execution>
-            <phase>package</phase>
-            <configuration>
-              <target>
-                <jar destfile="${project.build.directory}/${project.artifactId}-${project.version}-tools.jar">
-                  <metainf dir="${basedir}" includes="NOTICE.txt,LICENSE.txt" />
-                  <manifest>
-                    <attribute name="Specification-Title" value="${project.name} Tools" />
-                    <attribute name="Implementation-Title" value="${project.name} Tools" />
-                    <attribute name="Implementation-Vendor" value="${project.organization.name}" />
-                    <attribute name="Implementation-Version" value="${project.version}" />
-                    <attribute name="Implementation-Vendor-Id" value="org.apache" />
-                    <attribute name="Implementation-Build" value="${implementation.build}"/>
-                    <attribute name="X-Compile-Source-JDK" value="${maven.compiler.source}" />
-                    <attribute name="X-Compile-Target-JDK" value="${maven.compiler.target}" />
-                  </manifest>
-                  <fileset dir="${project.build.directory}/test-classes"
-                           includes="org/apache/commons/complex/PerfTestUtils*" />
-                </jar>
-              </target>
-            </configuration>
+            <id>validate</id>
+            <phase>validate</phase>
             <goals>
-              <goal>run</goal>
+              <goal>check</goal>
             </goals>
           </execution>
         </executions>
       </plugin>
-      <!--  Attaches the commons-math4 tools JAR to the Maven lifecycle
-            to ensure they will be signed and deployed as normal -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>1.7</version>
-        <executions>
-          <execution>
-            <id>attach-artifacts</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <configuration>
-              <artifacts>
-                <artifact>
-                  <file>${project.build.directory}/${project.artifactId}-${project.version}-tools.jar</file>
-                  <type>jar</type>
-                  <classifier>tools</classifier>
-                </artifact>
-              </artifacts>
-            </configuration>
-          </execution>
-        </executions>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>${numbers.findbugs.version}</version>
       </plugin>
-      <!--  MathJax -->
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <version>${commons.rat.version}</version>
         <configuration>
-          <additionalparam>-header &apos;&lt;script type=&quot;text/javascript&quot; src=&quot;http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML&quot;&gt;&lt;/script&gt;&apos;</additionalparam>
+        <!--
+          Needed for command-line access, e.g mvn apache-rat:rat and mvn apache-rat:check
+          Below should agree with config in <reporting> section, so the site
+          gets consistent output.
+        -->
+          <excludes combine.children="append">
+            <!-- version 0.8 of apache-rat-plugin does not exclude properly
+                 some default development tools files (see RAT-126) -->
+            <exclude>.ekstazi/**</exclude>
+            <exclude>src/site/resources/txt/userguide/stress/dh/**</exclude>
+            <exclude>src/site/resources/txt/userguide/stress/tu/**</exclude>
+            <exclude>dist-archive/**</exclude>
+          </excludes>
         </configuration>
       </plugin>
     </plugins>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <version>${numbers.checkstyle.version}</version>
+          <configuration>
+            <includeTestSourceDirectory>false</includeTestSourceDirectory>
+            <configLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle.xml</configLocation>
+            <headerLocation>${numbers.parent.dir}/src/main/resources/checkstyle/license-header.txt</headerLocation>
+            <logViolationsToConsole>false</logViolationsToConsole>
+            <failOnViolation>false</failOnViolation>
+            <resourceExcludes>NOTICE.txt,LICENSE.txt</resourceExcludes>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 
   <reporting>
     <plugins>
       <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <version>${commons.rat.version}</version>
+        <configuration>
+         <!--  Should agree with apache-rat-plugin config under <build> -->
+          <excludes combine.children="append">
+            <!-- version 0.8 of apache-rat-plugin does not exclude properly
+                 some default development tools files (see RAT-126) -->
+            <exclude>.ekstazi/**</exclude>
+            <exclude>dist-archive/**</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-changes-plugin</artifactId>
         <version>${commons.changes.version}</version>
         <configuration>
-          <issueLinkTemplatePerSystem>
-            <default>%URL%/%ISSUE%</default>
-          </issueLinkTemplatePerSystem>
-          <!--  Add sample JIRA report - 'mvn changes:jira-report' or 'mvn site' -->
-          <onlyCurrentVersion>false</onlyCurrentVersion>
-          <columnNames>Fix Version,Key,Summary,Type,Resolution,Status</columnNames>
-          <!-- Sort cols have to be reversed in JIRA 4 -->
-          <sortColumnNames>Key DESC,Type,Fix Version DESC</sortColumnNames>
+          <xmlPath>${basedir}/src/changes/changes.xml</xmlPath>
+          <columnNames>Fix Version,Key,Component,Summary,Type,Resolution,Status</columnNames>
+          <!-- Sort cols in natural order when using JQL for JIRA 5.1 -->
+          <sortColumnNames>Fix Version DESC,Type,Key DESC</sortColumnNames>
           <resolutionIds>Fixed</resolutionIds>
           <statusIds>Resolved,Closed</statusIds>
           <!-- Don't include sub-task -->
           <typeIds>Bug,New Feature,Task,Improvement,Wish,Test</typeIds>
-          <fixVersionIds>${commons.release.version}</fixVersionIds>
-          <!-- The default is 100 -->
-          <maxEntries>100</maxEntries>
+          <!-- For JIRA >= 5.1 -->
+          <useJql>true</useJql>
+          <onlyCurrentVersion>${commons.changes.onlyCurrentVersion}</onlyCurrentVersion>
+          <maxEntries>${commons.changes.maxEntries}</maxEntries>
+          <runOnlyAtExecutionRoot>${commons.changes.runOnlyAtExecutionRoot}</runOnlyAtExecutionRoot>
         </configuration>
         <reportSets>
           <reportSet>
@@ -285,48 +288,24 @@
         </reportSets>
       </plugin>
       <plugin>
-        <groupId>org.apache.rat</groupId>
-        <artifactId>apache-rat-plugin</artifactId>
-        <version>${commons.rat.version}</version>
-        <configuration>
-          <excludes>
-
-            <!-- MANIFEST files cannot have any comments, so we can't put license header -->
-            <exclude>src/test/maxima/special/RealFunctionValidation/MANIFEST.txt</exclude>
-
-            <!-- text file explaining reference to a public domain image -->
-            <exclude>src/userguide/resources/references.txt</exclude>
-
-            <!-- version 0.8 of apache-rat-plugin does not exclude properly
-                 some default development tools files (see RAT-126) -->
-            <exclude>bin/**</exclude>
-            <exclude>.gitignore</exclude>
-            <exclude>.git/**</exclude>
-            <exclude>.checkstyle</exclude>
-            <exclude>.ekstazi/**</exclude>
-
-          </excludes>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
-        <version>${complex.findbugs.version}</version>
+        <version>${numbers.findbugs.version}</version>
         <configuration>
           <threshold>Normal</threshold>
           <effort>Default</effort>
-          <excludeFilterFile>${basedir}/findbugs-exclude-filter.xml</excludeFilterFile>
-       </configuration>
+          <excludeFilterFile>${numbers.parent.dir}/src/main/resources/findbugs/findbugs-exclude-filter.xml</excludeFilterFile>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>${math.checkstyle.version}</version>
+        <version>${numbers.checkstyle.version}</version>
         <configuration>
-          <configLocation>${basedir}/checkstyle.xml</configLocation>
+          <configLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle.xml</configLocation>
+          <headerLocation>${numbers.parent.dir}/src/main/resources/checkstyle/license-header.txt</headerLocation>
           <enableRulesSummary>false</enableRulesSummary>
           <includeResources>false</includeResources>
-          <headerLocation>${basedir}/license-header.txt</headerLocation>
         </configuration>
         <reportSets>
           <reportSet>
@@ -339,31 +318,27 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>clirr-maven-plugin</artifactId>
-        <version>${math.clirr.version}</version>
+        <version>${numbers.clirr.version}</version>
         <configuration>
           <minSeverity>${minSeverity}</minSeverity>
-          <ignoredDifferencesFile>${basedir}/clirr-ignored.xml</ignoredDifferencesFile>
-         </configuration>
+          <ignoredDifferencesFile>${numbers.parent.dir}/src/main/resources/clirr/clirr-ignored.xml</ignoredDifferencesFile>
+        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-pmd-plugin</artifactId>
-        <version>${math.pmd.version}</version>
+        <version>${numbers.pmd.version}</version>
         <configuration>
           <targetJdk>${maven.compiler.target}</targetJdk>
           <skipEmptyReport>false</skipEmptyReport>
           <rulesets>
-            <ruleset>${basedir}/pmd-ruleset.xml</ruleset>
+            <ruleset>${numbers.parent.dir}/src/main/resources/pmd/pmd-ruleset.xml</ruleset>
           </rulesets>
         </configuration>
         <reportSets>
           <reportSet>
             <reports>
               <report>pmd</report>
-              <!-- As of 3.x series, the cpd report sees (correctly) numerous duplications -->
-              <!-- This is due to packages being renamed, and the old name still needs to be -->
-              <!-- available for compatibility. They will be removed in 4.0 -->
-              <!-- So we temporarily disable the CPD report -->
-              <!-- <report>cpd</report> -->
+              <report>cpd</report>
             </reports>
           </reportSet>
         </reportSets>
@@ -373,7 +348,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
-          <additionalparam>-header &apos;&lt;script type=&quot;text/javascript&quot; src=&quot;http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML&quot;&gt;&lt;/script&gt;&apos;</additionalparam>
+          <additionalparam>-Xdoclint:all -header '&lt;script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalparam>
+          <!-- <aggregate>true</aggregate> -->
         </configuration>
       </plugin>
     </plugins>
@@ -392,7 +368,7 @@
           <plugin>
             <groupId>ru.concerteza.buildnumber</groupId>
             <artifactId>maven-jgit-buildnumber-plugin</artifactId>
-            <version>${math.jgit.buildnumber.version}</version>
+            <version>${numbers.jgit.buildnumber.version}</version>
             <executions>
               <execution>
                 <phase>generate-resources</phase>
@@ -430,18 +406,18 @@
                 <configuration>
                   <tasks>
                     <exec executable="svn">
-                      <arg line="checkout --depth immediates ${commons.scmPubUrl} ${commons.scmPubCheckoutDirectory}" />
+                      <arg line="checkout --depth immediates ${commons.scmPubUrl} ${commons.scmPubCheckoutDirectory}"/>
                     </exec>
 
                     <exec executable="svn">
-                      <arg line="update --set-depth exclude ${commons.scmPubCheckoutDirectory}/javadocs" />
+                      <arg line="update --set-depth exclude ${commons.scmPubCheckoutDirectory}/javadocs"/>
                     </exec>
 
                     <pathconvert pathsep=" " property="dirs">
-                      <dirset dir="${commons.scmPubCheckoutDirectory}" includes="*" />
+                      <dirset dir="${commons.scmPubCheckoutDirectory}" includes="*"/>
                     </pathconvert>
                     <exec executable="svn">
-                      <arg line="update --set-depth infinity ${dirs}" />
+                      <arg line="update --set-depth infinity ${dirs}"/>
                     </exec>
                   </tasks>
                 </configuration>
@@ -505,10 +481,50 @@
             <version>${commons.jacoco.version}</version>
             <executions>
               <execution>
-                <id>prepare-agent</id>
+                <id>default-prepare-agent</id>
                 <goals>
                   <goal>prepare-agent</goal>
                 </goals>
+              </execution>
+              <execution>
+                <id>default-prepare-agent-integration</id>
+                <goals>
+                  <goal>prepare-agent-integration</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>default-report</id>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>default-report-integration</id>
+                <goals>
+                  <goal>report-integration</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>default-check</id>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <!--  implementation is needed only for Maven 2  -->
+                    <rule implementation="org.jacoco.maven.RuleConfiguration">
+                      <element>BUNDLE</element>
+                      <limits>
+                        <!--  implementation is needed only for Maven 2  -->
+                        <limit implementation="org.jacoco.report.check.Limit">
+                          <counter>COMPLEXITY</counter>
+                          <value>COVEREDRATIO</value>
+                          <minimum>0.60</minimum>
+                        </limit>
+                      </limits>
+                    </rule>
+                  </rules>
+                </configuration>
               </execution>
             </executions>
           </plugin>
@@ -520,5 +536,15 @@
         </plugins>
       </build>
     </profile>
+
   </profiles>
+
+  <modules>
+    <module>commons-numbers-core</module>
+    <module>commons-numbers-complex</module>
+    <module>commons-numbers-quaternion</module>
+    <!-- <module>commons-numbers-fraction</module> -->
+    <!-- <module>commons-numbers-continuedfraction</module> -->
+  </modules>
+
 </project>

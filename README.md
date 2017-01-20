@@ -40,33 +40,28 @@
  |                                                                      |
  +======================================================================+
 --->
-Apache Commons Complex
-======================
+Apache Commons Numbers
+===================
 
-[![Build Status](https://travis-ci.org/apache/commons-complex.svg?branch=master)](https://travis-ci.org/apache/commons-complex)
-[![Coverage Status](https://coveralls.io/repos/apache/commons-complex/badge.svg?branch=master&service=github)](https://coveralls.io/github/apache/commons-complex?branch=master)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-complex/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-complex/)
-[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
-
-The Apache Commons Complex project provides self-contained components addressing the most common practical problems involving Java computing with complex numbers.
+The Apache Commons Numbers project provides number types and utilities.
 
 Documentation
 -------------
 
-More information can be found on the [homepage](https://commons.apache.org/proper/commons-complex).
-The [JavaDoc](https://commons.apache.org/proper/commons-complex/apidocs) can be browsed.
-Questions related to the usage of Apache Commons Math should be posted to the [user mailing list][ml].
+More information can be found on the [homepage](https://commons.apache.org/proper/commons-numbers).
+The [JavaDoc](https://commons.apache.org/proper/commons-numbers/javadocs/api-release) can be browsed.
+Questions related to the usage of Apache Commons Numbers should be posted to the [user mailing list][ml].
 
 Where can I get the latest release?
 -----------------------------------
-You can download source and binaries from our [download page](https://commons.apache.org/proper/commons-complex/download_complex.cgi).
+You can download source and binaries from our [download page](https://commons.apache.org/proper/commons-numbers/download_numbers.cgi).
 
 Alternatively you can pull it from the central Maven repositories:
 
 ```xml
 <dependency>
   <groupId>org.apache.commons</groupId>
-  <artifactId>commons-complex</artifactId>
+  <artifactId>commons-numbers-parent</artifactId>
   <version>1.0</version>
 </dependency>
 ```
@@ -90,7 +85,7 @@ Code is under the [Apache Licence v2](https://www.apache.org/licenses/LICENSE-2.
 
 Donations
 ---------
-You like Apache Commons Math? Then [donate back to the ASF](https://www.apache.org/foundation/contributing.html) to support the development.
+You like Apache Commons Numbers? Then [donate back to the ASF](https://www.apache.org/foundation/contributing.html) to support the development.
 
 Additional Resources
 --------------------

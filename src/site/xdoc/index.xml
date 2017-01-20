@@ -20,63 +20,34 @@
 <document>
 
  <properties>
-  <title>Commons Math: The Apache Commons Mathematics Library</title>
+  <title>Apache Commons Numbers</title>
  </properties>
 
  <body>
 
-  <section name="Commons Math: The Apache Commons Mathematics Library" href="summary">
+  <section name="Commons Numbers: Extended number types and utilities" href="summary">
    <p>
-    Commons Math is a library of lightweight, self-contained
-    mathematics and statistics components addressing the most common
-    problems not available in the Java programming language or Commons
-    Lang.
-   </p>
-   <p>
-    Guiding principles:
-    <ol>
-     <li>
-      Real-world application use cases determine development
-      priority.
-     </li>
-     <li>
-      This package emphasizes small, easily integrated components
-      rather than large libraries with complex dependencies and
-      configurations.
-     </li>
-     <li>
-      All algorithms are fully documented and follow generally
-      accepted best practices.
-     </li>
-     <li>
-      In situations where multiple standard algorithms exist, a
-      Strategy pattern is used to support multiple
-      implementations.
-     </li>
-     <li>
-      Limited dependencies. No external dependencies beyond Commons
-      components and the core Java platform (at least Java 1.3 up to
-      version 1.2 of the library, at least Java 5 starting with version
-      2.0 of the library).
-     </li>
-    </ol>
+     Commons Numbers provides implementations of extended number types such as
+     <ul>
+       <li>complex</li>
+       <li>quaternion</li>
+       <li>fraction</li>
+     </ul>
    </p>
   </section>
-  <section name="Download Math">
-   <subsection name="Releases">
-    <p>
-      Download the 
-      <a href="http://commons.apache.org/math/download_math.cgi">
-      Latest Release</a> of Commons Math.
-    </p>
-   </subsection>
-   <!--
-   <subsection name="No Nightly Builds">
-    <p>
-     There are no nightly builds for Apache Commons Math anymore.
-    </p>
-   </subsection>
-   -->
+
+  <section name="Download Commons Numbers">
+    <subsection name="Releases">
+      <p>There is no offcial release yet. Come and join development work!</p>
+    <!--
+      <p>
+        Download the
+        <a href="http://commons.apache.org/numbers/download_numbers.cgi">
+          Latest Release</a> of Commons Numbers.
+      </p>
+    -->
+    </subsection>
+
   </section>
  </body>
 </document>
