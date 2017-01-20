@@ -43,6 +43,11 @@
 Apache Commons Numbers
 ===================
 
+[![Build Status](https://travis-ci.org/apache/commons-numbers.svg?branch=master)](https://travis-ci.org/apache/commons-numbers)
+[![Coverage Status](https://coveralls.io/repos/github/apache/commons-numbers/badge.svg?branch=master)](https://coveralls.io/github/apache/commons-numbers?branch=master)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers/)
+[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+
 The Apache Commons Numbers project provides number types and utilities.
 
 Documentation
@@ -61,7 +66,7 @@ Alternatively you can pull it from the central Maven repositories:
 ```xml
 <dependency>
   <groupId>org.apache.commons</groupId>
-  <artifactId>commons-numbers-parent</artifactId>
+  <artifactId>commons-numbers</artifactId>
   <version>1.0</version>
 </dependency>
 ```
