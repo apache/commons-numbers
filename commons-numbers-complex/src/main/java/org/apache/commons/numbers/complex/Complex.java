@@ -1314,47 +1314,6 @@ public class Complex implements Serializable  {
 	    return new Double(x).equals(new Double(y));
 	}
 
-	/**
-     * Returns {@code true} if there is no double value strictly between the
-     * arguments or the difference between them is within the range of allowed
-     * error (inclusive). Returns {@code false} if either of the arguments
-     * is NaN.
-     *
-     * @param x First value.
-     * @param y Second value.
-     * @param eps Amount of allowed absolute error.
-     * @return {@code true} if the values are two adjacent floating point
-     * numbers or they are within range of each other.
-     */
-    public static boolean equals(double x, double y, double eps) {
-        return equals(x, y, 1) || Math.abs(y - x) <= eps;
-    }
-
-
-    /**
-     * Returns {@code true} if there is no double value strictly between the
-     * arguments or the relative difference between them is less than or equal
-     * to the given tolerance. Returns {@code false} if either of the arguments
-     * is NaN.
-     *
-     * @param x First value.
-     * @param y Second value.
-     * @param eps Amount of allowed relative error.
-     * @return {@code true} if the values are two adjacent floating point
-     * numbers or they are within range of each other.
-     * @since 3.1
-     */
-    public static boolean equalsWithRelativeTolerance(double x, double y, double eps) {
-        if (equals(x, y, 1)) {
-            return true;
-        }
-
-        final double absoluteMax = Math.max(Math.abs(x), Math.abs(y));
-        final double relativeDifference = Math.abs((x - y) / absoluteMax);
-
-        return relativeDifference <= eps;
-    }
-
     /**
      * Returns an integer hash code representing the given double value.
      *
