@@ -45,6 +45,9 @@ import java.util.List;
  *
  */
 public class Complex implements Serializable  {
+    /** Serializable version identifier */
+    private static final long serialVersionUID = 201701120L;
+
     /** The square root of -1. A number representing "0.0 + 1.0i" */
     public static final Complex I = new Complex(0.0, 1.0);
     // CHECKSTYLE: stop ConstantName
@@ -57,9 +60,6 @@ public class Complex implements Serializable  {
     public static final Complex ONE = new Complex(1.0, 0.0);
     /** A complex number representing "0.0 + 0.0i" */
     public static final Complex ZERO = new Complex(0.0, 0.0);
-
-    /** Serializable version identifier */
-    private static final long serialVersionUID = -6195664516687396620L;
 
     /** The imaginary part. */
     private final double imaginary;
