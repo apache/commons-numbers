@@ -1320,9 +1320,7 @@ public class Complex implements Serializable  {
      * @param value the value to be hashed
      * @return the hash code
      */
-    public static int hash(double value) {
+    private static int hash(double value) {
         return new Double(value).hashCode();
     }
-
 }
-
