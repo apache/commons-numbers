@@ -38,10 +38,10 @@ import java.util.List;
  * Note that this contradicts the IEEE-754 standard for floating
  * point numbers (according to which the test {@code x == x} must fail if
  * {@code x} is {@code NaN}). The method
- * {@link org.apache.commons.numbers.complex.util.Precision#equals(double,double,int)
- * equals for primitive double} in {@link org.apache.commons.numbers.complex.util.Precision}
- * conforms with IEEE-754 while this class conforms with the standard behavior
- * for Java object types.</p>
+ * {@link org.apache.commons.numbers.core.Precision#equals(double,double,int)
+ * equals for primitive double} in class {@code Precision} conforms with
+ * IEEE-754 while this class conforms with the standard behavior for Java
+ * object types.</p>
  *
  */
 public class Complex implements Serializable  {
