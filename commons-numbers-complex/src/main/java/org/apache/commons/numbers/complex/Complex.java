@@ -360,7 +360,6 @@ public class Complex implements Serializable  {
      * and {@code y}.
      *
      * @see Precision#equals(double,double,int)
-     * @since 3.3
      */
     public static boolean equals(Complex x, Complex y, int maxUlps) {
         return Precision.equals(x.real, y.real, maxUlps) &&
@@ -374,8 +373,6 @@ public class Complex implements Serializable  {
      * @param x First value (cannot be {@code null}).
      * @param y Second value (cannot be {@code null}).
      * @return {@code true} if the values are equal.
-     *
-     * @since 3.3
      */
     public static boolean equals(Complex x, Complex y) {
         return equals(x, y, 1);
@@ -394,7 +391,6 @@ public class Complex implements Serializable  {
      * numbers or they are within range of each other.
      *
      * @see Precision#equals(double,double,double)
-     * @since 3.3
      */
     public static boolean equals(Complex x, Complex y, double eps) {
         return Precision.equals(x.real, y.real, eps) &&
@@ -414,7 +410,6 @@ public class Complex implements Serializable  {
      * numbers or they are within range of each other.
      *
      * @see Precision#equalsWithRelativeTolerance(double,double,double)
-     * @since 3.3
      */
     public static boolean equalsWithRelativeTolerance(Complex x, Complex y,
                                                       double eps) {
@@ -624,7 +619,6 @@ public class Complex implements Serializable  {
      * input argument is {@code NaN} or infinite.
      *
      * @return the inverse cosine of this complex number.
-     * @since 1.2
      */
     public Complex acos() {
         if (isNaN) {
@@ -646,7 +640,6 @@ public class Complex implements Serializable  {
      * input argument is {@code NaN} or infinite.</p>
      *
      * @return the inverse sine of this complex number.
-     * @since 1.2
      */
     public Complex asin() {
         if (isNaN) {
@@ -668,7 +661,6 @@ public class Complex implements Serializable  {
      * input argument is {@code NaN} or infinite.</p>
      *
      * @return the inverse tangent of this complex number
-     * @since 1.2
      */
     public Complex atan() {
         if (isNaN) {
@@ -706,7 +698,6 @@ public class Complex implements Serializable  {
      * </pre>
      *
      * @return the cosine of this complex number.
-     * @since 1.2
      */
     public Complex cos() {
         if (isNaN) {
@@ -746,7 +737,6 @@ public class Complex implements Serializable  {
      * </pre>
      *
      * @return the hyperbolic cosine of this complex number.
-     * @since 1.2
      */
     public Complex cosh() {
         if (isNaN) {
@@ -787,7 +777,6 @@ public class Complex implements Serializable  {
      * </pre>
      *
      * @return <code><i>e</i><sup>this</sup></code>.
-     * @since 1.2
      */
     public Complex exp() {
         if (isNaN) {
@@ -832,7 +821,6 @@ public class Complex implements Serializable  {
      *
      * @return the value <code>ln &nbsp; this</code>, the natural logarithm
      * of {@code this}.
-     * @since 1.2
      */
     public Complex log() {
         if (isNaN) {
@@ -860,7 +848,6 @@ public class Complex implements Serializable  {
      *
      * @param  x exponent to which this {@code Complex} is to be raised.
      * @return <code> this<sup>x</sup></code>.
-     * @since 1.2
      */
     public Complex pow(Complex x) {
         checkNotNull(x);
@@ -926,7 +913,6 @@ public class Complex implements Serializable  {
      * </pre>
      *
      * @return the sine of this complex number.
-     * @since 1.2
      */
     public Complex sin() {
         if (isNaN) {
@@ -966,7 +952,6 @@ public class Complex implements Serializable  {
      * </pre>
      *
      * @return the hyperbolic sine of {@code this}.
-     * @since 1.2
      */
     public Complex sinh() {
         if (isNaN) {
@@ -1009,7 +994,6 @@ public class Complex implements Serializable  {
      * </pre>
      *
      * @return the square root of {@code this}.
-     * @since 1.2
      */
     public Complex sqrt() {
         if (isNaN) {
@@ -1044,7 +1028,6 @@ public class Complex implements Serializable  {
      * infinite or NaN values returned in parts of the result.
      *
      * @return the square root of <code>1 - this<sup>2</sup></code>.
-     * @since 1.2
      */
     public Complex sqrt1z() {
         return createComplex(1.0, 0.0).subtract(this.multiply(this)).sqrt();
@@ -1080,7 +1063,6 @@ public class Complex implements Serializable  {
      * </pre>
      *
      * @return the tangent of {@code this}.
-     * @since 1.2
      */
     public Complex tan() {
         if (isNaN || Double.isInfinite(real)) {
@@ -1131,7 +1113,6 @@ public class Complex implements Serializable  {
      * </pre>
      *
      * @return the hyperbolic tangent of {@code this}.
-     * @since 1.2
      */
     public Complex tanh() {
         if (isNaN || Double.isInfinite(imaginary)) {
@@ -1193,7 +1174,6 @@ public class Complex implements Serializable  {
      *
      * @param n Degree of root.
      * @return a List of all {@code n}-th roots of {@code this}.
-     * @since 2.0
      */
     public List<Complex> nthRoot(int n) {
 
@@ -1236,7 +1216,6 @@ public class Complex implements Serializable  {
      * @param realPart Real part.
      * @param imaginaryPart Imaginary part.
      * @return a new complex number instance.
-     * @since 1.2
      * @see #valueOf(double, double)
      */
     protected Complex createComplex(double realPart,
@@ -1279,7 +1258,6 @@ public class Complex implements Serializable  {
      * deserialize properly.
      *
      * @return A Complex instance with all fields resolved.
-     * @since 2.0
      */
     protected final Object readResolve() {
         return createComplex(real, imaginary);
