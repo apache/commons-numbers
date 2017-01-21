@@ -293,6 +293,15 @@ public class ComplexTest {
     }
 
     @Test
+    public void testReciprocalReciprocal() {
+        Complex z = new Complex(5.0, 6.0);
+        Complex zRR = z.reciprocal().reciprocal();
+        final double tol = 1e-14;
+        Assert.assertEquals(zRR.getReal(), z.getReal(), tol);
+        Assert.assertEquals(zRR.getImaginary(), z.getImaginary(), tol);
+    }
+
+    @Test
     public void testReciprocalReal() {
         Complex z = new Complex(-2.0, 0.0);
         Assert.assertTrue(Complex.equals(new Complex(-0.5, 0.0), z.reciprocal()));
