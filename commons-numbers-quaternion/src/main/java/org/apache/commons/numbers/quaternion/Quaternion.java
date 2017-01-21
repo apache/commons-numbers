@@ -82,7 +82,7 @@ public final class Quaternion implements Serializable {
     public Quaternion(final double scalar,
                       final double[] v) {
         if (v.length != 3) {
-        	throw new IllegalArgumentException("Size of array must be 3");
+            throw new IllegalArgumentException("Size of array must be 3");
         }
 
         q0 = scalar;
