@@ -28,11 +28,6 @@ import org.apache.commons.numbers.core.Precision;
  * <p>Instance of this class are guaranteed to be immutable.</p>
  */
 public final class Quaternion implements Serializable {
-    /** Serializable version identifier. */
-    private static final long serialVersionUID = 20170118L;
-    /** Error message. */
-    private static final String ZERO_NORM_MSG = "Norm is zero";
-
     /** Identity quaternion. */
     public static final Quaternion IDENTITY = new Quaternion(1, 0, 0, 0);
     /** Zero quaternion. */
@@ -43,6 +38,11 @@ public final class Quaternion implements Serializable {
     public static final Quaternion J = new Quaternion(0, 0, 1, 0);
     /** k */
     public static final Quaternion K = new Quaternion(0, 0, 0, 1);
+
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 20170118L;
+    /** Error message. */
+    private static final String ZERO_NORM_MSG = "Norm is zero";
 
     /** First component (scalar part). */
     private final double q0;
