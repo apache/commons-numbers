@@ -1269,28 +1269,28 @@ public class Complex implements Serializable  {
         return "(" + real + ", " + imaginary + ")";
     }
 
-	/**
-	 * Checks that an object is not null.
-	 *
-	 * @param o Object to be checked.
-	 */
-	private static void checkNotNull(Object o) {
-	    if (o == null) {
-	        throw new RuntimeException("Null Argument to Complex Method");
-	    }
-	}
+    /**
+     * Checks that an object is not null.
+     *
+     * @param o Object to be checked.
+     */
+    private static void checkNotNull(Object o) {
+        if (o == null) {
+            throw new RuntimeException("Null Argument to Complex Method");
+        }
+    }
 
-	/**
-	 * Returns {@code true} if the values are equal according to semantics of
-	 * {@link Double#equals(Object)}.
-	 *
-	 * @param x Value
-	 * @param y Value
-	 * @return {@code new Double(x).equals(new Double(y))}
-	 */
-	private static boolean equals(double x, double y) {
-	    return new Double(x).equals(new Double(y));
-	}
+    /**
+     * Returns {@code true} if the values are equal according to semantics of
+     * {@link Double#equals(Object)}.
+     *
+     * @param x Value
+     * @param y Value
+     * @return {@code new Double(x).equals(new Double(y))}
+     */
+    private static boolean equals(double x, double y) {
+        return new Double(x).equals(new Double(y));
+    }
 
     /**
      * Returns an integer hash code representing the given double value.
