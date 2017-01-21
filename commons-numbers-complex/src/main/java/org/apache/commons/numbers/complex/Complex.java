@@ -279,7 +279,12 @@ public class Complex implements Serializable  {
                              imaginary  / divisor);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Returns the multiplicative inverse this instance.
+     *
+     * @return {@code 1 / this}.
+     * @see #divide(Complex)
+     */
     public Complex reciprocal() {
         if (isNaN) {
             return NaN;
