@@ -27,17 +27,17 @@
   </parent>
 
   <groupId>org.apache.commons</groupId>
-  <artifactId>commons-numbers-quaternion</artifactId>
+  <artifactId>commons-numbers-fraction</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <name>Apache Commons Numbers Quaternion</name>
+  <name>Apache Commons Numbers Fraction</name>
 
-  <description>Quaternion numbers.</description>
+  <description>Fraction utilities.</description>
 
   <properties>
     <!-- This value must reflect the current name of the base package. -->
-    <commons.osgi.symbolicName>org.apache.commons.numbers.quaternion</commons.osgi.symbolicName>
+    <commons.osgi.symbolicName>org.apache.commons.numbers.</commons.osgi.symbolicName>
     <!-- OSGi -->
-    <commons.osgi.export>org.apache.commons.numbers.quaternion</commons.osgi.export>
+    <commons.osgi.export>org.apache.commons.numbers.fraction</commons.osgi.export>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}/..</numbers.parent.dir>
   </properties>
@@ -46,6 +46,12 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-numbers-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-core</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
