@@ -38,7 +38,6 @@ public final class ArithmeticUtils {
      * @return the sum {@code x+y}
      * @throws NumbersArithmeticException if the result can not be represented
      * as an {@code int}.
-     * @since 1.1
      */
     public static int addAndCheck(int x, int y)
             throws NumbersArithmeticException {
@@ -56,7 +55,6 @@ public final class ArithmeticUtils {
      * @param b an addend
      * @return the sum {@code a+b}
      * @throws NumbersArithmeticException if the result can not be represented as an long
-     * @since 1.2
      */
     public static long addAndCheck(long a, long b) throws NumbersArithmeticException {
         return addAndCheck(a, b, "overflow in addition: {0} + {1}");
@@ -88,7 +86,6 @@ public final class ArithmeticUtils {
      * @return the greatest common divisor (never negative).
      * @throws NumbersArithmeticException if the result cannot be represented as
      * a non-negative {@code int} value.
-     * @since 1.1
      */
     public static int gcd(int p, int q) throws NumbersArithmeticException {
         int a = p;
@@ -228,7 +225,6 @@ public final class ArithmeticUtils {
      * @return the greatest common divisor, never negative.
      * @throws NumbersArithmeticException if the result cannot be represented as
      * a non-negative {@code long} value.
-     * @since 2.1
      */
     public static long gcd(final long p, final long q) throws NumbersArithmeticException {
         long u = p;
@@ -308,7 +304,6 @@ public final class ArithmeticUtils {
      * @return the least common multiple, never negative.
      * @throws NumbersArithmeticException if the result cannot be represented as
      * a non-negative {@code int} value.
-     * @since 1.1
      */
     public static int lcm(int a, int b) throws NumbersArithmeticException {
         if (a == 0 || b == 0){
@@ -342,7 +337,6 @@ public final class ArithmeticUtils {
      * @return the least common multiple, never negative.
      * @throws NumbersArithmeticException if the result cannot be represented
      * as a non-negative {@code long} value.
-     * @since 2.1
      */
     public static long lcm(long a, long b) throws NumbersArithmeticException {
         if (a == 0 || b == 0){
@@ -364,7 +358,6 @@ public final class ArithmeticUtils {
      * @return the product {@code x * y}.
      * @throws NumbersArithmeticException if the result can not be
      * represented as an {@code int}.
-     * @since 1.1
      */
     public static int mulAndCheck(int x, int y) throws NumbersArithmeticException {
         long m = ((long)x) * ((long)y);
@@ -382,7 +375,6 @@ public final class ArithmeticUtils {
      * @return the product {@code a * b}.
      * @throws NumbersArithmeticException if the result can not be represented
      * as a {@code long}.
-     * @since 1.2
      */
     public static long mulAndCheck(long a, long b) throws NumbersArithmeticException {
         long ret;
@@ -436,7 +428,6 @@ public final class ArithmeticUtils {
      * @return the difference {@code x - y}.
      * @throws NumbersArithmeticException if the result can not be represented
      * as an {@code int}.
-     * @since 1.1
      */
     public static int subAndCheck(int x, int y) throws NumbersArithmeticException {
         long s = (long)x - (long)y;
@@ -454,7 +445,6 @@ public final class ArithmeticUtils {
      * @return the difference {@code a - b}.
      * @throws NumbersArithmeticException if the result can not be represented as a
      * {@code long}.
-     * @since 1.2
      */
     public static long subAndCheck(long a, long b) throws NumbersArithmeticException {
         long ret;
@@ -619,7 +609,6 @@ public final class ArithmeticUtils {
      * @return the sum {@code a + b}.
      * @throws NumbersArithmeticException if the result cannot be represented
      * as a {@code long}.
-     * @since 1.2
      */
      private static long addAndCheck(long a, long b, String message) throws NumbersArithmeticException {
          final long result = a + b;
@@ -649,8 +638,6 @@ public final class ArithmeticUtils {
      * @param divisor the value doing the dividing
      * @return the unsigned remainder of the first argument divided by
      * the second argument.
-     *
-     * @since 4.0
      */
     public static int remainderUnsigned(int dividend, int divisor) {
         if (divisor >= 0) {
@@ -679,8 +666,6 @@ public final class ArithmeticUtils {
      * @param divisor the value doing the dividing
      * @return the unsigned remainder of the first argument divided by
      * the second argument.
-     *
-     * @since 4.0
      */
     public static long remainderUnsigned(long dividend, long divisor) {
         if (divisor >= 0L) {
@@ -714,8 +699,6 @@ public final class ArithmeticUtils {
      * @param divisor the value doing the dividing
      * @return the unsigned quotient of the first argument divided by
      * the second argument
-     *
-     * @since 4.0
      */
     public static int divideUnsigned(int dividend, int divisor) {
         if (divisor >= 0) {
@@ -749,8 +732,6 @@ public final class ArithmeticUtils {
      * @param divisor the value doing the dividing
      * @return the unsigned quotient of the first argument divided by
      * the second argument.
-     *
-     * @since 4.0
      */
     public static long divideUnsigned(long dividend, long divisor) {
         if (divisor >= 0L) {

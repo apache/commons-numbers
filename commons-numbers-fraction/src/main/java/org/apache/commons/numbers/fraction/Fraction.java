@@ -24,8 +24,6 @@ import org.apache.commons.numbers.core.ArithmeticUtils;
  * Representation of a rational number.
  *
  * implements Serializable since 2.0
- *
- * @since 1.1
  */
 public class Fraction
     extends Number

@@ -28,8 +28,6 @@ import java.text.ParsePosition;
  * Minus signs are only allowed in the whole number part - i.e.,
  * "-3 1/2" is legitimate and denotes -7/2, but "-3 -1/2" is invalid and
  * will result in a <code>ParseException</code>.</p>
- *
- * @since 1.1
  */
 public class ProperBigFractionFormat extends BigFractionFormat {
 

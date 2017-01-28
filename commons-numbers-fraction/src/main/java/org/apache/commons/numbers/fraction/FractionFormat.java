@@ -26,8 +26,6 @@ import java.util.Locale;
  * Formats a Fraction number in proper format or improper format.  The number
  * format for each of the whole number, numerator and, denominator can be
  * configured.
- *
- * @since 1.1
  */
 public class FractionFormat extends AbstractFormat {
 

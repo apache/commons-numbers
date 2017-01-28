@@ -25,7 +25,6 @@ import java.io.Serializable;
  * This class is a singleton.
  * </p>
  * @see Fraction
- * @since 2.0
  */
 public class FractionField implements /*Field<Fraction>, */Serializable  {
 

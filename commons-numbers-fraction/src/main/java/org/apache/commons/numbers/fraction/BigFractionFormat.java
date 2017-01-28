@@ -30,8 +30,6 @@ import java.util.Locale;
  * The number format for each of the whole number, numerator and,
  * denominator can be configured.
  * </p>
- *
- * @since 2.0
  */
 public class BigFractionFormat extends AbstractFormat implements Serializable {
 

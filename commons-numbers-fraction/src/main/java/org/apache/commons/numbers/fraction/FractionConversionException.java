@@ -20,8 +20,6 @@ package org.apache.commons.numbers.fraction;
 /**
  * Error thrown when a double value cannot be converted to a fraction
  * in the allowed number of iterations.
- *
- * @since 1.2
  */
 public class FractionConversionException extends FractionException {
 
