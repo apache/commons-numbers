@@ -16,7 +16,6 @@
  */
 package org.apache.commons.numbers.fraction;
 
-import org.apache.commons.numbers.core.NumbersArithmeticException;
 import org.apache.commons.numbers.core.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,13 +46,13 @@ public class FractionTest {
         try {
             new Fraction(Integer.MIN_VALUE, -1);
             Assert.fail();
-        } catch (NumbersArithmeticException ex) {
+        } catch (ArithmeticException ex) {
             // success
         }
         try {
             new Fraction(1, Integer.MIN_VALUE);
             Assert.fail();
-        } catch (NumbersArithmeticException ex) {
+        } catch (ArithmeticException ex) {
             // success
         }
 
@@ -323,8 +322,8 @@ public class FractionTest {
         f = new Fraction(Integer.MIN_VALUE, 1);
         try {
             f = f.negate();
-            Assert.fail("expecting NumbersArithmeticException");
-        } catch (NumbersArithmeticException ex) {}
+            Assert.fail("expecting ArithmeticException");
+        } catch (ArithmeticException ex) {}
     }
 
     @Test
@@ -379,35 +378,35 @@ public class FractionTest {
 
         try {
             f = f.add(Fraction.ONE); // should overflow
-            Assert.fail("expecting NumbersArithmeticException but got: " + f.toString());
-        } catch (NumbersArithmeticException ex) {}
+            Assert.fail("expecting ArithmeticException but got: " + f.toString());
+        } catch (ArithmeticException ex) {}
 
         // denominator should not be a multiple of 2 or 3 to trigger overflow
         f1 = new Fraction(Integer.MIN_VALUE, 5);
         f2 = new Fraction(-1,5);
         try {
             f = f1.add(f2); // should overflow
-            Assert.fail("expecting NumbersArithmeticException but got: " + f.toString());
+            Assert.fail("expecting ArithmeticException but got: " + f.toString());
         } catch (FractionOverflowException ex) {}
 
         try {
             f= new Fraction(-Integer.MAX_VALUE, 1);
             f = f.add(f);
-            Assert.fail("expecting NumbersArithmeticException");
-        } catch (NumbersArithmeticException ex) {}
+            Assert.fail("expecting ArithmeticException");
+        } catch (ArithmeticException ex) {}
 
         try {
             f= new Fraction(-Integer.MAX_VALUE, 1);
             f = f.add(f);
-            Assert.fail("expecting NumbersArithmeticException");
-        } catch (NumbersArithmeticException ex) {}
+            Assert.fail("expecting ArithmeticException");
+        } catch (ArithmeticException ex) {}
 
         f1 = new Fraction(3,327680);
         f2 = new Fraction(2,59049);
         try {
             f = f1.add(f2); // should overflow
-            Assert.fail("expecting NumbersArithmeticException but got: " + f.toString());
-        } catch (NumbersArithmeticException ex) {}
+            Assert.fail("expecting ArithmeticException but got: " + f.toString());
+        } catch (ArithmeticException ex) {}
     }
 
     @Test
@@ -457,13 +456,13 @@ public class FractionTest {
         try {
             f1 = new Fraction(1, Integer.MAX_VALUE);
             f = f1.divide(f1.reciprocal());  // should overflow
-            Assert.fail("expecting NumbersArithmeticException");
-        } catch (NumbersArithmeticException ex) {}
+            Assert.fail("expecting ArithmeticException");
+        } catch (ArithmeticException ex) {}
         try {
             f1 = new Fraction(1, -Integer.MAX_VALUE);
             f = f1.divide(f1.reciprocal());  // should overflow
-            Assert.fail("expecting NumbersArithmeticException");
-        } catch (NumbersArithmeticException ex) {}
+            Assert.fail("expecting ArithmeticException");
+        } catch (ArithmeticException ex) {}
 
         f1 = new Fraction(6, 35);
         f  = f1.divide(15);
@@ -542,8 +541,8 @@ public class FractionTest {
             f1 = new Fraction(1, Integer.MAX_VALUE);
             f2 = new Fraction(1, Integer.MAX_VALUE - 1);
             f = f1.subtract(f2);
-            Assert.fail("expecting NumbersArithmeticException");  //should overflow
-        } catch (NumbersArithmeticException ex) {}
+            Assert.fail("expecting ArithmeticException");  //should overflow
+        } catch (ArithmeticException ex) {}
 
         // denominator should not be a multiple of 2 or 3 to trigger overflow
         f1 = new Fraction(Integer.MIN_VALUE, 5);
@@ -556,21 +555,21 @@ public class FractionTest {
         try {
             f= new Fraction(Integer.MIN_VALUE, 1);
             f = f.subtract(Fraction.ONE);
-            Assert.fail("expecting NumbersArithmeticException");
-        } catch (NumbersArithmeticException ex) {}
+            Assert.fail("expecting ArithmeticException");
+        } catch (ArithmeticException ex) {}
 
         try {
             f= new Fraction(Integer.MAX_VALUE, 1);
             f = f.subtract(Fraction.ONE.negate());
-            Assert.fail("expecting NumbersArithmeticException");
-        } catch (NumbersArithmeticException ex) {}
+            Assert.fail("expecting ArithmeticException");
+        } catch (ArithmeticException ex) {}
 
         f1 = new Fraction(3,327680);
         f2 = new Fraction(2,59049);
         try {
             f = f1.subtract(f2); // should overflow
-            Assert.fail("expecting NumbersArithmeticException but got: " + f.toString());
-        } catch (NumbersArithmeticException ex) {}
+            Assert.fail("expecting ArithmeticException but got: " + f.toString());
+        } catch (ArithmeticException ex) {}
     }
 
     @Test

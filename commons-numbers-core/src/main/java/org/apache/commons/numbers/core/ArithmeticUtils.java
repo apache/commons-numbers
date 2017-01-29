@@ -17,6 +17,7 @@
 package org.apache.commons.numbers.core;
 
 import java.math.BigInteger;
+import java.text.MessageFormat;
 
 /**
  * Some useful, arithmetics related, additions to the built-in functions in
@@ -36,11 +37,11 @@ public final class ArithmeticUtils {
      * @param x an addend
      * @param y an addend
      * @return the sum {@code x+y}
-     * @throws NumbersArithmeticException if the result can not be represented
+     * @throws ArithmeticException if the result can not be represented
      * as an {@code int}.
      */
     public static int addAndCheck(int x, int y)
-            throws NumbersArithmeticException {
+            throws ArithmeticException {
         long s = (long)x + (long)y;
         if (s < Integer.MIN_VALUE || s > Integer.MAX_VALUE) {
             throw new NumbersArithmeticException("overflow in addition: {0} + {1}", x, y);
@@ -54,9 +55,9 @@ public final class ArithmeticUtils {
      * @param a an addend
      * @param b an addend
      * @return the sum {@code a+b}
-     * @throws NumbersArithmeticException if the result can not be represented as an long
+     * @throws ArithmeticException if the result can not be represented as an long
      */
-    public static long addAndCheck(long a, long b) throws NumbersArithmeticException {
+    public static long addAndCheck(long a, long b) throws ArithmeticException {
         return addAndCheck(a, b, "overflow in addition: {0} + {1}");
     }
 
@@ -84,10 +85,10 @@ public final class ArithmeticUtils {
      * @param p Number.
      * @param q Number.
      * @return the greatest common divisor (never negative).
-     * @throws NumbersArithmeticException if the result cannot be represented as
+     * @throws ArithmeticException if the result cannot be represented as
      * a non-negative {@code int} value.
      */
-    public static int gcd(int p, int q) throws NumbersArithmeticException {
+    public static int gcd(int p, int q) throws ArithmeticException {
         int a = p;
         int b = q;
         if (a == 0 ||
@@ -223,10 +224,10 @@ public final class ArithmeticUtils {
      * @param p Number.
      * @param q Number.
      * @return the greatest common divisor, never negative.
-     * @throws NumbersArithmeticException if the result cannot be represented as
+     * @throws ArithmeticException if the result cannot be represented as
      * a non-negative {@code long} value.
      */
-    public static long gcd(final long p, final long q) throws NumbersArithmeticException {
+    public static long gcd(final long p, final long q) throws ArithmeticException {
         long u = p;
         long v = q;
         if ((u == 0) || (v == 0)) {
@@ -302,10 +303,10 @@ public final class ArithmeticUtils {
      * @param a Number.
      * @param b Number.
      * @return the least common multiple, never negative.
-     * @throws NumbersArithmeticException if the result cannot be represented as
+     * @throws ArithmeticException if the result cannot be represented as
      * a non-negative {@code int} value.
      */
-    public static int lcm(int a, int b) throws NumbersArithmeticException {
+    public static int lcm(int a, int b) throws ArithmeticException {
         if (a == 0 || b == 0){
             return 0;
         }
@@ -335,10 +336,10 @@ public final class ArithmeticUtils {
      * @param a Number.
      * @param b Number.
      * @return the least common multiple, never negative.
-     * @throws NumbersArithmeticException if the result cannot be represented
+     * @throws ArithmeticException if the result cannot be represented
      * as a non-negative {@code long} value.
      */
-    public static long lcm(long a, long b) throws NumbersArithmeticException {
+    public static long lcm(long a, long b) throws ArithmeticException {
         if (a == 0 || b == 0){
             return 0;
         }
@@ -356,10 +357,10 @@ public final class ArithmeticUtils {
      * @param x Factor.
      * @param y Factor.
      * @return the product {@code x * y}.
-     * @throws NumbersArithmeticException if the result can not be
+     * @throws ArithmeticException if the result can not be
      * represented as an {@code int}.
      */
-    public static int mulAndCheck(int x, int y) throws NumbersArithmeticException {
+    public static int mulAndCheck(int x, int y) throws ArithmeticException {
         long m = ((long)x) * ((long)y);
         if (m < Integer.MIN_VALUE || m > Integer.MAX_VALUE) {
             throw new NumbersArithmeticException();
@@ -373,10 +374,10 @@ public final class ArithmeticUtils {
      * @param a Factor.
      * @param b Factor.
      * @return the product {@code a * b}.
-     * @throws NumbersArithmeticException if the result can not be represented
+     * @throws ArithmeticException if the result can not be represented
      * as a {@code long}.
      */
-    public static long mulAndCheck(long a, long b) throws NumbersArithmeticException {
+    public static long mulAndCheck(long a, long b) throws ArithmeticException {
         long ret;
         if (a > b) {
             // use symmetry to reduce boundary cases
@@ -426,10 +427,10 @@ public final class ArithmeticUtils {
      * @param x Minuend.
      * @param y Subtrahend.
      * @return the difference {@code x - y}.
-     * @throws NumbersArithmeticException if the result can not be represented
+     * @throws ArithmeticException if the result can not be represented
      * as an {@code int}.
      */
-    public static int subAndCheck(int x, int y) throws NumbersArithmeticException {
+    public static int subAndCheck(int x, int y) throws ArithmeticException {
         long s = (long)x - (long)y;
         if (s < Integer.MIN_VALUE || s > Integer.MAX_VALUE) {
             throw new NumbersArithmeticException("overflow in subtraction: {0} - {1}", x, y);
@@ -443,10 +444,10 @@ public final class ArithmeticUtils {
      * @param a Value.
      * @param b Value.
      * @return the difference {@code a - b}.
-     * @throws NumbersArithmeticException if the result can not be represented as a
+     * @throws ArithmeticException if the result can not be represented as a
      * {@code long}.
      */
-    public static long subAndCheck(long a, long b) throws NumbersArithmeticException {
+    public static long subAndCheck(long a, long b) throws ArithmeticException {
         long ret;
         if (b == Long.MIN_VALUE) {
             if (a < 0) {
@@ -468,11 +469,11 @@ public final class ArithmeticUtils {
      * @param e Exponent (must be positive or zero).
      * @return \( k^e \)
      * @throws IllegalArgumentException if {@code e < 0}.
-     * @throws NumbersArithmeticException if the result would overflow.
+     * @throws ArithmeticException if the result would overflow.
      */
     public static int pow(final int k,
                           final int e)
-        throws NumbersArithmeticException {
+        throws ArithmeticException {
         if (e < 0) {
             throw new IllegalArgumentException("negative exponent ({" + e + "})");
         }
@@ -503,11 +504,11 @@ public final class ArithmeticUtils {
      * @param e Exponent (must be positive or zero).
      * @return \( k^e \)
      * @throws IllegalArgumentException if {@code e < 0}.
-     * @throws NumbersArithmeticException if the result would overflow.
+     * @throws ArithmeticException if the result would overflow.
      */
     public static long pow(final long k,
                            final int e)
-        throws NumbersArithmeticException {
+        throws ArithmeticException {
         if (e < 0) {
             throw new IllegalArgumentException("negative exponent ({" + e + "})");
         }
@@ -607,10 +608,10 @@ public final class ArithmeticUtils {
      * @param b Addend.
      * @param pattern Pattern to use for any thrown exception.
      * @return the sum {@code a + b}.
-     * @throws NumbersArithmeticException if the result cannot be represented
+     * @throws ArithmeticException if the result cannot be represented
      * as a {@code long}.
      */
-     private static long addAndCheck(long a, long b, String message) throws NumbersArithmeticException {
+     private static long addAndCheck(long a, long b, String message) throws ArithmeticException {
          final long result = a + b;
          if (!((a ^ b) < 0 || (a ^ result) >= 0)) {
              throw new NumbersArithmeticException(message, a, b);
@@ -750,4 +751,34 @@ public final class ArithmeticUtils {
         return dividend >= 0L || dividend < divisor ? 0L : 1L;
     }
 
+    private static class NumbersArithmeticException extends ArithmeticException {
+        /** Serializable version Id. */
+        private static final long serialVersionUID = -6024911025449780474L;
+
+        private final Object[] formatArguments;
+
+        /**
+         * Default constructor.
+         */
+        public NumbersArithmeticException() {
+            this("arithmetic exception");
+        }
+
+        /**
+         * Constructor with a specific message.
+         *
+         * @param message Message pattern providing the specific context of
+         * the error.
+         * @param args Arguments.
+         */
+        public NumbersArithmeticException(String message, Object ... args) {
+            super(message);
+            this.formatArguments = args;
+        }
+
+        @Override
+        public String getMessage() {
+            return MessageFormat.format(super.getMessage(), formatArguments);
+        }
+    }
 }

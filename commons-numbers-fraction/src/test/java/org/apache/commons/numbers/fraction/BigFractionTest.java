@@ -18,7 +18,6 @@ package org.apache.commons.numbers.fraction;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import org.apache.commons.numbers.core.NumbersArithmeticException;
 import org.apache.commons.numbers.core.TestUtils;
 
 import org.junit.Assert;
@@ -435,8 +434,8 @@ public class BigFractionTest {
         BigFraction f2 = BigFraction.ZERO;
         try {
             f1.divide(f2);
-            Assert.fail("expecting NumbersArithmeticException");
-        } catch (NumbersArithmeticException ex) {
+            Assert.fail("expecting ArithmeticException");
+        } catch (ArithmeticException ex) {
         }
 
         f1 = new BigFraction(0, 5);

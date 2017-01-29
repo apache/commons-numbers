@@ -422,7 +422,7 @@ public class Fraction
      * @param fraction  the fraction to add, must not be {@code null}
      * @return a {@code Fraction} instance with the resulting values
      * @throws NullPointerException if the fraction is {@code null}
-     * @throws NumbersArithmeticException if the resulting numerator or denominator exceeds
+     * @throws ArithmeticException if the resulting numerator or denominator exceeds
      *  {@code Integer.MAX_VALUE}
      */
     public Fraction add(Fraction fraction) {
@@ -445,7 +445,7 @@ public class Fraction
      * @param fraction  the fraction to subtract, must not be {@code null}
      * @return a {@code Fraction} instance with the resulting values
      * @throws NullPointerException if the fraction is {@code null}
-     * @throws NumbersArithmeticException if the resulting numerator or denominator
+     * @throws ArithmeticException if the resulting numerator or denominator
      *   cannot be represented in an {@code int}.
      */
     public Fraction subtract(Fraction fraction) {
@@ -468,7 +468,7 @@ public class Fraction
      * @param isAdd true to add, false to subtract
      * @return a {@code Fraction} instance with the resulting values
      * @throws NullPointerException if the fraction is {@code null}
-     * @throws NumbersArithmeticException if the resulting numerator or denominator
+     * @throws ArithmeticException if the resulting numerator or denominator
      *   cannot be represented in an {@code int}.
      */
     private Fraction addSub(Fraction fraction, boolean isAdd) {
@@ -525,7 +525,7 @@ public class Fraction
      * @param fraction  the fraction to multiply by, must not be {@code null}
      * @return a {@code Fraction} instance with the resulting values
      * @throws NullPointerException if the fraction is {@code null}
-     * @throws NumbersArithmeticException if the resulting numerator or denominator exceeds
+     * @throws ArithmeticException if the resulting numerator or denominator exceeds
      *  {@code Integer.MAX_VALUE}
      */
     public Fraction multiply(Fraction fraction) {
@@ -560,7 +560,7 @@ public class Fraction
      * @return a {@code Fraction} instance with the resulting values
      * @throws IllegalArgumentException if the fraction is {@code null}
      * @throws FractionException if the fraction to divide by is zero
-     * @throws NumbersArithmeticException if the resulting numerator or denominator exceeds
+     * @throws ArithmeticException if the resulting numerator or denominator exceeds
      *  {@code Integer.MAX_VALUE}
      */
     public Fraction divide(Fraction fraction) {
@@ -604,7 +604,7 @@ public class Fraction
      * @param numerator  the numerator, for example the three in 'three sevenths'
      * @param denominator  the denominator, for example the seven in 'three sevenths'
      * @return a new fraction instance, with the numerator and denominator reduced
-     * @throws NumbersArithmeticException if the denominator is {@code zero}
+     * @throws ArithmeticException if the denominator is {@code zero}
      */
     public static Fraction getReducedFraction(int numerator, int denominator) {
         if (denominator == 0) {

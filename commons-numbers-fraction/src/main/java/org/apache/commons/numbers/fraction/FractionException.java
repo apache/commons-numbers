@@ -16,12 +16,10 @@
  */
 package org.apache.commons.numbers.fraction;
 
-import org.apache.commons.numbers.core.NumbersArithmeticException;
-
 /**
  * Base class for all exceptions thrown in the module.
  */
-public class FractionException extends NumbersArithmeticException {
+public class FractionException extends ArithmeticException {
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 201701191744L;
@@ -33,11 +31,6 @@ public class FractionException extends NumbersArithmeticException {
 
     public FractionException(String message, Object... formatArguments) {
         super(message);
-        this.formatArguments = formatArguments;
-    }
-
-    public FractionException(String message, Throwable cause, Object... formatArguments) {
-        super(message, cause);
         this.formatArguments = formatArguments;
     }
 

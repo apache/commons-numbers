@@ -37,12 +37,12 @@ public class ArithmeticUtilsTest {
         try {
             ArithmeticUtils.addAndCheck(big, 1);
             Assert.fail("Expecting ArithmeticException");
-        } catch (NumbersArithmeticException ex) {
+        } catch (ArithmeticException ex) {
         }
         try {
             ArithmeticUtils.addAndCheck(bigNeg, -1);
             Assert.fail("Expecting ArithmeticException");
-        } catch (NumbersArithmeticException ex) {
+        } catch (ArithmeticException ex) {
         }
     }
 
@@ -99,21 +99,21 @@ public class ArithmeticUtilsTest {
             // gcd(Integer.MIN_VALUE, 0) > Integer.MAX_VALUE
             ArithmeticUtils.gcd(Integer.MIN_VALUE, 0);
             Assert.fail("expecting ArithmeticException");
-        } catch (NumbersArithmeticException expected) {
+        } catch (ArithmeticException expected) {
             // expected
         }
         try {
             // gcd(0, Integer.MIN_VALUE) > Integer.MAX_VALUE
             ArithmeticUtils.gcd(0, Integer.MIN_VALUE);
             Assert.fail("expecting ArithmeticException");
-        } catch (NumbersArithmeticException expected) {
+        } catch (ArithmeticException expected) {
             // expected
         }
         try {
             // gcd(Integer.MIN_VALUE, Integer.MIN_VALUE) > Integer.MAX_VALUE
             ArithmeticUtils.gcd(Integer.MIN_VALUE, Integer.MIN_VALUE);
             Assert.fail("expecting ArithmeticException");
-        } catch (NumbersArithmeticException expected) {
+        } catch (ArithmeticException expected) {
             // expected
         }
     }
@@ -173,21 +173,21 @@ public class ArithmeticUtilsTest {
             // gcd(Long.MIN_VALUE, 0) > Long.MAX_VALUE
             ArithmeticUtils.gcd(Long.MIN_VALUE, 0);
             Assert.fail("expecting ArithmeticException");
-        } catch (NumbersArithmeticException expected) {
+        } catch (ArithmeticException expected) {
             // expected
         }
         try {
             // gcd(0, Long.MIN_VALUE) > Long.MAX_VALUE
             ArithmeticUtils.gcd(0, Long.MIN_VALUE);
             Assert.fail("expecting ArithmeticException");
-        } catch (NumbersArithmeticException expected) {
+        } catch (ArithmeticException expected) {
             // expected
         }
         try {
             // gcd(Long.MIN_VALUE, Long.MIN_VALUE) > Long.MAX_VALUE
             ArithmeticUtils.gcd(Long.MIN_VALUE, Long.MIN_VALUE);
             Assert.fail("expecting ArithmeticException");
-        } catch (NumbersArithmeticException expected) {
+        } catch (ArithmeticException expected) {
             // expected
         }
     }
@@ -220,7 +220,7 @@ public class ArithmeticUtilsTest {
             // lcm == abs(MIN_VALUE) cannot be represented as a nonnegative int
             ArithmeticUtils.lcm(Integer.MIN_VALUE, 1);
             Assert.fail("Expecting ArithmeticException");
-        } catch (NumbersArithmeticException expected) {
+        } catch (ArithmeticException expected) {
             // expected
         }
 
@@ -228,14 +228,14 @@ public class ArithmeticUtilsTest {
             // lcm == abs(MIN_VALUE) cannot be represented as a nonnegative int
             ArithmeticUtils.lcm(Integer.MIN_VALUE, 1<<20);
             Assert.fail("Expecting ArithmeticException");
-        } catch (NumbersArithmeticException expected) {
+        } catch (ArithmeticException expected) {
             // expected
         }
 
         try {
             ArithmeticUtils.lcm(Integer.MAX_VALUE, Integer.MAX_VALUE - 1);
             Assert.fail("Expecting ArithmeticException");
-        } catch (NumbersArithmeticException expected) {
+        } catch (ArithmeticException expected) {
             // expected
         }
     }
@@ -269,7 +269,7 @@ public class ArithmeticUtilsTest {
             // lcm == abs(MIN_VALUE) cannot be represented as a nonnegative int
             ArithmeticUtils.lcm(Long.MIN_VALUE, 1);
             Assert.fail("Expecting ArithmeticException");
-        } catch (NumbersArithmeticException expected) {
+        } catch (ArithmeticException expected) {
             // expected
         }
 
@@ -277,7 +277,7 @@ public class ArithmeticUtilsTest {
             // lcm == abs(MIN_VALUE) cannot be represented as a nonnegative int
             ArithmeticUtils.lcm(Long.MIN_VALUE, 1<<20);
             Assert.fail("Expecting ArithmeticException");
-        } catch (NumbersArithmeticException expected) {
+        } catch (ArithmeticException expected) {
             // expected
         }
 
@@ -286,7 +286,7 @@ public class ArithmeticUtilsTest {
         try {
             ArithmeticUtils.lcm(Long.MAX_VALUE, Long.MAX_VALUE - 1);
             Assert.fail("Expecting ArithmeticException");
-        } catch (NumbersArithmeticException expected) {
+        } catch (ArithmeticException expected) {
             // expected
         }
     }
@@ -299,12 +299,12 @@ public class ArithmeticUtilsTest {
         try {
             ArithmeticUtils.mulAndCheck(big, 2);
             Assert.fail("Expecting ArithmeticException");
-        } catch (NumbersArithmeticException ex) {
+        } catch (ArithmeticException ex) {
         }
         try {
             ArithmeticUtils.mulAndCheck(bigNeg, 2);
             Assert.fail("Expecting ArithmeticException");
-        } catch (NumbersArithmeticException ex) {
+        } catch (ArithmeticException ex) {
         }
     }
 
@@ -340,12 +340,12 @@ public class ArithmeticUtilsTest {
         try {
             ArithmeticUtils.subAndCheck(big, -1);
             Assert.fail("Expecting ArithmeticException");
-        } catch (NumbersArithmeticException ex) {
+        } catch (ArithmeticException ex) {
         }
         try {
             ArithmeticUtils.subAndCheck(bigNeg, 1);
             Assert.fail("Expecting ArithmeticException");
-        } catch (NumbersArithmeticException ex) {
+        } catch (ArithmeticException ex) {
         }
     }
 
@@ -355,7 +355,7 @@ public class ArithmeticUtilsTest {
         try {
             ArithmeticUtils.subAndCheck(big, -1);
             Assert.fail("Expecting ArithmeticException");
-        } catch (NumbersArithmeticException ex) {
+        } catch (ArithmeticException ex) {
             Assert.assertTrue(ex.getMessage().length() > 1);
         }
     }
@@ -444,7 +444,7 @@ public class ArithmeticUtilsTest {
 
     }
 
-    @Test(expected=NumbersArithmeticException.class)
+    @Test(expected=ArithmeticException.class)
     public void testPowIntOverflow() {
         ArithmeticUtils.pow(21, 8);
     }
@@ -459,7 +459,7 @@ public class ArithmeticUtilsTest {
                             ArithmeticUtils.pow(base, 7));
     }
 
-    @Test(expected=NumbersArithmeticException.class)
+    @Test(expected=ArithmeticException.class)
     public void testPowNegativeIntOverflow() {
         ArithmeticUtils.pow(-21, 8);
     }
@@ -492,7 +492,7 @@ public class ArithmeticUtilsTest {
         }
     }
 
-    @Test(expected=NumbersArithmeticException.class)
+    @Test(expected=ArithmeticException.class)
     public void testPowLongOverflow() {
         ArithmeticUtils.pow(21, 15);
     }
@@ -507,7 +507,7 @@ public class ArithmeticUtilsTest {
                             ArithmeticUtils.pow(base, 14));
     }
 
-    @Test(expected=NumbersArithmeticException.class)
+    @Test(expected=ArithmeticException.class)
     public void testPowNegativeLongOverflow() {
         ArithmeticUtils.pow(-21L, 15);
     }
@@ -558,7 +558,7 @@ public class ArithmeticUtilsTest {
         try {
             ArithmeticUtils.addAndCheck(a, b);
             Assert.fail("Expecting ArithmeticException");
-        } catch (NumbersArithmeticException ex) {
+        } catch (ArithmeticException ex) {
             // success
         }
     }
@@ -567,7 +567,7 @@ public class ArithmeticUtilsTest {
         try {
             ArithmeticUtils.mulAndCheck(a, b);
             Assert.fail("Expecting ArithmeticException");
-        } catch (NumbersArithmeticException ex) {
+        } catch (ArithmeticException ex) {
             // success
         }
     }
@@ -576,7 +576,7 @@ public class ArithmeticUtilsTest {
         try {
             ArithmeticUtils.subAndCheck(a, b);
             Assert.fail("Expecting ArithmeticException");
-        } catch (NumbersArithmeticException ex) {
+        } catch (ArithmeticException ex) {
             // success
         }
     }
