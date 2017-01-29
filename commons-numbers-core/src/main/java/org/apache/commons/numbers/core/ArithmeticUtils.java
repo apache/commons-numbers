@@ -40,8 +40,7 @@ public final class ArithmeticUtils {
      * @throws ArithmeticException if the result can not be represented
      * as an {@code int}.
      */
-    public static int addAndCheck(int x, int y)
-            throws ArithmeticException {
+    public static int addAndCheck(int x, int y) {
         long s = (long)x + (long)y;
         if (s < Integer.MIN_VALUE || s > Integer.MAX_VALUE) {
             throw new NumbersArithmeticException("overflow in addition: {0} + {1}", x, y);
@@ -57,7 +56,7 @@ public final class ArithmeticUtils {
      * @return the sum {@code a+b}
      * @throws ArithmeticException if the result can not be represented as an long
      */
-    public static long addAndCheck(long a, long b) throws ArithmeticException {
+    public static long addAndCheck(long a, long b) {
         return addAndCheck(a, b, "overflow in addition: {0} + {1}");
     }
 
@@ -88,7 +87,7 @@ public final class ArithmeticUtils {
      * @throws ArithmeticException if the result cannot be represented as
      * a non-negative {@code int} value.
      */
-    public static int gcd(int p, int q) throws ArithmeticException {
+    public static int gcd(int p, int q) {
         int a = p;
         int b = q;
         if (a == 0 ||
@@ -227,7 +226,7 @@ public final class ArithmeticUtils {
      * @throws ArithmeticException if the result cannot be represented as
      * a non-negative {@code long} value.
      */
-    public static long gcd(final long p, final long q) throws ArithmeticException {
+    public static long gcd(final long p, final long q) {
         long u = p;
         long v = q;
         if ((u == 0) || (v == 0)) {
@@ -306,7 +305,7 @@ public final class ArithmeticUtils {
      * @throws ArithmeticException if the result cannot be represented as
      * a non-negative {@code int} value.
      */
-    public static int lcm(int a, int b) throws ArithmeticException {
+    public static int lcm(int a, int b) {
         if (a == 0 || b == 0){
             return 0;
         }
@@ -339,7 +338,7 @@ public final class ArithmeticUtils {
      * @throws ArithmeticException if the result cannot be represented
      * as a non-negative {@code long} value.
      */
-    public static long lcm(long a, long b) throws ArithmeticException {
+    public static long lcm(long a, long b) {
         if (a == 0 || b == 0){
             return 0;
         }
@@ -360,7 +359,7 @@ public final class ArithmeticUtils {
      * @throws ArithmeticException if the result can not be
      * represented as an {@code int}.
      */
-    public static int mulAndCheck(int x, int y) throws ArithmeticException {
+    public static int mulAndCheck(int x, int y) {
         long m = ((long)x) * ((long)y);
         if (m < Integer.MIN_VALUE || m > Integer.MAX_VALUE) {
             throw new NumbersArithmeticException();
@@ -377,7 +376,7 @@ public final class ArithmeticUtils {
      * @throws ArithmeticException if the result can not be represented
      * as a {@code long}.
      */
-    public static long mulAndCheck(long a, long b) throws ArithmeticException {
+    public static long mulAndCheck(long a, long b) {
         long ret;
         if (a > b) {
             // use symmetry to reduce boundary cases
@@ -430,7 +429,7 @@ public final class ArithmeticUtils {
      * @throws ArithmeticException if the result can not be represented
      * as an {@code int}.
      */
-    public static int subAndCheck(int x, int y) throws ArithmeticException {
+    public static int subAndCheck(int x, int y) {
         long s = (long)x - (long)y;
         if (s < Integer.MIN_VALUE || s > Integer.MAX_VALUE) {
             throw new NumbersArithmeticException("overflow in subtraction: {0} - {1}", x, y);
@@ -447,7 +446,7 @@ public final class ArithmeticUtils {
      * @throws ArithmeticException if the result can not be represented as a
      * {@code long}.
      */
-    public static long subAndCheck(long a, long b) throws ArithmeticException {
+    public static long subAndCheck(long a, long b) {
         long ret;
         if (b == Long.MIN_VALUE) {
             if (a < 0) {
@@ -472,8 +471,7 @@ public final class ArithmeticUtils {
      * @throws ArithmeticException if the result would overflow.
      */
     public static int pow(final int k,
-                          final int e)
-        throws ArithmeticException {
+                          final int e) {
         if (e < 0) {
             throw new IllegalArgumentException("negative exponent ({" + e + "})");
         }
@@ -507,8 +505,7 @@ public final class ArithmeticUtils {
      * @throws ArithmeticException if the result would overflow.
      */
     public static long pow(final long k,
-                           final int e)
-        throws ArithmeticException {
+                           final int e) {
         if (e < 0) {
             throw new IllegalArgumentException("negative exponent ({" + e + "})");
         }
@@ -611,7 +608,7 @@ public final class ArithmeticUtils {
      * @throws ArithmeticException if the result cannot be represented
      * as a {@code long}.
      */
-     private static long addAndCheck(long a, long b, String message) throws ArithmeticException {
+     private static long addAndCheck(long a, long b, String message) {
          final long result = a + b;
          if (!((a ^ b) < 0 || (a ^ result) >= 0)) {
              throw new NumbersArithmeticException(message, a, b);
