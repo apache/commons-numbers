@@ -86,10 +86,10 @@ public class Fraction
     /**
      * Create a fraction given the double value.
      * @param value the double value to convert to a fraction.
-     * @throws FractionConversionException if the continued fraction failed to
+     * @throws IllegalArgumentException if the continued fraction failed to
      *         converge.
      */
-    public Fraction(double value) throws FractionConversionException {
+    public Fraction(double value) {
         this(value, DEFAULT_EPSILON, 100);
     }
 
@@ -106,11 +106,10 @@ public class Fraction
      * @param epsilon maximum error allowed.  The resulting fraction is within
      *        {@code epsilon} of {@code value}, in absolute terms.
      * @param maxIterations maximum number of convergents
-     * @throws FractionConversionException if the continued fraction failed to
+     * @throws IllegalArgumentException if the continued fraction failed to
      *         converge.
      */
     public Fraction(double value, double epsilon, int maxIterations)
-        throws FractionConversionException
     {
         this(value, epsilon, Integer.MAX_VALUE, maxIterations);
     }
@@ -126,11 +125,10 @@ public class Fraction
      * </p>
      * @param value the double value to convert to a fraction.
      * @param maxDenominator The maximum allowed value for denominator
-     * @throws FractionConversionException if the continued fraction failed to
+     * @throws IllegalArgumentException if the continued fraction failed to
      *         converge
      */
     public Fraction(double value, int maxDenominator)
-        throws FractionConversionException
     {
        this(value, 0, maxDenominator, 100);
     }
@@ -163,17 +161,16 @@ public class Fraction
      *        {@code epsilon} of {@code value}, in absolute terms.
      * @param maxDenominator maximum denominator value allowed.
      * @param maxIterations maximum number of convergents
-     * @throws FractionConversionException if the continued fraction failed to
+     * @throws IllegalArgumentException if the continued fraction failed to
      *         converge.
      */
     private Fraction(double value, double epsilon, int maxDenominator, int maxIterations)
-        throws FractionConversionException, FractionOverflowException
     {
         long overflow = Integer.MAX_VALUE;
         double r0 = value;
         long a0 = (long)Math.floor(r0);
         if (Math.abs(a0) > overflow) {
-            throw new FractionConversionException(value, a0, 1l);
+            throw new FractionException(FractionException.ERROR_CONVERSION, value, a0, 1l);
         }
 
         // check for (almost) integer arguments, which should not go to iterations.
@@ -206,7 +203,7 @@ public class Fraction
                 if (epsilon == 0.0 && Math.abs(q1) < maxDenominator) {
                     break;
                 }
-                throw new FractionConversionException(value, p2, q2);
+                throw new FractionException(FractionException.ERROR_CONVERSION, value, p2, q2);
             }
 
             double convergent = (double)p2 / (double)q2;
@@ -223,7 +220,7 @@ public class Fraction
         } while (!stop);
 
         if (n >= maxIterations) {
-            throw new FractionConversionException(value, maxIterations);
+            throw new FractionException(FractionException.ERROR_CONVERSION, value, maxIterations);
         }
 
         if (q2 < maxDenominator) {
@@ -250,16 +247,17 @@ public class Fraction
      * reduced to lowest terms.
      * @param num the numerator.
      * @param den the denominator.
-     * @throws FractionException if the denominator is {@code zero}
+     * @throws ArithmeticException if the denominator is {@code zero}
+     *                             or if integer overflow occurs
      */
     public Fraction(int num, int den) {
         if (den == 0) {
-            throw new ZeroDenominatorException(num, den);
+            throw new ArithmeticException("division by zero");
         }
         if (den < 0) {
             if (num == Integer.MIN_VALUE ||
                 den == Integer.MIN_VALUE) {
-                throw new FractionOverflowException(num, den);
+                throw new FractionException("overflow in fraction {0}/{1}, cannot negate", num, den);
             }
             num = -num;
             den = -den;
@@ -402,7 +400,7 @@ public class Fraction
      */
     public Fraction negate() {
         if (numerator==Integer.MIN_VALUE) {
-            throw new FractionOverflowException(numerator, denominator);
+            throw new FractionException(FractionException.ERROR_NEGATION_OVERFLOW, numerator, denominator);
         }
         return new Fraction(-numerator, denominator);
     }
@@ -510,7 +508,7 @@ public class Fraction
         // result is (t/d2) / (u'/d1)(v'/d2)
         BigInteger w = t.divide(BigInteger.valueOf(d2));
         if (w.bitLength() > 31) {
-            throw new FractionOverflowException(
+            throw new FractionException(
                 "overflow, numerator too large after multiply: {0}", w.toString(), "");
         }
         return new Fraction (w.intValue(),
@@ -558,10 +556,9 @@ public class Fraction
      *
      * @param fraction  the fraction to divide by, must not be {@code null}
      * @return a {@code Fraction} instance with the resulting values
-     * @throws IllegalArgumentException if the fraction is {@code null}
-     * @throws FractionException if the fraction to divide by is zero
-     * @throws ArithmeticException if the resulting numerator or denominator exceeds
-     *  {@code Integer.MAX_VALUE}
+     * @throws ArithmeticException if the fraction to divide by is zero
+     *                             or if the resulting numerator or denominator
+     *                             exceeds {@code Integer.MAX_VALUE}
      */
     public Fraction divide(Fraction fraction) {
         if (fraction == null) {
@@ -608,7 +605,7 @@ public class Fraction
      */
     public static Fraction getReducedFraction(int numerator, int denominator) {
         if (denominator == 0) {
-            throw new ZeroDenominatorException(numerator, denominator);
+            throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
         }
         if (numerator==0) {
             return ZERO; // normalize zero.
@@ -620,7 +617,7 @@ public class Fraction
         if (denominator < 0) {
             if (numerator==Integer.MIN_VALUE ||
                     denominator==Integer.MIN_VALUE) {
-                throw new FractionOverflowException(numerator, denominator);
+                throw new FractionException("overflow in fraction {0}/{1}, cannot negate", numerator, denominator);
             }
             numerator = -numerator;
             denominator = -denominator;
@@ -658,5 +655,4 @@ public class Fraction
     public FractionField getField() {
         return FractionField.getInstance();
     }
-
 }

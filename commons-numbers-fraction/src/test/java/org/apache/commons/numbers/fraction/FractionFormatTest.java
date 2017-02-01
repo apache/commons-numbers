@@ -118,7 +118,7 @@ public class FractionFormatTest {
     }
 
     @Test
-    public void testParseInteger() {
+    public void testParseInteger() throws Exception {
         String source = "10";
         {
             Fraction c = properFormat.parse(source);
@@ -135,7 +135,7 @@ public class FractionFormatTest {
     }
 
     @Test
-    public void testParseOne1() {
+    public void testParseOne1() throws Exception {
         String source = "1 / 1";
         Fraction c = properFormat.parse(source);
         Assert.assertNotNull(c);
@@ -144,7 +144,7 @@ public class FractionFormatTest {
     }
 
     @Test
-    public void testParseOne2() {
+    public void testParseOne2() throws Exception {
         String source = "10 / 10";
         Fraction c = properFormat.parse(source);
         Assert.assertNotNull(c);
@@ -153,7 +153,7 @@ public class FractionFormatTest {
     }
 
     @Test
-    public void testParseZero1() {
+    public void testParseZero1() throws Exception {
         String source = "0 / 1";
         Fraction c = properFormat.parse(source);
         Assert.assertNotNull(c);
@@ -162,7 +162,7 @@ public class FractionFormatTest {
     }
 
     @Test
-    public void testParseZero2() {
+    public void testParseZero2() throws Exception {
         String source = "-0 / 1";
         Fraction c = properFormat.parse(source);
         Assert.assertNotNull(c);
@@ -209,7 +209,7 @@ public class FractionFormatTest {
     }
 
     @Test
-    public void testParseNegative() {
+    public void testParseNegative() throws Exception {
 
         {
             String source = "-1 / 2";
@@ -237,7 +237,7 @@ public class FractionFormatTest {
     }
 
     @Test
-    public void testParseProper() {
+    public void testParseProper() throws Exception {
         String source = "1 2 / 3";
 
         {
@@ -256,7 +256,7 @@ public class FractionFormatTest {
     }
 
     @Test
-    public void testParseProperNegative() {
+    public void testParseProperNegative() throws Exception {
         String source = "-1 2 / 3";
         {
             Fraction c = properFormat.parse(source);

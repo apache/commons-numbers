@@ -19,10 +19,15 @@ package org.apache.commons.numbers.fraction;
 /**
  * Base class for all exceptions thrown in the module.
  */
-public class FractionException extends ArithmeticException {
+class FractionException extends ArithmeticException {
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 201701191744L;
+
+    public static final String ERROR_CONVERSION_OVERFLOW = "Overflow trying to convert {0} to fraction ({1}/{2})";
+    public static final String ERROR_CONVERSION = "Unable to convert {0} to fraction after {1} iterations";
+    public static final String ERROR_NEGATION_OVERFLOW = "overflow in fraction {0}/{1}, cannot negate";
+    public static final String ERROR_ZERO_DENOMINATOR = "denominator must be different from 0";
 
     protected Object[] formatArguments;
 

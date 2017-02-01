@@ -61,7 +61,7 @@ public class FractionTest {
         assertFraction(15, 1, new Fraction(15.0000000000001));
     }
 
-    @Test(expected=FractionConversionException.class)
+    @Test(expected=ArithmeticException.class)
     public void testGoldenRatio() {
         // the golden ratio is notoriously a difficult number for continuous fraction
         new Fraction((1 + Math.sqrt(5)) / 2, 1.0e-12, 25);
@@ -143,7 +143,7 @@ public class FractionTest {
             Fraction f = new Fraction(a, 1.0e-12, 1000);
             //System.out.println(f.getNumerator() + "/" + f.getDenominator());
             Assert.fail("an exception should have been thrown");
-        } catch (FractionConversionException ce) {
+        } catch (ArithmeticException ignored) {
             // expected behavior
         }
     }
@@ -289,8 +289,8 @@ public class FractionTest {
         f = new Fraction(0, 3);
         try {
             f = f.reciprocal();
-            Assert.fail("expecting ZeroDenominatorException");
-        } catch (ZeroDenominatorException ex) {}
+            Assert.fail("expecting ArithmeticException");
+        } catch (ArithmeticException ignored) {}
 
         // large values
         f = new Fraction(Integer.MAX_VALUE, 1);
@@ -387,7 +387,7 @@ public class FractionTest {
         try {
             f = f1.add(f2); // should overflow
             Assert.fail("expecting ArithmeticException but got: " + f.toString());
-        } catch (FractionOverflowException ex) {}
+        } catch (ArithmeticException ex) {}
 
         try {
             f= new Fraction(-Integer.MAX_VALUE, 1);
@@ -549,8 +549,8 @@ public class FractionTest {
         f2 = new Fraction(1,5);
         try {
             f = f1.subtract(f2); // should overflow
-            Assert.fail("expecting FractionOverflowException but got: " + f.toString());
-        } catch (FractionOverflowException ex) {}
+            Assert.fail("expecting ArithmeticException but got: " + f.toString());
+        } catch (ArithmeticException ex) {}
 
         try {
             f= new Fraction(Integer.MIN_VALUE, 1);
@@ -593,8 +593,8 @@ public class FractionTest {
         Assert.assertTrue(Fraction.ZERO.equals(Fraction.getReducedFraction(0, -1)));
         try {
             Fraction.getReducedFraction(1, 0);
-            Assert.fail("expecting ZeroDenominatorException");
-        } catch (ZeroDenominatorException ex) {
+            Assert.fail("expecting ArithmeticException");
+        } catch (ArithmeticException ignored) {
             // expected
         }
         Assert.assertEquals(Fraction.getReducedFraction
@@ -611,7 +611,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testSerial() throws FractionConversionException {
+    public void testSerial() {
         Fraction[] fractions = {
             new Fraction(3, 4), Fraction.ONE, Fraction.ZERO,
             new Fraction(17), new Fraction(Math.PI, 1000),

@@ -74,14 +74,14 @@ public class BigFractionTest {
         }
         try {
             new BigFraction(BigInteger.ONE, BigInteger.ZERO);
-            Assert.fail("Expecting ZeroDenominatorException");
-        } catch (ZeroDenominatorException npe) {
+            Assert.fail("Expecting ArithmeticException");
+        } catch (ArithmeticException ignored) {
             // expected
         }
         try {
             new BigFraction(2.0 * Integer.MAX_VALUE, 1.0e-5, 100000);
-            Assert.fail("Expecting FractionConversionException");
-        } catch (FractionConversionException fce) {
+            Assert.fail("Expecting ArithmeticException");
+        } catch (ArithmeticException ignored) {
             // expected
         }
     }
@@ -155,13 +155,13 @@ public class BigFractionTest {
     }
 
     // MATH-1029
-    @Test(expected=FractionConversionException.class)
+    @Test(expected=ArithmeticException.class)
     public void testPositiveValueOverflow() {
         assertFraction((long) 1e10, 1, new BigFraction(1e10, 1000));
     }
 
     // MATH-1029
-    @Test(expected=FractionConversionException.class)
+    @Test(expected=ArithmeticException.class)
     public void testNegativeValueOverflow() {
         assertFraction((long) -1e10, 1, new BigFraction(-1e10, 1000));
     }
@@ -316,8 +316,8 @@ public class BigFractionTest {
         f = new BigFraction(0, 3);
         try {
             f = f.reciprocal();
-            Assert.fail("expecting ZeroDenominatorException");
-        } catch (ZeroDenominatorException ex) {
+            Assert.fail("expecting ArithmeticException");
+        } catch (ArithmeticException ignored) {
         }
 
         // large values
@@ -584,8 +584,8 @@ public class BigFractionTest {
         Assert.assertTrue(BigFraction.ZERO.equals(BigFraction.getReducedFraction(0, -1)));
         try {
             BigFraction.getReducedFraction(1, 0);
-            Assert.fail("expecting ZeroDenominatorException");
-        } catch (ZeroDenominatorException ex) {
+            Assert.fail("expecting ArithmeticException");
+        } catch (ArithmeticException ex) {
             // expected
         }
         Assert.assertEquals(BigFraction.getReducedFraction(2, Integer.MIN_VALUE).getNumeratorAsInt(), -1);
@@ -621,7 +621,7 @@ public class BigFractionTest {
     }
 
     @Test
-    public void testSerial() throws FractionConversionException {
+    public void testSerial() {
         BigFraction[] fractions = {
             new BigFraction(3, 4), BigFraction.ONE, BigFraction.ZERO,
             new BigFraction(17), new BigFraction(Math.PI, 1000),

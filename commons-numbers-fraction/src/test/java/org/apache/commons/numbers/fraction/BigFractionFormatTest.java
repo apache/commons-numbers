@@ -101,7 +101,7 @@ public class BigFractionFormatTest {
     }
 
     @Test
-    public void testParse() {
+    public void testParse() throws Exception {
         String source = "1 / 2";
 
         {
@@ -118,7 +118,7 @@ public class BigFractionFormatTest {
     }
 
     @Test
-    public void testParseInteger() {
+    public void testParseInteger() throws Exception {
         String source = "10";
         {
             BigFraction c = properFormat.parse(source);
@@ -171,7 +171,7 @@ public class BigFractionFormatTest {
     }
 
     @Test
-    public void testParseNegative() {
+    public void testParseNegative() throws Exception {
 
         {
             String source = "-1 / 2";
@@ -199,7 +199,7 @@ public class BigFractionFormatTest {
     }
 
     @Test
-    public void testParseProper() {
+    public void testParseProper() throws Exception {
         String source = "1 2 / 3";
 
         {
@@ -218,7 +218,7 @@ public class BigFractionFormatTest {
     }
 
     @Test
-    public void testParseProperNegative() {
+    public void testParseProperNegative() throws Exception {
         String source = "-1 2 / 3";
         {
             BigFraction c = properFormat.parse(source);
@@ -254,7 +254,7 @@ public class BigFractionFormatTest {
     }
 
     @Test
-    public void testParseBig() {
+    public void testParseBig() throws Exception {
         BigFraction f1 =
             improperFormat.parse("167213075789791382630275400487886041651764456874403" +
                                  " / " +

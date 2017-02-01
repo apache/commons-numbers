@@ -17,10 +17,13 @@
 
 package org.apache.commons.numbers.fraction;
 
+import java.text.MessageFormat;
+import java.text.ParseException;
+
 /**
  * Error thrown when a string cannot be parsed into a fraction.
  */
-public class FractionParseException extends FractionException {
+public class FractionParseException extends ParseException {
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 201701181879L;
@@ -33,6 +36,8 @@ public class FractionParseException extends FractionException {
      * @param type type of target object
      */
     public FractionParseException(String source, int position, Class<?> type) {
-        super("string \"{0}\" unparseable (from position {1}) as an object of type {2}", source, position, type);
+        super(MessageFormat.format("string \"{0}\" unparseable (from position {1}) as an object of type {2}",
+                                   source, position, type),
+              position);
     }
 }

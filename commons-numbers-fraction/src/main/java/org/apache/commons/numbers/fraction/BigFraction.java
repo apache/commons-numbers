@@ -108,7 +108,7 @@ public class BigFraction
         checkNotNull(num, "numerator");
         checkNotNull(den, "denominator");
         if (den.signum() == 0) {
-            throw new ZeroDenominatorException();
+            throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
         }
         if (num.signum() == 0) {
             numerator   = BigInteger.ZERO;
@@ -214,8 +214,7 @@ public class BigFraction
      * @see #BigFraction(double)
      */
     public BigFraction(final double value, final double epsilon,
-                       final int maxIterations)
-        throws FractionConversionException {
+                       final int maxIterations) {
         this(value, epsilon, Integer.MAX_VALUE, maxIterations);
     }
 
@@ -254,14 +253,13 @@ public class BigFraction
      *             if the continued fraction failed to converge.
      */
     private BigFraction(final double value, final double epsilon,
-                        final int maxDenominator, int maxIterations)
-        throws FractionConversionException {
+                        final int maxDenominator, int maxIterations) {
         long overflow = Integer.MAX_VALUE;
         double r0 = value;
         long a0 = (long) Math.floor(r0);
 
         if (Math.abs(a0) > overflow) {
-            throw new FractionConversionException(value, a0, 1l);
+            throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, a0, 1l);
         }
 
         // check for (almost) integer arguments, which should not go
@@ -294,7 +292,7 @@ public class BigFraction
                 if (epsilon == 0.0 && Math.abs(q1) < maxDenominator) {
                     break;
                 }
-                throw new FractionConversionException(value, p2, q2);
+                throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, p2, q2);
             }
 
             final double convergent = (double) p2 / (double) q2;
@@ -313,7 +311,7 @@ public class BigFraction
         } while (!stop);
 
         if (n >= maxIterations) {
-            throw new FractionConversionException(value, maxIterations);
+            throw new FractionException(FractionException.ERROR_CONVERSION, value, maxIterations);
         }
 
         if (q2 < maxDenominator) {
@@ -342,8 +340,7 @@ public class BigFraction
      * @throws FractionConversionException
      *             if the continued fraction failed to converge.
      */
-    public BigFraction(final double value, final int maxDenominator)
-        throws FractionConversionException {
+    public BigFraction(final double value, final int maxDenominator) {
         this(value, 0, maxDenominator, 100);
     }
 
@@ -625,7 +622,7 @@ public class BigFraction
     public BigFraction divide(final BigInteger bg) {
         checkNotNull(bg, "bg");
         if (bg.signum() == 0) {
-            throw new ZeroDenominatorException();
+            throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
         }
         if (numerator.signum() == 0) {
             return ZERO;
@@ -674,7 +671,7 @@ public class BigFraction
     public BigFraction divide(final BigFraction fraction) {
         checkNotNull(fraction, "fraction");
         if (fraction.numerator.signum() == 0) {
-            throw new ZeroDenominatorException(fraction.denominator, fraction.numerator);
+            throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
         }
         if (numerator.signum() == 0) {
             return ZERO;

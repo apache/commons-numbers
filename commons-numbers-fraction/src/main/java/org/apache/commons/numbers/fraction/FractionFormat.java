@@ -163,8 +163,8 @@ public class FractionFormat extends AbstractFormat {
      */
     @Override
     public StringBuffer format(final Object obj,
-                               final StringBuffer toAppendTo, final FieldPosition pos)
-        throws FractionConversionException, IllegalArgumentException {
+                               final StringBuffer toAppendTo,
+                               final FieldPosition pos) {
         StringBuffer ret = null;
 
         if (obj instanceof Fraction) {
