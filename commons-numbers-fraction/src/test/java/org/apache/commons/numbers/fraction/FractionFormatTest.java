@@ -18,6 +18,7 @@
 package org.apache.commons.numbers.fraction;
 
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.Locale;
 
 import org.junit.Assert;
@@ -112,7 +113,7 @@ public class FractionFormatTest {
             Assert.assertNotNull(c);
             Assert.assertEquals(1, c.getNumerator());
             Assert.assertEquals(2, c.getDenominator());
-        } catch (FractionParseException ex) {
+        } catch (ParseException ex) {
             Assert.fail(ex.getMessage());
         }
     }
@@ -179,13 +180,13 @@ public class FractionFormatTest {
         try {
             properFormat.parse(source);
             Assert.fail(msg);
-        } catch (FractionParseException ex) {
+        } catch (ParseException ex) {
             // success
         }
         try {
             improperFormat.parse(source);
             Assert.fail(msg);
-        } catch (FractionParseException ex) {
+        } catch (ParseException ex) {
             // success
         }
     }
@@ -197,13 +198,13 @@ public class FractionFormatTest {
         try {
             properFormat.parse(source);
             Assert.fail(msg);
-        } catch (FractionParseException ex) {
+        } catch (ParseException ex) {
             // success
         }
         try {
             improperFormat.parse(source);
             Assert.fail(msg);
-        } catch (FractionParseException ex) {
+        } catch (ParseException ex) {
             // success
         }
     }
@@ -250,7 +251,7 @@ public class FractionFormatTest {
         try {
             improperFormat.parse(source);
             Assert.fail("invalid improper fraction.");
-        } catch (FractionParseException ex) {
+        } catch (ParseException ex) {
             // success
         }
     }
@@ -268,7 +269,7 @@ public class FractionFormatTest {
         try {
             improperFormat.parse(source);
             Assert.fail("invalid improper fraction.");
-        } catch (FractionParseException ex) {
+        } catch (ParseException ex) {
             // success
         }
     }
@@ -279,14 +280,14 @@ public class FractionFormatTest {
         try {
             properFormat.parse(source);
             Assert.fail("invalid minus in improper fraction.");
-        } catch (FractionParseException ex) {
+        } catch (ParseException ex) {
             // expected
         }
         source = "2 2 / -3";
         try {
             properFormat.parse(source);
             Assert.fail("invalid minus in improper fraction.");
-        } catch (FractionParseException ex) {
+        } catch (ParseException ex) {
             // expected
         }
     }

@@ -257,7 +257,7 @@ public class Fraction
         if (den < 0) {
             if (num == Integer.MIN_VALUE ||
                 den == Integer.MIN_VALUE) {
-                throw new FractionException("overflow in fraction {0}/{1}, cannot negate", num, den);
+                throw new FractionException(FractionException.ERROR_NEGATION_OVERFLOW, num, den);
             }
             num = -num;
             den = -den;
@@ -617,7 +617,7 @@ public class Fraction
         if (denominator < 0) {
             if (numerator==Integer.MIN_VALUE ||
                     denominator==Integer.MIN_VALUE) {
-                throw new FractionException("overflow in fraction {0}/{1}, cannot negate", numerator, denominator);
+                throw new FractionException(FractionException.ERROR_NEGATION_OVERFLOW, numerator, denominator);
             }
             numerator = -numerator;
             denominator = -denominator;

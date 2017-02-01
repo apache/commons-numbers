@@ -16,8 +16,10 @@
  */
 package org.apache.commons.numbers.fraction;
 
+import java.text.MessageFormat;
+
 /**
- * Base class for all exceptions thrown in the module.
+ * Package private exception class with constants for frequently used messages.
  */
 class FractionException extends ArithmeticException {
 
@@ -34,9 +36,22 @@ class FractionException extends ArithmeticException {
     public FractionException() {
     }
 
+    /**
+     * Create an exception where the message is constructed by applying
+     * the {@code format()} method from {@code java.text.MessageFormat}.
+     *
+     * @param message  the exception message with replaceable parameters
+     * @param formatArguments the arguments for formatting the message
+     */
     public FractionException(String message, Object... formatArguments) {
         super(message);
         this.formatArguments = formatArguments;
     }
+
+    @Override
+    public String getMessage() {
+        return MessageFormat.format(super.getMessage(), formatArguments);
+    }
+
 
 }

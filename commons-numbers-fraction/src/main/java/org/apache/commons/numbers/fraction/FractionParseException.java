@@ -23,7 +23,7 @@ import java.text.ParseException;
 /**
  * Error thrown when a string cannot be parsed into a fraction.
  */
-public class FractionParseException extends ParseException {
+class FractionParseException extends ParseException {
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 201701181879L;

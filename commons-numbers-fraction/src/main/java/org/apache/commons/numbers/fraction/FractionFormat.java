@@ -19,6 +19,7 @@ package org.apache.commons.numbers.fraction;
 
 import java.text.FieldPosition;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.Locale;
 
@@ -183,11 +184,11 @@ public class FractionFormat extends AbstractFormat {
      * Parses a string to produce a {@link Fraction} object.
      * @param source the string to parse
      * @return the parsed {@link Fraction} object.
-     * @exception FractionParseException if the beginning of the specified string
+     * @exception ParseException if the beginning of the specified string
      *            cannot be parsed.
      */
     @Override
-    public Fraction parse(final String source) throws FractionParseException {
+    public Fraction parse(final String source) throws ParseException {
         final ParsePosition parsePosition = new ParsePosition(0);
         final Fraction result = parse(source, parsePosition);
         if (parsePosition.getIndex() == 0) {

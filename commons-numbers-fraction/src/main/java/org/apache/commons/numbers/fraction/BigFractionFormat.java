@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.Locale;
 
@@ -177,11 +178,11 @@ public class BigFractionFormat extends AbstractFormat implements Serializable {
      * Parses a string to produce a {@link BigFraction} object.
      * @param source the string to parse
      * @return the parsed {@link BigFraction} object.
-     * @exception FractionParseException if the beginning of the specified string
+     * @exception ParseException if the beginning of the specified string
      *            cannot be parsed.
      */
     @Override
-    public BigFraction parse(final String source) throws FractionParseException {
+    public BigFraction parse(final String source) throws ParseException {
         final ParsePosition parsePosition = new ParsePosition(0);
         final BigFraction result = parse(source, parsePosition);
         if (parsePosition.getIndex() == 0) {
