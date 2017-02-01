@@ -102,7 +102,7 @@ public class BigFraction
      *
      * @param num the numerator, must not be {@code null}.
      * @param den the denominator, must not be {@code null}.
-     * @throws ZeroDenominatorException if the denominator is zero.
+     * @throws ArithmeticException if the denominator is zero.
      */
     public BigFraction(BigInteger num, BigInteger den) {
         checkNotNull(num, "numerator");
@@ -200,7 +200,6 @@ public class BigFraction
      * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
      * Continued Fraction</a> equations (11) and (22)-(26)</li>
      * </ul>
-     * </p>
      *
      * @param value
      *            the double value to convert to a fraction.
@@ -209,7 +208,7 @@ public class BigFraction
      *            <code>epsilon</code> of <code>value</code>, in absolute terms.
      * @param maxIterations
      *            maximum number of convergents.
-     * @throws FractionConversionException
+     * @throws ArithmeticException
      *             if the continued fraction failed to converge.
      * @see #BigFraction(double)
      */
@@ -331,13 +330,12 @@ public class BigFraction
      * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
      * Continued Fraction</a> equations (11) and (22)-(26)</li>
      * </ul>
-     * </p>
      *
      * @param value
      *            the double value to convert to a fraction.
      * @param maxDenominator
      *            The maximum allowed value for denominator.
-     * @throws FractionConversionException
+     * @throws ArithmeticException
      *             if the continued fraction failed to converge.
      */
     public BigFraction(final double value, final int maxDenominator) {
@@ -617,7 +615,7 @@ public class BigFraction
      *
      * @param bg the {@code BigInteger} to divide by, must not be {@code null}
      * @return a {@link BigFraction} instance with the resulting values
-     * @throws ZeroDenominatorException if the fraction to divide by is zero
+     * @throws ArithmeticException if the fraction to divide by is zero
      */
     public BigFraction divide(final BigInteger bg) {
         checkNotNull(bg, "bg");
@@ -666,7 +664,7 @@ public class BigFraction
      *
      * @param fraction Fraction to divide by, must not be {@code null}.
      * @return a {@link BigFraction} instance with the resulting values.
-     * @throws ZeroDenominatorException if the fraction to divide by is zero
+     * @throws ArithmeticException if the fraction to divide by is zero
      */
     public BigFraction divide(final BigFraction fraction) {
         checkNotNull(fraction, "fraction");

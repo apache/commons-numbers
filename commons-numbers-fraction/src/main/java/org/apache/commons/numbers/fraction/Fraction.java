@@ -101,7 +101,7 @@ public class Fraction
      * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
      * Continued Fraction</a> equations (11) and (22)-(26)</li>
      * </ul>
-     * </p>
+     * 
      * @param value the double value to convert to a fraction.
      * @param epsilon maximum error allowed.  The resulting fraction is within
      *        {@code epsilon} of {@code value}, in absolute terms.
@@ -122,7 +122,7 @@ public class Fraction
      * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
      * Continued Fraction</a> equations (11) and (22)-(26)</li>
      * </ul>
-     * </p>
+     * 
      * @param value the double value to convert to a fraction.
      * @param maxDenominator The maximum allowed value for denominator
      * @throws IllegalArgumentException if the continued fraction failed to

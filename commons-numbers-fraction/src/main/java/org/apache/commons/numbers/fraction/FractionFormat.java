@@ -159,7 +159,7 @@ public class FractionFormat extends AbstractFormat {
      *            offsets of the alignment field
      * @return the value passed in as toAppendTo.
      * @see java.text.Format#format(java.lang.Object, java.lang.StringBuffer, java.text.FieldPosition)
-     * @throws FractionConversionException if the number cannot be converted to a fraction
+     * @throws ArithmeticException if the number cannot be converted to a fraction
      * @throws IllegalArgumentException if <code>obj</code> is not a valid type.
      */
     @Override
