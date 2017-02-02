@@ -35,7 +35,7 @@ class FractionParseException extends ParseException {
      * @param position position of error
      * @param type type of target object
      */
-    public FractionParseException(String source, int position, Class<?> type) {
+    FractionParseException(String source, int position, Class<?> type) {
         super(MessageFormat.format("string \"{0}\" unparseable (from position {1}) as an object of type {2}",
                                    source, position, type),
               position);

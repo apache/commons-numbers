@@ -74,6 +74,9 @@ public class Fraction
     /** Serializable version identifier */
     private static final long serialVersionUID = 3698073679419233275L;
 
+    /** Parameter name for fraction (to satisfy checkstyle). */
+    private static final String PARAM_NAME_FRACTION = "fraction";
+
     /** The default epsilon used for convergence. */
     private static final double DEFAULT_EPSILON = 1e-5;
 
@@ -101,7 +104,7 @@ public class Fraction
      * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
      * Continued Fraction</a> equations (11) and (22)-(26)</li>
      * </ul>
-     * 
+     *
      * @param value the double value to convert to a fraction.
      * @param epsilon maximum error allowed.  The resulting fraction is within
      *        {@code epsilon} of {@code value}, in absolute terms.
@@ -122,7 +125,7 @@ public class Fraction
      * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
      * Continued Fraction</a> equations (11) and (22)-(26)</li>
      * </ul>
-     * 
+     *
      * @param value the double value to convert to a fraction.
      * @param maxDenominator The maximum allowed value for denominator
      * @throws IllegalArgumentException if the continued fraction failed to
@@ -471,7 +474,7 @@ public class Fraction
      */
     private Fraction addSub(Fraction fraction, boolean isAdd) {
         if (fraction == null) {
-            throw new NullPointerException("fraction");
+            throw new NullPointerException(PARAM_NAME_FRACTION);
         }
         // zero is identity for addition.
         if (numerator == 0) {
@@ -528,7 +531,7 @@ public class Fraction
      */
     public Fraction multiply(Fraction fraction) {
         if (fraction == null) {
-            throw new NullPointerException("fraction");
+            throw new NullPointerException(PARAM_NAME_FRACTION);
         }
         if (numerator == 0 || fraction.numerator == 0) {
             return ZERO;
@@ -562,7 +565,7 @@ public class Fraction
      */
     public Fraction divide(Fraction fraction) {
         if (fraction == null) {
-            throw new NullPointerException("fraction");
+            throw new NullPointerException(PARAM_NAME_FRACTION);
         }
         if (fraction.numerator == 0) {
             throw new FractionException("the fraction to divide by must not be zero: {0}/{1}",

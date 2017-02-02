@@ -23,18 +23,20 @@ import java.text.MessageFormat;
  */
 class FractionException extends ArithmeticException {
 
+    /** Error message for overflow during conversion. */
+    static final String ERROR_CONVERSION_OVERFLOW = "Overflow trying to convert {0} to fraction ({1}/{2})";
+    /** Error message when iterative conversion fails. */
+    static final String ERROR_CONVERSION = "Unable to convert {0} to fraction after {1} iterations";
+    /** Error message for overflow by negation. */
+    static final String ERROR_NEGATION_OVERFLOW = "overflow in fraction {0}/{1}, cannot negate";
+    /** Error message for zero-valued denominator. */
+    static final String ERROR_ZERO_DENOMINATOR = "denominator must be different from 0";
+
     /** Serializable version identifier. */
     private static final long serialVersionUID = 201701191744L;
 
-    public static final String ERROR_CONVERSION_OVERFLOW = "Overflow trying to convert {0} to fraction ({1}/{2})";
-    public static final String ERROR_CONVERSION = "Unable to convert {0} to fraction after {1} iterations";
-    public static final String ERROR_NEGATION_OVERFLOW = "overflow in fraction {0}/{1}, cannot negate";
-    public static final String ERROR_ZERO_DENOMINATOR = "denominator must be different from 0";
-
+    /** Arguments for formatting the message. */
     protected Object[] formatArguments;
-
-    public FractionException() {
-    }
 
     /**
      * Create an exception where the message is constructed by applying
@@ -43,7 +45,7 @@ class FractionException extends ArithmeticException {
      * @param message  the exception message with replaceable parameters
      * @param formatArguments the arguments for formatting the message
      */
-    public FractionException(String message, Object... formatArguments) {
+    FractionException(String message, Object... formatArguments) {
         super(message);
         this.formatArguments = formatArguments;
     }
