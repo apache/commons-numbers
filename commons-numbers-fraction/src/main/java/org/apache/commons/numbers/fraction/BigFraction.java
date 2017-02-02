@@ -27,7 +27,7 @@ import org.apache.commons.numbers.core.ArithmeticUtils;
  */
 public class BigFraction
     extends Number
-    implements /*FieldElement<BigFraction>, */Comparable<BigFraction>, Serializable {
+    implements Comparable<BigFraction>, Serializable {
 
     /** A fraction representing "2 / 1". */
     public static final BigFraction TWO = new BigFraction(2);
@@ -1177,10 +1177,6 @@ public class BigFraction
             str = numerator + " / " + denominator;
         }
         return str;
-    }
-
-    public BigFractionField getField() {
-        return BigFractionField.getInstance();
     }
 
     private static void checkNotNull(Object arg, String argName) {

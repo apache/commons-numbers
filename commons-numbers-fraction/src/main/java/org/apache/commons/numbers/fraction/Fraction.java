@@ -27,7 +27,7 @@ import org.apache.commons.numbers.core.ArithmeticUtils;
  */
 public class Fraction
     extends Number
-    implements /*FieldElement<Fraction>,*/ Comparable<Fraction>, Serializable {
+    implements Comparable<Fraction>, Serializable {
 
     /** A fraction representing "2 / 1". */
     public static final Fraction TWO = new Fraction(2, 1);
@@ -649,10 +649,5 @@ public class Fraction
             str = numerator + " / " + denominator;
         }
         return str;
-    }
-
-    /** {@inheritDoc} */
-    public FractionField getField() {
-        return FractionField.getInstance();
     }
 }
