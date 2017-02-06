@@ -68,8 +68,26 @@
   <contributors>
     <contributor>
       <name>Raymond DeCampo</name>
+      <email>ray at decampo dot org</email>
     </contributor>
   </contributors>
+
+  <dependencyManagement>
+    <dependencies>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-core</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -543,7 +561,7 @@
     <module>commons-numbers-core</module>
     <module>commons-numbers-complex</module>
     <module>commons-numbers-quaternion</module>
-    <!-- <module>commons-numbers-fraction</module> -->
+    <module>commons-numbers-fraction</module>
     <!-- <module>commons-numbers-continuedfraction</module> -->
   </modules>
 
