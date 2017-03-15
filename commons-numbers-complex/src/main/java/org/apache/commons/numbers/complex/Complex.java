@@ -20,7 +20,9 @@ package org.apache.commons.numbers.complex;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.numbers.core.Precision;
+
 /**
  * Representation of a Complex number, i.e. a number which has both a
  * real and imaginary part.
@@ -38,10 +40,10 @@ import org.apache.commons.numbers.core.Precision;
  * Note that this contradicts the IEEE-754 standard for floating
  * point numbers (according to which the test {@code x == x} must fail if
  * {@code x} is {@code NaN}). The method
- * {@link org.apache.commons.numbers.core.Precision#equals(double,double,int)
- * equals for primitive double} in class {@code Precision} conforms with
- * IEEE-754 while this class conforms with the standard behavior for Java
- * object types.</p>
+ * {@link org.apache.commons.math4.util.Precision#equals(double,double,int)
+ * equals for primitive double} in {@link org.apache.commons.math4.util.Precision}
+ * conforms with IEEE-754 while this class conforms with the standard behavior
+ * for Java object types.</p>
  *
  */
 public class Complex implements Serializable  {
@@ -59,15 +61,15 @@ public class Complex implements Serializable  {
     public static final Complex ZERO = new Complex(0.0, 0.0);
 
     /** Serializable version identifier */
-    private static final long serialVersionUID = 201701120L;
+    private static final long serialVersionUID = -6195664516687396620L;
 
     /** The imaginary part. */
     private final double imaginary;
     /** The real part. */
     private final double real;
-    /** Record whether this complex number is equal to NaN. */
+    /** Record whether this Complex number is equal to NaN. */
     private final transient boolean isNaN;
-    /** Record whether this complex number is infinite. */
+    /** Record whether this Complex number is infinite. */
     private final transient boolean isInfinite;
 
     /**
@@ -79,7 +81,7 @@ public class Complex implements Serializable  {
         this(real, 0.0);
     }
 
-    /**
+     /**
      * Create a complex number given the real and imaginary parts.
      *
      * @param real Real part.
@@ -94,8 +96,56 @@ public class Complex implements Serializable  {
             (Double.isInfinite(real) || Double.isInfinite(imaginary));
     }
 
+     /**
+     * Creates a Complex from its polar representation.
+     * <p>
+     * If either {@code r} or {@code theta} is NaN, or {@code theta} is
+     * infinite, {@link Complex#NaN} is returned.
+     * <p>
+     * If {@code r} is infinite and {@code theta} is finite, infinite or NaN
+     * values may be returned in parts of the result, following the rules for
+     * double arithmetic.
+     *
+     * <pre>
+     * Examples:
+     * {@code
+     * polar2Complex(INFINITY, \(\pi\)) = INFINITY + INFINITY i
+     * polar2Complex(INFINITY, 0) = INFINITY + NaN i
+     * polar2Complex(INFINITY, \(-\frac{\pi}{4}\)) = INFINITY - INFINITY i
+     * polar2Complex(INFINITY, \(5\frac{\pi}{4}\)) = -INFINITY - INFINITY i }
+     * </pre>
+     *
+     * @param r the modulus of the complex number to create
+     * @param theta the argument of the complex number to create
+     * @return {@code Complex}
+     * @since 1.1
+     */
+    public Complex polar(double r, double theta) {
+        checkNotNegative(r);
+        return new Complex(r * Math.cos(theta), r * Math.sin(theta));
+    }
+
     /**
-     * Return the absolute value of this complex number.
+     * Returns projection of this Complex number onto the Riemann sphere,
+     * i.e. all infinities (including those with an NaN component)
+     * project onto real infinity, as described in the
+     * <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/cproj.html">
+     * IEEE and ISO C standards</a>.
+     * <p>
+     *
+     *
+     * @return {@code Complex} projected onto the Riemann sphere.
+     */
+    public Complex proj() {
+        if (isInfinite) {
+            return new Complex(Double.POSITIVE_INFINITY);
+        } else {
+            return this;
+        }
+    }
+
+     /**
+     * Return the absolute value of this Complex number.
      * Returns {@code NaN} if either real or imaginary part is {@code NaN}
      * and {@code Double.POSITIVE_INFINITY} if neither part is {@code NaN},
      * but at least one part is infinite.
@@ -124,6 +174,19 @@ public class Complex implements Serializable  {
         }
     }
 
+     /**
+     * Return the norm of this Complex number, defined as the square of the magnitude
+     * (Matches C++ 11 standards.)
+     * Returns {@code NaN} if either real or imaginary part is {@code NaN}
+     * and {@code Double.POSITIVE_INFINITY} if neither part is {@code NaN},
+     * but at least one part is infinite.
+     *
+     * @return the absolute value.
+     */
+    public double norm() {
+        return abs()*abs();
+    }
+
     /**
      * Returns a {@code Complex} whose value is
      * {@code (this + addend)}.
@@ -138,6 +201,7 @@ public class Complex implements Serializable  {
      *
      * @param  addend Value to be added to this {@code Complex}.
      * @return {@code this + addend}.
+     * @if {@code addend} is {@code null}.
      */
     public Complex add(Complex addend) {
         checkNotNull(addend);
@@ -166,7 +230,7 @@ public class Complex implements Serializable  {
     }
 
      /**
-     * Returns the conjugate of this complex number.
+     * Returns the conjugate of this Complex number.
      * The conjugate of {@code a + bi} is {@code a - bi}.
      * <p>
      * {@link #NaN} is returned if either the real or imaginary
@@ -186,6 +250,17 @@ public class Complex implements Serializable  {
 
         return createComplex(real, -imaginary);
     }
+
+     /**
+     * Returns the conjugate of this Complex number.
+     * C++11 grammar.
+     * </p>
+     * @return the conjugate of this Complex object.
+     */
+    public Complex conj() {
+        return conjugate();
+    }
+
 
     /**
      * Returns a {@code Complex} whose value is
@@ -227,8 +302,10 @@ public class Complex implements Serializable  {
      *
      * @param divisor Value by which this {@code Complex} is to be divided.
      * @return {@code this / divisor}.
+     * @if {@code divisor} is {@code null}.
      */
-    public Complex divide(Complex divisor) {
+    public Complex divide(Complex divisor)
+        {
         checkNotNull(divisor);
         if (isNaN || divisor.isNaN) {
             return NaN;
@@ -279,12 +356,7 @@ public class Complex implements Serializable  {
                              imaginary  / divisor);
     }
 
-    /**
-     * Returns the multiplicative inverse this instance.
-     *
-     * @return {@code 1 / this}.
-     * @see #divide(Complex)
-     */
+    /** {@inheritDoc} */
     public Complex reciprocal() {
         if (isNaN) {
             return NaN;
@@ -343,8 +415,8 @@ public class Complex implements Serializable  {
             if (c.isNaN) {
                 return isNaN;
             } else {
-                return equals(real, c.real) &&
-                    equals(imaginary, c.imaginary);
+                return Precision.equals(real, c.real) &&
+                    Precision.equals(imaginary, c.imaginary);
             }
         }
         return false;
@@ -365,6 +437,7 @@ public class Complex implements Serializable  {
      * and {@code y}.
      *
      * @see Precision#equals(double,double,int)
+     * @since 3.3
      */
     public static boolean equals(Complex x, Complex y, int maxUlps) {
         return Precision.equals(x.real, y.real, maxUlps) &&
@@ -378,6 +451,8 @@ public class Complex implements Serializable  {
      * @param x First value (cannot be {@code null}).
      * @param y Second value (cannot be {@code null}).
      * @return {@code true} if the values are equal.
+     *
+     * @since 3.3
      */
     public static boolean equals(Complex x, Complex y) {
         return equals(x, y, 1);
@@ -396,6 +471,7 @@ public class Complex implements Serializable  {
      * numbers or they are within range of each other.
      *
      * @see Precision#equals(double,double,double)
+     * @since 3.3
      */
     public static boolean equals(Complex x, Complex y, double eps) {
         return Precision.equals(x.real, y.real, eps) &&
@@ -415,6 +491,7 @@ public class Complex implements Serializable  {
      * numbers or they are within range of each other.
      *
      * @see Precision#equalsWithRelativeTolerance(double,double,double)
+     * @since 3.3
      */
     public static boolean equalsWithRelativeTolerance(Complex x, Complex y,
                                                       double eps) {
@@ -434,8 +511,8 @@ public class Complex implements Serializable  {
         if (isNaN) {
             return 7;
         }
-        return 37 * (17 * hash(imaginary) +
-            hash(real));
+        return 37 * (17 * Precision.hash(imaginary) +
+            Precision.hash(real));
     }
 
     /**
@@ -444,6 +521,14 @@ public class Complex implements Serializable  {
      * @return the imaginary part.
      */
     public double getImaginary() {
+        return imaginary;
+    }
+    /**
+     * Access the imaginary part (C++ grammar)
+     *
+     * @return the imaginary part.
+     */
+    public double imag() {
         return imaginary;
     }
 
@@ -456,11 +541,20 @@ public class Complex implements Serializable  {
         return real;
     }
 
-    /**
-     * Checks whether either or both parts of this complex number is
+     /**
+     * Access the real part (C++ grammar)
+     *
+     * @return the real part.
+     */
+    public double real() {
+        return real;
+    }
+
+   /**
+     * Checks whether either or both parts of this Complex number is
      * {@code NaN}.
      *
-     * @return true if either or both parts of this complex number is
+     * @return true if either or both parts of this Complex number is
      * {@code NaN}; false otherwise.
      */
     public boolean isNaN() {
@@ -468,12 +562,12 @@ public class Complex implements Serializable  {
     }
 
     /**
-     * Checks whether either the real or imaginary part of this complex number
+     * Checks whether either the real or imaginary part of this Complex number
      * takes an infinite value (either {@code Double.POSITIVE_INFINITY} or
      * {@code Double.NEGATIVE_INFINITY}) and neither part
      * is {@code NaN}.
      *
-     * @return true if one or both parts of this complex number are infinite
+     * @return true if one or both parts of this Complex number are infinite
      * and neither part is {@code NaN}.
      */
     public boolean isInfinite() {
@@ -500,8 +594,10 @@ public class Complex implements Serializable  {
      *
      * @param  factor value to be multiplied by this {@code Complex}.
      * @return {@code this * factor}.
+     * @if {@code factor} is {@code null}.
      */
-    public Complex multiply(Complex factor) {
+    public Complex multiply(Complex factor)
+        {
         checkNotNull(factor);
         if (isNaN || factor.isNaN) {
             return NaN;
@@ -586,8 +682,10 @@ public class Complex implements Serializable  {
      *
      * @param  subtrahend value to be subtracted from this {@code Complex}.
      * @return {@code this - subtrahend}.
+     * @if {@code subtrahend} is {@code null}.
      */
-    public Complex subtract(Complex subtrahend) {
+    public Complex subtract(Complex subtrahend)
+        {
         checkNotNull(subtrahend);
         if (isNaN || subtrahend.isNaN) {
             return NaN;
@@ -615,7 +713,7 @@ public class Complex implements Serializable  {
     /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/InverseCosine.html" TARGET="_top">
-     * inverse cosine</a> of this complex number.
+     * inverse cosine</a> of this Complex number.
      * Implements the formula:
      * <p>
      *  {@code acos(z) = -i (log(z + i (sqrt(1 - z<sup>2</sup>))))}
@@ -623,7 +721,8 @@ public class Complex implements Serializable  {
      * Returns {@link Complex#NaN} if either real or imaginary part of the
      * input argument is {@code NaN} or infinite.
      *
-     * @return the inverse cosine of this complex number.
+     * @return the inverse cosine of this Complex number.
+     * @since 1.2
      */
     public Complex acos() {
         if (isNaN) {
@@ -636,7 +735,7 @@ public class Complex implements Serializable  {
     /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/InverseSine.html" TARGET="_top">
-     * inverse sine</a> of this complex number.
+     * inverse sine</a> of this Complex number.
      * Implements the formula:
      * <p>
      *  {@code asin(z) = -i (log(sqrt(1 - z<sup>2</sup>) + iz))}
@@ -644,7 +743,8 @@ public class Complex implements Serializable  {
      * Returns {@link Complex#NaN} if either real or imaginary part of the
      * input argument is {@code NaN} or infinite.</p>
      *
-     * @return the inverse sine of this complex number.
+     * @return the inverse sine of this Complex number.
+     * @since 1.2
      */
     public Complex asin() {
         if (isNaN) {
@@ -657,7 +757,7 @@ public class Complex implements Serializable  {
     /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/InverseTangent.html" TARGET="_top">
-     * inverse tangent</a> of this complex number.
+     * inverse tangent</a> of this Complex number.
      * Implements the formula:
      * <p>
      * {@code atan(z) = (i/2) log((i + z)/(i - z))}
@@ -665,7 +765,8 @@ public class Complex implements Serializable  {
      * Returns {@link Complex#NaN} if either real or imaginary part of the
      * input argument is {@code NaN} or infinite.</p>
      *
-     * @return the inverse tangent of this complex number
+     * @return the inverse tangent of this Complex number
+     * @since 1.2
      */
     public Complex atan() {
         if (isNaN) {
@@ -678,8 +779,86 @@ public class Complex implements Serializable  {
 
     /**
      * Compute the
+     * <a href="http://mathworld.wolfram.com/InverseHyperbolicSine.html" TARGET="_top">
+     * inverse hyperbolic sine</a> of this Complex number.
+     * Implements the formula:
+     * <p>
+     * {@code asinh(z) = log(z+sqrt(z^2+1))}
+     * </p><p>
+     * Returns {@link Complex#NaN} if either real or imaginary part of the
+     * input argument is {@code NaN} or infinite.</p>
+     *
+     * @return the inverse hyperbolic cosine of this Complex number
+     * @since 1.2
+     */
+    public Complex asinh(){
+        if (isNaN) {
+            return NaN;
+        }
+
+        return square().add(Complex.ONE).sqrt().add(this).log();
+    }
+
+   /**
+     * Compute the
+     * <a href="http://mathworld.wolfram.com/InverseHyperbolicTangent.html" TARGET="_top">
+     * inverse hyperbolic tangent</a> of this Complex number.
+     * Implements the formula:
+     * <p>
+     * {@code atanh(z) = log((1+z)/(1-z))/2}
+     * </p><p>
+     * Returns {@link Complex#NaN} if either real or imaginary part of the
+     * input argument is {@code NaN} or infinite.</p>
+     *
+     * @return the inverse hyperbolic cosine of this Complex number
+     * @since 1.2
+     */
+    public Complex atanh(){
+        if (isNaN) {
+            return NaN;
+        }
+
+        return this.add(Complex.ONE).divide(Complex.ONE.subtract(this)).log().divide(new Complex(2));
+    }
+   /**
+     * Compute the
+     * <a href="http://mathworld.wolfram.com/InverseHyperbolicCosine.html" TARGET="_top">
+     * inverse hyperbolic cosine</a> of this Complex number.
+     * Implements the formula:
+     * <p>
+     * {@code acosh(z) = log(z+sqrt(z^2-1))}
+     * </p><p>
+     * Returns {@link Complex#NaN} if either real or imaginary part of the
+     * input argument is {@code NaN} or infinite.</p>
+     *
+     * @return the inverse hyperbolic cosine of this Complex number
+     * @since 1.2
+     */
+    public Complex acosh() {
+        if (isNaN) {
+            return NaN;
+        }
+
+        return square().subtract(Complex.ONE).sqrt().add(this).log();
+    }
+
+    /**
+     * Compute the square of this Complex number.
+     *
+     * @return square of this Complex number
+     */
+    public Complex square(){
+        if (isNaN) {
+            return NaN;
+        }
+
+        return this.multiply(this);
+    }
+
+    /**
+     * Compute the
      * <a href="http://mathworld.wolfram.com/Cosine.html" TARGET="_top">
-     * cosine</a> of this complex number.
+     * cosine</a> of this Complex number.
      * Implements the formula:
      * <p>
      *  {@code cos(a + bi) = cos(a)cosh(b) - sin(a)sinh(b)i}
@@ -702,7 +881,8 @@ public class Complex implements Serializable  {
      *  </code>
      * </pre>
      *
-     * @return the cosine of this complex number.
+     * @return the cosine of this Complex number.
+     * @since 1.2
      */
     public Complex cos() {
         if (isNaN) {
@@ -716,7 +896,7 @@ public class Complex implements Serializable  {
     /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/HyperbolicCosine.html" TARGET="_top">
-     * hyperbolic cosine</a> of this complex number.
+     * hyperbolic cosine</a> of this Complex number.
      * Implements the formula:
      * <pre>
      *  <code>
@@ -741,7 +921,8 @@ public class Complex implements Serializable  {
      *  </code>
      * </pre>
      *
-     * @return the hyperbolic cosine of this complex number.
+     * @return the hyperbolic cosine of this Complex number.
+     * @since 1.2
      */
     public Complex cosh() {
         if (isNaN) {
@@ -755,7 +936,7 @@ public class Complex implements Serializable  {
     /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/ExponentialFunction.html" TARGET="_top">
-     * exponential function</a> of this complex number.
+     * exponential function</a> of this Complex number.
      * Implements the formula:
      * <pre>
      *  <code>
@@ -782,6 +963,7 @@ public class Complex implements Serializable  {
      * </pre>
      *
      * @return <code><i>e</i><sup>this</sup></code>.
+     * @since 1.2
      */
     public Complex exp() {
         if (isNaN) {
@@ -796,7 +978,7 @@ public class Complex implements Serializable  {
     /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/NaturalLogarithm.html" TARGET="_top">
-     * natural logarithm</a> of this complex number.
+     * natural logarithm</a> of this Complex number.
      * Implements the formula:
      * <pre>
      *  <code>
@@ -826,6 +1008,7 @@ public class Complex implements Serializable  {
      *
      * @return the value <code>ln &nbsp; this</code>, the natural logarithm
      * of {@code this}.
+     * @since 1.2
      */
     public Complex log() {
         if (isNaN) {
@@ -837,7 +1020,19 @@ public class Complex implements Serializable  {
     }
 
     /**
-     * Returns of value of this complex number raised to the power of {@code x}.
+     * Compute the base 10 or
+     * <a href="http://mathworld.wolfram.com/CommonLogarithm.html" TARGET="_top">
+     * common logarithm</a> of this Complex number.
+     *
+     *  @return the base 10 logarithm of <code>this</code>.
+    */
+    public Complex log10() {
+        return createComplex(Math.log(abs())/Math.log(10),
+                             Math.atan2(imaginary, real));
+    }
+
+    /**
+     * Returns of value of this Complex number raised to the power of {@code x}.
      * Implements the formula:
      * <pre>
      *  <code>
@@ -853,38 +1048,23 @@ public class Complex implements Serializable  {
      *
      * @param  x exponent to which this {@code Complex} is to be raised.
      * @return <code> this<sup>x</sup></code>.
+     * @if x is {@code null}.
+     * @since 1.2
      */
-    public Complex pow(Complex x) {
+    public Complex pow(Complex x)
+        {
         checkNotNull(x);
-        if (real == 0 && imaginary == 0) {
-            if (x.real > 0 && x.imaginary == 0) {
-                // 0 raised to positive number is 0
-                return ZERO;
-            } else {
-                // 0 raised to anything else is NaN
-                return NaN;
-            }
-        }
         return this.log().multiply(x).exp();
     }
 
     /**
-     * Returns of value of this complex number raised to the power of {@code x}.
+     * Returns of value of this Complex number raised to the power of {@code x}.
      *
      * @param  x exponent to which this {@code Complex} is to be raised.
      * @return <code>this<sup>x</sup></code>.
      * @see #pow(Complex)
      */
      public Complex pow(double x) {
-        if (real == 0 && imaginary == 0) {
-            if (x > 0) {
-                // 0 raised to positive number is 0
-                return ZERO;
-            } else {
-                // 0 raised to anything else is NaN
-                return NaN;
-            }
-        }
         return this.log().multiply(x).exp();
     }
 
@@ -892,7 +1072,7 @@ public class Complex implements Serializable  {
      * Compute the
      * <a href="http://mathworld.wolfram.com/Sine.html" TARGET="_top">
      * sine</a>
-     * of this complex number.
+     * of this Complex number.
      * Implements the formula:
      * <pre>
      *  <code>
@@ -917,7 +1097,8 @@ public class Complex implements Serializable  {
      *  </code>
      * </pre>
      *
-     * @return the sine of this complex number.
+     * @return the sine of this Complex number.
+     * @since 1.2
      */
     public Complex sin() {
         if (isNaN) {
@@ -931,7 +1112,7 @@ public class Complex implements Serializable  {
     /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/HyperbolicSine.html" TARGET="_top">
-     * hyperbolic sine</a> of this complex number.
+     * hyperbolic sine</a> of this Complex number.
      * Implements the formula:
      * <pre>
      *  <code>
@@ -957,6 +1138,7 @@ public class Complex implements Serializable  {
      * </pre>
      *
      * @return the hyperbolic sine of {@code this}.
+     * @since 1.2
      */
     public Complex sinh() {
         if (isNaN) {
@@ -970,7 +1152,7 @@ public class Complex implements Serializable  {
     /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/SquareRoot.html" TARGET="_top">
-     * square root</a> of this complex number.
+     * square root</a> of this Complex number.
      * Implements the following algorithm to compute {@code sqrt(a + bi)}:
      * <ol><li>Let {@code t = sqrt((|a| + |a + bi|) / 2)}</li>
      * <li><pre>if {@code  a &#8805; 0} return {@code t + (b/2t)i}
@@ -999,6 +1181,7 @@ public class Complex implements Serializable  {
      * </pre>
      *
      * @return the square root of {@code this}.
+     * @since 1.2
      */
     public Complex sqrt() {
         if (isNaN) {
@@ -1033,6 +1216,7 @@ public class Complex implements Serializable  {
      * infinite or NaN values returned in parts of the result.
      *
      * @return the square root of <code>1 - this<sup>2</sup></code>.
+     * @since 1.2
      */
     public Complex sqrt1z() {
         return createComplex(1.0, 0.0).subtract(this.multiply(this)).sqrt();
@@ -1041,7 +1225,7 @@ public class Complex implements Serializable  {
     /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/Tangent.html" TARGET="_top">
-     * tangent</a> of this complex number.
+     * tangent</a> of this Complex number.
      * Implements the formula:
      * <pre>
      *  <code>
@@ -1068,6 +1252,7 @@ public class Complex implements Serializable  {
      * </pre>
      *
      * @return the tangent of {@code this}.
+     * @since 1.2
      */
     public Complex tan() {
         if (isNaN || Double.isInfinite(real)) {
@@ -1091,7 +1276,7 @@ public class Complex implements Serializable  {
     /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/HyperbolicTangent.html" TARGET="_top">
-     * hyperbolic tangent</a> of this complex number.
+     * hyperbolic tangent</a> of this Complex number.
      * Implements the formula:
      * <pre>
      *  <code>
@@ -1118,6 +1303,7 @@ public class Complex implements Serializable  {
      * </pre>
      *
      * @return the hyperbolic tangent of {@code this}.
+     * @since 1.2
      */
     public Complex tanh() {
         if (isNaN || Double.isInfinite(imaginary)) {
@@ -1137,10 +1323,8 @@ public class Complex implements Serializable  {
                              Math.sin(imaginary2) / d);
     }
 
-
-
     /**
-     * Compute the argument of this complex number.
+     * Compute the argument of this Complex number.
      * The argument is the angle phi between the positive real axis and
      * the point representing this number in the complex plane.
      * The value returned is between -PI (not inclusive)
@@ -1157,11 +1341,32 @@ public class Complex implements Serializable  {
      * @return the argument of {@code this}.
      */
     public double getArgument() {
-        return Math.atan2(getImaginary(), getReal());
+        return Math.atan2(imaginary, real);
     }
 
     /**
-     * Computes the n-th roots of this complex number.
+     * Compute the argument of this Complex number.
+     * The argument is the angle phi between the positive real axis and
+     * the point representing this number in the complex plane.
+     * The value returned is between -PI (not inclusive)
+     * and PI (inclusive), with negative values returned for numbers with
+     * negative imaginary parts.
+     * <p>
+     * If either real or imaginary part (or both) is NaN, NaN is returned.
+     * Infinite parts are handled as {@code Math.atan2} handles them,
+     * essentially treating finite parts as zero in the presence of an
+     * infinite coordinate and returning a multiple of pi/4 depending on
+     * the signs of the infinite parts.
+     * See the javadoc for {@code Math.atan2} for full details.
+     *
+     * @return the argument of {@code this}.
+     */
+    public double arg() {
+        return getArgument();
+    }
+
+    /**
+     * Computes the n-th roots of this Complex number.
      * The nth roots are defined by the formula:
      * <pre>
      *  <code>
@@ -1170,21 +1375,21 @@ public class Complex implements Serializable  {
      * </pre>
      * for <i>{@code k=0, 1, ..., n-1}</i>, where {@code abs} and {@code phi}
      * are respectively the {@link #abs() modulus} and
-     * {@link #getArgument() argument} of this complex number.
+     * {@link #getArgument() argument} of this Complex number.
      * <p>
-     * If one or both parts of this complex number is NaN, a list with just
+     * If one or both parts of this Complex number is NaN, a list with just
      * one element, {@link #NaN} is returned.
      * if neither part is NaN, but at least one part is infinite, the result
      * is a one-element list containing {@link #INF}.
      *
      * @param n Degree of root.
      * @return a List of all {@code n}-th roots of {@code this}.
+     * @throws NotPositiveException if {@code n <= 0}.
+     * @since 2.0
      */
     public List<Complex> nthRoot(int n) {
 
-        if (n <= 0) {
-            throw new RuntimeException("cannot compute nth root for null or negative n: {0}");
-        }
+        checkNotNegative(n);
 
         final List<Complex> result = new ArrayList<Complex>();
 
@@ -1221,6 +1426,7 @@ public class Complex implements Serializable  {
      * @param realPart Real part.
      * @param imaginaryPart Imaginary part.
      * @return a new complex number instance.
+     * @since 1.2
      * @see #valueOf(double, double)
      */
     protected Complex createComplex(double realPart,
@@ -1263,6 +1469,7 @@ public class Complex implements Serializable  {
      * deserialize properly.
      *
      * @return A Complex instance with all fields resolved.
+     * @since 2.0
      */
     protected final Object readResolve() {
         return createComplex(real, imaginary);
@@ -1274,36 +1481,51 @@ public class Complex implements Serializable  {
         return "(" + real + ", " + imaginary + ")";
     }
 
-    /**
-     * Checks that an object is not null.
-     *
-     * @param o Object to be checked.
+     /**
+     * Check that the argument is positive and throw a RuntimeException
+     * if it is not.
+     * @param arg {@code double} to check
      */
-    private static void checkNotNull(Object o) {
-        if (o == null) {
-            throw new RuntimeException("Null Argument to Complex Method");
+    private static void checkNotNegative(double arg) {
+        if (arg <= 0) {
+            throw new RuntimeException("Complex: Non-positive argument");
+        }
+    }
+
+
+     /**
+     * Check that the argument is positive and throw a RuntimeException
+     * if it is not.
+     * @param arg {@code int} to check
+     */
+    private static void checkNotNegative(int arg) {
+        if (arg <= 0) {
+            throw new RuntimeException("Complex: Non-positive argument");
+        }
+    }
+    
+    /**
+     * Check that the Complex is not null and throw a RuntimeException
+     * if it is.
+     * @param arg     the Complex to check
+     */
+    private static void checkNotNull(Complex arg) {
+        if (arg == null) {
+            throw new RuntimeException("Complex: Null argument");
         }
     }
 
     /**
-     * Returns {@code true} if the values are equal according to semantics of
-     * {@link Double#equals(Object)}.
-     *
-     * @param x Value
-     * @param y Value
-     * @return {@code new Double(x).equals(new Double(y))}
+     * Check that the argument is not null and throw a RuntimeException
+     * if it is.
+     * @param arg     the argument to check
+     * @param argName the name of the argument
      */
-    private static boolean equals(double x, double y) {
-        return new Double(x).equals(new Double(y));
+    private static void checkNotNull(Object arg, String argName) {
+        if (arg == null) {
+            throw new RuntimeException("Complex: Null argument");
+        }
     }
+} 
 
-    /**
-     * Returns an integer hash code representing the given double value.
-     *
-     * @param value the value to be hashed
-     * @return the hash code
-     */
-    private static int hash(double value) {
-        return new Double(value).hashCode();
-    }
-}
+
