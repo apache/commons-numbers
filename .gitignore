@@ -18,3 +18,4 @@ site-content
 /.externalToolBuilders/
 /maven-eclipse.xml
 nb-configuration.xml
+*.swp
