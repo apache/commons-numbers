@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.numbers.core.Precision;
 /**
- * Representation of a Complex number, i.e. a number which has both a
+ * Representation of a Complex number, i.e., a number which has both a
  * real and imaginary part.
  * <p>
  * Implementations of arithmetic operations handle {@code NaN} and
