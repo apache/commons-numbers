@@ -511,8 +511,14 @@ public class Complex implements Serializable  {
         if (isNaN) {
             return 7;
         }
-        return 37 * (17 * Precision.hash(imaginary) +
-            Precision.hash(real));
+        return 37 * 17 * (hash(imaginary) +
+            hash(real));
+    }
+
+    private int hash(double d) {
+        final long v = Double.doubleToLongBits(d);
+        return (int)(v^(v>>>32));
+        //return new Double(d).hashCode();
     }
 
     /**
@@ -1014,7 +1020,6 @@ public class Complex implements Serializable  {
         if (isNaN) {
             return NaN;
         }
-
         return createComplex(Math.log(abs()),
                              Math.atan2(imaginary, real));
     }
