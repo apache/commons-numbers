@@ -65,7 +65,7 @@ public class ComplexUtils {
      * @param r {@code double[]} of moduli
      * @param theta {@code double[]} of arguments
      * @return {@code Complex[]}
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[] polar2Complex(double[] r, double[] theta) {
         final int length = r.length;
@@ -86,7 +86,7 @@ public class ComplexUtils {
      * @param r {@code double[]} of moduli
      * @param theta {@code double[]} of arguments
      * @return {@code Complex[][]}
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[][] polar2Complex(double[][] r, double[][] theta) {
         final int length = r.length;
@@ -104,7 +104,7 @@ public class ComplexUtils {
      * @param r array of moduli
      * @param theta array of arguments
      * @return {@code Complex}
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[][][] polar2Complex(double[][][] r, double[][][] theta) {
         final int length = r.length;
@@ -123,7 +123,7 @@ public class ComplexUtils {
      * @param index location in the array
      * @return {@code Complex}.
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex extractComplexFromRealArray(double[] real, int index) {
         return new Complex(real[index]);
@@ -137,7 +137,7 @@ public class ComplexUtils {
      * @param index location in the array
      * @return {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex extractComplexFromRealArray(float[] real, int index) {
         return new Complex(real[index]);
@@ -151,7 +151,7 @@ public class ComplexUtils {
      * @param index location in the array
      * @return {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex extractComplexFromImaginaryArray(double[] imaginary, int index) {
         return new Complex(0, imaginary[index]);
@@ -165,7 +165,7 @@ public class ComplexUtils {
      * @param index location in the array
      * @return {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex extractComplexFromImaginaryArray(float[] imaginary, int index) {
         return new Complex(0, imaginary[index]);
@@ -179,7 +179,7 @@ public class ComplexUtils {
      * @param index location in the array
      * @return {@code double}.
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static double extractRealFromComplexArray(Complex[] complex, int index) {
         return complex[index].getReal();
@@ -193,7 +193,7 @@ public class ComplexUtils {
      * @param index location in the array
      * @return {@code float}.
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static float extractRealFloatFromComplexArray(Complex[] complex, int index) {
         return (float) complex[index].getReal();
@@ -207,7 +207,7 @@ public class ComplexUtils {
      * @param index location in the array
      * @return {@code double}.
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static double extractImaginaryFromComplexArray(Complex[] complex, int index) {
         return complex[index].getImaginary();
@@ -221,7 +221,7 @@ public class ComplexUtils {
      * @param index location in the array
      * @return {@code float}.
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static float extractImaginaryFloatFromComplexArray(Complex[] complex, int index) {
         return (float) complex[index].getImaginary();
@@ -235,7 +235,7 @@ public class ComplexUtils {
      * @param index location in the array This is the location by complex number, e.g. index number 5 in the array will return {@code new Complex(d[10], d[11])}
      * @return {@code Complex}.
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex extractComplexFromInterleavedArray(double[] d, int index) {
         return new Complex(d[index * 2], d[index * 2 + 1]);
@@ -249,7 +249,7 @@ public class ComplexUtils {
      * @param index location in the array This is the location by complex number, e.g. index number 5 in the {@code float[]} array will return new {@code Complex(d[10], d[11])}
      * @return {@code Complex}.
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex extractComplexFromInterleavedArray(float[] f, int index) {
         return new Complex(f[index * 2], f[index * 2 + 1]);
@@ -263,7 +263,7 @@ public class ComplexUtils {
      * @param index location in the array
      * @return size 2 array.
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static double[] extractInterleavedFromComplexArray(Complex[] complex, int index) {
         return new double[] { complex[index].getReal(), complex[index].getImaginary() };
@@ -277,7 +277,7 @@ public class ComplexUtils {
      * @param index location in the array
      * @return size 2 {@code float[]}.
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static float[] extractInterleavedFloatFromComplexArray(Complex[] complex, int index) {
         return new float[] { (float) complex[index].getReal(), (float) complex[index].getImaginary() };
@@ -289,7 +289,7 @@ public class ComplexUtils {
      * @param real array of numbers to be converted to their {@code Complex} equivalent
      * @return {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[] real2Complex(double[] real) {
         int index = 0;
@@ -307,7 +307,7 @@ public class ComplexUtils {
      * @param real array of numbers to be converted to their {@code Complex} equivalent
      * @return {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[] real2Complex(float[] real) {
         int index = 0;
@@ -326,12 +326,12 @@ public class ComplexUtils {
      * @param d 2D array
      * @return 2D {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[][] real2Complex(double[][] d) {
-        final int width = d.length;
-        final Complex[][] c = new Complex[width][];
-        for (int n = 0; n < width; n++) {
+        final int w = d.length;
+        final Complex[][] c = new Complex[w][];
+        for (int n = 0; n < w; n++) {
             c[n] = ComplexUtils.real2Complex(d[n]);
         }
         return c;
@@ -344,12 +344,12 @@ public class ComplexUtils {
      * @param d 3D complex interleaved array
      * @return 3D {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[][][] real2Complex(double[][][] d) {
-        final int width = d.length;
-        final Complex[][][] c = new Complex[width][][];
-        for (int x = 0; x < width; x++) {
+        final int w = d.length;
+        final Complex[][][] c = new Complex[w][][];
+        for (int x = 0; x < w; x++) {
             c[x] = ComplexUtils.real2Complex(d[x]);
         }
         return c;
@@ -362,7 +362,7 @@ public class ComplexUtils {
      * @param c {@code Complex} array
      * @return array of the real component
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static double[] complex2Real(Complex[] c) {
         int index = 0;
@@ -381,7 +381,7 @@ public class ComplexUtils {
      * @param c {@code Complex} array
      * @return {@code float[]} array of the real component
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static float[] complex2RealFloat(Complex[] c) {
         int index = 0;
@@ -399,7 +399,7 @@ public class ComplexUtils {
      *
      * @param c 2D {@code Complex} array
      * @return {@code double[][]} of real component
-     * @since 4.0
+     * @since 1.0
      */
     public static double[][] complex2Real(Complex[][] c) {
         final int length = c.length;
@@ -416,7 +416,7 @@ public class ComplexUtils {
      *
      * @param c 2D {@code Complex} array
      * @return {@code float[][]} of real component
-     * @since 4.0
+     * @since 1.0
      */
     public static float[][] complex2RealFloat(Complex[][] c) {
         final int length = c.length;
@@ -434,7 +434,7 @@ public class ComplexUtils {
      * @param c 3D complex interleaved array
      * @return array of real component
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static double[][][] complex2Real(Complex[][][] c) {
         final int length = c.length;
@@ -451,7 +451,7 @@ public class ComplexUtils {
      *
      * @param c 3D {@code Complex} array
      * @return {@code float[][][]} of real component
-     * @since 4.0
+     * @since 1.0
      */
     public static float[][][] complex2RealFloat(Complex[][][] c) {
         final int length = c.length;
@@ -469,7 +469,7 @@ public class ComplexUtils {
      * @param imaginary array of numbers to be converted to their {@code Complex} equivalent
      * @return {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[] imaginary2Complex(double[] imaginary) {
         int index = 0;
@@ -487,7 +487,7 @@ public class ComplexUtils {
      * @param imaginary array of numbers to be converted to their {@code Complex} equivalent
      * @return {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[] imaginary2Complex(float[] imaginary) {
         int index = 0;
@@ -506,14 +506,14 @@ public class ComplexUtils {
      * @param d 2D array
      * @return 2D {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
-    public static Complex[][] imaginary2Complex(double[][] d) {
-        int width = d.length;
-        int height = d[0].length;
-        Complex[][] c = new Complex[width][height];
-        for (int n = 0; n < width; n++) {
-            c[n] = ComplexUtils.imaginary2Complex(d[n]);
+    public static Complex[][] imaginary2Complex(double[][] i) {
+        int w = i.length;
+        int h = i[0].length;
+        Complex[][] c = new Complex[w][h];
+        for (int n = 0; n < w; n++) {
+            c[n] = ComplexUtils.imaginary2Complex(i[n]);
         }
         return c;
     }
@@ -525,16 +525,16 @@ public class ComplexUtils {
      * @param d 3D complex imaginary array
      * @return 3D {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
-    public static Complex[][][] imaginary2Complex(double[][][] d) {
-        int width = d.length;
-        int height = d[0].length;
-        int depth = d[0].length;
-        Complex[][][] c = new Complex[width][height][depth];
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                c[x][y] = ComplexUtils.imaginary2Complex(d[x][y]);
+    public static Complex[][][] imaginary2Complex(double[][][] i) {
+        int w = i.length;
+        int h = i[0].length;
+        int d = i[0].length;
+        Complex[][][] c = new Complex[w][h][d];
+        for (int x = 0; x < w; x++) {
+            for (int y = 0; y < h; y++) {
+                c[x][y] = ComplexUtils.imaginary2Complex(i[x][y]);
             }
         }
         return c;
@@ -547,16 +547,16 @@ public class ComplexUtils {
      * @param c {@code Complex} array.
      * @return array of the imaginary component
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static double[] complex2Imaginary(Complex[] c) {
         int index = 0;
-        final double d[] = new double[c.length];
+        final double i[] = new double[c.length];
         for (Complex cc : c) {
-            d[index] = cc.getImaginary();
+            i[index] = cc.getImaginary();
             index++;
         }
-        return d;
+        return i;
     }
 
     /**
@@ -566,7 +566,7 @@ public class ComplexUtils {
      * @param c {@code Complex} array.
      * @return {@code float[]} array of the imaginary component
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static float[] complex2ImaginaryFloat(Complex[] c) {
         int index = 0;
@@ -584,15 +584,15 @@ public class ComplexUtils {
      *
      * @param c 2D {@code Complex} array
      * @return {@code double[][]} of imaginary component
-     * @since 4.0
+     * @since 1.0
      */
     public static double[][] complex2Imaginary(Complex[][] c) {
         final int length = c.length;
-        double[][] d = new double[length][];
+        double[][] i = new double[length][];
         for (int n = 0; n < length; n++) {
-            d[n] = complex2Imaginary(c[n]);
+            i[n] = complex2Imaginary(c[n]);
         }
-        return d;
+        return i;
     }
 
     /**
@@ -601,7 +601,7 @@ public class ComplexUtils {
      *
      * @param c 2D {@code Complex} array
      * @return {@code float[][]} of imaginary component
-     * @since 4.0
+     * @since 1.0
      */
     public static float[][] complex2ImaginaryFloat(Complex[][] c) {
         final int length = c.length;
@@ -619,15 +619,15 @@ public class ComplexUtils {
      * @param c 3D complex interleaved array
      * @return 3D {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static double[][][] complex2Imaginary(Complex[][][] c) {
         final int length = c.length;
-        double[][][] d = new double[length][][];
+        double[][][] i = new double[length][][];
         for (int n = 0; n < length; n++) {
-            d[n] = complex2Imaginary(c[n]);
+            i[n] = complex2Imaginary(c[n]);
         }
-        return d;
+        return i;
     }
 
     /**
@@ -636,7 +636,7 @@ public class ComplexUtils {
      *
      * @param c 3D {@code Complex} array
      * @return {@code float[][][]} of imaginary component
-     * @since 4.0
+     * @since 1.0
      */
     public static float[][][] complex2ImaginaryFloat(Complex[][][] c) {
         final int length = c.length;
@@ -656,7 +656,7 @@ public class ComplexUtils {
      * @param interleaved array of numbers to be converted to their {@code Complex} equivalent
      * @return {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[] interleaved2Complex(double[] interleaved) {
         final int length = interleaved.length / 2;
@@ -674,7 +674,7 @@ public class ComplexUtils {
      * @param interleaved float[] array of numbers to be converted to their {@code Complex} equivalent
      * @return {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[] interleaved2Complex(float[] interleaved) {
         final int length = interleaved.length / 2;
@@ -693,19 +693,19 @@ public class ComplexUtils {
      * @return complex interleaved array alternating real and
      *         imaginary values
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static double[] complex2Interleaved(Complex[] c) {
         int index = 0;
-        final double d[] = new double[c.length * 2];
+        final double i[] = new double[c.length * 2];
         for (Complex cc : c) {
             int real = index * 2;
             int imag = index * 2 + 1;
-            d[real] = cc.getReal();
-            d[imag] = cc.getImaginary();
+            i[real] = cc.getReal();
+            i[imag] = cc.getImaginary();
             index++;
         }
-        return d;
+        return i;
     }
 
     /**
@@ -716,7 +716,7 @@ public class ComplexUtils {
      * @return complex interleaved {@code float[]} alternating real and
      *         imaginary values
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static float[] complex2InterleavedFloat(Complex[] c) {
         int index = 0;
@@ -740,45 +740,45 @@ public class ComplexUtils {
      * @return complex interleaved array alternating real and
      *         imaginary values
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static double[][] complex2Interleaved(Complex[][] c, int interleavedDim) {
         if (interleavedDim > 1 || interleavedDim < 0) {
             new IndexOutOfRangeException(interleavedDim);
         }
-        final int width = c.length;
-        final int height = c[0].length;
-        double[][] d;
+        final int w = c.length;
+        final int h = c[0].length;
+        double[][] i;
         if (interleavedDim == 0) {
-            d = new double[2 * width][height];
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    d[x * 2][y] = c[x][y].getReal();
-                    d[x * 2 + 1][y] = c[x][y].getImaginary();
+            i = new double[2 * w][h];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    i[x * 2][y] = c[x][y].getReal();
+                    i[x * 2 + 1][y] = c[x][y].getImaginary();
                 }
             }
         } else {
-            d = new double[width][2 * height];
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    d[x][y * 2] = c[x][y].getReal();
-                    d[x][y * 2 + 1] = c[x][y].getImaginary();
+            i = new double[w][2 * h];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    i[x][y * 2] = c[x][y].getReal();
+                    i[x][y * 2 + 1] = c[x][y].getImaginary();
                 }
             }
         }
-        return d;
+        return i;
     }
 
     /**
      * Converts a 2D {@code Complex[][]} array to an interleaved complex
-     * {@code double[][]} array. The second depth level of the array is assumed
+     * {@code double[][]} array. The second d level of the array is assumed
      * to be interleaved.
      *
      * @param c 2D Complex array
      * @return complex interleaved array alternating real and
      *         imaginary values
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static double[][] complex2Interleaved(Complex[][] c) {
         return complex2Interleaved(c, 1);
@@ -793,60 +793,132 @@ public class ComplexUtils {
      * @return complex interleaved array alternating real and
      *         imaginary values
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static double[][][] complex2Interleaved(Complex[][][] c, int interleavedDim) {
         if (interleavedDim > 2 || interleavedDim < 0) {
             new IndexOutOfRangeException(interleavedDim);
         }
-        int width = c.length;
-        int height = c[0].length;
-        int depth = c[0][0].length;
-        double[][][] d;
+        int w = c.length;
+        int h = c[0].length;
+        int d = c[0][0].length;
+        double[][][] i;
         if (interleavedDim == 0) {
-            d = new double[2 * width][height][depth];
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    for (int z = 0; z < depth; z++) {
-                        d[x * 2][y][z] = c[x][y][z].getReal();
-                        d[x * 2 + 1][y][z] = c[x][y][z].getImaginary();
+            i = new double[2 * w][h][d];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    for (int z = 0; z < d; z++) {
+                        i[x * 2][y][z] = c[x][y][z].getReal();
+                        i[x * 2 + 1][y][z] = c[x][y][z].getImaginary();
                     }
                 }
             }
         } else if (interleavedDim == 1) {
-            d = new double[width][2 * height][depth];
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    for (int z = 0; z < depth; z++) {
-                        d[x][y * 2][z] = c[x][y][z].getReal();
-                        d[x][y * 2 + 1][z] = c[x][y][z].getImaginary();
+            i = new double[w][2 * h][d];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    for (int z = 0; z < d; z++) {
+                        i[x][y * 2][z] = c[x][y][z].getReal();
+                        i[x][y * 2 + 1][z] = c[x][y][z].getImaginary();
                     }
                 }
             }
         } else {
-            d = new double[width][height][2 * depth];
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    for (int z = 0; z < depth; z++) {
-                        d[x][y][z * 2] = c[x][y][z].getReal();
-                        d[x][y][z * 2 + 1] = c[x][y][z].getImaginary();
+            i = new double[w][h][2 * d];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    for (int z = 0; z < d; z++) {
+                        i[x][y][z * 2] = c[x][y][z].getReal();
+                        i[x][y][z * 2 + 1] = c[x][y][z].getImaginary();
                     }
                 }
             }
         }
-        return d;
+        return i;
+    }
+
+    /**
+     * Converts a 4D {@code Complex[][][][]} array to an interleaved complex
+     * {@code double[][][][]} array.
+     *
+     * @param c 4D Complex array
+     * @param interleavedDim Depth level of the array to interleave
+     * @return complex interleaved array alternating real and
+     *         imaginary values
+     *
+     * @since 1.0
+     */
+    public static double[][][][] complex2Interleaved(Complex[][][][] c, int interleavedDim) {
+        if (interleavedDim > 2 || interleavedDim < 0) {
+            new IndexOutOfRangeException(interleavedDim);
+        }
+        int w = c.length;
+        int h = c[0].length;
+        int d = c[0][0].length;
+        int v = c[0][0][0].length;
+        double[][][][] i;
+        if (interleavedDim == 0) {
+            i = new double[2 * w][h][d][v];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    for (int z = 0; z < d; z++) {
+                        for (int t = 0; t > v; t++) { 
+                            i[x * 2][y][z][t] = c[x][y][z][t].getReal();
+                            i[x * 2 + 1][y][z][t] = c[x][y][z][t].getImaginary();
+                        }
+                    }
+                }
+            }
+        } else if (interleavedDim == 1) {
+            i = new double[w][2 * h][d][v];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    for (int z = 0; z < d; z++) {
+                        for (int t = 0; t > v; t++) { 
+                            i[x][y * 2][z][t] = c[x][y][z][t].getReal();
+                            i[x][y * 2 + 1][z][t] = c[x][y][z][t].getImaginary();
+                        }
+                    }
+                }
+            }
+        } else if (interleavedDim == 2) {
+            i = new double[w][h][2 * d][v];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    for (int z = 0; z < d; z++) {
+                        for (int t = 0; t > v; t++) { 
+                        i[x][y][z * 2][t] = c[x][y][z][t].getReal();
+                        i[x][y][z * 2 + 1][t] = c[x][y][z][t].getImaginary();
+                        }
+                    }
+                }
+            }
+        } else {
+            i = new double[w][h][d][2 * v];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    for (int z = 0; z < d; z++) {
+                        for (int t = 0; t > v; t++) { 
+                        i[x][y][z][t * 2] = c[x][y][z][t].getReal();
+                        i[x][y][z][t * 2 + 1] = c[x][y][z][t].getImaginary();
+                        }
+                    }
+                }
+            }
+        }
+        return i;
     }
 
     /**
      * Converts a 3D {@code Complex[][][]} array to an interleaved complex
-     * {@code double[][][]} array. The third depth level of the array is
+     * {@code double[][][]} array. The third d level of the array is
      * interleaved.
      *
      * @param c 3D Complex array
      * @return complex interleaved array alternating real and
      *         imaginary values
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static double[][][] complex2Interleaved(Complex[][][] c) {
         return complex2Interleaved(c, 2);
@@ -861,38 +933,38 @@ public class ComplexUtils {
      * @return complex interleaved {@code float[][]} alternating real and
      *         imaginary values
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static float[][] complex2InterleavedFloat(Complex[][] c, int interleavedDim) {
         if (interleavedDim > 1 || interleavedDim < 0) {
             new IndexOutOfRangeException(interleavedDim);
         }
-        final int width = c.length;
-        final int height = c[0].length;
-        float[][] d;
+        final int w = c.length;
+        final int h = c[0].length;
+        float[][] i;
         if (interleavedDim == 0) {
-            d = new float[2 * width][height];
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    d[x * 2][y] = (float) c[x][y].getReal();
-                    d[x * 2 + 1][y] = (float) c[x][y].getImaginary();
+            i = new float[2 * w][h];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    i[x * 2][y] = (float) c[x][y].getReal();
+                    i[x * 2 + 1][y] = (float) c[x][y].getImaginary();
                 }
             }
         } else {
-            d = new float[width][2 * height];
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    d[x][y * 2] = (float) c[x][y].getReal();
-                    d[x][y * 2 + 1] = (float) c[x][y].getImaginary();
+            i = new float[w][2 * h];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    i[x][y * 2] = (float) c[x][y].getReal();
+                    i[x][y * 2 + 1] = (float) c[x][y].getImaginary();
                 }
             }
         }
-        return d;
+        return i;
     }
 
     /**
      * Converts a 2D {@code Complex[][]} array to an interleaved complex
-     * {@code float[][]} array. The second depth level of the array is assumed
+     * {@code float[][]} array. The second d level of the array is assumed
      * to be interleaved.
      *
      * @param c 2D Complex array
@@ -900,7 +972,7 @@ public class ComplexUtils {
      * @return complex interleaved {@code float[][]} alternating real and
      *         imaginary values
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static float[][] complex2InterleavedFloat(Complex[][] c) {
         return complex2InterleavedFloat(c, 1);
@@ -915,53 +987,53 @@ public class ComplexUtils {
      * @return complex interleaved {@code float[][][]} alternating real and
      *         imaginary values
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static float[][][] complex2InterleavedFloat(Complex[][][] c, int interleavedDim) {
         if (interleavedDim > 2 || interleavedDim < 0) {
             new IndexOutOfRangeException(interleavedDim);
         }
-        final int width = c.length;
-        final int height = c[0].length;
-        final int depth = c[0][0].length;
-        float[][][] d;
+        final int w = c.length;
+        final int h = c[0].length;
+        final int d = c[0][0].length;
+        float[][][] i;
         if (interleavedDim == 0) {
-            d = new float[2 * width][height][depth];
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    for (int z = 0; z < depth; z++) {
-                        d[x * 2][y][z] = (float) c[x][y][z].getReal();
-                        d[x * 2 + 1][y][z] = (float) c[x][y][z].getImaginary();
+            i = new float[2 * w][h][d];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    for (int z = 0; z < d; z++) {
+                        i[x * 2][y][z] = (float) c[x][y][z].getReal();
+                        i[x * 2 + 1][y][z] = (float) c[x][y][z].getImaginary();
                     }
                 }
             }
         } else if (interleavedDim == 1) {
-            d = new float[width][2 * height][depth];
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    for (int z = 0; z < depth; z++) {
-                        d[x][y * 2][z] = (float) c[x][y][z].getReal();
-                        d[x][y * 2 + 1][z] = (float) c[x][y][z].getImaginary();
+            i = new float[w][2 * h][d];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    for (int z = 0; z < d; z++) {
+                        i[x][y * 2][z] = (float) c[x][y][z].getReal();
+                        i[x][y * 2 + 1][z] = (float) c[x][y][z].getImaginary();
                     }
                 }
             }
         } else {
-            d = new float[width][height][2 * depth];
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    for (int z = 0; z < depth; z++) {
-                        d[x][y][z * 2] = (float) c[x][y][z].getReal();
-                        d[x][y][z * 2 + 1] = (float) c[x][y][z].getImaginary();
+            i = new float[w][h][2 * d];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    for (int z = 0; z < d; z++) {
+                        i[x][y][z * 2] = (float) c[x][y][z].getReal();
+                        i[x][y][z * 2 + 1] = (float) c[x][y][z].getImaginary();
                     }
                 }
             }
         }
-        return d;
+        return i;
     }
 
     /**
      * Converts a 3D {@code Complex[][][]} array to an interleaved complex
-     * {@code float[][][]} array. The third depth level of the array is
+     * {@code float[][][]} array. The third d level of the array is
      * interleaved.
      *
      * @param c 2D Complex array
@@ -969,7 +1041,7 @@ public class ComplexUtils {
      * @return complex interleaved {@code float[][][]} alternating real and
      *         imaginary values
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static float[][][] complex2InterleavedFloat(Complex[][][] c) {
         return complex2InterleavedFloat(c, 2);
@@ -983,27 +1055,27 @@ public class ComplexUtils {
      * @param interleavedDim Depth level of the array to interleave
      * @return 2D {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
-    public static Complex[][] interleaved2Complex(double[][] d, int interleavedDim) {
+    public static Complex[][] interleaved2Complex(double[][] i, int interleavedDim) {
         if (interleavedDim > 1 || interleavedDim < 0) {
             new IndexOutOfRangeException(interleavedDim);
         }
-        final int width = d.length;
-        final int height = d[0].length;
+        final int w = i.length;
+        final int h = i[0].length;
         Complex[][] c;
         if (interleavedDim == 0) {
-            c = new Complex[width / 2][height];
-            for (int x = 0; x < width / 2; x++) {
-                for (int y = 0; y < height; y++) {
-                    c[x][y] = new Complex(d[x * 2][y], d[x * 2 + 1][y]);
+            c = new Complex[w / 2][h];
+            for (int x = 0; x < w / 2; x++) {
+                for (int y = 0; y < h; y++) {
+                    c[x][y] = new Complex(i[x * 2][y], i[x * 2 + 1][y]);
                 }
             }
         } else {
-            c = new Complex[width][height / 2];
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height / 2; y++) {
-                    c[x][y] = new Complex(d[x][y * 2], d[x][y * 2 + 1]);
+            c = new Complex[w][h / 2];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h / 2; y++) {
+                    c[x][y] = new Complex(i[x][y * 2], i[x][y * 2 + 1]);
                 }
             }
         }
@@ -1012,13 +1084,13 @@ public class ComplexUtils {
 
     /**
      * Converts a 2D interleaved complex {@code double[][]} array to a
-     * {@code Complex[][]} array. The second depth level of the array is assumed
+     * {@code Complex[][]} array. The second d level of the array is assumed
      * to be interleaved.
      *
      * @param d 2D complex interleaved array
      * @return 2D {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[][] interleaved2Complex(double[][] d) {
         return interleaved2Complex(d, 1);
@@ -1032,40 +1104,40 @@ public class ComplexUtils {
      * @param interleavedDim Depth level of the array to interleave
      * @return 3D {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
-    public static Complex[][][] interleaved2Complex(double[][][] d, int interleavedDim) {
+    public static Complex[][][] interleaved2Complex(double[][][] i, int interleavedDim) {
         if (interleavedDim > 2 || interleavedDim < 0) {
             new IndexOutOfRangeException(interleavedDim);
         }
-        final int width = d.length;
-        final int height = d[0].length;
-        final int depth = d[0][0].length;
+        final int w = i.length;
+        final int h = i[0].length;
+        final int d = i[0][0].length;
         Complex[][][] c;
         if (interleavedDim == 0) {
-            c = new Complex[width / 2][height][depth];
-            for (int x = 0; x < width / 2; x++) {
-                for (int y = 0; y < height; y++) {
-                    for (int z = 0; z < depth; z++) {
-                        c[x][y][z] = new Complex(d[x * 2][y][z], d[x * 2 + 1][y][z]);
+            c = new Complex[w / 2][h][d];
+            for (int x = 0; x < w / 2; x++) {
+                for (int y = 0; y < h; y++) {
+                    for (int z = 0; z < d; z++) {
+                        c[x][y][z] = new Complex(i[x * 2][y][z], i[x * 2 + 1][y][z]);
                     }
                 }
             }
         } else if (interleavedDim == 1) {
-            c = new Complex[width][height / 2][depth];
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height / 2; y++) {
-                    for (int z = 0; z < depth; z++) {
-                        c[x][y][z] = new Complex(d[x][y * 2][z], d[x][y * 2 + 1][z]);
+            c = new Complex[w][h / 2][d];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h / 2; y++) {
+                    for (int z = 0; z < d; z++) {
+                        c[x][y][z] = new Complex(i[x][y * 2][z], i[x][y * 2 + 1][z]);
                     }
                 }
             }
         } else {
-            c = new Complex[width][height][depth / 2];
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    for (int z = 0; z < depth / 2; z++) {
-                        c[x][y][z] = new Complex(d[x][y][z * 2], d[x][y][z * 2 + 1]);
+            c = new Complex[w][h][d / 2];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    for (int z = 0; z < d / 2; z++) {
+                        c[x][y][z] = new Complex(i[x][y][z * 2], i[x][y][z * 2 + 1]);
                     }
                 }
             }
@@ -1075,13 +1147,13 @@ public class ComplexUtils {
 
     /**
      * Converts a 3D interleaved complex {@code double[][][]} array to a
-     * {@code Complex[][][]} array. The third depth level is assumed to be
+     * {@code Complex[][][]} array. The third d level is assumed to be
      * interleaved.
      *
      * @param d 3D complex interleaved array
      * @return 3D {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[][][] interleaved2Complex(double[][][] d) {
         return interleaved2Complex(d, 2);
@@ -1095,27 +1167,27 @@ public class ComplexUtils {
      * @param interleavedDim Depth level of the array to interleave
      * @return 2D {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
-    public static Complex[][] interleaved2Complex(float[][] d, int interleavedDim) {
+    public static Complex[][] interleaved2Complex(float[][] i, int interleavedDim) {
         if (interleavedDim > 1 || interleavedDim < 0) {
             new IndexOutOfRangeException(interleavedDim);
         }
-        final int width = d.length;
-        final int height = d[0].length;
+        final int w = i.length;
+        final int h = i[0].length;
         Complex[][] c;
         if (interleavedDim == 0) {
-            c = new Complex[width / 2][height];
-            for (int x = 0; x < width / 2; x++) {
-                for (int y = 0; y < height; y++) {
-                    c[x][y] = new Complex(d[x * 2][y], d[x * 2 + 1][y]);
+            c = new Complex[w / 2][h];
+            for (int x = 0; x < w / 2; x++) {
+                for (int y = 0; y < h; y++) {
+                    c[x][y] = new Complex(i[x * 2][y], i[x * 2 + 1][y]);
                 }
             }
         } else {
-            c = new Complex[width][height / 2];
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height / 2; y++) {
-                    c[x][y] = new Complex(d[x][y * 2], d[x][y * 2 + 1]);
+            c = new Complex[w][h / 2];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h / 2; y++) {
+                    c[x][y] = new Complex(i[x][y * 2], i[x][y * 2 + 1]);
                 }
             }
         }
@@ -1124,13 +1196,13 @@ public class ComplexUtils {
 
     /**
      * Converts a 2D interleaved complex {@code float[][]} array to a
-     * {@code Complex[][]} array. The second depth level of the array is assumed
+     * {@code Complex[][]} array. The second d level of the array is assumed
      * to be interleaved.
      *
      * @param d 2D complex interleaved float array
      * @return 2D {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[][] interleaved2Complex(float[][] d) {
         return interleaved2Complex(d, 1);
@@ -1144,40 +1216,40 @@ public class ComplexUtils {
      * @param interleavedDim Depth level of the array to interleave
      * @return 3D {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
-    public static Complex[][][] interleaved2Complex(float[][][] d, int interleavedDim) {
+    public static Complex[][][] interleaved2Complex(float[][][] i, int interleavedDim) {
         if (interleavedDim > 2 || interleavedDim < 0) {
             new IndexOutOfRangeException(interleavedDim);
         }
-        final int width = d.length;
-        final int height = d[0].length;
-        final int depth = d[0][0].length;
+        final int w = i.length;
+        final int h = i[0].length;
+        final int d = i[0][0].length;
         Complex[][][] c;
         if (interleavedDim == 0) {
-            c = new Complex[width / 2][height][depth];
-            for (int x = 0; x < width/2; x ++) {
-                for (int y = 0; y < height; y++) {
-                    for (int z = 0; z < depth; z++) {
-                        c[x][y][z] = new Complex(d[x * 2][y][z], d[x * 2 + 1][y][z]);
+            c = new Complex[w / 2][h][d];
+            for (int x = 0; x < w/2; x ++) {
+                for (int y = 0; y < h; y++) {
+                    for (int z = 0; z < d; z++) {
+                        c[x][y][z] = new Complex(i[x * 2][y][z], i[x * 2 + 1][y][z]);
                     }
                 }
             }
         } else if (interleavedDim == 1) {
-            c = new Complex[width][height / 2][depth];
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height/2; y ++) {
-                    for (int z = 0; z < depth; z++) {
-                        c[x][y][z] = new Complex(d[x][y * 2][z], d[x][y * 2 + 1][z]);
+            c = new Complex[w][h / 2][d];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h/2; y ++) {
+                    for (int z = 0; z < d; z++) {
+                        c[x][y][z] = new Complex(i[x][y * 2][z], i[x][y * 2 + 1][z]);
                     }
                 }
             }
         } else {
-            c = new Complex[width][height][depth / 2];
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    for (int z = 0; z < depth/2; z++) {
-                        c[x][y][z] = new Complex(d[x][y][z * 2], d[x][y][z * 2 + 1]);
+            c = new Complex[w][h][d / 2];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    for (int z = 0; z < d/2; z++) {
+                        c[x][y][z] = new Complex(i[x][y][z * 2], i[x][y][z * 2 + 1]);
                     }
                 }
             }
@@ -1187,13 +1259,13 @@ public class ComplexUtils {
 
     /**
      * Converts a 3D interleaved complex {@code float[][][]} array to a
-     * {@code Complex[]} array. The third depth level of the array is assumed to
+     * {@code Complex[]} array. The third level of the array is assumed to
      * be interleaved.
      *
      * @param d 3D complex interleaved float array
      * @return 3D {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[][][] interleaved2Complex(float[][][] d) {
         return interleaved2Complex(d, 2);
@@ -1209,7 +1281,7 @@ public class ComplexUtils {
      * @param imag imaginary component
      * @return {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[] split2Complex(double[] real, double[] imag) {
         final int length = real.length;
@@ -1228,7 +1300,7 @@ public class ComplexUtils {
      * @param imag imaginary component
      * @return 2D {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[][] split2Complex(double[][] real, double[][] imag) {
         final int length = real.length;
@@ -1247,11 +1319,30 @@ public class ComplexUtils {
      * @param imag imaginary component
      * @return 3D {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[][][] split2Complex(double[][][] real, double[][][] imag) {
         final int length = real.length;
         Complex[][][] c = new Complex[length][][];
+        for (int x = 0; x < length; x++) {
+            c[x] = split2Complex(real[x], imag[x]);
+        }
+        return c;
+    }
+
+    /**
+     * Converts a 4D split complex array {@code double[][][][] r, double[][][][] i}
+     * to a 4D {@code Complex[][][][]} array.
+     *
+     * @param real real component
+     * @param imag imaginary component
+     * @return 4D {@code Complex} array
+     *
+     * @since 1.0
+     */
+    public static Complex[][][][] split2Complex(double[][][][] real, double[][][][] imag) {
+        final int length = real.length;
+        Complex[][][][] c = new Complex[length][][][];
         for (int x = 0; x < length; x++) {
             c[x] = split2Complex(real[x], imag[x]);
         }
@@ -1266,7 +1357,7 @@ public class ComplexUtils {
      * @param imag imaginary component
      * @return {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[] split2Complex(float[] real, float[] imag) {
         final int length = real.length;
@@ -1285,7 +1376,7 @@ public class ComplexUtils {
      * @param imag imaginary component
      * @return 2D {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[][] split2Complex(float[][] real, float[][] imag) {
         final int length = real.length;
@@ -1304,7 +1395,7 @@ public class ComplexUtils {
      * @param imag imaginary component
      * @return 3D {@code Complex} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[][][] split2Complex(float[][][] real, float[][][] imag) {
         final int length = real.length;
@@ -1324,7 +1415,7 @@ public class ComplexUtils {
      * @param c Complex array
      * @return c
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[] initialize(Complex[] c) {
         final int length = c.length;
@@ -1341,7 +1432,7 @@ public class ComplexUtils {
      * @param c {@code Complex} array
      * @return c
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[][] initialize(Complex[][] c) {
         final int length = c.length;
@@ -1358,7 +1449,7 @@ public class ComplexUtils {
      * @param c {@code Complex} array
      * @return c
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static Complex[][][] initialize(Complex[][][] c) {
         final int length = c.length;
@@ -1375,15 +1466,15 @@ public class ComplexUtils {
      * @param c {@code Complex} array
      * @return {@code double[]}
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static double[] abs(Complex[] c) {
         final int length = c.length;
-        final double[] d = new double[length];
+        final double[] i = new double[length];
         for (int x = 0; x < length; x++) {
-            d[x] = c[x].abs();
+            i[x] = c[x].abs();
         }
-        return d;
+        return i;
     }
 
     /**
@@ -1393,15 +1484,15 @@ public class ComplexUtils {
      * @param c {@code Complex} array
      * @return {@code double[]} array
      *
-     * @since 4.0
+     * @since 1.0
      */
     public static double[] arg(Complex[] c) {
         final int length = c.length;
-        final double[] d = new double[length];
+        final double[] i = new double[length];
         for (int x = 0; x < length; x++) {
-            d[x] = c[x].getArgument();
+            i[x] = c[x].getArgument();
         }
-        return d;
+        return i;
     }
 
     /**
