@@ -1146,6 +1146,73 @@ public class ComplexUtils {
     }
 
     /**
+     * Converts a 4D interleaved complex {@code double[][][][]} array to a
+     * {@code Complex[][][][]} array.
+     *
+     * @param d 4D complex interleaved array
+     * @param interleavedDim Depth level of the array to interleave
+     * @return 4D {@code Complex} array
+     *
+     * @since 1.0
+     */
+    public static Complex[][][][] interleaved2Complex(double[][][][] i, int interleavedDim) {
+        if (interleavedDim > 2 || interleavedDim < 0) {
+            new IndexOutOfRangeException(interleavedDim);
+        }
+        final int w = i.length;
+        final int h = i[0].length;
+        final int d = i[0][0].length;
+        final int v = i[0][0][0].length;
+        Complex[][][][] c;
+        if (interleavedDim == 0) {
+            c = new Complex[w / 2][h][d][v];
+            for (int x = 0; x < w / 2; x++) {
+                for (int y = 0; y < h; y++) {
+                    for (int z = 0; z < d; z++) {
+                        for (int t = 0; t < v; t++) {
+                            c[x][y][z][t] = new Complex(i[x * 2][y][z][t], i[x * 2 + 1][y][z][t]);
+                        }
+                    }
+                }
+            }
+        } else if (interleavedDim == 1) {
+            c = new Complex[w][h / 2][d][v];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h / 2; y++) {
+                    for (int z = 0; z < d; z++) {
+                        for (int t = 0; t < v; t++) {
+                            c[x][y][z][t] = new Complex(i[x][y * 2][z][t], i[x][y * 2 + 1][z][t]);
+                        }
+                    }
+                }
+            }
+        } else if (interleavedDim == 2) {
+            c = new Complex[w][h][d / 2][v];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    for (int z = 0; z < d / 2; z++) {
+                        for (int t = 0; t < v; t++) {
+                            c[x][y][z][t] = new Complex(i[x][y][z * 2][t], i[x][y][z * 2 + 1][t]);
+                        }
+                    }
+                }
+            }
+        } else {
+            c = new Complex[w][h][d][v / 2];
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    for (int z = 0; z < d; z++) {
+                        for (int t = 0; t < v / 2; t++) {
+                            c[x][y][z][t] = new Complex(i[x][y][z][t * 2], i[x][y][z][t * 2 + 1]);
+                        }
+                    }
+                }
+            }
+        }
+        return c;
+    }
+
+    /**
      * Converts a 3D interleaved complex {@code double[][][]} array to a
      * {@code Complex[][][]} array. The third d level is assumed to be
      * interleaved.
