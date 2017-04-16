@@ -14,16 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.math4.primes;
+package org.apache.commons.numbers.primes;
 
 
+import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.commons.math4.exception.MathIllegalArgumentException;
-import org.apache.commons.math4.exception.util.LocalizedFormats;
-import org.apache.commons.math4.primes.Primes;
-import org.apache.commons.math4.primes.SmallPrimes;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -60,26 +57,20 @@ public class PrimesTest {
     public static final int[] BELOW_2 = {
             Integer.MIN_VALUE,-1,0,1};
 
-    void assertPrimeFactorsException(int n, Throwable expected) {
+    void assertPrimeFactorsException(int n, String expected) {
         try {
             Primes.primeFactors(n);
             Assert.fail("Exception not thrown");
-        } catch (Throwable e) {
-            Assert.assertEquals(expected.getClass(), e.getClass());
-            if (expected.getMessage() != null) {
-                Assert.assertEquals(expected.getMessage(), e.getMessage());
-            }
+        } catch (IllegalArgumentException e) {
+            Assert.assertEquals(expected, e.getMessage());
         }
     }
-    void assertNextPrimeException(int n, Throwable expected){
+    void assertNextPrimeException(int n, String expected){
         try {
             Primes.nextPrime(n);
             Assert.fail("Exception not thrown");
-        } catch(Throwable e) {
-            Assert.assertEquals(expected.getClass(), e.getClass());
-            if (expected.getMessage() != null) {
-                Assert.assertEquals(expected.getMessage(), e.getMessage());
-            }
+        } catch(IllegalArgumentException e) {
+            Assert.assertEquals(expected, e.getMessage());
         }
     }
 
@@ -108,9 +99,9 @@ public class PrimesTest {
         Assert.assertEquals(Integer.MAX_VALUE, Primes.nextPrime(Integer.MAX_VALUE - 1));
         Assert.assertEquals(Integer.MAX_VALUE, Primes.nextPrime(Integer.MAX_VALUE));
 
-        assertNextPrimeException(Integer.MIN_VALUE, new MathIllegalArgumentException(LocalizedFormats.NUMBER_TOO_SMALL,Integer.MIN_VALUE,0));
-        assertNextPrimeException(-1, new MathIllegalArgumentException(LocalizedFormats.NUMBER_TOO_SMALL,-1,0));
-        assertNextPrimeException(-13, new MathIllegalArgumentException(LocalizedFormats.NUMBER_TOO_SMALL,-13,0));
+        assertNextPrimeException(Integer.MIN_VALUE, MessageFormat.format(Primes.NUMBER_TOO_SMALL,Integer.MIN_VALUE,0));
+        assertNextPrimeException(-1, MessageFormat.format(Primes.NUMBER_TOO_SMALL,-1,0));
+        assertNextPrimeException(-13, MessageFormat.format(Primes.NUMBER_TOO_SMALL,-13,0));
     }
 
     @Test
@@ -140,7 +131,7 @@ public class PrimesTest {
         }
         return out;
     }
-    static final HashSet<Integer> PRIMES_SET = new HashSet<>();
+    static final HashSet<Integer> PRIMES_SET = new HashSet<Integer>();
     static {
         for (int p : PRIMES) {
             PRIMES_SET.add(p);
@@ -157,7 +148,7 @@ public class PrimesTest {
     @Test
     public void testPrimeFactors() throws Exception {
         for (int i : BELOW_2) {
-            assertPrimeFactorsException(i, new MathIllegalArgumentException(LocalizedFormats.NUMBER_TOO_SMALL,i,2));
+            assertPrimeFactorsException(i, MessageFormat.format(Primes.NUMBER_TOO_SMALL,i,2));
         }
         for (int i : NOT_PRIMES) {
             List<Integer> factors = Primes.primeFactors(i);

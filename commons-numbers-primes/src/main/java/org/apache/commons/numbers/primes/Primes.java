@@ -14,11 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.math4.primes;
+package org.apache.commons.numbers.primes;
 
-import org.apache.commons.math4.exception.MathIllegalArgumentException;
-import org.apache.commons.math4.exception.util.LocalizedFormats;
-
+import java.text.MessageFormat;
 import java.util.List;
 
 
@@ -30,9 +28,12 @@ import java.util.List;
  * <li>factorization</li>
  * </ul>
  *
- * @since 3.2
+ * @since 1.0
  */
 public class Primes {
+
+    /** Exception message format when an argument is too small. */
+    static final String NUMBER_TOO_SMALL = "{0} is smaller than the minimum ({1})";
 
     /**
      * Hide utility class.
@@ -68,11 +69,12 @@ public class Primes {
      *
      * @param n a positive number.
      * @return the smallest prime greater than or equal to n.
-     * @throws MathIllegalArgumentException if n &lt; 0.
+     * @throws IllegalArgumentException if n &lt; 0.
      */
     public static int nextPrime(int n) {
         if (n < 0) {
-            throw new MathIllegalArgumentException(LocalizedFormats.NUMBER_TOO_SMALL, n, 0);
+            throw new IllegalArgumentException(
+                MessageFormat.format(NUMBER_TOO_SMALL, n, 0));
         }
         if (n == 2) {
             return 2;
@@ -112,12 +114,13 @@ public class Primes {
      *
      * @param n number to factorize: must be &ge; 2
      * @return list of prime factors of n
-     * @throws MathIllegalArgumentException if n &lt; 2.
+     * @throws IllegalArgumentException if n &lt; 2.
      */
     public static List<Integer> primeFactors(int n) {
 
         if (n < 2) {
-            throw new MathIllegalArgumentException(LocalizedFormats.NUMBER_TOO_SMALL, n, 2);
+            throw new IllegalArgumentException(
+                MessageFormat.format(NUMBER_TOO_SMALL, n, 2));
         }
         return SmallPrimes.trialDivision(n);
 

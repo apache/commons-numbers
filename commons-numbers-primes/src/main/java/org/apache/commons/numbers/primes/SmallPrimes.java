@@ -14,14 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.math4.primes;
+package org.apache.commons.numbers.primes;
 
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.math4.util.FastMath;
 
 /**
  * Utility methods to work on primes within the <code>int</code> range.
@@ -125,13 +123,13 @@ class SmallPrimes {
      * @return the list of prime factors of n
      */
     public static List<Integer> trialDivision(int n){
-        final List<Integer> factors = new ArrayList<>(32);
+        final List<Integer> factors = new ArrayList<Integer>(32);
         n = smallTrialDivision(n, factors);
         if (1 == n) {
             return factors;
         }
         // here we are sure that n is either a prime or a semi prime
-        final int bound = (int) FastMath.sqrt(n);
+        final int bound = (int) Math.sqrt(n);
         boundedTrialDivision(n, bound, factors);
         return factors;
     }
