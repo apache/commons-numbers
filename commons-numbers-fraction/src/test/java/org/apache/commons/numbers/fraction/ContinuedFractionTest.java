@@ -14,9 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.math4.util;
+package org.apache.commons.numbers.fraction;
 
-import org.apache.commons.math4.util.ContinuedFraction;
 import org.junit.Assert;
 import org.junit.Test;
 
