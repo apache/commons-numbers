@@ -36,13 +36,6 @@ public abstract class ContinuedFraction {
     private static final double DEFAULT_EPSILON = 10e-9;
 
     /**
-     * Default constructor.
-     */
-    protected ContinuedFraction() {
-        super();
-    }
-
-    /**
      * Access the n-th a coefficient of the continued fraction.  Since a can be
      * a function of the evaluation point, x, that is passed in as well.
      * @param n the coefficient index to retrieve.
