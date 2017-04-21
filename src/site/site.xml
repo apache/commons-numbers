@@ -18,7 +18,7 @@
 <project name="Numbers">
   <bannerRight>
     <name>Apache Commons Numbers</name>
-    <src>/images/commons_numbers.small.png</src>
+    <src>/images/math.gif</src>
     <href>/index.html</href>
   </bannerRight>
 
