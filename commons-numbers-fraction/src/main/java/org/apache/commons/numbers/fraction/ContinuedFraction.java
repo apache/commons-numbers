@@ -19,18 +19,10 @@ package org.apache.commons.numbers.fraction;
 import org.apache.commons.numbers.core.Precision;
 
 /**
- * Provides a generic means to evaluate continued fractions.  Subclasses simply
- * provided the a and b coefficients to evaluate the continued fraction.
- *
- * <p>
- * References:
- * </p>
- *
- * <ul>
- * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
- * Continued Fraction</a></li>
- * </ul>
- *
+ * Provides a generic means to evaluate
+ * <a href="http://mathworld.wolfram.com/ContinuedFraction.html">continued fractions</a>.
+ * Subclasses must provide the {@link #getA(int,double) a} and {@link #getB(int,double) b}
+ * coefficients to evaluate the continued fraction.
  */
 public abstract class ContinuedFraction {
     /** Maximum allowed numerical error. */
