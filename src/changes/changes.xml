@@ -56,6 +56,9 @@ This is the first release of Apache Commons Numbers.
 Apache Commons Numbers 1.0 contains the following modules:
 TBD
 ">
+      <action dev="kinow" type="fix" issue="NUMBERS-23">
+        mvn site won't compile due to javascript error
+      </action>
       <action dev="sushakov" type="fix" issue="NUMBERS-15">
         "BigFraction": Fixed overflow "doubleValue()" and "floatValue()".
       </action>
