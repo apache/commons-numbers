@@ -560,6 +560,7 @@
   <modules>
     <module>commons-numbers-core</module>
     <module>commons-numbers-complex</module>
+    <module>commons-numbers-primes</module>
     <module>commons-numbers-quaternion</module>
     <module>commons-numbers-fraction</module>
     <!-- <module>commons-numbers-continuedfraction</module> -->
