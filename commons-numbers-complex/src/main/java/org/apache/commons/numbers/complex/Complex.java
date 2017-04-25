@@ -109,18 +109,17 @@ public class Complex implements Serializable  {
         if (isInfinite()) {
             return Double.POSITIVE_INFINITY;
         }
-        if (Math.abs(real) < Math.abs(imaginary)) {
-            if (imaginary == 0.0) {
-                return Math.abs(real);
+        if (Math.abs(getReal()) < Math.abs(getImaginary())) {
+            if (getImaginary() == 0.0) {
+                return Math.abs(getReal());
             }
-            double q = real / imaginary;
-            return Math.abs(imaginary) * Math.sqrt(1 + q * q);
+            double q = getReal() / getImaginary();
+            return Math.abs(getImaginary()) * Math.sqrt(1 + q * q);
         } else {
-            if (real == 0.0) {
-                return Math.abs(imaginary);
+            if (getReal() == 0.0) {
+                return Math.abs(getImaginary());
             }
-            double q = imaginary / real;
-            return Math.abs(real) * Math.sqrt(1 + q * q);
+            return Math.hypot(getReal(), getImaginary());
         }
     }
 
