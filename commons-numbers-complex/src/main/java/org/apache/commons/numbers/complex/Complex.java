@@ -95,6 +95,17 @@ public class Complex implements Serializable  {
     }
 
     /**
+     * For a real constructor argument x, returns a new Complex object c
+     * where {@code c = cos(x) + i sin (x)}
+     *
+     * @param x {@code double} to build the cis number
+     * @return {@code Complex}
+     */
+    public Complex cis(double x) {
+        return new Complex(Math.cos(x), Math.sin(x));
+    }
+
+    /**
      * Return the absolute value of this complex number.
      * Returns {@code NaN} if either real or imaginary part is {@code NaN}
      * and {@code Double.POSITIVE_INFINITY} if neither part is {@code NaN},
