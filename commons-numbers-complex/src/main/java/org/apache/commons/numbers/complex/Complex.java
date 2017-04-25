@@ -124,6 +124,17 @@ public class Complex implements Serializable  {
     }
 
     /**
+     * For a real constructor argument x, returns a new Complex object c
+     * where {@code c = cos(x) + i sin (x)}
+     *
+     * @param x {@code double} to build the cis number
+     * @return {@code Complex}
+     */
+    public Complex cis(double x) {
+        return new Complex(Math.cos(x), Math.sin(x));
+    }
+
+    /**
      * Returns projection of this complex number onto the Riemann sphere,
      * i.e. all infinities (including those with an NaN component)
      * project onto real infinity, as described in the
@@ -1482,13 +1493,23 @@ public class Complex implements Serializable  {
         }
     }
 
-
      /**
      * Check that the argument is positive and throw a RuntimeException
      * if it is not.
      * @param arg {@code int} to check
      */
     private static void checkNotNegative(int arg) {
+        if (arg <= 0) {
+            throw new RuntimeException("Complex: Non-positive argument");
+        }
+    }
+
+     /**
+     * Check that the argument is positive and throw a RuntimeException
+     * if it is not.
+     * @param arg {@code double} to check
+     */
+    private static void checkNotNegative(double arg) {
         if (arg <= 0) {
             throw new RuntimeException("Complex: Non-positive argument");
         }
@@ -1504,15 +1525,5 @@ public class Complex implements Serializable  {
      */
     private static boolean equals(double x, double y) {
         return new Double(x).equals(new Double(y));
-    }
-
-    /**
-     * Returns an integer hash code representing the given double value.
-     *
-     * @param value the value to be hashed
-     * @return the hash code
-     */
-    private static int hash(double value) {
-        return new Double(value).hashCode();
     }
 }
