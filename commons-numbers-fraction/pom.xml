@@ -35,7 +35,7 @@
 
   <properties>
     <!-- This value must reflect the current name of the base package. -->
-    <commons.osgi.symbolicName>org.apache.commons.numbers.</commons.osgi.symbolicName>
+    <commons.osgi.symbolicName>org.apache.commons.numbers.fraction</commons.osgi.symbolicName>
     <!-- OSGi -->
     <commons.osgi.export>org.apache.commons.numbers.fraction</commons.osgi.export>
     <!-- Workaround to avoid duplicating config files. -->
