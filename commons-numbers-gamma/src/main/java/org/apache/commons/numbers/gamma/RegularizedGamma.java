@@ -28,7 +28,7 @@ public abstract class RegularizedGamma {
     /** Helper. */
     private static final LogGamma LOG_GAMMA = LogGamma.instance;
     /** Maximum allowed numerical error. */
-    private static final double DEFAULT_EPSILON = 10e-15; // XXX
+    private static final double DEFAULT_EPSILON = 1e-15;
 
     /**
      * @param a Parameter.
