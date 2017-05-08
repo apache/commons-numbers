@@ -30,11 +30,11 @@ public class Digamma {
     /** S limit. */
     private static final double S_LIMIT = 1e-5;
     /** Fraction. */
-    private static final double F_1_12 = 1d / 12;
+    private static final double F_M1_12 = -1d / 12;
     /** Fraction. */
     private static final double F_1_120 = 1d / 120;
     /** Fraction. */
-    private static final double F_1_252 = 1d / 252;
+    private static final double F_M1_252 = -1d / 252;
 
     /**
      * Computes the digamma function.
@@ -80,7 +80,7 @@ public class Digamma {
         //            1       1        1         1
         // log(x) -  --- - ------ + ------- - -------
         //           2 x   12 x^2   120 x^4   252 x^6
-        digamma += Math.log(x) - 0.5 / x - inv * (F_1_12 + inv * (F_1_120 - F_1_252 * inv));
+        digamma += Math.log(x) - 0.5 / x + inv * (F_M1_12 + inv * (F_1_120 + F_M1_252 * inv));
 
         return digamma;
     }
