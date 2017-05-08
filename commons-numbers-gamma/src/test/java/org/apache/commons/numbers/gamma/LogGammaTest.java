@@ -227,6 +227,6 @@ public class LogGammaTest {
 
     private void testLogGamma(double expected, double x) {
         double actual = FUNCTION.value(x);
-        Assert.assertEquals(expected, actual, 10e-15);
+        Assert.assertEquals(expected, actual, 1e-15);
     }
 }
