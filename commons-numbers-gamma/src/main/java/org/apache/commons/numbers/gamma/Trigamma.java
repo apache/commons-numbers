@@ -34,16 +34,13 @@ public class Trigamma {
     /** Fraction. */
     private static final double F_1_42 = 1d / 42;
 
-    /** Class only contains a static method. */
-    private Trigamma() {}
-
     /**
      * Computes the trigamma function.
      *
      * @param x Argument.
      * @return trigamma(x) to within \( 10^{-8} \) relative or absolute error whichever is larger.
      */
-    public static double value(double x) {
+    public double value(double x) {
         if (Double.isNaN(x) || Double.isInfinite(x)) {
             return x;
         }

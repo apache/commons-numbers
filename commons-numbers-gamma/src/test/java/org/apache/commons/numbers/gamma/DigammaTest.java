@@ -23,21 +23,23 @@ import org.junit.Test;
  * Tests for {@link Digamma}.
  */
 public class DigammaTest {
+    private static final Digamma FUNCTION = new Digamma();
+
     @Test
     public void testDigammaLargeArgs() {
         double eps = 1e-8;
-        Assert.assertEquals(4.6001618527380874002, Digamma.value(100), eps);
-        Assert.assertEquals(3.9019896734278921970, Digamma.value(50), eps);
-        Assert.assertEquals(2.9705239922421490509, Digamma.value(20), eps);
-        Assert.assertEquals(2.9958363947076465821, Digamma.value(20.5), eps);
-        Assert.assertEquals(2.2622143570941481605, Digamma.value(10.1), eps);
-        Assert.assertEquals(2.1168588189004379233, Digamma.value(8.8), eps);
-        Assert.assertEquals(1.8727843350984671394, Digamma.value(7), eps);
-        Assert.assertEquals(0.42278433509846713939, Digamma.value(2), eps);
-        Assert.assertEquals(-100.56088545786867450, Digamma.value(0.01), eps);
-        Assert.assertEquals(-4.0390398965921882955, Digamma.value(-0.8), eps);
-        Assert.assertEquals(4.2003210041401844726, Digamma.value(-6.3), eps);
-        Assert.assertEquals(-3.110625123035E-5, Digamma.value(1.4616), eps);
+        Assert.assertEquals(4.6001618527380874002, FUNCTION.value(100), eps);
+        Assert.assertEquals(3.9019896734278921970, FUNCTION.value(50), eps);
+        Assert.assertEquals(2.9705239922421490509, FUNCTION.value(20), eps);
+        Assert.assertEquals(2.9958363947076465821, FUNCTION.value(20.5), eps);
+        Assert.assertEquals(2.2622143570941481605, FUNCTION.value(10.1), eps);
+        Assert.assertEquals(2.1168588189004379233, FUNCTION.value(8.8), eps);
+        Assert.assertEquals(1.8727843350984671394, FUNCTION.value(7), eps);
+        Assert.assertEquals(0.42278433509846713939, FUNCTION.value(2), eps);
+        Assert.assertEquals(-100.56088545786867450, FUNCTION.value(0.01), eps);
+        Assert.assertEquals(-4.0390398965921882955, FUNCTION.value(-0.8), eps);
+        Assert.assertEquals(4.2003210041401844726, FUNCTION.value(-6.3), eps);
+        Assert.assertEquals(-3.110625123035E-5, FUNCTION.value(1.4616), eps);
     }
 
     @Test
@@ -51,15 +53,15 @@ public class DigammaTest {
                 -1e+17, -1e+18, -1e+19, -1e+20, -1e+21, -1e+22, -1e+23, -1e+24, -1e+25, -1e+26,
                 -1e+27, -1e+28, -1e+29, -1e+30};
         for (double n = 1; n < 30; n++) {
-            checkRelativeError(String.format("Test %.0f: ", n), expected[(int) (n - 1)], Digamma.value(Math.pow(10.0, -n)), 1e-8);
+            checkRelativeError(String.format("Test %.0f: ", n), expected[(int) (n - 1)], FUNCTION.value(Math.pow(10.0, -n)), 1e-8);
         }
     }
 
     @Test
     public void testDigammaNonRealArgs() {
-        Assert.assertTrue(Double.isNaN(Digamma.value(Double.NaN)));
-        Assert.assertTrue(Double.isInfinite(Digamma.value(Double.POSITIVE_INFINITY)));
-        Assert.assertTrue(Double.isInfinite(Digamma.value(Double.NEGATIVE_INFINITY)));
+        Assert.assertTrue(Double.isNaN(FUNCTION.value(Double.NaN)));
+        Assert.assertTrue(Double.isInfinite(FUNCTION.value(Double.POSITIVE_INFINITY)));
+        Assert.assertTrue(Double.isInfinite(FUNCTION.value(Double.NEGATIVE_INFINITY)));
     }
 
     private void checkRelativeError(String msg,
