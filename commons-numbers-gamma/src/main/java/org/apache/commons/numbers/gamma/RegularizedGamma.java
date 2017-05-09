@@ -96,19 +96,17 @@ public abstract class RegularizedGamma {
                             double x,
                             double epsilon,
                             int maxIterations) {
-            double ret;
-
             if (Double.isNaN(a) ||
                 Double.isNaN(x) ||
                 a <= 0 ||
                 x < 0) {
-                ret = Double.NaN;
+                return Double.NaN;
             } else if (x == 0) {
-                ret = 0;
+                return 0;
             } else if (x >= a + 1) {
                 // Q should converge faster in this case.
                 final RegularizedGamma.Q q = new RegularizedGamma.Q();
-                ret = 1 - q.value(a, x, epsilon, maxIterations);
+                return 1 - q.value(a, x, epsilon, maxIterations);
             } else {
                 // Series.
                 double n = 0; // current element index
@@ -127,13 +125,11 @@ public abstract class RegularizedGamma {
                 if (n >= maxIterations) {
                     throw new GammaException(GammaException.CONVERGENCE, maxIterations);
                 } else if (Double.isInfinite(sum)) {
-                    ret = 1;
+                    return 1;
                 } else {
-                    ret = Math.exp(-x + (a * Math.log(x)) - LOG_GAMMA.value(a)) * sum;
+                    return Math.exp(-x + (a * Math.log(x)) - LOG_GAMMA.value(a)) * sum;
                 }
             }
-
-            return ret;
         }
     }
 
@@ -176,19 +172,17 @@ public abstract class RegularizedGamma {
                             double x,
                             double epsilon,
                             int maxIterations) {
-            double ret;
-
             if (Double.isNaN(a) ||
                 Double.isNaN(x) ||
                 a <= 0 ||
                 x < 0) {
-                ret = Double.NaN;
+                return Double.NaN;
             } else if (x == 0) {
-                ret = 1;
+                return 1;
             } else if (x < a + 1) {
                 // P should converge faster in this case.
                 final RegularizedGamma.P p = new RegularizedGamma.P();
-                ret = 1 - p.value(a, x, epsilon, maxIterations);
+                return 1 - p.value(a, x, epsilon, maxIterations);
             } else {
                 final ContinuedFraction cf = new ContinuedFraction() {
                         /** {@inheritDoc} */
@@ -204,11 +198,9 @@ public abstract class RegularizedGamma {
                         }
                     };
 
-                ret = 1 / cf.evaluate(x, epsilon, maxIterations);
-                ret = Math.exp(-x + (a * Math.log(x)) - LOG_GAMMA.value(a)) * ret;
+                return Math.exp(-x + (a * Math.log(x)) - LOG_GAMMA.value(a)) /
+                    cf.evaluate(x, epsilon, maxIterations);
             }
-
-            return ret;
         }
     }
 }
