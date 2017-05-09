@@ -122,6 +122,7 @@
     <numbers.findbugs.version>3.0.2</numbers.findbugs.version>
     <numbers.checkstyle.version>2.17</numbers.checkstyle.version>
     <numbers.clirr.version>2.7</numbers.clirr.version>
+    <numbers.mathjax.version>2.7.1</numbers.mathjax.version>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}</numbers.parent.dir>
 
@@ -240,6 +241,18 @@
           </excludes>
         </configuration>
       </plugin>
+
+      <plugin>
+	<!-- NOTE: javadoc config must also be set under <reporting> -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+        <!--  Enable MathJax -->
+                <additionalparam>-Xdoclint:all --allow-script-in-comments -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalparam>
+          <!-- <aggregate>true</aggregate> -->
+        </configuration>
+      </plugin>
+      
     </plugins>
 
     <pluginManagement>
@@ -361,12 +374,13 @@
           </reportSet>
         </reportSets>
       </plugin>
-      <!--  MathJax -->
       <plugin>
+        <!-- NOTE: javadoc config must also be set under <build> -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
-		<additionalparam>-Xdoclint:all --allow-script-in-comments -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalparam>
+      	<!--  Enable MathJax -->
+		<additionalparam>-Xdoclint:all --allow-script-in-comments -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalparam>
           <!-- <aggregate>true</aggregate> -->
         </configuration>
       </plugin>
