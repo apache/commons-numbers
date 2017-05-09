@@ -38,7 +38,7 @@ public class Trigamma {
      * Computes the trigamma function.
      *
      * @param x Argument.
-     * @return trigamma(x) to within \( 10^{-8} \) relative or absolute error whichever is larger.
+     * @return trigamma(x) to within {@code 1e-8} relative or absolute error whichever is larger.
      */
     public double value(double x) {
         if (Double.isNaN(x) || Double.isInfinite(x)) {

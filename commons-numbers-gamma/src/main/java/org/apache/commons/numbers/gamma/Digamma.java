@@ -46,12 +46,13 @@ public class Digamma {
      * reflection formula</a> is incorporated to improve performance on negative values.
      *
      * Some of the constants have been changed to increase accuracy at the moderate
-     * expense of run-time.  The result should be accurate to within \( 10^{-8} \)
-     * relative tolerance for \( 0 &lt; x &lt; 10^{-5} \)  and within \( 10^{-8} \) absolute
+     * expense of run-time.  The result should be accurate to within {@code 1e-8}.
+     * relative tolerance for {@code 0 < x < 1e-5}  and within {@code 1e-8} absolute
      * tolerance otherwise.
      *
      * @param x Argument.
-     * @return digamma(x) to within \( 10^{-8} \) relative or absolute error whichever is larger.
+     * @return digamma(x) to within {@code 1e-8} relative or absolute error whichever
+     * is larger.
      */
     public double value(double x) {
         if (Double.isNaN(x) || Double.isInfinite(x)) {

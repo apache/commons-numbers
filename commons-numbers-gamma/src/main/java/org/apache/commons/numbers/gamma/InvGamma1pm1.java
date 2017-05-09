@@ -101,7 +101,7 @@ class InvGamma1pm1 {
     private static final double INV_GAMMA1P_M1_C13 = -.205633841697760710345015413002057E-06;
 
     /**
-     * Computes the function \( \frac{1}{\Gamma(1 + x)} - 1 \) for \( -0.5 \leq x \leq 1.5 \).
+     * Computes the function \( \frac{1}{\Gamma(1 + x)} - 1 \) for {@code -0.5 <= x <= 1.5}.
      *
      * This implementation is based on the double precision implementation in
      * the <em>NSWC Library of Mathematics Subroutines</em>, {@code DGAM1}.

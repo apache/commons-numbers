@@ -25,7 +25,7 @@ package org.apache.commons.numbers.gamma;
  * \Gamma(x) = \sqrt{2\pi} \, \frac{(g + x + \frac{1}{2})^{x + \frac{1}{2}} \, e^{-(g + x + \frac{1}{2})} \, \mathrm{lanczos}(x)}
  *                                 {x}
  * \]
- * where \(g\) is the Lanczos constant.
+ * where \( g \) is the Lanczos constant.
  *
  * @see equations (1) through (5), and Paul Godfrey's
  * <a href="http://my.fit.edu/~gabdo/gamma.txt">Note on the computation
