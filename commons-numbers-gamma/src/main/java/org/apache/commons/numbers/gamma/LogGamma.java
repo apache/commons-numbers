@@ -34,7 +34,7 @@ public class LogGamma {
     private static final LogGamma1p LOG_GAMMA_1P = LogGamma1p.instance;
 
     /**
-     * Computes the function \( \ln \Gamma(x) \) for \( x > 0 \).
+     * Computes the function \( \ln \Gamma(x) \) for \( x &gt; 0 \).
      *
      * For \( x \leq 8 \), the implementation is based on the double precision
      * implementation in the <em>NSWC Library of Mathematics Subroutines</em>,

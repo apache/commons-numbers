@@ -47,7 +47,7 @@ public class Digamma {
      *
      * Some of the constants have been changed to increase accuracy at the moderate
      * expense of run-time.  The result should be accurate to within \( 10^{-8} \)
-     * relative tolerance for \( 0 < x < 10^{-5} \) and within \( 10^{-8} \) absolute
+     * relative tolerance for \( 0 &lt; x &lt; 10^{-5} \)  and within \( 10^{-8} \) absolute
      * tolerance otherwise.
      *
      * @param x Argument.
