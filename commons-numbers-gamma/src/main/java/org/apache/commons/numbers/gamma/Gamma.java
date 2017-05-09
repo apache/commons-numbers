@@ -55,7 +55,6 @@ public class Gamma {
             return Double.NaN;
         }
 
-        final double ret;
         final double absX = Math.abs(x);
         if (absX <= 20) {
             if (x >= 1) {
@@ -73,7 +72,7 @@ public class Gamma {
                     t -= 1;
                     prod *= t;
                 }
-                ret = prod / (1 + INV_GAMMA_1P_M1.value(t - 1));
+                return prod / (1 + INV_GAMMA_1P_M1.value(t - 1));
             } else {
                 /*
                  * From the recurrence relation
@@ -88,7 +87,7 @@ public class Gamma {
                     t += 1;
                     prod *= t;
                 }
-                ret = 1 / (prod * (1 + INV_GAMMA_1P_M1.value(t)));
+                return 1 / (prod * (1 + INV_GAMMA_1P_M1.value(t)));
             }
         } else {
             final double y = absX + LANCZOS_G + 0.5;
@@ -96,7 +95,7 @@ public class Gamma {
                                     Math.pow(y, absX + 0.5) *
                                     Math.exp(-y) * LANCZOS_APPROXIMATION.value(absX);
             if (x > 0) {
-                ret = gammaAbs;
+                return gammaAbs;
             } else {
                 /*
                  * From the reflection formula
@@ -106,10 +105,8 @@ public class Gamma {
                  * it is found
                  * Gamma(x) = -pi / [x * sin(pi * x) * Gamma(-x)].
                  */
-                ret = -Math.PI / (x * Math.sin(Math.PI * x) * gammaAbs);
+                return -Math.PI / (x * Math.sin(Math.PI * x) * gammaAbs);
             }
         }
-
-        return ret;
     }
 }
