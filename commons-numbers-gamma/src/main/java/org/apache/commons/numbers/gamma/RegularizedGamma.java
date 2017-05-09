@@ -138,7 +138,7 @@ public abstract class RegularizedGamma {
     }
 
     /**
-     * Creates the \( Q(a, x) \equiv 1 - P(a, x) \) \) <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">
+     * Creates the \( Q(a, x) \equiv 1 - P(a, x) \) <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">
      * regularized Gamma function</a>.
      *
      * Class is immutable.
