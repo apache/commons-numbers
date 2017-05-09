@@ -18,9 +18,13 @@ package org.apache.commons.numbers.gamma;
 
 /**
  * <a href="http://en.wikipedia.org/wiki/Digamma_function">Digamma function</a>.
- *
- * It is defined as the logarithmic derivative of the \( \Gamma \) function:
+ * <p>
+ * It is defined as the logarithmic derivative of the \( \Gamma \) 
+ * ({@link Gamma}) function:
  * \( \frac{d}{dx}(\ln \Gamma(x)) = \frac{\Gamma^\prime(x)}{\Gamma(x)} \).
+ * </p>
+ * 
+ * @see Gamma
  */
 public class Digamma {
     /** <a href="http://en.wikipedia.org/wiki/Euler-Mascheroni_constant">Euler-Mascheroni constant</a>. */
