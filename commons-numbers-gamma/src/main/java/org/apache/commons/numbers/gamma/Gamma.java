@@ -18,9 +18,17 @@ package org.apache.commons.numbers.gamma;
 
 
 /**
- * <a href="http://mathworld.wolfram.com/GammaFunction.html">Gamma function</a>.
- *
- * Class is immutable.
+ * <a href="http://mathworld.wolfram.com/GammaFunction.html">Gamma
+ * function</a>.
+ * <p>
+ * The <a href="http://mathworld.wolfram.com/GammaFunction.html">gamma
+ * function</a> can be seen to extend the factorial function to cover real and
+ * complex numbers, but with its argument shifted by {@code -1}. This
+ * implementation supports real numbers.
+ * </p>
+ * <p>
+ * This class is immutable.
+ * </p>
  */
 public class Gamma {
     /** \( g = \frac{607}{128} \). */
@@ -34,7 +42,7 @@ public class Gamma {
 
     /**
      * Computes the value of \( \Gamma(x) \).
-     *
+     * <p>
      * Based on the <em>NSWC Library of Mathematics Subroutines</em> double
      * precision implementation, {@code DGAMMA}.
      *
