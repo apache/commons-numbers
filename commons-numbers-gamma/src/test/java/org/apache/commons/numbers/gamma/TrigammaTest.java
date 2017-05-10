@@ -23,8 +23,6 @@ import org.junit.Test;
  * Tests for {@link Trigamma}.
  */
 public class TrigammaTest {
-    private static final Trigamma FUNCTION = new Trigamma();
-
     @Test
     public void testTrigamma() {
         double eps = 1e-8;
@@ -47,15 +45,15 @@ public class TrigammaTest {
                 100, 0.010050166663333571395
         };
         for (int i = data.length - 2; i >= 0; i -= 2) {
-            Assert.assertEquals(String.format("trigamma %.0f", data[i]), data[i + 1], FUNCTION.value(data[i]), eps);
+            Assert.assertEquals(String.format("trigamma %.0f", data[i]), data[i + 1], Trigamma.value(data[i]), eps);
         }
     }
 
     @Test
     public void testTrigammaNonRealArgs() {
-        Assert.assertTrue(Double.isNaN(FUNCTION.value(Double.NaN)));
-        Assert.assertTrue(Double.isInfinite(FUNCTION.value(Double.POSITIVE_INFINITY)));
-        Assert.assertTrue(Double.isInfinite(FUNCTION.value(Double.NEGATIVE_INFINITY)));
+        Assert.assertTrue(Double.isNaN(Trigamma.value(Double.NaN)));
+        Assert.assertTrue(Double.isInfinite(Trigamma.value(Double.POSITIVE_INFINITY)));
+        Assert.assertTrue(Double.isInfinite(Trigamma.value(Double.NEGATIVE_INFINITY)));
     }
 }
 

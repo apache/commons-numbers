@@ -33,10 +33,6 @@ package org.apache.commons.numbers.gamma;
 public class Gamma {
     /** \( g = \frac{607}{128} \). */
     private static final double LANCZOS_G = 607d / 128d;
-    /** Helper. */
-    private static final LanczosApproximation LANCZOS_APPROXIMATION = LanczosApproximation.instance;
-    /** Helper. */
-    private static final InvGamma1pm1 INV_GAMMA_1P_M1 = InvGamma1pm1.instance;
     /** &radic;(2&pi;). */
     private static final double SQRT_TWO_PI = 2.506628274631000502;
 
@@ -49,7 +45,7 @@ public class Gamma {
      * @param x Argument.
      * @return \( \Gamma(x) \)
      */
-    public double value(final double x) {
+    public static double value(final double x) {
 
         if ((x == Math.rint(x)) && (x <= 0.0)) {
             return Double.NaN;
@@ -72,7 +68,7 @@ public class Gamma {
                     t -= 1;
                     prod *= t;
                 }
-                return prod / (1 + INV_GAMMA_1P_M1.value(t - 1));
+                return prod / (1 + InvGamma1pm1.value(t - 1));
             } else {
                 /*
                  * From the recurrence relation
@@ -87,13 +83,13 @@ public class Gamma {
                     t += 1;
                     prod *= t;
                 }
-                return 1 / (prod * (1 + INV_GAMMA_1P_M1.value(t)));
+                return 1 / (prod * (1 + InvGamma1pm1.value(t)));
             }
         } else {
             final double y = absX + LANCZOS_G + 0.5;
             final double gammaAbs = SQRT_TWO_PI / absX *
                                     Math.pow(y, absX + 0.5) *
-                                    Math.exp(-y) * LANCZOS_APPROXIMATION.value(absX);
+                                    Math.exp(-y) * LanczosApproximation.value(absX);
             if (x > 0) {
                 return gammaAbs;
             } else {

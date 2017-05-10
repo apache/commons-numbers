@@ -23,8 +23,6 @@ import org.junit.Test;
  * Tests for {@link Gamma}.
  */
 public class GammaTest {
-    private static final Gamma FUNCTION = new Gamma();
-
     /**
      * Reference data for the {@link Gamma#value(double)} function. This
      * data was generated with the following <a
@@ -514,7 +512,7 @@ public class GammaTest {
             final double[] ref = GAMMA_REF[i];
             final double x = ref[0];
             final double expected = ref[1];
-            final double actual = FUNCTION.value(x);
+            final double actual = Gamma.value(x);
             final double absX = Math.abs(x);
             final int ulps;
             if (absX <= 8.0) {
@@ -536,7 +534,7 @@ public class GammaTest {
     @Test
     public void testGammaNegativeInteger() {
         for (int i = -100; i <= 0; i++) {
-            Assert.assertTrue(Integer.toString(i), Double.isNaN(FUNCTION.value(i)));
+            Assert.assertTrue(Integer.toString(i), Double.isNaN(Gamma.value(i)));
         }
     }
 
@@ -545,9 +543,9 @@ public class GammaTest {
         // check that the gamma function properly switches sign
         // see: https://en.wikipedia.org/wiki/Gamma_function
 
-        double previousGamma = FUNCTION.value(-18.5);
+        double previousGamma = Gamma.value(-18.5);
         for (double x = -19.5; x > -25; x -= 1.0) {
-            double gamma = FUNCTION.value(x);
+            double gamma = Gamma.value(x);
             Assert.assertEquals(  (int) Math.signum(previousGamma),
                                 - (int) Math.signum(gamma));
 

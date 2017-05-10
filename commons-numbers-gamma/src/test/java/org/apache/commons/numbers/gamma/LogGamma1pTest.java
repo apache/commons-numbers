@@ -23,8 +23,6 @@ import org.junit.Test;
  * Tests for {@link LogGamma1p}.
  */
 public class LogGamma1pTest {
-    private static final LogGamma1p FUNCTION = LogGamma1p.instance;
-
     private static final double[][] LOG_GAMMA1P_REF = {
         { - 0.5 , .5723649429247001 },
         { - 0.375 , .3608294954889402 },
@@ -52,7 +50,7 @@ public class LogGamma1pTest {
             final double[] ref = LOG_GAMMA1P_REF[i];
             final double x = ref[0];
             final double expected = ref[1];
-            final double actual = FUNCTION.value(x);
+            final double actual = LogGamma1p.value(x);
             final double tol = ulps * Math.ulp(expected);
             Assert.assertEquals(Double.toString(x), expected, actual, tol);
         }
@@ -60,11 +58,11 @@ public class LogGamma1pTest {
 
     @Test(expected=GammaException.class)
     public void testLogGamma1pPrecondition1() {
-        FUNCTION.value(-0.51);
+        LogGamma1p.value(-0.51);
     }
 
     @Test(expected=GammaException.class)
     public void testLogGamma1pPrecondition2() {
-        FUNCTION.value(1.51);
+        LogGamma1p.value(1.51);
     }
 }

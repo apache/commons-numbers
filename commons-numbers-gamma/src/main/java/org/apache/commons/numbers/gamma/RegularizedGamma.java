@@ -25,8 +25,6 @@ import org.apache.commons.numbers.fraction.ContinuedFraction;
  * Class is immutable.
  */
 public abstract class RegularizedGamma {
-    /** Helper. */
-    private static final LogGamma LOG_GAMMA = LogGamma.instance;
     /** Maximum allowed numerical error. */
     private static final double DEFAULT_EPSILON = 1e-15;
 
@@ -66,7 +64,7 @@ public abstract class RegularizedGamma {
          *
          * {@inheritDoc}
          */
-        public double value(double a,
+        public static double value(double a,
                             double x) {
             return value(a, x, DEFAULT_EPSILON, Integer.MAX_VALUE);
         }
@@ -92,7 +90,7 @@ public abstract class RegularizedGamma {
          *
          * {@inheritDoc}
          */
-        public double value(double a,
+        public static double value(double a,
                             double x,
                             double epsilon,
                             int maxIterations) {
@@ -127,7 +125,7 @@ public abstract class RegularizedGamma {
                 } else if (Double.isInfinite(sum)) {
                     return 1;
                 } else {
-                    return Math.exp(-x + (a * Math.log(x)) - LOG_GAMMA.value(a)) * sum;
+                    return Math.exp(-x + (a * Math.log(x)) - LogGamma.value(a)) * sum;
                 }
             }
         }
@@ -145,7 +143,7 @@ public abstract class RegularizedGamma {
          *
          * {@inheritDoc}
          */
-        public double value(double a,
+        public static double value(double a,
                             double x) {
             return value(a, x, DEFAULT_EPSILON, Integer.MAX_VALUE);
         }
@@ -168,7 +166,7 @@ public abstract class RegularizedGamma {
          *
          * {@inheritDoc}
          */
-        public double value(final double a,
+        public static double value(final double a,
                             double x,
                             double epsilon,
                             int maxIterations) {
@@ -198,7 +196,7 @@ public abstract class RegularizedGamma {
                         }
                     };
 
-                return Math.exp(-x + (a * Math.log(x)) - LOG_GAMMA.value(a)) /
+                return Math.exp(-x + (a * Math.log(x)) - LogGamma.value(a)) /
                     cf.evaluate(x, epsilon, maxIterations);
             }
         }

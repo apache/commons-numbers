@@ -40,7 +40,7 @@ public class Trigamma {
      * @param x Argument.
      * @return trigamma(x) to within {@code 1e-8} relative or absolute error whichever is larger.
      */
-    public double value(double x) {
+    public static double value(double x) {
         if (Double.isNaN(x) || Double.isInfinite(x)) {
             return x;
         }

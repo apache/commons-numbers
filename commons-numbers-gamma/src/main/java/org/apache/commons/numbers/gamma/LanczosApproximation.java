@@ -32,8 +32,6 @@ package org.apache.commons.numbers.gamma;
  * of the convergent Lanczos complex Gamma approximation</a>.
  */
 class LanczosApproximation {
-    /** Singleton. */
-    static final LanczosApproximation instance = new LanczosApproximation();
     /** Lanczos coefficients. */
     private static final double[] LANCZOS = {
         0.99999999999999709182,
@@ -59,7 +57,7 @@ class LanczosApproximation {
      * @param x Argument.
      * @return the Lanczos approximation.
      */
-    public double value(final double x) {
+    public static double value(final double x) {
         double sum = 0;
         for (int i = LANCZOS.length - 1; i > 0; i--) {
             sum += LANCZOS[i] / (x + i);

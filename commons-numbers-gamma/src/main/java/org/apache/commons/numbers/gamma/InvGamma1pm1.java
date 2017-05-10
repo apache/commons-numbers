@@ -22,8 +22,6 @@ package org.apache.commons.numbers.gamma;
  * Class is immutable.
  */
 class InvGamma1pm1 {
-    /** Singleton. */
-    static final InvGamma1pm1 instance = new InvGamma1pm1();
     /*
      * Constants copied from DGAM1 in the NSWC library.
      */
@@ -110,7 +108,7 @@ class InvGamma1pm1 {
      * @return \( \frac{1}{\Gamma(1 + x)} - 1 \)
      * @throws IllegalArgumentException if {@code x < -0.5} or {@code x > 1.5}
      */
-    public double value(final double x) {
+    public static double value(final double x) {
         if (x < -0.5 || x > 1.5) {
             throw new GammaException(GammaException.OUT_OF_RANGE, x, -0.5, 1.5);
         }

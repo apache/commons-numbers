@@ -22,16 +22,9 @@ package org.apache.commons.numbers.gamma;
  * Class is immutable.
  */
 public class LogGamma {
-    /** Singleton. */
-    static final LogGamma instance = new LogGamma();
-    /** \( g = \frac{607}{128} \). */
     private static final double LANCZOS_G = 607d / 128d;
     /** Performance. */
     private static final double HALF_LOG_2_PI = 0.5 * Math.log(2.0 * Math.PI);
-    /** Helper. */
-    private static final LanczosApproximation LANCZOS_APPROXIMATION = LanczosApproximation.instance;
-    /** Helper. */
-    private static final LogGamma1p LOG_GAMMA_1P = LogGamma1p.instance;
 
     /**
      * Computes the function \( \ln \Gamma(x) \) for {@code x >= 0}.
@@ -52,22 +45,22 @@ public class LogGamma {
      * @param x Argument.
      * @return \( \ln \Gamma(x) \), or {@code NaN} if {@code x <= 0}.
      */
-    public double value(double x) {
+    public static double value(double x) {
         if (Double.isNaN(x) || (x <= 0.0)) {
             return Double.NaN;
         } else if (x < 0.5) {
-            return LOG_GAMMA_1P.value(x) - Math.log(x);
+            return LogGamma1p.value(x) - Math.log(x);
         } else if (x <= 2.5) {
-            return LOG_GAMMA_1P.value((x - 0.5) - 0.5);
+            return LogGamma1p.value((x - 0.5) - 0.5);
         } else if (x <= 8.0) {
             final int n = (int) Math.floor(x - 1.5);
             double prod = 1.0;
             for (int i = 1; i <= n; i++) {
                 prod *= x - i;
             }
-            return LOG_GAMMA_1P.value(x - (n + 1)) + Math.log(prod);
+            return LogGamma1p.value(x - (n + 1)) + Math.log(prod);
         } else {
-            final double sum = LANCZOS_APPROXIMATION.value(x);
+            final double sum = LanczosApproximation.value(x);
             final double tmp = x + LANCZOS_G + .5;
             return ((x + .5) * Math.log(tmp)) - tmp +
                 HALF_LOG_2_PI + Math.log(sum / x);

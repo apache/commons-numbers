@@ -23,8 +23,6 @@ import org.junit.Test;
  * Tests for {@link LogGamma}.
  */
 public class LogGammaTest {
-    private static final LogGamma FUNCTION = LogGamma.instance;
-
     @Test
     public void testLogGammaNan() {
         testLogGamma(Double.NaN, Double.NaN);
@@ -204,7 +202,7 @@ public class LogGammaTest {
             final double[] data = LOG_GAMMA_REF[i];
             final double x = data[0];
             final double expected = data[1];
-            final double actual = FUNCTION.value(x);
+            final double actual = LogGamma.value(x);
             final double tol;
             if (expected == 0.0) {
                 tol = 1E-15;
@@ -217,16 +215,16 @@ public class LogGammaTest {
 
     @Test
     public void testLogGammaPrecondition1() {
-        Assert.assertTrue(Double.isNaN(FUNCTION.value(0.0)));
+        Assert.assertTrue(Double.isNaN(LogGamma.value(0.0)));
     }
 
     @Test
     public void testLogGammaPrecondition2() {
-        Assert.assertTrue(Double.isNaN(FUNCTION.value(-1.0)));
+        Assert.assertTrue(Double.isNaN(LogGamma.value(-1.0)));
     }
 
     private void testLogGamma(double expected, double x) {
-        double actual = FUNCTION.value(x);
+        double actual = LogGamma.value(x);
         Assert.assertEquals(expected, actual, 1e-15);
     }
 }

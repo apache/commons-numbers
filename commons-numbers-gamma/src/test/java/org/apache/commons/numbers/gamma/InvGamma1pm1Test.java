@@ -23,8 +23,6 @@ import org.junit.Test;
  * Tests for {@link InvGamma1pm1}.
  */
 public class InvGamma1pm1Test {
-    private static final InvGamma1pm1 FUNCTION = InvGamma1pm1.instance;
-
     /**
      * <p>
      * Reference values for the {@link Gamma#invGamma1pm1(double)} method.
@@ -73,7 +71,7 @@ public class InvGamma1pm1Test {
             final double[] ref = INV_GAMMA1P_M1_REF[i];
             final double x = ref[0];
             final double expected = ref[1];
-            final double actual = FUNCTION.value(x);
+            final double actual = InvGamma1pm1.value(x);
             final double tol = ulps * Math.ulp(expected);
             Assert.assertEquals(Double.toString(x), expected, actual, tol);
         }
@@ -81,11 +79,11 @@ public class InvGamma1pm1Test {
 
     @Test(expected=GammaException.class)
     public void testInvGamma1pm1Precondition1() {
-        FUNCTION.value(-0.51);
+        InvGamma1pm1.value(-0.51);
     }
 
     @Test(expected=GammaException.class)
     public void testInvGamma1pm1Precondition2() {
-        FUNCTION.value(1.51);
+        InvGamma1pm1.value(1.51);
     }
 }
