@@ -597,6 +597,7 @@
     <module>commons-numbers-primes</module>
     <module>commons-numbers-quaternion</module>
     <module>commons-numbers-fraction</module>
+    <module>commons-numbers-angle</module>
     <module>commons-numbers-gamma</module>
   </modules>
 
