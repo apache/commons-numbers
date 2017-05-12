@@ -154,6 +154,10 @@
         Temporary workaround?
     -->
     <commons.release.name>commons-numbers-${project.version}</commons.release.name>
+    <!-- Java8+ requires additional Javadoc qualifier for MathJax (default to empty). -->
+    <allowscript.javadoc.qualifier></allowscript.javadoc.qualifier>
+    <!-- Invalid flag for old javadoc versions (default to empty). -->
+    <doclint.javadoc.qualifier></doclint.javadoc.qualifier>
   </properties>
 
   <build>
@@ -248,7 +252,7 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
         <!--  Enable MathJax -->
-                <additionalparam>-Xdoclint:all --allow-script-in-comments -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalparam>
+                <additionalparam>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalparam>
           <!-- <aggregate>true</aggregate> -->
         </configuration>
       </plugin>
@@ -380,7 +384,7 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
       	<!--  Enable MathJax -->
-		<additionalparam>-Xdoclint:all --allow-script-in-comments -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalparam>
+		<additionalparam>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalparam>
           <!-- <aggregate>true</aggregate> -->
         </configuration>
       </plugin>
@@ -569,6 +573,22 @@
       </build>
     </profile>
 
+    <profile>
+      <id>javadoc8</id>
+      <activation><jdk>[1.8,)</jdk></activation>
+      <properties>
+        <!-- Java8+ requires additional Javadoc qualifier for scripts such as MathJax -->
+        <allowscript.javadoc.qualifier>--allow-script-in-comments</allowscript.javadoc.qualifier>
+      </properties>
+    </profile>
+    <profile>
+      <id>javadoc7</id>
+      <activation><jdk>[1.7,)</jdk></activation>
+      <properties>
+        <!-- Invalid flag in earlier versions of javadoc -->
+        <doclint.javadoc.qualifier>-Xdoclint:all</doclint.javadoc.qualifier>
+      </properties>
+    </profile>
   </profiles>
 
   <modules>
