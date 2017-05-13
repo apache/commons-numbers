@@ -31,8 +31,6 @@ package org.apache.commons.numbers.gamma;
  * </p>
  */
 public class Gamma {
-    /** \( g = \frac{607}{128} \). */
-    private static final double LANCZOS_G = 607d / 128d;
     /** &radic;(2&pi;). */
     private static final double SQRT_TWO_PI = 2.506628274631000502;
 
@@ -86,7 +84,7 @@ public class Gamma {
                 return 1 / (prod * (1 + InvGamma1pm1.value(t)));
             }
         } else {
-            final double y = absX + LANCZOS_G + 0.5;
+            final double y = absX + LanczosApproximation.g() + 0.5;
             final double gammaAbs = SQRT_TWO_PI / absX *
                                     Math.pow(y, absX + 0.5) *
                                     Math.exp(-y) * LanczosApproximation.value(absX);

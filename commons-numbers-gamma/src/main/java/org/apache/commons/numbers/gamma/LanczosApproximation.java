@@ -31,7 +31,9 @@ package org.apache.commons.numbers.gamma;
  * <a href="http://my.fit.edu/~gabdo/gamma.txt">Note on the computation
  * of the convergent Lanczos complex Gamma approximation</a>.
  */
-class LanczosApproximation {
+public class LanczosApproximation {
+    /** \( g = \frac{607}{128} \). */
+    private static final double LANCZOS_G = 607d / 128d;
     /** Lanczos coefficients. */
     private static final double[] LANCZOS = {
         0.99999999999999709182,
@@ -63,5 +65,12 @@ class LanczosApproximation {
             sum += LANCZOS[i] / (x + i);
         }
         return sum + LANCZOS[0];
+    }
+
+    /**
+     * @return the Lanczos constant \( g = \frac{607}{128} \).
+     */
+    public static double g() {
+        return LANCZOS_G;
     }
 }
