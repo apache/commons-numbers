@@ -25,7 +25,7 @@ import org.junit.Test;
 public class InvGamma1pm1Test {
     /**
      * <p>
-     * Reference values for the {@link Gamma#invGamma1pm1(double)} method.
+     * Reference values for the {@link InvGamma1pm1#value(double)} method.
      * These values were generated with the following <a
      * href="http://maxima.sourceforge.net/">Maxima</a> script
      * </p>
