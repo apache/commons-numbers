@@ -24,33 +24,9 @@ import org.apache.commons.numbers.fraction.ContinuedFraction;
  *
  * Class is immutable.
  */
-public abstract class RegularizedGamma {
+public class RegularizedGamma {
     /** Maximum allowed numerical error. */
     private static final double DEFAULT_EPSILON = 1e-15;
-
-    /**
-     * @param a Parameter.
-     * @param x Argument.
-     * @param epsilon When the absolute value of the n-th element in the
-     * series is less than epsilon the approximation ceases to calculate
-     * further elements in the series.
-     * @param maxIterations Maximum number of iterations.
-     * @return the value of the function.
-     * @throws IllegalArgumentException if the algorithm fails to converge.
-     */
-    public abstract double value(double a,
-                                 double x,
-                                 double epsilon,
-                                 int maxIterations);
-
-    /**
-     * @param a Parameter.
-     * @param x Argument.
-     * @return the value of the function.
-     * @throws IllegalArgumentException if the algorithm fails to converge.
-     */
-    public abstract double value(double a,
-                                 double x);
 
     /**
      * \( P(a, x) \) <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">
