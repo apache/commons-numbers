@@ -16,7 +16,7 @@
  */
 
 /**
- * &Gamma; (Gamma) family of functions.
+ * &Gamma; (Gamma) and &Beta; (Beta) family of functions.
  *
  * Implementation of {@link org.apache.commons.numbers.gamma.InvGamma1pm1 InvGamma1pm1}
  * and {@link org.apache.commons.numbers.gamma.LogGamma1p LogGamma1p} is based on the
