@@ -36,7 +36,7 @@ public class Erfc {
      *
      * @param x Value.
      * @return the complementary error function.
-     * @throws ArithmeticExceptionException if the algorithm fails to converge.
+     * @throws ArithmeticException if the algorithm fails to converge.
      *
      * @see RegularizedGamma.Q#value(double, double, double, int)
      */

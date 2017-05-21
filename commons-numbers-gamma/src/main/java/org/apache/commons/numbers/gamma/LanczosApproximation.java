@@ -27,7 +27,7 @@ package org.apache.commons.numbers.gamma;
  * \]
  * where \( g \) is the Lanczos constant.
  *
- * @see equations (1) through (5), and Paul Godfrey's
+ * See equations (1) through (5), and Paul Godfrey's
  * <a href="http://my.fit.edu/~gabdo/gamma.txt">Note on the computation
  * of the convergent Lanczos complex Gamma approximation</a>.
  */

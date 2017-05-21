@@ -23,7 +23,7 @@ public class Erf {
     /**
      * <p>
      * This implementation computes erf(x) using the
-     * {@link RegularizedGamma.P.value(double, double, double, int) regularized gamma function},
+     * {@link RegularizedGamma.P#value(double, double, double, int) regularized gamma function},
      * following <a href="http://mathworld.wolfram.com/Erf.html"> Erf</a>, equation (3)
      * </p>
      *
