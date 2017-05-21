@@ -41,7 +41,7 @@ public class RegularizedGamma {
          * {@inheritDoc}
          */
         public static double value(double a,
-                            double x) {
+                                   double x) {
             return value(a, x, DEFAULT_EPSILON, Integer.MAX_VALUE);
         }
 
@@ -67,9 +67,9 @@ public class RegularizedGamma {
          * {@inheritDoc}
          */
         public static double value(double a,
-                            double x,
-                            double epsilon,
-                            int maxIterations) {
+                                   double x,
+                                   double epsilon,
+                                   int maxIterations) {
             if (Double.isNaN(a) ||
                 Double.isNaN(x) ||
                 a <= 0 ||
@@ -120,7 +120,7 @@ public class RegularizedGamma {
          * {@inheritDoc}
          */
         public static double value(double a,
-                            double x) {
+                                   double x) {
             return value(a, x, DEFAULT_EPSILON, Integer.MAX_VALUE);
         }
 
@@ -143,9 +143,9 @@ public class RegularizedGamma {
          * {@inheritDoc}
          */
         public static double value(final double a,
-                            double x,
-                            double epsilon,
-                            int maxIterations) {
+                                   double x,
+                                   double epsilon,
+                                   int maxIterations) {
             if (Double.isNaN(a) ||
                 Double.isNaN(x) ||
                 a <= 0 ||
