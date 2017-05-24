@@ -27,35 +27,35 @@
   </parent>
 
   <groupId>org.apache.commons</groupId>
-  <artifactId>commons-numbers-core</artifactId>
+  <artifactId>commons-numbers-arrays</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <name>Apache Commons Numbers Core</name>
+  <name>Apache Commons Numbers Arrays</name>
 
-  <description>Basic utilities.</description>
+  <description>Array utilities.</description>
 
   <properties>
     <!-- This value must reflect the current name of the base package. -->
-    <commons.osgi.symbolicName>org.apache.commons.numbers.core</commons.osgi.symbolicName>
+    <commons.osgi.symbolicName>org.apache.commons.numbers.arrays</commons.osgi.symbolicName>
     <!-- OSGi -->
-    <commons.osgi.export>org.apache.commons.numbers.core</commons.osgi.export>
+    <commons.osgi.export>org.apache.commons.numbers.arrays</commons.osgi.export>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}/..</numbers.parent.dir>
   </properties>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-rng-simple</artifactId>
+      <version>1.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-fraction</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
 </project>

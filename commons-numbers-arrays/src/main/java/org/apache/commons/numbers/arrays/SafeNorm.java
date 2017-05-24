@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.numbers.core;
+package org.apache.commons.numbers.arrays;
 
 /**
  * Computes the Cartesian norm (2-norm), handling both overflow and underflow.

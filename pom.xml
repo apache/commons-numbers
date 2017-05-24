@@ -600,6 +600,7 @@
     <module>commons-numbers-angle</module>
     <module>commons-numbers-gamma</module>
     <module>commons-numbers-combinatorics</module>
+    <module>commons-numbers-arrays</module>
   </modules>
 
 </project>
