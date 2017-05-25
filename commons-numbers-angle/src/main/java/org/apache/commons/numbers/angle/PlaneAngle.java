@@ -30,10 +30,12 @@ public class PlaneAngle {
     private static final double TO_DEGREES = 360;
     /** Conversion factor. */
     private static final double FROM_DEGREES = 1d / TO_DEGREES;
-    /** Zero. */
-    private static final PlaneAngle ZERO = new PlaneAngle(0);
     /** Value (in turns). */
     private final double value;
+    /** Zero. */
+    public static final PlaneAngle ZERO = new PlaneAngle(0);
+    /** &pi; radians. */
+    public static final PlaneAngle PI = new PlaneAngle(HALF_TURN);
 
     /**
      * @param value Value in turns.

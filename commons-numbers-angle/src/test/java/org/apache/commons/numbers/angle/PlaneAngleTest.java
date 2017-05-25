@@ -133,4 +133,13 @@ public class PlaneAngleTest {
         final PlaneAngle b = PlaneAngle.ofRadians(value + 1e-16);
         Assert.assertFalse(a.equals(b));
     }
+
+    @Test
+    public void testZero() {
+        Assert.assertEquals(0, PlaneAngle.ZERO.toRadians(), 0d);
+    }
+    @Test
+    public void testPi() {
+        Assert.assertEquals(Math.PI, PlaneAngle.PI.toRadians(), 0d);
+    }
 }
