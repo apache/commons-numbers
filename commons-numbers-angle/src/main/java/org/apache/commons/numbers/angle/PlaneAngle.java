@@ -128,6 +128,7 @@ public class PlaneAngle {
         return false;
     }
 
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return new Double(value).hashCode();
