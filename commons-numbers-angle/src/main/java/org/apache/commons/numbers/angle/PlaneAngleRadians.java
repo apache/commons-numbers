@@ -23,6 +23,9 @@ package org.apache.commons.numbers.angle;
  * @see PlaneAngle
  */
 public class PlaneAngleRadians {
+    /** Utility class. */
+    private PlaneAngleRadians() {}
+
     /**
      * Normalize an angle in an interval of size 2&pi; around a
      * center value.
@@ -37,5 +40,27 @@ public class PlaneAngleRadians {
         final PlaneAngle a = PlaneAngle.ofRadians(angle);
         final PlaneAngle c = PlaneAngle.ofRadians(center);
         return a.normalize(c).toRadians();
+    }
+
+    /**
+     * Normalize an angle between -&pi; and &pi;.
+     *
+     * @param angle Value to be normalized.
+     * @return {@code a - 2 * k} with integer {@code k} such that
+     * {@code -pi <= a - 2 * k * pi <= pi}.
+     */
+    public static double normalizeBetweenMinusPiAndPi(double angle) {
+        return PlaneAngle.ofRadians(angle).normalize(PlaneAngle.ZERO).toRadians();
+    }
+
+    /**
+     * Normalize an angle between 0 and 2&pi;.
+     *
+     * @param angle Value to be normalized.
+     * @return {@code a - 2 * k} with integer {@code k} such that
+     * {@code 0 <= a - 2 * k * pi <= 2 * pi}.
+     */
+    public static double normalizeBetweenZeroAndTwoPi(double angle) {
+        return PlaneAngle.ofRadians(angle).normalize(PlaneAngle.PI).toRadians();
     }
 }

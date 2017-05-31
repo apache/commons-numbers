@@ -20,6 +20,8 @@ import org.junit.Test;
  * Test cases for the {@link PlaneAngleRadians} class.
  */
 public class PlaneAngleRadiansTest {
+    private static final double TWO_PI = 2 * Math.PI;
+
     @Test
     public void testNormalize() {
         for (double a = -15.0; a <= 15.0; a += 0.1) {
@@ -31,5 +33,71 @@ public class PlaneAngleRadiansTest {
                 Assert.assertEquals(c, a - twoK * Math.PI, 1e-14);
             }
         }
+    }
+
+    @Test
+    public void testNormalizeBetweenMinusPiAndPi1() {
+        final double value = 1.25 * TWO_PI;
+        final double expected = 0.25 * TWO_PI;
+        final double actual = PlaneAngleRadians.normalizeBetweenMinusPiAndPi(value);
+        final double tol = Math.ulp(expected);
+        Assert.assertEquals(expected, actual, tol);
+    }
+    @Test
+    public void testNormalizeBetweenMinusPiAndPi2() {
+        final double value = 0.75 * TWO_PI;
+        final double expected = -0.25 * TWO_PI;
+        final double actual = PlaneAngleRadians.normalizeBetweenMinusPiAndPi(value);
+        final double tol = Math.ulp(expected);
+        Assert.assertEquals(expected, actual, tol);
+    }
+    @Test
+    public void testNormalizeBetweenMinusPiAndPi3() {
+        final double value = 0.5 * TWO_PI + 1e-10;
+        final double expected = -0.5 * TWO_PI + 1e-10;
+        final double actual = PlaneAngleRadians.normalizeBetweenMinusPiAndPi(value);
+        final double tol = Math.ulp(expected);
+        Assert.assertEquals(expected, actual, tol);
+    }
+    @Test
+    public void testNormalizeBetweenMinusPiAndPi4() {
+        final double value = 5 * Math.PI / 4;
+        final double expected = Math.PI * (1d / 4 - 1);
+        final double actual = PlaneAngleRadians.normalizeBetweenMinusPiAndPi(value);
+        final double tol = Math.ulp(expected);
+        Assert.assertEquals(expected, actual, tol);
+    }
+
+    @Test
+    public void testNormalizeBetweenZeroAndTwoPi1() {
+        final double value = 1.25 * TWO_PI;
+        final double expected = 0.25 * TWO_PI;
+        final double actual = PlaneAngleRadians.normalizeBetweenZeroAndTwoPi(value);
+        final double tol = Math.ulp(expected);
+        Assert.assertEquals(expected, actual, tol);
+    }
+    @Test
+    public void testNormalizeBetweenZeroAndTwoPi2() {
+        final double value = 1.75 * TWO_PI;
+        final double expected = 0.75 * TWO_PI;
+        final double actual = PlaneAngleRadians.normalizeBetweenZeroAndTwoPi(value);
+        final double tol = Math.ulp(expected);
+        Assert.assertEquals(expected, actual, tol);
+    }
+    @Test
+    public void testNormalizeBetweenZeroAndTwoPi3() {
+        final double value = -0.5 * TWO_PI + 1e-10;
+        final double expected = 0.5 * TWO_PI + 1e-10;
+        final double actual = PlaneAngleRadians.normalizeBetweenZeroAndTwoPi(value);
+        final double tol = Math.ulp(expected);
+        Assert.assertEquals(expected, actual, tol);
+    }
+    @Test
+    public void testNormalizeBetweenZeroAndTwoPi4() {
+        final double value = 9 * Math.PI / 4;
+        final double expected = Math.PI / 4;
+        final double actual = PlaneAngleRadians.normalizeBetweenZeroAndTwoPi(value);
+        final double tol = Math.ulp(expected);
+        Assert.assertEquals(expected, actual, tol);
     }
 }
