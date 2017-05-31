@@ -72,34 +72,34 @@ public class PlaneAngleTest {
     }
 
     @Test
-    public void testNormalizeSimple1() {
+    public void testNormalizeAroundZero1() {
         final double value = 1.25;
         final double expected = 0.25;
-        final double actual = PlaneAngle.ofTurns(value).normalize().toTurns();
+        final double actual = PlaneAngle.ofTurns(value).normalize(PlaneAngle.ZERO).toTurns();
         final double tol = Math.ulp(expected);
         Assert.assertEquals(expected, actual, tol);
     }
     @Test
-    public void testNormalizeSimple2() {
+    public void testNormalizeAroundZero2() {
         final double value = 0.75;
         final double expected = -0.25;
-        final double actual = PlaneAngle.ofTurns(value).normalize().toTurns();
+        final double actual = PlaneAngle.ofTurns(value).normalize(PlaneAngle.ZERO).toTurns();
         final double tol = Math.ulp(expected);
         Assert.assertEquals(expected, actual, tol);
     }
     @Test
-    public void testNormalizeSimple3() {
+    public void testNormalizeAroundZero3() {
         final double value = 0.5 + 1e-10;
         final double expected = -0.5 + 1e-10;
-        final double actual = PlaneAngle.ofTurns(value).normalize().toTurns();
+        final double actual = PlaneAngle.ofTurns(value).normalize(PlaneAngle.ZERO).toTurns();
         final double tol = Math.ulp(expected);
         Assert.assertEquals(expected, actual, tol);
     }
     @Test
-    public void testNormalizeSimple4() {
+    public void testNormalizeAroundZero4() {
         final double value = 5 * Math.PI / 4;
         final double expected = Math.PI * (1d / 4 - 1);
-        final double actual = PlaneAngle.ofRadians(value).normalize().toRadians();
+        final double actual = PlaneAngle.ofRadians(value).normalize(PlaneAngle.ZERO).toRadians();
         final double tol = Math.ulp(expected);
         Assert.assertEquals(expected, actual, tol);
     }

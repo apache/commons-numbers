@@ -20,6 +20,10 @@ package org.apache.commons.numbers.angle;
  * Represents the <a href="https://en.wikipedia.org/wiki/Angle">angle</a> concept.
  */
 public class PlaneAngle {
+    /** Zero. */
+    public static final PlaneAngle ZERO = new PlaneAngle(0);
+    /** Half-turn (aka &pi; radians). */
+    public static final PlaneAngle PI = new PlaneAngle(0.5);
     /** Conversion factor. */
     private static final double HALF_TURN = 0.5;
     /** Conversion factor. */
@@ -32,10 +36,6 @@ public class PlaneAngle {
     private static final double FROM_DEGREES = 1d / TO_DEGREES;
     /** Value (in turns). */
     private final double value;
-    /** Zero. */
-    public static final PlaneAngle ZERO = new PlaneAngle(0);
-    /** &pi; radians. */
-    public static final PlaneAngle PI = new PlaneAngle(HALF_TURN);
 
     /**
      * @param value Value in turns.
@@ -95,16 +95,6 @@ public class PlaneAngle {
      */
     public PlaneAngle normalize(PlaneAngle center) {
         return new PlaneAngle(value - Math.floor(value + HALF_TURN - center.value));
-    }
-
-    /**
-     * Normalize within the interval centered at 0.
-     *
-     * @return {@code a - 2 * k} with integer {@code k} such that
-     * {@code -0.5 <= a - 2 * k <= 0.5} (in turns).
-     */
-    public PlaneAngle normalize() {
-        return normalize(ZERO);
     }
 
     /**
