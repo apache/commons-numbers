@@ -24,21 +24,23 @@ public class PlaneAngleTest {
     public void testConversionTurns() {
         final double value = 12.3456;
         final PlaneAngle a = PlaneAngle.ofTurns(value);
-        Assert.assertEquals(value, a.toTurns(), Math.ulp(value));
+        Assert.assertEquals(value, a.toTurns(), 0d);
     }
 
     @Test
     public void testConversionRadians() {
-        final double value = 12.3456;
+        final double one = 2 * Math.PI;
+        final double value = 12.3456 * one;
         final PlaneAngle a = PlaneAngle.ofRadians(value);
-        Assert.assertEquals(value, a.toRadians(), Math.ulp(value));
+        Assert.assertEquals(value, a.toRadians(), 0d);
     }
 
     @Test
     public void testConversionDegrees() {
-        final double value = 12.3456;
+        final double one = 360;
+        final double value = 12.3456 * one;
         final PlaneAngle a = PlaneAngle.ofDegrees(value);
-        Assert.assertEquals(value, a.toDegrees(), Math.ulp(value));
+        Assert.assertEquals(value, a.toDegrees(), 0d);
     }
 
     @Test
