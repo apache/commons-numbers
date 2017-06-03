@@ -23,8 +23,25 @@ import org.junit.Test;
  * Tests for {@link LanczosApproximation}.
  */
 public class LanczosApproximationTest {
-    @Test
+
+	@Test
     public void testG() {
         Assert.assertEquals(607d / 128d, LanczosApproximation.g(), 0d);
+    }
+
+	@Test
+    public void testLowGammaLanczosApproximation() {
+
+		Assert.assertEquals(29.020294557631818d, LanczosApproximation.value(0.1d), 0d);
+    }
+
+	@Test
+    public void testAvrageGammaLanczosApproximation() {
+		Assert.assertEquals(13.14778027539684d, LanczosApproximation.value(1.0d), 0d);
+    }
+
+	@Test
+    public void testHighGammaLanczosApproximation() {
+		Assert.assertEquals(7.897828855157814d, LanczosApproximation.value(2.0d), 0d);
     }
 }
