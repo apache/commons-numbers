@@ -16,6 +16,8 @@
  */
 package org.apache.commons.numbers.gamma;
 
+import java.util.Random;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,23 +27,66 @@ import org.junit.Test;
 public class LanczosApproximationTest {
 
 	@Test
-    public void testG() {
-        Assert.assertEquals(607d / 128d, LanczosApproximation.g(), 0d);
-    }
+	public void testG() {
+		Assert.assertEquals(607d / 128d, LanczosApproximation.g(), 0d);
+	}
 
 	@Test
-    public void testLowGammaLanczosApproximation() {
+	public void testLanczosApproximation() {
 
-		Assert.assertEquals(29.020294557631818d, LanczosApproximation.value(0.1d), 0d);
-    }
+		for (double index = 0.1; index < 50.0; index += 0.1) {
+			double randomfractionalNumber = getRandomFlotingPoints();
 
-	@Test
-    public void testAvrageGammaLanczosApproximation() {
-		Assert.assertEquals(13.14778027539684d, LanczosApproximation.value(1.0d), 0d);
-    }
+			String expected = String.format("%.10f", generateCoefficientsValue(randomfractionalNumber));
+			String actual = String.format("%.10f", LanczosApproximation.value(randomfractionalNumber));
 
-	@Test
-    public void testHighGammaLanczosApproximation() {
-		Assert.assertEquals(7.897828855157814d, LanczosApproximation.value(2.0d), 0d);
-    }
+			Assert.assertEquals(expected, actual);
+
+		}
+	}
+
+	/**
+	 * method for generating random Coefficients for testing
+	 * LanczosApproximation below code is the fraction of code taken from
+	 * https://rosettacode.org/wiki/Gamma_function#Java
+	 *
+	 * @param val
+	 * @return a
+	 */
+	private double generateCoefficientsValue(double val) {
+
+		double[] p = { 0.99999999999999709182, 57.156235665862923517, -59.597960355475491248, 14.136097974741747174,
+				-0.49191381609762019978, .33994649984811888699e-4, .46523628927048575665e-4, -.98374475304879564677e-4,
+				.15808870322491248884e-3, -.21026444172410488319e-3, .21743961811521264320e-3,
+				-.16431810653676389022e-3, .84418223983852743293e-4, -.26190838401581408670e-4,
+				.36899182659531622704e-5, };
+
+		double a = p[0];
+		for (int i = 1; i < p.length; i++) {
+			a += p[i] / (val + i);
+		}
+		return a;
+	}
+
+	/**
+	 * method for getting random floating points.
+	 * @return
+	 */
+	private double getRandomFlotingPoints() {
+		double MEAN = 50.0f;
+		double VARIANCE = 50.0f;
+		return getGaussian(MEAN, VARIANCE);
+	}
+
+	private Random fRandom = new Random();
+
+	/**
+	 * method for getting Gaussian
+	 * @param aMean
+	 * @param aVariance
+	 * @return
+	 */
+	private double getGaussian(double aMean, double aVariance) {
+		return aMean + fRandom.nextGaussian() * aVariance;
+	}
 }
