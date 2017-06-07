@@ -71,8 +71,8 @@ public class LogBeta {
      * @param a First argument.
      * @param b Second argument.
      * @return the value of {@code Delta(b) - Delta(a + b)}
-     * @throws IllegalArgumentException if {@code a < 0} or {@code a > b}
-     * @throws IllegalArgumentException if {@code b < 10}
+     * @throws GammaException if {@code a < 0} or {@code a > b}
+     * @throws GammaException if {@code b < 10}
      */
     private static double deltaMinusDeltaSum(final double a,
                                              final double b) {
@@ -116,7 +116,7 @@ public class LogBeta {
      * @param p First argument.
      * @param q Second argument.
      * @return the value of {@code Delta(p) + Delta(q) - Delta(p + q)}.
-     * @throws IllegalArgumentException if {@code p < 10} or {@code q < 10}.
+     * @throws GammaException if {@code p < 10} or {@code q < 10}.
      */
     private static double sumDeltaMinusDeltaSum(final double p,
                                                 final double q) {

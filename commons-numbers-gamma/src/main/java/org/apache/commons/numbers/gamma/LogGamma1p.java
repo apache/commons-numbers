@@ -30,7 +30,7 @@ class LogGamma1p {
      *
      * @param x Argument.
      * @return \( \ln \Gamma(1 + x) \)
-     * @throws IllegalArgumentException if {@code x < -0.5} or {@code x > 1.5}.
+     * @throws GammaException if {@code x < -0.5} or {@code x > 1.5}.
      */
     public static double value(final double x) {
         if (x < -0.5 || x > 1.5) {

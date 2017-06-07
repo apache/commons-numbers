@@ -506,12 +506,12 @@ public class LogBetaTest {
         }
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=GammaException.class)
     public void testLogGammaMinusLogGammaSumPrecondition1() {
         logGammaMinusLogGammaSum(-1, 8);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=GammaException.class)
     public void testLogGammaMinusLogGammaSumPrecondition2() {
         logGammaMinusLogGammaSum(1, 7);
     }
@@ -682,12 +682,12 @@ public class LogBetaTest {
         }
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=GammaException.class)
     public void testSumDeltaMinusDeltaSumPrecondition1() {
         sumDeltaMinusDeltaSum(9, 10);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=GammaException.class)
     public void testSumDeltaMinusDeltaSumPrecondition2() {
         sumDeltaMinusDeltaSum(10, 9);
     }

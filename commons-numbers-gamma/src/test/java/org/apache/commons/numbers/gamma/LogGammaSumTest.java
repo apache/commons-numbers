@@ -144,22 +144,22 @@ public class LogGammaSumTest {
         }
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=GammaException.class)
     public void testLogGammaSumPrecondition1() {
         LogGammaSum.value(0, 1);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=GammaException.class)
     public void testLogGammaSumPrecondition2() {
         LogGammaSum.value(3, 1);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=GammaException.class)
     public void testLogGammaSumPrecondition3() {
         LogGammaSum.value(1, 0);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=GammaException.class)
     public void testLogGammaSumPrecondition4() {
         LogGammaSum.value(1, 3);
     }
