@@ -21,7 +21,7 @@ import java.text.MessageFormat;
 /**
  * Package private exception class with constants for frequently used messages.
  */
-class GammaException extends IllegalArgumentException {
+class GammaException extends ArithmeticException {
     /** Error message for "out of range" condition. */
     static final String OUT_OF_RANGE = "Number {0} is out of range [{1}, {2}]";
     /** Error message for convergence failure. */
