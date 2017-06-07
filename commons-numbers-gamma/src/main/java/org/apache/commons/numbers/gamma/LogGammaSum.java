@@ -31,7 +31,7 @@ class LogGammaSum {
      * @param a First argument.
      * @param b Second argument.
      * @return the value of {@code log(Gamma(a + b))}.
-     * @throws IllegalArgumentException if {@code a} or {@code b} is lower than 1
+     * @throws GammaException if {@code a} or {@code b} is lower than 1
      * or larger than 2.
      */
     static double value(double a,

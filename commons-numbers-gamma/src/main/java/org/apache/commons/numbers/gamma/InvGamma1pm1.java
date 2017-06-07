@@ -106,7 +106,7 @@ class InvGamma1pm1 {
      *
      * @param x Argument.
      * @return \( \frac{1}{\Gamma(1 + x)} - 1 \)
-     * @throws IllegalArgumentException if {@code x < -0.5} or {@code x > 1.5}
+     * @throws GammaException if {@code x < -0.5} or {@code x > 1.5}
      */
     public static double value(final double x) {
         if (x < -0.5 || x > 1.5) {
