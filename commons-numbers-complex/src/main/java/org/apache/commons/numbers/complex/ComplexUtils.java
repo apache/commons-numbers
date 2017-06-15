@@ -744,7 +744,7 @@ public class ComplexUtils {
      */
     public static double[][] complex2Interleaved(Complex[][] c, int interleavedDim) {
         if (interleavedDim > 1 || interleavedDim < 0) {
-            new IndexOutOfRangeException(interleavedDim);
+            throw new IndexOutOfRangeException(interleavedDim);
         }
         final int width = c.length;
         final int height = c[0].length;
@@ -797,7 +797,7 @@ public class ComplexUtils {
      */
     public static double[][][] complex2Interleaved(Complex[][][] c, int interleavedDim) {
         if (interleavedDim > 2 || interleavedDim < 0) {
-            new IndexOutOfRangeException(interleavedDim);
+            throw new IndexOutOfRangeException(interleavedDim);
         }
         int width = c.length;
         int height = c[0].length;
@@ -865,7 +865,7 @@ public class ComplexUtils {
      */
     public static float[][] complex2InterleavedFloat(Complex[][] c, int interleavedDim) {
         if (interleavedDim > 1 || interleavedDim < 0) {
-            new IndexOutOfRangeException(interleavedDim);
+            throw new IndexOutOfRangeException(interleavedDim);
         }
         final int width = c.length;
         final int height = c[0].length;
@@ -919,7 +919,7 @@ public class ComplexUtils {
      */
     public static float[][][] complex2InterleavedFloat(Complex[][][] c, int interleavedDim) {
         if (interleavedDim > 2 || interleavedDim < 0) {
-            new IndexOutOfRangeException(interleavedDim);
+            throw new IndexOutOfRangeException(interleavedDim);
         }
         final int width = c.length;
         final int height = c[0].length;
@@ -987,7 +987,7 @@ public class ComplexUtils {
      */
     public static Complex[][] interleaved2Complex(double[][] d, int interleavedDim) {
         if (interleavedDim > 1 || interleavedDim < 0) {
-            new IndexOutOfRangeException(interleavedDim);
+            throw new IndexOutOfRangeException(interleavedDim);
         }
         final int width = d.length;
         final int height = d[0].length;
@@ -1036,7 +1036,7 @@ public class ComplexUtils {
      */
     public static Complex[][][] interleaved2Complex(double[][][] d, int interleavedDim) {
         if (interleavedDim > 2 || interleavedDim < 0) {
-            new IndexOutOfRangeException(interleavedDim);
+            throw new IndexOutOfRangeException(interleavedDim);
         }
         final int width = d.length;
         final int height = d[0].length;
@@ -1099,7 +1099,7 @@ public class ComplexUtils {
      */
     public static Complex[][] interleaved2Complex(float[][] d, int interleavedDim) {
         if (interleavedDim > 1 || interleavedDim < 0) {
-            new IndexOutOfRangeException(interleavedDim);
+            throw new IndexOutOfRangeException(interleavedDim);
         }
         final int width = d.length;
         final int height = d[0].length;
@@ -1148,7 +1148,7 @@ public class ComplexUtils {
      */
     public static Complex[][][] interleaved2Complex(float[][][] d, int interleavedDim) {
         if (interleavedDim > 2 || interleavedDim < 0) {
-            new IndexOutOfRangeException(interleavedDim);
+            throw new IndexOutOfRangeException(interleavedDim);
         }
         final int width = d.length;
         final int height = d[0].length;
