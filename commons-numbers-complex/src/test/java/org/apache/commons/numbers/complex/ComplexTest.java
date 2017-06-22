@@ -62,18 +62,6 @@ public class ComplexTest {
     }
 
     @Test
-    public void testConstructorNaN() {
-        Complex z = new Complex(3.0, Double.NaN);
-        Assert.assertTrue(z.isNaN());
-
-        z = new Complex(nan, 4.0);
-        Assert.assertTrue(z.isNaN());
-
-        z = new Complex(3.0, 4.0);
-        Assert.assertFalse(z.isNaN());
-    }
-
-    @Test
     public void testAbs() {
         Complex z = new Complex(3.0, 4.0);
         Assert.assertEquals(5.0, z.abs(), 0);
@@ -165,12 +153,6 @@ public class ComplexTest {
     }
 
     @Test
-    public void testConjugateNaN() {
-        Complex z = Complex.NaN.conjugate();
-        Assert.assertTrue(z.isNaN());
-    }
-
-    @Test
     public void testConjugateInfinite() {
         Complex z = new Complex(0, inf);
         Assert.assertEquals(neginf, z.conjugate().getImaginary(), 0);
@@ -236,13 +218,6 @@ public class ComplexTest {
         Complex x = new Complex(0.0, 0.0);
         Complex z = x.divide(Complex.ZERO);
         Assert.assertEquals(z, Complex.NaN);
-    }
-
-    @Test
-    public void testDivideNaN() {
-        Complex x = new Complex(3.0, 4.0);
-        Complex z = x.divide(Complex.NaN);
-        Assert.assertTrue(z.isNaN());
     }
 
     @Test
@@ -328,11 +303,6 @@ public class ComplexTest {
     }
 
     @Test
-    public void testReciprocalNaN() {
-        Assert.assertTrue(Complex.NaN.reciprocal().isNaN());
-    }
-
-    @Test
     public void testMultiply() {
         Complex x = new Complex(3.0, 4.0);
         Complex y = new Complex(5.0, 6.0);
@@ -348,12 +318,6 @@ public class ComplexTest {
         Assert.assertSame(Complex.NaN, z);
         z = Complex.NaN.multiply(5);
         Assert.assertSame(Complex.NaN, z);
-    }
-
-    @Test
-    public void testMultiplyInfInf() {
-        // Assert.assertTrue(infInf.multiply(infInf).isNaN()); // MATH-620
-        Assert.assertTrue(infInf.multiply(infInf).isInfinite());
     }
 
     @Test
@@ -417,12 +381,6 @@ public class ComplexTest {
         Complex z = x.negate();
         Assert.assertEquals(-3.0, z.getReal(), 1.0e-5);
         Assert.assertEquals(-4.0, z.getImaginary(), 1.0e-5);
-    }
-
-    @Test
-    public void testNegateNaN() {
-        Complex z = Complex.NaN.negate();
-        Assert.assertTrue(z.isNaN());
     }
 
     @Test
@@ -669,20 +627,10 @@ public class ComplexTest {
     }
 
     @Test
-    public void testAcosNaN() {
-        Assert.assertTrue(Complex.NaN.acos().isNaN());
-    }
-
-    @Test
     public void testAsin() {
         Complex z = new Complex(3, 4);
         Complex expected = new Complex(0.633984, 2.30551);
         TestUtils.assertEquals(expected, z.asin(), 1.0e-5);
-    }
-
-    @Test
-    public void testAsinNaN() {
-        Assert.assertTrue(Complex.NaN.asin().isNaN());
     }
 
     @Test
@@ -696,7 +644,6 @@ public class ComplexTest {
         TestUtils.assertSame(Complex.NaN, negInfInf.asin());
         TestUtils.assertSame(Complex.NaN, negInfNegInf.asin());
     }
-
 
     @Test
     public void testAtan() {
@@ -718,25 +665,10 @@ public class ComplexTest {
     }
 
     @Test
-    public void testAtanI() {
-        Assert.assertTrue(Complex.I.atan().isNaN());
-    }
-
-    @Test
-    public void testAtanNaN() {
-        Assert.assertTrue(Complex.NaN.atan().isNaN());
-    }
-
-    @Test
     public void testCos() {
         Complex z = new Complex(3, 4);
         Complex expected = new Complex(-27.03495, -3.851153);
         TestUtils.assertEquals(expected, z.cos(), 1.0e-5);
-    }
-
-    @Test
-    public void testCosNaN() {
-        Assert.assertTrue(Complex.NaN.cos().isNaN());
     }
 
     @Test
@@ -756,11 +688,6 @@ public class ComplexTest {
         Complex z = new Complex(3, 4);
         Complex expected = new Complex(-6.58066, -7.58155);
         TestUtils.assertEquals(expected, z.cosh(), 1.0e-5);
-    }
-
-    @Test
-    public void testCoshNaN() {
-        Assert.assertTrue(Complex.NaN.cosh().isNaN());
     }
 
     @Test
@@ -786,11 +713,6 @@ public class ComplexTest {
         Complex iPi = Complex.I.multiply(new Complex(pi,0));
         TestUtils.assertEquals(Complex.ONE.negate(),
                 iPi.exp(), tol);
-    }
-
-    @Test
-    public void testExpNaN() {
-        Assert.assertTrue(Complex.NaN.exp().isNaN());
     }
 
     @Test
@@ -870,11 +792,6 @@ public class ComplexTest {
     }
 
     @Test
-    public void testLogNaN() {
-        Assert.assertTrue(Complex.NaN.log().isNaN());
-    }
-
-    @Test
     public void testLogInf() {
         final double tol = Math.ulp(1d);
         TestUtils.assertEquals(new Complex(inf, pi / 2),
@@ -905,18 +822,6 @@ public class ComplexTest {
         Complex y = new Complex(5, 6);
         Complex expected = new Complex(-1.860893, 11.83677);
         TestUtils.assertEquals(expected, x.pow(y), 1.0e-5);
-    }
-
-    @Test
-    public void testPowNaNBase() {
-        Complex x = new Complex(3, 4);
-        Assert.assertTrue(Complex.NaN.pow(x).isNaN());
-    }
-
-    @Test
-    public void testPowNaNExponent() {
-        Complex x = new Complex(3, 4);
-        Assert.assertTrue(x.pow(Complex.NaN).isNaN());
     }
 
    @Test
@@ -1042,20 +947,10 @@ public class ComplexTest {
     }
 
     @Test
-    public void testSinNaN() {
-        Assert.assertTrue(Complex.NaN.sin().isNaN());
-    }
-
-    @Test
     public void testSinh() {
         Complex z = new Complex(3, 4);
         Complex expected = new Complex(-6.54812, -7.61923);
         TestUtils.assertEquals(expected, z.sinh(), 1.0e-5);
-    }
-
-    @Test
-    public void testSinhNaN() {
-        Assert.assertTrue(Complex.NaN.sinh().isNaN());
     }
 
     @Test
@@ -1122,11 +1017,6 @@ public class ComplexTest {
     }
 
     @Test
-    public void testSqrtNaN() {
-        Assert.assertTrue(Complex.NaN.sqrt().isNaN());
-    }
-
-    @Test
     public void testSqrtInf() {
         TestUtils.assertSame(infNaN, oneInf.sqrt());
         TestUtils.assertSame(infNaN, oneNegInf.sqrt());
@@ -1146,11 +1036,6 @@ public class ComplexTest {
     }
 
     @Test
-    public void testSqrt1zNaN() {
-        Assert.assertTrue(Complex.NaN.sqrt1z().isNaN());
-    }
-
-    @Test
     public void testTan() {
         Complex z = new Complex(3, 4);
         Complex expected = new Complex(-0.000187346, 0.999356);
@@ -1162,11 +1047,6 @@ public class ComplexTest {
         actual = new Complex(3.0, -1E10).tan();
         expected = new Complex(0, -1);
         TestUtils.assertEquals(expected, actual, 1.0e-5);
-    }
-
-    @Test
-    public void testTanNaN() {
-        Assert.assertTrue(Complex.NaN.tan().isNaN());
     }
 
     @Test
@@ -1199,11 +1079,6 @@ public class ComplexTest {
         actual = new Complex(-1E10, 3.0).tanh();
         expected = new Complex(-1, 0);
         TestUtils.assertEquals(expected, actual, 1.0e-5);
-    }
-
-    @Test
-    public void testTanhNaN() {
-        Assert.assertTrue(Complex.NaN.tanh().isNaN());
     }
 
     @Test
@@ -1449,18 +1324,14 @@ public class ComplexTest {
         Assert.assertEquals(z, TestUtils.serializeAndRecover(z));
         Complex ncmplx = (Complex)TestUtils.serializeAndRecover(oneNaN);
         Assert.assertEquals(nanZero, ncmplx);
-        Assert.assertTrue(ncmplx.isNaN());
         Complex infcmplx = (Complex)TestUtils.serializeAndRecover(infInf);
         Assert.assertEquals(infInf, infcmplx);
-        Assert.assertTrue(infcmplx.isInfinite());
         TestComplex tz = new TestComplex(3.0, 4.0);
         Assert.assertEquals(tz, TestUtils.serializeAndRecover(tz));
         TestComplex ntcmplx = (TestComplex)TestUtils.serializeAndRecover(new TestComplex(oneNaN));
         Assert.assertEquals(nanZero, ntcmplx);
-        Assert.assertTrue(ntcmplx.isNaN());
         TestComplex inftcmplx = (TestComplex)TestUtils.serializeAndRecover(new TestComplex(infInf));
         Assert.assertEquals(infInf, inftcmplx);
-        Assert.assertTrue(inftcmplx.isInfinite());
     }
 
     /**
