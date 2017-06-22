@@ -172,7 +172,9 @@ public class Complex implements Serializable  {
 
      /**
      * Return the norm of this complex number, defined as the square of the magnitude
-     * (Matches C++ 11 standards.)
+in the
+     * <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/cproj.html">
+     * IEEE and ISO C standards</a>.
      *
      * @return the norm.
      */
