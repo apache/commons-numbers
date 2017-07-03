@@ -21,6 +21,7 @@ import org.junit.Test;
 
 
 /**
+ * Tests for {@link ContinuedFraction}.
  */
 public class ContinuedFractionTest {
 
