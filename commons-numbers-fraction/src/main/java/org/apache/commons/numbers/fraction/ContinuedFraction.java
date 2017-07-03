@@ -26,7 +26,7 @@ import org.apache.commons.numbers.core.Precision;
  */
 public abstract class ContinuedFraction {
     /** Maximum allowed numerical error. */
-    private static final double DEFAULT_EPSILON = 10e-9;
+    private static final double DEFAULT_EPSILON = 1e-9;
 
     /**
      * Defines the <a href="http://mathworld.wolfram.com/ContinuedFraction.html">
