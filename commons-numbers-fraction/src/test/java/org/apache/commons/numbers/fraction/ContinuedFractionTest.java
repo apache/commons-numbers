@@ -31,16 +31,16 @@ public class ContinuedFractionTest {
 
             @Override
             public double getA(int n, double x) {
-                return 1.0;
+                return 1;
             }
 
             @Override
             public double getB(int n, double x) {
-                return 1.0;
+                return 1;
             }
         };
 
-        double gr = cf.evaluate(0.0, 10e-9);
-        Assert.assertEquals(1.61803399, gr, 10e-9);
+        double gr = cf.evaluate(0.0, 1e-8);
+        Assert.assertEquals(1.61803399, gr, 1e-8);
     }
 }
