@@ -80,7 +80,7 @@ public abstract class ContinuedFraction {
     }
 
     /**
-     * Evaluates the continued fraction at the value x.
+     * Evaluates the continued fraction.
      * <p>
      * The implementation of this method is based on the modified Lentz algorithm as described
      * on page 18 ff. in:
@@ -99,12 +99,13 @@ public abstract class ContinuedFraction {
      * <a href="http://mathworld.wolfram.com/ContinuedFraction.html">Continued Fraction @ MathWorld</a>.
      * </p>
      *
-     * @param x the evaluation point.
-     * @param epsilon maximum error allowed.
-     * @param maxIterations maximum number of convergents
-     * @return the value of the continued fraction evaluated at x.
+     * @param x Point at which to evaluate the continued fraction.
+     * @param epsilon Maximum error allowed.
+     * @param maxIterations Maximum number of iterations.
+     * @return the value of the continued fraction evaluated at {@code x}.
      * @throws ArithmeticException if the algorithm fails to converge.
-     * @throws ArithmeticException if maximal number of iterations is reached
+     * @throws ArithmeticException if the maximal number of iterations is reached
+     * before the expected convergence is achieved.
      */
     public double evaluate(double x, double epsilon, int maxIterations) {
         final double small = 1e-50;
@@ -120,7 +121,7 @@ public abstract class ContinuedFraction {
         double cPrev = hPrev;
         double hN = hPrev;
 
-        while (n < maxIterations) {
+        while (n <= maxIterations) {
             final double a = getA(n, x);
             final double b = getB(n, x);
 
@@ -146,21 +147,16 @@ public abstract class ContinuedFraction {
                                                x);
             }
 
-            if (Math.abs(deltaN - 1.0) < epsilon) {
-                break;
+            if (Math.abs(deltaN - 1) < epsilon) {
+                return hN;
             }
 
             dPrev = dN;
             cPrev = cN;
             hPrev = hN;
-            n++;
+            ++n;
         }
 
-        if (n >= maxIterations) {
-            throw new FractionException("maximal count ({0}) exceeded", maxIterations);
-        }
-
-        return hN;
+        throw new FractionException("maximal count ({0}) exceeded", maxIterations);
     }
-
 }
