@@ -29,39 +29,51 @@ public abstract class ContinuedFraction {
     private static final double DEFAULT_EPSILON = 10e-9;
 
     /**
-     * Access the n-th a coefficient of the continued fraction.  Since a can be
-     * a function of the evaluation point, x, that is passed in as well.
-     * @param n the coefficient index to retrieve.
-     * @param x the evaluation point.
-     * @return the n-th a coefficient.
+     * Defines the <a href="http://mathworld.wolfram.com/ContinuedFraction.html">
+     * {@code n}-th "a" coefficient</a> of the continued fraction.
+     *
+     * @param n Index of the coefficient to retrieve.
+     * @param x Evaluation point.
+     * @return the coefficient <code>a<sub>n</sub></code>.
      */
     protected abstract double getA(int n, double x);
 
     /**
-     * Access the n-th b coefficient of the continued fraction.  Since b can be
-     * a function of the evaluation point, x, that is passed in as well.
-     * @param n the coefficient index to retrieve.
-     * @param x the evaluation point.
-     * @return the n-th b coefficient.
+     * Defines the <a href="http://mathworld.wolfram.com/ContinuedFraction.html">
+     * {@code n}-th "b" coefficient</a> of the continued fraction.
+     *
+     * @param n Index of the coefficient to retrieve.
+     * @param x Evaluation point.
+     * @return the coefficient <code>b<sub>n</sub></code>.
      */
     protected abstract double getB(int n, double x);
 
     /**
-     * Evaluates the continued fraction at the value x.
-     * @param x the evaluation point.
-     * @return the value of the continued fraction evaluated at x.
+     * Evaluates the continued fraction.
+     *
+     * @param x Point at which to evaluate the continued fraction.
+     * @return the value of the continued fraction evaluated at {@code x}.
      * @throws ArithmeticException if the algorithm fails to converge.
+     * @throws ArithmeticException if the maximal number of iterations is reached
+     * before the expected convergence is achieved.
+     *
+     * @see #evaluate(double,double,int)
      */
     public double evaluate(double x) {
         return evaluate(x, DEFAULT_EPSILON, Integer.MAX_VALUE);
     }
 
     /**
-     * Evaluates the continued fraction at the value x.
+     * Evaluates the continued fraction.
+     *
      * @param x the evaluation point.
-     * @param epsilon maximum error allowed.
-     * @return the value of the continued fraction evaluated at x.
+     * @param epsilon Maximum error allowed.
+     * @return the value of the continued fraction evaluated at {@code x}.
      * @throws ArithmeticException if the algorithm fails to converge.
+     * @throws ArithmeticException if the maximal number of iterations is reached
+     * before the expected convergence is achieved.
+     *
+     * @see #evaluate(double,double,int)
      */
     public double evaluate(double x, double epsilon) {
         return evaluate(x, epsilon, Integer.MAX_VALUE);
@@ -70,10 +82,13 @@ public abstract class ContinuedFraction {
     /**
      * Evaluates the continued fraction at the value x.
      * @param x the evaluation point.
-     * @param maxIterations maximum number of convergents
-     * @return the value of the continued fraction evaluated at x.
+     * @param maxIterations Maximum number of iterations.
+     * @return the value of the continued fraction evaluated at {@code x}.
      * @throws ArithmeticException if the algorithm fails to converge.
-     * @throws ArithmeticException if maximal number of iterations is reached
+     * @throws ArithmeticException if the maximal number of iterations is reached
+     * before the expected convergence is achieved.
+     *
+     * @see #evaluate(double,double,int)
      */
     public double evaluate(double x, int maxIterations) {
         return evaluate(x, DEFAULT_EPSILON, maxIterations);
@@ -93,11 +108,6 @@ public abstract class ContinuedFraction {
      *   http://www.fresco.org.uk/papers/Thompson-JCP64p490.pdf</a>
      *   </li>
      * </ul>
-     *
-     * <p>
-     * <b>Note:</b> the implementation uses the terms a<sub>i</sub> and b<sub>i</sub> as defined in
-     * <a href="http://mathworld.wolfram.com/ContinuedFraction.html">Continued Fraction @ MathWorld</a>.
-     * </p>
      *
      * @param x Point at which to evaluate the continued fraction.
      * @param epsilon Maximum error allowed.
