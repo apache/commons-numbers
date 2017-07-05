@@ -127,6 +127,34 @@ public class Complex implements Serializable  {
     }
 
     /**
+     * Returns true if either real or imaginary component of the Complex
+     * is NaN
+     * 
+     * @return {@code boolean}
+     */
+    public boolean isNaN() {
+        if (Double.isNaN(real) || Double.isNaN(imaginary)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Returns true if either real or imaginary component of the Complex
+     * is Infinite 
+     * 
+     * @return {@code boolean}
+     */
+    public boolean isInfinite() {
+        if (Double.isInfinite(real) || Double.isInfinite(imaginary)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Returns projection of this complex number onto the Riemann sphere,
      * i.e. all infinities (including those with an NaN component)
      * project onto real infinity, as described in the
@@ -1104,9 +1132,6 @@ in the
      * @return a Complex instance.
      */
     public static Complex valueOf(double realPart) {
-        if (Double.isNaN(realPart)) {
-            return NaN;
-        }
         return new Complex(realPart);
     }
 
