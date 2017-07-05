@@ -32,8 +32,8 @@ public class LanczosApproximationTest {
     public void testSomeValues() {
         // Given that few values are checked, this test would only serve
         // as early warning of unexpected changes to the current code.
-		Assert.assertEquals(29.020294557631818d, LanczosApproximation.value(0.1d), 0d);
-		Assert.assertEquals(13.14778027539684d, LanczosApproximation.value(1.0d), 0d);
-		Assert.assertEquals(7.897828855157814d, LanczosApproximation.value(2.0d), 0d);
+        Assert.assertEquals(29.020294557631818d, LanczosApproximation.value(0.1d), 0d);
+        Assert.assertEquals(13.14778027539684d, LanczosApproximation.value(1.0d), 0d);
+        Assert.assertEquals(7.897828855157814d, LanczosApproximation.value(2.0d), 0d);
     }
 }
