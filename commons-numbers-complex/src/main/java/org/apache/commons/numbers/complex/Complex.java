@@ -641,23 +641,39 @@ in the
      * @return the inverse cosine of this complex number.
      */
     public Complex acos() {
+        if (real == 0 && Double.isNaN(imaginary)) {
+            return new Complex(Math.PI * 0.5, Double.NaN);
+        } else if (!Double.isNaN(real) && !Double.isInfinite(real) && imaginary == Double.POSITIVE_INFINITY) {
+            return new Complex(Math.PI * 0.5, Double.NEGATIVE_INFINITY);
+        } else if (real == Double.NEGATIVE_INFINITY && imaginary == 1) {
+            return new Complex(Math.PI, Double.NEGATIVE_INFINITY);
+        } else if (real == Double.POSITIVE_INFINITY && imaginary == 1) {
+            return new Complex(0, Double.NEGATIVE_INFINITY);
+        } else if (real == Double.NEGATIVE_INFINITY && imaginary == Double.POSITIVE_INFINITY) {
+            return new Complex(Math.PI * 0.75, Double.NEGATIVE_INFINITY);
+        } else if (real == Double.POSITIVE_INFINITY && imaginary == Double.POSITIVE_INFINITY) {
+            return new Complex(Math.PI * 0.25, Double.NEGATIVE_INFINITY); 
+        } else if (real == Double.POSITIVE_INFINITY && Double.isNaN(imaginary)) {
+            return new Complex(Double.NaN , Double.POSITIVE_INFINITY);
+        } else if (real == Double.NEGATIVE_INFINITY && Double.isNaN(imaginary)) {
+            return new Complex(Double.NaN, Double.NEGATIVE_INFINITY);
+        } else if (Double.isNaN(real) && imaginary == Double.POSITIVE_INFINITY) {
+            return new Complex(Double.NaN, Double.NEGATIVE_INFINITY);
+        } 
         return this.add(this.sqrt1z().multiply(I)).log().multiply(I.negate());
     }
-
     /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/InverseSine.html" TARGET="_top">
      * inverse sine</a> of this complex number.
-     * Implements the formula:
      * <p>
      *  {@code asin(z) = -i (log(sqrt(1 - z<sup>2</sup>) + iz))}
      * </p><p>
-     * @return the inverse sine of this complex number.
+     * @return the inverse sine of this complex number
      */
     public Complex asin() {
         return sqrt1z().add(this.multiply(I)).log().multiply(I.negate());
     }
-
     /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/InverseTangent.html" TARGET="_top">

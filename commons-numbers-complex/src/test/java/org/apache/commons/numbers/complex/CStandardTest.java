@@ -38,6 +38,7 @@ public class CStandardTest {
     private Complex oneNegInf = new Complex(1, negInf);
     private Complex oneNaN = new Complex(1, nan);
     private Complex zeroInf = new Complex(0, inf);
+    private Complex zeroNegInf = new Complex(0,negInf);
     private Complex zeroNaN = new Complex(0, nan);
     private Complex zeroPiTwo = new Complex(0.0, piOverTwo);
     private Complex negZeroZero = new Complex(-0.0, 0);
@@ -116,7 +117,7 @@ public class CStandardTest {
         assertComplex(oneInf.acos(), piTwoNegInf);
         assertComplex(oneNaN.acos(), Complex.NaN);
         assertComplex(negInfOne.acos(), piNegInf);
-        assertComplex(infOne.acos(), zeroInf);
+        assertComplex(infOne.acos(), zeroNegInf);
         assertComplex(negInfPosInf.acos(), threePiFourNegInf);
         assertComplex(infInf.acos(), piFourNegInf);
         assertComplex(infNaN.acos(), nanInf);
