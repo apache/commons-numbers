@@ -701,6 +701,19 @@ in the
      * @since 1.2
      */
     public Complex asinh(){
+        if (!Double.isNaN(real) && !Double.isInfinite(real) && imaginary == Double.POSITIVE_INFINITY) {
+            return new Complex(Double.POSITIVE_INFINITY, Math.PI * 0.5);
+        } else if (real == Double.POSITIVE_INFINITY && !Double.isInfinite(imaginary) && !Double.isNaN(imaginary)) {
+            return new Complex(Double.POSITIVE_INFINITY, 0);
+        } else if (real == Double.POSITIVE_INFINITY && imaginary == Double.POSITIVE_INFINITY) {
+            return new Complex(Double.POSITIVE_INFINITY, Math.PI * 0.25);
+        } else if (real == Double.POSITIVE_INFINITY && Double.isNaN(imaginary)) {
+            return new Complex(Double.POSITIVE_INFINITY,  Double.NaN);
+        } else if (Double.isNaN(real) && imaginary == 0) {
+            return new Complex(Double.NaN, 0);
+        } else if (Double.isNaN(real) && imaginary == Double.POSITIVE_INFINITY) {
+            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
+        }
         return square().add(Complex.ONE).sqrt().add(this).log();
     }
 
