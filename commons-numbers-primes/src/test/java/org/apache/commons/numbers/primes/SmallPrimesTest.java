@@ -16,12 +16,13 @@
  */
 package org.apache.commons.numbers.primes;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+
 import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class SmallPrimesTest {
 
@@ -76,7 +77,7 @@ public class SmallPrimesTest {
         Assert.assertEquals(LARGE_PRIME[0]*LARGE_PRIME[1], result);
         Assert.assertEquals(Collections.<Integer>emptyList(), factors);
     }
-    
+
     @Test
     public void boundedTrialDivision_twoDifferentFactors() {
         final List<Integer> factors = new ArrayList<Integer>();
@@ -140,4 +141,20 @@ public class SmallPrimesTest {
             }
         }
     }
+
+    @Test
+    public void testMillerRabinPrimeTestReturningFalse() {
+
+        assertFalse(SmallPrimes.millerRabinPrimeTest(1105));
+
+    }
+
+
+    @Test
+    public void testBoundedTrialDivisionReturningPositive() {
+
+        assertEquals(1, SmallPrimes.boundedTrialDivision(5021, 5021, new LinkedList<Integer>()));
+
+    }
+
 }

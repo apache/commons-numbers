@@ -17,15 +17,16 @@
 package org.apache.commons.numbers.combinatorics;
 
 import org.apache.commons.numbers.gamma.LogGamma;
-
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Test cases for the {@link LogFactorial} class.
  */
 public class LogFactorialTest {
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testNonPositiveArgument() {
         LogFactorial.create().withCache(-1);
     }
@@ -38,8 +39,8 @@ public class LogFactorialTest {
         // "LogGamma" class.
         for (int i = 21; i < 10000; i++) {
             final double expected = LogGamma.value(i + 1);
-            Assert.assertEquals(i + "! ",
-                                expected, f.value(i), 0d);
+            assertEquals(i + "! ",
+                    expected, f.value(i), 0d);
         }
     }
 
@@ -53,8 +54,8 @@ public class LogFactorialTest {
 
         for (int i = 0; i < max; i++) {
             final double expected = logFactorial(i);
-            Assert.assertEquals(i + "! ",
-                                expected, f.value(i), 2 * Math.ulp(expected));
+            assertEquals(i + "! ",
+                    expected, f.value(i), 2 * Math.ulp(expected));
         }
     }
 
@@ -65,8 +66,8 @@ public class LogFactorialTest {
 
         for (int i = 0; i < max; i++) {
             final double expected = logFactorial(i);
-            Assert.assertEquals(i + "! ",
-                                expected, f.value(i), 0d);
+            assertEquals(i + "! ",
+                    expected, f.value(i), 0d);
         }
     }
 
@@ -74,8 +75,8 @@ public class LogFactorialTest {
     public void testZeroCache() {
         // Ensure that no exception is thrown.
         final LogFactorial f = LogFactorial.create().withCache(0);
-        Assert.assertEquals(0, f.value(0), 0d);
-        Assert.assertEquals(0, f.value(1), 0d);
+        assertEquals(0, f.value(0), 0d);
+        assertEquals(0, f.value(1), 0d);
     }
 
     @Test
@@ -93,7 +94,7 @@ public class LogFactorialTest {
 
         final int val = max + max / 2;
         final double expected = logFactorial(val);
-        Assert.assertEquals(expected, f2.value(val), 0d);
+        assertEquals(expected, f2.value(val), 0d);
     }
 
     @Test
@@ -104,7 +105,7 @@ public class LogFactorialTest {
 
         final int val = max / 4;
         final double expected = logFactorial(val);
-        Assert.assertEquals(expected, f2.value(val), 0d);
+        assertEquals(expected, f2.value(val), 0d);
     }
 
     // Direct implementation.
@@ -115,4 +116,20 @@ public class LogFactorialTest {
         }
         return logSum;
     }
+
+    @Test
+    public void testValueThrowsCombinatoricsException() {
+
+        LogFactorial logFactorial = LogFactorial.create();
+
+        try {
+            logFactorial.value((-482));
+            fail("Expecting exception: CombinatoricsException");
+        } catch (CombinatoricsException e) {
+            assertEquals("Number -482 is negative", e.getMessage());
+            assertEquals(LogFactorial.class.getName(), e.getStackTrace()[0].getClassName());
+        }
+
+    }
+
 }

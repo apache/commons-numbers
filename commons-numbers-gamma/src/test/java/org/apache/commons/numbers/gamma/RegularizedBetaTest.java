@@ -16,8 +16,12 @@
  */
 package org.apache.commons.numbers.gamma;
 
+import org.apache.commons.numbers.fraction.ContinuedFraction;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Tests for {@link RegularizedBeta}.
@@ -77,7 +81,7 @@ public class RegularizedBetaTest {
     public void testRegularizedBetaTinyArgument() {
         double actual = RegularizedBeta.value(1e-17, 1.0, 1e12);
         // This value is from R: pbeta(1e-17,1,1e12)
-        Assert.assertEquals(9.999950000166648e-6, actual, 1e-16);
+        assertEquals(9.999950000166648e-6, actual, 1e-16);
     }
 
     @Test
@@ -89,7 +93,7 @@ public class RegularizedBetaTest {
         try {
             RegularizedBeta.value(x, a, b, 1e-14, 10000);
         } catch (StackOverflowError error) {
-            Assert.fail("Infinite recursion");
+            fail("Infinite recursion");
         }
     }
 
@@ -98,6 +102,50 @@ public class RegularizedBetaTest {
                                      double a,
                                      double b) {
         final double actual = RegularizedBeta.value(x, a, b);
-        Assert.assertEquals(expected, actual, 1e-15);
+        assertEquals(expected, actual, 1e-15);
     }
+
+    @Test
+    public void testValueTaking5ArgumentsThrowsArithmeticException() {
+
+        try {
+            RegularizedBeta.value(0.9972492333291466, 3668.4488, 9.795436556336103, Double.NaN, 387);
+            fail("Expecting exception: ArithmeticException");
+        } catch (ArithmeticException e) {
+            assertEquals("maximal count (387) exceeded", e.getMessage());
+            assertEquals(ContinuedFraction.class.getName(), e.getStackTrace()[0].getClassName());
+        }
+
+    }
+
+
+    @Test
+    public void testValueTakingFourArgumentsWithPositiveAndPositive() {
+
+        assertEquals(Double.NaN, RegularizedBeta.value(2.0, 2.0, 1280.57004088342),0.01);
+
+    }
+
+
+    @Test
+    public void testCreatesRegularizedBeta() {
+
+        RegularizedBeta regularizedBeta = new RegularizedBeta();
+
+    }
+
+
+    @Test
+    public void testValueTakingFourArgumentsThrowsArithmeticException() {
+
+        try {
+            RegularizedBeta.value(0.6946630178187274, 1582.7220438354161, Double.POSITIVE_INFINITY);
+            fail("Expecting exception: ArithmeticException");
+        } catch (ArithmeticException e) {
+            assertEquals("Continued fraction diverged to NaN for value 0.695", e.getMessage());
+            assertEquals(ContinuedFraction.class.getName(), e.getStackTrace()[0].getClassName());
+        }
+
+    }
+
 }

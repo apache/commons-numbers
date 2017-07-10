@@ -25,6 +25,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 
 public class FractionFormatTest {
 
@@ -347,4 +350,40 @@ public class FractionFormatTest {
     public void testDoubleFormat() {
         Assert.assertEquals("355 / 113", improperFormat.format(Math.PI));
     }
+
+    @Test
+    public void testParseTakingString() throws ParseException {
+
+        FractionFormat fractionFormat = FractionFormat.getProperInstance();
+        Fraction fraction = fractionFormat.parse("0 / 1");
+
+        assertEquals((byte) 0, fraction.byteValue());
+
+    }
+
+
+    @Test
+    public void testFormatFractionThrowsIllegalArgumentException() {
+
+        try {
+            FractionFormat.formatFraction((Fraction) null);
+            fail("Expecting exception: IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertEquals("cannot format given object as a fraction number", e.getMessage());
+            assertEquals(FractionFormat.class.getName(), e.getStackTrace()[0].getClassName());
+        }
+
+    }
+
+
+    @Test
+    public void testFormatFraction() {
+
+        Fraction fraction = new Fraction(0);
+        String string = FractionFormat.formatFraction(fraction);
+
+        assertEquals("0 / 1", string);
+
+    }
+
 }

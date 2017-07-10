@@ -19,6 +19,8 @@ package org.apache.commons.numbers.gamma;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Tests for {@link Trigamma}.
  */
@@ -45,7 +47,7 @@ public class TrigammaTest {
                 100, 0.010050166663333571395
         };
         for (int i = data.length - 2; i >= 0; i -= 2) {
-            Assert.assertEquals(String.format("trigamma %.0f", data[i]), data[i + 1], Trigamma.value(data[i]), eps);
+            assertEquals(String.format("trigamma %.0f", data[i]), data[i + 1], Trigamma.value(data[i]), eps);
         }
     }
 
@@ -55,5 +57,19 @@ public class TrigammaTest {
         Assert.assertTrue(Double.isInfinite(Trigamma.value(Double.POSITIVE_INFINITY)));
         Assert.assertTrue(Double.isInfinite(Trigamma.value(Double.NEGATIVE_INFINITY)));
     }
-}
 
+    @Test
+    public void testValueReturningPositive() {
+
+        assertEquals(9.999999999999998E9, Trigamma.value(1.0E-5),0.01);
+
+    }
+
+    @Test
+    public void testCreatesTrigamma() {
+
+        Trigamma trigamma = new Trigamma();
+
+    }
+
+}

@@ -16,81 +16,87 @@
  */
 package org.apache.commons.numbers.combinatorics;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-
+import org.apache.commons.numbers.core.ArithmeticUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import org.apache.commons.numbers.core.ArithmeticUtils;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Test cases for the {@link BinomialCoefficient} class.
  */
 public class BinomialCoefficientTest {
-    /** Cached binomial coefficients. */
+    /**
+     * Cached binomial coefficients.
+     */
     private static final List<Map<Integer, Long>> binomialCache =
-        new ArrayList<Map<Integer, Long>>();
+            new ArrayList<Map<Integer, Long>>();
 
-    /** Verify that b(0,0) = 1 */
+    /**
+     * Verify that b(0,0) = 1
+     */
     @Test
     public void test0Choose0() {
-        Assert.assertEquals(BinomialCoefficient.value(0, 0), 1);
+        assertEquals(BinomialCoefficient.value(0, 0), 1);
     }
 
     @Test
     public void testBinomialCoefficient() {
-        final long[] bcoef5 = { 1, 5, 10, 10, 5, 1 };
-        final long[] bcoef6 = { 1, 6, 15, 20, 15, 6, 1 };
+        final long[] bcoef5 = {1, 5, 10, 10, 5, 1};
+        final long[] bcoef6 = {1, 6, 15, 20, 15, 6, 1};
 
         for (int i = 0; i < 6; i++) {
-            Assert.assertEquals("5 choose " + i, bcoef5[i], BinomialCoefficient.value(5, i));
+            assertEquals("5 choose " + i, bcoef5[i], BinomialCoefficient.value(5, i));
         }
         for (int i = 0; i < 7; i++) {
-            Assert.assertEquals("6 choose " + i, bcoef6[i], BinomialCoefficient.value(6, i));
+            assertEquals("6 choose " + i, bcoef6[i], BinomialCoefficient.value(6, i));
         }
 
         for (int n = 1; n < 10; n++) {
             for (int k = 0; k <= n; k++) {
-                Assert.assertEquals(n + " choose " + k,
-                                    binomialCoefficient(n, k),
-                                    BinomialCoefficient.value(n, k));
+                assertEquals(n + " choose " + k,
+                        binomialCoefficient(n, k),
+                        BinomialCoefficient.value(n, k));
             }
         }
 
-        final int[] n = { 34, 66, 100, 1500, 1500 };
-        final int[] k = { 17, 33, 10, 1500 - 4, 4 };
+        final int[] n = {34, 66, 100, 1500, 1500};
+        final int[] k = {17, 33, 10, 1500 - 4, 4};
         for (int i = 0; i < n.length; i++) {
             final long expected = binomialCoefficient(n[i], k[i]);
-            Assert.assertEquals(n[i] + " choose " + k[i],
-                                expected,
-                                BinomialCoefficient.value(n[i], k[i]));
+            assertEquals(n[i] + " choose " + k[i],
+                    expected,
+                    BinomialCoefficient.value(n[i], k[i]));
         }
     }
 
-    @Test(expected=CombinatoricsException.class)
+    @Test(expected = CombinatoricsException.class)
     public void testBinomialCoefficientFail1() {
         BinomialCoefficient.value(4, 5);
     }
 
-    @Test(expected=CombinatoricsException.class)
+    @Test(expected = CombinatoricsException.class)
     public void testBinomialCoefficientFail2() {
         BinomialCoefficient.value(-1, -2);
     }
 
-    @Test(expected=ArithmeticException.class)
+    @Test(expected = ArithmeticException.class)
     public void testBinomialCoefficientFail3() {
         BinomialCoefficient.value(67, 30);
     }
 
-    @Test(expected=ArithmeticException.class)
+    @Test(expected = ArithmeticException.class)
     public void testBinomialCoefficientFail4() {
         BinomialCoefficient.value(67, 34);
     }
 
-    @Test(expected=ArithmeticException.class)
+    @Test(expected = ArithmeticException.class)
     public void testBinomialCoefficientFail5() {
         BinomialCoefficient.value(700, 300);
     }
@@ -118,34 +124,34 @@ public class BinomialCoefficientTest {
                 } catch (ArithmeticException ex) {
                     shouldThrow = true;
                 }
-                Assert.assertEquals(n + " choose " + k, exactResult, ourResult);
-                Assert.assertEquals(n + " choose " + k, shouldThrow, didThrow);
+                assertEquals(n + " choose " + k, exactResult, ourResult);
+                assertEquals(n + " choose " + k, shouldThrow, didThrow);
                 Assert.assertTrue(n + " choose " + k, (n > 66 || !didThrow));
             }
         }
 
         long ourResult = BinomialCoefficient.value(300, 3);
         long exactResult = binomialCoefficient(300, 3);
-        Assert.assertEquals(exactResult, ourResult);
+        assertEquals(exactResult, ourResult);
 
         ourResult = BinomialCoefficient.value(700, 697);
         exactResult = binomialCoefficient(700, 697);
-        Assert.assertEquals(exactResult, ourResult);
+        assertEquals(exactResult, ourResult);
 
         final int n = 10000;
         ourResult = BinomialCoefficient.value(n, 3);
         exactResult = binomialCoefficient(n, 3);
-        Assert.assertEquals(exactResult, ourResult);
+        assertEquals(exactResult, ourResult);
 
     }
 
-    @Test(expected=CombinatoricsException.class)
+    @Test(expected = CombinatoricsException.class)
     public void testCheckBinomial1() {
         // n < 0
         BinomialCoefficient.checkBinomial(-1, -2);
     }
 
-    @Test(expected=CombinatoricsException.class)
+    @Test(expected = CombinatoricsException.class)
     public void testCheckBinomial2() {
         // k > n
         BinomialCoefficient.checkBinomial(4, 5);
@@ -181,7 +187,7 @@ public class BinomialCoefficientTest {
                 binomialCoefficient(n - 100, k - 100);
             }
             result = ArithmeticUtils.addAndCheck(binomialCoefficient(n - 1, k - 1),
-                                                 binomialCoefficient(n - 1, k));
+                    binomialCoefficient(n - 1, k));
         }
         if (result == -1) {
             throw new IllegalArgumentException();
@@ -192,4 +198,18 @@ public class BinomialCoefficientTest {
         binomialCache.get(n).put(Integer.valueOf(k), Long.valueOf(result));
         return result;
     }
+
+    @Test
+    public void testCheckBinomialThrowsCombinatoricsException() {
+
+        try {
+            BinomialCoefficient.checkBinomial(66, (-2802));
+            fail("Expecting exception: CombinatoricsException");
+        } catch (CombinatoricsException e) {
+            assertEquals("Number -2,802 is out of range [0, 66]", e.getMessage());
+            assertEquals(BinomialCoefficient.class.getName(), e.getStackTrace()[0].getClassName());
+        }
+
+    }
+
 }
