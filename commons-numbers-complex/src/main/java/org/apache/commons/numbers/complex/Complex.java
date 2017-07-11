@@ -643,7 +643,7 @@ in the
     public Complex acos() {
         if (real == 0 && Double.isNaN(imaginary)) {
             return new Complex(Math.PI * 0.5, Double.NaN);
-        } else if (!Double.isNaN(real) && !Double.isInfinite(real) && imaginary == Double.POSITIVE_INFINITY) {
+        } else if (neitherInfiniteNorZeroNorNaN(real) && imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(Math.PI * 0.5, Double.NEGATIVE_INFINITY);
         } else if (real == Double.NEGATIVE_INFINITY && imaginary == 1) {
             return new Complex(Math.PI, Double.NEGATIVE_INFINITY);
@@ -701,7 +701,7 @@ in the
      * @since 1.2
      */
     public Complex asinh(){
-        if (!Double.isNaN(real) && !Double.isInfinite(real) && imaginary == Double.POSITIVE_INFINITY) {
+        if (neitherInfiniteNorZeroNorNaN(real) && imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(Double.POSITIVE_INFINITY, Math.PI * 0.5);
         } else if (real == Double.POSITIVE_INFINITY && !Double.isInfinite(imaginary) && !Double.isNaN(imaginary)) {
             return new Complex(Double.POSITIVE_INFINITY, 0);
@@ -729,6 +729,21 @@ in the
      * @since 1.2
      */
     public Complex atanh(){
+        if (real == 0  && Double.isNaN(imaginary)) {
+            return new Complex(0, Double.NaN);
+        } else if (neitherInfiniteNorZeroNorNaN(real) && imaginary == 0) {
+            return new Complex(Double.POSITIVE_INFINITY, 0);
+        } else if (neitherInfiniteNorZeroNorNaN(real) && imaginary == Double.POSITIVE_INFINITY) {
+            return new Complex(0, Math.PI*0.5);
+        } else if (real == Double.POSITIVE_INFINITY && neitherInfiniteNorZeroNorNaN(imaginary)) {
+            return new Complex(0, Math.PI*0.5);
+        } else if (real == Double.POSITIVE_INFINITY && imaginary == Double.POSITIVE_INFINITY) {
+            return new Complex(0, Math.PI*0.5);
+        } else if (real == Double.POSITIVE_INFINITY && Double.isNaN(imaginary)) {
+            return new Complex(0, Double.NaN);
+        } else if (Double.isNaN(real) && imaginary == Double.POSITIVE_INFINITY) {
+            return new Complex(0, Math.PI*0.5);
+        }
         return this.add(Complex.ONE).divide(Complex.ONE.subtract(this)).log().divide(new Complex(2));
     }
    /**
@@ -1224,5 +1239,11 @@ in the
      */
     private static boolean equals(double x, double y) {
         return new Double(x).equals(new Double(y));
+    }
+
+    private static boolean neitherInfiniteNorZeroNorNaN(double d) {
+        if (!Double.isNaN(d) && !Double.isInfinite(d) && d != 0) {
+            return true;
+        } else return false;
     }
 }
