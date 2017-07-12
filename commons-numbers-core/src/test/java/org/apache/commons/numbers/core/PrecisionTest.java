@@ -550,121 +550,91 @@ public class PrecisionTest {
 
     @Test
     public void testEqualsIncludingNaNTakingThreeDoublesAndTwoWithNegativeAndPositiveOne() {
-
         assertFalse(Precision.equalsIncludingNaN((-2367.8), (double) Float.NaN, (-1776)));
-
     }
 
 
     @Test
     public void testEqualsIncludingNaNTakingThreeDoublesAndTwoWithNegativeAndPositiveTwo() {
-
         assertFalse(Precision.equalsIncludingNaN(Double.NaN, (-2122.27), (-779)));
-
     }
 
 
     @Test
     public void testEqualsIncludingNaNTakingThreeFloatsAndTwoWithNegative() {
-
         assertTrue(Precision.equalsIncludingNaN(Float.NaN, Float.NaN, (-2541)));
-
     }
 
 
     @Test
     public void testEqualsIncludingNaNTakingThreeFloatsAndTwoWithZeroAndEqualsIncludingNaNTakingThreeFloatsAndTwoReturningFalse() {
-
         assertFalse(Precision.equalsIncludingNaN((float) 0, Float.NaN, 2243));
-
     }
 
 
     @Test
     public void testEqualsIncludingNaNTakingThreeFloatsAndTwoWithNegativeAndZero() {
-
         assertFalse(Precision.equalsIncludingNaN(Float.NaN, (-1.0F), 0));
-
     }
 
 
     @Test
     public void testEqualsIncludingNaNTakingThreeFloatsAndTwoWithZeroAndEqualsIncludingNaNTakingThreeFloatsAndTwoReturningTrue() {
-
         assertTrue(Precision.equalsIncludingNaN((float) 1566, -0.0F, 2143768278));
-
     }
 
 
     @Test
     public void testEqualsTakingThreeFloatsAndTwoWithNegativeAndPositiveTwo() {
-
         assertFalse(Precision.equals((float) 6, (-1861.78F), 1150126653));
-
     }
 
 
     @Test
     public void testEqualsIncludingNaNTakingFourFloatsOne() {
-
         assertTrue(Precision.equalsIncludingNaN(2220.4014F, (float) 1, 2220.4014F));
-
     }
 
 
     @Test
     public void testEqualsTakingFourFloatsWithZero() {
-
         assertTrue(Precision.equals(696.2F, 0.0F, 696.2F));
-
     }
 
 
     @Test
     public void testEqualsTakingFourFloatsReturningFalse() {
-
         assertFalse(Precision.equals((float) (-1685), 668.0F, (-2701.3188F)));
-
     }
 
 
     @Test
     public void testEqualsTakingFourFloats() {
-
         assertTrue(Precision.equals(414.5782F, 414.5782F, 414.5782F));
-
     }
 
 
     @Test
     public void testEqualsIncludingNaNTakingFourFloatsReturningFalse() {
-
         assertFalse(Precision.equalsIncludingNaN(Float.NaN, 3036.304F, 1.0F));
-
     }
 
 
     @Test
     public void testEqualsIncludingNaNTakingThreeFloats() {
-
         assertFalse(Precision.equalsIncludingNaN(1573.7026F, Float.NaN));
-
     }
 
 
     @Test
     public void testEqualsIncludingNaNTakingFourFloatsTwo() {
-
         assertTrue(Precision.equalsIncludingNaN(Float.NaN, Float.NaN, 1.0F));
-
     }
 
 
     @Test
     public void testEqualsTakingThreeDoubles() {
-
         assertFalse(Precision.equals((double) 0.0F, (double) Float.NaN));
-
     }
 
 }

@@ -124,7 +124,6 @@ public class FactorialDoubleTest {
      * Direct multiplication implementation.
      */
     private double factorialDirect(int n) {
-
         double result = 1;
 
         for (int i = 2; i <= n; i++) {
@@ -132,13 +131,10 @@ public class FactorialDoubleTest {
         }
 
         return result;
-
-
     }
 
   @Test
   public void testWithCacheThrowsCombinatoricsException() {
-
       FactorialDouble factorialDouble = FactorialDouble.create();
 
       try {
@@ -148,7 +144,6 @@ public class FactorialDoubleTest {
          assertEquals("Number -2,194 is negative",e.getMessage());
          assertEquals(FactorialDouble.class.getName(), e.getStackTrace()[0].getClassName());
       }
-
   }
 
 }

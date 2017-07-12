@@ -478,7 +478,6 @@ public class ComplexUtilsTest {
 
     @Test
     public void testcomplex2InterleavedFloatTakingTwoAndTwoWithPositive() {
-
         Complex[][] complexArray = new Complex[0][9];
 
         try {
@@ -488,12 +487,10 @@ public class ComplexUtilsTest {
             assertEquals("Out of range: 2", e.getMessage());
             assertEquals(ComplexUtils.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
     @Test
     public void testcomplex2ImaginaryTakingComplexArrayArrayArrayThrowsNullPointerException() {
-
         Complex[][][] complexArray = new Complex[1][2][5];
         complexArray[0] = new Complex[7][1];
 
@@ -503,13 +500,11 @@ public class ComplexUtilsTest {
         } catch (NullPointerException e) {
             assertEquals(ComplexUtils.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
 
     @Test
     public void testcomplex2InterleavedFloatTakingTwoAndTwoWithEmptyArrayAndNegative() {
-
         Complex[][][] complexArray = new Complex[0][7][3];
 
         try {
@@ -519,13 +514,11 @@ public class ComplexUtilsTest {
             assertEquals("Out of range: -1", e.getMessage());
             assertEquals(ComplexUtils.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
 
     @Test
     public void testInterleavedThreeComplexTakingTwoAndTwoWithEmptyArray() {
-
         float[][][] floatArray = new float[0][5][8];
 
         try {
@@ -535,13 +528,11 @@ public class ComplexUtilsTest {
             assertEquals("Out of range: 334", e.getMessage());
             assertEquals(ComplexUtils.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
 
     @Test
     public void testExtractComplexFromInterleavedArrayTakingTwoAndTwoThrowsArrayIndexOutOfBoundsException() {
-
         double[] doubleArray = new double[5];
         doubleArray[0] = 0.0;
         doubleArray[1] = 3553.05;
@@ -553,13 +544,11 @@ public class ComplexUtilsTest {
             assertEquals("3330572", e.getMessage());
             assertEquals(ComplexUtils.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
 
     @Test
     public void testInterleavedThrowsIllegalArgumentException() {
-
         try {
             ComplexUtils.interleaved2Complex((float[][][]) null, (-2501));
             fail("Expecting exception: IllegalArgumentException");
@@ -567,13 +556,11 @@ public class ComplexUtilsTest {
             assertEquals("Out of range: -2501", e.getMessage());
             assertEquals(ComplexUtils.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
 
     @Test
     public void testPolarThreeComplexTakingThreeDoubleArraysThrowsIllegalArgumentException() {
-
         double[] doubleArray = new double[8];
         doubleArray[0] = 682.369;
         doubleArray[1] = 612.16397804415;
@@ -589,12 +576,10 @@ public class ComplexUtilsTest {
             assertEquals("Modulus is negative: -252.151672108609", e.getMessage());
             assertEquals(ComplexUtils.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
     @Test
     public void testcomplex2InterleavedFloatTakingTwoAndTwoWithNegative() {
-
         Complex[][] complexArray = new Complex[0][8];
 
         try {
@@ -604,12 +589,10 @@ public class ComplexUtilsTest {
             assertEquals("Out of range: -3231", e.getMessage());
             assertEquals(ComplexUtils.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
     @Test
     public void testInterleavedThreeComplexTakingTwoAndTwoWithEmptyArrayAndNegative() {
-
         float[][] floatArray = new float[0][3];
 
         try {
@@ -619,12 +602,10 @@ public class ComplexUtilsTest {
             assertEquals("Out of range: -4026", e.getMessage());
             assertEquals(ComplexUtils.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
     @Test
     public void testInterleavedThreeComplexTakingTwoAndTwoWithNullAndPositive() {
-
         try {
             ComplexUtils.interleaved2Complex((float[][]) null, 2146551443);
             fail("Expecting exception: IllegalArgumentException");
@@ -632,13 +613,11 @@ public class ComplexUtilsTest {
             assertEquals("Out of range: 2146551443", e.getMessage());
             assertEquals(ComplexUtils.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
 
     @Test
     public void testcomplex2ImaginaryTakingComplexArrayArray() {
-
         double[] doubleArray = new double[4];
         doubleArray[1] = 2005.05225;
         doubleArray[3] = 2005.05225;
@@ -656,13 +635,11 @@ public class ComplexUtilsTest {
             assertEquals("Out of range: -2984", e.getMessage());
             assertEquals(ComplexUtils.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
 
     @Test  //I consider this to be a defect.
     public void testAbsThrowsNullPointerException() {
-
         float[] floatArray = new float[0];
         Complex[] complexArray = ComplexUtils.interleaved2Complex(floatArray);
         Complex[][] complexArrayTwo = new Complex[5][8];
@@ -677,7 +654,6 @@ public class ComplexUtilsTest {
         } catch (NullPointerException e) {
             assertEquals(ComplexUtils.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
 }

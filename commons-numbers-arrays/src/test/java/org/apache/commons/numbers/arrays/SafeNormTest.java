@@ -64,14 +64,12 @@ public class SafeNormTest {
 
     @Test
     public void testValueReturningPositive() {
-
         double[] doubleArray = new double[5];
         doubleArray[0] = 3.834E-20;
         doubleArray[1] = 5.8798224E-39;
         double doubleValue = SafeNorm.value(doubleArray);
 
         assertEquals(3.834E-20, doubleValue, 0.01);
-
     }
 
 }

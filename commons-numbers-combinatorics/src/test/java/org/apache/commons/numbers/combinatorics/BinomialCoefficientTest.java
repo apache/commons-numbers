@@ -201,7 +201,6 @@ public class BinomialCoefficientTest {
 
     @Test
     public void testCheckBinomialThrowsCombinatoricsException() {
-
         try {
             BinomialCoefficient.checkBinomial(66, (-2802));
             fail("Expecting exception: CombinatoricsException");
@@ -209,7 +208,6 @@ public class BinomialCoefficientTest {
             assertEquals("Number -2,802 is out of range [0, 66]", e.getMessage());
             assertEquals(BinomialCoefficient.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
 }

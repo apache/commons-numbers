@@ -659,7 +659,6 @@ public class BigFractionTest {
 
     @Test
     public void testAddTakingBigIntegerThrowsNullPointerException() {
-
         BigFraction bigFractionOne = new BigFraction((-742.12673), 642.94391, (-3522));
         BigFraction bigFractionTwo = bigFractionOne.multiply((long) (-244));
 
@@ -670,14 +669,11 @@ public class BigFractionTest {
             assertEquals("bg", e.getMessage());
             assertEquals(BigFraction.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
     @Test
     public void testReciprocalReturningBigFractionWhereShortValueIsZero() {
-
         BigFraction bigFraction = new BigFraction(342L).reciprocal();
-
 
         try {
             bigFraction.bigDecimalValue(100, 629);
@@ -686,12 +682,10 @@ public class BigFractionTest {
             assertEquals("Invalid rounding mode", e.getMessage());
             assertEquals(BigDecimal.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
     @Test
     public void testDivideTakingIntThrowsFractionException() {
-
         BigFraction bigFraction = new BigFraction(105L);
         BigFraction bigFractionThree = bigFraction.negate();
         bigFractionThree.abs();
@@ -703,13 +697,11 @@ public class BigFractionTest {
             assertEquals("denominator must be different from 0", e.getMessage());
             assertEquals(BigFraction.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
 
     @Test
     public void testFailsToCreateBigFractionTakingFourArgumentsThrowsFractionException() {
-
         try {
             new BigFraction(2634.663520270196, (-1.0), 3757);
             fail("Expecting exception: FractionException");
@@ -717,13 +709,11 @@ public class BigFractionTest {
             assertEquals("Overflow trying to convert 2,634.664 to fraction (23,470,894,701/8,908,498)", e.getMessage());
             assertEquals(BigFraction.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
 
     @Test
     public void testFailsToCreateBigFractionTakingThreeArgumentsThrowsFractionException() {
-
         try {
             new BigFraction(0.0, 1);
             fail("Expecting exception: FractionException");
@@ -731,13 +721,11 @@ public class BigFractionTest {
             assertEquals("Overflow trying to convert 0 to fraction (1/9,223,372,036,854,775,807)", e.getMessage());
             assertEquals(BigFraction.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
 
     @Test
     public void testBigDecimalValueTakingNoArgumentsThrowsArithmeticException() {
-
         BigFraction bigFraction = new BigFraction((-1379.78857054451), 3464);
 
         try {
@@ -747,7 +735,6 @@ public class BigFractionTest {
             assertEquals("Non-terminating decimal expansion; no exact representable decimal result.", e.getMessage());
             assertEquals(BigDecimal.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
 }

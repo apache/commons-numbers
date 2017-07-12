@@ -300,7 +300,6 @@ public class LinearCombinationTest {
 
     @Test
     public void testValueTakingThreeArgumentsThrowsIllegalArgumentException() {
-
         double[] doubleArray = new double[4];
         double[] doubleArrayTwo = new double[0];
 
@@ -311,7 +310,6 @@ public class LinearCombinationTest {
             assertEquals("Dimension mismatch: 4 != 0", e.getMessage());
             assertEquals(LinearCombination.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
 }

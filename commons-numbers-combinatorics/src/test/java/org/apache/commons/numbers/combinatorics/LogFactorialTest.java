@@ -119,7 +119,6 @@ public class LogFactorialTest {
 
     @Test
     public void testValueThrowsCombinatoricsException() {
-
         LogFactorial logFactorial = LogFactorial.create();
 
         try {
@@ -129,7 +128,6 @@ public class LogFactorialTest {
             assertEquals("Number -482 is negative", e.getMessage());
             assertEquals(LogFactorial.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
 }

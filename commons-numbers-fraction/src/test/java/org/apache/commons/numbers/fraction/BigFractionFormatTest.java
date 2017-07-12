@@ -336,7 +336,6 @@ public class BigFractionFormatTest {
 
     @Test
     public void testCreatesBigFractionFormatTakingNoArguments() throws Exception{
-
         BigFractionFormat bigFractionFormat = new BigFractionFormat();
 
         try {
@@ -346,13 +345,11 @@ public class BigFractionFormatTest {
             assertEquals("Format.parseObject(String) failed", e.getMessage());
             assertEquals(Format.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
 
     @Test
     public void testFormatAndGetProperInstanceTakingLocale() {
-
         Locale locale = Locale.ROOT;
         BigFractionFormat bigFractionFormat = BigFractionFormat.getProperInstance(locale);
         BigFractionFormat bigFractionFormatTwo = new BigFractionFormat(bigFractionFormat);
@@ -363,35 +360,29 @@ public class BigFractionFormatTest {
 
         assertEquals("5 0 / 1 / 1 0 / 1", stringBuffer.toString());
         assertEquals(17, stringBuffer.length());
-
     }
 
 
     @Test
     public void testFormatBigFraction() {
-
         BigFraction bigFraction = new BigFraction(0L);
         String string = BigFractionFormat.formatBigFraction(bigFraction);
 
         assertEquals("0 / 1", string);
-
     }
 
 
     @Test
     public void testGetProperInstanceTakingNoArguments() throws ParseException {
-
         BigFractionFormat bigFractionFormat = BigFractionFormat.getProperInstance();
         BigFraction bigFraction = bigFractionFormat.parse("-704 0 / 1");
 
         assertEquals((short) (-704), bigFraction.shortValue());
-
     }
 
 
     @Test
     public void testFormatBigFractionThrowsIllegalArgumentException() {
-
         try {
             BigFractionFormat.formatBigFraction((BigFraction) null);
             fail("Expecting exception: IllegalArgumentException");
@@ -399,7 +390,6 @@ public class BigFractionFormatTest {
             assertEquals("cannot format given object as a fraction number", e.getMessage());
             assertEquals(BigFractionFormat.class.getName(), e.getStackTrace()[0].getClassName());
         }
-
     }
 
 }
