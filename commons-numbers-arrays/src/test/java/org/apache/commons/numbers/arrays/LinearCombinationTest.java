@@ -19,7 +19,10 @@ import org.junit.Test;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
 import org.apache.commons.numbers.fraction.BigFraction;
-    
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 /**
  * Test cases for the {@link LinearCombination} class.
  */
@@ -294,4 +297,19 @@ public class LinearCombinationTest {
                                                                a[7][3], b[7][3])));
         Assert.assertTrue(Double.isNaN(LinearCombination.value(a[7], b[7])));
     }
+
+    @Test
+    public void testValueTakingThreeArgumentsThrowsIllegalArgumentException() {
+        double[] doubleArray = new double[4];
+        double[] doubleArrayTwo = new double[0];
+
+        try {
+            LinearCombination.value(doubleArray, doubleArrayTwo);
+            fail("Expecting exception: IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Dimension mismatch: 4 != 0", e.getMessage());
+            assertEquals(LinearCombination.class.getName(), e.getStackTrace()[0].getClassName());
+        }
+    }
+
 }

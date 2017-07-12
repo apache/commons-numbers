@@ -19,6 +19,9 @@ package org.apache.commons.numbers.combinatorics;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.fail;
+
 /**
  * Test cases for the {@link FactorialDouble} class.
  */
@@ -122,9 +125,25 @@ public class FactorialDoubleTest {
      */
     private double factorialDirect(int n) {
         double result = 1;
+
         for (int i = 2; i <= n; i++) {
             result *= i;
         }
+
         return result;
     }
+
+  @Test
+  public void testWithCacheThrowsCombinatoricsException() {
+      FactorialDouble factorialDouble = FactorialDouble.create();
+
+      try {
+        factorialDouble.withCache((-2194));
+        fail("Expecting exception: CombinatoricsException");
+      } catch(CombinatoricsException e) {
+         assertEquals("Number -2,194 is negative",e.getMessage());
+         assertEquals(FactorialDouble.class.getName(), e.getStackTrace()[0].getClassName());
+      }
+  }
+
 }

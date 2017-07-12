@@ -18,6 +18,9 @@ import java.math.BigDecimal;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+
 /**
  * Test cases for the {@link Precision} class.
  *
@@ -29,35 +32,35 @@ public class PrecisionTest {
         Assert.assertTrue(Precision.equalsWithRelativeTolerance(0d, 1 / Double.NEGATIVE_INFINITY, 0d));
 
         final double eps = 1e-14;
-        Assert.assertFalse(Precision.equalsWithRelativeTolerance(1.987654687654968, 1.987654687654988, eps));
+        assertFalse(Precision.equalsWithRelativeTolerance(1.987654687654968, 1.987654687654988, eps));
         Assert.assertTrue(Precision.equalsWithRelativeTolerance(1.987654687654968, 1.987654687654987, eps));
-        Assert.assertFalse(Precision.equalsWithRelativeTolerance(1.987654687654968, 1.987654687654948, eps));
+        assertFalse(Precision.equalsWithRelativeTolerance(1.987654687654968, 1.987654687654948, eps));
         Assert.assertTrue(Precision.equalsWithRelativeTolerance(1.987654687654968, 1.987654687654949, eps));
 
-        Assert.assertFalse(Precision.equalsWithRelativeTolerance(Precision.SAFE_MIN, 0.0, eps));
+        assertFalse(Precision.equalsWithRelativeTolerance(Precision.SAFE_MIN, 0.0, eps));
 
-        Assert.assertFalse(Precision.equalsWithRelativeTolerance(1.0000000000001e-300, 1e-300, eps));
+        assertFalse(Precision.equalsWithRelativeTolerance(1.0000000000001e-300, 1e-300, eps));
         Assert.assertTrue(Precision.equalsWithRelativeTolerance(1.00000000000001e-300, 1e-300, eps));
 
-        Assert.assertFalse(Precision.equalsWithRelativeTolerance(Double.NEGATIVE_INFINITY, 1.23, eps));
-        Assert.assertFalse(Precision.equalsWithRelativeTolerance(Double.POSITIVE_INFINITY, 1.23, eps));
+        assertFalse(Precision.equalsWithRelativeTolerance(Double.NEGATIVE_INFINITY, 1.23, eps));
+        assertFalse(Precision.equalsWithRelativeTolerance(Double.POSITIVE_INFINITY, 1.23, eps));
 
         Assert.assertTrue(Precision.equalsWithRelativeTolerance(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, eps));
         Assert.assertTrue(Precision.equalsWithRelativeTolerance(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, eps));
-        Assert.assertFalse(Precision.equalsWithRelativeTolerance(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, eps));
+        assertFalse(Precision.equalsWithRelativeTolerance(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, eps));
 
-        Assert.assertFalse(Precision.equalsWithRelativeTolerance(Double.NaN, 1.23, eps));
-        Assert.assertFalse(Precision.equalsWithRelativeTolerance(Double.NaN, Double.NaN, eps));
+        assertFalse(Precision.equalsWithRelativeTolerance(Double.NaN, 1.23, eps));
+        assertFalse(Precision.equalsWithRelativeTolerance(Double.NaN, Double.NaN, eps));
     }
 
     @Test
     public void testEqualsIncludingNaN() {
         double[] testArray = {
-            Double.NaN,
-            Double.POSITIVE_INFINITY,
-            Double.NEGATIVE_INFINITY,
-            1d,
-            0d };
+                Double.NaN,
+                Double.POSITIVE_INFINITY,
+                Double.NEGATIVE_INFINITY,
+                1d,
+                0d};
         for (int i = 0; i < testArray.length; i++) {
             for (int j = 0; j < testArray.length; j++) {
                 if (i == j) {
@@ -76,12 +79,12 @@ public class PrecisionTest {
         Assert.assertTrue(Precision.equals(153.0000, 153.0000, .0625));
         Assert.assertTrue(Precision.equals(153.0000, 153.0625, .0625));
         Assert.assertTrue(Precision.equals(152.9375, 153.0000, .0625));
-        Assert.assertFalse(Precision.equals(153.0000, 153.0625, .0624));
-        Assert.assertFalse(Precision.equals(152.9374, 153.0000, .0625));
-        Assert.assertFalse(Precision.equals(Double.NaN, Double.NaN, 1.0));
+        assertFalse(Precision.equals(153.0000, 153.0625, .0624));
+        assertFalse(Precision.equals(152.9374, 153.0000, .0625));
+        assertFalse(Precision.equals(Double.NaN, Double.NaN, 1.0));
         Assert.assertTrue(Precision.equals(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, 1.0));
         Assert.assertTrue(Precision.equals(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, 1.0));
-        Assert.assertFalse(Precision.equals(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1.0));
+        assertFalse(Precision.equals(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1.0));
     }
 
     @Test
@@ -100,7 +103,7 @@ public class PrecisionTest {
         // Because "a" and "c" are not adjacent, the tolerance is taken into
         // account for assessing equality.
         Assert.assertTrue(Precision.equals(a, c, diff));
-        Assert.assertFalse(Precision.equals(a, c, (1 - 1e-16) * diff));
+        assertFalse(Precision.equals(a, c, (1 - 1e-16) * diff));
     }
 
     @Test
@@ -111,20 +114,20 @@ public class PrecisionTest {
         Assert.assertTrue(Precision.equalsIncludingNaN(Double.NaN, Double.NaN, 1.0));
         Assert.assertTrue(Precision.equalsIncludingNaN(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, 1.0));
         Assert.assertTrue(Precision.equalsIncludingNaN(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, 1.0));
-        Assert.assertFalse(Precision.equalsIncludingNaN(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1.0));
-        Assert.assertFalse(Precision.equalsIncludingNaN(153.0000, 153.0625, .0624));
-        Assert.assertFalse(Precision.equalsIncludingNaN(152.9374, 153.0000, .0625));
+        assertFalse(Precision.equalsIncludingNaN(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1.0));
+        assertFalse(Precision.equalsIncludingNaN(153.0000, 153.0625, .0624));
+        assertFalse(Precision.equalsIncludingNaN(152.9374, 153.0000, .0625));
     }
 
     // Tests for floating point equality
     @Test
     public void testFloatEqualsWithAllowedUlps() {
-        Assert.assertTrue("+0.0f == -0.0f",Precision.equals(0.0f, -0.0f));
-        Assert.assertTrue("+0.0f == -0.0f (1 ulp)",Precision.equals(0.0f, -0.0f, 1));
+        Assert.assertTrue("+0.0f == -0.0f", Precision.equals(0.0f, -0.0f));
+        Assert.assertTrue("+0.0f == -0.0f (1 ulp)", Precision.equals(0.0f, -0.0f, 1));
         float oneFloat = 1.0f;
-        Assert.assertTrue("1.0f == 1.0f + 1 ulp",Precision.equals(oneFloat, Float.intBitsToFloat(1 + Float.floatToIntBits(oneFloat))));
-        Assert.assertTrue("1.0f == 1.0f + 1 ulp (1 ulp)",Precision.equals(oneFloat, Float.intBitsToFloat(1 + Float.floatToIntBits(oneFloat)), 1));
-        Assert.assertFalse("1.0f != 1.0f + 2 ulp (1 ulp)",Precision.equals(oneFloat, Float.intBitsToFloat(2 + Float.floatToIntBits(oneFloat)), 1));
+        Assert.assertTrue("1.0f == 1.0f + 1 ulp", Precision.equals(oneFloat, Float.intBitsToFloat(1 + Float.floatToIntBits(oneFloat))));
+        Assert.assertTrue("1.0f == 1.0f + 1 ulp (1 ulp)", Precision.equals(oneFloat, Float.intBitsToFloat(1 + Float.floatToIntBits(oneFloat)), 1));
+        assertFalse("1.0f != 1.0f + 2 ulp (1 ulp)", Precision.equals(oneFloat, Float.intBitsToFloat(2 + Float.floatToIntBits(oneFloat)), 1));
 
         Assert.assertTrue(Precision.equals(153.0f, 153.0f, 1));
 
@@ -145,13 +148,13 @@ public class PrecisionTest {
         Assert.assertTrue(Precision.equals(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, 1));
         Assert.assertTrue(Precision.equals(-Float.MAX_VALUE, Float.NEGATIVE_INFINITY, 1));
 
-        Assert.assertFalse(Precision.equals(Float.NaN, Float.NaN, 1));
-        Assert.assertFalse(Precision.equals(Float.NaN, Float.NaN, 0));
-        Assert.assertFalse(Precision.equals(Float.NaN, 0, 0));
-        Assert.assertFalse(Precision.equals(Float.NaN, Float.POSITIVE_INFINITY, 0));
-        Assert.assertFalse(Precision.equals(Float.NaN, Float.NEGATIVE_INFINITY, 0));
+        assertFalse(Precision.equals(Float.NaN, Float.NaN, 1));
+        assertFalse(Precision.equals(Float.NaN, Float.NaN, 0));
+        assertFalse(Precision.equals(Float.NaN, 0, 0));
+        assertFalse(Precision.equals(Float.NaN, Float.POSITIVE_INFINITY, 0));
+        assertFalse(Precision.equals(Float.NaN, Float.NEGATIVE_INFINITY, 0));
 
-        Assert.assertFalse(Precision.equals(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, 100000));
+        assertFalse(Precision.equals(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, 100000));
     }
 
     @Test
@@ -159,13 +162,13 @@ public class PrecisionTest {
         Assert.assertTrue(Precision.equals(0.0, -0.0, 1));
 
         Assert.assertTrue(Precision.equals(1.0, 1 + Math.ulp(1d), 1));
-        Assert.assertFalse(Precision.equals(1.0, 1 + 2 * Math.ulp(1d), 1));
+        assertFalse(Precision.equals(1.0, 1 + 2 * Math.ulp(1d), 1));
 
         final double nUp1 = Math.nextAfter(1d, Double.POSITIVE_INFINITY);
         final double nnUp1 = Math.nextAfter(nUp1, Double.POSITIVE_INFINITY);
         Assert.assertTrue(Precision.equals(1.0, nUp1, 1));
         Assert.assertTrue(Precision.equals(nUp1, nnUp1, 1));
-        Assert.assertFalse(Precision.equals(1.0, nnUp1, 1));
+        assertFalse(Precision.equals(1.0, nnUp1, 1));
 
         Assert.assertTrue(Precision.equals(0.0, Math.ulp(0d), 1));
         Assert.assertTrue(Precision.equals(0.0, -Math.ulp(0d), 1));
@@ -173,14 +176,14 @@ public class PrecisionTest {
         Assert.assertTrue(Precision.equals(153.0, 153.0, 1));
 
         Assert.assertTrue(Precision.equals(153.0, 153.00000000000003, 1));
-        Assert.assertFalse(Precision.equals(153.0, 153.00000000000006, 1));
+        assertFalse(Precision.equals(153.0, 153.00000000000006, 1));
         Assert.assertTrue(Precision.equals(153.0, 152.99999999999997, 1));
-        Assert.assertFalse(Precision.equals(153, 152.99999999999994, 1));
+        assertFalse(Precision.equals(153, 152.99999999999994, 1));
 
         Assert.assertTrue(Precision.equals(-128.0, -127.99999999999999, 1));
-        Assert.assertFalse(Precision.equals(-128.0, -127.99999999999997, 1));
+        assertFalse(Precision.equals(-128.0, -127.99999999999997, 1));
         Assert.assertTrue(Precision.equals(-128.0, -128.00000000000003, 1));
-        Assert.assertFalse(Precision.equals(-128.0, -128.00000000000006, 1));
+        assertFalse(Precision.equals(-128.0, -128.00000000000006, 1));
 
         Assert.assertTrue(Precision.equals(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, 1));
         Assert.assertTrue(Precision.equals(Double.MAX_VALUE, Double.POSITIVE_INFINITY, 1));
@@ -188,13 +191,13 @@ public class PrecisionTest {
         Assert.assertTrue(Precision.equals(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, 1));
         Assert.assertTrue(Precision.equals(-Double.MAX_VALUE, Double.NEGATIVE_INFINITY, 1));
 
-        Assert.assertFalse(Precision.equals(Double.NaN, Double.NaN, 1));
-        Assert.assertFalse(Precision.equals(Double.NaN, Double.NaN, 0));
-        Assert.assertFalse(Precision.equals(Double.NaN, 0, 0));
-        Assert.assertFalse(Precision.equals(Double.NaN, Double.POSITIVE_INFINITY, 0));
-        Assert.assertFalse(Precision.equals(Double.NaN, Double.NEGATIVE_INFINITY, 0));
+        assertFalse(Precision.equals(Double.NaN, Double.NaN, 1));
+        assertFalse(Precision.equals(Double.NaN, Double.NaN, 0));
+        assertFalse(Precision.equals(Double.NaN, 0, 0));
+        assertFalse(Precision.equals(Double.NaN, Double.POSITIVE_INFINITY, 0));
+        assertFalse(Precision.equals(Double.NaN, Double.NEGATIVE_INFINITY, 0));
 
-        Assert.assertFalse(Precision.equals(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 100000));
+        assertFalse(Precision.equals(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 100000));
     }
 
     @Test
@@ -202,13 +205,13 @@ public class PrecisionTest {
         Assert.assertTrue(Precision.equalsIncludingNaN(0.0, -0.0, 1));
 
         Assert.assertTrue(Precision.equalsIncludingNaN(1.0, 1 + Math.ulp(1d), 1));
-        Assert.assertFalse(Precision.equalsIncludingNaN(1.0, 1 + 2 * Math.ulp(1d), 1));
+        assertFalse(Precision.equalsIncludingNaN(1.0, 1 + 2 * Math.ulp(1d), 1));
 
         final double nUp1 = Math.nextAfter(1d, Double.POSITIVE_INFINITY);
         final double nnUp1 = Math.nextAfter(nUp1, Double.POSITIVE_INFINITY);
         Assert.assertTrue(Precision.equalsIncludingNaN(1.0, nUp1, 1));
         Assert.assertTrue(Precision.equalsIncludingNaN(nUp1, nnUp1, 1));
-        Assert.assertFalse(Precision.equalsIncludingNaN(1.0, nnUp1, 1));
+        assertFalse(Precision.equalsIncludingNaN(1.0, nnUp1, 1));
 
         Assert.assertTrue(Precision.equalsIncludingNaN(0.0, Math.ulp(0d), 1));
         Assert.assertTrue(Precision.equalsIncludingNaN(0.0, -Math.ulp(0d), 1));
@@ -216,14 +219,14 @@ public class PrecisionTest {
         Assert.assertTrue(Precision.equalsIncludingNaN(153.0, 153.0, 1));
 
         Assert.assertTrue(Precision.equalsIncludingNaN(153.0, 153.00000000000003, 1));
-        Assert.assertFalse(Precision.equalsIncludingNaN(153.0, 153.00000000000006, 1));
+        assertFalse(Precision.equalsIncludingNaN(153.0, 153.00000000000006, 1));
         Assert.assertTrue(Precision.equalsIncludingNaN(153.0, 152.99999999999997, 1));
-        Assert.assertFalse(Precision.equalsIncludingNaN(153, 152.99999999999994, 1));
+        assertFalse(Precision.equalsIncludingNaN(153, 152.99999999999994, 1));
 
         Assert.assertTrue(Precision.equalsIncludingNaN(-128.0, -127.99999999999999, 1));
-        Assert.assertFalse(Precision.equalsIncludingNaN(-128.0, -127.99999999999997, 1));
+        assertFalse(Precision.equalsIncludingNaN(-128.0, -127.99999999999997, 1));
         Assert.assertTrue(Precision.equalsIncludingNaN(-128.0, -128.00000000000003, 1));
-        Assert.assertFalse(Precision.equalsIncludingNaN(-128.0, -128.00000000000006, 1));
+        assertFalse(Precision.equalsIncludingNaN(-128.0, -128.00000000000006, 1));
 
         Assert.assertTrue(Precision.equalsIncludingNaN(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, 1));
         Assert.assertTrue(Precision.equalsIncludingNaN(Double.MAX_VALUE, Double.POSITIVE_INFINITY, 1));
@@ -233,7 +236,7 @@ public class PrecisionTest {
 
         Assert.assertTrue(Precision.equalsIncludingNaN(Double.NaN, Double.NaN, 1));
 
-        Assert.assertFalse(Precision.equalsIncludingNaN(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 100000));
+        assertFalse(Precision.equalsIncludingNaN(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 100000));
     }
 
     @Test
@@ -247,35 +250,35 @@ public class PrecisionTest {
 
     @Test
     public void testCompareToMaxUlps() {
-        double a     = 152.32;
+        double a = 152.32;
         double delta = Math.ulp(a);
         for (int i = 0; i <= 10; ++i) {
             if (i <= 5) {
-                Assert.assertEquals( 0, Precision.compareTo(a, a + i * delta, 5));
-                Assert.assertEquals( 0, Precision.compareTo(a, a - i * delta, 5));
+                Assert.assertEquals(0, Precision.compareTo(a, a + i * delta, 5));
+                Assert.assertEquals(0, Precision.compareTo(a, a - i * delta, 5));
             } else {
                 Assert.assertEquals(-1, Precision.compareTo(a, a + i * delta, 5));
                 Assert.assertEquals(+1, Precision.compareTo(a, a - i * delta, 5));
             }
         }
 
-        Assert.assertEquals( 0, Precision.compareTo(-0.0, 0.0, 0));
+        Assert.assertEquals(0, Precision.compareTo(-0.0, 0.0, 0));
 
         Assert.assertEquals(-1, Precision.compareTo(-Double.MIN_VALUE, -0.0, 0));
-        Assert.assertEquals( 0, Precision.compareTo(-Double.MIN_VALUE, -0.0, 1));
+        Assert.assertEquals(0, Precision.compareTo(-Double.MIN_VALUE, -0.0, 1));
         Assert.assertEquals(-1, Precision.compareTo(-Double.MIN_VALUE, +0.0, 0));
-        Assert.assertEquals( 0, Precision.compareTo(-Double.MIN_VALUE, +0.0, 1));
+        Assert.assertEquals(0, Precision.compareTo(-Double.MIN_VALUE, +0.0, 1));
 
-        Assert.assertEquals(+1, Precision.compareTo( Double.MIN_VALUE, -0.0, 0));
-        Assert.assertEquals( 0, Precision.compareTo( Double.MIN_VALUE, -0.0, 1));
-        Assert.assertEquals(+1, Precision.compareTo( Double.MIN_VALUE, +0.0, 0));
-        Assert.assertEquals( 0, Precision.compareTo( Double.MIN_VALUE, +0.0, 1));
+        Assert.assertEquals(+1, Precision.compareTo(Double.MIN_VALUE, -0.0, 0));
+        Assert.assertEquals(0, Precision.compareTo(Double.MIN_VALUE, -0.0, 1));
+        Assert.assertEquals(+1, Precision.compareTo(Double.MIN_VALUE, +0.0, 0));
+        Assert.assertEquals(0, Precision.compareTo(Double.MIN_VALUE, +0.0, 1));
 
         Assert.assertEquals(-1, Precision.compareTo(-Double.MIN_VALUE, Double.MIN_VALUE, 0));
         Assert.assertEquals(-1, Precision.compareTo(-Double.MIN_VALUE, Double.MIN_VALUE, 1));
-        Assert.assertEquals( 0, Precision.compareTo(-Double.MIN_VALUE, Double.MIN_VALUE, 2));
+        Assert.assertEquals(0, Precision.compareTo(-Double.MIN_VALUE, Double.MIN_VALUE, 2));
 
-        Assert.assertEquals( 0, Precision.compareTo(Double.MAX_VALUE, Double.POSITIVE_INFINITY, 1));
+        Assert.assertEquals(0, Precision.compareTo(Double.MAX_VALUE, Double.POSITIVE_INFINITY, 1));
         Assert.assertEquals(-1, Precision.compareTo(Double.MAX_VALUE, Double.POSITIVE_INFINITY, 0));
 
         Assert.assertEquals(+1, Precision.compareTo(Double.MAX_VALUE, Double.NaN, Integer.MAX_VALUE));
@@ -504,7 +507,7 @@ public class PrecisionTest {
 
     @Test
     public void testIssue721() {
-        Assert.assertEquals(-53,   Math.getExponent(Precision.EPSILON));
+        Assert.assertEquals(-53, Math.getExponent(Precision.EPSILON));
         Assert.assertEquals(-1022, Math.getExponent(Precision.SAFE_MIN));
     }
 
@@ -528,20 +531,110 @@ public class PrecisionTest {
     @Test
     public void testMath843() {
         final double afterEpsilon = Math.nextAfter(Precision.EPSILON,
-                                                   Double.POSITIVE_INFINITY);
+                Double.POSITIVE_INFINITY);
 
         // a) 1 + EPSILON is equal to 1.
         Assert.assertTrue(1 + Precision.EPSILON == 1);
 
         // b) 1 + "the number after EPSILON" is not equal to 1.
-        Assert.assertFalse(1 + afterEpsilon == 1);
+        assertFalse(1 + afterEpsilon == 1);
     }
 
     @Test
     public void testMath1127() {
-        Assert.assertFalse(Precision.equals(2.0, -2.0, 1));
+        assertFalse(Precision.equals(2.0, -2.0, 1));
         Assert.assertTrue(Precision.equals(0.0, -0.0, 0));
-        Assert.assertFalse(Precision.equals(2.0f, -2.0f, 1));
+        assertFalse(Precision.equals(2.0f, -2.0f, 1));
         Assert.assertTrue(Precision.equals(0.0f, -0.0f, 0));
     }
+
+    @Test
+    public void testEqualsIncludingNaNTakingThreeDoublesAndTwoWithNegativeAndPositiveOne() {
+        assertFalse(Precision.equalsIncludingNaN((-2367.8), (double) Float.NaN, (-1776)));
+    }
+
+
+    @Test
+    public void testEqualsIncludingNaNTakingThreeDoublesAndTwoWithNegativeAndPositiveTwo() {
+        assertFalse(Precision.equalsIncludingNaN(Double.NaN, (-2122.27), (-779)));
+    }
+
+
+    @Test
+    public void testEqualsIncludingNaNTakingThreeFloatsAndTwoWithNegative() {
+        assertTrue(Precision.equalsIncludingNaN(Float.NaN, Float.NaN, (-2541)));
+    }
+
+
+    @Test
+    public void testEqualsIncludingNaNTakingThreeFloatsAndTwoWithZeroAndEqualsIncludingNaNTakingThreeFloatsAndTwoReturningFalse() {
+        assertFalse(Precision.equalsIncludingNaN((float) 0, Float.NaN, 2243));
+    }
+
+
+    @Test
+    public void testEqualsIncludingNaNTakingThreeFloatsAndTwoWithNegativeAndZero() {
+        assertFalse(Precision.equalsIncludingNaN(Float.NaN, (-1.0F), 0));
+    }
+
+
+    @Test
+    public void testEqualsIncludingNaNTakingThreeFloatsAndTwoWithZeroAndEqualsIncludingNaNTakingThreeFloatsAndTwoReturningTrue() {
+        assertTrue(Precision.equalsIncludingNaN((float) 1566, -0.0F, 2143768278));
+    }
+
+
+    @Test
+    public void testEqualsTakingThreeFloatsAndTwoWithNegativeAndPositiveTwo() {
+        assertFalse(Precision.equals((float) 6, (-1861.78F), 1150126653));
+    }
+
+
+    @Test
+    public void testEqualsIncludingNaNTakingFourFloatsOne() {
+        assertTrue(Precision.equalsIncludingNaN(2220.4014F, (float) 1, 2220.4014F));
+    }
+
+
+    @Test
+    public void testEqualsTakingFourFloatsWithZero() {
+        assertTrue(Precision.equals(696.2F, 0.0F, 696.2F));
+    }
+
+
+    @Test
+    public void testEqualsTakingFourFloatsReturningFalse() {
+        assertFalse(Precision.equals((float) (-1685), 668.0F, (-2701.3188F)));
+    }
+
+
+    @Test
+    public void testEqualsTakingFourFloats() {
+        assertTrue(Precision.equals(414.5782F, 414.5782F, 414.5782F));
+    }
+
+
+    @Test
+    public void testEqualsIncludingNaNTakingFourFloatsReturningFalse() {
+        assertFalse(Precision.equalsIncludingNaN(Float.NaN, 3036.304F, 1.0F));
+    }
+
+
+    @Test
+    public void testEqualsIncludingNaNTakingThreeFloats() {
+        assertFalse(Precision.equalsIncludingNaN(1573.7026F, Float.NaN));
+    }
+
+
+    @Test
+    public void testEqualsIncludingNaNTakingFourFloatsTwo() {
+        assertTrue(Precision.equalsIncludingNaN(Float.NaN, Float.NaN, 1.0F));
+    }
+
+
+    @Test
+    public void testEqualsTakingThreeDoubles() {
+        assertFalse(Precision.equals((double) 0.0F, (double) Float.NaN));
+    }
+
 }

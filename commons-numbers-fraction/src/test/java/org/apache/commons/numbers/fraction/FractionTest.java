@@ -20,6 +20,10 @@ import org.apache.commons.numbers.core.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 
 /**
  */
@@ -621,4 +625,163 @@ public class FractionTest {
             Assert.assertEquals(fraction, TestUtils.serializeAndRecover(fraction));
         }
     }
+
+    @Test
+    public void testGetReducedFractionWithNegativeThrowsFractionException() {
+
+        try {
+            Fraction.getReducedFraction(Integer.MIN_VALUE, (-2198));
+            fail("Expecting exception: FractionException");
+        } catch (FractionException e) {
+            assertEquals("overflow in fraction -2,147,483,648/-2,198, cannot negate", e.getMessage());
+            assertEquals(Fraction.class.getName(), e.getStackTrace()[0].getClassName());
+        }
+
+    }
+
+
+    @Test
+    public void testGetReducedFractionWithPositiveThrowsFractionException() {
+
+        try {
+            Fraction.getReducedFraction(63, Integer.MIN_VALUE);
+            fail("Expecting exception: FractionException");
+        } catch (FractionException e) {
+            assertEquals("overflow in fraction 63/-2,147,483,648, cannot negate", e.getMessage());
+            assertEquals(Fraction.class.getName(), e.getStackTrace()[0].getClassName());
+        }
+
+    }
+
+    @Test
+    public void testSubtractTakingFractionReturningFractionWhereShortValueIsZero() {
+
+        Fraction fraction = new Fraction(0);
+
+        assertEquals(0.0, fraction.doubleValue(), 0.01);
+        assertEquals(0, fraction.intValue());
+
+        assertEquals(0L, fraction.longValue());
+        assertEquals((byte) 0, fraction.byteValue());
+
+        assertEquals(0, fraction.getNumerator());
+        assertEquals((short) 0, fraction.shortValue());
+
+        assertEquals(0.0, fraction.percentageValue(), 0.01);
+        assertEquals(0.0F, fraction.floatValue(), 0.01F);
+
+        assertEquals(1, fraction.getDenominator());
+
+        Fraction fractionTwo = fraction.subtract(fraction);
+
+        assertTrue(fractionTwo.equals(fraction));
+        assertEquals(0.0, fraction.doubleValue(), 0.01);
+
+        assertEquals(0, fraction.intValue());
+        assertEquals(0L, fraction.longValue());
+
+        assertEquals((byte) 0, fraction.byteValue());
+        assertEquals(0, fraction.getNumerator());
+
+        assertEquals((short) 0, fraction.shortValue());
+        assertEquals(0.0, fraction.percentageValue(), 0.01);
+
+        assertEquals(0.0F, fraction.floatValue(), 0.01F);
+        assertEquals(1, fraction.getDenominator());
+
+        assertEquals(0, fractionTwo.intValue());
+        assertEquals(0L, fractionTwo.longValue());
+
+        assertEquals(1, fractionTwo.getDenominator());
+        assertEquals(0.0, fractionTwo.percentageValue(), 0.01);
+
+        assertEquals((short) 0, fractionTwo.shortValue());
+        assertEquals(0.0, fractionTwo.doubleValue(), 0.01);
+
+        assertEquals(0, fractionTwo.getNumerator());
+        assertEquals(0.0F, fractionTwo.floatValue(), 0.01F);
+
+        assertEquals((byte) 0, fractionTwo.byteValue());
+
+    }
+
+
+    @Test
+    public void testAddTakingFractionReturningFractionWhereShortValueIsZero() {
+
+        Fraction fraction = new Fraction(0.0);
+
+        assertEquals(1, fraction.getDenominator());
+        assertEquals(0, fraction.intValue());
+
+        assertEquals(0L, fraction.longValue());
+        assertEquals(0, fraction.getNumerator());
+
+        assertEquals((short) 0, fraction.shortValue());
+        assertEquals(0.0F, fraction.floatValue(), 0.01F);
+
+        assertEquals((byte) 0, fraction.byteValue());
+        assertEquals(0.0, fraction.doubleValue(), 0.01);
+
+        assertEquals(0.0, fraction.percentageValue(), 0.01);
+
+        Fraction fractionTwo = fraction.add(fraction);
+
+        assertEquals(1, fraction.getDenominator());
+        assertEquals(0, fraction.intValue());
+
+        assertEquals(0L, fraction.longValue());
+        assertEquals(0, fraction.getNumerator());
+
+        assertEquals((short) 0, fraction.shortValue());
+        assertEquals(0.0F, fraction.floatValue(), 0.01F);
+
+        assertEquals((byte) 0, fraction.byteValue());
+        assertEquals(0.0, fraction.doubleValue(), 0.01);
+
+        assertEquals(0.0, fraction.percentageValue(), 0.01);
+        assertEquals(0.0, fractionTwo.percentageValue(), 0.01);
+
+        assertEquals(0, fractionTwo.getNumerator());
+        assertEquals((short) 0, fractionTwo.shortValue());
+
+        assertEquals(1, fractionTwo.getDenominator());
+        assertEquals(0.0F, fractionTwo.floatValue(), 0.01F);
+
+        assertEquals((byte) 0, fractionTwo.byteValue());
+        assertEquals(0L, fractionTwo.longValue());
+
+        assertEquals(0.0, fractionTwo.doubleValue(), 0.01);
+        assertEquals(0, fractionTwo.intValue());
+
+    }
+
+
+    @Test
+    public void testFailsToCreateFractionTakingTwoArgumentsThrowsFractionException() {
+
+        try {
+            new Fraction(0.0, 1);
+            fail("Expecting exception: FractionException");
+        } catch (FractionException e) {
+            assertEquals("Unable to convert 0 to fraction after 1 iterations", e.getMessage());
+            assertEquals(Fraction.class.getName(), e.getStackTrace()[0].getClassName());
+        }
+
+    }
+
+
+    @Test
+    public void testDivideTakingInt() {
+
+        Fraction fraction = new Fraction(1, 1);
+        Fraction fractionTwo = fraction.ONE_HALF.divide(5);
+
+        assertFalse(fraction.equals(fractionTwo));
+        assertEquals(0.1, fractionTwo.doubleValue(), 0.01);
+
+        assertFalse(fractionTwo.equals(fraction));
+
+    }
+
 }
