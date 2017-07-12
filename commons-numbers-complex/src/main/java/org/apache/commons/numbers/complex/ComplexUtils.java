@@ -356,6 +356,24 @@ public class ComplexUtils {
     }
 
     /**
+     * Converts a 4D real {@code double[][][][]} array to a {@code Complex [][][][]}
+     * array.
+     *
+     * @param d 4D complex interleaved array
+     * @return 4D {@code Complex} array
+     *
+     * @since 1.0
+     */
+    public static Complex[][][][] real2Complex(double[][][][] d) {
+        final int w = d.length;
+        final Complex[][][][] c = new Complex[w][][][];
+        for (int x = 0; x < w; x++) {
+            c[x] = ComplexUtils.real2Complex(d[x]);
+        }
+        return c;
+    }
+
+    /**
      * Converts real component of {@code Complex[]} array to a {@code double[]}
      * array.
      *
@@ -463,6 +481,41 @@ public class ComplexUtils {
     }
 
     /**
+     * Converts real component of a 4D {@code Complex[][][][]} array to a 4D
+     * {@code double[][][][]} array.
+     *
+     * @param c 4D complex interleaved array
+     * @return array of real component
+     *
+     * @since 1.0
+     */
+    public static double[][][][] complex2Real(Complex[][][][] c) {
+        final int length = c.length;
+        double[][][][] d = new double[length][][][];
+        for (int n = 0; n < length; n++) {
+            d[n] = complex2Real(c[n]);
+        }
+        return d;
+    }
+
+    /**
+     * Converts real component of a 4D {@code Complex[][][][]} array to a 4D
+     * {@code float[][][][]} array.
+     *
+     * @param c 4D {@code Complex} array
+     * @return {@code float[][][][]} of real component
+     * @since 1.0
+     */
+    public static float[][][][] complex2RealFloat(Complex[][][][] c) {
+        final int length = c.length;
+        float[][][][] f = new float[length][][][];
+        for (int n = 0; n < length; n++) {
+            f[n] = complex2RealFloat(c[n]);
+        }
+        return f;
+    }
+
+    /**
      * Converts a {@code double[]} array to an imaginary {@code Complex[]}
      * array.
      *
@@ -510,8 +563,7 @@ public class ComplexUtils {
      */
     public static Complex[][] imaginary2Complex(double[][] i) {
         int w = i.length;
-        int h = i[0].length;
-        Complex[][] c = new Complex[w][h];
+        Complex[][] c = new Complex[w][];
         for (int n = 0; n < w; n++) {
             c[n] = ComplexUtils.imaginary2Complex(i[n]);
         }
@@ -529,13 +581,27 @@ public class ComplexUtils {
      */
     public static Complex[][][] imaginary2Complex(double[][][] i) {
         int w = i.length;
-        int h = i[0].length;
-        int d = i[0].length;
-        Complex[][][] c = new Complex[w][h][d];
-        for (int x = 0; x < w; x++) {
-            for (int y = 0; y < h; y++) {
-                c[x][y] = ComplexUtils.imaginary2Complex(i[x][y]);
-            }
+        Complex[][][] c = new Complex[w][][];
+        for (int n = 0; n < w; n++) {
+            c[n] = ComplexUtils.imaginary2Complex(i[n]);
+        }
+        return c;
+    }
+
+    /**
+     * Converts a 4D imaginary array {@code double[][][][]} to a 4D {@code Complex[][][][]}
+     * array.
+     *
+     * @param d 4D complex imaginary array
+     * @return 4D {@code Complex} array
+     *
+     * @since 1.0
+     */
+    public static Complex[][][][] imaginary2Complex(double[][][][] i) {
+        int w = i.length;
+        Complex[][][][] c = new Complex[w][][][];
+        for (int n = 0; n < w; n++) {
+            c[n] = ComplexUtils.imaginary2Complex(i[n]);
         }
         return c;
     }
@@ -641,6 +707,41 @@ public class ComplexUtils {
     public static float[][][] complex2ImaginaryFloat(Complex[][][] c) {
         final int length = c.length;
         float[][][] f = new float[length][][];
+        for (int n = 0; n < length; n++) {
+            f[n] = complex2ImaginaryFloat(c[n]);
+        }
+        return f;
+    }
+
+    /**
+     * Converts imaginary component of a 4D {@code Complex[][][][]} array to a 4D
+     * {@code double[][][][]} array.
+     *
+     * @param c 4D complex interleaved array
+     * @return 4D {@code Complex} array
+     *
+     * @since 1.0
+     */
+    public static double[][][][] complex2Imaginary(Complex[][][][] c) {
+        final int length = c.length;
+        double[][][][] i = new double[length][][][];
+        for (int n = 0; n < length; n++) {
+            i[n] = complex2Imaginary(c[n]);
+        }
+        return i;
+    }
+
+    /**
+     * Converts imaginary component of a 4D {@code Complex[][][][]} array to a 4D
+     * {@code float[][][][]} array.
+     *
+     * @param c 4D {@code Complex} array
+     * @return {@code float[][][][]} of imaginary component
+     * @since 1.0
+     */
+    public static float[][][][] complex2ImaginaryFloat(Complex[][][][] c) {
+        final int length = c.length;
+        float[][][][] f = new float[length][][][];
         for (int n = 0; n < length; n++) {
             f[n] = complex2ImaginaryFloat(c[n]);
         }
@@ -911,7 +1012,7 @@ public class ComplexUtils {
 
     /**
      * Converts a 3D {@code Complex[][][]} array to an interleaved complex
-     * {@code double[][][]} array. The third d level of the array is
+     * {@code double[][][]} array. The third level of the array is
      * interleaved.
      *
      * @param c 3D Complex array
@@ -922,6 +1023,21 @@ public class ComplexUtils {
      */
     public static double[][][] complex2Interleaved(Complex[][][] c) {
         return complex2Interleaved(c, 2);
+    }
+
+    /**
+     * Converts a 4D {@code Complex[][][][]} array to an interleaved complex
+     * {@code double[][][][]} array. The fourth level of the array is
+     * interleaved.
+     *
+     * @param c 4D Complex array
+     * @return complex interleaved array alternating real and
+     *         imaginary values
+     *
+     * @since 1.0
+     */
+    public static double[][][][] complex2Interleaved(Complex[][][][] c) {
+        return complex2Interleaved(c, 3);
     }
 
     /**
