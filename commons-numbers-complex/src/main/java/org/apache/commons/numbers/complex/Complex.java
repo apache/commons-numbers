@@ -224,7 +224,7 @@ in the
      */
     public Complex add(Complex addend) {
         checkNotNull(addend);
-        return createComplex(real + addend.getReal(),
+        return new Complex(real + addend.getReal(),
                              imaginary + addend.getImaginary());
     }
 
@@ -237,7 +237,7 @@ in the
      * @see #add(Complex)
      */
     public Complex add(double addend) {
-        return createComplex(real + addend, imaginary);
+        return new Complex(real + addend, imaginary);
     }
 
      /**
@@ -247,7 +247,7 @@ in the
      * @return the conjugate of this complex object.
      */
     public Complex conjugate() {
-        return createComplex(real, -imaginary);
+        return new Complex(real, -imaginary);
     }
 
      /**
@@ -316,12 +316,12 @@ in the
         if (Math.abs(c) < Math.abs(d)) {
             double q = c / d;
             double denominator = c * q + d;
-            return createComplex((real * q + imaginary) / denominator,
+            return new Complex((real * q + imaginary) / denominator,
                 (imaginary * q - real) / denominator);
         } else {
             double q = d / c;
             double denominator = d * q + c;
-            return createComplex((imaginary * q + real) / denominator,
+            return new Complex((imaginary * q + real) / denominator,
                 (imaginary - real * q) / denominator);
         }
     }
@@ -341,7 +341,7 @@ in the
         if (Double.isInfinite(divisor)) {
             return !(Double.isInfinite(real) || Double.isInfinite(imaginary)) ? ZERO : NaN;
         }
-        return createComplex(real / divisor,
+        return new Complex(real / divisor,
                              imaginary  / divisor);
     }
 
@@ -363,11 +363,11 @@ in the
         if (Math.abs(real) < Math.abs(imaginary)) {
             double q = real / imaginary;
             double scale = 1. / (real * q + imaginary);
-            return createComplex(scale * q, -scale);
+            return new Complex(scale * q, -scale);
         } else {
             double q = imaginary / real;
             double scale = 1. / (imaginary * q + real);
-            return createComplex(scale, -scale * q);
+            return new Complex(scale, -scale * q);
         }
     }
 
@@ -561,7 +561,7 @@ in the
      */
     public Complex multiply(Complex factor) {
         checkNotNull(factor);
-        return createComplex(real * factor.real - imaginary * factor.imaginary,
+        return new Complex(real * factor.real - imaginary * factor.imaginary,
                              real * factor.imaginary + imaginary * factor.real);
     }
 
@@ -574,7 +574,7 @@ in the
      * @see #multiply(Complex)
      */
     public Complex multiply(final int factor) {
-        return createComplex(real * factor, imaginary * factor);
+        return new Complex(real * factor, imaginary * factor);
     }
 
     /**
@@ -586,7 +586,7 @@ in the
      * @see #multiply(Complex)
      */
     public Complex multiply(double factor) {
-        return createComplex(real * factor, imaginary * factor);
+        return new Complex(real * factor, imaginary * factor);
     }
 
     /**
@@ -597,7 +597,7 @@ in the
      * @return {@code -this}.
      */
     public Complex negate() {
-        return createComplex(-real, -imaginary);
+        return new Complex(-real, -imaginary);
     }
 
     /**
@@ -613,7 +613,7 @@ in the
      */
     public Complex subtract(Complex subtrahend) {
         checkNotNull(subtrahend);
-        return createComplex(real - subtrahend.getReal(),
+        return new Complex(real - subtrahend.getReal(),
                              imaginary - subtrahend.getImaginary());
     }
 
@@ -626,7 +626,7 @@ in the
      * @see #subtract(Complex)
      */
     public Complex subtract(double subtrahend) {
-        return createComplex(real - subtrahend, imaginary);
+        return new Complex(real - subtrahend, imaginary);
     }
 
     /**
@@ -786,7 +786,7 @@ in the
      * @return the cosine of this complex number.
      */
     public Complex cos() {
-        return createComplex(Math.cos(real) * Math.cosh(imaginary),
+        return new Complex(Math.cos(real) * Math.cosh(imaginary),
                              -Math.sin(real) * Math.sinh(imaginary));
     }
 
@@ -822,7 +822,7 @@ in the
             return new Complex(Double.NaN, 0);
         }
 
-        return createComplex(Math.cosh(real) * Math.cos(imaginary),
+        return new Complex(Math.cosh(real) * Math.cos(imaginary),
                              Math.sinh(real) * Math.sin(imaginary));
     }
 
@@ -843,8 +843,21 @@ in the
      * @return <code><i>e</i><sup>this</sup></code>.
      */
     public Complex exp() {
+        if (real == Double.POSITIVE_INFINITY && imaginary == 0) {
+            return new Complex(Double.POSITIVE_INFINITY, 0);
+        } else if (real == Double.NEGATIVE_INFINITY && imaginary == Double.POSITIVE_INFINITY) {
+            return Complex.ZERO;
+        } else if (real == Double.POSITIVE_INFINITY && imaginary == Double.POSITIVE_INFINITY) {
+            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
+        } else if (real == Double.NEGATIVE_INFINITY && Double.isNaN(imaginary)) {
+            return Complex.ZERO;
+        } else if (real == Double.POSITIVE_INFINITY && Double.isNaN(imaginary)) {
+            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
+        } else if (Double.isNaN(real) && imaginary == 0) {
+            return new Complex(Double.NaN, 0);
+        }
         double expReal = Math.exp(real);
-        return createComplex(expReal *  Math.cos(imaginary),
+        return new Complex(expReal *  Math.cos(imaginary),
                              expReal * Math.sin(imaginary));
     }
 
@@ -866,7 +879,7 @@ in the
      * of {@code this}.
      */
     public Complex log() {
-        return createComplex(Math.log(abs()),
+        return new Complex(Math.log(abs()),
                              Math.atan2(imaginary, real));
     }
 
@@ -878,7 +891,7 @@ in the
      *  @return the base 10 logarithm of <code>this</code>.
     */
     public Complex log10() {
-        return createComplex(Math.log(abs())/Math.log(10),
+        return new Complex(Math.log(abs())/Math.log(10),
                              Math.atan2(imaginary, real));
     }
 
@@ -948,7 +961,7 @@ in the
      * @return the sine of this complex number.
      */
     public Complex sin() {
-        return createComplex(Math.sin(real) * Math.cosh(imaginary),
+        return new Complex(Math.sin(real) * Math.cosh(imaginary),
                              Math.cos(real) * Math.sinh(imaginary));
     }
 
@@ -969,7 +982,7 @@ in the
      * @return the hyperbolic sine of {@code this}.
      */
     public Complex sinh() {
-        return createComplex(Math.sinh(real) * Math.cos(imaginary),
+        return new Complex(Math.sinh(real) * Math.cos(imaginary),
             Math.cosh(real) * Math.sin(imaginary));
     }
 
@@ -992,14 +1005,14 @@ in the
      */
     public Complex sqrt() {
         if (real == 0.0 && imaginary == 0.0) {
-            return createComplex(0.0, 0.0);
+            return new Complex(0.0, 0.0);
         }
 
         double t = Math.sqrt((Math.abs(real) + abs()) / 2.0);
         if (real >= 0.0) {
-            return createComplex(t, imaginary / (2.0 * t));
+            return new Complex(t, imaginary / (2.0 * t));
         } else {
-            return createComplex(Math.abs(imaginary) / (2.0 * t),
+            return new Complex(Math.abs(imaginary) / (2.0 * t),
                                  Math.copySign(1d, imaginary) * t);
         }
     }
@@ -1015,7 +1028,7 @@ in the
      * @return the square root of <code>1 - this<sup>2</sup></code>.
      */
     public Complex sqrt1z() {
-        return createComplex(1.0, 0.0).subtract(this.multiply(this)).sqrt();
+        return new Complex(1.0, 0.0).subtract(this.multiply(this)).sqrt();
     }
 
     /**
@@ -1036,17 +1049,17 @@ in the
      */
     public Complex tan() {
         if (imaginary > 20.0) {
-            return createComplex(0.0, 1.0);
+            return new Complex(0.0, 1.0);
         }
         if (imaginary < -20.0) {
-            return createComplex(0.0, -1.0);
+            return new Complex(0.0, -1.0);
         }
 
         double real2 = 2.0 * real;
         double imaginary2 = 2.0 * imaginary;
         double d = Math.cos(real2) + Math.cosh(imaginary2);
 
-        return createComplex(Math.sin(real2) / d,
+        return new Complex(Math.sin(real2) / d,
                              Math.sinh(imaginary2) / d);
     }
 
@@ -1068,16 +1081,16 @@ in the
      */
     public Complex tanh() {
         if (real > 20.0) {
-            return createComplex(1.0, 0.0);
+            return new Complex(1.0, 0.0);
         }
         if (real < -20.0) {
-            return createComplex(-1.0, 0.0);
+            return new Complex(-1.0, 0.0);
         }
         double real2 = 2.0 * real;
         double imaginary2 = 2.0 * imaginary;
         double d = Math.cosh(real2) + Math.cos(imaginary2);
 
-        return createComplex(Math.sinh(real2) / d,
+        return new Complex(Math.sinh(real2) / d,
                              Math.sin(imaginary2) / d);
     }
 
@@ -1201,7 +1214,7 @@ in the
      * @return A Complex instance with all fields resolved.
      */
     protected final Object readResolve() {
-        return createComplex(real, imaginary);
+        return new Complex(real, imaginary);
     }
 
     /** {@inheritDoc} */
