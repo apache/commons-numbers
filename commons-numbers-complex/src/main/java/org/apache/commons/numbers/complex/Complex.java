@@ -808,6 +808,20 @@ in the
      * @return the hyperbolic cosine of this complex number.
      */
     public Complex cosh() {
+        if (real == 0 && imaginary == Double.POSITIVE_INFINITY) {
+            return new Complex(Double.NaN, 0);
+        } else if (real == 0 && Double.isNaN(imaginary)) {
+            return new Complex(Double.NaN, 0);
+        } else if (real == Double.POSITIVE_INFINITY && imaginary == 0) {
+            return new Complex(Double.POSITIVE_INFINITY, 0);
+        } else if (real == Double.POSITIVE_INFINITY && imaginary == Double.POSITIVE_INFINITY) {
+            return new Complex(Double.POSITIVE_INFINITY, Double.NaN); 
+        } else if (real == Double.POSITIVE_INFINITY && Double.isNaN(imaginary)) {
+            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
+        } else if (Double.isNaN(real) && imaginary == 0) {
+            return new Complex(Double.NaN, 0);
+        }
+
         return createComplex(Math.cosh(real) * Math.cos(imaginary),
                              Math.sinh(real) * Math.sin(imaginary));
     }
