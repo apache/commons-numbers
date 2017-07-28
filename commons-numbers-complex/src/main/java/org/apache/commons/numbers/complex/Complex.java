@@ -989,6 +989,21 @@ in the
      * @return the hyperbolic sine of {@code this}.
      */
     public Complex sinh() {
+        if (real == 0 && imaginary == 0) {
+            return Complex.ZERO;
+        } else if (real == 0 && imaginary == Double.POSITIVE_INFINITY) {
+            return new Complex(0, Double.NaN);
+        } else if (real == 0 && Double.isNaN(imaginary)) {
+            return new Complex(0, Double.NaN);
+        } else if (real == Double.POSITIVE_INFINITY && imaginary == 0) {
+            return new Complex(Double.POSITIVE_INFINITY, 0);
+        } else if (real == Double.POSITIVE_INFINITY && imaginary == Double.POSITIVE_INFINITY) {
+            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
+        } else if (real == Double.POSITIVE_INFINITY && Double.isNaN(imaginary)) {
+            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
+        } else if (Double.isNaN(real) && imaginary == 0) {
+            return new Complex(Double.NaN, 0);
+        }
         return new Complex(Math.sinh(real) * Math.cos(imaginary),
             Math.cosh(real) * Math.sin(imaginary));
     }
