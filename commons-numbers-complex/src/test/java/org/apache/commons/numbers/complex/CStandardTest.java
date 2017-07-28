@@ -96,14 +96,14 @@ public class CStandardTest {
 
     @Test
     public void testImplicitTrig() {
-        Complex z1 = new Complex(3.0);
+        Complex z1 = new Complex(1.0);
         Complex z2 = new Complex(0.0, 3.0); 
         assertComplex(z1.asin(), negI.multiply(z2.asinh()));
         assertComplex(z1.atan(), negI.multiply(z2.atanh()), Math.ulp(1), Math.ulp(1));
         assertComplex(z1.cos(), z2.cosh());
         assertComplex(z1.sin(), negI.multiply(z2.sinh()));
         // CURRENTLY FAILS BELOW TEST
-        // assertComplex(z1.tan(), negI.multiply(z1.tanh()));
+        assertComplex(z1.tan(), negI.multiply(z1.tanh()));
     }
 
     /**

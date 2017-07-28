@@ -641,7 +641,7 @@ in the
      * @return the inverse cosine of this complex number.
      */
     public Complex acos() {
-        if (real == 0 && Double.isNaN(imaginary)) {
+        if (real == 0.0&& Double.isNaN(imaginary)) {
             return new Complex(Math.PI * 0.5, Double.NaN);
         } else if (neitherInfiniteNorZeroNorNaN(real) && imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(Math.PI * 0.5, Double.NEGATIVE_INFINITY);
@@ -704,13 +704,13 @@ in the
         if (neitherInfiniteNorZeroNorNaN(real) && imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(Double.POSITIVE_INFINITY, Math.PI * 0.5);
         } else if (real == Double.POSITIVE_INFINITY && !Double.isInfinite(imaginary) && !Double.isNaN(imaginary)) {
-            return new Complex(Double.POSITIVE_INFINITY, 0);
+            return new Complex(Double.POSITIVE_INFINITY, 0.0);
         } else if (real == Double.POSITIVE_INFINITY && imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(Double.POSITIVE_INFINITY, Math.PI * 0.25);
         } else if (real == Double.POSITIVE_INFINITY && Double.isNaN(imaginary)) {
             return new Complex(Double.POSITIVE_INFINITY,  Double.NaN);
-        } else if (Double.isNaN(real) && imaginary == 0) {
-            return new Complex(Double.NaN, 0);
+        } else if (Double.isNaN(real) && imaginary == 0.0) {
+            return new Complex(Double.NaN, 0.0);
         } else if (Double.isNaN(real) && imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
         }
@@ -729,10 +729,10 @@ in the
      * @since 1.2
      */
     public Complex atanh(){
-        if (real == 0  && Double.isNaN(imaginary)) {
+        if (real == 0.0 && Double.isNaN(imaginary)) {
             return new Complex(0, Double.NaN);
-        } else if (neitherInfiniteNorZeroNorNaN(real) && imaginary == 0) {
-            return new Complex(Double.POSITIVE_INFINITY, 0);
+        } else if (neitherInfiniteNorZeroNorNaN(real) && imaginary == 0.0) {
+            return new Complex(Double.POSITIVE_INFINITY, 0.0);
         } else if (neitherInfiniteNorZeroNorNaN(real) && imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(0, Math.PI*0.5);
         } else if (real == Double.POSITIVE_INFINITY && neitherInfiniteNorZeroNorNaN(imaginary)) {
@@ -808,18 +808,18 @@ in the
      * @return the hyperbolic cosine of this complex number.
      */
     public Complex cosh() {
-        if (real == 0 && imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(Double.NaN, 0);
-        } else if (real == 0 && Double.isNaN(imaginary)) {
-            return new Complex(Double.NaN, 0);
-        } else if (real == Double.POSITIVE_INFINITY && imaginary == 0) {
-            return new Complex(Double.POSITIVE_INFINITY, 0);
+        if (real == 0.0&& imaginary == Double.POSITIVE_INFINITY) {
+            return new Complex(Double.NaN, 0.0);
+        } else if (real == 0.0&& Double.isNaN(imaginary)) {
+            return new Complex(Double.NaN, 0.0);
+        } else if (real == Double.POSITIVE_INFINITY && imaginary == 0.0) {
+            return new Complex(Double.POSITIVE_INFINITY, 0.0);
         } else if (real == Double.POSITIVE_INFINITY && imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(Double.POSITIVE_INFINITY, Double.NaN); 
         } else if (real == Double.POSITIVE_INFINITY && Double.isNaN(imaginary)) {
             return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
-        } else if (Double.isNaN(real) && imaginary == 0) {
-            return new Complex(Double.NaN, 0);
+        } else if (Double.isNaN(real) && imaginary == 0.0) {
+            return new Complex(Double.NaN, 0.0);
         }
 
         return new Complex(Math.cosh(real) * Math.cos(imaginary),
@@ -843,8 +843,8 @@ in the
      * @return <code><i>e</i><sup>this</sup></code>.
      */
     public Complex exp() {
-        if (real == Double.POSITIVE_INFINITY && imaginary == 0) {
-            return new Complex(Double.POSITIVE_INFINITY, 0);
+        if (real == Double.POSITIVE_INFINITY && imaginary == 0.0) {
+            return new Complex(Double.POSITIVE_INFINITY, 0.0);
         } else if (real == Double.NEGATIVE_INFINITY && imaginary == Double.POSITIVE_INFINITY) {
             return Complex.ZERO;
         } else if (real == Double.POSITIVE_INFINITY && imaginary == Double.POSITIVE_INFINITY) {
@@ -853,8 +853,8 @@ in the
             return Complex.ZERO;
         } else if (real == Double.POSITIVE_INFINITY && Double.isNaN(imaginary)) {
             return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
-        } else if (Double.isNaN(real) && imaginary == 0) {
-            return new Complex(Double.NaN, 0);
+        } else if (Double.isNaN(real) && imaginary == 0.0) {
+            return new Complex(Double.NaN, 0.0);
         }
         double expReal = Math.exp(real);
         return new Complex(expReal *  Math.cos(imaginary),
@@ -918,8 +918,8 @@ in the
      */
     public Complex pow(Complex x) {
         checkNotNull(x);
-        if (real == 0 && imaginary == 0) {
-            if (x.real > 0 && x.imaginary == 0) {
+        if (real == 0.0&& imaginary == 0.0) {
+            if (x.real > 0 && x.imaginary == 0.0) {
                 // 0 raised to positive number is 0
                 return ZERO;
             } else {
@@ -938,7 +938,7 @@ in the
      * @see #pow(Complex)
      */
      public Complex pow(double x) {
-        if (real == 0 && imaginary == 0) {
+        if (real == 0.0&& imaginary == 0.0) {
             if (x > 0) {
                 // 0 raised to positive number is 0
                 return ZERO;
@@ -989,20 +989,20 @@ in the
      * @return the hyperbolic sine of {@code this}.
      */
     public Complex sinh() {
-        if (real == 0 && imaginary == 0) {
+        if (real == 0.0&& imaginary == 0.0) {
             return Complex.ZERO;
-        } else if (real == 0 && imaginary == Double.POSITIVE_INFINITY) {
+        } else if (real == 0.0&& imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(0, Double.NaN);
-        } else if (real == 0 && Double.isNaN(imaginary)) {
+        } else if (real == 0.0&& Double.isNaN(imaginary)) {
             return new Complex(0, Double.NaN);
-        } else if (real == Double.POSITIVE_INFINITY && imaginary == 0) {
-            return new Complex(Double.POSITIVE_INFINITY, 0);
+        } else if (real == Double.POSITIVE_INFINITY && imaginary == 0.0) {
+            return new Complex(Double.POSITIVE_INFINITY, 0.0);
         } else if (real == Double.POSITIVE_INFINITY && imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
         } else if (real == Double.POSITIVE_INFINITY && Double.isNaN(imaginary)) {
             return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
-        } else if (Double.isNaN(real) && imaginary == 0) {
-            return new Complex(Double.NaN, 0);
+        } else if (Double.isNaN(real) && imaginary == 0.0) {
+            return new Complex(Double.NaN, 0.0);
         }
         return new Complex(Math.sinh(real) * Math.cos(imaginary),
             Math.cosh(real) * Math.sin(imaginary));
@@ -1028,6 +1028,14 @@ in the
     public Complex sqrt() {
         if (real == 0.0 && imaginary == 0.0) {
             return new Complex(0.0, 0.0);
+        } else if (neitherInfiniteNorZeroNorNaN(real) && imaginary == Double.POSITIVE_INFINITY) {
+            return new Complex(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+        } else if (real == Double.NEGATIVE_INFINITY && neitherInfiniteNorZeroNorNaN(imaginary)) {
+            return new Complex(0.0, Double.NaN);
+        } else if (real == Double.NEGATIVE_INFINITY && Double.isNaN(imaginary)) {
+            return new Complex(Double.NaN, Double.POSITIVE_INFINITY);
+        } else if (real == Double.POSITIVE_INFINITY && Double.isNaN(imaginary)) {
+            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
         }
 
         double t = Math.sqrt((Math.abs(real) + abs()) / 2.0);
@@ -1102,11 +1110,12 @@ in the
      * @return the hyperbolic tangent of {@code this}.
      */
     public Complex tanh() {
-        if (real > 20.0) {
+        if (real == Double.POSITIVE_INFINITY && imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(1.0, 0.0);
-        }
-        if (real < -20.0) {
-            return new Complex(-1.0, 0.0);
+        } else if (real == Double.POSITIVE_INFINITY && Double.isNaN(imaginary)) {
+            return new Complex(1.0, 0.0);
+        } else if (Double.isNaN(real) && imaginary == 0) {
+            return new Complex(Double.NaN, 0); 
         }
         double real2 = 2.0 * real;
         double imaginary2 = 2.0 * imaginary;
