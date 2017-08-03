@@ -338,6 +338,24 @@ public class ComplexUtils {
     }
 
     /**
+     * Converts a 2D real {@code float[][]} array to a 2D {@code Complex[][]}
+     * array.
+     *
+     * @param d 2D array
+     * @return 2D {@code Complex} array
+     *
+     * @since 1.0
+     */
+    public static Complex[][] real2Complex(float[][] d) {
+        final int w = d.length;
+        final Complex[][] c = new Complex[w][];
+        for (int n = 0; n < w; n++) {
+            c[n] = ComplexUtils.real2Complex(d[n]);
+        }
+        return c;
+    }
+
+    /**
      * Converts a 3D real {@code double[][][]} array to a {@code Complex [][][]}
      * array.
      *
@@ -347,6 +365,24 @@ public class ComplexUtils {
      * @since 1.0
      */
     public static Complex[][][] real2Complex(double[][][] d) {
+        final int w = d.length;
+        final Complex[][][] c = new Complex[w][][];
+        for (int x = 0; x < w; x++) {
+            c[x] = ComplexUtils.real2Complex(d[x]);
+        }
+        return c;
+    }
+
+    /**
+     * Converts a 3D real {@code float[][][]} array to a {@code Complex [][][]}
+     * array.
+     *
+     * @param d 3D complex interleaved array
+     * @return 3D {@code Complex} array
+     *
+     * @since 1.0
+     */
+    public static Complex[][][] real2Complex(float[][][] d) {
         final int w = d.length;
         final Complex[][][] c = new Complex[w][][];
         for (int x = 0; x < w; x++) {
