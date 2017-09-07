@@ -187,13 +187,13 @@ public class Complex implements Serializable  {
             if (imaginary == 0.0) {
                 return Math.abs(real);
             }
-            double q = real / imaginary;
+            final double q = real / imaginary;
             return Math.abs(imaginary) * Math.sqrt(1 + q * q);
         } else {
             if (real == 0.0) {
                 return Math.abs(imaginary);
             }
-            double q = imaginary / real;
+            final double q = imaginary / real;
             return Math.abs(real) * Math.sqrt(1 + q * q);
         }
     }
@@ -314,13 +314,13 @@ in the
         }
 
         if (Math.abs(c) < Math.abs(d)) {
-            double q = c / d;
-            double denominator = c * q + d;
+            final double q = c / d;
+            final double denominator = c * q + d;
             return new Complex((real * q + imaginary) / denominator,
                 (imaginary * q - real) / denominator);
         } else {
-            double q = d / c;
-            double denominator = d * q + c;
+            final double q = d / c;
+            final double denominator = d * q + c;
             return new Complex((imaginary * q + real) / denominator,
                 (imaginary - real * q) / denominator);
         }
@@ -355,7 +355,7 @@ in the
         if (Math.abs(real) < Math.abs(imaginary)) {
             final double q = real / imaginary;
             final double scale = 1. / (real * q + imaginary);
-            final double scaleQ;
+            double scaleQ = 0;
             if (q != 0 && scale != 0) {
                 scaleQ = scale * q;
             }
@@ -363,7 +363,7 @@ in the
         } else {
             final double q = imaginary / real;
             final double scale = 1. / (imaginary * q + real);
-            final double scaleQ;
+            double scaleQ = 0;
             if (q != 0 && scale != 0) {
                 scaleQ = scale * q;
             }
@@ -1038,7 +1038,7 @@ in the
             return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
         }
 
-        double t = Math.sqrt((Math.abs(real) + abs()) / 2.0);
+        final double t = Math.sqrt((Math.abs(real) + abs()) / 2.0);
         if (real >= 0.0) {
             return new Complex(t, imaginary / (2.0 * t));
         } else {
@@ -1085,9 +1085,9 @@ in the
             return new Complex(0.0, -1.0);
         }
 
-        double real2 = 2.0 * real;
-        double imaginary2 = 2.0 * imaginary;
-        double d = Math.cos(real2) + Math.cosh(imaginary2);
+        final double real2 = 2.0 * real;
+        final double imaginary2 = 2.0 * imaginary;
+        final double d = Math.cos(real2) + Math.cosh(imaginary2);
 
         return new Complex(Math.sin(real2) / d,
                              Math.sinh(imaginary2) / d);
@@ -1117,9 +1117,9 @@ in the
         } else if (Double.isNaN(real) && imaginary == 0) {
             return new Complex(Double.NaN, 0); 
         }
-        double real2 = 2.0 * real;
-        double imaginary2 = 2.0 * imaginary;
-        double d = Math.cosh(real2) + Math.cos(imaginary2);
+        final double real2 = 2.0 * real;
+        final double imaginary2 = 2.0 * imaginary;
+        final double d = Math.cosh(real2) + Math.cos(imaginary2);
 
         return new Complex(Math.sinh(real2) / d,
                              Math.sin(imaginary2) / d);
