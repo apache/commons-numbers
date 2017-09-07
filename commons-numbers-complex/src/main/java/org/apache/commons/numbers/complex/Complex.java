@@ -355,11 +355,23 @@ in the
         if (Math.abs(real) < Math.abs(imaginary)) {
             double q = real / imaginary;
             double scale = 1. / (real * q + imaginary);
-            return new Complex(scale * q, -scale);
+            double scaleQ;
+            if (q == 0 | scale == 0) {
+                scaleQ = 0;
+            } else {
+                scaleQ = scale * q;
+            }
+            return new Complex(scaleQ, -scale);
         } else {
             double q = imaginary / real;
             double scale = 1. / (imaginary * q + real);
-            return new Complex(scale, -scale * q);
+            double scaleQ;
+            if (q == 0 | scale == 0) {
+                scaleQ = 0;
+            } else {
+                scaleQ = scale * q;
+            }
+            return new Complex(scale, -scaleQ);
         }
     }
 
