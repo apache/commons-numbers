@@ -353,22 +353,18 @@ in the
      */
     public Complex reciprocal() {
         if (Math.abs(real) < Math.abs(imaginary)) {
-            double q = real / imaginary;
-            double scale = 1. / (real * q + imaginary);
-            double scaleQ;
-            if (q == 0 | scale == 0) {
-                scaleQ = 0;
-            } else {
+            final double q = real / imaginary;
+            final double scale = 1. / (real * q + imaginary);
+            final double scaleQ;
+            if (q != 0 && scale != 0) {
                 scaleQ = scale * q;
             }
             return new Complex(scaleQ, -scale);
         } else {
-            double q = imaginary / real;
-            double scale = 1. / (imaginary * q + real);
-            double scaleQ;
-            if (q == 0 | scale == 0) {
-                scaleQ = 0;
-            } else {
+            final double q = imaginary / real;
+            final double scale = 1. / (imaginary * q + real);
+            final double scaleQ;
+            if (q != 0 && scale != 0) {
                 scaleQ = scale * q;
             }
             return new Complex(scale, -scaleQ);
