@@ -184,9 +184,6 @@ public class Complex implements Serializable  {
      */
     public double abs() {
         if (Math.abs(real) < Math.abs(imaginary)) {
-            if (imaginary == 0.0) {
-                return Math.abs(real);
-            }
             final double q = real / imaginary;
             return Math.abs(imaginary) * Math.sqrt(1 + q * q);
         } else {
