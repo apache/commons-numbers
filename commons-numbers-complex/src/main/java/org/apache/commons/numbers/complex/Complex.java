@@ -1304,6 +1304,6 @@ public class Complex implements Serializable  {
      * @return the hash code
      */
     private static int hash(double value) {
-        return new Double(value).hashCode();
+        return Double.valueOf(value).hashCode();
     }
 }
