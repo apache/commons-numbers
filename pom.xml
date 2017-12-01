@@ -270,8 +270,10 @@
             <includeTestSourceDirectory>false</includeTestSourceDirectory>
             <configLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle.xml</configLocation>
             <headerLocation>${numbers.parent.dir}/src/main/resources/checkstyle/license-header.txt</headerLocation>
-            <logViolationsToConsole>false</logViolationsToConsole>
-            <failOnViolation>false</failOnViolation>
+            <suppressionsLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
+            <suppressionsFileExpression>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle-suppressions.xml</suppressionsFileExpression>
+            <logViolationsToConsole>true</logViolationsToConsole>
+            <failOnViolation>true</failOnViolation>
             <resourceExcludes>NOTICE.txt,LICENSE.txt</resourceExcludes>
           </configuration>
         </plugin>
