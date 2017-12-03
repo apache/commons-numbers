@@ -19,6 +19,8 @@
    limitations under the License.
 -->
 <suppressions>
+
+  <!--
   <suppress checks="AvoidInlineConditionals" files=".+\.java" lines="0-99999" />
   <suppress checks="FinalParameters" files=".+\.java" lines="0-99999" />
   <suppress checks="HiddenField" files=".+\.java" lines="0-99999" />
@@ -30,10 +32,11 @@
 
   <suppress checks="LocalFinalVariableName" files="FormattableUtils.java" lines="0-99999" />
 
+-->
   <suppress files="[\\/]generated-sources[\\/]" checks="[a-zA-Z0-9]*"/>
   <suppress files="[\\/]target[\\/]" checks="[a-zA-Z0-9]*"/>
 
-  <!--
+<!--
   <suppress checks="MagicNumber" files="JaccardDistance.java" lines="0-99999" />
--->
+  -->
 </suppressions>
