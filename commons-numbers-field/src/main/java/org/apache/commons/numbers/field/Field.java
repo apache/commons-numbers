@@ -70,13 +70,13 @@ public interface Field<T> {
     T reciprocal(T a);
 
     /**
-     * @return the field element {@code 1} such that for all {@code a}, 
+     * @return the field element {@code 1} such that for all {@code a},
      * {@code 1 * a == a}.
      */
     T one();
 
     /**
-     * @return the field element {@code 0} such that for all {@code a}, 
+     * @return the field element {@code 0} such that for all {@code a},
      * {@code 0 + a == a}.
      */
     T zero();
