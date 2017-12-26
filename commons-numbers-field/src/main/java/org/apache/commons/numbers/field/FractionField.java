@@ -23,11 +23,13 @@ import org.apache.commons.numbers.fraction.Fraction;
  */
 public class FractionField extends AbstractField<Fraction> {
     /** {@inheritDoc} */
+    @Override
     public Fraction one() {
         return Fraction.ONE;
     }
 
     /** {@inheritDoc} */
+    @Override
     public Fraction zero() {
         return Fraction.ZERO;
     }
