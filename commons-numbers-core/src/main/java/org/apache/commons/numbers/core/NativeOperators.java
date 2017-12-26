@@ -20,7 +20,7 @@ package org.apache.commons.numbers.core;
  * Operators that can be implemented in a more performant way
  * using the language constructs.
  *
- * <T> Type of elements.
+ * @param <T> Type of elements.
  */
 public interface NativeOperators<T>
     extends Addition<T>,

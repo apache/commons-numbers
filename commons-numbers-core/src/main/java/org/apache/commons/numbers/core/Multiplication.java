@@ -19,7 +19,7 @@ package org.apache.commons.numbers.core;
 /**
  * Multiplication.
  *
- * <T> Type of elements.
+ * @param <T> Type of elements.
  */
 public interface Multiplication<T> {
     /**

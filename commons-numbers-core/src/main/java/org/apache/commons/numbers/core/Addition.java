@@ -19,7 +19,7 @@ package org.apache.commons.numbers.core;
 /**
  * Addition.
  *
- * <T> Type of elements.
+ * @param <T> Type of elements.
  */
 public interface Addition<T> {
     /**
