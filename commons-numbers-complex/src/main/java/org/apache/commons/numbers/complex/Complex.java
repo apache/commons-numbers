@@ -203,7 +203,8 @@ public class Complex implements Serializable  {
      * @return the norm.
      */
     public double norm() {
-        return abs()*abs();
+        final double a = abs();
+        return a * a;
     }
 
     /**
