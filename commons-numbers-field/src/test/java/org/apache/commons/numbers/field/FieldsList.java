@@ -24,7 +24,7 @@ import java.util.Collections;
 import org.apache.commons.numbers.fraction.Fraction;
 
 /**
- * List of samplers.
+ * List of fields.
  */
 public class FieldsList {
     /** List of all fields implemented in the library. */
