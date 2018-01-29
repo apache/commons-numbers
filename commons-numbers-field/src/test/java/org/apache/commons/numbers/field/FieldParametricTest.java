@@ -108,6 +108,6 @@ public class FieldParametricTest {
     public void testDistributivity() {
         final Object r1 = field.multiply(a, field.add(b, c));
         final Object r2 = field.add(field.multiply(a, b), field.multiply(a, c));
-        Assert.assertTrue(r1.equals(r2));        
+        Assert.assertTrue(r1.equals(r2));
     }
 }
