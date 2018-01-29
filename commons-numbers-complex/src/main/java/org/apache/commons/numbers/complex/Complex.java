@@ -195,16 +195,16 @@ public class Complex implements Serializable  {
         }
     }
 
-     /**
+    /**
      * Return the norm of this complex number, defined as the square of the magnitude
-in the
-     * <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/cproj.html">
+     * in the <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/cproj.html">
      * IEEE and ISO C standards</a>.
      *
      * @return the norm.
      */
     public double norm() {
-        return abs()*abs();
+        final double a = abs();
+        return a * a;
     }
 
     /**
@@ -221,7 +221,7 @@ in the
     public Complex add(Complex addend) {
         checkNotNull(addend);
         return new Complex(real + addend.getReal(),
-                             imaginary + addend.getImaginary());
+                           imaginary + addend.getImaginary());
     }
 
     /**
