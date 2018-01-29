@@ -61,7 +61,7 @@ Alternatively you can pull it from the central Maven repositories:
 ```xml
 <dependency>
   <groupId>org.apache.commons</groupId>
-  <artifactId>commons-numbers-filed</artifactId>
+  <artifactId>commons-numbers-field</artifactId>
   <version>1.0</version>
 </dependency>
 ```
