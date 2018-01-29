@@ -129,7 +129,7 @@ public class Complex implements Serializable  {
     /**
      * Returns true if either real or imaginary component of the Complex
      * is NaN
-     * 
+     *
      * @return {@code boolean}
      */
     public boolean isNaN() {
@@ -142,8 +142,8 @@ public class Complex implements Serializable  {
 
     /**
      * Returns true if either real or imaginary component of the Complex
-     * is Infinite 
-     * 
+     * is Infinite
+     *
      * @return {@code boolean}
      */
     public boolean isInfinite() {
@@ -217,7 +217,6 @@ public class Complex implements Serializable  {
      *
      * @param  addend Value to be added to this {@code Complex}.
      * @return {@code this + addend}.
-     * @if {@code addend} is {@code null}.
      */
     public Complex add(Complex addend) {
         checkNotNull(addend);
@@ -250,7 +249,6 @@ public class Complex implements Serializable  {
      /**
      * Returns the conjugate of this complex number.
      * C++11 grammar.
-     * </p>
      * @return the conjugate of this complex object.
      */
     public Complex conj() {
@@ -295,7 +293,6 @@ public class Complex implements Serializable  {
      *
      * @param divisor Value by which this {@code Complex} is to be divided.
      * @return {@code this / divisor}.
-     * @if {@code divisor} is {@code null}.
      */
     public Complex divide(Complex divisor) {
         checkNotNull(divisor);
@@ -538,23 +535,22 @@ public class Complex implements Serializable  {
      * Returns a {@code Complex} whose value is {@code this * factor}.
      * Implements preliminary checks for {@code NaN} and infinity followed by
      * the definitional formula:
-     * <p>
+     *
      *   {@code (a + bi)(c + di) = (ac - bd) + (ad + bc)i}
-     * </p>
+     *
      * Returns {@link #NaN} if either {@code this} or {@code factor} has one or
      * more {@code NaN} parts.
-     * <p>
+     *
      * Returns {@link #INF} if neither {@code this} nor {@code factor} has one
      * or more {@code NaN} parts and if either {@code this} or {@code factor}
      * has one or more infinite parts (same result is returned regardless of
      * the sign of the components).
-     * </p><p>
+     *
      * Returns finite values in components of the result per the definitional
-     * formula in all remaining cases.</p>
+     * formula in all remaining cases.
      *
      * @param  factor value to be multiplied by this {@code Complex}.
      * @return {@code this * factor}.
-     * @if {@code factor} is {@code null}.
      */
     public Complex multiply(Complex factor) {
         checkNotNull(factor);
@@ -649,14 +645,14 @@ public class Complex implements Serializable  {
         } else if (real == Double.NEGATIVE_INFINITY && imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(Math.PI * 0.75, Double.NEGATIVE_INFINITY);
         } else if (real == Double.POSITIVE_INFINITY && imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(Math.PI * 0.25, Double.NEGATIVE_INFINITY); 
+            return new Complex(Math.PI * 0.25, Double.NEGATIVE_INFINITY);
         } else if (real == Double.POSITIVE_INFINITY && Double.isNaN(imaginary)) {
             return new Complex(Double.NaN , Double.POSITIVE_INFINITY);
         } else if (real == Double.NEGATIVE_INFINITY && Double.isNaN(imaginary)) {
             return new Complex(Double.NaN, Double.NEGATIVE_INFINITY);
         } else if (Double.isNaN(real) && imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(Double.NaN, Double.NEGATIVE_INFINITY);
-        } 
+        }
         return this.add(this.sqrt1z().multiply(I)).log().multiply(I.negate());
     }
     /**
@@ -812,7 +808,7 @@ public class Complex implements Serializable  {
         } else if (real == Double.POSITIVE_INFINITY && imaginary == 0.0) {
             return new Complex(Double.POSITIVE_INFINITY, 0.0);
         } else if (real == Double.POSITIVE_INFINITY && imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(Double.POSITIVE_INFINITY, Double.NaN); 
+            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
         } else if (real == Double.POSITIVE_INFINITY && Double.isNaN(imaginary)) {
             return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
         } else if (Double.isNaN(real) && imaginary == 0.0) {
@@ -1112,7 +1108,7 @@ public class Complex implements Serializable  {
         } else if (real == Double.POSITIVE_INFINITY && Double.isNaN(imaginary)) {
             return new Complex(1.0, 0.0);
         } else if (Double.isNaN(real) && imaginary == 0) {
-            return new Complex(Double.NaN, 0); 
+            return new Complex(Double.NaN, 0);
         }
         final double real2 = 2.0 * real;
         final double imaginary2 = 2.0 * imaginary;
@@ -1283,7 +1279,7 @@ public class Complex implements Serializable  {
             throw new RuntimeException("Complex: Non-positive argument");
         }
     }
-    
+
     /**
      * Returns {@code true} if the values are equal according to semantics of
      * {@link Double#equals(Object)}.
