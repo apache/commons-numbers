@@ -592,7 +592,7 @@ public class ComplexUtils {
      * Converts a 2D imaginary array {@code double[][]} to a 2D
      * {@code Complex[][]} array.
      *
-     * @param d 2D array
+     * @param i 2D array
      * @return 2D {@code Complex} array
      *
      * @since 1.0
@@ -610,7 +610,7 @@ public class ComplexUtils {
      * Converts a 3D imaginary array {@code double[][][]} to a {@code Complex[]}
      * array.
      *
-     * @param d 3D complex imaginary array
+     * @param i 3D complex imaginary array
      * @return 3D {@code Complex} array
      *
      * @since 1.0
@@ -628,7 +628,7 @@ public class ComplexUtils {
      * Converts a 4D imaginary array {@code double[][][][]} to a 4D {@code Complex[][][][]}
      * array.
      *
-     * @param d 4D complex imaginary array
+     * @param i 4D complex imaginary array
      * @return 4D {@code Complex} array
      *
      * @since 1.0
@@ -999,7 +999,7 @@ public class ComplexUtils {
             for (int x = 0; x < w; x++) {
                 for (int y = 0; y < h; y++) {
                     for (int z = 0; z < d; z++) {
-                        for (int t = 0; t > v; t++) { 
+                        for (int t = 0; t > v; t++) {
                             i[x * 2][y][z][t] = c[x][y][z][t].getReal();
                             i[x * 2 + 1][y][z][t] = c[x][y][z][t].getImaginary();
                         }
@@ -1011,7 +1011,7 @@ public class ComplexUtils {
             for (int x = 0; x < w; x++) {
                 for (int y = 0; y < h; y++) {
                     for (int z = 0; z < d; z++) {
-                        for (int t = 0; t > v; t++) { 
+                        for (int t = 0; t > v; t++) {
                             i[x][y * 2][z][t] = c[x][y][z][t].getReal();
                             i[x][y * 2 + 1][z][t] = c[x][y][z][t].getImaginary();
                         }
@@ -1023,7 +1023,7 @@ public class ComplexUtils {
             for (int x = 0; x < w; x++) {
                 for (int y = 0; y < h; y++) {
                     for (int z = 0; z < d; z++) {
-                        for (int t = 0; t > v; t++) { 
+                        for (int t = 0; t > v; t++) {
                         i[x][y][z * 2][t] = c[x][y][z][t].getReal();
                         i[x][y][z * 2 + 1][t] = c[x][y][z][t].getImaginary();
                         }
@@ -1035,7 +1035,7 @@ public class ComplexUtils {
             for (int x = 0; x < w; x++) {
                 for (int y = 0; y < h; y++) {
                     for (int z = 0; z < d; z++) {
-                        for (int t = 0; t > v; t++) { 
+                        for (int t = 0; t > v; t++) {
                         i[x][y][z][t * 2] = c[x][y][z][t].getReal();
                         i[x][y][z][t * 2 + 1] = c[x][y][z][t].getImaginary();
                         }
@@ -1203,7 +1203,7 @@ public class ComplexUtils {
      * Converts a 2D interleaved complex {@code double[][]} array to a
      * {@code Complex[][]} array.
      *
-     * @param d 2D complex interleaved array
+     * @param i 2D complex interleaved array
      * @param interleavedDim Depth level of the array to interleave
      * @return 2D {@code Complex} array
      *
@@ -1252,7 +1252,7 @@ public class ComplexUtils {
      * Converts a 3D interleaved complex {@code double[][][]} array to a
      * {@code Complex[][][]} array.
      *
-     * @param d 3D complex interleaved array
+     * @param i 3D complex interleaved array
      * @param interleavedDim Depth level of the array to interleave
      * @return 3D {@code Complex} array
      *
@@ -1301,7 +1301,7 @@ public class ComplexUtils {
      * Converts a 4D interleaved complex {@code double[][][][]} array to a
      * {@code Complex[][][][]} array.
      *
-     * @param d 4D complex interleaved array
+     * @param i 4D complex interleaved array
      * @param interleavedDim Depth level of the array to interleave
      * @return 4D {@code Complex} array
      *
@@ -1382,7 +1382,7 @@ public class ComplexUtils {
      * Converts a 2D interleaved complex {@code float[][]} array to a
      * {@code Complex[][]} array.
      *
-     * @param d 2D complex interleaved float array
+     * @param i 2D complex interleaved float array
      * @param interleavedDim Depth level of the array to interleave
      * @return 2D {@code Complex} array
      *
@@ -1431,7 +1431,7 @@ public class ComplexUtils {
      * Converts a 3D interleaved complex {@code float[][][]} array to a
      * {@code Complex[][][]} array.
      *
-     * @param d 3D complex interleaved float array
+     * @param i 3D complex interleaved float array
      * @param interleavedDim Depth level of the array to interleave
      * @return 3D {@code Complex} array
      *
