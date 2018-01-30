@@ -38,7 +38,9 @@ public class RegularizedGamma {
         /**
          * Computes the regularized gamma function \( P(a, x) \).
          *
-         * {@inheritDoc}
+         * @param a Argument.
+         * @param x Argument.
+         * @return \( P(a, x) \).
          */
         public static double value(double a,
                                    double x) {
@@ -64,7 +66,11 @@ public class RegularizedGamma {
          *  </li>
          * </ul>
          *
-         * {@inheritDoc}
+         * @param a Argument.
+         * @param x Argument.
+         * @param epsilon Tolerance in continued fraction evaluation.
+         * @param maxIterations Maximum number of iterations in continued fraction evaluation.
+         * @return \( P(a, x) \).
          */
         public static double value(double a,
                                    double x,
@@ -117,7 +123,9 @@ public class RegularizedGamma {
         /**
          * Computes the regularized gamma function \( Q(a, x) = 1 - P(a, x) \).
          *
-         * {@inheritDoc}
+         * @param a Argument.
+         * @param x Argument.
+         * @return \( Q(a, x) \).
          */
         public static double value(double a,
                                    double x) {
@@ -140,7 +148,11 @@ public class RegularizedGamma {
          *  </li>
          * </ul>
          *
-         * {@inheritDoc}
+         * @param a Argument.
+         * @param x Argument.
+         * @param epsilon Tolerance in continued fraction evaluation.
+         * @param maxIterations Maximum number of iterations in continued fraction evaluation.
+         * @return \( Q(a, x) \).
          */
         public static double value(final double a,
                                    double x,

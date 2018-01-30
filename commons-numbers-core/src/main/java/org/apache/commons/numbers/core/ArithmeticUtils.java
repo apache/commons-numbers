@@ -603,7 +603,7 @@ public final class ArithmeticUtils {
      *
      * @param a Addend.
      * @param b Addend.
-     * @param pattern Pattern to use for any thrown exception.
+     * @param message Pattern to use for any thrown exception.
      * @return the sum {@code a + b}.
      * @throws ArithmeticException if the result cannot be represented
      * as a {@code long}.
@@ -748,16 +748,19 @@ public final class ArithmeticUtils {
         return dividend >= 0L || dividend < divisor ? 0L : 1L;
     }
 
+    /**
+     * Exception.
+     */
     private static class NumbersArithmeticException extends ArithmeticException {
         /** Serializable version Id. */
-        private static final long serialVersionUID = -6024911025449780474L;
-
+        private static final long serialVersionUID = 20180130L;
+        /** Argument to construct a message. */
         private final Object[] formatArguments;
 
         /**
          * Default constructor.
          */
-        public NumbersArithmeticException() {
+        NumbersArithmeticException() {
             this("arithmetic exception");
         }
 
@@ -768,11 +771,12 @@ public final class ArithmeticUtils {
          * the error.
          * @param args Arguments.
          */
-        public NumbersArithmeticException(String message, Object ... args) {
+        NumbersArithmeticException(String message, Object ... args) {
             super(message);
             this.formatArguments = args;
         }
 
+        /** {@inheritDoc} */
         @Override
         public String getMessage() {
             return MessageFormat.format(super.getMessage(), formatArguments);

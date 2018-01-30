@@ -987,7 +987,7 @@ public class ComplexUtils {
      */
     public static double[][][][] complex2Interleaved(Complex[][][][] c, int interleavedDim) {
         if (interleavedDim > 2 || interleavedDim < 0) {
-            new IndexOutOfRangeException(interleavedDim);
+            throw new IndexOutOfRangeException(interleavedDim);
         }
         int w = c.length;
         int h = c[0].length;
@@ -1309,7 +1309,7 @@ public class ComplexUtils {
      */
     public static Complex[][][][] interleaved2Complex(double[][][][] i, int interleavedDim) {
         if (interleavedDim > 2 || interleavedDim < 0) {
-            new IndexOutOfRangeException(interleavedDim);
+            throw new IndexOutOfRangeException(interleavedDim);
         }
         final int w = i.length;
         final int h = i[0].length;

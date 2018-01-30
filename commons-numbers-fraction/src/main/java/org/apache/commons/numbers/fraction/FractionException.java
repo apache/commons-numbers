@@ -50,6 +50,7 @@ class FractionException extends ArithmeticException {
         this.formatArguments = formatArguments;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String getMessage() {
         return MessageFormat.format(super.getMessage(), formatArguments);

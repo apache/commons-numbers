@@ -475,7 +475,7 @@ public class Complex implements Serializable  {
     }
 
     /**
-     * Get a hashCode for the complex number.
+     * Get a hash code for the complex number.
      * Any {@code Double.NaN} value in real or imaginary part produces
      * the same hash code {@code 7}.
      *
@@ -486,10 +486,13 @@ public class Complex implements Serializable  {
         if (Double.isNaN(real) || Double.isNaN(imaginary)) {
             return 7;
         }
-        return 37 * 17 * (hash(imaginary) +
-            hash(real));
+        return 37 * (17 * hash(imaginary) + hash(real));
     }
 
+    /**
+     * @param d Value.
+     * @return a hash code for the given value.
+     */
     private int hash(double d) {
         final long v = Double.doubleToLongBits(d);
         return (int)(v^(v>>>32));
@@ -1258,18 +1261,7 @@ public class Complex implements Serializable  {
         }
     }
 
-     /**
-     * Check that the argument is positive and throw a RuntimeException
-     * if it is not.
-     * @param arg {@code int} to check
-     */
-    private static void checkNotNegative(int arg) {
-        if (arg <= 0) {
-            throw new RuntimeException("Complex: Non-positive argument");
-        }
-    }
-
-     /**
+    /**
      * Check that the argument is positive and throw a RuntimeException
      * if it is not.
      * @param arg {@code double} to check
@@ -1292,9 +1284,21 @@ public class Complex implements Serializable  {
         return new Double(x).equals(new Double(y));
     }
 
+    /**
+     * Check that a value meets all the following conditions:
+     * <ul>
+     *  <li>it is not {@code NaN},</li>
+     *  <li>it is not infinite,</li>
+     *  <li>it is not zero,</li>
+     * </ul>
+     *
+     * @param d Value.
+     * @return {@code true} if {@code d} meets all the conditions and
+     * {@code false} otherwise.
+     */
     private static boolean neitherInfiniteNorZeroNorNaN(double d) {
-        if (!Double.isNaN(d) && !Double.isInfinite(d) && d != 0) {
-            return true;
-        } else return false;
+        return !Double.isNaN(d) &&
+            !Double.isInfinite(d) &&
+            d != 0;
     }
 }
