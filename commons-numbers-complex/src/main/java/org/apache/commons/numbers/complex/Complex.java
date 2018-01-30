@@ -1261,18 +1261,7 @@ public class Complex implements Serializable  {
         }
     }
 
-     /**
-     * Check that the argument is positive and throw a RuntimeException
-     * if it is not.
-     * @param arg {@code int} to check
-     */
-    private static void checkNotNegative(int arg) {
-        if (arg <= 0) {
-            throw new RuntimeException("Complex: Non-positive argument");
-        }
-    }
-
-     /**
+    /**
      * Check that the argument is positive and throw a RuntimeException
      * if it is not.
      * @param arg {@code double} to check
