@@ -1308,8 +1308,8 @@ public class Complex implements Serializable  {
      * {@code false} otherwise.
      */
     private static boolean neitherInfiniteNorZeroNorNaN(double d) {
-        if (!Double.isNaN(d) && !Double.isInfinite(d) && d != 0) {
-            return true;
-        } else return false;
+        return !Double.isNaN(d) &&
+            !Double.isInfinite(d) &&
+            d != 0;
     }
 }
