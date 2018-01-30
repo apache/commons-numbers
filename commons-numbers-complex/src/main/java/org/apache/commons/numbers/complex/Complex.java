@@ -486,8 +486,7 @@ public class Complex implements Serializable  {
         if (Double.isNaN(real) || Double.isNaN(imaginary)) {
             return 7;
         }
-        return 37 * 17 * (hash(imaginary) +
-            hash(real));
+        return 37 * (17 * hash(imaginary) + hash(real));
     }
 
     private int hash(double d) {
