@@ -24,7 +24,8 @@ import org.apache.commons.numbers.core.Precision;
  * element.
  */
 public class FP64 extends Number
-    implements NativeOperators<FP64> {
+    implements NativeOperators<FP64>,
+               Comparable<FP64> {
     /** Value. */
     private final double value;
 
@@ -123,5 +124,11 @@ public class FP64 extends Number
     @Override
     public byte byteValue() {
         return (byte) value;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int compareTo(FP64 other) {
+        return Double.compare(value, other.value);
     }
 }
