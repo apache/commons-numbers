@@ -222,8 +222,8 @@ public class Complex implements Serializable  {
      */
     public Complex add(Complex addend) {
         checkNotNull(addend);
-        return new Complex(real + addend.getReal(),
-                           imaginary + addend.getImaginary());
+        return new Complex(real + addend.real,
+                           imaginary + addend.imaginary);
     }
 
     /**
@@ -299,8 +299,8 @@ public class Complex implements Serializable  {
     public Complex divide(Complex divisor) {
         checkNotNull(divisor);
 
-        final double c = divisor.getReal();
-        final double d = divisor.getImaginary();
+        final double c = divisor.real;
+        final double d = divisor.imaginary;
         if (c == 0 &&
             d == 0) {
             return NaN;
@@ -624,8 +624,8 @@ public class Complex implements Serializable  {
      */
     public Complex subtract(Complex subtrahend) {
         checkNotNull(subtrahend);
-        return new Complex(real - subtrahend.getReal(),
-                           imaginary - subtrahend.getImaginary());
+        return new Complex(real - subtrahend.real,
+                           imaginary - subtrahend.imaginary);
     }
 
     /**
@@ -1209,7 +1209,7 @@ public class Complex implements Serializable  {
      * @return the argument of {@code this}.
      */
     public double getArgument() {
-        return Math.atan2(getImaginary(), getReal());
+        return Math.atan2(imaginary, real);
     }
 
     /**
