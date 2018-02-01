@@ -946,7 +946,7 @@ public class Complex implements Serializable  {
      *  @return the base 10 logarithm of <code>this</code>.
     */
     public Complex log10() {
-        return new Complex(Math.log(abs())/Math.log(10),
+        return new Complex(Math.log(abs()) / Math.log(10),
                            Math.atan2(imaginary, real));
     }
 
