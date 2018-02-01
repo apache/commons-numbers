@@ -1175,7 +1175,7 @@ public class Complex implements Serializable  {
     public List<Complex> nthRoot(int n) {
 
         if (n <= 0) {
-            throw new RuntimeException("cannot compute nth root for null or negative n: {0}");
+            throw new IllegalArgumentException("cannot compute nth root for null or negative n: {0}");
         }
 
         final List<Complex> result = new ArrayList<Complex>();
@@ -1257,7 +1257,7 @@ public class Complex implements Serializable  {
      */
     private static void checkNotNull(Object o) {
         if (o == null) {
-            throw new RuntimeException("Null Argument to Complex Method");
+            throw new IllegalArgumentException("Null Argument to Complex Method");
         }
     }
 
@@ -1268,7 +1268,7 @@ public class Complex implements Serializable  {
      */
     private static void checkNotNegative(double arg) {
         if (arg <= 0) {
-            throw new RuntimeException("Complex: Non-positive argument");
+            throw new IllegalArgumentException("Complex: Non-positive argument");
         }
     }
 
