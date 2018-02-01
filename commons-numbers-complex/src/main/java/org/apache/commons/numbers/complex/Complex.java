@@ -777,7 +777,7 @@ public class Complex implements Serializable  {
                    imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(0, Math.PI * 0.5);
         }
-        return this.add(Complex.ONE).divide(Complex.ONE.subtract(this)).log().divide(new Complex(2));
+        return this.add(Complex.ONE).divide(Complex.ONE.subtract(this)).log().multiply(0.5);
     }
    /**
      * Compute the
