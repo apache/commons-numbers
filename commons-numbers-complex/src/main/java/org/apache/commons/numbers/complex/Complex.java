@@ -1086,7 +1086,7 @@ public class Complex implements Serializable  {
     public Complex sqrt() {
         if (real == 0 &&
             imaginary == 0) {
-            return new Complex(0, 0);
+            return ZERO;
         } else if (neitherInfiniteNorZeroNorNaN(real) &&
                    imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
