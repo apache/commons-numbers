@@ -1113,7 +1113,7 @@ public class Complex implements Serializable  {
      * @return the square root of <code>1 - this<sup>2</sup></code>.
      */
     public Complex sqrt1z() {
-        return new Complex(1, 0).subtract(this.multiply(this)).sqrt();
+        return Complex.ONE.subtract(this.multiply(this)).sqrt();
     }
 
     /**
@@ -1134,7 +1134,7 @@ public class Complex implements Serializable  {
      */
     public Complex tan() {
         if (imaginary > 20) {
-            return new Complex(0, 1);
+            return Complex.ONE;
         }
         if (imaginary < -20) {
             return new Complex(0, -1);
@@ -1167,10 +1167,10 @@ public class Complex implements Serializable  {
     public Complex tanh() {
         if (real == Double.POSITIVE_INFINITY &&
             imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(1, 0);
+            return Complex.ONE;
         } else if (real == Double.POSITIVE_INFINITY &&
                    Double.isNaN(imaginary)) {
-            return new Complex(1, 0);
+            return Complex.ONE;
         } else if (Double.isNaN(real) &&
                    imaginary == 0) {
             return new Complex(Double.NaN, 0);
