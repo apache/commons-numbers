@@ -706,7 +706,7 @@ public class Complex implements Serializable  {
      */
     public Complex atan() {
         return this.add(I).divide(I.subtract(this)).log()
-            .multiply(I.divide(createComplex(2, 0)));
+            .multiply(I.multiply(0.5));
     }
 
     /**
