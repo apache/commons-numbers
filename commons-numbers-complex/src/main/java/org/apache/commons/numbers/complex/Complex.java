@@ -573,7 +573,7 @@ public class Complex implements Serializable  {
     public Complex multiply(Complex factor) {
         checkNotNull(factor);
         return new Complex(real * factor.real - imaginary * factor.imaginary,
-                             real * factor.imaginary + imaginary * factor.real);
+                           real * factor.imaginary + imaginary * factor.real);
     }
 
     /**
@@ -759,15 +759,15 @@ public class Complex implements Serializable  {
         } else if (neitherInfiniteNorZeroNorNaN(real) && imaginary == 0) {
             return new Complex(Double.POSITIVE_INFINITY, 0);
         } else if (neitherInfiniteNorZeroNorNaN(real) && imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(0, Math.PI*0.5);
+            return new Complex(0, Math.PI * 0.5);
         } else if (real == Double.POSITIVE_INFINITY && neitherInfiniteNorZeroNorNaN(imaginary)) {
-            return new Complex(0, Math.PI*0.5);
+            return new Complex(0, Math.PI * 0.5);
         } else if (real == Double.POSITIVE_INFINITY && imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(0, Math.PI*0.5);
+            return new Complex(0, Math.PI * 0.5);
         } else if (real == Double.POSITIVE_INFINITY && Double.isNaN(imaginary)) {
             return new Complex(0, Double.NaN);
         } else if (Double.isNaN(real) && imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(0, Math.PI*0.5);
+            return new Complex(0, Math.PI * 0.5);
         }
         return this.add(Complex.ONE).divide(Complex.ONE.subtract(this)).log().divide(new Complex(2));
     }
