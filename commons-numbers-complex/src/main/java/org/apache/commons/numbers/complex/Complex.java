@@ -59,7 +59,7 @@ public class Complex implements Serializable  {
     public static final Complex ZERO = new Complex(0, 0);
 
     /** Serializable version identifier */
-    private static final long serialVersionUID = -6195664516687396620L;
+    private static final long serialVersionUID = 20180201L;
 
     /** The imaginary part. */
     private final double imaginary;
