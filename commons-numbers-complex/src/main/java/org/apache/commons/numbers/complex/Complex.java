@@ -740,7 +740,7 @@ public class Complex implements Serializable  {
                    imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
         }
-        return square().add(Complex.ONE).sqrt().add(this).log();
+        return square().add(ONE).sqrt().add(this).log();
     }
 
    /**
@@ -777,7 +777,7 @@ public class Complex implements Serializable  {
                    imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(0, Math.PI * 0.5);
         }
-        return this.add(Complex.ONE).divide(Complex.ONE.subtract(this)).log().multiply(0.5);
+        return this.add(ONE).divide(ONE.subtract(this)).log().multiply(0.5);
     }
    /**
      * Compute the
@@ -791,7 +791,7 @@ public class Complex implements Serializable  {
      * @since 1.2
      */
     public Complex acosh() {
-        return square().subtract(Complex.ONE).sqrt().add(this).log();
+        return square().subtract(ONE).sqrt().add(this).log();
     }
 
     /**
@@ -1121,7 +1121,7 @@ public class Complex implements Serializable  {
      * @return the square root of <code>1 - this<sup>2</sup></code>.
      */
     public Complex sqrt1z() {
-        return Complex.ONE.subtract(this.multiply(this)).sqrt();
+        return ONE.subtract(this.multiply(this)).sqrt();
     }
 
     /**
@@ -1142,7 +1142,7 @@ public class Complex implements Serializable  {
      */
     public Complex tan() {
         if (imaginary > 20) {
-            return Complex.ONE;
+            return ONE;
         }
         if (imaginary < -20) {
             return new Complex(0, -1);
@@ -1175,10 +1175,10 @@ public class Complex implements Serializable  {
     public Complex tanh() {
         if (real == Double.POSITIVE_INFINITY &&
             imaginary == Double.POSITIVE_INFINITY) {
-            return Complex.ONE;
+            return ONE;
         } else if (real == Double.POSITIVE_INFINITY &&
                    Double.isNaN(imaginary)) {
-            return Complex.ONE;
+            return ONE;
         } else if (Double.isNaN(real) &&
                    imaginary == 0) {
             return new Complex(Double.NaN, 0);
