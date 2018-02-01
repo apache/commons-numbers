@@ -148,7 +148,8 @@ public class Complex implements Serializable  {
      * @return {@code boolean}
      */
     public boolean isInfinite() {
-        if (Double.isInfinite(real) || Double.isInfinite(imaginary)) {
+        if (Double.isInfinite(real) ||
+            Double.isInfinite(imaginary)) {
             return true;
         } else {
             return false;
