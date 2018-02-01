@@ -652,7 +652,8 @@ public class Complex implements Serializable  {
      * @return the inverse cosine of this complex number.
      */
     public Complex acos() {
-        if (real == 0 && Double.isNaN(imaginary)) {
+        if (real == 0 &&
+            Double.isNaN(imaginary)) {
             return new Complex(Math.PI * 0.5, Double.NaN);
         } else if (neitherInfiniteNorZeroNorNaN(real) &&
                    imaginary == Double.POSITIVE_INFINITY) {
@@ -754,7 +755,8 @@ public class Complex implements Serializable  {
      * @since 1.2
      */
     public Complex atanh(){
-        if (real == 0 && Double.isNaN(imaginary)) {
+        if (real == 0 &&
+            Double.isNaN(imaginary)) {
             return new Complex(0, Double.NaN);
         } else if (neitherInfiniteNorZeroNorNaN(real) &&
                    imaginary == 0) {
