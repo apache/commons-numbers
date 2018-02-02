@@ -108,7 +108,6 @@ public class Complex implements Serializable  {
      * @param r the modulus of the complex number to create
      * @param theta the argument of the complex number to create
      * @return {@code Complex}
-     * @since 1.1
      */
     public Complex polar(double r, double theta) {
         checkNotNegative(r);
@@ -719,7 +718,6 @@ public class Complex implements Serializable  {
      * {@code asinh(z) = log(z+sqrt(z^2+1))}
      * </p><p>
      * @return the inverse hyperbolic cosine of this complex number
-     * @since 1.2
      */
     public Complex asinh(){
         if (neitherInfiniteNorZeroNorNaN(real) &&
@@ -753,7 +751,6 @@ public class Complex implements Serializable  {
      * {@code atanh(z) = log((1+z)/(1-z))/2}
      * </p><p>
      * @return the inverse hyperbolic cosine of this complex number
-     * @since 1.2
      */
     public Complex atanh(){
         if (real == 0 &&
@@ -789,7 +786,6 @@ public class Complex implements Serializable  {
      * {@code acosh(z) = log(z+sqrt(z^2-1))}
      * </p><p>
      * @return the inverse hyperbolic cosine of this complex number
-     * @since 1.2
      */
     public Complex acosh() {
         return square().subtract(ONE).sqrt().add(this).log();
