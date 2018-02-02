@@ -1094,11 +1094,11 @@ public class Complex implements Serializable  {
             return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
         }
 
-        final double t = Math.sqrt((Math.abs(real) + abs()) / 2);
+        final double t = Math.sqrt(0.5 * (Math.abs(real) + abs()));
         if (real >= 0) {
-            return new Complex(t, imaginary / (2 * t));
+            return new Complex(t, 0.5 * imaginary / t);
         } else {
-            return new Complex(Math.abs(imaginary) / (2 * t),
+            return new Complex(0.5 * Math.abs(imaginary) / t,
                                Math.copySign(1d, imaginary) * t);
         }
     }
