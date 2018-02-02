@@ -221,7 +221,6 @@ public class Complex implements Serializable  {
      * @return {@code this + addend}.
      */
     public Complex add(Complex addend) {
-        checkNotNull(addend);
         return new Complex(real + addend.real,
                            imaginary + addend.imaginary);
     }
@@ -297,7 +296,6 @@ public class Complex implements Serializable  {
      * @return {@code this / divisor}.
      */
     public Complex divide(Complex divisor) {
-        checkNotNull(divisor);
 
         final double c = divisor.real;
         final double d = divisor.imaginary;
@@ -571,7 +569,6 @@ public class Complex implements Serializable  {
      * @return {@code this * factor}.
      */
     public Complex multiply(Complex factor) {
-        checkNotNull(factor);
         return new Complex(real * factor.real - imaginary * factor.imaginary,
                            real * factor.imaginary + imaginary * factor.real);
     }
@@ -623,7 +620,6 @@ public class Complex implements Serializable  {
      * @return {@code this - subtrahend}.
      */
     public Complex subtract(Complex subtrahend) {
-        checkNotNull(subtrahend);
         return new Complex(real - subtrahend.real,
                            imaginary - subtrahend.imaginary);
     }
@@ -961,7 +957,6 @@ public class Complex implements Serializable  {
      * @return <code> this<sup>x</sup></code>.
      */
     public Complex pow(Complex x) {
-        checkNotNull(x);
         if (real == 0 &&
             imaginary == 0) {
             if (x.real > 0 &&
@@ -1313,17 +1308,6 @@ public class Complex implements Serializable  {
     @Override
     public String toString() {
         return "(" + real + ", " + imaginary + ")";
-    }
-
-    /**
-     * Checks that an object is not null.
-     *
-     * @param o Object to be checked.
-     */
-    private static void checkNotNull(Object o) {
-        if (o == null) {
-            throw new IllegalArgumentException("Null Argument to Complex Method");
-        }
     }
 
     /**
