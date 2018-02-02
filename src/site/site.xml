@@ -37,10 +37,10 @@
     <!-- <menu name="User Guide">
       <item name="Contents" href="/userguide/index.html"/>
     </menu> -->
-    
+
     <head>
-	    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-      </script>
+      <![CDATA[<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+      </script>]]>
     </head>
 
   </body>
