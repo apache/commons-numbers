@@ -1117,7 +1117,7 @@ public class Complex implements Serializable  {
      * @return the square root of <code>1 - this<sup>2</sup></code>.
      */
     public Complex sqrt1z() {
-        return ONE.subtract(multiply(this)).sqrt();
+        return ONE.subtract(square()).sqrt();
     }
 
     /**
