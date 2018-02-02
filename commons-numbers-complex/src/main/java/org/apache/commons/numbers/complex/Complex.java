@@ -180,7 +180,9 @@ public class Complex implements Serializable  {
      * Returns {@code NaN} if either real or imaginary part is {@code NaN}
      * and {@code Double.POSITIVE_INFINITY} if neither part is {@code NaN},
      * but at least one part is infinite.
-     * This code follows the <a href="http://www.iso-9899.info/wiki/The_Standard">ISO C Standard</a>, Annex G, in calculating the returned value (i.e. the hypot(x,y) method)
+     * This code follows the
+     * <a href="http://www.iso-9899.info/wiki/The_Standard">ISO C Standard</a>,
+     * Annex G, in calculating the returned value (i.e. the hypot(x,y) method).
      *
      * @return the absolute value.
      */
