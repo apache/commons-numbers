@@ -638,7 +638,7 @@ public class Complex implements Serializable  {
 
     /**
      * Compute the
-     * <a href="http://mathworld.wolfram.com/InverseCosine.html" TARGET="_top">
+     * <a href="http://mathworld.wolfram.com/InverseCosine.html">
      * inverse cosine</a> of this complex number.
      * Implements the formula:
      * <p>
@@ -680,7 +680,7 @@ public class Complex implements Serializable  {
     }
     /**
      * Compute the
-     * <a href="http://mathworld.wolfram.com/InverseSine.html" TARGET="_top">
+     * <a href="http://mathworld.wolfram.com/InverseSine.html">
      * inverse sine</a> of this complex number.
      * <p>
      *  {@code asin(z) = -i (log(sqrt(1 - z<sup>2</sup>) + iz))}
@@ -692,7 +692,7 @@ public class Complex implements Serializable  {
     }
     /**
      * Compute the
-     * <a href="http://mathworld.wolfram.com/InverseTangent.html" TARGET="_top">
+     * <a href="http://mathworld.wolfram.com/InverseTangent.html">
      * inverse tangent</a> of this complex number.
      * Implements the formula:
      * <p>
@@ -706,7 +706,7 @@ public class Complex implements Serializable  {
 
     /**
      * Compute the
-     * <a href="http://mathworld.wolfram.com/InverseHyperbolicSine.html" TARGET="_top">
+     * <a href="http://mathworld.wolfram.com/InverseHyperbolicSine.html">
      * inverse hyperbolic sine</a> of this complex number.
      * Implements the formula:
      * <p>
@@ -739,7 +739,7 @@ public class Complex implements Serializable  {
 
    /**
      * Compute the
-     * <a href="http://mathworld.wolfram.com/InverseHyperbolicTangent.html" TARGET="_top">
+     * <a href="http://mathworld.wolfram.com/InverseHyperbolicTangent.html">
      * inverse hyperbolic tangent</a> of this complex number.
      * Implements the formula:
      * <p>
@@ -774,7 +774,7 @@ public class Complex implements Serializable  {
     }
    /**
      * Compute the
-     * <a href="http://mathworld.wolfram.com/InverseHyperbolicCosine.html" TARGET="_top">
+     * <a href="http://mathworld.wolfram.com/InverseHyperbolicCosine.html">
      * inverse hyperbolic cosine</a> of this complex number.
      * Implements the formula:
      * <p>
@@ -797,7 +797,7 @@ public class Complex implements Serializable  {
 
     /**
      * Compute the
-     * <a href="http://mathworld.wolfram.com/Cosine.html" TARGET="_top">
+     * <a href="http://mathworld.wolfram.com/Cosine.html">
      * cosine</a> of this complex number.
      * Implements the formula:
      * <p>
@@ -817,7 +817,7 @@ public class Complex implements Serializable  {
 
     /**
      * Compute the
-     * <a href="http://mathworld.wolfram.com/HyperbolicCosine.html" TARGET="_top">
+     * <a href="http://mathworld.wolfram.com/HyperbolicCosine.html">
      * hyperbolic cosine</a> of this complex number.
      * Implements the formula:
      * <pre>
@@ -859,7 +859,7 @@ public class Complex implements Serializable  {
 
     /**
      * Compute the
-     * <a href="http://mathworld.wolfram.com/ExponentialFunction.html" TARGET="_top">
+     * <a href="http://mathworld.wolfram.com/ExponentialFunction.html">
      * exponential function</a> of this complex number.
      * Implements the formula:
      * <pre>
@@ -900,7 +900,7 @@ public class Complex implements Serializable  {
 
     /**
      * Compute the
-     * <a href="http://mathworld.wolfram.com/NaturalLogarithm.html" TARGET="_top">
+     * <a href="http://mathworld.wolfram.com/NaturalLogarithm.html">
      * natural logarithm</a> of this complex number.
      * Implements the formula:
      * <pre>
@@ -932,7 +932,7 @@ public class Complex implements Serializable  {
 
     /**
      * Compute the base 10 or
-     * <a href="http://mathworld.wolfram.com/CommonLogarithm.html" TARGET="_top">
+     * <a href="http://mathworld.wolfram.com/CommonLogarithm.html">
      * common logarithm</a> of this complex number.
      *
      *  @return the base 10 logarithm of <code>this</code>.
@@ -994,7 +994,7 @@ public class Complex implements Serializable  {
 
     /**
      * Compute the
-     * <a href="http://mathworld.wolfram.com/Sine.html" TARGET="_top">
+     * <a href="http://mathworld.wolfram.com/Sine.html">
      * sine</a>
      * of this complex number.
      * Implements the formula:
@@ -1016,7 +1016,7 @@ public class Complex implements Serializable  {
 
     /**
      * Compute the
-     * <a href="http://mathworld.wolfram.com/HyperbolicSine.html" TARGET="_top">
+     * <a href="http://mathworld.wolfram.com/HyperbolicSine.html">
      * hyperbolic sine</a> of this complex number.
      * Implements the formula:
      * <pre>
@@ -1059,7 +1059,7 @@ public class Complex implements Serializable  {
 
     /**
      * Compute the
-     * <a href="http://mathworld.wolfram.com/SquareRoot.html" TARGET="_top">
+     * <a href="http://mathworld.wolfram.com/SquareRoot.html">
      * square root</a> of this complex number.
      * Implements the following algorithm to compute {@code sqrt(a + bi)}:
      * <ol><li>Let {@code t = sqrt((|a| + |a + bi|) / 2)}</li>
@@ -1103,7 +1103,7 @@ public class Complex implements Serializable  {
 
     /**
      * Compute the
-     * <a href="http://mathworld.wolfram.com/SquareRoot.html" TARGET="_top">
+     * <a href="http://mathworld.wolfram.com/SquareRoot.html">
      * square root</a> of <code>1 - this<sup>2</sup></code> for this complex
      * number.
      * Computes the result directly as
@@ -1117,7 +1117,7 @@ public class Complex implements Serializable  {
 
     /**
      * Compute the
-     * <a href="http://mathworld.wolfram.com/Tangent.html" TARGET="_top">
+     * <a href="http://mathworld.wolfram.com/Tangent.html">
      * tangent</a> of this complex number.
      * Implements the formula:
      * <pre>
@@ -1149,7 +1149,7 @@ public class Complex implements Serializable  {
 
     /**
      * Compute the
-     * <a href="http://mathworld.wolfram.com/HyperbolicTangent.html" TARGET="_top">
+     * <a href="http://mathworld.wolfram.com/HyperbolicTangent.html">
      * hyperbolic tangent</a> of this complex number.
      * Implements the formula:
      * <pre>
