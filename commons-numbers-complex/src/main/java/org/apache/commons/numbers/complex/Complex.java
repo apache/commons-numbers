@@ -680,7 +680,7 @@ public class Complex implements Serializable  {
                    imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(Double.NaN, Double.NEGATIVE_INFINITY);
         }
-        return this.add(this.sqrt1z().multiply(I)).log().multiply(I.negate());
+        return add(sqrt1z().multiply(I)).log().multiply(I.negate());
     }
     /**
      * Compute the
@@ -692,7 +692,7 @@ public class Complex implements Serializable  {
      * @return the inverse sine of this complex number
      */
     public Complex asin() {
-        return sqrt1z().add(this.multiply(I)).log().multiply(I.negate());
+        return sqrt1z().add(multiply(I)).log().multiply(I.negate());
     }
     /**
      * Compute the
@@ -705,8 +705,7 @@ public class Complex implements Serializable  {
      * @return the inverse tangent of this complex number
      */
     public Complex atan() {
-        return this.add(I).divide(I.subtract(this)).log()
-            .multiply(I.multiply(0.5));
+        return add(I).divide(I.subtract(this)).log().multiply(I.multiply(0.5));
     }
 
     /**
@@ -775,7 +774,7 @@ public class Complex implements Serializable  {
                    imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(0, Math.PI * 0.5);
         }
-        return this.add(ONE).divide(ONE.subtract(this)).log().multiply(0.5);
+        return add(ONE).divide(ONE.subtract(this)).log().multiply(0.5);
     }
    /**
      * Compute the
@@ -796,8 +795,8 @@ public class Complex implements Serializable  {
      *
      * @return square of this complex number
      */
-    public Complex square(){
-        return this.multiply(this);
+    public Complex square() {
+        return multiply(this);
     }
 
     /**
@@ -974,7 +973,7 @@ public class Complex implements Serializable  {
                 return NaN;
             }
         }
-        return this.log().multiply(x).exp();
+        return log().multiply(x).exp();
     }
 
     /**
@@ -995,7 +994,7 @@ public class Complex implements Serializable  {
                 return NaN;
             }
         }
-        return this.log().multiply(x).exp();
+        return log().multiply(x).exp();
     }
 
     /**
@@ -1118,7 +1117,7 @@ public class Complex implements Serializable  {
      * @return the square root of <code>1 - this<sup>2</sup></code>.
      */
     public Complex sqrt1z() {
-        return ONE.subtract(this.multiply(this)).sqrt();
+        return ONE.subtract(multiply(this)).sqrt();
     }
 
     /**
