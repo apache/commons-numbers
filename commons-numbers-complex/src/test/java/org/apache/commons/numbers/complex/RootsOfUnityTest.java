@@ -16,6 +16,7 @@
  */
 package org.apache.commons.numbers.complex;
 
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -77,6 +78,15 @@ public class RootsOfUnityTest {
                                         cmRoots.getImaginary(k),
                                         z.getImaginary(),
                                         tol);
+                }
+
+                if (n > 0) {
+                    final List<Complex> list = Complex.ONE.nthRoot(n);
+                    for (int k = 0; k < n; k++) {
+                        final Complex c1 = list.get(k);
+                        final Complex c2 = roots.getRoot(k);
+                        Assert.assertTrue("k=" + k + ": " + c1 + " != " + c2, Complex.equals(c1, c2, 1e-15));
+                    }
                 }
             }
         }
