@@ -48,4 +48,12 @@ public interface NativeOperators<T>
      * @return {@code n * this}.
      */
     T multiply(int n);
+
+    /**
+     * Repeated multiplication.
+     *
+     * @param n Number of times to multiply {@code this} with itself.
+     * @return {@code this^n}.
+     */
+    T pow(int n);
 }
