@@ -31,6 +31,14 @@ public interface Addition<T> {
     T add(T a);
 
     /**
+     * Identity element.
+     *
+     * @return the field element such that for all {@code a},
+     * {@code zero().add(a).equals(a)} is {@code true}.
+     */
+    T zero();
+
+    /**
      * Additive inverse.
      *
      * @return {@code -this}.

@@ -31,6 +31,14 @@ public interface Multiplication<T> {
     T multiply(T a);
 
     /**
+     * Identity element.
+     *
+     * @return the field element such that for all {@code a},
+     * {@code one().multiply(a).equals(a)} is {@code true}.
+     */
+    T one();
+
+    /**
      * Multiplicative inverse.
      *
      * @return <code>this<sup>-1</sup></code>.
