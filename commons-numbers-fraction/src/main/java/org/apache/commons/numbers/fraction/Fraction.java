@@ -555,6 +555,25 @@ public class Fraction
     }
 
     /**
+     * @param n Power.
+     * @return {@code this^n}
+     */
+    public Fraction pow(final int n) {
+        if (n == 0) {
+            return ONE;
+        }
+        if (numerator == 0) {
+            return this;
+        }
+
+        return n < 0 ?
+            new Fraction(ArithmeticUtils.pow(denominator, -n),
+                         ArithmeticUtils.pow(numerator, -n)) :
+            new Fraction(ArithmeticUtils.pow(numerator, n),
+                         ArithmeticUtils.pow(denominator, n));
+    }
+
+    /**
      * <p>Divide the value of this fraction by another.</p>
      *
      * @param fraction  the fraction to divide by, must not be {@code null}
