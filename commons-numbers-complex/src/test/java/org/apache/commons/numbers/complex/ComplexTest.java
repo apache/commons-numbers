@@ -81,7 +81,7 @@ public class ComplexTest {
 
     @Test
     public void testAbsNaN() {
-        Assert.assertTrue(Double.isNaN(Complex.NaN.abs()));
+        Assert.assertTrue(Double.isNaN(Complex.NAN.abs()));
         Complex z = new Complex(inf, nan);
         Assert.assertTrue(Double.isNaN(z.abs()));
     }
@@ -146,7 +146,7 @@ public class ComplexTest {
 
     @Test
     public void testConjugateNaN() {
-        Complex z = Complex.NaN.conjugate();
+        Complex z = Complex.NAN.conjugate();
         Assert.assertTrue(z.isNaN());
     }
 
@@ -187,20 +187,20 @@ public class ComplexTest {
         Complex x = new Complex(3.0, 4.0);
         Complex z = x.divide(Complex.ZERO);
         // Assert.assertEquals(z, Complex.INF); // See MATH-657
-        Assert.assertEquals(z, Complex.NaN);
+        Assert.assertEquals(z, Complex.NAN);
     }
 
     @Test
     public void testDivideZeroZero() {
         Complex x = new Complex(0.0, 0.0);
         Complex z = x.divide(Complex.ZERO);
-        Assert.assertEquals(z, Complex.NaN);
+        Assert.assertEquals(z, Complex.NAN);
     }
 
     @Test
     public void testDivideNaN() {
         Complex x = new Complex(3.0, 4.0);
-        Complex z = x.divide(Complex.NaN);
+        Complex z = x.divide(Complex.NAN);
         Assert.assertTrue(z.isNaN());
     }
 
@@ -274,7 +274,7 @@ public class ComplexTest {
 
     @Test
     public void testReciprocalNaN() {
-        Assert.assertTrue(Complex.NaN.reciprocal().isNaN());
+        Assert.assertTrue(Complex.NAN.reciprocal().isNaN());
     }
 
     @Test
@@ -333,7 +333,7 @@ public class ComplexTest {
 
     @Test
     public void testNegateNaN() {
-        Complex z = Complex.NaN.negate();
+        Complex z = Complex.NAN.negate();
         Assert.assertTrue(z.isNaN());
     }
 
@@ -521,7 +521,7 @@ public class ComplexTest {
         Complex realNaN = new Complex(Double.NaN, 0.0);
         Complex imaginaryNaN = new Complex(0.0, Double.NaN);
         Assert.assertEquals(realNaN.hashCode(), imaginaryNaN.hashCode());
-        Assert.assertEquals(imaginaryNaN.hashCode(), Complex.NaN.hashCode());
+        Assert.assertEquals(imaginaryNaN.hashCode(), Complex.NAN.hashCode());
 
         // MATH-1118
         // "equals" and "hashCode" must be compatible: if two objects have
@@ -578,7 +578,7 @@ public class ComplexTest {
 
     @Test
     public void testScalarPowNaNBase() {
-        Complex x = Complex.NaN;
+        Complex x = Complex.NAN;
         double yDouble = 5.0;
         Complex yComplex = new Complex(yDouble);
         Assert.assertEquals(x.pow(yComplex), x.pow(yDouble));
@@ -616,7 +616,7 @@ public class ComplexTest {
 
     @Test
     public void testSqrt1zNaN() {
-        Assert.assertTrue(Complex.NaN.sqrt1z().isNaN());
+        Assert.assertTrue(Complex.NAN.sqrt1z().isNaN());
     }
 
     /**
@@ -799,7 +799,7 @@ public class ComplexTest {
     public void testGetArgumentNaN() {
         Assert.assertTrue(Double.isNaN(nanZero.getArgument()));
         Assert.assertTrue(Double.isNaN(zeroNaN.getArgument()));
-        Assert.assertTrue(Double.isNaN(Complex.NaN.getArgument()));
+        Assert.assertTrue(Double.isNaN(Complex.NAN.getArgument()));
     }
 
     /*

@@ -49,7 +49,7 @@ public class Complex implements Serializable  {
     public static final Complex I = new Complex(0, 1);
     // CHECKSTYLE: stop ConstantName
     /** A complex number representing "NaN + NaNi" */
-    public static final Complex NaN = new Complex(Double.NaN, Double.NaN);
+    public static final Complex NAN = new Complex(Double.NaN, Double.NaN);
     // CHECKSTYLE: resume ConstantName
     /** A complex number representing "+INF + INFi" */
     public static final Complex INF = new Complex(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
@@ -88,10 +88,7 @@ public class Complex implements Serializable  {
 
      /**
      * Creates a Complex from its polar representation.
-     * <p>
-     * If either {@code r} or {@code theta} is NaN, or {@code theta} is
-     * infinite, {@link Complex#NaN} is returned.
-     * <p>
+     *
      * If {@code r} is infinite and {@code theta} is finite, infinite or NaN
      * values may be returned in parts of the result, following the rules for
      * double arithmetic.
@@ -177,10 +174,9 @@ public class Complex implements Serializable  {
 
      /**
      * Return the absolute value of this complex number.
-     * Returns {@code NaN} if either real or imaginary part is {@code NaN}
-     * and {@code Double.POSITIVE_INFINITY} if neither part is {@code NaN},
-     * but at least one part is infinite.
-     * This code follows the <a href="http://www.iso-9899.info/wiki/The_Standard">ISO C Standard</a>, Annex G, in calculating the returned value (i.e. the hypot(x,y) method)
+     * This code follows the <a href="http://www.iso-9899.info/wiki/The_Standard">ISO C Standard</a>, Annex G,
+     * in calculating the returned value (i.e. the hypot(x,y) method)
+     * and in handling of NaNs.
      *
      * @return the absolute value.
      */
@@ -276,10 +272,10 @@ public class Complex implements Serializable  {
      * {@code Infinite} and {@code NaN} values are handled according to the
      * following rules, applied in the order presented:
      * <ul>
-     *  <li>If {@code divisor} equals {@link #ZERO}, {@link #NaN} is returned.
+     *  <li>If {@code divisor} equals {@link #ZERO}, {@link #NAN} is returned.
      *  </li>
      *  <li>If {@code this} and {@code divisor} are both infinite,
-     *   {@link #NaN} is returned.
+     *   {@link #NAN} is returned.
      *  </li>
      *  <li>If {@code this} is finite (i.e., has no {@code Infinite} or
      *   {@code NaN} parts) and {@code divisor} is infinite (one or both parts
@@ -301,7 +297,7 @@ public class Complex implements Serializable  {
         final double d = divisor.imaginary;
         if (c == 0 &&
             d == 0) {
-            return NaN;
+            return NAN;
         }
 
         if ((Double.isInfinite(c) ||
@@ -334,11 +330,11 @@ public class Complex implements Serializable  {
      */
     public Complex divide(double divisor) {
         if (divisor == 0d) {
-            return NaN;
+            return NAN;
         }
         if (Double.isInfinite(divisor)) {
             return !(Double.isInfinite(real) ||
-                     Double.isInfinite(imaginary)) ? ZERO : NaN;
+                     Double.isInfinite(imaginary)) ? ZERO : NAN;
         }
         return new Complex(real / divisor,
                            imaginary  / divisor);
@@ -549,18 +545,9 @@ public class Complex implements Serializable  {
 
     /**
      * Returns a {@code Complex} whose value is {@code this * factor}.
-     * Implements preliminary checks for {@code NaN} and infinity followed by
-     * the definitional formula:
+     * Implements the definitional formula:
      *
      *   {@code (a + bi)(c + di) = (ac - bd) + (ad + bc)i}
-     *
-     * Returns {@link #NaN} if either {@code this} or {@code factor} has one or
-     * more {@code NaN} parts.
-     *
-     * Returns {@link #INF} if neither {@code this} nor {@code factor} has one
-     * or more {@code NaN} parts and if either {@code this} or {@code factor}
-     * has one or more infinite parts (same result is returned regardless of
-     * the sign of the components).
      *
      * Returns finite values in components of the result per the definitional
      * formula in all remaining cases.
@@ -599,8 +586,6 @@ public class Complex implements Serializable  {
 
     /**
      * Returns a {@code Complex} whose value is {@code (-this)}.
-     * Returns {@code NaN} if either real or imaginary
-     * part of this complex number is {@code Double.NaN}.
      *
      * @return {@code -this}.
      */
@@ -965,7 +950,7 @@ public class Complex implements Serializable  {
                 return ZERO;
             } else {
                 // 0 raised to anything else is NaN
-                return NaN;
+                return NAN;
             }
         }
         return log().multiply(x).exp();
@@ -986,7 +971,7 @@ public class Complex implements Serializable  {
                 return ZERO;
             } else {
                 // 0 raised to anything else is NaN
-                return NaN;
+                return NAN;
             }
         }
         return log().multiply(x).exp();
@@ -1226,7 +1211,7 @@ public class Complex implements Serializable  {
      * {@link #getArgument() argument} of this complex number.
      * <p>
      * If one or both parts of this complex number is NaN, a list with just
-     * one element, {@link #NaN} is returned.
+     * one element, {@link #NAN} is returned.
      * if neither part is NaN, but at least one part is infinite, the result
      * is a one-element list containing {@link #INF}.
      *

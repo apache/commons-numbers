@@ -209,17 +209,17 @@ public class ComplexUtilsTest {
 
     @Test
     public void testPolar2ComplexNaN() {
-        TestUtils.assertSame(Complex.NaN, ComplexUtils.polar2Complex(nan, 1));
-        TestUtils.assertSame(Complex.NaN, ComplexUtils.polar2Complex(1, nan));
-        TestUtils.assertSame(Complex.NaN, ComplexUtils.polar2Complex(nan, nan));
+        TestUtils.assertSame(Complex.NAN, ComplexUtils.polar2Complex(nan, 1));
+        TestUtils.assertSame(Complex.NAN, ComplexUtils.polar2Complex(1, nan));
+        TestUtils.assertSame(Complex.NAN, ComplexUtils.polar2Complex(nan, nan));
     }
 
     @Test
     public void testPolar2ComplexInf() {
-        TestUtils.assertSame(Complex.NaN, ComplexUtils.polar2Complex(1, inf));
-        TestUtils.assertSame(Complex.NaN, ComplexUtils.polar2Complex(1, negInf));
-        TestUtils.assertSame(Complex.NaN, ComplexUtils.polar2Complex(inf, inf));
-        TestUtils.assertSame(Complex.NaN, ComplexUtils.polar2Complex(inf, negInf));
+        TestUtils.assertSame(Complex.NAN, ComplexUtils.polar2Complex(1, inf));
+        TestUtils.assertSame(Complex.NAN, ComplexUtils.polar2Complex(1, negInf));
+        TestUtils.assertSame(Complex.NAN, ComplexUtils.polar2Complex(inf, inf));
+        TestUtils.assertSame(Complex.NAN, ComplexUtils.polar2Complex(inf, negInf));
         TestUtils.assertSame(infInf, ComplexUtils.polar2Complex(inf, pi / 4));
         TestUtils.assertSame(infNaN, ComplexUtils.polar2Complex(inf, 0));
         TestUtils.assertSame(infNegInf, ComplexUtils.polar2Complex(inf, -pi / 4));
