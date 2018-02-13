@@ -272,10 +272,10 @@ public class Complex implements Serializable  {
      * {@code Infinite} and {@code NaN} values are handled according to the
      * following rules, applied in the order presented:
      * <ul>
-     *  <li>If {@code divisor} equals {@link #ZERO}, {@link #NAN} is returned.
+     *  <li>If {@code divisor} equals {@link #ZERO}, {@link #NaN} is returned.
      *  </li>
      *  <li>If {@code this} and {@code divisor} are both infinite,
-     *   {@link #NAN} is returned.
+     *   {@link #NaN} is returned.
      *  </li>
      *  <li>If {@code this} is finite (i.e., has no {@code Infinite} or
      *   {@code NaN} parts) and {@code divisor} is infinite (one or both parts
