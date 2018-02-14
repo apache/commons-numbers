@@ -128,7 +128,7 @@
     <numbers.parent.dir>${basedir}</numbers.parent.dir>
 
     <!-- Temporary fix to support Java 8 -->
-    <commons.jacoco.version>0.7.5.201505241946</commons.jacoco.version>
+    <commons.jacoco.version>0.8.0</commons.jacoco.version>
     <commons.jacoco.classRatio>0.96</commons.jacoco.classRatio>
     <commons.jacoco.instructionRatio>0.8</commons.jacoco.instructionRatio>
     <commons.jacoco.methodRatio>0.8</commons.jacoco.methodRatio>
