@@ -1211,7 +1211,7 @@ public class Complex implements Serializable  {
      * {@link #getArgument() argument} of this complex number.
      * <p>
      * If one or both parts of this complex number is NaN, a list with just
-     * one element, {@link #NAN} is returned.
+     * one element, {@code NaN + NaN i} is returned.
      * if neither part is NaN, but at least one part is infinite, the result
      * is a one-element list containing {@link #INF}.
      *
