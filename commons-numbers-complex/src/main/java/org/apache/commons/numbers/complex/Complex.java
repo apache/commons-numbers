@@ -49,7 +49,7 @@ public class Complex implements Serializable  {
     public static final Complex I = new Complex(0, 1);
     // CHECKSTYLE: stop ConstantName
     /** A complex number representing "NaN + NaNi" */
-    public static final Complex NAN = new Complex(Double.NaN, Double.NaN);
+    private static final Complex NAN = new Complex(Double.NaN, Double.NaN);
     // CHECKSTYLE: resume ConstantName
     /** A complex number representing "+INF + INFi" */
     public static final Complex INF = new Complex(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
@@ -272,10 +272,10 @@ public class Complex implements Serializable  {
      * {@code Infinite} and {@code NaN} values are handled according to the
      * following rules, applied in the order presented:
      * <ul>
-     *  <li>If {@code divisor} equals {@link #ZERO}, {@link #NaN} is returned.
+     *  <li>If {@code divisor} equals {@link #ZERO}, {@link #NAN} is returned.
      *  </li>
      *  <li>If {@code this} and {@code divisor} are both infinite,
-     *   {@link #NaN} is returned.
+     *   {@link #NAN} is returned.
      *  </li>
      *  <li>If {@code this} is finite (i.e., has no {@code Infinite} or
      *   {@code NaN} parts) and {@code divisor} is infinite (one or both parts
