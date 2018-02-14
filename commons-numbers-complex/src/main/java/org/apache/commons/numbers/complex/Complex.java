@@ -45,21 +45,18 @@ import org.apache.commons.numbers.core.Precision;
  *
  */
 public class Complex implements Serializable  {
-    /** The square root of -1. A number representing "0.0 + 1.0i" */
-    public static final Complex I = new Complex(0, 1);
-    // CHECKSTYLE: stop ConstantName
-    /** A complex number representing "NaN + NaNi" */
-    private static final Complex NAN = new Complex(Double.NaN, Double.NaN);
-    // CHECKSTYLE: resume ConstantName
-    /** A complex number representing "+INF + INFi" */
-    public static final Complex INF = new Complex(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
-    /** A complex number representing "1.0 + 0.0i" */
-    public static final Complex ONE = new Complex(1, 0);
-    /** A complex number representing "0.0 + 0.0i" */
-    public static final Complex ZERO = new Complex(0, 0);
-
-    /** Serializable version identifier */
+    /** Serializable version identifier. */
     private static final long serialVersionUID = 20180201L;
+    /** A complex number representing "NaN + NaN i" */
+    private static final Complex NAN = new Complex(Double.NaN, Double.NaN);
+    /** The square root of -1, a.k.a. "i". */
+    public static final Complex I = new Complex(0, 1);
+    /** A complex number representing "+INF + INF i" */
+    public static final Complex INF = new Complex(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+    /** A complex number representing one. */
+    public static final Complex ONE = new Complex(1, 0);
+    /** A complex number representing zero. */
+    public static final Complex ZERO = new Complex(0, 0);
 
     /** The imaginary part. */
     private final double imaginary;
