@@ -69,6 +69,7 @@ public class CStandardTest {
     private static final Complex piTwoNegZero = new Complex(piOverTwo, -0.0);
     private static final Complex threePiFourNegInf = new Complex(threePiOverFour,negInf);
     private static final Complex piFourNegInf = new Complex(piOverFour, negInf);
+    private static final Complex NAN = new Complex(nan, nan);
     
     public void assertComplex(Complex c1, Complex c2, double realTol, double imagTol) {
         Assert.assertEquals(c1.getReal(), c2.getReal(), realTol);
@@ -115,16 +116,16 @@ public class CStandardTest {
         assertComplex(negZeroZero.acos(), piTwoNegZero);
         assertComplex(zeroNaN.acos(), piTwoNaN);
         assertComplex(oneInf.acos(), piTwoNegInf);
-        assertComplex(oneNaN.acos(), Complex.NAN);
+        assertComplex(oneNaN.acos(), NAN);
         assertComplex(negInfOne.acos(), piNegInf);
         assertComplex(infOne.acos(), zeroNegInf);
         assertComplex(negInfPosInf.acos(), threePiFourNegInf);
         assertComplex(infInf.acos(), piFourNegInf);
         assertComplex(infNaN.acos(), nanInf);
         assertComplex(negInfNaN.acos(), nanNegInf);
-        assertComplex(nanOne.acos(), Complex.NAN);
+        assertComplex(nanOne.acos(), NAN);
         assertComplex(nanInf.acos(), nanNegInf);
-        assertComplex(Complex.NAN.acos(), Complex.NAN);
+        assertComplex(NAN.acos(), NAN);
     }
 
     /**
@@ -136,14 +137,14 @@ public class CStandardTest {
         assertComplex(oneOne.conj().asinh(), oneOne.asinh().conj());
         assertComplex(Complex.ZERO.asinh(), Complex.ZERO);
         assertComplex(oneInf.asinh(), infPiTwo);
-        assertComplex(oneNaN.asinh(), Complex.NAN);
+        assertComplex(oneNaN.asinh(), NAN);
         assertComplex(infOne.asinh(), infZero);
         assertComplex(infInf.asinh(), infPiFour);
         assertComplex(infNaN.asinh(), infNaN);
         assertComplex(nanZero.asinh(), nanZero);
-        assertComplex(nanOne.asinh(), Complex.NAN);
+        assertComplex(nanOne.asinh(), NAN);
         assertComplex(nanInf.asinh(), infNaN);
-        assertComplex(Complex.NAN, Complex.NAN);
+        assertComplex(NAN, NAN);
     }
 
     /**
@@ -156,13 +157,13 @@ public class CStandardTest {
         assertComplex(zeroNaN.atanh(), zeroNaN);
         assertComplex(oneZero.atanh(), infZero);
         assertComplex(oneInf.atanh(),zeroPiTwo);
-        assertComplex(oneNaN.atanh(), Complex.NAN);
+        assertComplex(oneNaN.atanh(), NAN);
         assertComplex(infOne.atanh(), zeroPiTwo);
         assertComplex(infInf.atanh(), zeroPiTwo);
         assertComplex(infNaN.atanh(), zeroNaN);
-        assertComplex(nanOne.atanh(), Complex.NAN);
+        assertComplex(nanOne.atanh(), NAN);
         assertComplex(nanInf.atanh(), zeroPiTwo);
-        assertComplex(Complex.NAN.atanh(), Complex.NAN);
+        assertComplex(NAN.atanh(), NAN);
     }
 
     /**
@@ -174,8 +175,8 @@ public class CStandardTest {
         assertComplex(Complex.ZERO.cosh(), Complex.ONE);
         assertComplex(zeroInf.cosh(), nanZero);
         assertComplex(zeroNaN.cosh(), nanZero);
-        assertComplex(oneInf.cosh(), Complex.NAN);
-        assertComplex(oneNaN.cosh(), Complex.NAN);
+        assertComplex(oneInf.cosh(), NAN);
+        assertComplex(oneNaN.cosh(), NAN);
         assertComplex(infZero.cosh(), infZero);
         // the next test does not appear to make sense:
         // (inf + iy) = inf + cis(y)
@@ -183,8 +184,8 @@ public class CStandardTest {
         assertComplex(infInf.cosh(), infNaN);
         assertComplex(infNaN.cosh(), infNaN);
         assertComplex(nanZero.cosh(), nanZero);
-        assertComplex(nanOne.cosh(), Complex.NAN);
-        assertComplex(Complex.NAN.cosh(), Complex.NAN);
+        assertComplex(nanOne.cosh(), NAN);
+        assertComplex(NAN.cosh(), NAN);
     }
 
     /**
@@ -196,15 +197,15 @@ public class CStandardTest {
         assertComplex(Complex.ZERO.sinh(), Complex.ZERO);
         assertComplex(zeroInf.sinh(), zeroNaN);
         assertComplex(zeroNaN.sinh(), zeroNaN);
-        assertComplex(oneInf.sinh(), Complex.NAN);
-        assertComplex(oneNaN.sinh(), Complex.NAN);
+        assertComplex(oneInf.sinh(), NAN);
+        assertComplex(oneNaN.sinh(), NAN);
         assertComplex(infZero.sinh(), infZero);
         // skipped test similar to previous section
         assertComplex(infInf.sinh(), infNaN);
         assertComplex(infNaN.sinh(), infNaN);
         assertComplex(nanZero.sinh(), nanZero);
-        assertComplex(nanOne.sinh(), Complex.NAN);
-        assertComplex(Complex.NAN.sinh(), Complex.NAN);
+        assertComplex(nanOne.sinh(), NAN);
+        assertComplex(NAN.sinh(), NAN);
     }
 
     /**
@@ -214,14 +215,14 @@ public class CStandardTest {
     public void testTanh() {
         assertComplex(oneOne.tanh().conj(), oneOne.conj().tanh()); // AND CSINH IS ODD
         assertComplex(Complex.ZERO.tanh(), Complex.ZERO);
-        assertComplex(oneInf.tanh(), Complex.NAN);
-        assertComplex(oneNaN.tanh(), Complex.NAN);
+        assertComplex(oneInf.tanh(), NAN);
+        assertComplex(oneNaN.tanh(), NAN);
         //Do Not Understand the Next Test
         assertComplex(infInf.tanh(), oneZero);
         assertComplex(infNaN.tanh(), oneZero);
         assertComplex(nanZero.tanh(), nanZero);
-        assertComplex(nanOne.tanh(), Complex.NAN);
-        assertComplex(Complex.NAN.tanh(), Complex.NAN);
+        assertComplex(nanOne.tanh(), NAN);
+        assertComplex(NAN.tanh(), NAN);
     }
 
     /**
@@ -232,8 +233,8 @@ public class CStandardTest {
         assertComplex(oneOne.conj().exp(), oneOne.exp().conj());
         assertComplex(Complex.ZERO.exp(), oneZero);
         assertComplex(negZeroZero.exp(), oneZero);
-        assertComplex(oneInf.exp(), Complex.NAN);
-        assertComplex(oneNaN.exp(), Complex.NAN);
+        assertComplex(oneInf.exp(), NAN);
+        assertComplex(oneNaN.exp(), NAN);
         assertComplex(infZero.exp(), infZero);
         // Do not understand next test
         assertComplex(negInfInf.exp(), Complex.ZERO);
@@ -241,8 +242,8 @@ public class CStandardTest {
         assertComplex(negInfNaN.exp(), Complex.ZERO);
         assertComplex(infNaN.exp(), infNaN);
         assertComplex(nanZero.exp(), nanZero);
-        assertComplex(nanOne.exp(), Complex.NAN);
-        assertComplex(Complex.NAN.exp(), Complex.NAN);
+        assertComplex(nanOne.exp(), NAN);
+        assertComplex(NAN.exp(), NAN);
     }
 
     /**
@@ -254,14 +255,14 @@ public class CStandardTest {
         assertComplex(negZeroZero.log(), negInfPi); 
         assertComplex(Complex.ZERO.log(), negInfZero);
         assertComplex(oneInf.log(), infPiTwo);
-        assertComplex(oneNaN.log(), Complex.NAN);
+        assertComplex(oneNaN.log(), NAN);
         assertComplex(negInfOne.log(), infPi);
         assertComplex(infOne.log(), infZero);
         assertComplex(infInf.log(), infPiFour);
         assertComplex(infNaN.log(), infNaN);
-        assertComplex(nanOne.log(), Complex.NAN);
+        assertComplex(nanOne.log(), NAN);
         assertComplex(nanInf.log(), infNaN);
-        assertComplex(Complex.NAN.log(), Complex.NAN);
+        assertComplex(NAN.log(), NAN);
     }
 
     /**
@@ -276,7 +277,7 @@ public class CStandardTest {
         assertComplex(infOne.sqrt(), infZero);
         assertComplex(negInfNaN.sqrt(), nanInf);
         assertComplex(infNaN.sqrt(), infNaN);
-        assertComplex(nanOne.sqrt(), Complex.NAN);
-        assertComplex(Complex.NAN.sqrt(), Complex.NAN);
+        assertComplex(nanOne.sqrt(), NAN);
+        assertComplex(NAN.sqrt(), NAN);
     }
 }
