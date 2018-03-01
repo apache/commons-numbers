@@ -63,24 +63,28 @@ public class Complex implements Serializable  {
     /** The real part. */
     private final double real;
 
-    /**
-     * Create a complex number given only the real part.
-     *
-     * @param real Real part.
-     */
-    public Complex(double real) {
-        this(real, 0);
-    }
-
-     /**
-     * Create a complex number given the real and imaginary parts.
-     *
-     * @param real Real part.
-     * @param imaginary Imaginary part.
-     */
-    public Complex(double real, double imaginary) {
+    private Complex(double real, double imaginary) {
         this.real = real;
         this.imaginary = imaginary;
+    }
+
+    /**
+    * Create a complex number given the real and imaginary parts.
+    *
+    * @param real Real part.
+    * @param imaginary Imaginary part.
+    */
+    public static Complex ofCartesian(double real, double imaginary) {
+    	return new Complex(real, imaginary);
+    }
+
+    /**
+    * Create a complex number given the real part.
+    *
+    * @param real Real part.
+    */
+    public static Complex ofCartesian(double real) {
+    	return new Complex(real, 0);
     }
 
      /**
@@ -103,7 +107,7 @@ public class Complex implements Serializable  {
      * @param theta the argument of the complex number to create
      * @return {@code Complex}
      */
-    public Complex polar(double r, double theta) {
+    public static Complex ofPolar(double r, double theta) {
         checkNotNegative(r);
         return new Complex(r * Math.cos(theta), r * Math.sin(theta));
     }
@@ -115,7 +119,7 @@ public class Complex implements Serializable  {
      * @param x {@code double} to build the cis number
      * @return {@code Complex}
      */
-    public Complex cis(double x) {
+    public static Complex ofCis(double x) {
         return new Complex(Math.cos(x), Math.sin(x));
     }
 
@@ -163,7 +167,7 @@ public class Complex implements Serializable  {
     public Complex proj() {
         if (Double.isInfinite(real) ||
             Double.isInfinite(imaginary)) {
-            return new Complex(Double.POSITIVE_INFINITY);
+            return new Complex(Double.POSITIVE_INFINITY, 0);
         } else {
             return this;
         }
@@ -1233,46 +1237,11 @@ public class Complex implements Serializable  {
             // inner part
             final double realPart = nthRootOfAbs *  Math.cos(innerPart);
             final double imaginaryPart = nthRootOfAbs *  Math.sin(innerPart);
-            result.add(createComplex(realPart, imaginaryPart));
+            result.add(new Complex(realPart, imaginaryPart));
             innerPart += slice;
         }
 
         return result;
-    }
-
-    /**
-     * Create a complex number given the real and imaginary parts.
-     *
-     * @param realPart Real part.
-     * @param imaginaryPart Imaginary part.
-     * @return a new complex number instance.
-     * @see #valueOf(double, double)
-     */
-    protected Complex createComplex(double realPart,
-                                    double imaginaryPart) {
-        return new Complex(realPart, imaginaryPart);
-    }
-
-    /**
-     * Create a complex number given the real and imaginary parts.
-     *
-     * @param realPart Real part.
-     * @param imaginaryPart Imaginary part.
-     * @return a Complex instance.
-     */
-    public static Complex valueOf(double realPart,
-                                  double imaginaryPart) {
-        return new Complex(realPart, imaginaryPart);
-    }
-
-    /**
-     * Create a complex number given only the real part.
-     *
-     * @param realPart Real part.
-     * @return a Complex instance.
-     */
-    public static Complex valueOf(double realPart) {
-        return new Complex(realPart);
     }
 
     /**

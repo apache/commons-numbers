@@ -65,14 +65,14 @@ public class RootsOfUnity {
 
         double previousReal = 1;
         double previousImag = 0;
-        omega[0] = new Complex(previousReal, previousImag);
+        omega[0] = Complex.ofCartesian(previousReal, previousImag);
         for (int i = 1; i < omegaCount; i++) {
             final double real = previousReal * cosT - previousImag * sinT;
             final double imag = previousReal * sinT + previousImag * cosT;
 
             omega[i] = isCounterClockwise ?
-                new Complex(real, imag) :
-                new Complex(real, -imag);
+        		Complex.ofCartesian(real, imag) :
+    			Complex.ofCartesian(real, -imag);
 
             previousReal = real;
             previousImag = imag;
