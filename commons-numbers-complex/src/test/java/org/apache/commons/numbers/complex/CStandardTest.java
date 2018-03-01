@@ -18,9 +18,7 @@
 package org.apache.commons.numbers.complex;
 
 import org.apache.commons.numbers.complex.Complex;
-import org.apache.commons.numbers.complex.ComplexUtils;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class CStandardTest {
@@ -28,49 +26,44 @@ public class CStandardTest {
     private static final double inf = Double.POSITIVE_INFINITY;
     private static final double negInf = Double.NEGATIVE_INFINITY;
     private static final double nan = Double.NaN;
-    private static final double pi = Math.PI;
     private static final double piOverFour = Math.PI / 4.0;
     private static final double piOverTwo = Math.PI / 2.0;
     private static final double threePiOverFour = 3.0*Math.PI/4.0;
-    private static final Complex oneOne = new Complex(1, 1);
-    private static final Complex oneZero = new Complex(1, 0);
-    private static final Complex oneInf = new Complex(1, inf);
-    private static final Complex oneNegInf = new Complex(1, negInf);
-    private static final Complex oneNaN = new Complex(1, nan);
-    private static final Complex zeroInf = new Complex(0, inf);
-    private static final Complex zeroNegInf = new Complex(0,negInf);
-    private static final Complex zeroNaN = new Complex(0, nan);
-    private static final Complex zeroPiTwo = new Complex(0.0, piOverTwo);
-    private static final Complex negZeroZero = new Complex(-0.0, 0);
-    private static final Complex negZeroNan = new Complex(-0.0, nan);
-    private static final Complex negI = new Complex(0.0, -1.0);
-    private static final Complex infOne = new Complex(inf, 1);
-    private static final Complex infZero = new Complex(inf, 0);
-    private static final Complex infNaN = new Complex(inf, nan);
-    private static final Complex infNegInf = new Complex(inf, negInf);
-    private static final Complex infInf = new Complex(inf, inf);
-    private static final Complex infPiTwo = new Complex(inf, piOverTwo);
-    private static final Complex infPiFour = new Complex(inf, piOverFour);
-    private static final Complex infPi = new Complex(inf, Math.PI);
-    private static final Complex negInfInf = new Complex(negInf, inf);
-    private static final Complex negInfZero = new Complex(negInf, 0);
-    private static final Complex negInfOne = new Complex(negInf, 1);
-    private static final Complex negInfNaN = new Complex(negInf, nan);
-    private static final Complex negInfNegInf = new Complex(negInf, negInf);
-    private static final Complex negInfPosInf = new Complex(negInf, inf);
-    private static final Complex negInfPi = new Complex(negInf, Math.PI);
-    private static final Complex nanInf = new Complex(nan, inf);
-    private static final Complex nanNegInf = new Complex(nan, negInf);
-    private static final Complex nanZero = new Complex(nan, 0);
-    private static final Complex nanOne = new Complex(nan, 1);
-    private static final Complex piTwoNaN = new Complex(piOverTwo, nan);
-    private static final Complex piNegInf = new Complex(Math.PI, negInf);
-    private static final Complex piTwoNegInf = new Complex(piOverTwo, negInf);
-    private static final Complex piTwoNegZero = new Complex(piOverTwo, -0.0);
-    private static final Complex threePiFourNegInf = new Complex(threePiOverFour,negInf);
-    private static final Complex piFourNegInf = new Complex(piOverFour, negInf);
-    private static final Complex NAN = new Complex(nan, nan);
-    
+    private static final Complex oneOne = Complex.ofCartesian(1, 1);
+    private static final Complex oneZero = Complex.ofCartesian(1, 0);
+    private static final Complex oneInf = Complex.ofCartesian(1, inf);
+    private static final Complex oneNaN = Complex.ofCartesian(1, nan);
+    private static final Complex zeroInf = Complex.ofCartesian(0, inf);
+    private static final Complex zeroNegInf = Complex.ofCartesian(0,negInf);
+    private static final Complex zeroNaN = Complex.ofCartesian(0, nan);
+    private static final Complex zeroPiTwo = Complex.ofCartesian(0.0, piOverTwo);
+    private static final Complex negZeroZero = Complex.ofCartesian(-0.0, 0);
+    private static final Complex negI = Complex.ofCartesian(0.0, -1.0);
+    private static final Complex infOne = Complex.ofCartesian(inf, 1);
+    private static final Complex infZero = Complex.ofCartesian(inf, 0);
+    private static final Complex infNaN = Complex.ofCartesian(inf, nan);
+    private static final Complex infInf = Complex.ofCartesian(inf, inf);
+    private static final Complex infPiTwo = Complex.ofCartesian(inf, piOverTwo);
+    private static final Complex infPiFour = Complex.ofCartesian(inf, piOverFour);
+    private static final Complex infPi = Complex.ofCartesian(inf, Math.PI);
+    private static final Complex negInfInf = Complex.ofCartesian(negInf, inf);
+    private static final Complex negInfZero = Complex.ofCartesian(negInf, 0);
+    private static final Complex negInfOne = Complex.ofCartesian(negInf, 1);
+    private static final Complex negInfNaN = Complex.ofCartesian(negInf, nan);
+    private static final Complex negInfPosInf = Complex.ofCartesian(negInf, inf);
+    private static final Complex negInfPi = Complex.ofCartesian(negInf, Math.PI);
+    private static final Complex nanInf = Complex.ofCartesian(nan, inf);
+    private static final Complex nanNegInf = Complex.ofCartesian(nan, negInf);
+    private static final Complex nanZero = Complex.ofCartesian(nan, 0);
+    private static final Complex nanOne = Complex.ofCartesian(nan, 1);
+    private static final Complex piTwoNaN = Complex.ofCartesian(piOverTwo, nan);
+    private static final Complex piNegInf = Complex.ofCartesian(Math.PI, negInf);
+    private static final Complex piTwoNegInf = Complex.ofCartesian(piOverTwo, negInf);
+    private static final Complex piTwoNegZero = Complex.ofCartesian(piOverTwo, -0.0);
+    private static final Complex threePiFourNegInf = Complex.ofCartesian(threePiOverFour,negInf);
+    private static final Complex piFourNegInf = Complex.ofCartesian(piOverFour, negInf);
+    private static final Complex NAN = Complex.ofCartesian(nan, nan);
+
     public void assertComplex(Complex c1, Complex c2, double realTol, double imagTol) {
         Assert.assertEquals(c1.getReal(), c2.getReal(), realTol);
         Assert.assertEquals(c1.getImaginary(), c2.getImaginary(), imagTol);
@@ -87,18 +80,18 @@ public class CStandardTest {
      */
     @Test
     public void testSqrt1() {
-        Complex z1 = new Complex(-2.0, 0.0);
-        Complex z2 = new Complex(0.0, Math.sqrt(2));
+        Complex z1 = Complex.ofCartesian(-2.0, 0.0);
+        Complex z2 = Complex.ofCartesian(0.0, Math.sqrt(2));
         assertComplex(z1.sqrt(), z2);
-        z1 = new Complex(-2.0, -0.0);
-        z2 = new Complex(0.0, -Math.sqrt(2));
+        z1 = Complex.ofCartesian(-2.0, -0.0);
+        z2 = Complex.ofCartesian(0.0, -Math.sqrt(2));
         assertComplex(z1.sqrt(), z2);
     }
 
     @Test
     public void testImplicitTrig() {
-        Complex z1 = new Complex(3.0);
-        Complex z2 = new Complex(0.0, 3.0); 
+        Complex z1 = Complex.ofCartesian(3.0);
+        Complex z2 = Complex.ofCartesian(0.0, 3.0);
         assertComplex(z1.asin(), negI.multiply(z2.asinh()));
         assertComplex(z1.atan(), negI.multiply(z2.atanh()), Math.ulp(1), Math.ulp(1));
         assertComplex(z1.cos(), z2.cosh());
@@ -252,7 +245,7 @@ public class CStandardTest {
     @Test
     public void testLog() {
         assertComplex(oneOne.log().conj(), oneOne.conj().log());
-        assertComplex(negZeroZero.log(), negInfPi); 
+        assertComplex(negZeroZero.log(), negInfPi);
         assertComplex(Complex.ZERO.log(), negInfZero);
         assertComplex(oneInf.log(), infPiTwo);
         assertComplex(oneNaN.log(), NAN);
