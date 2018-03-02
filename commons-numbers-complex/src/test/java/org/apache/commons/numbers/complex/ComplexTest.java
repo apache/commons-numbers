@@ -822,23 +822,4 @@ public class ComplexTest {
     }
     */
 
-    /**
-     * Class to test extending Complex
-     */
-    public static class TestComplex extends Complex {
-
-        /**
-         * Serialization identifier.
-         */
-        private static final long serialVersionUID = 3268726724160389237L;
-
-        public TestComplex(double real, double imaginary) {
-            super(real, imaginary);
-        }
-
-        public TestComplex(Complex other){
-            this(other.getReal(), other.getImaginary());
-        }
-
-    }
 }
