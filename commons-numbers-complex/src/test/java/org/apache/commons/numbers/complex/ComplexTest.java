@@ -186,8 +186,7 @@ public class ComplexTest {
     public void testDivideZero() {
         Complex x = Complex.ofCartesian(3.0, 4.0);
         Complex z = x.divide(Complex.ZERO);
-        // Assert.assertEquals(z, Complex.INF); // See MATH-657
-        Assert.assertEquals(z, NAN);
+        Assert.assertEquals(z, Complex.INF);
     }
 
     @Test
@@ -215,8 +214,8 @@ public class ComplexTest {
        Assert.assertTrue(Double.isNaN(z.getImaginary()));
 
        z = negInfInf.divide(Complex.ONE);
-       Assert.assertTrue(Double.isNaN(z.getReal()));
-       Assert.assertTrue(Double.isNaN(z.getImaginary()));
+       Assert.assertTrue(Double.isInfinite(z.getReal()));
+       Assert.assertTrue(Double.isInfinite(z.getImaginary()));
     }
 
     @Test

@@ -265,60 +265,53 @@ public class Complex implements Serializable  {
      *    c + di         c<sup>2</sup> + d<sup>2</sup>
      *  </code>
      * </pre>
-     * but uses
-     * <a href="http://doi.acm.org/10.1145/1039813.1039814">
-     * prescaling of operands</a> to limit the effects of overflows and
-     * underflows in the computation.
-     * <p>
-     * {@code Infinite} and {@code NaN} values are handled according to the
-     * following rules, applied in the order presented:
-     * <ul>
-     *  <li>If {@code divisor} equals {@link #ZERO}, {@link #NAN} is returned.
-     *  </li>
-     *  <li>If {@code this} and {@code divisor} are both infinite,
-     *   {@link #NAN} is returned.
-     *  </li>
-     *  <li>If {@code this} is finite (i.e., has no {@code Infinite} or
-     *   {@code NaN} parts) and {@code divisor} is infinite (one or both parts
-     *   infinite), {@link #ZERO} is returned.
-     *  </li>
-     *  <li>If {@code this} is infinite and {@code divisor} is finite,
-     *   {@code NaN} values are returned in the parts of the result if the
-     *   {@link java.lang.Double} rules applied to the definitional formula
-     *   force {@code NaN} results.
-     *  </li>
-     * </ul>
+     *
+     *
+     * Recalculates to recover infinities as specified in C.99
+     * standard G.5.1. Method is fully in accordance with
+     * C++11 standards for complex numbers.
      *
      * @param divisor Value by which this {@code Complex} is to be divided.
      * @return {@code this / divisor}.
      */
     public Complex divide(Complex divisor) {
 
-        final double c = divisor.real;
-        final double d = divisor.imaginary;
-        if (c == 0 &&
-            d == 0) {
-            return NAN;
+        double a = real;
+        double b = imaginary;
+        double c = divisor.getReal();
+        double d = divisor.getImaginary();
+        int ilogbw = 0;
+        double logbw = Math.log(Math.max(Math.abs(c), Math.abs(d))) / Math.log(2);
+        if (!Double.isInfinite(logbw)) {
+        	ilogbw = (int)logbw;
+        	c = Math.scalb(c, -ilogbw);
+        	d = Math.scalb(d, -ilogbw);
         }
+        double denom = c*c + d*d;
+        double x = Math.scalb( (a*c + b*d) / denom, -ilogbw);
+        double y = Math.scalb( (b*c - a*d) / denom, -ilogbw);
+        if (Double.isNaN(x) && Double.isNaN(y)) {
+        	if ((denom == 0.0) &&
+        			(!Double.isNaN(a) || !Double.isNaN(b))) {
+        		x = Math.copySign(Double.POSITIVE_INFINITY, c) * a;
+        		y = Math.copySign(Double.POSITIVE_INFINITY, c) * b;
+        	} else if ((Double.isInfinite(a) && Double.isInfinite(b)) &&
+        			!Double.isInfinite(c) & !Double.isInfinite(d)) {
+    			a = Math.copySign(Double.isInfinite(a) ? 1.0 : 0.0, a);
+    			b = Math.copySign(Double.isInfinite(b) ? 1.0 : 0.0, b);
+    			x = Double.POSITIVE_INFINITY * (a*c + b*d);
+    			y = Double.POSITIVE_INFINITY * (b*c - a*d);
+        	} else if (Double.isInfinite(logbw) &&
+        			!Double.isInfinite(a) & !Double.isInfinite(b)) {
+    			c = Math.copySign(Double.isInfinite(c) ? 1.0 : 0.0, c);
+    			d = Math.copySign(Double.isInfinite(d) ? 1.0 : 0.0, d);
+    			x = 0.0 * (a*c + b*d);
+    			y = 0.0 * (b*c - a*d);
+    		}
+        }
+        return new Complex(x, y);
 
-        if ((Double.isInfinite(c) ||
-             Double.isInfinite(d)) &&
-            (Double.isInfinite(real) ||
-             Double.isInfinite(imaginary))) {
-            return ZERO;
-        }
 
-        if (Math.abs(c) < Math.abs(d)) {
-            final double q = c / d;
-            final double denominator = c * q + d;
-            return new Complex((real * q + imaginary) / denominator,
-                               (imaginary * q - real) / denominator);
-        } else {
-            final double q = d / c;
-            final double denominator = d * q + c;
-            return new Complex((imaginary * q + real) / denominator,
-                               (imaginary - real * q) / denominator);
-        }
     }
 
     /**
@@ -330,15 +323,7 @@ public class Complex implements Serializable  {
      * @see #divide(Complex)
      */
     public Complex divide(double divisor) {
-        if (divisor == 0d) {
-            return NAN;
-        }
-        if (Double.isInfinite(divisor)) {
-            return !(Double.isInfinite(real) ||
-                     Double.isInfinite(imaginary)) ? ZERO : NAN;
-        }
-        return new Complex(real / divisor,
-                           imaginary  / divisor);
+        return divide(new Complex(divisor, 0));
     }
 
     /**
@@ -550,15 +535,54 @@ public class Complex implements Serializable  {
      *
      *   {@code (a + bi)(c + di) = (ac - bd) + (ad + bc)i}
      *
-     * Returns finite values in components of the result per the definitional
-     * formula in all remaining cases.
+     * Recalculates to recover infinities as specified in C.99
+     * standard G.5.1. Method is fully in accordance with
+     * C++11 standards for complex numbers.
      *
      * @param  factor value to be multiplied by this {@code Complex}.
      * @return {@code this * factor}.
      */
     public Complex multiply(Complex factor) {
-        return new Complex(real * factor.real - imaginary * factor.imaginary,
-                           real * factor.imaginary + imaginary * factor.real);
+        double a = real;
+        double b = imaginary;
+        double c = factor.getReal();
+        double d = factor.getImaginary();
+        final double ac = a*c;
+        final double bd = b*d;
+        final double ad = a*d;
+        final double bc = b*c;
+        double x = ac - bd;
+        double y = ad + bc;
+        if (Double.isNaN(a) && Double.isNaN(b)) {
+        	boolean recalc = false;
+        	if (Double.isInfinite(a) || Double.isInfinite(b)) {
+        		a = Math.copySign(Double.isInfinite(a) ? 1.0 : 0.0, a);
+        		b = Math.copySign(Double.isInfinite(a) ? 1.0 : 0.0, a);
+        		if (Double.isNaN(c)) c = Math.copySign(0.0,  c);
+        		if (Double.isNaN(d)) d = Math.copySign(0.0,  d);
+        		recalc = true;
+        	}
+        	if (Double.isInfinite(c) || Double.isInfinite(d)) {
+        		c = Math.copySign(Double.isInfinite(c) ? 1.0 : 0.0, c);
+        		d = Math.copySign(Double.isInfinite(d) ? 1.0 : 0.0, d);
+        		if (Double.isNaN(a)) a = Math.copySign(0.0,  a);
+        		if (Double.isNaN(b)) b = Math.copySign(0.0,  b);
+        		recalc = true;
+        	}
+        	if (!recalc && (Double.isInfinite(ac) || Double.isInfinite(bd) ||
+        			Double.isInfinite(ad) || Double.isInfinite(bc))) {
+        		if (Double.isNaN(a)) a = Math.copySign(0.0,  a);
+        		if (Double.isNaN(b)) b = Math.copySign(0.0,  b);
+        		if (Double.isNaN(c)) c = Math.copySign(0.0,  c);
+        		if (Double.isNaN(d)) d = Math.copySign(0.0,  d);
+        		recalc = true;
+        	}
+        	if (recalc) {
+        		x = Double.POSITIVE_INFINITY * (a*c - b*d);
+        		y = Double.POSITIVE_INFINITY * (a*d + b*c);
+        	}
+        }
+        return new Complex(x, y);
     }
 
     /**
@@ -1301,4 +1325,5 @@ public class Complex implements Serializable  {
             !Double.isInfinite(d) &&
             d != 0;
     }
+
 }
