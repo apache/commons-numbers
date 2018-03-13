@@ -71,8 +71,8 @@ public class RootsOfUnity {
             final double imag = previousReal * sinT + previousImag * cosT;
 
             omega[i] = isCounterClockwise ?
-        		Complex.ofCartesian(real, imag) :
-    			Complex.ofCartesian(real, -imag);
+                Complex.ofCartesian(real, imag) :
+            Complex.ofCartesian(real, -imag);
 
             previousReal = real;
             previousImag = imag;

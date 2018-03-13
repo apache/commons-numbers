@@ -45,10 +45,6 @@ import org.apache.commons.numbers.core.Precision;
  *
  */
 public class Complex implements Serializable  {
-    /** Serializable version identifier. */
-    private static final long serialVersionUID = 20180201L;
-    /** A complex number representing "NaN + NaN i" */
-    private static final Complex NAN = new Complex(Double.NaN, Double.NaN);
     /** The square root of -1, a.k.a. "i". */
     public static final Complex I = new Complex(0, 1);
     /** A complex number representing "+INF + INF i" */
@@ -56,13 +52,23 @@ public class Complex implements Serializable  {
     /** A complex number representing one. */
     public static final Complex ONE = new Complex(1, 0);
     /** A complex number representing zero. */
-    public static final Complex ZERO = new Complex(0, 0);
+    public static final Complex ZERO = new Complex(0, 0);    /** Serializable version identifier. */
+    private static final long serialVersionUID = 20180201L;
+    /** A complex number representing "NaN + NaN i" */
+    private static final Complex NAN = new Complex(Double.NaN, Double.NaN);
+
 
     /** The imaginary part. */
     private final double imaginary;
     /** The real part. */
     private final double real;
 
+    /**
+     * Private default constructor.
+     *
+     * @param real Real part.
+     * @param imaginary Imaginary part.
+     */
     private Complex(double real, double imaginary) {
         this.real = real;
         this.imaginary = imaginary;
@@ -73,18 +79,20 @@ public class Complex implements Serializable  {
     *
     * @param real Real part.
     * @param imaginary Imaginary part.
+    * @return {@code Complex} object
     */
     public static Complex ofCartesian(double real, double imaginary) {
-    	return new Complex(real, imaginary);
+        return new Complex(real, imaginary);
     }
 
     /**
     * Create a complex number given the real part.
     *
     * @param real Real part.
+    * @return {@code Complex} object
     */
     public static Complex ofCartesian(double real) {
-    	return new Complex(real, 0);
+        return new Complex(real, 0);
     }
 
      /**
@@ -283,31 +291,31 @@ public class Complex implements Serializable  {
         int ilogbw = 0;
         double logbw = Math.log(Math.max(Math.abs(c), Math.abs(d))) / Math.log(2);
         if (!Double.isInfinite(logbw)) {
-        	ilogbw = (int)logbw;
-        	c = Math.scalb(c, -ilogbw);
-        	d = Math.scalb(d, -ilogbw);
+            ilogbw = (int)logbw;
+            c = Math.scalb(c, -ilogbw);
+            d = Math.scalb(d, -ilogbw);
         }
         double denom = c*c + d*d;
         double x = Math.scalb( (a*c + b*d) / denom, -ilogbw);
         double y = Math.scalb( (b*c - a*d) / denom, -ilogbw);
         if (Double.isNaN(x) && Double.isNaN(y)) {
-        	if ((denom == 0.0) &&
-        			(!Double.isNaN(a) || !Double.isNaN(b))) {
-        		x = Math.copySign(Double.POSITIVE_INFINITY, c) * a;
-        		y = Math.copySign(Double.POSITIVE_INFINITY, c) * b;
-        	} else if ((Double.isInfinite(a) && Double.isInfinite(b)) &&
-        			!Double.isInfinite(c) & !Double.isInfinite(d)) {
-    			a = Math.copySign(Double.isInfinite(a) ? 1.0 : 0.0, a);
-    			b = Math.copySign(Double.isInfinite(b) ? 1.0 : 0.0, b);
-    			x = Double.POSITIVE_INFINITY * (a*c + b*d);
-    			y = Double.POSITIVE_INFINITY * (b*c - a*d);
-        	} else if (Double.isInfinite(logbw) &&
-        			!Double.isInfinite(a) & !Double.isInfinite(b)) {
-    			c = Math.copySign(Double.isInfinite(c) ? 1.0 : 0.0, c);
-    			d = Math.copySign(Double.isInfinite(d) ? 1.0 : 0.0, d);
-    			x = 0.0 * (a*c + b*d);
-    			y = 0.0 * (b*c - a*d);
-    		}
+            if ((denom == 0.0) &&
+                    (!Double.isNaN(a) || !Double.isNaN(b))) {
+                x = Math.copySign(Double.POSITIVE_INFINITY, c) * a;
+                y = Math.copySign(Double.POSITIVE_INFINITY, c) * b;
+            } else if ((Double.isInfinite(a) && Double.isInfinite(b)) &&
+                    !Double.isInfinite(c) & !Double.isInfinite(d)) {
+                a = Math.copySign(Double.isInfinite(a) ? 1.0 : 0.0, a);
+                b = Math.copySign(Double.isInfinite(b) ? 1.0 : 0.0, b);
+                x = Double.POSITIVE_INFINITY * (a*c + b*d);
+                y = Double.POSITIVE_INFINITY * (b*c - a*d);
+            } else if (Double.isInfinite(logbw) &&
+                    !Double.isInfinite(a) & !Double.isInfinite(b)) {
+                c = Math.copySign(Double.isInfinite(c) ? 1.0 : 0.0, c);
+                d = Math.copySign(Double.isInfinite(d) ? 1.0 : 0.0, d);
+                x = 0.0 * (a*c + b*d);
+                y = 0.0 * (b*c - a*d);
+            }
         }
         return new Complex(x, y);
 
@@ -554,33 +562,49 @@ public class Complex implements Serializable  {
         double x = ac - bd;
         double y = ad + bc;
         if (Double.isNaN(a) && Double.isNaN(b)) {
-        	boolean recalc = false;
-        	if (Double.isInfinite(a) || Double.isInfinite(b)) {
-        		a = Math.copySign(Double.isInfinite(a) ? 1.0 : 0.0, a);
-        		b = Math.copySign(Double.isInfinite(a) ? 1.0 : 0.0, a);
-        		if (Double.isNaN(c)) c = Math.copySign(0.0,  c);
-        		if (Double.isNaN(d)) d = Math.copySign(0.0,  d);
-        		recalc = true;
-        	}
-        	if (Double.isInfinite(c) || Double.isInfinite(d)) {
-        		c = Math.copySign(Double.isInfinite(c) ? 1.0 : 0.0, c);
-        		d = Math.copySign(Double.isInfinite(d) ? 1.0 : 0.0, d);
-        		if (Double.isNaN(a)) a = Math.copySign(0.0,  a);
-        		if (Double.isNaN(b)) b = Math.copySign(0.0,  b);
-        		recalc = true;
-        	}
-        	if (!recalc && (Double.isInfinite(ac) || Double.isInfinite(bd) ||
-        			Double.isInfinite(ad) || Double.isInfinite(bc))) {
-        		if (Double.isNaN(a)) a = Math.copySign(0.0,  a);
-        		if (Double.isNaN(b)) b = Math.copySign(0.0,  b);
-        		if (Double.isNaN(c)) c = Math.copySign(0.0,  c);
-        		if (Double.isNaN(d)) d = Math.copySign(0.0,  d);
-        		recalc = true;
-        	}
-        	if (recalc) {
-        		x = Double.POSITIVE_INFINITY * (a*c - b*d);
-        		y = Double.POSITIVE_INFINITY * (a*d + b*c);
-        	}
+            boolean recalc = false;
+            if (Double.isInfinite(a) || Double.isInfinite(b)) {
+                a = Math.copySign(Double.isInfinite(a) ? 1.0 : 0.0, a);
+                b = Math.copySign(Double.isInfinite(a) ? 1.0 : 0.0, a);
+                if (Double.isNaN(c)) {
+                    c = Math.copySign(0.0,  c);
+                }
+                if (Double.isNaN(d)) {
+                    d = Math.copySign(0.0,  d);
+                }
+                recalc = true;
+            }
+            if (Double.isInfinite(c) || Double.isInfinite(d)) {
+                c = Math.copySign(Double.isInfinite(c) ? 1.0 : 0.0, c);
+                d = Math.copySign(Double.isInfinite(d) ? 1.0 : 0.0, d);
+                if (Double.isNaN(a)) {
+                    a = Math.copySign(0.0,  a);
+                }
+                if (Double.isNaN(b)) {
+                    b = Math.copySign(0.0,  b);
+                }
+                recalc = true;
+            }
+            if (!recalc && (Double.isInfinite(ac) || Double.isInfinite(bd) ||
+                    Double.isInfinite(ad) || Double.isInfinite(bc))) {
+                if (Double.isNaN(a)) {
+                    a = Math.copySign(0.0,  a);
+                }
+                if (Double.isNaN(b)) {
+                    b = Math.copySign(0.0,  b);
+                }
+                if (Double.isNaN(c)) {
+                    c = Math.copySign(0.0,  c);
+                }
+                if (Double.isNaN(d)) {
+                    d = Math.copySign(0.0,  d);
+                }
+                recalc = true;
+            }
+            if (recalc) {
+                x = Double.POSITIVE_INFINITY * (a*c - b*d);
+                y = Double.POSITIVE_INFINITY * (a*d + b*c);
+            }
         }
         return new Complex(x, y);
     }
