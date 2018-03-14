@@ -203,18 +203,6 @@ public class Complex implements Serializable  {
     }
 
     /**
-     * Return the norm of this complex number, defined as the square of the magnitude
-     * in the <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/cproj.html">
-     * IEEE and ISO C standards</a>.
-     *
-     * @return the norm.
-     */
-    public double norm() {
-        final double a = abs();
-        return a * a;
-    }
-
-    /**
      * Returns a {@code Complex} whose value is
      * {@code (this + addend)}.
      * Uses the definitional formula
