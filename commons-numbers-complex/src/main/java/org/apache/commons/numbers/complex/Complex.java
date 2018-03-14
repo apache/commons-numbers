@@ -44,7 +44,7 @@ import org.apache.commons.numbers.core.Precision;
  * object types.</p>
  *
  */
-public class Complex implements Serializable  {
+final public class Complex implements Serializable  {
     /** The square root of -1, a.k.a. "i". */
     public static final Complex I = new Complex(0, 1);
     /** A complex number representing "+INF + INF i" */
