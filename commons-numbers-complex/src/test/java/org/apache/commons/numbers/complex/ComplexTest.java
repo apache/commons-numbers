@@ -606,18 +606,6 @@ public class ComplexTest {
         }
     }
 
-    @Test
-    public void testSqrt1z() {
-        Complex z = Complex.ofCartesian(3, 4);
-        Complex expected = Complex.ofCartesian(4.08033, -2.94094);
-        TestUtils.assertEquals(expected, z.sqrt1z(), 1.0e-5);
-    }
-
-    @Test
-    public void testSqrt1zNaN() {
-        Assert.assertTrue(NAN.sqrt1z().isNaN());
-    }
-
     /**
      * Test: computing <b>third roots</b> of z.
      * <pre>
