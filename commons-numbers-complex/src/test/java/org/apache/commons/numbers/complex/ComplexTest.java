@@ -800,25 +800,4 @@ public class ComplexTest {
         Assert.assertTrue(Double.isNaN(zeroNaN.getArgument()));
         Assert.assertTrue(Double.isNaN(NAN.getArgument()));
     }
-
-    /*
-    @Test
-    public void testSerial() {
-        Complex z = Complex.ofCartesian(3.0, 4.0);
-        Assert.assertEquals(z, TestUtils.serializeAndRecover(z));
-        Complex ncmplx = (Complex)TestUtils.serializeAndRecover(oneNaN); Assert.assertEquals(nanZero, ncmplx); Assert.assertTrue(ncmplx.isNaN());
-        Complex infcmplx = (Complex)TestUtils.serializeAndRecover(infInf);
-        Assert.assertEquals(infInf, infcmplx);
-        Assert.assertTrue(infcmplx.isInfinite());
-        TestComplex tz = new TestComplex(3.0, 4.0);
-        Assert.assertEquals(tz, TestUtils.serializeAndRecover(tz));
-        TestComplex ntcmplx = (TestComplex)TestUtils.serializeAndRecover(new TestComplex(oneNaN));
-        Assert.assertEquals(nanZero, ntcmplx);
-        Assert.assertTrue(ntcmplx.isNaN());
-        TestComplex inftcmplx = (TestComplex)TestUtils.serializeAndRecover(new TestComplex(infInf));
-        Assert.assertEquals(infInf, inftcmplx);
-        Assert.assertTrue(inftcmplx.isInfinite());
-    }
-    */
-
 }
