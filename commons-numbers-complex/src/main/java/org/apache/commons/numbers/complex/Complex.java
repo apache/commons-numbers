@@ -45,8 +45,6 @@ import org.apache.commons.numbers.core.Precision;
  *
  */
 public final class Complex implements Serializable  {
-    /** Serializable version identifier. */
-    private static final long serialVersionUID = 20180201L;
     /** The square root of -1, a.k.a. "i". */
     public static final Complex I = new Complex(0, 1);
     /** A complex number representing "+INF + INF i" */
@@ -57,6 +55,8 @@ public final class Complex implements Serializable  {
     public static final Complex ZERO = new Complex(0, 0);
     /** A complex number representing "NaN + NaN i" */
     private static final Complex NAN = new Complex(Double.NaN, Double.NaN);
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 20180201L;
 
     /** The imaginary part. */
     private final double imaginary;
