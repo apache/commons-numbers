@@ -292,7 +292,7 @@ public final class Complex implements Serializable  {
                 x = Math.copySign(Double.POSITIVE_INFINITY, c) * a;
                 y = Math.copySign(Double.POSITIVE_INFINITY, c) * b;
             } else if ((Double.isInfinite(a) && Double.isInfinite(b)) &&
-                    !Double.isInfinite(c) & !Double.isInfinite(d)) {
+                    !Double.isInfinite(c) && !Double.isInfinite(d)) {
                 a = Math.copySign(Double.isInfinite(a) ? 1.0 : 0.0, a);
                 b = Math.copySign(Double.isInfinite(b) ? 1.0 : 0.0, b);
                 x = Double.POSITIVE_INFINITY * (a*c + b*d);
