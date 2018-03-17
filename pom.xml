@@ -120,7 +120,7 @@
     <maven.compiler.source>1.6</maven.compiler.source>
     <maven.compiler.target>1.6</maven.compiler.target>
     <numbers.pmd.version>3.5</numbers.pmd.version>
-    <numbers.findbugs.version>3.0.2</numbers.findbugs.version>
+    <numbers.spotbugs.version>3.1.1</numbers.spotbugs.version>
     <numbers.checkstyle.version>2.17</numbers.checkstyle.version>
     <numbers.clirr.version>2.7</numbers.clirr.version>
     <numbers.mathjax.version>2.7.1</numbers.mathjax.version>
@@ -222,9 +222,9 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <version>${numbers.findbugs.version}</version>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+        <version>${numbers.spotbugs.version}</version>
       </plugin>
       <plugin>
         <groupId>org.apache.rat</groupId>
@@ -324,13 +324,13 @@
         </reportSets>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <version>${numbers.findbugs.version}</version>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+        <version>${numbers.spotbugs.version}</version>
         <configuration>
           <threshold>Normal</threshold>
           <effort>Default</effort>
-          <excludeFilterFile>${numbers.parent.dir}/src/main/resources/findbugs/findbugs-exclude-filter.xml</excludeFilterFile>
+          <excludeFilterFile>${numbers.parent.dir}/src/main/resources/spotbugs/spotbugs-exclude-filter.xml</excludeFilterFile>
         </configuration>
       </plugin>
       <plugin>
