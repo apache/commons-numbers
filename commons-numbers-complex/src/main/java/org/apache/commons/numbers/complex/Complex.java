@@ -1280,17 +1280,6 @@ public final class Complex implements Serializable  {
         return result;
     }
 
-    /**
-     * Resolve the transient fields in a deserialized Complex Object.
-     * Subclasses will need to override {@link #createComplex} to
-     * deserialize properly.
-     *
-     * @return A Complex instance with all fields resolved.
-     */
-    protected final Object readResolve() {
-        return new Complex(real, imaginary);
-    }
-
     /** {@inheritDoc} */
     @Override
     public String toString() {
