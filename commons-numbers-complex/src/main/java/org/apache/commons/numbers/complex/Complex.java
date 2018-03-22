@@ -44,7 +44,7 @@ import org.apache.commons.numbers.core.Precision;
  * object types.</p>
  *
  */
-final public class Complex implements Serializable  {
+public final class Complex implements Serializable  {
     /** The square root of -1, a.k.a. "i". */
     public static final Complex I = new Complex(0, 1);
     /** A complex number representing "+INF + INF i" */
@@ -52,11 +52,11 @@ final public class Complex implements Serializable  {
     /** A complex number representing one. */
     public static final Complex ONE = new Complex(1, 0);
     /** A complex number representing zero. */
-    public static final Complex ZERO = new Complex(0, 0);    /** Serializable version identifier. */
-    private static final long serialVersionUID = 20180201L;
+    public static final Complex ZERO = new Complex(0, 0);
     /** A complex number representing "NaN + NaN i" */
     private static final Complex NAN = new Complex(Double.NaN, Double.NaN);
-
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = 20180201L;
 
     /** The imaginary part. */
     private final double imaginary;
@@ -292,7 +292,7 @@ final public class Complex implements Serializable  {
                 x = Math.copySign(Double.POSITIVE_INFINITY, c) * a;
                 y = Math.copySign(Double.POSITIVE_INFINITY, c) * b;
             } else if ((Double.isInfinite(a) && Double.isInfinite(b)) &&
-                    !Double.isInfinite(c) & !Double.isInfinite(d)) {
+                    !Double.isInfinite(c) && !Double.isInfinite(d)) {
                 a = Math.copySign(Double.isInfinite(a) ? 1.0 : 0.0, a);
                 b = Math.copySign(Double.isInfinite(b) ? 1.0 : 0.0, b);
                 x = Double.POSITIVE_INFINITY * (a*c + b*d);
@@ -1278,17 +1278,6 @@ final public class Complex implements Serializable  {
         }
 
         return result;
-    }
-
-    /**
-     * Resolve the transient fields in a deserialized Complex Object.
-     * Subclasses will need to override {@link #createComplex} to
-     * deserialize properly.
-     *
-     * @return A Complex instance with all fields resolved.
-     */
-    protected final Object readResolve() {
-        return new Complex(real, imaginary);
     }
 
     /** {@inheritDoc} */
