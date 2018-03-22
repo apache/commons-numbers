@@ -91,7 +91,7 @@ final public class Complex implements Serializable  {
     * @param real Real part.
     * @return {@code Complex} object
     */
-    public static Complex ofCartesian(double real) {
+    public static Complex ofReal(double real) {
         return new Complex(real, 0);
     }
 
