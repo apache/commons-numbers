@@ -112,7 +112,7 @@ public class ComplexTest {
     public void testScalarAdd() {
         Complex x = Complex.ofCartesian(3.0, 4.0);
         double yDouble = 2.0;
-        Complex yComplex = Complex.ofCartesian(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.add(yComplex), x.add(yDouble));
     }
 
@@ -120,7 +120,7 @@ public class ComplexTest {
     public void testScalarAddNaN() {
         Complex x = Complex.ofCartesian(3.0, 4.0);
         double yDouble = Double.NaN;
-        Complex yComplex = Complex.ofCartesian(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.add(yComplex), x.add(yDouble));
     }
 
@@ -129,7 +129,7 @@ public class ComplexTest {
         Complex x = Complex.ofCartesian(1, 1);
         double yDouble = Double.POSITIVE_INFINITY;
 
-        Complex yComplex = Complex.ofCartesian(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.add(yComplex), x.add(yDouble));
 
         x = Complex.ofCartesian(neginf, 0);
@@ -222,7 +222,7 @@ public class ComplexTest {
     public void testScalarDivide() {
         Complex x = Complex.ofCartesian(3.0, 4.0);
         double yDouble = 2.0;
-        Complex yComplex = Complex.ofCartesian(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.divide(yComplex), x.divide(yDouble));
     }
 
@@ -230,7 +230,7 @@ public class ComplexTest {
     public void testScalarDivideNaN() {
         Complex x = Complex.ofCartesian(3.0, 4.0);
         double yDouble = Double.NaN;
-        Complex yComplex = Complex.ofCartesian(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.divide(yComplex), x.divide(yDouble));
     }
 
@@ -295,10 +295,10 @@ public class ComplexTest {
     public void testScalarMultiply() {
         Complex x = Complex.ofCartesian(3.0, 4.0);
         double yDouble = 2.0;
-        Complex yComplex = Complex.ofCartesian(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.multiply(yComplex), x.multiply(yDouble));
         int zInt = -5;
-        Complex zComplex = Complex.ofCartesian(zInt);
+        Complex zComplex = Complex.ofReal(zInt);
         Assert.assertEquals(x.multiply(zComplex), x.multiply(zInt));
     }
 
@@ -306,7 +306,7 @@ public class ComplexTest {
     public void testScalarMultiplyNaN() {
         Complex x = Complex.ofCartesian(3.0, 4.0);
         double yDouble = Double.NaN;
-        Complex yComplex = Complex.ofCartesian(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.multiply(yComplex), x.multiply(yDouble));
     }
 
@@ -314,11 +314,11 @@ public class ComplexTest {
     public void testScalarMultiplyInf() {
         Complex x = Complex.ofCartesian(1, 1);
         double yDouble = Double.POSITIVE_INFINITY;
-        Complex yComplex = Complex.ofCartesian(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.multiply(yComplex), x.multiply(yDouble));
 
         yDouble = Double.NEGATIVE_INFINITY;
-        yComplex = Complex.ofCartesian(yDouble);
+        yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.multiply(yComplex), x.multiply(yDouble));
     }
 
@@ -361,7 +361,7 @@ public class ComplexTest {
     public void testScalarSubtract() {
         Complex x = Complex.ofCartesian(3.0, 4.0);
         double yDouble = 2.0;
-        Complex yComplex = Complex.ofCartesian(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.subtract(yComplex), x.subtract(yDouble));
     }
 
@@ -369,7 +369,7 @@ public class ComplexTest {
     public void testScalarSubtractNaN() {
         Complex x = Complex.ofCartesian(3.0, 4.0);
         double yDouble = Double.NaN;
-        Complex yComplex = Complex.ofCartesian(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.subtract(yComplex), x.subtract(yDouble));
     }
 
@@ -377,7 +377,7 @@ public class ComplexTest {
     public void testScalarSubtractInf() {
         Complex x = Complex.ofCartesian(1, 1);
         double yDouble = Double.POSITIVE_INFINITY;
-        Complex yComplex = Complex.ofCartesian(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.subtract(yComplex), x.subtract(yDouble));
 
         x = Complex.ofCartesian(neginf, 0);
@@ -571,7 +571,7 @@ public class ComplexTest {
     public void testScalarPow() {
         Complex x = Complex.ofCartesian(3, 4);
         double yDouble = 5.0;
-        Complex yComplex = Complex.ofCartesian(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.pow(yComplex), x.pow(yDouble));
     }
 
@@ -579,7 +579,7 @@ public class ComplexTest {
     public void testScalarPowNaNBase() {
         Complex x = NAN;
         double yDouble = 5.0;
-        Complex yComplex = Complex.ofCartesian(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.pow(yComplex), x.pow(yDouble));
     }
 
@@ -587,7 +587,7 @@ public class ComplexTest {
     public void testScalarPowNaNExponent() {
         Complex x = Complex.ofCartesian(3, 4);
         double yDouble = Double.NaN;
-        Complex yComplex = Complex.ofCartesian(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.pow(yComplex), x.pow(yDouble));
     }
     @Test

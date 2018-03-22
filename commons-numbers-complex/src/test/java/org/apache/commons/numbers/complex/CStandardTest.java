@@ -90,7 +90,7 @@ public class CStandardTest {
 
     @Test
     public void testImplicitTrig() {
-        Complex z1 = Complex.ofCartesian(3.0);
+        Complex z1 = Complex.ofReal(3.0);
         Complex z2 = Complex.ofCartesian(0.0, 3.0);
         assertComplex(z1.asin(), negI.multiply(z2.asinh()));
         assertComplex(z1.atan(), negI.multiply(z2.atanh()), Math.ulp(1), Math.ulp(1));
