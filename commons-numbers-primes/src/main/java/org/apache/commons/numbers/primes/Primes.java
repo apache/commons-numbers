@@ -28,7 +28,6 @@ import java.util.List;
  * <li>factorization</li>
  * </ul>
  *
- *  1.0
  */
 public class Primes {
 
