@@ -1256,8 +1256,8 @@ public final class Complex implements Serializable  {
      * @return a List of all {@code n}-th roots of {@code this}.
      */
     public List<Complex> nthRoot(int n) {
-        if (n <= 0) {
-            throw new IllegalArgumentException("cannot compute nth root for null or negative n: {0}");
+        if (n == 0) {
+            throw new IllegalArgumentException("cannot compute zeroth root");
         }
 
         final List<Complex> result = new ArrayList<Complex>();
@@ -1269,7 +1269,7 @@ public final class Complex implements Serializable  {
         final double nthPhi = getArgument() / n;
         final double slice = 2 * Math.PI / n;
         double innerPart = nthPhi;
-        for (int k = 0; k < n ; k++) {
+        for (int k = 0; k < Math.abs(n) ; k++) {
             // inner part
             final double realPart = nthRootOfAbs *  Math.cos(innerPart);
             final double imaginaryPart = nthRootOfAbs *  Math.sin(innerPart);

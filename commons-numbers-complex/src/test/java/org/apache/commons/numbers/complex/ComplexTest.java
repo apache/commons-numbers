@@ -737,7 +737,7 @@ public class ComplexTest {
      * Test: compute <b>third roots</b> using a negative argument
      * to go clockwise around the unit circle. Fourth roots of one
      * are taken in both directions around the circle using
-     * positive and negative arguments:
+     * positive and negative arguments.
      * <pre>
      * <code>
      * <b>z = 1</b>
