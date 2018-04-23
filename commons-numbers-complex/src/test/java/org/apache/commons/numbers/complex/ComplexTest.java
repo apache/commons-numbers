@@ -618,7 +618,7 @@ public class ComplexTest {
      * </pre>
      */
     @Test
-    public void testNthRoot_normal_thirdRoot() {
+    public void testNthRootNormalThirdRoot() {
         // The complex number we want to compute all third-roots for.
         Complex z = Complex.ofCartesian(-2,2);
         // The List holding all third roots
@@ -650,7 +650,7 @@ public class ComplexTest {
      * </pre>
      */
     @Test
-    public void testNthRoot_normal_fourthRoot() {
+    public void testNthRootNormalFourthRoot() {
         // The complex number we want to compute all third-roots for.
         Complex z = Complex.ofCartesian(5,-2);
         // The List holding all fourth roots
@@ -683,7 +683,7 @@ public class ComplexTest {
      * </pre>
      */
     @Test
-    public void testNthRoot_cornercase_thirdRoot_imaginaryPartEmpty() {
+    public void testNthRootCornercaseThirdRootImaginaryPartEmpty() {
         // The number 8 has three third roots. One we all already know is the number 2.
         // But there are two more complex roots.
         Complex z = Complex.ofCartesian(8,0);
@@ -715,7 +715,7 @@ public class ComplexTest {
      * </pre>
      */
     @Test
-    public void testNthRoot_cornercase_thirdRoot_realPartZero() {
+    public void testNthRootCornercaseThirdRootRealPartZero() {
         // complex number with only imaginary part
         Complex z = Complex.ofCartesian(0,2);
         // The List holding all third roots
