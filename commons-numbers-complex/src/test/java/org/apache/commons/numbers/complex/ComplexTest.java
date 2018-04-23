@@ -734,6 +734,54 @@ public class ComplexTest {
     }
 
     /**
+     * Test: compute <b>third roots</b> using a negative argument
+     * to go clockwise around the unit circle. Fourth roots of one
+     * are taken in both directions around the circle using
+     * positive and negative arguments:
+     * <pre>
+     * <code>
+     * <b>z = 1</b>
+     *   => z_0 = Positive: 1,0 ; Negative: 1,0
+     *   => z_1 = Positive: 0,1 ; Negative: 0,-1
+     *   => z_2 = Positive: -1,0 ; Negative: -1,0
+     *   => z_3 = Positive: 0,-1 ; Negative: 0,1
+     * </code>
+     * </pre>
+     */
+    @Test
+    public void testNthRootNegativeArg() {
+        // The complex number we want to compute all third-roots for.
+        Complex z = Complex.ofCartesian(1, 0);
+        // The List holding all fourth roots
+        Complex[] fourthRootsOfZ = z.nthRoot(4).toArray(new Complex[0]);
+        // test z_0
+        Assert.assertEquals(1,     fourthRootsOfZ[0].getReal(),      1.0e-5);
+        Assert.assertEquals(0,   fourthRootsOfZ[0].getImaginary(), 1.0e-5);
+//         test z_1
+        Assert.assertEquals(0,    fourthRootsOfZ[1].getReal(),      1.0e-5);
+        Assert.assertEquals(1,     fourthRootsOfZ[1].getImaginary(), 1.0e-5);
+        // test z_2
+        Assert.assertEquals(-1,    fourthRootsOfZ[2].getReal(),      1.0e-5);
+        Assert.assertEquals(0,    fourthRootsOfZ[2].getImaginary(), 1.0e-5);
+        // test z_3
+        Assert.assertEquals(0,   fourthRootsOfZ[3].getReal(),      1.0e-5);
+        Assert.assertEquals(-1,    fourthRootsOfZ[3].getImaginary(), 1.0e-5);
+        // go clockwise around the unit circle using negative argument
+        fourthRootsOfZ = z.nthRoot(-4).toArray(new Complex[0]);
+        // test z_0
+        Assert.assertEquals(1,     fourthRootsOfZ[0].getReal(),      1.0e-5);
+        Assert.assertEquals(0,   fourthRootsOfZ[0].getImaginary(), 1.0e-5);
+//         test z_1
+        Assert.assertEquals(0,    fourthRootsOfZ[1].getReal(),      1.0e-5);
+        Assert.assertEquals(-1,     fourthRootsOfZ[1].getImaginary(), 1.0e-5);
+        // test z_2
+        Assert.assertEquals(-1,    fourthRootsOfZ[2].getReal(),      1.0e-5);
+        Assert.assertEquals(0,    fourthRootsOfZ[2].getImaginary(), 1.0e-5);
+        // test z_3
+        Assert.assertEquals(0,   fourthRootsOfZ[3].getReal(),      1.0e-5);
+        Assert.assertEquals(1,    fourthRootsOfZ[3].getImaginary(), 1.0e-5);
+    }
+    /**
      * Test standard values
      */
     @Test
