@@ -20,8 +20,8 @@ package org.apache.commons.numbers.complex;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.NumberFormatException;
 import org.apache.commons.numbers.core.Precision;
+
 /**
  * Representation of a Complex number, i.e. a number which has both a
  * real and imaginary part.
@@ -133,37 +133,33 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Parses a text expression in a String object to produce
-     * a Cartesian complex number. Acceptable formats are:
-     * <p><ul> * <li>Single number (parsed as real). Example: "3.14"
-     * <li>Single number with appended "i" (parsed as imaginary): "1.42i"
-     * <li>Pair of numbers, separated by plus sign and with appended i: "3 + 4i"
-     * </ul>
-     * @throws{ParseException, NumberFormatException}
+     * Parses a string that would be produced by {@link #toString()}
+     * and instantiates the corresponding object.
+     *
+     * @param s String representation.
+     * @return an instance.
+     * @throws IllegalArgumentException if the string does not
+     * conform to the specification.
      */
     public static Complex parse(String s) {
-        final String[] terms = s.split("+");
-        if (terms.length == 2) {
-            if (terms[1].indexOf("i") == terms[1].length()) {
-                String imagTerm = (String) terms[1].subSequence(0, terms[1].length()-1);
-                final double real = Double.parseDouble(terms[0]);
-                final double imaginary = Double.parseDouble(imagTerm);
-                return Complex.ofCartesian(real, imaginary);
-            } else {
-                throw new NumberFormatException("Expression must end with unique \"i\"");
-            }
-        } else if (terms.length == 1){
-            if (terms[0].indexOf("i") == terms[0].length()) {
-                String imagTerm = (String) terms[0].subSequence(0, terms[0].length()-1);
-                final double imaginary = Double.parseDouble(imagTerm);
-                return Complex.ofCartesian(0, imaginary);
-            } else {
-                final double real = Double.parseDouble(terms[0]);
-                return Complex.ofReal(real);
-            }
-        } else {
-            throw new NumberFormatException("Invalid expression for Complex. See documentation for further information.");
+        final int len = s.length();
+        final int startParen = s.indexOf("(");
+        if (startParen != 0) {
+            throw new ComplexParsingException("Missing start parenthesis");
         }
+        final int endParen = s.indexOf(")");
+        if (endParen != len - 1) {
+            throw new ComplexParsingException("Missing end parenthesis");
+        }
+        final int comma = s.indexOf(",");
+        if (comma == -1) {
+            throw new ComplexParsingException("Missing comma");
+        }
+
+        final double re = Double.parseDouble(s.substring(startParen + 1, comma));
+        final double im = Double.parseDouble(s.substring(comma + 1, endParen));
+
+        return ofCartesian(re, im);
     }
 
     /**
@@ -1362,4 +1358,13 @@ public final class Complex implements Serializable  {
             d != 0;
     }
 
+    /** See {@link #parse(String)}. */
+    private static class ComplexParsingException extends IllegalArgumentException {
+        /**
+         * @param msg Error message.
+         */
+        ComplexParsingException(String msg) {
+            super(msg);
+        }
+    }
 }

@@ -836,4 +836,57 @@ public class ComplexTest {
         Assert.assertTrue(Double.isNaN(zeroNaN.getArgument()));
         Assert.assertTrue(Double.isNaN(NAN.getArgument()));
     }
+
+    @Test
+    public void testParse() {
+        Assert.assertTrue(Complex.ZERO.equals(Complex.parse(Complex.ZERO.toString())));
+        Assert.assertTrue(Complex.ONE.equals(Complex.parse(Complex.ONE.toString())));
+        Assert.assertTrue(Complex.I.equals(Complex.parse(Complex.I.toString())));
+        Assert.assertTrue(Complex.INF.equals(Complex.parse(Complex.INF.toString())));
+        Assert.assertTrue(NAN.equals(Complex.parse(NAN.toString())));
+        Assert.assertTrue(oneInf.equals(Complex.parse(oneInf.toString())));
+        Assert.assertTrue(negInfZero.equals(Complex.parse(negInfZero.toString())));
+        Assert.assertTrue(Complex.ofReal(pi).equals(Complex.parse(Complex.ofReal(pi).toString())));
+        Assert.assertTrue(Complex.ofPolar(2, pi).equals(Complex.parse(Complex.ofPolar(2, pi).toString())));
+        Assert.assertTrue(Complex.ofCis(pi).equals(Complex.parse(Complex.ofCis(pi).toString())));
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testParseWrongStart() {
+        final String re = "1.234";
+        final String im = "5.678";
+        Complex.parse(re + "," + im + ")");
+    }
+    @Test(expected=IllegalArgumentException.class)
+    public void testParseWrongEnd() {
+        final String re = "1.234";
+        final String im = "5.678";
+        Complex.parse("(" + re + "," + im);
+    }
+    @Test(expected=IllegalArgumentException.class)
+    public void testParseMissingSeparator() {
+        final String re = "1.234";
+        final String im = "5.678";
+        Complex.parse("(" + re + " " + im + ")");
+    }
+    @Test(expected=IllegalArgumentException.class)
+    public void testParseInvalidRe() {
+        final String re = "I.234";
+        final String im = "5.678";
+        Complex.parse("(" + re + "," + im + ")");
+    }
+    @Test(expected=IllegalArgumentException.class)
+    public void testParseInvalidIm() {
+        final String re = "1.234";
+        final String im = "5.G78";
+        Complex.parse("(" + re + "," + im + ")");
+    }
+
+    @Test
+    public void testParseSpaceAllowedAroundNumbers() {
+        final double re = 1.234;
+        final double im = 5.678;
+        final String str = "(  " + re + "  , " + im + "     )";
+        Assert.assertTrue(Complex.ofCartesian(re, im).equals(Complex.parse(str)));
+    }
 }
