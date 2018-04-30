@@ -1360,6 +1360,9 @@ public final class Complex implements Serializable  {
 
     /** See {@link #parse(String)}. */
     private static class ComplexParsingException extends IllegalArgumentException {
+        /** Serializable version identifier. */
+        private static final long serialVersionUID = 20180430L;
+
         /**
          * @param msg Error message.
          */
