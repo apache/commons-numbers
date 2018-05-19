@@ -26,6 +26,10 @@ import org.apache.commons.numbers.core.Precision;
 public class FP64 extends Number
     implements NativeOperators<FP64>,
                Comparable<FP64> {
+    /** Additive neutral. */
+    private static final FP64 ZERO = new FP64(0);
+    /** Multiplicative neutral. */
+    private static final FP64 ONE = new FP64(1);
     /** Value. */
     private final double value;
 
@@ -80,6 +84,16 @@ public class FP64 extends Number
 
     /** {@inheritDoc} */
     @Override
+    public FP64 pow(int n) {
+        if (n == 0) {
+            return ONE;
+        }
+
+        return new FP64(Math.pow(value, n));
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public boolean equals(Object other) {
         if (other instanceof FP64) {
             final FP64 o = (FP64) other;
@@ -130,5 +144,17 @@ public class FP64 extends Number
     @Override
     public int compareTo(FP64 other) {
         return Double.compare(value, other.value);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public FP64 zero() {
+        return ZERO;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public FP64 one() {
+        return ONE;
     }
 }
