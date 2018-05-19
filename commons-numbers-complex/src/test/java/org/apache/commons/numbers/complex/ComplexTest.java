@@ -20,7 +20,6 @@ package org.apache.commons.numbers.complex;
 import java.util.List;
 
 import org.apache.commons.numbers.complex.Complex;
-import org.apache.commons.numbers.complex.ComplexUtils;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -599,8 +598,8 @@ public class ComplexTest {
             double theta = 0;
             for (int j = 0; j < 11; j++) {
                 theta += pi / 12;
-                Complex z = ComplexUtils.polar2Complex(r, theta);
-                Complex sqrtz = ComplexUtils.polar2Complex(Math.sqrt(r), theta / 2);
+                Complex z = Complex.ofPolar(r, theta);
+                Complex sqrtz = Complex.ofPolar(Math.sqrt(r), theta / 2);
                 TestUtils.assertEquals(sqrtz, z.sqrt(), tol);
             }
         }

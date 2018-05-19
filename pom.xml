@@ -81,6 +81,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-complex</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
       <artifactId>commons-numbers-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
@@ -595,6 +600,7 @@
   <modules>
     <module>commons-numbers-core</module>
     <module>commons-numbers-complex</module>
+    <module>commons-numbers-complex-streams</module>
     <module>commons-numbers-primes</module>
     <module>commons-numbers-quaternion</module>
     <module>commons-numbers-fraction</module>

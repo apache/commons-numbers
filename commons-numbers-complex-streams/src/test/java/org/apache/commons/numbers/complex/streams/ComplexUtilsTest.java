@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.commons.numbers.complex;
+package org.apache.commons.numbers.complex.streams;
 
 import org.apache.commons.numbers.complex.Complex;
-import org.apache.commons.numbers.complex.ComplexUtils;
+
 import org.junit.Assert;
 import org.junit.Test;
 

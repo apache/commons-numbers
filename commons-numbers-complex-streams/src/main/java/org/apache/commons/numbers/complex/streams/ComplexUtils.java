@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.commons.numbers.complex;
+package org.apache.commons.numbers.complex.streams;
+
+import org.apache.commons.numbers.complex.Complex;
 
 /**
  * Static implementations of common {@link Complex} utilities functions.
