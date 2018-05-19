@@ -398,6 +398,18 @@ public class Fraction
         return (long)doubleValue();
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public Fraction zero() {
+        return ZERO;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Fraction one() {
+        return ONE;
+    }
+
     /**
      * Return the additive inverse of this fraction.
      * @return the negation of this fraction.
