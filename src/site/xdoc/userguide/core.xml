@@ -18,19 +18,22 @@
   -->
   
 <?xml-stylesheet type="text/xsl" href="./xdoc.xsl"?>
-<document url="index.html">
+<document>
   <properties>
-    <title>The Commons Numbers User Guide - Table of Contents</title>
+    <title>User Guide - Module "core"</title>
   </properties>
+  
+<body>
 
-  <body>
-      <section name="Table of Contents" href="toc">
-          <ul>  
-              <li>
-                  <a href="core.html">1. Core</a>
-              </li>
-          </ul>
-      </section>
-  </body>
+<section name="Core">
 
+<subsection name="1.1 Section" href="section">
+    <p>
+    Contribution welcome...
+    </p>
+</subsection>
+
+</section>
+
+</body>
 </document>
