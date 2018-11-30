@@ -493,7 +493,7 @@ public final class Quaternion implements Serializable {
      *
      * @param s String representation.
      * @return an instance.
-     * @throws QuaternionParsingException if the string does not
+     * @throws IllegalArgumentException if the string does not
      * conform to the specification.
      */
     public static Quaternion parse(String s) {
