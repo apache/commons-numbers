@@ -44,6 +44,13 @@ public final class Quaternion implements Serializable {
     /** Error message. */
     private static final String ZERO_NORM_MSG = "Norm is zero";
 
+    /** {@link #toString() String representation}. */
+    private static final String FORMAT_START = "[";
+    /** {@link #toString() String representation}. */
+    private static final String FORMAT_END = "]";
+    /** {@link #toString() String representation}. */
+    private static final String FORMAT_SEP = " ";
+
     /** First component (scalar part). */
     private final double q0;
     /** Second component (first vector part). */
@@ -61,7 +68,7 @@ public final class Quaternion implements Serializable {
      * @param c Second vector component.
      * @param d Third vector component.
      */
-    public Quaternion(final double a,
+    private Quaternion(final double a,
                       final double b,
                       final double c,
                       final double d) {
@@ -79,7 +86,7 @@ public final class Quaternion implements Serializable {
      *
      * @throws IllegalArgumentException if the array length is not 3.
      */
-    public Quaternion(final double scalar,
+    private Quaternion(final double scalar,
                       final double[] v) {
         if (v.length != 3) {
             throw new IllegalArgumentException("Size of array must be 3");
@@ -92,21 +99,53 @@ public final class Quaternion implements Serializable {
     }
 
     /**
+     * Builds a quaternion from its components.
+     *
+     * @param a Scalar component.
+     * @param b First vector component.
+     * @param c Second vector component.
+     * @param d Third vector component.
+     * @return a quaternion instance
+     */
+    public static Quaternion of(final double a,
+                                final double b,
+                                final double c,
+                                final double d) {
+        return new Quaternion(a, b, c, d);
+    }
+
+    /**
+     * Builds a quaternion from scalar and vector parts.
+     *
+     * @param scalar Scalar part of the quaternion.
+     * @param v Components of the vector part of the quaternion.
+     * @return a quaternion instance
+     *
+     * @throws IllegalArgumentException if the array length is not 3.
+     */
+    public static Quaternion of(final double scalar,
+                                final double[] v) {
+        return new Quaternion(scalar, v);
+    }
+
+    /**
      * Builds a pure quaternion from a vector (assuming that the scalar
      * part is zero).
      *
      * @param v Components of the vector part of the pure quaternion.
+     * @return a quaternion instance
      */
-    public Quaternion(final double[] v) {
-        this(0, v);
+    public static Quaternion of(final double[] v) {
+        return new Quaternion(0, v);
     }
 
     /**
-     * Returns the conjugate quaternion of the instance.
+     * Returns the conjugate of this quaternion number.
+     * The conjugate of {@code a + bi + cj + dk} is {@code a - bi -cj -dk}.
      *
-     * @return the conjugate quaternion
+     * @return the conjugate of this quaternion object.
      */
-    public Quaternion getConjugate() {
+    public Quaternion conjugate() {
         return new Quaternion(q0, -q1, -q2, -q3);
     }
 
@@ -230,31 +269,37 @@ public final class Quaternion implements Serializable {
      *
      * @return the norm.
      */
-    public double getNorm() {
-        return Math.sqrt(q0 * q0 +
-                         q1 * q1 +
-                         q2 * q2 +
-                         q3 * q3);
+    public double norm() {
+        return Math.sqrt(norm2());
+    }
+
+    /**
+     * Computes the square of the norm of the quaternion.
+     *
+     * @return the square of the norm.
+     */
+    public double norm2() {
+        return q0 * q0 +
+                q1 * q1 +
+                q2 * q2 +
+                q3 * q3;
     }
 
     /**
      * Computes the normalized quaternion (the versor of the instance).
-     * The norm of the quaternion must not be zero.
+     * The norm of the quaternion must not be near zero.
      *
      * @return a normalized quaternion.
-     * @throws IllegalStateException if the norm of the quaternion is zero.
+     * @throws IllegalStateException if the norm of the quaternion is near zero.
      */
     public Quaternion normalize() {
-        final double norm = getNorm();
+        final double norm = norm();
 
         if (norm < Precision.SAFE_MIN) {
             throw new IllegalStateException(ZERO_NORM_MSG);
         }
 
-        return new Quaternion(q0 / norm,
-                              q1 / norm,
-                              q2 / norm,
-                              q3 / norm);
+        return this.divide(norm);
     }
 
     /**
@@ -267,10 +312,10 @@ public final class Quaternion implements Serializable {
         }
         if (other instanceof Quaternion) {
             final Quaternion q = (Quaternion) other;
-            return q0 == q.q0 &&
-                q1 == q.q1 &&
-                q2 == q.q2 &&
-                q3 == q.q3;
+            return ((Double)q0).equals(q.q0) &&
+                    ((Double)q1).equals(q.q1) &&
+                    ((Double)q2).equals(q.q2) &&
+                    ((Double)q3).equals(q.q3);
         }
 
         return false;
@@ -310,7 +355,7 @@ public final class Quaternion implements Serializable {
      * {@code false} otherwise
      */
     public boolean isUnitQuaternion(double eps) {
-        return Precision.equals(getNorm(), 1d, eps);
+        return Precision.equals(norm(), 1d, eps);
     }
 
     /**
@@ -329,7 +374,7 @@ public final class Quaternion implements Serializable {
      *
      * @return the unit quaternion with positive scalar part.
      */
-    public Quaternion getPositivePolarForm() {
+    public Quaternion positivePolarForm() {
         if (q0 < 0) {
             final Quaternion unitQ = normalize();
             // The quaternion of rotation (normalized quaternion) q and -q
@@ -350,8 +395,8 @@ public final class Quaternion implements Serializable {
      * @return the inverse.
      * @throws IllegalArgumentException if the norm (squared) of the quaternion is zero.
      */
-    public Quaternion getInverse() {
-        final double squareNorm = q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3;
+    public Quaternion inverse() {
+        final double squareNorm = norm2();
         if (squareNorm < Precision.SAFE_MIN) {
             throw new IllegalStateException(ZERO_NORM_MSG);
         }
@@ -437,19 +482,98 @@ public final class Quaternion implements Serializable {
     }
 
     /**
+     * Divides the instance by a scalar.
+     *
+     * @param alpha Scalar factor.
+     * @return a scaled quaternion.
+     */
+    public Quaternion divide(final double alpha) {
+        return new Quaternion(q0 / alpha,
+                              q1 / alpha,
+                              q2 / alpha,
+                              q3 / alpha);
+    }
+
+    /**
+     * Parses a string that would be produced by {@link #toString()}
+     * and instantiates the corresponding object.
+     *
+     * @param s String representation.
+     * @return an instance.
+     * @throws IllegalArgumentException if the string does not
+     * conform to the specification.
+     */
+    public static Quaternion parse(String s) {
+        final int len = s.length();
+        final int startBracket = s.indexOf(FORMAT_START);
+        if (startBracket != 0) {
+            throw new QuaternionParsingException("Expected start string: " + FORMAT_START);
+        }
+        final int endBracket = s.indexOf(FORMAT_END);
+        if (endBracket != len - 1) {
+            throw new QuaternionParsingException("Expected end string: " + FORMAT_END);
+        }
+        final String[] elements = s.substring(1, s.length() - 1).split(FORMAT_SEP);
+        if (elements.length != 4) {
+            throw new QuaternionParsingException("Incorrect number of parts: Expected 4 but was " +
+                                                 elements.length +
+                                                 " (separator is '" + FORMAT_SEP + "')");
+        }
+
+        final double q1;
+        try {
+            q1 = Double.parseDouble(elements[0]);
+        } catch (NumberFormatException ex) {
+            throw new QuaternionParsingException("Could not parse scalar part" + elements[0]);
+        }
+        final double q2;
+        try {
+            q2 = Double.parseDouble(elements[1]);
+        } catch (NumberFormatException ex) {
+            throw new QuaternionParsingException("Could not parse i part" + elements[1]);
+        }
+        final double q3;
+        try {
+            q3 = Double.parseDouble(elements[2]);
+        } catch (NumberFormatException ex) {
+            throw new QuaternionParsingException("Could not parse j part" + elements[2]);
+        }
+        final double q4;
+        try {
+            q4 = Double.parseDouble(elements[3]);
+        } catch (NumberFormatException ex) {
+            throw new QuaternionParsingException("Could not parse k part" + elements[3]);
+        }
+
+        return of(q1, q2, q3, q4);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public String toString() {
-        final String sp = " ";
         final StringBuilder s = new StringBuilder();
-        s.append("[")
-            .append(q0).append(sp)
-            .append(q1).append(sp)
-            .append(q2).append(sp)
+        s.append(FORMAT_START)
+            .append(q0).append(FORMAT_SEP)
+            .append(q1).append(FORMAT_SEP)
+            .append(q2).append(FORMAT_SEP)
             .append(q3)
-            .append("]");
+            .append(FORMAT_END);
 
         return s.toString();
+    }
+
+    /** See {@link #parse(String)}. */
+    private static class QuaternionParsingException extends IllegalArgumentException {
+        /** Serializable version identifier. */
+        private static final long serialVersionUID = 20181128L;
+
+        /**
+         * @param msg Error message.
+         */
+        QuaternionParsingException(String msg) {
+            super(msg);
+        }
     }
 }
