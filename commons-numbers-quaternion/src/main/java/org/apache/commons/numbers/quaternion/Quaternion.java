@@ -69,9 +69,9 @@ public final class Quaternion implements Serializable {
      * @param d Third vector component.
      */
     private Quaternion(final double a,
-                      final double b,
-                      final double c,
-                      final double d) {
+                       final double b,
+                       final double c,
+                       final double d) {
         q0 = a;
         q1 = b;
         q2 = c;
@@ -87,7 +87,7 @@ public final class Quaternion implements Serializable {
      * @throws IllegalArgumentException if the array length is not 3.
      */
     private Quaternion(final double scalar,
-                      final double[] v) {
+                       final double[] v) {
         if (v.length != 3) {
             throw new IllegalArgumentException("Size of array must be 3");
         }
@@ -280,9 +280,9 @@ public final class Quaternion implements Serializable {
      */
     public double norm2() {
         return q0 * q0 +
-                q1 * q1 +
-                q2 * q2 +
-                q3 * q3;
+            q1 * q1 +
+            q2 * q2 +
+            q3 * q3;
     }
 
     /**
