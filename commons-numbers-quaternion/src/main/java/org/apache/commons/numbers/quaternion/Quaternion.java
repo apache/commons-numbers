@@ -61,44 +61,6 @@ public final class Quaternion implements Serializable {
      * @param c Second vector component.
      * @param d Third vector component.
      */
-    public static Quaternion of(final double a,
-                                final double b,
-                                final double c,
-                                final double d) {
-        return new Quaternion(a, b, c, d);
-    }
-
-    /**
-     * Builds a quaternion from scalar and vector parts.
-     *
-     * @param scalar Scalar part of the quaternion.
-     * @param v Components of the vector part of the quaternion.
-     *
-     * @throws IllegalArgumentException if the array length is not 3.
-     */
-    public static Quaternion of(final double scalar,
-                                final double[] v) {
-        return new Quaternion(scalar, v);
-    }
-
-    /**
-     * Builds a pure quaternion from a vector (assuming that the scalar
-     * part is zero).
-     *
-     * @param v Components of the vector part of the pure quaternion.
-     */
-    public static Quaternion of(final double[] v) {
-        return new Quaternion(0, v);
-    }
-
-    /**
-     * Builds a quaternion from its components.
-     *
-     * @param a Scalar component.
-     * @param b First vector component.
-     * @param c Second vector component.
-     * @param d Third vector component.
-     */
     private Quaternion(final double a,
                       final double b,
                       final double c,
@@ -127,6 +89,47 @@ public final class Quaternion implements Serializable {
         q1 = v[0];
         q2 = v[1];
         q3 = v[2];
+    }
+
+    /**
+     * Builds a quaternion from its components.
+     *
+     * @param a Scalar component.
+     * @param b First vector component.
+     * @param c Second vector component.
+     * @param d Third vector component.
+     * @return a quaternion instance
+     */
+    public static Quaternion of(final double a,
+                                final double b,
+                                final double c,
+                                final double d) {
+        return new Quaternion(a, b, c, d);
+    }
+
+    /**
+     * Builds a quaternion from scalar and vector parts.
+     *
+     * @param scalar Scalar part of the quaternion.
+     * @param v Components of the vector part of the quaternion.
+     * @return a quaternion instance
+     *
+     * @throws IllegalArgumentException if the array length is not 3.
+     */
+    public static Quaternion of(final double scalar,
+                                final double[] v) {
+        return new Quaternion(scalar, v);
+    }
+
+    /**
+     * Builds a pure quaternion from a vector (assuming that the scalar
+     * part is zero).
+     *
+     * @param v Components of the vector part of the pure quaternion.
+     * @return a quaternion instance
+     */
+    public static Quaternion of(final double[] v) {
+        return new Quaternion(0, v);
     }
 
     /**
@@ -511,25 +514,25 @@ public final class Quaternion implements Serializable {
         final double q1;
         try {
             q1 = Double.parseDouble(elements[0]);
-        } catch (Exception ex) {
+        } catch (NumberFormatException ex) {
             throw new QuaternionParsingException("Could not parse scalar part" + elements[0]);
         }
         final double q2;
         try {
             q2 = Double.parseDouble(elements[1]);
-        } catch (Exception ex) {
+        } catch (NumberFormatException ex) {
             throw new QuaternionParsingException("Could not parse i part" + elements[1]);
         }
         final double q3;
         try {
             q3 = Double.parseDouble(elements[2]);
-        } catch (Exception ex) {
+        } catch (NumberFormatException ex) {
             throw new QuaternionParsingException("Could not parse j part" + elements[2]);
         }
         final double q4;
         try {
             q4 = Double.parseDouble(elements[3]);
-        } catch (Exception ex) {
+        } catch (NumberFormatException ex) {
             throw new QuaternionParsingException("Could not parse k part" + elements[3]);
         }
 
