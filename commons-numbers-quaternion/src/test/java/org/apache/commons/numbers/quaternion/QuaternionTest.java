@@ -527,74 +527,39 @@ public class QuaternionTest {
         Assert.assertEquals(-0xa.cp0, parsed.getQ3(), EPS);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public final void testParseMissingStart() {
-        try {
-            final Quaternion parsed = Quaternion.parse("1.0 2.0 3.0 4.0]");
-            Assert.fail("expecting QuaternionParsingException but got : " + parsed);
-        } catch (Quaternion.QuaternionParsingException ex) {
-            // expected
-        }
+        Quaternion.parse("1.0 2.0 3.0 4.0]");
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public final void testParseMissingEnd() {
-        try {
-            final Quaternion parsed = Quaternion.parse("[1.0 2.0 3.0 4.0");
-            Assert.fail("expecting QuaternionParsingException but got : " + parsed);
-        } catch (Quaternion.QuaternionParsingException ex) {
-            // expected
-        }
+        Quaternion.parse("[1.0 2.0 3.0 4.0");
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public final void testParseMissingPart() {
-        try {
-            final Quaternion parsed = Quaternion.parse("[1.0 2.0 3.0 ]");
-            Assert.fail("expecting QuaternionParsingException but got : " + parsed);
-        } catch (Quaternion.QuaternionParsingException ex) {
-            // expected
-        }
+        Quaternion.parse("[1.0 2.0 3.0 ]");
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public final void testParseInvalidScalar() {
-        try {
-            final Quaternion parsed = Quaternion.parse("[1.x 2.0 3.0 4.0]");
-            Assert.fail("expecting QuaternionParsingException but got : " + parsed);
-        } catch (Quaternion.QuaternionParsingException ex) {
-            // expected
-        }
+        Quaternion.parse("[1.x 2.0 3.0 4.0]");
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public final void testParseInvalidI() {
-        try {
-            final Quaternion parsed = Quaternion.parse("[1.0 2.0x 3.0 4.0]");
-            Assert.fail("expecting QuaternionParsingException but got : " + parsed);
-        } catch (Quaternion.QuaternionParsingException ex) {
-            // expected
-        }
+        Quaternion.parse("[1.0 2.0x 3.0 4.0]");
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public final void testParseInvalidJ() {
-        try {
-            final Quaternion parsed = Quaternion.parse("[1.0 2.0 3.0x 4.0]");
-            Assert.fail("expecting QuaternionParsingException but got : " + parsed);
-        } catch (Quaternion.QuaternionParsingException ex) {
-            // expected
-        }
+        Quaternion.parse("[1.0 2.0 3.0x 4.0]");
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public final void testParseInvalidK() {
-        try {
-            final Quaternion parsed = Quaternion.parse("[1.0 2.0 3.0 4.0x]");
-            Assert.fail("expecting QuaternionParsingException but got : " + parsed);
-        } catch (Quaternion.QuaternionParsingException ex) {
-            // expected
-        }
+        Quaternion.parse("[1.0 2.0 3.0 4.0x]");
     }
 
     @Test
