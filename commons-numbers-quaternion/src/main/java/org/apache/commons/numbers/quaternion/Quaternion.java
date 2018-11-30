@@ -557,7 +557,7 @@ public final class Quaternion implements Serializable {
     }
 
     /** See {@link #parse(String)}. */
-    static class QuaternionParsingException extends IllegalArgumentException {
+    private static class QuaternionParsingException extends IllegalArgumentException {
         /** Serializable version identifier. */
         private static final long serialVersionUID = 20181128L;
 
