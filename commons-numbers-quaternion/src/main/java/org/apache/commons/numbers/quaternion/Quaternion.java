@@ -44,6 +44,13 @@ public final class Quaternion implements Serializable {
     /** Error message. */
     private static final String ZERO_NORM_MSG = "Norm is zero";
 
+    /** {@link #toString() String representation}. */
+    private static final String FORMAT_START = "[";
+    /** {@link #toString() String representation}. */
+    private static final String FORMAT_END = "]";
+    /** {@link #toString() String representation}. */
+    private static final String FORMAT_SEP = " ";
+
     /** First component (scalar part). */
     private final double q0;
     /** Second component (first vector part). */
@@ -308,7 +315,7 @@ public final class Quaternion implements Serializable {
             return ((Double)q0).equals(q.q0) &&
                     ((Double)q1).equals(q.q1) &&
                     ((Double)q2).equals(q.q2) &&
-                    ((Double)q3).equals(q.q3) ;
+                    ((Double)q3).equals(q.q3);
         }
 
         return false;
@@ -498,17 +505,19 @@ public final class Quaternion implements Serializable {
      */
     public static Quaternion parse(String s) {
         final int len = s.length();
-        final int startBracket = s.indexOf("[");
+        final int startBracket = s.indexOf(FORMAT_START);
         if (startBracket != 0) {
-            throw new QuaternionParsingException("Missing opening square bracket");
+            throw new QuaternionParsingException("Expected start string: " + FORMAT_START);
         }
-        final int endBracket = s.indexOf("]");
+        final int endBracket = s.indexOf(FORMAT_END);
         if (endBracket != len - 1) {
-            throw new QuaternionParsingException("Missing closing square bracket");
+            throw new QuaternionParsingException("Expected end string: " + FORMAT_END);
         }
-        String[] elements = s.substring(1, s.length()-1).split(" ");
+        final String[] elements = s.substring(1, s.length() - 1).split(FORMAT_SEP);
         if (elements.length != 4) {
-            throw new QuaternionParsingException("Incorrect number of parts");
+            throw new QuaternionParsingException("Incorrect number of parts: Expected 4 but was " +
+                                                 elements.length +
+                                                 " (separator is '" + FORMAT_SEP + "')");
         }
 
         final double q1;
@@ -544,14 +553,13 @@ public final class Quaternion implements Serializable {
      */
     @Override
     public String toString() {
-        final String sp = " ";
         final StringBuilder s = new StringBuilder();
-        s.append("[")
-            .append(q0).append(sp)
-            .append(q1).append(sp)
-            .append(q2).append(sp)
+        s.append(FORMAT_START)
+            .append(q0).append(FORMAT_SEP)
+            .append(q1).append(FORMAT_SEP)
+            .append(q2).append(FORMAT_SEP)
             .append(q3)
-            .append("]");
+            .append(FORMAT_END);
 
         return s.toString();
     }

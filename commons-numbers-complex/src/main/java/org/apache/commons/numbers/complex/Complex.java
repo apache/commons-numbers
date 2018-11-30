@@ -56,8 +56,16 @@ public final class Complex implements Serializable  {
     public static final Complex ZERO = new Complex(0, 0);
     /** A complex number representing "NaN + NaN i" */
     private static final Complex NAN = new Complex(Double.NaN, Double.NaN);
+
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20180201L;
+
+    /** {@link #toString() String representation}. */
+    private static final String FORMAT_START = "(";
+    /** {@link #toString() String representation}. */
+    private static final String FORMAT_END = ")";
+    /** {@link #toString() String representation}. */
+    private static final String FORMAT_SEP = ",";
 
     /** The imaginary part. */
     private final double imaginary;
@@ -143,21 +151,33 @@ public final class Complex implements Serializable  {
      */
     public static Complex parse(String s) {
         final int len = s.length();
-        final int startParen = s.indexOf("(");
+        final int startParen = s.indexOf(FORMAT_START);
         if (startParen != 0) {
-            throw new ComplexParsingException("Missing start parenthesis");
+            throw new ComplexParsingException("Expected start string: " + FORMAT_START);
         }
-        final int endParen = s.indexOf(")");
+        final int endParen = s.indexOf(FORMAT_END);
         if (endParen != len - 1) {
-            throw new ComplexParsingException("Missing end parenthesis");
+            throw new ComplexParsingException("Expected end string: " + FORMAT_END);
         }
-        final int comma = s.indexOf(",");
-        if (comma == -1) {
-            throw new ComplexParsingException("Missing comma");
+        final String[] elements = s.substring(1, s.length() - 1).split(FORMAT_SEP);
+        if (elements.length != 2) {
+            throw new ComplexParsingException("Incorrect number of parts: Expected 2 but was " +
+                                              elements.length +
+                                              " (separator is '" + FORMAT_SEP + "')");
         }
 
-        final double re = Double.parseDouble(s.substring(startParen + 1, comma));
-        final double im = Double.parseDouble(s.substring(comma + 1, endParen));
+        final double re;
+        try {
+            re = Double.parseDouble(elements[0]);
+        } catch (NumberFormatException ex) {
+            throw new ComplexParsingException("Could not parse real part" + elements[0]);
+        }
+        final double im;
+        try {
+            im = Double.parseDouble(elements[1]);
+        } catch (NumberFormatException ex) {
+            throw new ComplexParsingException("Could not parse imaginary part" + elements[1]);
+        }
 
         return ofCartesian(re, im);
     }
@@ -1314,7 +1334,13 @@ public final class Complex implements Serializable  {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return "(" + real + ", " + imaginary + ")";
+        final StringBuilder s = new StringBuilder();
+        s.append(FORMAT_START)
+            .append(real).append(FORMAT_SEP)
+            .append(imaginary)
+            .append(FORMAT_END);
+
+        return s.toString();
     }
 
     /**
