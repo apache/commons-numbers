@@ -17,7 +17,6 @@
 package org.apache.commons.numbers.fraction;
 
 import java.io.Serializable;
-
 import org.apache.commons.numbers.core.ArithmeticUtils;
 
 /**
