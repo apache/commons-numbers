@@ -57,7 +57,7 @@ public class Fraction
      * @throws IllegalArgumentException if the continued fraction failed to
      *         converge.
      */
-    public Fraction ofDouble(double value) {
+    public static Fraction ofDouble(double value) {
         return ofDouble(value, DEFAULT_EPSILON, 100);
     }
 
@@ -77,7 +77,7 @@ public class Fraction
      * @throws IllegalArgumentException if the continued fraction failed to
      *         converge.
      */
-    public Fraction ofDouble(double value, double epsilon, int maxIterations)
+    public static Fraction ofDouble(double value, double epsilon, int maxIterations)
     {
         return new Fraction(value, epsilon, Integer.MAX_VALUE, maxIterations);
     }
@@ -96,7 +96,7 @@ public class Fraction
      * @throws IllegalArgumentException if the continued fraction failed to
      *         converge
      */
-    public Fraction ofDouble(double value, int maxDenominator)
+    public static Fraction ofDouble(double value, int maxDenominator)
     {
        return new Fraction(value, 0, maxDenominator, 100);
     }
