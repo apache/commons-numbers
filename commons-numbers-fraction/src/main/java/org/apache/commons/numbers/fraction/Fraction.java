@@ -206,7 +206,7 @@ public class Fraction
      * The fraction is num / 1.
      * @param num the numerator.
      */
-    public Fraction ofInt(int num) {
+    public static Fraction ofInt(int num) {
         return ofInt(num, 1);
     }
 
@@ -218,7 +218,7 @@ public class Fraction
      * @throws ArithmeticException if the denominator is {@code zero}
      *                             or if integer overflow occurs
      */
-    public Fraction ofInt(int num, int den) {
+    public static Fraction ofInt(int num, int den) {
     	return new Fraction(num, den);
     }
     
