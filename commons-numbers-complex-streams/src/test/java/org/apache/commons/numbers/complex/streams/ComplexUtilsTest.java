@@ -113,67 +113,87 @@ public class ComplexUtilsTest {
         fi3d2 = new float[10][10][20];
         for (int i = 0; i < 20; i += 2) {
             int halfI = i / 2;
-            d[halfI] = halfI;
-            f[halfI] = halfI;
-            di[i] = i;
-            di[i + 1] = i + 1;
-            fi[i] = i;
-            fi[i + 1] = i + 1;
+
+            // Complex arrays
             c[halfI] = Complex.ofCartesian(i, i + 1);
             cr[halfI] = Complex.ofReal(halfI);
             ci[halfI] = Complex.ofCartesian(0, halfI);
+
+            // standalone - split equivalent to c
             sr[halfI] = i;
             si[halfI] = i + 1;
             sfr[halfI] = i;
             sfi[halfI] = i + 1;
+
+            // depending on method used equivalents to cr or ci
+            d[halfI] = halfI;
+            f[halfI] = halfI;
+
+            // interleaved - all equivalent to c2d
+            di[i] = i;
+            di[i + 1] = i + 1;
+            fi[i] = i;
+            fi[i + 1] = i + 1;
         }
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 20; j += 2) {
                 int halfJ = j / 2;
-                sr2d[i][halfJ] = 10 * i + j;
-                si2d[i][halfJ] = 10 * i + j + 1;
-                sfr2d[i][halfJ] = 10 * i + j;
-                sfi2d[i][halfJ] = 10 * i + j + 1;
-                c2d[i][halfJ] = Complex.ofCartesian(10 * i + j, 10 * i + j + 1);
-                cr2d[i][halfJ] = Complex.ofReal(10 * i + j);
-                ci2d[i][halfJ] = Complex.ofCartesian(0, 10 * i + j + 1);
+                int real = 10 * i + j;
+                int imaginary = 10 * i + j + 1;
 
-                // interleaved
+                // Complex arrays
+                c2d[i][halfJ] = Complex.ofCartesian(real, imaginary);
+                cr2d[i][halfJ] = Complex.ofReal(real);
+                ci2d[i][halfJ] = Complex.ofCartesian(0, imaginary);
+
+                // standalone - split equivalent to c2d, standalone equivalent to cr2d or ci2d
+                sr2d[i][halfJ] = real;
+                si2d[i][halfJ] = imaginary;
+                sfr2d[i][halfJ] = real;
+                sfi2d[i][halfJ] = imaginary;
+
+                // interleaved - all equivalent to c2d
                 di2d0[j][i] = 10 * halfJ + 2 * i;
-                di2d0[j + 1][i] = 10 * halfJ + 2 * i + 1;
-                di2d1[i][j] = 10 * i + j;
-                di2d1[i][j + 1] = 10 * i + j + 1;
+                di2d0[j + 1][i] = di2d0[j][i] + 1;
+                di2d1[i][j] = real;
+                di2d1[i][j + 1] = imaginary;
                 fi2d0[j][i] = 10 * halfJ + 2 * i;
-                fi2d0[j + 1][i] = 10 * halfJ + 2 * i + 1;
-                fi2d1[i][j] = 10 * i + j;
-                fi2d1[i][j + 1] = 10 * i + j + 1;
+                fi2d0[j + 1][i] = fi2d0[j][i] + 1;
+                fi2d1[i][j] = real;
+                fi2d1[i][j + 1] = imaginary;
             }
         }
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
                 for (int k = 0; k < 20; k += 2) {
                     int halfK = k / 2;
-                    sr3d[i][j][halfK] = 100 * i + 10 * j + k;
-                    si3d[i][j][halfK] = 100 * i + 10 * j + k + 1;
-                    sfr3d[i][j][halfK] = 100 * i + 10 * j + k;
-                    sfi3d[i][j][halfK] = 100 * i + 10 * j + k + 1;
-                    c3d[i][j][halfK] = Complex.ofCartesian(100 * i + 10 * j + k, 100 * i + 10 * j + k + 1);
-                    cr3d[i][j][halfK] = Complex.ofReal(100 * i + 10 * j + k);
-                    ci3d[i][j][halfK] = Complex.ofCartesian(0, 100 * i + 10 * j + k + 1);
+                    int real = 100 * i + 10 * j + k;
+                    int imaginary = 100 * i + 10 * j + k + 1;
 
-                    // interleaved
+                    // Complex arrays
+                    c3d[i][j][halfK] = Complex.ofCartesian(real, imaginary);
+                    cr3d[i][j][halfK] = Complex.ofReal(real);
+                    ci3d[i][j][halfK] = Complex.ofCartesian(0, imaginary);
+
+                    // standalone - split equivalent to c3d, standalone equivalent to cr3d or ci3d
+                    sr3d[i][j][halfK] = real;
+                    si3d[i][j][halfK] = imaginary;
+                    sfr3d[i][j][halfK] = real;
+                    sfi3d[i][j][halfK] = imaginary;
+
+                    // interleaved - all equivalent to c3d
                     di3d0[k][i][j] = 100 * halfK + 10 * i + 2 * j;
-                    di3d0[k + 1][i][j] = 100 * halfK + 10 * i + 2 * j + 1;
+                    di3d0[k + 1][i][j] = di3d0[k][i][j] + 1;
                     di3d1[j][k][i] = 100 * j + 10 * halfK + 2 * i;
-                    di3d1[j][k + 1][i] = 100 * j + 10 * halfK + 2 * i + 1;
-                    di3d2[i][j][k] = 100 * i + 10 * j + k;
-                    di3d2[i][j][k + 1] = 100 * i + 10 * j + k + 1;
+                    di3d1[j][k + 1][i] = di3d1[j][k][i] + 1;
+                    di3d2[i][j][k] = real;
+                    di3d2[i][j][k + 1] = imaginary;
                     fi3d0[k][i][j] = 100 * halfK + 10 * i + 2 * j;
-                    fi3d0[k + 1][i][j] = 100 * halfK + 10 * i + 2 * j + 1;
+                    fi3d0[k + 1][i][j] = fi3d0[k][i][j] + 1;
                     fi3d1[j][k][i] = 100 * j + 10 * halfK + 2 * i;
-                    fi3d1[j][k + 1][i] = 100 * j + 10 * halfK + 2 * i + 1;
-                    fi3d2[i][j][k] = 100 * i + 10 * j + k;
-                    fi3d2[i][j][k + 1] = 100 * i + 10 * j + k + 1;
+                    fi3d1[j][k + 1][i] = fi3d1[j][k][i] + 1;
+                    fi3d2[i][j][k] = real;
+                    fi3d2[i][j][k + 1] = imaginary;
                 }
             }
         }
@@ -182,23 +202,29 @@ public class ComplexUtilsTest {
                 for (int k = 0; k < 10; k++) {
                     for (int l = 0; l < 20; l += 2) {
                         int halfL = l / 2;
-                        sr4d[i][j][k][halfL] = 1000 * i + 100 * j + 10 * k + l;
-                        si4d[i][j][k][halfL] = 1000 * i + 100 * j + 10 * k + l + 1;
-                        sfr4d[i][j][k][halfL] = 1000 * i + 100 * j + 10 * k + l;
-                        sfi4d[i][j][k][halfL] = 1000 * i + 100 * j + 10 * k + l + 1;
-                        c4d[i][j][k][halfL] = Complex.ofCartesian(1000 * i + 100 * j + 10 * k + l, 1000 * i + 100 * j + 10 * k + l + 1);
-                        cr4d[i][j][k][halfL] = Complex.ofReal(1000 * i + 100 * j + 10 * k + l);
-                        ci4d[i][j][k][halfL] = Complex.ofCartesian(0, 1000 * i + 100 * j + 10 * k + l + 1);
+                        int real = 1000 * i + 100 * j + 10 * k + l;
+                        int imaginary = 1000 * i + 100 * j + 10 * k + l + 1;
 
-                        // interleaved
+                        // Complex arrays
+                        c4d[i][j][k][halfL] = Complex.ofCartesian(real, imaginary);
+                        cr4d[i][j][k][halfL] = Complex.ofReal(real);
+                        ci4d[i][j][k][halfL] = Complex.ofCartesian(0, imaginary);
+
+                        // standalone - split equivalent to c4d, standalone equivalent to cr4d or ci4d
+                        sr4d[i][j][k][halfL] = real;
+                        si4d[i][j][k][halfL] = imaginary;
+                        sfr4d[i][j][k][halfL] = real;
+                        sfi4d[i][j][k][halfL] = imaginary;
+
+                        // interleaved - all equivalent to c4d
                         di4d0[l][i][j][k] = 1000 * halfL + 100 * i + 10 * j + 2 * k;
-                        di4d0[l + 1][i][j][k] = 1000 * halfL + 100 * i + 10 * j + 2 * k + 1;
+                        di4d0[l + 1][i][j][k] = di4d0[l][i][j][k] + 1;
                         di4d1[k][l][i][j] = 1000 * k + 100 * halfL + 10 * i + 2 * j;
-                        di4d1[k][l + 1][i][j] = 1000 * k + 100 * halfL + 10 * i + 2 * j + 1;
+                        di4d1[k][l + 1][i][j] = di4d1[k][l][i][j] + 1;
                         di4d2[j][k][l][i] = 1000 * j + 100 * k + 10 * halfL + 2 * i;
-                        di4d2[j][k][l + 1][i] = 1000 * j + 100 * k + 10 * halfL + 2 * i + 1;
-                        di4d3[i][j][k][l] = 1000 * i + 100 * j + 10 * k + l;
-                        di4d3[i][j][k][l + 1] = di4d3[i][j][k][l] + 1;
+                        di4d2[j][k][l + 1][i] = di4d2[j][k][l][i] + 1;
+                        di4d3[i][j][k][l] = real;
+                        di4d3[i][j][k][l + 1] = imaginary;
                     }
                 }
             }
