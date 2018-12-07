@@ -23,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
+ * Tests for {@link ComplexUtils}.
  */
 public class ComplexUtilsTest {
 
@@ -38,35 +39,30 @@ public class ComplexUtilsTest {
     private static final Complex infNaN = Complex.ofCartesian(inf, nan);
     private static final Complex NAN = Complex.ofCartesian(nan, nan);
 
-    private static Complex c[]; // complex array with real values even and imag
-                                // values odd
-    private static Complex cr[]; // complex array with real values consecutive
-    private static Complex ci[]; // complex array with imag values consecutive
-    private static double d[]; // real array with consecutive vals
-    private static double di[]; // real array with consecutive vals,
-                                // 'interleaved' length
-    private static float f[]; // real array with consecutive vals
-    private static float fi[]; // real array with consec vals, interleaved
-                               // length
-    private static double sr[]; // real component of split array, evens
-    private static double si[]; // imag component of split array, odds
-    private static float sfr[]; // real component of split array, float, evens
-    private static float sfi[]; // imag component of split array, float, odds
-    static Complex ans1, ans2; // answers to single value extraction methods
-    static Complex[] ansArrayc1r, ansArrayc1i, ansArrayc2r, ansArrayc2i, ansArrayc3, ansArrayc4; // answers
-                                                                                                 // to
-                                                                                                 // range
-                                                                                                 // extraction
-                                                                                                 // methods
-    static double[] ansArrayd1r, ansArrayd2r, ansArrayd1i, ansArrayd2i, ansArraydi1, ansArraydi2;
-    static float[] ansArrayf1r, ansArrayf2r, ansArrayf1i, ansArrayf2i, ansArrayfi1, ansArrayfi2;
-    static String msg; // error message for AssertEquals
-    static Complex[][] c2d, cr2d, ci2d; // for 2d methods
-    static Complex[][][] c3d, cr3d, ci3d; // for 3d methods
-    static double[][] d2d, di2d, sr2d, si2d;
-    static double[][][] d3d, di3d, sr3d, si3d;
-    static float[][] f2d, fi2d, sfr2d, sfi2d;
-    static float[][][] f3d, fi3d, sfr3d, sfi3d;
+    private static Complex[] c; // complex array with real values even and imag
+    // values odd
+    private static Complex[] cr; // complex array with real values consecutive
+    private static Complex[] ci; // complex array with imag values consecutive
+    private static double[] d; // real array with consecutive vals
+    private static double[] di; // interleaved real array with consecutive vals,
+    // 'interleaved' length
+    private static float[] f; // real array with consecutive vals
+    private static float[] fi; // interleaved real array with consecutive vals, interleaved
+    // length
+    private static double[] sr; // real component of split array, evens
+    private static double[] si; // imag component of split array, odds
+    private static float[] sfr; // real component of split array, float, evens
+    private static float[] sfi; // imag component of split array, float, odds
+    private static String msg; // error message for AssertEquals
+    private static Complex[][] c2d, cr2d, ci2d; // for 2d methods
+    private static Complex[][][] c3d, cr3d, ci3d; // for 3d methods
+    private static Complex[][][][] c4d, cr4d, ci4d; // for 3d methods
+    private static double[][] di2d0, di2d1, sr2d, si2d;
+    private static double[][][] di3d0, di3d1, di3d2, sr3d, si3d;
+    private static double[][][][] di4d0, di4d1, di4d2, di4d3, sr4d, si4d;
+    private static float[][] fi2d0, fi2d1, sfr2d, sfi2d;
+    private static float[][][] fi3d0, fi3d1, fi3d2, sfr3d, sfi3d;
+    private static float[][][][] sfr4d, sfi4d;
 
     private static void setArrays() { // initial setup method
         c = new Complex[10];
@@ -86,93 +82,127 @@ public class ComplexUtilsTest {
         c3d = new Complex[10][10][10];
         cr3d = new Complex[10][10][10];
         ci3d = new Complex[10][10][10];
-        d2d = new double[10][10];
-        d3d = new double[10][10][10];
-        f2d = new float[10][10];
-        f3d = new float[10][10][10];
+        c4d = new Complex[10][10][10][10];
+        cr4d = new Complex[10][10][10][10];
+        ci4d = new Complex[10][10][10][10];
         sr2d = new double[10][10];
         sr3d = new double[10][10][10];
+        sr4d = new double[10][10][10][10];
         si2d = new double[10][10];
         si3d = new double[10][10][10];
+        si4d = new double[10][10][10][10];
         sfr2d = new float[10][10];
         sfr3d = new float[10][10][10];
+        sfr4d = new float[10][10][10][10];
         sfi2d = new float[10][10];
         sfi3d = new float[10][10][10];
-        di2d = new double[10][20];
-        di3d = new double[10][10][20];
-        fi2d = new float[10][20];
-        fi3d = new float[10][10][20];
+        sfi4d = new float[10][10][10][10];
+        di2d0 = new double[20][10];
+        di2d1 = new double[10][20];
+        di3d0 = new double[20][10][10];
+        di3d1 = new double[10][20][10];
+        di3d2 = new double[10][10][20];
+        di4d0 = new double[20][10][10][10];
+        di4d1 = new double[10][20][10][10];
+        di4d2 = new double[10][10][20][10];
+        di4d3 = new double[10][10][10][20];
+        fi2d0 = new float[20][10];
+        fi2d1 = new float[10][20];
+        fi3d0 = new float[20][10][10];
+        fi3d1 = new float[10][20][10];
+        fi3d2 = new float[10][10][20];
         for (int i = 0; i < 20; i += 2) {
-            d[i / 2] = i / 2;
-            f[i / 2] = i / 2;
+            int halfI = i / 2;
+            d[halfI] = halfI;
+            f[halfI] = halfI;
             di[i] = i;
             di[i + 1] = i + 1;
             fi[i] = i;
             fi[i + 1] = i + 1;
-            c[i / 2] = Complex.ofCartesian(i, i + 1);
-            cr[i / 2] = Complex.ofReal(i / 2);
-            ci[i / 2] = Complex.ofCartesian(0, i / 2);
-            sr[i / 2] = i;
-            si[i / 2] = i + 1;
-            sfr[i / 2] = i;
-            sfi[i / 2] = i + 1;
+            c[halfI] = Complex.ofCartesian(i, i + 1);
+            cr[halfI] = Complex.ofReal(halfI);
+            ci[halfI] = Complex.ofCartesian(0, halfI);
+            sr[halfI] = i;
+            si[halfI] = i + 1;
+            sfr[halfI] = i;
+            sfi[halfI] = i + 1;
         }
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 20; j += 2) {
-                d2d[i][j / 2] = 10 * i + j / 2;
-                f2d[i][j / 2] = 10 * i + j / 2;
-                sr2d[i][j / 2] = 10 * i + j;
-                si2d[i][j / 2] = 10 * i + j + 1;
-                sfr2d[i][j / 2] = 10 * i + j;
-                sfi2d[i][j / 2] = 10 * i + j + 1;
-                di2d[i][j] = 10 * i + j;
-                di2d[i][j + 1] = 10 * i + j + 1;
-                fi2d[i][j] = 10 * i + j;
-                fi2d[i][j + 1] = 10 * i + j + 1;
-                c2d[i][j / 2] = Complex.ofCartesian(10 * i + j, 10 * i + j + 1);
-                cr2d[i][j / 2] = Complex.ofReal(10 * i + j / 2);
-                ci2d[i][j / 2] = Complex.ofCartesian(0, 10 * i + j / 2);
+                int halfJ = j / 2;
+                sr2d[i][halfJ] = 10 * i + j;
+                si2d[i][halfJ] = 10 * i + j + 1;
+                sfr2d[i][halfJ] = 10 * i + j;
+                sfi2d[i][halfJ] = 10 * i + j + 1;
+                c2d[i][halfJ] = Complex.ofCartesian(10 * i + j, 10 * i + j + 1);
+                cr2d[i][halfJ] = Complex.ofReal(10 * i + j);
+                ci2d[i][halfJ] = Complex.ofCartesian(0, 10 * i + j + 1);
+
+                // interleaved
+                di2d0[j][i] = 10 * halfJ + 2 * i;
+                di2d0[j + 1][i] = 10 * halfJ + 2 * i + 1;
+                di2d1[i][j] = 10 * i + j;
+                di2d1[i][j + 1] = 10 * i + j + 1;
+                fi2d0[j][i] = 10 * halfJ + 2 * i;
+                fi2d0[j + 1][i] = 10 * halfJ + 2 * i + 1;
+                fi2d1[i][j] = 10 * i + j;
+                fi2d1[i][j + 1] = 10 * i + j + 1;
             }
         }
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
                 for (int k = 0; k < 20; k += 2) {
-                    d3d[i][j][k / 2] = 100 * i + 10 * j + k / 2;
-                    f3d[i][j][k / 2] = 100 * i + 10 * j + k / 2;
-                    sr3d[i][j][k / 2] = 100 * i + 10 * j + k;
-                    si3d[i][j][k / 2] = 100 * i + 10 * j + k + 1;
-                    sfr3d[i][j][k / 2] = 100 * i + 10 * j + k;
-                    sfi3d[i][j][k / 2] = 100 * i + 10 * j + k + 1;
-                    di3d[i][j][k] = 100 * i + 10 * j + k;
-                    di3d[i][j][k + 1] = 100 * i + 10 * j + k + 1;
-                    fi3d[i][j][k] = 100 * i + 10 * j + k;
-                    fi3d[i][j][k + 1] = 100 * i + 10 * j + k + 1;
-                    c3d[i][j][k / 2] = Complex.ofCartesian(100 * i + 10 * j + k, 100 * i + 10 * j + k + 1);
-                    cr3d[i][j][k / 2] = Complex.ofReal(100 * i + 10 * j + k / 2);
-                    ci3d[i][j][k / 2] = Complex.ofCartesian(0, 100 * i + 10 * j + k / 2);
+                    int halfK = k / 2;
+                    sr3d[i][j][halfK] = 100 * i + 10 * j + k;
+                    si3d[i][j][halfK] = 100 * i + 10 * j + k + 1;
+                    sfr3d[i][j][halfK] = 100 * i + 10 * j + k;
+                    sfi3d[i][j][halfK] = 100 * i + 10 * j + k + 1;
+                    c3d[i][j][halfK] = Complex.ofCartesian(100 * i + 10 * j + k, 100 * i + 10 * j + k + 1);
+                    cr3d[i][j][halfK] = Complex.ofReal(100 * i + 10 * j + k);
+                    ci3d[i][j][halfK] = Complex.ofCartesian(0, 100 * i + 10 * j + k + 1);
+
+                    // interleaved
+                    di3d0[k][i][j] = 100 * halfK + 10 * i + 2 * j;
+                    di3d0[k + 1][i][j] = 100 * halfK + 10 * i + 2 * j + 1;
+                    di3d1[j][k][i] = 100 * j + 10 * halfK + 2 * i;
+                    di3d1[j][k + 1][i] = 100 * j + 10 * halfK + 2 * i + 1;
+                    di3d2[i][j][k] = 100 * i + 10 * j + k;
+                    di3d2[i][j][k + 1] = 100 * i + 10 * j + k + 1;
+                    fi3d0[k][i][j] = 100 * halfK + 10 * i + 2 * j;
+                    fi3d0[k + 1][i][j] = 100 * halfK + 10 * i + 2 * j + 1;
+                    fi3d1[j][k][i] = 100 * j + 10 * halfK + 2 * i;
+                    fi3d1[j][k + 1][i] = 100 * j + 10 * halfK + 2 * i + 1;
+                    fi3d2[i][j][k] = 100 * i + 10 * j + k;
+                    fi3d2[i][j][k + 1] = 100 * i + 10 * j + k + 1;
                 }
             }
         }
-        ansArrayc1r = new Complex[] { Complex.ofReal(3), Complex.ofReal(4), Complex.ofReal(5), Complex.ofReal(6), Complex.ofReal(7) };
-        ansArrayc2r = new Complex[] { Complex.ofReal(3), Complex.ofReal(5), Complex.ofReal(7) };
-        ansArrayc1i = new Complex[] { Complex.ofCartesian(0, 3), Complex.ofCartesian(0, 4), Complex.ofCartesian(0, 5), Complex.ofCartesian(0, 6),
-                Complex.ofCartesian(0, 7) };
-        ansArrayc2i = new Complex[] { Complex.ofCartesian(0, 3), Complex.ofCartesian(0, 5), Complex.ofCartesian(0, 7) };
-        ansArrayc3 = new Complex[] { Complex.ofCartesian(6, 7), Complex.ofCartesian(8, 9), Complex.ofCartesian(10, 11), Complex.ofCartesian(12, 13),
-                Complex.ofCartesian(14, 15) };
-        ansArrayc4 = new Complex[] { Complex.ofCartesian(6, 7), Complex.ofCartesian(10, 11), Complex.ofCartesian(14, 15) };
-        ansArrayd1r = new double[] { 6, 8, 10, 12, 14 };
-        ansArrayd1i = new double[] { 7, 9, 11, 13, 15 };
-        ansArrayd2r = new double[] { 6, 10, 14 };
-        ansArrayd2i = new double[] { 7, 11, 15 };
-        ansArrayf1r = new float[] { 6, 8, 10, 12, 14 };
-        ansArrayf1i = new float[] { 7, 9, 11, 13, 15 };
-        ansArrayf2r = new float[] { 6, 10, 14 };
-        ansArrayf2i = new float[] { 7, 11, 15 };
-        ansArraydi1 = new double[] { 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-        ansArrayfi1 = new float[] { 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-        ansArraydi2 = new double[] { 6, 7, 10, 11, 14, 15 };
-        ansArrayfi2 = new float[] { 6, 7, 10, 11, 14, 15 };
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                for (int k = 0; k < 10; k++) {
+                    for (int l = 0; l < 20; l += 2) {
+                        int halfL = l / 2;
+                        sr4d[i][j][k][halfL] = 1000 * i + 100 * j + 10 * k + l;
+                        si4d[i][j][k][halfL] = 1000 * i + 100 * j + 10 * k + l + 1;
+                        sfr4d[i][j][k][halfL] = 1000 * i + 100 * j + 10 * k + l;
+                        sfi4d[i][j][k][halfL] = 1000 * i + 100 * j + 10 * k + l + 1;
+                        c4d[i][j][k][halfL] = Complex.ofCartesian(1000 * i + 100 * j + 10 * k + l, 1000 * i + 100 * j + 10 * k + l + 1);
+                        cr4d[i][j][k][halfL] = Complex.ofReal(1000 * i + 100 * j + 10 * k + l);
+                        ci4d[i][j][k][halfL] = Complex.ofCartesian(0, 1000 * i + 100 * j + 10 * k + l + 1);
+
+                        // interleaved
+                        di4d0[l][i][j][k] = 1000 * halfL + 100 * i + 10 * j + 2 * k;
+                        di4d0[l + 1][i][j][k] = 1000 * halfL + 100 * i + 10 * j + 2 * k + 1;
+                        di4d1[k][l][i][j] = 1000 * k + 100 * halfL + 10 * i + 2 * j;
+                        di4d1[k][l + 1][i][j] = 1000 * k + 100 * halfL + 10 * i + 2 * j + 1;
+                        di4d2[j][k][l][i] = 1000 * j + 100 * k + 10 * halfL + 2 * i;
+                        di4d2[j][k][l + 1][i] = 1000 * j + 100 * k + 10 * halfL + 2 * i + 1;
+                        di4d3[i][j][k][l] = 1000 * i + 100 * j + 10 * k + l;
+                        di4d3[i][j][k][l + 1] = di4d3[i][j][k][l] + 1;
+                    }
+                }
+            }
+        }
         msg = "";
     }
 
@@ -197,15 +227,78 @@ public class ComplexUtilsTest {
                 TestUtils.assertEquals(altPolar(r, theta), ComplexUtils.polar2Complex(r, theta), 10e-12);
             }
         }
+        // 1D
+        double[] r1D = new double[11];
+        double[] theta1D = new double[11];
+        for (int i = 0; i < 11; i++) {
+            r1D[i] = i;
+        }
+        theta1D[5] = 0;
+        for (int i = 1; i < 5; i++) {
+            theta1D[5+i] = theta1D[5 + i - 1] + pi/6;
+            theta1D[5-i] = theta1D[5 + i + 1] - pi/6;
+        }
+        Complex[] observed1D = ComplexUtils.polar2Complex(r1D, theta1D);
+        Assert.assertEquals(r1D.length, observed1D.length);
+        for (int i = 0; i < r1D.length; i++) {
+            Assert.assertEquals(ComplexUtils.polar2Complex(r1D[i], theta1D[i]), observed1D[i]);
+        }
+
+        // 2D
+        double[][] theta2D = new double[3][4];
+        double[][] r2D = new double[3][4];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 4; j++) {
+                r2D[i][j] = i + j;
+                theta2D[i][j] = i * j;
+            }
+        }
+        Complex[][] observed2D = ComplexUtils.polar2Complex(r2D, theta2D);
+        Assert.assertEquals(r2D.length, observed2D.length);
+        for (int i = 0; i < r2D.length; i++) {
+            TestUtils.assertSame(msg, ComplexUtils.polar2Complex(r2D[i], theta2D[i]), observed2D[i]);
+        }
+
+        // 3D
+        double[][][] theta3D = new double[3][4][3];
+        double[][][] r3D = new double[3][4][3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 4; j++) {
+                for (int k = 0; k < 3; k++) {
+                    r3D[i][j][k] = i + j + k;
+                    theta3D[i][j][k] = i * j * k;
+                }
+            }
+        }
+        Complex[][][] observed3D = ComplexUtils.polar2Complex(r3D, theta3D);
+        Assert.assertEquals(r3D.length, observed3D.length);
+        for (int i = 0; i < r3D.length; i++) {
+            TestUtils.assertSame(msg, ComplexUtils.polar2Complex(r3D[i], theta3D[i]), observed3D[i]);
+        }
     }
 
-    protected Complex altPolar(double r, double theta) {
+    private Complex altPolar(double r, double theta) {
         return Complex.I.multiply(Complex.ofCartesian(theta, 0)).exp().multiply(Complex.ofCartesian(r, 0));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testPolar2ComplexIllegalModulus() {
         ComplexUtils.polar2Complex(-1, 0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPolar2ComplexIllegalModulus1D() {
+        ComplexUtils.polar2Complex(new double[]{0, -1, 2}, new double[]{0, 1, 2});
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPolar2ComplexIllegalModulus2D() {
+        ComplexUtils.polar2Complex(new double[][]{{0, 2, 2}, {0, -1, 2}}, new double[][]{{0, 1, 2}, {0, 1, 2}});
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPolar2ComplexIllegalModulus3D() {
+        ComplexUtils.polar2Complex(new double[][][]{{{0, 2, 2}}, {{0, -1, 2}}}, new double[][][]{{{0, 1, 2}}, {{0, 1, 2}}});
     }
 
     @Test
@@ -247,12 +340,24 @@ public class ComplexUtilsTest {
         TestUtils.assertSame(Complex.ofReal(3), ComplexUtils.extractComplexFromRealArray(d, 3));
         // Extract complex from real float array, index 3
         TestUtils.assertSame(Complex.ofReal(3), ComplexUtils.extractComplexFromRealArray(f, 3));
+        // Extract complex from real double array, index 3
+        TestUtils.assertSame(Complex.ofCartesian(0, 3), ComplexUtils.extractComplexFromImaginaryArray(d, 3));
+        // Extract complex from real float array, index 3
+        TestUtils.assertSame(Complex.ofCartesian(0, 3), ComplexUtils.extractComplexFromImaginaryArray(f, 3));
         // Extract real double from complex array, index 3
         TestUtils.assertSame(6, ComplexUtils.extractRealFromComplexArray(c, 3));
         // Extract real float from complex array, index 3
         TestUtils.assertSame(6, ComplexUtils.extractRealFloatFromComplexArray(c, 3));
+        // Extract real double from complex array, index 3
+        TestUtils.assertSame(7, ComplexUtils.extractImaginaryFromComplexArray(c, 3));
+        // Extract real float from complex array, index 3
+        TestUtils.assertSame(7, ComplexUtils.extractImaginaryFloatFromComplexArray(c, 3));
         // Extract complex from interleaved double array, index 3
         TestUtils.assertSame(Complex.ofCartesian(6, 7), ComplexUtils.extractComplexFromInterleavedArray(d, 3));
+        // Extract interleaved double array from complex array, index 3
+        TestUtils.assertSame(new double[]{6d, 7d}, ComplexUtils.extractInterleavedFromComplexArray(c, 3));
+        // Extract interleaved float array from complex array, index 3
+        TestUtils.assertSame(new float[]{6f, 7f}, ComplexUtils.extractInterleavedFloatFromComplexArray(c, 3));
         // Extract complex from interleaved float array, index 3
         TestUtils.assertSame(Complex.ofCartesian(6, 7), ComplexUtils.extractComplexFromInterleavedArray(f, 3));
         // Extract interleaved double from complex array, index 3
@@ -261,67 +366,48 @@ public class ComplexUtilsTest {
         // Extract interleaved float from complex array, index 3
         TestUtils.assertEquals(msg, new double[] { 6, 7 }, ComplexUtils.extractInterleavedFromComplexArray(c, 3),
                 Math.ulp(1));
-        if (!msg.equals("")) {
-            throw new RuntimeException(msg);
-        }
     }
     // REAL <-> COMPLEX
 
     @Test
     public void testRealToComplex() {
         setArrays();
-        // Real double to complex, range 3-7, increment 1, entered as ints
         // Real double to complex, whole array
-        TestUtils.assertEquals(msg, cr, ComplexUtils.real2Complex(d),Math.ulp(1.0));
+        TestUtils.assertEquals(msg, cr, ComplexUtils.real2Complex(d), Math.ulp(1.0));
         // Real float to complex, whole array
-        TestUtils.assertEquals(msg, cr, ComplexUtils.real2Complex(f),Math.ulp(1.0));
+        TestUtils.assertEquals(msg, cr, ComplexUtils.real2Complex(f), Math.ulp(1.0));
+
         // 2d
-        for (int i = 0; i < 10; i++) {
-            // Real double to complex, 2d
-            TestUtils.assertEquals(msg, cr2d[i], ComplexUtils.real2Complex(d2d[i]),Math.ulp(1.0));
-            // Real float to complex, 2d
-            TestUtils.assertEquals(msg, cr2d[i], ComplexUtils.real2Complex(f2d[i]),Math.ulp(1.0));
-        }
+        TestUtils.assertEquals(msg, cr2d, ComplexUtils.real2Complex(sr2d), 0);
+        TestUtils.assertEquals(msg, cr2d, ComplexUtils.real2Complex(sfr2d), 0);
+
         // 3d
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
-                // Real double to complex, 3d
-                TestUtils.assertEquals(msg, cr3d[i][j], ComplexUtils.real2Complex(d3d[i][j]),Math.ulp(1.0));
-                // Real float to complex, 3d
-                TestUtils.assertEquals(msg, cr3d[i][j], ComplexUtils.real2Complex(f3d[i][j]),Math.ulp(1.0));
-            }
-        }
-        if (!msg.equals("")) {
-            throw new RuntimeException(msg);
-        }
+        TestUtils.assertEquals(msg, cr3d, ComplexUtils.real2Complex(sr3d), 0);
+        TestUtils.assertEquals(msg, cr3d, ComplexUtils.real2Complex(sfr3d), 0);
+
+        // 4d
+        TestUtils.assertEquals(msg, cr4d, ComplexUtils.real2Complex(sr4d), 0);
     }
 
     @Test
     public void testComplexToReal() {
         setArrays();
         // Real complex to double, whole array
-        TestUtils.assertEquals(msg, sr, ComplexUtils.complex2Real(c),Math.ulp(1.0));
+        TestUtils.assertEquals(msg, sr, ComplexUtils.complex2Real(c), Math.ulp(1.0));
         // Real complex to float, whole array
-        TestUtils.assertEquals(msg, sfr, ComplexUtils.complex2RealFloat(c),Math.ulp(1.0f));
+        TestUtils.assertEquals(msg, sfr, ComplexUtils.complex2RealFloat(c), Math.ulp(1.0f));
+
         // 2d
-        for (int i = 0; i < 10; i++) {
-            // Real complex to double, 2d
-            TestUtils.assertEquals(msg, sr2d[i], ComplexUtils.complex2Real(c2d[i]),Math.ulp(1.0));
-            // Real complex to float, 2d
-            TestUtils.assertEquals(msg, sfr2d[i], ComplexUtils.complex2RealFloat(c2d[i]),Math.ulp(1.0f));
-        }
+        TestUtils.assertEquals(msg, sr2d, ComplexUtils.complex2Real(cr2d), 0);
+        TestUtils.assertEquals(msg, sfr2d, ComplexUtils.complex2RealFloat(cr2d), 0);
+
         // 3d
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
-                // Real complex to double, 3d
-                TestUtils.assertEquals(msg, sr3d[i][j], ComplexUtils.complex2Real(c3d[i][j]),Math.ulp(1.0));
-                // Real complex to float, 3d
-                TestUtils.assertEquals(msg, sfr3d[i][j], ComplexUtils.complex2RealFloat(c3d[i][j]),Math.ulp(1.0f));
-            }
-        }
-        if (!msg.equals("")) {
-            throw new RuntimeException(msg);
-        }
+        TestUtils.assertEquals(msg, sr3d, ComplexUtils.complex2Real(cr3d), 0);
+        TestUtils.assertEquals(msg, sfr3d, ComplexUtils.complex2RealFloat(cr3d), 0);
+
+        // 4d
+        TestUtils.assertEquals(msg, sr4d, ComplexUtils.complex2Real(cr4d), 0);
+        TestUtils.assertEquals(msg, sfr4d, ComplexUtils.complex2RealFloat(cr4d), 0);
     }
 
     // IMAGINARY <-> COMPLEX
@@ -330,113 +416,211 @@ public class ComplexUtilsTest {
     public void testImaginaryToComplex() {
         setArrays();
         // Imaginary double to complex, whole array
-        TestUtils.assertEquals(msg, ci, ComplexUtils.imaginary2Complex(d),Math.ulp(1.0));
+        TestUtils.assertEquals(msg, ci, ComplexUtils.imaginary2Complex(d), Math.ulp(1.0));
         // Imaginary float to complex, whole array
-        TestUtils.assertEquals(msg, ci, ComplexUtils.imaginary2Complex(f),Math.ulp(1.0));
+        TestUtils.assertEquals(msg, ci, ComplexUtils.imaginary2Complex(f), Math.ulp(1.0));
+
         // 2d
-        for (int i = 0; i < 10; i++) {
-            // Imaginary double to complex, 2d
-            TestUtils.assertEquals(msg, ci2d[i], ComplexUtils.imaginary2Complex(d2d[i]),Math.ulp(1.0));
-            // Imaginary float to complex, 2d
-            TestUtils.assertEquals(msg, ci2d[i], ComplexUtils.imaginary2Complex(f2d[i]),Math.ulp(1.0));
-        }
+        TestUtils.assertEquals(msg, ci2d, ComplexUtils.imaginary2Complex(si2d), 0);
+
         // 3d
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
-                // Imaginary double to complex, 3d
-                TestUtils.assertEquals(msg, ci3d[i][j], ComplexUtils.imaginary2Complex(d3d[i][j]),Math.ulp(1.0));
-                // Imaginary float to complex, 3d
-                TestUtils.assertEquals(msg, ci3d[i][j], ComplexUtils.imaginary2Complex(f3d[i][j]),Math.ulp(1.0));
-            }
-        }
-        if (!msg.equals("")) {
-            throw new RuntimeException(msg);
-        }
+        TestUtils.assertEquals(msg, ci3d, ComplexUtils.imaginary2Complex(si3d), 0);
+
+        // 4d
+        TestUtils.assertEquals(msg, ci4d, ComplexUtils.imaginary2Complex(si4d), 0);
     }
 
     @Test
     public void testComplexToImaginary() {
         setArrays();
         // Imaginary complex to double, whole array
-        TestUtils.assertEquals(msg, si, ComplexUtils.complex2Imaginary(c),Math.ulp(1.0));
+        TestUtils.assertEquals(msg, si, ComplexUtils.complex2Imaginary(c), Math.ulp(1.0));
         // Imaginary complex to float, whole array
-        TestUtils.assertEquals(msg, sfi, ComplexUtils.complex2ImaginaryFloat(c),Math.ulp(1.0f));
+        TestUtils.assertEquals(msg, sfi, ComplexUtils.complex2ImaginaryFloat(c), Math.ulp(1.0f));
+
         // 2d
-        for (int i = 0; i < 10; i++) {
-            // Imaginary complex to double, 2d
-            TestUtils.assertEquals(msg, si2d[i], ComplexUtils.complex2Imaginary(c2d[i]),Math.ulp(1.0));
-            // Imaginary complex to float, 2d
-            TestUtils.assertEquals(msg, sfi2d[i], ComplexUtils.complex2ImaginaryFloat(c2d[i]),Math.ulp(1.0f));
-        }
+        TestUtils.assertEquals(msg, si2d, ComplexUtils.complex2Imaginary(ci2d), 0);
+        TestUtils.assertEquals(msg, sfi2d, ComplexUtils.complex2ImaginaryFloat(ci2d), 0);
+
         // 3d
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
-                // Imaginary complex to double, 3d
-                TestUtils.assertEquals(msg, si3d[i][j], ComplexUtils.complex2Imaginary(c3d[i][j]),Math.ulp(1.0));
-                // Imaginary complex to float, 3d
-                TestUtils.assertEquals(msg, sfi3d[i][j], ComplexUtils.complex2ImaginaryFloat(c3d[i][j]),Math.ulp(1.0f));
-            }
-        }
-        if (!msg.equals("")) {
-            throw new RuntimeException(msg);
-        }
+        TestUtils.assertEquals(msg, si3d, ComplexUtils.complex2Imaginary(ci3d), 0);
+        TestUtils.assertEquals(msg, sfi3d, ComplexUtils.complex2ImaginaryFloat(ci3d), 0);
+
+        // 4d
+        TestUtils.assertEquals(msg, si4d, ComplexUtils.complex2Imaginary(ci4d), 0);
+        TestUtils.assertEquals(msg, sfi4d, ComplexUtils.complex2ImaginaryFloat(ci4d), 0);
     }
 
     // INTERLEAVED <-> COMPLEX
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testComplex2InterleavedIllegalIndex2Dmin() {
+        ComplexUtils.complex2Interleaved(c2d, -1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testComplex2InterleavedIllegalIndex2Dmax() {
+        ComplexUtils.complex2Interleaved(c2d, 2);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testComplex2InterleavedIllegalIndex3Dmin() {
+        ComplexUtils.complex2Interleaved(c3d, -1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testComplex2InterleavedIllegalIndex3Dmax() {
+        ComplexUtils.complex2Interleaved(c3d, 3);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testComplex2InterleavedIllegalIndex4Dmin() {
+        ComplexUtils.complex2Interleaved(c4d, -1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testComplex2InterleavedIllegalIndex4Dmax() {
+        ComplexUtils.complex2Interleaved(c4d, 4);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testComplex2InterleavedFloatIllegalIndex2Dmin() {
+        ComplexUtils.complex2InterleavedFloat(c2d, -1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testComplex2InterleavedFloatIllegalIndex2Dmax() {
+        ComplexUtils.complex2InterleavedFloat(c2d, 2);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testComplex2InterleavedFloatIllegalIndex3Dmin() {
+        ComplexUtils.complex2InterleavedFloat(c3d, -1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testComplex2InterleavedFloatIllegalIndex3Dmax() {
+        ComplexUtils.complex2InterleavedFloat(c3d, 3);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInterleaved2ComplexIllegalIndex2Dmin() {
+        ComplexUtils.interleaved2Complex(di2d0, -1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInterleaved2ComplexIllegalIndex2Dmax() {
+        ComplexUtils.interleaved2Complex(di2d0, 2);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInterleaved2ComplexIllegalIndex3Dmin() {
+        ComplexUtils.interleaved2Complex(di3d0, -1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInterleaved2ComplexIllegalIndex3Dmax() {
+        ComplexUtils.interleaved2Complex(di3d0, 3);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInterleaved2ComplexIllegalIndex4Dmin() {
+        ComplexUtils.interleaved2Complex(di4d0, -1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInterleaved2ComplexIllegalIndex4Dmax() {
+        ComplexUtils.interleaved2Complex(di4d0, 4);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInterleaved2ComplexFloatIllegalIndex2Dmin() {
+        ComplexUtils.interleaved2Complex(fi2d0, -1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInterleaved2ComplexFloatIllegalIndex2Dmax() {
+        ComplexUtils.interleaved2Complex(fi2d0, 2);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInterleaved2ComplexFloatIllegalIndex3Dmin() {
+        ComplexUtils.interleaved2Complex(fi3d0, -1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInterleaved2ComplexFloatIllegalIndex3Dmax() {
+        ComplexUtils.interleaved2Complex(fi3d0, 3);
+    }
 
     @Test
     public void testInterleavedToComplex() {
         setArrays();
         // Interleaved double to complex, whole array
-        TestUtils.assertEquals(msg, c, ComplexUtils.interleaved2Complex(di),Math.ulp(1.0));
+        TestUtils.assertEquals(msg, c, ComplexUtils.interleaved2Complex(di), Math.ulp(1.0));
         // Interleaved float to complex, whole array
-        TestUtils.assertEquals(msg, c, ComplexUtils.interleaved2Complex(fi),Math.ulp(1.0));
+        TestUtils.assertEquals(msg, c, ComplexUtils.interleaved2Complex(fi), Math.ulp(1.0));
+
         // 2d
-        for (int i = 0; i < 10; i++) {
-            // Interleaved double to complex, 2d
-            TestUtils.assertEquals(msg, c2d[i], ComplexUtils.interleaved2Complex(di2d[i]),Math.ulp(1.0));
-            // Interleaved float to complex, 2d
-            TestUtils.assertEquals(msg, c2d[i], ComplexUtils.interleaved2Complex(fi2d[i]),Math.ulp(1.0));
-        }
+        TestUtils.assertSame(msg, c2d, ComplexUtils.interleaved2Complex(di2d0, 0));
+        TestUtils.assertSame(msg, c2d, ComplexUtils.interleaved2Complex(di2d1, 1));
+        TestUtils.assertSame(msg, c2d, ComplexUtils.interleaved2Complex(di2d1));
+
+        TestUtils.assertSame(msg, c2d, ComplexUtils.interleaved2Complex(fi2d0, 0));
+        TestUtils.assertSame(msg, c2d, ComplexUtils.interleaved2Complex(fi2d1, 1));
+        TestUtils.assertSame(msg, c2d, ComplexUtils.interleaved2Complex(fi2d1));
+
         // 3d
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
-                // Interleaved double to complex, 3d
-                TestUtils.assertEquals(msg, c3d[i][j], ComplexUtils.interleaved2Complex(di3d[i][j]),Math.ulp(1.0));
-                // Interleaved float to complex, 3d
-                TestUtils.assertEquals(msg, c3d[i][j], ComplexUtils.interleaved2Complex(fi3d[i][j]),Math.ulp(1.0));
-            }
-        }
-        if (!msg.equals("")) {
-            throw new RuntimeException(msg);
-        }
+        TestUtils.assertSame(msg, c3d, ComplexUtils.interleaved2Complex(di3d0, 0));
+        TestUtils.assertSame(msg, c3d, ComplexUtils.interleaved2Complex(di3d1, 1));
+        TestUtils.assertSame(msg, c3d, ComplexUtils.interleaved2Complex(di3d2, 2));
+        TestUtils.assertSame(msg, c3d, ComplexUtils.interleaved2Complex(di3d2));
+
+        TestUtils.assertSame(msg, c3d, ComplexUtils.interleaved2Complex(fi3d0, 0));
+        TestUtils.assertSame(msg, c3d, ComplexUtils.interleaved2Complex(fi3d1, 1));
+        TestUtils.assertSame(msg, c3d, ComplexUtils.interleaved2Complex(fi3d2, 2));
+        TestUtils.assertSame(msg, c3d, ComplexUtils.interleaved2Complex(fi3d2));
+
+        // 4d
+        TestUtils.assertSame(msg, c4d, ComplexUtils.interleaved2Complex(di4d0, 0));
+        TestUtils.assertSame(msg, c4d, ComplexUtils.interleaved2Complex(di4d1, 1));
+        TestUtils.assertSame(msg, c4d, ComplexUtils.interleaved2Complex(di4d2, 2));
+        TestUtils.assertSame(msg, c4d, ComplexUtils.interleaved2Complex(di4d3, 3));
     }
 
     @Test
     public void testComplexToInterleaved() {
         setArrays();
-        TestUtils.assertEquals(msg, di, ComplexUtils.complex2Interleaved(c),Math.ulp(1.0));
+        TestUtils.assertEquals(msg, di, ComplexUtils.complex2Interleaved(c), Math.ulp(1.0));
         // Interleaved complex to float, whole array
-        TestUtils.assertEquals(msg, fi, ComplexUtils.complex2InterleavedFloat(c),Math.ulp(1.0f));
+        TestUtils.assertEquals(msg, fi, ComplexUtils.complex2InterleavedFloat(c), Math.ulp(1.0f));
+
         // 2d
-        for (int i = 0; i < 10; i++) {
-            // Interleaved complex to double, 2d
-            TestUtils.assertEquals(msg, di2d[i], ComplexUtils.complex2Interleaved(c2d[i]),Math.ulp(1.0));
-            // Interleaved complex to float, 2d
-            TestUtils.assertEquals(msg, fi2d[i], ComplexUtils.complex2InterleavedFloat(c2d[i]),Math.ulp(1.0f));
-        }
+        TestUtils.assertEquals(msg, di2d0, ComplexUtils.complex2Interleaved(c2d, 0), 0);
+        TestUtils.assertEquals(msg, di2d1, ComplexUtils.complex2Interleaved(c2d, 1), 0);
+        TestUtils.assertEquals(msg, di2d1, ComplexUtils.complex2Interleaved(c2d), 0);
+
+        TestUtils.assertEquals(msg, fi2d0, ComplexUtils.complex2InterleavedFloat(c2d, 0), 0);
+        TestUtils.assertEquals(msg, fi2d1, ComplexUtils.complex2InterleavedFloat(c2d, 1), 0);
+        TestUtils.assertEquals(msg, fi2d1, ComplexUtils.complex2InterleavedFloat(c2d), 0);
+
         // 3d
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
-                // Interleaved complex to double, 3d
-                TestUtils.assertEquals(msg, di3d[i][j], ComplexUtils.complex2Interleaved(c3d[i][j]),Math.ulp(1.0));
-                // Interleaved complex to float, 3d
-                TestUtils.assertEquals(msg, fi3d[i][j], ComplexUtils.complex2InterleavedFloat(c3d[i][j]),Math.ulp(1.0f));
-            }
-        }
-        if (!msg.equals("")) {
-            throw new RuntimeException(msg);
-        }
+        TestUtils.assertEquals(msg, di3d0, ComplexUtils.complex2Interleaved(c3d, 0), 0);
+        TestUtils.assertEquals(msg, di3d1, ComplexUtils.complex2Interleaved(c3d, 1), 0);
+        TestUtils.assertEquals(msg, di3d2, ComplexUtils.complex2Interleaved(c3d, 2), 0);
+        TestUtils.assertEquals(msg, di3d2, ComplexUtils.complex2Interleaved(c3d), 0);
+
+        TestUtils.assertEquals(msg, fi3d0, ComplexUtils.complex2InterleavedFloat(c3d, 0), 0);
+        TestUtils.assertEquals(msg, fi3d1, ComplexUtils.complex2InterleavedFloat(c3d, 1), 0);
+        TestUtils.assertEquals(msg, fi3d2, ComplexUtils.complex2InterleavedFloat(c3d, 2), 0);
+        TestUtils.assertEquals(msg, fi3d2, ComplexUtils.complex2InterleavedFloat(c3d), 0);
+
+        // 4d
+        TestUtils.assertEquals(msg, di4d0, ComplexUtils.complex2Interleaved(c4d, 0), 0);
+        TestUtils.assertEquals(msg, di4d1, ComplexUtils.complex2Interleaved(c4d, 1), 0);
+        TestUtils.assertEquals(msg, di4d2, ComplexUtils.complex2Interleaved(c4d, 2), 0);
+        TestUtils.assertEquals(msg, di4d3, ComplexUtils.complex2Interleaved(c4d, 3), 0);
+        TestUtils.assertEquals(msg, di4d3, ComplexUtils.complex2Interleaved(c4d), 0);
     }
 
     // SPLIT TO COMPLEX
@@ -444,23 +628,13 @@ public class ComplexUtilsTest {
     public void testSplit2Complex() {
         setArrays();
         // Split double to complex, whole array
-        TestUtils.assertEquals(msg, c, ComplexUtils.split2Complex(sr, si),Math.ulp(1.0));
+        TestUtils.assertEquals(msg, c, ComplexUtils.split2Complex(sr, si), Math.ulp(1.0));
 
-        // 2d
-        for (int i = 0; i < 10; i++) {
-            // Split double to complex, 2d
-            TestUtils.assertEquals(msg, c2d[i], ComplexUtils.split2Complex(sr2d[i], si2d[i]),Math.ulp(1.0));
-        }
-        // 3d
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
-                // Split double to complex, 3d
-                TestUtils.assertEquals(msg, c3d[i][j], ComplexUtils.split2Complex(sr3d[i][j], si3d[i][j]),Math.ulp(1.0));
-            }
-        }
-        if (!msg.equals("")) {
-            throw new RuntimeException(msg);
-        }
+        TestUtils.assertSame(msg, c2d, ComplexUtils.split2Complex(sr2d, si2d));
+        TestUtils.assertSame(msg, c3d, ComplexUtils.split2Complex(sr3d, si3d));
+        TestUtils.assertSame(msg, c4d, ComplexUtils.split2Complex(sr4d, si4d));
+        TestUtils.assertSame(msg, c2d, ComplexUtils.split2Complex(sfr2d, sfi2d));
+        TestUtils.assertSame(msg, c3d, ComplexUtils.split2Complex(sfr3d, sfi3d));
     }
 
     // INITIALIZATION METHODS
@@ -471,6 +645,50 @@ public class ComplexUtilsTest {
         ComplexUtils.initialize(c);
         for (Complex cc : c) {
             TestUtils.assertEquals(Complex.ofCartesian(0, 0), cc, Math.ulp(0));
+        }
+    }
+
+    @Test
+    public void testInitialize2d() {
+        Complex[][] c = new Complex[10][10];
+        ComplexUtils.initialize(c);
+        for (Complex[] c1 : c) {
+            for (Complex c0 : c1) {
+                TestUtils.assertEquals(Complex.ofCartesian(0, 0), c0, Math.ulp(0));
+            }
+        }
+    }
+
+    @Test
+    public void testInitialize3d() {
+        Complex[][][] c = new Complex[10][10][10];
+        ComplexUtils.initialize(c);
+        for (Complex[][] c2 : c) {
+            for (Complex[] c1 : c2) {
+                for (Complex c0 : c1) {
+                    TestUtils.assertEquals(Complex.ofCartesian(0, 0), c0, Math.ulp(0));
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testAbs() {
+        setArrays();
+        double[] observed = ComplexUtils.abs(c);
+        Assert.assertEquals(c.length, observed.length);
+        for (int i = 0; i < c.length; i++) {
+            TestUtils.assertEquals(c[i].abs(), observed[i], 0);
+        }
+    }
+
+    @Test
+    public void testArg() {
+        setArrays();
+        double[] observed = ComplexUtils.arg(c);
+        Assert.assertEquals(c.length, observed.length);
+        for (int i = 0; i < c.length; i++) {
+            TestUtils.assertEquals(c[i].getArgument(), observed[i], 0);
         }
     }
 }
