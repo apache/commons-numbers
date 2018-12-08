@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.apache.commons</groupId>
     <artifactId>commons-parent</artifactId>
-    <version>43</version>
+    <version>47</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -129,11 +129,9 @@
     <commons.encoding>UTF-8</commons.encoding>
     <maven.compiler.source>1.6</maven.compiler.source>
     <maven.compiler.target>1.6</maven.compiler.target>
-    <numbers.pmd.version>3.5</numbers.pmd.version>
-    <numbers.spotbugs.version>3.1.1</numbers.spotbugs.version>
-    <numbers.checkstyle.version>2.17</numbers.checkstyle.version>
-    <numbers.clirr.version>2.7</numbers.clirr.version>
-    <numbers.mathjax.version>2.7.1</numbers.mathjax.version>
+    <numbers.pmd.version>3.9.0</numbers.pmd.version>
+    <numbers.checkstyle.version>3.0.0</numbers.checkstyle.version>
+    <numbers.mathjax.version>2.7.2</numbers.mathjax.version>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}</numbers.parent.dir>
 
@@ -234,7 +232,7 @@
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>${numbers.spotbugs.version}</version>
+        <version>${commons.spotbugs.version}</version>
       </plugin>
       <plugin>
         <groupId>org.apache.rat</groupId>
@@ -336,7 +334,7 @@
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>${numbers.spotbugs.version}</version>
+        <version>${commons.spotbugs.version}</version>
         <configuration>
           <threshold>Normal</threshold>
           <effort>Default</effort>
@@ -360,15 +358,6 @@
             </reports>
           </reportSet>
         </reportSets>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>clirr-maven-plugin</artifactId>
-        <version>${numbers.clirr.version}</version>
-        <configuration>
-          <minSeverity>${minSeverity}</minSeverity>
-          <ignoredDifferencesFile>${numbers.parent.dir}/src/main/resources/clirr/clirr-ignored.xml</ignoredDifferencesFile>
-        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-pmd-plugin</artifactId>
