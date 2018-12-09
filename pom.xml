@@ -187,6 +187,9 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <!-- Fix for OpenJDK 8 now validating class-path attributes in Jar manifests. -->
+          <!-- See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=912333#63 -->
+          <useSystemClassLoader>false</useSystemClassLoader>
           <includes>
             <include>**/*Test.java</include>
           </includes>
