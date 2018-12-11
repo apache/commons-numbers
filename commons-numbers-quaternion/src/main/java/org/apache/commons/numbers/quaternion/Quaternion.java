@@ -270,7 +270,7 @@ public final class Quaternion implements Serializable {
      * @return the norm.
      */
     public double norm() {
-        return Math.sqrt(norm2());
+        return Math.sqrt(normSq());
     }
 
     /**
@@ -278,7 +278,7 @@ public final class Quaternion implements Serializable {
      *
      * @return the square of the norm.
      */
-    public double norm2() {
+    public double normSq() {
         return w * w +
             x * x +
             y * y +
@@ -396,7 +396,7 @@ public final class Quaternion implements Serializable {
      * @throws IllegalArgumentException if the norm (squared) of the quaternion is zero.
      */
     public Quaternion inverse() {
-        final double squareNorm = norm2();
+        final double squareNorm = normSq();
         if (squareNorm < Precision.SAFE_MIN) {
             throw new IllegalStateException(ZERO_NORM_MSG);
         }
