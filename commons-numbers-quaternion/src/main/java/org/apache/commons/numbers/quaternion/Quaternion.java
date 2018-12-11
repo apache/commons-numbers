@@ -52,13 +52,13 @@ public final class Quaternion implements Serializable {
     private static final String FORMAT_SEP = " ";
 
     /** First component (scalar part). */
-    private final double q0;
+    private final double w;
     /** Second component (first vector part). */
-    private final double q1;
+    private final double x;
     /** Third component (second vector part). */
-    private final double q2;
+    private final double y;
     /** Fourth component (third vector part). */
-    private final double q3;
+    private final double z;
 
     /**
      * Builds a quaternion from its components.
@@ -72,10 +72,10 @@ public final class Quaternion implements Serializable {
                        final double b,
                        final double c,
                        final double d) {
-        q0 = a;
-        q1 = b;
-        q2 = c;
-        q3 = d;
+        w = a;
+        x = b;
+        y = c;
+        z = d;
     }
 
     /**
@@ -92,10 +92,10 @@ public final class Quaternion implements Serializable {
             throw new IllegalArgumentException("Size of array must be 3");
         }
 
-        q0 = scalar;
-        q1 = v[0];
-        q2 = v[1];
-        q3 = v[2];
+        w = scalar;
+        x = v[0];
+        y = v[1];
+        z = v[2];
     }
 
     /**
@@ -146,29 +146,29 @@ public final class Quaternion implements Serializable {
      * @return the conjugate of this quaternion object.
      */
     public Quaternion conjugate() {
-        return new Quaternion(q0, -q1, -q2, -q3);
+        return new Quaternion(w, -x, -y, -z);
     }
 
     /**
      * Returns the Hamilton product of two quaternions.
      *
-     * @param q1 First quaternion.
+     * @param x First quaternion.
      * @param q2 Second quaternion.
-     * @return the product {@code q1} and {@code q2}, in that order.
+     * @return the product {@code x} and {@code q2}, in that order.
      */
     public static Quaternion multiply(final Quaternion q1,
                                       final Quaternion q2) {
         // Components of the first quaternion.
-        final double q1a = q1.q0;
-        final double q1b = q1.q1;
-        final double q1c = q1.q2;
-        final double q1d = q1.q3;
+        final double q1a = q1.w;
+        final double q1b = q1.x;
+        final double q1c = q1.y;
+        final double q1d = q1.z;
 
         // Components of the second quaternion.
-        final double q2a = q2.q0;
-        final double q2b = q2.q1;
-        final double q2c = q2.q2;
-        final double q2d = q2.q3;
+        final double q2a = q2.w;
+        final double q2b = q2.x;
+        final double q2c = q2.y;
+        final double q2d = q2.z;
 
         // Components of the product.
         final double w = q1a * q2a - q1b * q2b - q1c * q2c - q1d * q2d;
@@ -198,17 +198,17 @@ public final class Quaternion implements Serializable {
      */
     public static Quaternion add(final Quaternion q1,
                                  final Quaternion q2) {
-        return new Quaternion(q1.q0 + q2.q0,
-                              q1.q1 + q2.q1,
-                              q1.q2 + q2.q2,
-                              q1.q3 + q2.q3);
+        return new Quaternion(q1.w + q2.w,
+                              q1.x + q2.x,
+                              q1.y + q2.y,
+                              q1.z + q2.z);
     }
 
     /**
      * Computes the sum of the instance and another quaternion.
      *
      * @param q Quaternion.
-     * @return the sum of this instance and {@code q}
+     * @return the sum of this instance and {@code q}.
      */
     public Quaternion add(final Quaternion q) {
         return add(this, q);
@@ -223,10 +223,10 @@ public final class Quaternion implements Serializable {
      */
     public static Quaternion subtract(final Quaternion q1,
                                       final Quaternion q2) {
-        return new Quaternion(q1.q0 - q2.q0,
-                              q1.q1 - q2.q1,
-                              q1.q2 - q2.q2,
-                              q1.q3 - q2.q3);
+        return new Quaternion(q1.w - q2.w,
+                              q1.x - q2.x,
+                              q1.y - q2.y,
+                              q1.z - q2.z);
     }
 
     /**
@@ -248,10 +248,10 @@ public final class Quaternion implements Serializable {
      */
     public static double dotProduct(final Quaternion q1,
                                     final Quaternion q2) {
-        return q1.q0 * q2.q0 +
-            q1.q1 * q2.q1 +
-            q1.q2 * q2.q2 +
-            q1.q3 * q2.q3;
+        return q1.w * q2.w +
+            q1.x * q2.x +
+            q1.y * q2.y +
+            q1.z * q2.z;
     }
 
     /**
@@ -279,10 +279,10 @@ public final class Quaternion implements Serializable {
      * @return the square of the norm.
      */
     public double norm2() {
-        return q0 * q0 +
-            q1 * q1 +
-            q2 * q2 +
-            q3 * q3;
+        return w * w +
+            x * x +
+            y * y +
+            z * z;
     }
 
     /**
@@ -312,10 +312,10 @@ public final class Quaternion implements Serializable {
         }
         if (other instanceof Quaternion) {
             final Quaternion q = (Quaternion) other;
-            return ((Double)q0).equals(q.q0) &&
-                    ((Double)q1).equals(q.q1) &&
-                    ((Double)q2).equals(q.q2) &&
-                    ((Double)q3).equals(q.q3);
+            return ((Double) w).equals(q.w) &&
+                ((Double) x).equals(q.x) &&
+                ((Double) y).equals(q.y) &&
+                ((Double) z).equals(q.z);
         }
 
         return false;
@@ -326,7 +326,7 @@ public final class Quaternion implements Serializable {
      */
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new double[] { q0, q1, q2, q3 });
+        return Arrays.hashCode(new double[] { w, x, y, z });
     }
 
     /**
@@ -340,10 +340,10 @@ public final class Quaternion implements Serializable {
      */
     public boolean equals(final Quaternion q,
                           final double eps) {
-        return Precision.equals(q0, q.q0, eps) &&
-            Precision.equals(q1, q.q1, eps) &&
-            Precision.equals(q2, q.q2, eps) &&
-            Precision.equals(q3, q.q3, eps);
+        return Precision.equals(w, q.w, eps) &&
+            Precision.equals(x, q.x, eps) &&
+            Precision.equals(y, q.y, eps) &&
+            Precision.equals(z, q.z, eps);
     }
 
     /**
@@ -366,7 +366,7 @@ public final class Quaternion implements Serializable {
      * @return {@code true} if the scalar part of the quaternion is zero.
      */
     public boolean isPureQuaternion(double eps) {
-        return Math.abs(q0) <= eps;
+        return Math.abs(w) <= eps;
     }
 
     /**
@@ -375,14 +375,14 @@ public final class Quaternion implements Serializable {
      * @return the unit quaternion with positive scalar part.
      */
     public Quaternion positivePolarForm() {
-        if (q0 < 0) {
+        if (w < 0) {
             final Quaternion unitQ = normalize();
             // The quaternion of rotation (normalized quaternion) q and -q
             // are equivalent (i.e. represent the same rotation).
-            return new Quaternion(-unitQ.q0,
-                                  -unitQ.q1,
-                                  -unitQ.q2,
-                                  -unitQ.q3);
+            return new Quaternion(-unitQ.w,
+                                  -unitQ.x,
+                                  -unitQ.y,
+                                  -unitQ.z);
         } else {
             return this.normalize();
         }
@@ -401,10 +401,10 @@ public final class Quaternion implements Serializable {
             throw new IllegalStateException(ZERO_NORM_MSG);
         }
 
-        return new Quaternion(q0 / squareNorm,
-                              -q1 / squareNorm,
-                              -q2 / squareNorm,
-                              -q3 / squareNorm);
+        return new Quaternion(w / squareNorm,
+                              -x / squareNorm,
+                              -y / squareNorm,
+                              -z / squareNorm);
     }
 
     /**
@@ -412,8 +412,8 @@ public final class Quaternion implements Serializable {
      *
      * @return the scalar part.
      */
-    public double getQ0() {
-        return q0;
+    public double getW() {
+        return w;
     }
 
     /**
@@ -422,8 +422,8 @@ public final class Quaternion implements Serializable {
      *
      * @return the first component of the vector part.
      */
-    public double getQ1() {
-        return q1;
+    public double getX() {
+        return x;
     }
 
     /**
@@ -432,8 +432,8 @@ public final class Quaternion implements Serializable {
      *
      * @return the second component of the vector part.
      */
-    public double getQ2() {
-        return q2;
+    public double getY() {
+        return y;
     }
 
     /**
@@ -442,30 +442,30 @@ public final class Quaternion implements Serializable {
      *
      * @return the third component of the vector part.
      */
-    public double getQ3() {
-        return q3;
+    public double getZ() {
+        return z;
     }
 
     /**
      * Gets the scalar part of the quaternion.
      *
      * @return the scalar part.
-     * @see #getQ0()
+     * @see #getW()
      */
     public double getScalarPart() {
-        return q0;
+        return w;
     }
 
     /**
      * Gets the three components of the vector part of the quaternion.
      *
      * @return the vector part.
-     * @see #getQ1()
-     * @see #getQ2()
-     * @see #getQ3()
+     * @see #getX()
+     * @see #getY()
+     * @see #getZ()
      */
     public double[] getVectorPart() {
-        return new double[] { q1, q2, q3 };
+        return new double[] { x, y, z };
     }
 
     /**
@@ -475,10 +475,10 @@ public final class Quaternion implements Serializable {
      * @return a scaled quaternion.
      */
     public Quaternion multiply(final double alpha) {
-        return new Quaternion(alpha * q0,
-                              alpha * q1,
-                              alpha * q2,
-                              alpha * q3);
+        return new Quaternion(alpha * w,
+                              alpha * x,
+                              alpha * y,
+                              alpha * z);
     }
 
     /**
@@ -488,10 +488,10 @@ public final class Quaternion implements Serializable {
      * @return a scaled quaternion.
      */
     public Quaternion divide(final double alpha) {
-        return new Quaternion(q0 / alpha,
-                              q1 / alpha,
-                              q2 / alpha,
-                              q3 / alpha);
+        return new Quaternion(w / alpha,
+                              x / alpha,
+                              y / alpha,
+                              z / alpha);
     }
 
     /**
@@ -520,32 +520,32 @@ public final class Quaternion implements Serializable {
                                                  " (separator is '" + FORMAT_SEP + "')");
         }
 
-        final double q1;
+        final double a;
         try {
-            q1 = Double.parseDouble(elements[0]);
+            a = Double.parseDouble(elements[0]);
         } catch (NumberFormatException ex) {
             throw new QuaternionParsingException("Could not parse scalar part" + elements[0]);
         }
-        final double q2;
+        final double b;
         try {
-            q2 = Double.parseDouble(elements[1]);
+            b = Double.parseDouble(elements[1]);
         } catch (NumberFormatException ex) {
             throw new QuaternionParsingException("Could not parse i part" + elements[1]);
         }
-        final double q3;
+        final double c;
         try {
-            q3 = Double.parseDouble(elements[2]);
+            c = Double.parseDouble(elements[2]);
         } catch (NumberFormatException ex) {
             throw new QuaternionParsingException("Could not parse j part" + elements[2]);
         }
-        final double q4;
+        final double d;
         try {
-            q4 = Double.parseDouble(elements[3]);
+            d = Double.parseDouble(elements[3]);
         } catch (NumberFormatException ex) {
             throw new QuaternionParsingException("Could not parse k part" + elements[3]);
         }
 
-        return of(q1, q2, q3, q4);
+        return of(a, b, c, d);
     }
 
     /**
@@ -555,10 +555,10 @@ public final class Quaternion implements Serializable {
     public String toString() {
         final StringBuilder s = new StringBuilder();
         s.append(FORMAT_START)
-            .append(q0).append(FORMAT_SEP)
-            .append(q1).append(FORMAT_SEP)
-            .append(q2).append(FORMAT_SEP)
-            .append(q3)
+            .append(w).append(FORMAT_SEP)
+            .append(x).append(FORMAT_SEP)
+            .append(y).append(FORMAT_SEP)
+            .append(z)
             .append(FORMAT_END);
 
         return s.toString();
