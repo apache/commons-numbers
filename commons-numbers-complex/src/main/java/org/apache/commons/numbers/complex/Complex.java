@@ -1360,10 +1360,10 @@ public final class Complex implements Serializable  {
      *
      * @param x Value
      * @param y Value
-     * @return {@code new Double(x).equals(new Double(y))}
+     * @return {@code Double.valueof(x).equals(Double.valueOf(y))}
      */
     private static boolean equals(double x, double y) {
-        return new Double(x).equals(new Double(y));
+        return Double.valueOf(x).equals(Double.valueOf(y));
     }
 
     /**
