@@ -28,6 +28,26 @@ public class QuaternionTest {
     private static final double COMPARISON_EPS = 1e-14;
 
     @Test
+    public void testZeroQuaternion() {
+        Assert.assertEquals(0, Quaternion.ZERO.norm(), 0d);
+    }
+
+    @Test
+    public void testUnitQuaternions() {
+        Assert.assertEquals(1, Quaternion.IDENTITY.norm(), 0d);
+        Assert.assertTrue(Quaternion.IDENTITY.normalize() == Quaternion.IDENTITY);
+
+        Assert.assertEquals(1, Quaternion.I.norm(), 0d);
+        Assert.assertTrue(Quaternion.I.normalize() == Quaternion.I);
+
+        Assert.assertEquals(1, Quaternion.J.norm(), 0d);
+        Assert.assertTrue(Quaternion.J.normalize() == Quaternion.J);
+
+        Assert.assertEquals(1, Quaternion.K.norm(), 0d);
+        Assert.assertTrue(Quaternion.K.normalize() == Quaternion.K);
+    }
+
+    @Test
     public final void testAccessors1() {
         final double q0 = 2;
         final double q1 = 5.4;
@@ -307,6 +327,8 @@ public class QuaternionTest {
         Assert.assertEquals(-2.0 / 5.0, versor.getZ(), 0);
 
         Assert.assertEquals(1, versor.norm(), 0);
+
+        Assert.assertTrue(versor.normalize() == versor);
     }
 
     @Test(expected=IllegalStateException.class)
@@ -434,6 +456,8 @@ public class QuaternionTest {
         Quaternion actual = q.positivePolarForm();
         Quaternion expected = Quaternion.of(0.5, -0.5, -0.5, 0.5);
         assertEquals(actual, expected, EPS);
+
+        Assert.assertTrue(actual.positivePolarForm() == actual);
     }
 
     @Test
@@ -442,6 +466,8 @@ public class QuaternionTest {
         Quaternion actual = q.positivePolarForm();
         Quaternion expected = Quaternion.of(0.5, -0.5, 0.5, -0.5);
         assertEquals(actual, expected, EPS);
+
+        Assert.assertTrue(actual.positivePolarForm() == actual);
     }
 
     /* TODO remove dependency on Rotation
@@ -496,6 +522,22 @@ public class QuaternionTest {
         } catch (IllegalStateException ex) {
             // expected
         }
+    }
+
+    @Test
+    public void testInverseNormalized() {
+        final Quaternion invQ = Quaternion.of(-1.2, 3.4, -5.6, -7.8).normalize().inverse();
+        final Quaternion q = invQ.inverse();
+        final Quaternion result = q.multiply(invQ);
+        Assert.assertTrue(result.toString(), Quaternion.IDENTITY.equals(result, EPS));
+    }
+
+    @Test
+    public void testInversePositivePolarForm() {
+        final Quaternion invQ = Quaternion.of(1.2, -3.4, 5.6, -7.8).positivePolarForm().inverse();
+        final Quaternion q = invQ.inverse();
+        final Quaternion result = q.multiply(invQ);
+        Assert.assertTrue(result.toString(), Quaternion.IDENTITY.equals(result, EPS));
     }
 
     @Test

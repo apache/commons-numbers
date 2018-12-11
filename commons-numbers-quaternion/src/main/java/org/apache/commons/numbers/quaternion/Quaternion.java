@@ -27,17 +27,17 @@ import org.apache.commons.numbers.core.Precision;
  *
  * <p>Instance of this class are guaranteed to be immutable.</p>
  */
-public final class Quaternion implements Serializable {
-    /** Identity quaternion. */
-    public static final Quaternion IDENTITY = new Quaternion(1, 0, 0, 0);
+public abstract class Quaternion implements Serializable {
     /** Zero quaternion. */
-    public static final Quaternion ZERO = new Quaternion(0, 0, 0, 0);
+    public static final Quaternion ZERO = of(0, 0, 0, 0);
+    /** Identity quaternion. */
+    public static final Quaternion IDENTITY = new PositivePolarForm(of(1, 0, 0, 0));
     /** i */
-    public static final Quaternion I = new Quaternion(0, 1, 0, 0);
+    public static final Quaternion I = new PositivePolarForm(of(0, 1, 0, 0));
     /** j */
-    public static final Quaternion J = new Quaternion(0, 0, 1, 0);
+    public static final Quaternion J = new PositivePolarForm(of(0, 0, 1, 0));
     /** k */
-    public static final Quaternion K = new Quaternion(0, 0, 0, 1);
+    public static final Quaternion K = new PositivePolarForm(of(0, 0, 0, 1));
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20170118L;
@@ -79,39 +79,19 @@ public final class Quaternion implements Serializable {
     }
 
     /**
-     * Builds a quaternion from scalar and vector parts.
-     *
-     * @param scalar Scalar part of the quaternion.
-     * @param v Components of the vector part of the quaternion.
-     *
-     * @throws IllegalArgumentException if the array length is not 3.
-     */
-    private Quaternion(final double scalar,
-                       final double[] v) {
-        if (v.length != 3) {
-            throw new IllegalArgumentException("Size of array must be 3");
-        }
-
-        w = scalar;
-        x = v[0];
-        y = v[1];
-        z = v[2];
-    }
-
-    /**
      * Builds a quaternion from its components.
      *
      * @param a Scalar component.
      * @param b First vector component.
      * @param c Second vector component.
      * @param d Third vector component.
-     * @return a quaternion instance
+     * @return a quaternion instance.
      */
     public static Quaternion of(final double a,
                                 final double b,
                                 final double c,
                                 final double d) {
-        return new Quaternion(a, b, c, d);
+        return new Default(a, b, c, d);
     }
 
     /**
@@ -119,13 +99,17 @@ public final class Quaternion implements Serializable {
      *
      * @param scalar Scalar part of the quaternion.
      * @param v Components of the vector part of the quaternion.
-     * @return a quaternion instance
+     * @return a quaternion instance.
      *
      * @throws IllegalArgumentException if the array length is not 3.
      */
     public static Quaternion of(final double scalar,
                                 final double[] v) {
-        return new Quaternion(scalar, v);
+        if (v.length != 3) {
+            throw new IllegalArgumentException("Size of array must be 3");
+        }
+
+        return of(scalar, v[0], v[1], v[2]);
     }
 
     /**
@@ -133,10 +117,10 @@ public final class Quaternion implements Serializable {
      * part is zero).
      *
      * @param v Components of the vector part of the pure quaternion.
-     * @return a quaternion instance
+     * @return a quaternion instance.
      */
     public static Quaternion of(final double[] v) {
-        return new Quaternion(0, v);
+        return of(0, v);
     }
 
     /**
@@ -146,15 +130,15 @@ public final class Quaternion implements Serializable {
      * @return the conjugate of this quaternion object.
      */
     public Quaternion conjugate() {
-        return new Quaternion(w, -x, -y, -z);
+        return of(w, -x, -y, -z);
     }
 
     /**
      * Returns the Hamilton product of two quaternions.
      *
-     * @param x First quaternion.
+     * @param q1 First quaternion.
      * @param q2 Second quaternion.
-     * @return the product {@code x} and {@code q2}, in that order.
+     * @return the product {@code q1} and {@code q2}, in that order.
      */
     public static Quaternion multiply(final Quaternion q1,
                                       final Quaternion q2) {
@@ -176,7 +160,7 @@ public final class Quaternion implements Serializable {
         final double y = q1a * q2c - q1b * q2d + q1c * q2a + q1d * q2b;
         final double z = q1a * q2d + q1b * q2c - q1c * q2b + q1d * q2a;
 
-        return new Quaternion(w, x, y, z);
+        return of(w, x, y, z);
     }
 
     /**
@@ -198,10 +182,10 @@ public final class Quaternion implements Serializable {
      */
     public static Quaternion add(final Quaternion q1,
                                  final Quaternion q2) {
-        return new Quaternion(q1.w + q2.w,
-                              q1.x + q2.x,
-                              q1.y + q2.y,
-                              q1.z + q2.z);
+        return of(q1.w + q2.w,
+                  q1.x + q2.x,
+                  q1.y + q2.y,
+                  q1.z + q2.z);
     }
 
     /**
@@ -223,10 +207,10 @@ public final class Quaternion implements Serializable {
      */
     public static Quaternion subtract(final Quaternion q1,
                                       final Quaternion q2) {
-        return new Quaternion(q1.w - q2.w,
-                              q1.x - q2.x,
-                              q1.y - q2.y,
-                              q1.z - q2.z);
+        return of(q1.w - q2.w,
+                  q1.x - q2.x,
+                  q1.y - q2.y,
+                  q1.z - q2.z);
     }
 
     /**
@@ -299,7 +283,13 @@ public final class Quaternion implements Serializable {
             throw new IllegalStateException(ZERO_NORM_MSG);
         }
 
-        return this.divide(norm);
+        final Quaternion unit = divide(norm);
+
+        if (w >= 0) {
+            return new PositivePolarForm(unit);
+        } else {
+            return new Normalized(unit);
+        }
     }
 
     /**
@@ -375,17 +365,23 @@ public final class Quaternion implements Serializable {
      * @return the unit quaternion with positive scalar part.
      */
     public Quaternion positivePolarForm() {
-        if (w < 0) {
-            final Quaternion unitQ = normalize();
+        if (w >= 0) {
+            return normalize();
+        } else {
             // The quaternion of rotation (normalized quaternion) q and -q
             // are equivalent (i.e. represent the same rotation).
-            return new Quaternion(-unitQ.w,
-                                  -unitQ.x,
-                                  -unitQ.y,
-                                  -unitQ.z);
-        } else {
-            return this.normalize();
+            return minus().normalize();
         }
+    }
+
+    /**
+     * Returns the opposite of this instance.
+     *
+     * @return the quaternion for which all components have an opposite
+     * sign to this one.
+     */
+    public Quaternion minus() {
+        return of(-w, -x, -y, -z);
     }
 
     /**
@@ -401,10 +397,10 @@ public final class Quaternion implements Serializable {
             throw new IllegalStateException(ZERO_NORM_MSG);
         }
 
-        return new Quaternion(w / squareNorm,
-                              -x / squareNorm,
-                              -y / squareNorm,
-                              -z / squareNorm);
+        return of(w / squareNorm,
+                  -x / squareNorm,
+                  -y / squareNorm,
+                  -z / squareNorm);
     }
 
     /**
@@ -475,10 +471,10 @@ public final class Quaternion implements Serializable {
      * @return a scaled quaternion.
      */
     public Quaternion multiply(final double alpha) {
-        return new Quaternion(alpha * w,
-                              alpha * x,
-                              alpha * y,
-                              alpha * z);
+        return of(alpha * w,
+                  alpha * x,
+                  alpha * y,
+                  alpha * z);
     }
 
     /**
@@ -488,10 +484,10 @@ public final class Quaternion implements Serializable {
      * @return a scaled quaternion.
      */
     public Quaternion divide(final double alpha) {
-        return new Quaternion(w / alpha,
-                              x / alpha,
-                              y / alpha,
-                              z / alpha);
+        return of(w / alpha,
+                  x / alpha,
+                  y / alpha,
+                  z / alpha);
     }
 
     /**
@@ -574,6 +570,134 @@ public final class Quaternion implements Serializable {
          */
         QuaternionParsingException(String msg) {
             super(msg);
+        }
+    }
+
+    /**
+     * Default implementation.
+     */
+    private static class Default extends Quaternion {
+        /**
+         * Builds a quaternion from its components.
+         *
+         * @param a Scalar component.
+         * @param b First vector component.
+         * @param c Second vector component.
+         * @param d Third vector component.
+         */
+        Default(final double a,
+                final double b,
+                final double c,
+                final double d) {
+            super(a, b, c, d);
+        }
+     }
+
+    /**
+     * Special implementation for unit quaternions.
+     */
+    private static class Normalized extends Default {
+        /**
+         * Builds a quaternion from its components.
+         * It is the caller's responsibility to ensure that the arguments
+         * do actually form a normalized quaternion.
+         *
+         * @param a Scalar component.
+         * @param b First vector component.
+         * @param c Second vector component.
+         * @param d Third vector component.
+         */
+        Normalized(final double a,
+                   final double b,
+                   final double c,
+                   final double d) {
+            super(a, b, c, d);
+        }
+
+        /**
+         * Builds a normalized quaternion.
+         * It is the caller's responsibility to ensure that {@code q}
+         * is actually a normalized quaternion.
+         *
+         * @param q Unit quaternion.
+         */
+        Normalized(Quaternion q) {
+            super(q.getW(), q.getX(), q.getY(), q.getZ());
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public Quaternion normalize() {
+            return this;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public double norm() {
+            return 1;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public double normSq() {
+            return 1;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public boolean isUnitQuaternion(double eps) {
+            return true;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public Quaternion inverse() {
+            return new Normalized(getW(), -getX(), -getY(), -getZ());
+        }
+    }
+
+    /**
+     * Special implementation for positive polar forms.
+     */
+    private static class PositivePolarForm extends Normalized {
+        /**
+         * Builds a quaternion from its components.
+         * It is the caller's responsibility to ensure that the arguments
+         * do actually constitute a positive polar form.
+         *
+         * @param a Scalar component.
+         * @param b First vector component.
+         * @param c Second vector component.
+         * @param d Third vector component.
+         */
+        PositivePolarForm(final double a,
+                          final double b,
+                          final double c,
+                          final double d) {
+            super(a, b, c, d);
+        }
+
+        /**
+         * Builds a positive polar form.
+         * It is the caller's responsibility to ensure that {@code q}
+         * is actually a positive polar form.
+         *
+         * @param q Positive polar form.
+         */
+        PositivePolarForm(Quaternion q) {
+            super(q);
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public Quaternion positivePolarForm() {
+            return this;
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public Quaternion inverse() {
+            return new PositivePolarForm(getW(), -getX(), -getY(), -getZ());
         }
     }
 }
