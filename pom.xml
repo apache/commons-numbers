@@ -39,9 +39,9 @@
   </issueManagement>
 
   <scm>
-    <connection>scm:git:http://git-wip-us.apache.org/repos/asf/commons-numbers.git</connection>
-    <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/commons-numbers.git</developerConnection>
-    <url>https://git-wip-us.apache.org/repos/asf?p=commons-numbers.git</url>
+    <connection>scm:git:http://gitbox.apache.org/repos/asf/commons-numbers.git</connection>
+    <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/commons-numbers.git</developerConnection>
+    <url>https://gitbox.apache.org/repos/asf/commons-numbers.git</url>
   </scm>
 
   <distributionManagement>
