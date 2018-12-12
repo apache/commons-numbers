@@ -370,7 +370,7 @@ public abstract class Quaternion implements Serializable {
         } else {
             // The quaternion of rotation (normalized quaternion) q and -q
             // are equivalent (i.e. represent the same rotation).
-            return minus().normalize();
+            return negate().normalize();
         }
     }
 
@@ -380,7 +380,7 @@ public abstract class Quaternion implements Serializable {
      * @return the quaternion for which all components have an opposite
      * sign to this one.
      */
-    public Quaternion minus() {
+    public Quaternion negate() {
         return of(-w, -x, -y, -z);
     }
 

@@ -470,6 +470,22 @@ public class QuaternionTest {
         Assert.assertTrue(actual.positivePolarForm() == actual);
     }
 
+    @Test
+    public void testNegate() {
+        final double a = -1;
+        final double b = 2;
+        final double c = -3;
+        final double d = 4;
+        final Quaternion q = Quaternion.of(a, b, c, d);
+        final Quaternion qNeg = q.negate();
+        Assert.assertEquals(-a, qNeg.getW(), 0d);
+        Assert.assertEquals(-b, qNeg.getX(), 0d);
+        Assert.assertEquals(-c, qNeg.getY(), 0d);
+        Assert.assertEquals(-d, qNeg.getZ(), 0d);
+
+        Assert.assertTrue(q.equals(qNeg.negate(), 0d));
+    }
+
     /* TODO remove dependency on Rotation
     @Test
     public final void testPolarForm() {
