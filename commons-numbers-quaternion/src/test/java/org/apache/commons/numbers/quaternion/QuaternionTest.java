@@ -470,42 +470,36 @@ public class QuaternionTest {
 
     @Test
     public final void testPositivePolarFormWhenScalarPositive() {
-        Quaternion q = Quaternion.of(3, -3, -3, 3);
-        Quaternion actual = q.positivePolarForm();
+        Quaternion q = Quaternion.of(3, -3, -3, 3).positivePolarForm();
         Quaternion expected = Quaternion.of(0.5, -0.5, -0.5, 0.5);
-        assertEquals(actual, expected, EPS);
+        assertEquals(q, expected, EPS);
 
-        Assert.assertTrue(actual.positivePolarForm() == actual);
+        Assert.assertTrue(q.positivePolarForm() == q);
     }
 
     @Test
     public final void testPositivePolarFormWhenScalarNegative() {
-        Quaternion q = Quaternion.of(-3, 3, -3, 3);
-        Quaternion actual = q.positivePolarForm();
+        Quaternion q = Quaternion.of(-3, 3, -3, 3).positivePolarForm();
         Quaternion expected = Quaternion.of(0.5, -0.5, 0.5, -0.5);
-        assertEquals(actual, expected, EPS);
+        assertEquals(q, expected, EPS);
 
-        Assert.assertTrue(actual.positivePolarForm() == actual);
+        Assert.assertTrue(q.positivePolarForm() == q);
     }
 
     @Test
     public final void testPositivePolarFormWhenScalarPositiveAndNormalized() {
-        Quaternion q = Quaternion.of(3, -3, -3, 3).normalize();
-        Quaternion actual = q.positivePolarForm();
-        Quaternion expected = Quaternion.of(0.5, -0.5, -0.5, 0.5);
-        assertEquals(actual, expected, EPS);
+        Quaternion q = Quaternion.of(123, 45, 67, 89).normalize().positivePolarForm();
 
-        Assert.assertTrue(actual.positivePolarForm() == actual);
+        Assert.assertTrue(q.getW() >= 0);
+        Assert.assertTrue(q.positivePolarForm() == q);
     }
 
     @Test
     public final void testPositivePolarFormWhenScalarNegativeAndNormalized() {
-        Quaternion q = Quaternion.of(-3, 3, -3, 3).normalize();
-        Quaternion actual = q.positivePolarForm();
-        Quaternion expected = Quaternion.of(0.5, -0.5, 0.5, -0.5);
-        assertEquals(actual, expected, EPS);
+        Quaternion q = Quaternion.of(123, 45, 67, 89).normalize().negate().positivePolarForm();
 
-        Assert.assertTrue(actual.positivePolarForm() == actual);
+        Assert.assertTrue(q.getW() >= 0);
+        Assert.assertTrue(q.positivePolarForm() == q);
     }
 
     @Test
