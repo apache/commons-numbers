@@ -390,7 +390,8 @@ public class Quaternion implements Serializable {
         case DEFAULT:
             final double norm = norm();
 
-            if (!Double.isFinite(norm) || norm < Precision.SAFE_MIN) {
+            if (norm < Precision.SAFE_MIN ||
+                !Double.isFinite(norm)) {
                 throw new IllegalStateException(ILLEGAL_NORM_MSG + norm);
             }
 
@@ -528,7 +529,8 @@ public class Quaternion implements Serializable {
             return new Quaternion(type, w, -x, -y, -z);
         case DEFAULT:
             final double squareNorm = normSq();
-            if (!Double.isFinite(squareNorm) || squareNorm < Precision.SAFE_MIN) {
+            if (squareNorm < Precision.SAFE_MIN ||
+                !Double.isFinite(squareNorm)) {
                 throw new IllegalStateException(ILLEGAL_NORM_MSG + Math.sqrt(squareNorm));
             }
 
