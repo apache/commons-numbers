@@ -127,8 +127,8 @@
     <commons.jira.id>NUMBERS</commons.jira.id>
     <commons.jira.pid>12320720</commons.jira.pid>
     <commons.encoding>UTF-8</commons.encoding>
-    <maven.compiler.source>1.6</maven.compiler.source>
-    <maven.compiler.target>1.6</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
     <numbers.pmd.version>3.9.0</numbers.pmd.version>
     <numbers.checkstyle.version>3.0.0</numbers.checkstyle.version>
     <numbers.mathjax.version>2.7.2</numbers.mathjax.version>
