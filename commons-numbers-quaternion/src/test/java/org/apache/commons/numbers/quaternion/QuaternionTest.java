@@ -332,9 +332,27 @@ public class QuaternionTest {
     }
 
     @Test(expected=IllegalStateException.class)
-    public final void testNormalizeFail() {
-        final Quaternion zeroQ = Quaternion.of(0, 0, 0, 0);
-        zeroQ.normalize();
+    public final void testNormalizeFail_zero() {
+        final Quaternion q = Quaternion.of(0, 0, 0, 0);
+        q.normalize();
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public final void testNormalizeFail_nan() {
+        final Quaternion q = Quaternion.of(0, 0, 0, Double.NaN);
+        q.normalize();
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public final void testNormalizeFail_positiveInfinity() {
+        final Quaternion q = Quaternion.of(0, 0, Double.POSITIVE_INFINITY, 0);
+        q.normalize();
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public final void testNormalizeFail_negativeInfinity() {
+        final Quaternion q = Quaternion.of(0, Double.NEGATIVE_INFINITY, 0, 0);
+        q.normalize();
     }
 
     @Test
@@ -538,6 +556,30 @@ public class QuaternionTest {
         } catch (IllegalStateException ex) {
             // expected
         }
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public void testInverse_zeroNorm() {
+        Quaternion q = Quaternion.of(0, 0, 0, 0);
+        q.inverse();
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public void testInverse_nanNorm() {
+        Quaternion q = Quaternion.of(Double.NaN, 0, 0, 0);
+        q.inverse();
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public void testInverse_positiveInfinityNorm() {
+        Quaternion q = Quaternion.of(0, Double.POSITIVE_INFINITY, 0, 0);
+        q.inverse();
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public void testInverse_negativeInfinityNorm() {
+        Quaternion q = Quaternion.of(0, 0, Double.NEGATIVE_INFINITY, 0);
+        q.inverse();
     }
 
     @Test
