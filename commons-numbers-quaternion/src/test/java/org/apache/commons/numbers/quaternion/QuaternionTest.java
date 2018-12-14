@@ -34,8 +34,8 @@ public class QuaternionTest {
 
     @Test
     public void testUnitQuaternions() {
-        Assert.assertEquals(1, Quaternion.IDENTITY.norm(), 0d);
-        Assert.assertTrue(Quaternion.IDENTITY.normalize() == Quaternion.IDENTITY);
+        Assert.assertEquals(1, Quaternion.ONE.norm(), 0d);
+        Assert.assertTrue(Quaternion.ONE.normalize() == Quaternion.ONE);
 
         Assert.assertEquals(1, Quaternion.I.norm(), 0d);
         Assert.assertTrue(Quaternion.I.normalize() == Quaternion.I);
@@ -417,37 +417,37 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testIsUnitQuaternion() {
+    public final void testIsUnit() {
         final Random r = new Random(48);
         final int numberOfTrials = 1000;
         for (int i = 0; i < numberOfTrials; i++) {
             final Quaternion q1 = Quaternion.of(r.nextDouble(), r.nextDouble(), r.nextDouble(), r.nextDouble());
             final Quaternion q2 = q1.normalize();
-            Assert.assertTrue(q2.isUnitQuaternion(COMPARISON_EPS));
+            Assert.assertTrue(q2.isUnit(COMPARISON_EPS));
         }
 
         final Quaternion q = Quaternion.of(1, 1, 1, 1);
-        Assert.assertFalse(q.isUnitQuaternion(COMPARISON_EPS));
+        Assert.assertFalse(q.isUnit(COMPARISON_EPS));
     }
 
     @Test
-    public final void testIsPureQuaternion() {
+    public final void testIsPure() {
         final Quaternion q1 = Quaternion.of(0, 5, 4, 8);
-        Assert.assertTrue(q1.isPureQuaternion(EPS));
+        Assert.assertTrue(q1.isPure(EPS));
 
         final Quaternion q2 = Quaternion.of(0 - EPS, 5, 4, 8);
-        Assert.assertTrue(q2.isPureQuaternion(EPS));
+        Assert.assertTrue(q2.isPure(EPS));
 
         final Quaternion q3 = Quaternion.of(0 - 1.1 * EPS, 5, 4, 8);
-        Assert.assertFalse(q3.isPureQuaternion(EPS));
+        Assert.assertFalse(q3.isPure(EPS));
 
         final Random r = new Random(48);
         final double[] v = {r.nextDouble(), r.nextDouble(), r.nextDouble()};
         final Quaternion q4 = Quaternion.of(v);
-        Assert.assertTrue(q4.isPureQuaternion(0));
+        Assert.assertTrue(q4.isPure(0));
 
         final Quaternion q5 = Quaternion.of(0, v);
-        Assert.assertTrue(q5.isPureQuaternion(0));
+        Assert.assertTrue(q5.isPure(0));
     }
 
     @Test
@@ -496,7 +496,7 @@ public class QuaternionTest {
                                                 2 * (r.nextDouble() - 0.5), 2 * (r.nextDouble() - 0.5));
             final Quaternion qP = q.positivePolarForm();
 
-            Assert.assertTrue(qP.isUnitQuaternion(COMPARISON_EPS));
+            Assert.assertTrue(qP.isUnit(COMPARISON_EPS));
             Assert.assertTrue(qP.getW() >= 0);
 
             final Rotation rot = new Rotation(q.getW(), q.getX(), q.getY(), q.getZ(), true);
@@ -545,7 +545,7 @@ public class QuaternionTest {
         final Quaternion invQ = Quaternion.of(-1.2, 3.4, -5.6, -7.8).normalize().inverse();
         final Quaternion q = invQ.inverse();
         final Quaternion result = q.multiply(invQ);
-        Assert.assertTrue(result.toString(), Quaternion.IDENTITY.equals(result, EPS));
+        Assert.assertTrue(result.toString(), Quaternion.ONE.equals(result, EPS));
     }
 
     @Test
@@ -553,7 +553,7 @@ public class QuaternionTest {
         final Quaternion invQ = Quaternion.of(1.2, -3.4, 5.6, -7.8).positivePolarForm().inverse();
         final Quaternion q = invQ.inverse();
         final Quaternion result = q.multiply(invQ);
-        Assert.assertTrue(result.toString(), Quaternion.IDENTITY.equals(result, EPS));
+        Assert.assertTrue(result.toString(), Quaternion.ONE.equals(result, EPS));
     }
 
     @Test

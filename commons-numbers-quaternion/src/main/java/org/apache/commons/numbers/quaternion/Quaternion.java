@@ -18,6 +18,8 @@
 package org.apache.commons.numbers.quaternion;
 
 import java.util.Arrays;
+import java.util.function.ToDoubleFunction;
+import java.util.function.BiPredicate;
 import java.io.Serializable;
 import org.apache.commons.numbers.core.Precision;
 
@@ -27,17 +29,17 @@ import org.apache.commons.numbers.core.Precision;
  *
  * <p>Instance of this class are guaranteed to be immutable.</p>
  */
-public abstract class Quaternion implements Serializable {
+public class Quaternion implements Serializable {
     /** Zero quaternion. */
     public static final Quaternion ZERO = of(0, 0, 0, 0);
     /** Identity quaternion. */
-    public static final Quaternion IDENTITY = new PositivePolarForm(of(1, 0, 0, 0));
+    public static final Quaternion ONE = new Quaternion(Type.POSITIVE_POLAR_FORM, 1, 0, 0, 0);
     /** i */
-    public static final Quaternion I = new PositivePolarForm(of(0, 1, 0, 0));
+    public static final Quaternion I = new Quaternion(Type.POSITIVE_POLAR_FORM, 0, 1, 0, 0);
     /** j */
-    public static final Quaternion J = new PositivePolarForm(of(0, 0, 1, 0));
+    public static final Quaternion J = new Quaternion(Type.POSITIVE_POLAR_FORM, 0, 0, 1, 0);
     /** k */
-    public static final Quaternion K = new PositivePolarForm(of(0, 0, 0, 1));
+    public static final Quaternion K = new Quaternion(Type.POSITIVE_POLAR_FORM, 0, 0, 0, 1);
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20170118L;
@@ -51,6 +53,8 @@ public abstract class Quaternion implements Serializable {
     /** {@link #toString() String representation}. */
     private static final String FORMAT_SEP = " ";
 
+    /** For enabling specialized method implementations. */
+    private final Type type;
     /** First component (scalar part). */
     private final double w;
     /** Second component (first vector part). */
@@ -61,21 +65,124 @@ public abstract class Quaternion implements Serializable {
     private final double z;
 
     /**
+     * For enabling optimized implementations.
+     */
+    private enum Type {
+        /** Default implementation. */
+        DEFAULT(Default.NORMSQ,
+                Default.NORM,
+                Default.IS_UNIT),
+        /** Quaternion has unit norm. */
+        NORMALIZED(Normalized.NORM,
+                   Normalized.NORM,
+                   Normalized.IS_UNIT),
+        /** Quaternion has positive scalar part. */
+        POSITIVE_POLAR_FORM(Normalized.NORM,
+                            Normalized.NORM,
+                            Normalized.IS_UNIT);
+
+        /** Default implementations. */
+        private static final class Default {
+            /** {@link Quaternion#normSq()}. */
+            static final ToDoubleFunction<Quaternion> NORMSQ = q -> {
+                return q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z;
+            };
+            /** {@link Quaternion#norm()}. */
+            private static final ToDoubleFunction<Quaternion> NORM = q -> {
+                return Math.sqrt(NORMSQ.applyAsDouble(q));
+            };
+            /** {@link Quaternion#isUnit()}. */
+            private static final BiPredicate<Quaternion, Double> IS_UNIT = (q, eps) -> {
+                return Precision.equals(NORM.applyAsDouble(q), 1d, eps);
+            };
+        };
+        /** Implementations for normalized quaternions. */
+        private static final class Normalized {
+            /** {@link Quaternion#norm()} returns 1. */
+            static final ToDoubleFunction<Quaternion> NORM = q -> 1;
+            /** {@link Quaternion#isUnit()} returns 1. */
+            static final BiPredicate<Quaternion, Double> IS_UNIT = (q, eps) -> true;
+        };
+
+        /** {@link Quaternion#normSq()}. */
+        private final ToDoubleFunction<Quaternion> normSq;
+        /** {@link Quaternion#norm()}. */
+        private final ToDoubleFunction<Quaternion> norm;
+        /** {@link Quaternion#isUnit()}. */
+        private final BiPredicate<Quaternion, Double> isUnit;
+
+        /**
+         * @param normSq {@code normSq} method.
+         * @param norm {@code norm} method.
+         * @param isUnit {@code isUnit} method.
+         */
+        Type(ToDoubleFunction<Quaternion> normSq,
+             ToDoubleFunction<Quaternion> norm,
+             BiPredicate<Quaternion, Double> isUnit)  {
+            this.normSq = normSq;
+            this.norm = norm;
+            this.isUnit = isUnit;
+        }
+
+        /**
+         * @param q Quaternion.
+         * @return the norm squared.
+         */
+        double normSq(Quaternion q) {
+            return normSq.applyAsDouble(q);
+        }
+        /**
+         * @param q Quaternion.
+         * @return the norm.
+         */
+        double norm(Quaternion q) {
+            return norm.applyAsDouble(q);
+        }
+        /**
+         * @param q Quaternion.
+         * @param eps Tolerance.
+         * @return whether {@code q} has unit norm within the allowed tolerance.
+         */
+        boolean isUnit(Quaternion q,
+                       double eps) {
+            return isUnit.test(q, eps);
+        }
+    }
+
+    /**
      * Builds a quaternion from its components.
      *
+     * @param type Quaternion type.
      * @param a Scalar component.
      * @param b First vector component.
      * @param c Second vector component.
      * @param d Third vector component.
      */
-    private Quaternion(final double a,
+    private Quaternion(Type type,
+                       final double a,
                        final double b,
                        final double c,
                        final double d) {
+        this.type = type;
         w = a;
         x = b;
         y = c;
         z = d;
+    }
+
+    /**
+     * Copies the given quaternion, but change its {@link Type}.
+     *
+     * @param type Quaternion type.
+     * @param q Quaternion whose components will be copied.
+     */
+    private Quaternion(Type type,
+                       Quaternion q) {
+        this.type = type;
+        w = q.w;
+        x = q.x;
+        y = q.y;
+        z = q.z;
     }
 
     /**
@@ -91,7 +198,8 @@ public abstract class Quaternion implements Serializable {
                                 final double b,
                                 final double c,
                                 final double d) {
-        return new Default(a, b, c, d);
+        return new Quaternion(Type.DEFAULT,
+                              a, b, c, d);
     }
 
     /**
@@ -254,7 +362,7 @@ public abstract class Quaternion implements Serializable {
      * @return the norm.
      */
     public double norm() {
-        return Math.sqrt(normSq());
+        return type.norm(this);
     }
 
     /**
@@ -263,10 +371,7 @@ public abstract class Quaternion implements Serializable {
      * @return the square of the norm.
      */
     public double normSq() {
-        return w * w +
-            x * x +
-            y * y +
-            z * z;
+        return type.normSq(this);
     }
 
     /**
@@ -277,18 +382,24 @@ public abstract class Quaternion implements Serializable {
      * @throws IllegalStateException if the norm of the quaternion is near zero.
      */
     public Quaternion normalize() {
-        final double norm = norm();
+        switch (type) {
+        case NORMALIZED:
+        case POSITIVE_POLAR_FORM:
+            return this;
+        case DEFAULT:
+            final double norm = norm();
 
-        if (norm < Precision.SAFE_MIN) {
-            throw new IllegalStateException(ZERO_NORM_MSG);
-        }
+            if (norm < Precision.SAFE_MIN) {
+                throw new IllegalStateException(ZERO_NORM_MSG);
+            }
 
-        final Quaternion unit = divide(norm);
+            final Quaternion unit = divide(norm);
 
-        if (w >= 0) {
-            return new PositivePolarForm(unit);
-        } else {
-            return new Normalized(unit);
+            return (w >= 0 ?
+                    new Quaternion(Type.POSITIVE_POLAR_FORM, unit) :
+                    new Quaternion(Type.NORMALIZED, unit));
+        default:
+            throw new IllegalStateException(); // Should never happen.
         }
     }
 
@@ -344,8 +455,8 @@ public abstract class Quaternion implements Serializable {
      * @return {@code true} if the norm is 1 within the given tolerance,
      * {@code false} otherwise
      */
-    public boolean isUnitQuaternion(double eps) {
-        return Precision.equals(norm(), 1d, eps);
+    public boolean isUnit(double eps) {
+        return type.isUnit(this, eps);
     }
 
     /**
@@ -355,7 +466,7 @@ public abstract class Quaternion implements Serializable {
      * @param eps Tolerance (absolute error).
      * @return {@code true} if the scalar part of the quaternion is zero.
      */
-    public boolean isPureQuaternion(double eps) {
+    public boolean isPure(double eps) {
         return Math.abs(w) <= eps;
     }
 
@@ -365,12 +476,21 @@ public abstract class Quaternion implements Serializable {
      * @return the unit quaternion with positive scalar part.
      */
     public Quaternion positivePolarForm() {
-        if (w >= 0) {
-            return normalize();
-        } else {
-            // The quaternion of rotation (normalized quaternion) q and -q
-            // are equivalent (i.e. represent the same rotation).
-            return negate().normalize();
+        switch (type) {
+        case POSITIVE_POLAR_FORM:
+            return this;
+        case NORMALIZED:
+            return (w >= 0 ?
+                    new Quaternion(Type.POSITIVE_POLAR_FORM, this) :
+                    new Quaternion(Type.POSITIVE_POLAR_FORM, negate()));
+        case DEFAULT:
+            return (w >= 0 ?
+                    normalize() :
+                    // The quaternion of rotation (normalized quaternion) q and -q
+                    // are equivalent (i.e. represent the same rotation).
+                    negate().normalize());
+        default:
+            throw new IllegalStateException(); // Should never happen.
         }
     }
 
@@ -381,7 +501,15 @@ public abstract class Quaternion implements Serializable {
      * sign to this one.
      */
     public Quaternion negate() {
-        return of(-w, -x, -y, -z);
+        switch (type) {
+        case POSITIVE_POLAR_FORM:
+        case NORMALIZED:
+            return new Quaternion(Type.NORMALIZED, -w, -x, -y, -z);
+        case DEFAULT:
+            return new Quaternion(Type.DEFAULT, -w, -x, -y, -z);
+        default:
+            throw new IllegalStateException(); // Should never happen.
+        }
     }
 
     /**
@@ -392,15 +520,23 @@ public abstract class Quaternion implements Serializable {
      * @throws IllegalArgumentException if the norm (squared) of the quaternion is zero.
      */
     public Quaternion inverse() {
-        final double squareNorm = normSq();
-        if (squareNorm < Precision.SAFE_MIN) {
-            throw new IllegalStateException(ZERO_NORM_MSG);
-        }
+        switch (type) {
+        case POSITIVE_POLAR_FORM:
+        case NORMALIZED:
+            return new Quaternion(type, w, -x, -y, -z);
+        case DEFAULT:
+            final double squareNorm = normSq();
+            if (squareNorm < Precision.SAFE_MIN) {
+                throw new IllegalStateException(ZERO_NORM_MSG);
+            }
 
-        return of(w / squareNorm,
-                  -x / squareNorm,
-                  -y / squareNorm,
-                  -z / squareNorm);
+            return of(w / squareNorm,
+                      -x / squareNorm,
+                      -y / squareNorm,
+                      -z / squareNorm);
+        default:
+            throw new IllegalStateException(); // Should never happen.
+        }
     }
 
     /**
@@ -570,134 +706,6 @@ public abstract class Quaternion implements Serializable {
          */
         QuaternionParsingException(String msg) {
             super(msg);
-        }
-    }
-
-    /**
-     * Default implementation.
-     */
-    private static class Default extends Quaternion {
-        /**
-         * Builds a quaternion from its components.
-         *
-         * @param a Scalar component.
-         * @param b First vector component.
-         * @param c Second vector component.
-         * @param d Third vector component.
-         */
-        Default(final double a,
-                final double b,
-                final double c,
-                final double d) {
-            super(a, b, c, d);
-        }
-     }
-
-    /**
-     * Special implementation for unit quaternions.
-     */
-    private static class Normalized extends Default {
-        /**
-         * Builds a quaternion from its components.
-         * It is the caller's responsibility to ensure that the arguments
-         * do actually form a normalized quaternion.
-         *
-         * @param a Scalar component.
-         * @param b First vector component.
-         * @param c Second vector component.
-         * @param d Third vector component.
-         */
-        Normalized(final double a,
-                   final double b,
-                   final double c,
-                   final double d) {
-            super(a, b, c, d);
-        }
-
-        /**
-         * Builds a normalized quaternion.
-         * It is the caller's responsibility to ensure that {@code q}
-         * is actually a normalized quaternion.
-         *
-         * @param q Unit quaternion.
-         */
-        Normalized(Quaternion q) {
-            super(q.getW(), q.getX(), q.getY(), q.getZ());
-        }
-
-        /** {@inheritDoc} */
-        @Override
-        public Quaternion normalize() {
-            return this;
-        }
-
-        /** {@inheritDoc} */
-        @Override
-        public double norm() {
-            return 1;
-        }
-
-        /** {@inheritDoc} */
-        @Override
-        public double normSq() {
-            return 1;
-        }
-
-        /** {@inheritDoc} */
-        @Override
-        public boolean isUnitQuaternion(double eps) {
-            return true;
-        }
-
-        /** {@inheritDoc} */
-        @Override
-        public Quaternion inverse() {
-            return new Normalized(getW(), -getX(), -getY(), -getZ());
-        }
-    }
-
-    /**
-     * Special implementation for positive polar forms.
-     */
-    private static class PositivePolarForm extends Normalized {
-        /**
-         * Builds a quaternion from its components.
-         * It is the caller's responsibility to ensure that the arguments
-         * do actually constitute a positive polar form.
-         *
-         * @param a Scalar component.
-         * @param b First vector component.
-         * @param c Second vector component.
-         * @param d Third vector component.
-         */
-        PositivePolarForm(final double a,
-                          final double b,
-                          final double c,
-                          final double d) {
-            super(a, b, c, d);
-        }
-
-        /**
-         * Builds a positive polar form.
-         * It is the caller's responsibility to ensure that {@code q}
-         * is actually a positive polar form.
-         *
-         * @param q Positive polar form.
-         */
-        PositivePolarForm(Quaternion q) {
-            super(q);
-        }
-
-        /** {@inheritDoc} */
-        @Override
-        public Quaternion positivePolarForm() {
-            return this;
-        }
-
-        /** {@inheritDoc} */
-        @Override
-        public Quaternion inverse() {
-            return new PositivePolarForm(getW(), -getX(), -getY(), -getZ());
         }
     }
 }
