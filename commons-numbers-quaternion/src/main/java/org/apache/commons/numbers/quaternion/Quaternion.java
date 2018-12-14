@@ -395,9 +395,9 @@ public class Quaternion implements Serializable {
 
             final Quaternion unit = divide(norm);
 
-            return (w >= 0 ?
-                    new Quaternion(Type.POSITIVE_POLAR_FORM, unit) :
-                    new Quaternion(Type.NORMALIZED, unit));
+            return w >= 0 ?
+                new Quaternion(Type.POSITIVE_POLAR_FORM, unit) :
+                new Quaternion(Type.NORMALIZED, unit);
         default:
             throw new IllegalStateException(); // Should never happen.
         }
@@ -480,15 +480,15 @@ public class Quaternion implements Serializable {
         case POSITIVE_POLAR_FORM:
             return this;
         case NORMALIZED:
-            return (w >= 0 ?
-                    new Quaternion(Type.POSITIVE_POLAR_FORM, this) :
-                    new Quaternion(Type.POSITIVE_POLAR_FORM, negate()));
+            return w >= 0 ?
+                new Quaternion(Type.POSITIVE_POLAR_FORM, this) :
+                new Quaternion(Type.POSITIVE_POLAR_FORM, negate());
         case DEFAULT:
-            return (w >= 0 ?
-                    normalize() :
-                    // The quaternion of rotation (normalized quaternion) q and -q
-                    // are equivalent (i.e. represent the same rotation).
-                    negate().normalize());
+            return w >= 0 ?
+                normalize() :
+                // The quaternion of rotation (normalized quaternion) q and -q
+                // are equivalent (i.e. represent the same rotation).
+                negate().normalize();
         default:
             throw new IllegalStateException(); // Should never happen.
         }
