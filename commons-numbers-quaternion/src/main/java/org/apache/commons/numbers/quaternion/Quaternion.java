@@ -44,7 +44,7 @@ public class Quaternion implements Serializable {
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20170118L;
     /** Error message. */
-    private static final String ZERO_NORM_MSG = "Norm is zero";
+    private static final String ILLEGAL_NORM_MSG = "Illegal norm: ";
 
     /** {@link #toString() String representation}. */
     private static final String FORMAT_START = "[";
@@ -379,7 +379,8 @@ public class Quaternion implements Serializable {
      * The norm of the quaternion must not be near zero.
      *
      * @return a normalized quaternion.
-     * @throws IllegalStateException if the norm of the quaternion is near zero.
+     * @throws IllegalStateException if the norm of the quaternion is NaN, infinite,
+     *      or near zero.
      */
     public Quaternion normalize() {
         switch (type) {
@@ -389,8 +390,9 @@ public class Quaternion implements Serializable {
         case DEFAULT:
             final double norm = norm();
 
-            if (norm < Precision.SAFE_MIN) {
-                throw new IllegalStateException(ZERO_NORM_MSG);
+            if (norm < Precision.SAFE_MIN ||
+                !Double.isFinite(norm)) {
+                throw new IllegalStateException(ILLEGAL_NORM_MSG + norm);
             }
 
             final Quaternion unit = divide(norm);
@@ -517,7 +519,8 @@ public class Quaternion implements Serializable {
      * The norm of the quaternion must not be zero.
      *
      * @return the inverse.
-     * @throws IllegalArgumentException if the norm (squared) of the quaternion is zero.
+     * @throws IllegalStateException if the norm (squared) of the quaternion is NaN,
+     *      infinite, or near zero.
      */
     public Quaternion inverse() {
         switch (type) {
@@ -526,8 +529,9 @@ public class Quaternion implements Serializable {
             return new Quaternion(type, w, -x, -y, -z);
         case DEFAULT:
             final double squareNorm = normSq();
-            if (squareNorm < Precision.SAFE_MIN) {
-                throw new IllegalStateException(ZERO_NORM_MSG);
+            if (squareNorm < Precision.SAFE_MIN ||
+                !Double.isFinite(squareNorm)) {
+                throw new IllegalStateException(ILLEGAL_NORM_MSG + Math.sqrt(squareNorm));
             }
 
             return of(w / squareNorm,
