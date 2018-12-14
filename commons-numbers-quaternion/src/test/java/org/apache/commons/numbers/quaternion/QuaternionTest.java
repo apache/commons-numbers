@@ -451,7 +451,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testPositivePolarFormWhenScalarPositive(){
+    public final void testPositivePolarFormWhenScalarPositive() {
         Quaternion q = Quaternion.of(3, -3, -3, 3);
         Quaternion actual = q.positivePolarForm();
         Quaternion expected = Quaternion.of(0.5, -0.5, -0.5, 0.5);
@@ -461,8 +461,28 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testPositivePolarFormWhenScalarNegative(){
+    public final void testPositivePolarFormWhenScalarNegative() {
         Quaternion q = Quaternion.of(-3, 3, -3, 3);
+        Quaternion actual = q.positivePolarForm();
+        Quaternion expected = Quaternion.of(0.5, -0.5, 0.5, -0.5);
+        assertEquals(actual, expected, EPS);
+
+        Assert.assertTrue(actual.positivePolarForm() == actual);
+    }
+
+    @Test
+    public final void testPositivePolarFormWhenScalarPositiveAndNormalized() {
+        Quaternion q = Quaternion.of(3, -3, -3, 3).normalize();
+        Quaternion actual = q.positivePolarForm();
+        Quaternion expected = Quaternion.of(0.5, -0.5, -0.5, 0.5);
+        assertEquals(actual, expected, EPS);
+
+        Assert.assertTrue(actual.positivePolarForm() == actual);
+    }
+
+    @Test
+    public final void testPositivePolarFormWhenScalarNegativeAndNormalized() {
+        Quaternion q = Quaternion.of(-3, 3, -3, 3).normalize();
         Quaternion actual = q.positivePolarForm();
         Quaternion expected = Quaternion.of(0.5, -0.5, 0.5, -0.5);
         assertEquals(actual, expected, EPS);
@@ -483,6 +503,28 @@ public class QuaternionTest {
         Assert.assertEquals(-c, qNeg.getY(), 0d);
         Assert.assertEquals(-d, qNeg.getZ(), 0d);
 
+        Assert.assertTrue(q.equals(qNeg.negate(), 0d));
+    }
+
+    @Test
+    public void testNegateNormalized() {
+        final double a = -1;
+        final double b = 2;
+        final double c = -3;
+        final double d = 4;
+        final Quaternion q = Quaternion.of(a, b, c, d).normalize();
+        final Quaternion qNeg = q.negate();
+        Assert.assertTrue(q.equals(qNeg.negate(), 0d));
+    }
+
+    @Test
+    public void testNegatePositivePolarForm() {
+        final double a = -1;
+        final double b = 2;
+        final double c = -3;
+        final double d = 4;
+        final Quaternion q = Quaternion.of(a, b, c, d).positivePolarForm();
+        final Quaternion qNeg = q.negate();
         Assert.assertTrue(q.equals(qNeg.negate(), 0d));
     }
 
