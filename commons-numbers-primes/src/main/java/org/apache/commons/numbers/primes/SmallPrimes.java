@@ -23,7 +23,6 @@ import java.util.List;
 
 /**
  * Utility methods to work on primes within the <code>int</code> range.
- * @since 3.2
  */
 class SmallPrimes {
 

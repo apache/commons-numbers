@@ -283,7 +283,7 @@ class TestUtils {
      * @param eps the amount of absolute error to allow.
      * @return {@code true} if the values are equal or within range of each other,
      * or both are NaN.
-     * @since 2.2
+     * 
      */
     private static boolean equalsIncludingNaN(double x, double y, double eps) {
         return equalsIncludingNaN(x, y) || (Math.abs(y - x) <= eps);
@@ -296,7 +296,7 @@ class TestUtils {
      * @param x first value
      * @param y second value
      * @return {@code true} if the values are equal or both are NaN.
-     * @since 2.2
+     * 
      */
     private static boolean equalsIncludingNaN(double x, double y) {
         return (x != x || y != y) ? !(x != x ^ y != y) : Precision.equals(x, y, 1);
