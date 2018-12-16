@@ -27,8 +27,6 @@ import java.util.List;
  * <li>prime number generation</li>
  * <li>factorization</li>
  * </ul>
- *
- * 
  */
 public class Primes {
 
