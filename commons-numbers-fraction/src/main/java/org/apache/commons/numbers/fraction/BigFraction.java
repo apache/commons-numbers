@@ -19,6 +19,7 @@ package org.apache.commons.numbers.fraction;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import org.apache.commons.numbers.core.ArithmeticUtils;
 
 /**
@@ -554,15 +555,11 @@ public class BigFraction
      * denominator.
      * </p>
      *
-     * @param roundingMode
-     *            rounding mode to apply. see {@link BigDecimal} constants.
+     * @param roundingMode Rounding mode to apply.
      * @return the fraction as a <code>BigDecimal</code>.
-     * @throws IllegalArgumentException
-     *             if {@code roundingMode} does not represent a valid rounding
-     *             mode.
      * @see BigDecimal
      */
-    public BigDecimal bigDecimalValue(final int roundingMode) {
+    public BigDecimal bigDecimalValue(RoundingMode roundingMode) {
         return new BigDecimal(numerator).divide(new BigDecimal(denominator), roundingMode);
     }
 
@@ -576,12 +573,11 @@ public class BigFraction
      * @param scale
      *            scale of the <code>BigDecimal</code> quotient to be returned.
      *            see {@link BigDecimal} for more information.
-     * @param roundingMode
-     *            rounding mode to apply. see {@link BigDecimal} constants.
+     * @param roundingMode Rounding mode to apply.
      * @return the fraction as a <code>BigDecimal</code>.
      * @see BigDecimal
      */
-    public BigDecimal bigDecimalValue(final int scale, final int roundingMode) {
+    public BigDecimal bigDecimalValue(final int scale, RoundingMode roundingMode) {
         return new BigDecimal(numerator).divide(new BigDecimal(denominator), scale, roundingMode);
     }
 

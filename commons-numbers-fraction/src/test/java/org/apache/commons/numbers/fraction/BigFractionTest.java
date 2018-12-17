@@ -18,6 +18,7 @@ package org.apache.commons.numbers.fraction;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import org.apache.commons.numbers.core.TestUtils;
 
 import org.junit.Assert;
@@ -580,8 +581,8 @@ public class BigFractionTest {
     public void testBigDecimalValue() {
         Assert.assertEquals(new BigDecimal(0.5), new BigFraction(1, 2).bigDecimalValue());
         Assert.assertEquals(new BigDecimal("0.0003"), new BigFraction(3, 10000).bigDecimalValue());
-        Assert.assertEquals(new BigDecimal("0"), new BigFraction(1, 3).bigDecimalValue(BigDecimal.ROUND_DOWN));
-        Assert.assertEquals(new BigDecimal("0.333"), new BigFraction(1, 3).bigDecimalValue(3, BigDecimal.ROUND_DOWN));
+        Assert.assertEquals(new BigDecimal("0"), new BigFraction(1, 3).bigDecimalValue(RoundingMode.DOWN));
+        Assert.assertEquals(new BigDecimal("0.333"), new BigFraction(1, 3).bigDecimalValue(3, RoundingMode.DOWN));
     }
 
     @Test

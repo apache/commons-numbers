@@ -110,7 +110,7 @@ public class PlaneAngleTest {
     public void testHashCode() {
         // Test assumes that the internal representation is in "turns".
         final double value = -123.456789;
-        final int expected = new Double(value).hashCode();
+        final int expected = Double.valueOf(value).hashCode();
         final int actual = PlaneAngle.ofTurns(value).hashCode();
         Assert.assertEquals(actual, expected);
     }
