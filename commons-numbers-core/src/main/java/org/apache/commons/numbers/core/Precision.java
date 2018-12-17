@@ -18,6 +18,7 @@
 package org.apache.commons.numbers.core;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * Utilities for comparing numbers.
@@ -425,7 +426,7 @@ public class Precision {
      * @return the rounded value.
      */
     public static double round(double x, int scale) {
-        return round(x, scale, BigDecimal.ROUND_HALF_UP);
+        return round(x, scale, RoundingMode.HALF_UP);
     }
 
     /**
@@ -439,12 +440,13 @@ public class Precision {
      * @param scale Number of digits to the right of the decimal point.
      * @param roundingMethod Rounding method as defined in {@link BigDecimal}.
      * @return the rounded value.
-     * @throws ArithmeticException if {@code roundingMethod == ROUND_UNNECESSARY}
-     * and the specified scaling operation would require rounding.
-     * @throws IllegalArgumentException if {@code roundingMethod} does not
-     * represent a valid rounding mode.
+     * @throws ArithmeticException if {@code roundingMethod} is
+     * {@link RoundingMode#UNNECESSARY} and the specified scaling operation
+     * would require rounding.
      */
-    public static double round(double x, int scale, int roundingMethod) {
+    public static double round(double x,
+                               int scale,
+                               RoundingMode roundingMethod) {
         try {
             final double rounded = (new BigDecimal(Double.toString(x))
                    .setScale(scale, roundingMethod))
