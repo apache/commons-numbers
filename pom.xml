@@ -136,7 +136,7 @@
     <numbers.parent.dir>${basedir}</numbers.parent.dir>
 
     <!-- Temporary fix to support Java 8 -->
-    <commons.jacoco.version>0.8.0</commons.jacoco.version>
+    <commons.jacoco.version>0.8.2</commons.jacoco.version>
     <commons.jacoco.classRatio>0.96</commons.jacoco.classRatio>
     <commons.jacoco.instructionRatio>0.8</commons.jacoco.instructionRatio>
     <commons.jacoco.methodRatio>0.8</commons.jacoco.methodRatio>
@@ -144,6 +144,9 @@
     <commons.jacoco.complexityRatio>0.8</commons.jacoco.complexityRatio>
     <commons.jacoco.lineRatio>0.85</commons.jacoco.lineRatio>
     <commons.jacoco.haltOnFailure>false</commons.jacoco.haltOnFailure>
+
+    <!-- Override CP 47 -->
+    <commons.spotbugs.version>3.1.8</commons.spotbugs.version>
 
     <commons.site.path>numbers</commons.site.path>
     <commons.scmPubUrl>https://svn.apache.org/repos/infra/websites/production/commons/content/proper/commons-numbers</commons.scmPubUrl>
