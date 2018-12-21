@@ -29,7 +29,7 @@ import org.apache.commons.numbers.core.Precision;
  *
  * <p>Instance of this class are guaranteed to be immutable.</p>
  */
-public class Quaternion implements Serializable {
+public final class Quaternion implements Serializable {
     /** Zero quaternion. */
     public static final Quaternion ZERO = of(0, 0, 0, 0);
     /** Identity quaternion. */
