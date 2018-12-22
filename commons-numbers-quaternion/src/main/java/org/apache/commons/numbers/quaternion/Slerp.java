@@ -83,14 +83,16 @@ public class Slerp implements DoubleFunction<Quaternion> {
         if (t == 0) {
             return start;
         } else if (t == 1) {
-            return end;
+            // Call to "positivePolarForm()" is required because "end" might
+            // not be in positive polar form.
+            return end.positivePolarForm();
         }
 
         return algo.apply(t);
     }
 
     /**
-     * Linear interpolation, used when the quaternions are too closely aligned. 
+     * Linear interpolation, used when the quaternions are too closely aligned.
      */
     private class Linear implements DoubleFunction<Quaternion> {
         /** Default constructor. */
@@ -108,7 +110,7 @@ public class Slerp implements DoubleFunction<Quaternion> {
     }
 
     /**
-     * Spherical interpolation, used whe the quaternions are too closely aligned. 
+     * Spherical interpolation, used whe the quaternions are too closely aligned.
      * When we may end up dividing by zero (cf. 1/sin(theta) term below).
      * {@link Linear} interpolation must be used.
      */
