@@ -23,7 +23,9 @@ import java.util.function.DoubleFunction;
  *
  * The <em>Slerp</em> algorithm is designed to interpolate smoothly between
  * two rotations/orientations, producing a constant-speed motion along an arc.
- * The original purpose of this algorithm was to animate 3D rotations.
+ * The original purpose of this algorithm was to animate 3D rotations. All output
+ * quaternions are in positive polar form, meaning a unit quaternion with a positive
+ * scalar component.
  */
 public class Slerp implements DoubleFunction<Quaternion> {
     /**
@@ -70,12 +72,13 @@ public class Slerp implements DoubleFunction<Quaternion> {
      * Performs the interpolation.
      * The rotation returned by this method is controlled by the interpolation parameter, {@code t}.
      * All other values are interpolated (or extrapolated if {@code t} is outside of the
-     * {@code [0, 1]} range).
+     * {@code [0, 1]} range). The returned quaternion is in positive polar form, meaning that it
+     * is a unit quaternion with a positive scalar component.
      *
      * @param t Interpolation control parameter.
      * When {@code t = 0}, a rotation equal to the start instance is returned.
      * When {@code t = 1}, a rotation equal to the end instance is returned.
-     * @return an interpolated quaternion.
+     * @return an interpolated quaternion in positive polar form.
      */
     @Override
     public Quaternion apply(double t) {
