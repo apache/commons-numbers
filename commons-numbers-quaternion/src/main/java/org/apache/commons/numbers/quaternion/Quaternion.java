@@ -338,7 +338,7 @@ public final class Quaternion implements Serializable {
      * @param q2 Quaternion.
      * @return the dot product of {@code q1} and {@code q2}.
      */
-    public static double dotProduct(final Quaternion q1,
+    public static double dot(final Quaternion q1,
                                     final Quaternion q2) {
         return q1.w * q2.w +
             q1.x * q2.x +
@@ -352,8 +352,8 @@ public final class Quaternion implements Serializable {
      * @param q Quaternion.
      * @return the dot product of this instance and {@code q}.
      */
-    public double dotProduct(final Quaternion q) {
-        return dotProduct(this, q);
+    public double dot(final Quaternion q) {
+        return dot(this, q);
     }
 
     /**

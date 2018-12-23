@@ -51,7 +51,7 @@ public class Slerp implements DoubleFunction<Quaternion> {
         this.start = start.positivePolarForm();
 
         final Quaternion e = end.positivePolarForm();
-        double dot = this.start.dotProduct(e);
+        double dot = this.start.dot(e);
 
         // If the dot product is negative, then the interpolation won't follow the shortest
         // angular path between the two quaterions. In this case, invert the end quaternion
