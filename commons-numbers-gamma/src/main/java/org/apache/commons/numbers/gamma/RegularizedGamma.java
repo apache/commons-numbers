@@ -85,8 +85,7 @@ public class RegularizedGamma {
                 return 0;
             } else if (x >= a + 1) {
                 // Q should converge faster in this case.
-                final RegularizedGamma.Q q = new RegularizedGamma.Q();
-                return 1 - q.value(a, x, epsilon, maxIterations);
+                return 1 - RegularizedGamma.Q.value(a, x, epsilon, maxIterations);
             } else {
                 // Series.
                 double n = 0; // current element index
@@ -167,8 +166,7 @@ public class RegularizedGamma {
                 return 1;
             } else if (x < a + 1) {
                 // P should converge faster in this case.
-                final RegularizedGamma.P p = new RegularizedGamma.P();
-                return 1 - p.value(a, x, epsilon, maxIterations);
+                return 1 - RegularizedGamma.P.value(a, x, epsilon, maxIterations);
             } else {
                 final ContinuedFraction cf = new ContinuedFraction() {
                         /** {@inheritDoc} */

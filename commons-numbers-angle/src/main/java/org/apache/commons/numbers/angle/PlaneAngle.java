@@ -113,7 +113,8 @@ public class PlaneAngle {
             return true;
         }
         if (other instanceof PlaneAngle){
-            return Double.valueOf(value).equals(Double.valueOf(((PlaneAngle) other).value));
+            return Double.doubleToLongBits(value) ==
+                    Double.doubleToLongBits(((PlaneAngle) other).value);
         }
         return false;
     }
@@ -121,6 +122,6 @@ public class PlaneAngle {
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Double.valueOf(value).hashCode();
+        return Double.hashCode(value);
     }
 }
