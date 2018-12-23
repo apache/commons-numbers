@@ -221,8 +221,8 @@ public class QuaternionTest {
         final Quaternion q1 = Quaternion.of(1, 2, 2, 1);
         final Quaternion q2 = Quaternion.of(3, -2, -1, -3);
 
-        final double actual1 = Quaternion.dotProduct(q1, q2);
-        final double actual2 = q1.dotProduct(q2);
+        final double actual1 = Quaternion.dot(q1, q2);
+        final double actual2 = q1.dot(q2);
 
         Assert.assertEquals(expected, actual1, EPS);
         Assert.assertEquals(expected, actual2, EPS);
