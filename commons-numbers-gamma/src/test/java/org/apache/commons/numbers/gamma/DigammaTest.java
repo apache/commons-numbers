@@ -19,6 +19,8 @@ package org.apache.commons.numbers.gamma;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Locale;
+
 /**
  * Tests for {@link Digamma}.
  */
@@ -51,7 +53,7 @@ public class DigammaTest {
                 -1e+17, -1e+18, -1e+19, -1e+20, -1e+21, -1e+22, -1e+23, -1e+24, -1e+25, -1e+26,
                 -1e+27, -1e+28, -1e+29, -1e+30};
         for (double n = 1; n < 30; n++) {
-            checkRelativeError(String.format("Test %.0f: ", n), expected[(int) (n - 1)], Digamma.value(Math.pow(10.0, -n)), 1e-8);
+            checkRelativeError(String.format(Locale.ENGLISH, "Test %.0f: ", n), expected[(int) (n - 1)], Digamma.value(Math.pow(10.0, -n)), 1e-8);
         }
     }
 

@@ -18,6 +18,7 @@ package org.apache.commons.numbers.core;
 
 import java.math.BigInteger;
 import java.text.MessageFormat;
+import java.util.Locale;
 
 /**
  * Some useful, arithmetics related, additions to the built-in functions in
@@ -779,7 +780,7 @@ public final class ArithmeticUtils {
         /** {@inheritDoc} */
         @Override
         public String getMessage() {
-            return MessageFormat.format(super.getMessage(), formatArguments);
+            return new MessageFormat(super.getMessage(), Locale.ENGLISH).format(formatArguments);
         }
     }
 }

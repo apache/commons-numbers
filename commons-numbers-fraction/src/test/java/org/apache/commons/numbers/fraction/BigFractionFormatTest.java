@@ -277,14 +277,14 @@ public class BigFractionFormatTest {
     @Test
     public void testNumeratorFormat() {
         NumberFormat old = properFormat.getNumeratorFormat();
-        NumberFormat nf = NumberFormat.getInstance();
+        NumberFormat nf = NumberFormat.getInstance(Locale.ENGLISH);
         nf.setParseIntegerOnly(true);
         properFormat.setNumeratorFormat(nf);
         Assert.assertEquals(nf, properFormat.getNumeratorFormat());
         properFormat.setNumeratorFormat(old);
 
         old = improperFormat.getNumeratorFormat();
-        nf = NumberFormat.getInstance();
+        nf = NumberFormat.getInstance(Locale.ENGLISH);
         nf.setParseIntegerOnly(true);
         improperFormat.setNumeratorFormat(nf);
         Assert.assertEquals(nf, improperFormat.getNumeratorFormat());
@@ -294,14 +294,14 @@ public class BigFractionFormatTest {
     @Test
     public void testDenominatorFormat() {
         NumberFormat old = properFormat.getDenominatorFormat();
-        NumberFormat nf = NumberFormat.getInstance();
+        NumberFormat nf = NumberFormat.getInstance(Locale.ENGLISH);
         nf.setParseIntegerOnly(true);
         properFormat.setDenominatorFormat(nf);
         Assert.assertEquals(nf, properFormat.getDenominatorFormat());
         properFormat.setDenominatorFormat(old);
 
         old = improperFormat.getDenominatorFormat();
-        nf = NumberFormat.getInstance();
+        nf = NumberFormat.getInstance(Locale.ENGLISH);
         nf.setParseIntegerOnly(true);
         improperFormat.setDenominatorFormat(nf);
         Assert.assertEquals(nf, improperFormat.getDenominatorFormat());
@@ -313,7 +313,7 @@ public class BigFractionFormatTest {
         ProperBigFractionFormat format = (ProperBigFractionFormat)properFormat;
 
         NumberFormat old = format.getWholeFormat();
-        NumberFormat nf = NumberFormat.getInstance();
+        NumberFormat nf = NumberFormat.getInstance(Locale.ENGLISH);
         nf.setParseIntegerOnly(true);
         format.setWholeFormat(nf);
         Assert.assertEquals(nf, format.getWholeFormat());
