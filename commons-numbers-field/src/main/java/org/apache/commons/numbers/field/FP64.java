@@ -105,7 +105,7 @@ public class FP64 extends Number
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        return Double.valueOf(value).hashCode();
+        return Double.hashCode(value);
     }
 
     /** {@inheritDoc} */

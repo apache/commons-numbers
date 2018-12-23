@@ -21,9 +21,9 @@ package org.apache.commons.numbers.field;
  */
 public class FP64Field extends AbstractField<FP64> {
     /** 0d */
-    private static final FP64 ZERO = new FP64(Double.valueOf(0));
+    private static final FP64 ZERO = new FP64(0.);
     /** 1d */
-    private static final FP64 ONE = new FP64(Double.valueOf(1));
+    private static final FP64 ONE = new FP64(1.);
 
     /** {@inheritDoc} */
     @Override
