@@ -929,18 +929,6 @@ public class BigFraction
 
     /**
      * <p>
-     * Gets the fraction percentage as a {@code double}. This calculates the
-     * fraction as the numerator divided by denominator multiplied by 100.
-     * </p>
-     *
-     * @return the fraction percentage as a {@code double}.
-     */
-    public double percentageValue() {
-        return multiply(ONE_HUNDRED).doubleValue();
-    }
-
-    /**
-     * <p>
      * Returns a {@code BigFraction} whose value is
      * {@code (this<sup>exponent</sup>)}, returning the result in reduced form.
      * </p>
