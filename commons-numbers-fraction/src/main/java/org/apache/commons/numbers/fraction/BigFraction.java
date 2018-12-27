@@ -30,53 +30,14 @@ public class BigFraction
     extends Number
     implements Comparable<BigFraction>, Serializable {
 
-    /** A fraction representing "2 / 1". */
-    public static final BigFraction TWO = new BigFraction(2);
-
-    /** A fraction representing "1". */
-    public static final BigFraction ONE = new BigFraction(1);
-
+    /** Serializable version identifier. */
+    private static final long serialVersionUID = -5630213147331578515L;
+    
     /** A fraction representing "0". */
     public static final BigFraction ZERO = new BigFraction(0);
 
-    /** A fraction representing "-1 / 1". */
-    public static final BigFraction MINUS_ONE = new BigFraction(-1);
-
-    /** A fraction representing "4/5". */
-    public static final BigFraction FOUR_FIFTHS = new BigFraction(4, 5);
-
-    /** A fraction representing "1/5". */
-    public static final BigFraction ONE_FIFTH = new BigFraction(1, 5);
-
-    /** A fraction representing "1/2". */
-    public static final BigFraction ONE_HALF = new BigFraction(1, 2);
-
-    /** A fraction representing "1/4". */
-    public static final BigFraction ONE_QUARTER = new BigFraction(1, 4);
-
-    /** A fraction representing "1/3". */
-    public static final BigFraction ONE_THIRD = new BigFraction(1, 3);
-
-    /** A fraction representing "3/5". */
-    public static final BigFraction THREE_FIFTHS = new BigFraction(3, 5);
-
-    /** A fraction representing "3/4". */
-    public static final BigFraction THREE_QUARTERS = new BigFraction(3, 4);
-
-    /** A fraction representing "2/5". */
-    public static final BigFraction TWO_FIFTHS = new BigFraction(2, 5);
-
-    /** A fraction representing "2/4". */
-    public static final BigFraction TWO_QUARTERS = new BigFraction(2, 4);
-
-    /** A fraction representing "2/3". */
-    public static final BigFraction TWO_THIRDS = new BigFraction(2, 3);
-
-    /** Serializable version identifier. */
-    private static final long serialVersionUID = -5630213147331578515L;
-
-    /** <code>BigInteger</code> representation of 100. */
-    private static final BigInteger ONE_HUNDRED = BigInteger.valueOf(100);
+    /** A fraction representing "1". */
+    public static final BigFraction ONE = new BigFraction(1);
 
     /** Parameter name for fraction (to satisfy checkstyle). */
     private static final String PARAM_NAME_FRACTION = "fraction";
@@ -99,8 +60,8 @@ public class BigFraction
      * @param num
      *            the numerator.
      */
-    public BigFraction(final BigInteger num) {
-        this(num, BigInteger.ONE);
+    public static BigFraction ofInt(final BigInteger num) {
+        return new BigFraction(num, BigInteger.ONE);
     }
 
     /**
@@ -111,7 +72,18 @@ public class BigFraction
      * @param den the denominator, must not be {@code null}.
      * @throws ArithmeticException if the denominator is zero.
      */
-    public BigFraction(BigInteger num, BigInteger den) {
+    public static BigFraction ofInt(BigInteger num, BigInteger den) {
+    	return new BigFraction(num, den);
+    }
+    
+    /**
+     * Private constructor for BigFraction ofInt() factory methods.
+     *
+     * @param num the numerator, must not be {@code null}.
+     * @param den the denominator, must not be {@code null}.
+     * @throws ArithmeticException if the denominator is zero.
+     */
+    private BigFraction(BigInteger num, BigInteger den) {
         checkNotNull(num, "numerator");
         checkNotNull(den, "denominator");
         if (den.signum() == 0) {
@@ -457,7 +429,7 @@ public class BigFraction
         checkNotNull(bg, PARAM_NAME_BG);
 
         if (numerator.signum() == 0) {
-            return new BigFraction(bg);
+            return ofInt(bg);
         }
         if (bg.signum() == 0) {
             return this;
