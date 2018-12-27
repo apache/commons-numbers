@@ -478,13 +478,16 @@ public class Fraction
             return this;
         }
         // t = u(v'/gcd) +/- v(u'/gcd)
-        int gcd = ArithmeticUtils.gcd(denominator, fraction.denominator);
-        int uvp = ArithmeticUtils.mulAndCheck(numerator, fraction.denominator / gcd);
-        int upv = ArithmeticUtils.mulAndCheck(fraction.numerator, denominator / gcd);
-        return new Fraction
-            (isAdd ? ArithmeticUtils.addAndCheck(uvp, upv) :
-             ArithmeticUtils.subAndCheck(uvp, upv),
-             ArithmeticUtils.mulAndCheck(denominator, fraction.denominator));
+        int d1 = ArithmeticUtils.gcd(denominator, fraction.denominator);
+        int uvp = ArithmeticUtils.mulAndCheck(numerator, fraction.denominator / d1);
+        int upv = ArithmeticUtils.mulAndCheck(fraction.numerator, denominator / d1);
+        int t = isAdd ? ArithmeticUtils.addAndCheck(uvp, upv) : ArithmeticUtils.subAndCheck(uvp, upv);
+        int tmodd1 = t % d1;
+        int d2 = (tmodd1==0)?d1:ArithmeticUtils.gcd(tmodd1, d1);
+        // result is (t/d2) / (u'/d1)(v'/d2)
+        int w = t / d2;
+        return new Fraction (w, ArithmeticUtils.mulAndCheck(denominator/d1,
+                        fraction.denominator/d2));
     }
 
     /**

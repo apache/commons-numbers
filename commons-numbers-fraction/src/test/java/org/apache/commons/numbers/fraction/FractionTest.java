@@ -162,9 +162,9 @@ public class FractionTest {
 
     @Test
     public void testCompareTo() {
-        Fraction first = Fraction.ofDouble(1, 2);
-        Fraction second = Fraction.ofDouble(1, 3);
-        Fraction third = Fraction.ofDouble(1, 2);
+        Fraction first = Fraction.ofInt(1, 2);
+        Fraction second = Fraction.ofInt(1, 3);
+        Fraction third = Fraction.ofInt(1, 2);
 
         Assert.assertEquals(0, first.compareTo(first));
         Assert.assertEquals(0, first.compareTo(third));
@@ -174,8 +174,8 @@ public class FractionTest {
         // these two values are different approximations of PI
         // the first  one is approximately PI - 3.07e-18
         // the second one is approximately PI + 1.936e-17
-        Fraction pi1 = Fraction.ofDouble(1068966896, 340262731);
-        Fraction pi2 = Fraction.ofDouble( 411557987, 131002976);
+        Fraction pi1 = Fraction.ofInt(1068966896, 340262731);
+        Fraction pi2 = Fraction.ofInt( 411557987, 131002976);
         Assert.assertEquals(-1, pi1.compareTo(pi2));
         Assert.assertEquals( 1, pi2.compareTo(pi1));
         Assert.assertEquals(0.0, pi1.doubleValue() - pi2.doubleValue(), 1.0e-20);
@@ -183,8 +183,8 @@ public class FractionTest {
 
     @Test
     public void testDoubleValue() {
-        Fraction first = Fraction.ofDouble(1, 2);
-        Fraction second = Fraction.ofDouble(1, 3);
+        Fraction first = Fraction.ofInt(1, 2);
+        Fraction second = Fraction.ofInt(1, 3);
 
         Assert.assertEquals(0.5, first.doubleValue(), 0.0);
         Assert.assertEquals(1.0 / 3.0, second.doubleValue(), 0.0);
@@ -192,8 +192,8 @@ public class FractionTest {
 
     @Test
     public void testFloatValue() {
-        Fraction first = Fraction.ofDouble(1, 2);
-        Fraction second = Fraction.ofDouble(1, 3);
+        Fraction first = Fraction.ofInt(1, 2);
+        Fraction second = Fraction.ofInt(1, 3);
 
         Assert.assertEquals(0.5f, first.floatValue(), 0.0f);
         Assert.assertEquals((float)(1.0 / 3.0), second.floatValue(), 0.0f);
@@ -201,8 +201,8 @@ public class FractionTest {
 
     @Test
     public void testIntValue() {
-        Fraction first = Fraction.ofDouble(1, 2);
-        Fraction second = Fraction.ofDouble(3, 2);
+        Fraction first = Fraction.ofInt(1, 2);
+        Fraction second = Fraction.ofInt(3, 2);
 
         Assert.assertEquals(0, first.intValue());
         Assert.assertEquals(1, second.intValue());
@@ -210,8 +210,8 @@ public class FractionTest {
 
     @Test
     public void testLongValue() {
-        Fraction first = Fraction.ofDouble(1, 2);
-        Fraction second = Fraction.ofDouble(3, 2);
+        Fraction first = Fraction.ofInt(1, 2);
+        Fraction second = Fraction.ofInt(3, 2);
 
         Assert.assertEquals(0L, first.longValue());
         Assert.assertEquals(1L, second.longValue());
