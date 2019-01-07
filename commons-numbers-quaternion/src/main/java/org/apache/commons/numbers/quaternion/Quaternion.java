@@ -27,7 +27,11 @@ import org.apache.commons.numbers.core.Precision;
  * This class implements <a href="http://mathworld.wolfram.com/Quaternion.html">
  * quaternions</a> (Hamilton's hypercomplex numbers).
  *
- * <p>Instance of this class are guaranteed to be immutable.</p>
+ * <p>Wherever quaternion components are listed in sequence, this class follows the
+ * convention of placing the scalar ({@code w}) component first, e.g. [{@code w, x, y, z}].
+ * Other libraries and textbooks may place the {@code w} component last.</p>
+ *
+ * <p>Instances of this class are guaranteed to be immutable.</p>
  */
 public final class Quaternion implements Serializable {
     /** Zero quaternion. */
@@ -153,21 +157,21 @@ public final class Quaternion implements Serializable {
      * Builds a quaternion from its components.
      *
      * @param type Quaternion type.
-     * @param a Scalar component.
-     * @param b First vector component.
-     * @param c Second vector component.
-     * @param d Third vector component.
+     * @param w Scalar component.
+     * @param x First vector component.
+     * @param y Second vector component.
+     * @param z Third vector component.
      */
     private Quaternion(Type type,
-                       final double a,
-                       final double b,
-                       final double c,
-                       final double d) {
+                       final double w,
+                       final double x,
+                       final double y,
+                       final double z) {
         this.type = type;
-        w = a;
-        x = b;
-        y = c;
-        z = d;
+        this.w = w;
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
     /**
@@ -188,18 +192,18 @@ public final class Quaternion implements Serializable {
     /**
      * Builds a quaternion from its components.
      *
-     * @param a Scalar component.
-     * @param b First vector component.
-     * @param c Second vector component.
-     * @param d Third vector component.
+     * @param w Scalar component.
+     * @param x First vector component.
+     * @param y Second vector component.
+     * @param z Third vector component.
      * @return a quaternion instance.
      */
-    public static Quaternion of(final double a,
-                                final double b,
-                                final double c,
-                                final double d) {
+    public static Quaternion of(final double w,
+                                final double x,
+                                final double y,
+                                final double z) {
         return new Quaternion(Type.DEFAULT,
-                              a, b, c, d);
+                              w, x, y, z);
     }
 
     /**
@@ -338,8 +342,8 @@ public final class Quaternion implements Serializable {
      * @param q2 Quaternion.
      * @return the dot product of {@code q1} and {@code q2}.
      */
-    public static double dotProduct(final Quaternion q1,
-                                    final Quaternion q2) {
+    public static double dot(final Quaternion q1,
+                             final Quaternion q2) {
         return q1.w * q2.w +
             q1.x * q2.x +
             q1.y * q2.y +
@@ -352,8 +356,8 @@ public final class Quaternion implements Serializable {
      * @param q Quaternion.
      * @return the dot product of this instance and {@code q}.
      */
-    public double dotProduct(final Quaternion q) {
-        return dotProduct(this, q);
+    public double dot(final Quaternion q) {
+        return dot(this, q);
     }
 
     /**

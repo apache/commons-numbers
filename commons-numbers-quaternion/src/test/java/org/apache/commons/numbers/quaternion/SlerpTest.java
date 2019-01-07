@@ -146,7 +146,7 @@ public class SlerpTest {
         Slerp slerp = new Slerp(q1, q2);
 
         // act/assert
-        Assert.assertEquals(-1.0, q1.dotProduct(q2), EPS);
+        Assert.assertEquals(-1.0, q1.dot(q2), EPS);
 
         Quaternion expected = q1.positivePolarForm();
 
