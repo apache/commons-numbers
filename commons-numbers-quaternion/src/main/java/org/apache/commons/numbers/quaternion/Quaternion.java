@@ -343,7 +343,7 @@ public final class Quaternion implements Serializable {
      * @return the dot product of {@code q1} and {@code q2}.
      */
     public static double dot(final Quaternion q1,
-                                    final Quaternion q2) {
+                             final Quaternion q2) {
         return q1.w * q2.w +
             q1.x * q2.x +
             q1.y * q2.y +
