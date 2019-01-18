@@ -174,7 +174,7 @@ public class ProperBigFractionFormat extends BigFractionFormat {
         case 0 :
             // no '/'
             // return num as a BigFraction
-            return new BigFraction(num);
+            return BigFraction.of(num);
         case '/' :
             // found '/', continue parsing denominator
             break;
@@ -215,7 +215,7 @@ public class ProperBigFractionFormat extends BigFractionFormat {
             num = num.negate();
         }
 
-        return new BigFraction(num, den);
+        return BigFraction.of(num, den);
 
     }
 

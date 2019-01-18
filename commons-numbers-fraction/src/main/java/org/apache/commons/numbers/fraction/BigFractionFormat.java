@@ -163,9 +163,9 @@ public class BigFractionFormat extends AbstractFormat implements Serializable {
         if (obj instanceof BigFraction) {
             ret = format((BigFraction) obj, toAppendTo, pos);
         } else if (obj instanceof BigInteger) {
-            ret = format(new BigFraction((BigInteger) obj), toAppendTo, pos);
+            ret = format(BigFraction.of((BigInteger) obj), toAppendTo, pos);
         } else if (obj instanceof Number) {
-            ret = format(new BigFraction(((Number) obj).doubleValue()),
+            ret = format(BigFraction.from(((Number) obj).doubleValue()),
                          toAppendTo, pos);
         } else {
             throw new IllegalArgumentException("cannot format given object as a fraction number");
@@ -222,7 +222,7 @@ public class BigFractionFormat extends AbstractFormat implements Serializable {
         case 0 :
             // no '/'
             // return num as a BigFraction
-            return new BigFraction(num);
+            return BigFraction.of(num);
         case '/' :
             // found '/', continue parsing denominator
             break;
@@ -248,7 +248,7 @@ public class BigFractionFormat extends AbstractFormat implements Serializable {
             return null;
         }
 
-        return new BigFraction(num, den);
+        return BigFraction.of(num, den);
     }
 
     /**

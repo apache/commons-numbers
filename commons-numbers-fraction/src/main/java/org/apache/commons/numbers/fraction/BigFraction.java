@@ -117,6 +117,31 @@ public class BigFraction
     /**
      * Create a fraction given the double value.
      * <p>
+     * This factory method behaves <em>differently</em> from
+     * {@link #from(double, double, int)}. It converts the double value
+     * exactly, considering its internal bits representation. This works for all
+     * values except NaN and infinities and does not requires any loop or
+     * convergence threshold.
+     * </p>
+     * <p>
+     * Since this conversion is exact and since double numbers are sometimes
+     * approximated, the fraction created may seem strange in some cases. For example,
+     * calling <code>new BigFraction(1.0 / 3.0)</code> does <em>not</em> create
+     * the fraction 1/3, but the fraction 6004799503160661 / 18014398509481984
+     * because the double number passed to the constructor is not exactly 1/3
+     * (this number cannot be stored exactly in IEEE754).
+     * </p>
+     * @see #BigFraction(double, double, int)
+     * @param value the double value to convert to a fraction.
+     * @exception IllegalArgumentException if value is NaN or infinite
+     */
+    public static BigFraction from(final double value) throws IllegalArgumentException {
+    	return new BigFraction(value);
+    }
+    
+    /**
+     * Create a fraction given the double value.
+     * <p>
      * This constructor behaves <em>differently</em> from
      * {@link #BigFraction(double, double, int)}. It converts the double value
      * exactly, considering its internal bits representation. This works for all
