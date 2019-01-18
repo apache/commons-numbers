@@ -60,7 +60,7 @@ public class BigFraction
      * @param num
      *            the numerator.
      */
-    public static BigFraction ofInt(final BigInteger num) {
+    public static BigFraction of(final BigInteger num) {
         return new BigFraction(num, BigInteger.ONE);
     }
 
@@ -72,7 +72,7 @@ public class BigFraction
      * @param den the denominator, must not be {@code null}.
      * @throws ArithmeticException if the denominator is zero.
      */
-    public static BigFraction ofInt(BigInteger num, BigInteger den) {
+    public static BigFraction of(BigInteger num, BigInteger den) {
     	return new BigFraction(num, den);
     }
     
@@ -135,7 +135,7 @@ public class BigFraction
      * @param value the double value to convert to a fraction.
      * @exception IllegalArgumentException if value is NaN or infinite
      */
-    public BigFraction(final double value) throws IllegalArgumentException {
+    private BigFraction(final double value) throws IllegalArgumentException {
         if (Double.isNaN(value)) {
             throw new IllegalArgumentException("cannot convert NaN value");
         }
@@ -191,9 +191,9 @@ public class BigFraction
      *             if the continued fraction failed to converge.
      * @see #BigFraction(double)
      */
-    public BigFraction(final double value, final double epsilon,
+    public static BigFraction from(final double value, final double epsilon,
                        final int maxIterations) {
-        this(value, epsilon, Integer.MAX_VALUE, maxIterations);
+        return new BigFraction(value, epsilon, Integer.MAX_VALUE, maxIterations);
     }
 
     /**
@@ -317,8 +317,8 @@ public class BigFraction
      * @throws ArithmeticException
      *             if the continued fraction failed to converge.
      */
-    public BigFraction(final double value, final int maxDenominator) {
-        this(value, 0, maxDenominator, 100);
+    public static BigFraction from(final double value, final int maxDenominator) {
+        return new BigFraction(value, 0, maxDenominator, 100);
     }
 
     /**
@@ -330,8 +330,8 @@ public class BigFraction
      * @param num
      *            the numerator.
      */
-    public BigFraction(final int num) {
-        this(BigInteger.valueOf(num), BigInteger.ONE);
+    public static BigFraction of(final int num) {
+        return new BigFraction(BigInteger.valueOf(num), BigInteger.ONE);
     }
 
     /**
@@ -345,8 +345,8 @@ public class BigFraction
      * @param den
      *            the denominator.
      */
-    public BigFraction(final int num, final int den) {
-        this(BigInteger.valueOf(num), BigInteger.valueOf(den));
+    public static BigFraction of(final int num, final int den) {
+        return new BigFraction(BigInteger.valueOf(num), BigInteger.valueOf(den));
     }
 
     /**
@@ -357,8 +357,8 @@ public class BigFraction
      * @param num
      *            the numerator.
      */
-    public BigFraction(final long num) {
-        this(BigInteger.valueOf(num), BigInteger.ONE);
+    public static BigFraction of(final long num) {
+        return new BigFraction(BigInteger.valueOf(num), BigInteger.ONE);
     }
 
     /**
@@ -372,8 +372,8 @@ public class BigFraction
      * @param den
      *            the denominator.
      */
-    public BigFraction(final long num, final long den) {
-        this(BigInteger.valueOf(num), BigInteger.valueOf(den));
+    public static BigFraction of(final long num, final long den) {
+        return new BigFraction(BigInteger.valueOf(num), BigInteger.valueOf(den));
     }
 
     /**
@@ -401,7 +401,7 @@ public class BigFraction
             return ZERO; // normalize zero.
         }
 
-        return new BigFraction(numerator, denominator);
+        return of(numerator, denominator);
     }
 
     /**
@@ -429,7 +429,7 @@ public class BigFraction
         checkNotNull(bg, PARAM_NAME_BG);
 
         if (numerator.signum() == 0) {
-            return ofInt(bg);
+            return of(bg);
         }
         if (bg.signum() == 0) {
             return this;
@@ -1064,7 +1064,7 @@ public class BigFraction
             return this;
         }
         if (numerator.signum() == 0) {
-            return new BigFraction(bg.negate());
+            return of(bg.negate());
         }
 
         return new BigFraction(numerator.subtract(denominator.multiply(bg)), denominator);
