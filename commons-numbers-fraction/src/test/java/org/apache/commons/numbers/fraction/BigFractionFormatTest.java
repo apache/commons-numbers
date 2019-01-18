@@ -46,7 +46,7 @@ public class BigFractionFormatTest {
 
     @Test
     public void testFormat() {
-        BigFraction c = new BigFraction(1, 2);
+        BigFraction c = BigFraction.of(1, 2);
         String expected = "1 / 2";
 
         String actual = properFormat.format(c);
@@ -58,7 +58,7 @@ public class BigFractionFormatTest {
 
     @Test
     public void testFormatNegative() {
-        BigFraction c = new BigFraction(-1, 2);
+        BigFraction c = BigFraction.of(-1, 2);
         String expected = "-1 / 2";
 
         String actual = properFormat.format(c);
@@ -70,7 +70,7 @@ public class BigFractionFormatTest {
 
     @Test
     public void testFormatZero() {
-        BigFraction c = new BigFraction(0, 1);
+        BigFraction c = BigFraction.of(0, 1);
         String expected = "0 / 1";
 
         String actual = properFormat.format(c);
@@ -82,7 +82,7 @@ public class BigFractionFormatTest {
 
     @Test
     public void testFormatImproper() {
-        BigFraction c = new BigFraction(5, 3);
+        BigFraction c = BigFraction.of(5, 3);
 
         String actual = properFormat.format(c);
         Assert.assertEquals("1 2 / 3", actual);
@@ -93,7 +93,7 @@ public class BigFractionFormatTest {
 
     @Test
     public void testFormatImproperNegative() {
-        BigFraction c = new BigFraction(-5, 3);
+        BigFraction c = BigFraction.of(-5, 3);
 
         String actual = properFormat.format(c);
         Assert.assertEquals("-1 2 / 3", actual);
