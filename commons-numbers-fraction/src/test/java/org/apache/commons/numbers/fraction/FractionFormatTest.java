@@ -43,7 +43,7 @@ public class FractionFormatTest {
 
     @Test
     public void testFormat() {
-        Fraction c = Fraction.ofInt(1, 2);
+        Fraction c = Fraction.of(1, 2);
         String expected = "1 / 2";
 
         String actual = properFormat.format(c);
@@ -55,7 +55,7 @@ public class FractionFormatTest {
 
     @Test
     public void testFormatNegative() {
-        Fraction c = Fraction.ofInt(-1, 2);
+        Fraction c = Fraction.of(-1, 2);
         String expected = "-1 / 2";
 
         String actual = properFormat.format(c);
@@ -67,7 +67,7 @@ public class FractionFormatTest {
 
     @Test
     public void testFormatZero() {
-        Fraction c = Fraction.ofInt(0, 1);
+        Fraction c = Fraction.of(0, 1);
         String expected = "0 / 1";
 
         String actual = properFormat.format(c);
@@ -79,7 +79,7 @@ public class FractionFormatTest {
 
     @Test
     public void testFormatImproper() {
-        Fraction c = Fraction.ofInt(5, 3);
+        Fraction c = Fraction.of(5, 3);
 
         String actual = properFormat.format(c);
         Assert.assertEquals("1 2 / 3", actual);
@@ -90,7 +90,7 @@ public class FractionFormatTest {
 
     @Test
     public void testFormatImproperNegative() {
-        Fraction c = Fraction.ofInt(-5, 3);
+        Fraction c = Fraction.of(-5, 3);
 
         String actual = properFormat.format(c);
         Assert.assertEquals("-1 2 / 3", actual);

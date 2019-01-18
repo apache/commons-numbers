@@ -56,8 +56,8 @@ public class Fraction
      * @throws IllegalArgumentException if the continued fraction failed to
      *         converge.
      */
-    public static Fraction ofDouble(double value) {
-        return ofDouble(value, DEFAULT_EPSILON, 100);
+    public static Fraction from(double value) {
+        return from(value, DEFAULT_EPSILON, 100);
     }
 
     /**
@@ -76,7 +76,7 @@ public class Fraction
      * @throws IllegalArgumentException if the continued fraction failed to
      *         converge.
      */
-    public static Fraction ofDouble(double value, double epsilon, int maxIterations)
+    public static Fraction from(double value, double epsilon, int maxIterations)
     {
         return new Fraction(value, epsilon, Integer.MAX_VALUE, maxIterations);
     }
@@ -95,7 +95,7 @@ public class Fraction
      * @throws IllegalArgumentException if the continued fraction failed to
      *         converge
      */
-    public static Fraction ofDouble(double value, int maxDenominator)
+    public static Fraction from(double value, int maxDenominator)
     {
        return new Fraction(value, 0, maxDenominator, 100);
     }
@@ -205,8 +205,8 @@ public class Fraction
      * The fraction is num / 1.
      * @param num the numerator.
      */
-    public static Fraction ofInt(int num) {
-        return ofInt(num, 1);
+    public static Fraction of(int num) {
+        return of(num, 1);
     }
 
     /**
@@ -217,7 +217,7 @@ public class Fraction
      * @throws ArithmeticException if the denominator is {@code zero}
      *                             or if integer overflow occurs
      */
-    public static Fraction ofInt(int num, int den) {
+    public static Fraction of(int num, int den) {
     	return new Fraction(num, den);
     }
     
@@ -521,7 +521,7 @@ public class Fraction
      * @return this * i
      */
     public Fraction multiply(final int i) {
-        return multiply(ofInt(i));
+        return multiply(of(i));
     }
 
     /**
@@ -569,7 +569,7 @@ public class Fraction
      * @return this * i
      */
     public Fraction divide(final int i) {
-        return divide(ofInt(i));
+        return divide(of(i));
     }
 
     /**

@@ -171,7 +171,7 @@ public class FractionFormat extends AbstractFormat {
         if (obj instanceof Fraction) {
             ret = format((Fraction) obj, toAppendTo, pos);
         } else if (obj instanceof Number) {
-            ret = format(Fraction.ofDouble(((Number) obj).doubleValue()), toAppendTo, pos);
+            ret = format(Fraction.from(((Number) obj).doubleValue()), toAppendTo, pos);
         } else {
             throw new IllegalArgumentException(
                 "cannot format given object as a fraction number");
@@ -228,7 +228,7 @@ public class FractionFormat extends AbstractFormat {
         case 0 :
             // no '/'
             // return num as a fraction
-            return Fraction.ofInt(num.intValue(), 1);
+            return Fraction.of(num.intValue(), 1);
         case '/' :
             // found '/', continue parsing denominator
             break;
@@ -254,7 +254,7 @@ public class FractionFormat extends AbstractFormat {
             return null;
         }
 
-        return Fraction.ofInt(num.intValue(), den.intValue());
+        return Fraction.of(num.intValue(), den.intValue());
     }
 
 }

@@ -172,7 +172,7 @@ public class ProperFractionFormat extends FractionFormat {
         case 0 :
             // no '/'
             // return num as a fraction
-            return Fraction.ofInt(num.intValue(), 1);
+            return Fraction.of(num.intValue(), 1);
         case '/' :
             // found '/', continue parsing denominator
             break;
@@ -208,7 +208,7 @@ public class ProperFractionFormat extends FractionFormat {
         int sign = w >= 0 ? 1 : -1;
         int n = num.intValue();
         int d = den.intValue();
-        return Fraction.ofInt(((Math.abs(w) * d) + n) * sign, d);
+        return Fraction.of(((Math.abs(w) * d) + n) * sign, d);
     }
 
     /**
