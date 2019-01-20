@@ -20,7 +20,8 @@ package org.apache.commons.numbers.complex;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.numbers.core.Precision;
+
+import org.apache.commons.numbers.core.precision.Precision;
 
 /**
  * Representation of a Complex number, i.e. a number which has both a
@@ -39,7 +40,7 @@ import org.apache.commons.numbers.core.Precision;
  * Note that this contradicts the IEEE-754 standard for floating
  * point numbers (according to which the test {@code x == x} must fail if
  * {@code x} is {@code NaN}). The method
- * {@link org.apache.commons.numbers.core.Precision#equals(double,double,int)
+ * {@link org.apache.commons.numbers.core.precision.Precision#equals(double,double,int)
  * equals for primitive double} in class {@code Precision} conforms with
  * IEEE-754 while this class conforms with the standard behavior for Java
  * object types.</p>

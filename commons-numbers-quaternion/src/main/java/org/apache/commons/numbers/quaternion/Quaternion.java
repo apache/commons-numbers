@@ -19,9 +19,11 @@ package org.apache.commons.numbers.quaternion;
 
 import java.util.Arrays;
 import java.util.function.ToDoubleFunction;
+
+import org.apache.commons.numbers.core.precision.Precision;
+
 import java.util.function.BiPredicate;
 import java.io.Serializable;
-import org.apache.commons.numbers.core.Precision;
 
 /**
  * This class implements <a href="http://mathworld.wolfram.com/Quaternion.html">

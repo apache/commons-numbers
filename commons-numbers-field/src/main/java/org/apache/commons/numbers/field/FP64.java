@@ -17,7 +17,7 @@
 package org.apache.commons.numbers.field;
 
 import org.apache.commons.numbers.core.NativeOperators;
-import org.apache.commons.numbers.core.Precision;
+import org.apache.commons.numbers.core.precision.Precision;
 
 /**
  * Wraps a {@code double} value in order to be used as a field

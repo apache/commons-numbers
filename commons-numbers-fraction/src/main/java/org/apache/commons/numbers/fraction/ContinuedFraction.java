@@ -16,7 +16,7 @@
  */
 package org.apache.commons.numbers.fraction;
 
-import org.apache.commons.numbers.core.Precision;
+import org.apache.commons.numbers.core.precision.Precision;
 
 /**
  * Provides a generic means to evaluate

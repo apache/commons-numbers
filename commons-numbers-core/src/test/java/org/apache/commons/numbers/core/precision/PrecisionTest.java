@@ -11,11 +11,12 @@
  * KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.apache.commons.numbers.core;
+package org.apache.commons.numbers.core.precision;
 
-import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import org.apache.commons.numbers.core.TestUtils;
+import org.apache.commons.numbers.core.precision.Precision;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -238,12 +239,55 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testCompareToEpsilon() {
+    public void testCompareToEpsilon_double() {
         Assert.assertEquals(0, Precision.compareTo(152.33, 152.32, .011));
-        Assert.assertTrue(Precision.compareTo(152.308, 152.32, .011) < 0);
-        Assert.assertTrue(Precision.compareTo(152.33, 152.318, .011) > 0);
+
+        Assert.assertEquals(-1, Precision.compareTo(152.308, 152.32, .011));
+        Assert.assertEquals(1, Precision.compareTo(152.33, 152.318, .011));
+
         Assert.assertEquals(0, Precision.compareTo(Double.MIN_VALUE, +0.0, Double.MIN_VALUE));
         Assert.assertEquals(0, Precision.compareTo(Double.MIN_VALUE, -0.0, Double.MIN_VALUE));
+
+        Assert.assertEquals(1, Precision.compareTo(0.0, Double.NaN, 1e-6));
+        Assert.assertEquals(1, Precision.compareTo(Double.NaN, 0.0, 1e-6));
+        Assert.assertEquals(1, Precision.compareTo(Double.NaN, Double.NaN, 1e-6));
+
+        Assert.assertEquals(-1, Precision.compareTo(0.0, Double.POSITIVE_INFINITY, 1e-6));
+        Assert.assertEquals(1, Precision.compareTo(Double.POSITIVE_INFINITY, 0.0, 1e-6));
+        Assert.assertEquals(0, Precision.compareTo(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, 1e-6));
+
+        Assert.assertEquals(1, Precision.compareTo(0.0, Double.NEGATIVE_INFINITY, 1e-6));
+        Assert.assertEquals(-1, Precision.compareTo(Double.NEGATIVE_INFINITY, 0.0, 1e-6));
+        Assert.assertEquals(0, Precision.compareTo(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, 1e-6));
+
+        Assert.assertEquals(-1, Precision.compareTo(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1e-6));
+        Assert.assertEquals(1, Precision.compareTo(Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 1e-6));
+    }
+
+    @Test
+    public void testCompareToEpsilon_float() {
+        Assert.assertEquals(0, Precision.compareTo(152.33f, 152.32f, .011f));
+
+        Assert.assertEquals(-1, Precision.compareTo(152.308f, 152.32f, .011f));
+        Assert.assertEquals(1, Precision.compareTo(152.33f, 152.318f, .011f));
+
+        Assert.assertEquals(0, Precision.compareTo(Float.MIN_VALUE, +0.0f, Float.MIN_VALUE));
+        Assert.assertEquals(0, Precision.compareTo(Float.MIN_VALUE, -0.0f, Float.MIN_VALUE));
+
+        Assert.assertEquals(1, Precision.compareTo(0.0f, Float.NaN, 1e-6f));
+        Assert.assertEquals(1, Precision.compareTo(Float.NaN, 0.0, 1e-6f));
+        Assert.assertEquals(1, Precision.compareTo(Float.NaN, Float.NaN, 1e-6f));
+
+        Assert.assertEquals(-1, Precision.compareTo(0.0f, Float.POSITIVE_INFINITY, 1e-6f));
+        Assert.assertEquals(1, Precision.compareTo(Float.POSITIVE_INFINITY, 0.0f, 1e-6f));
+        Assert.assertEquals(0, Precision.compareTo(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, 1e-6f));
+
+        Assert.assertEquals(1, Precision.compareTo(0.0f, Float.NEGATIVE_INFINITY, 1e-6f));
+        Assert.assertEquals(-1, Precision.compareTo(Float.NEGATIVE_INFINITY, 0.0f, 1e-6f));
+        Assert.assertEquals(0, Precision.compareTo(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, 1e-6f));
+
+        Assert.assertEquals(-1, Precision.compareTo(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, 1e-6f));
+        Assert.assertEquals(1, Precision.compareTo(Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY, 1e-6f));
     }
 
     @Test
