@@ -91,7 +91,7 @@ public class PlaneAngle {
      *
      * @param center Center of the desired interval for the result.
      * @return {@code a - k} with integer {@code k} such that
-     * {@code center - 0.5 <= a - k <= center + 0.5} (in turns).
+     * {@code center - 0.5 <= a - k < center + 0.5} (in turns).
      */
     public PlaneAngle normalize(PlaneAngle center) {
         return new PlaneAngle(value - Math.floor(value + HALF_TURN - center.value));
