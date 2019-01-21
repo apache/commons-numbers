@@ -16,8 +16,6 @@
  */
 package org.apache.commons.numbers.core.precision;
 
-import java.io.Serializable;
-
 /** Simple {@link DoublePrecisionContext} subclass that uses an absolute epsilon value to
  * determine equality between doubles.
  *
@@ -28,9 +26,9 @@ import java.io.Serializable;
  *
  * @see Precision#compareTo(double, double, double)
  */
-public class EpsilonDoublePrecisionContext extends DoublePrecisionContext implements Serializable {
+public class EpsilonDoublePrecisionContext extends DoublePrecisionContext {
 
-    /** Serializable identifer */
+    /** Serializable identifier */
     private static final long serialVersionUID = 20190119L;
 
     /** Epsilon value. */

@@ -16,11 +16,15 @@
  */
 package org.apache.commons.numbers.core.precision;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 /** Class encapsulating the concept of comparison operations for floats.
  */
-public abstract class FloatPrecisionContext implements Comparator<Float> {
+public abstract class FloatPrecisionContext implements Comparator<Float>, Serializable {
+
+    /** Serializable identifier */
+    private static final long serialVersionUID = 20190121L;
 
     /** Return true if the given values are considered equal to each other.
      * @param a first value

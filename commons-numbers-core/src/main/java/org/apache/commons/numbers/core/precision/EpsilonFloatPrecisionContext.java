@@ -16,8 +16,6 @@
  */
 package org.apache.commons.numbers.core.precision;
 
-import java.io.Serializable;
-
 /** Simple {@link FloatPrecisionContext} subclass that uses an absolute epsilon value to
  * determine equality between float.
  *
@@ -28,9 +26,9 @@ import java.io.Serializable;
  *
  * @see Precision#compareTo(float, float, float)
  */
-public class EpsilonFloatPrecisionContext extends FloatPrecisionContext implements Serializable {
+public class EpsilonFloatPrecisionContext extends FloatPrecisionContext {
 
-    /** Serializable identifer */
+    /** Serializable identifier */
     private static final long serialVersionUID = 20190119L;
 
     /** Epsilon value. */
