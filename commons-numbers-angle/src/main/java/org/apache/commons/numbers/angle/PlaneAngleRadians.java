@@ -33,7 +33,7 @@ public class PlaneAngleRadians {
      * @param angle Value to be normalized.
      * @param center Center of the desired interval for the result.
      * @return {@code a - 2 * k} with integer {@code k} such that
-     * {@code center - pi <= a - 2 * k * pi <= center + pi}.
+     * {@code center - pi <= a - 2 * k * pi < center + pi}.
      */
     public static double normalize(double angle,
                                    double center) {
@@ -43,22 +43,22 @@ public class PlaneAngleRadians {
     }
 
     /**
-     * Normalize an angle between -&pi; and &pi;.
+     * Normalize an angle to be in the range [-&pi;, &pi;).
      *
      * @param angle Value to be normalized.
      * @return {@code a - 2 * k} with integer {@code k} such that
-     * {@code -pi <= a - 2 * k * pi <= pi}.
+     * {@code -pi <= a - 2 * k * pi < pi}.
      */
     public static double normalizeBetweenMinusPiAndPi(double angle) {
         return PlaneAngle.ofRadians(angle).normalize(PlaneAngle.ZERO).toRadians();
     }
 
     /**
-     * Normalize an angle between 0 and 2&pi;.
+     * Normalize an angle to be in the range [0, 2&pi;).
      *
      * @param angle Value to be normalized.
      * @return {@code a - 2 * k} with integer {@code k} such that
-     * {@code 0 <= a - 2 * k * pi <= 2 * pi}.
+     * {@code 0 <= a - 2 * k * pi < 2 * pi}.
      */
     public static double normalizeBetweenZeroAndTwoPi(double angle) {
         return PlaneAngle.ofRadians(angle).normalize(PlaneAngle.PI).toRadians();
