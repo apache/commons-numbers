@@ -107,6 +107,25 @@ public class PlaneAngleTest {
     }
 
     @Test
+    public void testNormalizeUpperAndLowerBounds() {
+        // arrange
+        double eps = 1e-15;
+
+        // act/assert
+        Assert.assertEquals(-0.5, PlaneAngle.ofTurns(-0.5).normalize(PlaneAngle.ZERO).toTurns(), eps);
+        Assert.assertEquals(-0.5, PlaneAngle.ofTurns(0.5).normalize(PlaneAngle.ZERO).toTurns(), eps);
+
+        Assert.assertEquals(-0.5, PlaneAngle.ofTurns(-1.5).normalize(PlaneAngle.ZERO).toTurns(), eps);
+        Assert.assertEquals(-0.5, PlaneAngle.ofTurns(1.5).normalize(PlaneAngle.ZERO).toTurns(), eps);
+
+        Assert.assertEquals(0.0, PlaneAngle.ofTurns(0).normalize(PlaneAngle.PI).toTurns(), eps);
+        Assert.assertEquals(0.0, PlaneAngle.ofTurns(1).normalize(PlaneAngle.PI).toTurns(), eps);
+
+        Assert.assertEquals(0.0, PlaneAngle.ofTurns(-1).normalize(PlaneAngle.PI).toTurns(), eps);
+        Assert.assertEquals(0.0, PlaneAngle.ofTurns(2).normalize(PlaneAngle.PI).toTurns(), eps);
+    }
+
+    @Test
     public void testHashCode() {
         // Test assumes that the internal representation is in "turns".
         final double value = -123.456789;
