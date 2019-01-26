@@ -32,7 +32,7 @@ import java.util.Locale;
  * denominator can be configured.
  * </p>
  */
-public class BigFractionFormat extends AbstractFormat implements Serializable {
+public class BigFractionFormat extends AbstractFractionFormat implements Serializable {
 
     /** Serializable version identifier */
     private static final long serialVersionUID = -2932167925527338976L;

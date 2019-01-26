@@ -26,7 +26,7 @@ import java.util.Locale;
 /**
  * Common part shared by both {@link FractionFormat} and {@link BigFractionFormat}.
  */
-public abstract class AbstractFormat extends NumberFormat implements Serializable {
+public abstract class AbstractFractionFormat extends NumberFormat implements Serializable {
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = -6981118387974191891L;
@@ -41,7 +41,7 @@ public abstract class AbstractFormat extends NumberFormat implements Serializabl
      * Create an improper formatting instance with the default number format
      * for the numerator and denominator.
      */
-    protected AbstractFormat() {
+    protected AbstractFractionFormat() {
         this(getDefaultNumberFormat());
     }
 
@@ -50,7 +50,7 @@ public abstract class AbstractFormat extends NumberFormat implements Serializabl
      * both the numerator and denominator.
      * @param format the custom format for both the numerator and denominator.
      */
-    protected AbstractFormat(final NumberFormat format) {
+    protected AbstractFractionFormat(final NumberFormat format) {
         this(format, (NumberFormat) format.clone());
     }
 
@@ -60,7 +60,7 @@ public abstract class AbstractFormat extends NumberFormat implements Serializabl
      * @param numeratorFormat the custom format for the numerator.
      * @param denominatorFormat the custom format for the denominator.
      */
-    protected AbstractFormat(final NumberFormat numeratorFormat,
+    protected AbstractFractionFormat(final NumberFormat numeratorFormat,
                              final NumberFormat denominatorFormat) {
         this.numeratorFormat   = numeratorFormat;
         this.denominatorFormat = denominatorFormat;

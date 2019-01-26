@@ -28,7 +28,7 @@ import java.util.Locale;
  * format for each of the whole number, numerator and, denominator can be
  * configured.
  */
-public class FractionFormat extends AbstractFormat {
+public class FractionFormat extends AbstractFractionFormat {
 
     /** Serializable version identifier */
     private static final long serialVersionUID = 3008655719530972612L;
