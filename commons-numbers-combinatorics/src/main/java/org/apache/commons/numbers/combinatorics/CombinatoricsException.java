@@ -17,6 +17,7 @@
 package org.apache.commons.numbers.combinatorics;
 
 import java.text.MessageFormat;
+import java.util.Locale;
 
 /**
  * Package private exception class with constants for frequently used messages.
@@ -50,6 +51,6 @@ class CombinatoricsException extends IllegalArgumentException {
     /** {@inheritDoc} */
     @Override
     public String getMessage() {
-        return MessageFormat.format(super.getMessage(), formatArguments);
+        return new MessageFormat(super.getMessage(), Locale.ENGLISH).format(formatArguments);
     }
 }

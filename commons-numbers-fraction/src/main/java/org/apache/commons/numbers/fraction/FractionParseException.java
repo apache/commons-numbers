@@ -17,8 +17,8 @@
 
 package org.apache.commons.numbers.fraction;
 
-import java.text.MessageFormat;
 import java.text.ParseException;
+import java.util.Locale;
 
 /**
  * Error thrown when a string cannot be parsed into a fraction.
@@ -36,8 +36,9 @@ class FractionParseException extends ParseException {
      * @param type type of target object
      */
     FractionParseException(String source, int position, Class<?> type) {
-        super(MessageFormat.format("string \"{0}\" unparseable (from position {1}) as an object of type {2}",
-                                   source, position, type),
+        super(String.format(Locale.ENGLISH,
+                "string \"%s\" unparseable (from position %d) as an object of type %s",
+                source, position, type),
               position);
     }
 }

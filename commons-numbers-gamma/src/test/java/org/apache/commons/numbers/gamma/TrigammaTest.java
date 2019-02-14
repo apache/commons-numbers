@@ -19,6 +19,8 @@ package org.apache.commons.numbers.gamma;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Locale;
+
 /**
  * Tests for {@link Trigamma}.
  */
@@ -45,7 +47,7 @@ public class TrigammaTest {
                 100, 0.010050166663333571395
         };
         for (int i = data.length - 2; i >= 0; i -= 2) {
-            Assert.assertEquals(String.format("trigamma %.0f", data[i]), data[i + 1], Trigamma.value(data[i]), eps);
+            Assert.assertEquals(String.format(Locale.ENGLISH, "trigamma %.0f", data[i]), data[i + 1], Trigamma.value(data[i]), eps);
         }
     }
 
