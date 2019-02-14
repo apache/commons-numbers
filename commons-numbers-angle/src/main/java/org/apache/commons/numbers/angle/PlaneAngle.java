@@ -97,18 +97,17 @@ public class PlaneAngle {
         final double lowerBound = center.value - HALF_TURN;
         final double upperBound = center.value + HALF_TURN;
 
-        double normalized = value - Math.floor(value - lowerBound);
+        final double normalized = value - Math.floor(value - lowerBound);
 
-        // If value is too small to be representable compared to the floor
-        // expression above (ie, if value + x = x), then we may end up with a number
-        // exactly equal to the upper bound here. In that case, subtract
-        // one from the normalized value so that we can fulfill the contract
-        // of only returning results strictly less than the upper bound.
-        if (normalized >= upperBound) {
-            normalized -= 1.0;
-        }
-
-        return new PlaneAngle(normalized);
+        return normalized < upperBound ?
+            new PlaneAngle(normalized) :
+            // If value is too small to be representable compared to the
+            // floor expression above (ie, if value + x = x), then we may
+            // end up with a number exactly equal to the upper bound here.
+            // In that case, subtract one from the normalized value so that
+            // we can fulfill the contract of only returning results strictly
+            // less than the upper bound.
+            new PlaneAngle(normalized - 1);
     }
 
     /**
