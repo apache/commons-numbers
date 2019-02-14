@@ -94,7 +94,21 @@ public class PlaneAngle {
      * {@code center - 0.5 <= a - k < center + 0.5} (in turns).
      */
     public PlaneAngle normalize(PlaneAngle center) {
-        return new PlaneAngle(value - Math.floor(value + HALF_TURN - center.value));
+        final double lowerBound = center.value - HALF_TURN;
+        final double upperBound = center.value + HALF_TURN;
+
+        double normalized = value - Math.floor(value - lowerBound);
+
+        // If value is too small to be representable compared to the floor
+        // expression above (ie, if value + x = x), then we may end up with a number
+        // exactly equal to the upper bound here. In that case, subtract
+        // one from the normalized value so that we can fulfill the contract
+        // of only returning results strictly less than the upper bound.
+        if (normalized >= upperBound) {
+            normalized -= 1.0;
+        }
+
+        return new PlaneAngle(normalized);
     }
 
     /**
