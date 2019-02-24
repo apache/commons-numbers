@@ -1084,7 +1084,7 @@ public final class Complex implements Serializable  {
      */
     public Complex sin() {
         return new Complex(Math.sin(real) * Math.cosh(imaginary),
-                           Math.cos(real) * Math.sinh(imaginary));
+                           -Math.cos(real) * Math.sinh(imaginary));
     }
 
     /**
