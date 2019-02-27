@@ -642,7 +642,6 @@ public class Fraction
      * conform to the specification.
      */
     public static Fraction parse(String s) {
-        final int len = s.length();
         final int slashLoc = s.indexOf("/");
         // if no slash, parse as single number
         if (slashLoc == -1) {
