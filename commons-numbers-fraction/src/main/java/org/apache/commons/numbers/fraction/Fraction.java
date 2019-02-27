@@ -17,6 +17,7 @@
 package org.apache.commons.numbers.fraction;
 
 import java.io.Serializable;
+
 import org.apache.commons.numbers.core.ArithmeticUtils;
 import org.apache.commons.numbers.core.NativeOperators;
 
@@ -630,4 +631,27 @@ public class Fraction
         }
         return str;
     }
+    
+    /**
+     * Parses a string that would be produced by {@link #toString()}
+     * and instantiates the corresponding object.
+     *
+     * @param s String representation.
+     * @return an instance.
+     * @throws IllegalArgumentException if the string does not
+     * conform to the specification.
+     */
+    public static Fraction parse(String s) {
+        final int len = s.length();
+        final int slashLoc = s.indexOf("/");
+        // if no slash, parse as single number
+        if (slashLoc == -1) {
+        	return Fraction.of(Integer.parseInt(s));
+        } else {
+        	final int num = Integer.parseInt(s.substring(0, slashLoc).trim());
+            final int denom = Integer.parseInt(s.substring(slashLoc + 1).trim());
+            return of(num, denom);
+        }
+    }
+
 }
