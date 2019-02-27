@@ -638,7 +638,7 @@ public class Fraction
      *
      * @param s String representation.
      * @return an instance.
-     * @throws IllegalArgumentException if the string does not
+     * @throws FractionException if the string does not
      * conform to the specification.
      */
     public static Fraction parse(String s) {
