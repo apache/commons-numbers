@@ -612,9 +612,9 @@ public class Fraction
         final int slashLoc = s.indexOf("/");
         // if no slash, parse as single number
         if (slashLoc == -1) {
-        	return Fraction.of(Integer.parseInt(s.trim()));
+            return Fraction.of(Integer.parseInt(s.trim()));
         } else {
-        	final int num = Integer.parseInt(s.substring(0, slashLoc).trim());
+            final int num = Integer.parseInt(s.substring(0, slashLoc).trim());
             final int denom = Integer.parseInt(s.substring(slashLoc + 1).trim());
             return of(num, denom);
         }
