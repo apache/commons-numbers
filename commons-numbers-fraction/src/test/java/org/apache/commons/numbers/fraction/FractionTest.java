@@ -612,6 +612,8 @@ public class FractionTest {
         Assert.assertEquals("0", Fraction.of(0, 3).toString());
         Assert.assertEquals("3", Fraction.of(6, 2).toString());
         Assert.assertEquals("2 / 3", Fraction.of(18, 27).toString());
+        Assert.assertEquals("-10 / 11", Fraction.of(-10, 11).toString());
+        Assert.assertEquals("-10 / 11", Fraction.of(10, -11).toString());
     }
 
     @Test
@@ -623,6 +625,25 @@ public class FractionTest {
         };
         for (Fraction fraction : fractions) {
             Assert.assertEquals(fraction, TestUtils.serializeAndRecover(fraction));
+        }
+    }
+    
+    @Test
+    public void testParse() {
+        String[] validExpressions = new String[] {
+                "1 / 2", "15 / 16", "-2 / 3", "8 / 7", 
+        };
+        Fraction[] fractions = {
+                Fraction.of(1, 2),
+                Fraction.of(15, 16),
+                Fraction.of(-2, 3),
+                Fraction.of(8, 7)
+        };
+        int inc = 0;
+        for (Fraction fraction: fractions) {
+            Assert.assertEquals(fraction, 
+                    Fraction.parse(validExpressions[inc]));
+            inc++;
         }
     }
 }
