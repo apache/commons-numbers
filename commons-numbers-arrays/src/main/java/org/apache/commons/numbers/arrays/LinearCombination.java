@@ -46,7 +46,7 @@ public class LinearCombination {
     /**
      * @param a Factors.
      * @param b Factors.
-     * @return \( \Sum_i a_i b_i \).
+     * @return \( \sum_i a_i b_i \).
      * @throws IllegalArgumentException if the sizes of the arrays are different.
      */
     public static double value(double[] a,
