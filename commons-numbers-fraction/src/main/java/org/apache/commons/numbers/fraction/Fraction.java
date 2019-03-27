@@ -578,6 +578,25 @@ public class Fraction
     }
 
     /**
+     * @param n Power.
+     * @return {@code this^n}
+     */
+    public Fraction pow(final int n) {
+        if (n == 0) {
+            return ONE;
+        }
+        if (numerator == 0) {
+            return this;
+        }
+
+        return n < 0 ?
+            new Fraction(ArithmeticUtils.pow(denominator, -n),
+                         ArithmeticUtils.pow(numerator, -n)) :
+            new Fraction(ArithmeticUtils.pow(numerator, n),
+                         ArithmeticUtils.pow(denominator, n));
+    }
+
+    /**
      * <p>
      * Returns the {@code String} representing this fraction, ie
      * "num / dem" or just "num" if the denominator is one.
