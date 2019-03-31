@@ -128,7 +128,7 @@ class SmallPrimes {
      * @param n Number to factor.
      * @return the list of prime factors of {@code n}.
      */
-    static List<Integer> trialDivision(int n){
+    static List<Integer> trialDivision(int n) {
         final List<Integer> factors = new ArrayList<Integer>(32);
         n = smallTrialDivision(n, factors);
         if (1 == n) {
@@ -166,12 +166,12 @@ class SmallPrimes {
         if (n >= 25326001) {
             t = 4;
         } // works up to 3.2 billion, int range stops at 2.7 so we are safe :-)
-        BigInteger br = BigInteger.valueOf(r);
-        BigInteger bn = BigInteger.valueOf(n);
+        final BigInteger br = BigInteger.valueOf(r);
+        final BigInteger bn = BigInteger.valueOf(n);
 
         for (int i = 0; i < t; i++) {
-            BigInteger a = BigInteger.valueOf(SmallPrimes.PRIMES[i]);
-            BigInteger bPow = a.modPow(br, bn);
+            final BigInteger a = BigInteger.valueOf(SmallPrimes.PRIMES[i]);
+            final BigInteger bPow = a.modPow(br, bn);
             int y = bPow.intValue();
             if ((1 != y) && (y != nMinus1)) {
                 int j = 1;
