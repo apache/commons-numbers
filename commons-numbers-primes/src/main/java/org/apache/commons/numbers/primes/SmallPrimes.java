@@ -25,7 +25,6 @@ import java.util.List;
  * Utility methods to work on primes within the <code>int</code> range.
  */
 class SmallPrimes {
-
     /**
      * The first 512 prime numbers.
      * <p>
@@ -61,22 +60,24 @@ class SmallPrimes {
             3449, 3457, 3461, 3463, 3467, 3469, 3491, 3499, 3511, 3517, 3527, 3529, 3533, 3539, 3541, 3547, 3557, 3559, 3571, 3581,
             3583, 3593, 3607, 3613, 3617, 3623, 3631, 3637, 3643, 3659, 3671};
 
-    /** The last number in PRIMES. */
+    /** The last number in {@link #PRIMES}. */
     public static final int PRIMES_LAST = PRIMES[PRIMES.length - 1];
 
     /**
-     * Hide utility class.
+     * Utility class.
      */
-    private SmallPrimes() {
-    }
+    private SmallPrimes() {}
 
     /**
      * Extract small factors.
-     * @param n the number to factor, must be &gt; 0.
-     * @param factors the list where to add the factors.
-     * @return the part of n which remains to be factored, it is either a prime or a semi-prime
+     *
+     * @param n Number to factor, must be &gt; 0.
+     * @param factors List where to add the factors.
+     * @return the part of {@code n} which remains to be factored, it is either
+     * a prime or a semi-prime.
      */
-    public static int smallTrialDivision(int n, final List<Integer> factors) {
+    public static int smallTrialDivision(int n,
+                                         final List<Integer> factors) {
         for (int p : PRIMES) {
             while (0 == n % p) {
                 n /= p;
@@ -87,13 +88,18 @@ class SmallPrimes {
     }
 
     /**
-     * Extract factors in the range <code>PRIME_LAST+2</code> to <code>maxFactors</code>.
-     * @param n the number to factorize, must be >= PRIME_LAST+2 and must not contain any factor below PRIME_LAST+2
-     * @param maxFactor the upper bound of trial division: if it is reached, the method gives up and returns n.
+     * Extract factors between {@code PRIME_LAST + 2} and {@code maxFactors}.
+     *
+     * @param n Number to factorize, must be larger than {@code PRIME_LAST + 2}
+     * and must not contain any factor below {@code PRIME_LAST + 2}.
+     * @param maxFactor Upper bound of trial division: if it is reached, the
+     * method gives up and returns {@code n}.
      * @param factors the list where to add the factors.
-     * @return  n or 1 if factorization is completed.
+     * @return {@code n} (or 1 if factorization is completed).
      */
-    public static int boundedTrialDivision(int n, int maxFactor, List<Integer> factors) {
+    public static int boundedTrialDivision(int n,
+                                           int maxFactor,
+                                           List<Integer> factors) {
         int f = PRIMES_LAST + 2;
         // no check is done about n >= f
         while (f <= maxFactor) {
@@ -118,8 +124,9 @@ class SmallPrimes {
 
     /**
      * Factorization by trial division.
-     * @param n the number to factor
-     * @return the list of prime factors of n
+     *
+     * @param n Number to factor.
+     * @return the list of prime factors of {@code n}.
      */
     public static List<Integer> trialDivision(int n){
         final List<Integer> factors = new ArrayList<Integer>(32);
@@ -134,19 +141,21 @@ class SmallPrimes {
     }
 
     /**
-     * Miller-Rabin probabilistic primality test for int type, used in such a way that a result is always guaranteed.
+     * Miller-Rabin probabilistic primality test for int type, used in such
+     * a way that a result is always guaranteed.
      * <p>
-     * It uses the prime numbers as successive base therefore it is guaranteed to be always correct.
-     * (see Handbook of applied cryptography by Menezes, table 4.1)
+     * It uses the prime numbers as successive base therefore it is guaranteed
+     * to be always correct (see Handbook of applied cryptography by Menezes,
+     * table 4.1).
      *
-     * @param n number to test: an odd integer &ge; 3
-     * @return true if n is prime. false if n is definitely composite.
+     * @param n Number to test: an odd integer &ge; 3.
+     * @return true if {@code n} is prime, false if it is definitely composite.
      */
     public static boolean millerRabinPrimeTest(final int n) {
         final int nMinus1 = n - 1;
         final int s = Integer.numberOfTrailingZeros(nMinus1);
         final int r = nMinus1 >> s;
-        //r must be odd, it is not checked here
+        // r must be odd, it is not checked here
         int t = 1;
         if (n >= 2047) {
             t = 2;
@@ -182,4 +191,3 @@ class SmallPrimes {
         return true; // definitely prime
     }
 }
-

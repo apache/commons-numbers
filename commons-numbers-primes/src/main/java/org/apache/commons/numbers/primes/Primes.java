@@ -29,15 +29,13 @@ import java.util.List;
  * </ul>
  */
 public class Primes {
-
     /** Exception message format when an argument is too small. */
     static final String NUMBER_TOO_SMALL = "{0} is smaller than the minimum ({1})";
 
     /**
-     * Hide utility class.
+     * Utility class.
      */
-    private Primes() {
-    }
+    private Primes() {}
 
     /**
      * Primality test: tells if the argument is a (provable) prime or not.
@@ -46,8 +44,8 @@ public class Primes {
      * it uses the firsts prime numbers as successive base (see Handbook of applied cryptography
      * by Menezes, table 4.1).
      *
-     * @param n number to test.
-     * @return true if n is prime. (All numbers &lt; 2 return false).
+     * @param n Number to test.
+     * @return true if {@code n} is prime. All numbers &lt; 2 return false.
      */
     public static boolean isPrime(int n) {
         if (n < 2) {
@@ -65,19 +63,18 @@ public class Primes {
     /**
      * Return the smallest prime greater than or equal to n.
      *
-     * @param n a positive number.
-     * @return the smallest prime greater than or equal to n.
+     * @param n Positive number.
+     * @return the smallest prime greater than or equal to {@code n}.
      * @throws IllegalArgumentException if n &lt; 0.
      */
     public static int nextPrime(int n) {
         if (n < 0) {
-            throw new IllegalArgumentException(
-                MessageFormat.format(NUMBER_TOO_SMALL, n, 0));
+            throw new IllegalArgumentException(MessageFormat.format(NUMBER_TOO_SMALL, n, 0));
         }
         if (n == 2) {
             return 2;
         }
-        n |= 1;//make sure n is odd
+        n |= 1; // make sure n is odd
         if (n == 1) {
             return 2;
         }
@@ -110,18 +107,15 @@ public class Primes {
     /**
      * Prime factors decomposition
      *
-     * @param n number to factorize: must be &ge; 2
-     * @return list of prime factors of n
+     * @param n Number to factorize: must be &ge; 2.
+     * @return the list of prime factors of {@code n}.
      * @throws IllegalArgumentException if n &lt; 2.
      */
     public static List<Integer> primeFactors(int n) {
 
         if (n < 2) {
-            throw new IllegalArgumentException(
-                MessageFormat.format(NUMBER_TOO_SMALL, n, 2));
+            throw new IllegalArgumentException(MessageFormat.format(NUMBER_TOO_SMALL, n, 2));
         }
         return SmallPrimes.trialDivision(n);
-
     }
-
 }
