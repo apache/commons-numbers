@@ -32,7 +32,7 @@ class SmallPrimes {
      * As a result, <code>int</code> numbers which are not reduced by those primes are guaranteed
      * to be either prime or semi prime.
      */
-    public static final int[] PRIMES = {2,
+    static final int[] PRIMES = {2,
             3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73,
             79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179,
             181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283,
@@ -61,7 +61,7 @@ class SmallPrimes {
             3583, 3593, 3607, 3613, 3617, 3623, 3631, 3637, 3643, 3659, 3671};
 
     /** The last number in {@link #PRIMES}. */
-    public static final int PRIMES_LAST = PRIMES[PRIMES.length - 1];
+    static final int PRIMES_LAST = PRIMES[PRIMES.length - 1];
 
     /**
      * Utility class.
@@ -76,8 +76,8 @@ class SmallPrimes {
      * @return the part of {@code n} which remains to be factored, it is either
      * a prime or a semi-prime.
      */
-    public static int smallTrialDivision(int n,
-                                         final List<Integer> factors) {
+    static int smallTrialDivision(int n,
+                                  final List<Integer> factors) {
         for (int p : PRIMES) {
             while (0 == n % p) {
                 n /= p;
@@ -97,9 +97,9 @@ class SmallPrimes {
      * @param factors the list where to add the factors.
      * @return {@code n} (or 1 if factorization is completed).
      */
-    public static int boundedTrialDivision(int n,
-                                           int maxFactor,
-                                           List<Integer> factors) {
+    static int boundedTrialDivision(int n,
+                                    int maxFactor,
+                                    List<Integer> factors) {
         int f = PRIMES_LAST + 2;
         // no check is done about n >= f
         while (f <= maxFactor) {
@@ -128,7 +128,7 @@ class SmallPrimes {
      * @param n Number to factor.
      * @return the list of prime factors of {@code n}.
      */
-    public static List<Integer> trialDivision(int n){
+    static List<Integer> trialDivision(int n){
         final List<Integer> factors = new ArrayList<Integer>(32);
         n = smallTrialDivision(n, factors);
         if (1 == n) {
@@ -151,7 +151,7 @@ class SmallPrimes {
      * @param n Number to test: an odd integer &ge; 3.
      * @return true if {@code n} is prime, false if it is definitely composite.
      */
-    public static boolean millerRabinPrimeTest(final int n) {
+    static boolean millerRabinPrimeTest(final int n) {
         final int nMinus1 = n - 1;
         final int s = Integer.numberOfTrailingZeros(nMinus1);
         final int r = nMinus1 >> s;
