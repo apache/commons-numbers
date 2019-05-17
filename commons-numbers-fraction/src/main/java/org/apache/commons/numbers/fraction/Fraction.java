@@ -19,15 +19,16 @@ package org.apache.commons.numbers.fraction;
 import java.io.Serializable;
 import java.math.BigInteger;
 import org.apache.commons.numbers.core.ArithmeticUtils;
+import org.apache.commons.numbers.core.NativeOperators;
 
 /**
  * Representation of a rational number.
- *
- * implements Serializable since 2.0
  */
 public class Fraction
     extends Number
-    implements Comparable<Fraction>, Serializable {
+    implements Comparable<Fraction>,
+               Serializable,
+               NativeOperators<Fraction> {
 
     /** A fraction representing "2 / 1". */
     public static final Fraction TWO = new Fraction(2, 1);
@@ -397,6 +398,18 @@ public class Fraction
         return (long)doubleValue();
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public Fraction zero() {
+        return ZERO;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Fraction one() {
+        return ONE;
+    }
+
     /**
      * Return the additive inverse of this fraction.
      * @return the negation of this fraction.
@@ -552,6 +565,25 @@ public class Fraction
      */
     public Fraction multiply(final int i) {
         return multiply(new Fraction(i));
+    }
+
+    /**
+     * @param n Power.
+     * @return {@code this^n}
+     */
+    public Fraction pow(final int n) {
+        if (n == 0) {
+            return ONE;
+        }
+        if (numerator == 0) {
+            return this;
+        }
+
+        return n < 0 ?
+            new Fraction(ArithmeticUtils.pow(denominator, -n),
+                         ArithmeticUtils.pow(numerator, -n)) :
+            new Fraction(ArithmeticUtils.pow(numerator, n),
+                         ArithmeticUtils.pow(denominator, n));
     }
 
     /**

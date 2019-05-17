@@ -20,7 +20,6 @@ package org.apache.commons.numbers.complex;
 import java.util.List;
 
 import org.apache.commons.numbers.complex.Complex;
-import org.apache.commons.numbers.complex.ComplexUtils;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -34,135 +33,115 @@ import static org.junit.Assert.fail;
  */
 public class ComplexTest {
 
-
-    private double inf = Double.POSITIVE_INFINITY;
-    private double neginf = Double.NEGATIVE_INFINITY;
-    private double nan = Double.NaN;
-    private double pi = Math.PI;
-    private Complex oneInf = new Complex(1, inf);
-    private Complex oneNegInf = new Complex(1, neginf);
-    private Complex infOne = new Complex(inf, 1);
-    private Complex infZero = new Complex(inf, 0);
-    private Complex infNaN = new Complex(inf, nan);
-    private Complex infNegInf = new Complex(inf, neginf);
-    private Complex infInf = new Complex(inf, inf);
-    private Complex negInfInf = new Complex(neginf, inf);
-    private Complex negInfZero = new Complex(neginf, 0);
-    private Complex negInfOne = new Complex(neginf, 1);
-    private Complex negInfNaN = new Complex(neginf, nan);
-    private Complex negInfNegInf = new Complex(neginf, neginf);
-    private Complex oneNaN = new Complex(1, nan);
-    private Complex zeroInf = new Complex(0, inf);
-    private Complex zeroNaN = new Complex(0, nan);
-    private Complex nanInf = new Complex(nan, inf);
-    private Complex nanNegInf = new Complex(nan, neginf);
-    private Complex nanZero = new Complex(nan, 0);
+    private static final double inf = Double.POSITIVE_INFINITY;
+    private static final double neginf = Double.NEGATIVE_INFINITY;
+    private static final double nan = Double.NaN;
+    private static final double pi = Math.PI;
+    private static final Complex oneInf = Complex.ofCartesian(1, inf);
+    private static final Complex oneNegInf = Complex.ofCartesian(1, neginf);
+    private static final Complex infOne = Complex.ofCartesian(inf, 1);
+    private static final Complex infZero = Complex.ofCartesian(inf, 0);
+    private static final Complex infNaN = Complex.ofCartesian(inf, nan);
+    private static final Complex infNegInf = Complex.ofCartesian(inf, neginf);
+    private static final Complex infInf = Complex.ofCartesian(inf, inf);
+    private static final Complex negInfInf = Complex.ofCartesian(neginf, inf);
+    private static final Complex negInfZero = Complex.ofCartesian(neginf, 0);
+    private static final Complex negInfOne = Complex.ofCartesian(neginf, 1);
+    private static final Complex negInfNaN = Complex.ofCartesian(neginf, nan);
+    private static final Complex negInfNegInf = Complex.ofCartesian(neginf, neginf);
+    private static final Complex oneNaN = Complex.ofCartesian(1, nan);
+    private static final Complex zeroInf = Complex.ofCartesian(0, inf);
+    private static final Complex zeroNaN = Complex.ofCartesian(0, nan);
+    private static final Complex nanInf = Complex.ofCartesian(nan, inf);
+    private static final Complex nanNegInf = Complex.ofCartesian(nan, neginf);
+    private static final Complex nanZero = Complex.ofCartesian(nan, 0);
+    private static final Complex NAN = Complex.ofCartesian(nan, nan);
 
     @Test
     public void testConstructor() {
-        Complex z = new Complex(3.0, 4.0);
+        Complex z = Complex.ofCartesian(3.0, 4.0);
         Assert.assertEquals(3.0, z.getReal(), 1.0e-5);
         Assert.assertEquals(4.0, z.getImaginary(), 1.0e-5);
     }
 
     @Test
     public void testConstructorNaN() {
-        Complex z = new Complex(3.0, Double.NaN);
+        Complex z = Complex.ofCartesian(3.0, Double.NaN);
         Assert.assertTrue(z.isNaN());
 
-        z = new Complex(nan, 4.0);
+        z = Complex.ofCartesian(nan, 4.0);
         Assert.assertTrue(z.isNaN());
 
-        z = new Complex(3.0, 4.0);
+        z = Complex.ofCartesian(3.0, 4.0);
         Assert.assertFalse(z.isNaN());
     }
 
     @Test
     public void testAbs() {
-        Complex z = new Complex(3.0, 4.0);
+        Complex z = Complex.ofCartesian(3.0, 4.0);
         Assert.assertEquals(5.0, z.abs(), 1.0e-5);
     }
 
     @Test
     public void testAbsNaN() {
-        Assert.assertTrue(Double.isNaN(Complex.NaN.abs()));
-        Complex z = new Complex(inf, nan);
+        Assert.assertTrue(Double.isNaN(NAN.abs()));
+        Complex z = Complex.ofCartesian(inf, nan);
         Assert.assertTrue(Double.isNaN(z.abs()));
     }
 
     @Test
-    public void testAbsInfinite() {
-        Complex z = new Complex(inf, 0);
-        Assert.assertEquals(inf, z.abs(), 0);
-        z = new Complex(0, neginf);
-        Assert.assertEquals(inf, z.abs(), 0);
-        z = new Complex(inf, neginf);
-        Assert.assertEquals(inf, z.abs(), 0);
-    }
-
-    @Test
     public void testAdd() {
-        Complex x = new Complex(3.0, 4.0);
-        Complex y = new Complex(5.0, 6.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
+        Complex y = Complex.ofCartesian(5.0, 6.0);
         Complex z = x.add(y);
         Assert.assertEquals(8.0, z.getReal(), 1.0e-5);
         Assert.assertEquals(10.0, z.getImaginary(), 1.0e-5);
     }
 
     @Test
-    public void testAddNaN() {
-        Complex x = new Complex(3.0, 4.0);
-        Complex z = x.add(Complex.NaN);
-        Assert.assertSame(Complex.NaN, z);
-        z = new Complex(1, nan);
-        Complex w = x.add(z);
-        Assert.assertSame(Complex.NaN, w);
-    }
-
-    @Test
     public void testAddInf() {
-        Complex x = new Complex(1, 1);
-        Complex z = new Complex(inf, 0);
+        Complex x = Complex.ofCartesian(1, 1);
+        Complex z = Complex.ofCartesian(inf, 0);
         Complex w = x.add(z);
         Assert.assertEquals(w.getImaginary(), 1, 0);
         Assert.assertEquals(inf, w.getReal(), 0);
 
-        x = new Complex(neginf, 0);
+        x = Complex.ofCartesian(neginf, 0);
         Assert.assertTrue(Double.isNaN(x.add(z).getReal()));
     }
 
 
     @Test
     public void testScalarAdd() {
-        Complex x = new Complex(3.0, 4.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
         double yDouble = 2.0;
-        Complex yComplex = new Complex(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.add(yComplex), x.add(yDouble));
     }
 
     @Test
     public void testScalarAddNaN() {
-        Complex x = new Complex(3.0, 4.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
         double yDouble = Double.NaN;
-        Complex yComplex = new Complex(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.add(yComplex), x.add(yDouble));
     }
 
     @Test
     public void testScalarAddInf() {
-        Complex x = new Complex(1, 1);
+        Complex x = Complex.ofCartesian(1, 1);
         double yDouble = Double.POSITIVE_INFINITY;
 
-        Complex yComplex = new Complex(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.add(yComplex), x.add(yDouble));
 
-        x = new Complex(neginf, 0);
+        x = Complex.ofCartesian(neginf, 0);
         Assert.assertEquals(x.add(yComplex), x.add(yDouble));
     }
 
     @Test
     public void testConjugate() {
-        Complex x = new Complex(3.0, 4.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
         Complex z = x.conjugate();
         Assert.assertEquals(3.0, z.getReal(), 1.0e-5);
         Assert.assertEquals(-4.0, z.getImaginary(), 1.0e-5);
@@ -170,22 +149,22 @@ public class ComplexTest {
 
     @Test
     public void testConjugateNaN() {
-        Complex z = Complex.NaN.conjugate();
+        Complex z = NAN.conjugate();
         Assert.assertTrue(z.isNaN());
     }
 
     @Test
     public void testConjugateInfiinite() {
-        Complex z = new Complex(0, inf);
+        Complex z = Complex.ofCartesian(0, inf);
         Assert.assertEquals(neginf, z.conjugate().getImaginary(), 0);
-        z = new Complex(0, neginf);
+        z = Complex.ofCartesian(0, neginf);
         Assert.assertEquals(inf, z.conjugate().getImaginary(), 0);
     }
 
     @Test
     public void testDivide() {
-        Complex x = new Complex(3.0, 4.0);
-        Complex y = new Complex(5.0, 6.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
+        Complex y = Complex.ofCartesian(5.0, 6.0);
         Complex z = x.divide(y);
         Assert.assertEquals(39.0 / 61.0, z.getReal(), 1.0e-5);
         Assert.assertEquals(2.0 / 61.0, z.getImaginary(), 1.0e-5);
@@ -193,59 +172,37 @@ public class ComplexTest {
 
     @Test
     public void testDivideReal() {
-        Complex x = new Complex(2d, 3d);
-        Complex y = new Complex(2d, 0d);
-        Assert.assertEquals(new Complex(1d, 1.5), x.divide(y));
+        Complex x = Complex.ofCartesian(2d, 3d);
+        Complex y = Complex.ofCartesian(2d, 0d);
+        Assert.assertEquals(Complex.ofCartesian(1d, 1.5), x.divide(y));
 
     }
 
     @Test
     public void testDivideImaginary() {
-        Complex x = new Complex(2d, 3d);
-        Complex y = new Complex(0d, 2d);
-        Assert.assertEquals(new Complex(1.5d, -1d), x.divide(y));
-    }
-
-    @Test
-    public void testDivideInf() {
-        Complex x = new Complex(3, 4);
-        Complex w = new Complex(neginf, inf);
-        Assert.assertTrue(x.divide(w).equals(Complex.ZERO));
-
-        Complex z = w.divide(x);
-        Assert.assertTrue(Double.isNaN(z.getReal()));
-        Assert.assertEquals(inf, z.getImaginary(), 0);
-
-        w = new Complex(inf, inf);
-        z = w.divide(x);
-        Assert.assertTrue(Double.isNaN(z.getImaginary()));
-        Assert.assertEquals(inf, z.getReal(), 0);
-
-        w = new Complex(1, inf);
-        z = w.divide(w);
-        Assert.assertTrue(Double.isNaN(z.getReal()));
-        Assert.assertTrue(Double.isNaN(z.getImaginary()));
+        Complex x = Complex.ofCartesian(2d, 3d);
+        Complex y = Complex.ofCartesian(0d, 2d);
+        Assert.assertEquals(Complex.ofCartesian(1.5d, -1d), x.divide(y));
     }
 
     @Test
     public void testDivideZero() {
-        Complex x = new Complex(3.0, 4.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
         Complex z = x.divide(Complex.ZERO);
-        // Assert.assertEquals(z, Complex.INF); // See MATH-657
-        Assert.assertEquals(z, Complex.NaN);
+        Assert.assertEquals(z, Complex.INF);
     }
 
     @Test
     public void testDivideZeroZero() {
-        Complex x = new Complex(0.0, 0.0);
+        Complex x = Complex.ofCartesian(0.0, 0.0);
         Complex z = x.divide(Complex.ZERO);
-        Assert.assertEquals(z, Complex.NaN);
+        Assert.assertEquals(z, NAN);
     }
 
     @Test
     public void testDivideNaN() {
-        Complex x = new Complex(3.0, 4.0);
-        Complex z = x.divide(Complex.NaN);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
+        Complex z = x.divide(NAN);
         Assert.assertTrue(z.isNaN());
     }
 
@@ -260,35 +217,35 @@ public class ComplexTest {
        Assert.assertTrue(Double.isNaN(z.getImaginary()));
 
        z = negInfInf.divide(Complex.ONE);
-       Assert.assertTrue(Double.isNaN(z.getReal()));
-       Assert.assertTrue(Double.isNaN(z.getImaginary()));
+       Assert.assertTrue(Double.isInfinite(z.getReal()));
+       Assert.assertTrue(Double.isInfinite(z.getImaginary()));
     }
 
     @Test
     public void testScalarDivide() {
-        Complex x = new Complex(3.0, 4.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
         double yDouble = 2.0;
-        Complex yComplex = new Complex(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.divide(yComplex), x.divide(yDouble));
     }
 
     @Test
     public void testScalarDivideNaN() {
-        Complex x = new Complex(3.0, 4.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
         double yDouble = Double.NaN;
-        Complex yComplex = new Complex(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.divide(yComplex), x.divide(yDouble));
     }
 
     @Test
     public void testScalarDivideZero() {
-        Complex x = new Complex(1,1);
+        Complex x = Complex.ofCartesian(1,1);
         TestUtils.assertEquals(x.divide(Complex.ZERO), x.divide(0), 0);
     }
 
     @Test
     public void testReciprocal() {
-        Complex z = new Complex(5.0, 6.0);
+        Complex z = Complex.ofCartesian(5.0, 6.0);
         Complex act = z.reciprocal();
         double expRe = 5.0 / 61.0;
         double expIm = -6.0 / 61.0;
@@ -298,7 +255,7 @@ public class ComplexTest {
 
     @Test
     public void testReciprocalReciprocal() {
-        Complex z = new Complex(5.0, 6.0);
+        Complex z = Complex.ofCartesian(5.0, 6.0);
         Complex zRR = z.reciprocal().reciprocal();
         final double tol = 1e-14;
         Assert.assertEquals(zRR.getReal(), z.getReal(), tol);
@@ -307,51 +264,28 @@ public class ComplexTest {
 
     @Test
     public void testReciprocalReal() {
-        Complex z = new Complex(-2.0, 0.0);
-        Assert.assertTrue(Complex.equals(new Complex(-0.5, 0.0), z.reciprocal()));
+        Complex z = Complex.ofCartesian(-2.0, 0.0);
+        Assert.assertTrue(Complex.equals(Complex.ofCartesian(-0.5, 0.0), z.reciprocal()));
     }
 
     @Test
     public void testReciprocalImaginary() {
-        Complex z = new Complex(0.0, -2.0);
-        Assert.assertEquals(new Complex(0.0, 0.5), z.reciprocal());
-    }
-
-    @Test
-    public void testReciprocalInf() {
-        Complex z = new Complex(neginf, inf);
-        Assert.assertTrue(z.reciprocal().equals(Complex.ZERO));
-
-        z = new Complex(1, inf).reciprocal();
-        Assert.assertEquals(z, Complex.ZERO);
-    }
-
-    @Test
-    public void testReciprocalZero() {
-        Assert.assertEquals(Complex.ZERO.reciprocal(), Complex.INF);
+        Complex z = Complex.ofCartesian(0.0, -2.0);
+        Assert.assertEquals(Complex.ofCartesian(0.0, 0.5), z.reciprocal());
     }
 
     @Test
     public void testReciprocalNaN() {
-        Assert.assertTrue(Complex.NaN.reciprocal().isNaN());
+        Assert.assertTrue(NAN.reciprocal().isNaN());
     }
 
     @Test
     public void testMultiply() {
-        Complex x = new Complex(3.0, 4.0);
-        Complex y = new Complex(5.0, 6.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
+        Complex y = Complex.ofCartesian(5.0, 6.0);
         Complex z = x.multiply(y);
         Assert.assertEquals(-9.0, z.getReal(), 1.0e-5);
         Assert.assertEquals(38.0, z.getImaginary(), 1.0e-5);
-    }
-
-    @Test
-    public void testMultiplyNaN() {
-        Complex x = new Complex(3.0, 4.0);
-        Complex z = x.multiply(Complex.NaN);
-        Assert.assertSame(Complex.NaN, z);
-        z = Complex.NaN.multiply(5);
-        Assert.assertSame(Complex.NaN, z);
     }
 
     @Test
@@ -361,63 +295,39 @@ public class ComplexTest {
     }
 
     @Test
-    public void testMultiplyNaNInf() {
-        Complex z = new Complex(1,1);
-        Complex w = z.multiply(infOne);
-        Assert.assertEquals(w.getReal(), inf, 0);
-        Assert.assertEquals(w.getImaginary(), inf, 0);
-
-        // [MATH-164]
-        Assert.assertTrue(new Complex( 1,0).multiply(infInf).equals(Complex.INF));
-        Assert.assertTrue(new Complex(-1,0).multiply(infInf).equals(Complex.INF));
-        Assert.assertTrue(new Complex( 1,0).multiply(negInfZero).equals(Complex.INF));
-
-        w = oneInf.multiply(oneNegInf);
-        Assert.assertEquals(w.getReal(), inf, 0);
-        Assert.assertEquals(w.getImaginary(), inf, 0);
-
-        w = negInfNegInf.multiply(oneNaN);
-        Assert.assertTrue(Double.isNaN(w.getReal()));
-        Assert.assertTrue(Double.isNaN(w.getImaginary()));
-
-        z = new Complex(1, neginf);
-        Assert.assertSame(Complex.INF, z.multiply(z));
-    }
-
-    @Test
     public void testScalarMultiply() {
-        Complex x = new Complex(3.0, 4.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
         double yDouble = 2.0;
-        Complex yComplex = new Complex(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.multiply(yComplex), x.multiply(yDouble));
         int zInt = -5;
-        Complex zComplex = new Complex(zInt);
+        Complex zComplex = Complex.ofReal(zInt);
         Assert.assertEquals(x.multiply(zComplex), x.multiply(zInt));
     }
 
     @Test
     public void testScalarMultiplyNaN() {
-        Complex x = new Complex(3.0, 4.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
         double yDouble = Double.NaN;
-        Complex yComplex = new Complex(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.multiply(yComplex), x.multiply(yDouble));
     }
 
     @Test
     public void testScalarMultiplyInf() {
-        Complex x = new Complex(1, 1);
+        Complex x = Complex.ofCartesian(1, 1);
         double yDouble = Double.POSITIVE_INFINITY;
-        Complex yComplex = new Complex(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.multiply(yComplex), x.multiply(yDouble));
 
         yDouble = Double.NEGATIVE_INFINITY;
-        yComplex = new Complex(yDouble);
+        yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.multiply(yComplex), x.multiply(yDouble));
     }
 
     @Test
     public void testNegate() {
-        Complex x = new Complex(3.0, 4.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
         Complex z = x.negate();
         Assert.assertEquals(-3.0, z.getReal(), 1.0e-5);
         Assert.assertEquals(-4.0, z.getImaginary(), 1.0e-5);
@@ -425,93 +335,83 @@ public class ComplexTest {
 
     @Test
     public void testNegateNaN() {
-        Complex z = Complex.NaN.negate();
+        Complex z = NAN.negate();
         Assert.assertTrue(z.isNaN());
     }
 
     @Test
     public void testSubtract() {
-        Complex x = new Complex(3.0, 4.0);
-        Complex y = new Complex(5.0, 6.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
+        Complex y = Complex.ofCartesian(5.0, 6.0);
         Complex z = x.subtract(y);
         Assert.assertEquals(-2.0, z.getReal(), 1.0e-5);
         Assert.assertEquals(-2.0, z.getImaginary(), 1.0e-5);
     }
 
     @Test
-    public void testSubtractNaN() {
-        Complex x = new Complex(3.0, 4.0);
-        Complex z = x.subtract(Complex.NaN);
-        Assert.assertSame(Complex.NaN, z);
-        z = new Complex(1, nan);
-        Complex w = x.subtract(z);
-        Assert.assertSame(Complex.NaN, w);
-    }
-
-    @Test
     public void testSubtractInf() {
-        Complex x = new Complex(1, 1);
-        Complex z = new Complex(neginf, 0);
+        Complex x = Complex.ofCartesian(1, 1);
+        Complex z = Complex.ofCartesian(neginf, 0);
         Complex w = x.subtract(z);
         Assert.assertEquals(w.getImaginary(), 1, 0);
         Assert.assertEquals(inf, w.getReal(), 0);
 
-        x = new Complex(neginf, 0);
+        x = Complex.ofCartesian(neginf, 0);
         Assert.assertTrue(Double.isNaN(x.subtract(z).getReal()));
     }
 
     @Test
     public void testScalarSubtract() {
-        Complex x = new Complex(3.0, 4.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
         double yDouble = 2.0;
-        Complex yComplex = new Complex(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.subtract(yComplex), x.subtract(yDouble));
     }
 
     @Test
     public void testScalarSubtractNaN() {
-        Complex x = new Complex(3.0, 4.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
         double yDouble = Double.NaN;
-        Complex yComplex = new Complex(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.subtract(yComplex), x.subtract(yDouble));
     }
 
     @Test
     public void testScalarSubtractInf() {
-        Complex x = new Complex(1, 1);
+        Complex x = Complex.ofCartesian(1, 1);
         double yDouble = Double.POSITIVE_INFINITY;
-        Complex yComplex = new Complex(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.subtract(yComplex), x.subtract(yDouble));
 
-        x = new Complex(neginf, 0);
+        x = Complex.ofCartesian(neginf, 0);
         Assert.assertEquals(x.subtract(yComplex), x.subtract(yDouble));
     }
 
 
     @Test
     public void testEqualsNull() {
-        Complex x = new Complex(3.0, 4.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
         Assert.assertFalse(x.equals(null));
     }
 
     @Test(expected=NullPointerException.class)
     public void testFloatingPointEqualsPrecondition1() {
-        Complex.equals(new Complex(3.0, 4.0), null, 3);
+        Complex.equals(Complex.ofCartesian(3.0, 4.0), null, 3);
     }
     @Test(expected=NullPointerException.class)
     public void testFloatingPointEqualsPrecondition2() {
-        Complex.equals(null, new Complex(3.0, 4.0), 3);
+        Complex.equals(null, Complex.ofCartesian(3.0, 4.0), 3);
     }
 
     @Test
     public void testEqualsClass() {
-        Complex x = new Complex(3.0, 4.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
         Assert.assertFalse(x.equals(this));
     }
 
     @Test
     public void testEqualsSame() {
-        Complex x = new Complex(3.0, 4.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
         Assert.assertTrue(x.equals(x));
     }
 
@@ -520,8 +420,8 @@ public class ComplexTest {
         double re = -3.21;
         double im = 456789e10;
 
-        final Complex x = new Complex(re, im);
-        Complex y = new Complex(re, im);
+        final Complex x = Complex.ofCartesian(re, im);
+        Complex y = Complex.ofCartesian(re, im);
 
         Assert.assertTrue(x.equals(y));
         Assert.assertTrue(Complex.equals(x, y));
@@ -531,21 +431,21 @@ public class ComplexTest {
             re = Math.nextUp(re);
             im = Math.nextUp(im);
         }
-        y = new Complex(re, im);
+        y = Complex.ofCartesian(re, im);
         Assert.assertTrue(Complex.equals(x, y, maxUlps));
 
         re = Math.nextUp(re);
         im = Math.nextUp(im);
-        y = new Complex(re, im);
+        y = Complex.ofCartesian(re, im);
         Assert.assertFalse(Complex.equals(x, y, maxUlps));
     }
 
     @Test
     public void testFloatingPointEqualsNaN() {
-        Complex c = new Complex(Double.NaN, 1);
+        Complex c = Complex.ofCartesian(Double.NaN, 1);
         Assert.assertFalse(Complex.equals(c, c));
 
-        c = new Complex(1, Double.NaN);
+        c = Complex.ofCartesian(1, Double.NaN);
         Assert.assertFalse(Complex.equals(c, c));
     }
 
@@ -554,8 +454,8 @@ public class ComplexTest {
         final double re = 153.0000;
         final double im = 152.9375;
         final double tol1 = 0.0625;
-        final Complex x = new Complex(re, im);
-        final Complex y = new Complex(re + tol1, im + tol1);
+        final Complex x = Complex.ofCartesian(re, im);
+        final Complex y = Complex.ofCartesian(re + tol1, im + tol1);
         Assert.assertTrue(Complex.equals(x, y, tol1));
 
         final double tol2 = 0.0624;
@@ -564,8 +464,8 @@ public class ComplexTest {
 
     @Test
     public void testFloatingPointEqualsWithAllowedDeltaNaN() {
-        final Complex x = new Complex(0, Double.NaN);
-        final Complex y = new Complex(Double.NaN, 0);
+        final Complex x = Complex.ofCartesian(0, Double.NaN);
+        final Complex y = Complex.ofCartesian(Double.NaN, 0);
         Assert.assertFalse(Complex.equals(x, Complex.ZERO, 0.1));
         Assert.assertFalse(Complex.equals(x, x, 0.1));
         Assert.assertFalse(Complex.equals(x, y, 0.1));
@@ -578,15 +478,15 @@ public class ComplexTest {
         final double im = 1e10;
 
         final double f = 1 + tol;
-        final Complex x = new Complex(re, im);
-        final Complex y = new Complex(re * f, im * f);
+        final Complex x = Complex.ofCartesian(re, im);
+        final Complex y = Complex.ofCartesian(re * f, im * f);
         Assert.assertTrue(Complex.equalsWithRelativeTolerance(x, y, tol));
     }
 
     @Test
     public void testFloatingPointEqualsWithRelativeToleranceNaN() {
-        final Complex x = new Complex(0, Double.NaN);
-        final Complex y = new Complex(Double.NaN, 0);
+        final Complex x = Complex.ofCartesian(0, Double.NaN);
+        final Complex y = Complex.ofCartesian(Double.NaN, 0);
         Assert.assertFalse(Complex.equalsWithRelativeTolerance(x, Complex.ZERO, 0.1));
         Assert.assertFalse(Complex.equalsWithRelativeTolerance(x, x, 0.1));
         Assert.assertFalse(Complex.equalsWithRelativeTolerance(x, y, 0.1));
@@ -594,222 +494,51 @@ public class ComplexTest {
 
     @Test
     public void testEqualsTrue() {
-        Complex x = new Complex(3.0, 4.0);
-        Complex y = new Complex(3.0, 4.0);
+        Complex x = Complex.ofCartesian(3.0, 4.0);
+        Complex y = Complex.ofCartesian(3.0, 4.0);
         Assert.assertTrue(x.equals(y));
     }
 
     @Test
     public void testEqualsRealDifference() {
-        Complex x = new Complex(0.0, 0.0);
-        Complex y = new Complex(0.0 + Double.MIN_VALUE, 0.0);
+        Complex x = Complex.ofCartesian(0.0, 0.0);
+        Complex y = Complex.ofCartesian(0.0 + Double.MIN_VALUE, 0.0);
         Assert.assertFalse(x.equals(y));
     }
 
     @Test
     public void testEqualsImaginaryDifference() {
-        Complex x = new Complex(0.0, 0.0);
-        Complex y = new Complex(0.0, 0.0 + Double.MIN_VALUE);
+        Complex x = Complex.ofCartesian(0.0, 0.0);
+        Complex y = Complex.ofCartesian(0.0, 0.0 + Double.MIN_VALUE);
         Assert.assertFalse(x.equals(y));
     }
 
     @Test
-    public void testEqualsNaN() {
-        Complex realNaN = new Complex(Double.NaN, 0.0);
-        Complex imaginaryNaN = new Complex(0.0, Double.NaN);
-        Complex complexNaN = Complex.NaN;
-        Assert.assertTrue(realNaN.equals(imaginaryNaN));
-        Assert.assertTrue(imaginaryNaN.equals(complexNaN));
-        Assert.assertTrue(realNaN.equals(complexNaN));
-    }
-
-    @Test
     public void testHashCode() {
-        Complex x = new Complex(0.0, 0.0);
-        Complex y = new Complex(0.0, 0.0 + Double.MIN_VALUE);
+        Complex x = Complex.ofCartesian(0.0, 0.0);
+        Complex y = Complex.ofCartesian(0.0, 0.0 + Double.MIN_VALUE);
         Assert.assertFalse(x.hashCode()==y.hashCode());
-        y = new Complex(0.0 + Double.MIN_VALUE, 0.0);
+        y = Complex.ofCartesian(0.0 + Double.MIN_VALUE, 0.0);
         Assert.assertFalse(x.hashCode()==y.hashCode());
-        Complex realNaN = new Complex(Double.NaN, 0.0);
-        Complex imaginaryNaN = new Complex(0.0, Double.NaN);
+        Complex realNaN = Complex.ofCartesian(Double.NaN, 0.0);
+        Complex imaginaryNaN = Complex.ofCartesian(0.0, Double.NaN);
         Assert.assertEquals(realNaN.hashCode(), imaginaryNaN.hashCode());
-        Assert.assertEquals(imaginaryNaN.hashCode(), Complex.NaN.hashCode());
+        Assert.assertEquals(imaginaryNaN.hashCode(), NAN.hashCode());
 
         // MATH-1118
         // "equals" and "hashCode" must be compatible: if two objects have
         // different hash codes, "equals" must return false.
         final String msg = "'equals' not compatible with 'hashCode'";
 
-        x = new Complex(0.0, 0.0);
-        y = new Complex(0.0, -0.0);
+        x = Complex.ofCartesian(0.0, 0.0);
+        y = Complex.ofCartesian(0.0, -0.0);
         Assert.assertTrue(x.hashCode() != y.hashCode());
         Assert.assertFalse(msg, x.equals(y));
 
-        x = new Complex(0.0, 0.0);
-        y = new Complex(-0.0, 0.0);
+        x = Complex.ofCartesian(0.0, 0.0);
+        y = Complex.ofCartesian(-0.0, 0.0);
         Assert.assertTrue(x.hashCode() != y.hashCode());
         Assert.assertFalse(msg, x.equals(y));
-    }
-
-    @Test
-    public void testAcos() {
-        Complex z = new Complex(3, 4);
-        Complex expected = new Complex(0.936812, -2.30551);
-        TestUtils.assertEquals(expected, z.acos(), 1.0e-5);
-        TestUtils.assertEquals(new Complex(Math.acos(0), 0),
-                Complex.ZERO.acos(), 1.0e-12);
-    }
-
-    @Test
-    public void testAcosInf() {
-        TestUtils.assertSame(Complex.NaN, oneInf.acos());
-        TestUtils.assertSame(Complex.NaN, oneNegInf.acos());
-        TestUtils.assertSame(Complex.NaN, infOne.acos());
-        TestUtils.assertSame(Complex.NaN, negInfOne.acos());
-        TestUtils.assertSame(Complex.NaN, infInf.acos());
-        TestUtils.assertSame(Complex.NaN, infNegInf.acos());
-        TestUtils.assertSame(Complex.NaN, negInfInf.acos());
-        TestUtils.assertSame(Complex.NaN, negInfNegInf.acos());
-    }
-
-    @Test
-    public void testAcosNaN() {
-        Assert.assertTrue(Complex.NaN.acos().isNaN());
-    }
-
-    @Test
-    public void testAsin() {
-        Complex z = new Complex(3, 4);
-        Complex expected = new Complex(0.633984, 2.30551);
-        TestUtils.assertEquals(expected, z.asin(), 1.0e-5);
-    }
-
-    @Test
-    public void testAsinNaN() {
-        Assert.assertTrue(Complex.NaN.asin().isNaN());
-    }
-
-    @Test
-    public void testAsinInf() {
-        TestUtils.assertSame(Complex.NaN, oneInf.asin());
-        TestUtils.assertSame(Complex.NaN, oneNegInf.asin());
-        TestUtils.assertSame(Complex.NaN, infOne.asin());
-        TestUtils.assertSame(Complex.NaN, negInfOne.asin());
-        TestUtils.assertSame(Complex.NaN, infInf.asin());
-        TestUtils.assertSame(Complex.NaN, infNegInf.asin());
-        TestUtils.assertSame(Complex.NaN, negInfInf.asin());
-        TestUtils.assertSame(Complex.NaN, negInfNegInf.asin());
-    }
-
-
-    @Test
-    public void testAtan() {
-        Complex z = new Complex(3, 4);
-        Complex expected = new Complex(1.44831, 0.158997);
-        TestUtils.assertEquals(expected, z.atan(), 1.0e-5);
-    }
-
-    @Test
-    public void testAtanInf() {
-        TestUtils.assertSame(Complex.NaN, oneInf.atan());
-        TestUtils.assertSame(Complex.NaN, oneNegInf.atan());
-        TestUtils.assertSame(Complex.NaN, infOne.atan());
-        TestUtils.assertSame(Complex.NaN, negInfOne.atan());
-        TestUtils.assertSame(Complex.NaN, infInf.atan());
-        TestUtils.assertSame(Complex.NaN, infNegInf.atan());
-        TestUtils.assertSame(Complex.NaN, negInfInf.atan());
-        TestUtils.assertSame(Complex.NaN, negInfNegInf.atan());
-    }
-
-    @Test
-    public void testAtanI() {
-        Assert.assertTrue(Complex.I.atan().isNaN());
-    }
-
-    @Test
-    public void testAtanNaN() {
-        Assert.assertTrue(Complex.NaN.atan().isNaN());
-    }
-
-    @Test
-    public void testCos() {
-        Complex z = new Complex(3, 4);
-        Complex expected = new Complex(-27.03495, -3.851153);
-        TestUtils.assertEquals(expected, z.cos(), 1.0e-5);
-    }
-
-    @Test
-    public void testCosNaN() {
-        Assert.assertTrue(Complex.NaN.cos().isNaN());
-    }
-
-    @Test
-    public void testCosInf() {
-        TestUtils.assertSame(infNegInf, oneInf.cos());
-        TestUtils.assertSame(infInf, oneNegInf.cos());
-        TestUtils.assertSame(Complex.NaN, infOne.cos());
-        TestUtils.assertSame(Complex.NaN, negInfOne.cos());
-        TestUtils.assertSame(Complex.NaN, infInf.cos());
-        TestUtils.assertSame(Complex.NaN, infNegInf.cos());
-        TestUtils.assertSame(Complex.NaN, negInfInf.cos());
-        TestUtils.assertSame(Complex.NaN, negInfNegInf.cos());
-    }
-
-    @Test
-    public void testCosh() {
-        Complex z = new Complex(3, 4);
-        Complex expected = new Complex(-6.58066, -7.58155);
-        TestUtils.assertEquals(expected, z.cosh(), 1.0e-5);
-    }
-
-    @Test
-    public void testCoshNaN() {
-        Assert.assertTrue(Complex.NaN.cosh().isNaN());
-    }
-
-    @Test
-    public void testCoshInf() {
-        TestUtils.assertSame(Complex.NaN, oneInf.cosh());
-        TestUtils.assertSame(Complex.NaN, oneNegInf.cosh());
-        TestUtils.assertSame(infInf, infOne.cosh());
-        TestUtils.assertSame(infNegInf, negInfOne.cosh());
-        TestUtils.assertSame(Complex.NaN, infInf.cosh());
-        TestUtils.assertSame(Complex.NaN, infNegInf.cosh());
-        TestUtils.assertSame(Complex.NaN, negInfInf.cosh());
-        TestUtils.assertSame(Complex.NaN, negInfNegInf.cosh());
-    }
-
-    @Test
-    public void testExp() {
-        final double tol = Math.ulp(1d);
-        Complex z = new Complex(3, 4);
-        Complex expected = new Complex(-13.12878, -15.20078);
-        TestUtils.assertEquals(expected, z.exp(), 1.0e-5);
-        TestUtils.assertEquals(Complex.ONE,
-                Complex.ZERO.exp(), tol);
-        Complex iPi = Complex.I.multiply(new Complex(pi,0));
-        TestUtils.assertEquals(Complex.ONE.negate(),
-                iPi.exp(), tol);
-    }
-
-    @Test
-    public void testExpNaN() {
-        Assert.assertTrue(Complex.NaN.exp().isNaN());
-    }
-
-    @Test
-    public void testExpInf1() {
-        TestUtils.assertSame(Complex.NaN, oneInf.exp());
-    }
-
-    @Test
-    public void testExpInf2() {
-        TestUtils.assertSame(Complex.NaN, oneNegInf.exp());
-    }
-
-    @Test
-    public void testExpInf3() {
-        TestUtils.assertSame(infInf, infOne.exp());
     }
 
     @Test
@@ -840,271 +569,30 @@ public class ComplexTest {
         System.out.println("<<testJava()");
     }
 
-    @Test
-    public void testExpInf4() {
-        final Complex exp = negInfOne.exp();
-        TestUtils.assertSame(Complex.ZERO, exp);
-    }
-
-    @Test
-    public void testExpInf5() {
-        TestUtils.assertSame(Complex.NaN, infInf.exp());
-    }
-
-    @Test
-    public void testExpInf6() {
-        TestUtils.assertSame(Complex.NaN, infNegInf.exp());
-    }
-
-    @Test
-    public void testExpInf7() {
-        TestUtils.assertSame(Complex.NaN, negInfInf.exp());
-    }
-
-    @Test
-    public void testExpInf8() {
-        TestUtils.assertSame(Complex.NaN, negInfNegInf.exp());
-    }
-
-    @Test
-    public void testLog() {
-        Complex z = new Complex(3, 4);
-        Complex expected = new Complex(1.60944, 0.927295);
-        TestUtils.assertEquals(expected, z.log(), 1.0e-5);
-    }
-
-    @Test
-    public void testLogNaN() {
-        Assert.assertTrue(Complex.NaN.log().isNaN());
-    }
-
-    @Test
-    public void testLogInf() {
-        final double tol = Math.ulp(1d);
-        TestUtils.assertEquals(new Complex(inf, pi / 2),
-                oneInf.log(), tol);
-        TestUtils.assertEquals(new Complex(inf, -pi / 2),
-                oneNegInf.log(), tol);
-        TestUtils.assertEquals(infZero, infOne.log(), tol);
-        TestUtils.assertEquals(new Complex(inf, pi),
-                negInfOne.log(), tol);
-        TestUtils.assertEquals(new Complex(inf, pi / 4),
-                infInf.log(), tol);
-        TestUtils.assertEquals(new Complex(inf, -pi / 4),
-                infNegInf.log(), tol);
-        TestUtils.assertEquals(new Complex(inf, 3d * pi / 4),
-                negInfInf.log(), tol);
-        TestUtils.assertEquals(new Complex(inf, - 3d * pi / 4),
-                negInfNegInf.log(), tol);
-    }
-
-    @Test
-    public void testLogZero() {
-        TestUtils.assertSame(negInfZero, Complex.ZERO.log());
-    }
-
-    @Test
-    public void testPow() {
-        Complex x = new Complex(3, 4);
-        Complex y = new Complex(5, 6);
-        Complex expected = new Complex(-1.860893, 11.83677);
-        TestUtils.assertEquals(expected, x.pow(y), 1.0e-5);
-    }
-
-    @Test
-    public void testPowNaNBase() {
-        Complex x = new Complex(3, 4);
-        Assert.assertTrue(Complex.NaN.pow(x).isNaN());
-    }
-
-    @Test
-    public void testPowNaNExponent() {
-        Complex x = new Complex(3, 4);
-        Assert.assertTrue(x.pow(Complex.NaN).isNaN());
-    }
-
-   @Test
-   public void testPowInf() {
-       TestUtils.assertSame(Complex.NaN,Complex.ONE.pow(oneInf));
-       TestUtils.assertSame(Complex.NaN,Complex.ONE.pow(oneNegInf));
-       TestUtils.assertSame(Complex.NaN,Complex.ONE.pow(infOne));
-       TestUtils.assertSame(Complex.NaN,Complex.ONE.pow(infInf));
-       TestUtils.assertSame(Complex.NaN,Complex.ONE.pow(infNegInf));
-       TestUtils.assertSame(Complex.NaN,Complex.ONE.pow(negInfInf));
-       TestUtils.assertSame(Complex.NaN,Complex.ONE.pow(negInfNegInf));
-       TestUtils.assertSame(Complex.NaN,infOne.pow(Complex.ONE));
-       TestUtils.assertSame(Complex.NaN,negInfOne.pow(Complex.ONE));
-       TestUtils.assertSame(Complex.NaN,infInf.pow(Complex.ONE));
-       TestUtils.assertSame(Complex.NaN,infNegInf.pow(Complex.ONE));
-       TestUtils.assertSame(Complex.NaN,negInfInf.pow(Complex.ONE));
-       TestUtils.assertSame(Complex.NaN,negInfNegInf.pow(Complex.ONE));
-       TestUtils.assertSame(Complex.NaN,negInfNegInf.pow(infNegInf));
-       TestUtils.assertSame(Complex.NaN,negInfNegInf.pow(negInfNegInf));
-       TestUtils.assertSame(Complex.NaN,negInfNegInf.pow(infInf));
-       TestUtils.assertSame(Complex.NaN,infInf.pow(infNegInf));
-       TestUtils.assertSame(Complex.NaN,infInf.pow(negInfNegInf));
-       TestUtils.assertSame(Complex.NaN,infInf.pow(infInf));
-       TestUtils.assertSame(Complex.NaN,infNegInf.pow(infNegInf));
-       TestUtils.assertSame(Complex.NaN,infNegInf.pow(negInfNegInf));
-       TestUtils.assertSame(Complex.NaN,infNegInf.pow(infInf));
-   }
-
-   @Test
-   public void testPowZero() {
-       final double tol = Math.ulp(1d);
-       TestUtils.assertEquals(Complex.ZERO,
-              Complex.ZERO.pow(Complex.ONE), tol);
-       TestUtils.assertEquals(Complex.ZERO,
-               Complex.ZERO.pow(new Complex(2, 0)), tol);
-       TestUtils.assertSame(Complex.NaN,
-               Complex.ZERO.pow(Complex.ZERO));
-       TestUtils.assertSame(Complex.NaN,
-               Complex.ZERO.pow(Complex.I));
-       TestUtils.assertEquals(Complex.ONE,
-               Complex.ONE.pow(Complex.ZERO), tol);
-       TestUtils.assertEquals(Complex.ONE,
-               Complex.I.pow(Complex.ZERO), tol);
-       TestUtils.assertEquals(Complex.ONE,
-               new Complex(-1, 3).pow(Complex.ZERO), tol);
-   }
 
     @Test
     public void testScalarPow() {
-        Complex x = new Complex(3, 4);
+        Complex x = Complex.ofCartesian(3, 4);
         double yDouble = 5.0;
-        Complex yComplex = new Complex(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.pow(yComplex), x.pow(yDouble));
     }
 
     @Test
     public void testScalarPowNaNBase() {
-        Complex x = Complex.NaN;
+        Complex x = NAN;
         double yDouble = 5.0;
-        Complex yComplex = new Complex(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.pow(yComplex), x.pow(yDouble));
     }
 
     @Test
     public void testScalarPowNaNExponent() {
-        Complex x = new Complex(3, 4);
+        Complex x = Complex.ofCartesian(3, 4);
         double yDouble = Double.NaN;
-        Complex yComplex = new Complex(yDouble);
+        Complex yComplex = Complex.ofReal(yDouble);
         Assert.assertEquals(x.pow(yComplex), x.pow(yDouble));
     }
-
-   @Test
-   public void testScalarPowInf() {
-       TestUtils.assertSame(Complex.NaN,Complex.ONE.pow(Double.POSITIVE_INFINITY));
-       TestUtils.assertSame(Complex.NaN,Complex.ONE.pow(Double.NEGATIVE_INFINITY));
-       TestUtils.assertSame(Complex.NaN,infOne.pow(1.0));
-       TestUtils.assertSame(Complex.NaN,negInfOne.pow(1.0));
-       TestUtils.assertSame(Complex.NaN,infInf.pow(1.0));
-       TestUtils.assertSame(Complex.NaN,infNegInf.pow(1.0));
-       TestUtils.assertSame(Complex.NaN,negInfInf.pow(10));
-       TestUtils.assertSame(Complex.NaN,negInfNegInf.pow(1.0));
-       TestUtils.assertSame(Complex.NaN,negInfNegInf.pow(Double.POSITIVE_INFINITY));
-       TestUtils.assertSame(Complex.NaN,negInfNegInf.pow(Double.POSITIVE_INFINITY));
-       TestUtils.assertSame(Complex.NaN,infInf.pow(Double.POSITIVE_INFINITY));
-       TestUtils.assertSame(Complex.NaN,infInf.pow(Double.NEGATIVE_INFINITY));
-       TestUtils.assertSame(Complex.NaN,infNegInf.pow(Double.NEGATIVE_INFINITY));
-       TestUtils.assertSame(Complex.NaN,infNegInf.pow(Double.POSITIVE_INFINITY));
-   }
-
-   @Test
-   public void testScalarPowZero() {
-       final double tol = Math.ulp(1d);
-       TestUtils.assertEquals(Complex.ZERO, Complex.ZERO.pow(1.0), tol);
-       TestUtils.assertEquals(Complex.ZERO, Complex.ZERO.pow(2.0), tol);
-       TestUtils.assertSame(Complex.NaN, Complex.ZERO.pow(0.0));
-       TestUtils.assertSame(Complex.NaN, Complex.ZERO.pow(-1.0));
-       TestUtils.assertEquals(Complex.ONE, Complex.ONE.pow(0.0), tol);
-       TestUtils.assertEquals(Complex.ONE, Complex.I.pow(0.0), tol);
-       TestUtils.assertEquals(Complex.ONE, new Complex(-1, 3).pow(0.0), tol);
-   }
-
-    @Test
-    public void testSin() {
-        Complex z = new Complex(3, 4);
-        Complex expected = new Complex(3.853738, -27.01681);
-        TestUtils.assertEquals(expected, z.sin(), 1.0e-5);
-    }
-
-    @Test
-    public void testSinInf() {
-        TestUtils.assertSame(infInf, oneInf.sin());
-        TestUtils.assertSame(infNegInf, oneNegInf.sin());
-        TestUtils.assertSame(Complex.NaN, infOne.sin());
-        TestUtils.assertSame(Complex.NaN, negInfOne.sin());
-        TestUtils.assertSame(Complex.NaN, infInf.sin());
-        TestUtils.assertSame(Complex.NaN, infNegInf.sin());
-        TestUtils.assertSame(Complex.NaN, negInfInf.sin());
-        TestUtils.assertSame(Complex.NaN, negInfNegInf.sin());
-    }
-
-    @Test
-    public void testSinNaN() {
-        Assert.assertTrue(Complex.NaN.sin().isNaN());
-    }
-
-    @Test
-    public void testSinh() {
-        Complex z = new Complex(3, 4);
-        Complex expected = new Complex(-6.54812, -7.61923);
-        TestUtils.assertEquals(expected, z.sinh(), 1.0e-5);
-    }
-
-    @Test
-    public void testSinhNaN() {
-        Assert.assertTrue(Complex.NaN.sinh().isNaN());
-    }
-
-    @Test
-    public void testSinhInf() {
-        TestUtils.assertSame(Complex.NaN, oneInf.sinh());
-        TestUtils.assertSame(Complex.NaN, oneNegInf.sinh());
-        TestUtils.assertSame(infInf, infOne.sinh());
-        TestUtils.assertSame(negInfInf, negInfOne.sinh());
-        TestUtils.assertSame(Complex.NaN, infInf.sinh());
-        TestUtils.assertSame(Complex.NaN, infNegInf.sinh());
-        TestUtils.assertSame(Complex.NaN, negInfInf.sinh());
-        TestUtils.assertSame(Complex.NaN, negInfNegInf.sinh());
-    }
-
-    @Test
-    public void testSqrtRealPositive() {
-        Complex z = new Complex(3, 4);
-        Complex expected = new Complex(2, 1);
-        TestUtils.assertEquals(expected, z.sqrt(), 1.0e-5);
-    }
-
-    @Test
-    public void testSqrtRealZero() {
-        Complex z = new Complex(0.0, 4);
-        Complex expected = new Complex(1.41421, 1.41421);
-        TestUtils.assertEquals(expected, z.sqrt(), 1.0e-5);
-    }
-
-    @Test
-    public void testSqrtRealNegative() {
-        Complex z = new Complex(-3.0, 4);
-        Complex expected = new Complex(1, 2);
-        TestUtils.assertEquals(expected, z.sqrt(), 1.0e-5);
-    }
-
-    @Test
-    public void testSqrtImaginaryZero() {
-        Complex z = new Complex(-3.0, 0.0);
-        Complex expected = new Complex(0.0, 1.73205);
-        TestUtils.assertEquals(expected, z.sqrt(), 1.0e-5);
-    }
-
-    @Test
-    public void testSqrtImaginaryNegative() {
-        Complex z = new Complex(-3.0, -4.0);
-        Complex expected = new Complex(1.0, -2.0);
-        TestUtils.assertEquals(expected, z.sqrt(), 1.0e-5);
-    }
-
     @Test
     public void testSqrtPolar() {
         final double tol = 1e-12;
@@ -1114,120 +602,11 @@ public class ComplexTest {
             double theta = 0;
             for (int j = 0; j < 11; j++) {
                 theta += pi / 12;
-                Complex z = ComplexUtils.polar2Complex(r, theta);
-                Complex sqrtz = ComplexUtils.polar2Complex(Math.sqrt(r), theta / 2);
+                Complex z = Complex.ofPolar(r, theta);
+                Complex sqrtz = Complex.ofPolar(Math.sqrt(r), theta / 2);
                 TestUtils.assertEquals(sqrtz, z.sqrt(), tol);
             }
         }
-    }
-
-    @Test
-    public void testSqrtNaN() {
-        Assert.assertTrue(Complex.NaN.sqrt().isNaN());
-    }
-
-    @Test
-    public void testSqrtInf() {
-        TestUtils.assertSame(infNaN, oneInf.sqrt());
-        TestUtils.assertSame(infNaN, oneNegInf.sqrt());
-        TestUtils.assertSame(infZero, infOne.sqrt());
-        TestUtils.assertSame(zeroInf, negInfOne.sqrt());
-        TestUtils.assertSame(infNaN, infInf.sqrt());
-        TestUtils.assertSame(infNaN, infNegInf.sqrt());
-        TestUtils.assertSame(nanInf, negInfInf.sqrt());
-        TestUtils.assertSame(nanNegInf, negInfNegInf.sqrt());
-    }
-
-    @Test
-    public void testSqrt1z() {
-        Complex z = new Complex(3, 4);
-        Complex expected = new Complex(4.08033, -2.94094);
-        TestUtils.assertEquals(expected, z.sqrt1z(), 1.0e-5);
-    }
-
-    @Test
-    public void testSqrt1zNaN() {
-        Assert.assertTrue(Complex.NaN.sqrt1z().isNaN());
-    }
-
-    @Test
-    public void testTan() {
-        Complex z = new Complex(3, 4);
-        Complex expected = new Complex(-0.000187346, 0.999356);
-        TestUtils.assertEquals(expected, z.tan(), 1.0e-5);
-        /* Check that no overflow occurs (MATH-722) */
-        Complex actual = new Complex(3.0, 1E10).tan();
-        expected = new Complex(0, 1);
-        TestUtils.assertEquals(expected, actual, 1.0e-5);
-        actual = new Complex(3.0, -1E10).tan();
-        expected = new Complex(0, -1);
-        TestUtils.assertEquals(expected, actual, 1.0e-5);
-    }
-
-    @Test
-    public void testTanNaN() {
-        Assert.assertTrue(Complex.NaN.tan().isNaN());
-    }
-
-    @Test
-    public void testTanInf() {
-        TestUtils.assertSame(Complex.valueOf(0.0, 1.0), oneInf.tan());
-        TestUtils.assertSame(Complex.valueOf(0.0, -1.0), oneNegInf.tan());
-        TestUtils.assertSame(Complex.NaN, infOne.tan());
-        TestUtils.assertSame(Complex.NaN, negInfOne.tan());
-        TestUtils.assertSame(Complex.NaN, infInf.tan());
-        TestUtils.assertSame(Complex.NaN, infNegInf.tan());
-        TestUtils.assertSame(Complex.NaN, negInfInf.tan());
-        TestUtils.assertSame(Complex.NaN, negInfNegInf.tan());
-    }
-
-   @Test
-   public void testTanCritical() {
-        TestUtils.assertSame(infNaN, new Complex(pi/2, 0).tan());
-        TestUtils.assertSame(negInfNaN, new Complex(-pi/2, 0).tan());
-    }
-
-    @Test
-    public void testTanh() {
-        Complex z = new Complex(3, 4);
-        Complex expected = new Complex(1.00071, 0.00490826);
-        TestUtils.assertEquals(expected, z.tanh(), 1.0e-5);
-        /* Check that no overflow occurs (MATH-722) */
-        Complex actual = new Complex(1E10, 3.0).tanh();
-        expected = new Complex(1, 0);
-        TestUtils.assertEquals(expected, actual, 1.0e-5);
-        actual = new Complex(-1E10, 3.0).tanh();
-        expected = new Complex(-1, 0);
-        TestUtils.assertEquals(expected, actual, 1.0e-5);
-    }
-
-    @Test
-    public void testTanhNaN() {
-        Assert.assertTrue(Complex.NaN.tanh().isNaN());
-    }
-
-    @Test
-    public void testTanhInf() {
-        TestUtils.assertSame(Complex.NaN, oneInf.tanh());
-        TestUtils.assertSame(Complex.NaN, oneNegInf.tanh());
-        TestUtils.assertSame(Complex.valueOf(1.0, 0.0), infOne.tanh());
-        TestUtils.assertSame(Complex.valueOf(-1.0, 0.0), negInfOne.tanh());
-        TestUtils.assertSame(Complex.NaN, infInf.tanh());
-        TestUtils.assertSame(Complex.NaN, infNegInf.tanh());
-        TestUtils.assertSame(Complex.NaN, negInfInf.tanh());
-        TestUtils.assertSame(Complex.NaN, negInfNegInf.tanh());
-    }
-
-    @Test
-    public void testTanhCritical() {
-        TestUtils.assertSame(nanInf, new Complex(0, pi/2).tanh());
-    }
-
-    /** test issue MATH-221 */
-    @Test
-    public void testMath221() {
-        Assert.assertTrue(Complex.equals(new Complex(0,-1),
-                                         new Complex(0,1).multiply(new Complex(-1,0))));
     }
 
     /**
@@ -1242,9 +621,9 @@ public class ComplexTest {
      * </pre>
      */
     @Test
-    public void testNthRoot_normal_thirdRoot() {
+    public void testNthRootNormalThirdRoot() {
         // The complex number we want to compute all third-roots for.
-        Complex z = new Complex(-2,2);
+        Complex z = Complex.ofCartesian(-2,2);
         // The List holding all third roots
         Complex[] thirdRootsOfZ = z.nthRoot(3).toArray(new Complex[0]);
         // Returned Collection must not be empty!
@@ -1274,9 +653,9 @@ public class ComplexTest {
      * </pre>
      */
     @Test
-    public void testNthRoot_normal_fourthRoot() {
+    public void testNthRootNormalFourthRoot() {
         // The complex number we want to compute all third-roots for.
-        Complex z = new Complex(5,-2);
+        Complex z = Complex.ofCartesian(5,-2);
         // The List holding all fourth roots
         Complex[] fourthRootsOfZ = z.nthRoot(4).toArray(new Complex[0]);
         // Returned Collection must not be empty!
@@ -1307,10 +686,10 @@ public class ComplexTest {
      * </pre>
      */
     @Test
-    public void testNthRoot_cornercase_thirdRoot_imaginaryPartEmpty() {
+    public void testNthRootCornercaseThirdRootImaginaryPartEmpty() {
         // The number 8 has three third roots. One we all already know is the number 2.
         // But there are two more complex roots.
-        Complex z = new Complex(8,0);
+        Complex z = Complex.ofCartesian(8,0);
         // The List holding all third roots
         Complex[] thirdRootsOfZ = z.nthRoot(3).toArray(new Complex[0]);
         // Returned Collection must not be empty!
@@ -1339,9 +718,9 @@ public class ComplexTest {
      * </pre>
      */
     @Test
-    public void testNthRoot_cornercase_thirdRoot_realPartZero() {
+    public void testNthRootCornercaseThirdRootRealPartZero() {
         // complex number with only imaginary part
-        Complex z = new Complex(0,2);
+        Complex z = Complex.ofCartesian(0,2);
         // The List holding all third roots
         Complex[] thirdRootsOfZ = z.nthRoot(3).toArray(new Complex[0]);
         // Returned Collection must not be empty!
@@ -1358,62 +737,80 @@ public class ComplexTest {
     }
 
     /**
-     * Test cornercases with NaN and Infinity.
+     * Test: compute <b>third roots</b> using a negative argument
+     * to go clockwise around the unit circle. Fourth roots of one
+     * are taken in both directions around the circle using
+     * positive and negative arguments.
+     * <pre>
+     * <code>
+     * <b>z = 1</b>
+     *   => z_0 = Positive: 1,0 ; Negative: 1,0
+     *   => z_1 = Positive: 0,1 ; Negative: 0,-1
+     *   => z_2 = Positive: -1,0 ; Negative: -1,0
+     *   => z_3 = Positive: 0,-1 ; Negative: 0,1
+     * </code>
+     * </pre>
      */
     @Test
-    public void testNthRoot_cornercase_NAN_Inf() {
-        // NaN + finite -> NaN
-        List<Complex> roots = oneNaN.nthRoot(3);
-        Assert.assertEquals(1,roots.size());
-        Assert.assertEquals(Complex.NaN, roots.get(0));
-
-        roots = nanZero.nthRoot(3);
-        Assert.assertEquals(1,roots.size());
-        Assert.assertEquals(Complex.NaN, roots.get(0));
-
-        // NaN + infinite -> NaN
-        roots = nanInf.nthRoot(3);
-        Assert.assertEquals(1,roots.size());
-        Assert.assertEquals(Complex.NaN, roots.get(0));
-
-        // finite + infinite -> Inf
-        roots = oneInf.nthRoot(3);
-        Assert.assertEquals(1,roots.size());
-        Assert.assertEquals(Complex.INF, roots.get(0));
-
-        // infinite + infinite -> Inf
-        roots = negInfInf.nthRoot(3);
-        Assert.assertEquals(1,roots.size());
-        Assert.assertEquals(Complex.INF, roots.get(0));
+    public void testNthRootNegativeArg() {
+        // The complex number we want to compute all third-roots for.
+        Complex z = Complex.ofCartesian(1, 0);
+        // The List holding all fourth roots
+        Complex[] fourthRootsOfZ = z.nthRoot(4).toArray(new Complex[0]);
+        // test z_0
+        Assert.assertEquals(1,     fourthRootsOfZ[0].getReal(),      1.0e-5);
+        Assert.assertEquals(0,   fourthRootsOfZ[0].getImaginary(), 1.0e-5);
+//         test z_1
+        Assert.assertEquals(0,    fourthRootsOfZ[1].getReal(),      1.0e-5);
+        Assert.assertEquals(1,     fourthRootsOfZ[1].getImaginary(), 1.0e-5);
+        // test z_2
+        Assert.assertEquals(-1,    fourthRootsOfZ[2].getReal(),      1.0e-5);
+        Assert.assertEquals(0,    fourthRootsOfZ[2].getImaginary(), 1.0e-5);
+        // test z_3
+        Assert.assertEquals(0,   fourthRootsOfZ[3].getReal(),      1.0e-5);
+        Assert.assertEquals(-1,    fourthRootsOfZ[3].getImaginary(), 1.0e-5);
+        // go clockwise around the unit circle using negative argument
+        fourthRootsOfZ = z.nthRoot(-4).toArray(new Complex[0]);
+        // test z_0
+        Assert.assertEquals(1,     fourthRootsOfZ[0].getReal(),      1.0e-5);
+        Assert.assertEquals(0,   fourthRootsOfZ[0].getImaginary(), 1.0e-5);
+//         test z_1
+        Assert.assertEquals(0,    fourthRootsOfZ[1].getReal(),      1.0e-5);
+        Assert.assertEquals(-1,     fourthRootsOfZ[1].getImaginary(), 1.0e-5);
+        // test z_2
+        Assert.assertEquals(-1,    fourthRootsOfZ[2].getReal(),      1.0e-5);
+        Assert.assertEquals(0,    fourthRootsOfZ[2].getImaginary(), 1.0e-5);
+        // test z_3
+        Assert.assertEquals(0,   fourthRootsOfZ[3].getReal(),      1.0e-5);
+        Assert.assertEquals(1,    fourthRootsOfZ[3].getImaginary(), 1.0e-5);
     }
-
     /**
      * Test standard values
      */
     @Test
     public void testGetArgument() {
-        Complex z = new Complex(1, 0);
+        Complex z = Complex.ofCartesian(1, 0);
         Assert.assertEquals(0.0, z.getArgument(), 1.0e-12);
 
-        z = new Complex(1, 1);
+        z = Complex.ofCartesian(1, 1);
         Assert.assertEquals(Math.PI/4, z.getArgument(), 1.0e-12);
 
-        z = new Complex(0, 1);
+        z = Complex.ofCartesian(0, 1);
         Assert.assertEquals(Math.PI/2, z.getArgument(), 1.0e-12);
 
-        z = new Complex(-1, 1);
+        z = Complex.ofCartesian(-1, 1);
         Assert.assertEquals(3 * Math.PI/4, z.getArgument(), 1.0e-12);
 
-        z = new Complex(-1, 0);
+        z = Complex.ofCartesian(-1, 0);
         Assert.assertEquals(Math.PI, z.getArgument(), 1.0e-12);
 
-        z = new Complex(-1, -1);
+        z = Complex.ofCartesian(-1, -1);
         Assert.assertEquals(-3 * Math.PI/4, z.getArgument(), 1.0e-12);
 
-        z = new Complex(0, -1);
+        z = Complex.ofCartesian(0, -1);
         Assert.assertEquals(-Math.PI/2, z.getArgument(), 1.0e-12);
 
-        z = new Complex(1, -1);
+        z = Complex.ofCartesian(1, -1);
         Assert.assertEquals(-Math.PI/4, z.getArgument(), 1.0e-12);
 
     }
@@ -1440,52 +837,60 @@ public class ComplexTest {
     public void testGetArgumentNaN() {
         Assert.assertTrue(Double.isNaN(nanZero.getArgument()));
         Assert.assertTrue(Double.isNaN(zeroNaN.getArgument()));
-        Assert.assertTrue(Double.isNaN(Complex.NaN.getArgument()));
+        Assert.assertTrue(Double.isNaN(NAN.getArgument()));
     }
 
     @Test
-    public void testSerial() {
-        Complex z = new Complex(3.0, 4.0);
-        Assert.assertEquals(z, TestUtils.serializeAndRecover(z));
-        Complex ncmplx = (Complex)TestUtils.serializeAndRecover(oneNaN);
-        Assert.assertEquals(nanZero, ncmplx);
-        Assert.assertTrue(ncmplx.isNaN());
-        Complex infcmplx = (Complex)TestUtils.serializeAndRecover(infInf);
-        Assert.assertEquals(infInf, infcmplx);
-        Assert.assertTrue(infcmplx.isInfinite());
-        TestComplex tz = new TestComplex(3.0, 4.0);
-        Assert.assertEquals(tz, TestUtils.serializeAndRecover(tz));
-        TestComplex ntcmplx = (TestComplex)TestUtils.serializeAndRecover(new TestComplex(oneNaN));
-        Assert.assertEquals(nanZero, ntcmplx);
-        Assert.assertTrue(ntcmplx.isNaN());
-        TestComplex inftcmplx = (TestComplex)TestUtils.serializeAndRecover(new TestComplex(infInf));
-        Assert.assertEquals(infInf, inftcmplx);
-        Assert.assertTrue(inftcmplx.isInfinite());
+    public void testParse() {
+        Assert.assertTrue(Complex.ZERO.equals(Complex.parse(Complex.ZERO.toString())));
+        Assert.assertTrue(Complex.ONE.equals(Complex.parse(Complex.ONE.toString())));
+        Assert.assertTrue(Complex.I.equals(Complex.parse(Complex.I.toString())));
+        Assert.assertTrue(Complex.INF.equals(Complex.parse(Complex.INF.toString())));
+        Assert.assertTrue(NAN.equals(Complex.parse(NAN.toString())));
+        Assert.assertTrue(oneInf.equals(Complex.parse(oneInf.toString())));
+        Assert.assertTrue(negInfZero.equals(Complex.parse(negInfZero.toString())));
+        Assert.assertTrue(Complex.ofReal(pi).equals(Complex.parse(Complex.ofReal(pi).toString())));
+        Assert.assertTrue(Complex.ofPolar(2, pi).equals(Complex.parse(Complex.ofPolar(2, pi).toString())));
+        Assert.assertTrue(Complex.ofCis(pi).equals(Complex.parse(Complex.ofCis(pi).toString())));
     }
 
-    /**
-     * Class to test extending Complex
-     */
-    public static class TestComplex extends Complex {
+    @Test(expected=IllegalArgumentException.class)
+    public void testParseWrongStart() {
+        final String re = "1.234";
+        final String im = "5.678";
+        Complex.parse(re + "," + im + ")");
+    }
+    @Test(expected=IllegalArgumentException.class)
+    public void testParseWrongEnd() {
+        final String re = "1.234";
+        final String im = "5.678";
+        Complex.parse("(" + re + "," + im);
+    }
+    @Test(expected=IllegalArgumentException.class)
+    public void testParseMissingSeparator() {
+        final String re = "1.234";
+        final String im = "5.678";
+        Complex.parse("(" + re + " " + im + ")");
+    }
+    @Test(expected=IllegalArgumentException.class)
+    public void testParseInvalidRe() {
+        final String re = "I.234";
+        final String im = "5.678";
+        Complex.parse("(" + re + "," + im + ")");
+    }
+    @Test(expected=IllegalArgumentException.class)
+    public void testParseInvalidIm() {
+        final String re = "1.234";
+        final String im = "5.G78";
+        Complex.parse("(" + re + "," + im + ")");
+    }
 
-        /**
-         * Serialization identifier.
-         */
-        private static final long serialVersionUID = 3268726724160389237L;
-
-        public TestComplex(double real, double imaginary) {
-            super(real, imaginary);
-        }
-
-        public TestComplex(Complex other){
-            this(other.getReal(), other.getImaginary());
-        }
-
-        @Override
-        protected TestComplex createComplex(double real, double imaginary){
-            return new TestComplex(real, imaginary);
-        }
-
+    @Test
+    public void testParseSpaceAllowedAroundNumbers() {
+        final double re = 1.234;
+        final double im = 5.678;
+        final String str = "(  " + re + "  , " + im + "     )";
+        Assert.assertTrue(Complex.ofCartesian(re, im).equals(Complex.parse(str)));
     }
 
 

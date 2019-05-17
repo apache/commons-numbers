@@ -22,6 +22,7 @@ package org.apache.commons.numbers.gamma;
  * Class is immutable.
  */
 public class LogGamma {
+    /** Lanczos constant. */
     private static final double LANCZOS_G = 607d / 128d;
     /** Performance. */
     private static final double HALF_LOG_2_PI = 0.5 * Math.log(2.0 * Math.PI);

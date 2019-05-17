@@ -503,6 +503,26 @@ public class FractionTest {
     }
 
     @Test
+    public void testPow() {
+        Fraction a = new Fraction(3, 7);
+        assertFraction(1, 1, a.pow(0));
+        assertFraction(3, 7, a.pow(1));
+        assertFraction(7, 3, a.pow(-1));
+        assertFraction(9, 49, a.pow(2));
+        assertFraction(49, 9, a.pow(-2));
+
+        Fraction b = new Fraction(3, -7);
+        assertFraction(1, 1, b.pow(0));
+        assertFraction(-3, 7, b.pow(1));
+        assertFraction(-7, 3, b.pow(-1));
+        assertFraction(9, 49, a.pow(2));
+        assertFraction(49, 9, a.pow(-2));
+
+        Fraction c = new Fraction(0, -11);
+        assertFraction(0, 1, c.pow(Integer.MAX_VALUE));
+    }
+
+    @Test
     public void testSubtract() {
         Fraction a = new Fraction(1, 2);
         Fraction b = new Fraction(2, 3);

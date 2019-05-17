@@ -253,7 +253,7 @@ public class LogBeta {
      * @param a First argument.
      * @param b Second argument.
      * @return the value of {@code log(Gamma(b) / Gamma(a + b))}.
-     * @throws NumberIsTooSmallException if {@code a < 0} or {@code b < 10}.
+     * @throws IllegalArgumentException if {@code a < 0} or {@code b < 10}.
      */
     private static double logGammaMinusLogGammaSum(double a,
                                                    double b) {

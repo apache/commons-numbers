@@ -107,10 +107,51 @@ public class PlaneAngleTest {
     }
 
     @Test
+    public void testNormalizeUpperAndLowerBounds() {
+        // arrange
+        double eps = 1e-15;
+
+        // act/assert
+        Assert.assertEquals(-0.5, PlaneAngle.ofTurns(-0.5).normalize(PlaneAngle.ZERO).toTurns(), eps);
+        Assert.assertEquals(-0.5, PlaneAngle.ofTurns(0.5).normalize(PlaneAngle.ZERO).toTurns(), eps);
+
+        Assert.assertEquals(-0.5, PlaneAngle.ofTurns(-1.5).normalize(PlaneAngle.ZERO).toTurns(), eps);
+        Assert.assertEquals(-0.5, PlaneAngle.ofTurns(1.5).normalize(PlaneAngle.ZERO).toTurns(), eps);
+
+        Assert.assertEquals(0.0, PlaneAngle.ofTurns(0).normalize(PlaneAngle.PI).toTurns(), eps);
+        Assert.assertEquals(0.0, PlaneAngle.ofTurns(1).normalize(PlaneAngle.PI).toTurns(), eps);
+
+        Assert.assertEquals(0.0, PlaneAngle.ofTurns(-1).normalize(PlaneAngle.PI).toTurns(), eps);
+        Assert.assertEquals(0.0, PlaneAngle.ofTurns(2).normalize(PlaneAngle.PI).toTurns(), eps);
+    }
+
+    @Test
+    public void testNormalizeVeryCloseToBounds() {
+        // arrange
+        double eps = 1e-22;
+
+        double small = 1e-16;
+        double tiny = 1e-18; // 0.5 + tiny = 0.5 (the value is too small to add to 0.5)
+
+        // act/assert
+        Assert.assertEquals(1.0 - small, PlaneAngle.ofTurns(-small).normalize(PlaneAngle.PI).toTurns(), eps);
+        Assert.assertEquals(small, PlaneAngle.ofTurns(small).normalize(PlaneAngle.PI).toTurns(), eps);
+
+        Assert.assertEquals(0.5 - small, PlaneAngle.ofTurns(-0.5 - small).normalize(PlaneAngle.ZERO).toTurns(), eps);
+        Assert.assertEquals(-0.5 + small, PlaneAngle.ofTurns(0.5 + small).normalize(PlaneAngle.ZERO).toTurns(), eps);
+
+        Assert.assertEquals(0.0, PlaneAngle.ofTurns(-tiny).normalize(PlaneAngle.PI).toTurns(), eps);
+        Assert.assertEquals(tiny, PlaneAngle.ofTurns(tiny).normalize(PlaneAngle.PI).toTurns(), eps);
+
+        Assert.assertEquals(-0.5, PlaneAngle.ofTurns(-0.5 - tiny).normalize(PlaneAngle.ZERO).toTurns(), eps);
+        Assert.assertEquals(-0.5, PlaneAngle.ofTurns(0.5 + tiny).normalize(PlaneAngle.ZERO).toTurns(), eps);
+    }
+
+    @Test
     public void testHashCode() {
         // Test assumes that the internal representation is in "turns".
         final double value = -123.456789;
-        final int expected = new Double(value).hashCode();
+        final int expected = Double.valueOf(value).hashCode();
         final int actual = PlaneAngle.ofTurns(value).hashCode();
         Assert.assertEquals(actual, expected);
     }

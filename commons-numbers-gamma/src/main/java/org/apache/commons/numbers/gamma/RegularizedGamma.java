@@ -38,7 +38,9 @@ public class RegularizedGamma {
         /**
          * Computes the regularized gamma function \( P(a, x) \).
          *
-         * {@inheritDoc}
+         * @param a Argument.
+         * @param x Argument.
+         * @return \( P(a, x) \).
          */
         public static double value(double a,
                                    double x) {
@@ -64,7 +66,11 @@ public class RegularizedGamma {
          *  </li>
          * </ul>
          *
-         * {@inheritDoc}
+         * @param a Argument.
+         * @param x Argument.
+         * @param epsilon Tolerance in continued fraction evaluation.
+         * @param maxIterations Maximum number of iterations in continued fraction evaluation.
+         * @return \( P(a, x) \).
          */
         public static double value(double a,
                                    double x,
@@ -79,8 +85,7 @@ public class RegularizedGamma {
                 return 0;
             } else if (x >= a + 1) {
                 // Q should converge faster in this case.
-                final RegularizedGamma.Q q = new RegularizedGamma.Q();
-                return 1 - q.value(a, x, epsilon, maxIterations);
+                return 1 - RegularizedGamma.Q.value(a, x, epsilon, maxIterations);
             } else {
                 // Series.
                 double n = 0; // current element index
@@ -117,7 +122,9 @@ public class RegularizedGamma {
         /**
          * Computes the regularized gamma function \( Q(a, x) = 1 - P(a, x) \).
          *
-         * {@inheritDoc}
+         * @param a Argument.
+         * @param x Argument.
+         * @return \( Q(a, x) \).
          */
         public static double value(double a,
                                    double x) {
@@ -140,7 +147,11 @@ public class RegularizedGamma {
          *  </li>
          * </ul>
          *
-         * {@inheritDoc}
+         * @param a Argument.
+         * @param x Argument.
+         * @param epsilon Tolerance in continued fraction evaluation.
+         * @param maxIterations Maximum number of iterations in continued fraction evaluation.
+         * @return \( Q(a, x) \).
          */
         public static double value(final double a,
                                    double x,
@@ -155,8 +166,7 @@ public class RegularizedGamma {
                 return 1;
             } else if (x < a + 1) {
                 // P should converge faster in this case.
-                final RegularizedGamma.P p = new RegularizedGamma.P();
-                return 1 - p.value(a, x, epsilon, maxIterations);
+                return 1 - RegularizedGamma.P.value(a, x, epsilon, maxIterations);
             } else {
                 final ContinuedFraction cf = new ContinuedFraction() {
                         /** {@inheritDoc} */

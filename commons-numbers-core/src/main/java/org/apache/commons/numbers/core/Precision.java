@@ -18,6 +18,7 @@
 package org.apache.commons.numbers.core;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * Utilities for comparing numbers.
@@ -425,7 +426,7 @@ public class Precision {
      * @return the rounded value.
      */
     public static double round(double x, int scale) {
-        return round(x, scale, BigDecimal.ROUND_HALF_UP);
+        return round(x, scale, RoundingMode.HALF_UP);
     }
 
     /**
@@ -439,12 +440,13 @@ public class Precision {
      * @param scale Number of digits to the right of the decimal point.
      * @param roundingMethod Rounding method as defined in {@link BigDecimal}.
      * @return the rounded value.
-     * @throws ArithmeticException if {@code roundingMethod == ROUND_UNNECESSARY}
-     * and the specified scaling operation would require rounding.
-     * @throws IllegalArgumentException if {@code roundingMethod} does not
-     * represent a valid rounding mode.
+     * @throws ArithmeticException if {@code roundingMethod} is
+     * {@link RoundingMode#UNNECESSARY} and the specified scaling operation
+     * would require rounding.
      */
-    public static double round(double x, int scale, int roundingMethod) {
+    public static double round(double x,
+                               int scale,
+                               RoundingMode roundingMethod) {
         try {
             final double rounded = (new BigDecimal(Double.toString(x))
                    .setScale(scale, roundingMethod))
@@ -459,123 +461,6 @@ public class Precision {
             }
         }
     }
-
-    /**
-     * Rounds the given value to the specified number of decimal places.
-     * The value is rounded using the {@link BigDecimal#ROUND_HALF_UP} method.
-     *
-     * @param x Value to round.
-     * @param scale Number of digits to the right of the decimal point.
-     * @return the rounded value.
-     */
-    public static float round(float x, int scale) {
-        return round(x, scale, BigDecimal.ROUND_HALF_UP);
-    }
-
-    /**
-     * Rounds the given value to the specified number of decimal places.
-     * The value is rounded using the given method which is any method defined
-     * in {@link BigDecimal}.
-     *
-     * @param x Value to round.
-     * @param scale Number of digits to the right of the decimal point.
-     * @param roundingMethod Rounding method as defined in {@link BigDecimal}.
-     * @return the rounded value.
-     * @throws ArithmeticException if an exact operation is required but result is not exact
-     * @throws IllegalArgumentException if {@code roundingMethod} is not a valid rounding method.
-     */
-    public static float round(float x, int scale, int roundingMethod) {
-        final float sign = Math.copySign(1f, x);
-        final float factor = (float) Math.pow(10.0f, scale) * sign;
-        return (float) roundUnscaled(x * factor, sign, roundingMethod) / factor;
-    }
-
-    /**
-     * Rounds the given non-negative value to the "nearest" integer. Nearest is
-     * determined by the rounding method specified. Rounding methods are defined
-     * in {@link BigDecimal}.
-     *
-     * @param unscaled Value to round.
-     * @param sign Sign of the original, scaled value.
-     * @param roundingMethod Rounding method, as defined in {@link BigDecimal}.
-     * @return the rounded value.
-     * @throws ArithmeticException if an exact operation is required but result is not exact
-     * @throws IllegalArgumentException if {@code roundingMethod} is not a valid rounding method.
-     */
-    private static double roundUnscaled(double unscaled,
-                                        double sign,
-                                        int roundingMethod) {
-        switch (roundingMethod) {
-        case BigDecimal.ROUND_CEILING :
-            if (sign == -1) {
-                unscaled = Math.floor(Math.nextAfter(unscaled, Double.NEGATIVE_INFINITY));
-            } else {
-                unscaled = Math.ceil(Math.nextAfter(unscaled, Double.POSITIVE_INFINITY));
-            }
-            break;
-        case BigDecimal.ROUND_DOWN :
-            unscaled = Math.floor(Math.nextAfter(unscaled, Double.NEGATIVE_INFINITY));
-            break;
-        case BigDecimal.ROUND_FLOOR :
-            if (sign == -1) {
-                unscaled = Math.ceil(Math.nextAfter(unscaled, Double.POSITIVE_INFINITY));
-            } else {
-                unscaled = Math.floor(Math.nextAfter(unscaled, Double.NEGATIVE_INFINITY));
-            }
-            break;
-        case BigDecimal.ROUND_HALF_DOWN : {
-            unscaled = Math.nextAfter(unscaled, Double.NEGATIVE_INFINITY);
-            double fraction = unscaled - Math.floor(unscaled);
-            if (fraction > 0.5) {
-                unscaled = Math.ceil(unscaled);
-            } else {
-                unscaled = Math.floor(unscaled);
-            }
-            break;
-        }
-        case BigDecimal.ROUND_HALF_EVEN : {
-            double fraction = unscaled - Math.floor(unscaled);
-            if (fraction > 0.5) {
-                unscaled = Math.ceil(unscaled);
-            } else if (fraction < 0.5) {
-                unscaled = Math.floor(unscaled);
-            } else {
-                // The following equality test is intentional and needed for rounding purposes
-                if (Math.floor(unscaled) / 2.0 == Math.floor(Math.floor(unscaled) / 2.0)) { // even
-                    unscaled = Math.floor(unscaled);
-                } else { // odd
-                    unscaled = Math.ceil(unscaled);
-                }
-            }
-            break;
-        }
-        case BigDecimal.ROUND_HALF_UP : {
-            unscaled = Math.nextAfter(unscaled, Double.POSITIVE_INFINITY);
-            double fraction = unscaled - Math.floor(unscaled);
-            if (fraction >= 0.5) {
-                unscaled = Math.ceil(unscaled);
-            } else {
-                unscaled = Math.floor(unscaled);
-            }
-            break;
-        }
-        case BigDecimal.ROUND_UNNECESSARY :
-            if (unscaled != Math.floor(unscaled)) {
-                throw new ArithmeticException();
-            }
-            break;
-        case BigDecimal.ROUND_UP :
-            // do not round if the discarded fraction is equal to zero
-            if (unscaled != Math.floor(unscaled)) {
-                unscaled = Math.ceil(Math.nextAfter(unscaled, Double.POSITIVE_INFINITY));
-            }
-            break;
-        default :
-            throw new IllegalArgumentException("Unhandled rounding method: " + roundingMethod);
-        }
-        return unscaled;
-    }
-
 
     /**
      * Computes a number {@code delta} close to {@code originalDelta} with

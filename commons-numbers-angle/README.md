@@ -40,17 +40,17 @@
  |                                                                      |
  +======================================================================+
 --->
-Apache Commons Numbers Core
+Apache Commons Numbers Angle
 ===================
 
-Basic utilities.
+Utilities related to the concept of angle.
 
 Documentation
 -------------
 
 More information can be found on the [homepage](https://commons.apache.org/proper/commons-numbers).
 The [JavaDoc](https://commons.apache.org/proper/commons-numbers/javadocs/api-release) can be browsed.
-Questions related to the usage of Apache Commons Numbers Core should be posted to the [user mailing list][ml].
+Questions related to the usage of Apache Commons Numbers Angle should be posted to the [user mailing list][ml].
 
 Where can I get the latest release?
 -----------------------------------
@@ -85,7 +85,7 @@ Code is under the [Apache Licence v2](https://www.apache.org/licenses/LICENSE-2.
 
 Donations
 ---------
-You like Apache Commons Numbers Core? Then [donate back to the ASF](https://www.apache.org/foundation/contributing.html) to support the development.
+You like Apache Commons Numbers Angle? Then [donate back to the ASF](https://www.apache.org/foundation/contributing.html) to support the development.
 
 Additional Resources
 --------------------

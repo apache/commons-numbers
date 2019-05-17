@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.apache.commons</groupId>
     <artifactId>commons-parent</artifactId>
-    <version>41</version>
+    <version>47</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -39,9 +39,9 @@
   </issueManagement>
 
   <scm>
-    <connection>scm:git:http://git-wip-us.apache.org/repos/asf/commons-numbers.git</connection>
-    <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/commons-numbers.git</developerConnection>
-    <url>https://git-wip-us.apache.org/repos/asf?p=commons-numbers.git</url>
+    <connection>scm:git:http://gitbox.apache.org/repos/asf/commons-numbers.git</connection>
+    <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/commons-numbers.git</developerConnection>
+    <url>https://gitbox.apache.org/repos/asf/commons-numbers.git</url>
   </scm>
 
   <distributionManagement>
@@ -74,18 +74,28 @@
 
   <dependencyManagement>
     <dependencies>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-numbers-core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-numbers-core</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-numbers-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-numbers-complex</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-numbers-fraction</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-numbers-core</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -117,18 +127,16 @@
     <commons.jira.id>NUMBERS</commons.jira.id>
     <commons.jira.pid>12320720</commons.jira.pid>
     <commons.encoding>UTF-8</commons.encoding>
-    <maven.compiler.source>1.6</maven.compiler.source>
-    <maven.compiler.target>1.6</maven.compiler.target>
-    <numbers.pmd.version>3.5</numbers.pmd.version>
-    <numbers.findbugs.version>3.0.2</numbers.findbugs.version>
-    <numbers.checkstyle.version>2.17</numbers.checkstyle.version>
-    <numbers.clirr.version>2.7</numbers.clirr.version>
-    <numbers.mathjax.version>2.7.1</numbers.mathjax.version>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <numbers.pmd.version>3.9.0</numbers.pmd.version>
+    <numbers.checkstyle.version>3.0.0</numbers.checkstyle.version>
+    <numbers.mathjax.version>2.7.2</numbers.mathjax.version>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}</numbers.parent.dir>
 
     <!-- Temporary fix to support Java 8 -->
-    <commons.jacoco.version>0.7.5.201505241946</commons.jacoco.version>
+    <commons.jacoco.version>0.8.2</commons.jacoco.version>
     <commons.jacoco.classRatio>0.96</commons.jacoco.classRatio>
     <commons.jacoco.instructionRatio>0.8</commons.jacoco.instructionRatio>
     <commons.jacoco.methodRatio>0.8</commons.jacoco.methodRatio>
@@ -136,6 +144,9 @@
     <commons.jacoco.complexityRatio>0.8</commons.jacoco.complexityRatio>
     <commons.jacoco.lineRatio>0.85</commons.jacoco.lineRatio>
     <commons.jacoco.haltOnFailure>false</commons.jacoco.haltOnFailure>
+
+    <!-- Override CP 47 -->
+    <commons.spotbugs.version>3.1.8</commons.spotbugs.version>
 
     <commons.site.path>numbers</commons.site.path>
     <commons.scmPubUrl>https://svn.apache.org/repos/infra/websites/production/commons/content/proper/commons-numbers</commons.scmPubUrl>
@@ -179,6 +190,9 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <!-- Fix for OpenJDK 8 now validating class-path attributes in Jar manifests. -->
+          <!-- See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=912333#63 -->
+          <useSystemClassLoader>false</useSystemClassLoader>
           <includes>
             <include>**/*Test.java</include>
           </includes>
@@ -222,9 +236,9 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <version>${numbers.findbugs.version}</version>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+        <version>${commons.spotbugs.version}</version>
       </plugin>
       <plugin>
         <groupId>org.apache.rat</groupId>
@@ -248,16 +262,15 @@
       </plugin>
 
       <plugin>
-	<!-- NOTE: javadoc config must also be set under <reporting> -->
+      <!-- NOTE: javadoc config must also be set under <reporting> -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
-        <!--  Enable MathJax -->
-                <additionalparam>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalparam>
+          <!--  Enable MathJax -->
+          <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalOptions>
           <!-- <aggregate>true</aggregate> -->
         </configuration>
       </plugin>
-      
     </plugins>
 
     <pluginManagement>
@@ -324,13 +337,13 @@
         </reportSets>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <version>${numbers.findbugs.version}</version>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+        <version>${commons.spotbugs.version}</version>
         <configuration>
           <threshold>Normal</threshold>
           <effort>Default</effort>
-          <excludeFilterFile>${numbers.parent.dir}/src/main/resources/findbugs/findbugs-exclude-filter.xml</excludeFilterFile>
+          <excludeFilterFile>${numbers.parent.dir}/src/main/resources/spotbugs/spotbugs-exclude-filter.xml</excludeFilterFile>
         </configuration>
       </plugin>
       <plugin>
@@ -350,15 +363,6 @@
             </reports>
           </reportSet>
         </reportSets>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>clirr-maven-plugin</artifactId>
-        <version>${numbers.clirr.version}</version>
-        <configuration>
-          <minSeverity>${minSeverity}</minSeverity>
-          <ignoredDifferencesFile>${numbers.parent.dir}/src/main/resources/clirr/clirr-ignored.xml</ignoredDifferencesFile>
-        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-pmd-plugin</artifactId>
@@ -384,8 +388,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
-      	<!--  Enable MathJax -->
-		<additionalparam>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalparam>
+          <!--  Enable MathJax -->
+          <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalOptions>
           <!-- <aggregate>true</aggregate> -->
         </configuration>
       </plugin>
@@ -595,6 +599,7 @@
   <modules>
     <module>commons-numbers-core</module>
     <module>commons-numbers-complex</module>
+    <module>commons-numbers-complex-streams</module>
     <module>commons-numbers-primes</module>
     <module>commons-numbers-quaternion</module>
     <module>commons-numbers-fraction</module>
@@ -602,6 +607,7 @@
     <module>commons-numbers-gamma</module>
     <module>commons-numbers-combinatorics</module>
     <module>commons-numbers-arrays</module>
+    <module>commons-numbers-field</module>
   </modules>
 
 </project>

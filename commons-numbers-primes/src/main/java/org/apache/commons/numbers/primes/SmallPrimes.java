@@ -23,10 +23,8 @@ import java.util.List;
 
 /**
  * Utility methods to work on primes within the <code>int</code> range.
- * @since 3.2
  */
 class SmallPrimes {
-
     /**
      * The first 512 prime numbers.
      * <p>
@@ -34,7 +32,7 @@ class SmallPrimes {
      * As a result, <code>int</code> numbers which are not reduced by those primes are guaranteed
      * to be either prime or semi prime.
      */
-    public static final int[] PRIMES = {2,
+    static final int[] PRIMES = {2,
             3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73,
             79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179,
             181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283,
@@ -62,22 +60,24 @@ class SmallPrimes {
             3449, 3457, 3461, 3463, 3467, 3469, 3491, 3499, 3511, 3517, 3527, 3529, 3533, 3539, 3541, 3547, 3557, 3559, 3571, 3581,
             3583, 3593, 3607, 3613, 3617, 3623, 3631, 3637, 3643, 3659, 3671};
 
-    /** The last number in PRIMES. */
-    public static final int PRIMES_LAST = PRIMES[PRIMES.length - 1];
+    /** The last number in {@link #PRIMES}. */
+    static final int PRIMES_LAST = PRIMES[PRIMES.length - 1];
 
     /**
-     * Hide utility class.
+     * Utility class.
      */
-    private SmallPrimes() {
-    }
+    private SmallPrimes() {}
 
     /**
      * Extract small factors.
-     * @param n the number to factor, must be &gt; 0.
-     * @param factors the list where to add the factors.
-     * @return the part of n which remains to be factored, it is either a prime or a semi-prime
+     *
+     * @param n Number to factor, must be &gt; 0.
+     * @param factors List where to add the factors.
+     * @return the part of {@code n} which remains to be factored, it is either
+     * a prime or a semi-prime.
      */
-    public static int smallTrialDivision(int n, final List<Integer> factors) {
+    static int smallTrialDivision(int n,
+                                  final List<Integer> factors) {
         for (int p : PRIMES) {
             while (0 == n % p) {
                 n /= p;
@@ -88,13 +88,18 @@ class SmallPrimes {
     }
 
     /**
-     * Extract factors in the range <code>PRIME_LAST+2</code> to <code>maxFactors</code>.
-     * @param n the number to factorize, must be >= PRIME_LAST+2 and must not contain any factor below PRIME_LAST+2
-     * @param maxFactor the upper bound of trial division: if it is reached, the method gives up and returns n.
+     * Extract factors between {@code PRIME_LAST + 2} and {@code maxFactors}.
+     *
+     * @param n Number to factorize, must be larger than {@code PRIME_LAST + 2}
+     * and must not contain any factor below {@code PRIME_LAST + 2}.
+     * @param maxFactor Upper bound of trial division: if it is reached, the
+     * method gives up and returns {@code n}.
      * @param factors the list where to add the factors.
-     * @return  n or 1 if factorization is completed.
+     * @return {@code n} (or 1 if factorization is completed).
      */
-    public static int boundedTrialDivision(int n, int maxFactor, List<Integer> factors) {
+    static int boundedTrialDivision(int n,
+                                    int maxFactor,
+                                    List<Integer> factors) {
         int f = PRIMES_LAST + 2;
         // no check is done about n >= f
         while (f <= maxFactor) {
@@ -119,10 +124,11 @@ class SmallPrimes {
 
     /**
      * Factorization by trial division.
-     * @param n the number to factor
-     * @return the list of prime factors of n
+     *
+     * @param n Number to factor.
+     * @return the list of prime factors of {@code n}.
      */
-    public static List<Integer> trialDivision(int n){
+    static List<Integer> trialDivision(int n) {
         final List<Integer> factors = new ArrayList<Integer>(32);
         n = smallTrialDivision(n, factors);
         if (1 == n) {
@@ -135,19 +141,21 @@ class SmallPrimes {
     }
 
     /**
-     * Miller-Rabin probabilistic primality test for int type, used in such a way that a result is always guaranteed.
+     * Miller-Rabin probabilistic primality test for int type, used in such
+     * a way that a result is always guaranteed.
      * <p>
-     * It uses the prime numbers as successive base therefore it is guaranteed to be always correct.
-     * (see Handbook of applied cryptography by Menezes, table 4.1)
+     * It uses the prime numbers as successive base therefore it is guaranteed
+     * to be always correct (see Handbook of applied cryptography by Menezes,
+     * table 4.1).
      *
-     * @param n number to test: an odd integer &ge; 3
-     * @return true if n is prime. false if n is definitely composite.
+     * @param n Number to test: an odd integer &ge; 3.
+     * @return true if {@code n} is prime, false if it is definitely composite.
      */
-    public static boolean millerRabinPrimeTest(final int n) {
+    static boolean millerRabinPrimeTest(final int n) {
         final int nMinus1 = n - 1;
         final int s = Integer.numberOfTrailingZeros(nMinus1);
         final int r = nMinus1 >> s;
-        //r must be odd, it is not checked here
+        // r must be odd, it is not checked here
         int t = 1;
         if (n >= 2047) {
             t = 2;
@@ -158,12 +166,12 @@ class SmallPrimes {
         if (n >= 25326001) {
             t = 4;
         } // works up to 3.2 billion, int range stops at 2.7 so we are safe :-)
-        BigInteger br = BigInteger.valueOf(r);
-        BigInteger bn = BigInteger.valueOf(n);
+        final BigInteger br = BigInteger.valueOf(r);
+        final BigInteger bn = BigInteger.valueOf(n);
 
         for (int i = 0; i < t; i++) {
-            BigInteger a = BigInteger.valueOf(SmallPrimes.PRIMES[i]);
-            BigInteger bPow = a.modPow(br, bn);
+            final BigInteger a = BigInteger.valueOf(SmallPrimes.PRIMES[i]);
+            final BigInteger bPow = a.modPow(br, bn);
             int y = bPow.intValue();
             if ((1 != y) && (y != nMinus1)) {
                 int j = 1;
@@ -183,4 +191,3 @@ class SmallPrimes {
         return true; // definitely prime
     }
 }
-
