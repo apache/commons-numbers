@@ -20,6 +20,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.text.NumberFormat;
+
 import org.apache.commons.numbers.core.ArithmeticUtils;
 
 /**
@@ -1173,6 +1175,31 @@ public class BigFraction
         }
         return str;
     }
+    
+    
+    /**
+     * Parses a string that would be produced by {@link #toString()}
+     * and instantiates the corresponding object.
+     *
+     * @param s String representation.
+     * @return an instance.
+     * @throws FractionException if the string does not
+     * conform to the specification.
+     */
+    public static BigFraction parse(String s) {
+        s = s.replace(",", "");
+        final int slashLoc = s.indexOf("/");
+        // if no slash, parse as single number
+        if (slashLoc == -1) {
+            return BigFraction.of(new BigInteger(s.trim()));
+        } else {
+            final BigInteger num = new BigInteger(
+                    s.substring(0, slashLoc).trim());
+            final BigInteger denom = new BigInteger(s.substring(slashLoc + 1).trim());
+            return of(num, denom);
+        }
+    }
+
 
     /**
      * Check that the argument is not null and throw a NullPointerException
