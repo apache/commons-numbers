@@ -631,13 +631,13 @@ public class FractionTest {
     @Test
     public void testParse() {
         String[] validExpressions = new String[] {
-                "1 / 2", "15 / 16", "-2 / 3", "8 / 7", 
+                "1 / 2", "15 / 16", "-2 / 3", "8 / 7"
         };
         Fraction[] fractions = {
                 Fraction.of(1, 2),
                 Fraction.of(15, 16),
                 Fraction.of(-2, 3),
-                Fraction.of(8, 7)
+                Fraction.of(8, 7),
         };
         int inc = 0;
         for (Fraction fraction: fractions) {
