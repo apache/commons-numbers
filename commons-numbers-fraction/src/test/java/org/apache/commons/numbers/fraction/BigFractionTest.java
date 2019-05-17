@@ -18,6 +18,8 @@ package org.apache.commons.numbers.fraction;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
+
 import org.apache.commons.numbers.core.TestUtils;
 
 import org.junit.Assert;
@@ -580,8 +582,8 @@ public class BigFractionTest {
     public void testBigDecimalValue() {
         Assert.assertEquals(new BigDecimal(0.5), BigFraction.of(1, 2).bigDecimalValue());
         Assert.assertEquals(new BigDecimal("0.0003"), BigFraction.of(3, 10000).bigDecimalValue());
-        Assert.assertEquals(new BigDecimal("0"), BigFraction.of(1, 3).bigDecimalValue(BigDecimal.ROUND_DOWN));
-        Assert.assertEquals(new BigDecimal("0.333"), BigFraction.of(1, 3).bigDecimalValue(3, BigDecimal.ROUND_DOWN));
+        Assert.assertEquals(new BigDecimal("0"), BigFraction.of(1, 3).bigDecimalValue(RoundingMode.DOWN));
+        Assert.assertEquals(new BigDecimal("0.333"), BigFraction.of(1, 3).bigDecimalValue(3, RoundingMode.DOWN));
     }
 
     @Test
@@ -646,6 +648,30 @@ public class BigFractionTest {
         };
         for (BigFraction fraction : fractions) {
             Assert.assertEquals(fraction, TestUtils.serializeAndRecover(fraction));
+        }
+    }
+    
+    
+    @Test
+    public void testParse() {
+        String[] validExpressions = new String[] {
+                "3", 
+                "1 / 2", 
+                "2147,483,647 / 2,147,483,648", //over largest int value
+                "9,223,372,036,854,775,807 / 9,223,372,036,854,775,808" //over largest long value
+        };
+        BigFraction[] fractions = {
+                BigFraction.of(3),
+                BigFraction.of(1, 2),
+                BigFraction.of(2147483647, 2147483648L),
+                BigFraction.of(new BigInteger("9223372036854775807"),
+                        new BigInteger("9223372036854775808"))
+        };
+        int inc = 0;
+        for (BigFraction fraction: fractions) {
+            Assert.assertEquals(fraction, 
+                    BigFraction.parse(validExpressions[inc]));
+            inc++;
         }
     }
 }
