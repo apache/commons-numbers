@@ -407,6 +407,18 @@ public class FractionTest {
             f = f1.add(f2); // should overflow
             Assert.fail("expecting ArithmeticException but got: " + f.toString());
         } catch (ArithmeticException ex) {}
+
+        f1 = new Fraction(Integer.MAX_VALUE, 2);
+        try {
+            f2 = f1.add(1);
+            Assert.fail("expecting ArithmeticException but got: " + f2.toString());
+        } catch (ArithmeticException ex) {}
+
+        f1 = new Fraction(Integer.MIN_VALUE + 1, 2); //adding 1 so that numerator is odd
+        f2 = f1.add(Integer.MAX_VALUE);
+        //the numerator to be added (2^32-2) overflows an int, but the numerator of the result doesn't
+        Assert.assertEquals(Integer.MAX_VALUE, f2.getNumerator());
+        Assert.assertEquals(2, f2.getDenominator());
     }
 
     @Test
@@ -590,6 +602,18 @@ public class FractionTest {
             f = f1.subtract(f2); // should overflow
             Assert.fail("expecting ArithmeticException but got: " + f.toString());
         } catch (ArithmeticException ex) {}
+
+        f1 = new Fraction(Integer.MIN_VALUE + 1, 2); //adding 1 so that numerator is odd
+        try {
+            f2 = f1.subtract(1);
+            Assert.fail("expecting ArithmeticException but got: " + f2.toString());
+        } catch (ArithmeticException ex) {}
+
+        f1 = new Fraction(Integer.MAX_VALUE, 2);
+        f2 = f1.subtract(Integer.MAX_VALUE);
+        //the numerator to be subtracted (2^32-2) overflows an int, but the numerator of the result doesn't
+        Assert.assertEquals(Integer.MIN_VALUE + 1, f2.getNumerator());
+        Assert.assertEquals(2, f2.getDenominator());
     }
 
     @Test

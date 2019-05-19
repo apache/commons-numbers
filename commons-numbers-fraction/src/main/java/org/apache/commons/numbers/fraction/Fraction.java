@@ -447,9 +447,16 @@ public class Fraction
      * Add an integer to the fraction.
      * @param i the {@code integer} to add.
      * @return this + i
+     * @throws ArithmeticException if the numerator of the resulting fraction
+     *   cannot be represented as an {@code int}.
      */
     public Fraction add(final int i) {
-        return new Fraction(numerator + i * denominator, denominator);
+        long resultNumerator = (long) numerator + (long) i * (long) denominator;
+        try {
+            return new Fraction(Math.toIntExact(resultNumerator), denominator);
+        } catch (ArithmeticException e) {
+            throw new FractionException("integer overflow in numerator: {0}", resultNumerator);
+        }
     }
 
     /**
@@ -470,9 +477,16 @@ public class Fraction
      * Subtract an integer from the fraction.
      * @param i the {@code integer} to subtract.
      * @return this - i
+     * @throws ArithmeticException if the numerator of the resulting fraction
+     *   cannot be represented as an {@code int}.
      */
     public Fraction subtract(final int i) {
-        return new Fraction(numerator - i * denominator, denominator);
+        long resultNumerator = (long) numerator - (long) i * (long) denominator;
+        try {
+            return new Fraction(Math.toIntExact(resultNumerator), denominator);
+        } catch (ArithmeticException e) {
+            throw new FractionException("integer overflow in numerator: {0}", resultNumerator);
+        }
     }
 
     /**
