@@ -611,10 +611,14 @@ public class FractionTest {
         } catch (ArithmeticException ignored) {
             // expected
         }
-        Assert.assertEquals(Fraction.getReducedFraction
-                (2, Integer.MIN_VALUE).getNumerator(),-1);
-        Assert.assertEquals(Fraction.getReducedFraction
-                (1, -1).getNumerator(), -1);
+        Assert.assertEquals(
+                -1,
+                Fraction.getReducedFraction(2, Integer.MIN_VALUE).getNumerator()
+        );
+        Assert.assertEquals(
+                -1,
+                Fraction.getReducedFraction(1, -1).getNumerator()
+        );
     }
 
     @Test
