@@ -395,12 +395,6 @@ public class FractionTest {
             Assert.fail("expecting ArithmeticException");
         } catch (ArithmeticException ex) {}
 
-        try {
-            f= new Fraction(-Integer.MAX_VALUE, 1);
-            f = f.add(f);
-            Assert.fail("expecting ArithmeticException");
-        } catch (ArithmeticException ex) {}
-
         f1 = new Fraction(3,327680);
         f2 = new Fraction(2,59049);
         try {
