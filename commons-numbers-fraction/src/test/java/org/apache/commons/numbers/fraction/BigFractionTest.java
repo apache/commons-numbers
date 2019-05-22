@@ -653,7 +653,7 @@ public class BigFractionTest {
     
     
     @Test
-    public void testParse() {
+    public void testParse() { 
         String[] validExpressions = new String[] {
                 "3", 
                 "1 / 2", 
