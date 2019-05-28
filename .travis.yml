@@ -14,10 +14,9 @@
 # limitations under the License.
 
 language: java
-sudo: false
 
 jdk:
-  - oraclejdk8
+  - openjdk8
 
 after_success:
   - mvn clean test pmd:pmd findbugs:findbugs checkstyle:checkstyle jacoco:report coveralls:report
