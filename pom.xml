@@ -193,12 +193,6 @@
           <!-- Fix for OpenJDK 8 now validating class-path attributes in Jar manifests. -->
           <!-- See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=912333#63 -->
           <useSystemClassLoader>false</useSystemClassLoader>
-          <includes>
-            <include>**/*Test.java</include>
-          </includes>
-          <excludes>
-            <exclude>**/*AbstractTest.java</exclude>
-          </excludes>
         </configuration>
       </plugin>
       <plugin>
