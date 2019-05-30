@@ -27,6 +27,11 @@ package org.apache.commons.numbers.gamma;
  * @see Gamma
  */
 public class Digamma {
+
+    private Digamma() {
+        // intentional empty.
+    }
+
     /** <a href="http://en.wikipedia.org/wiki/Euler-Mascheroni_constant">Euler-Mascheroni constant</a>. */
     private static final double GAMMA = 0.577215664901532860606512090082;
     /** C limit. */

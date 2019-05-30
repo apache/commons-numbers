@@ -27,6 +27,11 @@ package org.apache.commons.numbers.gamma;
  * </p>
  */
 public class InverseErf {
+
+    private InverseErf() {
+        // intentionally empty.
+    }
+
     /**
      * Returns the inverse error function.
      *

@@ -26,6 +26,14 @@ import java.text.MessageFormat;
  */
 public final class ArithmeticUtils {
 
+    private static final String OVERFLOW_IN_ADDITION_MESSAGE = "overflow in addition: {0} + {1}";
+    private static final String OVERFLOW_GCD_MESSAGE_2_POWER_31 = "overflow: gcd({0}, {1}) is 2^31";
+    private static final String OVERFLOW_GCD_MESSAGE_2_POWER_63 = "overflow: gcd({0}, {1}) is 2^63";
+    private static final String OVERFLOW_IN_SUBTRACTION_MESSAGE = "overflow in subtraction: {0} + {1}";
+
+    private static final String NEGATIVE_EXPONENT_1 = "negative exponent ({";
+    private static final String NEGATIVE_EXPONENT_2 = "})";
+
     /** Private constructor. */
     private ArithmeticUtils() {
         super();
@@ -43,7 +51,7 @@ public final class ArithmeticUtils {
     public static int addAndCheck(int x, int y) {
         long s = (long)x + (long)y;
         if (s < Integer.MIN_VALUE || s > Integer.MAX_VALUE) {
-            throw new NumbersArithmeticException("overflow in addition: {0} + {1}", x, y);
+            throw new NumbersArithmeticException(OVERFLOW_IN_ADDITION_MESSAGE, x, y);
         }
         return (int)s;
     }
@@ -57,7 +65,7 @@ public final class ArithmeticUtils {
      * @throws ArithmeticException if the result can not be represented as an long
      */
     public static long addAndCheck(long a, long b) {
-        return addAndCheck(a, b, "overflow in addition: {0} + {1}");
+        return addAndCheck(a, b, OVERFLOW_IN_ADDITION_MESSAGE);
     }
 
     /**
@@ -94,7 +102,7 @@ public final class ArithmeticUtils {
             b == 0) {
             if (a == Integer.MIN_VALUE ||
                 b == Integer.MIN_VALUE) {
-                throw new NumbersArithmeticException("overflow: gcd({0}, {1}) is 2^31",
+                throw new NumbersArithmeticException(OVERFLOW_GCD_MESSAGE_2_POWER_31,
                                                   p, q);
             }
             return Math.abs(a + b);
@@ -121,7 +129,7 @@ public final class ArithmeticUtils {
         }
         if (useLong) {
             if(al == bl) {
-                throw new NumbersArithmeticException("overflow: gcd({0}, {1}) is 2^31",
+                throw new NumbersArithmeticException(OVERFLOW_GCD_MESSAGE_2_POWER_31,
                                                   p, q);
             }
             long blbu = bl;
@@ -129,7 +137,7 @@ public final class ArithmeticUtils {
             al = blbu % al;
             if (al == 0) {
                 if (bl > Integer.MAX_VALUE) {
-                    throw new NumbersArithmeticException("overflow: gcd({0}, {1}) is 2^31",
+                    throw new NumbersArithmeticException(OVERFLOW_GCD_MESSAGE_2_POWER_31,
                                                       p, q);
                 }
                 return (int) bl;
@@ -231,7 +239,7 @@ public final class ArithmeticUtils {
         long v = q;
         if ((u == 0) || (v == 0)) {
             if ((u == Long.MIN_VALUE) || (v == Long.MIN_VALUE)){
-                throw new NumbersArithmeticException("overflow: gcd({0}, {1}) is 2^63",
+                throw new NumbersArithmeticException(OVERFLOW_GCD_MESSAGE_2_POWER_63,
                                                   p, q);
             }
             return Math.abs(u) + Math.abs(v);
@@ -256,7 +264,7 @@ public final class ArithmeticUtils {
             k++; // cast out twos.
         }
         if (k == 63) {
-            throw new NumbersArithmeticException("overflow: gcd({0}, {1}) is 2^63",
+            throw new NumbersArithmeticException(OVERFLOW_GCD_MESSAGE_2_POWER_63,
                                               p, q);
         }
         // B2. Initialize: u and v have been divided by 2^k and at least
@@ -452,11 +460,11 @@ public final class ArithmeticUtils {
             if (a < 0) {
                 ret = a - b;
             } else {
-                throw new NumbersArithmeticException("overflow in subtraction: {0} + {1}", a, -b);
+                throw new NumbersArithmeticException(OVERFLOW_IN_SUBTRACTION_MESSAGE, a, -b);
             }
         } else {
             // use additive inverse
-            ret = addAndCheck(a, -b, "overflow in subtraction: {0} + {1}");
+            ret = addAndCheck(a, -b, OVERFLOW_IN_SUBTRACTION_MESSAGE);
         }
         return ret;
     }
@@ -473,7 +481,7 @@ public final class ArithmeticUtils {
     public static int pow(final int k,
                           final int e) {
         if (e < 0) {
-            throw new IllegalArgumentException("negative exponent ({" + e + "})");
+            throw new IllegalArgumentException(NEGATIVE_EXPONENT_1 + e + NEGATIVE_EXPONENT_2);
         }
 
         int exp = e;
@@ -507,7 +515,7 @@ public final class ArithmeticUtils {
     public static long pow(final long k,
                            final int e) {
         if (e < 0) {
-            throw new IllegalArgumentException("negative exponent ({" + e + "})");
+            throw new IllegalArgumentException(NEGATIVE_EXPONENT_1 + e + NEGATIVE_EXPONENT_2);
         }
 
         int exp = e;
@@ -539,7 +547,7 @@ public final class ArithmeticUtils {
      */
     public static BigInteger pow(final BigInteger k, int e) {
         if (e < 0) {
-            throw new IllegalArgumentException("negative exponent ({" + e + "})");
+            throw new IllegalArgumentException(NEGATIVE_EXPONENT_1 + e + NEGATIVE_EXPONENT_2);
         }
 
         return k.pow(e);
@@ -555,7 +563,7 @@ public final class ArithmeticUtils {
      */
     public static BigInteger pow(final BigInteger k, long e) {
         if (e < 0) {
-            throw new IllegalArgumentException("negative exponent ({" + e + "})");
+            throw new IllegalArgumentException(NEGATIVE_EXPONENT_1 + e + NEGATIVE_EXPONENT_2);
         }
 
         BigInteger result = BigInteger.ONE;
@@ -582,7 +590,7 @@ public final class ArithmeticUtils {
      */
     public static BigInteger pow(final BigInteger k, BigInteger e) {
         if (e.compareTo(BigInteger.ZERO) < 0) {
-            throw new IllegalArgumentException("negative exponent ({" + e + "})");
+            throw new IllegalArgumentException(NEGATIVE_EXPONENT_1 + e + NEGATIVE_EXPONENT_2);
         }
 
         BigInteger result = BigInteger.ONE;

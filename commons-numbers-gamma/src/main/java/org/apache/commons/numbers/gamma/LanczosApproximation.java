@@ -32,6 +32,11 @@ package org.apache.commons.numbers.gamma;
  * of the convergent Lanczos complex Gamma approximation</a>.
  */
 public class LanczosApproximation {
+
+    private LanczosApproximation() {
+        // intentional empty.
+    }
+
     /** \( g = \frac{607}{128} \). */
     private static final double LANCZOS_G = 607d / 128d;
     /** Lanczos coefficients. */

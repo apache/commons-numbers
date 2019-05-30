@@ -21,6 +21,11 @@ package org.apache.commons.numbers.combinatorics;
  * <a href="http://mathworld.wolfram.com/Factorial.html">Factorial of a number</a>.
  */
 public class Factorial {
+
+    private Factorial() {
+        // intentionally empty.
+    }
+
     /** All long-representable factorials */
     static final long[] FACTORIALS = new long[] {
                        1L,                  1L,                   2L,

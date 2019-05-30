@@ -22,6 +22,11 @@ package org.apache.commons.numbers.gamma;
  * Class is immutable.
  */
 class InvGamma1pm1 {
+
+    private InvGamma1pm1() {
+        // intentionally empty.
+    }
+
     /*
      * Constants copied from DGAM1 in the NSWC library.
      */

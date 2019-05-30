@@ -23,6 +23,13 @@ package org.apache.commons.numbers.gamma;
  * </p>
  */
 public class LogBeta {
+
+    /** Private constructor. */
+    private LogBeta() {
+        // intentional empty.
+    }
+
+
     /** The constant value of ½log 2π. */
     private static final double HALF_LOG_TWO_PI = 0.9189385332046727;
 
