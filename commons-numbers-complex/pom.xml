@@ -26,9 +26,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.apache.commons</groupId>
   <artifactId>commons-numbers-complex</artifactId>
-  <version>1.0-SNAPSHOT</version>
   <name>Apache Commons Numbers Complex</name>
 
   <description>Complex numbers.</description>

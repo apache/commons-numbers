@@ -26,9 +26,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.apache.commons</groupId>
   <artifactId>commons-numbers-field</artifactId>
-  <version>1.0-SNAPSHOT</version>
   <name>Apache Commons Numbers Field</name>
 
   <description>Utilities related to the concept of field.</description>
