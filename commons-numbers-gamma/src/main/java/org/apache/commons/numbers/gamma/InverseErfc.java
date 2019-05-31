@@ -28,6 +28,7 @@ package org.apache.commons.numbers.gamma;
  */
 public class InverseErfc {
 
+    /** Private constructor. */
     private InverseErfc() {
         // intentional empty.
     }

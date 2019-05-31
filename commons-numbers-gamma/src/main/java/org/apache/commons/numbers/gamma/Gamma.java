@@ -32,12 +32,13 @@ package org.apache.commons.numbers.gamma;
  */
 public class Gamma {
 
+    /** &radic;(2&pi;). */
+    private static final double SQRT_TWO_PI = 2.506628274631000502;
+
+    /** Private constructor. */
     private Gamma() {
         // intentionally empty.
     }
-
-    /** &radic;(2&pi;). */
-    private static final double SQRT_TWO_PI = 2.506628274631000502;
 
     /**
      * Computes the value of \( \Gamma(x) \).

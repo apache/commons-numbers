@@ -24,12 +24,9 @@ package org.apache.commons.numbers.gamma;
  */
 public class Trigamma {
 
-    private Trigamma() {
-        // intentional empty.
-    }
-
     /** C limit. */
     private static final double C_LIMIT = 49;
+
     /** S limit. */
     private static final double S_LIMIT = 1e-5;
     /** Fraction. */
@@ -38,6 +35,11 @@ public class Trigamma {
     private static final double F_1_30 = 1d / 30;
     /** Fraction. */
     private static final double F_1_42 = 1d / 42;
+
+    /** Private constructor. */
+    private Trigamma() {
+        // intentional empty.
+    }
 
     /**
      * Computes the trigamma function.

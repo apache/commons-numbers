@@ -27,6 +27,7 @@ import org.apache.commons.numbers.core.ArithmeticUtils;
  */
 public class BinomialCoefficient {
 
+    /** Private constructor. */
     private BinomialCoefficient() {
         // intentionally empty.
     }

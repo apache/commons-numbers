@@ -21,6 +21,7 @@ package org.apache.commons.numbers.arrays;
  */
 public class CosAngle {
 
+    /** Private constructor. */
     private CosAngle() {
         // intentionally empty.
     }

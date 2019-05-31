@@ -43,6 +43,11 @@ public class LinearCombination {
      * only at the end, after cancellation may have occurred on high order bits
      */
 
+    /** Private constructor. */
+    private LinearCombination() {
+        // intentionally empty.
+    }
+
     /**
      * @param a Factors.
      * @param b Factors.
