@@ -28,9 +28,7 @@ under the License.
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.apache.commons</groupId>
   <artifactId>commons-numbers</artifactId>
-  <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Apache Commons Numbers (full distribution)</name>
   <description>This module creates the Apache Commons Numbers distribution.</description>
@@ -41,18 +39,18 @@ under the License.
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-numbers-core</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-numbers-core</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
       <classifier>sources</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-numbers-core</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
       <classifier>javadoc</classifier>
     </dependency>
 
@@ -60,18 +58,18 @@ under the License.
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-numbers-complex</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-numbers-complex</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
       <classifier>sources</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-numbers-complex</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
       <classifier>javadoc</classifier>
     </dependency>
 
@@ -79,18 +77,18 @@ under the License.
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-numbers-quaternion</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-numbers-quaternion</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
       <classifier>sources</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-numbers-quaternion</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
       <classifier>javadoc</classifier>
     </dependency>
 

@@ -26,9 +26,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.apache.commons</groupId>
   <artifactId>commons-numbers-complex-streams</artifactId>
-  <version>1.0-SNAPSHOT</version>
   <name>Apache Commons Numbers Complex Streams</name>
 
   <description>Arrays, streams and collections of complex numbers.</description>
