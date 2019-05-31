@@ -32,6 +32,8 @@
   <description>Utilities related to the concept of field.</description>
 
   <properties>
+    <!-- The Java Module System Name -->
+    <commons.module.name>org.apache.commons.numbers.field</commons.module.name>
     <!-- This value must reflect the current name of the base package. -->
     <commons.osgi.symbolicName>org.apache.commons.numbers.field</commons.osgi.symbolicName>
     <!-- OSGi -->

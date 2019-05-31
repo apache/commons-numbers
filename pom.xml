@@ -113,6 +113,7 @@
          name of the base package evolves with major release numbers
          (see "commons.osgi.symbolicName", below). -->
     <commons.componentid>numbers</commons.componentid>
+    <!-- The Java Module System Name -->
     <commons.module.name>org.apache.commons.numbers</commons.module.name>
     <!-- This value must reflect the current name of the base package. -->
     <commons.osgi.symbolicName>org.apache.commons.numbers</commons.osgi.symbolicName>
@@ -215,7 +216,6 @@
           </ignorePathsToDelete>
         </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
@@ -254,7 +254,6 @@
           </excludes>
         </configuration>
       </plugin>
-
       <plugin>
       <!-- NOTE: javadoc config must also be set under <reporting> -->
         <groupId>org.apache.maven.plugins</groupId>
@@ -263,6 +262,17 @@
           <!--  Enable MathJax -->
           <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalOptions>
           <!-- <aggregate>true</aggregate> -->
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive combine.children="append">
+            <manifestEntries>
+              <Automatic-Module-Name>${commons.module.name}</Automatic-Module-Name>
+            </manifestEntries>
+          </archive>
         </configuration>
       </plugin>
     </plugins>

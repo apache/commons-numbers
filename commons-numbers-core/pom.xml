@@ -32,6 +32,8 @@
   <description>Basic utilities.</description>
 
   <properties>
+    <!-- The Java Module System Name -->
+    <commons.module.name>org.apache.commons.numbers.core</commons.module.name>
     <!-- This value must reflect the current name of the base package. -->
     <commons.osgi.symbolicName>org.apache.commons.numbers.core</commons.osgi.symbolicName>
     <!-- OSGi -->
