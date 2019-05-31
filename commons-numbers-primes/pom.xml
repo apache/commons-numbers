@@ -32,6 +32,8 @@
   <description>Utilities related to prime numbers.</description>
 
   <properties>
+    <!-- The Java Module System Name -->
+    <commons.module.name>org.apache.commons.numbers.primes</commons.module.name>
     <!-- This value must reflect the current name of the base package. -->
     <commons.osgi.symbolicName>org.apache.commons.numbers.primes</commons.osgi.symbolicName>
     <!-- OSGi -->

@@ -32,6 +32,8 @@
   <description>Arrays, streams and collections of complex numbers.</description>
 
   <properties>
+    <!-- The Java Module System Name -->
+    <commons.module.name>org.apache.commons.numbers.complex.streams</commons.module.name>
     <!-- This value must reflect the current name of the base package. -->
     <commons.osgi.symbolicName>org.apache.commons.numbers.complex.streams</commons.osgi.symbolicName>
     <!-- OSGi -->

@@ -32,6 +32,8 @@
   <description>Quaternion numbers.</description>
 
   <properties>
+    <!-- The Java Module System Name -->
+    <commons.module.name>org.apache.commons.numbers.quaternion</commons.module.name>
     <!-- This value must reflect the current name of the base package. -->
     <commons.osgi.symbolicName>org.apache.commons.numbers.quaternion</commons.osgi.symbolicName>
     <!-- OSGi -->
