@@ -27,6 +27,11 @@ public class SafeNorm {
     /** Constant. */
     private static final double R_GIANT = 1.304e+19;
 
+    /** Private constructor. */
+    private SafeNorm() {
+        // intentionally empty.
+    }
+
     /**
      * @param v Cartesian coordinates.
      * @return the 2-norm of the vector.

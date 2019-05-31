@@ -28,12 +28,9 @@ package org.apache.commons.numbers.gamma;
  */
 public class Digamma {
 
-    private Digamma() {
-        // intentional empty.
-    }
-
     /** <a href="http://en.wikipedia.org/wiki/Euler-Mascheroni_constant">Euler-Mascheroni constant</a>. */
     private static final double GAMMA = 0.577215664901532860606512090082;
+
     /** C limit. */
     private static final double C_LIMIT = 49;
     /** S limit. */
@@ -44,6 +41,11 @@ public class Digamma {
     private static final double F_1_120 = 1d / 120;
     /** Fraction. */
     private static final double F_M1_252 = -1d / 252;
+
+    /** Private constructor. */
+    private Digamma() {
+        // intentional empty.
+    }
 
     /**
      * Computes the digamma function.

@@ -28,6 +28,7 @@ package org.apache.commons.numbers.gamma;
  */
 public class InverseErf {
 
+    /** Private constructor. */
     private InverseErf() {
         // intentionally empty.
     }

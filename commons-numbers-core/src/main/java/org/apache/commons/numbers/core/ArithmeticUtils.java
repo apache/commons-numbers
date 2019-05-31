@@ -26,17 +26,23 @@ import java.text.MessageFormat;
  */
 public final class ArithmeticUtils {
 
+    /** Overflow addition exception message. */
     private static final String OVERFLOW_IN_ADDITION_MESSAGE = "overflow in addition: {0} + {1}";
+    /** Overflow gcd exception message for 2^31. */
     private static final String OVERFLOW_GCD_MESSAGE_2_POWER_31 = "overflow: gcd({0}, {1}) is 2^31";
+    /** Overflow gcd exception message for 2^63. */
     private static final String OVERFLOW_GCD_MESSAGE_2_POWER_63 = "overflow: gcd({0}, {1}) is 2^63";
+    /** Overflow subtraction exception message. */
     private static final String OVERFLOW_IN_SUBTRACTION_MESSAGE = "overflow in subtraction: {0} + {1}";
 
+    /** Negative exponent exception message part 1 */
     private static final String NEGATIVE_EXPONENT_1 = "negative exponent ({";
+    /** Negative exponent exception message part 2 */
     private static final String NEGATIVE_EXPONENT_2 = "})";
 
     /** Private constructor. */
     private ArithmeticUtils() {
-        super();
+        // intentionally empty.
     }
 
     /**

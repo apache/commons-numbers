@@ -25,6 +25,7 @@ package org.apache.commons.numbers.combinatorics;
  */
 public class LogBinomialCoefficient {
 
+    /** Private constructor. */
     private LogBinomialCoefficient() {
         // intentionally empty.
     }

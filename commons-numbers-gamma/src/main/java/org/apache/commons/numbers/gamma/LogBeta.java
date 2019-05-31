@@ -24,11 +24,6 @@ package org.apache.commons.numbers.gamma;
  */
 public class LogBeta {
 
-    /** Private constructor. */
-    private LogBeta() {
-        // intentional empty.
-    }
-
 
     /** The constant value of ½log 2π. */
     private static final double HALF_LOG_TWO_PI = 0.9189385332046727;
@@ -70,6 +65,11 @@ public class LogBeta {
         -.234065664793997056856992426667E-21,
         .171348014966398575409015466667E-22
     };
+
+    /** Private constructor. */
+    private LogBeta() {
+        // intentional empty.
+    }
 
     /**
      * Returns the value of Δ(b) - Δ(a + b), with 0 ≤ a ≤ b and b ≥ 10. Based
