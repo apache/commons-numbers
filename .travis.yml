@@ -18,5 +18,9 @@ language: java
 jdk:
   - openjdk8
 
-after_success:
+# Skip the installation step:
+#   https://docs.travis-ci.com/user/job-lifecycle/#skipping-the-installation-phase
+install: true
+
+script:
   - mvn clean test pmd:pmd findbugs:findbugs checkstyle:checkstyle jacoco:report coveralls:report
