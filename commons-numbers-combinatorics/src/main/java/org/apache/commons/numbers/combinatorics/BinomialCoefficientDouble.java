@@ -25,6 +25,7 @@ package org.apache.commons.numbers.combinatorics;
  */
 public class BinomialCoefficientDouble {
 
+    /** Private constructor. */
     private BinomialCoefficientDouble() {
         // intentionally empty.
     }

@@ -23,9 +23,6 @@ package org.apache.commons.numbers.gamma;
  */
 class InvGamma1pm1 {
 
-    private InvGamma1pm1() {
-        // intentionally empty.
-    }
 
     /*
      * Constants copied from DGAM1 in the NSWC library.
@@ -102,6 +99,11 @@ class InvGamma1pm1 {
     private static final double INV_GAMMA1P_M1_C12 = .113302723198169588237412962033074E-05;
     /** The constant {@code C13} defined in {@code DGAM1}. */
     private static final double INV_GAMMA1P_M1_C13 = -.205633841697760710345015413002057E-06;
+
+    /** Private constructor. */
+    private InvGamma1pm1() {
+        // intentionally empty.
+    }
 
     /**
      * Computes the function \( \frac{1}{\Gamma(1 + x)} - 1 \) for {@code -0.5 <= x <= 1.5}.

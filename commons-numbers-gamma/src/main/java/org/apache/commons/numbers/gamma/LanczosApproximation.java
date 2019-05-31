@@ -33,10 +33,6 @@ package org.apache.commons.numbers.gamma;
  */
 public class LanczosApproximation {
 
-    private LanczosApproximation() {
-        // intentional empty.
-    }
-
     /** \( g = \frac{607}{128} \). */
     private static final double LANCZOS_G = 607d / 128d;
     /** Lanczos coefficients. */
@@ -57,6 +53,11 @@ public class LanczosApproximation {
         -.26190838401581408670e-4,
         .36899182659531622704e-5,
     };
+
+    /** Private constructor. */
+    private LanczosApproximation() {
+        // intentional empty.
+    }
 
     /**
      * Computes the Lanczos approximation.

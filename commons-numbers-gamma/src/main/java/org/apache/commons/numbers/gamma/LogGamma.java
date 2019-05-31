@@ -23,14 +23,15 @@ package org.apache.commons.numbers.gamma;
  */
 public class LogGamma {
 
-    private LogGamma() {
-        // intentionally empty.
-    }
-
     /** Lanczos constant. */
     private static final double LANCZOS_G = 607d / 128d;
     /** Performance. */
     private static final double HALF_LOG_2_PI = 0.5 * Math.log(2.0 * Math.PI);
+
+    /** Private constructor. */
+    private LogGamma() {
+        // intentionally empty.
+    }
 
     /**
      * Computes the function \( \ln \Gamma(x) \) for {@code x >= 0}.

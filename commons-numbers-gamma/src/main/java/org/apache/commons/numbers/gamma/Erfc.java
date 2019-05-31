@@ -21,6 +21,7 @@ package org.apache.commons.numbers.gamma;
  */
 public class Erfc {
 
+    /** Private constructor. */
     private Erfc() {
         // intentionally empty.
     }

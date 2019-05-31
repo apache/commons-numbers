@@ -24,6 +24,7 @@ package org.apache.commons.numbers.gamma;
  */
 class LogGammaSum {
 
+    /** Private constructor. */
     private LogGammaSum() {
         // intentionally empty
     }

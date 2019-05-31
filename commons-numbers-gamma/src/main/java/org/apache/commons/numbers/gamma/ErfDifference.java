@@ -21,10 +21,6 @@ package org.apache.commons.numbers.gamma;
  */
 public class ErfDifference {
 
-    private ErfDifference() {
-        // intentionally empty.
-    }
-
     /**
      * This number solves {@code erf(x) = 0.5} within 1 ulp.
      * More precisely, the current implementations of
@@ -37,6 +33,11 @@ public class ErfDifference {
      * </ul>
      */
     private static final double X_CRIT = 0.4769362762044697;
+
+    /** Private constructor. */
+    private ErfDifference() {
+        // intentionally empty.
+    }
 
     /**
      * The implementation uses either {@link Erf} or {@link Erfc},

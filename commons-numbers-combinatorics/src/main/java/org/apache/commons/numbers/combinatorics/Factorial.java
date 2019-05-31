@@ -22,10 +22,6 @@ package org.apache.commons.numbers.combinatorics;
  */
 public class Factorial {
 
-    private Factorial() {
-        // intentionally empty.
-    }
-
     /** All long-representable factorials */
     static final long[] FACTORIALS = new long[] {
                        1L,                  1L,                   2L,
@@ -36,6 +32,11 @@ public class Factorial {
            1307674368000L,     20922789888000L,     355687428096000L,
         6402373705728000L, 121645100408832000L, 2432902008176640000L
     };
+
+    /** Private constructor. */
+    private Factorial() {
+        // intentionally empty.
+    }
 
     /**
      * Computes the factorial of {@code n}.
@@ -55,4 +56,5 @@ public class Factorial {
 
         return FACTORIALS[n];
     }
+
 }

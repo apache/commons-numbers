@@ -26,12 +26,13 @@ import org.apache.commons.numbers.fraction.ContinuedFraction;
  */
 public class RegularizedGamma {
 
+    /** Maximum allowed numerical error. */
+    private static final double DEFAULT_EPSILON = 1e-15;
+
+    /** Private constructor. */
     private RegularizedGamma() {
         // intentionally empty.
     }
-
-    /** Maximum allowed numerical error. */
-    private static final double DEFAULT_EPSILON = 1e-15;
 
     /**
      * \( P(a, x) \) <a href="http://mathworld.wolfram.com/RegularizedGammaFunction.html">

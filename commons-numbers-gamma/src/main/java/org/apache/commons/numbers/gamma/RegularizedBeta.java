@@ -27,12 +27,13 @@ import org.apache.commons.numbers.fraction.ContinuedFraction;
  */
 public class RegularizedBeta {
 
+    /** Maximum allowed numerical error. */
+    private static final double DEFAULT_EPSILON = 1e-14;
+
+    /** Private constructor. */
     private RegularizedBeta() {
         // intentionally empty.
     }
-
-    /** Maximum allowed numerical error. */
-    private static final double DEFAULT_EPSILON = 1e-14;
 
     /**
      * Computes the value of the
