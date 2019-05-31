@@ -18,9 +18,8 @@ language: java
 jdk:
   - openjdk8
 
-# We skip the installation step,
-# cause everything must run without
-# preliminary installation.
+# Skip the installation step:
+#   https://docs.travis-ci.com/user/job-lifecycle/#skipping-the-installation-phase
 install: true
 
 script:
