@@ -18,8 +18,13 @@ package org.apache.commons.numbers.primes;
 
 
 import java.math.BigInteger;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * Utility methods to work on primes within the <code>int</code> range.
@@ -64,6 +69,68 @@ class SmallPrimes {
     static final int PRIMES_LAST = PRIMES[PRIMES.length - 1];
 
     /**
+     * A set of prime numbers mapped to an array of all integers between
+     * 0 (inclusive) and the least common multiple, i.e. the product, of those
+     * prime numbers (exclusive) that are not divisible by any of these prime
+     * numbers. The prime numbers in the set are among the first 512 prime
+     * numbers, and the {@code int} array containing the numbers undivisible by
+     * these prime numbers is sorted in ascending order.
+     *
+     * <p>The purpose of this field is to speed up trial division by skipping
+     * multiples of individual prime numbers, specifically those contained
+     * in the key of this {@code Entry}, by only trying integers that are equivalent
+     * to one of the integers contained in the value of this {@code Entry} modulo
+     * the least common multiple of the prime numbers in the set.</p>
+     *
+     * <p>Note that, if {@code product} is the product of the prime numbers,
+     * the last number in the array of coprime integers is necessarily
+     * {@code product - 1}, because if {@code product ≡ 0 mod p}, then
+     * {@code product - 1 ≡ -1 mod p}, and {@code 0 ≢ -1 mod p} for any prime number p.</p>
+     */
+    static final Entry<Set<Integer>, int[]> PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES;
+
+    static {
+        /*
+        When using the first five prime numbers as those whose multiples
+        are to be skipped in trial division, the array containing the coprime
+        equivalence classes will have to hold 480 values, because there are 480
+        numbers between 0 and 2*3*5*7*11 - 1 that are not divisible by any of
+        those primes. As a consequence, the amount of integers to be tried in
+        trial division is reduced to 480/(2*3*5*7*11), which is about 20.78%,
+        of all integers.
+         */
+        Set<Integer> firstFivePrimes = new HashSet<>();
+        firstFivePrimes.add(Integer.valueOf(2));
+        firstFivePrimes.add(Integer.valueOf(3));
+        firstFivePrimes.add(Integer.valueOf(5));
+        firstFivePrimes.add(Integer.valueOf(7));
+        firstFivePrimes.add(Integer.valueOf(11));
+
+        int product = firstFivePrimes.stream().reduce(1, (a, b) -> a * b);
+
+        List<Integer> equivalenceClassesAsList = new ArrayList<>();
+        for (int i = 0; i < product; i++) {
+            boolean foundPrimeFactor = false;
+            for (Integer prime : firstFivePrimes) {
+                if (i % prime == 0) {
+                    foundPrimeFactor = true;
+                    break;
+                }
+            }
+            if (!foundPrimeFactor) {
+                equivalenceClassesAsList.add(Integer.valueOf(i));
+            }
+        }
+
+        int[] equivalenceClasses = new int[equivalenceClassesAsList.size()];
+        for (int i = 0; i < equivalenceClassesAsList.size(); i++) {
+            equivalenceClasses[i] = equivalenceClassesAsList.get(i).intValue();
+        }
+
+        PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES = new SimpleImmutableEntry<>(firstFivePrimes, equivalenceClasses);
+    }
+
+    /**
      * Utility class.
      */
     private SmallPrimes() {}
@@ -100,21 +167,46 @@ class SmallPrimes {
     static int boundedTrialDivision(int n,
                                     int maxFactor,
                                     List<Integer> factors) {
-        int f = PRIMES_LAST + 2;
-        // no check is done about n >= f
-        while (f <= maxFactor) {
-            if (0 == n % f) {
+        int minFactor = PRIMES_LAST + 2;
+
+        /*
+        only trying integers of the form k*m + c, where k >= 0, m is the
+        product of some prime numbers which n is required not to contain
+        as prime factors, and c is an integer undivisible by all of those
+        prime numbers; in other words, skipping multiples of these primes
+         */
+        int m = PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue()[PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue().length - 1] + 1;
+        int km = m * (minFactor / m);
+        int currentEquivalenceClassIndex = Arrays.binarySearch(
+                PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue(),
+                minFactor % m);
+        if (currentEquivalenceClassIndex < 0) {
+            if (currentEquivalenceClassIndex == -PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue().length - 1) {
+                km += m;
+                currentEquivalenceClassIndex = 0;
+            } else {
+                currentEquivalenceClassIndex = -(currentEquivalenceClassIndex + 1);
+            }
+        }
+
+        boolean done = false;
+        while (!done) {
+            // no check is done about n >= f
+            int f = km + PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue()[currentEquivalenceClassIndex];
+            if (f > maxFactor) {
+                done = true;
+            } else if (0 == n % f) {
                 n /= f;
                 factors.add(f);
-                break;
+                done = true;
+            } else {
+                if (currentEquivalenceClassIndex == PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue().length - 1) {
+                    km += m;
+                    currentEquivalenceClassIndex = 0;
+                } else {
+                    currentEquivalenceClassIndex++;
+                }
             }
-            f += 4;
-            if (0 == n % f) {
-                n /= f;
-                factors.add(f);
-                break;
-            }
-            f += 2;
         }
         if (n != 1) {
             factors.add(n);
