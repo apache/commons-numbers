@@ -20,6 +20,11 @@ package org.apache.commons.numbers.gamma;
  * <a href="http://mathworld.wolfram.com/Erf.html">Error function</a>.
  */
 public class Erf {
+
+    private Erf() {
+        // intenitonal empty.
+    }
+
     /**
      * <p>
      * This implementation computes erf(x) using the

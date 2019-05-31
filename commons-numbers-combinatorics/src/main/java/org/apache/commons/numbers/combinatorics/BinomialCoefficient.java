@@ -26,6 +26,11 @@ import org.apache.commons.numbers.core.ArithmeticUtils;
  * can be selected from an {@code n}-element set.
  */
 public class BinomialCoefficient {
+
+    private BinomialCoefficient() {
+        // intentionally empty.
+    }
+
     /**
      * Computes de binomial coefficient.
      * The largest value of {@code n} for which all coefficients can

@@ -25,6 +25,11 @@ import org.apache.commons.numbers.fraction.ContinuedFraction;
  * Class is immutable.
  */
 public class RegularizedGamma {
+
+    private RegularizedGamma() {
+        // intentionally empty.
+    }
+
     /** Maximum allowed numerical error. */
     private static final double DEFAULT_EPSILON = 1e-15;
 

@@ -22,6 +22,11 @@ package org.apache.commons.numbers.gamma;
  * Class is immutable.
  */
 class LogGamma1p {
+
+    private LogGamma1p() {
+        // intentionally empty
+    }
+
     /**
      * Computes the function \( \ln \Gamma(1 + x) \) for \( -0.5 \leq x \leq 1.5 \).
      *

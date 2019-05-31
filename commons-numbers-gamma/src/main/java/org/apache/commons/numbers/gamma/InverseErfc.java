@@ -27,6 +27,11 @@ package org.apache.commons.numbers.gamma;
  * </p>
  */
 public class InverseErfc {
+
+    private InverseErfc() {
+        // intentional empty.
+    }
+
     /**
      * Returns the inverse complementary error function.
      *

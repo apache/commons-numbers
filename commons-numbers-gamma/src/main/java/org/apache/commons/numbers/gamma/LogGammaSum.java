@@ -23,6 +23,11 @@ package org.apache.commons.numbers.gamma;
  * </p>
  */
 class LogGammaSum {
+
+    private LogGammaSum() {
+        // intentionally empty
+    }
+
     /**
      * Computes the value of log Γ(a + b) for 1 ≤ a, b ≤ 2.
      * Based on the <em>NSWC Library of Mathematics Subroutines</em>

@@ -23,6 +23,11 @@ package org.apache.commons.numbers.gamma;
  * \( \psi_1(x) = \frac{d^2}{dx^2} (\ln \Gamma(x)) \).
  */
 public class Trigamma {
+
+    private Trigamma() {
+        // intentional empty.
+    }
+
     /** C limit. */
     private static final double C_LIMIT = 49;
     /** S limit. */

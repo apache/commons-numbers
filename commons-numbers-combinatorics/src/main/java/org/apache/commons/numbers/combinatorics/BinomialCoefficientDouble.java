@@ -24,6 +24,11 @@ package org.apache.commons.numbers.combinatorics;
  * can be selected from an {@code n}-element set.
  */
 public class BinomialCoefficientDouble {
+
+    private BinomialCoefficientDouble() {
+        // intentionally empty.
+    }
+
     /**
      * Computes de binomial coefficient.
      * The largest value of {@code n} for which all coefficients can

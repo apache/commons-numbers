@@ -31,6 +31,11 @@ package org.apache.commons.numbers.gamma;
  * </p>
  */
 public class Gamma {
+
+    private Gamma() {
+        // intentionally empty.
+    }
+
     /** &radic;(2&pi;). */
     private static final double SQRT_TWO_PI = 2.506628274631000502;
 
