@@ -91,43 +91,47 @@ class SmallPrimes {
 
     static {
         /*
-        When using the first five prime numbers as those whose multiples
+        According to the Chinese Remainder Theorem, for every combination of
+        congruence classes modulo distinct, pairwise coprime moduli, there
+        exists exactly one congruence class modulo the product of these
+        moduli that is contained in every one of the former congruence
+        classes. Since the number of congruence classes coprime to a prime
+        number p is p-1, the number of congruence classes coprime to all
+        prime numbers p_1, p_2, p_3 … is (p_1 - 1) * (p_2 - 1) * (p_3 - 1) …
+
+        Therefore, when using the first five prime numbers as those whose multiples
         are to be skipped in trial division, the array containing the coprime
-        equivalence classes will have to hold 480 values, because there are 480
-        numbers between 0 and 2*3*5*7*11 - 1 that are not divisible by any of
-        those primes. As a consequence, the amount of integers to be tried in
+        equivalence classes will have to hold (2-1)*(3-1)*(5-1)*(7-1)*(11-1) = 480
+        values. As a consequence, the amount of integers to be tried in
         trial division is reduced to 480/(2*3*5*7*11), which is about 20.78%,
         of all integers.
          */
-        Set<Integer> firstFivePrimes = new HashSet<>();
-        firstFivePrimes.add(Integer.valueOf(2));
-        firstFivePrimes.add(Integer.valueOf(3));
-        firstFivePrimes.add(Integer.valueOf(5));
-        firstFivePrimes.add(Integer.valueOf(7));
-        firstFivePrimes.add(Integer.valueOf(11));
+        Set<Integer> primeNumbers = new HashSet<>();
+        primeNumbers.add(Integer.valueOf(2));
+        primeNumbers.add(Integer.valueOf(3));
+        primeNumbers.add(Integer.valueOf(5));
+        primeNumbers.add(Integer.valueOf(7));
+        primeNumbers.add(Integer.valueOf(11));
 
-        int product = firstFivePrimes.stream().reduce(1, (a, b) -> a * b);
+        int product = primeNumbers.stream().reduce(1, (a, b) -> a * b);
+        int[] equivalenceClasses = new int[primeNumbers.stream().mapToInt(a -> a - 1).reduce(1, (a, b) -> a * b)];
 
-        List<Integer> equivalenceClassesAsList = new ArrayList<>();
+        int equivalenceClassIndex = 0;
         for (int i = 0; i < product; i++) {
             boolean foundPrimeFactor = false;
-            for (Integer prime : firstFivePrimes) {
+            for (Integer prime : primeNumbers) {
                 if (i % prime == 0) {
                     foundPrimeFactor = true;
                     break;
                 }
             }
             if (!foundPrimeFactor) {
-                equivalenceClassesAsList.add(Integer.valueOf(i));
+                equivalenceClasses[equivalenceClassIndex] = i;
+                equivalenceClassIndex++;
             }
         }
 
-        int[] equivalenceClasses = new int[equivalenceClassesAsList.size()];
-        for (int i = 0; i < equivalenceClassesAsList.size(); i++) {
-            equivalenceClasses[i] = equivalenceClassesAsList.get(i).intValue();
-        }
-
-        PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES = new SimpleImmutableEntry<>(firstFivePrimes, equivalenceClasses);
+        PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES = new SimpleImmutableEntry<>(primeNumbers, equivalenceClasses);
     }
 
     /**
