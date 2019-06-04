@@ -184,14 +184,12 @@ class SmallPrimes {
         int currentEquivalenceClassIndex = Arrays.binarySearch(
                 PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue(),
                 minFactor % m);
-        if (currentEquivalenceClassIndex < 0) {
-            if (currentEquivalenceClassIndex == -PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue().length - 1) {
-                km += m;
-                currentEquivalenceClassIndex = 0;
-            } else {
-                currentEquivalenceClassIndex = -(currentEquivalenceClassIndex + 1);
-            }
-        }
+
+        /*
+        Since minFactor is the next smallest prime number after the
+        first 512 primes, it cannot be a multiple of one of them, therefore,
+        the index returned by the above binary search must be non-negative.
+         */
 
         boolean done = false;
         while (!done) {
