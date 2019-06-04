@@ -21,7 +21,7 @@ import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.List;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class PrimesTest {
@@ -60,44 +60,44 @@ public class PrimesTest {
     void assertPrimeFactorsException(int n, String expected) {
         try {
             Primes.primeFactors(n);
-            Assert.fail("Exception not thrown");
+            Assertions.fail("Exception not thrown");
         } catch (IllegalArgumentException e) {
-            Assert.assertEquals(expected, e.getMessage());
+            Assertions.assertEquals(expected, e.getMessage());
         }
     }
     void assertNextPrimeException(int n, String expected){
         try {
             Primes.nextPrime(n);
-            Assert.fail("Exception not thrown");
+            Assertions.fail("Exception not thrown");
         } catch(IllegalArgumentException e) {
-            Assert.assertEquals(expected, e.getMessage());
+            Assertions.assertEquals(expected, e.getMessage());
         }
     }
 
     @Test
     public void testNextPrime() {
 
-        Assert.assertEquals(2, Primes.nextPrime(0));
-        Assert.assertEquals(2, Primes.nextPrime(1));
-        Assert.assertEquals(2, Primes.nextPrime(2));
-        Assert.assertEquals(3, Primes.nextPrime(3));
-        Assert.assertEquals(5, Primes.nextPrime(4));
-        Assert.assertEquals(5, Primes.nextPrime(5));
+        Assertions.assertEquals(2, Primes.nextPrime(0));
+        Assertions.assertEquals(2, Primes.nextPrime(1));
+        Assertions.assertEquals(2, Primes.nextPrime(2));
+        Assertions.assertEquals(3, Primes.nextPrime(3));
+        Assertions.assertEquals(5, Primes.nextPrime(4));
+        Assertions.assertEquals(5, Primes.nextPrime(5));
 
         for (int i = 0; i < SmallPrimes.PRIMES.length - 1; i++) {
             for (int j = SmallPrimes.PRIMES[i] + 1; j <= SmallPrimes.PRIMES[i + 1]; j++) {
-                Assert.assertEquals(SmallPrimes.PRIMES[i+1], Primes.nextPrime(j));
+                Assertions.assertEquals(SmallPrimes.PRIMES[i+1], Primes.nextPrime(j));
             }
         }
 
-        Assert.assertEquals(25325981, Primes.nextPrime(25325981));
+        Assertions.assertEquals(25325981, Primes.nextPrime(25325981));
         for (int i = 25325981 + 1; i <= 25326023; i++) {
-            Assert.assertEquals(25326023, Primes.nextPrime(i));
+            Assertions.assertEquals(25326023, Primes.nextPrime(i));
         }
 
-        Assert.assertEquals(Integer.MAX_VALUE, Primes.nextPrime(Integer.MAX_VALUE - 10));
-        Assert.assertEquals(Integer.MAX_VALUE, Primes.nextPrime(Integer.MAX_VALUE - 1));
-        Assert.assertEquals(Integer.MAX_VALUE, Primes.nextPrime(Integer.MAX_VALUE));
+        Assertions.assertEquals(Integer.MAX_VALUE, Primes.nextPrime(Integer.MAX_VALUE - 10));
+        Assertions.assertEquals(Integer.MAX_VALUE, Primes.nextPrime(Integer.MAX_VALUE - 1));
+        Assertions.assertEquals(Integer.MAX_VALUE, Primes.nextPrime(Integer.MAX_VALUE));
 
         assertNextPrimeException(Integer.MIN_VALUE, MessageFormat.format(Primes.NUMBER_TOO_SMALL,Integer.MIN_VALUE,0));
         assertNextPrimeException(-1, MessageFormat.format(Primes.NUMBER_TOO_SMALL,-1,0));
@@ -107,13 +107,13 @@ public class PrimesTest {
     @Test
     public void testIsPrime() throws Exception {
         for (int i : BELOW_2) {
-            Assert.assertFalse(Primes.isPrime(i));
+            Assertions.assertFalse(Primes.isPrime(i));
         }
         for (int i:NOT_PRIMES) {
-            Assert.assertFalse(Primes.isPrime(i));
+            Assertions.assertFalse(Primes.isPrime(i));
         }
         for (int i:PRIMES) {
-            Assert.assertTrue(Primes.isPrime(i));
+            Assertions.assertTrue(Primes.isPrime(i));
         }
     }
 
@@ -140,7 +140,7 @@ public class PrimesTest {
     static void checkPrimeFactors(List<Integer> factors){
         for (int p : factors) {
             if (!PRIMES_SET.contains(p)) {
-                Assert.fail("Not found in primes list: " + p);
+                Assertions.fail("Not found in primes list: " + p);
             }
         }
     }
@@ -154,12 +154,12 @@ public class PrimesTest {
             List<Integer> factors = Primes.primeFactors(i);
             checkPrimeFactors(factors);
             int prod = product(factors);
-            Assert.assertEquals(i, prod);
+            Assertions.assertEquals(i, prod);
         }
         for (int i : PRIMES) {
             List<Integer> factors = Primes.primeFactors(i);
-            Assert.assertEquals(i, (int)factors.get(0));
-            Assert.assertEquals(1, factors.size());
+            Assertions.assertEquals(i, (int)factors.get(0));
+            Assertions.assertEquals(1, factors.size());
         }
     }
 }
