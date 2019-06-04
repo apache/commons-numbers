@@ -20,7 +20,6 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.Assert;
 
 public class QuaternionTest {
     /** Epsilon for double comparison. */
@@ -30,22 +29,22 @@ public class QuaternionTest {
 
     @Test
     public void testZeroQuaternion() {
-        Assert.assertEquals(0, Quaternion.ZERO.norm(), 0d);
+        Assertions.assertEquals(0, Quaternion.ZERO.norm(), 0d);
     }
 
     @Test
     public void testUnitQuaternions() {
-        Assert.assertEquals(1, Quaternion.ONE.norm(), 0d);
-        Assert.assertTrue(Quaternion.ONE.normalize() == Quaternion.ONE);
+        Assertions.assertEquals(1, Quaternion.ONE.norm(), 0d);
+        Assertions.assertTrue(Quaternion.ONE.normalize() == Quaternion.ONE);
 
-        Assert.assertEquals(1, Quaternion.I.norm(), 0d);
-        Assert.assertTrue(Quaternion.I.normalize() == Quaternion.I);
+        Assertions.assertEquals(1, Quaternion.I.norm(), 0d);
+        Assertions.assertTrue(Quaternion.I.normalize() == Quaternion.I);
 
-        Assert.assertEquals(1, Quaternion.J.norm(), 0d);
-        Assert.assertTrue(Quaternion.J.normalize() == Quaternion.J);
+        Assertions.assertEquals(1, Quaternion.J.norm(), 0d);
+        Assertions.assertTrue(Quaternion.J.normalize() == Quaternion.J);
 
-        Assert.assertEquals(1, Quaternion.K.norm(), 0d);
-        Assert.assertTrue(Quaternion.K.normalize() == Quaternion.K);
+        Assertions.assertEquals(1, Quaternion.K.norm(), 0d);
+        Assertions.assertTrue(Quaternion.K.normalize() == Quaternion.K);
     }
 
     @Test
@@ -56,10 +55,10 @@ public class QuaternionTest {
         final double q3 = 0.0005;
         final Quaternion q = Quaternion.of(q0, q1, q2, q3);
 
-        Assert.assertEquals(q0, q.getW(), 0);
-        Assert.assertEquals(q1, q.getX(), 0);
-        Assert.assertEquals(q2, q.getY(), 0);
-        Assert.assertEquals(q3, q.getZ(), 0);
+        Assertions.assertEquals(q0, q.getW(), 0);
+        Assertions.assertEquals(q1, q.getX(), 0);
+        Assertions.assertEquals(q2, q.getY(), 0);
+        Assertions.assertEquals(q3, q.getZ(), 0);
     }
 
     @Test
@@ -73,10 +72,10 @@ public class QuaternionTest {
         final double sP = q.getScalarPart();
         final double[] vP = q.getVectorPart();
 
-        Assert.assertEquals(q0, sP, 0);
-        Assert.assertEquals(q1, vP[0], 0);
-        Assert.assertEquals(q2, vP[1], 0);
-        Assert.assertEquals(q3, vP[2], 0);
+        Assertions.assertEquals(q0, sP, 0);
+        Assertions.assertEquals(q1, vP[0], 0);
+        Assertions.assertEquals(q2, vP[1], 0);
+        Assertions.assertEquals(q3, vP[2], 0);
     }
 
     @Test
@@ -90,13 +89,13 @@ public class QuaternionTest {
         final double sP = q.getScalarPart();
         final double[] vP = q.getVectorPart();
 
-        Assert.assertEquals(q0, sP, 0);
-        Assert.assertEquals(q1, vP[0], 0);
-        Assert.assertEquals(q2, vP[1], 0);
-        Assert.assertEquals(q3, vP[2], 0);
+        Assertions.assertEquals(q0, sP, 0);
+        Assertions.assertEquals(q1, vP[0], 0);
+        Assertions.assertEquals(q2, vP[1], 0);
+        Assertions.assertEquals(q3, vP[2], 0);
     }
 
-    @Test()
+    @Test
     public void testWrongDimension() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> Quaternion.of(new double[] { 1, 2 })
@@ -113,10 +112,10 @@ public class QuaternionTest {
 
         final Quaternion qConjugate = q.conjugate();
 
-        Assert.assertEquals(q0, qConjugate.getW(), 0);
-        Assert.assertEquals(-q1, qConjugate.getX(), 0);
-        Assert.assertEquals(-q2, qConjugate.getY(), 0);
-        Assert.assertEquals(-q3, qConjugate.getZ(), 0);
+        Assertions.assertEquals(q0, qConjugate.getW(), 0);
+        Assertions.assertEquals(-q1, qConjugate.getX(), 0);
+        Assertions.assertEquals(-q2, qConjugate.getY(), 0);
+        Assertions.assertEquals(-q3, qConjugate.getZ(), 0);
     }
 
     /* TODO remove dependency on Vector3D
@@ -227,8 +226,8 @@ public class QuaternionTest {
         final double actual1 = Quaternion.dot(q1, q2);
         final double actual2 = q1.dot(q2);
 
-        Assert.assertEquals(expected, actual1, EPS);
-        Assert.assertEquals(expected, actual2, EPS);
+        Assertions.assertEquals(expected, actual1, EPS);
+        Assertions.assertEquals(expected, actual2, EPS);
     }
 
     @Test
@@ -244,10 +243,10 @@ public class QuaternionTest {
 
         final Quaternion q = q1.multiply(a);
 
-        Assert.assertEquals(w, q.getW(), COMPARISON_EPS);
-        Assert.assertEquals(x, q.getX(), COMPARISON_EPS);
-        Assert.assertEquals(y, q.getY(), COMPARISON_EPS);
-        Assert.assertEquals(z, q.getZ(), COMPARISON_EPS);
+        Assertions.assertEquals(w, q.getW(), COMPARISON_EPS);
+        Assertions.assertEquals(x, q.getX(), COMPARISON_EPS);
+        Assertions.assertEquals(y, q.getY(), COMPARISON_EPS);
+        Assertions.assertEquals(z, q.getZ(), COMPARISON_EPS);
     }
 
     @Test
@@ -264,15 +263,15 @@ public class QuaternionTest {
         final Quaternion qa = Quaternion.add(q1, q2);
         final Quaternion qb = q1.add(q2);
 
-        Assert.assertEquals(w, qa.getW(), EPS);
-        Assert.assertEquals(x, qa.getX(), EPS);
-        Assert.assertEquals(y, qa.getY(), EPS);
-        Assert.assertEquals(z, qa.getZ(), EPS);
+        Assertions.assertEquals(w, qa.getW(), EPS);
+        Assertions.assertEquals(x, qa.getX(), EPS);
+        Assertions.assertEquals(y, qa.getY(), EPS);
+        Assertions.assertEquals(z, qa.getZ(), EPS);
 
-        Assert.assertEquals(w, qb.getW(), EPS);
-        Assert.assertEquals(x, qb.getX(), EPS);
-        Assert.assertEquals(y, qb.getY(), EPS);
-        Assert.assertEquals(z, qb.getZ(), EPS);
+        Assertions.assertEquals(w, qb.getW(), EPS);
+        Assertions.assertEquals(x, qb.getX(), EPS);
+        Assertions.assertEquals(y, qb.getY(), EPS);
+        Assertions.assertEquals(z, qb.getZ(), EPS);
     }
 
     @Test
@@ -289,15 +288,15 @@ public class QuaternionTest {
         final Quaternion qa = Quaternion.subtract(q1, q2);
         final Quaternion qb = q1.subtract(q2);
 
-        Assert.assertEquals(w, qa.getW(), EPS);
-        Assert.assertEquals(x, qa.getX(), EPS);
-        Assert.assertEquals(y, qa.getY(), EPS);
-        Assert.assertEquals(z, qa.getZ(), EPS);
+        Assertions.assertEquals(w, qa.getW(), EPS);
+        Assertions.assertEquals(x, qa.getX(), EPS);
+        Assertions.assertEquals(y, qa.getY(), EPS);
+        Assertions.assertEquals(z, qa.getZ(), EPS);
 
-        Assert.assertEquals(w, qb.getW(), EPS);
-        Assert.assertEquals(x, qb.getX(), EPS);
-        Assert.assertEquals(y, qb.getY(), EPS);
-        Assert.assertEquals(z, qb.getZ(), EPS);
+        Assertions.assertEquals(w, qb.getW(), EPS);
+        Assertions.assertEquals(x, qb.getX(), EPS);
+        Assertions.assertEquals(y, qb.getY(), EPS);
+        Assertions.assertEquals(z, qb.getZ(), EPS);
 }
 
     @Test
@@ -311,10 +310,10 @@ public class QuaternionTest {
 
         final double norm = q.norm();
 
-        Assert.assertEquals(Math.sqrt(30), norm, 0);
+        Assertions.assertEquals(Math.sqrt(30), norm, 0);
 
         final double normSquareRef = Quaternion.multiply(q, q.conjugate()).getScalarPart();
-        Assert.assertEquals(Math.sqrt(normSquareRef), norm, 0);
+        Assertions.assertEquals(Math.sqrt(normSquareRef), norm, 0);
     }
 
     @Test
@@ -324,17 +323,17 @@ public class QuaternionTest {
 
         final Quaternion versor = q.normalize();
 
-        Assert.assertEquals(2.0 / 5.0, versor.getW(), 0);
-        Assert.assertEquals(1.0 / 5.0, versor.getX(), 0);
-        Assert.assertEquals(-4.0 / 5.0, versor.getY(), 0);
-        Assert.assertEquals(-2.0 / 5.0, versor.getZ(), 0);
+        Assertions.assertEquals(2.0 / 5.0, versor.getW(), 0);
+        Assertions.assertEquals(1.0 / 5.0, versor.getX(), 0);
+        Assertions.assertEquals(-4.0 / 5.0, versor.getY(), 0);
+        Assertions.assertEquals(-2.0 / 5.0, versor.getZ(), 0);
 
-        Assert.assertEquals(1, versor.norm(), 0);
+        Assertions.assertEquals(1, versor.norm(), 0);
 
-        Assert.assertTrue(versor.normalize() == versor);
+        Assertions.assertTrue(versor.normalize() == versor);
     }
 
-    @Test()
+    @Test
     public final void testNormalizeFail_zero() {
         final Quaternion q = Quaternion.of(0, 0, 0, 0);
         Assertions.assertThrows(IllegalStateException.class,
@@ -342,7 +341,7 @@ public class QuaternionTest {
         );
     }
 
-    @Test()
+    @Test
     public final void testNormalizeFail_nan() {
         final Quaternion q = Quaternion.of(0, 0, 0, Double.NaN);
         Assertions.assertThrows(IllegalStateException.class,
@@ -351,7 +350,7 @@ public class QuaternionTest {
 
     }
 
-    @Test()
+    @Test
     public final void testNormalizeFail_positiveInfinity() {
         final Quaternion q = Quaternion.of(0, 0, Double.POSITIVE_INFINITY, 0);
         Assertions.assertThrows(IllegalStateException.class,
@@ -359,7 +358,7 @@ public class QuaternionTest {
         );
     }
 
-    @Test()
+    @Test
     public final void testNormalizeFail_negativeInfinity() {
         final Quaternion q = Quaternion.of(0, Double.NEGATIVE_INFINITY, 0, 0);
         Assertions.assertThrows(IllegalStateException.class,
@@ -371,24 +370,24 @@ public class QuaternionTest {
     public final void testObjectEquals() {
         final double one = 1;
         final Quaternion q1 = Quaternion.of(one, one, one, one);
-        Assert.assertTrue(q1.equals(q1));
+        Assertions.assertTrue(q1.equals(q1));
 
         final Quaternion q2 = Quaternion.of(one, one, one, one);
-        Assert.assertTrue(q2.equals(q1));
+        Assertions.assertTrue(q2.equals(q1));
 
         final Quaternion q3 = Quaternion.of(one, Math.nextUp(one), one, one);
-        Assert.assertFalse(q3.equals(q1));
+        Assertions.assertFalse(q3.equals(q1));
 
-        Assert.assertFalse(q3.equals("bar"));
+        Assertions.assertFalse(q3.equals("bar"));
     }
 
     @Test
     public void testHashCode() {
         Quaternion x = Quaternion.of(0.0, 0.0, 0.0, 0.0);
         Quaternion y = Quaternion.of(0.0, 0.0 + Double.MIN_VALUE, 0.0, 0.0);
-        Assert.assertFalse(x.hashCode()==y.hashCode());
+        Assertions.assertFalse(x.hashCode()==y.hashCode());
         y = Quaternion.of(0.0 + Double.MIN_VALUE, 0.0, 0.0, 0.0);
-        Assert.assertFalse(x.hashCode()==y.hashCode());
+        Assertions.assertFalse(x.hashCode()==y.hashCode());
 
         // "equals" and "hashCode" must be compatible: if two objects have
         // different hash codes, "equals" must return false.
@@ -396,23 +395,23 @@ public class QuaternionTest {
 
         x = Quaternion.of(0.0, 0.0, 0.0, 0.0);
         y = Quaternion.of(-0.0, 0.0, 0.0, 0.0);
-        Assert.assertTrue(x.hashCode() != y.hashCode());
-        Assert.assertFalse(msg, x.equals(y));
+        Assertions.assertTrue(x.hashCode() != y.hashCode());
+        Assertions.assertFalse(x.equals(y), msg);
 
         x = Quaternion.of(0.0, 0.0, 0.0, 0.0);
         y = Quaternion.of(0.0, -0.0, 0.0, 0.0);
-        Assert.assertTrue(x.hashCode() != y.hashCode());
-        Assert.assertFalse(msg, x.equals(y));
+        Assertions.assertTrue(x.hashCode() != y.hashCode());
+        Assertions.assertFalse(x.equals(y), msg);
 
         x = Quaternion.of(0.0, 0.0, 0.0, 0.0);
         y = Quaternion.of(0.0, 0.0, -0.0, 0.0);
-        Assert.assertTrue(x.hashCode() != y.hashCode());
-        Assert.assertFalse(msg, x.equals(y));
+        Assertions.assertTrue(x.hashCode() != y.hashCode());
+        Assertions.assertFalse(x.equals(y), msg);
 
         x = Quaternion.of(0.0, 0.0, 0.0, 0.0);
         y = Quaternion.of(0.0, 0.0, 0.0, -0.0);
-        Assert.assertTrue(x.hashCode() != y.hashCode());
-        Assert.assertFalse(msg, x.equals(y));
+        Assertions.assertTrue(x.hashCode() != y.hashCode());
+        Assertions.assertFalse(x.equals(y), msg);
     }
 
     @Test
@@ -424,15 +423,15 @@ public class QuaternionTest {
         final Quaternion q4 = Quaternion.of(q1.getW(), q1.getX(), q1.getY() + inc, q1.getZ());
         final Quaternion q5 = Quaternion.of(q1.getW(), q1.getX(), q1.getY(), q1.getZ() + inc);
 
-        Assert.assertFalse(q1.equals(q2, 0.9 * inc));
-        Assert.assertFalse(q1.equals(q3, 0.9 * inc));
-        Assert.assertFalse(q1.equals(q4, 0.9 * inc));
-        Assert.assertFalse(q1.equals(q5, 0.9 * inc));
+        Assertions.assertFalse(q1.equals(q2, 0.9 * inc));
+        Assertions.assertFalse(q1.equals(q3, 0.9 * inc));
+        Assertions.assertFalse(q1.equals(q4, 0.9 * inc));
+        Assertions.assertFalse(q1.equals(q5, 0.9 * inc));
 
-        Assert.assertTrue(q1.equals(q2, 1.1 * inc));
-        Assert.assertTrue(q1.equals(q3, 1.1 * inc));
-        Assert.assertTrue(q1.equals(q4, 1.1 * inc));
-        Assert.assertTrue(q1.equals(q5, 1.1 * inc));
+        Assertions.assertTrue(q1.equals(q2, 1.1 * inc));
+        Assertions.assertTrue(q1.equals(q3, 1.1 * inc));
+        Assertions.assertTrue(q1.equals(q4, 1.1 * inc));
+        Assertions.assertTrue(q1.equals(q5, 1.1 * inc));
     }
 
     @Test
@@ -441,9 +440,9 @@ public class QuaternionTest {
         final double gap = 1e-5;
         final Quaternion q2 = Quaternion.of(1 + gap, 4 + gap, 2 + gap, 3 + gap);
 
-        Assert.assertTrue(q1.equals(q2, 10 * gap));
-        Assert.assertFalse(q1.equals(q2, gap));
-        Assert.assertFalse(q1.equals(q2, gap / 10));
+        Assertions.assertTrue(q1.equals(q2, 10 * gap));
+        Assertions.assertFalse(q1.equals(q2, gap));
+        Assertions.assertFalse(q1.equals(q2, gap / 10));
     }
 
     @Test
@@ -453,31 +452,31 @@ public class QuaternionTest {
         for (int i = 0; i < numberOfTrials; i++) {
             final Quaternion q1 = Quaternion.of(r.nextDouble(), r.nextDouble(), r.nextDouble(), r.nextDouble());
             final Quaternion q2 = q1.normalize();
-            Assert.assertTrue(q2.isUnit(COMPARISON_EPS));
+            Assertions.assertTrue(q2.isUnit(COMPARISON_EPS));
         }
 
         final Quaternion q = Quaternion.of(1, 1, 1, 1);
-        Assert.assertFalse(q.isUnit(COMPARISON_EPS));
+        Assertions.assertFalse(q.isUnit(COMPARISON_EPS));
     }
 
     @Test
     public final void testIsPure() {
         final Quaternion q1 = Quaternion.of(0, 5, 4, 8);
-        Assert.assertTrue(q1.isPure(EPS));
+        Assertions.assertTrue(q1.isPure(EPS));
 
         final Quaternion q2 = Quaternion.of(0 - EPS, 5, 4, 8);
-        Assert.assertTrue(q2.isPure(EPS));
+        Assertions.assertTrue(q2.isPure(EPS));
 
         final Quaternion q3 = Quaternion.of(0 - 1.1 * EPS, 5, 4, 8);
-        Assert.assertFalse(q3.isPure(EPS));
+        Assertions.assertFalse(q3.isPure(EPS));
 
         final Random r = new Random(48);
         final double[] v = {r.nextDouble(), r.nextDouble(), r.nextDouble()};
         final Quaternion q4 = Quaternion.of(v);
-        Assert.assertTrue(q4.isPure(0));
+        Assertions.assertTrue(q4.isPure(0));
 
         final Quaternion q5 = Quaternion.of(0, v);
-        Assert.assertTrue(q5.isPure(0));
+        Assertions.assertTrue(q5.isPure(0));
     }
 
     @Test
@@ -486,7 +485,7 @@ public class QuaternionTest {
         Quaternion expected = Quaternion.of(0.5, -0.5, -0.5, 0.5);
         assertEquals(q, expected, EPS);
 
-        Assert.assertTrue(q.positivePolarForm() == q);
+        Assertions.assertTrue(q.positivePolarForm() == q);
     }
 
     @Test
@@ -495,23 +494,23 @@ public class QuaternionTest {
         Quaternion expected = Quaternion.of(0.5, -0.5, 0.5, -0.5);
         assertEquals(q, expected, EPS);
 
-        Assert.assertTrue(q.positivePolarForm() == q);
+        Assertions.assertTrue(q.positivePolarForm() == q);
     }
 
     @Test
     public final void testPositivePolarFormWhenScalarPositiveAndNormalized() {
         Quaternion q = Quaternion.of(123, 45, 67, 89).normalize().positivePolarForm();
 
-        Assert.assertTrue(q.getW() >= 0);
-        Assert.assertTrue(q.positivePolarForm() == q);
+        Assertions.assertTrue(q.getW() >= 0);
+        Assertions.assertTrue(q.positivePolarForm() == q);
     }
 
     @Test
     public final void testPositivePolarFormWhenScalarNegativeAndNormalized() {
         Quaternion q = Quaternion.of(123, 45, 67, 89).normalize().negate().positivePolarForm();
 
-        Assert.assertTrue(q.getW() >= 0);
-        Assert.assertTrue(q.positivePolarForm() == q);
+        Assertions.assertTrue(q.getW() >= 0);
+        Assertions.assertTrue(q.positivePolarForm() == q);
     }
 
     @Test
@@ -522,12 +521,12 @@ public class QuaternionTest {
         final double d = 4;
         final Quaternion q = Quaternion.of(a, b, c, d);
         final Quaternion qNeg = q.negate();
-        Assert.assertEquals(-a, qNeg.getW(), 0d);
-        Assert.assertEquals(-b, qNeg.getX(), 0d);
-        Assert.assertEquals(-c, qNeg.getY(), 0d);
-        Assert.assertEquals(-d, qNeg.getZ(), 0d);
+        Assertions.assertEquals(-a, qNeg.getW(), 0d);
+        Assertions.assertEquals(-b, qNeg.getX(), 0d);
+        Assertions.assertEquals(-c, qNeg.getY(), 0d);
+        Assertions.assertEquals(-d, qNeg.getZ(), 0d);
 
-        Assert.assertTrue(q.equals(qNeg.negate(), 0d));
+        Assertions.assertTrue(q.equals(qNeg.negate(), 0d));
     }
 
     @Test
@@ -538,7 +537,7 @@ public class QuaternionTest {
         final double d = 4;
         final Quaternion q = Quaternion.of(a, b, c, d).normalize();
         final Quaternion qNeg = q.negate();
-        Assert.assertTrue(q.equals(qNeg.negate(), 0d));
+        Assertions.assertTrue(q.equals(qNeg.negate(), 0d));
     }
 
     @Test
@@ -549,7 +548,7 @@ public class QuaternionTest {
         final double d = 4;
         final Quaternion q = Quaternion.of(a, b, c, d).positivePolarForm();
         final Quaternion qNeg = q.negate();
-        Assert.assertTrue(q.equals(qNeg.negate(), 0d));
+        Assertions.assertTrue(q.equals(qNeg.negate(), 0d));
     }
 
     /* TODO remove dependency on Rotation
@@ -586,27 +585,27 @@ public class QuaternionTest {
         final Quaternion q = Quaternion.of(1.5, 4, 2, -2.5);
 
         final Quaternion inverseQ = q.inverse();
-        Assert.assertEquals(1.5 / 28.5, inverseQ.getW(), 0);
-        Assert.assertEquals(-4.0 / 28.5, inverseQ.getX(), 0);
-        Assert.assertEquals(-2.0 / 28.5, inverseQ.getY(), 0);
-        Assert.assertEquals(2.5 / 28.5, inverseQ.getZ(), 0);
+        Assertions.assertEquals(1.5 / 28.5, inverseQ.getW(), 0);
+        Assertions.assertEquals(-4.0 / 28.5, inverseQ.getX(), 0);
+        Assertions.assertEquals(-2.0 / 28.5, inverseQ.getY(), 0);
+        Assertions.assertEquals(2.5 / 28.5, inverseQ.getZ(), 0);
 
         final Quaternion product = Quaternion.multiply(inverseQ, q);
-        Assert.assertEquals(1, product.getW(), EPS);
-        Assert.assertEquals(0, product.getX(), EPS);
-        Assert.assertEquals(0, product.getY(), EPS);
-        Assert.assertEquals(0, product.getZ(), EPS);
+        Assertions.assertEquals(1, product.getW(), EPS);
+        Assertions.assertEquals(0, product.getX(), EPS);
+        Assertions.assertEquals(0, product.getY(), EPS);
+        Assertions.assertEquals(0, product.getZ(), EPS);
 
         final Quaternion qNul = Quaternion.of(0, 0, 0, 0);
         try {
             final Quaternion inverseQNul = qNul.inverse();
-            Assert.fail("expecting ZeroException but got : " + inverseQNul);
+            Assertions.fail("expecting ZeroException but got : " + inverseQNul);
         } catch (IllegalStateException ex) {
             // expected
         }
     }
 
-    @Test()
+    @Test
     public void testInverse_zeroNorm() {
         Quaternion q = Quaternion.of(0, 0, 0, 0);
         Assertions.assertThrows(IllegalStateException.class,
@@ -614,7 +613,7 @@ public class QuaternionTest {
         );
     }
 
-    @Test()
+    @Test
     public void testInverse_nanNorm() {
         Quaternion q = Quaternion.of(Double.NaN, 0, 0, 0);
         Assertions.assertThrows(IllegalStateException.class,
@@ -622,7 +621,7 @@ public class QuaternionTest {
         );
     }
 
-    @Test()
+    @Test
     public void testInverse_positiveInfinityNorm() {
         Quaternion q = Quaternion.of(0, Double.POSITIVE_INFINITY, 0, 0);
         Assertions.assertThrows(IllegalStateException.class,
@@ -630,7 +629,7 @@ public class QuaternionTest {
         );
     }
 
-    @Test()
+    @Test
     public void testInverse_negativeInfinityNorm() {
         Quaternion q = Quaternion.of(0, 0, Double.NEGATIVE_INFINITY, 0);
         Assertions.assertThrows(IllegalStateException.class,
@@ -643,7 +642,7 @@ public class QuaternionTest {
         final Quaternion invQ = Quaternion.of(-1.2, 3.4, -5.6, -7.8).normalize().inverse();
         final Quaternion q = invQ.inverse();
         final Quaternion result = q.multiply(invQ);
-        Assert.assertTrue(result.toString(), Quaternion.ONE.equals(result, EPS));
+        Assertions.assertTrue(Quaternion.ONE.equals(result, EPS), result.toString());
     }
 
     @Test
@@ -651,7 +650,7 @@ public class QuaternionTest {
         final Quaternion invQ = Quaternion.of(1.2, -3.4, 5.6, -7.8).positivePolarForm().inverse();
         final Quaternion q = invQ.inverse();
         final Quaternion result = q.multiply(invQ);
-        Assert.assertTrue(result.toString(), Quaternion.ONE.equals(result, EPS));
+        Assertions.assertTrue(Quaternion.ONE.equals(result, EPS), result.toString());
     }
 
     @Test
@@ -677,56 +676,55 @@ public class QuaternionTest {
     @Test
     public final void testParseSpecials() {
         Quaternion parsed = Quaternion.parse("[1e-5 Infinity NaN -0xa.cp0]");
-        Assert.assertEquals(1e-5, parsed.getW(), EPS);
-        Assert.assertTrue(Double.isInfinite(parsed.getX()));
-        Assert.assertTrue(Double.isNaN(parsed.getY()));
-        Assert.assertEquals(-0xa.cp0, parsed.getZ(), EPS);
+        Assertions.assertEquals(1e-5, parsed.getW(), EPS);
+        Assertions.assertTrue(Double.isInfinite(parsed.getX()));
+        Assertions.assertTrue(Double.isNaN(parsed.getY()));
+        Assertions.assertEquals(-0xa.cp0, parsed.getZ(), EPS);
     }
 
-    @Test()
+    @Test
     public final void testParseMissingStart() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> Quaternion.parse("1.0 2.0 3.0 4.0]")
         );
     }
 
-    @Test()
+    @Test
     public final void testParseMissingEnd() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> Quaternion.parse("[1.0 2.0 3.0 4.0")
         );
     }
 
-    @Test()
+    @Test
     public final void testParseMissingPart() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> Quaternion.parse("[1.0 2.0 3.0 ]")
         );
     }
 
-    @Test()
-    public final void testParseInvalidScalar()
-    {
+    @Test
+    public final void testParseInvalidScalar() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> Quaternion.parse("[1.x 2.0 3.0 4.0]")
         );
     }
 
-    @Test()
+    @Test
     public final void testParseInvalidI() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> Quaternion.parse("[1.0 2.0x 3.0 4.0]")
         );
     }
 
-    @Test()
+    @Test
     public final void testParseInvalidJ() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> Quaternion.parse("[1.0 2.0 3.0x 4.0]")
         );
     }
 
-    @Test()
+    @Test
     public final void testParseInvalidK() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> Quaternion.parse("[1.0 2.0 3.0 4.0x]")
@@ -736,7 +734,7 @@ public class QuaternionTest {
     @Test
     public final void testToString() {
         final Quaternion q = Quaternion.of(1, 2, 3, 4);
-        Assert.assertEquals("[1.0 2.0 3.0 4.0]", q.toString());
+        Assertions.assertEquals("[1.0 2.0 3.0 4.0]", q.toString());
     }
 
     /**
@@ -746,7 +744,7 @@ public class QuaternionTest {
      * @param tolerance
      */
     private void assertEquals(Quaternion actual, Quaternion expected, double tolerance) {
-        Assert.assertTrue("expecting " + expected + " but got " + actual, actual.equals(expected, tolerance));
+        Assertions.assertTrue(actual.equals(expected, tolerance), "expecting " + expected + " but got " + actual);
     }
 
 }
