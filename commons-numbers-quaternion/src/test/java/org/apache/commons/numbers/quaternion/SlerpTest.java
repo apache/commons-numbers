@@ -17,7 +17,8 @@
 package org.apache.commons.numbers.quaternion;
 
 import org.apache.commons.numbers.core.Precision;
-import org.junit.Assert;
+
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class SlerpTest {
@@ -62,8 +63,8 @@ public class SlerpTest {
             Quaternion result = slerp.apply(t);
 
             // assert
-            Assert.assertEquals(1.0, result.norm(), EPS);
-            Assert.assertTrue(result.getW() >= 0.0);
+            Assertions.assertEquals(1.0, result.norm(), EPS);
+            Assertions.assertTrue(result.getW() >= 0.0);
         }
     }
 
@@ -116,8 +117,8 @@ public class SlerpTest {
             Quaternion result = slerp.apply(t);
 
             // assert
-            Assert.assertEquals(1.0, result.norm(), EPS);
-            Assert.assertTrue(result.getW() >= 0.0);
+            Assertions.assertEquals(1.0, result.norm(), EPS);
+            Assertions.assertTrue(result.getW() >= 0.0);
         }
     }
 
@@ -146,7 +147,7 @@ public class SlerpTest {
         Slerp slerp = new Slerp(q1, q2);
 
         // act/assert
-        Assert.assertEquals(-1.0, q1.dot(q2), EPS);
+        Assertions.assertEquals(-1.0, q1.dot(q2), EPS);
 
         Quaternion expected = q1.positivePolarForm();
 
@@ -184,19 +185,19 @@ public class SlerpTest {
         double[] vec = { 2, 0, 1 };
 
         // act/assert
-        Assert.assertArrayEquals(new double[] { 2, 0, 1 },
+        Assertions.assertArrayEquals(new double[] { 2, 0, 1 },
                 transformVector(slerp.apply(0), vec), EPS);
 
-        Assert.assertArrayEquals(new double[] { SQRT_2, SQRT_2, 1 },
+        Assertions.assertArrayEquals(new double[] { SQRT_2, SQRT_2, 1 },
                 transformVector(slerp.apply(0.25), vec), EPS);
 
-        Assert.assertArrayEquals(new double[] { 0, 2, 1 },
+        Assertions.assertArrayEquals(new double[] { 0, 2, 1 },
                 transformVector(slerp.apply(0.5), vec), EPS);
 
-        Assert.assertArrayEquals(new double[] { -SQRT_2, SQRT_2, 1 },
+        Assertions.assertArrayEquals(new double[] { -SQRT_2, SQRT_2, 1 },
                 transformVector(slerp.apply(0.75), vec), EPS);
 
-        Assert.assertArrayEquals(new double[] { -2, 0, 1 },
+        Assertions.assertArrayEquals(new double[] { -2, 0, 1 },
                 transformVector(slerp.apply(1), vec), EPS);
     }
 
@@ -254,8 +255,8 @@ public class SlerpTest {
         double[] endVec = transformVector(end, vec);
 
         // check start and end values
-        Assert.assertArrayEquals(startVec, transformVector(slerp.apply(0), vec), EPS);
-        Assert.assertArrayEquals(endVec, transformVector(slerp.apply(1), vec), EPS);
+        Assertions.assertArrayEquals(startVec, transformVector(slerp.apply(0), vec), EPS);
+        Assertions.assertArrayEquals(endVec, transformVector(slerp.apply(1), vec), EPS);
 
         // check intermediate values
         double prevAngle = -1;
@@ -268,13 +269,13 @@ public class SlerpTest {
             double[] slerpVec = transformVector(result, vec);
 
             // the transformation should not effect the vector magnitude
-            Assert.assertEquals(vecNorm, norm(slerpVec), EPS);
+            Assertions.assertEquals(vecNorm, norm(slerpVec), EPS);
 
             // make sure that we're steadily progressing to the end angle
             double angle = angle(slerpVec, startVec);
-            Assert.assertTrue("Expected slerp angle to continuously increase; previous angle was " +
-                  prevAngle + " and new angle is " + angle,
-                  Precision.compareTo(angle, prevAngle, EPS) >= 0);
+            Assertions.assertTrue(Precision.compareTo(angle, prevAngle, EPS) >= 0,
+                    "Expected slerp angle to continuously increase; previous angle was " +
+                            prevAngle + " and new angle is " + angle);
         }
     }
 
@@ -294,16 +295,16 @@ public class SlerpTest {
 
         // act/assert
         Slerp slerp12 = new Slerp(q1, q2);
-        Assert.assertArrayEquals(new double[] { 1, 0, 0 }, transformVector(slerp12.apply(-4.5), vec), EPS);
-        Assert.assertArrayEquals(new double[] { 1, 0, 0 }, transformVector(slerp12.apply(-0.5), vec), EPS);
-        Assert.assertArrayEquals(new double[] { -1, 0, 0 }, transformVector(slerp12.apply(1.5), vec), EPS);
-        Assert.assertArrayEquals(new double[] { -1, 0, 0 }, transformVector(slerp12.apply(5.5), vec), EPS);
+        Assertions.assertArrayEquals(new double[] { 1, 0, 0 }, transformVector(slerp12.apply(-4.5), vec), EPS);
+        Assertions.assertArrayEquals(new double[] { 1, 0, 0 }, transformVector(slerp12.apply(-0.5), vec), EPS);
+        Assertions.assertArrayEquals(new double[] { -1, 0, 0 }, transformVector(slerp12.apply(1.5), vec), EPS);
+        Assertions.assertArrayEquals(new double[] { -1, 0, 0 }, transformVector(slerp12.apply(5.5), vec), EPS);
 
         Slerp slerp21 = new Slerp(q2, q1);
-        Assert.assertArrayEquals(new double[] { -1, 0, 0 }, transformVector(slerp21.apply(-4.5), vec), EPS);
-        Assert.assertArrayEquals(new double[] { -1, 0, 0 }, transformVector(slerp21.apply(-0.5), vec), EPS);
-        Assert.assertArrayEquals(new double[] { 1, 0, 0 }, transformVector(slerp21.apply(1.5), vec), EPS);
-        Assert.assertArrayEquals(new double[] { 1, 0, 0 }, transformVector(slerp21.apply(5.5), vec), EPS);
+        Assertions.assertArrayEquals(new double[] { -1, 0, 0 }, transformVector(slerp21.apply(-4.5), vec), EPS);
+        Assertions.assertArrayEquals(new double[] { -1, 0, 0 }, transformVector(slerp21.apply(-0.5), vec), EPS);
+        Assertions.assertArrayEquals(new double[] { 1, 0, 0 }, transformVector(slerp21.apply(1.5), vec), EPS);
+        Assertions.assertArrayEquals(new double[] { 1, 0, 0 }, transformVector(slerp21.apply(5.5), vec), EPS);
     }
 
     /**
@@ -381,9 +382,9 @@ public class SlerpTest {
     private static void assertQuaternion(Quaternion expected, Quaternion actual) {
         String msg = "Expected quaternion to equal " + expected + " but was " + actual;
 
-        Assert.assertEquals(msg, expected.getW(), actual.getW(), EPS);
-        Assert.assertEquals(msg, expected.getX(), actual.getX(), EPS);
-        Assert.assertEquals(msg, expected.getY(), actual.getY(), EPS);
-        Assert.assertEquals(msg, expected.getZ(), actual.getZ(), EPS);
+        Assertions.assertEquals(expected.getW(), actual.getW(), EPS, msg);
+        Assertions.assertEquals(expected.getX(), actual.getX(), EPS, msg);
+        Assertions.assertEquals(expected.getY(), actual.getY(), EPS, msg);
+        Assertions.assertEquals(expected.getZ(), actual.getZ(), EPS, msg);
     }
 }
