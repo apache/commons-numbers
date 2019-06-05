@@ -161,20 +161,19 @@ public class PlaneAngleTest {
         final double value = 12345.6789;
         final PlaneAngle a = PlaneAngle.ofRadians(value);
         final PlaneAngle b = PlaneAngle.ofRadians(value);
-        Assert.assertTrue(a.equals(b));
+        Assert.assertEquals(a, b);
     }
     @Test
     public void testEquals2() {
         final PlaneAngle a = PlaneAngle.ofRadians(153768.373486587);
-        final PlaneAngle b = null;
-        Assert.assertFalse(a.equals(b));
+        Assert.assertNotEquals(null, a);
     }
     @Test
     public void testEquals3() {
         final double value = 0.987654321;
         final PlaneAngle a = PlaneAngle.ofRadians(value);
         final PlaneAngle b = PlaneAngle.ofRadians(value + 1e-16);
-        Assert.assertFalse(a.equals(b));
+        Assert.assertNotEquals(a, b);
     }
 
     @Test
