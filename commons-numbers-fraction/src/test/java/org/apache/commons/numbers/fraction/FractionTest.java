@@ -18,7 +18,8 @@ package org.apache.commons.numbers.fraction;
 
 import org.apache.commons.numbers.core.TestUtils;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -61,10 +62,12 @@ public class FractionTest {
         assertFraction(15, 1, new Fraction(15.0000000000001));
     }
 
-    @Test(expected=ArithmeticException.class)
+    @Test()
     public void testGoldenRatio() {
         // the golden ratio is notoriously a difficult number for continuous fraction
-        new Fraction((1 + Math.sqrt(5)) / 2, 1.0e-12, 25);
+        Assertions.assertThrows(ArithmeticException.class,
+                () -> new Fraction((1 + Math.sqrt(5)) / 2, 1.0e-12, 25)
+        );
     }
 
     // MATH-179

@@ -17,7 +17,8 @@
 package org.apache.commons.numbers.gamma;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for {@link LogGamma1p}.
@@ -56,13 +57,17 @@ public class LogGamma1pTest {
         }
     }
 
-    @Test(expected=GammaException.class)
+    @Test()
     public void testLogGamma1pPrecondition1() {
-        LogGamma1p.value(-0.51);
+        Assertions.assertThrows(GammaException.class,
+                () -> LogGamma1p.value(-0.51)
+        );
     }
 
-    @Test(expected=GammaException.class)
+    @Test()
     public void testLogGamma1pPrecondition2() {
-        LogGamma1p.value(1.51);
+        Assertions.assertThrows(GammaException.class,
+                () -> LogGamma1p.value(1.51)
+        );
     }
 }

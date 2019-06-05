@@ -22,8 +22,8 @@ import java.text.ParseException;
 import java.util.Locale;
 
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 public class FractionFormatTest {
@@ -35,7 +35,7 @@ public class FractionFormatTest {
         return Locale.getDefault();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         properFormat = FractionFormat.getProperInstance(getLocale());
         improperFormat = FractionFormat.getImproperInstance(getLocale());

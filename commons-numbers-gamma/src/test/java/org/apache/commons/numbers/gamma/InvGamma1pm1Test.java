@@ -17,7 +17,8 @@
 package org.apache.commons.numbers.gamma;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for {@link InvGamma1pm1}.
@@ -77,13 +78,19 @@ public class InvGamma1pm1Test {
         }
     }
 
-    @Test(expected=GammaException.class)
-    public void testInvGamma1pm1Precondition1() {
-        InvGamma1pm1.value(-0.51);
+    @Test()
+    public void testInvGamma1pm1Precondition1()
+    {
+        Assertions.assertThrows(GammaException.class,
+                () -> InvGamma1pm1.value(-0.51)
+        );
     }
 
-    @Test(expected=GammaException.class)
-    public void testInvGamma1pm1Precondition2() {
-        InvGamma1pm1.value(1.51);
+    @Test()
+    public void testInvGamma1pm1Precondition2()
+    {
+        Assertions.assertThrows(GammaException.class,
+                () -> InvGamma1pm1.value(1.51)
+        );
     }
 }

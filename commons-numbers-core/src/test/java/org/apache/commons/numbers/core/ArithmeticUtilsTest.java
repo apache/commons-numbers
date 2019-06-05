@@ -21,7 +21,8 @@ import java.math.BigInteger;
 import java.util.Collections;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for the {@link ArithmeticUtils} class.
@@ -444,9 +445,11 @@ public class ArithmeticUtilsTest {
 
     }
 
-    @Test(expected=ArithmeticException.class)
+    @Test()
     public void testPowIntOverflow() {
-        ArithmeticUtils.pow(21, 8);
+        Assertions.assertThrows(ArithmeticException.class,
+                () -> ArithmeticUtils.pow(21, 8)
+        );
     }
 
     @Test
@@ -459,9 +462,11 @@ public class ArithmeticUtilsTest {
                             ArithmeticUtils.pow(base, 7));
     }
 
-    @Test(expected=ArithmeticException.class)
+    @Test()
     public void testPowNegativeIntOverflow() {
-        ArithmeticUtils.pow(-21, 8);
+        Assertions.assertThrows(ArithmeticException.class,
+                () -> ArithmeticUtils.pow(-21, 8)
+        );
     }
 
     @Test
@@ -492,9 +497,12 @@ public class ArithmeticUtilsTest {
         }
     }
 
-    @Test(expected=ArithmeticException.class)
-    public void testPowLongOverflow() {
-        ArithmeticUtils.pow(21, 15);
+    @Test()
+    public void testPowLongOverflow()
+    {
+        Assertions.assertThrows(ArithmeticException.class,
+                () -> ArithmeticUtils.pow(21, 15)
+        );
     }
 
     @Test
@@ -507,9 +515,11 @@ public class ArithmeticUtilsTest {
                             ArithmeticUtils.pow(base, 14));
     }
 
-    @Test(expected=ArithmeticException.class)
+    @Test()
     public void testPowNegativeLongOverflow() {
-        ArithmeticUtils.pow(-21L, 15);
+        Assertions.assertThrows(ArithmeticException.class,
+                () -> ArithmeticUtils.pow(-21L, 15)
+        );
     }
 
     @Test
@@ -674,24 +684,21 @@ public class ArithmeticUtilsTest {
         return toUnsignedBigInteger(dividend).divide(toUnsignedBigInteger(divisor)).longValue();
     }
 
-    @Test(timeout=5000L)
+    @Test()
     public void testRemainderUnsignedInt() {
         Assert.assertEquals(36, ArithmeticUtils.remainderUnsigned(-2147479015, 63));
         Assert.assertEquals(6, ArithmeticUtils.remainderUnsigned(-2147479015, 25));
     }
 
-    @Test(timeout=5000L)
+    @Test()
     public void testRemainderUnsignedIntSpecialCases() {
         int ints[] = getIntSpecialCases();
         for (int dividend : ints) {
             for (int divisor : ints) {
                 if (divisor == 0) {
-                    try {
-                        ArithmeticUtils.remainderUnsigned(dividend, divisor);
-                        Assert.fail("Should have failed with ArithmeticException: division by zero");
-                    } catch (ArithmeticException e) {
-                        // Success.
-                    }
+                    Assertions.assertThrows(ArithmeticException.class,
+                            () -> ArithmeticUtils.remainderUnsigned(dividend, divisor)
+                    );
                 } else {
                     Assert.assertEquals(remainderUnsignedExpected(dividend, divisor), ArithmeticUtils.remainderUnsigned(dividend, divisor));
                 }
@@ -699,12 +706,12 @@ public class ArithmeticUtilsTest {
         }
     }
 
-    @Test(timeout=5000L)
+    @Test()
     public void testRemainderUnsignedLong() {
         Assert.assertEquals(48L, ArithmeticUtils.remainderUnsigned(-2147479015L, 63L));
     }
 
-    @Test//(timeout=5000L)
+    @Test
     public void testRemainderUnsignedLongSpecialCases() {
         long longs[] = getLongSpecialCases();
         for (long dividend : longs) {
@@ -723,7 +730,7 @@ public class ArithmeticUtilsTest {
         }
     }
 
-    @Test(timeout=5000L)
+    @Test()
     public void testDivideUnsignedInt() {
         Assert.assertEquals(34087115, ArithmeticUtils.divideUnsigned(-2147479015, 63));
         Assert.assertEquals(85899531, ArithmeticUtils.divideUnsigned(-2147479015, 25));
@@ -737,18 +744,15 @@ public class ArithmeticUtilsTest {
         Assert.assertEquals(1, ArithmeticUtils.divideUnsigned(-16, 2147483646));
     }
 
-    @Test(timeout=5000L)
+    @Test()
     public void testDivideUnsignedIntSpecialCases() {
         int ints[] = getIntSpecialCases();
         for (int dividend : ints) {
             for (int divisor : ints) {
                 if (divisor == 0) {
-                    try {
-                        ArithmeticUtils.divideUnsigned(dividend, divisor);
-                        Assert.fail("Should have failed with ArithmeticException: division by zero");
-                    } catch (ArithmeticException e) {
-                        // Success.
-                    }
+                    Assertions.assertThrows(ArithmeticException.class,
+                            () -> ArithmeticUtils.divideUnsigned(dividend, divisor)
+                    );
                 } else {
                     Assert.assertEquals(divideUnsignedExpected(dividend, divisor), ArithmeticUtils.divideUnsigned(dividend, divisor));
                 }
@@ -756,23 +760,20 @@ public class ArithmeticUtilsTest {
         }
     }
 
-    @Test(timeout=5000L)
+    @Test()
     public void testDivideUnsignedLong() {
         Assert.assertEquals(292805461453366231L, ArithmeticUtils.divideUnsigned(-2147479015L, 63L));
     }
 
-    @Test(timeout=5000L)
+    @Test()
     public void testDivideUnsignedLongSpecialCases() {
         long longs[] = getLongSpecialCases();
         for (long dividend : longs) {
             for (long divisor : longs) {
                 if (divisor == 0L) {
-                    try {
-                        ArithmeticUtils.divideUnsigned(dividend, divisor);
-                        Assert.fail("Should have failed with ArithmeticException: division by zero");
-                    } catch (ArithmeticException e) {
-                        // Success.
-                    }
+                    Assertions.assertThrows(ArithmeticException.class,
+                            () -> ArithmeticUtils.divideUnsigned(dividend, divisor)
+                    );
                 } else {
                     Assert.assertEquals(divideUnsignedExpected(dividend, divisor), ArithmeticUtils.divideUnsigned(dividend, divisor));
                 }

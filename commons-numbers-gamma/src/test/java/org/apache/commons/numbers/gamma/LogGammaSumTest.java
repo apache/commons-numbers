@@ -17,7 +17,8 @@
 package org.apache.commons.numbers.gamma;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for {@link LogGammaSum}.
@@ -144,23 +145,31 @@ public class LogGammaSumTest {
         }
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testLogGammaSumPrecondition1() {
-        LogGammaSum.value(0, 1);
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> LogGammaSum.value(0, 1)
+        );
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testLogGammaSumPrecondition2() {
-        LogGammaSum.value(3, 1);
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> LogGammaSum.value(3, 1)
+        );
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testLogGammaSumPrecondition3() {
-        LogGammaSum.value(1, 0);
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> LogGammaSum.value(1, 0)
+        );
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testLogGammaSumPrecondition4() {
-        LogGammaSum.value(1, 3);
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> LogGammaSum.value(1, 3)
+        );
     }
 }

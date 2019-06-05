@@ -17,9 +17,8 @@
 
 package org.apache.commons.numbers.complex;
 
-import org.apache.commons.numbers.complex.Complex;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CStandardTest {
 

@@ -17,7 +17,8 @@
 package org.apache.commons.numbers.combinatorics;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for the {@link BinomialCoefficient} class.
@@ -26,7 +27,7 @@ public class BinomialCoefficientDoubleTest {
     /** Verify that b(0,0) = 1 */
     @Test
     public void test0Choose0() {
-        Assert.assertEquals(BinomialCoefficientDouble.value(0, 0), 1d, 0);
+        Assert.assertEquals(1d, BinomialCoefficientDouble.value(0, 0), 0);
     }
 
     @Test
@@ -52,14 +53,18 @@ public class BinomialCoefficientDoubleTest {
         }
     }
 
-    @Test(expected=CombinatoricsException.class)
+    @Test()
     public void testBinomialCoefficientFail1() {
-        BinomialCoefficientDouble.value(4, 5);
+        Assertions.assertThrows(CombinatoricsException.class,
+                () -> BinomialCoefficientDouble.value(4, 5)
+        );
     }
 
-    @Test(expected=CombinatoricsException.class)
+    @Test()
     public void testBinomialCoefficientFail2() {
-        BinomialCoefficientDouble.value(-1, -2);
+        Assertions.assertThrows(CombinatoricsException.class,
+                () -> BinomialCoefficientDouble.value(-1, -2)
+        );
     }
 
     @Test

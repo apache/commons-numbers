@@ -17,7 +17,8 @@
 package org.apache.commons.numbers.combinatorics;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for the {@link FactorialDouble} class.
@@ -50,9 +51,11 @@ public class FactorialDoubleTest {
                             Double.POSITIVE_INFINITY, FactorialDouble.create().value(n), 0d);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testNonPositiveArgument() {
-        FactorialDouble.create().value(-1);
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> FactorialDouble.create().value(-1)
+        );
     }
 
     @Test

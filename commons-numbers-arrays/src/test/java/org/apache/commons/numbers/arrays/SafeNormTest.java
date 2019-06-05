@@ -14,7 +14,7 @@
 package org.apache.commons.numbers.arrays;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for the {@link SafeNorm} class.

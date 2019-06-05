@@ -17,12 +17,10 @@
 
 package org.apache.commons.numbers.complex;
 
-import java.util.List;
-
-import org.apache.commons.numbers.complex.Complex;
 import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -390,13 +388,18 @@ public class ComplexTest {
         Assert.assertFalse(x.equals(null));
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test()
     public void testFloatingPointEqualsPrecondition1() {
-        Complex.equals(Complex.ofCartesian(3.0, 4.0), null, 3);
+        Assertions.assertThrows(NullPointerException.class,
+                () -> Complex.equals(Complex.ofCartesian(3.0, 4.0), null, 3)
+        );
+
     }
-    @Test(expected=NullPointerException.class)
+    @Test()
     public void testFloatingPointEqualsPrecondition2() {
-        Complex.equals(null, Complex.ofCartesian(3.0, 4.0), 3);
+        Assertions.assertThrows(NullPointerException.class,
+                () -> Complex.equals(null, Complex.ofCartesian(3.0, 4.0), 3)
+        );
     }
 
     @Test
@@ -538,7 +541,7 @@ public class ComplexTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testJava() {// TODO more debug
         System.out.println(">>testJava()");
         // MathTest#testExpSpecialCases() checks the following:
@@ -850,35 +853,47 @@ public class ComplexTest {
         Assert.assertTrue(Complex.ofCis(pi).equals(Complex.parse(Complex.ofCis(pi).toString())));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testParseWrongStart() {
         final String re = "1.234";
         final String im = "5.678";
-        Complex.parse(re + "," + im + ")");
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Complex.parse( re + "," + im + ")")
+        );
+
     }
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testParseWrongEnd() {
         final String re = "1.234";
         final String im = "5.678";
-        Complex.parse("(" + re + "," + im);
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Complex.parse("(" + re + "," + im)
+        );
+
     }
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testParseMissingSeparator() {
         final String re = "1.234";
         final String im = "5.678";
-        Complex.parse("(" + re + " " + im + ")");
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Complex.parse("(" + re + " " + im + ")")
+        );
     }
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testParseInvalidRe() {
         final String re = "I.234";
         final String im = "5.678";
-        Complex.parse("(" + re + "," + im + ")");
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Complex.parse("(" + re + "," + im + ")")
+        );
     }
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testParseInvalidIm() {
         final String re = "1.234";
         final String im = "5.G78";
-        Complex.parse("(" + re + "," + im + ")");
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> Complex.parse("(" + re + "," + im + ")")
+        );
     }
 
     @Test

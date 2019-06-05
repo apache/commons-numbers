@@ -16,12 +16,9 @@
  */
 package org.apache.commons.numbers.field;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
-
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -54,7 +51,7 @@ public class FieldParametricTest {
         return FieldsList.list();
     }
 
-    @Test
+    @ParameterizedTest
     public void testAdditionAssociativity() {
         final Object r1 = field.add(field.add(a, b), c);
         final Object r2 = field.add(a, field.add(b, c));
@@ -115,8 +112,8 @@ public class FieldParametricTest {
      * @param a Instance.
      * @param b Instance.
      */
-    private void assertEquals(Object a,
-                              Object b) {
+    private static void assertEquals(Object a,
+                                     Object b) {
         Assert.assertTrue(a + " != " + b,
                           a.equals(b));
     }
