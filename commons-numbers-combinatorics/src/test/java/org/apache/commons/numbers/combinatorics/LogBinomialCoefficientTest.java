@@ -17,7 +17,8 @@
 package org.apache.commons.numbers.combinatorics;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for the {@link LogBinomialCoefficient} class.
@@ -53,14 +54,18 @@ public class LogBinomialCoefficientTest {
         }
     }
 
-    @Test(expected=CombinatoricsException.class)
+    @Test()
     public void testBinomialCoefficientFail1() {
-        LogBinomialCoefficient.value(4, 5);
+        Assertions.assertThrows(CombinatoricsException.class,
+            () -> LogBinomialCoefficient.value(4, 5)
+        );
     }
 
-    @Test(expected=CombinatoricsException.class)
+    @Test()
     public void testBinomialCoefficientFail2() {
-        LogBinomialCoefficient.value(-1, -2);
+        Assertions.assertThrows(CombinatoricsException.class,
+                () -> LogBinomialCoefficient.value(-1, -2)
+        );
     }
 
     /**

@@ -20,7 +20,8 @@ import java.util.Iterator;
 import java.util.Comparator;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for the {@link Combinations} class.
@@ -53,36 +54,44 @@ public class CombinationsTest {
         checkLexicographicIterator(new Combinations.LexicographicComparator(123, 2));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testLexicographicComparatorWrongIterate1() {
         final int n = 5;
         final int k = 3;
         final Comparator<int[]> comp = new Combinations.LexicographicComparator(n, k);
-        comp.compare(new int[] {1}, new int[] {0, 1, 2});
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> comp.compare(new int[] {1}, new int[] {0, 1, 2})
+        );
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testLexicographicComparatorWrongIterate2() {
         final int n = 5;
         final int k = 3;
         final Comparator<int[]> comp = new Combinations.LexicographicComparator(n, k);
-        comp.compare(new int[] {0, 1, 2}, new int[] {0, 1, 2, 3});
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> comp.compare(new int[] {0, 1, 2}, new int[] {0, 1, 2, 3})
+        );
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testLexicographicComparatorWrongIterate3() {
         final int n = 5;
         final int k = 3;
         final Comparator<int[]> comp = new Combinations.LexicographicComparator(n, k);
-        comp.compare(new int[] {1, 2, 5}, new int[] {0, 1, 2});
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> comp.compare(new int[] {1, 2, 5}, new int[] {0, 1, 2})
+        );
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testLexicographicComparatorWrongIterate4() {
         final int n = 5;
         final int k = 3;
         final Comparator<int[]> comp = new Combinations.LexicographicComparator(n, k);
-        comp.compare(new int[] {1, 2, 4}, new int[] {-1, 1, 2});
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> comp.compare(new int[] {1, 2, 4}, new int[] {-1, 1, 2})
+        );
     }
 
     @Test
@@ -155,7 +164,7 @@ public class CombinationsTest {
      *
      * @param comp Comparator.
      */
-    private void checkLexicographicIterator(Combinations.LexicographicComparator comp) {
+    private static void checkLexicographicIterator(Combinations.LexicographicComparator comp) {
         final int n = comp.getN();
         final int k = comp.getK();
 
@@ -183,12 +192,16 @@ public class CombinationsTest {
         Assert.assertEquals(BinomialCoefficient.value(n, k), numIterates);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testCombinationsIteratorFail1() {
-        new Combinations(4, 5).iterator();
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new Combinations(4, 5).iterator()
+        );
     }
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testCombinationsIteratorFail2() {
-        new Combinations(-1, -2).iterator();
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new Combinations(-1, -2).iterator()
+        );
     }
 }

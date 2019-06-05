@@ -18,7 +18,8 @@ package org.apache.commons.numbers.quaternion;
 
 import java.util.Random;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.Assert;
 
 public class QuaternionTest {
@@ -95,9 +96,11 @@ public class QuaternionTest {
         Assert.assertEquals(q3, vP[2], 0);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testWrongDimension() {
-        Quaternion.of(new double[] { 1, 2 });
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Quaternion.of(new double[] { 1, 2 })
+        );
     }
 
     @Test
@@ -331,28 +334,37 @@ public class QuaternionTest {
         Assert.assertTrue(versor.normalize() == versor);
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test()
     public final void testNormalizeFail_zero() {
         final Quaternion q = Quaternion.of(0, 0, 0, 0);
-        q.normalize();
+        Assertions.assertThrows(IllegalStateException.class,
+                q::normalize
+        );
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test()
     public final void testNormalizeFail_nan() {
         final Quaternion q = Quaternion.of(0, 0, 0, Double.NaN);
-        q.normalize();
+        Assertions.assertThrows(IllegalStateException.class,
+                q::normalize
+        );
+
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test()
     public final void testNormalizeFail_positiveInfinity() {
         final Quaternion q = Quaternion.of(0, 0, Double.POSITIVE_INFINITY, 0);
-        q.normalize();
+        Assertions.assertThrows(IllegalStateException.class,
+                q::normalize
+        );
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test()
     public final void testNormalizeFail_negativeInfinity() {
         final Quaternion q = Quaternion.of(0, Double.NEGATIVE_INFINITY, 0, 0);
-        q.normalize();
+        Assertions.assertThrows(IllegalStateException.class,
+                q::normalize
+        );
     }
 
     @Test
@@ -594,28 +606,36 @@ public class QuaternionTest {
         }
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test()
     public void testInverse_zeroNorm() {
         Quaternion q = Quaternion.of(0, 0, 0, 0);
-        q.inverse();
+        Assertions.assertThrows(IllegalStateException.class,
+                q::inverse
+        );
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test()
     public void testInverse_nanNorm() {
         Quaternion q = Quaternion.of(Double.NaN, 0, 0, 0);
-        q.inverse();
+        Assertions.assertThrows(IllegalStateException.class,
+                q::inverse
+        );
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test()
     public void testInverse_positiveInfinityNorm() {
         Quaternion q = Quaternion.of(0, Double.POSITIVE_INFINITY, 0, 0);
-        q.inverse();
+        Assertions.assertThrows(IllegalStateException.class,
+                q::inverse
+        );
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test()
     public void testInverse_negativeInfinityNorm() {
         Quaternion q = Quaternion.of(0, 0, Double.NEGATIVE_INFINITY, 0);
-        q.inverse();
+        Assertions.assertThrows(IllegalStateException.class,
+                q::inverse
+        );
     }
 
     @Test
@@ -663,39 +683,54 @@ public class QuaternionTest {
         Assert.assertEquals(-0xa.cp0, parsed.getZ(), EPS);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test()
     public final void testParseMissingStart() {
-        Quaternion.parse("1.0 2.0 3.0 4.0]");
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> Quaternion.parse("1.0 2.0 3.0 4.0]")
+        );
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test()
     public final void testParseMissingEnd() {
-        Quaternion.parse("[1.0 2.0 3.0 4.0");
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Quaternion.parse("[1.0 2.0 3.0 4.0")
+        );
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test()
     public final void testParseMissingPart() {
-        Quaternion.parse("[1.0 2.0 3.0 ]");
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Quaternion.parse("[1.0 2.0 3.0 ]")
+        );
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public final void testParseInvalidScalar() {
-        Quaternion.parse("[1.x 2.0 3.0 4.0]");
+    @Test()
+    public final void testParseInvalidScalar()
+    {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Quaternion.parse("[1.x 2.0 3.0 4.0]")
+        );
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test()
     public final void testParseInvalidI() {
-        Quaternion.parse("[1.0 2.0x 3.0 4.0]");
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Quaternion.parse("[1.0 2.0x 3.0 4.0]")
+        );
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test()
     public final void testParseInvalidJ() {
-        Quaternion.parse("[1.0 2.0 3.0x 4.0]");
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Quaternion.parse("[1.0 2.0 3.0x 4.0]")
+        );
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test()
     public final void testParseInvalidK() {
-        Quaternion.parse("[1.0 2.0 3.0 4.0x]");
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Quaternion.parse("[1.0 2.0 3.0 4.0x]")
+        );
     }
 
     @Test

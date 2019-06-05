@@ -22,7 +22,8 @@ import java.util.Map;
 import java.util.HashMap;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import org.apache.commons.numbers.core.ArithmeticUtils;
 
@@ -70,29 +71,40 @@ public class BinomialCoefficientTest {
         }
     }
 
-    @Test(expected=CombinatoricsException.class)
+    @Test()
     public void testBinomialCoefficientFail1() {
-        BinomialCoefficient.value(4, 5);
+        Assertions.assertThrows(CombinatoricsException.class,
+            () -> BinomialCoefficient.value(4, 5)
+        );
     }
 
-    @Test(expected=CombinatoricsException.class)
+    @Test()
     public void testBinomialCoefficientFail2() {
-        BinomialCoefficient.value(-1, -2);
+        Assertions.assertThrows(CombinatoricsException.class,
+                () -> BinomialCoefficient.value(-1, -2)
+        );
     }
 
-    @Test(expected=ArithmeticException.class)
-    public void testBinomialCoefficientFail3() {
-        BinomialCoefficient.value(67, 30);
+    @Test()
+    public void testBinomialCoefficientFail3()
+    {
+        Assertions.assertThrows(ArithmeticException.class,
+                () -> BinomialCoefficient.value(67, 30)
+        );
     }
 
-    @Test(expected=ArithmeticException.class)
+    @Test()
     public void testBinomialCoefficientFail4() {
-        BinomialCoefficient.value(67, 34);
+        Assertions.assertThrows(ArithmeticException.class,
+                () -> BinomialCoefficient.value(67, 34)
+        );
     }
 
-    @Test(expected=ArithmeticException.class)
+    @Test()
     public void testBinomialCoefficientFail5() {
-        BinomialCoefficient.value(700, 300);
+        Assertions.assertThrows(ArithmeticException.class,
+                () -> BinomialCoefficient.value(700, 300)
+        );
     }
 
     /**
@@ -139,16 +151,18 @@ public class BinomialCoefficientTest {
 
     }
 
-    @Test(expected=CombinatoricsException.class)
-    public void testCheckBinomial1() {
-        // n < 0
-        BinomialCoefficient.checkBinomial(-1, -2);
+    @Test()
+    public void checkNLessThanOne() {
+        Assertions.assertThrows(CombinatoricsException.class,
+                () -> BinomialCoefficient.checkBinomial(-1, -2)
+        );
     }
 
-    @Test(expected=CombinatoricsException.class)
-    public void testCheckBinomial2() {
-        // k > n
-        BinomialCoefficient.checkBinomial(4, 5);
+    @Test()
+    public void checkKGreaterThanN() {
+        Assertions.assertThrows(CombinatoricsException.class,
+                () -> BinomialCoefficient.checkBinomial(4, 5)
+        );
     }
 
     @Test

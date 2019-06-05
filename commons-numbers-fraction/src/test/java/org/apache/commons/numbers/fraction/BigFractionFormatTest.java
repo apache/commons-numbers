@@ -25,8 +25,8 @@ import java.text.ParseException;
 import java.util.Locale;
 
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 public class BigFractionFormatTest {
@@ -38,7 +38,7 @@ public class BigFractionFormatTest {
         return Locale.getDefault();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         properFormat = BigFractionFormat.getProperInstance(getLocale());
         improperFormat = BigFractionFormat.getImproperInstance(getLocale());

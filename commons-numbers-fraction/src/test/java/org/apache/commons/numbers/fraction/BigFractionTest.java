@@ -22,7 +22,8 @@ import java.math.RoundingMode;
 import org.apache.commons.numbers.core.TestUtils;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 public class BigFractionTest {
@@ -87,10 +88,12 @@ public class BigFractionTest {
         }
     }
 
-    @Test(expected=FractionException.class)
+    @Test()
     public void testGoldenRatio() {
         // the golden ratio is notoriously a difficult number for continuous fraction
-        new BigFraction((1 + Math.sqrt(5)) / 2, 1.0e-12, 25);
+        Assertions.assertThrows(FractionException.class,
+                () -> new BigFraction((1 + Math.sqrt(5)) / 2, 1.0e-12, 25)
+        );
     }
 
     // MATH-179
@@ -156,15 +159,19 @@ public class BigFractionTest {
     }
 
     // MATH-1029
-    @Test(expected=ArithmeticException.class)
+    @Test()
     public void testPositiveValueOverflow() {
-        assertFraction((long) 1e10, 1, new BigFraction(1e10, 1000));
+        Assertions.assertThrows(ArithmeticException.class,
+                () -> assertFraction((long) 1e10, 1, new BigFraction(1e10, 1000))
+        );
     }
 
     // MATH-1029
-    @Test(expected=ArithmeticException.class)
+    @Test()
     public void testNegativeValueOverflow() {
-        assertFraction((long) -1e10, 1, new BigFraction(-1e10, 1000));
+        Assertions.assertThrows(ArithmeticException.class,
+                () -> assertFraction((long) -1e10, 1, new BigFraction(-1e10, 1000))
+        );
     }
 
     @Test

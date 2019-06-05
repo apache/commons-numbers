@@ -19,7 +19,8 @@ package org.apache.commons.numbers.gamma;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for {@link LogBeta}.
@@ -506,14 +507,19 @@ public class LogBetaTest {
         }
     }
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testLogGammaMinusLogGammaSumPrecondition1() {
-        logGammaMinusLogGammaSum(-1, 8);
+    @Test()
+    public void testLogGammaMinusLogGammaSumPrecondition1()
+    {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> logGammaMinusLogGammaSum(-1, 8)
+        );
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testLogGammaMinusLogGammaSumPrecondition2() {
-        logGammaMinusLogGammaSum(1, 7);
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> logGammaMinusLogGammaSum(1, 7)
+        );
     }
 
     private static final double[][] SUM_DELTA_MINUS_DELTA_SUM_REF = {
@@ -682,13 +688,18 @@ public class LogBetaTest {
         }
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test()
     public void testSumDeltaMinusDeltaSumPrecondition1() {
-        sumDeltaMinusDeltaSum(9, 10);
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> sumDeltaMinusDeltaSum(9, 10)
+        );
     }
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testSumDeltaMinusDeltaSumPrecondition2() {
-        sumDeltaMinusDeltaSum(10, 9);
+    @Test()
+    public void testSumDeltaMinusDeltaSumPrecondition2()
+    {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> sumDeltaMinusDeltaSum(10, 9)
+        );
     }
 }

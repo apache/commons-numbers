@@ -19,15 +19,18 @@ package org.apache.commons.numbers.combinatorics;
 import org.apache.commons.numbers.gamma.LogGamma;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for the {@link LogFactorial} class.
  */
 public class LogFactorialTest {
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testNonPositiveArgument() {
-        LogFactorial.create().withCache(-1);
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> LogFactorial.create().withCache(-1)
+        );
     }
 
     @Test

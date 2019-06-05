@@ -18,7 +18,7 @@ package org.apache.commons.numbers.quaternion;
 
 import org.apache.commons.numbers.core.Precision;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SlerpTest {
 

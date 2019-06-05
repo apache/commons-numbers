@@ -13,11 +13,10 @@
  */
 package org.apache.commons.numbers.core;
 
-import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for the {@link Precision} class.
