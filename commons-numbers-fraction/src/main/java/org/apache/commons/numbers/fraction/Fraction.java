@@ -28,76 +28,26 @@ public class Fraction
     extends Number
     implements Comparable<Fraction>, Serializable {
 
-    /** Serializable version identifier */
-    private static final long serialVersionUID = 3698073679419233275L;
-
     /** A fraction representing "1". */
     public static final Fraction ONE = new Fraction(1, 1);
 
     /** A fraction representing "0". */
     public static final Fraction ZERO = new Fraction(0, 1);
 
+    /** Serializable version identifier */
+    private static final long serialVersionUID = 3698073679419233275L;
+
     /** Parameter name for fraction (to satisfy checkstyle). */
     private static final String PARAM_NAME_FRACTION = "fraction";
 
     /** The default epsilon used for convergence. */
     private static final double DEFAULT_EPSILON = 1e-5;
-
+    
     /** The denominator. */
     private final int denominator;
 
     /** The numerator. */
     private final int numerator;
-
-    /**
-     * Create a fraction given the double value.
-     * @param value the double value to convert to a fraction.
-     * @throws IllegalArgumentException if the continued fraction failed to
-     *         converge.
-     */
-    public static Fraction from(double value) {
-        return from(value, DEFAULT_EPSILON, 100);
-    }
-
-    /**
-     * Create a fraction given the double value and maximum error allowed.
-     * <p>
-     * References:
-     * <ul>
-     * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
-     * Continued Fraction</a> equations (11) and (22)-(26)</li>
-     * </ul>
-     *
-     * @param value the double value to convert to a fraction.
-     * @param epsilon maximum error allowed.  The resulting fraction is within
-     *        {@code epsilon} of {@code value}, in absolute terms.
-     * @param maxIterations maximum number of convergents
-     * @throws IllegalArgumentException if the continued fraction failed to
-     *         converge.
-     */
-    public static Fraction from(double value, double epsilon, int maxIterations)
-    {
-        return new Fraction(value, epsilon, Integer.MAX_VALUE, maxIterations);
-    }
-
-    /**
-     * Create a fraction given the double value and maximum denominator.
-     * <p>
-     * References:
-     * <ul>
-     * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
-     * Continued Fraction</a> equations (11) and (22)-(26)</li>
-     * </ul>
-     *
-     * @param value the double value to convert to a fraction.
-     * @param maxDenominator The maximum allowed value for denominator
-     * @throws IllegalArgumentException if the continued fraction failed to
-     *         converge
-     */
-    public static Fraction from(double value, int maxDenominator)
-    {
-       return new Fraction(value, 0, maxDenominator, 100);
-    }
 
     /**
      * Create a fraction given the double value and either the maximum error
@@ -196,28 +146,6 @@ public class Fraction
             this.numerator = (int) p1;
             this.denominator = (int) q1;
         }
-
-    }
-
-    /**
-     * Create a fraction from an int.
-     * The fraction is num / 1.
-     * @param num the numerator.
-     */
-    public static Fraction of(int num) {
-        return of(num, 1);
-    }
-
-    /**
-     * Return a fraction given the numerator and denominator.  The fraction is
-     * reduced to lowest terms.
-     * @param num the numerator.
-     * @param den the denominator.
-     * @throws ArithmeticException if the denominator is {@code zero}
-     *                             or if integer overflow occurs
-     */
-    public static Fraction of(int num, int den) {
-    	return new Fraction(num, den);
     }
     
     /**
@@ -253,6 +181,82 @@ public class Fraction
         }
         this.numerator   = num;
         this.denominator = den;
+    }
+    /**
+     * Create a fraction given the double value.
+     * @param value the double value to convert to a fraction.
+     * @throws IllegalArgumentException if the continued fraction failed to
+     *         converge.
+     * @return {@link Fraction} instance
+     */
+    public static Fraction from(double value) {
+        return from(value, DEFAULT_EPSILON, 100);
+    }
+
+    /**
+     * Create a fraction given the double value and maximum error allowed.
+     * <p>
+     * References:
+     * <ul>
+     * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
+     * Continued Fraction</a> equations (11) and (22)-(26)</li>
+     * </ul>
+     *
+     * @param value the double value to convert to a fraction.
+     * @param epsilon maximum error allowed.  The resulting fraction is within
+     *        {@code epsilon} of {@code value}, in absolute terms.
+     * @param maxIterations maximum number of convergents
+     * @throws IllegalArgumentException if the continued fraction failed to
+     *         converge.
+     * @return {@link Fraction} instance
+     */
+    public static Fraction from(double value, double epsilon, int maxIterations)
+    {
+        return new Fraction(value, epsilon, Integer.MAX_VALUE, maxIterations);
+    }
+
+    /**
+     * Create a fraction given the double value and maximum denominator.
+     * <p>
+     * References:
+     * <ul>
+     * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
+     * Continued Fraction</a> equations (11) and (22)-(26)</li>
+     * </ul>
+     *
+     * @param value the double value to convert to a fraction.
+     * @param maxDenominator The maximum allowed value for denominator
+     * @throws IllegalArgumentException if the continued fraction failed to
+     *         converge
+     * @return {@link Fraction} instance
+     */
+    public static Fraction from(double value, int maxDenominator)
+    {
+       return new Fraction(value, 0, maxDenominator, 100);
+    }
+
+
+    /**
+     * Create a fraction from an int.
+     * The fraction is num / 1.
+     * @param num the numerator.
+     * @return {@link Fraction} instance
+     */
+    public static Fraction of(int num) {
+        return of(num, 1);
+    }
+
+    /**
+     * Return a fraction given the numerator and denominator.  The fraction is
+     * reduced to lowest terms.
+     * @param num the numerator.
+     * @param den the denominator.
+     * @throws ArithmeticException if the denominator is {@code zero}
+     *                             or if integer overflow occurs
+     * @return {@link Fraction} instance
+     */
+    public static Fraction of(int num, int den) {
+    	return new Fraction(num, den);
     }
 
     /**
