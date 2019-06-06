@@ -17,60 +17,22 @@
 package org.apache.commons.numbers.fraction;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 import org.apache.commons.numbers.core.ArithmeticUtils;
-import org.apache.commons.numbers.core.NativeOperators;
 
 /**
  * Representation of a rational number.
+ *
+ * implements Serializable since 2.0
  */
 public class Fraction
     extends Number
-    implements Comparable<Fraction>,
-               Serializable,
-               NativeOperators<Fraction> {
-
-    /** A fraction representing "2 / 1". */
-    public static final Fraction TWO = new Fraction(2, 1);
+    implements Comparable<Fraction>, Serializable {
 
     /** A fraction representing "1". */
     public static final Fraction ONE = new Fraction(1, 1);
 
     /** A fraction representing "0". */
     public static final Fraction ZERO = new Fraction(0, 1);
-
-    /** A fraction representing "4/5". */
-    public static final Fraction FOUR_FIFTHS = new Fraction(4, 5);
-
-    /** A fraction representing "1/5". */
-    public static final Fraction ONE_FIFTH = new Fraction(1, 5);
-
-    /** A fraction representing "1/2". */
-    public static final Fraction ONE_HALF = new Fraction(1, 2);
-
-    /** A fraction representing "1/4". */
-    public static final Fraction ONE_QUARTER = new Fraction(1, 4);
-
-    /** A fraction representing "1/3". */
-    public static final Fraction ONE_THIRD = new Fraction(1, 3);
-
-    /** A fraction representing "3/5". */
-    public static final Fraction THREE_FIFTHS = new Fraction(3, 5);
-
-    /** A fraction representing "3/4". */
-    public static final Fraction THREE_QUARTERS = new Fraction(3, 4);
-
-    /** A fraction representing "2/5". */
-    public static final Fraction TWO_FIFTHS = new Fraction(2, 5);
-
-    /** A fraction representing "2/4". */
-    public static final Fraction TWO_QUARTERS = new Fraction(2, 4);
-
-    /** A fraction representing "2/3". */
-    public static final Fraction TWO_THIRDS = new Fraction(2, 3);
-
-    /** A fraction representing "-1 / 1". */
-    public static final Fraction MINUS_ONE = new Fraction(-1, 1);
 
     /** Serializable version identifier */
     private static final long serialVersionUID = 3698073679419233275L;
@@ -80,62 +42,12 @@ public class Fraction
 
     /** The default epsilon used for convergence. */
     private static final double DEFAULT_EPSILON = 1e-5;
-
+    
     /** The denominator. */
     private final int denominator;
 
     /** The numerator. */
     private final int numerator;
-
-    /**
-     * Create a fraction given the double value.
-     * @param value the double value to convert to a fraction.
-     * @throws IllegalArgumentException if the continued fraction failed to
-     *         converge.
-     */
-    public Fraction(double value) {
-        this(value, DEFAULT_EPSILON, 100);
-    }
-
-    /**
-     * Create a fraction given the double value and maximum error allowed.
-     * <p>
-     * References:
-     * <ul>
-     * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
-     * Continued Fraction</a> equations (11) and (22)-(26)</li>
-     * </ul>
-     *
-     * @param value the double value to convert to a fraction.
-     * @param epsilon maximum error allowed.  The resulting fraction is within
-     *        {@code epsilon} of {@code value}, in absolute terms.
-     * @param maxIterations maximum number of convergents
-     * @throws IllegalArgumentException if the continued fraction failed to
-     *         converge.
-     */
-    public Fraction(double value, double epsilon, int maxIterations)
-    {
-        this(value, epsilon, Integer.MAX_VALUE, maxIterations);
-    }
-
-    /**
-     * Create a fraction given the double value and maximum denominator.
-     * <p>
-     * References:
-     * <ul>
-     * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
-     * Continued Fraction</a> equations (11) and (22)-(26)</li>
-     * </ul>
-     *
-     * @param value the double value to convert to a fraction.
-     * @param maxDenominator The maximum allowed value for denominator
-     * @throws IllegalArgumentException if the continued fraction failed to
-     *         converge
-     */
-    public Fraction(double value, int maxDenominator)
-    {
-       this(value, 0, maxDenominator, 100);
-    }
 
     /**
      * Create a fraction given the double value and either the maximum error
@@ -234,27 +146,16 @@ public class Fraction
             this.numerator = (int) p1;
             this.denominator = (int) q1;
         }
-
     }
-
+    
     /**
-     * Create a fraction from an int.
-     * The fraction is num / 1.
-     * @param num the numerator.
-     */
-    public Fraction(int num) {
-        this(num, 1);
-    }
-
-    /**
-     * Create a fraction given the numerator and denominator.  The fraction is
-     * reduced to lowest terms.
+     * Private constructor for integer fractions.
      * @param num the numerator.
      * @param den the denominator.
      * @throws ArithmeticException if the denominator is {@code zero}
      *                             or if integer overflow occurs
      */
-    public Fraction(int num, int den) {
+    private Fraction(int num, int den) {
         if (den == 0) {
             throw new ArithmeticException("division by zero");
         }
@@ -280,6 +181,82 @@ public class Fraction
         }
         this.numerator   = num;
         this.denominator = den;
+    }
+    /**
+     * Create a fraction given the double value.
+     * @param value the double value to convert to a fraction.
+     * @throws IllegalArgumentException if the continued fraction failed to
+     *         converge.
+     * @return {@link Fraction} instance
+     */
+    public static Fraction from(double value) {
+        return from(value, DEFAULT_EPSILON, 100);
+    }
+
+    /**
+     * Create a fraction given the double value and maximum error allowed.
+     * <p>
+     * References:
+     * <ul>
+     * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
+     * Continued Fraction</a> equations (11) and (22)-(26)</li>
+     * </ul>
+     *
+     * @param value the double value to convert to a fraction.
+     * @param epsilon maximum error allowed.  The resulting fraction is within
+     *        {@code epsilon} of {@code value}, in absolute terms.
+     * @param maxIterations maximum number of convergents
+     * @throws IllegalArgumentException if the continued fraction failed to
+     *         converge.
+     * @return {@link Fraction} instance
+     */
+    public static Fraction from(double value, double epsilon, int maxIterations)
+    {
+        return new Fraction(value, epsilon, Integer.MAX_VALUE, maxIterations);
+    }
+
+    /**
+     * Create a fraction given the double value and maximum denominator.
+     * <p>
+     * References:
+     * <ul>
+     * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
+     * Continued Fraction</a> equations (11) and (22)-(26)</li>
+     * </ul>
+     *
+     * @param value the double value to convert to a fraction.
+     * @param maxDenominator The maximum allowed value for denominator
+     * @throws IllegalArgumentException if the continued fraction failed to
+     *         converge
+     * @return {@link Fraction} instance
+     */
+    public static Fraction from(double value, int maxDenominator)
+    {
+       return new Fraction(value, 0, maxDenominator, 100);
+    }
+
+
+    /**
+     * Create a fraction from an int.
+     * The fraction is num / 1.
+     * @param num the numerator.
+     * @return {@link Fraction} instance
+     */
+    public static Fraction of(int num) {
+        return of(num, 1);
+    }
+
+    /**
+     * Return a fraction given the numerator and denominator.  The fraction is
+     * reduced to lowest terms.
+     * @param num the numerator.
+     * @param den the denominator.
+     * @throws ArithmeticException if the denominator is {@code zero}
+     *                             or if integer overflow occurs
+     * @return {@link Fraction} instance
+     */
+    public static Fraction of(int num, int den) {
+    	return new Fraction(num, den);
     }
 
     /**
@@ -398,18 +375,6 @@ public class Fraction
         return (long)doubleValue();
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public Fraction zero() {
-        return ZERO;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Fraction one() {
-        return ONE;
-    }
-
     /**
      * Return the additive inverse of this fraction.
      * @return the negation of this fraction.
@@ -476,7 +441,13 @@ public class Fraction
     }
 
     /**
-     * Implement add and subtract using algorithm described in Knuth 4.5.1.
+     * Implement add and subtract. This algorithm is similar to that
+     * described in Knuth 4.5.1. while making some concessions to 
+     * performance. Note Knuth 4.5.1 Exercise 7, which observes that
+     * adding two fractions with 32-bit numerators and denominators
+     * requires 65 bits in extreme cases. Here calculations are performed 
+     * with 64-bit longs and the BigFraction class is recommended for numbers
+     * that may grow large enough to be in danger of overflow.
      *
      * @param fraction the fraction to subtract, must not be {@code null}
      * @param isAdd true to add, false to subtract
@@ -496,39 +467,16 @@ public class Fraction
         if (fraction.numerator == 0) {
             return this;
         }
-        // if denominators are randomly distributed, d1 will be 1 about 61%
-        // of the time.
+        // t = u(v'/gcd) +/- v(u'/gcd)
         int d1 = ArithmeticUtils.gcd(denominator, fraction.denominator);
-        if (d1==1) {
-            // result is ( (u*v' +/- u'v) / u'v')
-            int uvp = ArithmeticUtils.mulAndCheck(numerator, fraction.denominator);
-            int upv = ArithmeticUtils.mulAndCheck(fraction.numerator, denominator);
-            return new Fraction
-                (isAdd ? ArithmeticUtils.addAndCheck(uvp, upv) :
-                 ArithmeticUtils.subAndCheck(uvp, upv),
-                 ArithmeticUtils.mulAndCheck(denominator, fraction.denominator));
-        }
-        // the quantity 't' requires 65 bits of precision; see knuth 4.5.1
-        // exercise 7.  we're going to use a BigInteger.
-        // t = u(v'/d1) +/- v(u'/d1)
-        BigInteger uvp = BigInteger.valueOf(numerator)
-        .multiply(BigInteger.valueOf(fraction.denominator/d1));
-        BigInteger upv = BigInteger.valueOf(fraction.numerator)
-        .multiply(BigInteger.valueOf(denominator/d1));
-        BigInteger t = isAdd ? uvp.add(upv) : uvp.subtract(upv);
-        // but d2 doesn't need extra precision because
-        // d2 = gcd(t,d1) = gcd(t mod d1, d1)
-        int tmodd1 = t.mod(BigInteger.valueOf(d1)).intValue();
+        int uvp = ArithmeticUtils.mulAndCheck(numerator, fraction.denominator / d1);
+        int upv = ArithmeticUtils.mulAndCheck(fraction.numerator, denominator / d1);
+        int t = isAdd ? ArithmeticUtils.addAndCheck(uvp, upv) : ArithmeticUtils.subAndCheck(uvp, upv);
+        int tmodd1 = t % d1;
         int d2 = (tmodd1==0)?d1:ArithmeticUtils.gcd(tmodd1, d1);
-
         // result is (t/d2) / (u'/d1)(v'/d2)
-        BigInteger w = t.divide(BigInteger.valueOf(d2));
-        if (w.bitLength() > 31) {
-            throw new FractionException(
-                "overflow, numerator too large after multiply: {0}", w.toString(), "");
-        }
-        return new Fraction (w.intValue(),
-                ArithmeticUtils.mulAndCheck(denominator/d1,
+        int w = t / d2;
+        return new Fraction (w, ArithmeticUtils.mulAndCheck(denominator/d1,
                         fraction.denominator/d2));
     }
 
@@ -564,26 +512,7 @@ public class Fraction
      * @return this * i
      */
     public Fraction multiply(final int i) {
-        return multiply(new Fraction(i));
-    }
-
-    /**
-     * @param n Power.
-     * @return {@code this^n}
-     */
-    public Fraction pow(final int n) {
-        if (n == 0) {
-            return ONE;
-        }
-        if (numerator == 0) {
-            return this;
-        }
-
-        return n < 0 ?
-            new Fraction(ArithmeticUtils.pow(denominator, -n),
-                         ArithmeticUtils.pow(numerator, -n)) :
-            new Fraction(ArithmeticUtils.pow(numerator, n),
-                         ArithmeticUtils.pow(denominator, n));
+        return multiply(of(i));
     }
 
     /**
@@ -612,19 +541,7 @@ public class Fraction
      * @return this * i
      */
     public Fraction divide(final int i) {
-        return divide(new Fraction(i));
-    }
-
-    /**
-     * <p>
-     * Gets the fraction percentage as a {@code double}. This calculates the
-     * fraction as the numerator divided by denominator multiplied by 100.
-     * </p>
-     *
-     * @return the fraction percentage as a {@code double}.
-     */
-    public double percentageValue() {
-        return 100 * doubleValue();
+        return divide(of(i));
     }
 
     /**
@@ -665,6 +582,25 @@ public class Fraction
     }
 
     /**
+     * @param n Power.
+     * @return {@code this^n}
+     */
+    public Fraction pow(final int n) {
+        if (n == 0) {
+            return ONE;
+        }
+        if (numerator == 0) {
+            return this;
+        }
+
+        return n < 0 ?
+            new Fraction(ArithmeticUtils.pow(denominator, -n),
+                         ArithmeticUtils.pow(numerator, -n)) :
+            new Fraction(ArithmeticUtils.pow(numerator, n),
+                         ArithmeticUtils.pow(denominator, n));
+    }
+
+    /**
      * <p>
      * Returns the {@code String} representing this fraction, ie
      * "num / dem" or just "num" if the denominator is one.
@@ -685,4 +621,26 @@ public class Fraction
         }
         return str;
     }
+    
+    /**
+     * Parses a string that would be produced by {@link #toString()}
+     * and instantiates the corresponding object.
+     *
+     * @param s String representation.
+     * @return an instance.
+     * @throws FractionException if the string does not
+     * conform to the specification.
+     */
+    public static Fraction parse(String s) {
+        final int slashLoc = s.indexOf("/");
+        // if no slash, parse as single number
+        if (slashLoc == -1) {
+            return Fraction.of(Integer.parseInt(s.trim()));
+        } else {
+            final int num = Integer.parseInt(s.substring(0, slashLoc).trim());
+            final int denom = Integer.parseInt(s.substring(slashLoc + 1).trim());
+            return of(num, denom);
+        }
+    }
+
 }

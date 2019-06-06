@@ -26,57 +26,15 @@ import org.apache.commons.numbers.core.ArithmeticUtils;
  * Representation of a rational number without any overflow. This class is
  * immutable.
  */
-public class BigFraction
-    extends Number
-    implements Comparable<BigFraction>, Serializable {
-
-    /** A fraction representing "2 / 1". */
-    public static final BigFraction TWO = new BigFraction(2);
+public class BigFraction extends Number implements Comparable<BigFraction>, Serializable {    
+    /** A fraction representing "0". */
+    public static final BigFraction ZERO = new BigFraction(0);
 
     /** A fraction representing "1". */
     public static final BigFraction ONE = new BigFraction(1);
 
-    /** A fraction representing "0". */
-    public static final BigFraction ZERO = new BigFraction(0);
-
-    /** A fraction representing "-1 / 1". */
-    public static final BigFraction MINUS_ONE = new BigFraction(-1);
-
-    /** A fraction representing "4/5". */
-    public static final BigFraction FOUR_FIFTHS = new BigFraction(4, 5);
-
-    /** A fraction representing "1/5". */
-    public static final BigFraction ONE_FIFTH = new BigFraction(1, 5);
-
-    /** A fraction representing "1/2". */
-    public static final BigFraction ONE_HALF = new BigFraction(1, 2);
-
-    /** A fraction representing "1/4". */
-    public static final BigFraction ONE_QUARTER = new BigFraction(1, 4);
-
-    /** A fraction representing "1/3". */
-    public static final BigFraction ONE_THIRD = new BigFraction(1, 3);
-
-    /** A fraction representing "3/5". */
-    public static final BigFraction THREE_FIFTHS = new BigFraction(3, 5);
-
-    /** A fraction representing "3/4". */
-    public static final BigFraction THREE_QUARTERS = new BigFraction(3, 4);
-
-    /** A fraction representing "2/5". */
-    public static final BigFraction TWO_FIFTHS = new BigFraction(2, 5);
-
-    /** A fraction representing "2/4". */
-    public static final BigFraction TWO_QUARTERS = new BigFraction(2, 4);
-
-    /** A fraction representing "2/3". */
-    public static final BigFraction TWO_THIRDS = new BigFraction(2, 3);
-
     /** Serializable version identifier. */
     private static final long serialVersionUID = -5630213147331578515L;
-
-    /** <code>BigInteger</code> representation of 100. */
-    private static final BigInteger ONE_HUNDRED = BigInteger.valueOf(100);
 
     /** Parameter name for fraction (to satisfy checkstyle). */
     private static final String PARAM_NAME_FRACTION = "fraction";
@@ -91,27 +49,13 @@ public class BigFraction
     private final BigInteger denominator;
 
     /**
-     * <p>
-     * Create a {@link BigFraction} equivalent to the passed {@code BigInteger}, ie
-     * "num / 1".
-     * </p>
-     *
-     * @param num
-     *            the numerator.
-     */
-    public BigFraction(final BigInteger num) {
-        this(num, BigInteger.ONE);
-    }
-
-    /**
-     * Create a {@link BigFraction} given the numerator and denominator as
-     * {@code BigInteger}. The {@link BigFraction} is reduced to lowest terms.
+     * Private constructor for BigFraction ofInt() factory methods.
      *
      * @param num the numerator, must not be {@code null}.
      * @param den the denominator, must not be {@code null}.
      * @throws ArithmeticException if the denominator is zero.
      */
-    public BigFraction(BigInteger num, BigInteger den) {
+    private BigFraction(BigInteger num, BigInteger den) {
         checkNotNull(num, "numerator");
         checkNotNull(den, "denominator");
         if (den.signum() == 0) {
@@ -140,88 +84,6 @@ public class BigFraction
             denominator = den;
 
         }
-    }
-
-    /**
-     * Create a fraction given the double value.
-     * <p>
-     * This constructor behaves <em>differently</em> from
-     * {@link #BigFraction(double, double, int)}. It converts the double value
-     * exactly, considering its internal bits representation. This works for all
-     * values except NaN and infinities and does not requires any loop or
-     * convergence threshold.
-     * </p>
-     * <p>
-     * Since this conversion is exact and since double numbers are sometimes
-     * approximated, the fraction created may seem strange in some cases. For example,
-     * calling <code>new BigFraction(1.0 / 3.0)</code> does <em>not</em> create
-     * the fraction 1/3, but the fraction 6004799503160661 / 18014398509481984
-     * because the double number passed to the constructor is not exactly 1/3
-     * (this number cannot be stored exactly in IEEE754).
-     * </p>
-     * @see #BigFraction(double, double, int)
-     * @param value the double value to convert to a fraction.
-     * @exception IllegalArgumentException if value is NaN or infinite
-     */
-    public BigFraction(final double value) throws IllegalArgumentException {
-        if (Double.isNaN(value)) {
-            throw new IllegalArgumentException("cannot convert NaN value");
-        }
-        if (Double.isInfinite(value)) {
-            throw new IllegalArgumentException("cannot convert infinite value");
-        }
-
-        // compute m and k such that value = m * 2^k
-        final long bits     = Double.doubleToLongBits(value);
-        final long sign     = bits & 0x8000000000000000L;
-        final long exponent = bits & 0x7ff0000000000000L;
-        long m              = bits & 0x000fffffffffffffL;
-        if (exponent != 0) {
-            // this was a normalized number, add the implicit most significant bit
-            m |= 0x0010000000000000L;
-        }
-        if (sign != 0) {
-            m = -m;
-        }
-        int k = ((int) (exponent >> 52)) - 1075;
-        while (((m & 0x001ffffffffffffeL) != 0) && ((m & 0x1) == 0)) {
-            m >>= 1;
-            ++k;
-        }
-
-        if (k < 0) {
-            numerator   = BigInteger.valueOf(m);
-            denominator = BigInteger.ZERO.flipBit(-k);
-        } else {
-            numerator   = BigInteger.valueOf(m).multiply(BigInteger.ZERO.flipBit(k));
-            denominator = BigInteger.ONE;
-        }
-
-    }
-
-    /**
-     * Create a fraction given the double value and maximum error allowed.
-     * <p>
-     * References:
-     * <ul>
-     * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
-     * Continued Fraction</a> equations (11) and (22)-(26)</li>
-     * </ul>
-     *
-     * @param value
-     *            the double value to convert to a fraction.
-     * @param epsilon
-     *            maximum error allowed. The resulting fraction is within
-     *            <code>epsilon</code> of <code>value</code>, in absolute terms.
-     * @param maxIterations
-     *            maximum number of convergents.
-     * @throws ArithmeticException
-     *             if the continued fraction failed to converge.
-     * @see #BigFraction(double)
-     */
-    public BigFraction(final double value, final double epsilon,
-                       final int maxIterations) {
-        this(value, epsilon, Integer.MAX_VALUE, maxIterations);
     }
 
     /**
@@ -319,7 +181,6 @@ public class BigFraction
         if (n >= maxIterations) {
             throw new FractionException(FractionException.ERROR_CONVERSION, value, maxIterations);
         }
-
         if (q2 < maxDenominator) {
             numerator   = BigInteger.valueOf(p2);
             denominator = BigInteger.valueOf(q2);
@@ -327,6 +188,141 @@ public class BigFraction
             numerator   = BigInteger.valueOf(p1);
             denominator = BigInteger.valueOf(q1);
         }
+    }
+    
+    /**
+     * Create a fraction given the double value.
+     * <p>
+     * This constructor behaves <em>differently</em> from
+     * {@link #BigFraction(double, double, int)}. It converts the double value
+     * exactly, considering its internal bits representation. This works for all
+     * values except NaN and infinities and does not requires any loop or
+     * convergence threshold.
+     * </p>
+     * <p>
+     * Since this conversion is exact and since double numbers are sometimes
+     * approximated, the fraction created may seem strange in some cases. For example,
+     * calling <code>new BigFraction(1.0 / 3.0)</code> does <em>not</em> create
+     * the fraction 1/3, but the fraction 6004799503160661 / 18014398509481984
+     * because the double number passed to the constructor is not exactly 1/3
+     * (this number cannot be stored exactly in IEEE754).
+     * </p>
+     * @see #BigFraction(double, double, int)
+     * @param value the double value to convert to a fraction.
+     * @exception IllegalArgumentException if value is NaN or infinite
+     */
+    private BigFraction(final double value) throws IllegalArgumentException {
+        if (Double.isNaN(value)) {
+            throw new IllegalArgumentException("cannot convert NaN value");
+        }
+        if (Double.isInfinite(value)) {
+            throw new IllegalArgumentException("cannot convert infinite value");
+        }
+
+        // compute m and k such that value = m * 2^k
+        final long bits     = Double.doubleToLongBits(value);
+        final long sign     = bits & 0x8000000000000000L;
+        final long exponent = bits & 0x7ff0000000000000L;
+        long m              = bits & 0x000fffffffffffffL;
+        if (exponent != 0) {
+            // this was a normalized number, add the implicit most significant bit
+            m |= 0x0010000000000000L;
+        }
+        if (sign != 0) {
+            m = -m;
+        }
+        int k = ((int) (exponent >> 52)) - 1075;
+        while (((m & 0x001ffffffffffffeL) != 0) && ((m & 0x1) == 0)) {
+            m >>= 1;
+            ++k;
+        }
+
+        if (k < 0) {
+            numerator   = BigInteger.valueOf(m);
+            denominator = BigInteger.ZERO.flipBit(-k);
+        } else {
+            numerator   = BigInteger.valueOf(m).multiply(BigInteger.ZERO.flipBit(k));
+            denominator = BigInteger.ONE;
+        }
+
+    }
+
+    /**
+     * <p>
+     * Create a {@link BigFraction} equivalent to the passed {@code BigInteger}, ie
+     * "num / 1".
+     * </p>
+     *
+     * @param num the numerator.
+     * @return {@link BigFraction instance
+     */
+    public static BigFraction of(final BigInteger num) {
+        return new BigFraction(num, BigInteger.ONE);
+    }
+
+    /**
+     * Create a {@link BigFraction} given the numerator and denominator as
+     * {@code BigInteger}. The {@link BigFraction} is reduced to lowest terms.
+     *
+     * @param num the numerator, must not be {@code null}.
+     * @param den the denominator, must not be {@code null}.
+     * @throws ArithmeticException if the denominator is zero.
+     * @return {@link BigFraction instance
+     */
+    public static BigFraction of(BigInteger num, BigInteger den) {
+    	return new BigFraction(num, den);
+    }
+
+    /**
+     * Create a fraction given the double value.
+     * <p>
+     * This factory method behaves <em>differently</em> from
+     * {@link #from(double, double, int)}. It converts the double value
+     * exactly, considering its internal bits representation. This works for all
+     * values except NaN and infinities and does not requires any loop or
+     * convergence threshold.
+     * </p>
+     * <p>
+     * Since this conversion is exact and since double numbers are sometimes
+     * approximated, the fraction created may seem strange in some cases. For example,
+     * calling <code>new BigFraction(1.0 / 3.0)</code> does <em>not</em> create
+     * the fraction 1/3, but the fraction 6004799503160661 / 18014398509481984
+     * because the double number passed to the constructor is not exactly 1/3
+     * (this number cannot be stored exactly in IEEE754).
+     * </p>
+     * @see #BigFraction(double, double, int)
+     * @param value the double value to convert to a fraction.
+     * @exception IllegalArgumentException if value is NaN or infinite
+     * @return {@link BigFraction instance
+     */
+    public static BigFraction from(final double value) throws IllegalArgumentException {
+    	return new BigFraction(value);
+    }
+
+    /**
+     * Create a fraction given the double value and maximum error allowed.
+     * <p>
+     * References:
+     * <ul>
+     * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
+     * Continued Fraction</a> equations (11) and (22)-(26)</li>
+     * </ul>
+     *
+     * @param value
+     *            the double value to convert to a fraction.
+     * @param epsilon
+     *            maximum error allowed. The resulting fraction is within
+     *            <code>epsilon</code> of <code>value</code>, in absolute terms.
+     * @param maxIterations
+     *            maximum number of convergents.
+     * @throws ArithmeticException
+     *             if the continued fraction failed to converge.
+     * @see #BigFraction(double)
+     * @return {@link BigFraction instance
+     */
+    public static BigFraction from(final double value, final double epsilon,
+                       final int maxIterations) {
+        return new BigFraction(value, epsilon, Integer.MAX_VALUE, maxIterations);
     }
 
     /**
@@ -344,9 +340,10 @@ public class BigFraction
      *            The maximum allowed value for denominator.
      * @throws ArithmeticException
      *             if the continued fraction failed to converge.
+     * @return {@link BigFraction instance
      */
-    public BigFraction(final double value, final int maxDenominator) {
-        this(value, 0, maxDenominator, 100);
+    public static BigFraction from(final double value, final int maxDenominator) {
+        return new BigFraction(value, 0, maxDenominator, 100);
     }
 
     /**
@@ -357,9 +354,10 @@ public class BigFraction
      *
      * @param num
      *            the numerator.
+     * @return {@link BigFraction instance
      */
-    public BigFraction(final int num) {
-        this(BigInteger.valueOf(num), BigInteger.ONE);
+    public static BigFraction of(final int num) {
+        return new BigFraction(BigInteger.valueOf(num), BigInteger.ONE);
     }
 
     /**
@@ -368,13 +366,12 @@ public class BigFraction
      * {@code int}. The {@link BigFraction} is reduced to lowest terms.
      * </p>
      *
-     * @param num
-     *            the numerator.
-     * @param den
-     *            the denominator.
+     * @param num the numerator.
+     * @param den the denominator.
+     * @return {@link BigFraction instance
      */
-    public BigFraction(final int num, final int den) {
-        this(BigInteger.valueOf(num), BigInteger.valueOf(den));
+    public static BigFraction of(final int num, final int den) {
+        return new BigFraction(BigInteger.valueOf(num), BigInteger.valueOf(den));
     }
 
     /**
@@ -382,11 +379,11 @@ public class BigFraction
      * Create a {@link BigFraction} equivalent to the passed long, ie "num / 1".
      * </p>
      *
-     * @param num
-     *            the numerator.
+     * @param num the numerator.
+     * @return {@link BigFraction instance
      */
-    public BigFraction(final long num) {
-        this(BigInteger.valueOf(num), BigInteger.ONE);
+    public static BigFraction of(final long num) {
+        return new BigFraction(BigInteger.valueOf(num), BigInteger.ONE);
     }
 
     /**
@@ -395,13 +392,12 @@ public class BigFraction
      * {@code long}. The {@link BigFraction} is reduced to lowest terms.
      * </p>
      *
-     * @param num
-     *            the numerator.
-     * @param den
-     *            the denominator.
+     * @param num the numerator.
+     * @param den the denominator.
+     * @return {@link BigFraction instance
      */
-    public BigFraction(final long num, final long den) {
-        this(BigInteger.valueOf(num), BigInteger.valueOf(den));
+    public static BigFraction of(final long num, final long den) {
+        return new BigFraction(BigInteger.valueOf(num), BigInteger.valueOf(den));
     }
 
     /**
@@ -429,7 +425,7 @@ public class BigFraction
             return ZERO; // normalize zero.
         }
 
-        return new BigFraction(numerator, denominator);
+        return of(numerator, denominator);
     }
 
     /**
@@ -457,7 +453,7 @@ public class BigFraction
         checkNotNull(bg, PARAM_NAME_BG);
 
         if (numerator.signum() == 0) {
-            return new BigFraction(bg);
+            return of(bg);
         }
         if (bg.signum() == 0) {
             return this;
@@ -957,18 +953,6 @@ public class BigFraction
 
     /**
      * <p>
-     * Gets the fraction percentage as a {@code double}. This calculates the
-     * fraction as the numerator divided by denominator multiplied by 100.
-     * </p>
-     *
-     * @return the fraction percentage as a {@code double}.
-     */
-    public double percentageValue() {
-        return multiply(ONE_HUNDRED).doubleValue();
-    }
-
-    /**
-     * <p>
      * Returns a {@code BigFraction} whose value is
      * {@code (this<sup>exponent</sup>)}, returning the result in reduced form.
      * </p>
@@ -1104,7 +1088,7 @@ public class BigFraction
             return this;
         }
         if (numerator.signum() == 0) {
-            return new BigFraction(bg.negate());
+            return of(bg.negate());
         }
 
         return new BigFraction(numerator.subtract(denominator.multiply(bg)), denominator);
@@ -1188,6 +1172,30 @@ public class BigFraction
         }
         return str;
     }
+    
+    /**
+     * Parses a string that would be produced by {@link #toString()}
+     * and instantiates the corresponding object.
+     *
+     * @param s String representation.
+     * @return an instance.
+     * @throws FractionException if the string does not
+     * conform to the specification.
+     */
+    public static BigFraction parse(String s) {
+        s = s.replace(",", "");
+        final int slashLoc = s.indexOf("/");
+        // if no slash, parse as single number
+        if (slashLoc == -1) {
+            return BigFraction.of(new BigInteger(s.trim()));
+        } else {
+            final BigInteger num = new BigInteger(
+                    s.substring(0, slashLoc).trim());
+            final BigInteger denom = new BigInteger(s.substring(slashLoc + 1).trim());
+            return of(num, denom);
+        }
+    }
+
 
     /**
      * Check that the argument is not null and throw a NullPointerException
