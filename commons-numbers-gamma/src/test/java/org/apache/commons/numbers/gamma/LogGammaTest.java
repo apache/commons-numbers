@@ -16,7 +16,7 @@
  */
 package org.apache.commons.numbers.gamma;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -209,22 +209,22 @@ public class LogGammaTest {
             } else {
                 tol = ulps * Math.ulp(expected);
             }
-            Assert.assertEquals(Double.toString(x), expected, actual, tol);
+            Assertions.assertEquals(expected, actual, tol, Double.toString(x));
         }
     }
 
     @Test
     public void testLogGammaPrecondition1() {
-        Assert.assertTrue(Double.isNaN(LogGamma.value(0.0)));
+        Assertions.assertTrue(Double.isNaN(LogGamma.value(0.0)));
     }
 
     @Test
     public void testLogGammaPrecondition2() {
-        Assert.assertTrue(Double.isNaN(LogGamma.value(-1.0)));
+        Assertions.assertTrue(Double.isNaN(LogGamma.value(-1.0)));
     }
 
     private void testLogGamma(double expected, double x) {
         double actual = LogGamma.value(x);
-        Assert.assertEquals(expected, actual, 1e-15);
+        Assertions.assertEquals(expected, actual, 1e-15);
     }
 }

@@ -16,7 +16,7 @@
  */
 package org.apache.commons.numbers.gamma;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -25,15 +25,15 @@ import org.junit.jupiter.api.Test;
 public class LanczosApproximationTest {
     @Test
     public void testG() {
-        Assert.assertEquals(607d / 128d, LanczosApproximation.g(), 0d);
+        Assertions.assertEquals(607d / 128d, LanczosApproximation.g(), 0d);
     }
 
     @Test
     public void testSomeValues() {
         // Given that few values are checked, this test would only serve
         // as early warning of unexpected changes to the current code.
-        Assert.assertEquals(29.020294557631818d, LanczosApproximation.value(0.1d), 0d);
-        Assert.assertEquals(13.14778027539684d, LanczosApproximation.value(1.0d), 0d);
-        Assert.assertEquals(7.897828855157814d, LanczosApproximation.value(2.0d), 0d);
+        Assertions.assertEquals(29.020294557631818d, LanczosApproximation.value(0.1d), 0d);
+        Assertions.assertEquals(13.14778027539684d, LanczosApproximation.value(1.0d), 0d);
+        Assertions.assertEquals(7.897828855157814d, LanczosApproximation.value(2.0d), 0d);
     }
 }

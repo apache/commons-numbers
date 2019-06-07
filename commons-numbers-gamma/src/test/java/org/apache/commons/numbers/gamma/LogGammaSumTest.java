@@ -16,7 +16,6 @@
  */
 package org.apache.commons.numbers.gamma;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -141,32 +140,32 @@ public class LogGammaSumTest {
             final double tol = ulps * Math.ulp(expected);
             final StringBuilder builder = new StringBuilder();
             builder.append(a).append(", ").append(b);
-            Assert.assertEquals(builder.toString(), expected, actual, tol);
+            Assertions.assertEquals(expected, actual, tol, builder.toString());
         }
     }
 
-    @Test()
+    @Test
     public void testLogGammaSumPrecondition1() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> LogGammaSum.value(0, 1)
         );
     }
 
-    @Test()
+    @Test
     public void testLogGammaSumPrecondition2() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> LogGammaSum.value(3, 1)
         );
     }
 
-    @Test()
+    @Test
     public void testLogGammaSumPrecondition3() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> LogGammaSum.value(1, 0)
         );
     }
 
-    @Test()
+    @Test
     public void testLogGammaSumPrecondition4() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> LogGammaSum.value(1, 3)

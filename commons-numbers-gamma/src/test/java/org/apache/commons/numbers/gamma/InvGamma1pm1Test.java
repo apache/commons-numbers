@@ -16,7 +16,6 @@
  */
 package org.apache.commons.numbers.gamma;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -74,11 +73,11 @@ public class InvGamma1pm1Test {
             final double expected = ref[1];
             final double actual = InvGamma1pm1.value(x);
             final double tol = ulps * Math.ulp(expected);
-            Assert.assertEquals(Double.toString(x), expected, actual, tol);
+            Assertions.assertEquals(expected, actual, tol, Double.toString(x));
         }
     }
 
-    @Test()
+    @Test
     public void testInvGamma1pm1Precondition1()
     {
         Assertions.assertThrows(GammaException.class,
@@ -86,7 +85,7 @@ public class InvGamma1pm1Test {
         );
     }
 
-    @Test()
+    @Test
     public void testInvGamma1pm1Precondition2()
     {
         Assertions.assertThrows(GammaException.class,

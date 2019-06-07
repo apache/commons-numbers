@@ -16,7 +16,6 @@
  */
 package org.apache.commons.numbers.gamma;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -53,18 +52,18 @@ public class LogGamma1pTest {
             final double expected = ref[1];
             final double actual = LogGamma1p.value(x);
             final double tol = ulps * Math.ulp(expected);
-            Assert.assertEquals(Double.toString(x), expected, actual, tol);
+            Assertions.assertEquals(expected, actual, tol, Double.toString(x));
         }
     }
 
-    @Test()
+    @Test
     public void testLogGamma1pPrecondition1() {
         Assertions.assertThrows(GammaException.class,
                 () -> LogGamma1p.value(-0.51)
         );
     }
 
-    @Test()
+    @Test
     public void testLogGamma1pPrecondition2() {
         Assertions.assertThrows(GammaException.class,
                 () -> LogGamma1p.value(1.51)
