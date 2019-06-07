@@ -35,15 +35,15 @@ public class LinearCombinationTest {
 
     @Test
     public void testTwoSums() { 
-        final BigFraction[] aF = new BigFraction[] {
-            new BigFraction(-1321008684645961L, 268435456L),
-            new BigFraction(-5774608829631843L, 268435456L),
-            new BigFraction(-7645843051051357L, 8589934592L)
+        final BigFraction[] aF = {
+            BigFraction.of(-1321008684645961L, 268435456L),
+            BigFraction.of(-5774608829631843L, 268435456L),
+            BigFraction.of(-7645843051051357L, 8589934592L)
         };
-        final BigFraction[] bF = new BigFraction[] {
-            new BigFraction(-5712344449280879L, 2097152L),
-            new BigFraction(-4550117129121957L, 2097152L),
-            new BigFraction(8846951984510141L, 131072L)
+        final BigFraction[] bF = {
+            BigFraction.of(-5712344449280879L, 2097152L),
+            BigFraction.of(-4550117129121957L, 2097152L),
+            BigFraction.of(8846951984510141L, 131072L)
         };
 
         final int len = aF.length;
@@ -113,12 +113,12 @@ public class LinearCombinationTest {
     @Test
     public void testHuge() {
         int scale = 971;
-        final double[] a = new double[] {
+        final double[] a = {
             -1321008684645961.0 / 268435456.0,
             -5774608829631843.0 / 268435456.0,
             -7645843051051357.0 / 8589934592.0
         };
-        final double[] b = new double[] {
+        final double[] b = {
             -5712344449280879.0 / 2097152.0,
             -4550117129121957.0 / 2097152.0,
             8846951984510141.0 / 131072.0
@@ -145,7 +145,7 @@ public class LinearCombinationTest {
 
     @Test
     public void testInfinite() {
-        final double[][] a = new double[][] {
+        final double[][] a = {
             { 1, 2, 3, 4 },
             { 1, Double.POSITIVE_INFINITY, 3, 4 },
             { 1, 2, Double.POSITIVE_INFINITY, 4 },
@@ -155,7 +155,7 @@ public class LinearCombinationTest {
             { 1, 2, 3, 4 },
             { 1, 2, 3, 4 }
         };
-        final double[][] b = new double[][] {
+        final double[][] b = {
             { 1, -2, 3, 4 },
             { 1, -2, 3, 4 },
             { 1, -2, 3, 4 },
