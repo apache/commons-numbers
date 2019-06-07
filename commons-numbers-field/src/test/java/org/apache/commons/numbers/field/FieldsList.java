@@ -35,9 +35,9 @@ public class FieldsList {
         try {
             // List of fields to test.
             add(new FractionField(),
-                new Fraction(13, 4),
-                new Fraction(5, 29),
-                new Fraction(-279, 11));
+                Fraction.of(13, 4),
+                Fraction.of(5, 29),
+                Fraction.of(-279, 11));
             add(new FP64Field(),
                 new FP64(23.45678901),
                 new FP64(-543.2109876),
