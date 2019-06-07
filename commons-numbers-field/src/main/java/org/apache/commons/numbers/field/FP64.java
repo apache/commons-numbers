@@ -36,8 +36,18 @@ public class FP64 extends Number
     /**
      * @param value Value.
      */
-    public FP64(double value) {
+    private FP64(double value) {
         this.value = value;
+    }
+
+    /**
+     * Factory.
+     *
+     * @param value Value.
+     * @return a new instance.
+     */
+    public static FP64 of(double value) {
+        return new FP64(value);
     }
 
     /** {@inheritDoc} */

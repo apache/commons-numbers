@@ -39,9 +39,9 @@ public class FieldsList {
                 Fraction.of(5, 29),
                 Fraction.of(-279, 11));
             add(new FP64Field(),
-                new FP64(23.45678901),
-                new FP64(-543.2109876),
-                new FP64(-234.5678901));
+                FP64.of(23.45678901),
+                FP64.of(-543.2109876),
+                FP64.of(-234.5678901));
 
         } catch (Exception e) {
             System.err.println("Unexpected exception while creating the list of fields: " + e);
