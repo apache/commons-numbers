@@ -88,11 +88,11 @@ public class BigFractionTest {
         }
     }
 
-    @Test()
+    @Test
     public void testGoldenRatio() {
         // the golden ratio is notoriously a difficult number for continuous fraction
         Assertions.assertThrows(FractionException.class,
-                () -> new BigFraction((1 + Math.sqrt(5)) / 2, 1.0e-12, 25)
+                () -> BigFraction.from((1 + Math.sqrt(5)) / 2, 1.0e-12, 25)
         );
     }
 
@@ -159,18 +159,18 @@ public class BigFractionTest {
     }
 
     // MATH-1029
-    @Test()
+    @Test
     public void testPositiveValueOverflow() {
         Assertions.assertThrows(ArithmeticException.class,
-                () -> assertFraction((long) 1e10, 1, new BigFraction(1e10, 1000))
+                () -> assertFraction((long) 1e10, 1, BigFraction.from(1e10, 1000))
         );
     }
 
     // MATH-1029
-    @Test()
+    @Test
     public void testNegativeValueOverflow() {
         Assertions.assertThrows(ArithmeticException.class,
-                () -> assertFraction((long) -1e10, 1, new BigFraction(-1e10, 1000))
+                () -> assertFraction((long) -1e10, 1, BigFraction.from(-1e10, 1000))
         );
     }
 

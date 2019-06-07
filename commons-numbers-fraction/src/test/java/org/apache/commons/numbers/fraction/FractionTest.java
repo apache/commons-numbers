@@ -62,11 +62,11 @@ public class FractionTest {
         assertFraction(15, 1, Fraction.from(15.0000000000001));
     }
 
-    @Test()
+    @Test
     public void testGoldenRatio() {
         // the golden ratio is notoriously a difficult number for continuous fraction
         Assertions.assertThrows(ArithmeticException.class,
-                () -> new Fraction((1 + Math.sqrt(5)) / 2, 1.0e-12, 25)
+                () -> Fraction.from((1 + Math.sqrt(5)) / 2, 1.0e-12, 25)
         );
     }
 
@@ -644,7 +644,8 @@ public class FractionTest {
         };
         int inc = 0;
         for (Fraction fraction: fractions) {
-            Assert.assertEquals(fraction,Fraction.parse(validExpressions[inc]));
+            Assert.assertEquals(fraction,
+                    Fraction.parse(validExpressions[inc]));
             inc++;
         }
     }
