@@ -225,7 +225,7 @@ public class BrentSolverTest {
             Assert.fail("an out of range condition was expected");
         } catch (SolverException ex) {
             // Ensure expected error condition.
-            Assert.assertFalse(ex.getMessage().indexOf("out of range") == -1);            
+            Assert.assertFalse(ex.getMessage().indexOf("out of range") == -1);
         }
     }
 
