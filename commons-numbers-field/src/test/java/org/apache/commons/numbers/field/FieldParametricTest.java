@@ -18,10 +18,8 @@ package org.apache.commons.numbers.field;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
 /**
  * Tests for fields.
@@ -29,29 +27,20 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(value=Parameterized.class)
 public class FieldParametricTest {
     /** Field under test. */
-    private final Field field;
-    private final Object a;
-    private final Object b;
-    private final Object c;
+    @Parameterized.Parameter(0)
+    private Field field;
+    @Parameterized.Parameter(1)
+    private Object a;
+    @Parameterized.Parameter(2)
+    private Object b;
+    @Parameterized.Parameter(3)
+    private Object c;
 
-    /**
-     * Initializes data instance.
-     *
-     * @param data Field data to be tested.
-     */
-    public FieldParametricTest(FieldTestData data) {
-        this.field = data.getField();
-        this.a = data.getA();
-        this.b = data.getB();
-        this.c = data.getC();
-    }
-
-    @Parameters(name = "{index}: data={0}")
+    @Parameterized.Parameters()
     public static Iterable<FieldTestData[]> getList() {
         return FieldsList.list();
     }
 
-    @ParameterizedTest
     public void testAdditionAssociativity() {
         final Object r1 = field.add(field.add(a, b), c);
         final Object r2 = field.add(a, field.add(b, c));
