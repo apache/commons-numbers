@@ -39,7 +39,7 @@ import org.apache.commons.numbers.core.Precision;
 public class BrentSolver {
     /** Relative accuracy. */
     private final double relativeAccuracy;
-    /** Absolutee accuracy. */
+    /** Absolute accuracy. */
     private final double absoluteAccuracy;
     /** Function accuracy. */
     private final double functionValueAccuracy;
