@@ -625,6 +625,18 @@ public class Fraction
         return str;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public Fraction zero() {
+        return ZERO;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Fraction one() {
+        return ONE;
+    }
+
     /**
      * Parses a string that would be produced by {@link #toString()}
      * and instantiates the corresponding object.
