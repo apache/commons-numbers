@@ -290,7 +290,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * because the double number passed to the constructor is not exactly 1/3
      * (this number cannot be stored exactly in IEEE754).
      * </p>
-     * @see #BigFraction(double, double, int)
+     * @see BigFraction#from(double, double, int)
      * @param value the double value to convert to a fraction.
      * @exception IllegalArgumentException if value is NaN or infinite
      * @return a new instance.
@@ -320,8 +320,9 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * @see #BigFraction(double)
      * @return a new instance.
      */
-    public static BigFraction from(final double value, final double epsilon,
-                       final int maxIterations) {
+    public static BigFraction from(final double value,
+                                   final double epsilon,
+                                   final int maxIterations) {
         return new BigFraction(value, epsilon, Integer.MAX_VALUE, maxIterations);
     }
 
