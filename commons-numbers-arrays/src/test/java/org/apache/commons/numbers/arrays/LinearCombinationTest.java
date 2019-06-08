@@ -36,14 +36,14 @@ public class LinearCombinationTest {
     @Test
     public void testTwoSums() { 
         final BigFraction[] aF = new BigFraction[] {
-            new BigFraction(-1321008684645961L, 268435456L),
-            new BigFraction(-5774608829631843L, 268435456L),
-            new BigFraction(-7645843051051357L, 8589934592L)
+            BigFraction.of(-1321008684645961L, 268435456L),
+            BigFraction.of(-5774608829631843L, 268435456L),
+            BigFraction.of(-7645843051051357L, 8589934592L)
         };
         final BigFraction[] bF = new BigFraction[] {
-            new BigFraction(-5712344449280879L, 2097152L),
-            new BigFraction(-4550117129121957L, 2097152L),
-            new BigFraction(8846951984510141L, 131072L)
+            BigFraction.of(-5712344449280879L, 2097152L),
+            BigFraction.of(-4550117129121957L, 2097152L),
+            BigFraction.of(8846951984510141L, 131072L)
         };
 
         final int len = aF.length;

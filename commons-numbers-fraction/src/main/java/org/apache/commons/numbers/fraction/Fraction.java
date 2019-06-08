@@ -18,6 +18,7 @@ package org.apache.commons.numbers.fraction;
 
 import java.io.Serializable;
 import org.apache.commons.numbers.core.ArithmeticUtils;
+import org.apache.commons.numbers.core.NativeOperators;
 
 /**
  * Representation of a rational number.
@@ -26,7 +27,9 @@ import org.apache.commons.numbers.core.ArithmeticUtils;
  */
 public class Fraction
     extends Number
-    implements Comparable<Fraction>, Serializable {
+    implements Comparable<Fraction>,
+               NativeOperators<Fraction>,
+               Serializable {
 
     /** A fraction representing "1". */
     public static final Fraction ONE = new Fraction(1, 1);

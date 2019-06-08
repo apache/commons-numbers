@@ -35,13 +35,13 @@ public class FieldsList {
         try {
             // List of fields to test.
             add(new FractionField(),
-                new Fraction(13, 4),
-                new Fraction(5, 29),
-                new Fraction(-279, 11));
+                Fraction.of(13, 4),
+                Fraction.of(5, 29),
+                Fraction.of(-279, 11));
             add(new FP64Field(),
-                new FP64(23.45678901),
-                new FP64(-543.2109876),
-                new FP64(-234.5678901));
+                FP64.of(23.45678901),
+                FP64.of(-543.2109876),
+                FP64.of(-234.5678901));
 
         } catch (Exception e) {
             System.err.println("Unexpected exception while creating the list of fields: " + e);
