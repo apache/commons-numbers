@@ -254,7 +254,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * </p>
      *
      * @param num the numerator.
-     * @return {@link BigFraction instance
+     * @return a new instance.
      */
     public static BigFraction of(final BigInteger num) {
         return new BigFraction(num, BigInteger.ONE);
@@ -267,7 +267,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * @param num the numerator, must not be {@code null}.
      * @param den the denominator, must not be {@code null}.
      * @throws ArithmeticException if the denominator is zero.
-     * @return {@link BigFraction instance
+     * @return a new instance.
      */
     public static BigFraction of(BigInteger num, BigInteger den) {
     	return new BigFraction(num, den);
@@ -293,7 +293,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * @see #BigFraction(double, double, int)
      * @param value the double value to convert to a fraction.
      * @exception IllegalArgumentException if value is NaN or infinite
-     * @return {@link BigFraction instance
+     * @return a new instance.
      */
     public static BigFraction from(final double value) throws IllegalArgumentException {
     	return new BigFraction(value);
@@ -318,7 +318,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * @throws ArithmeticException
      *             if the continued fraction failed to converge.
      * @see #BigFraction(double)
-     * @return {@link BigFraction instance
+     * @return a new instance.
      */
     public static BigFraction from(final double value, final double epsilon,
                        final int maxIterations) {
@@ -340,7 +340,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      *            The maximum allowed value for denominator.
      * @throws ArithmeticException
      *             if the continued fraction failed to converge.
-     * @return {@link BigFraction instance
+     * @return a new instance.
      */
     public static BigFraction from(final double value, final int maxDenominator) {
         return new BigFraction(value, 0, maxDenominator, 100);
@@ -354,7 +354,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      *
      * @param num
      *            the numerator.
-     * @return {@link BigFraction instance
+     * @return a new instance.
      */
     public static BigFraction of(final int num) {
         return new BigFraction(BigInteger.valueOf(num), BigInteger.ONE);
@@ -368,7 +368,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      *
      * @param num the numerator.
      * @param den the denominator.
-     * @return {@link BigFraction instance
+     * @return a new instance.
      */
     public static BigFraction of(final int num, final int den) {
         return new BigFraction(BigInteger.valueOf(num), BigInteger.valueOf(den));
@@ -380,7 +380,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * </p>
      *
      * @param num the numerator.
-     * @return {@link BigFraction instance
+     * @return a new instance.
      */
     public static BigFraction of(final long num) {
         return new BigFraction(BigInteger.valueOf(num), BigInteger.ONE);
@@ -394,7 +394,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      *
      * @param num the numerator.
      * @param den the denominator.
-     * @return {@link BigFraction instance
+     * @return a new instance.
      */
     public static BigFraction of(final long num, final long den) {
         return new BigFraction(BigInteger.valueOf(num), BigInteger.valueOf(den));
