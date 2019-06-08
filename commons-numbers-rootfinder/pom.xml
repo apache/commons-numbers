@@ -26,7 +26,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>commons-numbers-root-finder</artifactId>
+  <artifactId>commons-numbers-rootfinder</artifactId>
   <name>Apache Commons Numbers Root Finder</name>
 
   <description>Root finding utilities.</description>
