@@ -20,7 +20,7 @@ package org.apache.commons.numbers.complex.streams;
 import org.apache.commons.numbers.complex.Complex;
 import org.apache.commons.numbers.core.Precision;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * Test utilities.
@@ -49,10 +49,10 @@ class TestUtils {
     public static void assertEquals(String msg, double expected, double actual, double delta) {
         // check for NaN
         if(Double.isNaN(expected)){
-            Assert.assertTrue((msg == null ? "" : msg + "\n") + actual + " is not NaN.",
-                Double.isNaN(actual));
+            Assertions.assertTrue(Double.isNaN(actual),
+                    (msg == null ? "" : msg + "\n") + actual + " is not NaN.");
         } else {
-            Assert.assertEquals(msg, expected, actual, delta);
+            Assertions.assertEquals(expected, actual, delta, msg);
         }
     }
 
@@ -109,7 +109,7 @@ class TestUtils {
      * both NaN or infinities of same sign, or identical floating point values.
      */
     public static void assertSame(double expected, double actual) {
-        Assert.assertEquals(expected, actual, 0);
+        Assertions.assertEquals(expected, actual, 0);
     }
 
     /**
@@ -126,8 +126,8 @@ class TestUtils {
      * differ by at most delta.  Also ensures that NaN / infinite components match.
      */
     public static void assertEquals(Complex expected, Complex actual, double delta) {
-        Assert.assertEquals("Real Values Differ", expected.getReal(), actual.getReal(), delta);
-        Assert.assertEquals("Imaginary Values Differ", expected.getImaginary(), actual.getImaginary(), delta);
+        Assertions.assertEquals(expected.getReal(), actual.getReal(), delta, "Real Values Differ");
+        Assertions.assertEquals(expected.getImaginary(), actual.getImaginary(), delta, "Imaginary Values Differ");
     }
 
     /** verifies that two arrays are close (sup norm) */
@@ -147,7 +147,7 @@ class TestUtils {
             }
         }
         if (failure) {
-            Assert.fail(out.toString());
+            Assertions.fail(out.toString());
         }
     }
 
@@ -200,7 +200,7 @@ class TestUtils {
             }
         }
         if (failure) {
-            Assert.fail(out.toString());
+            Assertions.fail(out.toString());
         }
     }
 
@@ -246,7 +246,7 @@ class TestUtils {
             }
         }
         if (failure) {
-            Assert.fail(out.toString());
+            Assertions.fail(out.toString());
         }
     }
 
@@ -315,7 +315,7 @@ class TestUtils {
             out.append("Arrays not same length. \n");
             out.append("expected has length ").append(expectedLength);
             out.append(" observed has length = ").append(observedLength);
-            Assert.fail(out.toString());
+            Assertions.fail(out.toString());
         }
 
     }
