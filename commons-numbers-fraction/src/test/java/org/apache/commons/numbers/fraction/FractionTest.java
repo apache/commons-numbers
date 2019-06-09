@@ -489,8 +489,8 @@ public class FractionTest {
         assertFraction(1, 1, b.pow(0));
         assertFraction(-3, 7, b.pow(1));
         assertFraction(-7, 3, b.pow(-1));
-        assertFraction(9, 49, a.pow(2));
-        assertFraction(49, 9, a.pow(-2));
+        assertFraction(9, 49, b.pow(2));
+        assertFraction(49, 9, b.pow(-2));
 
         Fraction c = Fraction.of(0, -11);
         assertFraction(0, 1, c.pow(Integer.MAX_VALUE));
