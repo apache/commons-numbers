@@ -379,12 +379,6 @@ public class FractionTest {
             Assert.fail("expecting ArithmeticException");
         } catch (ArithmeticException ex) {}
 
-        try {
-            f= Fraction.of(-Integer.MAX_VALUE, 1);
-            f = f.add(f);
-            Assert.fail("expecting ArithmeticException");
-        } catch (ArithmeticException ex) {}
-
         f1 = Fraction.of(3,327680);
         f2 = Fraction.of(2,59049);
         try {
@@ -627,7 +621,7 @@ public class FractionTest {
             Assert.assertEquals(fraction, TestUtils.serializeAndRecover(fraction));
         }
     }
-    
+
     @Test
     public void testParse() {
         String[] validExpressions = new String[] {
@@ -641,7 +635,7 @@ public class FractionTest {
         };
         int inc = 0;
         for (Fraction fraction: fractions) {
-            Assert.assertEquals(fraction, 
+            Assert.assertEquals(fraction,
                     Fraction.parse(validExpressions[inc]));
             inc++;
         }
