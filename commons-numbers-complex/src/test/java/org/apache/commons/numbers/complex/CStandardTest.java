@@ -17,7 +17,7 @@
 
 package org.apache.commons.numbers.complex;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class CStandardTest {
@@ -64,13 +64,13 @@ public class CStandardTest {
     private static final Complex NAN = Complex.ofCartesian(nan, nan);
 
     public void assertComplex(Complex c1, Complex c2, double realTol, double imagTol) {
-        Assert.assertEquals(c1.getReal(), c2.getReal(), realTol);
-        Assert.assertEquals(c1.getImaginary(), c2.getImaginary(), imagTol);
+        Assertions.assertEquals(c1.getReal(), c2.getReal(), realTol);
+        Assertions.assertEquals(c1.getImaginary(), c2.getImaginary(), imagTol);
     }
 
     public void assertComplex(Complex c1, Complex c2) {
-        Assert.assertEquals(c1.getReal(), c2.getReal(),0.0);
-        Assert.assertEquals(c1.getImaginary(), c2.getImaginary(), 0.0);
+        Assertions.assertEquals(c1.getReal(), c2.getReal(),0.0);
+        Assertions.assertEquals(c1.getImaginary(), c2.getImaginary(), 0.0);
     }
 
 
