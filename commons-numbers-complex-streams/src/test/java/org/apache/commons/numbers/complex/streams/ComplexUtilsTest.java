@@ -307,28 +307,28 @@ public class ComplexUtilsTest {
         return Complex.I.multiply(Complex.ofCartesian(theta, 0)).exp().multiply(Complex.ofCartesian(r, 0));
     }
 
-    @Test()
+    @Test
     public void testPolar2ComplexIllegalModulus() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ComplexUtils.polar2Complex(-1, 0)
         );
     }
 
-    @Test()
+    @Test
     public void testPolar2ComplexIllegalModulus1D() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ComplexUtils.polar2Complex(new double[]{0, -1, 2}, new double[]{0, 1, 2})
         );
     }
 
-    @Test()
+    @Test
     public void testPolar2ComplexIllegalModulus2D() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ComplexUtils.polar2Complex(new double[][]{{0, 2, 2}, {0, -1, 2}}, new double[][]{{0, 1, 2}, {0, 1, 2}})
         );
     }
 
-    @Test()
+    @Test
     public void testPolar2ComplexIllegalModulus3D() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ComplexUtils.polar2Complex(new double[][][]{{{0, 2, 2}}, {{0, -1, 2}}}, new double[][][]{{{0, 1, 2}}, {{0, 1, 2}}})
@@ -487,63 +487,63 @@ public class ComplexUtilsTest {
 
     // INTERLEAVED <-> COMPLEX
 
-    @Test()
+    @Test
     public void testComplex2InterleavedIllegalIndex2Dmin() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> ComplexUtils.complex2Interleaved(c2d, -1)
         );
     }
 
-    @Test()
+    @Test
     public void testComplex2InterleavedIllegalIndex2Dmax() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> ComplexUtils.complex2Interleaved(c2d, 2)
         );
     }
 
-    @Test()
+    @Test
     public void testComplex2InterleavedIllegalIndex3Dmin() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ComplexUtils.complex2Interleaved(c3d, -1)
         );
     }
 
-    @Test()
+    @Test
     public void testComplex2InterleavedIllegalIndex3Dmax() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ComplexUtils.complex2Interleaved(c3d, 3)
         );
     }
 
-    @Test()
+    @Test
     public void testComplex2InterleavedIllegalIndex4Dmin() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ComplexUtils.complex2Interleaved(c4d, -1)
         );
     }
 
-    @Test()
+    @Test
     public void testComplex2InterleavedIllegalIndex4Dmax() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ComplexUtils.complex2Interleaved(c4d, 4)
         );
     }
 
-    @Test()
+    @Test
     public void testComplex2InterleavedFloatIllegalIndex2Dmin() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ComplexUtils.complex2InterleavedFloat(c2d, -1)
         );
     }
 
-    @Test()
+    @Test
     public void testComplex2InterleavedFloatIllegalIndex2Dmax() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ComplexUtils.complex2InterleavedFloat(c2d, 2)
         );
     }
 
-    @Test()
+    @Test
     public void testComplex2InterleavedFloatIllegalIndex3Dmin()
     {
         Assertions.assertThrows(IllegalArgumentException.class,
@@ -551,7 +551,7 @@ public class ComplexUtilsTest {
         );
     }
 
-    @Test()
+    @Test
     public void testComplex2InterleavedFloatIllegalIndex3Dmax()
     {
         Assertions.assertThrows(IllegalArgumentException.class,
@@ -559,28 +559,28 @@ public class ComplexUtilsTest {
         );
     }
 
-    @Test()
+    @Test
     public void testInterleaved2ComplexIllegalIndex2Dmin() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ComplexUtils.interleaved2Complex(di2d0, -1)
         );
     }
 
-    @Test()
+    @Test
     public void testInterleaved2ComplexIllegalIndex2Dmax() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ComplexUtils.interleaved2Complex(di2d0, 2)
         );
     }
 
-    @Test()
+    @Test
     public void testInterleaved2ComplexIllegalIndex3Dmin() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ComplexUtils.interleaved2Complex(di3d0, -1)
         );
     }
 
-    @Test()
+    @Test
     public void testInterleaved2ComplexIllegalIndex3Dmax()
     {
         Assertions.assertThrows(IllegalArgumentException.class,
@@ -588,42 +588,42 @@ public class ComplexUtilsTest {
         );
     }
 
-    @Test()
+    @Test
     public void testInterleaved2ComplexIllegalIndex4Dmin() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ComplexUtils.interleaved2Complex(di4d0, -1)
         );
     }
 
-    @Test()
+    @Test
     public void testInterleaved2ComplexIllegalIndex4Dmax() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ComplexUtils.interleaved2Complex(di4d0, 4)
         );
     }
 
-    @Test()
+    @Test
     public void testInterleaved2ComplexFloatIllegalIndex2Dmin() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> ComplexUtils.interleaved2Complex(fi2d0, -1)
         );
     }
 
-    @Test()
+    @Test
     public void testInterleaved2ComplexFloatIllegalIndex2Dmax() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ComplexUtils.interleaved2Complex(fi2d0, 2)
         );
     }
 
-    @Test()
+    @Test
     public void testInterleaved2ComplexFloatIllegalIndex3Dmin() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> ComplexUtils.interleaved2Complex(fi3d0, -1)
         );
     }
 
-    @Test()
+    @Test
     public void testInterleaved2ComplexFloatIllegalIndex3Dmax()
     {
         Assertions.assertThrows(IllegalArgumentException.class,
