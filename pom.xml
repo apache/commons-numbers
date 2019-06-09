@@ -628,6 +628,7 @@
     <module>commons-numbers-combinatorics</module>
     <module>commons-numbers-arrays</module>
     <module>commons-numbers-field</module>
+    <module>commons-numbers-rootfinder</module>
   </modules>
 
 </project>
