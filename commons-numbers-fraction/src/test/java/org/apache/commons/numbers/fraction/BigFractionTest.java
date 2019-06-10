@@ -596,22 +596,22 @@ public class BigFractionTest {
     public void testEqualsAndHashCode() {
         BigFraction zero = BigFraction.of(0, 1);
         BigFraction nullFraction = null;
-        Assert.assertEquals(zero, zero);
-        Assert.assertNotEquals(zero, nullFraction);
-        Assert.assertNotEquals(zero, Double.valueOf(0), 0.0);
+        Assertions.assertEquals(zero, zero);
+        Assertions.assertNotEquals(nullFraction, zero);
+        Assertions.assertNotEquals(0.0d, zero);
         BigFraction zero2 = BigFraction.of(0, 2);
-        Assert.assertEquals(zero, zero2);
+        Assertions.assertEquals(zero, zero2);
         Assertions.assertEquals(zero.hashCode(), zero2.hashCode());
         BigFraction one = BigFraction.of(1, 1);
         Assertions.assertFalse((one.equals(zero) || zero.equals(one)));
-        Assert.assertEquals(one, BigFraction.ONE);
+        Assertions.assertEquals(BigFraction.ONE, one);
     }
 
     @Test
     public void testGetReducedFraction() {
         BigFraction threeFourths = BigFraction.of(3, 4);
-        Assert.assertEquals(threeFourths, BigFraction.getReducedFraction(6, 8));
-        Assert.assertEquals(BigFraction.ZERO, BigFraction.getReducedFraction(0, -1));
+        Assertions.assertEquals(threeFourths, BigFraction.getReducedFraction(6, 8));
+        Assertions.assertEquals(BigFraction.ZERO, BigFraction.getReducedFraction(0, -1));
         try {
             BigFraction.getReducedFraction(1, 0);
             Assertions.fail("expecting ArithmeticException");
