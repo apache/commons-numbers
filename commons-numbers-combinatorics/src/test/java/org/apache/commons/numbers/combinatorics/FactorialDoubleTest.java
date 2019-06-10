@@ -105,9 +105,10 @@ public class FactorialDoubleTest {
 
     @Test
     public void testUselessCache() {
-        // Ensure that no exception is thrown.
-        LogFactorial.create().withCache(1);
-        LogFactorial.create().withCache(2);
+        Assertions.assertDoesNotThrow(() -> {
+            LogFactorial.create().withCache(1);
+            LogFactorial.create().withCache(2);
+        });
     }
 
     @Test
