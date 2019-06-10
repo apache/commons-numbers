@@ -159,7 +159,7 @@ public class BrentSolverTest {
         } catch (IllegalStateException ex) {
             // Expected.
             // Ensure expected error condition.
-            Assertions.assertFalse(ex.getMessage().indexOf("too many calls") == -1);
+            Assertions.assertNotEquals(ex.getMessage().indexOf("too many calls"), -1);
         }
     }
 
@@ -195,21 +195,21 @@ public class BrentSolverTest {
             Assertions.fail("Expecting bad interval condition");
         } catch (SolverException ex) {
             // Ensure expected error condition.
-            Assertions.assertFalse(ex.getMessage().indexOf(" > ") == -1);
+            Assertions.assertNotEquals(ex.getMessage().indexOf(" > "), -1);
         }
         try {  // No bracketing.
             solver.findRoot(f, 1, 1.5);
             Assertions.fail("Expecting non-bracketing condition");
         } catch (SolverException ex) {
             // Ensure expected error condition.
-            Assertions.assertFalse(ex.getMessage().indexOf("No bracketing") == -1);
+            Assertions.assertNotEquals(ex.getMessage().indexOf("No bracketing"), -1);
         }
         try {  // No bracketing.
             solver.findRoot(f, 1, 1.2, 1.5);
             Assertions.fail("Expecting non-bracketing condition");
         } catch (SolverException ex) {
             // Ensure expected error condition.
-            Assertions.assertFalse(ex.getMessage().indexOf("No bracketing") == -1);
+            Assertions.assertNotEquals(ex.getMessage().indexOf("No bracketing"), -1);
         }
     }
 
@@ -226,7 +226,7 @@ public class BrentSolverTest {
             Assertions.fail("an out of range condition was expected");
         } catch (SolverException ex) {
             // Ensure expected error condition.
-            Assertions.assertFalse(ex.getMessage().indexOf("out of range") == -1);
+            Assertions.assertNotEquals(ex.getMessage().indexOf("out of range"), -1);
         }
     }
 

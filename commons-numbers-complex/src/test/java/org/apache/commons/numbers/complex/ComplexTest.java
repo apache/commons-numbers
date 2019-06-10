@@ -384,7 +384,7 @@ public class ComplexTest {
     @Test
     public void testEqualsNull() {
         Complex x = Complex.ofCartesian(3.0, 4.0);
-        Assertions.assertFalse(x.equals(null));
+        Assertions.assertNotEquals(null, x);
     }
 
     @Test
@@ -404,13 +404,13 @@ public class ComplexTest {
     @Test
     public void testEqualsClass() {
         Complex x = Complex.ofCartesian(3.0, 4.0);
-        Assertions.assertFalse(x.equals(this));
+        Assertions.assertNotEquals(x, this);
     }
 
     @Test
     public void testEqualsSame() {
         Complex x = Complex.ofCartesian(3.0, 4.0);
-        Assertions.assertTrue(x.equals(x));
+        Assertions.assertEquals(x, x);
     }
 
     @Test
@@ -421,7 +421,7 @@ public class ComplexTest {
         final Complex x = Complex.ofCartesian(re, im);
         Complex y = Complex.ofCartesian(re, im);
 
-        Assertions.assertTrue(x.equals(y));
+        Assertions.assertEquals(x, y);
         Assertions.assertTrue(Complex.equals(x, y));
 
         final int maxUlps = 5;
@@ -494,30 +494,30 @@ public class ComplexTest {
     public void testEqualsTrue() {
         Complex x = Complex.ofCartesian(3.0, 4.0);
         Complex y = Complex.ofCartesian(3.0, 4.0);
-        Assertions.assertTrue(x.equals(y));
+        Assertions.assertEquals(x, y);
     }
 
     @Test
     public void testEqualsRealDifference() {
         Complex x = Complex.ofCartesian(0.0, 0.0);
         Complex y = Complex.ofCartesian(0.0 + Double.MIN_VALUE, 0.0);
-        Assertions.assertFalse(x.equals(y));
+        Assertions.assertNotEquals(x, y);
     }
 
     @Test
     public void testEqualsImaginaryDifference() {
         Complex x = Complex.ofCartesian(0.0, 0.0);
         Complex y = Complex.ofCartesian(0.0, 0.0 + Double.MIN_VALUE);
-        Assertions.assertFalse(x.equals(y));
+        Assertions.assertNotEquals(x, y);
     }
 
     @Test
     public void testHashCode() {
         Complex x = Complex.ofCartesian(0.0, 0.0);
         Complex y = Complex.ofCartesian(0.0, 0.0 + Double.MIN_VALUE);
-        Assertions.assertFalse(x.hashCode()==y.hashCode());
+        Assertions.assertNotEquals(x.hashCode(), y.hashCode());
         y = Complex.ofCartesian(0.0 + Double.MIN_VALUE, 0.0);
-        Assertions.assertFalse(x.hashCode()==y.hashCode());
+        Assertions.assertNotEquals(x.hashCode(), y.hashCode());
         Complex realNaN = Complex.ofCartesian(Double.NaN, 0.0);
         Complex imaginaryNaN = Complex.ofCartesian(0.0, Double.NaN);
         Assertions.assertEquals(realNaN.hashCode(), imaginaryNaN.hashCode());
@@ -531,12 +531,12 @@ public class ComplexTest {
         x = Complex.ofCartesian(0.0, 0.0);
         y = Complex.ofCartesian(0.0, -0.0);
         Assertions.assertTrue(x.hashCode() != y.hashCode());
-        Assertions.assertFalse(x.equals(y), msg);
+        Assertions.assertNotEquals(x, y, msg);
 
         x = Complex.ofCartesian(0.0, 0.0);
         y = Complex.ofCartesian(-0.0, 0.0);
         Assertions.assertTrue(x.hashCode() != y.hashCode());
-        Assertions.assertFalse(x.equals(y), msg);
+        Assertions.assertNotEquals(x, y, msg);
     }
 
     @Test
@@ -840,16 +840,16 @@ public class ComplexTest {
 
     @Test
     public void testParse() {
-        Assertions.assertTrue(Complex.ZERO.equals(Complex.parse(Complex.ZERO.toString())));
-        Assertions.assertTrue(Complex.ONE.equals(Complex.parse(Complex.ONE.toString())));
-        Assertions.assertTrue(Complex.I.equals(Complex.parse(Complex.I.toString())));
-        Assertions.assertTrue(Complex.INF.equals(Complex.parse(Complex.INF.toString())));
-        Assertions.assertTrue(NAN.equals(Complex.parse(NAN.toString())));
-        Assertions.assertTrue(oneInf.equals(Complex.parse(oneInf.toString())));
-        Assertions.assertTrue(negInfZero.equals(Complex.parse(negInfZero.toString())));
-        Assertions.assertTrue(Complex.ofReal(pi).equals(Complex.parse(Complex.ofReal(pi).toString())));
-        Assertions.assertTrue(Complex.ofPolar(2, pi).equals(Complex.parse(Complex.ofPolar(2, pi).toString())));
-        Assertions.assertTrue(Complex.ofCis(pi).equals(Complex.parse(Complex.ofCis(pi).toString())));
+        Assertions.assertEquals(Complex.ZERO, Complex.parse(Complex.ZERO.toString()));
+        Assertions.assertEquals(Complex.ONE, Complex.parse(Complex.ONE.toString()));
+        Assertions.assertEquals(Complex.I, Complex.parse(Complex.I.toString()));
+        Assertions.assertEquals(Complex.INF, Complex.parse(Complex.INF.toString()));
+        Assertions.assertEquals(NAN, Complex.parse(NAN.toString()));
+        Assertions.assertEquals(oneInf, Complex.parse(oneInf.toString()));
+        Assertions.assertEquals(negInfZero, Complex.parse(negInfZero.toString()));
+        Assertions.assertEquals(Complex.ofReal(pi), Complex.parse(Complex.ofReal(pi).toString()));
+        Assertions.assertEquals(Complex.ofPolar(2, pi), Complex.parse(Complex.ofPolar(2, pi).toString()));
+        Assertions.assertEquals(Complex.ofCis(pi), Complex.parse(Complex.ofCis(pi).toString()));
     }
 
     @Test
@@ -900,6 +900,6 @@ public class ComplexTest {
         final double re = 1.234;
         final double im = 5.678;
         final String str = "(  " + re + "  , " + im + "     )";
-        Assertions.assertTrue(Complex.ofCartesian(re, im).equals(Complex.parse(str)));
+        Assertions.assertEquals(Complex.ofCartesian(re, im), Complex.parse(str));
     }
 }

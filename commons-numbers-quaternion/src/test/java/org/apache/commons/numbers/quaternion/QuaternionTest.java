@@ -35,16 +35,16 @@ public class QuaternionTest {
     @Test
     public void testUnitQuaternions() {
         Assertions.assertEquals(1, Quaternion.ONE.norm(), 0d);
-        Assertions.assertTrue(Quaternion.ONE.normalize() == Quaternion.ONE);
+        Assertions.assertSame(Quaternion.ONE.normalize(), Quaternion.ONE);
 
         Assertions.assertEquals(1, Quaternion.I.norm(), 0d);
-        Assertions.assertTrue(Quaternion.I.normalize() == Quaternion.I);
+        Assertions.assertSame(Quaternion.I.normalize(), Quaternion.I);
 
         Assertions.assertEquals(1, Quaternion.J.norm(), 0d);
-        Assertions.assertTrue(Quaternion.J.normalize() == Quaternion.J);
+        Assertions.assertSame(Quaternion.J.normalize(), Quaternion.J);
 
         Assertions.assertEquals(1, Quaternion.K.norm(), 0d);
-        Assertions.assertTrue(Quaternion.K.normalize() == Quaternion.K);
+        Assertions.assertSame(Quaternion.K.normalize(), Quaternion.K);
     }
 
     @Test
@@ -330,7 +330,7 @@ public class QuaternionTest {
 
         Assertions.assertEquals(1, versor.norm(), 0);
 
-        Assertions.assertTrue(versor.normalize() == versor);
+        Assertions.assertSame(versor.normalize(), versor);
     }
 
     @Test
@@ -370,24 +370,24 @@ public class QuaternionTest {
     public final void testObjectEquals() {
         final double one = 1;
         final Quaternion q1 = Quaternion.of(one, one, one, one);
-        Assertions.assertTrue(q1.equals(q1));
+        Assertions.assertEquals(q1, q1);
 
         final Quaternion q2 = Quaternion.of(one, one, one, one);
-        Assertions.assertTrue(q2.equals(q1));
+        Assertions.assertEquals(q2, q1);
 
         final Quaternion q3 = Quaternion.of(one, Math.nextUp(one), one, one);
-        Assertions.assertFalse(q3.equals(q1));
+        Assertions.assertNotEquals(q3, q1);
 
-        Assertions.assertFalse(q3.equals("bar"));
+        Assertions.assertNotEquals("bar", q3);
     }
 
     @Test
     public void testHashCode() {
         Quaternion x = Quaternion.of(0.0, 0.0, 0.0, 0.0);
         Quaternion y = Quaternion.of(0.0, 0.0 + Double.MIN_VALUE, 0.0, 0.0);
-        Assertions.assertFalse(x.hashCode()==y.hashCode());
+        Assertions.assertNotEquals(x.hashCode(), y.hashCode());
         y = Quaternion.of(0.0 + Double.MIN_VALUE, 0.0, 0.0, 0.0);
-        Assertions.assertFalse(x.hashCode()==y.hashCode());
+        Assertions.assertNotEquals(x.hashCode(), y.hashCode());
 
         // "equals" and "hashCode" must be compatible: if two objects have
         // different hash codes, "equals" must return false.
@@ -396,22 +396,22 @@ public class QuaternionTest {
         x = Quaternion.of(0.0, 0.0, 0.0, 0.0);
         y = Quaternion.of(-0.0, 0.0, 0.0, 0.0);
         Assertions.assertTrue(x.hashCode() != y.hashCode());
-        Assertions.assertFalse(x.equals(y), msg);
+        Assertions.assertNotEquals(x, y, msg);
 
         x = Quaternion.of(0.0, 0.0, 0.0, 0.0);
         y = Quaternion.of(0.0, -0.0, 0.0, 0.0);
         Assertions.assertTrue(x.hashCode() != y.hashCode());
-        Assertions.assertFalse(x.equals(y), msg);
+        Assertions.assertNotEquals(x, y, msg);
 
         x = Quaternion.of(0.0, 0.0, 0.0, 0.0);
         y = Quaternion.of(0.0, 0.0, -0.0, 0.0);
         Assertions.assertTrue(x.hashCode() != y.hashCode());
-        Assertions.assertFalse(x.equals(y), msg);
+        Assertions.assertNotEquals(x, y, msg);
 
         x = Quaternion.of(0.0, 0.0, 0.0, 0.0);
         y = Quaternion.of(0.0, 0.0, 0.0, -0.0);
         Assertions.assertTrue(x.hashCode() != y.hashCode());
-        Assertions.assertFalse(x.equals(y), msg);
+        Assertions.assertNotEquals(x, y, msg);
     }
 
     @Test
@@ -485,7 +485,7 @@ public class QuaternionTest {
         Quaternion expected = Quaternion.of(0.5, -0.5, -0.5, 0.5);
         assertEquals(q, expected, EPS);
 
-        Assertions.assertTrue(q.positivePolarForm() == q);
+        Assertions.assertSame(q.positivePolarForm(), q);
     }
 
     @Test
@@ -494,7 +494,7 @@ public class QuaternionTest {
         Quaternion expected = Quaternion.of(0.5, -0.5, 0.5, -0.5);
         assertEquals(q, expected, EPS);
 
-        Assertions.assertTrue(q.positivePolarForm() == q);
+        Assertions.assertSame(q.positivePolarForm(), q);
     }
 
     @Test
@@ -502,7 +502,7 @@ public class QuaternionTest {
         Quaternion q = Quaternion.of(123, 45, 67, 89).normalize().positivePolarForm();
 
         Assertions.assertTrue(q.getW() >= 0);
-        Assertions.assertTrue(q.positivePolarForm() == q);
+        Assertions.assertSame(q.positivePolarForm(), q);
     }
 
     @Test
@@ -510,7 +510,7 @@ public class QuaternionTest {
         Quaternion q = Quaternion.of(123, 45, 67, 89).normalize().negate().positivePolarForm();
 
         Assertions.assertTrue(q.getW() >= 0);
-        Assertions.assertTrue(q.positivePolarForm() == q);
+        Assertions.assertSame(q.positivePolarForm(), q);
     }
 
     @Test

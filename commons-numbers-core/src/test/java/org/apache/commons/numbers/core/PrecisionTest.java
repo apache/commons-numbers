@@ -64,8 +64,8 @@ public class PrecisionTest {
                     Assertions.assertTrue(Precision.equalsIncludingNaN(testArray[i], testArray[j]));
                     Assertions.assertTrue(Precision.equalsIncludingNaN(testArray[j], testArray[i]));
                 } else {
-                    Assertions.assertTrue(!Precision.equalsIncludingNaN(testArray[i], testArray[j]));
-                    Assertions.assertTrue(!Precision.equalsIncludingNaN(testArray[j], testArray[i]));
+                    Assertions.assertFalse(Precision.equalsIncludingNaN(testArray[i], testArray[j]));
+                    Assertions.assertFalse(Precision.equalsIncludingNaN(testArray[j], testArray[i]));
                 }
             }
         }
@@ -417,10 +417,10 @@ public class PrecisionTest {
                                                    Double.POSITIVE_INFINITY);
 
         // a) 1 + EPSILON is equal to 1.
-        Assertions.assertTrue(1 + Precision.EPSILON == 1);
+        Assertions.assertEquals(1, 1 + Precision.EPSILON);
 
         // b) 1 + "the number after EPSILON" is not equal to 1.
-        Assertions.assertFalse(1 + afterEpsilon == 1);
+        Assertions.assertNotEquals(1, 1 + afterEpsilon, 0.0);
     }
 
     @Test

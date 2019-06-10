@@ -596,22 +596,22 @@ public class BigFractionTest {
     public void testEqualsAndHashCode() {
         BigFraction zero = BigFraction.of(0, 1);
         BigFraction nullFraction = null;
-        Assert.assertTrue(zero.equals(zero));
-        Assert.assertFalse(zero.equals(nullFraction));
-        Assert.assertFalse(zero.equals(Double.valueOf(0)));
+        Assert.assertEquals(zero, zero);
+        Assert.assertNotEquals(zero, nullFraction);
+        Assert.assertNotEquals(zero, Double.valueOf(0), 0.0);
         BigFraction zero2 = BigFraction.of(0, 2);
-        Assert.assertTrue(zero.equals(zero2));
+        Assert.assertEquals(zero, zero2);
         Assert.assertEquals(zero.hashCode(), zero2.hashCode());
         BigFraction one = BigFraction.of(1, 1);
         Assert.assertFalse((one.equals(zero) || zero.equals(one)));
-        Assert.assertTrue(one.equals(BigFraction.ONE));
+        Assert.assertEquals(one, BigFraction.ONE);
     }
 
     @Test
     public void testGetReducedFraction() {
         BigFraction threeFourths = BigFraction.of(3, 4);
-        Assert.assertTrue(threeFourths.equals(BigFraction.getReducedFraction(6, 8)));
-        Assert.assertTrue(BigFraction.ZERO.equals(BigFraction.getReducedFraction(0, -1)));
+        Assert.assertEquals(threeFourths, BigFraction.getReducedFraction(6, 8));
+        Assert.assertEquals(BigFraction.ZERO, BigFraction.getReducedFraction(0, -1));
         try {
             BigFraction.getReducedFraction(1, 0);
             Assert.fail("expecting ArithmeticException");

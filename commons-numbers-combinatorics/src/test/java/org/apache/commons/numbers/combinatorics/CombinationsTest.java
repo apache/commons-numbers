@@ -175,7 +175,7 @@ public class CombinationsTest {
 
             // Check that the sequence of iterates is ordered.
             if (lastIterate != null) {
-                Assertions.assertTrue(comp.compare(iterate, lastIterate) == 1);
+                Assertions.assertEquals(1, comp.compare(iterate, lastIterate));
             }
 
             // Check that each iterate is ordered.

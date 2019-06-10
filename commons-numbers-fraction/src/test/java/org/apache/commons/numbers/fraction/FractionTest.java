@@ -247,11 +247,11 @@ public class FractionTest {
     public void testMath1261() {
         final Fraction a = Fraction.of(Integer.MAX_VALUE, 2);
         final Fraction b = a.multiply(2);
-        Assert.assertTrue(b.equals(Fraction.of(Integer.MAX_VALUE)));
+        Assert.assertEquals(b, Fraction.of(Integer.MAX_VALUE));
 
         final Fraction c = Fraction.of(2, Integer.MAX_VALUE);
         final Fraction d = c.divide(2);
-        Assert.assertTrue(d.equals(Fraction.of(1, Integer.MAX_VALUE)));
+        Assert.assertEquals(d, Fraction.of(1, Integer.MAX_VALUE));
     }
 
     @Test
@@ -583,11 +583,11 @@ public class FractionTest {
     public void testEqualsAndHashCode() {
         Fraction zero  = Fraction.of(0,1);
         Fraction nullFraction = null;
-        Assert.assertTrue( zero.equals(zero));
-        Assert.assertFalse(zero.equals(nullFraction));
-        Assert.assertFalse(zero.equals(Double.valueOf(0)));
+        Assert.assertEquals(zero, zero);
+        Assert.assertNotEquals(zero, nullFraction);
+        Assert.assertNotEquals(zero, Double.valueOf(0), 0.0);
         Fraction zero2 = Fraction.of(0,2);
-        Assert.assertTrue(zero.equals(zero2));
+        Assert.assertEquals(zero, zero2);
         Assert.assertEquals(zero.hashCode(), zero2.hashCode());
         Fraction one = Fraction.of(1,1);
         Assert.assertFalse((one.equals(zero) ||zero.equals(one)));
@@ -596,8 +596,8 @@ public class FractionTest {
     @Test
     public void testGetReducedFraction() {
         Fraction threeFourths = Fraction.of(3, 4);
-        Assert.assertTrue(threeFourths.equals(Fraction.getReducedFraction(6, 8)));
-        Assert.assertTrue(Fraction.ZERO.equals(Fraction.getReducedFraction(0, -1)));
+        Assert.assertEquals(threeFourths, Fraction.getReducedFraction(6, 8));
+        Assert.assertEquals(Fraction.ZERO, Fraction.getReducedFraction(0, -1));
         try {
             Fraction.getReducedFraction(1, 0);
             Assert.fail("expecting ArithmeticException");
