@@ -37,7 +37,7 @@ public class BinomialCoefficientTest {
     /** Verify that b(0,0) = 1 */
     @Test
     public void test0Choose0() {
-        Assertions.assertEquals(BinomialCoefficient.value(0, 0), 1);
+        Assertions.assertEquals(1, BinomialCoefficient.value(0, 0));
     }
 
     @Test

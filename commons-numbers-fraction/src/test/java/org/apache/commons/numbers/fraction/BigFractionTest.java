@@ -618,8 +618,8 @@ public class BigFractionTest {
         } catch (ArithmeticException ex) {
             // expected
         }
-        Assert.assertEquals(BigFraction.getReducedFraction(2, Integer.MIN_VALUE).getNumeratorAsInt(), -1);
-        Assert.assertEquals(BigFraction.getReducedFraction(1, -1).getNumeratorAsInt(), -1);
+        Assert.assertEquals(-1, BigFraction.getReducedFraction(2, Integer.MIN_VALUE).getNumeratorAsInt());
+        Assert.assertEquals(-1, BigFraction.getReducedFraction(1, -1).getNumeratorAsInt());
     }
 
     @Test

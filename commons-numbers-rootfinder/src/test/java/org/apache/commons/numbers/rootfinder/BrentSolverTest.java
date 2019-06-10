@@ -42,13 +42,13 @@ public class BrentSolverTest {
         // Somewhat benign interval. The function is monotonous.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, 3, 4);
-        Assertions.assertEquals(result, Math.PI, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertEquals(Math.PI, result, DEFAULT_ABSOLUTE_ACCURACY);
         Assertions.assertTrue(f.getCallsCount() <= 7);
 
         // Larger and somewhat less benign interval. The function is grows first.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, 1, 4);
-        Assertions.assertEquals(result, Math.PI, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertEquals(Math.PI, result, DEFAULT_ABSOLUTE_ACCURACY);
         Assertions.assertTrue(f.getCallsCount() <= 8);
     }
 
@@ -73,21 +73,21 @@ public class BrentSolverTest {
         // the root in the first iteration.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, -0.2, 0.2);
-        Assertions.assertEquals(result, 0, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertEquals(0, result, DEFAULT_ABSOLUTE_ACCURACY);
         Assertions.assertTrue(f.getCallsCount() <= 3);
 
         // 1 iterations on i586 JDK 1.4.1.
         // Asymmetric bracket around 0. Contains extremum.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, -0.1, 0.3);
-        Assertions.assertEquals(result, 0, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertEquals(0, result, DEFAULT_ABSOLUTE_ACCURACY);
         // 5 iterations on i586 JDK 1.4.1.
         Assertions.assertTrue(f.getCallsCount() <= 7);
 
         // Large bracket around 0. Contains two extrema.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, -0.3, 0.45);
-        Assertions.assertEquals(result, 0, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertEquals(0, result, DEFAULT_ABSOLUTE_ACCURACY);
         // 6 iterations on i586 JDK 1.4.1.
         Assertions.assertTrue(f.getCallsCount() <= 8);
 

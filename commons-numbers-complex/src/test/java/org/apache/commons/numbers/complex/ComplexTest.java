@@ -96,7 +96,7 @@ public class ComplexTest {
         Complex x = Complex.ofCartesian(1, 1);
         Complex z = Complex.ofCartesian(inf, 0);
         Complex w = x.add(z);
-        Assertions.assertEquals(w.getImaginary(), 1, 0);
+        Assertions.assertEquals(1, w.getImaginary(), 0);
         Assertions.assertEquals(inf, w.getReal(), 0);
 
         x = Complex.ofCartesian(neginf, 0);
@@ -182,14 +182,14 @@ public class ComplexTest {
     public void testDivideZero() {
         Complex x = Complex.ofCartesian(3.0, 4.0);
         Complex z = x.divide(Complex.ZERO);
-        Assertions.assertEquals(z, Complex.INF);
+        Assertions.assertEquals(Complex.INF, z);
     }
 
     @Test
     public void testDivideZeroZero() {
         Complex x = Complex.ofCartesian(0.0, 0.0);
         Complex z = x.divide(Complex.ZERO);
-        Assertions.assertEquals(z, NAN);
+        Assertions.assertEquals(NAN, z);
     }
 
     @Test
@@ -346,7 +346,7 @@ public class ComplexTest {
         Complex x = Complex.ofCartesian(1, 1);
         Complex z = Complex.ofCartesian(neginf, 0);
         Complex w = x.subtract(z);
-        Assertions.assertEquals(w.getImaginary(), 1, 0);
+        Assertions.assertEquals(1, w.getImaginary(), 0);
         Assertions.assertEquals(inf, w.getReal(), 0);
 
         x = Complex.ofCartesian(neginf, 0);
