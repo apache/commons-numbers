@@ -14,6 +14,7 @@
 package org.apache.commons.numbers.arrays;
 
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -26,24 +27,24 @@ public class CosAngleTest {
 
         final double[] v1 = { 1, 0 };
         expected = 1;
-        Assert.assertEquals(expected, CosAngle.value(v1, v1), 0d);
+        Assertions.assertEquals(expected, CosAngle.value(v1, v1), 0d);
 
         final double[] v2 = { 0, 1 };
         expected = 0;
-        Assert.assertEquals(expected, CosAngle.value(v1, v2), 0d);
+        Assertions.assertEquals(expected, CosAngle.value(v1, v2), 0d);
 
         final double[] v3 = { 7, 7 };
         expected = Math.sqrt(2) / 2;
-        Assert.assertEquals(expected, CosAngle.value(v1, v3), 1e-15);
-        Assert.assertEquals(expected, CosAngle.value(v3, v2), 1e-15);
+        Assertions.assertEquals(expected, CosAngle.value(v1, v3), 1e-15);
+        Assertions.assertEquals(expected, CosAngle.value(v3, v2), 1e-15);
 
         final double[] v4 = { -5, 0 };
         expected = -1;
-        Assert.assertEquals(expected, CosAngle.value(v1, v4), 0);
+        Assertions.assertEquals(expected, CosAngle.value(v1, v4), 0);
 
         final double[] v5 = { -100, 100 };
         expected = 0;
-        Assert.assertEquals(expected, CosAngle.value(v3, v5), 0);
+        Assertions.assertEquals(expected, CosAngle.value(v3, v5), 0);
     }
 
     @Test
@@ -52,11 +53,11 @@ public class CosAngleTest {
 
         final double[] v1 = { 1, 1, 0 };
         expected = 1;
-        Assert.assertEquals(expected, CosAngle.value(v1, v1), 1e-15);
+        Assertions.assertEquals(expected, CosAngle.value(v1, v1), 1e-15);
 
         final double[] v2 = { 1, 1, 1 };
         expected = Math.sqrt(2) / Math.sqrt(3);
-        Assert.assertEquals(expected, CosAngle.value(v1, v2), 1e-15);
+        Assertions.assertEquals(expected, CosAngle.value(v1, v2), 1e-15);
     }
 
     @Test
@@ -68,10 +69,10 @@ public class CosAngleTest {
         final double big = 1e200;
         final double[] v2 = { -big, -big };
         expected = -1;
-        Assert.assertEquals(expected, CosAngle.value(v1, v2), 1e-15);
+        Assertions.assertEquals(expected, CosAngle.value(v1, v2), 1e-15);
 
         final double[] v3 = { big, -big };
         expected = 0;
-        Assert.assertEquals(expected, CosAngle.value(v1, v3), 1e-15);
+        Assertions.assertEquals(expected, CosAngle.value(v1, v3), 1e-15);
     }
 }

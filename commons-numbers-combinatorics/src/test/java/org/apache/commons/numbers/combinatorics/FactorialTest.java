@@ -26,13 +26,13 @@ import org.junit.jupiter.api.Test;
 public class FactorialTest {
     @Test
     public void testFactorialZero() {
-        Assert.assertEquals("0!", 1, Factorial.value(0));
+        Assertions.assertEquals(1, Factorial.value(0), "0!");
     }
 
     @Test
     public void testFactorial() {
         for (int i = 1; i < 21; i++) {
-            Assert.assertEquals(i + "!", factorial(i), Factorial.value(i));
+            Assertions.assertEquals(factorial(i), Factorial.value(i), i + "!");
         }
     }
 

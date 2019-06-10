@@ -14,6 +14,7 @@
 package org.apache.commons.numbers.arrays;
 
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -25,28 +26,28 @@ public class SafeNormTest {
     public void testTiny() {
         final double s = 1e-320;
         final double[] v = new double[] { s, s };
-        Assert.assertEquals(Math.sqrt(2) * s, SafeNorm.value(v), 0d);
+        Assertions.assertEquals(Math.sqrt(2) * s, SafeNorm.value(v), 0d);
     }
 
     @Test
     public void testBig() {
         final double s = 1e300;
         final double[] v = new double[] { s, s };
-        Assert.assertEquals(Math.sqrt(2) * s, SafeNorm.value(v), 0d);
+        Assertions.assertEquals(Math.sqrt(2) * s, SafeNorm.value(v), 0d);
     }
 
     @Test
     public void testOne3D() {
         final double s = 1;
         final double[] v = new double[] { s, s, s };
-        Assert.assertEquals(Math.sqrt(3), SafeNorm.value(v), 0d);
+        Assertions.assertEquals(Math.sqrt(3), SafeNorm.value(v), 0d);
     }
 
     @Test
     public void testUnit3D() {
-        Assert.assertEquals(1, SafeNorm.value(new double[] { 1, 0, 0 }), 0d);
-        Assert.assertEquals(1, SafeNorm.value(new double[] { 0, 1, 0 }), 0d);
-        Assert.assertEquals(1, SafeNorm.value(new double[] { 0, 0, 1 }), 0d);
+        Assertions.assertEquals(1, SafeNorm.value(new double[] { 1, 0, 0 }), 0d);
+        Assertions.assertEquals(1, SafeNorm.value(new double[] { 0, 1, 0 }), 0d);
+        Assertions.assertEquals(1, SafeNorm.value(new double[] { 0, 0, 1 }), 0d);
     }
 
     @Test
@@ -57,6 +58,6 @@ public class SafeNormTest {
             n += v[i] * v[i];
         }
         final double expected = Math.sqrt(n);
-        Assert.assertEquals(expected, SafeNorm.value(v), 0d);
+        Assertions.assertEquals(expected, SafeNorm.value(v), 0d);
     }
 }

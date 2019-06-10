@@ -26,29 +26,29 @@ import org.junit.jupiter.api.Test;
 public class FactorialDoubleTest {
     @Test
     public void testFactorialZero() {
-        Assert.assertEquals("0!", 1, FactorialDouble.create().value(0), 0d);
+        Assertions.assertEquals(1, FactorialDouble.create().value(0), 0d, "0!");
     }
 
     @Test
     public void testFactorialDirect() {
         for (int i = 1; i < 21; i++) {
-            Assert.assertEquals(i + "!",
-                                factorialDirect(i), FactorialDouble.create().value(i), 0d);
+            Assertions.assertEquals(
+                    factorialDirect(i), FactorialDouble.create().value(i), 0d, i + "!");
         }
     }
     
     @Test
     public void testLargestFactorialDouble() {
         final int n = 170;
-        Assert.assertTrue(n + "!",
-                          Double.POSITIVE_INFINITY != FactorialDouble.create().value(n));
+        Assertions.assertTrue(
+                Double.POSITIVE_INFINITY != FactorialDouble.create().value(n), n + "!");
     }
 
     @Test
     public void testFactorialDoubleTooLarge() {
         final int n = 171;
-        Assert.assertEquals(n + "!",
-                            Double.POSITIVE_INFINITY, FactorialDouble.create().value(n), 0d);
+        Assertions.assertEquals(
+                Double.POSITIVE_INFINITY, FactorialDouble.create().value(n), 0d, n + "!");
     }
 
     @Test()
@@ -68,8 +68,8 @@ public class FactorialDoubleTest {
 
         for (int i = 0; i < max; i++) {
             final double expected = factorialDirect(i);
-            Assert.assertEquals(i + "! ",
-                                expected, f.value(i), 100 * Math.ulp(expected));
+            Assertions.assertEquals(
+                    expected, f.value(i), 100 * Math.ulp(expected), i + "! ");
         }
     }
 
@@ -80,8 +80,8 @@ public class FactorialDoubleTest {
 
         for (int i = 0; i < max; i++) {
             final double expected = factorialDirect(i);
-            Assert.assertEquals(i + "! ",
-                                expected, f.value(i), 100 * Math.ulp(expected));
+            Assertions.assertEquals(
+                    expected, f.value(i), 100 * Math.ulp(expected), i + "! ");
         }
     }
 
@@ -92,15 +92,15 @@ public class FactorialDoubleTest {
         final FactorialDouble f2 = f1.withCache(2 * max);
 
         final int val = max + max / 2;
-        Assert.assertEquals(f1.value(val), f2.value(val), 0d);
+        Assertions.assertEquals(f1.value(val), f2.value(val), 0d);
     }
 
     @Test
     public void testZeroCache() {
         // Ensure that no exception is thrown.
         final FactorialDouble f = FactorialDouble.create().withCache(0);
-        Assert.assertEquals(1, f.value(0), 0d);
-        Assert.assertEquals(1, f.value(1), 0d);
+        Assertions.assertEquals(1, f.value(0), 0d);
+        Assertions.assertEquals(1, f.value(1), 0d);
     }
 
     @Test
@@ -117,7 +117,7 @@ public class FactorialDoubleTest {
         final FactorialDouble f2 = f1.withCache(max / 2);
 
         final int val = max / 4;
-        Assert.assertEquals(f1.value(val), f2.value(val), 0d);
+        Assertions.assertEquals(f1.value(val), f2.value(val), 0d);
     }
 
     /**
