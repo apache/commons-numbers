@@ -35,16 +35,16 @@ public class QuaternionTest {
     @Test
     public void testUnitQuaternions() {
         Assertions.assertEquals(1, Quaternion.ONE.norm(), 0d);
-        Assertions.assertSame(Quaternion.ONE.normalize(), Quaternion.ONE);
+        Assertions.assertSame(Quaternion.ONE, Quaternion.ONE.normalize());
 
         Assertions.assertEquals(1, Quaternion.I.norm(), 0d);
-        Assertions.assertSame(Quaternion.I.normalize(), Quaternion.I);
+        Assertions.assertSame(Quaternion.I, Quaternion.I.normalize());
 
         Assertions.assertEquals(1, Quaternion.J.norm(), 0d);
-        Assertions.assertSame(Quaternion.J.normalize(), Quaternion.J);
+        Assertions.assertSame(Quaternion.J, Quaternion.J.normalize());
 
         Assertions.assertEquals(1, Quaternion.K.norm(), 0d);
-        Assertions.assertSame(Quaternion.K.normalize(), Quaternion.K);
+        Assertions.assertSame(Quaternion.K, Quaternion.K.normalize());
     }
 
     @Test
