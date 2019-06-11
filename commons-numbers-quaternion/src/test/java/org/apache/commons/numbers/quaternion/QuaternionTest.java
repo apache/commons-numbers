@@ -378,7 +378,7 @@ public class QuaternionTest {
         final Quaternion q3 = Quaternion.of(one, Math.nextUp(one), one, one);
         Assertions.assertNotEquals(q3, q1);
 
-        Assertions.assertNotEquals("bar", q3);
+        Assertions.assertFalse(q3.equals("bar"));
     }
 
     @Test

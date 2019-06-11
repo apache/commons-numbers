@@ -597,8 +597,8 @@ public class BigFractionTest {
         BigFraction zero = BigFraction.of(0, 1);
         BigFraction nullFraction = null;
         Assertions.assertEquals(zero, zero);
-        Assertions.assertNotEquals(nullFraction, zero);
-        Assertions.assertNotEquals(0.0d, zero);
+        Assertions.assertFalse(zero.equals(nullFraction));
+        Assertions.assertFalse(zero.equals(Double.valueOf(0)));
         BigFraction zero2 = BigFraction.of(0, 2);
         Assertions.assertEquals(zero, zero2);
         Assertions.assertEquals(zero.hashCode(), zero2.hashCode());

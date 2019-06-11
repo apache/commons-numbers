@@ -404,7 +404,7 @@ public class ComplexTest {
     @Test
     public void testEqualsClass() {
         Complex x = Complex.ofCartesian(3.0, 4.0);
-        Assertions.assertNotEquals(x, this);
+        Assertions.assertFalse(x.equals(this));
     }
 
     @Test
