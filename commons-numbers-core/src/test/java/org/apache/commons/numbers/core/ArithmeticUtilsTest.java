@@ -559,7 +559,7 @@ public class ArithmeticUtilsTest {
         }
         for (int i = 0; i < expected.length; i++) {
             final boolean actual = ArithmeticUtils.isPowerOfTwo(i);
-            Assertions.assertEquals(actual, expected[i], Integer.toString(i));
+            Assertions.assertEquals(expected[i], actual, Integer.toString(i));
         }
     }
 
