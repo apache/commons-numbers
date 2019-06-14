@@ -18,8 +18,7 @@ package org.apache.commons.numbers.fraction;
 
 import org.apache.commons.numbers.core.TestUtils;
 import org.junit.Assert;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 
 /**
@@ -27,8 +26,8 @@ import org.junit.jupiter.api.Test;
 public class FractionTest {
 
     private void assertFraction(int expectedNumerator, int expectedDenominator, Fraction actual) {
-        Assertions.assertEquals(expectedNumerator, actual.getNumerator());
-        Assertions.assertEquals(expectedDenominator, actual.getDenominator());
+        Assert.assertEquals(expectedNumerator, actual.getNumerator());
+        Assert.assertEquals(expectedDenominator, actual.getDenominator());
     }
 
     @Test
@@ -46,13 +45,13 @@ public class FractionTest {
         // overflow
         try {
             Fraction.of(Integer.MIN_VALUE, -1);
-            Assertions.fail();
+            Assert.fail();
         } catch (ArithmeticException ex) {
             // success
         }
         try {
             Fraction.of(1, Integer.MIN_VALUE);
-            Assertions.fail();
+            Assert.fail();
         } catch (ArithmeticException ex) {
             // success
         }
@@ -62,12 +61,10 @@ public class FractionTest {
         assertFraction(15, 1, Fraction.from(15.0000000000001));
     }
 
-    @Test
+    @Test(expected=ArithmeticException.class)
     public void testGoldenRatio() {
         // the golden ratio is notoriously a difficult number for continuous fraction
-        Assertions.assertThrows(ArithmeticException.class,
-                () -> Fraction.from((1 + Math.sqrt(5)) / 2, 1.0e-12, 25)
-        );
+        Fraction.from((1 + Math.sqrt(5)) / 2, 1.0e-12, 25);
     }
 
     // MATH-179
@@ -145,7 +142,7 @@ public class FractionTest {
             @SuppressWarnings("unused")
             Fraction f = Fraction.from(a, 1.0e-12, 1000);
             //System.out.println(f.getNumerator() + "/" + f.getDenominator());
-            Assertions.fail("an exception should have been thrown");
+            Assert.fail("an exception should have been thrown");
         } catch (ArithmeticException ignored) {
             // expected behavior
         }
@@ -165,23 +162,27 @@ public class FractionTest {
 
     @Test
     public void testCompareTo() {
-        Fraction first = Fraction.of(1, 2);
-        Fraction second = Fraction.of(1, 3);
-        Fraction third = Fraction.of(1, 2);
+        {
+            Fraction first = Fraction.of(1, 2);
+            Fraction second = Fraction.of(1, 3);
+            Fraction third = Fraction.of(1, 2);
 
-        Assertions.assertEquals(0, first.compareTo(first));
-        Assertions.assertEquals(0, first.compareTo(third));
-        Assertions.assertEquals(1, first.compareTo(second));
-        Assertions.assertEquals(-1, second.compareTo(first));
+            Assert.assertEquals(0, first.compareTo(first));
+            Assert.assertEquals(0, first.compareTo(third));
+            Assert.assertEquals(1, first.compareTo(second));
+            Assert.assertEquals(-1, second.compareTo(first));
+        }
 
-        // these two values are different approximations of PI
-        // the first  one is approximately PI - 3.07e-18
-        // the second one is approximately PI + 1.936e-17
-        Fraction pi1 = Fraction.of(1068966896, 340262731);
-        Fraction pi2 = Fraction.of( 411557987, 131002976);
-        Assertions.assertEquals(-1, pi1.compareTo(pi2));
-        Assertions.assertEquals( 1, pi2.compareTo(pi1));
-        Assertions.assertEquals(0.0, pi1.doubleValue() - pi2.doubleValue(), 1.0e-20);
+        {
+            // these two values are different approximations of PI
+            // the first  one is approximately PI - 3.07e-18
+            // the second one is approximately PI + 1.936e-17
+            Fraction pi1 = Fraction.of(1068966896, 340262731);
+            Fraction pi2 = Fraction.of( 411557987, 131002976);
+            Assert.assertEquals(-1, pi1.compareTo(pi2));
+            Assert.assertEquals( 1, pi2.compareTo(pi1));
+            Assert.assertEquals(0.0, pi1.doubleValue() - pi2.doubleValue(), 1.0e-20);
+        }
     }
 
     @Test
@@ -189,8 +190,8 @@ public class FractionTest {
         Fraction first = Fraction.of(1, 2);
         Fraction second = Fraction.of(1, 3);
 
-        Assertions.assertEquals(0.5, first.doubleValue(), 0.0);
-        Assertions.assertEquals(1.0 / 3.0, second.doubleValue(), 0.0);
+        Assert.assertEquals(0.5, first.doubleValue(), 0.0);
+        Assert.assertEquals(1.0 / 3.0, second.doubleValue(), 0.0);
     }
 
     @Test
@@ -198,8 +199,8 @@ public class FractionTest {
         Fraction first = Fraction.of(1, 2);
         Fraction second = Fraction.of(1, 3);
 
-        Assertions.assertEquals(0.5f, first.floatValue(), 0.0f);
-        Assertions.assertEquals((float)(1.0 / 3.0), second.floatValue(), 0.0f);
+        Assert.assertEquals(0.5f, first.floatValue(), 0.0f);
+        Assert.assertEquals((float)(1.0 / 3.0), second.floatValue(), 0.0f);
     }
 
     @Test
@@ -207,8 +208,8 @@ public class FractionTest {
         Fraction first = Fraction.of(1, 2);
         Fraction second = Fraction.of(3, 2);
 
-        Assertions.assertEquals(0, first.intValue());
-        Assertions.assertEquals(1, second.intValue());
+        Assert.assertEquals(0, first.intValue());
+        Assert.assertEquals(1, second.intValue());
     }
 
     @Test
@@ -216,8 +217,8 @@ public class FractionTest {
         Fraction first = Fraction.of(1, 2);
         Fraction second = Fraction.of(3, 2);
 
-        Assertions.assertEquals(0L, first.longValue());
-        Assertions.assertEquals(1L, second.longValue());
+        Assert.assertEquals(0L, first.longValue());
+        Assert.assertEquals(1L, second.longValue());
     }
 
     @Test
@@ -245,378 +246,447 @@ public class FractionTest {
 
     @Test
     public void testMath1261() {
-        final Fraction a = Fraction.of(Integer.MAX_VALUE, 2);
-        final Fraction b = a.multiply(2);
-        Assertions.assertEquals(b, Fraction.of(Integer.MAX_VALUE));
+        {
+            final Fraction a = Fraction.of(Integer.MAX_VALUE, 2);
+            final Fraction b = a.multiply(2);
+            Assert.assertTrue(b.equals(Fraction.of(Integer.MAX_VALUE)));
+        }
 
-        final Fraction c = Fraction.of(2, Integer.MAX_VALUE);
-        final Fraction d = c.divide(2);
-        Assertions.assertEquals(d, Fraction.of(1, Integer.MAX_VALUE));
+        {
+            final Fraction c = Fraction.of(2, Integer.MAX_VALUE);
+            final Fraction d = c.divide(2);
+            Assert.assertTrue(d.equals(Fraction.of(1, Integer.MAX_VALUE)));
+        }
     }
 
     @Test
     public void testReciprocal() {
-        Fraction f = null;
-
-        f = Fraction.of(50, 75);
-        f = f.reciprocal();
-        Assertions.assertEquals(3, f.getNumerator());
-        Assertions.assertEquals(2, f.getDenominator());
-
-        f = Fraction.of(4, 3);
-        f = f.reciprocal();
-        Assertions.assertEquals(3, f.getNumerator());
-        Assertions.assertEquals(4, f.getDenominator());
-
-        f = Fraction.of(-15, 47);
-        f = f.reciprocal();
-        Assertions.assertEquals(-47, f.getNumerator());
-        Assertions.assertEquals(15, f.getDenominator());
-
-        f = Fraction.of(0, 3);
-        try {
+        {
+            Fraction f = Fraction.of(50, 75);
             f = f.reciprocal();
-            Assertions.fail("expecting ArithmeticException");
-        } catch (ArithmeticException ignored) {}
+            assertFraction(3, 2, f);
+        }
 
-        // large values
-        f = Fraction.of(Integer.MAX_VALUE, 1);
-        f = f.reciprocal();
-        Assertions.assertEquals(1, f.getNumerator());
-        Assertions.assertEquals(Integer.MAX_VALUE, f.getDenominator());
+        {
+            Fraction f = Fraction.of(4, 3);
+            f = f.reciprocal();
+            assertFraction(3, 4, f);
+        }
+
+        {
+            Fraction f = Fraction.of(-15, 47);
+            f = f.reciprocal();
+            assertFraction(-47, 15, f);
+        }
+
+        {
+            Fraction f = Fraction.of(0, 3);
+            try {
+                f = f.reciprocal();
+                Assert.fail("expecting ArithmeticException");
+            } catch (ArithmeticException ignored) {}
+        }
+
+        {
+            // large values
+            Fraction f = Fraction.of(Integer.MAX_VALUE, 1);
+            f = f.reciprocal();
+            assertFraction(1, Integer.MAX_VALUE, f);
+        }
     }
 
     @Test
     public void testNegate() {
-        Fraction f = null;
+        {
+            Fraction f = Fraction.of(50, 75);
+            f = f.negate();
+            assertFraction(-2, 3, f);
+        }
 
-        f = Fraction.of(50, 75);
-        f = f.negate();
-        Assertions.assertEquals(-2, f.getNumerator());
-        Assertions.assertEquals(3, f.getDenominator());
-
-        f = Fraction.of(-50, 75);
-        f = f.negate();
-        Assertions.assertEquals(2, f.getNumerator());
-        Assertions.assertEquals(3, f.getDenominator());
+        {
+            Fraction f = Fraction.of(-50, 75);
+            f = f.negate();
+            assertFraction(2, 3, f);
+        }
 
         // large values
-        f = Fraction.of(Integer.MAX_VALUE-1, Integer.MAX_VALUE);
-        f = f.negate();
-        Assertions.assertEquals(Integer.MIN_VALUE+2, f.getNumerator());
-        Assertions.assertEquals(Integer.MAX_VALUE, f.getDenominator());
-
-        f = Fraction.of(Integer.MIN_VALUE, 1);
-        try {
+        {
+            Fraction f = Fraction.of(Integer.MAX_VALUE - 1, Integer.MAX_VALUE);
             f = f.negate();
-            Assertions.fail("expecting ArithmeticException");
-        } catch (ArithmeticException ex) {}
+            assertFraction(Integer.MIN_VALUE + 2, Integer.MAX_VALUE, f);
+        }
+
+        {
+            Fraction f = Fraction.of(Integer.MIN_VALUE, 1);
+            try {
+                f = f.negate();
+                Assert.fail("expecting ArithmeticException");
+            } catch (ArithmeticException ex) {}
+        }
     }
 
     @Test
     public void testAdd() {
-        Fraction a = Fraction.of(1, 2);
-        Fraction b = Fraction.of(2, 3);
+        {
+            Fraction a = Fraction.of(1, 2);
+            Fraction b = Fraction.of(2, 3);
 
-        assertFraction(1, 1, a.add(a));
-        assertFraction(7, 6, a.add(b));
-        assertFraction(7, 6, b.add(a));
-        assertFraction(4, 3, b.add(b));
+            assertFraction(1, 1, a.add(a));
+            assertFraction(7, 6, a.add(b));
+            assertFraction(7, 6, b.add(a));
+            assertFraction(4, 3, b.add(b));
+        }
 
-        Fraction f1 = Fraction.of(Integer.MAX_VALUE - 1, 1);
-        Fraction f2 = Fraction.ONE;
-        Fraction f = f1.add(f2);
-        Assertions.assertEquals(Integer.MAX_VALUE, f.getNumerator());
-        Assertions.assertEquals(1, f.getDenominator());
-        f = f1.add(1);
-        Assertions.assertEquals(Integer.MAX_VALUE, f.getNumerator());
-        Assertions.assertEquals(1, f.getDenominator());
+        {
+            Fraction f1 = Fraction.of(Integer.MAX_VALUE - 1, 1);
+            {
+                Fraction f2 = Fraction.ONE;
+                Fraction f = f1.add(f2);
+                assertFraction(Integer.MAX_VALUE, 1, f);
+            }
+            {
+                Fraction f = f1.add(1);
+                assertFraction(Integer.MAX_VALUE, 1, f);
+            }
+        }
 
-        f1 = Fraction.of(-1, 13*13*2*2);
-        f2 = Fraction.of(-2, 13*17*2);
-        f = f1.add(f2);
-        Assertions.assertEquals(13*13*17*2*2, f.getDenominator());
-        Assertions.assertEquals(-17 - 2*13*2, f.getNumerator());
+        {
+            Fraction f1 = Fraction.of(-1, 13*13*2*2);
+            Fraction f2 = Fraction.of(-2, 13*17*2);
+            Fraction f = f1.add(f2);
+            assertFraction(-17 - 2*13*2, 13*13*17*2*2, f);
 
-        try {
-            f.add(null);
-            Assertions.fail("expecting NullArgumentException");
-        } catch (NullPointerException ex) {}
+            try {
+                f.add(null);
+                Assert.fail("expecting NullArgumentException");
+            } catch (NullPointerException ex) {}
+        }
 
-        // if this fraction is added naively, it will overflow.
-        // check that it doesn't.
-        f1 = Fraction.of(1,32768*3);
-        f2 = Fraction.of(1,59049);
-        f = f1.add(f2);
-        Assertions.assertEquals(52451, f.getNumerator());
-        Assertions.assertEquals(1934917632, f.getDenominator());
+        {
+            // if this fraction is added naively, it will overflow.
+            // check that it doesn't.
+            Fraction f1 = Fraction.of(1, 32768 * 3);
+            Fraction f2 = Fraction.of(1, 59049);
+            Fraction f = f1.add(f2);
+            assertFraction(52451, 1934917632, f);
+        }
 
-        f1 = Fraction.of(Integer.MIN_VALUE, 3);
-        f2 = Fraction.of(1,3);
-        f = f1.add(f2);
-        Assertions.assertEquals(Integer.MIN_VALUE+1, f.getNumerator());
-        Assertions.assertEquals(3, f.getDenominator());
+        {
+            Fraction f1 = Fraction.of(Integer.MIN_VALUE, 3);
+            Fraction f2 = Fraction.of(1, 3);
+            Fraction f = f1.add(f2);
+            assertFraction(Integer.MIN_VALUE + 1, 3, f);
+        }
 
-        f1 = Fraction.of(Integer.MAX_VALUE - 1, 1);
-        f2 = Fraction.ONE;
-        f = f1.add(f2);
-        Assertions.assertEquals(Integer.MAX_VALUE, f.getNumerator());
-        Assertions.assertEquals(1, f.getDenominator());
+        {
+            Fraction f1 = Fraction.of(Integer.MAX_VALUE - 1, 1);
+            Fraction f2 = Fraction.ONE;
+            Fraction f = f1.add(f2);
+            assertFraction(Integer.MAX_VALUE, 1, f);
 
-        try {
-            f = f.add(Fraction.ONE); // should overflow
-            Assertions.fail("expecting ArithmeticException but got: " + f.toString());
-        } catch (ArithmeticException ex) {}
+            try {
+                f = f.add(Fraction.ONE); // should overflow
+                Assert.fail("expecting ArithmeticException but got: " + f.toString());
+            } catch (ArithmeticException ex) {}
+        }
 
-        // denominator should not be a multiple of 2 or 3 to trigger overflow
-        f1 = Fraction.of(Integer.MIN_VALUE, 5);
-        f2 = Fraction.of(-1,5);
-        try {
-            f = f1.add(f2); // should overflow
-            Assertions.fail("expecting ArithmeticException but got: " + f.toString());
-        } catch (ArithmeticException ex) {}
+        {
+            // denominator should not be a multiple of 2 or 3 to trigger overflow
+            Fraction f1 = Fraction.of(Integer.MIN_VALUE, 5);
+            Fraction f2 = Fraction.of(-1, 5);
+            try {
+                Fraction f = f1.add(f2); // should overflow
+                Assert.fail("expecting ArithmeticException but got: " + f.toString());
+            } catch (ArithmeticException ex) {}
+        }
 
-        try {
-            f= Fraction.of(-Integer.MAX_VALUE, 1);
-            f = f.add(f);
-            Assertions.fail("expecting ArithmeticException");
-        } catch (ArithmeticException ex) {}
+        {
+            Fraction f = Fraction.of(-Integer.MAX_VALUE, 1);
+            try {
+                f.add(f);
+                Assert.fail("expecting ArithmeticException");
+            } catch (ArithmeticException ex) {}
+        }
 
-        try {
-            f= Fraction.of(-Integer.MAX_VALUE, 1);
-            f = f.add(f);
-            Assertions.fail("expecting ArithmeticException");
-        } catch (ArithmeticException ex) {}
-
-        f1 = Fraction.of(3,327680);
-        f2 = Fraction.of(2,59049);
-        try {
-            f = f1.add(f2); // should overflow
-            Assertions.fail("expecting ArithmeticException but got: " + f.toString());
-        } catch (ArithmeticException ex) {}
+        {
+            Fraction f1 = Fraction.of(3, 327680);
+            Fraction f2 = Fraction.of(2, 59049);
+            try {
+                Fraction f = f1.add(f2); // should overflow
+                Assert.fail("expecting ArithmeticException but got: " + f.toString());
+            } catch (ArithmeticException ex) {}
+        }
     }
 
     @Test
     public void testDivide() {
-        Fraction a = Fraction.of(1, 2);
-        Fraction b = Fraction.of(2, 3);
+        {
+            Fraction a = Fraction.of(1, 2);
+            Fraction b = Fraction.of(2, 3);
 
-        assertFraction(1, 1, a.divide(a));
-        assertFraction(3, 4, a.divide(b));
-        assertFraction(4, 3, b.divide(a));
-        assertFraction(1, 1, b.divide(b));
+            assertFraction(1, 1, a.divide(a));
+            assertFraction(3, 4, a.divide(b));
+            assertFraction(4, 3, b.divide(a));
+            assertFraction(1, 1, b.divide(b));
+        }
 
-        Fraction f1 = Fraction.of(3, 5);
-        Fraction f2 = Fraction.ZERO;
-        try {
-            f1.divide(f2);
-            Assertions.fail("expecting FractionException");
-        } catch (FractionException ex) {}
+        {
+            Fraction f1 = Fraction.of(3, 5);
+            Fraction f2 = Fraction.ZERO;
+            try {
+                f1.divide(f2);
+                Assert.fail("expecting FractionException");
+            } catch (FractionException ex) {}
+        }
 
-        f1 = Fraction.of(0, 5);
-        f2 = Fraction.of(2, 7);
-        Fraction f = f1.divide(f2);
-        Assertions.assertSame(Fraction.ZERO, f);
+        {
+            Fraction f1 = Fraction.of(0, 5);
+            Fraction f2 = Fraction.of(2, 7);
+            Fraction f = f1.divide(f2);
+            Assert.assertSame(Fraction.ZERO, f);
+        }
 
-        f1 = Fraction.of(2, 7);
-        f2 = Fraction.ONE;
-        f = f1.divide(f2);
-        Assertions.assertEquals(2, f.getNumerator());
-        Assertions.assertEquals(7, f.getDenominator());
+        {
+            Fraction f1 = Fraction.of(2, 7);
+            Fraction f2 = Fraction.ONE;
+            Fraction f = f1.divide(f2);
+            assertFraction(2, 7, f);
+        }
 
-        f1 = Fraction.of(1, Integer.MAX_VALUE);
-        f = f1.divide(f1);
-        Assertions.assertEquals(1, f.getNumerator());
-        Assertions.assertEquals(1, f.getDenominator());
+        {
+            Fraction f1 = Fraction.of(1, Integer.MAX_VALUE);
+            Fraction f = f1.divide(f1);
+            assertFraction(1, 1, f);
+        }
 
-        f1 = Fraction.of(Integer.MIN_VALUE, Integer.MAX_VALUE);
-        f2 = Fraction.of(1, Integer.MAX_VALUE);
-        f = f1.divide(f2);
-        Assertions.assertEquals(Integer.MIN_VALUE, f.getNumerator());
-        Assertions.assertEquals(1, f.getDenominator());
+        {
+            Fraction f1 = Fraction.of(Integer.MIN_VALUE, Integer.MAX_VALUE);
+            Fraction f2 = Fraction.of(1, Integer.MAX_VALUE);
+            Fraction f = f1.divide(f2);
+            assertFraction(Integer.MIN_VALUE, 1, f);
 
-        try {
-            f.divide(null);
-            Assertions.fail("NullArgumentException");
-        } catch (NullPointerException ex) {}
+            try {
+                f.divide(null);
+                Assert.fail("NullArgumentException");
+            } catch (NullPointerException ex) {}
+        }
 
-        try {
-            f1 = Fraction.of(1, Integer.MAX_VALUE);
-            f = f1.divide(f1.reciprocal());  // should overflow
-            Assertions.fail("expecting ArithmeticException");
-        } catch (ArithmeticException ex) {}
-        try {
-            f1 = Fraction.of(1, -Integer.MAX_VALUE);
-            f = f1.divide(f1.reciprocal());  // should overflow
-            Assertions.fail("expecting ArithmeticException");
-        } catch (ArithmeticException ex) {}
+        {
+            Fraction f1 = Fraction.of(1, Integer.MAX_VALUE);
+            try {
+                f1.divide(f1.reciprocal());  // should overflow
+                Assert.fail("expecting ArithmeticException");
+            } catch (ArithmeticException ex) {}
+        }
 
-        f1 = Fraction.of(6, 35);
-        f  = f1.divide(15);
-        Assertions.assertEquals(2, f.getNumerator());
-        Assertions.assertEquals(175, f.getDenominator());
+        {
+            Fraction f1 = Fraction.of(1, -Integer.MAX_VALUE);
+            try {
+                f1.divide(f1.reciprocal());  // should overflow
+                Assert.fail("expecting ArithmeticException");
+            } catch (ArithmeticException ex) {}
+        }
 
+        {
+            Fraction f1 = Fraction.of(6, 35);
+            Fraction f = f1.divide(15);
+            assertFraction(2, 175, f);
+        }
     }
 
     @Test
     public void testMultiply() {
-        Fraction a = Fraction.of(1, 2);
-        Fraction b = Fraction.of(2, 3);
+        {
+            Fraction a = Fraction.of(1, 2);
+            Fraction b = Fraction.of(2, 3);
 
-        assertFraction(1, 4, a.multiply(a));
-        assertFraction(1, 3, a.multiply(b));
-        assertFraction(1, 3, b.multiply(a));
-        assertFraction(4, 9, b.multiply(b));
+            assertFraction(1, 4, a.multiply(a));
+            assertFraction(1, 3, a.multiply(b));
+            assertFraction(1, 3, b.multiply(a));
+            assertFraction(4, 9, b.multiply(b));
+        }
 
-        Fraction f1 = Fraction.of(Integer.MAX_VALUE, 1);
-        Fraction f2 = Fraction.of(Integer.MIN_VALUE, Integer.MAX_VALUE);
-        Fraction f = f1.multiply(f2);
-        Assertions.assertEquals(Integer.MIN_VALUE, f.getNumerator());
-        Assertions.assertEquals(1, f.getDenominator());
+        {
+            Fraction f1 = Fraction.of(Integer.MAX_VALUE, 1);
+            Fraction f2 = Fraction.of(Integer.MIN_VALUE, Integer.MAX_VALUE);
+            Fraction f = f1.multiply(f2);
+            assertFraction(Integer.MIN_VALUE, 1, f);
 
-        try {
-            f.multiply(null);
-            Assertions.fail("expecting NullArgumentException");
-        } catch (NullPointerException ex) {}
+            try {
+                f.multiply(null);
+                Assert.fail("expecting NullArgumentException");
+            } catch (NullPointerException ex) {}
+        }
 
-        f1 = Fraction.of(6, 35);
-        f  = f1.multiply(15);
-        Assertions.assertEquals(18, f.getNumerator());
-        Assertions.assertEquals(7, f.getDenominator());
+        {
+            Fraction f1 = Fraction.of(6, 35);
+            Fraction f = f1.multiply(15);
+            assertFraction(18, 7, f);
+        }
     }
 
     @Test
     public void testPow() {
-        Fraction a = Fraction.of(3, 7);
-        assertFraction(1, 1, a.pow(0));
-        assertFraction(3, 7, a.pow(1));
-        assertFraction(7, 3, a.pow(-1));
-        assertFraction(9, 49, a.pow(2));
-        assertFraction(49, 9, a.pow(-2));
+        {
+            Fraction a = Fraction.of(3, 7);
+            assertFraction(1, 1, a.pow(0));
+            assertFraction(3, 7, a.pow(1));
+            assertFraction(7, 3, a.pow(-1));
+            assertFraction(9, 49, a.pow(2));
+            assertFraction(49, 9, a.pow(-2));
+        }
 
-        Fraction b = Fraction.of(3, -7);
-        assertFraction(1, 1, b.pow(0));
-        assertFraction(-3, 7, b.pow(1));
-        assertFraction(-7, 3, b.pow(-1));
-        assertFraction(9, 49, a.pow(2));
-        assertFraction(49, 9, a.pow(-2));
+        {
+            Fraction b = Fraction.of(3, -7);
+            assertFraction(1, 1, b.pow(0));
+            assertFraction(-3, 7, b.pow(1));
+            assertFraction(-7, 3, b.pow(-1));
+            assertFraction(9, 49, b.pow(2));
+            assertFraction(49, 9, b.pow(-2));
+        }
 
-        Fraction c = Fraction.of(0, -11);
-        assertFraction(0, 1, c.pow(Integer.MAX_VALUE));
+        {
+            Fraction c = Fraction.of(0, -11);
+            assertFraction(0, 1, c.pow(Integer.MAX_VALUE));
+        }
     }
 
     @Test
     public void testSubtract() {
-        Fraction a = Fraction.of(1, 2);
-        Fraction b = Fraction.of(2, 3);
+        {
+            Fraction a = Fraction.of(1, 2);
+            Fraction b = Fraction.of(2, 3);
 
-        assertFraction(0, 1, a.subtract(a));
-        assertFraction(-1, 6, a.subtract(b));
-        assertFraction(1, 6, b.subtract(a));
-        assertFraction(0, 1, b.subtract(b));
+            assertFraction(0, 1, a.subtract(a));
+            assertFraction(-1, 6, a.subtract(b));
+            assertFraction(1, 6, b.subtract(a));
+            assertFraction(0, 1, b.subtract(b));
+        }
 
-        Fraction f = Fraction.of(1,1);
-        try {
-            f.subtract(null);
-            Assertions.fail("expecting NullArgumentException");
-        } catch (NullPointerException ex) {}
+        {
+            Fraction f = Fraction.of(1, 1);
+            try {
+                f.subtract(null);
+                Assert.fail("expecting NullArgumentException");
+            } catch (NullPointerException ex) {}
+        }
 
-        // if this fraction is subtracted naively, it will overflow.
-        // check that it doesn't.
-        Fraction f1 = Fraction.of(1,32768*3);
-        Fraction f2 = Fraction.of(1,59049);
-        f = f1.subtract(f2);
-        Assertions.assertEquals(-13085, f.getNumerator());
-        Assertions.assertEquals(1934917632, f.getDenominator());
+        {
+            // if this fraction is subtracted naively, it will overflow.
+            // check that it doesn't.
+            Fraction f1 = Fraction.of(1, 32768 * 3);
+            Fraction f2 = Fraction.of(1, 59049);
+            Fraction f = f1.subtract(f2);
+            assertFraction(-13085, 1934917632, f);
+        }
 
-        f1 = Fraction.of(Integer.MIN_VALUE, 3);
-        f2 = Fraction.of(1,3).negate();
-        f = f1.subtract(f2);
-        Assertions.assertEquals(Integer.MIN_VALUE+1, f.getNumerator());
-        Assertions.assertEquals(3, f.getDenominator());
+        {
+            Fraction f1 = Fraction.of(Integer.MIN_VALUE, 3);
+            Fraction f2 = Fraction.of(1, 3).negate();
+            Fraction f = f1.subtract(f2);
+            assertFraction(Integer.MIN_VALUE + 1, 3, f);
+        }
 
-        f1 = Fraction.of(Integer.MAX_VALUE, 1);
-        f2 = Fraction.ONE;
-        f = f1.subtract(f2);
-        Assertions.assertEquals(Integer.MAX_VALUE-1, f.getNumerator());
-        Assertions.assertEquals(1, f.getDenominator());
-        f = f1.subtract(1);
-        Assertions.assertEquals(Integer.MAX_VALUE-1, f.getNumerator());
-        Assertions.assertEquals(1, f.getDenominator());
+        {
+            Fraction f1 = Fraction.of(Integer.MAX_VALUE, 1);
+            {
+                Fraction f2 = Fraction.ONE;
+                Fraction f = f1.subtract(f2);
+                assertFraction(Integer.MAX_VALUE-1, 1, f);
+            }
+            {
+                Fraction f = f1.subtract(1);
+                assertFraction(Integer.MAX_VALUE-1, 1, f);
+            }
+        }
 
-        try {
-            f1 = Fraction.of(1, Integer.MAX_VALUE);
-            f2 = Fraction.of(1, Integer.MAX_VALUE - 1);
-            f = f1.subtract(f2);
-            Assertions.fail("expecting ArithmeticException");  //should overflow
-        } catch (ArithmeticException ex) {}
+        {
+            Fraction f1 = Fraction.of(1, Integer.MAX_VALUE);
+            Fraction f2 = Fraction.of(1, Integer.MAX_VALUE - 1);
+            try {
+                f1.subtract(f2);
+                Assert.fail("expecting ArithmeticException");  //should overflow
+            } catch (ArithmeticException ex) {}
+        }
 
-        // denominator should not be a multiple of 2 or 3 to trigger overflow
-        f1 = Fraction.of(Integer.MIN_VALUE, 5);
-        f2 = Fraction.of(1,5);
-        try {
-            f = f1.subtract(f2); // should overflow
-            Assertions.fail("expecting ArithmeticException but got: " + f.toString());
-        } catch (ArithmeticException ex) {}
+        {
+            // denominator should not be a multiple of 2 or 3 to trigger overflow
+            Fraction f1 = Fraction.of(Integer.MIN_VALUE, 5);
+            Fraction f2 = Fraction.of(1, 5);
+            try {
+                Fraction f = f1.subtract(f2); // should overflow
+                Assert.fail("expecting ArithmeticException but got: " + f.toString());
+            } catch (ArithmeticException ex) {}
+        }
 
-        try {
-            f= Fraction.of(Integer.MIN_VALUE, 1);
-            f = f.subtract(Fraction.ONE);
-            Assertions.fail("expecting ArithmeticException");
-        } catch (ArithmeticException ex) {}
+        {
+            Fraction f = Fraction.of(Integer.MIN_VALUE, 1);
+            try {
+                f.subtract(Fraction.ONE);
+                Assert.fail("expecting ArithmeticException");
+            } catch (ArithmeticException ex) {}
+        }
 
-        try {
-            f= Fraction.of(Integer.MAX_VALUE, 1);
-            f = f.subtract(Fraction.ONE.negate());
-            Assertions.fail("expecting ArithmeticException");
-        } catch (ArithmeticException ex) {}
+        {
+            Fraction f = Fraction.of(Integer.MAX_VALUE, 1);
+            try {
+                f.subtract(Fraction.ONE.negate());
+                Assert.fail("expecting ArithmeticException");
+            } catch (ArithmeticException ex) {}
+        }
 
-        f1 = Fraction.of(3,327680);
-        f2 = Fraction.of(2,59049);
-        try {
-            f = f1.subtract(f2); // should overflow
-            Assertions.fail("expecting ArithmeticException but got: " + f.toString());
-        } catch (ArithmeticException ex) {}
+        {
+            Fraction f1 = Fraction.of(3, 327680);
+            Fraction f2 = Fraction.of(2, 59049);
+            try {
+                Fraction f = f1.subtract(f2); // should overflow
+                Assert.fail("expecting ArithmeticException but got: " + f.toString());
+            } catch (ArithmeticException ex) {}
+        }
     }
 
     @Test
     public void testEqualsAndHashCode() {
         Fraction zero  = Fraction.of(0,1);
         Fraction nullFraction = null;
-        Assertions.assertEquals(zero, zero);
-        Assertions.assertNotEquals(nullFraction, zero);
-        Assertions.assertNotEquals(0.0, zero);
+        Assert.assertTrue( zero.equals(zero));
+        Assert.assertFalse(zero.equals(nullFraction));
+        Assert.assertFalse(zero.equals(Double.valueOf(0)));
         Fraction zero2 = Fraction.of(0,2);
-        Assertions.assertEquals(zero, zero2);
-        Assertions.assertEquals(zero.hashCode(), zero2.hashCode());
+        Assert.assertTrue(zero.equals(zero2));
+        Assert.assertEquals(zero.hashCode(), zero2.hashCode());
         Fraction one = Fraction.of(1,1);
-        Assertions.assertFalse((one.equals(zero) ||zero.equals(one)));
+        Assert.assertFalse((one.equals(zero) ||zero.equals(one)));
     }
 
     @Test
     public void testGetReducedFraction() {
         Fraction threeFourths = Fraction.of(3, 4);
-        Assertions.assertEquals(threeFourths, Fraction.getReducedFraction(6, 8));
-        Assertions.assertEquals(Fraction.ZERO, Fraction.getReducedFraction(0, -1));
+        Assert.assertTrue(threeFourths.equals(Fraction.getReducedFraction(6, 8)));
+        Assert.assertTrue(Fraction.ZERO.equals(Fraction.getReducedFraction(0, -1)));
         try {
             Fraction.getReducedFraction(1, 0);
-            Assertions.fail("expecting ArithmeticException");
+            Assert.fail("expecting ArithmeticException");
         } catch (ArithmeticException ignored) {
             // expected
         }
-        Assertions.assertEquals(-1, Fraction.getReducedFraction
-                (2, Integer.MIN_VALUE).getNumerator());
-        Assertions.assertEquals(-1, Fraction.getReducedFraction
-                (1, -1).getNumerator());
+        Assert.assertEquals(
+                -1,
+                Fraction.getReducedFraction(2, Integer.MIN_VALUE).getNumerator()
+        );
+        Assert.assertEquals(
+                -1,
+                Fraction.getReducedFraction(1, -1).getNumerator()
+        );
     }
 
     @Test
     public void testToString() {
-        Assertions.assertEquals("0", Fraction.of(0, 3).toString());
-        Assertions.assertEquals("3", Fraction.of(6, 2).toString());
-        Assertions.assertEquals("2 / 3", Fraction.of(18, 27).toString());
-        Assertions.assertEquals("-10 / 11", Fraction.of(-10, 11).toString());
-        Assertions.assertEquals("-10 / 11", Fraction.of(10, -11).toString());
+        Assert.assertEquals("0", Fraction.of(0, 3).toString());
+        Assert.assertEquals("3", Fraction.of(6, 2).toString());
+        Assert.assertEquals("2 / 3", Fraction.of(18, 27).toString());
+        Assert.assertEquals("-10 / 11", Fraction.of(-10, 11).toString());
+        Assert.assertEquals("-10 / 11", Fraction.of(10, -11).toString());
     }
 
     @Test
@@ -627,7 +697,7 @@ public class FractionTest {
             Fraction.of(-5, 2)
         };
         for (Fraction fraction : fractions) {
-            Assertions.assertEquals(fraction, TestUtils.serializeAndRecover(fraction));
+            Assert.assertEquals(fraction, TestUtils.serializeAndRecover(fraction));
         }
     }
 
@@ -644,7 +714,7 @@ public class FractionTest {
         };
         int inc = 0;
         for (Fraction fraction: fractions) {
-            Assertions.assertEquals(fraction,
+            Assert.assertEquals(fraction,
                     Fraction.parse(validExpressions[inc]));
             inc++;
         }
