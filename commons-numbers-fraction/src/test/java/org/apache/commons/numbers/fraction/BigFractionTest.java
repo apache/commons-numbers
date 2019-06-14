@@ -21,7 +21,6 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import org.apache.commons.numbers.core.TestUtils;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

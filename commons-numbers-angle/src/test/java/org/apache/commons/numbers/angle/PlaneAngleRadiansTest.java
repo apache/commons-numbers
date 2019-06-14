@@ -13,7 +13,6 @@
  */
 package org.apache.commons.numbers.angle;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
