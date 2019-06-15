@@ -30,8 +30,6 @@ public final class ArithmeticUtils {
     private static final String OVERFLOW_GCD_MESSAGE_2_POWER_31 = "overflow: gcd({0}, {1}) is 2^31";
     /** Overflow gcd exception message for 2^63. */
     private static final String OVERFLOW_GCD_MESSAGE_2_POWER_63 = "overflow: gcd({0}, {1}) is 2^63";
-    /** Overflow subtraction exception message. */
-    private static final String OVERFLOW_IN_SUBTRACTION_MESSAGE = "overflow in subtraction: {0} + {1}";
 
     /** Negative exponent exception message part 1 */
     private static final String NEGATIVE_EXPONENT_1 = "negative exponent ({";
@@ -404,47 +402,6 @@ public final class ArithmeticUtils {
     }
 
     /**
-     * Subtract two integers, checking for overflow.
-     *
-     * @param x Minuend.
-     * @param y Subtrahend.
-     * @return the difference {@code x - y}.
-     * @throws ArithmeticException if the result can not be represented
-     * as an {@code int}.
-     */
-    public static int subAndCheck(int x, int y) {
-        long s = (long)x - (long)y;
-        if (s < Integer.MIN_VALUE || s > Integer.MAX_VALUE) {
-            throw new NumbersArithmeticException("overflow in subtraction: {0} - {1}", x, y);
-        }
-        return (int)s;
-    }
-
-    /**
-     * Subtract two long integers, checking for overflow.
-     *
-     * @param a Value.
-     * @param b Value.
-     * @return the difference {@code a - b}.
-     * @throws ArithmeticException if the result can not be represented as a
-     * {@code long}.
-     */
-    public static long subAndCheck(long a, long b) {
-        long ret;
-        if (b == Long.MIN_VALUE) {
-            if (a < 0) {
-                ret = a - b;
-            } else {
-                throw new NumbersArithmeticException(OVERFLOW_IN_SUBTRACTION_MESSAGE, a, -b);
-            }
-        } else {
-            // use additive inverse
-            ret = addAndCheck(a, -b, OVERFLOW_IN_SUBTRACTION_MESSAGE);
-        }
-        return ret;
-    }
-
-    /**
      * Raise an int to an int power.
      *
      * @param k Number to raise.
@@ -579,24 +536,6 @@ public final class ArithmeticUtils {
         }
 
         return result;
-    }
-
-    /**
-     * Add two long integers, checking for overflow.
-     *
-     * @param a Addend.
-     * @param b Addend.
-     * @param message Pattern to use for any thrown exception.
-     * @return the sum {@code a + b}.
-     * @throws ArithmeticException if the result cannot be represented
-     * as a {@code long}.
-     */
-     private static long addAndCheck(long a, long b, String message) {
-         final long result = a + b;
-         if (!((a ^ b) < 0 || (a ^ result) >= 0)) {
-             throw new NumbersArithmeticException(message, a, b);
-         }
-         return result;
     }
 
     /**

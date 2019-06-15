@@ -474,7 +474,7 @@ public class Fraction
         int d1 = ArithmeticUtils.gcd(denominator, fraction.denominator);
         int uvp = ArithmeticUtils.mulAndCheck(numerator, fraction.denominator / d1);
         int upv = ArithmeticUtils.mulAndCheck(fraction.numerator, denominator / d1);
-        int t = isAdd ? Math.addExact(uvp, upv) : ArithmeticUtils.subAndCheck(uvp, upv);
+        int t = isAdd ? Math.addExact(uvp, upv) : Math.subtractExact(uvp, upv);
         int tmodd1 = t % d1;
         int d2 = (tmodd1==0)?d1:ArithmeticUtils.gcd(tmodd1, d1);
         // result is (t/d2) / (u'/d1)(v'/d2)
