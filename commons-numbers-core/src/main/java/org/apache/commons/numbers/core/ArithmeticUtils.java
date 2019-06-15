@@ -26,8 +26,6 @@ import java.text.MessageFormat;
  */
 public final class ArithmeticUtils {
 
-    /** Overflow addition exception message. */
-    private static final String OVERFLOW_IN_ADDITION_MESSAGE = "overflow in addition: {0} + {1}";
     /** Overflow gcd exception message for 2^31. */
     private static final String OVERFLOW_GCD_MESSAGE_2_POWER_31 = "overflow: gcd({0}, {1}) is 2^31";
     /** Overflow gcd exception message for 2^63. */
@@ -43,35 +41,6 @@ public final class ArithmeticUtils {
     /** Private constructor. */
     private ArithmeticUtils() {
         // intentionally empty.
-    }
-
-    /**
-     * Add two integers, checking for overflow.
-     *
-     * @param x an addend
-     * @param y an addend
-     * @return the sum {@code x+y}
-     * @throws ArithmeticException if the result can not be represented
-     * as an {@code int}.
-     */
-    public static int addAndCheck(int x, int y) {
-        long s = (long)x + (long)y;
-        if (s < Integer.MIN_VALUE || s > Integer.MAX_VALUE) {
-            throw new NumbersArithmeticException(OVERFLOW_IN_ADDITION_MESSAGE, x, y);
-        }
-        return (int)s;
-    }
-
-    /**
-     * Add two long integers, checking for overflow.
-     *
-     * @param a an addend
-     * @param b an addend
-     * @return the sum {@code a+b}
-     * @throws ArithmeticException if the result can not be represented as an long
-     */
-    public static long addAndCheck(long a, long b) {
-        return addAndCheck(a, b, OVERFLOW_IN_ADDITION_MESSAGE);
     }
 
     /**
