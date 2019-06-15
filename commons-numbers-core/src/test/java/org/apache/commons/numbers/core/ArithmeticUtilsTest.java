@@ -30,44 +30,6 @@ import org.junit.jupiter.api.Test;
 public class ArithmeticUtilsTest {
 
     @Test
-    public void testAddAndCheck() {
-        int big = Integer.MAX_VALUE;
-        int bigNeg = Integer.MIN_VALUE;
-        Assertions.assertEquals(big, ArithmeticUtils.addAndCheck(big, 0));
-        try {
-            ArithmeticUtils.addAndCheck(big, 1);
-            Assertions.fail("Expecting ArithmeticException");
-        } catch (ArithmeticException ex) {
-        }
-        try {
-            ArithmeticUtils.addAndCheck(bigNeg, -1);
-            Assertions.fail("Expecting ArithmeticException");
-        } catch (ArithmeticException ex) {
-        }
-    }
-
-    @Test
-    public void testAddAndCheckLong() {
-        long max = Long.MAX_VALUE;
-        long min = Long.MIN_VALUE;
-        Assertions.assertEquals(max, ArithmeticUtils.addAndCheck(max, 0L));
-        Assertions.assertEquals(min, ArithmeticUtils.addAndCheck(min, 0L));
-        Assertions.assertEquals(max, ArithmeticUtils.addAndCheck(0L, max));
-        Assertions.assertEquals(min, ArithmeticUtils.addAndCheck(0L, min));
-        Assertions.assertEquals(1, ArithmeticUtils.addAndCheck(-1L, 2L));
-        Assertions.assertEquals(1, ArithmeticUtils.addAndCheck(2L, -1L));
-        Assertions.assertEquals(-3, ArithmeticUtils.addAndCheck(-2L, -1L));
-        Assertions.assertEquals(min, ArithmeticUtils.addAndCheck(min + 1, -1L));
-        Assertions.assertEquals(-1, ArithmeticUtils.addAndCheck(min, max));
-        testAddAndCheckLongFailure(max, 1L);
-        testAddAndCheckLongFailure(min, -1L);
-        testAddAndCheckLongFailure(1L, max);
-        testAddAndCheckLongFailure(-1L, min);
-        testAddAndCheckLongFailure(max, max);
-        testAddAndCheckLongFailure(min, min);
-    }
-
-    @Test
     public void testGcd() {
         int a = 30;
         int b = 50;
@@ -560,15 +522,6 @@ public class ArithmeticUtilsTest {
         for (int i = 0; i < expected.length; i++) {
             final boolean actual = ArithmeticUtils.isPowerOfTwo(i);
             Assertions.assertEquals(expected[i], actual, Integer.toString(i));
-        }
-    }
-
-    private void testAddAndCheckLongFailure(long a, long b) {
-        try {
-            ArithmeticUtils.addAndCheck(a, b);
-            Assertions.fail("Expecting ArithmeticException");
-        } catch (ArithmeticException ex) {
-            // success
         }
     }
 
