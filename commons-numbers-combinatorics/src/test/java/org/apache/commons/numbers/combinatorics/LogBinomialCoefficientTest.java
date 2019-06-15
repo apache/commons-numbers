@@ -53,14 +53,14 @@ public class LogBinomialCoefficientTest {
         }
     }
 
-    @Test()
+    @Test
     public void testBinomialCoefficientFail1() {
         Assertions.assertThrows(CombinatoricsException.class,
             () -> LogBinomialCoefficient.value(4, 5)
         );
     }
 
-    @Test()
+    @Test
     public void testBinomialCoefficientFail2() {
         Assertions.assertThrows(CombinatoricsException.class,
                 () -> LogBinomialCoefficient.value(-1, -2)

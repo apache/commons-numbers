@@ -50,7 +50,7 @@ public class FactorialDoubleTest {
                 Double.POSITIVE_INFINITY, FactorialDouble.create().value(n), 0d, n + "!");
     }
 
-    @Test()
+    @Test
     public void testNonPositiveArgument() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> FactorialDouble.create().value(-1)

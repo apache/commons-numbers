@@ -35,14 +35,14 @@ public class FactorialTest {
         }
     }
 
-    @Test()
+    @Test
     public void testPrecondition1() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> Factorial.value(-1)
         );
     }
 
-    @Test()
+    @Test
     public void testPrecondition2() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> Factorial.value(21)
