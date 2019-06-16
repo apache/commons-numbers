@@ -290,7 +290,7 @@ public final class ArithmeticUtils {
         if (a == 0 || b == 0){
             return 0;
         }
-        int lcm = Math.abs(ArithmeticUtils.mulAndCheck(a / gcd(a, b), b));
+        int lcm = Math.abs(Math.multiplyExact(a / gcd(a, b), b));
         if (lcm == Integer.MIN_VALUE) {
             throw new NumbersArithmeticException("overflow: lcm({0}, {1}) is 2^31",
                                               a, b);
@@ -323,82 +323,12 @@ public final class ArithmeticUtils {
         if (a == 0 || b == 0){
             return 0;
         }
-        long lcm = Math.abs(ArithmeticUtils.mulAndCheck(a / gcd(a, b), b));
+        long lcm = Math.abs(Math.multiplyExact(a / gcd(a, b), b));
         if (lcm == Long.MIN_VALUE){
             throw new NumbersArithmeticException("overflow: lcm({0}, {1}) is 2^63",
                                               a, b);
         }
         return lcm;
-    }
-
-    /**
-     * Multiply two integers, checking for overflow.
-     *
-     * @param x Factor.
-     * @param y Factor.
-     * @return the product {@code x * y}.
-     * @throws ArithmeticException if the result can not be
-     * represented as an {@code int}.
-     */
-    public static int mulAndCheck(int x, int y) {
-        long m = ((long)x) * ((long)y);
-        if (m < Integer.MIN_VALUE || m > Integer.MAX_VALUE) {
-            throw new NumbersArithmeticException();
-        }
-        return (int)m;
-    }
-
-    /**
-     * Multiply two long integers, checking for overflow.
-     *
-     * @param a Factor.
-     * @param b Factor.
-     * @return the product {@code a * b}.
-     * @throws ArithmeticException if the result can not be represented
-     * as a {@code long}.
-     */
-    public static long mulAndCheck(long a, long b) {
-        long ret;
-        if (a > b) {
-            // use symmetry to reduce boundary cases
-            ret = mulAndCheck(b, a);
-        } else {
-            if (a < 0) {
-                if (b < 0) {
-                    // check for positive overflow with negative a, negative b
-                    if (a >= Long.MAX_VALUE / b) {
-                        ret = a * b;
-                    } else {
-                        throw new NumbersArithmeticException();
-                    }
-                } else if (b > 0) {
-                    // check for negative overflow with negative a, positive b
-                    if (Long.MIN_VALUE / b <= a) {
-                        ret = a * b;
-                    } else {
-                        throw new NumbersArithmeticException();
-
-                    }
-                } else {
-                    // assert b == 0
-                    ret = 0;
-                }
-            } else if (a > 0) {
-                // assert a > 0
-                // assert b > 0
-
-                // check for positive overflow with positive a, positive b
-                if (a <= Long.MAX_VALUE / b) {
-                    ret = a * b;
-                } else {
-                    throw new NumbersArithmeticException();
-                }
-            } else {
-                // assert a == 0
-                ret = 0;
-            }
-        }
-        return ret;
     }
 
     /**
@@ -421,7 +351,7 @@ public final class ArithmeticUtils {
         int k2p    = k;
         while (true) {
             if ((exp & 0x1) != 0) {
-                result = mulAndCheck(result, k2p);
+                result = Math.multiplyExact(result, k2p);
             }
 
             exp >>= 1;
@@ -429,7 +359,7 @@ public final class ArithmeticUtils {
                 break;
             }
 
-            k2p = mulAndCheck(k2p, k2p);
+            k2p = Math.multiplyExact(k2p, k2p);
         }
 
         return result;
@@ -455,7 +385,7 @@ public final class ArithmeticUtils {
         long k2p    = k;
         while (true) {
             if ((exp & 0x1) != 0) {
-                result = mulAndCheck(result, k2p);
+                result = Math.multiplyExact(result, k2p);
             }
 
             exp >>= 1;
@@ -463,7 +393,7 @@ public final class ArithmeticUtils {
                 break;
             }
 
-            k2p = mulAndCheck(k2p, k2p);
+            k2p = Math.multiplyExact(k2p, k2p);
         }
 
         return result;

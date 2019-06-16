@@ -254,45 +254,6 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void testMulAndCheck() {
-        int big = Integer.MAX_VALUE;
-        int bigNeg = Integer.MIN_VALUE;
-        Assertions.assertEquals(big, ArithmeticUtils.mulAndCheck(big, 1));
-        try {
-            ArithmeticUtils.mulAndCheck(big, 2);
-            Assertions.fail("Expecting ArithmeticException");
-        } catch (ArithmeticException ex) {
-        }
-        try {
-            ArithmeticUtils.mulAndCheck(bigNeg, 2);
-            Assertions.fail("Expecting ArithmeticException");
-        } catch (ArithmeticException ex) {
-        }
-    }
-
-    @Test
-    public void testMulAndCheckLong() {
-        long max = Long.MAX_VALUE;
-        long min = Long.MIN_VALUE;
-        Assertions.assertEquals(max, ArithmeticUtils.mulAndCheck(max, 1L));
-        Assertions.assertEquals(min, ArithmeticUtils.mulAndCheck(min, 1L));
-        Assertions.assertEquals(0L, ArithmeticUtils.mulAndCheck(max, 0L));
-        Assertions.assertEquals(0L, ArithmeticUtils.mulAndCheck(min, 0L));
-        Assertions.assertEquals(max, ArithmeticUtils.mulAndCheck(1L, max));
-        Assertions.assertEquals(min, ArithmeticUtils.mulAndCheck(1L, min));
-        Assertions.assertEquals(0L, ArithmeticUtils.mulAndCheck(0L, max));
-        Assertions.assertEquals(0L, ArithmeticUtils.mulAndCheck(0L, min));
-        Assertions.assertEquals(1L, ArithmeticUtils.mulAndCheck(-1L, -1L));
-        Assertions.assertEquals(min, ArithmeticUtils.mulAndCheck(min / 2, 2));
-        testMulAndCheckLongFailure(max, 2L);
-        testMulAndCheckLongFailure(2L, max);
-        testMulAndCheckLongFailure(min, 2L);
-        testMulAndCheckLongFailure(2L, min);
-        testMulAndCheckLongFailure(min, -1L);
-        testMulAndCheckLongFailure(-1L, min);
-    }
-
-    @Test
     public void testPow() {
 
         Assertions.assertEquals(1801088541, ArithmeticUtils.pow(21, 7));
@@ -476,15 +437,6 @@ public class ArithmeticUtilsTest {
         for (int i = 0; i < expected.length; i++) {
             final boolean actual = ArithmeticUtils.isPowerOfTwo(i);
             Assertions.assertEquals(expected[i], actual, Integer.toString(i));
-        }
-    }
-
-    private void testMulAndCheckLongFailure(long a, long b) {
-        try {
-            ArithmeticUtils.mulAndCheck(a, b);
-            Assertions.fail("Expecting ArithmeticException");
-        } catch (ArithmeticException ex) {
-            // success
         }
     }
 
