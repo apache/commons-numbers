@@ -167,7 +167,7 @@ public class PlaneAngleTest {
     public void testEquals2() {
         final PlaneAngle a = PlaneAngle.ofRadians(153768.373486587);
         final PlaneAngle b = null;
-        Assertions.assertNotEquals(b, a);
+        Assertions.assertFalse(a.equals(b));
     }
     @Test
     public void testEquals3() {
