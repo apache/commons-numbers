@@ -28,7 +28,7 @@ import org.apache.commons.numbers.fraction.Fraction;
  */
 final class FieldsList {
     /** List of all fields implemented in the library. */
-    private static final List<FieldTestData> LIST =
+    private static final List<FieldTestData<?>> LIST =
             new ArrayList<>();
 
     static {
@@ -62,7 +62,7 @@ final class FieldsList {
                                 T a,
                                 T b,
                                 T c) {
-        LIST.add(new FieldTestData(field, a, b, c));
+        LIST.add(new FieldTestData<>(field, a, b, c));
     }
 
     /**
@@ -71,7 +71,7 @@ final class FieldsList {
      *
      * @return the list of all fields.
      */
-    static List<FieldTestData> list() {
+    static List<FieldTestData<?>> list() {
         return Collections.unmodifiableList(LIST);
     }
 }

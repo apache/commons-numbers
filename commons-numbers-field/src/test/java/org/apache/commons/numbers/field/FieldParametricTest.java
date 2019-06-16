@@ -27,115 +27,105 @@ import java.util.stream.Stream;
  */
 public class FieldParametricTest {
 
-    private static Stream<FieldTestData> getList() {
+    private static Stream<FieldTestData<?>> getList() {
         return FieldsList.list().stream();
     }
 
     @ParameterizedTest
     @MethodSource("getList")
-    public void testAdditionAssociativity(FieldTestData data) {
-        Field field = data.getField();
-        Object a = data.getA();
-        Object b = data.getB();
-        Object c = data.getC();
-        final Object r1 = field.add(field.add(a, b), c);
-        final Object r2 = field.add(a, field.add(b, c));
+    public <T> void testAdditionAssociativity(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        T b = data.getB();
+        T c = data.getC();
+        final T r1 = field.add(field.add(a, b), c);
+        final T r2 = field.add(a, field.add(b, c));
         assertEquals(r1, r2);
     }
 
     @ParameterizedTest
     @MethodSource("getList")
-    public void testAdditionCommutativity(FieldTestData data) {
-        Field field = data.getField();
-        Object a = data.getA();
-        Object b = data.getB();
-        Object c = data.getC();
-        final Object r1 = field.add(a, b);
-        final Object r2 = field.add(b, a);
+    public <T> void testAdditionCommutativity(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        T b = data.getB();
+        final T r1 = field.add(a, b);
+        final T r2 = field.add(b, a);
         assertEquals(r1, r2);
     }
 
     @ParameterizedTest
     @MethodSource("getList")
-    public void testAdditiveIdentity(FieldTestData data) {
-        Field field = data.getField();
-        Object a = data.getA();
-        Object b = data.getB();
-        Object c = data.getC();
-        final Object r1 = field.add(a, field.zero());
-        final Object r2 = a;
+    public <T> void testAdditiveIdentity(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        final T r1 = field.add(a, field.zero());
+        final T r2 = a;
         assertEquals(r1, r2);
     }
 
     @ParameterizedTest
     @MethodSource("getList")
-    public void testAdditiveInverse(FieldTestData data) {
-        Field field = data.getField();
-        Object a = data.getA();
-        Object b = data.getB();
-        Object c = data.getC();
-        final Object r1 = field.add(a, field.negate(a));
-        final Object r2 = field.zero();
+    public <T> void testAdditiveInverse(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        final T r1 = field.add(a, field.negate(a));
+        final T r2 = field.zero();
         assertEquals(r1, r2);
     }
 
     @ParameterizedTest
     @MethodSource("getList")
-    public void testMultiplicationAssociativity(FieldTestData data) {
-        Field field = data.getField();
-        Object a = data.getA();
-        Object b = data.getB();
-        Object c = data.getC();
-        final Object r1 = field.multiply(field.multiply(a, b), c);
-        final Object r2 = field.multiply(a, field.multiply(b, c));
+    public <T> void testMultiplicationAssociativity(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        T b = data.getB();
+        T c = data.getC();
+        final T r1 = field.multiply(field.multiply(a, b), c);
+        final T r2 = field.multiply(a, field.multiply(b, c));
         assertEquals(r1, r2);
     }
 
     @ParameterizedTest
     @MethodSource("getList")
-    public void testMultiplicationCommutativity(FieldTestData data) {
-        Field field = data.getField();
-        Object a = data.getA();
-        Object b = data.getB();
-        Object c = data.getC();
-        final Object r1 = field.multiply(a, b);
-        final Object r2 = field.multiply(b, a);
+    public <T> void testMultiplicationCommutativity(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        T b = data.getB();
+        final T r1 = field.multiply(a, b);
+        final T r2 = field.multiply(b, a);
         assertEquals(r1, r2);
     }
 
     @ParameterizedTest
     @MethodSource("getList")
-    public void testMultiplicativeIdentity(FieldTestData data) {
-        Field field = data.getField();
-        Object a = data.getA();
-        Object b = data.getB();
-        Object c = data.getC();
-        final Object r1 = field.multiply(a, field.one());
-        final Object r2 = a;
+    public <T> void testMultiplicativeIdentity(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        final T r1 = field.multiply(a, field.one());
+        final T r2 = a;
         assertEquals(r1, r2);
     }
 
     @ParameterizedTest
     @MethodSource("getList")
-    public void testMultiplicativeInverse(FieldTestData data) {
-        Field field = data.getField();
-        Object a = data.getA();
-        Object b = data.getB();
-        Object c = data.getC();
-        final Object r1 = field.multiply(a, field.reciprocal(a));
-        final Object r2 = field.one();
+    public <T> void testMultiplicativeInverse(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        final T r1 = field.multiply(a, field.reciprocal(a));
+        final T r2 = field.one();
         assertEquals(r1, r2);
     }
 
     @ParameterizedTest
     @MethodSource("getList")
-    public void testDistributivity(FieldTestData data) {
-        Field field = data.getField();
-        Object a = data.getA();
-        Object b = data.getB();
-        Object c = data.getC();
-        final Object r1 = field.multiply(a, field.add(b, c));
-        final Object r2 = field.add(field.multiply(a, b), field.multiply(a, c));
+    public <T> void testDistributivity(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        T b = data.getB();
+        T c = data.getC();
+        final T r1 = field.multiply(a, field.add(b, c));
+        final T r2 = field.add(field.multiply(a, b), field.multiply(a, c));
         assertEquals(r1, r2);
     }
 
