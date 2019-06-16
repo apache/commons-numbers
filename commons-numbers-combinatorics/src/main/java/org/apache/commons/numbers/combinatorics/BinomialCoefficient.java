@@ -96,7 +96,7 @@ public class BinomialCoefficient {
             int i = n - k + 1;
             for (int j = 1; j <= k; j++) {
                 final long d = ArithmeticUtils.gcd(i, j);
-                result = ArithmeticUtils.mulAndCheck(result / (j / d), i / d);
+                result = Math.multiplyExact(result / (j / d), i / d);
                 ++i;
             }
         }
