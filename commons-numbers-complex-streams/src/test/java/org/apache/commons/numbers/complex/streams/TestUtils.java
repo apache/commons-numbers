@@ -35,44 +35,6 @@ class TestUtils {
     }
 
     /**
-     * Verifies that expected and actual are within delta, or are both NaN or
-     * infinities of the same sign.
-     */
-    public static void assertEquals(double expected, double actual, double delta) {
-        assertEquals(null, expected, actual, delta);
-    }
-
-    /**
-     * Verifies that expected and actual are within delta, or are both NaN or
-     * infinities of the same sign.
-     */
-    public static void assertEquals(String msg, double expected, double actual, double delta) {
-        // check for NaN
-        if(Double.isNaN(expected)){
-            Assertions.assertTrue(Double.isNaN(actual),
-                    (msg == null ? "" : msg + "\n") + actual + " is not NaN.");
-        } else {
-            Assertions.assertEquals(expected, actual, delta, msg);
-        }
-    }
-
-    /**
-     * Verifies that the two arguments are exactly the same, either
-     * both NaN or infinities of same sign, or identical floating point values.
-     */
-    public static void assertSame(double[] expected, double[] actual) {
-        assertEquals("", expected, actual, 0);
-    }
-
-    /**
-     * Verifies that the two arguments are exactly the same, either
-     * both NaN or infinities of same sign, or identical floating point values.
-     */
-    public static void assertSame(float[] expected, float[] actual) {
-        assertEquals("", expected, actual, 0);
-    }
-
-    /**
      * Verifies that the two arguments are exactly the same, either
      * both NaN or infinities of same sign, or identical floating point values.
      */
@@ -105,20 +67,12 @@ class TestUtils {
     }
 
     /**
-     * Verifies that the two arguments are exactly the same, either
-     * both NaN or infinities of same sign, or identical floating point values.
-     */
-    public static void assertSame(double expected, double actual) {
-        Assertions.assertEquals(expected, actual, 0);
-    }
-
-    /**
      * Verifies that real and imaginary parts of the two complex arguments
      * are exactly the same.  Also ensures that NaN / infinite components match.
      */
     public static void assertSame(Complex expected, Complex actual) {
-        assertSame(expected.getReal(), actual.getReal());
-        assertSame(expected.getImaginary(), actual.getImaginary());
+        Assertions.assertEquals(expected.getReal(), actual.getReal());
+        Assertions.assertEquals(expected.getImaginary(), actual.getImaginary());
     }
 
     /**
@@ -130,32 +84,11 @@ class TestUtils {
         Assertions.assertEquals(expected.getImaginary(), actual.getImaginary(), delta, "Imaginary Values Differ");
     }
 
-    /** verifies that two arrays are close (sup norm) */
-    public static void assertEquals(String msg, double[] expected, double[] observed, double tolerance) {
-        assertArrayLengthsEqual(msg, expected.length, observed.length);
-        StringBuilder out = new StringBuilder(msg);
-        boolean failure = false;
-        for (int i=0; i < expected.length; i++) {
-            if (!equalsIncludingNaN(expected[i], observed[i], tolerance)) {
-                failure = true;
-                out.append("\n[").append(i).append("] ");
-                out.append("Elements differ. ");
-                out.append(" expected = ");
-                out.append(expected[i]);
-                out.append(" observed = ");
-                out.append(observed[i]);
-            }
-        }
-        if (failure) {
-            Assertions.fail(out.toString());
-        }
-    }
-
     /** verifies that two 2D arrays are close (sup norm) */
     public static void assertEquals(String msg, double[][] expected, double[][] observed, double tolerance) {
         assertArrayLengthsEqual(msg, expected.length, observed.length);
         for (int i=0; i < expected.length; i++) {
-            assertEquals(msg + "[" + i + "]", expected[i], observed[i], tolerance);
+            Assertions.assertArrayEquals(expected[i], observed[i], tolerance, msg + "[" + i + "]");
         }
     }
 
@@ -183,32 +116,11 @@ class TestUtils {
         }
     }
 
-    /** verifies that two arrays are close (sup norm) */
-    public static void assertEquals(String msg, float[] expected, float[] observed, float tolerance) {
-        assertArrayLengthsEqual(msg, expected.length, observed.length);
-        StringBuilder out = new StringBuilder(msg);
-        boolean failure = false;
-        for (int i=0; i < expected.length; i++) {
-            if (!equalsIncludingNaN(expected[i], observed[i], tolerance)) {
-                failure = true;
-                out.append("\n[").append(i).append("] ");
-                out.append("Elements differ. ");
-                out.append(" expected = ");
-                out.append(expected[i]);
-                out.append(" observed = ");
-                out.append(observed[i]);
-            }
-        }
-        if (failure) {
-            Assertions.fail(out.toString());
-        }
-    }
-
     /** verifies that two 2D arrays are close (sup norm) */
     public static void assertEquals(String msg, float[][] expected, float[][] observed, float tolerance) {
         assertArrayLengthsEqual(msg, expected.length, observed.length);
         for (int i=0; i < expected.length; i++) {
-            assertEquals(msg + "[" + i + "]", expected[i], observed[i], tolerance);
+            Assertions.assertArrayEquals(expected[i], observed[i], tolerance, msg + "[" + i + "]");
         }
     }
 
@@ -226,7 +138,7 @@ class TestUtils {
         StringBuilder out = new StringBuilder(msg);
         boolean failure = false;
         for (int i=0; i < expected.length; i++) {
-            if (!equalsIncludingNaN(expected[i].getReal(), observed[i].getReal(), tolerance)) {
+            if (!Precision.equalsIncludingNaN(expected[i].getReal(), observed[i].getReal(), tolerance)) {
                 failure = true;
                 out.append("\n[").append(i).append("] ");
                 out.append("Real elements differ. ");
@@ -235,7 +147,7 @@ class TestUtils {
                 out.append(" observed = ");
                 out.append(observed[i].getReal());
             }
-            if (!equalsIncludingNaN(expected[i].getImaginary(), observed[i].getImaginary(), tolerance)) {
+            if (!Precision.equalsIncludingNaN(expected[i].getImaginary(), observed[i].getImaginary(), tolerance)) {
                 failure = true;
                 out.append("\n[").append(i).append("] ");
                 out.append("Imaginary elements differ. ");
@@ -272,34 +184,6 @@ class TestUtils {
         for (int i=0; i < expected.length; i++) {
             assertEquals(msg + "[" + i + "]", expected[i], observed[i], tolerance);
         }
-    }
-
-    /**
-     * Returns true if the arguments are both NaN, are equal or are within the range
-     * of allowed error (inclusive).
-     *
-     * @param x first value
-     * @param y second value
-     * @param eps the amount of absolute error to allow.
-     * @return {@code true} if the values are equal or within range of each other,
-     * or both are NaN.
-     * 
-     */
-    private static boolean equalsIncludingNaN(double x, double y, double eps) {
-        return equalsIncludingNaN(x, y) || (Math.abs(y - x) <= eps);
-    }
-
-    /**
-     * Returns true if the arguments are both NaN or they are
-     * equal as defined by {@link Precision#equals(double,double) equals(x, y, 1)}.
-     *
-     * @param x first value
-     * @param y second value
-     * @return {@code true} if the values are equal or both are NaN.
-     * 
-     */
-    private static boolean equalsIncludingNaN(double x, double y) {
-        return (x != x || y != y) ? !(x != x ^ y != y) : Precision.equals(x, y, 1);
     }
 
     /**
