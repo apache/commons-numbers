@@ -21,35 +21,35 @@ import java.util.Arrays;
 /**
  * Data store for {@link FieldParametricTest}.
  */
-class FieldTestData {
-    private final Field<?> field;
-    private final Object a;
-    private final Object b;
-    private final Object c;
+class FieldTestData<T> {
+    private final Field<T> field;
+    private final T a;
+    private final T b;
+    private final T c;
 
-    public FieldTestData(Field<?> field,
-                         Object a,
-                         Object b,
-                         Object c) {
+    public FieldTestData(Field<T> field,
+                         T a,
+                         T b,
+                         T c) {
         this.field = field;
         this.a = a;
         this.b = b;
         this.c = c;
     }
 
-    public Field<?> getField() {
+    public Field<T> getField() {
         return field;
     }
 
-    public Object getA() {
+    public T getA() {
         return a;
     }
 
-    public Object getB() {
+    public T getB() {
         return b;
     }
 
-    public Object getC() {
+    public T getC() {
         return c;
     }
 

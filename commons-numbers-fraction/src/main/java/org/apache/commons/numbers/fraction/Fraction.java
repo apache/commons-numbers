@@ -45,7 +45,7 @@ public class Fraction
 
     /** The default epsilon used for convergence. */
     private static final double DEFAULT_EPSILON = 1e-5;
-    
+
     /** The denominator. */
     private final int denominator;
 
@@ -150,7 +150,7 @@ public class Fraction
             this.denominator = (int) q1;
         }
     }
-    
+
     /**
      * Private constructor for integer fractions.
      * @param num the numerator.
@@ -259,7 +259,7 @@ public class Fraction
      * @return {@link Fraction} instance
      */
     public static Fraction of(int num, int den) {
-    	return new Fraction(num, den);
+        return new Fraction(num, den);
     }
 
     /**
@@ -286,7 +286,7 @@ public class Fraction
     public int compareTo(Fraction object) {
         long nOd = ((long) numerator) * object.denominator;
         long dOn = ((long) denominator) * object.numerator;
-        return (nOd < dOn) ? -1 : ((nOd > dOn) ? +1 : 0);
+        return  (nOd < dOn) ? -1 : ((nOd > dOn) ? +1 : 0);
     }
 
     /**
@@ -445,10 +445,10 @@ public class Fraction
 
     /**
      * Implement add and subtract. This algorithm is similar to that
-     * described in Knuth 4.5.1. while making some concessions to 
+     * described in Knuth 4.5.1. while making some concessions to
      * performance. Note Knuth 4.5.1 Exercise 7, which observes that
      * adding two fractions with 32-bit numerators and denominators
-     * requires 65 bits in extreme cases. Here calculations are performed 
+     * requires 65 bits in extreme cases. Here calculations are performed
      * with 64-bit longs and the BigFraction class is recommended for numbers
      * that may grow large enough to be in danger of overflow.
      *
@@ -624,7 +624,7 @@ public class Fraction
         }
         return str;
     }
-    
+
     /** {@inheritDoc} */
     @Override
     public Fraction zero() {

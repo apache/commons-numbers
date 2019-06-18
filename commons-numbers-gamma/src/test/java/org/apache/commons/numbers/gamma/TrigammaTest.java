@@ -16,8 +16,8 @@
  */
 package org.apache.commons.numbers.gamma;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for {@link Trigamma}.
@@ -45,15 +45,15 @@ public class TrigammaTest {
                 100, 0.010050166663333571395
         };
         for (int i = data.length - 2; i >= 0; i -= 2) {
-            Assert.assertEquals(String.format("trigamma %.0f", data[i]), data[i + 1], Trigamma.value(data[i]), eps);
+            Assertions.assertEquals(data[i + 1], Trigamma.value(data[i]), eps, String.format("trigamma %.0f", data[i]));
         }
     }
 
     @Test
     public void testTrigammaNonRealArgs() {
-        Assert.assertTrue(Double.isNaN(Trigamma.value(Double.NaN)));
-        Assert.assertTrue(Double.isInfinite(Trigamma.value(Double.POSITIVE_INFINITY)));
-        Assert.assertTrue(Double.isInfinite(Trigamma.value(Double.NEGATIVE_INFINITY)));
+        Assertions.assertTrue(Double.isNaN(Trigamma.value(Double.NaN)));
+        Assertions.assertTrue(Double.isInfinite(Trigamma.value(Double.POSITIVE_INFINITY)));
+        Assertions.assertTrue(Double.isInfinite(Trigamma.value(Double.NEGATIVE_INFINITY)));
     }
 }
 

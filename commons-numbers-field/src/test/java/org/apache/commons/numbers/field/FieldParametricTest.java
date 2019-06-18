@@ -16,98 +16,116 @@
  */
 package org.apache.commons.numbers.field;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import java.util.stream.Stream;
 
 /**
  * Tests for fields.
  */
-@RunWith(value=Parameterized.class)
 public class FieldParametricTest {
-    /** Field under test. */
-    private final Field field;
-    private final Object a;
-    private final Object b;
-    private final Object c;
 
-    /**
-     * Initializes data instance.
-     *
-     * @param data Field data to be tested.
-     */
-    public FieldParametricTest(FieldTestData data) {
-        this.field = data.getField();
-        this.a = data.getA();
-        this.b = data.getB();
-        this.c = data.getC();
+    private static Stream<FieldTestData<?>> getList() {
+        return FieldsList.list().stream();
     }
 
-    @Parameters(name = "{index}: data={0}")
-    public static Iterable<FieldTestData[]> getList() {
-        return FieldsList.list();
-    }
-
-    @Test
-    public void testAdditionAssociativity() {
-        final Object r1 = field.add(field.add(a, b), c);
-        final Object r2 = field.add(a, field.add(b, c));
-        assertEquals(r1, r2);
-    }
-    @Test
-    public void testAdditionCommutativity() {
-        final Object r1 = field.add(a, b);
-        final Object r2 = field.add(b, a);
-        assertEquals(r1, r2);
-    }
-    @Test
-    public void testAdditiveIdentity() {
-        final Object r1 = field.add(a, field.zero());
-        final Object r2 = a;
-        assertEquals(r1, r2);
-    }
-    @Test
-    public void testAdditiveInverse() {
-        final Object r1 = field.add(a, field.negate(a));
-        final Object r2 = field.zero();
+    @ParameterizedTest
+    @MethodSource("getList")
+    public <T> void testAdditionAssociativity(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        T b = data.getB();
+        T c = data.getC();
+        final T r1 = field.add(field.add(a, b), c);
+        final T r2 = field.add(a, field.add(b, c));
         assertEquals(r1, r2);
     }
 
-    @Test
-    public void testMultiplicationAssociativity() {
-        final Object r1 = field.multiply(field.multiply(a, b), c);
-        final Object r2 = field.multiply(a, field.multiply(b, c));
-        assertEquals(r1, r2);
-    }
-    @Test
-    public void testMultiplicationCommutativity() {
-        final Object r1 = field.multiply(a, b);
-        final Object r2 = field.multiply(b, a);
-        assertEquals(r1, r2);
-    }
-    @Test
-    public void testMultiplicativeIdentity() {
-        final Object r1 = field.multiply(a, field.one());
-        final Object r2 = a;
-        assertEquals(r1, r2);
-    }
-    @Test
-    public void testMultiplicativeInverse() {
-        final Object r1 = field.multiply(a, field.reciprocal(a));
-        final Object r2 = field.one();
+    @ParameterizedTest
+    @MethodSource("getList")
+    public <T> void testAdditionCommutativity(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        T b = data.getB();
+        final T r1 = field.add(a, b);
+        final T r2 = field.add(b, a);
         assertEquals(r1, r2);
     }
 
-    @Test
-    public void testDistributivity() {
-        final Object r1 = field.multiply(a, field.add(b, c));
-        final Object r2 = field.add(field.multiply(a, b), field.multiply(a, c));
+    @ParameterizedTest
+    @MethodSource("getList")
+    public <T> void testAdditiveIdentity(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        final T r1 = field.add(a, field.zero());
+        final T r2 = a;
+        assertEquals(r1, r2);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getList")
+    public <T> void testAdditiveInverse(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        final T r1 = field.add(a, field.negate(a));
+        final T r2 = field.zero();
+        assertEquals(r1, r2);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getList")
+    public <T> void testMultiplicationAssociativity(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        T b = data.getB();
+        T c = data.getC();
+        final T r1 = field.multiply(field.multiply(a, b), c);
+        final T r2 = field.multiply(a, field.multiply(b, c));
+        assertEquals(r1, r2);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getList")
+    public <T> void testMultiplicationCommutativity(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        T b = data.getB();
+        final T r1 = field.multiply(a, b);
+        final T r2 = field.multiply(b, a);
+        assertEquals(r1, r2);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getList")
+    public <T> void testMultiplicativeIdentity(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        final T r1 = field.multiply(a, field.one());
+        final T r2 = a;
+        assertEquals(r1, r2);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getList")
+    public <T> void testMultiplicativeInverse(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        final T r1 = field.multiply(a, field.reciprocal(a));
+        final T r2 = field.one();
+        assertEquals(r1, r2);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getList")
+    public <T> void testDistributivity(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        T b = data.getB();
+        T c = data.getC();
+        final T r1 = field.multiply(a, field.add(b, c));
+        final T r2 = field.add(field.multiply(a, b), field.multiply(a, c));
         assertEquals(r1, r2);
     }
 
@@ -115,9 +133,8 @@ public class FieldParametricTest {
      * @param a Instance.
      * @param b Instance.
      */
-    private void assertEquals(Object a,
-                              Object b) {
-        Assert.assertTrue(a + " != " + b,
-                          a.equals(b));
+    private static void assertEquals(Object a,
+                                     Object b) {
+        Assertions.assertEquals(a, b, a + " != " + b);
     }
 }

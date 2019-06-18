@@ -16,8 +16,8 @@
  */
 package org.apache.commons.numbers.fraction;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -41,7 +41,7 @@ public class ContinuedFractionTest {
 
         final double eps = 1e-8;
         double gr = cf.evaluate(0, eps);
-        Assert.assertEquals(1.61803399, gr, eps);
+        Assertions.assertEquals(1.61803399, gr, eps);
     }
 
     // NUMBERS-46
@@ -61,7 +61,7 @@ public class ContinuedFractionTest {
 
         final double eps = 10;
         double gr = cf.evaluate(0, eps, 1);
-        Assert.assertEquals(1.61, gr, eps);
+        Assertions.assertEquals(1.61, gr, eps);
     }
 
     // NUMBERS-46
@@ -81,6 +81,6 @@ public class ContinuedFractionTest {
 
         final double eps = 0.5;
         double gr = cf.evaluate(0, eps, 2);
-        Assert.assertEquals(1.5, gr, 0d);
+        Assertions.assertEquals(1.5, gr, 0d);
     }
 }

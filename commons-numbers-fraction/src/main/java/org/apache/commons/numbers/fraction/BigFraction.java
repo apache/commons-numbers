@@ -26,7 +26,7 @@ import org.apache.commons.numbers.core.ArithmeticUtils;
  * Representation of a rational number without any overflow. This class is
  * immutable.
  */
-public class BigFraction extends Number implements Comparable<BigFraction>, Serializable {    
+public class BigFraction extends Number implements Comparable<BigFraction>, Serializable {
     /** A fraction representing "0". */
     public static final BigFraction ZERO = new BigFraction(0);
 
@@ -189,7 +189,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
             denominator = BigInteger.valueOf(q1);
         }
     }
-    
+
     /**
      * Create a fraction given the double value.
      * <p>
@@ -270,7 +270,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * @return a new instance.
      */
     public static BigFraction of(BigInteger num, BigInteger den) {
-    	return new BigFraction(num, den);
+        return new BigFraction(num, den);
     }
 
     /**
@@ -296,7 +296,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * @return a new instance.
      */
     public static BigFraction from(final double value) throws IllegalArgumentException {
-    	return new BigFraction(value);
+        return new BigFraction(value);
     }
 
     /**
@@ -1173,7 +1173,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
         }
         return str;
     }
-    
+
     /**
      * Parses a string that would be produced by {@link #toString()}
      * and instantiates the corresponding object.

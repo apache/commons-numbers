@@ -16,8 +16,8 @@
  */
 package org.apache.commons.numbers.gamma;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for {@link RegularizedGamma}.
@@ -61,7 +61,7 @@ public class RegularizedGammaTest {
     private void testRegularizedGamma(double expected, double a, double x) {
         double actualP = RegularizedGamma.P.value(a, x);
         double actualQ = RegularizedGamma.Q.value(a, x);
-        Assert.assertEquals(expected, actualP, 1e-15);
-        Assert.assertEquals(actualP, 1 - actualQ, 1e-15);
+        Assertions.assertEquals(expected, actualP, 1e-15);
+        Assertions.assertEquals(actualP, 1 - actualQ, 1e-15);
     }
 }

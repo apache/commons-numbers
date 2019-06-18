@@ -16,8 +16,8 @@
  */
 package org.apache.commons.numbers.gamma;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for {@link RegularizedBeta}.
@@ -77,7 +77,7 @@ public class RegularizedBetaTest {
     public void testRegularizedBetaTinyArgument() {
         double actual = RegularizedBeta.value(1e-17, 1.0, 1e12);
         // This value is from R: pbeta(1e-17,1,1e12)
-        Assert.assertEquals(9.999950000166648e-6, actual, 1e-16);
+        Assertions.assertEquals(9.999950000166648e-6, actual, 1e-16);
     }
 
     @Test
@@ -89,7 +89,7 @@ public class RegularizedBetaTest {
         try {
             RegularizedBeta.value(x, a, b, 1e-14, 10000);
         } catch (StackOverflowError error) {
-            Assert.fail("Infinite recursion");
+            Assertions.fail("Infinite recursion");
         }
     }
 
@@ -98,6 +98,6 @@ public class RegularizedBetaTest {
                                      double a,
                                      double b) {
         final double actual = RegularizedBeta.value(x, a, b);
-        Assert.assertEquals(expected, actual, 1e-15);
+        Assertions.assertEquals(expected, actual, 1e-15);
     }
 }

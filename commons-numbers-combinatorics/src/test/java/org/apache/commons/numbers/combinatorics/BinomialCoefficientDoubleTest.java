@@ -16,8 +16,8 @@
  */
 package org.apache.commons.numbers.combinatorics;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for the {@link BinomialCoefficient} class.
@@ -26,7 +26,7 @@ public class BinomialCoefficientDoubleTest {
     /** Verify that b(0,0) = 1 */
     @Test
     public void test0Choose0() {
-        Assert.assertEquals(BinomialCoefficientDouble.value(0, 0), 1d, 0);
+        Assertions.assertEquals(1d, BinomialCoefficientDouble.value(0, 0), 0);
     }
 
     @Test
@@ -36,10 +36,12 @@ public class BinomialCoefficientDoubleTest {
 
         for (int n = 1; n < 10; n++) {
             for (int k = 0; k <= n; k++) {
-                Assert.assertEquals(n + " choose " + k,
-                                    BinomialCoefficientTest.binomialCoefficient(n, k),
-                                    BinomialCoefficientDouble.value(n, k),
-                                    Double.MIN_VALUE);
+                Assertions.assertEquals(
+                        BinomialCoefficientTest.binomialCoefficient(n, k),
+                        BinomialCoefficientDouble.value(n, k),
+                        Double.MIN_VALUE,
+                        n + " choose " + k
+                );
             }
         }
 
@@ -47,25 +49,33 @@ public class BinomialCoefficientDoubleTest {
         final int[] k = { 17, 33, 10, 1500 - 4, 4 };
         for (int i = 0; i < n.length; i++) {
             final long expected = BinomialCoefficientTest.binomialCoefficient(n[i], k[i]);
-            Assert.assertEquals(n[i] + " choose " + k[i], expected,
-                                BinomialCoefficientDouble.value(n[i], k[i]), 0.0);
+            Assertions.assertEquals(
+                    expected,
+                    BinomialCoefficientDouble.value(n[i], k[i]),
+                    0.0,
+                    n[i] + " choose " + k[i]
+            );
         }
     }
 
-    @Test(expected=CombinatoricsException.class)
+    @Test
     public void testBinomialCoefficientFail1() {
-        BinomialCoefficientDouble.value(4, 5);
+        Assertions.assertThrows(CombinatoricsException.class,
+                () -> BinomialCoefficientDouble.value(4, 5)
+        );
     }
 
-    @Test(expected=CombinatoricsException.class)
+    @Test
     public void testBinomialCoefficientFail2() {
-        BinomialCoefficientDouble.value(-1, -2);
+        Assertions.assertThrows(CombinatoricsException.class,
+                () -> BinomialCoefficientDouble.value(-1, -2)
+        );
     }
 
     @Test
     public void testBinomialCoefficientFail3() {
         final double x = BinomialCoefficientDouble.value(1030, 515);
-        Assert.assertTrue("expecting infinite binomial coefficient", Double.isInfinite(x));
+        Assertions.assertTrue(Double.isInfinite(x), "expecting infinite binomial coefficient");
     }
 
     /**
@@ -92,8 +102,12 @@ public class BinomialCoefficientDoubleTest {
                 }
 
                 if (!shouldThrow && exactResult > 1) {
-                    Assert.assertEquals(n + " choose " + k, 1.,
-                                        BinomialCoefficientDouble.value(n, k) / exactResult, 1e-10);
+                    Assertions.assertEquals(
+                            1.,
+                            BinomialCoefficientDouble.value(n, k) / exactResult,
+                            1e-10,
+                            n + " choose " + k
+                    );
                 }
             }
         }
@@ -101,6 +115,6 @@ public class BinomialCoefficientDoubleTest {
         final int n = 10000;
         final double actualOverExpected = BinomialCoefficientDouble.value(n, 3) /
             BinomialCoefficientTest.binomialCoefficient(n, 3);
-        Assert.assertEquals(1, actualOverExpected, 1e-10);
+        Assertions.assertEquals(1, actualOverExpected, 1e-10);
     }
 }

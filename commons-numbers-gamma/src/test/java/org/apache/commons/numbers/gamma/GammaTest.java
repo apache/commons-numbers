@@ -16,8 +16,8 @@
  */
 package org.apache.commons.numbers.gamma;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for {@link Gamma}.
@@ -527,14 +527,14 @@ public class GammaTest {
                 ulps = 500;
             }
             final double tol = ulps * Math.ulp(expected);
-            Assert.assertEquals(Double.toString(x), expected, actual, tol);
+            Assertions.assertEquals(expected, actual, tol, Double.toString(x));
         }
     }
 
     @Test
     public void testGammaNegativeInteger() {
         for (int i = -100; i <= 0; i++) {
-            Assert.assertTrue(Integer.toString(i), Double.isNaN(Gamma.value(i)));
+            Assertions.assertTrue(Double.isNaN(Gamma.value(i)), Integer.toString(i));
         }
     }
 
@@ -546,7 +546,7 @@ public class GammaTest {
         double previousGamma = Gamma.value(-18.5);
         for (double x = -19.5; x > -25; x -= 1.0) {
             double gamma = Gamma.value(x);
-            Assert.assertEquals(  (int) Math.signum(previousGamma),
+            Assertions.assertEquals(  (int) Math.signum(previousGamma),
                                 - (int) Math.signum(gamma));
 
             previousGamma = gamma;

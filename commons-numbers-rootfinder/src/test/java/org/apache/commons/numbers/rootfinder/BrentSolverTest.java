@@ -14,8 +14,9 @@
 package org.apache.commons.numbers.rootfinder;
 
 import java.util.function.DoubleUnaryOperator;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for the {@link BrentSolver} class.
@@ -41,14 +42,14 @@ public class BrentSolverTest {
         // Somewhat benign interval. The function is monotonous.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, 3, 4);
-        Assert.assertEquals(result, Math.PI, DEFAULT_ABSOLUTE_ACCURACY);
-        Assert.assertTrue(f.getCallsCount() <= 7);
+        Assertions.assertEquals(Math.PI, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertTrue(f.getCallsCount() <= 7);
 
         // Larger and somewhat less benign interval. The function is grows first.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, 1, 4);
-        Assert.assertEquals(result, Math.PI, DEFAULT_ABSOLUTE_ACCURACY);
-        Assert.assertTrue(f.getCallsCount() <= 8);
+        Assertions.assertEquals(Math.PI, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertTrue(f.getCallsCount() <= 8);
     }
 
     @Test
@@ -72,67 +73,67 @@ public class BrentSolverTest {
         // the root in the first iteration.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, -0.2, 0.2);
-        Assert.assertEquals(result, 0, DEFAULT_ABSOLUTE_ACCURACY);
-        Assert.assertTrue(f.getCallsCount() <= 3);
+        Assertions.assertEquals(0, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertTrue(f.getCallsCount() <= 3);
 
         // 1 iterations on i586 JDK 1.4.1.
         // Asymmetric bracket around 0. Contains extremum.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, -0.1, 0.3);
-        Assert.assertEquals(result, 0, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertEquals(0, result, DEFAULT_ABSOLUTE_ACCURACY);
         // 5 iterations on i586 JDK 1.4.1.
-        Assert.assertTrue(f.getCallsCount() <= 7);
+        Assertions.assertTrue(f.getCallsCount() <= 7);
 
         // Large bracket around 0. Contains two extrema.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, -0.3, 0.45);
-        Assert.assertEquals(result, 0, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertEquals(0, result, DEFAULT_ABSOLUTE_ACCURACY);
         // 6 iterations on i586 JDK 1.4.1.
-        Assert.assertTrue(f.getCallsCount() <= 8);
+        Assertions.assertTrue(f.getCallsCount() <= 8);
 
         // Benign bracket around 0.5, function is monotonous.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, 0.3, 0.7);
-        Assert.assertEquals(0.5, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertEquals(0.5, result, DEFAULT_ABSOLUTE_ACCURACY);
         // 6 iterations on i586 JDK 1.4.1.
-        Assert.assertTrue(f.getCallsCount() <= 9);
+        Assertions.assertTrue(f.getCallsCount() <= 9);
 
         // Less benign bracket around 0.5, contains one extremum.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, 0.2, 0.6);
-        Assert.assertEquals(0.5, result, DEFAULT_ABSOLUTE_ACCURACY);
-        Assert.assertTrue(f.getCallsCount() <= 10);
+        Assertions.assertEquals(0.5, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertTrue(f.getCallsCount() <= 10);
 
         // Large, less benign bracket around 0.5, contains both extrema.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, 0.05, 0.95);
-        Assert.assertEquals(0.5, result, DEFAULT_ABSOLUTE_ACCURACY);
-        Assert.assertTrue(f.getCallsCount() <= 11);
+        Assertions.assertEquals(0.5, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertTrue(f.getCallsCount() <= 11);
 
         // Relatively benign bracket around 1, function is monotonous. Fast growth for x>1
         // is still a problem.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, 0.85, 1.25);
-        Assert.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
-        Assert.assertTrue(f.getCallsCount() <= 11);
+        Assertions.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertTrue(f.getCallsCount() <= 11);
 
         // Less benign bracket around 1 with extremum.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, 0.8, 1.2);
-        Assert.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
-        Assert.assertTrue(f.getCallsCount() <= 11);
+        Assertions.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertTrue(f.getCallsCount() <= 11);
 
         // Large bracket around 1. Monotonous.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, 0.85, 1.75);
-        Assert.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
-        Assert.assertTrue(f.getCallsCount() <= 13);
+        Assertions.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertTrue(f.getCallsCount() <= 13);
 
         // Large bracket around 1. Interval contains extremum.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, 0.55, 1.45);
-        Assert.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
-        Assert.assertTrue(f.getCallsCount() <= 10);
+        Assertions.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertTrue(f.getCallsCount() <= 10);
     }
 
     @Test
@@ -148,17 +149,17 @@ public class BrentSolverTest {
         // Very large bracket around 1 for testing fast growth behaviour.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, 0.85, 5);
-        Assert.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
-        Assert.assertTrue(f.getCallsCount() <= 15);
+        Assertions.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertTrue(f.getCallsCount() <= 15);
 
         try {
             f = new MonitoredFunction(func, 10);
             result = solver.findRoot(f, 0.85, 5);
-            Assert.fail("Expected too many calls condition");
+            Assertions.fail("Expected too many calls condition");
         } catch (IllegalStateException ex) {
             // Expected.
             // Ensure expected error condition.
-            Assert.assertFalse(ex.getMessage().indexOf("too many calls") == -1);
+            Assertions.assertNotEquals(-1, ex.getMessage().indexOf("too many calls"));
         }
     }
 
@@ -171,16 +172,16 @@ public class BrentSolverTest {
 
         // Endpoint is root.
         double result = solver.findRoot(f, Math.PI, 4);
-        Assert.assertEquals(Math.PI, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertEquals(Math.PI, result, DEFAULT_ABSOLUTE_ACCURACY);
 
         result = solver.findRoot(f, 3, Math.PI);
-        Assert.assertEquals(Math.PI, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertEquals(Math.PI, result, DEFAULT_ABSOLUTE_ACCURACY);
 
         result = solver.findRoot(f, Math.PI, 3.5, 4);
-        Assert.assertEquals(Math.PI, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertEquals(Math.PI, result, DEFAULT_ABSOLUTE_ACCURACY);
 
         result = solver.findRoot(f, 3, 3.07, Math.PI);
-        Assert.assertEquals(Math.PI, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertEquals(Math.PI, result, DEFAULT_ABSOLUTE_ACCURACY);
     }
 
     @Test
@@ -191,24 +192,24 @@ public class BrentSolverTest {
                                                    DEFAULT_FUNCTION_ACCURACY);
         try {  // Bad interval.
             solver.findRoot(f, 1, -1);
-            Assert.fail("Expecting bad interval condition");
+            Assertions.fail("Expecting bad interval condition");
         } catch (SolverException ex) {
             // Ensure expected error condition.
-            Assert.assertFalse(ex.getMessage().indexOf(" > ") == -1);
+            Assertions.assertNotEquals(-1, ex.getMessage().indexOf(" > "));
         }
         try {  // No bracketing.
             solver.findRoot(f, 1, 1.5);
-            Assert.fail("Expecting non-bracketing condition");
+            Assertions.fail("Expecting non-bracketing condition");
         } catch (SolverException ex) {
             // Ensure expected error condition.
-            Assert.assertFalse(ex.getMessage().indexOf("No bracketing") == -1);
+            Assertions.assertNotEquals(-1, ex.getMessage().indexOf("No bracketing"));
         }
         try {  // No bracketing.
             solver.findRoot(f, 1, 1.2, 1.5);
-            Assert.fail("Expecting non-bracketing condition");
+            Assertions.fail("Expecting non-bracketing condition");
         } catch (SolverException ex) {
             // Ensure expected error condition.
-            Assert.assertFalse(ex.getMessage().indexOf("No bracketing") == -1);
+            Assertions.assertNotEquals(-1, ex.getMessage().indexOf("No bracketing"));
         }
     }
 
@@ -222,10 +223,10 @@ public class BrentSolverTest {
         try {
             // Invalid guess (it *is* a root, but outside of the range).
             double result = solver.findRoot(func, 0.0, 7.0, 0.6);
-            Assert.fail("an out of range condition was expected");
+            Assertions.fail("an out of range condition was expected");
         } catch (SolverException ex) {
             // Ensure expected error condition.
-            Assert.assertFalse(ex.getMessage().indexOf("out of range") == -1);
+            Assertions.assertNotEquals(-1, ex.getMessage().indexOf("out of range"));
         }
     }
 
@@ -241,26 +242,26 @@ public class BrentSolverTest {
         // No guess.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, 0.6, 7.0);
-        Assert.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
         final int referenceCallsCount = f.getCallsCount();
-        Assert.assertTrue(referenceCallsCount >= 13);
+        Assertions.assertTrue(referenceCallsCount >= 13);
 
         // Bad guess.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, 0.6, 0.61, 7.0);
-        Assert.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
-        Assert.assertTrue(f.getCallsCount() > referenceCallsCount);
+        Assertions.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertTrue(f.getCallsCount() > referenceCallsCount);
 
         // Good guess.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, 0.6, 0.9999990001, 7.0);
-        Assert.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
-        Assert.assertTrue(f.getCallsCount() < referenceCallsCount);
+        Assertions.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertTrue(f.getCallsCount() < referenceCallsCount);
 
         // Perfect guess.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, 0.6, 1.0, 7.0);
-        Assert.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
-        Assert.assertEquals(1, f.getCallsCount());
+        Assertions.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
+        Assertions.assertEquals(1, f.getCallsCount());
     }
 }

@@ -16,8 +16,8 @@
  */
 package org.apache.commons.numbers.combinatorics;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for the {@link Factorial} class.
@@ -25,24 +25,28 @@ import org.junit.Test;
 public class FactorialTest {
     @Test
     public void testFactorialZero() {
-        Assert.assertEquals("0!", 1, Factorial.value(0));
+        Assertions.assertEquals(1, Factorial.value(0), "0!");
     }
 
     @Test
     public void testFactorial() {
         for (int i = 1; i < 21; i++) {
-            Assert.assertEquals(i + "!", factorial(i), Factorial.value(i));
+            Assertions.assertEquals(factorial(i), Factorial.value(i), i + "!");
         }
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testPrecondition1() {
-        Factorial.value(-1);
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Factorial.value(-1)
+        );
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testPrecondition2() {
-        Factorial.value(21);
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> Factorial.value(21)
+        );
     }
 
     /**

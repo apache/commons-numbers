@@ -26,10 +26,10 @@ import org.apache.commons.numbers.fraction.Fraction;
 /**
  * List of fields.
  */
-public class FieldsList {
+final class FieldsList {
     /** List of all fields implemented in the library. */
-    private static final List<FieldTestData[]> LIST =
-        new ArrayList<FieldTestData[]>();
+    private static final List<FieldTestData<?>> LIST =
+            new ArrayList<>();
 
     static {
         try {
@@ -50,6 +50,9 @@ public class FieldsList {
         }
     }
 
+    private FieldsList() {
+    }
+
     /**
      * @param field Field.
      * @param a Field element.
@@ -59,7 +62,7 @@ public class FieldsList {
                                 T a,
                                 T b,
                                 T c) {
-        LIST.add(new FieldTestData[] { new FieldTestData(field, a, b, c) });
+        LIST.add(new FieldTestData<>(field, a, b, c));
     }
 
     /**
@@ -68,7 +71,7 @@ public class FieldsList {
      *
      * @return the list of all fields.
      */
-    public static Iterable<FieldTestData[]> list() {
+    static List<FieldTestData<?>> list() {
         return Collections.unmodifiableList(LIST);
     }
 }

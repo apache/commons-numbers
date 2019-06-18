@@ -18,8 +18,9 @@ package org.apache.commons.numbers.gamma;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for {@link LogBeta}.
@@ -296,7 +297,7 @@ public class LogBetaTest {
             final double tol = ulps * Math.ulp(expected);
             final StringBuilder builder = new StringBuilder();
             builder.append(a).append(", ").append(b);
-            Assert.assertEquals(builder.toString(), expected, actual, tol);
+            Assertions.assertEquals(expected, actual, tol, builder.toString());
         }
     }
 
@@ -339,7 +340,7 @@ public class LogBetaTest {
                              double a,
                              double b) {
         double actual = LogBeta.value(a, b);
-        Assert.assertEquals(expected, actual, 1e-15);
+        Assertions.assertEquals(expected, actual, 1e-15);
     }
 
     private static final double[][] LOG_GAMMA_MINUS_LOG_GAMMA_SUM_REF = {
@@ -477,14 +478,14 @@ public class LogBetaTest {
             m.setAccessible(true);
             return ((Double) m.invoke(null, a, b)).doubleValue();
         } catch (NoSuchMethodException e) {
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage());
         } catch (IllegalAccessException e) {
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage());
         } catch (InvocationTargetException e) {
             if (e.getTargetException() instanceof GammaException) {
                 throw (GammaException) e.getTargetException();
             } else {
-                Assert.fail(e.getTargetException().getMessage());
+                Assertions.fail(e.getTargetException().getMessage());
             }
         }
         return Double.NaN;
@@ -502,18 +503,23 @@ public class LogBetaTest {
             final double tol = ulps * Math.ulp(expected);
             final StringBuilder builder = new StringBuilder();
             builder.append(a).append(", ").append(b);
-            Assert.assertEquals(builder.toString(), expected, actual, tol);
+            Assertions.assertEquals(expected, actual, tol, builder.toString());
         }
     }
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testLogGammaMinusLogGammaSumPrecondition1() {
-        logGammaMinusLogGammaSum(-1, 8);
+    @Test
+    public void testLogGammaMinusLogGammaSumPrecondition1()
+    {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> logGammaMinusLogGammaSum(-1, 8)
+        );
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testLogGammaMinusLogGammaSumPrecondition2() {
-        logGammaMinusLogGammaSum(1, 7);
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> logGammaMinusLogGammaSum(1, 7)
+        );
     }
 
     private static final double[][] SUM_DELTA_MINUS_DELTA_SUM_REF = {
@@ -652,14 +658,14 @@ public class LogBetaTest {
             m.setAccessible(true);
             return ((Double) m.invoke(null, a, b)).doubleValue();
         } catch (NoSuchMethodException e) {
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage());
         } catch (final IllegalAccessException e) {
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage());
         } catch (final InvocationTargetException e) {
             if (e.getTargetException() instanceof GammaException) {
                 throw (GammaException) e.getTargetException();
             } else {
-                Assert.fail(e.getTargetException().getMessage());
+                Assertions.fail(e.getTargetException().getMessage());
             }
         }
 
@@ -678,17 +684,22 @@ public class LogBetaTest {
             final double tol = ulps * Math.ulp(expected);
             final StringBuilder builder = new StringBuilder();
             builder.append(a).append(", ").append(b);
-            Assert.assertEquals(builder.toString(), expected, actual, tol);
+            Assertions.assertEquals(expected, actual, tol, builder.toString());
         }
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testSumDeltaMinusDeltaSumPrecondition1() {
-        sumDeltaMinusDeltaSum(9, 10);
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> sumDeltaMinusDeltaSum(9, 10)
+        );
     }
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testSumDeltaMinusDeltaSumPrecondition2() {
-        sumDeltaMinusDeltaSum(10, 9);
+    @Test
+    public void testSumDeltaMinusDeltaSumPrecondition2()
+    {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> sumDeltaMinusDeltaSum(10, 9)
+        );
     }
 }

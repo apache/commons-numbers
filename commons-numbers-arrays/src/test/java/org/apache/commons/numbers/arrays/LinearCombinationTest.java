@@ -13,8 +13,8 @@
  */
 package org.apache.commons.numbers.arrays;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
@@ -30,7 +30,7 @@ public class LinearCombinationTest {
         final double[] a = { 1.23456789 };
         final double[] b = { 98765432.1 };
 
-        Assert.assertEquals(a[0] * b[0], LinearCombination.value(a, b), 0d);
+        Assertions.assertEquals(a[0] * b[0], LinearCombination.value(a, b), 0d);
     }
 
     @Test
@@ -59,7 +59,7 @@ public class LinearCombinationTest {
                                                            a[1], b[1],
                                                            a[2], b[2]);
         final double abSumArray = LinearCombination.value(a, b);
-        Assert.assertEquals(abSumInline, abSumArray, 0);
+        Assertions.assertEquals(abSumInline, abSumArray, 0);
 
         // Compare with arbitrary precision computation.
         BigFraction result = BigFraction.ZERO;
@@ -67,10 +67,10 @@ public class LinearCombinationTest {
             result = result.add(aF[i].multiply(bF[i]));
         }
         final double expected = result.doubleValue();
-        Assert.assertEquals(expected, abSumInline, 1e-15);
+        Assertions.assertEquals(expected, abSumInline, 1e-15);
 
         final double naive = a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-        Assert.assertTrue(Math.abs(naive - abSumInline) > 1.5);
+        Assertions.assertTrue(Math.abs(naive - abSumInline) > 1.5);
     }
 
     @Test
@@ -94,19 +94,19 @@ public class LinearCombinationTest {
             sInline = LinearCombination.value(u1, v1, u2, v2);
             sArray = LinearCombination.value(new double[] { u1, u2 },
                                              new double[] { v1, v2 });
-            Assert.assertEquals(sInline, sArray, 0);
+            Assertions.assertEquals(sInline, sArray, 0);
 
             // Two sums.
             sInline = LinearCombination.value(u1, v1, u2, v2, u3, v3);
             sArray = LinearCombination.value(new double[] { u1, u2, u3 },
                                              new double[] { v1, v2, v3 });
-            Assert.assertEquals(sInline, sArray, 0);
+            Assertions.assertEquals(sInline, sArray, 0);
 
             // Three sums.
             sInline = LinearCombination.value(u1, v1, u2, v2, u3, v3, u4, v4);
             sArray = LinearCombination.value(new double[] { u1, u2, u3, u4 },
                                              new double[] { v1, v2, v3, v4 });
-            Assert.assertEquals(sInline, sArray, 0);
+            Assertions.assertEquals(sInline, sArray, 0);
         }
     }
 
@@ -136,11 +136,11 @@ public class LinearCombinationTest {
                                                            scaledA[2], scaledB[2]);
         final double abSumArray = LinearCombination.value(scaledA, scaledB);
 
-        Assert.assertEquals(abSumInline, abSumArray, 0);
-        Assert.assertEquals(-1.8551294182586248737720779899, abSumInline, 1e-15);
+        Assertions.assertEquals(abSumInline, abSumArray, 0);
+        Assertions.assertEquals(-1.8551294182586248737720779899, abSumInline, 1e-15);
 
         final double naive = scaledA[0] * scaledB[0] + scaledA[1] * scaledB[1] + scaledA[2] * scaledB[2];
-        Assert.assertTrue(Math.abs(naive - abSumInline) > 1.5);
+        Assertions.assertTrue(Math.abs(naive - abSumInline) > 1.5);
     }
 
     @Test
@@ -166,132 +166,132 @@ public class LinearCombinationTest {
             { Double.NaN, -2, 3, 4 }
         };
 
-        Assert.assertEquals(-3,
+        Assertions.assertEquals(-3,
                             LinearCombination.value(a[0][0], b[0][0],
                                                     a[0][1], b[0][1]),
                             1e-10);
-        Assert.assertEquals(6,
+        Assertions.assertEquals(6,
                             LinearCombination.value(a[0][0], b[0][0],
                                                     a[0][1], b[0][1],
                                                     a[0][2], b[0][2]),
                             1e-10);
-        Assert.assertEquals(22,
+        Assertions.assertEquals(22,
                             LinearCombination.value(a[0][0], b[0][0],
                                                     a[0][1], b[0][1],
                                                     a[0][2], b[0][2],
                                                     a[0][3], b[0][3]),
                             1e-10);
-        Assert.assertEquals(22, LinearCombination.value(a[0], b[0]), 1e-10);
+        Assertions.assertEquals(22, LinearCombination.value(a[0], b[0]), 1e-10);
 
-        Assert.assertEquals(Double.NEGATIVE_INFINITY,
+        Assertions.assertEquals(Double.NEGATIVE_INFINITY,
                             LinearCombination.value(a[1][0], b[1][0],
                                                     a[1][1], b[1][1]),
                             1e-10);
-        Assert.assertEquals(Double.NEGATIVE_INFINITY,
+        Assertions.assertEquals(Double.NEGATIVE_INFINITY,
                             LinearCombination.value(a[1][0], b[1][0],
                                                     a[1][1], b[1][1],
                                                     a[1][2], b[1][2]),
                             1e-10);
-        Assert.assertEquals(Double.NEGATIVE_INFINITY,
+        Assertions.assertEquals(Double.NEGATIVE_INFINITY,
                             LinearCombination.value(a[1][0], b[1][0],
                                                     a[1][1], b[1][1],
                                                     a[1][2], b[1][2],
                                                     a[1][3], b[1][3]),
                             1e-10);
-        Assert.assertEquals(Double.NEGATIVE_INFINITY, LinearCombination.value(a[1], b[1]), 1e-10);
+        Assertions.assertEquals(Double.NEGATIVE_INFINITY, LinearCombination.value(a[1], b[1]), 1e-10);
 
-        Assert.assertEquals(-3,
+        Assertions.assertEquals(-3,
                             LinearCombination.value(a[2][0], b[2][0],
                                                     a[2][1], b[2][1]),
                             1e-10);
-        Assert.assertEquals(Double.POSITIVE_INFINITY,
+        Assertions.assertEquals(Double.POSITIVE_INFINITY,
                             LinearCombination.value(a[2][0], b[2][0],
                                                     a[2][1], b[2][1],
                                                     a[2][2], b[2][2]),
                             1e-10);
-        Assert.assertEquals(Double.POSITIVE_INFINITY,
+        Assertions.assertEquals(Double.POSITIVE_INFINITY,
                             LinearCombination.value(a[2][0], b[2][0],
                                                     a[2][1], b[2][1],
                                                     a[2][2], b[2][2],
                                                     a[2][3], b[2][3]),
                             1e-10);
-        Assert.assertEquals(Double.POSITIVE_INFINITY, LinearCombination.value(a[2], b[2]), 1e-10);
+        Assertions.assertEquals(Double.POSITIVE_INFINITY, LinearCombination.value(a[2], b[2]), 1e-10);
 
-        Assert.assertEquals(Double.NEGATIVE_INFINITY,
+        Assertions.assertEquals(Double.NEGATIVE_INFINITY,
                             LinearCombination.value(a[3][0], b[3][0],
                                                     a[3][1], b[3][1]),
                             1e-10);
-        Assert.assertEquals(Double.NEGATIVE_INFINITY,
+        Assertions.assertEquals(Double.NEGATIVE_INFINITY,
                             LinearCombination.value(a[3][0], b[3][0],
                                                     a[3][1], b[3][1],
                                                     a[3][2], b[3][2]),
                             1e-10);
-        Assert.assertEquals(Double.NEGATIVE_INFINITY,
+        Assertions.assertEquals(Double.NEGATIVE_INFINITY,
                             LinearCombination.value(a[3][0], b[3][0],
                                                     a[3][1], b[3][1],
                                                     a[3][2], b[3][2],
                                                     a[3][3], b[3][3]),
                             1e-10);
-        Assert.assertEquals(Double.NEGATIVE_INFINITY, LinearCombination.value(a[3], b[3]), 1e-10);
+        Assertions.assertEquals(Double.NEGATIVE_INFINITY, LinearCombination.value(a[3], b[3]), 1e-10);
 
-        Assert.assertEquals(Double.POSITIVE_INFINITY,
+        Assertions.assertEquals(Double.POSITIVE_INFINITY,
                             LinearCombination.value(a[4][0], b[4][0],
                                                     a[4][1], b[4][1]),
                             1e-10);
-        Assert.assertEquals(Double.POSITIVE_INFINITY,
+        Assertions.assertEquals(Double.POSITIVE_INFINITY,
                             LinearCombination.value(a[4][0], b[4][0],
                                                     a[4][1], b[4][1],
                                                     a[4][2], b[4][2]),
                             1e-10);
-        Assert.assertEquals(Double.POSITIVE_INFINITY,
+        Assertions.assertEquals(Double.POSITIVE_INFINITY,
                             LinearCombination.value(a[4][0], b[4][0],
                                                     a[4][1], b[4][1],
                                                     a[4][2], b[4][2],
                                                     a[4][3], b[4][3]),
                             1e-10);
-        Assert.assertEquals(Double.POSITIVE_INFINITY, LinearCombination.value(a[4], b[4]), 1e-10);
+        Assertions.assertEquals(Double.POSITIVE_INFINITY, LinearCombination.value(a[4], b[4]), 1e-10);
 
-        Assert.assertEquals(-3,
+        Assertions.assertEquals(-3,
                             LinearCombination.value(a[5][0], b[5][0],
                                                     a[5][1], b[5][1]),
                             1e-10);
-        Assert.assertEquals(Double.POSITIVE_INFINITY,
+        Assertions.assertEquals(Double.POSITIVE_INFINITY,
                             LinearCombination.value(a[5][0], b[5][0],
                                                     a[5][1], b[5][1],
                                                     a[5][2], b[5][2]),
                             1e-10);
-        Assert.assertEquals(Double.POSITIVE_INFINITY,
+        Assertions.assertEquals(Double.POSITIVE_INFINITY,
                             LinearCombination.value(a[5][0], b[5][0],
                                                     a[5][1], b[5][1],
                                                     a[5][2], b[5][2],
                                                     a[5][3], b[5][3]),
                             1e-10);
-        Assert.assertEquals(Double.POSITIVE_INFINITY, LinearCombination.value(a[5], b[5]), 1e-10);
+        Assertions.assertEquals(Double.POSITIVE_INFINITY, LinearCombination.value(a[5], b[5]), 1e-10);
 
-        Assert.assertEquals(Double.POSITIVE_INFINITY,
+        Assertions.assertEquals(Double.POSITIVE_INFINITY,
                             LinearCombination.value(a[6][0], b[6][0],
                                                     a[6][1], b[6][1]),
                             1e-10);
-        Assert.assertEquals(Double.POSITIVE_INFINITY,
+        Assertions.assertEquals(Double.POSITIVE_INFINITY,
                             LinearCombination.value(a[6][0], b[6][0],
                                                     a[6][1], b[6][1],
                                                     a[6][2], b[6][2]),
                             1e-10);
-        Assert.assertTrue(Double.isNaN(LinearCombination.value(a[6][0], b[6][0],
+        Assertions.assertTrue(Double.isNaN(LinearCombination.value(a[6][0], b[6][0],
                                                                a[6][1], b[6][1],
                                                                a[6][2], b[6][2],
                                                                a[6][3], b[6][3])));
-        Assert.assertTrue(Double.isNaN(LinearCombination.value(a[6], b[6])));
+        Assertions.assertTrue(Double.isNaN(LinearCombination.value(a[6], b[6])));
 
-        Assert.assertTrue(Double.isNaN(LinearCombination.value(a[7][0], b[7][0],
+        Assertions.assertTrue(Double.isNaN(LinearCombination.value(a[7][0], b[7][0],
                                                                a[7][1], b[7][1])));
-        Assert.assertTrue(Double.isNaN(LinearCombination.value(a[7][0], b[7][0],
+        Assertions.assertTrue(Double.isNaN(LinearCombination.value(a[7][0], b[7][0],
                                                                a[7][1], b[7][1],
                                                                a[7][2], b[7][2])));
-        Assert.assertTrue(Double.isNaN(LinearCombination.value(a[7][0], b[7][0],
+        Assertions.assertTrue(Double.isNaN(LinearCombination.value(a[7][0], b[7][0],
                                                                a[7][1], b[7][1],
                                                                a[7][2], b[7][2],
                                                                a[7][3], b[7][3])));
-        Assert.assertTrue(Double.isNaN(LinearCombination.value(a[7], b[7])));
+        Assertions.assertTrue(Double.isNaN(LinearCombination.value(a[7], b[7])));
     }
 }
