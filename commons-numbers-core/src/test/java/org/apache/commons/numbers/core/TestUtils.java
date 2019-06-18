@@ -38,43 +38,6 @@ public class TestUtils {
     }
 
     /**
-     * Verifies that expected and actual are within delta, or are both NaN or
-     * infinities of the same sign.
-     */
-    public static void assertEquals(double expected, double actual, double delta) {
-        Assertions.assertEquals(expected, actual, delta, (String) null);
-    }
-
-    /**
-     * Verifies that expected and actual are within delta, or are both NaN or
-     * infinities of the same sign.
-     */
-    public static void assertEquals(String msg, double expected, double actual, double delta) {
-        // check for NaN
-        if(Double.isNaN(expected)){
-            Assertions.assertTrue(Double.isNaN(actual),
-                    "" + actual + " is not NaN.");
-        } else {
-            Assertions.assertEquals(expected, actual, delta, msg);
-        }
-    }
-
-    /**
-     * Verifies that the two arguments are exactly the same, either
-     * both NaN or infinities of same sign, or identical floating point values.
-     */
-    public static void assertSame(double expected, double actual) {
-     Assertions.assertEquals(expected, actual, 0);
-    }
-
-    /**
-     * Verifies that two double arrays have equal entries, up to tolerance
-     */
-    public static void assertEquals(double expected[], double observed[], double tolerance) {
-        assertEquals("Array comparison failure", expected, observed, tolerance);
-    }
-
-    /**
      * Serializes an object to a bytes array and then recovers the object from the bytes array.
      * Returns the deserialized object.
      *
@@ -181,64 +144,6 @@ public class TestUtils {
        assertContains(null, values, x, epsilon);
     }
 
-    /** verifies that two arrays are close (sup norm) */
-    public static void assertEquals(String msg, double[] expected, double[] observed, double tolerance) {
-        StringBuilder out = new StringBuilder(msg);
-        if (expected.length != observed.length) {
-            out.append("\n Arrays not same length. \n");
-            out.append("expected has length ");
-            out.append(expected.length);
-            out.append(" observed length = ");
-            out.append(observed.length);
-            Assertions.fail(out.toString());
-        }
-        boolean failure = false;
-        for (int i=0; i < expected.length; i++) {
-            if (!equalsIncludingNaN(expected[i], observed[i], tolerance)) {
-                failure = true;
-                out.append("\n Elements at index ");
-                out.append(i);
-                out.append(" differ. ");
-                out.append(" expected = ");
-                out.append(expected[i]);
-                out.append(" observed = ");
-                out.append(observed[i]);
-            }
-        }
-        if (failure) {
-            Assertions.fail(out.toString());
-        }
-    }
-
-    /** verifies that two arrays are close (sup norm) */
-    public static void assertEquals(String msg, float[] expected, float[] observed, float tolerance) {
-        StringBuilder out = new StringBuilder(msg);
-        if (expected.length != observed.length) {
-            out.append("\n Arrays not same length. \n");
-            out.append("expected has length ");
-            out.append(expected.length);
-            out.append(" observed length = ");
-            out.append(observed.length);
-            Assertions.fail(out.toString());
-        }
-        boolean failure = false;
-        for (int i=0; i < expected.length; i++) {
-            if (!equalsIncludingNaN(expected[i], observed[i], tolerance)) {
-                failure = true;
-                out.append("\n Elements at index ");
-                out.append(i);
-                out.append(" differ. ");
-                out.append(" expected = ");
-                out.append(expected[i]);
-                out.append(" observed = ");
-                out.append(observed[i]);
-            }
-        }
-        if (failure) {
-            Assertions.fail(out.toString());
-        }
-    }
-
     /**
      * Updates observed counts of values in quartiles.
      * counts[0] <-> 1st quartile ... counts[3] <-> top quartile
@@ -284,34 +189,6 @@ public class TestUtils {
         }
         return positiveMassCount;
     }
-
-    /**
-     * Returns true if the arguments are both NaN, are equal or are within the range
-     * of allowed error (inclusive).
-     *
-     * @param x first value
-     * @param y second value
-     * @param eps the amount of absolute error to allow.
-     * @return {@code true} if the values are equal or within range of each other,
-     * or both are NaN.
-     */
-    private static boolean equalsIncludingNaN(double x, double y, double eps) {
-        return equalsIncludingNaN(x, y) || (Math.abs(y - x) <= eps);
-    }
-
-    /**
-     * Returns true if the arguments are both NaN or they are
-     * equal as defined by {@link #equals(double,double) equals(x, y, 1)}.
-     *
-     * @param x first value
-     * @param y second value
-     * @return {@code true} if the values are equal or both are NaN.
-     */
-    private static boolean equalsIncludingNaN(double x, double y) {
-        return (x != x || y != y) ? !(x != x ^ y != y) : Precision.equals(x, y, 1);
-    }
-
-
 }
 
 

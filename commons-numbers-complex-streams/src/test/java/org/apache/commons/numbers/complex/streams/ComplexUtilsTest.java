@@ -379,27 +379,27 @@ public class ComplexUtilsTest {
         // Extract complex from real float array, index 3
         TestUtils.assertSame(Complex.ofCartesian(0, 3), ComplexUtils.extractComplexFromImaginaryArray(f, 3));
         // Extract real double from complex array, index 3
-        TestUtils.assertSame(6, ComplexUtils.extractRealFromComplexArray(c, 3));
+        Assertions.assertEquals(6, ComplexUtils.extractRealFromComplexArray(c, 3));
         // Extract real float from complex array, index 3
-        TestUtils.assertSame(6, ComplexUtils.extractRealFloatFromComplexArray(c, 3));
+        Assertions.assertEquals(6, ComplexUtils.extractRealFloatFromComplexArray(c, 3));
         // Extract real double from complex array, index 3
-        TestUtils.assertSame(7, ComplexUtils.extractImaginaryFromComplexArray(c, 3));
+        Assertions.assertEquals(7, ComplexUtils.extractImaginaryFromComplexArray(c, 3));
         // Extract real float from complex array, index 3
-        TestUtils.assertSame(7, ComplexUtils.extractImaginaryFloatFromComplexArray(c, 3));
+        Assertions.assertEquals(7, ComplexUtils.extractImaginaryFloatFromComplexArray(c, 3));
         // Extract complex from interleaved double array, index 3
         TestUtils.assertSame(Complex.ofCartesian(6, 7), ComplexUtils.extractComplexFromInterleavedArray(d, 3));
         // Extract interleaved double array from complex array, index 3
-        TestUtils.assertSame(new double[]{6d, 7d}, ComplexUtils.extractInterleavedFromComplexArray(c, 3));
+        Assertions.assertArrayEquals(new double[]{6d, 7d}, ComplexUtils.extractInterleavedFromComplexArray(c, 3));
         // Extract interleaved float array from complex array, index 3
-        TestUtils.assertSame(new float[]{6f, 7f}, ComplexUtils.extractInterleavedFloatFromComplexArray(c, 3));
+        Assertions.assertArrayEquals(new float[]{6f, 7f}, ComplexUtils.extractInterleavedFloatFromComplexArray(c, 3));
         // Extract complex from interleaved float array, index 3
         TestUtils.assertSame(Complex.ofCartesian(6, 7), ComplexUtils.extractComplexFromInterleavedArray(f, 3));
         // Extract interleaved double from complex array, index 3
-        TestUtils.assertEquals(msg, new double[] { 6, 7 }, ComplexUtils.extractInterleavedFromComplexArray(c, 3),
-                Math.ulp(1));
+        Assertions.assertArrayEquals(new double[] { 6, 7 }, ComplexUtils.extractInterleavedFromComplexArray(c, 3),
+                Math.ulp(1), msg);
         // Extract interleaved float from complex array, index 3
-        TestUtils.assertEquals(msg, new double[] { 6, 7 }, ComplexUtils.extractInterleavedFromComplexArray(c, 3),
-                Math.ulp(1));
+        Assertions.assertArrayEquals(new double[] { 6, 7 }, ComplexUtils.extractInterleavedFromComplexArray(c, 3),
+                Math.ulp(1), msg);
     }
     // REAL <-> COMPLEX
 
@@ -427,9 +427,9 @@ public class ComplexUtilsTest {
     public void testComplexToReal() {
         setArrays();
         // Real complex to double, whole array
-        TestUtils.assertEquals(msg, sr, ComplexUtils.complex2Real(c), Math.ulp(1.0));
+        Assertions.assertArrayEquals(sr, ComplexUtils.complex2Real(c), Math.ulp(1.0), msg);
         // Real complex to float, whole array
-        TestUtils.assertEquals(msg, sfr, ComplexUtils.complex2RealFloat(c), Math.ulp(1.0f));
+        Assertions.assertArrayEquals(sfr, ComplexUtils.complex2RealFloat(c), Math.ulp(1.0f), msg);
 
         // 2d
         TestUtils.assertEquals(msg, sr2d, ComplexUtils.complex2Real(cr2d), 0);
@@ -468,9 +468,9 @@ public class ComplexUtilsTest {
     public void testComplexToImaginary() {
         setArrays();
         // Imaginary complex to double, whole array
-        TestUtils.assertEquals(msg, si, ComplexUtils.complex2Imaginary(c), Math.ulp(1.0));
+        Assertions.assertArrayEquals(si, ComplexUtils.complex2Imaginary(c), Math.ulp(1.0), msg);
         // Imaginary complex to float, whole array
-        TestUtils.assertEquals(msg, sfi, ComplexUtils.complex2ImaginaryFloat(c), Math.ulp(1.0f));
+        Assertions.assertArrayEquals(sfi, ComplexUtils.complex2ImaginaryFloat(c), Math.ulp(1.0f), msg);
 
         // 2d
         TestUtils.assertEquals(msg, si2d, ComplexUtils.complex2Imaginary(ci2d), 0);
@@ -669,9 +669,9 @@ public class ComplexUtilsTest {
     @Test
     public void testComplexToInterleaved() {
         setArrays();
-        TestUtils.assertEquals(msg, di, ComplexUtils.complex2Interleaved(c), Math.ulp(1.0));
+        Assertions.assertArrayEquals(di, ComplexUtils.complex2Interleaved(c), Math.ulp(1.0), msg);
         // Interleaved complex to float, whole array
-        TestUtils.assertEquals(msg, fi, ComplexUtils.complex2InterleavedFloat(c), Math.ulp(1.0f));
+        Assertions.assertArrayEquals(fi, ComplexUtils.complex2InterleavedFloat(c), Math.ulp(1.0f), msg);
 
         // 2d
         TestUtils.assertEquals(msg, di2d0, ComplexUtils.complex2Interleaved(c2d, 0), 0);
@@ -756,7 +756,7 @@ public class ComplexUtilsTest {
         double[] observed = ComplexUtils.abs(c);
         Assertions.assertEquals(c.length, observed.length);
         for (int i = 0; i < c.length; i++) {
-            TestUtils.assertEquals(c[i].abs(), observed[i], 0);
+            Assertions.assertEquals(c[i].abs(), observed[i], 0);
         }
     }
 
@@ -766,7 +766,7 @@ public class ComplexUtilsTest {
         double[] observed = ComplexUtils.arg(c);
         Assertions.assertEquals(c.length, observed.length);
         for (int i = 0; i < c.length; i++) {
-            TestUtils.assertEquals(c[i].getArgument(), observed[i], 0);
+            Assertions.assertEquals(c[i].getArgument(), observed[i], 0);
         }
     }
 }

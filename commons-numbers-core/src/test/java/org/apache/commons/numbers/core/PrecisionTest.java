@@ -378,7 +378,7 @@ public class PrecisionTest {
         Assertions.assertEquals(39.25, Precision.round(39.245, 2, RoundingMode.HALF_UP), 0.0);
 
         // special values
-        TestUtils.assertEquals(Double.NaN, Precision.round(Double.NaN, 2), 0.0);
+        Assertions.assertEquals(Double.NaN, Precision.round(Double.NaN, 2), 0.0);
         Assertions.assertEquals(0.0, Precision.round(0.0, 2), 0.0);
         Assertions.assertEquals(Double.POSITIVE_INFINITY, Precision.round(Double.POSITIVE_INFINITY, 2), 0.0);
         Assertions.assertEquals(Double.NEGATIVE_INFINITY, Precision.round(Double.NEGATIVE_INFINITY, 2), 0.0);
