@@ -39,15 +39,15 @@ public class BigFractionTest {
 
     @Test
     public void testConstructor() {
-        assertFraction(0, 1, BigFraction.of(0, 1));
+        for (CommonTestCases.NumDenConstructorTestCase testCase : CommonTestCases.numDenConstructorTestCases()) {
+            assertFraction(
+                    testCase.expectedNumerator,
+                    testCase.expectedDenominator,
+                    BigFraction.of(testCase.constructorNumerator, testCase.constructorDenominator)
+            );
+        }
+
         assertFraction(0, 1, BigFraction.of(0l, 2l));
-        assertFraction(0, 1, BigFraction.of(0, -1));
-        assertFraction(1, 2, BigFraction.of(1, 2));
-        assertFraction(1, 2, BigFraction.of(2, 4));
-        assertFraction(-1, 2, BigFraction.of(-1, 2));
-        assertFraction(-1, 2, BigFraction.of(1, -2));
-        assertFraction(-1, 2, BigFraction.of(-2, 4));
-        assertFraction(-1, 2, BigFraction.of(2, -4));
         assertFraction(11, 1, BigFraction.of(11));
         assertFraction(11, 1, BigFraction.of(11l));
         assertFraction(11, 1, BigFraction.of(new BigInteger("11")));
@@ -98,47 +98,13 @@ public class BigFractionTest {
     // MATH-179
     @Test
     public void testDoubleConstructor() throws Exception {
-        assertFraction(1, 2, BigFraction.from((double) 1 / (double) 2, 1.0e-5, 100));
-        assertFraction(1, 3, BigFraction.from((double) 1 / (double) 3, 1.0e-5, 100));
-        assertFraction(2, 3, BigFraction.from((double) 2 / (double) 3, 1.0e-5, 100));
-        assertFraction(1, 4, BigFraction.from((double) 1 / (double) 4, 1.0e-5, 100));
-        assertFraction(3, 4, BigFraction.from((double) 3 / (double) 4, 1.0e-5, 100));
-        assertFraction(1, 5, BigFraction.from((double) 1 / (double) 5, 1.0e-5, 100));
-        assertFraction(2, 5, BigFraction.from((double) 2 / (double) 5, 1.0e-5, 100));
-        assertFraction(3, 5, BigFraction.from((double) 3 / (double) 5, 1.0e-5, 100));
-        assertFraction(4, 5, BigFraction.from((double) 4 / (double) 5, 1.0e-5, 100));
-        assertFraction(1, 6, BigFraction.from((double) 1 / (double) 6, 1.0e-5, 100));
-        assertFraction(5, 6, BigFraction.from((double) 5 / (double) 6, 1.0e-5, 100));
-        assertFraction(1, 7, BigFraction.from((double) 1 / (double) 7, 1.0e-5, 100));
-        assertFraction(2, 7, BigFraction.from((double) 2 / (double) 7, 1.0e-5, 100));
-        assertFraction(3, 7, BigFraction.from((double) 3 / (double) 7, 1.0e-5, 100));
-        assertFraction(4, 7, BigFraction.from((double) 4 / (double) 7, 1.0e-5, 100));
-        assertFraction(5, 7, BigFraction.from((double) 5 / (double) 7, 1.0e-5, 100));
-        assertFraction(6, 7, BigFraction.from((double) 6 / (double) 7, 1.0e-5, 100));
-        assertFraction(1, 8, BigFraction.from((double) 1 / (double) 8, 1.0e-5, 100));
-        assertFraction(3, 8, BigFraction.from((double) 3 / (double) 8, 1.0e-5, 100));
-        assertFraction(5, 8, BigFraction.from((double) 5 / (double) 8, 1.0e-5, 100));
-        assertFraction(7, 8, BigFraction.from((double) 7 / (double) 8, 1.0e-5, 100));
-        assertFraction(1, 9, BigFraction.from((double) 1 / (double) 9, 1.0e-5, 100));
-        assertFraction(2, 9, BigFraction.from((double) 2 / (double) 9, 1.0e-5, 100));
-        assertFraction(4, 9, BigFraction.from((double) 4 / (double) 9, 1.0e-5, 100));
-        assertFraction(5, 9, BigFraction.from((double) 5 / (double) 9, 1.0e-5, 100));
-        assertFraction(7, 9, BigFraction.from((double) 7 / (double) 9, 1.0e-5, 100));
-        assertFraction(8, 9, BigFraction.from((double) 8 / (double) 9, 1.0e-5, 100));
-        assertFraction(1, 10, BigFraction.from((double) 1 / (double) 10, 1.0e-5, 100));
-        assertFraction(3, 10, BigFraction.from((double) 3 / (double) 10, 1.0e-5, 100));
-        assertFraction(7, 10, BigFraction.from((double) 7 / (double) 10, 1.0e-5, 100));
-        assertFraction(9, 10, BigFraction.from((double) 9 / (double) 10, 1.0e-5, 100));
-        assertFraction(1, 11, BigFraction.from((double) 1 / (double) 11, 1.0e-5, 100));
-        assertFraction(2, 11, BigFraction.from((double) 2 / (double) 11, 1.0e-5, 100));
-        assertFraction(3, 11, BigFraction.from((double) 3 / (double) 11, 1.0e-5, 100));
-        assertFraction(4, 11, BigFraction.from((double) 4 / (double) 11, 1.0e-5, 100));
-        assertFraction(5, 11, BigFraction.from((double) 5 / (double) 11, 1.0e-5, 100));
-        assertFraction(6, 11, BigFraction.from((double) 6 / (double) 11, 1.0e-5, 100));
-        assertFraction(7, 11, BigFraction.from((double) 7 / (double) 11, 1.0e-5, 100));
-        assertFraction(8, 11, BigFraction.from((double) 8 / (double) 11, 1.0e-5, 100));
-        assertFraction(9, 11, BigFraction.from((double) 9 / (double) 11, 1.0e-5, 100));
-        assertFraction(10, 11, BigFraction.from((double) 10 / (double) 11, 1.0e-5, 100));
+        for (CommonTestCases.DoubleConstructorTestCase testCase : CommonTestCases.doubleConstructorTestCases()) {
+            assertFraction(
+                    testCase.expectedNumerator,
+                    testCase.expectedDenominator,
+                    BigFraction.from(testCase.constructorArgument, 1.0e-5, 100)
+            );
+        }
     }
 
     // MATH-181
