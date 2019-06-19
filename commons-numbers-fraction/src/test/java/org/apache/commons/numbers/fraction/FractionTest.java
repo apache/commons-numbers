@@ -33,15 +33,13 @@ public class FractionTest {
 
     @Test
     public void testConstructor() {
-        assertFraction(0, 1, Fraction.of(0, 1));
-        assertFraction(0, 1, Fraction.of(0, 2));
-        assertFraction(0, 1, Fraction.of(0, -1));
-        assertFraction(1, 2, Fraction.of(1, 2));
-        assertFraction(1, 2, Fraction.of(2, 4));
-        assertFraction(-1, 2, Fraction.of(-1, 2));
-        assertFraction(-1, 2, Fraction.of(1, -2));
-        assertFraction(-1, 2, Fraction.of(-2, 4));
-        assertFraction(-1, 2, Fraction.of(2, -4));
+        for (CommonTestCases.NumDenConstructorTestCase testCase : CommonTestCases.numDenConstructorTestCases()) {
+            assertFraction(
+                    testCase.expectedNumerator,
+                    testCase.expectedDenominator,
+                    Fraction.of(testCase.constructorNumerator, testCase.constructorDenominator)
+            );
+        }
 
         // overflow
         Assertions.assertThrows(ArithmeticException.class,
@@ -67,47 +65,13 @@ public class FractionTest {
     // MATH-179
     @Test
     public void testDoubleConstructor() throws Exception  {
-        assertFraction(1, 2, Fraction.from((double)1 / (double)2));
-        assertFraction(1, 3, Fraction.from((double)1 / (double)3));
-        assertFraction(2, 3, Fraction.from((double)2 / (double)3));
-        assertFraction(1, 4, Fraction.from((double)1 / (double)4));
-        assertFraction(3, 4, Fraction.from((double)3 / (double)4));
-        assertFraction(1, 5, Fraction.from((double)1 / (double)5));
-        assertFraction(2, 5, Fraction.from((double)2 / (double)5));
-        assertFraction(3, 5, Fraction.from((double)3 / (double)5));
-        assertFraction(4, 5, Fraction.from((double)4 / (double)5));
-        assertFraction(1, 6, Fraction.from((double)1 / (double)6));
-        assertFraction(5, 6, Fraction.from((double)5 / (double)6));
-        assertFraction(1, 7, Fraction.from((double)1 / (double)7));
-        assertFraction(2, 7, Fraction.from((double)2 / (double)7));
-        assertFraction(3, 7, Fraction.from((double)3 / (double)7));
-        assertFraction(4, 7, Fraction.from((double)4 / (double)7));
-        assertFraction(5, 7, Fraction.from((double)5 / (double)7));
-        assertFraction(6, 7, Fraction.from((double)6 / (double)7));
-        assertFraction(1, 8, Fraction.from((double)1 / (double)8));
-        assertFraction(3, 8, Fraction.from((double)3 / (double)8));
-        assertFraction(5, 8, Fraction.from((double)5 / (double)8));
-        assertFraction(7, 8, Fraction.from((double)7 / (double)8));
-        assertFraction(1, 9, Fraction.from((double)1 / (double)9));
-        assertFraction(2, 9, Fraction.from((double)2 / (double)9));
-        assertFraction(4, 9, Fraction.from((double)4 / (double)9));
-        assertFraction(5, 9, Fraction.from((double)5 / (double)9));
-        assertFraction(7, 9, Fraction.from((double)7 / (double)9));
-        assertFraction(8, 9, Fraction.from((double)8 / (double)9));
-        assertFraction(1, 10, Fraction.from((double)1 / (double)10));
-        assertFraction(3, 10, Fraction.from((double)3 / (double)10));
-        assertFraction(7, 10, Fraction.from((double)7 / (double)10));
-        assertFraction(9, 10, Fraction.from((double)9 / (double)10));
-        assertFraction(1, 11, Fraction.from((double)1 / (double)11));
-        assertFraction(2, 11, Fraction.from((double)2 / (double)11));
-        assertFraction(3, 11, Fraction.from((double)3 / (double)11));
-        assertFraction(4, 11, Fraction.from((double)4 / (double)11));
-        assertFraction(5, 11, Fraction.from((double)5 / (double)11));
-        assertFraction(6, 11, Fraction.from((double)6 / (double)11));
-        assertFraction(7, 11, Fraction.from((double)7 / (double)11));
-        assertFraction(8, 11, Fraction.from((double)8 / (double)11));
-        assertFraction(9, 11, Fraction.from((double)9 / (double)11));
-        assertFraction(10, 11, Fraction.from((double)10 / (double)11));
+        for (CommonTestCases.DoubleConstructorTestCase testCase : CommonTestCases.doubleConstructorTestCases()) {
+            assertFraction(
+                    testCase.expectedNumerator,
+                    testCase.expectedDenominator,
+                    Fraction.from(testCase.constructorArgument)
+            );
+        }
     }
 
     // MATH-181
