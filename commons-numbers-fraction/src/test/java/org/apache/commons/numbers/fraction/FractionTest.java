@@ -353,22 +353,14 @@ public class FractionTest {
 
     @Test
     public void testMultiply() {
-        {
-            Fraction a = Fraction.of(1, 2);
-            Fraction b = Fraction.of(2, 3);
-
-            assertFraction(1, 4, a.multiply(a));
-            assertFraction(1, 3, a.multiply(b));
-            assertFraction(1, 3, b.multiply(a));
-            assertFraction(4, 9, b.multiply(b));
+        for (CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.multiplyByFractionTestCases()) {
+            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.multiply(f2));
         }
 
         {
-            Fraction f1 = Fraction.of(Integer.MAX_VALUE, 1);
-            Fraction f2 = Fraction.of(Integer.MIN_VALUE, Integer.MAX_VALUE);
-            final Fraction f = f1.multiply(f2);
-            assertFraction(Integer.MIN_VALUE, 1, f);
-
+            final Fraction f = Fraction.of(Integer.MIN_VALUE, 1);
             Assertions.assertThrows(NullPointerException.class,
                     () -> f.multiply(null)
             );

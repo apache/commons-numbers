@@ -46,6 +46,11 @@ class CommonTestCases {
      */
     private static final List<BinaryOperatorTestCase> divideByFractionTestCasesList;
 
+    /**
+     * See {@link #multiplyByFractionTestCases()}
+     */
+    private static final List<BinaryOperatorTestCase> multiplyByFractionTestCasesList;
+
     static {
         numDenConstructorTestCasesList = collectNumDenConstructorTestCases();
         doubleConstructorTestCasesList = collectDoubleConstructorTestCases();
@@ -54,6 +59,7 @@ class CommonTestCases {
         negateTestCasesList = collectNegateTestCases();
         addFractionTestCasesList = collectAddFractionTestCases();
         divideByFractionTestCasesList = collectDivideByFractionTestCases();
+        multiplyByFractionTestCasesList = collectMultiplyByFractionTestCases();
     }
 
     /**
@@ -247,6 +253,22 @@ class CommonTestCases {
         return testCases;
     }
 
+    private static List<BinaryOperatorTestCase> collectMultiplyByFractionTestCases() {
+        List<BinaryOperatorTestCase> testCases = new ArrayList<>();
+
+        testCases.add(new BinaryOperatorTestCase(1, 2, 1, 2, 1, 4));
+        testCases.add(new BinaryOperatorTestCase(1, 2, 2, 3, 1, 3));
+        testCases.add(new BinaryOperatorTestCase(2, 3, 1, 2, 1, 3));
+        testCases.add(new BinaryOperatorTestCase(2, 3, 2, 3, 4, 9));
+
+        testCases.add(new BinaryOperatorTestCase(
+                Integer.MAX_VALUE, 1,
+                Integer.MIN_VALUE, Integer.MAX_VALUE,
+                Integer.MIN_VALUE, 1));
+
+        return testCases;
+    }
+
     /**
      * Provides a list of test cases where a fraction should be created from a specified
      * numerator and denominator, both in the {@code int} range, and the expected
@@ -319,6 +341,17 @@ class CommonTestCases {
      */
     static List<BinaryOperatorTestCase> divideByFractionTestCases() {
         return Collections.unmodifiableList(divideByFractionTestCasesList);
+    }
+
+    /**
+     * Provides a list of test cases where a fraction, created from a specified numerator and denominator
+     * in the {@code int} range, should be multiplied by another fraction, also created from a specified numerator and denominator
+     * in the {@code int} range, and the expected numerator and denominator of the resulting fraction
+     * are in the {@code int} range as well.
+     * @return a list of test cases as described above
+     */
+    static List<BinaryOperatorTestCase> multiplyByFractionTestCases() {
+        return Collections.unmodifiableList(multiplyByFractionTestCasesList);
     }
 
     /**
