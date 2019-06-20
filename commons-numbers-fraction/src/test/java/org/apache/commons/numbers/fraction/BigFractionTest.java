@@ -284,35 +284,18 @@ public class BigFractionTest {
 
     @Test
     public void testReciprocal() {
-        BigFraction f = null;
+        for (CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.reciprocalTestCases()) {
+            BigFraction f = BigFraction.of(testCase.operandNumerator, testCase.operandDenominator);
+            f = f.reciprocal();
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f);
+        }
 
-        f = BigFraction.of(50, 75);
-        f = f.reciprocal();
-        Assertions.assertEquals(3, f.getNumeratorAsInt());
-        Assertions.assertEquals(2, f.getDenominatorAsInt());
-
-        f = BigFraction.of(4, 3);
-        f = f.reciprocal();
-        Assertions.assertEquals(3, f.getNumeratorAsInt());
-        Assertions.assertEquals(4, f.getDenominatorAsInt());
-
-        f = BigFraction.of(-15, 47);
-        f = f.reciprocal();
-        Assertions.assertEquals(-47, f.getNumeratorAsInt());
-        Assertions.assertEquals(15, f.getDenominatorAsInt());
-
-        f = BigFraction.of(0, 3);
+        BigFraction f = BigFraction.of(0, 3);
         try {
             f = f.reciprocal();
             Assertions.fail("expecting ArithmeticException");
         } catch (ArithmeticException ignored) {
         }
-
-        // large values
-        f = BigFraction.of(Integer.MAX_VALUE, 1);
-        f = f.reciprocal();
-        Assertions.assertEquals(1, f.getNumeratorAsInt());
-        Assertions.assertEquals(Integer.MAX_VALUE, f.getDenominatorAsInt());
     }
 
     @Test

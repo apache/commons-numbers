@@ -210,22 +210,10 @@ public class FractionTest {
 
     @Test
     public void testReciprocal() {
-        {
-            Fraction f = Fraction.of(50, 75);
+        for (CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.reciprocalTestCases()) {
+            Fraction f = Fraction.of(testCase.operandNumerator, testCase.operandDenominator);
             f = f.reciprocal();
-            assertFraction(3, 2, f);
-        }
-
-        {
-            Fraction f = Fraction.of(4, 3);
-            f = f.reciprocal();
-            assertFraction(3, 4, f);
-        }
-
-        {
-            Fraction f = Fraction.of(-15, 47);
-            f = f.reciprocal();
-            assertFraction(-47, 15, f);
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f);
         }
 
         {
@@ -233,13 +221,6 @@ public class FractionTest {
             Assertions.assertThrows(ArithmeticException.class,
                     f::reciprocal
             );
-        }
-
-        {
-            // large values
-            Fraction f = Fraction.of(Integer.MAX_VALUE, 1);
-            f = f.reciprocal();
-            assertFraction(1, Integer.MAX_VALUE, f);
         }
     }
 
