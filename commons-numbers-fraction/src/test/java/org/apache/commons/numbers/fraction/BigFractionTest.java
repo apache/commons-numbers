@@ -52,10 +52,6 @@ public class BigFractionTest {
         assertFraction(11, 1, BigFraction.of(11l));
         assertFraction(11, 1, BigFraction.of(new BigInteger("11")));
 
-        assertFraction(0, 1, BigFraction.from(0.00000000000001, 1.0e-5, 100));
-        assertFraction(2, 5, BigFraction.from(0.40000000000001, 1.0e-5, 100));
-        assertFraction(15, 1, BigFraction.from(15.0000000000001, 1.0e-5, 100));
-
         Assertions.assertEquals(0.00000000000001, BigFraction.from(0.00000000000001).doubleValue(), 0.0);
         Assertions.assertEquals(0.40000000000001, BigFraction.from(0.40000000000001).doubleValue(), 0.0);
         Assertions.assertEquals(15.0000000000001, BigFraction.from(15.0000000000001).doubleValue(), 0.0);

@@ -48,10 +48,6 @@ public class FractionTest {
         Assertions.assertThrows(ArithmeticException.class,
                 () -> Fraction.of(1, Integer.MIN_VALUE)
         );
-
-        assertFraction(0, 1, Fraction.from(0.00000000000001));
-        assertFraction(2, 5, Fraction.from(0.40000000000001));
-        assertFraction(15, 1, Fraction.from(15.0000000000001));
     }
 
     @Test
