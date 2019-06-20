@@ -248,15 +248,8 @@ public class FractionTest {
 
         {
             Fraction f1 = Fraction.of(Integer.MAX_VALUE - 1, 1);
-            {
-                Fraction f2 = Fraction.ONE;
-                Fraction f = f1.add(f2);
-                assertFraction(Integer.MAX_VALUE, 1, f);
-            }
-            {
-                Fraction f = f1.add(1);
-                assertFraction(Integer.MAX_VALUE, 1, f);
-            }
+            Fraction f = f1.add(1);
+            assertFraction(Integer.MAX_VALUE, 1, f);
         }
 
         {
@@ -267,15 +260,11 @@ public class FractionTest {
         }
 
         {
-            Fraction f1 = Fraction.of(Integer.MAX_VALUE - 1, 1);
-            Fraction f2 = Fraction.ONE;
-            final Fraction f = f1.add(f2);
-            assertFraction(Integer.MAX_VALUE, 1, f);
-
+            final Fraction f1 = Fraction.of(Integer.MAX_VALUE, 1);
             Assertions.assertThrows(ArithmeticException.class,
                     () -> {
-                        Fraction f3 = f.add(Fraction.ONE); // should overflow
-                        Assertions.fail("expecting ArithmeticException but got: " + f3.toString());
+                        Fraction f = f1.add(Fraction.ONE); // should overflow
+                        Assertions.fail("expecting ArithmeticException but got: " + f.toString());
                     }
             );
         }

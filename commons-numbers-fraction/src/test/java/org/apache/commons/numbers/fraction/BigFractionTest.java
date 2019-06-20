@@ -313,12 +313,6 @@ public class BigFractionTest {
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.add(f2));
         }
 
-        BigFraction f1 = BigFraction.of(Integer.MAX_VALUE - 1, 1);
-        BigFraction f2 = BigFraction.ONE;
-        BigFraction f = f1.add(f2);
-        Assertions.assertEquals(Integer.MAX_VALUE, f.getNumeratorAsInt());
-        Assertions.assertEquals(1, f.getDenominatorAsInt());
-
         {
             final BigFraction f3 = BigFraction.of(-17 - 2*13*2, 13*13*17*2*2);
             Assertions.assertThrows(NullPointerException.class,
@@ -326,8 +320,8 @@ public class BigFractionTest {
             );
         }
 
-        f1 = BigFraction.of(Integer.MAX_VALUE - 1, 1);
-        f = f1.add(BigInteger.ONE);
+        BigFraction f1 = BigFraction.of(Integer.MAX_VALUE - 1, 1);
+        BigFraction f = f1.add(BigInteger.ONE);
         Assertions.assertEquals(Integer.MAX_VALUE, f.getNumeratorAsInt());
         Assertions.assertEquals(1, f.getDenominatorAsInt());
 
