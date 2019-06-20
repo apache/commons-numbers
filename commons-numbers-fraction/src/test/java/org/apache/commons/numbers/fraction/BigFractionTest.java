@@ -286,8 +286,7 @@ public class BigFractionTest {
     public void testReciprocal() {
         for (CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.reciprocalTestCases()) {
             BigFraction f = BigFraction.of(testCase.operandNumerator, testCase.operandDenominator);
-            f = f.reciprocal();
-            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f);
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f.reciprocal());
         }
 
         BigFraction f = BigFraction.of(0, 3);
@@ -302,20 +301,17 @@ public class BigFractionTest {
     public void testNegate() {
         for (CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.negateTestCases()) {
             BigFraction f = BigFraction.of(testCase.operandNumerator, testCase.operandDenominator);
-            f = f.negate();
-            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f);
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f.negate());
         }
     }
 
     @Test
     public void testAdd() {
-        BigFraction a = BigFraction.of(1, 2);
-        BigFraction b = BigFraction.of(2, 3);
-
-        assertFraction(1, 1, a.add(a));
-        assertFraction(7, 6, a.add(b));
-        assertFraction(7, 6, b.add(a));
-        assertFraction(4, 3, b.add(b));
+        for (CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.addFractionTestCases()) {
+            BigFraction f1 = BigFraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            BigFraction f2 = BigFraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.add(f2));
+        }
 
         BigFraction f1 = BigFraction.of(Integer.MAX_VALUE - 1, 1);
         BigFraction f2 = BigFraction.ONE;
@@ -323,31 +319,12 @@ public class BigFractionTest {
         Assertions.assertEquals(Integer.MAX_VALUE, f.getNumeratorAsInt());
         Assertions.assertEquals(1, f.getDenominatorAsInt());
 
-        f1 = BigFraction.of(-1, 13 * 13 * 2 * 2);
-        f2 = BigFraction.of(-2, 13 * 17 * 2);
-        f = f1.add(f2);
-        Assertions.assertEquals(13 * 13 * 17 * 2 * 2, f.getDenominatorAsInt());
-        Assertions.assertEquals(-17 - 2 * 13 * 2, f.getNumeratorAsInt());
-
-        try {
-            f.add((BigFraction) null);
-            Assertions.fail("expecting NullPointerException");
-        } catch (NullPointerException ex) {
+        {
+            final BigFraction f3 = BigFraction.of(-17 - 2*13*2, 13*13*17*2*2);
+            Assertions.assertThrows(NullPointerException.class,
+                    () -> f3.add((BigFraction) null)
+            );
         }
-
-        // if this fraction is added naively, it will overflow.
-        // check that it doesn't.
-        f1 = BigFraction.of(1, 32768 * 3);
-        f2 = BigFraction.of(1, 59049);
-        f = f1.add(f2);
-        Assertions.assertEquals(52451, f.getNumeratorAsInt());
-        Assertions.assertEquals(1934917632, f.getDenominatorAsInt());
-
-        f1 = BigFraction.of(Integer.MIN_VALUE, 3);
-        f2 = BigFraction.of(1, 3);
-        f = f1.add(f2);
-        Assertions.assertEquals(Integer.MIN_VALUE + 1, f.getNumeratorAsInt());
-        Assertions.assertEquals(3, f.getDenominatorAsInt());
 
         f1 = BigFraction.of(Integer.MAX_VALUE - 1, 1);
         f = f1.add(BigInteger.ONE);
