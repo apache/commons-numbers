@@ -36,12 +36,18 @@ class CommonTestCases {
      */
     private static final List<UnaryOperatorTestCase> negateTestCasesList;
 
+    /**
+     * See {@link #addFractionTestCases()}
+     */
+    private static final List<BinaryOperatorTestCase> addFractionTestCasesList;
+
     static {
         numDenConstructorTestCasesList = collectNumDenConstructorTestCases();
         doubleConstructorTestCasesList = collectDoubleConstructorTestCases();
         absTestCasesList = collectAbsTestCases();
         reciprocalTestCasesList = collectReciprocalTestCases();
         negateTestCasesList = collectNegateTestCases();
+        addFractionTestCasesList = collectAddFractionTestCases();
     }
 
     /**
@@ -169,6 +175,44 @@ class CommonTestCases {
     }
 
     /**
+     * Defines test cases as described in {@link #addFractionTestCases()} and collects
+     * them into a {@code List}.
+     * @return a list of test cases as described above
+     */
+    private static List<BinaryOperatorTestCase> collectAddFractionTestCases() {
+        List<BinaryOperatorTestCase> testCases = new ArrayList<>();
+
+        {
+            int[] a = new int[]{1, 2};
+            int[] b = new int[]{2, 3};
+
+            testCases.add(new BinaryOperatorTestCase(a[0], a[1], a[0], a[1], 1, 1));
+            testCases.add(new BinaryOperatorTestCase(a[0], a[1], b[0], b[1], 7, 6));
+            testCases.add(new BinaryOperatorTestCase(b[0], b[1], a[0], a[1], 7, 6));
+            testCases.add(new BinaryOperatorTestCase(b[0], b[1], b[0], b[1], 4, 3));
+        }
+
+        testCases.add(new BinaryOperatorTestCase(
+                -1, 13*13*2*2,
+                -2, 13*17*2,
+                -17 - 2*13*2, 13*13*17*2*2));
+
+        // if this fraction is added naively, it will overflow.
+        // check that it doesn't.
+        testCases.add(new BinaryOperatorTestCase(
+                1, 32768 * 3,
+                1, 59049,
+                52451, 1934917632));
+
+        testCases.add(new BinaryOperatorTestCase(
+                Integer.MIN_VALUE, 3,
+                1, 3,
+                Integer.MIN_VALUE + 1, 3));
+
+        return testCases;
+    }
+
+    /**
      * Provides a list of test cases where a fraction should be created from a specified
      * numerator and denominator, both in the {@code int} range, and the expected
      * numerator and denominator of the created fraction are also in the {@code int} range.
@@ -222,6 +266,16 @@ class CommonTestCases {
     }
 
     /**
+     * Provides a list of test cases where two fractions, each created from a specified numerator and denominator
+     * in the {@code int} range, should be added, and the expected numerator and denominator of the resulting fraction
+     * are also in the {@code int} range.
+     * @return a list of test cases as described above
+     */
+    static List<BinaryOperatorTestCase> addFractionTestCases() {
+        return Collections.unmodifiableList(addFractionTestCasesList);
+    }
+
+    /**
      * Represents a test case where a unary operation should be performed on a specified combination
      * of numerator and denominator, both in the {@code int} range, and the numerator and
      * denominator of the expected result are also in the {@code int} range.
@@ -239,6 +293,35 @@ class CommonTestCases {
                 int expectedDenominator) {
             this.operandNumerator = operandNumerator;
             this.operandDenominator = operandDenominator;
+            this.expectedNumerator = expectedNumerator;
+            this.expectedDenominator = expectedDenominator;
+        }
+    }
+
+    /**
+     * Represents a test case where a binary operation should be performed on two specified combinations
+     * of numerator and denominator, with the numerator and denominator of each combination in the
+     * {@code int} range, and the numerator and denominator of the expected result are also in the {@code int} range.
+     */
+    static class BinaryOperatorTestCase {
+        final int firstOperandNumerator;
+        final int firstOperandDenominator;
+        final int secondOperandNumerator;
+        final int secondOperandDenominator;
+        final int expectedNumerator;
+        final int expectedDenominator;
+
+        BinaryOperatorTestCase(
+                int firstOperandNumerator,
+                int firstOperandDenominator,
+                int secondOperandNumerator,
+                int secondOperandDenominator,
+                int expectedNumerator,
+                int expectedDenominator) {
+            this.firstOperandNumerator = firstOperandNumerator;
+            this.firstOperandDenominator = firstOperandDenominator;
+            this.secondOperandNumerator = secondOperandNumerator;
+            this.secondOperandDenominator = secondOperandDenominator;
             this.expectedNumerator = expectedNumerator;
             this.expectedDenominator = expectedDenominator;
         }

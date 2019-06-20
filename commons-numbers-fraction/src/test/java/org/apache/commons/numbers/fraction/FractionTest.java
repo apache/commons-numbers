@@ -212,8 +212,7 @@ public class FractionTest {
     public void testReciprocal() {
         for (CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.reciprocalTestCases()) {
             Fraction f = Fraction.of(testCase.operandNumerator, testCase.operandDenominator);
-            f = f.reciprocal();
-            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f);
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f.reciprocal());
         }
 
         {
@@ -228,8 +227,7 @@ public class FractionTest {
     public void testNegate() {
         for (CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.negateTestCases()) {
             Fraction f = Fraction.of(testCase.operandNumerator, testCase.operandDenominator);
-            f = f.negate();
-            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f);
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f.negate());
         }
 
         {
@@ -242,14 +240,10 @@ public class FractionTest {
 
     @Test
     public void testAdd() {
-        {
-            Fraction a = Fraction.of(1, 2);
-            Fraction b = Fraction.of(2, 3);
-
-            assertFraction(1, 1, a.add(a));
-            assertFraction(7, 6, a.add(b));
-            assertFraction(7, 6, b.add(a));
-            assertFraction(4, 3, b.add(b));
+        for (CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.addFractionTestCases()) {
+            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.add(f2));
         }
 
         {
@@ -266,30 +260,10 @@ public class FractionTest {
         }
 
         {
-            Fraction f1 = Fraction.of(-1, 13*13*2*2);
-            Fraction f2 = Fraction.of(-2, 13*17*2);
-            final Fraction f = f1.add(f2);
-            assertFraction(-17 - 2*13*2, 13*13*17*2*2, f);
-
+            final Fraction f = Fraction.of(-17 - 2*13*2, 13*13*17*2*2);
             Assertions.assertThrows(NullPointerException.class,
                     () -> f.add(null)
             );
-        }
-
-        {
-            // if this fraction is added naively, it will overflow.
-            // check that it doesn't.
-            Fraction f1 = Fraction.of(1, 32768 * 3);
-            Fraction f2 = Fraction.of(1, 59049);
-            Fraction f = f1.add(f2);
-            assertFraction(52451, 1934917632, f);
-        }
-
-        {
-            Fraction f1 = Fraction.of(Integer.MIN_VALUE, 3);
-            Fraction f2 = Fraction.of(1, 3);
-            Fraction f = f1.add(f2);
-            assertFraction(Integer.MIN_VALUE + 1, 3, f);
         }
 
         {
