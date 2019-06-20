@@ -11,15 +11,32 @@ import java.util.List;
  * numerators and denominators in the {@code int} range.
  */
 public class CommonTestCases {
+    /**
+     * See {@link #numDenConstructorTestCases()}
+     */
     private static final List<UnaryOperatorTestCase> numDenConstructorTestCasesList;
 
+    /**
+     * See {@link #doubleConstructorTestCases()}
+     */
     private static final List<DoubleToFractionTestCase> doubleConstructorTestCasesList;
+
+    /**
+     * See {@link #absTestCases()}
+     */
+    private static final List<UnaryOperatorTestCase> absTestCasesList;
 
     static {
         numDenConstructorTestCasesList = collectNumDenConstructorTestCases();
         doubleConstructorTestCasesList = collectDoubleConstructorTestCases();
+        absTestCasesList = collectAbsTestCases();
     }
 
+    /**
+     * Defines test cases as described in {@link #numDenConstructorTestCases()} and collects
+     * them into a {@code List}.
+     * @return a list of test cases as described above
+     */
     private static List<UnaryOperatorTestCase> collectNumDenConstructorTestCases() {
         List<UnaryOperatorTestCase> testCases = new ArrayList<>();
 
@@ -36,6 +53,11 @@ public class CommonTestCases {
         return testCases;
     }
 
+    /**
+     * Defines test cases as described in {@link #doubleConstructorTestCases()} and collects
+     * them into a {@code List}.
+     * @return a list of test cases as described above
+     */
     private static List<DoubleToFractionTestCase> collectDoubleConstructorTestCases() {
         List<DoubleToFractionTestCase> testCases = new ArrayList<>();
 
@@ -88,12 +110,49 @@ public class CommonTestCases {
         return testCases;
     }
 
+    /**
+     * Defines test cases as described in {@link #collectAbsTestCases()} and collects
+     * them into a {@code List}.
+     * @return a list of test cases as described above
+     */
+    private static List<UnaryOperatorTestCase> collectAbsTestCases() {
+        List<UnaryOperatorTestCase> testCases = new ArrayList<>();
+
+        testCases.add(new UnaryOperatorTestCase(10, 21, 10, 21));
+        testCases.add(new UnaryOperatorTestCase(-10, 21, 10, 21));
+        testCases.add(new UnaryOperatorTestCase(10, -21, 10, 21));
+
+        return testCases;
+    }
+
+    /**
+     * Provides a list of test cases where a fraction should be created from a specified
+     * numerator and denominator, both in the {@code int} range, and the expected
+     * numerator and denominator of the created fraction are also in the {@code int} range.
+     * @return a list of test cases as described above
+     */
     public static List<UnaryOperatorTestCase> numDenConstructorTestCases() {
         return Collections.unmodifiableList(numDenConstructorTestCasesList);
     }
 
+    /**
+     * Provides a list of test cases where a {@code double} value should be converted
+     * to a fraction with a certain amount of absolute error allowed, and the expected
+     * numerator and denominator of the resulting fraction are in the {@code int} range.
+     * @return a list of test cases as described above
+     */
     public static List<DoubleToFractionTestCase> doubleConstructorTestCases() {
         return Collections.unmodifiableList(doubleConstructorTestCasesList);
+    }
+
+    /**
+     * Provides a list of test cases where the absolute value of a fraction should be
+     * calculated, with both the operand's and the expected result's numerator and denominator
+     * in the {@code int} range.
+     * @return a list of test cases as described above
+     */
+    public static List<UnaryOperatorTestCase> absTestCases() {
+        return Collections.unmodifiableList(absTestCasesList);
     }
 
     /**

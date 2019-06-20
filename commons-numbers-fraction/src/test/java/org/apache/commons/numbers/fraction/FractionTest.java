@@ -187,13 +187,10 @@ public class FractionTest {
 
     @Test
     public void testAbs() {
-        Fraction a = Fraction.of(10, 21);
-        Fraction b = Fraction.of(-10, 21);
-        Fraction c = Fraction.of(10, -21);
-
-        assertFraction(10, 21, a.abs());
-        assertFraction(10, 21, b.abs());
-        assertFraction(10, 21, c.abs());
+        for (CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.absTestCases()) {
+            Fraction f = Fraction.of(testCase.operandNumerator, testCase.operandDenominator);
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f.abs());
+        }
     }
 
     @Test
