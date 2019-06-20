@@ -300,24 +300,11 @@ public class BigFractionTest {
 
     @Test
     public void testNegate() {
-        BigFraction f = null;
-
-        f = BigFraction.of(50, 75);
-        f = f.negate();
-        Assertions.assertEquals(-2, f.getNumeratorAsInt());
-        Assertions.assertEquals(3, f.getDenominatorAsInt());
-
-        f = BigFraction.of(-50, 75);
-        f = f.negate();
-        Assertions.assertEquals(2, f.getNumeratorAsInt());
-        Assertions.assertEquals(3, f.getDenominatorAsInt());
-
-        // large values
-        f = BigFraction.of(Integer.MAX_VALUE - 1, Integer.MAX_VALUE);
-        f = f.negate();
-        Assertions.assertEquals(Integer.MIN_VALUE + 2, f.getNumeratorAsInt());
-        Assertions.assertEquals(Integer.MAX_VALUE, f.getDenominatorAsInt());
-
+        for (CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.negateTestCases()) {
+            BigFraction f = BigFraction.of(testCase.operandNumerator, testCase.operandDenominator);
+            f = f.negate();
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f);
+        }
     }
 
     @Test

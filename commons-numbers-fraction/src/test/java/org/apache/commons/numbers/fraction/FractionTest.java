@@ -226,23 +226,10 @@ public class FractionTest {
 
     @Test
     public void testNegate() {
-        {
-            Fraction f = Fraction.of(50, 75);
+        for (CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.negateTestCases()) {
+            Fraction f = Fraction.of(testCase.operandNumerator, testCase.operandDenominator);
             f = f.negate();
-            assertFraction(-2, 3, f);
-        }
-
-        {
-            Fraction f = Fraction.of(-50, 75);
-            f = f.negate();
-            assertFraction(2, 3, f);
-        }
-
-        // large values
-        {
-            Fraction f = Fraction.of(Integer.MAX_VALUE - 1, Integer.MAX_VALUE);
-            f = f.negate();
-            assertFraction(Integer.MIN_VALUE + 2, Integer.MAX_VALUE, f);
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f);
         }
 
         {
