@@ -276,13 +276,10 @@ public class BigFractionTest {
 
     @Test
     public void testAbs() {
-        BigFraction a = BigFraction.of(10, 21);
-        BigFraction b = BigFraction.of(-10, 21);
-        BigFraction c = BigFraction.of(10, -21);
-
-        assertFraction(10, 21, a.abs());
-        assertFraction(10, 21, b.abs());
-        assertFraction(10, 21, c.abs());
+        for (CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.absTestCases()) {
+            BigFraction f = BigFraction.of(testCase.operandNumerator, testCase.operandDenominator);
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f.abs());
+        }
     }
 
     @Test
