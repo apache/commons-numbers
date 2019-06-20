@@ -10,7 +10,7 @@ import java.util.List;
  * for operations and expected results that involve
  * numerators and denominators in the {@code int} range.
  */
-public class CommonTestCases {
+class CommonTestCases {
     /**
      * See {@link #numDenConstructorTestCases()}
      */
@@ -123,7 +123,7 @@ public class CommonTestCases {
     }
 
     /**
-     * Defines test cases as described in {@link #collectAbsTestCases()} and collects
+     * Defines test cases as described in {@link #absTestCases()} and collects
      * them into a {@code List}.
      * @return a list of test cases as described above
      */
@@ -174,7 +174,7 @@ public class CommonTestCases {
      * numerator and denominator of the created fraction are also in the {@code int} range.
      * @return a list of test cases as described above
      */
-    public static List<UnaryOperatorTestCase> numDenConstructorTestCases() {
+    static List<UnaryOperatorTestCase> numDenConstructorTestCases() {
         return Collections.unmodifiableList(numDenConstructorTestCasesList);
     }
 
@@ -184,7 +184,7 @@ public class CommonTestCases {
      * numerator and denominator of the resulting fraction are in the {@code int} range.
      * @return a list of test cases as described above
      */
-    public static List<DoubleToFractionTestCase> doubleConstructorTestCases() {
+    static List<DoubleToFractionTestCase> doubleConstructorTestCases() {
         return Collections.unmodifiableList(doubleConstructorTestCasesList);
     }
 
@@ -195,7 +195,7 @@ public class CommonTestCases {
      * numerator and denominator of the resulting fraction are also in the {@code int} range.
      * @return a list of test cases as described above
      */
-    public static List<UnaryOperatorTestCase> absTestCases() {
+    static List<UnaryOperatorTestCase> absTestCases() {
         return Collections.unmodifiableList(absTestCasesList);
     }
 
@@ -206,7 +206,7 @@ public class CommonTestCases {
      * numerator and denominator of the resulting fraction are also in the {@code int} range.
      * @return a list of test cases as described above
      */
-    public static List<UnaryOperatorTestCase> reciprocalTestCases() {
+    static List<UnaryOperatorTestCase> reciprocalTestCases() {
         return Collections.unmodifiableList(reciprocalTestCasesList);
     }
 
@@ -217,7 +217,7 @@ public class CommonTestCases {
      * numerator and denominator of the resulting fraction are also in the {@code int} range.
      * @return a list of test cases as described above
      */
-    public static List<UnaryOperatorTestCase> negateTestCases() {
+    static List<UnaryOperatorTestCase> negateTestCases() {
         return Collections.unmodifiableList(negateTestCasesList);
     }
 
@@ -226,13 +226,13 @@ public class CommonTestCases {
      * of numerator and denominator, both in the {@code int} range, and the numerator and
      * denominator of the expected result are also in the {@code int} range.
      */
-    public static class UnaryOperatorTestCase {
-        public final int operandNumerator;
-        public final int operandDenominator;
-        public final int expectedNumerator;
-        public final int expectedDenominator;
+    static class UnaryOperatorTestCase {
+        final int operandNumerator;
+        final int operandDenominator;
+        final int expectedNumerator;
+        final int expectedDenominator;
 
-        public UnaryOperatorTestCase(
+        UnaryOperatorTestCase(
                 int operandNumerator,
                 int operandDenominator,
                 int expectedNumerator,
@@ -249,12 +249,12 @@ public class CommonTestCases {
      * on a {@code double} value and the numerator and denominator of the expected result
      * are in the {@code int} range.
      */
-    public static class DoubleToFractionTestCase {
-        public final double operand;
-        public final int expectedNumerator;
-        public final int expectedDenominator;
+    static class DoubleToFractionTestCase {
+        final double operand;
+        final int expectedNumerator;
+        final int expectedDenominator;
 
-        public DoubleToFractionTestCase(
+        DoubleToFractionTestCase(
                 double operand,
                 int expectedNumerator,
                 int expectedDenominator) {
