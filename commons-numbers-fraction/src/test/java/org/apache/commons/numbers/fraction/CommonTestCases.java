@@ -26,10 +26,16 @@ public class CommonTestCases {
      */
     private static final List<UnaryOperatorTestCase> absTestCasesList;
 
+    /**
+     * See {@link #reciprocalTestCases()}
+     */
+    private static final List<UnaryOperatorTestCase> reciprocalTestCasesList;
+
     static {
         numDenConstructorTestCasesList = collectNumDenConstructorTestCases();
         doubleConstructorTestCasesList = collectDoubleConstructorTestCases();
         absTestCasesList = collectAbsTestCases();
+        reciprocalTestCasesList = collectReciprocalTestCases();
     }
 
     /**
@@ -126,6 +132,22 @@ public class CommonTestCases {
     }
 
     /**
+     * Defines test cases as described in {@link #reciprocalTestCases()} and collects
+     * them into a {@code List}.
+     * @return a list of test cases as described above
+     */
+    private static List<UnaryOperatorTestCase> collectReciprocalTestCases() {
+        List<UnaryOperatorTestCase> testCases = new ArrayList<>();
+
+        testCases.add(new UnaryOperatorTestCase(50, 75, 3, 2));
+        testCases.add(new UnaryOperatorTestCase(4, 3, 3, 4));
+        testCases.add(new UnaryOperatorTestCase(-15, 47, -47, 15));
+        testCases.add(new UnaryOperatorTestCase(Integer.MAX_VALUE, 1, 1, Integer.MAX_VALUE));
+
+        return testCases;
+    }
+
+    /**
      * Provides a list of test cases where a fraction should be created from a specified
      * numerator and denominator, both in the {@code int} range, and the expected
      * numerator and denominator of the created fraction are also in the {@code int} range.
@@ -146,13 +168,25 @@ public class CommonTestCases {
     }
 
     /**
-     * Provides a list of test cases where the absolute value of a fraction should be
-     * calculated, with both the operand's and the expected result's numerator and denominator
-     * in the {@code int} range.
+     * Provides a list of test cases where the absolute value of a fraction created from a specified
+     * numerator and denominator, both in the {@code int} range, should be
+     * calculated, and the expected
+     * numerator and denominator of the resulting fraction are also in the {@code int} range.
      * @return a list of test cases as described above
      */
     public static List<UnaryOperatorTestCase> absTestCases() {
         return Collections.unmodifiableList(absTestCasesList);
+    }
+
+    /**
+     * Provides a list of test cases where the multiplicative inverse of a fraction created from a specified
+     * numerator and denominator, both in the {@code int} range, should be
+     * calculated, and the expected
+     * numerator and denominator of the resulting fraction are also in the {@code int} range.
+     * @return a list of test cases as described above
+     */
+    public static List<UnaryOperatorTestCase> reciprocalTestCases() {
+        return Collections.unmodifiableList(reciprocalTestCasesList);
     }
 
     /**
