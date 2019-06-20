@@ -31,11 +31,17 @@ public class CommonTestCases {
      */
     private static final List<UnaryOperatorTestCase> reciprocalTestCasesList;
 
+    /**
+     * See {@link #negateTestCases()}
+     */
+    private static final List<UnaryOperatorTestCase> negateTestCasesList;
+
     static {
         numDenConstructorTestCasesList = collectNumDenConstructorTestCases();
         doubleConstructorTestCasesList = collectDoubleConstructorTestCases();
         absTestCasesList = collectAbsTestCases();
         reciprocalTestCasesList = collectReciprocalTestCases();
+        negateTestCasesList = collectNegateTestCases();
     }
 
     /**
@@ -148,6 +154,21 @@ public class CommonTestCases {
     }
 
     /**
+     * Defines test cases as described in {@link #negateTestCases()} and collects
+     * them into a {@code List}.
+     * @return a list of test cases as described above
+     */
+    private static List<UnaryOperatorTestCase> collectNegateTestCases() {
+        List<UnaryOperatorTestCase> testCases = new ArrayList<>();
+
+        testCases.add(new UnaryOperatorTestCase(50, 75, -2, 3));
+        testCases.add(new UnaryOperatorTestCase(-50, 75, 2, 3));
+        testCases.add(new UnaryOperatorTestCase(Integer.MAX_VALUE - 1, Integer.MAX_VALUE, Integer.MIN_VALUE + 2, Integer.MAX_VALUE));
+
+        return testCases;
+    }
+
+    /**
      * Provides a list of test cases where a fraction should be created from a specified
      * numerator and denominator, both in the {@code int} range, and the expected
      * numerator and denominator of the created fraction are also in the {@code int} range.
@@ -187,6 +208,17 @@ public class CommonTestCases {
      */
     public static List<UnaryOperatorTestCase> reciprocalTestCases() {
         return Collections.unmodifiableList(reciprocalTestCasesList);
+    }
+
+    /**
+     * Provides a list of test cases where the additive inverse of a fraction created from a specified
+     * numerator and denominator, both in the {@code int} range, should be
+     * calculated, and the expected
+     * numerator and denominator of the resulting fraction are also in the {@code int} range.
+     * @return a list of test cases as described above
+     */
+    public static List<UnaryOperatorTestCase> negateTestCases() {
+        return Collections.unmodifiableList(negateTestCasesList);
     }
 
     /**
