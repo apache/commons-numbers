@@ -33,11 +33,11 @@ public class FractionTest {
 
     @Test
     public void testConstructor() {
-        for (CommonTestCases.NumDenConstructorTestCase testCase : CommonTestCases.numDenConstructorTestCases()) {
+        for (CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.numDenConstructorTestCases()) {
             assertFraction(
                     testCase.expectedNumerator,
                     testCase.expectedDenominator,
-                    Fraction.of(testCase.constructorNumerator, testCase.constructorDenominator)
+                    Fraction.of(testCase.operandNumerator, testCase.operandDenominator)
             );
         }
 
@@ -65,11 +65,11 @@ public class FractionTest {
     // MATH-179
     @Test
     public void testDoubleConstructor() throws Exception  {
-        for (CommonTestCases.DoubleConstructorTestCase testCase : CommonTestCases.doubleConstructorTestCases()) {
+        for (CommonTestCases.DoubleToFractionTestCase testCase : CommonTestCases.doubleConstructorTestCases()) {
             assertFraction(
                     testCase.expectedNumerator,
                     testCase.expectedDenominator,
-                    Fraction.from(testCase.constructorArgument)
+                    Fraction.from(testCase.operand)
             );
         }
     }
