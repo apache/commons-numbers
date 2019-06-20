@@ -396,21 +396,14 @@ public class BigFractionTest {
 
     @Test
     public void testMultiply() {
-        BigFraction a = BigFraction.of(1, 2);
-        BigFraction b = BigFraction.of(2, 3);
+        for (CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.multiplyByFractionTestCases()) {
+            BigFraction f1 = BigFraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            BigFraction f2 = BigFraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.multiply(f2));
+        }
 
-        assertFraction(1, 4, a.multiply(a));
-        assertFraction(1, 3, a.multiply(b));
-        assertFraction(1, 3, b.multiply(a));
-        assertFraction(4, 9, b.multiply(b));
-
-        BigFraction f1 = BigFraction.of(Integer.MAX_VALUE, 1);
         BigFraction f2 = BigFraction.of(Integer.MIN_VALUE, Integer.MAX_VALUE);
-        BigFraction f = f1.multiply(f2);
-        Assertions.assertEquals(Integer.MIN_VALUE, f.getNumeratorAsInt());
-        Assertions.assertEquals(1, f.getDenominatorAsInt());
-
-        f = f2.multiply(Integer.MAX_VALUE);
+        BigFraction f = f2.multiply(Integer.MAX_VALUE);
         Assertions.assertEquals(Integer.MIN_VALUE, f.getNumeratorAsInt());
         Assertions.assertEquals(1, f.getDenominatorAsInt());
 
