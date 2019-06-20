@@ -302,14 +302,10 @@ public class FractionTest {
 
     @Test
     public void testDivide() {
-        {
-            Fraction a = Fraction.of(1, 2);
-            Fraction b = Fraction.of(2, 3);
-
-            assertFraction(1, 1, a.divide(a));
-            assertFraction(3, 4, a.divide(b));
-            assertFraction(4, 3, b.divide(a));
-            assertFraction(1, 1, b.divide(b));
+        for (CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.divideByFractionTestCases()) {
+            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.divide(f2));
         }
 
         {
@@ -328,24 +324,7 @@ public class FractionTest {
         }
 
         {
-            Fraction f1 = Fraction.of(2, 7);
-            Fraction f2 = Fraction.ONE;
-            Fraction f = f1.divide(f2);
-            assertFraction(2, 7, f);
-        }
-
-        {
-            Fraction f1 = Fraction.of(1, Integer.MAX_VALUE);
-            Fraction f = f1.divide(f1);
-            assertFraction(1, 1, f);
-        }
-
-        {
-            Fraction f1 = Fraction.of(Integer.MIN_VALUE, Integer.MAX_VALUE);
-            Fraction f2 = Fraction.of(1, Integer.MAX_VALUE);
-            final Fraction f = f1.divide(f2);
-            assertFraction(Integer.MIN_VALUE, 1, f);
-
+            final Fraction f = Fraction.of(Integer.MIN_VALUE, 1);
             Assertions.assertThrows(NullPointerException.class,
                     () -> f.divide(null)
             );

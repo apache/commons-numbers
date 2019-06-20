@@ -314,9 +314,9 @@ public class BigFractionTest {
         }
 
         {
-            final BigFraction f3 = BigFraction.of(-17 - 2*13*2, 13*13*17*2*2);
+            final BigFraction f = BigFraction.of(-17 - 2*13*2, 13*13*17*2*2);
             Assertions.assertThrows(NullPointerException.class,
-                    () -> f3.add((BigFraction) null)
+                    () -> f.add((BigFraction) null)
             );
         }
 
@@ -351,13 +351,11 @@ public class BigFractionTest {
 
     @Test
     public void testDivide() {
-        BigFraction a = BigFraction.of(1, 2);
-        BigFraction b = BigFraction.of(2, 3);
-
-        assertFraction(1, 1, a.divide(a));
-        assertFraction(3, 4, a.divide(b));
-        assertFraction(4, 3, b.divide(a));
-        assertFraction(1, 1, b.divide(b));
+        for (CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.divideByFractionTestCases()) {
+            BigFraction f1 = BigFraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            BigFraction f2 = BigFraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.divide(f2));
+        }
 
         BigFraction f1 = BigFraction.of(3, 5);
         BigFraction f2 = BigFraction.ZERO;
@@ -372,27 +370,11 @@ public class BigFractionTest {
         BigFraction f = f1.divide(f2);
         Assertions.assertSame(BigFraction.ZERO, f);
 
-        f1 = BigFraction.of(2, 7);
-        f2 = BigFraction.ONE;
-        f = f1.divide(f2);
-        Assertions.assertEquals(2, f.getNumeratorAsInt());
-        Assertions.assertEquals(7, f.getDenominatorAsInt());
-
-        f1 = BigFraction.of(1, Integer.MAX_VALUE);
-        f = f1.divide(f1);
-        Assertions.assertEquals(1, f.getNumeratorAsInt());
-        Assertions.assertEquals(1, f.getDenominatorAsInt());
-
-        f1 = BigFraction.of(Integer.MIN_VALUE, Integer.MAX_VALUE);
-        f2 = BigFraction.of(1, Integer.MAX_VALUE);
-        f = f1.divide(f2);
-        Assertions.assertEquals(Integer.MIN_VALUE, f.getNumeratorAsInt());
-        Assertions.assertEquals(1, f.getDenominatorAsInt());
-
-        try {
-            f.divide((BigFraction) null);
-            Assertions.fail("expecting NullPointerException");
-        } catch (NullPointerException ex) {
+        {
+            final BigFraction f3 = BigFraction.of(Integer.MIN_VALUE, 1);
+            Assertions.assertThrows(NullPointerException.class,
+                    () -> f3.divide((BigFraction) null)
+            );
         }
 
         f1 = BigFraction.of(Integer.MIN_VALUE, Integer.MAX_VALUE);

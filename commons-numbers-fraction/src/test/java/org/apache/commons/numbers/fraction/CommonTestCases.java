@@ -41,6 +41,11 @@ class CommonTestCases {
      */
     private static final List<BinaryOperatorTestCase> addFractionTestCasesList;
 
+    /**
+     * See {@link #divideByFractionTestCases()}
+     */
+    private static final List<BinaryOperatorTestCase> divideByFractionTestCasesList;
+
     static {
         numDenConstructorTestCasesList = collectNumDenConstructorTestCases();
         doubleConstructorTestCasesList = collectDoubleConstructorTestCases();
@@ -48,6 +53,7 @@ class CommonTestCases {
         reciprocalTestCasesList = collectReciprocalTestCases();
         negateTestCasesList = collectNegateTestCases();
         addFractionTestCasesList = collectAddFractionTestCases();
+        divideByFractionTestCasesList = collectDivideByFractionTestCases();
     }
 
     /**
@@ -182,15 +188,10 @@ class CommonTestCases {
     private static List<BinaryOperatorTestCase> collectAddFractionTestCases() {
         List<BinaryOperatorTestCase> testCases = new ArrayList<>();
 
-        {
-            int[] a = new int[]{1, 2};
-            int[] b = new int[]{2, 3};
-
-            testCases.add(new BinaryOperatorTestCase(a[0], a[1], a[0], a[1], 1, 1));
-            testCases.add(new BinaryOperatorTestCase(a[0], a[1], b[0], b[1], 7, 6));
-            testCases.add(new BinaryOperatorTestCase(b[0], b[1], a[0], a[1], 7, 6));
-            testCases.add(new BinaryOperatorTestCase(b[0], b[1], b[0], b[1], 4, 3));
-        }
+        testCases.add(new BinaryOperatorTestCase(1, 2, 1, 2, 1, 1));
+        testCases.add(new BinaryOperatorTestCase(1, 2, 2, 3, 7, 6));
+        testCases.add(new BinaryOperatorTestCase(2, 3, 1, 2, 7, 6));
+        testCases.add(new BinaryOperatorTestCase(2, 3, 2, 3, 4, 3));
 
         testCases.add(new BinaryOperatorTestCase(
                 -1, 13*13*2*2,
@@ -213,6 +214,35 @@ class CommonTestCases {
                 Integer.MAX_VALUE - 1, 1,
                 1, 1,
                 Integer.MAX_VALUE, 1));
+
+        return testCases;
+    }
+
+    /**
+     * Defines test cases as described in {@link #divideByFractionTestCases()} and collects
+     * them into a {@code List}.
+     * @return a list of test cases as described above
+     */
+    private static List<BinaryOperatorTestCase> collectDivideByFractionTestCases() {
+        List<BinaryOperatorTestCase> testCases = new ArrayList<>();
+
+        testCases.add(new BinaryOperatorTestCase(1, 2, 1, 2, 1, 1));
+        testCases.add(new BinaryOperatorTestCase(1, 2, 2, 3, 3, 4));
+        testCases.add(new BinaryOperatorTestCase(2, 3, 1, 2, 4, 3));
+        testCases.add(new BinaryOperatorTestCase(2, 3, 2, 3, 1, 1));
+
+        testCases.add(new BinaryOperatorTestCase(
+                2, 7,
+                1, 1,
+                2, 7));
+        testCases.add(new BinaryOperatorTestCase(
+                1, Integer.MAX_VALUE,
+                1, Integer.MAX_VALUE,
+                1, 1));
+        testCases.add(new BinaryOperatorTestCase(
+                Integer.MIN_VALUE, Integer.MAX_VALUE,
+                1, Integer.MAX_VALUE,
+                Integer.MIN_VALUE, 1));
 
         return testCases;
     }
@@ -278,6 +308,17 @@ class CommonTestCases {
      */
     static List<BinaryOperatorTestCase> addFractionTestCases() {
         return Collections.unmodifiableList(addFractionTestCasesList);
+    }
+
+    /**
+     * Provides a list of test cases where a fraction, created from a specified numerator and denominator
+     * in the {@code int} range, should be divided by another fraction, also created from a specified numerator and denominator
+     * in the {@code int} range, and the expected numerator and denominator of the resulting fraction
+     * are in the {@code int} range as well.
+     * @return a list of test cases as described above
+     */
+    static List<BinaryOperatorTestCase> divideByFractionTestCases() {
+        return Collections.unmodifiableList(divideByFractionTestCasesList);
     }
 
     /**
