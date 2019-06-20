@@ -209,6 +209,11 @@ class CommonTestCases {
                 1, 3,
                 Integer.MIN_VALUE + 1, 3));
 
+        testCases.add(new BinaryOperatorTestCase(
+                Integer.MAX_VALUE - 1, 1,
+                1, 1,
+                Integer.MAX_VALUE, 1));
+
         return testCases;
     }
 
