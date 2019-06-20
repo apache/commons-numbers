@@ -39,11 +39,11 @@ public class BigFractionTest {
 
     @Test
     public void testConstructor() {
-        for (CommonTestCases.NumDenConstructorTestCase testCase : CommonTestCases.numDenConstructorTestCases()) {
+        for (CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.numDenConstructorTestCases()) {
             assertFraction(
                     testCase.expectedNumerator,
                     testCase.expectedDenominator,
-                    BigFraction.of(testCase.constructorNumerator, testCase.constructorDenominator)
+                    BigFraction.of(testCase.operandNumerator, testCase.operandDenominator)
             );
         }
 
@@ -98,11 +98,11 @@ public class BigFractionTest {
     // MATH-179
     @Test
     public void testDoubleConstructor() throws Exception {
-        for (CommonTestCases.DoubleConstructorTestCase testCase : CommonTestCases.doubleConstructorTestCases()) {
+        for (CommonTestCases.DoubleToFractionTestCase testCase : CommonTestCases.doubleConstructorTestCases()) {
             assertFraction(
                     testCase.expectedNumerator,
                     testCase.expectedDenominator,
-                    BigFraction.from(testCase.constructorArgument, 1.0e-5, 100)
+                    BigFraction.from(testCase.operand, 1.0e-5, 100)
             );
         }
     }
