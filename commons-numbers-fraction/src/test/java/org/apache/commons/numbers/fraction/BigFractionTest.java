@@ -421,13 +421,11 @@ public class BigFractionTest {
 
     @Test
     public void testSubtract() {
-        BigFraction a = BigFraction.of(1, 2);
-        BigFraction b = BigFraction.of(2, 3);
-
-        assertFraction(0, 1, a.subtract(a));
-        assertFraction(-1, 6, a.subtract(b));
-        assertFraction(1, 6, b.subtract(a));
-        assertFraction(0, 1, b.subtract(b));
+        for (CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.subtractFractionTestCases()) {
+            BigFraction f1 = BigFraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            BigFraction f2 = BigFraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.subtract(f2));
+        }
 
         BigFraction f = BigFraction.of(1, 1);
         try {
@@ -435,27 +433,6 @@ public class BigFractionTest {
             Assertions.fail("expecting NullPointerException");
         } catch (NullPointerException ex) {
         }
-
-        // if this fraction is subtracted naively, it will overflow.
-        // check that it doesn't.
-        BigFraction f1 = BigFraction.of(1, 32768 * 3);
-        BigFraction f2 = BigFraction.of(1, 59049);
-        f = f1.subtract(f2);
-        Assertions.assertEquals(-13085, f.getNumeratorAsInt());
-        Assertions.assertEquals(1934917632, f.getDenominatorAsInt());
-
-        f1 = BigFraction.of(Integer.MIN_VALUE, 3);
-        f2 = BigFraction.of(1, 3).negate();
-        f = f1.subtract(f2);
-        Assertions.assertEquals(Integer.MIN_VALUE + 1, f.getNumeratorAsInt());
-        Assertions.assertEquals(3, f.getDenominatorAsInt());
-
-        f1 = BigFraction.of(Integer.MAX_VALUE, 1);
-        f2 = BigFraction.ONE;
-        f = f1.subtract(f2);
-        Assertions.assertEquals(Integer.MAX_VALUE - 1, f.getNumeratorAsInt());
-        Assertions.assertEquals(1, f.getDenominatorAsInt());
-
     }
 
     @Test
