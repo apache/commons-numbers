@@ -5,10 +5,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A collection of test cases that can be applied both
- * to {@link Fraction} and {@link BigFraction}, e.g.
- * for operations and expected results that involve
- * numerators and denominators in the {@code int} range.
+ * A collection of test cases that can be applied both to {@link Fraction}
+ * and {@link BigFraction}, e.g. for operations and expected results that
+ * involve numerators and denominators in the {@code int} range.
  */
 class CommonTestCases {
     /**
@@ -69,8 +68,9 @@ class CommonTestCases {
     }
 
     /**
-     * Defines test cases as described in {@link #numDenConstructorTestCases()} and collects
-     * them into a {@code List}.
+     * Defines test cases as described in
+     * {@link #numDenConstructorTestCases()} and collects them into a {@code
+     * List}.
      * @return a list of test cases as described above
      */
     private static List<UnaryOperatorTestCase> collectNumDenConstructorTestCases() {
@@ -90,8 +90,8 @@ class CommonTestCases {
     }
 
     /**
-     * Defines test cases as described in {@link #doubleConstructorTestCases()} and collects
-     * them into a {@code List}.
+     * Defines test cases as described in
+     * {@link #doubleConstructorTestCases()} and collects them into a {@code List}.
      * @return a list of test cases as described above
      */
     private static List<DoubleToFractionTestCase> collectDoubleConstructorTestCases() {
@@ -147,8 +147,8 @@ class CommonTestCases {
     }
 
     /**
-     * Defines test cases as described in {@link #absTestCases()} and collects
-     * them into a {@code List}.
+     * Defines test cases as described in {@link #absTestCases()} and
+     * collects them into a {@code List}.
      * @return a list of test cases as described above
      */
     private static List<UnaryOperatorTestCase> collectAbsTestCases() {
@@ -162,8 +162,8 @@ class CommonTestCases {
     }
 
     /**
-     * Defines test cases as described in {@link #reciprocalTestCases()} and collects
-     * them into a {@code List}.
+     * Defines test cases as described in {@link #reciprocalTestCases()} and
+     * collects them into a {@code List}.
      * @return a list of test cases as described above
      */
     private static List<UnaryOperatorTestCase> collectReciprocalTestCases() {
@@ -178,8 +178,8 @@ class CommonTestCases {
     }
 
     /**
-     * Defines test cases as described in {@link #negateTestCases()} and collects
-     * them into a {@code List}.
+     * Defines test cases as described in {@link #negateTestCases()} and
+     * collects them into a {@code List}.
      * @return a list of test cases as described above
      */
     private static List<UnaryOperatorTestCase> collectNegateTestCases() {
@@ -193,8 +193,8 @@ class CommonTestCases {
     }
 
     /**
-     * Defines test cases as described in {@link #addFractionTestCases()} and collects
-     * them into a {@code List}.
+     * Defines test cases as described in {@link #addFractionTestCases()} and
+     * collects them into a {@code List}.
      * @return a list of test cases as described above
      */
     private static List<BinaryOperatorTestCase> collectAddFractionTestCases() {
@@ -210,7 +210,7 @@ class CommonTestCases {
                 -2, 13*17*2,
                 -17 - 2*13*2, 13*13*17*2*2));
 
-        // if this fraction is added naively, it will overflow.
+        // if this fraction is added naively, it will overflow the int range.
         // check that it doesn't.
         testCases.add(new BinaryOperatorTestCase(
                 1, 32768 * 3,
@@ -231,8 +231,8 @@ class CommonTestCases {
     }
 
     /**
-     * Defines test cases as described in {@link #divideByFractionTestCases()} and collects
-     * them into a {@code List}.
+     * Defines test cases as described in
+     * {@link #divideByFractionTestCases()} and collects them into a {@code List}.
      * @return a list of test cases as described above
      */
     private static List<BinaryOperatorTestCase> collectDivideByFractionTestCases() {
@@ -260,8 +260,8 @@ class CommonTestCases {
     }
 
     /**
-     * Defines test cases as described in {@link #multiplyByFractionTestCases()} and collects
-     * them into a {@code List}.
+     * Defines test cases as described in
+     * {@link #multiplyByFractionTestCases()} and collects them into a {@code List}.
      * @return a list of test cases as described above
      */
     private static List<BinaryOperatorTestCase> collectMultiplyByFractionTestCases() {
@@ -281,8 +281,8 @@ class CommonTestCases {
     }
 
     /**
-     * Defines test cases as described in {@link #subtractFractionTestCases()} and collects
-     * them into a {@code List}.
+     * Defines test cases as described in
+     * {@link #subtractFractionTestCases()} and collects them into a {@code List}.
      * @return a list of test cases as described above
      */
     private static List<BinaryOperatorTestCase> collectSubtractFractionTestCases() {
@@ -293,7 +293,7 @@ class CommonTestCases {
         testCases.add(new BinaryOperatorTestCase(2, 3, 1, 2, 1, 6));
         testCases.add(new BinaryOperatorTestCase(2, 3, 2, 3, 0, 1));
 
-        // if this fraction is subtracted naively, it will overflow.
+        // if this fraction is subtracted naively, it will overflow the int range.
         // check that it doesn't.
         testCases.add(new BinaryOperatorTestCase(
                 1, 32768 * 3,
@@ -316,9 +316,10 @@ class CommonTestCases {
     }
 
     /**
-     * Provides a list of test cases where a fraction should be created from a specified
-     * numerator and denominator, both in the {@code int} range, and the expected
-     * numerator and denominator of the created fraction are also in the {@code int} range.
+     * Provides a list of test cases where a fraction should be created from
+     * a specified numerator and denominator, both in the {@code int} range,
+     * and the expected numerator and denominator of the created fraction are
+     * also in the {@code int} range.
      * @return a list of test cases as described above
      */
     static List<UnaryOperatorTestCase> numDenConstructorTestCases() {
@@ -326,9 +327,10 @@ class CommonTestCases {
     }
 
     /**
-     * Provides a list of test cases where a {@code double} value should be converted
-     * to a fraction with a certain amount of absolute error allowed, and the expected
-     * numerator and denominator of the resulting fraction are in the {@code int} range.
+     * Provides a list of test cases where a {@code double} value should be
+     * converted to a fraction with a certain amount of absolute error
+     * allowed, and the expected numerator and denominator of the resulting
+     * fraction are in the {@code int} range.
      * @return a list of test cases as described above
      */
     static List<DoubleToFractionTestCase> doubleConstructorTestCases() {
@@ -336,10 +338,10 @@ class CommonTestCases {
     }
 
     /**
-     * Provides a list of test cases where the absolute value of a fraction created from a specified
-     * numerator and denominator, both in the {@code int} range, should be
-     * calculated, and the expected
-     * numerator and denominator of the resulting fraction are also in the {@code int} range.
+     * Provides a list of test cases where the absolute value of a fraction
+     * created from a specified numerator and denominator, both in the {@code
+     * int} range, should be calculated, and the expected numerator and
+     * denominator of the resulting fraction are also in the {@code int} range.
      * @return a list of test cases as described above
      */
     static List<UnaryOperatorTestCase> absTestCases() {
@@ -347,10 +349,11 @@ class CommonTestCases {
     }
 
     /**
-     * Provides a list of test cases where the multiplicative inverse of a fraction created from a specified
-     * numerator and denominator, both in the {@code int} range, should be
-     * calculated, and the expected
-     * numerator and denominator of the resulting fraction are also in the {@code int} range.
+     * Provides a list of test cases where the multiplicative inverse of a
+     * fraction created from a specified numerator and denominator, both in
+     * the {@code int} range, should be calculated, and the expected
+     * numerator and denominator of the resulting fraction are also in the
+     * {@code int} range.
      * @return a list of test cases as described above
      */
     static List<UnaryOperatorTestCase> reciprocalTestCases() {
@@ -358,10 +361,10 @@ class CommonTestCases {
     }
 
     /**
-     * Provides a list of test cases where the additive inverse of a fraction created from a specified
-     * numerator and denominator, both in the {@code int} range, should be
-     * calculated, and the expected
-     * numerator and denominator of the resulting fraction are also in the {@code int} range.
+     * Provides a list of test cases where the additive inverse of a fraction
+     * created from a specified numerator and denominator, both in the {@code
+     * int} range, should be calculated, and the expected numerator and
+     * denominator of the resulting fraction are also in the {@code int} range.
      * @return a list of test cases as described above
      */
     static List<UnaryOperatorTestCase> negateTestCases() {
@@ -369,9 +372,10 @@ class CommonTestCases {
     }
 
     /**
-     * Provides a list of test cases where two fractions, each created from a specified numerator and denominator
-     * in the {@code int} range, should be added, and the expected numerator and denominator of the resulting fraction
-     * are also in the {@code int} range.
+     * Provides a list of test cases where two fractions, each created from a
+     * specified numerator and denominator in the {@code int} range, should
+     * be added, and the expected numerator and denominator of the resulting
+     * fraction are also in the {@code int} range.
      * @return a list of test cases as described above
      */
     static List<BinaryOperatorTestCase> addFractionTestCases() {
@@ -379,12 +383,15 @@ class CommonTestCases {
     }
 
     /**
-     * <p>Provides a list of test cases where a fraction, created from a specified numerator and denominator
-     * in the {@code int} range, should be divided by another fraction, also created from a specified numerator and denominator
-     * in the {@code int} range, and the expected numerator and denominator of the resulting fraction
-     * are in the {@code int} range as well.</p>
+     * <p>Provides a list of test cases where a fraction, created from a
+     * specified numerator and denominator in the {@code int} range, should
+     * be divided by another fraction, also created from a specified
+     * numerator and denominator in the {@code int} range, and the expected
+     * numerator and denominator of the resulting fraction are in the {@code
+     * int} range as well.</p>
      *
-     * <p>The first operand in each test case is the dividend and the second operand is the divisor.</p>
+     * <p>The first operand in each test case is the dividend and the second
+     * operand is the divisor.</p>
      *
      * @return a list of test cases as described above
      */
@@ -393,10 +400,12 @@ class CommonTestCases {
     }
 
     /**
-     * Provides a list of test cases where a fraction, created from a specified numerator and denominator
-     * in the {@code int} range, should be multiplied by another fraction, also created from a specified numerator and denominator
-     * in the {@code int} range, and the expected numerator and denominator of the resulting fraction
-     * are in the {@code int} range as well.
+     * Provides a list of test cases where a fraction, created from a
+     * specified numerator and denominator in the {@code int} range, should
+     * be multiplied by another fraction, also created from a specified
+     * numerator and denominator in the {@code int} range, and the expected
+     * numerator and denominator of the resulting fraction are in the {@code
+     * int} range as well.
      * @return a list of test cases as described above
      */
     static List<BinaryOperatorTestCase> multiplyByFractionTestCases() {
@@ -404,12 +413,15 @@ class CommonTestCases {
     }
 
     /**
-     * <p>Provides a list of test cases where a fraction, created from a specified numerator and denominator
-     * in the {@code int} range, should be subtracted from another fraction, also created from a specified numerator and denominator
-     * in the {@code int} range, and the expected numerator and denominator of the resulting fraction
-     * are in the {@code int} range as well.</p>
+     * <p>Provides a list of test cases where a fraction, created from a
+     * specified numerator and denominator in the {@code int} range, should
+     * be subtracted from another fraction, also created from a specified
+     * numerator and denominator in the {@code int} range, and the expected
+     * numerator and denominator of the resulting fraction are in the {@code
+     * int} range as well.</p>
      *
-     * <p>The first operand in each test case is the minuend and the second operand is the subtrahend.</p>
+     * <p>The first operand in each test case is the minuend and the second
+     * operand is the subtrahend.</p>
      *
      * @return a list of test cases as described above
      */
@@ -418,9 +430,10 @@ class CommonTestCases {
     }
 
     /**
-     * Represents a test case where a unary operation should be performed on a specified combination
-     * of numerator and denominator, both in the {@code int} range, and the numerator and
-     * denominator of the expected result are also in the {@code int} range.
+     * Represents a test case where a unary operation should be performed on
+     * a specified combination of numerator and denominator, both in the
+     * {@code int} range, and the numerator and denominator of the expected
+     * result are also in the {@code int} range.
      */
     static class UnaryOperatorTestCase {
         final int operandNumerator;
@@ -441,9 +454,11 @@ class CommonTestCases {
     }
 
     /**
-     * Represents a test case where a binary operation should be performed on two specified combinations
-     * of numerator and denominator, with the numerator and denominator of each combination in the
-     * {@code int} range, and the numerator and denominator of the expected result are also in the {@code int} range.
+     * Represents a test case where a binary operation should be performed on
+     * two specified combinations of numerator and denominator, with the
+     * numerator and denominator of each combination in the {@code int}
+     * range, and the numerator and denominator of the expected result are
+     * also in the {@code int} range.
      */
     static class BinaryOperatorTestCase {
         final int firstOperandNumerator;
@@ -470,8 +485,9 @@ class CommonTestCases {
     }
 
     /**
-     * Represents a test case where an operation that yields a fraction should be performed
-     * on a {@code double} value and the numerator and denominator of the expected result
+     * Represents a test case where an operation that yields a fraction
+     * should be performed on a {@code double} value and the numerator and
+     * denominator of the expected result
      * are in the {@code int} range.
      */
     static class DoubleToFractionTestCase {
