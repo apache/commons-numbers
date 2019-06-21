@@ -401,14 +401,10 @@ public class FractionTest {
 
     @Test
     public void testSubtract() {
-        {
-            Fraction a = Fraction.of(1, 2);
-            Fraction b = Fraction.of(2, 3);
-
-            assertFraction(0, 1, a.subtract(a));
-            assertFraction(-1, 6, a.subtract(b));
-            assertFraction(1, 6, b.subtract(a));
-            assertFraction(0, 1, b.subtract(b));
+        for (CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.subtractFractionTestCases()) {
+            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.subtract(f2));
         }
 
         {
@@ -419,32 +415,9 @@ public class FractionTest {
         }
 
         {
-            // if this fraction is subtracted naively, it will overflow.
-            // check that it doesn't.
-            Fraction f1 = Fraction.of(1, 32768 * 3);
-            Fraction f2 = Fraction.of(1, 59049);
-            Fraction f = f1.subtract(f2);
-            assertFraction(-13085, 1934917632, f);
-        }
-
-        {
-            Fraction f1 = Fraction.of(Integer.MIN_VALUE, 3);
-            Fraction f2 = Fraction.of(1, 3).negate();
-            Fraction f = f1.subtract(f2);
-            assertFraction(Integer.MIN_VALUE + 1, 3, f);
-        }
-
-        {
             Fraction f1 = Fraction.of(Integer.MAX_VALUE, 1);
-            {
-                Fraction f2 = Fraction.ONE;
-                Fraction f = f1.subtract(f2);
-                assertFraction(Integer.MAX_VALUE-1, 1, f);
-            }
-            {
-                Fraction f = f1.subtract(1);
-                assertFraction(Integer.MAX_VALUE-1, 1, f);
-            }
+            Fraction f = f1.subtract(1);
+            assertFraction(Integer.MAX_VALUE-1, 1, f);
         }
 
         {
