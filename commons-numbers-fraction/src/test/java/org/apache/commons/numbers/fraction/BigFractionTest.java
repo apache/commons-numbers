@@ -37,6 +37,11 @@ public class BigFractionTest {
         Assertions.assertEquals(expectedDenominator, actual.getDenominatorAsLong());
     }
 
+    private void assertFraction(BigInteger expectedNumerator, BigInteger expectedDenominator, BigFraction actual) {
+        Assertions.assertEquals(expectedNumerator, actual.getNumerator());
+        Assertions.assertEquals(expectedDenominator, actual.getDenominator());
+    }
+
     @Test
     public void testConstructor() {
         assertFraction(0, 1, BigFraction.of(0, 1));
@@ -309,7 +314,7 @@ public class BigFractionTest {
         }
         Assertions.assertEquals(1l, BigFraction.from(Double.MAX_VALUE).getDenominatorAsLong());
         Assertions.assertEquals(1l, BigFraction.from(Double.longBitsToDouble(0x0010000000000000L)).getNumeratorAsLong());
-        Assertions.assertEquals(1l, BigFraction.from(Double.MIN_VALUE).getNumeratorAsLong());
+        assertFraction(BigInteger.ONE, BigInteger.ONE.shiftLeft(1074), BigFraction.from(Double.MIN_VALUE));
     }
 
     @Test
