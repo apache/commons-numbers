@@ -219,19 +219,31 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
             throw new IllegalArgumentException("cannot convert infinite value");
         }
 
-        // compute m and k such that value = m * 2^k
         final long bits     = Double.doubleToLongBits(value);
         final long sign     = bits & 0x8000000000000000L;
         final long exponent = bits & 0x7ff0000000000000L;
-        long m              = bits & 0x000fffffffffffffL;
+        final long mantissa = bits & 0x000fffffffffffffL;
+
+        // compute m and k such that value = m * 2^k
+        long m;
+        int k;
+
         if (exponent != 0) {
             // this was a normalized number, add the implicit most significant bit
-            m |= 0x0010000000000000L;
+            m = mantissa | 0x0010000000000000L;
+            k = ((int) (exponent >> 52)) - 1023 - 52;
+        } else {
+            m = mantissa;
+            if (m == 0) { //number is zero, set k to 0 for simplicity
+                k = 0;
+            } else {
+                // subnormal number, the effective exponent bias is only 1022
+                k = ((int) (exponent >> 52)) - 1022 - 52;
+            }
         }
         if (sign != 0) {
             m = -m;
         }
-        int k = ((int) (exponent >> 52)) - 1075;
         while (((m & 0x001ffffffffffffeL) != 0) && ((m & 0x1) == 0)) {
             m >>= 1;
             ++k;
