@@ -197,7 +197,7 @@ public class BinomialCoefficientTest {
             if (k > 100) {
                 binomialCoefficient(n - 100, k - 100);
             }
-            result = ArithmeticUtils.addAndCheck(binomialCoefficient(n - 1, k - 1),
+            result = Math.addExact(binomialCoefficient(n - 1, k - 1),
                                                  binomialCoefficient(n - 1, k));
         }
         if (result == -1) {

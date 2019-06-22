@@ -472,14 +472,14 @@ public class Fraction
         }
         // t = u(v'/gcd) +/- v(u'/gcd)
         int d1 = ArithmeticUtils.gcd(denominator, fraction.denominator);
-        int uvp = ArithmeticUtils.mulAndCheck(numerator, fraction.denominator / d1);
-        int upv = ArithmeticUtils.mulAndCheck(fraction.numerator, denominator / d1);
-        int t = isAdd ? ArithmeticUtils.addAndCheck(uvp, upv) : ArithmeticUtils.subAndCheck(uvp, upv);
+        int uvp = Math.multiplyExact(numerator, fraction.denominator / d1);
+        int upv = Math.multiplyExact(fraction.numerator, denominator / d1);
+        int t = isAdd ? Math.addExact(uvp, upv) : Math.subtractExact(uvp, upv);
         int tmodd1 = t % d1;
         int d2 = (tmodd1==0)?d1:ArithmeticUtils.gcd(tmodd1, d1);
         // result is (t/d2) / (u'/d1)(v'/d2)
         int w = t / d2;
-        return new Fraction (w, ArithmeticUtils.mulAndCheck(denominator/d1,
+        return new Fraction (w, Math.multiplyExact(denominator/d1,
                         fraction.denominator/d2));
     }
 
@@ -505,8 +505,8 @@ public class Fraction
         int d1 = ArithmeticUtils.gcd(numerator, fraction.denominator);
         int d2 = ArithmeticUtils.gcd(fraction.numerator, denominator);
         return getReducedFraction
-        (ArithmeticUtils.mulAndCheck(numerator/d1, fraction.numerator/d2),
-                ArithmeticUtils.mulAndCheck(denominator/d2, fraction.denominator/d1));
+        (Math.multiplyExact(numerator/d1, fraction.numerator/d2),
+                Math.multiplyExact(denominator/d2, fraction.denominator/d1));
     }
 
     /**
