@@ -238,7 +238,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
                 k = 0;
             } else {
                 // subnormal number, the effective exponent bias is only 1022
-                k = ((int) (exponent >> 52)) - 1022 - 52;
+                k = - 1022 - 52;
             }
         }
         if (sign != 0) {
