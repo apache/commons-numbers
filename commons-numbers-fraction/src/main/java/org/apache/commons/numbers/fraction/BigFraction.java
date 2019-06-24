@@ -671,20 +671,149 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      */
     @Override
     public double doubleValue() {
-        double doubleNum = numerator.doubleValue();
-        double doubleDen = denominator.doubleValue();
-        double result = doubleNum / doubleDen;
-        if (Double.isInfinite(doubleNum) ||
-            Double.isInfinite(doubleDen) ||
-            Double.isNaN(result)) {
-            // Numerator and/or denominator must be out of range:
-            // Calculate how far to shift them to put them in range.
-            int shift = Math.max(numerator.bitLength(),
-                                 denominator.bitLength()) - Math.getExponent(Double.MAX_VALUE);
-            result = numerator.shiftRight(shift).doubleValue() /
-                denominator.shiftRight(shift).doubleValue();
+        if (numerator.signum() == 0) {
+            return 0;
         }
-        return result;
+
+        /*
+         * We will manually construct a long from which to create the double to
+         * ensure maximum precision. First, we set the sign:
+         */
+        long sign = numerator.signum() == -1 ? 1L : 0L;
+        BigInteger positiveNumerator = numerator.abs();
+
+        /*
+         * The significand of a double value consists of 52 bits for the
+         * fractional part, plus the implicit leading 1 bit for the
+         * non-fractional part, which makes 53 bits in total. So we need to
+         * calculate the most significant 54 bits of this fraction's quotient,
+         * and then, based on the 54th most significant bit, find out whether
+         * we need to round up or down.
+         *
+         * First, we'll remove all powers of 2 from the denominator because they
+         * are not relevant for the significand of the prospective double value.
+         */
+        int denRightShift = denominator.getLowestSetBit();
+        BigInteger divisor = denominator.shiftRight(denRightShift);
+
+        /*
+         * Now, we're going to calculate the 54 most significant bits of the
+         * quotient using integer division. To guarantee that the quotient has
+         * at least 54 bits, the bit length of the dividend must exceed that
+         * of the divisor by at least 54. If the numerator has powers of 2
+         * beyond this limit, they can be removed as well.
+         */
+        int numRightShift = positiveNumerator.bitLength() - divisor.bitLength() - 54;
+        if (numRightShift > 0) {
+            numRightShift = Math.min(numRightShift, positiveNumerator.getLowestSetBit());
+        }
+        BigInteger dividend = positiveNumerator.shiftRight(numRightShift);
+
+        BigInteger quotient = dividend.divide(divisor);
+        int quotRightShift = quotient.bitLength() - 53;
+
+        /*
+         * If the denominator was a power of two, then the divisor was reduced
+         * 1, meaning the quotient was calculated exactly. Otherwise, the
+         * fractional part of the precise quotient's binary representation does
+         * not terminate.
+         */
+        long significand = roundAndRightShift(
+                quotient,
+                quotRightShift,
+                !divisor.equals(BigInteger.ONE)
+        ).longValue();
+
+        /*
+         * If the significand had to be rounded up, this could have caused an
+         * overflow into the 54th least significant bit.
+         */
+        if ((significand & (1L << 53)) != 0) {
+            significand >>= 1;
+            quotRightShift++;
+        }
+
+        /*
+         * Now comes the exponent. The absolute value of this fraction based
+         * on the current local variables is:
+         *
+         * significand * 2^(numRightShift - denRightShift + quotRightShift)
+         *
+         * To get the unbiased exponent for the double value, we need to add 52
+         * to the above exponent, because the 52 least significant bits of
+         * significant will be treated as a fractional part. To convert the
+         * unbiased exponent to a biased exponent, we need to add 1023.
+         */
+        long exponent = numRightShift - denRightShift + quotRightShift + 52 + 1023;
+
+        if (exponent > 2046) { //infinity
+            exponent = 2047;
+            significand = 0;
+        } else if (exponent > 0) { //normalized number
+            significand &= 0x000FFFFFFFFFFFFFL; //remove implicit leading 1-bit
+        } else { //smaller than the smallest normalized number
+            /*
+             * We need to round the quotient to fewer than 53 bits. This must
+             * be done with the original quotient and not with the current
+             * significand, because the loss of precision in the rounding to 53
+             * bits might cause a rounding of the current significand's value
+             * to produce a different result than a rounding of the
+             * original quotient.
+             *
+             * So we find out how many high-order bits from the quotient we can
+             * squeeze into the significand. The absolute value of the fraction
+             * is:
+             *
+             * quotient * 2^(numRightShift - denRightShift)
+             *
+             * To get the significand, we need to right shift the quotient so
+             * that the above exponent becomes (- 1022 - 52) = -1074 (-1022 is
+             * the unbiased exponent of a subnormal double value, and 52 because
+             * the significand will be treated as the fractional part)
+             */
+            significand = roundAndRightShift(
+                    quotient,
+                    - 1074 - (numRightShift - denRightShift),
+                    !divisor.equals(BigInteger.ONE)
+            ).longValue();
+            exponent = 0L;
+        }
+        return Double.longBitsToDouble((sign << 63) | (exponent << 52) | significand);
+    }
+
+    /**
+     * Rounds an integer to the specified power of two (i.e. the minimum number of
+     * low-order bits that must be zero) and performs a right-shift by this
+     * amount. The rounding mode applied is round to nearest, with ties rounding
+     * to even (meaning the prospective least significant bit must be zero). The
+     * number can optionally be treated as though it contained at
+     * least one 0-bit and one 1-bit in its fractional part, to influence the result in cases
+     * that would otherwise be a tie.
+     * @param value the number to round and right-shift
+     * @param bits the power of two to which to round; must be positive
+     * @param hasFractionalBits whether the number should be treated as though
+     *                          it contained a non-zero fractional part
+     * @return a {@code BigInteger} as described above
+     */
+    private static BigInteger roundAndRightShift(BigInteger value, int bits, boolean hasFractionalBits) {
+        if (bits <= 0) {
+            throw new IllegalArgumentException();
+        } else if (bits > value.bitLength()) {
+            return BigInteger.ZERO;
+        } else {
+            boolean roundUp = false;
+            if (value.testBit(bits - 1)
+                    && (hasFractionalBits
+                    || (value.getLowestSetBit() < bits - 1)
+                    || value.testBit(bits))) {
+                roundUp = true;
+            }
+            BigInteger result = value.shiftRight(bits);
+            if (roundUp) {
+                result = result.add(BigInteger.ONE);
+            }
+            return result;
+        }
     }
 
     /**
