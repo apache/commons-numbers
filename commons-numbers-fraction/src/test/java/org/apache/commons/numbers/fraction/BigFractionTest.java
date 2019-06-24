@@ -171,11 +171,21 @@ public class BigFractionTest {
 
     @Test
     public void testDoubleValue() {
-        BigFraction first = BigFraction.of(1, 2);
-        BigFraction second = BigFraction.of(1, 3);
+        {
+            BigFraction first = BigFraction.of(1, 2);
+            BigFraction second = BigFraction.of(1, 3);
 
-        Assertions.assertEquals(0.5, first.doubleValue(), 0.0);
-        Assertions.assertEquals(1.0 / 3.0, second.doubleValue(), 0.0);
+            Assertions.assertEquals(0.5, first.doubleValue(), 0.0);
+            Assertions.assertEquals(1.0 / 3.0, second.doubleValue(), 0.0);
+        }
+
+        //NUMBERS-120
+        {
+            BigFraction f = BigFraction.of(
+                    BigInteger.ONE.shiftLeft(54),
+                    BigInteger.ONE.shiftLeft(53).add(BigInteger.ONE));
+            Assertions.assertEquals(2d - 0x1P-52, f.doubleValue());
+        }
     }
 
     @Test
