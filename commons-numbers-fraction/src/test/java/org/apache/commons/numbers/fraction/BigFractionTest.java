@@ -178,6 +178,35 @@ public class BigFractionTest {
         Assertions.assertEquals(1.0 / 3.0, second.doubleValue(), 0.0);
     }
 
+    @Test
+    public void testDoubleValueForSubnormalNumbers() {
+        {
+            double min = Double.MIN_VALUE;
+            double min1Up = Math.nextUp(min);
+            double min2Up = Math.nextUp(min1Up);
+            Assertions.assertEquals(
+                    min,
+                    BigFraction.from(min).doubleValue());
+            Assertions.assertEquals(
+                    min1Up,
+                    BigFraction.from(min1Up).doubleValue());
+            Assertions.assertEquals(
+                    min2Up,
+                    BigFraction.from(min2Up).doubleValue());
+        }
+
+        {
+            double minNormal1Down = Math.nextDown(Double.MIN_NORMAL);
+            double minNormal2Down = Math.nextDown(minNormal1Down);
+            Assertions.assertEquals(
+                    minNormal1Down,
+                    BigFraction.from(minNormal1Down).doubleValue());
+            Assertions.assertEquals(
+                    minNormal2Down,
+                    BigFraction.from(minNormal2Down).doubleValue());
+        }
+    }
+
     // MATH-744
     @Test
     public void testDoubleValueForLargeNumeratorAndDenominator() {
@@ -202,15 +231,27 @@ public class BigFractionTest {
         Assertions.assertEquals(5, large.floatValue(), 1e-15);
     }
 
-    // NUMBERS-15
     @Test
     public void testDoubleValueForLargeNumeratorAndSmallDenominator() {
-        final BigInteger pow300 = BigInteger.TEN.pow(300);
-        final BigInteger pow330 = BigInteger.TEN.pow(330);
-        final BigFraction large = BigFraction.of(pow330.add(BigInteger.ONE),
-                                                  pow300);
+        // NUMBERS-15
+        {
+            final BigInteger pow300 = BigInteger.TEN.pow(300);
+            final BigInteger pow330 = BigInteger.TEN.pow(330);
+            final BigFraction large = BigFraction.of(pow330.add(BigInteger.ONE),
+                    pow300);
 
-        Assertions.assertEquals(1e30, large.doubleValue(), 1e-15);
+            Assertions.assertEquals(1e30, large.doubleValue(), 1e-15);
+        }
+
+        // NUMBERS-120
+        {
+            BigFraction f = BigFraction.of(
+                    BigInteger.ONE.shiftLeft(1024)
+                            .subtract(BigInteger.ONE.shiftLeft(970))
+                            .add(BigInteger.ONE),
+                    BigInteger.valueOf(3));
+            Assertions.assertEquals(5.992310449541053E307, f.doubleValue());
+        }
     }
 
     // NUMBERS-15
