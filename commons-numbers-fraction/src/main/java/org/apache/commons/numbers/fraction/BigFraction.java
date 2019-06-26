@@ -661,6 +661,144 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
     }
 
     /**
+     * Calculates the sign bit, the biased exponent and the significand for a
+     * binary floating-point representation of this {@code BigFraction}
+     * according to the IEEE 754 standard, and encodes these values into a {@code long}
+     * variable. The representative bits are arranged adjacent to each other and
+     * placed at the low-order end of the returned {@code long} value, with the
+     * least significant bits used for the significand, the next more
+     * significant bits for the exponent, and next more significant bit for the
+     * sign.
+     * @param exponentLength the number of bits allowed for the exponent; must be
+     *                       between 1 and 32 (inclusive), and must not be greater
+     *                       than 63 - significandLength
+     * @param significandLength the number of bits allowed for the significand
+     *                          (excluding the implicit leading 1-bit in
+     *                          normalized numbers, e.g. 52 for a double-precision
+     *                          floating-point number); must be between 1 and
+     *                          (63 - exponentLength) (inclusive)
+     * @return the bits of an IEEE 754 binary floating-point representation of
+     * this fraction encoded in a {@code long}, as described above.
+     */
+    private long toFloatingPointBits(int exponentLength, int significandLength) {
+        if (exponentLength < 1 ||significandLength < 1 || exponentLength > Math.min(32, 63 - significandLength)) {
+            throw new IllegalArgumentException();
+        }
+        if (numerator.signum() == 0) {
+            return 0L;
+        }
+
+        long sign = numerator.signum() == -1 ? 1L : 0L;
+        BigInteger positiveNumerator = numerator.abs();
+
+        /*
+         * The most significant 1-bit of a non-zero number is not explicitly
+         * stored in the significand of an IEEE 754 normalized binary
+         * floating-point number, so we need to round the value of this fraction
+         * to (significandLength + 1) bits. In order to do this, we calculate
+         * the most significant (significandLength + 2) bits, and then, based on
+         * the least significant of those bits, find out whether we need to
+         * round up or down.
+         *
+         * First, we'll remove all powers of 2 from the denominator because they
+         * are not relevant for the significand of the prospective binary
+         * floating-point value.
+         */
+        int denRightShift = denominator.getLowestSetBit();
+        BigInteger divisor = denominator.shiftRight(denRightShift);
+
+        /*
+         * Now, we're going to calculate the (significandLength + 2) most
+         * significant bits of the fraction's value using integer division. To
+         * guarantee that the quotient of the division has at least
+         * (significandLength + 2) bits, the bit length of the dividend must
+         * exceed that of the divisor by at least that amount. If the numerator
+         * has powers of 2 beyond this limit, they can be removed as well.
+         */
+        int numRightShift = positiveNumerator.bitLength() - divisor.bitLength() - (significandLength + 2);
+        if (numRightShift > 0) {
+            numRightShift = Math.min(numRightShift, positiveNumerator.getLowestSetBit());
+        }
+        BigInteger dividend = positiveNumerator.shiftRight(numRightShift);
+
+        BigInteger quotient = dividend.divide(divisor);
+
+        /*
+         * If the denominator was a power of two, then the divisor was reduced
+         * to 1, meaning the quotient was calculated exactly. Otherwise, the
+         * fractional part of the precise quotient's binary representation does
+         * not terminate.
+         */
+        int quotRightShift = quotient.bitLength() - (significandLength + 1);
+        long significand = roundAndRightShift(
+                quotient,
+                quotRightShift,
+                !divisor.equals(BigInteger.ONE)
+        ).longValue();
+
+        /*
+         * If the significand had to be rounded up, this could have caused the
+         * bit length of the significand to increase by one.
+         */
+        if ((significand & (1L << (significandLength + 1))) != 0) {
+            significand >>= 1;
+            quotRightShift++;
+        }
+
+        /*
+         * Now comes the exponent. The absolute value of this fraction based on
+         * the current local variables is:
+         *
+         * significand * 2^(numRightShift - denRightShift + quotRightShift)
+         *
+         * To get the unbiased exponent for the floating-point value, we need to
+         * add (significandLength) to the above exponent, because all but the
+         * most significant bit of the significand will be treated as a
+         * fractional part. To convert the unbiased exponent to a biased
+         * exponent, we also need to add the exponent bias.
+         */
+        int exponentBias = (1 << (exponentLength - 1)) - 1;
+        long exponent = numRightShift - denRightShift + quotRightShift + significandLength + exponentBias;
+        long maxExponent = (1L << exponentLength) - 1L; //special exponent for infinities and NaN
+
+        if (exponent >= maxExponent) { //infinity
+            exponent = maxExponent;
+            significand = 0L;
+        } else if (exponent > 0) { //normalized number
+            significand &= -1L >>> (64 - significandLength); //remove implicit leading 1-bit
+        } else { //smaller than the smallest normalized number
+            /*
+             * We need to round the quotient to fewer than
+             * (significandLength + 1) bits. This must be done with the original
+             * quotient and not with the current significand, because the loss
+             * of precision in the previous rounding might cause a rounding of
+             * the current significand's value to produce a different result
+             * than a rounding of the original quotient.
+             *
+             * So we find out how many high-order bits from the quotient we can
+             * transfer into the significand. The absolute value of the fraction
+             * is:
+             *
+             * quotient * 2^(numRightShift - denRightShift)
+             *
+             * To get the significand, we need to right shift the quotient so
+             * that the above exponent becomes (1 - exponentBias - significandLength)
+             * (the unbiased exponent of a subnormal floating-point number is
+             * defined as equivalent to the minimum unbiased exponent of a
+             * normalized floating-point number, and (- significandLength)
+             * because the significand will be treated as the fractional part).
+             */
+            significand = roundAndRightShift(
+                    quotient,
+                    (1 - exponentBias - significandLength) - (numRightShift - denRightShift),
+                    !divisor.equals(BigInteger.ONE)
+            ).longValue();
+            exponent = 0L;
+        }
+        return (sign << (significandLength + exponentLength)) | (exponent << significandLength) | significand;
+    }
+
+    /**
      * <p>
      * Gets the fraction as a {@code double}. This calculates the fraction as
      * the numerator divided by denominator.
@@ -671,114 +809,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      */
     @Override
     public double doubleValue() {
-        if (numerator.signum() == 0) {
-            return 0;
-        }
-
-        /*
-         * We will manually construct a long from which to create the double to
-         * ensure maximum precision. First, we set the sign:
-         */
-        long sign = numerator.signum() == -1 ? 1L : 0L;
-        BigInteger positiveNumerator = numerator.abs();
-
-        /*
-         * The significand of a double value consists of 52 bits for the
-         * fractional part, plus the implicit leading 1 bit for the
-         * non-fractional part, which makes 53 bits in total. So we need to
-         * calculate the most significant 54 bits of this fraction's quotient,
-         * and then, based on the 54th most significant bit, find out whether
-         * we need to round up or down.
-         *
-         * First, we'll remove all powers of 2 from the denominator because they
-         * are not relevant for the significand of the prospective double value.
-         */
-        int denRightShift = denominator.getLowestSetBit();
-        BigInteger divisor = denominator.shiftRight(denRightShift);
-
-        /*
-         * Now, we're going to calculate the 54 most significant bits of the
-         * quotient using integer division. To guarantee that the quotient has
-         * at least 54 bits, the bit length of the dividend must exceed that
-         * of the divisor by at least 54. If the numerator has powers of 2
-         * beyond this limit, they can be removed as well.
-         */
-        int numRightShift = positiveNumerator.bitLength() - divisor.bitLength() - 54;
-        if (numRightShift > 0) {
-            numRightShift = Math.min(numRightShift, positiveNumerator.getLowestSetBit());
-        }
-        BigInteger dividend = positiveNumerator.shiftRight(numRightShift);
-
-        BigInteger quotient = dividend.divide(divisor);
-        int quotRightShift = quotient.bitLength() - 53;
-
-        /*
-         * If the denominator was a power of two, then the divisor was reduced
-         * 1, meaning the quotient was calculated exactly. Otherwise, the
-         * fractional part of the precise quotient's binary representation does
-         * not terminate.
-         */
-        long significand = roundAndRightShift(
-                quotient,
-                quotRightShift,
-                !divisor.equals(BigInteger.ONE)
-        ).longValue();
-
-        /*
-         * If the significand had to be rounded up, this could have caused an
-         * overflow into the 54th least significant bit.
-         */
-        if ((significand & (1L << 53)) != 0) {
-            significand >>= 1;
-            quotRightShift++;
-        }
-
-        /*
-         * Now comes the exponent. The absolute value of this fraction based
-         * on the current local variables is:
-         *
-         * significand * 2^(numRightShift - denRightShift + quotRightShift)
-         *
-         * To get the unbiased exponent for the double value, we need to add 52
-         * to the above exponent, because the 52 least significant bits of
-         * significant will be treated as a fractional part. To convert the
-         * unbiased exponent to a biased exponent, we need to add 1023.
-         */
-        long exponent = numRightShift - denRightShift + quotRightShift + 52 + 1023;
-
-        if (exponent > 2046) { //infinity
-            exponent = 2047;
-            significand = 0;
-        } else if (exponent > 0) { //normalized number
-            significand &= 0x000FFFFFFFFFFFFFL; //remove implicit leading 1-bit
-        } else { //smaller than the smallest normalized number
-            /*
-             * We need to round the quotient to fewer than 53 bits. This must
-             * be done with the original quotient and not with the current
-             * significand, because the loss of precision in the rounding to 53
-             * bits might cause a rounding of the current significand's value
-             * to produce a different result than a rounding of the
-             * original quotient.
-             *
-             * So we find out how many high-order bits from the quotient we can
-             * squeeze into the significand. The absolute value of the fraction
-             * is:
-             *
-             * quotient * 2^(numRightShift - denRightShift)
-             *
-             * To get the significand, we need to right shift the quotient so
-             * that the above exponent becomes (- 1022 - 52) = -1074 (-1022 is
-             * the unbiased exponent of a subnormal double value, and 52 because
-             * the significand will be treated as the fractional part)
-             */
-            significand = roundAndRightShift(
-                    quotient,
-                    - 1074 - (numRightShift - denRightShift),
-                    !divisor.equals(BigInteger.ONE)
-            ).longValue();
-            exponent = 0L;
-        }
-        return Double.longBitsToDouble((sign << 63) | (exponent << 52) | significand);
+        return Double.longBitsToDouble(toFloatingPointBits(11, 52));
     }
 
     /**
