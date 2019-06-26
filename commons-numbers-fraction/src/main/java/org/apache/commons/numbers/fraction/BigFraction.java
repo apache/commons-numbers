@@ -887,20 +887,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      */
     @Override
     public float floatValue() {
-        float floatNum = numerator.floatValue();
-        float floatDen = denominator.floatValue();
-        float result = floatNum / floatDen;
-        if (Float.isInfinite(floatNum) ||
-            Float.isInfinite(floatDen) ||
-            Float.isNaN(result)) {
-            // Numerator and/or denominator must be out of range:
-            // Calculate how far to shift them to put them in range.
-            int shift = Math.max(numerator.bitLength(),
-                                 denominator.bitLength()) - Math.getExponent(Float.MAX_VALUE);
-            result = numerator.shiftRight(shift).floatValue() /
-                denominator.shiftRight(shift).floatValue();
-        }
-        return result;
+        return Float.intBitsToFloat((int) toFloatingPointBits(8, 23));
     }
 
     /**
