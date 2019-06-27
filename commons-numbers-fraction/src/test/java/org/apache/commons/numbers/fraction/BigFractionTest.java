@@ -171,6 +171,8 @@ public class BigFractionTest {
 
     @Test
     public void testDoubleValue() {
+        Assertions.assertEquals(0d, BigFraction.ZERO.doubleValue(), 0d);
+
         {
             BigFraction first = BigFraction.of(1, 2);
             BigFraction second = BigFraction.of(1, 3);
@@ -180,16 +182,37 @@ public class BigFractionTest {
         }
 
         //NUMBERS-120
-        {
-            BigFraction f = BigFraction.of(
-                    BigInteger.ONE.shiftLeft(54),
-                    BigInteger.ONE.shiftLeft(53).add(BigInteger.ONE));
-            Assertions.assertEquals(2d - 0x1P-52, f.doubleValue());
-        }
+        Assertions.assertEquals(
+                2d - 0x1P-52,
+                BigFraction.of(
+                        BigInteger.ONE.shiftLeft(54),
+                        BigInteger.ONE.shiftLeft(53).add(BigInteger.ONE)
+                ).doubleValue());
+
+        Assertions.assertEquals(
+                2d,
+                BigFraction.of(
+                        BigInteger.ONE.shiftLeft(54).subtract(BigInteger.ONE),
+                        BigInteger.ONE.shiftLeft(53)
+                ).doubleValue());
+        Assertions.assertEquals(
+                1d,
+                BigFraction.of(
+                        BigInteger.ONE.shiftLeft(53).add(BigInteger.ONE),
+                        BigInteger.ONE.shiftLeft(53)
+                ).doubleValue());
     }
 
     @Test
     public void testDoubleValueForSubnormalNumbers() {
+        //test Double.MIN_VALUE * 2/3
+        Assertions.assertEquals(
+                Double.MIN_VALUE,
+                BigFraction.of(
+                        BigInteger.ONE,
+                        BigInteger.ONE.shiftLeft(1073).multiply(BigInteger.valueOf(3L))
+                ).doubleValue());
+
         Assertions.assertEquals(
                 Double.MIN_VALUE,
                 BigFraction.of(
@@ -220,6 +243,23 @@ public class BigFractionTest {
                 BigFraction.of(
                         BigInteger.ONE.shiftLeft(52).subtract(BigInteger.valueOf(2)),
                         BigInteger.ONE.shiftLeft(1074)
+                ).doubleValue());
+    }
+
+    @Test
+    public void testDoubleValueForInfinities() {
+        Assertions.assertEquals(
+                Double.NEGATIVE_INFINITY,
+                BigFraction.of(
+                        BigInteger.ONE.shiftLeft(1024)
+                                .subtract(BigInteger.ONE.shiftLeft(970))
+                                .negate()
+                ).doubleValue());
+        Assertions.assertEquals(
+                Double.POSITIVE_INFINITY,
+                BigFraction.of(
+                        BigInteger.ONE.shiftLeft(1024)
+                                .subtract(BigInteger.ONE.shiftLeft(970))
                 ).doubleValue());
     }
 
@@ -267,6 +307,15 @@ public class BigFractionTest {
                             .add(BigInteger.ONE),
                     BigInteger.valueOf(3));
             Assertions.assertEquals(5.992310449541053E307, f.doubleValue());
+        }
+
+        {
+            BigFraction f = BigFraction.of(
+                    BigInteger.ONE.shiftLeft(1025)
+                            .subtract(BigInteger.ONE.shiftLeft(972))
+                            .subtract(BigInteger.ONE),
+                    BigInteger.valueOf(2));
+            Assertions.assertEquals(Double.MAX_VALUE, f.doubleValue());
         }
     }
 
