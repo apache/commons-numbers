@@ -835,22 +835,19 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
     private static BigInteger roundAndRightShift(BigInteger value, int bits, boolean hasFractionalBits) {
         if (bits <= 0) {
             throw new IllegalArgumentException();
-        } else if (bits > value.bitLength()) {
-            return BigInteger.ZERO;
-        } else {
-            boolean roundUp = false;
-            if (value.testBit(bits - 1)
-                    && (hasFractionalBits
-                    || (value.getLowestSetBit() < bits - 1)
-                    || value.testBit(bits))) {
-                roundUp = true;
-            }
-            BigInteger result = value.shiftRight(bits);
-            if (roundUp) {
-                result = result.add(BigInteger.ONE);
-            }
-            return result;
         }
+        boolean roundUp = false;
+        if (value.testBit(bits - 1)
+                && (hasFractionalBits
+                || (value.getLowestSetBit() < bits - 1)
+                || value.testBit(bits))) {
+            roundUp = true;
+        }
+        BigInteger result = value.shiftRight(bits);
+        if (roundUp) {
+            result = result.add(BigInteger.ONE);
+        }
+        return result;
     }
 
     /**
