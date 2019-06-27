@@ -190,31 +190,37 @@ public class BigFractionTest {
 
     @Test
     public void testDoubleValueForSubnormalNumbers() {
-        {
-            double min = Double.MIN_VALUE;
-            double min1Up = Math.nextUp(min);
-            double min2Up = Math.nextUp(min1Up);
-            Assertions.assertEquals(
-                    min,
-                    BigFraction.from(min).doubleValue());
-            Assertions.assertEquals(
-                    min1Up,
-                    BigFraction.from(min1Up).doubleValue());
-            Assertions.assertEquals(
-                    min2Up,
-                    BigFraction.from(min2Up).doubleValue());
-        }
+        Assertions.assertEquals(
+                Double.MIN_VALUE,
+                BigFraction.of(
+                        BigInteger.ONE,
+                        BigInteger.ONE.shiftLeft(1074)
+                ).doubleValue());
+        Assertions.assertEquals(
+                Double.MIN_VALUE * 2,
+                BigFraction.of(
+                        BigInteger.valueOf(2),
+                        BigInteger.ONE.shiftLeft(1074)
+                ).doubleValue());
+        Assertions.assertEquals(
+                Double.MIN_VALUE * 3,
+                BigFraction.of(
+                        BigInteger.valueOf(3),
+                        BigInteger.ONE.shiftLeft(1074)
+                ).doubleValue());
 
-        {
-            double minNormal1Down = Math.nextDown(Double.MIN_NORMAL);
-            double minNormal2Down = Math.nextDown(minNormal1Down);
-            Assertions.assertEquals(
-                    minNormal1Down,
-                    BigFraction.from(minNormal1Down).doubleValue());
-            Assertions.assertEquals(
-                    minNormal2Down,
-                    BigFraction.from(minNormal2Down).doubleValue());
-        }
+        Assertions.assertEquals(
+                Double.MIN_NORMAL - Double.MIN_VALUE,
+                BigFraction.of(
+                        BigInteger.ONE.shiftLeft(52).subtract(BigInteger.ONE),
+                        BigInteger.ONE.shiftLeft(1074)
+                ).doubleValue());
+        Assertions.assertEquals(
+                Double.MIN_NORMAL - 2 * Double.MIN_VALUE,
+                BigFraction.of(
+                        BigInteger.ONE.shiftLeft(52).subtract(BigInteger.valueOf(2)),
+                        BigInteger.ONE.shiftLeft(1074)
+                ).doubleValue());
     }
 
     // MATH-744
