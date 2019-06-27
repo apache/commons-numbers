@@ -712,23 +712,29 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
          * significant bits of the fraction's value using integer division. To
          * guarantee that the quotient of the division has at least
          * (significandLength + 2) bits, the bit length of the dividend must
-         * exceed that of the divisor by at least that amount. If the numerator
-         * has powers of 2 beyond this limit, they can be removed as well.
+         * exceed that of the divisor by at least that amount.
+         *
+         * If the denominator has prime factors other than 2, i.e. if the
+         * divisor was not reduced to 1, an excess of exactly
+         * (significandLength + 2) bits is sufficient, because the knowledge
+         * that the fractional part of the precise quotient's binary
+         * representation does not terminate is enough information to resolve
+         * cases where the most significant (significandLength + 2) bits alone
+         * are not conclusive.
+         *
+         * Otherwise, the quotient must be calculated exactly and the bit length
+         * of the numerator can only be reduced as long as no precision is lost
+         * in the process (meaning it can have powers of 2 removed, like the
+         * denominator).
          */
         int numRightShift = positiveNumerator.bitLength() - divisor.bitLength() - (significandLength + 2);
-        if (numRightShift > 0) {
+        if (numRightShift > 0 && divisor.equals(BigInteger.ONE)) {
             numRightShift = Math.min(numRightShift, positiveNumerator.getLowestSetBit());
         }
         BigInteger dividend = positiveNumerator.shiftRight(numRightShift);
 
         BigInteger quotient = dividend.divide(divisor);
 
-        /*
-         * If the denominator was a power of two, then the divisor was reduced
-         * to 1, meaning the quotient was calculated exactly. Otherwise, the
-         * fractional part of the precise quotient's binary representation does
-         * not terminate.
-         */
         int quotRightShift = quotient.bitLength() - (significandLength + 1);
         long significand = roundAndRightShift(
                 quotient,
