@@ -973,7 +973,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * @param exponent
      *            exponent to which this {@code BigFraction} is to be
      *            raised.
-     * @return <tt>this<sup>exponent</sup></tt>.
+     * @return \(\mathit{this}^{\mathit{exponent}}\).
      */
     public BigFraction pow(final int exponent) {
         if (exponent == 0) {
@@ -992,12 +992,12 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
     /**
      * <p>
      * Returns a <code>BigFraction</code> whose value is
-     * <tt>(this<sup>exponent</sup>)</tt>, returning the result in reduced form.
+     * \(\mathit{this}^{\mathit{exponent}}\), returning the result in reduced form.
      * </p>
      *
      * @param exponent
      *            exponent to which this <code>BigFraction</code> is to be raised.
-     * @return <tt>this<sup>exponent</sup></tt> as a <code>BigFraction</code>.
+     * @return \(\mathit{this}^{\mathit{exponent}}\) as a <code>BigFraction</code>.
      */
     public BigFraction pow(final long exponent) {
         if (exponent == 0) {
@@ -1018,12 +1018,12 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
     /**
      * <p>
      * Returns a <code>BigFraction</code> whose value is
-     * <tt>(this<sup>exponent</sup>)</tt>, returning the result in reduced form.
+     * \(\mathit{this}^{\mathit{exponent}}\), returning the result in reduced form.
      * </p>
      *
      * @param exponent
      *            exponent to which this <code>BigFraction</code> is to be raised.
-     * @return <tt>this<sup>exponent</sup></tt> as a <code>BigFraction</code>.
+     * @return \(\mathit{this}^{\mathit{exponent}}\) as a <code>BigFraction</code>.
      */
     public BigFraction pow(final BigInteger exponent) {
         if (exponent.signum() == 0) {
@@ -1045,12 +1045,12 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
     /**
      * <p>
      * Returns a <code>double</code> whose value is
-     * <tt>(this<sup>exponent</sup>)</tt>, returning the result in reduced form.
+     * \(\mathit{this}^{\mathit{exponent}}\), returning the result in reduced form.
      * </p>
      *
      * @param exponent
      *            exponent to which this <code>BigFraction</code> is to be raised.
-     * @return <tt>this<sup>exponent</sup></tt>.
+     * @return \(\mathit{this}^{\mathit{exponent}}\).
      */
     public double pow(final double exponent) {
         return Math.pow(numerator.doubleValue(),   exponent) /
