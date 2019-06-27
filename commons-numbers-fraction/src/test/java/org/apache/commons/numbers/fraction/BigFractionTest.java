@@ -27,14 +27,9 @@ import org.junit.jupiter.api.Test;
 
 public class BigFractionTest {
 
-    private void assertFraction(int expectedNumerator, int expectedDenominator, BigFraction actual) {
-        Assertions.assertEquals(expectedNumerator, actual.getNumeratorAsInt());
-        Assertions.assertEquals(expectedDenominator, actual.getDenominatorAsInt());
-    }
-
     private void assertFraction(long expectedNumerator, long expectedDenominator, BigFraction actual) {
-        Assertions.assertEquals(expectedNumerator, actual.getNumeratorAsLong());
-        Assertions.assertEquals(expectedDenominator, actual.getDenominatorAsLong());
+        Assertions.assertEquals(BigInteger.valueOf(expectedNumerator), actual.getNumerator());
+        Assertions.assertEquals(BigInteger.valueOf(expectedDenominator), actual.getDenominator());
     }
 
     @Test
