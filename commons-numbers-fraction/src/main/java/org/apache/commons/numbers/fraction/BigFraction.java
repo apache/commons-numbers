@@ -225,9 +225,9 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * <p>
      * Since this conversion is exact and since double numbers are sometimes
      * approximated, the fraction created may seem strange in some cases. For example,
-     * calling {@code new BigFraction(1.0 / 3.0)} does <em>not</em> create
+     * calling {@code from(1.0 / 3.0)} does <em>not</em> create
      * the fraction \( \frac{1}{3} \), but the fraction \( \frac{6004799503160661}{18014398509481984} \)
-     * because the double number passed to the constructor is not exactly \( \frac{1}{3} \)
+     * because the double number passed to the method is not exactly \( \frac{1}{3} \)
      * (which cannot be represented exactly in IEEE754).
      * </p>
      *
