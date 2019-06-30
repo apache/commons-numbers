@@ -28,10 +28,10 @@ import org.apache.commons.numbers.core.ArithmeticUtils;
  */
 public class BigFraction extends Number implements Comparable<BigFraction>, Serializable {
     /** A fraction representing "0". */
-    public static final BigFraction ZERO = new BigFraction(0);
+    public static final BigFraction ZERO = of(0);
 
     /** A fraction representing "1". */
-    public static final BigFraction ONE = new BigFraction(1);
+    public static final BigFraction ONE = of(1);
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = -5630213147331578515L;
@@ -82,7 +82,6 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
             // store the values in the final fields
             numerator   = num;
             denominator = den;
-
         }
     }
 
@@ -191,74 +190,6 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
     }
 
     /**
-     * Create a fraction given the double value.
-     * <p>
-     * This constructor behaves <em>differently</em> from
-     * {@link #BigFraction(double, double, int)}. It converts the double value
-     * exactly, considering its internal bits representation. This works for all
-     * values except NaN and infinities and does not requires any loop or
-     * convergence threshold.
-     * </p>
-     * <p>
-     * Since this conversion is exact and since double numbers are sometimes
-     * approximated, the fraction created may seem strange in some cases. For example,
-     * calling <code>new BigFraction(1.0 / 3.0)</code> does <em>not</em> create
-     * the fraction 1/3, but the fraction 6004799503160661 / 18014398509481984
-     * because the double number passed to the constructor is not exactly 1/3
-     * (this number cannot be stored exactly in IEEE754).
-     * </p>
-     * @see #BigFraction(double, double, int)
-     * @param value the double value to convert to a fraction.
-     * @exception IllegalArgumentException if value is NaN or infinite
-     */
-    private BigFraction(final double value) throws IllegalArgumentException {
-        if (Double.isNaN(value)) {
-            throw new IllegalArgumentException("cannot convert NaN value");
-        }
-        if (Double.isInfinite(value)) {
-            throw new IllegalArgumentException("cannot convert infinite value");
-        }
-
-        final long bits = Double.doubleToLongBits(value);
-        final long sign = bits & 0x8000000000000000L;
-        final long exponent = bits & 0x7ff0000000000000L;
-        final long mantissa = bits & 0x000fffffffffffffL;
-
-        // Compute m and k such that value = m * 2^k
-        long m;
-        int k;
-
-        if (exponent != 0) {
-            // Normalized number: Add the implicit most significant bit.
-            m = mantissa | 0x0010000000000000L;
-            k = ((int) (exponent >> 52)) - 1075; // Exponent bias is 1023.
-        } else {
-            m = mantissa;
-            k = 0; // For simplicity, when number is 0.
-            if (m != 0) {
-                // Subnormal number, the effective exponent bias is 1022, not 1023.
-                k = -1074;
-            }
-        }
-        if (sign != 0) {
-            m = -m;
-        }
-        while ((m & 0x001ffffffffffffeL) != 0 &&
-               (m & 0x1) == 0) {
-            m >>= 1;
-            ++k;
-        }
-
-        if (k < 0) {
-            numerator   = BigInteger.valueOf(m);
-            denominator = BigInteger.ZERO.flipBit(-k);
-        } else {
-            numerator   = BigInteger.valueOf(m).multiply(BigInteger.ZERO.flipBit(k));
-            denominator = BigInteger.ONE;
-        }
-    }
-
-    /**
      * <p>
      * Create a {@link BigFraction} equivalent to the passed {@code BigInteger}, ie
      * "num / 1".
@@ -301,13 +232,55 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * because the double number passed to the constructor is not exactly 1/3
      * (this number cannot be stored exactly in IEEE754).
      * </p>
+     *
      * @see BigFraction#from(double, double, int)
-     * @param value the double value to convert to a fraction.
-     * @exception IllegalArgumentException if value is NaN or infinite
+     * @param value Value to convert to a fraction.
+     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
      * @return a new instance.
      */
-    public static BigFraction from(final double value) throws IllegalArgumentException {
-        return new BigFraction(value);
+    public static BigFraction from(final double value) {
+        if (Double.isNaN(value)) {
+            throw new IllegalArgumentException("Cannot convert NaN value");
+        }
+        if (Double.isInfinite(value)) {
+            throw new IllegalArgumentException("Cannot convert infinite value");
+        }
+
+        final long bits = Double.doubleToLongBits(value);
+        final long sign = bits & 0x8000000000000000L;
+        final long exponent = bits & 0x7ff0000000000000L;
+        final long mantissa = bits & 0x000fffffffffffffL;
+
+        // Compute m and k such that value = m * 2^k
+        long m;
+        int k;
+
+        if (exponent != 0) {
+            // Normalized number: Add the implicit most significant bit.
+            m = mantissa | 0x0010000000000000L;
+            k = ((int) (exponent >> 52)) - 1075; // Exponent bias is 1023.
+        } else {
+            m = mantissa;
+            k = 0; // For simplicity, when number is 0.
+            if (m != 0) {
+                // Subnormal number, the effective exponent bias is 1022, not 1023.
+                k = -1074;
+            }
+        }
+        if (sign != 0) {
+            m = -m;
+        }
+        while ((m & 0x001ffffffffffffeL) != 0 &&
+               (m & 0x1) == 0) {
+            m >>= 1;
+            ++k;
+        }
+
+        return k < 0 ?
+            new BigFraction(BigInteger.valueOf(m),
+                            BigInteger.ZERO.flipBit(-k)) :
+            new BigFraction(BigInteger.valueOf(m).multiply(BigInteger.ZERO.flipBit(k)),
+                            BigInteger.ONE);
     }
 
     /**
@@ -1220,5 +1193,4 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
             throw new NullPointerException(argName);
         }
     }
-
 }
