@@ -49,10 +49,10 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
     private final BigInteger denominator;
 
     /**
-     * Private constructor for BigFraction ofInt() factory methods.
+     * Private constructor: Instances are created using factory methods.
      *
-     * @param num the numerator, must not be {@code null}.
-     * @param den the denominator, must not be {@code null}.
+     * @param num Numerator, must not be {@code null}.
+     * @param den Denominator, must not be {@code null}.
      * @throws ArithmeticException if the denominator is zero.
      */
     private BigFraction(BigInteger num, BigInteger den) {
@@ -86,41 +86,39 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
     }
 
     /**
-     * Create a fraction given the double value and either the maximum error
-     * allowed or the maximum number of denominator digits.
-     * <p>
+     * Create a fraction given the double value and either the maximum
+     * error allowed or the maximum number of denominator digits.
      *
-     * NOTE: This constructor is called with EITHER - a valid epsilon value and
-     * the maxDenominator set to Integer.MAX_VALUE (that way the maxDenominator
-     * has no effect). OR - a valid maxDenominator value and the epsilon value
-     * set to zero (that way epsilon only has effect if there is an exact match
-     * before the maxDenominator value is reached).
+     * <p>
+     * NOTE: This method is called with
+     *  - EITHER a valid epsilon value and the maxDenominator set to
+     *    Integer.MAX_VALUE (that way the maxDenominator has no effect)
+     *  - OR a valid maxDenominator value and the epsilon value set to
+     *    zero (that way epsilon only has effect if there is an exact
+     *    match before the maxDenominator value is reached).
      * </p>
      * <p>
-     *
-     * It has been done this way so that the same code can be (re)used for both
-     * scenarios. However this could be confusing to users if it were part of
-     * the public API and this constructor should therefore remain PRIVATE.
+     * It has been done this way so that the same code can be reused for
+     * both scenarios.  However this could be confusing to users if it
+     * were part of the public API and this method should therefore remain
+     * PRIVATE.
      * </p>
      *
      * See JIRA issue ticket MATH-181 for more details:
+     *   https://issues.apache.org/jira/browse/MATH-181
      *
-     * https://issues.apache.org/jira/browse/MATH-181
-     *
-     * @param value
-     *            the double value to convert to a fraction.
-     * @param epsilon
-     *            maximum error allowed. The resulting fraction is within
-     *            <code>epsilon</code> of <code>value</code>, in absolute terms.
-     * @param maxDenominator
-     *            maximum denominator value allowed.
-     * @param maxIterations
-     *            maximum number of convergents.
-     * @throws ArithmeticException
-     *             if the continued fraction failed to converge.
+     * @param value Value to convert to a fraction.
+     * @param epsilon Maximum error allowed.
+     * The resulting fraction is within {@code epsilon} of {@code value},
+     * in absolute terms.
+     * @param maxDenominator Maximum denominator value allowed.
+     * @param maxIterations Maximum number of convergents.
+     * @throws ArithmeticException if the continued fraction failed to converge.
      */
-    private BigFraction(final double value, final double epsilon,
-                        final int maxDenominator, int maxIterations) {
+    private static BigFraction from(final double value,
+                                    final double epsilon,
+                                    final int maxDenominator,
+                                    final int maxIterations) {
         long overflow = Integer.MAX_VALUE;
         double r0 = value;
         long a0 = (long) Math.floor(r0);
@@ -132,9 +130,8 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
         // check for (almost) integer arguments, which should not go
         // to iterations.
         if (Math.abs(a0 - value) < epsilon) {
-            numerator = BigInteger.valueOf(a0);
-            denominator = BigInteger.ONE;
-            return;
+            return new BigFraction(BigInteger.valueOf(a0),
+                                   BigInteger.ONE);
         }
 
         long p0 = 1;
@@ -149,23 +146,25 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
         boolean stop = false;
         do {
             ++n;
-            final double r1 = 1.0 / (r0 - a0);
+            final double r1 = 1d / (r0 - a0);
             final long a1 = (long) Math.floor(r1);
             p2 = (a1 * p1) + p0;
             q2 = (a1 * q1) + q0;
-            if ((p2 > overflow) || (q2 > overflow)) {
+            if (p2 > overflow ||
+                q2 > overflow) {
                 // in maxDenominator mode, if the last fraction was very close to the actual value
                 // q2 may overflow in the next iteration; in this case return the last one.
-                if (epsilon == 0.0 && Math.abs(q1) < maxDenominator) {
+                if (epsilon == 0 &&
+                    Math.abs(q1) < maxDenominator) {
                     break;
                 }
                 throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, p2, q2);
             }
 
             final double convergent = (double) p2 / (double) q2;
-            if ((n < maxIterations) &&
-                (Math.abs(convergent - value) > epsilon) &&
-                (q2 < maxDenominator)) {
+            if (n < maxIterations &&
+                Math.abs(convergent - value) > epsilon &&
+                q2 < maxDenominator) {
                 p0 = p1;
                 p1 = p2;
                 q0 = q1;
@@ -180,13 +179,12 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
         if (n >= maxIterations) {
             throw new FractionException(FractionException.ERROR_CONVERSION, value, maxIterations);
         }
-        if (q2 < maxDenominator) {
-            numerator   = BigInteger.valueOf(p2);
-            denominator = BigInteger.valueOf(q2);
-        } else {
-            numerator   = BigInteger.valueOf(p1);
-            denominator = BigInteger.valueOf(q1);
-        }
+
+        return q2 < maxDenominator ?
+            new BigFraction(BigInteger.valueOf(p2),
+                            BigInteger.valueOf(q2)) :
+            new BigFraction(BigInteger.valueOf(p1),
+                            BigInteger.valueOf(q1));
     }
 
     /**
@@ -233,10 +231,11 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * (this number cannot be stored exactly in IEEE754).
      * </p>
      *
-     * @see BigFraction#from(double, double, int)
      * @param value Value to convert to a fraction.
      * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
      * @return a new instance.
+     *
+     * @see #from(double,double,int)
      */
     public static BigFraction from(final double value) {
         if (Double.isNaN(value)) {
@@ -292,22 +291,19 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * Continued Fraction</a> equations (11) and (22)-(26)</li>
      * </ul>
      *
-     * @param value
-     *            the double value to convert to a fraction.
-     * @param epsilon
-     *            maximum error allowed. The resulting fraction is within
-     *            <code>epsilon</code> of <code>value</code>, in absolute terms.
-     * @param maxIterations
-     *            maximum number of convergents.
-     * @throws ArithmeticException
-     *             if the continued fraction failed to converge.
-     * @see #BigFraction(double)
+     * @param value Value to convert to a fraction.
+     * @param epsilon Maximum error allowed. The resulting fraction is within
+     * <code>epsilon</code> of <code>value</code>, in absolute terms.
+     * @param maxIterations Maximum number of convergents.
+     * @throws ArithmeticException if the continued fraction failed to converge.
      * @return a new instance.
+     *
+     * @see #from(double,int)
      */
     public static BigFraction from(final double value,
                                    final double epsilon,
                                    final int maxIterations) {
-        return new BigFraction(value, epsilon, Integer.MAX_VALUE, maxIterations);
+        return from(value, epsilon, Integer.MAX_VALUE, maxIterations);
     }
 
     /**
@@ -319,16 +315,16 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * Continued Fraction</a> equations (11) and (22)-(26)</li>
      * </ul>
      *
-     * @param value
-     *            the double value to convert to a fraction.
-     * @param maxDenominator
-     *            The maximum allowed value for denominator.
-     * @throws ArithmeticException
-     *             if the continued fraction failed to converge.
+     * @param value Value to convert to a fraction.
+     * @param maxDenominator Maximum allowed value for denominator.
+     * @throws ArithmeticException if the continued fraction failed to converge.
      * @return a new instance.
+     *
+     * @see #from(double,double,int)
      */
-    public static BigFraction from(final double value, final int maxDenominator) {
-        return new BigFraction(value, 0, maxDenominator, 100);
+    public static BigFraction from(final double value,
+                                   final int maxDenominator) {
+        return from(value, 0, maxDenominator, 100);
     }
 
     /**
