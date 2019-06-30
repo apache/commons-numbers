@@ -219,20 +219,32 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
             throw new IllegalArgumentException("cannot convert infinite value");
         }
 
-        // compute m and k such that value = m * 2^k
-        final long bits     = Double.doubleToLongBits(value);
-        final long sign     = bits & 0x8000000000000000L;
+        final long bits = Double.doubleToLongBits(value);
+        final long sign = bits & 0x8000000000000000L;
         final long exponent = bits & 0x7ff0000000000000L;
-        long m              = bits & 0x000fffffffffffffL;
+        final long mantissa = bits & 0x000fffffffffffffL;
+
+        // Compute m and k such that value = m * 2^k
+        long m;
+        int k;
+
         if (exponent != 0) {
-            // this was a normalized number, add the implicit most significant bit
-            m |= 0x0010000000000000L;
+            // Normalized number: Add the implicit most significant bit.
+            m = mantissa | 0x0010000000000000L;
+            k = ((int) (exponent >> 52)) - 1075; // Exponent bias is 1023.
+        } else {
+            m = mantissa;
+            k = 0; // For simplicity, when number is 0.
+            if (m != 0) {
+                // Subnormal number, the effective exponent bias is 1022, not 1023.
+                k = -1074;
+            }
         }
         if (sign != 0) {
             m = -m;
         }
-        int k = ((int) (exponent >> 52)) - 1075;
-        while (((m & 0x001ffffffffffffeL) != 0) && ((m & 0x1) == 0)) {
+        while ((m & 0x001ffffffffffffeL) != 0 &&
+               (m & 0x1) == 0) {
             m >>= 1;
             ++k;
         }
@@ -244,7 +256,6 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
             numerator   = BigInteger.valueOf(m).multiply(BigInteger.ZERO.flipBit(k));
             denominator = BigInteger.ONE;
         }
-
     }
 
     /**
