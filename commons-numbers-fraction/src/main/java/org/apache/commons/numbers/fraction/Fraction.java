@@ -162,15 +162,18 @@ public class Fraction
         if (den == 0) {
             throw new ArithmeticException("division by zero");
         }
-        if (den < 0) {
-            if (num == Integer.MIN_VALUE ||
-                den == Integer.MIN_VALUE) {
-                throw new FractionException(FractionException.ERROR_NEGATION_OVERFLOW, num, den);
-            }
-            num = -num;
-            den = -den;
+
+        /*
+         * if num and den are both 2^-31, or if one is 0 and the other is 2^-31,
+         * the calculation of the gcd below will fail. Ensure that this does not
+         * happen by dividing both by 2 in case both are even.
+         */
+        if (((num | den) & 1) == 0) {
+            num >>= 1;
+            den >>= 1;
         }
-        // reduce numerator and denominator by greatest common denominator.
+
+        // reduce numerator and denominator by greatest common divisor.
         final int d = ArithmeticUtils.gcd(num, den);
         if (d > 1) {
             num /= d;
@@ -179,9 +182,14 @@ public class Fraction
 
         // move sign to numerator.
         if (den < 0) {
+            if (num == Integer.MIN_VALUE ||
+                den == Integer.MIN_VALUE) {
+                throw new FractionException(FractionException.ERROR_NEGATION_OVERFLOW, num, den);
+            }
             num = -num;
             den = -den;
         }
+
         this.numerator   = num;
         this.denominator = den;
     }
