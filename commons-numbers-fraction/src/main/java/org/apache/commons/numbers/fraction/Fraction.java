@@ -83,8 +83,7 @@ public class Fraction
      * @throws IllegalArgumentException if the continued fraction failed to
      *         converge.
      */
-    private Fraction(double value, double epsilon, int maxDenominator, int maxIterations)
-    {
+    private Fraction(double value, double epsilon, int maxDenominator, int maxIterations) {
         long overflow = Integer.MAX_VALUE;
         double r0 = value;
         long a0 = (long)Math.floor(r0);
@@ -193,6 +192,7 @@ public class Fraction
         this.numerator   = num;
         this.denominator = den;
     }
+
     /**
      * Create a fraction given the double value.
      * @param value the double value to convert to a fraction.
@@ -221,8 +221,7 @@ public class Fraction
      *         converge.
      * @return {@link Fraction} instance
      */
-    public static Fraction from(double value, double epsilon, int maxIterations)
-    {
+    public static Fraction from(double value, double epsilon, int maxIterations) {
         return new Fraction(value, epsilon, Integer.MAX_VALUE, maxIterations);
     }
 
@@ -241,8 +240,7 @@ public class Fraction
      *         converge
      * @return {@link Fraction} instance
      */
-    public static Fraction from(double value, int maxDenominator)
-    {
+    public static Fraction from(double value, int maxDenominator) {
        return new Fraction(value, 0, maxDenominator, 100);
     }
 
@@ -373,7 +371,7 @@ public class Fraction
      */
     @Override
     public int intValue() {
-        return (int)doubleValue();
+        return (int) doubleValue();
     }
 
     /**
@@ -383,7 +381,7 @@ public class Fraction
      */
     @Override
     public long longValue() {
-        return (long)doubleValue();
+        return (long) doubleValue();
     }
 
     /**
@@ -628,5 +626,4 @@ public class Fraction
             return of(num, denom);
         }
     }
-
 }
