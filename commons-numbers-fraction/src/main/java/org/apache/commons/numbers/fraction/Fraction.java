@@ -504,8 +504,8 @@ public class Fraction
         // make sure we don't overflow unless the result *must* overflow.
         int d1 = ArithmeticUtils.gcd(numerator, fraction.denominator);
         int d2 = ArithmeticUtils.gcd(fraction.numerator, denominator);
-        return getReducedFraction
-        (Math.multiplyExact(numerator/d1, fraction.numerator/d2),
+        return of(
+                Math.multiplyExact(numerator/d1, fraction.numerator/d2),
                 Math.multiplyExact(denominator/d2, fraction.denominator/d1));
     }
 
@@ -545,43 +545,6 @@ public class Fraction
      */
     public Fraction divide(final int i) {
         return divide(of(i));
-    }
-
-    /**
-     * <p>Creates a {@code Fraction} instance with the 2 parts
-     * of a fraction Y/Z.</p>
-     *
-     * <p>Any negative signs are resolved to be on the numerator.</p>
-     *
-     * @param numerator  the numerator, for example the three in 'three sevenths'
-     * @param denominator  the denominator, for example the seven in 'three sevenths'
-     * @return a new fraction instance, with the numerator and denominator reduced
-     * @throws ArithmeticException if the denominator is {@code zero}
-     */
-    public static Fraction getReducedFraction(int numerator, int denominator) {
-        if (denominator == 0) {
-            throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
-        }
-        if (numerator==0) {
-            return ZERO; // normalize zero.
-        }
-        // allow 2^k/-2^31 as a valid fraction (where k>0)
-        if (denominator==Integer.MIN_VALUE && (numerator&1)==0) {
-            numerator/=2; denominator/=2;
-        }
-        if (denominator < 0) {
-            if (numerator==Integer.MIN_VALUE ||
-                    denominator==Integer.MIN_VALUE) {
-                throw new FractionException(FractionException.ERROR_NEGATION_OVERFLOW, numerator, denominator);
-            }
-            numerator = -numerator;
-            denominator = -denominator;
-        }
-        // simplify fraction.
-        int gcd = ArithmeticUtils.gcd(numerator, denominator);
-        numerator /= gcd;
-        denominator /= gcd;
-        return new Fraction(numerator, denominator);
     }
 
     /**
