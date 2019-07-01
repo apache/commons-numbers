@@ -837,10 +837,10 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
             throw new IllegalArgumentException();
         }
         boolean roundUp = false;
-        if (value.testBit(bits - 1)
-                && (hasFractionalBits
-                || (value.getLowestSetBit() < bits - 1)
-                || value.testBit(bits))) {
+        if (value.testBit(bits - 1) &&
+                (hasFractionalBits ||
+                (value.getLowestSetBit() < bits - 1) ||
+                value.testBit(bits))) {
             roundUp = true;
         }
         BigInteger result = value.shiftRight(bits);
