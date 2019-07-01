@@ -497,16 +497,16 @@ public class Fraction
         if (fraction == null) {
             throw new NullPointerException(PARAM_NAME_FRACTION);
         }
-        if (numerator == 0 || fraction.numerator == 0) {
+        if (numerator == 0 ||
+            fraction.numerator == 0) {
             return ZERO;
         }
         // knuth 4.5.1
         // make sure we don't overflow unless the result *must* overflow.
         int d1 = ArithmeticUtils.gcd(numerator, fraction.denominator);
         int d2 = ArithmeticUtils.gcd(fraction.numerator, denominator);
-        return of(
-                Math.multiplyExact(numerator/d1, fraction.numerator/d2),
-                Math.multiplyExact(denominator/d2, fraction.denominator/d1));
+        return of(Math.multiplyExact(numerator / d1, fraction.numerator / d2),
+                  Math.multiplyExact(denominator / d2, fraction.denominator / d1));
     }
 
     /**
