@@ -42,10 +42,13 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
     /** Parameter name for BigIntegers (to satisfy checkstyle). */
     private static final String PARAM_NAME_BG = "bg";
 
-    /** The numerator of this fraction reduced to lowest terms. Possibly negative*/
+    /**
+     * The numerator of this fraction reduced to lowest terms. Negative if this
+     * fraction's value is negative.
+     */
     private final BigInteger numerator;
 
-    /** The denominator of this fraction reduced to lowest terms. Always positive*/
+    /** The denominator of this fraction reduced to lowest terms. Always positive. */
     private final BigInteger denominator;
 
     /**
