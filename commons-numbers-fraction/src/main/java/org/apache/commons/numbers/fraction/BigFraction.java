@@ -42,10 +42,10 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
     /** Parameter name for BigIntegers (to satisfy checkstyle). */
     private static final String PARAM_NAME_BG = "bg";
 
-    /** The numerator. */
+    /** The numerator of this fraction reduced to lowest terms. Possibly negative*/
     private final BigInteger numerator;
 
-    /** The denominator. */
+    /** The denominator of this fraction reduced to lowest terms. Always positive*/
     private final BigInteger denominator;
 
     /**
@@ -706,9 +706,8 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
         if (this == other) {
             ret = true;
         } else if (other instanceof BigFraction) {
-            BigFraction rhs = ((BigFraction) other).reduce();
-            BigFraction thisOne = this.reduce();
-            ret = thisOne.numerator.equals(rhs.numerator) && thisOne.denominator.equals(rhs.denominator);
+            BigFraction rhs = (BigFraction) other;
+            ret = numerator.equals(rhs.numerator) && denominator.equals(rhs.denominator);
         }
 
         return ret;
@@ -1034,24 +1033,6 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      */
     public BigFraction reciprocal() {
         return new BigFraction(denominator, numerator);
-    }
-
-    /**
-     * <p>
-     * Reduce this <code>BigFraction</code> to its lowest terms.
-     * </p>
-     *
-     * @return the reduced <code>BigFraction</code>. It doesn't change anything if
-     *         the fraction can be reduced.
-     */
-    public BigFraction reduce() {
-        final BigInteger gcd = numerator.gcd(denominator);
-
-        if (BigInteger.ONE.compareTo(gcd) < 0) {
-            return new BigFraction(numerator.divide(gcd), denominator.divide(gcd));
-        } else {
-            return this;
-        }
     }
 
     /**
