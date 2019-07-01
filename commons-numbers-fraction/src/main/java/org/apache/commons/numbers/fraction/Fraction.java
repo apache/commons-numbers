@@ -38,7 +38,7 @@ public class Fraction
     public static final Fraction ZERO = new Fraction(0, 1);
 
     /** Serializable version identifier */
-    private static final long serialVersionUID = 3698073679419233275L;
+    private static final long serialVersionUID = 20190701L;
 
     /** Parameter name for fraction (to satisfy checkstyle). */
     private static final String PARAM_NAME_FRACTION = "fraction";
