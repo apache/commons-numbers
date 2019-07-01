@@ -481,24 +481,6 @@ public class FractionTest {
     }
 
     @Test
-    public void testGetReducedFraction() {
-        Fraction threeFourths = Fraction.of(3, 4);
-        Assertions.assertTrue(threeFourths.equals(Fraction.getReducedFraction(6, 8)));
-        Assertions.assertTrue(Fraction.ZERO.equals(Fraction.getReducedFraction(0, -1)));
-        Assertions.assertThrows(ArithmeticException.class,
-                () -> Fraction.getReducedFraction(1, 0)
-        );
-        Assertions.assertEquals(
-                -1,
-                Fraction.getReducedFraction(2, Integer.MIN_VALUE).getNumerator()
-        );
-        Assertions.assertEquals(
-                -1,
-                Fraction.getReducedFraction(1, -1).getNumerator()
-        );
-    }
-
-    @Test
     public void testToString() {
         Assertions.assertEquals("0", Fraction.of(0, 3).toString());
         Assertions.assertEquals("3", Fraction.of(6, 2).toString());
