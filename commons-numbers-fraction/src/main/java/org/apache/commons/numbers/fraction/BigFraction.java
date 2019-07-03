@@ -800,6 +800,16 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
                     !divisor.equals(BigInteger.ONE)
             ).longValue();
             exponent = 0L;
+
+            /*
+             * Note: It is possible that an otherwise subnormal number will
+             * round up to the smallest normal number. However, this special
+             * case does not need to be treated separately, because the
+             * overflowing highest-order bit of the significand will then simply
+             * become the lowest-order bit of the exponent, increasing the
+             * exponent from 0 to 1 and thus establishing the implicity of the
+             * leading 1-bit.
+             */
         }
         return (sign << (significandLength + exponentLength)) | (exponent << significandLength) | significand;
     }
