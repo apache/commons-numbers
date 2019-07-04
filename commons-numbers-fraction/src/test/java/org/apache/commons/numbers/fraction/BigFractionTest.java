@@ -238,6 +238,13 @@ public class BigFractionTest {
                 BigInteger.ONE.shiftLeft(52).subtract(BigInteger.valueOf(2)),
                 BigInteger.ONE.shiftLeft(1074)
         );
+
+        //this number is smaller than Double.MIN_NORMAL, but should round up to it
+        assertDoubleValue(
+                Double.MIN_NORMAL,
+                BigInteger.ONE.shiftLeft(53).subtract(BigInteger.ONE),
+                BigInteger.ONE.shiftLeft(1075)
+        );
     }
 
     @Test
