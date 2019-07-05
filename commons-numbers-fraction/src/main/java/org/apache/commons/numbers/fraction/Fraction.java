@@ -44,10 +44,13 @@ public class Fraction
     /** The default epsilon used for convergence. */
     private static final double DEFAULT_EPSILON = 1e-5;
 
-    /** The denominator. */
+    /** The denominator of this fraction reduced to lowest terms. Always positive. */
     private final int denominator;
 
-    /** The numerator. */
+    /**
+     * The numerator of this fraction reduced to lowest terms. Negative if this
+     * fraction's value is negative.
+     */
     private final int numerator;
 
     /**
@@ -460,15 +463,9 @@ public class Fraction
     }
 
     /**
-     * Implements add and subtract. This algorithm is similar to that
-     * described in Knuth 4.5.1. while making some concessions to
-     * performance. Note Knuth 4.5.1 Exercise 7, which observes that
-     * adding two fractions with 32-bit numerators and denominators
-     * requires 65 bits in extreme cases. Here calculations are performed
-     * with 64-bit longs and the BigFraction class is recommended for numbers
-     * that may grow large enough to be in danger of overflow.
+     * Implements add and subtract using algorithm described in Knuth 4.5.1.
      *
-     * @param fraction the fraction to subtract.
+     * @param fraction Fraction to add or subtract.
      * @param isAdd Whether the operation is "add" or "subtract".
      * @return a new instance.
      * @throws ArithmeticException if the resulting numerator or denominator
@@ -488,17 +485,37 @@ public class Fraction
             return this;
         }
 
-        // t = u(v'/gcd) +/- v(u'/gcd)
-        int d1 = ArithmeticUtils.gcd(denominator, fraction.denominator);
-        int uvp = Math.multiplyExact(numerator, fraction.denominator / d1);
-        int upv = Math.multiplyExact(fraction.numerator, denominator / d1);
-        int t = isAdd ? Math.addExact(uvp, upv) : Math.subtractExact(uvp, upv);
-        int tmodd1 = t % d1;
-        int d2 = (tmodd1==0)?d1:ArithmeticUtils.gcd(tmodd1, d1);
+        /*
+         * Let the two fractions be u/u' and v/v', and d1 = gcd(u', v').
+         * First, compute t, defined as:
+         *
+         * t = u(v'/d1) +/- v(u'/d1)
+         */
+        final int d1 = ArithmeticUtils.gcd(denominator, fraction.denominator);
+        final long uvp = (long) numerator * (long) (fraction.denominator / d1);
+        final long upv = (long) fraction.numerator * (long) (denominator / d1);
+
+        /*
+         * The largest possible absolute value of a product of two ints is 2^62,
+         * which can only happen as a result of -2^31 * -2^31 = 2^62, so a
+         * product of -2^62 is not possible. It follows that (uvp - upv) cannot
+         * overflow, and (uvp + upv) could only overflow if uvp = upv = 2^62.
+         * But for this to happen, the terms u, v, v'/d1 and u'/d1 would all
+         * have to be -2^31, which is not possible because v'/d1 and u'/d1
+         * are necessarily coprime.
+         */
+        final long t = isAdd ? uvp + upv : uvp - upv;
+
+        /*
+         * Because u is coprime to u' and v is coprime to v', t is necessarily
+         * coprime to both v'/d1 and u'/d1. However, it might have a common
+         * factor with d1.
+         */
+        final long d2 = ArithmeticUtils.gcd(t, (long) d1);
         // result is (t/d2) / (u'/d1)(v'/d2)
-        int w = t / d2;
-        return new Fraction (w, Math.multiplyExact(denominator/d1,
-                        fraction.denominator/d2));
+        return of(Math.toIntExact(t / d2),
+                  Math.multiplyExact(denominator / d1,
+                                     fraction.denominator / (int) d2));
     }
 
     /**
