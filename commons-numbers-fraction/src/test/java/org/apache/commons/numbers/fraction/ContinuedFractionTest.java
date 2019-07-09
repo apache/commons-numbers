@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link ContinuedFraction}.
  */
-public class ContinuedFractionTest {
+class ContinuedFractionTest {
 
     @Test
-    public void testGoldenRatio() throws Exception {
+    void testGoldenRatio() throws Exception {
         ContinuedFraction cf = new ContinuedFraction() {
             @Override
             public double getA(int n, double x) {
@@ -46,7 +46,7 @@ public class ContinuedFractionTest {
 
     // NUMBERS-46
     @Test
-    public void testOneIteration() {
+    void testOneIteration() {
         ContinuedFraction cf = new ContinuedFraction() {
             @Override
             public double getA(int n, double x) {
@@ -66,7 +66,7 @@ public class ContinuedFractionTest {
 
     // NUMBERS-46
     @Test
-    public void testTwoIterations() {
+    void testTwoIterations() {
         ContinuedFraction cf = new ContinuedFraction() {
             @Override
             public double getA(int n, double x) {

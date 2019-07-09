@@ -22,9 +22,9 @@ import org.junit.jupiter.api.Test;
  * Test cases for the {@link Precision} class.
  *
  */
-public class PrecisionTest {
+class PrecisionTest {
     @Test
-    public void testEqualsWithRelativeTolerance() {
+    void testEqualsWithRelativeTolerance() {
         Assertions.assertTrue(Precision.equalsWithRelativeTolerance(0d, 0d, 0d));
         Assertions.assertTrue(Precision.equalsWithRelativeTolerance(0d, 1 / Double.NEGATIVE_INFINITY, 0d));
 
@@ -51,7 +51,7 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testEqualsIncludingNaN() {
+    void testEqualsIncludingNaN() {
         double[] testArray = {
             Double.NaN,
             Double.POSITIVE_INFINITY,
@@ -72,7 +72,7 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testEqualsWithAllowedDelta() {
+    void testEqualsWithAllowedDelta() {
         Assertions.assertTrue(Precision.equals(153.0000, 153.0000, .0625));
         Assertions.assertTrue(Precision.equals(153.0000, 153.0625, .0625));
         Assertions.assertTrue(Precision.equals(152.9375, 153.0000, .0625));
@@ -85,7 +85,7 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testMath475() {
+    void testMath475() {
         final double a = 1.7976931348623182E16;
         final double b = Math.nextUp(a);
 
@@ -104,7 +104,7 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testEqualsIncludingNaNWithAllowedDelta() {
+    void testEqualsIncludingNaNWithAllowedDelta() {
         Assertions.assertTrue(Precision.equalsIncludingNaN(153.0000, 153.0000, .0625));
         Assertions.assertTrue(Precision.equalsIncludingNaN(153.0000, 153.0625, .0625));
         Assertions.assertTrue(Precision.equalsIncludingNaN(152.9375, 153.0000, .0625));
@@ -118,7 +118,7 @@ public class PrecisionTest {
 
     // Tests for floating point equality
     @Test
-    public void testFloatEqualsWithAllowedUlps() {
+    void testFloatEqualsWithAllowedUlps() {
         Assertions.assertTrue(Precision.equals(0.0f, -0.0f), "+0.0f == -0.0f");
         Assertions.assertTrue(Precision.equals(0.0f, -0.0f, 1), "+0.0f == -0.0f (1 ulp)");
         float oneFloat = 1.0f;
@@ -155,7 +155,7 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testEqualsWithAllowedUlps() {
+    void testEqualsWithAllowedUlps() {
         Assertions.assertTrue(Precision.equals(0.0, -0.0, 1));
 
         Assertions.assertTrue(Precision.equals(1.0, 1 + Math.ulp(1d), 1));
@@ -198,7 +198,7 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testEqualsIncludingNaNWithAllowedUlps() {
+    void testEqualsIncludingNaNWithAllowedUlps() {
         Assertions.assertTrue(Precision.equalsIncludingNaN(0.0, -0.0, 1));
 
         Assertions.assertTrue(Precision.equalsIncludingNaN(1.0, 1 + Math.ulp(1d), 1));
@@ -237,7 +237,7 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testCompareToEpsilon() {
+    void testCompareToEpsilon() {
         Assertions.assertEquals(0, Precision.compareTo(152.33, 152.32, .011));
         Assertions.assertTrue(Precision.compareTo(152.308, 152.32, .011) < 0);
         Assertions.assertTrue(Precision.compareTo(152.33, 152.318, .011) > 0);
@@ -246,7 +246,7 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testCompareToMaxUlps() {
+    void testCompareToMaxUlps() {
         double a     = 152.32;
         double delta = Math.ulp(a);
         for (int i = 0; i <= 10; ++i) {
@@ -283,7 +283,7 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testRoundDouble() {
+    void testRoundDouble() {
         double x = 1.234567890;
         Assertions.assertEquals(1.23, Precision.round(x, 2), 0.0);
         Assertions.assertEquals(1.235, Precision.round(x, 3), 0.0);
@@ -389,14 +389,14 @@ public class PrecisionTest {
 
 
     @Test
-    public void testIssue721() {
+    void testIssue721() {
         Assertions.assertEquals(-53,   Math.getExponent(Precision.EPSILON));
         Assertions.assertEquals(-1022, Math.getExponent(Precision.SAFE_MIN));
     }
 
 
     @Test
-    public void testRepresentableDelta() {
+    void testRepresentableDelta() {
         int nonRepresentableCount = 0;
         final double x = 100;
         final int numTrials = 10000;
@@ -412,7 +412,7 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testMath843() {
+    void testMath843() {
         final double afterEpsilon = Math.nextAfter(Precision.EPSILON,
                                                    Double.POSITIVE_INFINITY);
 
@@ -424,7 +424,7 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testMath1127() {
+    void testMath1127() {
         Assertions.assertFalse(Precision.equals(2.0, -2.0, 1));
         Assertions.assertTrue(Precision.equals(0.0, -0.0, 0));
         Assertions.assertFalse(Precision.equals(2.0f, -2.0f, 1));

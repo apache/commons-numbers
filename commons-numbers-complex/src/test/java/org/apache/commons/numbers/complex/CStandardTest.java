@@ -20,7 +20,7 @@ package org.apache.commons.numbers.complex;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class CStandardTest {
+class CStandardTest {
 
     private static final double inf = Double.POSITIVE_INFINITY;
     private static final double negInf = Double.NEGATIVE_INFINITY;
@@ -78,7 +78,7 @@ public class CStandardTest {
      * ISO C Standard G.6.3
      */
     @Test
-    public void testSqrt1() {
+    void testSqrt1() {
         Complex z1 = Complex.ofCartesian(-2.0, 0.0);
         Complex z2 = Complex.ofCartesian(0.0, Math.sqrt(2));
         assertComplex(z1.sqrt(), z2);
@@ -88,7 +88,7 @@ public class CStandardTest {
     }
 
     @Test
-    public void testImplicitTrig() {
+    void testImplicitTrig() {
         Complex z1 = Complex.ofReal(3.0);
         Complex z2 = Complex.ofCartesian(0.0, 3.0);
         assertComplex(z1.asin(), negI.multiply(z2.asinh()));
@@ -102,7 +102,7 @@ public class CStandardTest {
      * ISO C Standard G.6.1.1
      */
     @Test
-    public void testAcos() {
+    void testAcos() {
         assertComplex(oneOne.acos().conj(), oneOne.conj().acos(), Math.ulp(1), Math.ulp(1));
         assertComplex(Complex.ZERO.acos(), piTwoNegZero);
         assertComplex(negZeroZero.acos(), piTwoNegZero);
@@ -124,7 +124,7 @@ public class CStandardTest {
      * ISO C Standard G.6.2.2
      */
     @Test
-    public void testAsinh() {
+    void testAsinh() {
         // TODO: test for which Asinh is odd
         assertComplex(oneOne.conj().asinh(), oneOne.asinh().conj());
         assertComplex(Complex.ZERO.asinh(), Complex.ZERO);
@@ -143,7 +143,7 @@ public class CStandardTest {
      * ISO C Standard G.6.2.3
      */
     @Test
-    public void testAtanh() {
+    void testAtanh() {
         assertComplex(oneOne.conj().atanh(), oneOne.atanh().conj());
         assertComplex(Complex.ZERO.atanh(), Complex.ZERO);
         assertComplex(zeroNaN.atanh(), zeroNaN);
@@ -162,7 +162,7 @@ public class CStandardTest {
      * ISO C Standard G.6.2.4
      */
     @Test
-    public void testCosh() {
+    void testCosh() {
         assertComplex(oneOne.cosh().conj(), oneOne.conj().cosh());
         assertComplex(Complex.ZERO.cosh(), Complex.ONE);
         assertComplex(zeroInf.cosh(), nanZero);
@@ -184,7 +184,7 @@ public class CStandardTest {
      * ISO C Standard G.6.2.5
      */
     @Test
-    public void testSinh() {
+    void testSinh() {
         assertComplex(oneOne.sinh().conj(), oneOne.conj().sinh()); // AND CSINH IS ODD
         assertComplex(Complex.ZERO.sinh(), Complex.ZERO);
         assertComplex(zeroInf.sinh(), zeroNaN);
@@ -204,7 +204,7 @@ public class CStandardTest {
      * ISO C Standard G.6.2.6
      */
     @Test
-    public void testTanh() {
+    void testTanh() {
         assertComplex(oneOne.tanh().conj(), oneOne.conj().tanh()); // AND CSINH IS ODD
         assertComplex(Complex.ZERO.tanh(), Complex.ZERO);
         assertComplex(oneInf.tanh(), NAN);
@@ -221,7 +221,7 @@ public class CStandardTest {
      * ISO C Standard G.6.3.1
      */
     @Test
-    public void testExp() {
+    void testExp() {
         assertComplex(oneOne.conj().exp(), oneOne.exp().conj());
         assertComplex(Complex.ZERO.exp(), oneZero);
         assertComplex(negZeroZero.exp(), oneZero);
@@ -242,7 +242,7 @@ public class CStandardTest {
      * ISO C Standard G.6.3.2
      */
     @Test
-    public void testLog() {
+    void testLog() {
         assertComplex(oneOne.log().conj(), oneOne.conj().log());
         assertComplex(negZeroZero.log(), negInfPi);
         assertComplex(Complex.ZERO.log(), negInfZero);
@@ -261,7 +261,7 @@ public class CStandardTest {
      * ISO C Standard G.6.4.2
      */
     @Test
-    public void testSqrt2() {
+    void testSqrt2() {
         assertComplex(oneOne.sqrt().conj(), oneOne.conj().sqrt());
         assertComplex(Complex.ZERO.sqrt(), Complex.ZERO);
         assertComplex(oneInf.sqrt(), infInf);

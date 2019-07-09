@@ -24,16 +24,16 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the {@link LogFactorial} class.
  */
-public class LogFactorialTest {
+class LogFactorialTest {
     @Test
-    public void testNonPositiveArgument() {
+    void testNonPositiveArgument() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> LogFactorial.create().withCache(-1)
         );
     }
 
     @Test
-    public void testDelegation() {
+    void testDelegation() {
         final LogFactorial f = LogFactorial.create();
 
         // Starting at 21 because for smaller arguments, there is no delegation to the
@@ -46,7 +46,7 @@ public class LogFactorialTest {
     }
 
     @Test
-    public void testCompareDirectWithoutCache() {
+    void testCompareDirectWithoutCache() {
         // This test shows that delegating to the "Gamma" class leads to difference
         // wrt the "direct" computation.
 
@@ -61,7 +61,7 @@ public class LogFactorialTest {
     }
 
     @Test
-    public void testCompareDirectWithCache() {
+    void testCompareDirectWithCache() {
         final int max = 1000;
         final LogFactorial f = LogFactorial.create().withCache(max);
 
@@ -73,7 +73,7 @@ public class LogFactorialTest {
     }
 
     @Test
-    public void testZeroCache() {
+    void testZeroCache() {
         // Ensure that no exception is thrown.
         final LogFactorial f = LogFactorial.create().withCache(0);
         Assertions.assertEquals(0, f.value(0), 0d);
@@ -81,14 +81,14 @@ public class LogFactorialTest {
     }
 
     @Test
-    public void testUselessCache() {
+    void testUselessCache() {
         // Ensure that no exception is thrown.
         LogFactorial.create().withCache(1);
         LogFactorial.create().withCache(2);
     }
 
     @Test
-    public void testCacheIncrease() {
+    void testCacheIncrease() {
         final int max = 100;
         final LogFactorial f1 = LogFactorial.create().withCache(max);
         final LogFactorial f2 = f1.withCache(2 * max);
@@ -99,7 +99,7 @@ public class LogFactorialTest {
     }
 
     @Test
-    public void testCacheDecrease() {
+    void testCacheDecrease() {
         final int max = 100;
         final LogFactorial f1 = LogFactorial.create().withCache(max);
         final LogFactorial f2 = f1.withCache(max / 2);

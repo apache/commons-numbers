@@ -22,28 +22,28 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the {@link Factorial} class.
  */
-public class FactorialTest {
+class FactorialTest {
     @Test
-    public void testFactorialZero() {
+    void testFactorialZero() {
         Assertions.assertEquals(1, Factorial.value(0), "0!");
     }
 
     @Test
-    public void testFactorial() {
+    void testFactorial() {
         for (int i = 1; i < 21; i++) {
             Assertions.assertEquals(factorial(i), Factorial.value(i), i + "!");
         }
     }
 
     @Test
-    public void testPrecondition1() {
+    void testPrecondition1() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> Factorial.value(-1)
         );
     }
 
     @Test
-    public void testPrecondition2() {
+    void testPrecondition2() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> Factorial.value(21)
         );

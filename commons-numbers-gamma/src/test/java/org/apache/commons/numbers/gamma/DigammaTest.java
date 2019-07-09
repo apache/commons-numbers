@@ -22,9 +22,9 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link Digamma}.
  */
-public class DigammaTest {
+class DigammaTest {
     @Test
-    public void testDigammaLargeArgs() {
+    void testDigammaLargeArgs() {
         double eps = 1e-8;
         Assertions.assertEquals(4.6001618527380874002, Digamma.value(100), eps);
         Assertions.assertEquals(3.9019896734278921970, Digamma.value(50), eps);
@@ -41,7 +41,7 @@ public class DigammaTest {
     }
 
     @Test
-    public void testDigammaSmallArgs() {
+    void testDigammaSmallArgs() {
         // values for negative powers of 10 from 1 to 30 as computed by webMathematica with 20 digits
         // see functions.wolfram.com
         double[] expected = {-10.423754940411076795, -100.56088545786867450, -1000.5755719318103005,
@@ -56,7 +56,7 @@ public class DigammaTest {
     }
 
     @Test
-    public void testDigammaNonRealArgs() {
+    void testDigammaNonRealArgs() {
         Assertions.assertTrue(Double.isNaN(Digamma.value(Double.NaN)));
         Assertions.assertTrue(Double.isInfinite(Digamma.value(Double.POSITIVE_INFINITY)));
         Assertions.assertTrue(Double.isInfinite(Digamma.value(Double.NEGATIVE_INFINITY)));

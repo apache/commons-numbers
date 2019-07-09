@@ -23,10 +23,10 @@ import org.apache.commons.numbers.fraction.BigFraction;
 /**
  * Test cases for the {@link LinearCombination} class.
  */
-public class LinearCombinationTest {
+class LinearCombinationTest {
     // MATH-1005
     @Test
-    public void testSingleElementArray() {
+    void testSingleElementArray() {
         final double[] a = { 1.23456789 };
         final double[] b = { 98765432.1 };
 
@@ -34,7 +34,7 @@ public class LinearCombinationTest {
     }
 
     @Test
-    public void testTwoSums() { 
+    void testTwoSums() {
         final BigFraction[] aF = new BigFraction[] {
             BigFraction.of(-1321008684645961L, 268435456L),
             BigFraction.of(-5774608829631843L, 268435456L),
@@ -74,7 +74,7 @@ public class LinearCombinationTest {
     }
 
     @Test
-    public void testArrayVsInline() {
+    void testArrayVsInline() {
         final UniformRandomProvider rng = RandomSource.create(RandomSource.XOR_SHIFT_1024_S);
 
         double sInline;
@@ -111,7 +111,7 @@ public class LinearCombinationTest {
     }
 
     @Test
-    public void testHuge() {
+    void testHuge() {
         int scale = 971;
         final double[] a = new double[] {
             -1321008684645961.0 / 268435456.0,
@@ -144,7 +144,7 @@ public class LinearCombinationTest {
     }
 
     @Test
-    public void testInfinite() {
+    void testInfinite() {
         final double[][] a = new double[][] {
             { 1, 2, 3, 4 },
             { 1, Double.POSITIVE_INFINITY, 3, 4 },

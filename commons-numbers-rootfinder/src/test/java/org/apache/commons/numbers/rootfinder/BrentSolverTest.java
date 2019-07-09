@@ -21,13 +21,13 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the {@link BrentSolver} class.
  */
-public class BrentSolverTest {
+class BrentSolverTest {
     private static final double DEFAULT_ABSOLUTE_ACCURACY = 1e-6;
     private static final double DEFAULT_RELATIVE_ACCURACY = 1e-14;
     private static final double DEFAULT_FUNCTION_ACCURACY = 1e-15;
 
     @Test
-    public void testSinZero() {
+    void testSinZero() {
         // The sinus function is behaved well around the root at pi. The second
         // order derivative is zero, which means linar approximating methods will
         // still converge quadratically.
@@ -53,7 +53,7 @@ public class BrentSolverTest {
     }
 
     @Test
-    public void testQuinticZero() {
+    void testQuinticZero() {
         // The quintic function has zeros at 0, +-0.5 and +-1.
         // Around the root of 0 the function is well behaved, with a second derivative
         // of zero a 0.
@@ -137,7 +137,7 @@ public class BrentSolverTest {
     }
 
     @Test
-    public void testTooManyCalls() {
+    void testTooManyCalls() {
         final DoubleUnaryOperator func = new QuinticFunction();
         final BrentSolver solver = new BrentSolver(DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_RELATIVE_ACCURACY,
@@ -164,7 +164,7 @@ public class BrentSolverTest {
     }
 
     @Test
-    public void testRootEndpoints() {
+    void testRootEndpoints() {
         final DoubleUnaryOperator f = new Sin();
         final BrentSolver solver = new BrentSolver(DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_RELATIVE_ACCURACY,
@@ -185,7 +185,7 @@ public class BrentSolverTest {
     }
 
     @Test
-    public void testBadEndpoints() {
+    void testBadEndpoints() {
         final DoubleUnaryOperator f = new Sin();
         final BrentSolver solver = new BrentSolver(DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_RELATIVE_ACCURACY,
@@ -214,7 +214,7 @@ public class BrentSolverTest {
     }
 
     @Test
-    public void testBadInitialGuess() {
+    void testBadInitialGuess() {
         final DoubleUnaryOperator func = new QuinticFunction();
         final BrentSolver solver = new BrentSolver(DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_RELATIVE_ACCURACY,
@@ -231,7 +231,7 @@ public class BrentSolverTest {
     }
 
     @Test
-    public void testInitialGuess() {
+    void testInitialGuess() {
         final DoubleUnaryOperator func = new QuinticFunction();
         final BrentSolver solver = new BrentSolver(DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_RELATIVE_ACCURACY,

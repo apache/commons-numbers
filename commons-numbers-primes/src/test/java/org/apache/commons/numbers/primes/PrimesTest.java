@@ -24,7 +24,7 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class PrimesTest {
+class PrimesTest {
 
     public static final int[] PRIMES = {//primes here have been verified one by one using Dario Alejandro Alpern's tool, see http://www.alpertron.com.ar/ECM.HTM
             2,3,5,7,11,13,17,19,23,29,31,43,47,53,71,73,79,89,97,
@@ -75,7 +75,7 @@ public class PrimesTest {
     }
 
     @Test
-    public void testNextPrime() {
+    void testNextPrime() {
 
         Assertions.assertEquals(2, Primes.nextPrime(0));
         Assertions.assertEquals(2, Primes.nextPrime(1));
@@ -105,7 +105,7 @@ public class PrimesTest {
     }
 
     @Test
-    public void testIsPrime() throws Exception {
+    void testIsPrime() throws Exception {
         for (int i : BELOW_2) {
             Assertions.assertFalse(Primes.isPrime(i));
         }
@@ -146,7 +146,7 @@ public class PrimesTest {
     }
 
     @Test
-    public void testPrimeFactors() throws Exception {
+    void testPrimeFactors() throws Exception {
         for (int i : BELOW_2) {
             assertPrimeFactorsException(i, MessageFormat.format(Primes.NUMBER_TOO_SMALL,i,2));
         }

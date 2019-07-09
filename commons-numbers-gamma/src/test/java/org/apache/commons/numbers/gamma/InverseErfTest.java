@@ -22,15 +22,15 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link InverseErf}.
  */
-public class InverseErfTest {
+class InverseErfTest {
     @Test
-    public void testErfInvNaN() {
+    void testErfInvNaN() {
         Assertions.assertTrue(Double.isNaN(InverseErf.value(-1.001)));
         Assertions.assertTrue(Double.isNaN(InverseErf.value(+1.001)));
     }
 
     @Test
-    public void testErfInvInfinite() {
+    void testErfInvInfinite() {
         Assertions.assertTrue(Double.isInfinite(InverseErf.value(-1)));
         Assertions.assertTrue(InverseErf.value(-1) < 0);
         Assertions.assertTrue(Double.isInfinite(InverseErf.value(+1)));
@@ -38,7 +38,7 @@ public class InverseErfTest {
     }
 
     @Test
-    public void testErfInv() {
+    void testErfInv() {
         for (double x = -5.9; x < 5.9; x += 0.01) {
             final double y = Erf.value(x);
             final double dydx = 2 * Math.exp(-x * x) / Math.sqrt(Math.PI);

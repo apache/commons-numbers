@@ -19,9 +19,9 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the {@link CosAngle} class.
  */
-public class CosAngleTest {
+class CosAngleTest {
     @Test
-    public void testCosAngle2D() {
+    void testCosAngle2D() {
         double expected;
 
         final double[] v1 = { 1, 0 };
@@ -47,7 +47,7 @@ public class CosAngleTest {
     }
 
     @Test
-    public void testCosAngle3D() {
+    void testCosAngle3D() {
         double expected;
 
         final double[] v1 = { 1, 1, 0 };
@@ -60,7 +60,7 @@ public class CosAngleTest {
     }
 
     @Test
-    public void testCosAngleExtreme() {
+    void testCosAngleExtreme() {
         double expected;
 
         final double tiny = 1e-200;

@@ -22,39 +22,39 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link RegularizedGamma}.
  */
-public class RegularizedGammaTest {
+class RegularizedGammaTest {
     @Test
-    public void testRegularizedGammaNanPositive() {
+    void testRegularizedGammaNanPositive() {
         testRegularizedGamma(Double.NaN, Double.NaN, 1.0);
     }
 
     @Test
-    public void testRegularizedGammaPositiveNan() {
+    void testRegularizedGammaPositiveNan() {
         testRegularizedGamma(Double.NaN, 1.0, Double.NaN);
     }
 
     @Test
-    public void testRegularizedGammaNegativePositive() {
+    void testRegularizedGammaNegativePositive() {
         testRegularizedGamma(Double.NaN, -1.5, 1.0);
     }
 
     @Test
-    public void testRegularizedGammaPositiveNegative() {
+    void testRegularizedGammaPositiveNegative() {
         testRegularizedGamma(Double.NaN, 1.0, -1.0);
     }
 
     @Test
-    public void testRegularizedGammaZeroPositive() {
+    void testRegularizedGammaZeroPositive() {
         testRegularizedGamma(Double.NaN, 0.0, 1.0);
     }
 
     @Test
-    public void testRegularizedGammaPositiveZero() {
+    void testRegularizedGammaPositiveZero() {
         testRegularizedGamma(0.0, 1.0, 0.0);
     }
 
     @Test
-    public void testRegularizedGammaPositivePositive() {
+    void testRegularizedGammaPositivePositive() {
         testRegularizedGamma(0.632120558828558, 1.0, 1.0);
     }
 

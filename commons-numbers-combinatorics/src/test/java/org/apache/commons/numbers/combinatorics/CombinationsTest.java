@@ -25,22 +25,22 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for the {@link Combinations} class.
  */
-public class CombinationsTest {
+class CombinationsTest {
     @Test
-    public void testAccessor1() {
+    void testAccessor1() {
         final int n = 5;
         final int k = 3;
         Assertions.assertEquals(n, new Combinations(n, k).getN());
     }
     @Test
-    public void testAccessor2() {
+    void testAccessor2() {
         final int n = 5;
         final int k = 3;
         Assertions.assertEquals(k, new Combinations(n, k).getK());
     }
 
     @Test
-    public void testLexicographicIterator() {
+    void testLexicographicIterator() {
         checkLexicographicIterator(new Combinations.LexicographicComparator(5, 3));
         checkLexicographicIterator(new Combinations.LexicographicComparator(6, 4));
         checkLexicographicIterator(new Combinations.LexicographicComparator(8, 2));
@@ -54,7 +54,7 @@ public class CombinationsTest {
     }
 
     @Test
-    public void testLexicographicComparatorWrongIterate1() {
+    void testLexicographicComparatorWrongIterate1() {
         final int n = 5;
         final int k = 3;
         final Comparator<int[]> comp = new Combinations.LexicographicComparator(n, k);
@@ -64,7 +64,7 @@ public class CombinationsTest {
     }
 
     @Test
-    public void testLexicographicComparatorWrongIterate2() {
+    void testLexicographicComparatorWrongIterate2() {
         final int n = 5;
         final int k = 3;
         final Comparator<int[]> comp = new Combinations.LexicographicComparator(n, k);
@@ -74,7 +74,7 @@ public class CombinationsTest {
     }
 
     @Test
-    public void testLexicographicComparatorWrongIterate3() {
+    void testLexicographicComparatorWrongIterate3() {
         final int n = 5;
         final int k = 3;
         final Comparator<int[]> comp = new Combinations.LexicographicComparator(n, k);
@@ -84,7 +84,7 @@ public class CombinationsTest {
     }
 
     @Test
-    public void testLexicographicComparatorWrongIterate4() {
+    void testLexicographicComparatorWrongIterate4() {
         final int n = 5;
         final int k = 3;
         final Comparator<int[]> comp = new Combinations.LexicographicComparator(n, k);
@@ -94,7 +94,7 @@ public class CombinationsTest {
     }
 
     @Test
-    public void testLexicographicComparatorAccessors() {
+    void testLexicographicComparatorAccessors() {
         final int n = 9;
         final int k = 6;
         final Combinations.LexicographicComparator comp =
@@ -104,7 +104,7 @@ public class CombinationsTest {
     }
 
     @Test
-    public void testLexicographicComparator() {
+    void testLexicographicComparator() {
         final int n = 5;
         final int k = 3;
         final Comparator<int[]> comp = new Combinations.LexicographicComparator(n, k);
@@ -120,7 +120,7 @@ public class CombinationsTest {
      * Check that iterates can be passed unsorted.
      */
     @Test
-    public void testLexicographicComparatorUnsorted() {
+    void testLexicographicComparatorUnsorted() {
         final int n = 5;
         final int k = 3;
         final Comparator<int[]> comp = new Combinations.LexicographicComparator(n, k);
@@ -133,7 +133,7 @@ public class CombinationsTest {
     }
 
     @Test
-    public void testEmptyCombination() {
+    void testEmptyCombination() {
         final Iterator<int[]> iter = new Combinations(12345, 0).iterator();
         Assertions.assertTrue(iter.hasNext());
         final int[] c = iter.next();
@@ -142,7 +142,7 @@ public class CombinationsTest {
     }
 
     @Test
-    public void testFullSetCombination() {
+    void testFullSetCombination() {
         final int n = 67;
         final Iterator<int[]> iter = new Combinations(n, n).iterator();
         Assertions.assertTrue(iter.hasNext());
@@ -192,13 +192,13 @@ public class CombinationsTest {
     }
 
     @Test
-    public void testCombinationsIteratorFail1() {
+    void testCombinationsIteratorFail1() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> new Combinations(4, 5).iterator()
         );
     }
     @Test
-    public void testCombinationsIteratorFail2() {
+    void testCombinationsIteratorFail2() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> new Combinations(-1, -2).iterator()
         );
