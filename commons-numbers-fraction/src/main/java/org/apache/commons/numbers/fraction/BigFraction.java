@@ -34,7 +34,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
     public static final BigFraction ONE = of(1);
 
     /** Serializable version identifier. */
-    private static final long serialVersionUID = -5630213147331578515L;
+    private static final long serialVersionUID = 20190701L;
 
     /** Parameter name for fraction (to satisfy checkstyle). */
     private static final String PARAM_NAME_FRACTION = "fraction";
@@ -1272,7 +1272,6 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
             den = denominator.multiply(fraction.denominator);
         }
         return new BigFraction(num, den);
-
     }
 
     /**

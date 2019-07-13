@@ -230,6 +230,12 @@ class CommonTestCases {
                 1, 1,
                 Integer.MAX_VALUE, 1));
 
+        //NUMBERS-129
+        testCases.add(new BinaryOperatorTestCase(
+                362564597, 10,
+                274164323, 6,
+                1229257703, 15));
+
         return testCases;
     }
 
