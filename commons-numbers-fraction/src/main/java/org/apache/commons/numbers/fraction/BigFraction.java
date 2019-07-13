@@ -671,18 +671,20 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * sign.
      * @param exponentLength the number of bits allowed for the exponent; must be
      *                       between 1 and 32 (inclusive), and must not be greater
-     *                       than 63 - significandLength
+     *                       than {@code 63 - significandLength}
      * @param significandLength the number of bits allowed for the significand
      *                          (excluding the implicit leading 1-bit in
      *                          normalized numbers, e.g. 52 for a double-precision
      *                          floating-point number); must be between 1 and
-     *                          (63 - exponentLength) (inclusive)
+     *                          {@code 63 - exponentLength} (inclusive)
      * @return the bits of an IEEE 754 binary floating-point representation of
      * this fraction encoded in a {@code long}, as described above.
+     * @throws IllegalArgumentException if the arguments do not meet the
+     *         criteria described above
      */
     private long toFloatingPointBits(int exponentLength, int significandLength) {
         if (exponentLength < 1 ||significandLength < 1 || exponentLength > Math.min(32, 63 - significandLength)) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("exponent length: " + exponentLength + "; significand length: " + significandLength);
         }
         if (numerator.signum() == 0) {
             return 0L;
@@ -841,10 +843,11 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * @param hasFractionalBits whether the number should be treated as though
      *                          it contained a non-zero fractional part
      * @return a {@code BigInteger} as described above
+     * @throws IllegalArgumentException if {@code bits <= 0}
      */
     private static BigInteger roundAndRightShift(BigInteger value, int bits, boolean hasFractionalBits) {
         if (bits <= 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("bits: " + bits);
         }
         BigInteger result = value.shiftRight(bits);
         if (value.testBit(bits - 1) &&
