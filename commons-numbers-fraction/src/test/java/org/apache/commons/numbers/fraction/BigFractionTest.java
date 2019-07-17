@@ -105,34 +105,18 @@ public class BigFractionTest {
 
     // MATH-181
     @Test
-    public void testDigitLimitConstructor() throws Exception {
-        assertFraction(2, 5, BigFraction.from(0.4, 9));
-        assertFraction(2, 5, BigFraction.from(0.4, 99));
-        assertFraction(2, 5, BigFraction.from(0.4, 999));
+    public void testDigitLimitConstructor() {
+        assertFraction(2, 5, BigFraction.from(0.4, BigInteger.valueOf(9)));
+        assertFraction(2, 5, BigFraction.from(0.4, BigInteger.valueOf(99)));
+        assertFraction(2, 5, BigFraction.from(0.4, BigInteger.valueOf(999)));
 
-        assertFraction(3, 5, BigFraction.from(0.6152, 9));
-        assertFraction(8, 13, BigFraction.from(0.6152, 99));
-        assertFraction(510, 829, BigFraction.from(0.6152, 999));
-        assertFraction(769, 1250, BigFraction.from(0.6152, 9999));
+        assertFraction(5, 8, BigFraction.from(0.6152, BigInteger.valueOf(9)));
+        assertFraction(8, 13, BigFraction.from(0.6152, BigInteger.valueOf(99)));
+        assertFraction(510, 829, BigFraction.from(0.6152, BigInteger.valueOf(999)));
+        assertFraction(769, 1250, BigFraction.from(0.6152, BigInteger.valueOf(9999)));
 
         // MATH-996
-        assertFraction(1, 2, BigFraction.from(0.5000000001, 10));
-    }
-
-    // MATH-1029
-    @Test
-    public void testPositiveValueOverflow() {
-        Assertions.assertThrows(ArithmeticException.class,
-                () -> assertFraction((long) 1e10, 1, BigFraction.from(1e10, 1000))
-        );
-    }
-
-    // MATH-1029
-    @Test
-    public void testNegativeValueOverflow() {
-        Assertions.assertThrows(ArithmeticException.class,
-                () -> assertFraction((long) -1e10, 1, BigFraction.from(-1e10, 1000))
-        );
+        assertFraction(1, 2, BigFraction.from(0.5000000001, BigInteger.valueOf(10)));
     }
 
     @Test
@@ -500,7 +484,7 @@ public class BigFractionTest {
     public void testSerial() {
         BigFraction[] fractions = {
             BigFraction.of(3, 4), BigFraction.ONE, BigFraction.ZERO,
-            BigFraction.of(17), BigFraction.from(Math.PI, 1000),
+            BigFraction.of(17), BigFraction.from(Math.PI, BigInteger.valueOf(1000)),
             BigFraction.of(-5, 2)
         };
         for (BigFraction fraction : fractions) {

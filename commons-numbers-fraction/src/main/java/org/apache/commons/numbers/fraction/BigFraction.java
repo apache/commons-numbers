@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.Iterator;
 import org.apache.commons.numbers.core.ArithmeticUtils;
 
 /**
@@ -301,7 +302,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * @throws ArithmeticException if the continued fraction failed to converge.
      * @return a new instance.
      *
-     * @see #from(double,int)
+     * @see #from(double,BigInteger)
      */
     public static BigFraction from(final double value,
                                    final double epsilon,
@@ -310,7 +311,15 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
     }
 
     /**
-     * Create a fraction given the double value and maximum denominator.
+     * Approximates the given {@code double} value with a fraction such that
+     * no other fraction with a denominator smaller than or equal to the passed
+     * upper bound for the denominator will be closer to the {@code double}
+     * value. Furthermore, no other fraction with the same or a smaller
+     * denominator will be equally close to the {@code double} value unless the
+     * denominator limit is set to {@code 1} and the value to be approximated is
+     * an odd multiple of {@code 0.5}, in which case there will necessarily be
+     * two equally distant integers surrounding the {@code double} value, one of
+     * which will then be returned by this method.
      * <p>
      * References:
      * <ul>
@@ -320,14 +329,102 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      *
      * @param value Value to convert to a fraction.
      * @param maxDenominator Maximum allowed value for denominator.
-     * @throws ArithmeticException if the continued fraction failed to converge.
+     * @throws IllegalArgumentException if the given {@code value} is NaN or
+     *         infinite, or if {@code maxDenominator < 1}
      * @return a new instance.
      *
      * @see #from(double,double,int)
      */
     public static BigFraction from(final double value,
-                                   final int maxDenominator) {
-        return from(value, 0, maxDenominator, 100);
+                                   final BigInteger maxDenominator) {
+        if (maxDenominator.signum() != 1) {
+            throw new IllegalArgumentException("Upper bound for denominator must be positive: " + maxDenominator);
+        }
+
+        /*
+         * Required facts:
+         *
+         * 1. Every best rational approximation p/q of α (with q > 0), in the
+         * sense that |α - p/q| < |α - a/b| for all a/b ≠ p/q and 0 < b <= q, is
+         * a convergent or a semiconvergent of α's simple continued fraction
+         * expansion (Continued Fractions by A. Khinchin, theorem 15, p. 22)
+         *
+         * 2. Every convergent p/q from the second convergent onwards is a best
+         * rational approximation (even in the stronger sense that
+         * |qα - p| < |bα - a|), provided that the last coefficient is greater
+         * than 1 (theorem 17, p. 26, which ignores the fact that, if a_1 = 1,
+         * both the first and the second convergent will have a denominator of
+         * 1 and, should the variable k chosen to be 0, s = k + 1 will therefore
+         * also be conceivable as the order of the convergent equivalent to the
+         * expression x_0 / y_0 in addition to s <= k).
+         *
+         * 3. It follows that the first convergent is only a best rational
+         * approximation if a_1 >= 2, i.e. if the second convergent does not
+         * also have a denominator of 1, and if α ≠ [a_0; 2] (the exceptional
+         * case mentioned in theorem 17, where the first convergent a_0 will tie
+         * with the semiconvergent a_0 + 1 as a best rational approximation of α).
+         *
+         * 4. A semiconvergent [a_0; a_1, …, a_{n-1}, x], with n >= 1 and
+         * 0 < x <= a_n, is consequently only a best rational approximation if it
+         * is closer to α than the (n-1)th-order convergent [a_0; a_1, …, a_{n-1}],
+         * since the latter is definitely a best rational approximation (unless
+         * n = 1 and a_1 = 1, but then, the only possible integer value for x is
+         * a_1 = 1, which will yield the second convergent, which is always a
+         * best approximation). This is the case if and only if
+         *
+         * [a_n; a_{n+1}, a_{n+2}, …] - 2x < q_{n-2} / q_{n-1}
+         *
+         * where q_k is the denominator of the k-th-order convergent
+         * (https://math.stackexchange.com/questions/856861/semi-convergent-of-continued-fractions)
+         */
+        BigFraction valueAsFraction = from(value);
+
+        SimpleContinuedFraction approximation = new SimpleContinuedFraction();
+        BigInteger[] currentConvergent;
+        BigInteger[] convergentBeforePrevious;
+
+        Iterator<BigInteger[]> coefficientsIterator = SimpleContinuedFraction.coefficientsOf(valueAsFraction);
+        BigInteger[] lastIterationResult;
+
+        do {
+            convergentBeforePrevious = approximation.getPreviousConvergent();
+            lastIterationResult = coefficientsIterator.next();
+            approximation.addCoefficient(lastIterationResult[0]);
+            currentConvergent = approximation.getCurrentConvergent();
+        } while (coefficientsIterator.hasNext() && currentConvergent[1].compareTo(maxDenominator) <= 0);
+
+        if (currentConvergent[1].compareTo(maxDenominator) <= 0) {
+            return valueAsFraction;
+        } else {
+            // Calculate the largest possible value for the last coefficient so
+            // that the denominator will be within the given bounds
+            BigInteger[] previousConvergent = approximation.getPreviousConvergent();
+            BigInteger lastCoefficientMax = maxDenominator.subtract(convergentBeforePrevious[1]).divide(previousConvergent[1]);
+
+            /*
+             * Determine if the semiconvergent generated with this coefficient
+             * is a closer approximation than the previous convergent with the
+             * formula described in point 4. n >= 1 is guaranteed because the
+             * first convergent's denominator is 1 and thus cannot exceed the
+             * limit, and if x = 0 is inserted into the inequation, it will
+             * always be false because a_n >= 1 and k_{n-2} / k_{n-1} <= 1, so
+             * no need to make a special case for lastCoefficientMax = 0.
+             */
+            boolean semiConvergentIsCloser = lastIterationResult[1]
+                    .subtract(BigInteger.valueOf(2)
+                            .multiply(lastCoefficientMax)
+                            .multiply(lastIterationResult[2]))
+                    .multiply(previousConvergent[1])
+                    .compareTo(convergentBeforePrevious[1]
+                            .multiply(lastIterationResult[2])) < 0;
+
+            if (semiConvergentIsCloser) {
+                return of(previousConvergent[0].multiply(lastCoefficientMax).add(convergentBeforePrevious[0]),
+                          previousConvergent[1].multiply(lastCoefficientMax).add(convergentBeforePrevious[1]));
+            } else {
+                return of(previousConvergent[0], previousConvergent[1]);
+            }
+        }
     }
 
     /**
