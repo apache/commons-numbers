@@ -203,7 +203,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      *
      * @param value Value to convert to a fraction.
      * @param epsilon Maximum error allowed. The resulting fraction is within
-     *                {@code epsilon} of {@code value}, in absolute terms.
+     *                {@code |epsilon|} of {@code value}, in absolute terms.
      * @param maxIterations Maximum number of convergents. If this parameter is
      *                      negative, no limit will be imposed.
      * @throws ArithmeticException if {@code maxIterations >= 0} and the
@@ -303,12 +303,13 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * This factory method approximates the given {@code double} value with a
      * fraction such that no other fraction with a denominator smaller than or
      * equal to the passed upper bound for the denominator will be closer to the
-     * {@code double} value. Furthermore, no other fraction with the same or a
-     * smaller denominator will be equally close to the {@code double} value
-     * unless the denominator limit is set to {@code 1} and the value to be
-     * approximated is an odd multiple of {@code 0.5}, in which case there will
-     * necessarily be two equally distant integers surrounding the {@code double}
-     * value, one of which will then be returned by this method.
+     * {@code double} value. Furthermore, no other fraction with a denominator
+     * smaller than or equal to that of the returned fraction will be equally
+     * close to the {@code double} value unless the denominator limit is set to
+     * {@code 1} and the value to be approximated is an odd multiple of
+     * {@code 0.5}, in which case there will necessarily be two equally distant
+     * integers surrounding the {@code double} value, one of which will then be
+     * returned by this method.
      * </p>
      * <p>
      * References:
@@ -321,6 +322,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * @param maxDenominator Maximum allowed value for denominator.
      * @throws IllegalArgumentException if the given {@code value} is NaN or
      *         infinite, or if {@code maxDenominator < 1}
+     * @throws NullPointerException if {@code maxDenominator} is {@code null}
      * @return a new instance.
      *
      * @see #from(double,double,int)

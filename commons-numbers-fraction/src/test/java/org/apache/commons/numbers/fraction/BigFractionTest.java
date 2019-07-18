@@ -100,21 +100,63 @@ public class BigFractionTest {
     // MATH-181
     @Test
     public void testDigitLimitConstructor() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> BigFraction.from(4d, BigInteger.ZERO)
+        );
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> BigFraction.from(-2d, BigInteger.valueOf(-1))
+        );
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> BigFraction.from(Double.NaN, BigInteger.valueOf(6))
+        );
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> BigFraction.from(Double.POSITIVE_INFINITY, BigInteger.valueOf(23456789012345L))
+        );
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> BigFraction.from(Double.NEGATIVE_INFINITY, BigInteger.ONE)
+        );
+
+        Assertions.assertThrows(NullPointerException.class,
+                () -> BigFraction.from(23d, null)
+        );
+
         assertFraction(2, 5, BigFraction.from(0.4, BigInteger.valueOf(9)));
         assertFraction(2, 5, BigFraction.from(0.4, BigInteger.valueOf(99)));
         assertFraction(2, 5, BigFraction.from(0.4, BigInteger.valueOf(999)));
+        assertFraction(3602879701896397L, 1L << 53, BigFraction.from(0.4, BigInteger.valueOf(1L << 54)));
 
         assertFraction(5, 8, BigFraction.from(0.6152, BigInteger.valueOf(9)));
         assertFraction(8, 13, BigFraction.from(0.6152, BigInteger.valueOf(99)));
         assertFraction(510, 829, BigFraction.from(0.6152, BigInteger.valueOf(999)));
         assertFraction(769, 1250, BigFraction.from(0.6152, BigInteger.valueOf(9999)));
+        assertFraction(2770614490758329L, 1L << 52, BigFraction.from(0.6152, BigInteger.valueOf(1L << 52)));
 
         // MATH-996
         assertFraction(1, 2, BigFraction.from(0.5000000001, BigInteger.valueOf(10)));
+
+        assertFraction(-5, 1, BigFraction.from(Math.nextDown(-4.5), BigInteger.ONE));
+        assertFraction(-4, 1, BigFraction.from(Math.nextUp(-4.5), BigInteger.ONE));
+        {
+            BigFraction f = BigFraction.from(-4.5, BigInteger.ONE);
+            Assertions.assertTrue(f.equals(BigFraction.of(-5)) || f.equals(BigFraction.of(-4)), "Expected: -5/1 or -4/1; Actual: " + f.toString());
+        }
     }
 
     @Test
     public void testEpsilonLimitConstructor() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> BigFraction.from(0.13579d, Double.NaN, 10)
+        );
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> BigFraction.from(Double.NaN, 1.0e-5, -10)
+        );
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> BigFraction.from(Double.POSITIVE_INFINITY, 1.0e-4, Integer.MAX_VALUE)
+        );
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> BigFraction.from(Double.NEGATIVE_INFINITY, 1.0e-3, 1)
+        );
+
         assertFraction(2, 5, BigFraction.from(0.4, 1.0e-5, 100));
 
         assertFraction(3, 5, BigFraction.from(0.6152, 0.02, 100));
@@ -123,6 +165,21 @@ public class BigFractionTest {
         assertFraction(251, 408, BigFraction.from(0.6152, 1.0e-5, 100));
         assertFraction(510, 829, BigFraction.from(0.6152, 1.0e-6, 100));
         assertFraction(769, 1250, BigFraction.from(0.6152, 1.0e-7, 100));
+
+        assertFraction(1, 3, BigFraction.from(1d / 3d, 0x0.6P-54, -1));
+        assertFraction(3099251356470019L, 9297754069410058L, BigFraction.from(1d / 3d, 0x0.5P-54, -1));
+
+        assertFraction(1, 2, BigFraction.from(15d / 32d, 1d / 32d, -5));
+        assertFraction(3, 4, BigFraction.from(49d / 64d, 1d / 64d, -5));
+        assertFraction(1, 2, BigFraction.from(13d / 32d, 3d / 32d, 2));
+        assertFraction(5, 16, BigFraction.from(5147d / 0x1P14, 27d / 0x1P14, 3));
+
+        assertFraction(-5, 1, BigFraction.from(Math.nextDown(-4.5), Double.POSITIVE_INFINITY, -1));
+        assertFraction(-5, 1, BigFraction.from(Math.nextDown(-4.5), Double.NEGATIVE_INFINITY, -1));
+        {
+            BigFraction f = BigFraction.from(-4.5, 0.5, -1);
+            Assertions.assertTrue(f.equals(BigFraction.of(-5)) || f.equals(BigFraction.of(-4)), "Expected: -5/1 or -4/1; Actual: " + f.toString());
+        }
     }
 
     @Test
