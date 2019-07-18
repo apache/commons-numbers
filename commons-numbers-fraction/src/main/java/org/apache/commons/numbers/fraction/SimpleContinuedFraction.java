@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 /**
  * A {@code BigInteger} based, mutable representation of a simple continued
@@ -79,12 +80,15 @@ class SimpleContinuedFraction {
      * coefficients stored, the new coefficient can be any integer, otherwise,
      * it must be positive.
      * @param coefficient the new coefficient
+     * @throws NullPointerException if the argument is {@code null}
      * @throws IllegalArgumentException if this instance already has coefficients
      *         stored and the argument is not positive
      */
     void addCoefficient(BigInteger coefficient) {
         if (!coefficients.isEmpty()) {
             requirePositiveCoefficient(coefficient);
+        } else {
+            Objects.requireNonNull(coefficient);
         }
         coefficients.add(coefficient);
         BigInteger newNumerator = coefficient.multiply(currentConvergent[0]).add(previousConvergent[0]);
@@ -101,6 +105,7 @@ class SimpleContinuedFraction {
      * @param coefficient the new coefficient
      * @return the coefficient previously at the last position in this instance's
      *         simple continued fraction representation
+     * @throws NullPointerException if the argument is {@code null}
      * @throws IllegalArgumentException if this instance has more than one
      *         coefficient stored and the argument is not positive
      * @throws IllegalStateException if this instance does not have any
@@ -109,6 +114,8 @@ class SimpleContinuedFraction {
     BigInteger setLastCoefficient(BigInteger coefficient) {
         if (coefficients.size() > 1) {
             requirePositiveCoefficient(coefficient);
+        } else {
+            Objects.requireNonNull(coefficient);
         }
         BigInteger oldLastCoefficient;
         try {
@@ -197,6 +204,7 @@ class SimpleContinuedFraction {
      * {@code IllegalArgumentException} with a corresponding error message if it
      * is not.
      * @param coefficient the prospective non-initial coefficient
+     * @throws NullPointerException if the argument is {@code null}
      * @throws IllegalArgumentException if the argument is not positive
      */
     private static void requirePositiveCoefficient(BigInteger coefficient) {
@@ -228,6 +236,7 @@ class SimpleContinuedFraction {
      * @param fraction the fraction the coefficients of whose simple continued
      *        fraction representation should be iterated over
      * @return an {@code Iterator<BigInteger[]>} as described above
+     * @throws NullPointerException if the argument is {@code null}
      */
     static Iterator<BigInteger[]> coefficientsOf(BigFraction fraction) {
         final BigInteger initialDividend;

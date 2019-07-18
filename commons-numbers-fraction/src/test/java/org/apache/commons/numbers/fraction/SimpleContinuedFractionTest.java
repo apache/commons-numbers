@@ -4,6 +4,7 @@ import java.math.BigInteger;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.Assertions;
@@ -29,6 +30,7 @@ class SimpleContinuedFractionTest {
     @Test
     void testAddCoefficient() {
         final SimpleContinuedFraction testSubject = new SimpleContinuedFraction();
+        List<BigInteger> actualCoefficients = testSubject.viewCoefficients();
 
         testSubject.addCoefficient(BigInteger.ONE);
         assertConvergent(1, 1, testSubject.getCurrentConvergent());
@@ -42,19 +44,22 @@ class SimpleContinuedFractionTest {
         assertConvergent(10, 7, testSubject.getCurrentConvergent());
         assertConvergent(3, 2, testSubject.getPreviousConvergent());
 
+        Assertions.assertThrows(NullPointerException.class,
+                () -> testSubject.addCoefficient(null)
+        );
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> testSubject.addCoefficient(BigInteger.valueOf(-4))
         );
-
         Assertions.assertEquals(
                 Arrays.asList(BigInteger.ONE, BigInteger.valueOf(2), BigInteger.valueOf(3)),
-                testSubject.viewCoefficients()
+                actualCoefficients
         );
     }
 
     @Test
     void testSetLastCoefficient() {
         final SimpleContinuedFraction testSubject = new SimpleContinuedFraction();
+        List<BigInteger> actualCoefficients = testSubject.viewCoefficients();
 
         Assertions.assertThrows(IllegalStateException.class,
                 () -> testSubject.setLastCoefficient(BigInteger.ONE)
@@ -72,13 +77,15 @@ class SimpleContinuedFractionTest {
         assertConvergent(-2, 3, testSubject.getCurrentConvergent());
         assertConvergent(-1, 1, testSubject.getPreviousConvergent());
 
+        Assertions.assertThrows(NullPointerException.class,
+                () -> testSubject.setLastCoefficient(null)
+        );
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> testSubject.setLastCoefficient(BigInteger.valueOf(-3))
         );
-
         Assertions.assertEquals(
                 Arrays.asList(BigInteger.valueOf(-1), BigInteger.valueOf(3)),
-                testSubject.viewCoefficients()
+                actualCoefficients
         );
     }
 
@@ -140,6 +147,10 @@ class SimpleContinuedFractionTest {
 
     @Test
     void testCoefficientsOf() {
+        Assertions.assertThrows(NullPointerException.class,
+                () -> SimpleContinuedFraction.coefficientsOf(null)
+        );
+
         final Iterator<BigInteger[]> coefficientsIterator = SimpleContinuedFraction.coefficientsOf(BigFraction.of(-415, 93));
         BigInteger[] expectedCoefficients = toBigIntegerArray(-5, 1, 1, 6, 7);
         BigFraction[] expectedFractions = new BigFraction[]{
