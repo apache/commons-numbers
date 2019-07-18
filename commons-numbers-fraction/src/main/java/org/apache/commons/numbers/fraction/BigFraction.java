@@ -90,108 +90,6 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
     }
 
     /**
-     * Create a fraction given the double value and either the maximum
-     * error allowed or the maximum number of denominator digits.
-     *
-     * <p>
-     * NOTE: This method is called with
-     *  - EITHER a valid epsilon value and the maxDenominator set to
-     *    Integer.MAX_VALUE (that way the maxDenominator has no effect)
-     *  - OR a valid maxDenominator value and the epsilon value set to
-     *    zero (that way epsilon only has effect if there is an exact
-     *    match before the maxDenominator value is reached).
-     * </p>
-     * <p>
-     * It has been done this way so that the same code can be reused for
-     * both scenarios.  However this could be confusing to users if it
-     * were part of the public API and this method should therefore remain
-     * PRIVATE.
-     * </p>
-     *
-     * See JIRA issue ticket MATH-181 for more details:
-     *   https://issues.apache.org/jira/browse/MATH-181
-     *
-     * @param value Value to convert to a fraction.
-     * @param epsilon Maximum error allowed.
-     * The resulting fraction is within {@code epsilon} of {@code value},
-     * in absolute terms.
-     * @param maxDenominator Maximum denominator value allowed.
-     * @param maxIterations Maximum number of convergents.
-     * @throws ArithmeticException if the continued fraction failed to converge.
-     */
-    private static BigFraction from(final double value,
-                                    final double epsilon,
-                                    final int maxDenominator,
-                                    final int maxIterations) {
-        long overflow = Integer.MAX_VALUE;
-        double r0 = value;
-        long a0 = (long) Math.floor(r0);
-
-        if (Math.abs(a0) > overflow) {
-            throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, a0, 1l);
-        }
-
-        // check for (almost) integer arguments, which should not go
-        // to iterations.
-        if (Math.abs(a0 - value) < epsilon) {
-            return new BigFraction(BigInteger.valueOf(a0),
-                                   BigInteger.ONE);
-        }
-
-        long p0 = 1;
-        long q0 = 0;
-        long p1 = a0;
-        long q1 = 1;
-
-        long p2 = 0;
-        long q2 = 1;
-
-        int n = 0;
-        boolean stop = false;
-        do {
-            ++n;
-            final double r1 = 1d / (r0 - a0);
-            final long a1 = (long) Math.floor(r1);
-            p2 = (a1 * p1) + p0;
-            q2 = (a1 * q1) + q0;
-            if (p2 > overflow ||
-                q2 > overflow) {
-                // in maxDenominator mode, if the last fraction was very close to the actual value
-                // q2 may overflow in the next iteration; in this case return the last one.
-                if (epsilon == 0 &&
-                    Math.abs(q1) < maxDenominator) {
-                    break;
-                }
-                throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, p2, q2);
-            }
-
-            final double convergent = (double) p2 / (double) q2;
-            if (n < maxIterations &&
-                Math.abs(convergent - value) > epsilon &&
-                q2 < maxDenominator) {
-                p0 = p1;
-                p1 = p2;
-                q0 = q1;
-                q1 = q2;
-                a0 = a1;
-                r0 = r1;
-            } else {
-                stop = true;
-            }
-        } while (!stop);
-
-        if (n >= maxIterations) {
-            throw new FractionException(FractionException.ERROR_CONVERSION, value, maxIterations);
-        }
-
-        return q2 < maxDenominator ?
-            new BigFraction(BigInteger.valueOf(p2),
-                            BigInteger.valueOf(q2)) :
-            new BigFraction(BigInteger.valueOf(p1),
-                            BigInteger.valueOf(q1));
-    }
-
-    /**
      * <p>
      * Create a {@link BigFraction} equivalent to the passed {@code BigInteger}, ie
      * "num / 1".
@@ -287,12 +185,15 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
     }
 
     /**
-     * Approximates the given {@code double} value with a fraction such that
-     * no other fraction within the given interval will have a smaller or equal
-     * denominator, unless {@code |epsilon| > 0.5}, in which case the integer
-     * closest to the value to be approximated will be returned (if there are
-     * two equally distant integers within the specified interval, either of
-     * them will be returned).
+     * Create a fraction given the double value and maximum error allowed.
+     * <p>
+     * This factory method approximates the given {@code double} value with a
+     * fraction such that no other fraction within the given interval will have
+     * a smaller or equal denominator, unless {@code |epsilon| > 0.5}, in which
+     * case the integer closest to the value to be approximated will be returned
+     * (if there are two equally distant integers within the specified interval,
+     * either of them will be returned).
+     * </p>
      * <p>
      * References:
      * <ul>
@@ -401,15 +302,18 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
     }
 
     /**
-     * Approximates the given {@code double} value with a fraction such that
-     * no other fraction with a denominator smaller than or equal to the passed
-     * upper bound for the denominator will be closer to the {@code double}
-     * value. Furthermore, no other fraction with the same or a smaller
-     * denominator will be equally close to the {@code double} value unless the
-     * denominator limit is set to {@code 1} and the value to be approximated is
-     * an odd multiple of {@code 0.5}, in which case there will necessarily be
-     * two equally distant integers surrounding the {@code double} value, one of
-     * which will then be returned by this method.
+     * Create a fraction given the double value and maximum denominator.
+     * <p>
+     * This factory method approximates the given {@code double} value with a
+     * fraction such that no other fraction with a denominator smaller than or
+     * equal to the passed upper bound for the denominator will be closer to the
+     * {@code double} value. Furthermore, no other fraction with the same or a
+     * smaller denominator will be equally close to the {@code double} value
+     * unless the denominator limit is set to {@code 1} and the value to be
+     * approximated is an odd multiple of {@code 0.5}, in which case there will
+     * necessarily be two equally distant integers surrounding the {@code double}
+     * value, one of which will then be returned by this method.
+     * </p>
      * <p>
      * References:
      * <ul>
