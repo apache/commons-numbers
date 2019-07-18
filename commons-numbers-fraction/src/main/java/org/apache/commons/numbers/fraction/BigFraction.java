@@ -264,16 +264,12 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
             if (maxIterations >= 0 && iterationCount == maxIterations) {
                 throw new FractionException(FractionException.ERROR_CONVERSION, value, maxIterations);
             }
-            if (coefficientsOfLower.hasNext()) {
-                lastCoefficientOfLower = coefficientsOfLower.next()[0];
-            } else {
-                lastCoefficientOfLower = null;
-            }
-            if (coefficientsOfUpper.hasNext()) {
-                lastCoefficientOfUpper = coefficientsOfUpper.next()[0];
-            } else {
-                lastCoefficientOfUpper = null;
-            }
+            lastCoefficientOfLower = coefficientsOfLower.hasNext() ?
+                                     coefficientsOfLower.next()[0] :
+                                     null;
+            lastCoefficientOfUpper = coefficientsOfUpper.hasNext() ?
+                                     coefficientsOfUpper.next()[0] :
+                                     null;
             if (lastCoefficientOfLower == null ||
                     !lastCoefficientOfLower.equals(lastCoefficientOfUpper)) {
                 stop = true;
