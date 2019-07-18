@@ -75,12 +75,6 @@ public class BigFractionTest {
         } catch (ArithmeticException ignored) {
             // expected
         }
-        try {
-            BigFraction.from(2.0 * Integer.MAX_VALUE, 1.0e-5, 100000);
-            Assertions.fail("Expecting ArithmeticException");
-        } catch (ArithmeticException ignored) {
-            // expected
-        }
     }
 
     @Test
@@ -120,12 +114,12 @@ public class BigFractionTest {
     }
 
     @Test
-    public void testEpsilonLimitConstructor() throws Exception {
+    public void testEpsilonLimitConstructor() {
         assertFraction(2, 5, BigFraction.from(0.4, 1.0e-5, 100));
 
         assertFraction(3, 5, BigFraction.from(0.6152, 0.02, 100));
         assertFraction(8, 13, BigFraction.from(0.6152, 1.0e-3, 100));
-        assertFraction(251, 408, BigFraction.from(0.6152, 1.0e-4, 100));
+        assertFraction(171, 278, BigFraction.from(0.6152, 1.0e-4, 100));
         assertFraction(251, 408, BigFraction.from(0.6152, 1.0e-5, 100));
         assertFraction(510, 829, BigFraction.from(0.6152, 1.0e-6, 100));
         assertFraction(769, 1250, BigFraction.from(0.6152, 1.0e-7, 100));

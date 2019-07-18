@@ -287,7 +287,12 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
     }
 
     /**
-     * Create a fraction given the double value and maximum error allowed.
+     * Approximates the given {@code double} value with a fraction such that
+     * no other fraction within the given interval will have a smaller or equal
+     * denominator, unless {@code |epsilon| > 0.5}, in which case the integer
+     * closest to the value to be approximated will be returned (if there are
+     * two equally distant integers within the specified interval, either of
+     * them will be returned).
      * <p>
      * References:
      * <ul>
@@ -297,17 +302,102 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      *
      * @param value Value to convert to a fraction.
      * @param epsilon Maximum error allowed. The resulting fraction is within
-     * {@code epsilon} of {@code value}, in absolute terms.
-     * @param maxIterations Maximum number of convergents.
-     * @throws ArithmeticException if the continued fraction failed to converge.
+     *                {@code epsilon} of {@code value}, in absolute terms.
+     * @param maxIterations Maximum number of convergents. If this parameter is
+     *                      negative, no limit will be imposed.
+     * @throws ArithmeticException if {@code maxIterations >= 0} and the
+     *         continued fraction failed to converge after this number of
+     *         iterations
+     * @throws IllegalArgumentException if {@code value} is NaN or infinite, or
+     *         if {@code epsilon} is NaN.
      * @return a new instance.
      *
      * @see #from(double,BigInteger)
      */
     public static BigFraction from(final double value,
-                                   final double epsilon,
+                                   double epsilon,
                                    final int maxIterations) {
-        return from(value, epsilon, Integer.MAX_VALUE, maxIterations);
+        BigFraction valueAsFraction = from(value);
+        /*
+         * For every rational number outside the interval [α - 0.5, α + 0.5],
+         * there will be a rational number with the same denominator that lies
+         * within that interval (because repeatedly adding or subtracting 1 from
+         * any number is bound to hit the interval eventually). Limiting epsilon
+         * to ±0.5 thus ensures that, if a number with an absolute value greater
+         * than 0.5 is passed as epsilon, the integer closest to α is returned,
+         * and it also eliminates the need to make a special case for epsilon
+         * being infinite.
+         */
+        epsilon = Math.min(Math.abs(epsilon), 0.5);
+        BigFraction epsilonAsFraction = from(epsilon);
+
+        BigFraction lowerBound = valueAsFraction.subtract(epsilonAsFraction);
+        BigFraction upperBound = valueAsFraction.add(epsilonAsFraction);
+
+        /*
+         * If [a_0; a_1, a_2, …] and [b_0; b_1, b_2, …] are the simple continued
+         * fraction expansions of the specified interval's boundaries, and n is
+         * an integer such that a_k = b_k for all k <= n, every real number
+         * within this interval will have a simple continued fraction expansion
+         * of the form
+         *
+         * [a_0; a_1, …, a_n, c_0, c_1, …]
+         *
+         * where [c_0; c_1, c_2 …] lies between [a_{n+1}; a_{n+2}, …] and
+         * [b_{n+1}; b_{n+2}, …]
+         *
+         * The objective is therefore to calculate a value for c_0 so that the
+         * denominator will grow by the smallest amount possible with the
+         * resulting number still being within the given interval.
+         */
+        Iterator<BigInteger[]> coefficientsOfLower = SimpleContinuedFraction.coefficientsOf(lowerBound);
+        Iterator<BigInteger[]> coefficientsOfUpper = SimpleContinuedFraction.coefficientsOf(upperBound);
+        BigInteger lastCoefficientOfLower;
+        BigInteger lastCoefficientOfUpper;
+
+        SimpleContinuedFraction approximation = new SimpleContinuedFraction();
+
+        boolean stop = false;
+        int iterationCount = 0;
+        do {
+            if (maxIterations >= 0 && iterationCount == maxIterations) {
+                throw new FractionException(FractionException.ERROR_CONVERSION, value, maxIterations);
+            }
+            if (coefficientsOfLower.hasNext()) {
+                lastCoefficientOfLower = coefficientsOfLower.next()[0];
+            } else {
+                lastCoefficientOfLower = null;
+            }
+            if (coefficientsOfUpper.hasNext()) {
+                lastCoefficientOfUpper = coefficientsOfUpper.next()[0];
+            } else {
+                lastCoefficientOfUpper = null;
+            }
+            if (lastCoefficientOfLower == null ||
+                    !lastCoefficientOfLower.equals(lastCoefficientOfUpper)) {
+                stop = true;
+            } else {
+                approximation.addCoefficient(lastCoefficientOfLower);
+            }
+            iterationCount++;
+        } while (!stop);
+
+        if (lastCoefficientOfLower != null && lastCoefficientOfUpper != null) {
+            BigInteger finalCoefficient;
+            if (lastCoefficientOfLower.compareTo(lastCoefficientOfUpper) < 0) {
+                finalCoefficient = lastCoefficientOfLower;
+                if (coefficientsOfLower.hasNext()) {
+                    finalCoefficient = finalCoefficient.add(BigInteger.ONE);
+                }
+            } else {
+                finalCoefficient = lastCoefficientOfUpper;
+                if (coefficientsOfUpper.hasNext()) {
+                    finalCoefficient = finalCoefficient.add(BigInteger.ONE);
+                }
+            }
+            approximation.addCoefficient(finalCoefficient);
+        }
+        return approximation.toBigFraction();
     }
 
     /**
