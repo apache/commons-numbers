@@ -281,16 +281,16 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
 
         if (lastCoefficientOfLower != null && lastCoefficientOfUpper != null) {
             BigInteger finalCoefficient;
+            Iterator<BigInteger[]> iteratorOfSmallerLastCoefficient;
             if (lastCoefficientOfLower.compareTo(lastCoefficientOfUpper) < 0) {
                 finalCoefficient = lastCoefficientOfLower;
-                if (coefficientsOfLower.hasNext()) {
-                    finalCoefficient = finalCoefficient.add(BigInteger.ONE);
-                }
+                iteratorOfSmallerLastCoefficient = coefficientsOfLower;
             } else {
                 finalCoefficient = lastCoefficientOfUpper;
-                if (coefficientsOfUpper.hasNext()) {
-                    finalCoefficient = finalCoefficient.add(BigInteger.ONE);
-                }
+                iteratorOfSmallerLastCoefficient = coefficientsOfUpper;
+            }
+            if (iteratorOfSmallerLastCoefficient.hasNext()) {
+                finalCoefficient = finalCoefficient.add(BigInteger.ONE);
             }
             approximation.addCoefficient(finalCoefficient);
         }
