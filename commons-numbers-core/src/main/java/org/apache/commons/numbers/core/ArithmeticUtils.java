@@ -26,8 +26,6 @@ import java.text.MessageFormat;
  */
 public final class ArithmeticUtils {
 
-    /** Overflow gcd exception message for 2^31. */
-    private static final String OVERFLOW_GCD_MESSAGE_2_POWER_31 = "overflow: gcd({0}, {1}) is 2^31";
     /** Overflow gcd exception message for 2^63. */
     private static final String OVERFLOW_GCD_MESSAGE_2_POWER_63 = "overflow: gcd({0}, {1}) is 2^63";
 
@@ -69,114 +67,48 @@ public final class ArithmeticUtils {
      * a non-negative {@code int} value.
      */
     public static int gcd(int p, int q) {
-        int a = p;
-        int b = q;
-        if (a == 0 ||
-            b == 0) {
-            if (a == Integer.MIN_VALUE ||
-                b == Integer.MIN_VALUE) {
-                throw new NumbersArithmeticException(OVERFLOW_GCD_MESSAGE_2_POWER_31,
-                                                  p, q);
-            }
-            return Math.abs(a + b);
-        }
+        // Perform the gcd algorithm on negative numbers, so that -2^31 does not
+        // need to be handled separately
+        int a = p > 0 ? -p : p;
+        int b = q > 0 ? -q : q;
 
-        long al = a;
-        long bl = b;
-        boolean useLong = false;
-        if (a < 0) {
-            if(Integer.MIN_VALUE == a) {
-                useLong = true;
-            } else {
-                a = -a;
-            }
-            al = -al;
-        }
-        if (b < 0) {
-            if (Integer.MIN_VALUE == b) {
-                useLong = true;
-            } else {
-                b = -b;
-            }
-            bl = -bl;
-        }
-        if (useLong) {
-            if(al == bl) {
-                throw new NumbersArithmeticException(OVERFLOW_GCD_MESSAGE_2_POWER_31,
-                                                  p, q);
-            }
-            long blbu = bl;
-            bl = al;
-            al = blbu % al;
-            if (al == 0) {
-                if (bl > Integer.MAX_VALUE) {
-                    throw new NumbersArithmeticException(OVERFLOW_GCD_MESSAGE_2_POWER_31,
-                                                      p, q);
-                }
-                return (int) bl;
-            }
-            blbu = bl;
-
-            // Now "al" and "bl" fit in an "int".
-            b = (int) al;
-            a = (int) (blbu % al);
-        }
-
-        return gcdPositive(a, b);
-    }
-
-    /**
-     * Computes the greatest common divisor of two <em>positive</em> numbers
-     * (this precondition is <em>not</em> checked and the result is undefined
-     * if not fulfilled) using the "binary gcd" method which avoids division
-     * and modulo operations.
-     * See Knuth 4.5.2 algorithm B.
-     * The algorithm is due to Josef Stein (1961).
-     * <br/>
-     * Special cases:
-     * <ul>
-     *  <li>The result of {@code gcd(x, x)}, {@code gcd(0, x)} and
-     *   {@code gcd(x, 0)} is the value of {@code x}.</li>
-     *  <li>The invocation {@code gcd(0, 0)} is the only one which returns
-     *   {@code 0}.</li>
-     * </ul>
-     *
-     * @param a Positive number.
-     * @param b Positive number.
-     * @return the greatest common divisor.
-     */
-    private static int gcdPositive(int a, int b) {
+        int negatedGcd;
         if (a == 0) {
-            return b;
+            negatedGcd = b;
+        } else if (b == 0) {
+            negatedGcd = a;
+        } else {
+            // Make "a" and "b" odd, keeping track of common power of 2.
+            final int aTwos = Integer.numberOfTrailingZeros(a);
+            final int bTwos = Integer.numberOfTrailingZeros(b);
+            a >>= aTwos;
+            b >>= bTwos;
+            final int shift = Math.min(aTwos, bTwos);
+
+            // "a" and "b" are negative and odd.
+            // If a < b then "gdc(a, b)" is equal to "gcd(a - b, b)".
+            // If a > b then "gcd(a, b)" is equal to "gcd(b - a, a)".
+            // Hence, in the successive iterations:
+            //  "a" becomes the negative absolute difference of the current values,
+            //  "b" becomes that value of the two that is closer to zero.
+            while (a != b) {
+                final int delta = a - b;
+                b = Math.max(a, b);
+                a = delta > 0 ? -delta : delta;
+
+                // Remove any power of 2 in "a" ("b" is guaranteed to be odd).
+                a >>= Integer.numberOfTrailingZeros(a);
+            }
+
+            // Recover the common power of 2.
+            negatedGcd = a << shift;
         }
-        else if (b == 0) {
-            return a;
+        if (negatedGcd == Integer.MIN_VALUE) {
+            throw new NumbersArithmeticException("overflow: gcd({0}, {1}) is 2^31",
+                                              p, q);
+        } else {
+            return -negatedGcd;
         }
-
-        // Make "a" and "b" odd, keeping track of common power of 2.
-        final int aTwos = Integer.numberOfTrailingZeros(a);
-        a >>= aTwos;
-        final int bTwos = Integer.numberOfTrailingZeros(b);
-        b >>= bTwos;
-        final int shift = Math.min(aTwos, bTwos);
-
-        // "a" and "b" are positive.
-        // If a > b then "gdc(a, b)" is equal to "gcd(a - b, b)".
-        // If a < b then "gcd(a, b)" is equal to "gcd(b - a, a)".
-        // Hence, in the successive iterations:
-        //  "a" becomes the absolute difference of the current values,
-        //  "b" becomes the minimum of the current values.
-        while (a != b) {
-            final int delta = a - b;
-            b = Math.min(a, b);
-            a = Math.abs(delta);
-
-            // Remove any power of 2 in "a" ("b" is guaranteed to be odd).
-            a >>= Integer.numberOfTrailingZeros(a);
-        }
-
-        // Recover the common power of 2.
-        return a << shift;
     }
 
     /**
