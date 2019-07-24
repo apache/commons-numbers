@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.PrimitiveIterator;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -139,6 +140,48 @@ public class SmallPrimesTest {
             if (n %2 == 1) {
                 Assertions.assertFalse(SmallPrimes.millerRabinPrimeTest(n));
             }
+        }
+    }
+
+    @Test
+    public void testPotentialPrimes() {
+        testPotentialPrimes(-23456, 1500);
+        testPotentialPrimes(34567, 1500);
+        testPotentialPrimes(Integer.MAX_VALUE - 97, 1500);
+    }
+
+    private void testPotentialPrimes(int lowerBound, int maxIterations) {
+        PrimitiveIterator.OfInt potentialPrimesIterator = SmallPrimes.potentialPrimes(lowerBound);
+
+        int iterationCount = 0;
+        boolean overflow = false;
+        int previous = Math.max(0, lowerBound) - 1;
+        while (iterationCount != maxIterations && !overflow) {
+            Assertions.assertTrue(potentialPrimesIterator.hasNext());
+            int next = potentialPrimesIterator.nextInt();
+            if (next < 0) {
+                overflow = true;
+            }
+
+            for (int i = previous + 1;
+                 i >= 0 && i <= (overflow ? Integer.MAX_VALUE : next - 1);
+                 i++) {
+                boolean hasPrimeFactor = false;
+                for (Integer prime : SmallPrimes.PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getKey()) {
+                    if (i % prime == 0) {
+                        hasPrimeFactor = true;
+                        break;
+                    }
+                }
+                Assertions.assertTrue(hasPrimeFactor);
+            }
+            if (!overflow) {
+                for (Integer prime : SmallPrimes.PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getKey()) {
+                    Assertions.assertNotEquals(0, next % prime);
+                }
+            }
+            previous = next;
+            iterationCount++;
         }
     }
 }
