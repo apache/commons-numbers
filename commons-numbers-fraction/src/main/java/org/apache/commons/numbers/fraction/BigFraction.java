@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.Iterator;
 import org.apache.commons.numbers.core.ArithmeticUtils;
 
 /**
@@ -86,108 +87,6 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
             numerator   = num;
             denominator = den;
         }
-    }
-
-    /**
-     * Create a fraction given the double value and either the maximum
-     * error allowed or the maximum number of denominator digits.
-     *
-     * <p>
-     * NOTE: This method is called with
-     *  - EITHER a valid epsilon value and the maxDenominator set to
-     *    Integer.MAX_VALUE (that way the maxDenominator has no effect)
-     *  - OR a valid maxDenominator value and the epsilon value set to
-     *    zero (that way epsilon only has effect if there is an exact
-     *    match before the maxDenominator value is reached).
-     * </p>
-     * <p>
-     * It has been done this way so that the same code can be reused for
-     * both scenarios.  However this could be confusing to users if it
-     * were part of the public API and this method should therefore remain
-     * PRIVATE.
-     * </p>
-     *
-     * See JIRA issue ticket MATH-181 for more details:
-     *   https://issues.apache.org/jira/browse/MATH-181
-     *
-     * @param value Value to convert to a fraction.
-     * @param epsilon Maximum error allowed.
-     * The resulting fraction is within {@code epsilon} of {@code value},
-     * in absolute terms.
-     * @param maxDenominator Maximum denominator value allowed.
-     * @param maxIterations Maximum number of convergents.
-     * @throws ArithmeticException if the continued fraction failed to converge.
-     */
-    private static BigFraction from(final double value,
-                                    final double epsilon,
-                                    final int maxDenominator,
-                                    final int maxIterations) {
-        long overflow = Integer.MAX_VALUE;
-        double r0 = value;
-        long a0 = (long) Math.floor(r0);
-
-        if (Math.abs(a0) > overflow) {
-            throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, a0, 1l);
-        }
-
-        // check for (almost) integer arguments, which should not go
-        // to iterations.
-        if (Math.abs(a0 - value) < epsilon) {
-            return new BigFraction(BigInteger.valueOf(a0),
-                                   BigInteger.ONE);
-        }
-
-        long p0 = 1;
-        long q0 = 0;
-        long p1 = a0;
-        long q1 = 1;
-
-        long p2 = 0;
-        long q2 = 1;
-
-        int n = 0;
-        boolean stop = false;
-        do {
-            ++n;
-            final double r1 = 1d / (r0 - a0);
-            final long a1 = (long) Math.floor(r1);
-            p2 = (a1 * p1) + p0;
-            q2 = (a1 * q1) + q0;
-            if (p2 > overflow ||
-                q2 > overflow) {
-                // in maxDenominator mode, if the last fraction was very close to the actual value
-                // q2 may overflow in the next iteration; in this case return the last one.
-                if (epsilon == 0 &&
-                    Math.abs(q1) < maxDenominator) {
-                    break;
-                }
-                throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, p2, q2);
-            }
-
-            final double convergent = (double) p2 / (double) q2;
-            if (n < maxIterations &&
-                Math.abs(convergent - value) > epsilon &&
-                q2 < maxDenominator) {
-                p0 = p1;
-                p1 = p2;
-                q0 = q1;
-                q1 = q2;
-                a0 = a1;
-                r0 = r1;
-            } else {
-                stop = true;
-            }
-        } while (!stop);
-
-        if (n >= maxIterations) {
-            throw new FractionException(FractionException.ERROR_CONVERSION, value, maxIterations);
-        }
-
-        return q2 < maxDenominator ?
-            new BigFraction(BigInteger.valueOf(p2),
-                            BigInteger.valueOf(q2)) :
-            new BigFraction(BigInteger.valueOf(p1),
-                            BigInteger.valueOf(q1));
     }
 
     /**
@@ -288,6 +187,14 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
     /**
      * Create a fraction given the double value and maximum error allowed.
      * <p>
+     * This factory method approximates the given {@code double} value with a
+     * fraction such that no other fraction within the given interval will have
+     * a smaller or equal denominator, unless {@code |epsilon| > 0.5}, in which
+     * case the integer closest to the value to be approximated will be returned
+     * (if there are two equally distant integers within the specified interval,
+     * either of them will be returned).
+     * </p>
+     * <p>
      * References:
      * <ul>
      * <li><a href="http://mathworld.wolfram.com/ContinuedFraction.html">
@@ -296,21 +203,114 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      *
      * @param value Value to convert to a fraction.
      * @param epsilon Maximum error allowed. The resulting fraction is within
-     * {@code epsilon} of {@code value}, in absolute terms.
-     * @param maxIterations Maximum number of convergents.
-     * @throws ArithmeticException if the continued fraction failed to converge.
+     *                {@code |epsilon|} of {@code value}, in absolute terms.
+     * @param maxIterations Maximum number of convergents. If this parameter is
+     *                      negative, no limit will be imposed.
+     * @throws ArithmeticException if {@code maxIterations >= 0} and the
+     *         continued fraction failed to converge after this number of
+     *         iterations
+     * @throws IllegalArgumentException if {@code value} is NaN or infinite, or
+     *         if {@code epsilon} is NaN.
      * @return a new instance.
      *
-     * @see #from(double,int)
+     * @see #from(double,BigInteger)
      */
     public static BigFraction from(final double value,
-                                   final double epsilon,
+                                   double epsilon,
                                    final int maxIterations) {
-        return from(value, epsilon, Integer.MAX_VALUE, maxIterations);
+        BigFraction valueAsFraction = from(value);
+        /*
+         * For every rational number outside the interval [α - 0.5, α + 0.5],
+         * there will be a rational number with the same denominator that lies
+         * within that interval (because repeatedly adding or subtracting 1 from
+         * any number is bound to hit the interval eventually). Limiting epsilon
+         * to ±0.5 thus ensures that, if a number with an absolute value greater
+         * than 0.5 is passed as epsilon, the integer closest to α is returned,
+         * and it also eliminates the need to make a special case for epsilon
+         * being infinite.
+         */
+        epsilon = Math.min(Math.abs(epsilon), 0.5);
+        BigFraction epsilonAsFraction = from(epsilon);
+
+        BigFraction lowerBound = valueAsFraction.subtract(epsilonAsFraction);
+        BigFraction upperBound = valueAsFraction.add(epsilonAsFraction);
+
+        /*
+         * If [a_0; a_1, a_2, …] and [b_0; b_1, b_2, …] are the simple continued
+         * fraction expansions of the specified interval's boundaries, and n is
+         * an integer such that a_k = b_k for all k <= n, every real number
+         * within this interval will have a simple continued fraction expansion
+         * of the form
+         *
+         * [a_0; a_1, …, a_n, c_0, c_1, …]
+         *
+         * where [c_0; c_1, c_2 …] lies between [a_{n+1}; a_{n+2}, …] and
+         * [b_{n+1}; b_{n+2}, …]
+         *
+         * The objective is therefore to calculate a value for c_0 so that the
+         * denominator will grow by the smallest amount possible with the
+         * resulting number still being within the given interval.
+         */
+        Iterator<BigInteger[]> coefficientsOfLower = SimpleContinuedFraction.coefficientsOf(lowerBound);
+        Iterator<BigInteger[]> coefficientsOfUpper = SimpleContinuedFraction.coefficientsOf(upperBound);
+        BigInteger lastCoefficientOfLower;
+        BigInteger lastCoefficientOfUpper;
+
+        SimpleContinuedFraction approximation = new SimpleContinuedFraction();
+
+        boolean stop = false;
+        int iterationCount = 0;
+        do {
+            if (maxIterations >= 0 && iterationCount == maxIterations) {
+                throw new FractionException(FractionException.ERROR_CONVERSION, value, maxIterations);
+            }
+            lastCoefficientOfLower = coefficientsOfLower.hasNext() ?
+                                     coefficientsOfLower.next()[0] :
+                                     null;
+            lastCoefficientOfUpper = coefficientsOfUpper.hasNext() ?
+                                     coefficientsOfUpper.next()[0] :
+                                     null;
+            if (lastCoefficientOfLower == null ||
+                    !lastCoefficientOfLower.equals(lastCoefficientOfUpper)) {
+                stop = true;
+            } else {
+                approximation.addCoefficient(lastCoefficientOfLower);
+            }
+            iterationCount++;
+        } while (!stop);
+
+        if (lastCoefficientOfLower != null && lastCoefficientOfUpper != null) {
+            BigInteger finalCoefficient;
+            Iterator<BigInteger[]> iteratorOfSmallerLastCoefficient;
+            if (lastCoefficientOfLower.compareTo(lastCoefficientOfUpper) < 0) {
+                finalCoefficient = lastCoefficientOfLower;
+                iteratorOfSmallerLastCoefficient = coefficientsOfLower;
+            } else {
+                finalCoefficient = lastCoefficientOfUpper;
+                iteratorOfSmallerLastCoefficient = coefficientsOfUpper;
+            }
+            if (iteratorOfSmallerLastCoefficient.hasNext()) {
+                finalCoefficient = finalCoefficient.add(BigInteger.ONE);
+            }
+            approximation.addCoefficient(finalCoefficient);
+        }
+        return approximation.toBigFraction();
     }
 
     /**
      * Create a fraction given the double value and maximum denominator.
+     * <p>
+     * This factory method approximates the given {@code double} value with a
+     * fraction such that no other fraction with a denominator smaller than or
+     * equal to the passed upper bound for the denominator will be closer to the
+     * {@code double} value. Furthermore, no other fraction with a denominator
+     * smaller than or equal to that of the returned fraction will be equally
+     * close to the {@code double} value unless the denominator limit is set to
+     * {@code 1} and the value to be approximated is an odd multiple of
+     * {@code 0.5}, in which case there will necessarily be two equally distant
+     * integers surrounding the {@code double} value, one of which will then be
+     * returned by this method.
+     * </p>
      * <p>
      * References:
      * <ul>
@@ -320,14 +320,103 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      *
      * @param value Value to convert to a fraction.
      * @param maxDenominator Maximum allowed value for denominator.
-     * @throws ArithmeticException if the continued fraction failed to converge.
+     * @throws IllegalArgumentException if the given {@code value} is NaN or
+     *         infinite, or if {@code maxDenominator < 1}
+     * @throws NullPointerException if {@code maxDenominator} is {@code null}
      * @return a new instance.
      *
      * @see #from(double,double,int)
      */
     public static BigFraction from(final double value,
-                                   final int maxDenominator) {
-        return from(value, 0, maxDenominator, 100);
+                                   final BigInteger maxDenominator) {
+        if (maxDenominator.signum() != 1) {
+            throw new IllegalArgumentException("Upper bound for denominator must be positive: " + maxDenominator);
+        }
+
+        /*
+         * Required facts:
+         *
+         * 1. Every best rational approximation p/q of α (with q > 0), in the
+         * sense that |α - p/q| < |α - a/b| for all a/b ≠ p/q and 0 < b <= q, is
+         * a convergent or a semiconvergent of α's simple continued fraction
+         * expansion (Continued Fractions by A. Khinchin, theorem 15, p. 22)
+         *
+         * 2. Every convergent p/q from the second convergent onwards is a best
+         * rational approximation (even in the stronger sense that
+         * |qα - p| < |bα - a|), provided that the last coefficient is greater
+         * than 1 (theorem 17, p. 26, which ignores the fact that, if a_1 = 1,
+         * both the first and the second convergent will have a denominator of
+         * 1 and, should the variable k chosen to be 0, s = k + 1 will therefore
+         * also be conceivable as the order of the convergent equivalent to the
+         * expression x_0 / y_0 in addition to s <= k).
+         *
+         * 3. It follows that the first convergent is only a best rational
+         * approximation if a_1 >= 2, i.e. if the second convergent does not
+         * also have a denominator of 1, and if α ≠ [a_0; 2] (the exceptional
+         * case mentioned in theorem 17, where the first convergent a_0 will tie
+         * with the semiconvergent a_0 + 1 as a best rational approximation of α).
+         *
+         * 4. A semiconvergent [a_0; a_1, …, a_{n-1}, x], with n >= 1 and
+         * 0 < x <= a_n, is consequently only a best rational approximation if it
+         * is closer to α than the (n-1)th-order convergent [a_0; a_1, …, a_{n-1}],
+         * since the latter is definitely a best rational approximation (unless
+         * n = 1 and a_1 = 1, but then, the only possible integer value for x is
+         * a_1 = 1, which will yield the second convergent, which is always a
+         * best approximation). This is the case if and only if
+         *
+         * [a_n; a_{n+1}, a_{n+2}, …] - 2x < q_{n-2} / q_{n-1}
+         *
+         * where q_k is the denominator of the k-th-order convergent
+         * (https://math.stackexchange.com/questions/856861/semi-convergent-of-continued-fractions)
+         */
+        BigFraction valueAsFraction = from(value);
+
+        SimpleContinuedFraction approximation = new SimpleContinuedFraction();
+        BigInteger[] currentConvergent;
+        BigInteger[] convergentBeforePrevious;
+
+        Iterator<BigInteger[]> coefficientsIterator = SimpleContinuedFraction.coefficientsOf(valueAsFraction);
+        BigInteger[] lastIterationResult;
+
+        do {
+            convergentBeforePrevious = approximation.getPreviousConvergent();
+            lastIterationResult = coefficientsIterator.next();
+            approximation.addCoefficient(lastIterationResult[0]);
+            currentConvergent = approximation.getCurrentConvergent();
+        } while (coefficientsIterator.hasNext() && currentConvergent[1].compareTo(maxDenominator) <= 0);
+
+        if (currentConvergent[1].compareTo(maxDenominator) <= 0) {
+            return valueAsFraction;
+        } else {
+            // Calculate the largest possible value for the last coefficient so
+            // that the denominator will be within the given bounds
+            BigInteger[] previousConvergent = approximation.getPreviousConvergent();
+            BigInteger lastCoefficientMax = maxDenominator.subtract(convergentBeforePrevious[1]).divide(previousConvergent[1]);
+
+            /*
+             * Determine if the semiconvergent generated with this coefficient
+             * is a closer approximation than the previous convergent with the
+             * formula described in point 4. n >= 1 is guaranteed because the
+             * first convergent's denominator is 1 and thus cannot exceed the
+             * limit, and if x = 0 is inserted into the inequation, it will
+             * always be false because a_n >= 1 and k_{n-2} / k_{n-1} <= 1, so
+             * no need to make a special case for lastCoefficientMax = 0.
+             */
+            boolean semiConvergentIsCloser = lastIterationResult[1]
+                    .subtract(BigInteger.valueOf(2)
+                            .multiply(lastCoefficientMax)
+                            .multiply(lastIterationResult[2]))
+                    .multiply(previousConvergent[1])
+                    .compareTo(convergentBeforePrevious[1]
+                            .multiply(lastIterationResult[2])) < 0;
+
+            if (semiConvergentIsCloser) {
+                return of(previousConvergent[0].multiply(lastCoefficientMax).add(convergentBeforePrevious[0]),
+                          previousConvergent[1].multiply(lastCoefficientMax).add(convergentBeforePrevious[1]));
+            } else {
+                return of(previousConvergent[0], previousConvergent[1]);
+            }
+        }
     }
 
     /**
