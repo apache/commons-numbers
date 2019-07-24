@@ -17,7 +17,10 @@
 package org.apache.commons.numbers.primes;
 
 import java.text.MessageFormat;
+
+import java.util.Arrays;
 import java.util.List;
+import java.util.PrimitiveIterator;
 
 
 /**
@@ -70,37 +73,21 @@ public class Primes {
     public static int nextPrime(int n) {
         if (n < 0) {
             throw new IllegalArgumentException(MessageFormat.format(NUMBER_TOO_SMALL, n, 0));
-        }
-        if (n == 2) {
-            return 2;
-        }
-        n |= 1; // make sure n is odd
-        if (n == 1) {
-            return 2;
-        }
-
-        if (isPrime(n)) {
-            return n;
-        }
-
-        // prepare entry in the +2, +4 loop:
-        // n should not be a multiple of 3
-        final int rem = n % 3;
-        if (0 == rem) { // if n % 3 == 0
-            n += 2; // n % 3 == 2
-        } else if (1 == rem) { // if n % 3 == 1
-            // if (isPrime(n)) return n;
-            n += 4; // n % 3 == 2
-        }
-        while (true) { // this loop skips all multiple of 3
-            if (isPrime(n)) {
-                return n;
+        } else if (n <= SmallPrimes.PRIMES_LAST) {
+            int index = Arrays.binarySearch(SmallPrimes.PRIMES, n);
+            if (index < 0) {
+                index = - (index + 1);
             }
-            n += 2; // n % 3 == 1
-            if (isPrime(n)) {
-                return n;
+            return SmallPrimes.PRIMES[index];
+        } else {
+            PrimitiveIterator.OfInt potentialPrimesIterator = SmallPrimes.potentialPrimes(n);
+            while (true) {
+                // Integer.MAX_VALUE is a prime number, so no risk of overflow
+                int candidate = potentialPrimesIterator.next();
+                if (isPrime(candidate)) {
+                    return candidate;
+                }
             }
-            n += 4; // n % 3 == 2
         }
     }
 

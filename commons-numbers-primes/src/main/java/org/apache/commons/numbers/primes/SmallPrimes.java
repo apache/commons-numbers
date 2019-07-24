@@ -175,43 +175,18 @@ class SmallPrimes {
     static int boundedTrialDivision(int n,
                                     int maxFactor,
                                     List<Integer> factors) {
-        int minFactor = PRIMES_LAST + 2;
-
-        /*
-        only trying integers of the form k*m + c, where k >= 0, m is the
-        product of some prime numbers which n is required not to contain
-        as prime factors, and c is an integer undivisible by all of those
-        prime numbers; in other words, skipping multiples of these primes
-         */
-        int m = PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue()[PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue().length - 1] + 1;
-        int km = m * (minFactor / m);
-        int currentEquivalenceClassIndex = Arrays.binarySearch(
-                PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue(),
-                minFactor % m);
-
-        /*
-        Since minFactor is the next smallest prime number after the
-        first 512 primes, it cannot be a multiple of one of them, therefore,
-        the index returned by the above binary search must be non-negative.
-         */
+        PrimitiveIterator.OfInt potentialPrimesIterator = potentialPrimes(PRIMES_LAST + 2);
 
         boolean done = false;
         while (!done) {
             // no check is done about n >= f
-            int f = km + PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue()[currentEquivalenceClassIndex];
+            int f = potentialPrimesIterator.next();
             if (f > maxFactor) {
                 done = true;
             } else if (0 == n % f) {
                 n /= f;
                 factors.add(f);
                 done = true;
-            } else {
-                if (currentEquivalenceClassIndex == PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue().length - 1) {
-                    km += m;
-                    currentEquivalenceClassIndex = 0;
-                } else {
-                    currentEquivalenceClassIndex++;
-                }
             }
         }
         if (n != 1) {
