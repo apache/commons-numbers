@@ -89,7 +89,7 @@ class SmallPrimes {
      * {@code product - 1}, because if {@code product ≡ 0 mod p}, then
      * {@code product - 1 ≡ -1 mod p}, and {@code 0 ≢ -1 mod p} for any prime number p.</p>
      *
-     * @see #potentialPrimes(int)
+     * @see #potentialPrimesGTE(int)
      */
     static final Entry<Set<Integer>, int[]> PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES;
 
@@ -175,7 +175,7 @@ class SmallPrimes {
     static int boundedTrialDivision(int n,
                                     int maxFactor,
                                     List<Integer> factors) {
-        PrimitiveIterator.OfInt potentialPrimesIterator = potentialPrimes(PRIMES_LAST + 2);
+        PrimitiveIterator.OfInt potentialPrimesIterator = potentialPrimesGTE(PRIMES_LAST + 2);
 
         boolean done = false;
         while (!done) {
@@ -266,7 +266,7 @@ class SmallPrimes {
 
     /**
      * Returns an iterator that iterates, in ascending oder, over all positive
-     * integers greater than or equal to the passed lower bound, skipping
+     * integers greater than or equal to ("GTE") the passed lower bound, skipping
      * numbers that are a multiple of any of the prime numbers contained in the
      * key of {@link #PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES}.
      *
@@ -282,7 +282,7 @@ class SmallPrimes {
      * @param lowerBound the lower bound for the iteration results
      * @return an iterator as described above
      */
-    static PrimitiveIterator.OfInt potentialPrimes(final int lowerBound) {
+    static PrimitiveIterator.OfInt potentialPrimesGTE(final int lowerBound) {
         /*
          * The numbers that should be iterated over are of the form k*m + c,
          * where k >= 0, m is the least common multiple, that is, the product of

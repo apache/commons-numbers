@@ -151,7 +151,7 @@ public class SmallPrimesTest {
     }
 
     private void testPotentialPrimes(int lowerBound, int maxIterations) {
-        PrimitiveIterator.OfInt potentialPrimesIterator = SmallPrimes.potentialPrimes(lowerBound);
+        PrimitiveIterator.OfInt potentialPrimesIterator = SmallPrimes.potentialPrimesGTE(lowerBound);
 
         int iterationCount = 0;
         boolean overflow = false;

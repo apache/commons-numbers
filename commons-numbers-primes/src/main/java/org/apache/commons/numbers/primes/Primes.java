@@ -80,7 +80,7 @@ public class Primes {
             }
             return SmallPrimes.PRIMES[index];
         } else {
-            PrimitiveIterator.OfInt potentialPrimesIterator = SmallPrimes.potentialPrimes(n);
+            PrimitiveIterator.OfInt potentialPrimesIterator = SmallPrimes.potentialPrimesGTE(n);
             while (true) {
                 // Integer.MAX_VALUE is a prime number, so no risk of overflow
                 int candidate = potentialPrimesIterator.next();
