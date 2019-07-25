@@ -265,14 +265,11 @@ class SmallPrimes {
     }
 
     /**
-     * Returns an iterator that iterates, in ascending oder, over all integers
-     * of the form {@code k*m + c} greater than or equal to the passed lower
-     * bound, where {@code m} is the least common multiple, that is, the product
-     * of the prime numbers contained in the key of {@link
-     * #PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES}, {@code k >= 0}, and
-     * {@code c} is a positive integer indivisible by any of those prime
-     * numbers. In other words, the returned iterator skips all multiples of
-     * those prime numbers.
+     * Returns an iterator that iterates, in ascending oder, over all positive
+     * integers greater than or equal to the passed lower bound, skipping
+     * numbers that are a multiple of any of the prime numbers contained in the
+     * key of {@link #PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES}.
+     *
      * <p>
      * NOTE: The iterator returned by this method will be completely oblivious
      * to the inherent limitation of the {@code int} range and will simply
@@ -286,45 +283,43 @@ class SmallPrimes {
      * @return an iterator as described above
      */
     static PrimitiveIterator.OfInt potentialPrimes(final int lowerBound) {
+        /*
+         * The numbers that should be iterated over are of the form k*m + c,
+         * where k >= 0, m is the least common multiple, that is, the product of
+         * the prime numbers whose multiples should be skipped, and c is a
+         * positive integer between 0 and m that is indivisible by any of these
+         * prime numbers.
+         */
         return new PrimitiveIterator.OfInt() {
             private final int m;
-            /**
-             * The product {@code k*m} for the value currently used as {@code k}.
-             */
-            private int km;
-            /**
-             * The array index for the value of {@link
-             * SmallPrimes#PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES}
-             * pointing at the number to be used as {@code c} in the next
-             * iteration.
-             */
-            private int currentEquivalenceClassIndex;
+            private int kTimesM;
+            private int indexForNextC;
 
             {
                 m = PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue()[PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue().length - 1] + 1;
 
-                int initialValue = Math.max(lowerBound, 0);
+                int initialValue = Math.max(lowerBound, 1);
                 int remainder = initialValue % m;
-                km = initialValue - remainder;
+                kTimesM = initialValue - remainder;
 
-                currentEquivalenceClassIndex = Arrays.binarySearch(
+                indexForNextC = Arrays.binarySearch(
                         PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue(),
                         remainder
                 );
-                if (currentEquivalenceClassIndex < 0) {
+                if (indexForNextC < 0) {
                     // the last element in the array is m-1, so the remainder
                     // cannot be greater than the last element in the array
-                    currentEquivalenceClassIndex = - (currentEquivalenceClassIndex + 1);
+                    indexForNextC = - (indexForNextC + 1);
                 }
             }
 
             @Override
             public int nextInt() {
-                int next = km + PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue()[currentEquivalenceClassIndex];
-                currentEquivalenceClassIndex++;
-                if (currentEquivalenceClassIndex == PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue().length) {
-                    currentEquivalenceClassIndex = 0;
-                    km += m;
+                int next = kTimesM + PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue()[indexForNextC];
+                indexForNextC++;
+                if (indexForNextC == PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue().length) {
+                    indexForNextC = 0;
+                    kTimesM += m;
                 }
                 return next;
             }

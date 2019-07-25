@@ -155,7 +155,7 @@ public class SmallPrimesTest {
 
         int iterationCount = 0;
         boolean overflow = false;
-        int previous = Math.max(0, lowerBound) - 1;
+        int previous = Math.max(1, lowerBound) - 1;
         while (iterationCount != maxIterations && !overflow) {
             Assertions.assertTrue(potentialPrimesIterator.hasNext());
             int next = potentialPrimesIterator.nextInt();
