@@ -116,6 +116,7 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      * in absolute terms.
      * @param maxDenominator Maximum denominator value allowed.
      * @param maxIterations Maximum number of convergents.
+     * @return a new instance.
      * @throws ArithmeticException if the continued fraction failed to converge.
      */
     private static BigFraction from(final double value,
@@ -683,15 +684,18 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
      *         criteria described above
      */
     private long toFloatingPointBits(int exponentLength, int significandLength) {
-        if (exponentLength < 1 ||significandLength < 1 || exponentLength > Math.min(32, 63 - significandLength)) {
-            throw new IllegalArgumentException("exponent length: " + exponentLength + "; significand length: " + significandLength);
+        if (exponentLength < 1 ||
+            significandLength < 1 ||
+            exponentLength > Math.min(32, 63 - significandLength)) {
+            throw new IllegalArgumentException("exponent length: " + exponentLength +
+                                               "; significand length: " + significandLength);
         }
         if (numerator.signum() == 0) {
             return 0L;
         }
 
-        long sign = numerator.signum() == -1 ? 1L : 0L;
-        BigInteger positiveNumerator = numerator.abs();
+        final long sign = numerator.signum() == -1 ? 1L : 0L;
+        final BigInteger positiveNumerator = numerator.abs();
 
         /*
          * The most significant 1-bit of a non-zero number is not explicitly
@@ -706,8 +710,8 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
          * are not relevant for the significand of the prospective binary
          * floating-point value.
          */
-        int denRightShift = denominator.getLowestSetBit();
-        BigInteger divisor = denominator.shiftRight(denRightShift);
+        final int denRightShift = denominator.getLowestSetBit();
+        final BigInteger divisor = denominator.shiftRight(denRightShift);
 
         /*
          * Now, we're going to calculate the (significandLength + 2) most
@@ -730,12 +734,13 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
          * denominator).
          */
         int numRightShift = positiveNumerator.bitLength() - divisor.bitLength() - (significandLength + 2);
-        if (numRightShift > 0 && divisor.equals(BigInteger.ONE)) {
+        if (numRightShift > 0 &&
+            divisor.equals(BigInteger.ONE)) {
             numRightShift = Math.min(numRightShift, positiveNumerator.getLowestSetBit());
         }
-        BigInteger dividend = positiveNumerator.shiftRight(numRightShift);
+        final BigInteger dividend = positiveNumerator.shiftRight(numRightShift);
 
-        BigInteger quotient = dividend.divide(divisor);
+        final BigInteger quotient = dividend.divide(divisor);
 
         int quotRightShift = quotient.bitLength() - (significandLength + 1);
         long significand = roundAndRightShift(
@@ -765,9 +770,9 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
          * fractional part. To convert the unbiased exponent to a biased
          * exponent, we also need to add the exponent bias.
          */
-        int exponentBias = (1 << (exponentLength - 1)) - 1;
+        final int exponentBias = (1 << (exponentLength - 1)) - 1;
         long exponent = numRightShift - denRightShift + quotRightShift + significandLength + exponentBias;
-        long maxExponent = (1L << exponentLength) - 1L; //special exponent for infinities and NaN
+        final long maxExponent = (1L << exponentLength) - 1L; //special exponent for infinities and NaN
 
         if (exponent >= maxExponent) { //infinity
             exponent = maxExponent;
@@ -796,11 +801,9 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
              * normalized floating-point number, and (- significandLength)
              * because the significand will be treated as the fractional part).
              */
-            significand = roundAndRightShift(
-                    quotient,
-                    (1 - exponentBias - significandLength) - (numRightShift - denRightShift),
-                    !divisor.equals(BigInteger.ONE)
-            ).longValue();
+            significand = roundAndRightShift(quotient,
+                                             (1 - exponentBias - significandLength) - (numRightShift - denRightShift),
+                                             !divisor.equals(BigInteger.ONE)).longValue();
             exponent = 0L;
 
             /*
@@ -813,7 +816,10 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
              * leading 1-bit.
              */
         }
-        return (sign << (significandLength + exponentLength)) | (exponent << significandLength) | significand;
+
+        return (sign << (significandLength + exponentLength)) |
+            (exponent << significandLength) |
+            significand;
     }
 
     /**
@@ -849,13 +855,15 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
         if (bits <= 0) {
             throw new IllegalArgumentException("bits: " + bits);
         }
+
         BigInteger result = value.shiftRight(bits);
         if (value.testBit(bits - 1) &&
-                (hasFractionalBits ||
-                (value.getLowestSetBit() < bits - 1) ||
-                value.testBit(bits))) {
+            (hasFractionalBits ||
+             (value.getLowestSetBit() < bits - 1) ||
+             value.testBit(bits))) {
             result = result.add(BigInteger.ONE); //round up
         }
+
         return result;
     }
 
