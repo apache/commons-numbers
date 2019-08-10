@@ -84,10 +84,11 @@ class SmallPrimes {
      * value of this {@code Entry} modulo the least common multiple of the prime
      * numbers in the set.</p>
      *
-     * <p>Note that, if {@code product} is the product of the prime numbers,
+     * <p>Note that, if \(\mathit{product}\) is the product of the prime numbers,
      * the last number in the array of coprime integers is necessarily
-     * {@code product - 1}, because if {@code product ≡ 0 mod p}, then
-     * {@code product - 1 ≡ -1 mod p}, and {@code 0 ≢ -1 mod p} for any prime number p.</p>
+     * \(\mathit{product} - 1\), because if \(\mathit{product} \equiv 0 \pmod{p}\),
+     * then \(\mathit{product} - 1 \equiv -1 \pmod{p}\), and
+     * \(0 \not\equiv -1 \pmod{p}\) for any prime number \(p\).</p>
      *
      * @see #potentialPrimesGTE(int)
      */
