@@ -48,8 +48,6 @@ import org.apache.commons.numbers.core.Precision;
 public final class Complex implements Serializable  {
     /** The square root of -1, a.k.a. "i". */
     public static final Complex I = new Complex(0, 1);
-    /** A complex number representing "+INF + INF i" */
-    public static final Complex INF = new Complex(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
     /** A complex number representing one. */
     public static final Complex ONE = new Complex(1, 0);
     /** A complex number representing zero. */

@@ -49,6 +49,7 @@ public class ComplexTest {
     private static final Complex nanNegInf = Complex.ofCartesian(nan, neginf);
     private static final Complex nanZero = Complex.ofCartesian(nan, 0);
     private static final Complex NAN = Complex.ofCartesian(nan, nan);
+    private static final Complex INF = Complex.ofCartesian(inf, inf);
 
     @Test
     public void testConstructor() {
@@ -182,7 +183,7 @@ public class ComplexTest {
     public void testDivideZero() {
         Complex x = Complex.ofCartesian(3.0, 4.0);
         Complex z = x.divide(Complex.ZERO);
-        Assertions.assertEquals(Complex.INF, z);
+        Assertions.assertEquals(INF, z);
     }
 
     @Test
@@ -843,7 +844,7 @@ public class ComplexTest {
         Assertions.assertEquals(Complex.ZERO, Complex.parse(Complex.ZERO.toString()));
         Assertions.assertEquals(Complex.ONE, Complex.parse(Complex.ONE.toString()));
         Assertions.assertEquals(Complex.I, Complex.parse(Complex.I.toString()));
-        Assertions.assertEquals(Complex.INF, Complex.parse(Complex.INF.toString()));
+        Assertions.assertEquals(INF, Complex.parse(INF.toString()));
         Assertions.assertEquals(NAN, Complex.parse(NAN.toString()));
         Assertions.assertEquals(oneInf, Complex.parse(oneInf.toString()));
         Assertions.assertEquals(negInfZero, Complex.parse(negInfZero.toString()));
