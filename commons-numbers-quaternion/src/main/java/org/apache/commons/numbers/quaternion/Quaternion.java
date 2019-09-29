@@ -88,25 +88,24 @@ public final class Quaternion implements Serializable {
         /** Default implementations. */
         private static final class Default {
             /** {@link Quaternion#normSq()}. */
-            static final ToDoubleFunction<Quaternion> NORMSQ = q -> {
-                return q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z;
-            };
+            static final ToDoubleFunction<Quaternion> NORMSQ = q ->
+                q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z;
+
             /** {@link Quaternion#norm()}. */
-            private static final ToDoubleFunction<Quaternion> NORM = q -> {
-                return Math.sqrt(NORMSQ.applyAsDouble(q));
-            };
+            private static final ToDoubleFunction<Quaternion> NORM = q ->
+                Math.sqrt(NORMSQ.applyAsDouble(q));
+
             /** {@link Quaternion#isUnit()}. */
-            private static final BiPredicate<Quaternion, Double> IS_UNIT = (q, eps) -> {
-                return Precision.equals(NORM.applyAsDouble(q), 1d, eps);
-            };
-        };
+            private static final BiPredicate<Quaternion, Double> IS_UNIT = (q, eps) ->
+                Precision.equals(NORM.applyAsDouble(q), 1d, eps);
+        }
         /** Implementations for normalized quaternions. */
         private static final class Normalized {
             /** {@link Quaternion#norm()} returns 1. */
             static final ToDoubleFunction<Quaternion> NORM = q -> 1;
             /** {@link Quaternion#isUnit()} returns 1. */
             static final BiPredicate<Quaternion, Double> IS_UNIT = (q, eps) -> true;
-        };
+        }
 
         /** {@link Quaternion#normSq()}. */
         private final ToDoubleFunction<Quaternion> normSq;
