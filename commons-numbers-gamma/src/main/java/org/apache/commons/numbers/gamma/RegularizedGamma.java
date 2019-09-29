@@ -41,6 +41,9 @@ public class RegularizedGamma {
      * Class is immutable.
      */
     public static class P {
+        /** Prevent instantiation. */
+        private P() {}
+
         /**
          * Computes the regularized gamma function \( P(a, x) \).
          *
@@ -125,6 +128,9 @@ public class RegularizedGamma {
      * Class is immutable.
      */
     public static class Q {
+        /** Prevent instantiation. */
+        private Q() {}
+
         /**
          * Computes the regularized gamma function \( Q(a, x) = 1 - P(a, x) \).
          *
