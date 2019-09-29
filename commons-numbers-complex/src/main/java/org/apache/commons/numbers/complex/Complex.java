@@ -1313,7 +1313,7 @@ public final class Complex implements Serializable  {
             throw new IllegalArgumentException("cannot compute zeroth root");
         }
 
-        final List<Complex> result = new ArrayList<Complex>();
+        final List<Complex> result = new ArrayList<>();
 
         // nth root of abs -- faster / more accurate to use a solver here?
         final double nthRootOfAbs = Math.pow(abs(), 1d / n);
