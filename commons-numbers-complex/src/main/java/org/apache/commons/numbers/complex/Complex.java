@@ -188,32 +188,24 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns true if either real or imaginary component of the Complex
-     * is NaN
+     * is NaN.
      *
-     * @return {@code boolean}
+     * @return {@code true} is this instance contains NaN.
      */
     public boolean isNaN() {
-        if (Double.isNaN(real) ||
-            Double.isNaN(imaginary)) {
-            return true;
-        } else {
-            return false;
-        }
+        return Double.isNaN(real) ||
+            Double.isNaN(imaginary);
     }
 
     /**
      * Returns true if either real or imaginary component of the Complex
-     * is Infinite
+     * is infinite.
      *
-     * @return {@code boolean}
+     * @return {@code true} if this instance contains an infinite value.
      */
     public boolean isInfinite() {
-        if (Double.isInfinite(real) ||
-            Double.isInfinite(imaginary)) {
-            return true;
-        } else {
-            return false;
-        }
+        return Double.isInfinite(real) ||
+            Double.isInfinite(imaginary);
     }
 
     /**
