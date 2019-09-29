@@ -58,6 +58,8 @@ public final class Complex implements Serializable  {
     private static final double PI_OVER_2 = 0.5 * Math.PI;
     /** &pi;/4. */
     private static final double PI_OVER_4 = 0.25 * Math.PI;
+    /** "-i". */
+    private static final Complex MINUS_I = new Complex(0, -1);
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20180201L;
@@ -1211,7 +1213,7 @@ public final class Complex implements Serializable  {
             return ONE;
         }
         if (imaginary < -20) {
-            return new Complex(0, -1);
+            return MINUS_I;
         }
 
         final double real2 = 2 * real;
