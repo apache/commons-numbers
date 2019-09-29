@@ -538,8 +538,6 @@ public final class ArithmeticUtils {
     private static class NumbersArithmeticException extends ArithmeticException {
         /** Serializable version Id. */
         private static final long serialVersionUID = 20180130L;
-        /** Argument to construct a message. */
-        private final Object[] formatArguments;
 
         /**
          * Default constructor.
@@ -556,14 +554,7 @@ public final class ArithmeticUtils {
          * @param args Arguments.
          */
         NumbersArithmeticException(String message, Object ... args) {
-            super(message);
-            this.formatArguments = args;
-        }
-
-        /** {@inheritDoc} */
-        @Override
-        public String getMessage() {
-            return MessageFormat.format(super.getMessage(), formatArguments);
+            super(MessageFormat.format(message, args));
         }
     }
 }

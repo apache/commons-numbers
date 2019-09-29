@@ -32,24 +32,15 @@ class CombinatoricsException extends IllegalArgumentException {
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20170515L;
 
-    /** Arguments for formatting the message. */
-    protected Object[] formatArguments;
-
     /**
      * Create an exception where the message is constructed by applying
      * the {@code format()} method from {@code java.text.MessageFormat}.
      *
-     * @param message  the exception message with replaceable parameters
-     * @param formatArguments the arguments for formatting the message
+     * @param message Exception message with replaceable parameters.
+     * @param formatArguments 1rguments for formatting the message.
      */
-    CombinatoricsException(String message, Object... formatArguments) {
-        super(message);
-        this.formatArguments = formatArguments;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getMessage() {
-        return MessageFormat.format(super.getMessage(), formatArguments);
+    CombinatoricsException(String message,
+                           Object... formatArguments) {
+        super(MessageFormat.format(message, formatArguments));
     }
 }

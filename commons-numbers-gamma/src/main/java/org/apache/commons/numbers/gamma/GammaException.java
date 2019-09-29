@@ -30,9 +30,6 @@ class GammaException extends IllegalArgumentException {
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20170505L;
 
-    /** Arguments for formatting the message. */
-    protected Object[] formatArguments;
-
     /**
      * Create an exception where the message is constructed by applying
      * the {@code format()} method from {@code java.text.MessageFormat}.
@@ -41,12 +38,6 @@ class GammaException extends IllegalArgumentException {
      * @param formatArguments the arguments for formatting the message
      */
     GammaException(String message, Object... formatArguments) {
-        super(message);
-        this.formatArguments = formatArguments;
-    }
-
-    @Override
-    public String getMessage() {
-        return MessageFormat.format(super.getMessage(), formatArguments);
+        super(MessageFormat.format(message, formatArguments));
     }
 }
