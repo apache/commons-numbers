@@ -35,76 +35,30 @@ public class Combinations implements Iterable<int[]> {
     private final int n;
     /** Number of elements in each combination. */
     private final int k;
-    /** Iteration order. */
-    private final IterationOrder iterationOrder;
 
     /**
-     * Describes the type of iteration performed by the
-     * {@link #iterator() iterator}.
-     */
-    private enum IterationOrder {
-        /** Lexicographic order. */
-        LEXICOGRAPHIC
-    }
-
-   /**
-     * Creates an instance whose range is the k-element subsets of
-     * {0, ..., n - 1} represented as {@code int[]} arrays.
-     * <p>
-     * The iteration order is lexicographic: the arrays returned by the
-     * {@link #iterator() iterator} are sorted in descending order and
-     * they are visited in lexicographic order with significance from
-     * right to left.
-     * For example, {@code new Combinations(4, 2).iterator()} returns
-     * an iterator that will generate the following sequence of arrays
-     * on successive calls to
-     * {@code next()}:<br>
-     * {@code [0, 1], [0, 2], [1, 2], [0, 3], [1, 3], [2, 3]}
-     * </p>
-     * If {@code k == 0} an iterator containing an empty array is returned;
-     * if {@code k == n} an iterator containing [0, ..., n - 1] is returned.
-     *
      * @param n Size of the set from which subsets are selected.
      * @param k Size of the subsets to be enumerated.
-     * @throws IllegalArgumentException if {@code n < 0}.
-     * @throws IllegalArgumentException if {@code k > n} or {@code k < 0}.
-     */
-    public Combinations(int n,
-                        int k) {
-        this(n, k, IterationOrder.LEXICOGRAPHIC);
-    }
-
-    /**
-     * Creates an instance whose range is the k-element subsets of
-     * {0, ..., n - 1} represented as {@code int[]} arrays.
-     * <p>
-     * If the {@code iterationOrder} argument is set to
-     * {@link IterationOrder#LEXICOGRAPHIC}, the arrays returned by the
-     * {@link #iterator() iterator} are sorted in descending order and
-     * they are visited in lexicographic order with significance from
-     * right to left.
-     * For example, {@code new Combinations(4, 2).iterator()} returns
-     * an iterator that will generate the following sequence of arrays
-     * on successive calls to
-     * {@code next()}:<br>
-     * {@code [0, 1], [0, 2], [1, 2], [0, 3], [1, 3], [2, 3]}
-     * </p>
-     * If {@code k == 0} an iterator containing an empty array is returned;
-     * if {@code k == n} an iterator containing [0, ..., n - 1] is returned.
-     *
-     * @param n Size of the set from which subsets are selected.
-     * @param k Size of the subsets to be enumerated.
-     * @param iterationOrder Specifies the {@link #iterator() iteration order}.
      * @throws IllegalArgumentException if {@code n < 0}.
      * @throws IllegalArgumentException if {@code k > n} or {@code k < 0}.
      */
     private Combinations(int n,
-                         int k,
-                         IterationOrder iterationOrder) {
+                         int k) {
         BinomialCoefficient.checkBinomial(n, k);
         this.n = n;
         this.k = k;
-        this.iterationOrder = iterationOrder;
+    }
+
+    /**
+     * @param n Size of the set from which subsets are selected.
+     * @param k Size of the subsets to be enumerated.
+     * @throws IllegalArgumentException if {@code n < 0}.
+     * @throws IllegalArgumentException if {@code k > n} or {@code k < 0}.
+     * @return a new instance.
+     */
+    public static Combinations of(int n,
+                                  int k) {
+        return new Combinations(n, k);
     }
 
     /**
@@ -125,21 +79,40 @@ public class Combinations implements Iterable<int[]> {
         return k;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Creates an iterator whose range is the k-element subsets of
+     * {0, ..., n - 1} represented as {@code int[]} arrays.
+     * <p>
+     * The iteration order is lexicographic: the arrays returned by the
+     * {@link #iterator() iterator} are sorted in descending order and
+     * they are visited in lexicographic order with significance from
+     * right to left.
+     * For example, {@code new Combinations(4, 2).iterator()} returns
+     * an iterator that will generate the following sequence of arrays
+     * on successive calls to
+     * {@code next()}:<br>
+     * {@code [0, 1], [0, 2], [1, 2], [0, 3], [1, 3], [2, 3]}
+     * </p>
+     * If {@code k == 0} an iterator containing an empty array is returned;
+     * if {@code k == n} an iterator containing [0, ..., n - 1] is returned.
+     */
     @Override
     public Iterator<int[]> iterator() {
-        if (k == 0 ||
-            k == n) {
-            return new SingletonIterator(k);
-        }
+        return k == 0 || k == n ?
+            new SingletonIterator(k) :
+            new LexicographicIterator(n, k);
+    }
 
-        switch (iterationOrder) {
-        case LEXICOGRAPHIC:
-            return new LexicographicIterator(n, k);
-        default:
-            // Should never happen.
-            throw new UnsupportedOperationException("Please file a bug report");
-        }
+    /**
+     * Creates a comparator.
+     * When performing a comparison, if an element of the array is not
+     * within the interval [0, {@code n}), an {@code IllegalArgumentException}
+     * will be thrown.
+     *
+     * @return a comparator.
+     */
+    public Comparator<int[]> comparator() {
+        return new LexicographicComparator(n, k);
     }
 
     /**
@@ -153,7 +126,6 @@ public class Combinations implements Iterable<int[]> {
      * implementation.  If constructor arguments satisfy {@code k == 0}
      * or {@code k >= n}, no exception is generated, but the iterator is empty.
      * </p>
-     *
      */
     private static class LexicographicIterator implements Iterator<int[]> {
         /** Size of subsets returned by the iterator. */
@@ -330,10 +302,8 @@ public class Combinations implements Iterable<int[]> {
      * The comparison is based on the value (in base 10) represented
      * by the digit (interpreted in base {@code n}) in the input array,
      * in reverse order.
-     * For example if {@code c} is {@code {3, 2, 1}}, and {@code n}
-     * is 3, the method will return 18.
      */
-    public static class LexicographicComparator
+    private static class LexicographicComparator
         implements Comparator<int[]>,
                    Serializable {
         /** Serializable version identifier. */
@@ -347,28 +317,10 @@ public class Combinations implements Iterable<int[]> {
          * @param n Size of the set from which subsets are selected.
          * @param k Size of the subsets to be enumerated.
          */
-        public LexicographicComparator(int n,
-                                       int k) {
+        LexicographicComparator(int n,
+                                int k) {
             this.n = n;
             this.k = k;
-        }
-
-        /**
-         * Gets the size of the set from which combinations are drawn.
-         *
-         * @return the size of the universe.
-         */
-        public int getN() {
-            return n;
-        }
-
-        /**
-         * Gets the number of elements in each combination.
-         *
-         * @return the size of the subsets.
-         */
-        public int getK() {
-            return k;
         }
 
         /**
@@ -411,6 +363,8 @@ public class Combinations implements Iterable<int[]> {
          * Computes the value (in base 10) represented by the digit
          * (interpreted in base {@code n}) in the input array in reverse
          * order.
+         * For example if {@code c} is {@code {3, 2, 1}}, and {@code n}
+         * is 3, the method will return 18.
          *
          * @param c Input array.
          * @return the lexicographic norm.
