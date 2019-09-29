@@ -1296,10 +1296,8 @@ public final class Complex implements Serializable  {
      * are respectively the {@link #abs() modulus} and
      * {@link #getArgument() argument} of this complex number.
      * <p>
-     * If one or both parts of this complex number is NaN, a list with just
-     * one element, {@code NaN + NaN i} is returned.
-     * if neither part is NaN, but at least one part is infinite, the result
-     * is a one-element list containing {@link #INF}.
+     * If one or both parts of this complex number is NaN, a list with all
+     * all elements set to {@code NaN + NaN i} is returned.
      *
      * @param n Degree of root.
      * @return a List of all {@code n}-th roots of {@code this}.

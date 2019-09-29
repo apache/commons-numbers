@@ -17,6 +17,7 @@
 
 package org.apache.commons.numbers.complex;
 
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -783,6 +784,26 @@ public class ComplexTest {
         Assertions.assertEquals(0,   fourthRootsOfZ[3].getReal(),      1.0e-5);
         Assertions.assertEquals(1,    fourthRootsOfZ[3].getImaginary(), 1.0e-5);
     }
+
+    @Test
+    public void testNthRootNaN() {
+        final int n = 3;
+        final Complex z = Complex.ofReal(Double.NaN);
+        final List<Complex> r = z.nthRoot(n);
+        Assertions.assertEquals(n, r.size());
+        for (Complex c : r) {
+            Assertions.assertTrue(Double.isNaN(c.real()));
+            Assertions.assertTrue(Double.isNaN(c.imag()));
+        }
+    }
+    @Test
+    public void testNthRootInf() {
+        final int n = 3;
+        final Complex z = Complex.ofReal(Double.NEGATIVE_INFINITY);
+        final List<Complex> r = z.nthRoot(n);
+        Assertions.assertEquals(n, r.size());
+    }
+
     /**
      * Test standard values
      */
