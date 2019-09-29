@@ -129,7 +129,7 @@ public abstract class ContinuedFraction {
         int n = 1;
         double dPrev = 0.0;
         double cPrev = hPrev;
-        double hN = hPrev;
+        double hN;
 
         while (n <= maxIterations) {
             final double a = getA(n, x);
