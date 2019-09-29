@@ -54,6 +54,10 @@ public final class Complex implements Serializable  {
     public static final Complex ZERO = new Complex(0, 0);
     /** A complex number representing "NaN + NaN i" */
     private static final Complex NAN = new Complex(Double.NaN, Double.NaN);
+    /** &pi;/2. */
+    private static final double PI_OVER_2 = 0.5 * Math.PI;
+    /** &pi;/4. */
+    private static final double PI_OVER_4 = 0.25 * Math.PI;
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20180201L;
@@ -721,10 +725,10 @@ public final class Complex implements Serializable  {
     public Complex acos() {
         if (real == 0 &&
             Double.isNaN(imaginary)) {
-            return new Complex(Math.PI * 0.5, Double.NaN);
+            return new Complex(PI_OVER_2, Double.NaN);
         } else if (neitherInfiniteNorZeroNorNaN(real) &&
                    imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(Math.PI * 0.5, Double.NEGATIVE_INFINITY);
+            return new Complex(PI_OVER_2, Double.NEGATIVE_INFINITY);
         } else if (real == Double.NEGATIVE_INFINITY &&
                    imaginary == 1) {
             return new Complex(Math.PI, Double.NEGATIVE_INFINITY);
@@ -736,7 +740,7 @@ public final class Complex implements Serializable  {
             return new Complex(Math.PI * 0.75, Double.NEGATIVE_INFINITY);
         } else if (real == Double.POSITIVE_INFINITY &&
                    imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(Math.PI * 0.25, Double.NEGATIVE_INFINITY);
+            return new Complex(PI_OVER_4, Double.NEGATIVE_INFINITY);
         } else if (real == Double.POSITIVE_INFINITY &&
                    Double.isNaN(imaginary)) {
             return new Complex(Double.NaN , Double.POSITIVE_INFINITY);
@@ -788,13 +792,13 @@ public final class Complex implements Serializable  {
     public Complex asinh(){
         if (neitherInfiniteNorZeroNorNaN(real) &&
             imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(Double.POSITIVE_INFINITY, Math.PI * 0.5);
+            return new Complex(Double.POSITIVE_INFINITY, PI_OVER_2);
         } else if (real == Double.POSITIVE_INFINITY &&
                    !Double.isInfinite(imaginary) && !Double.isNaN(imaginary)) {
             return new Complex(Double.POSITIVE_INFINITY, 0);
         } else if (real == Double.POSITIVE_INFINITY &&
                    imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(Double.POSITIVE_INFINITY, Math.PI * 0.25);
+            return new Complex(Double.POSITIVE_INFINITY, PI_OVER_4);
         } else if (real == Double.POSITIVE_INFINITY &&
                    Double.isNaN(imaginary)) {
             return new Complex(Double.POSITIVE_INFINITY,  Double.NaN);
@@ -827,19 +831,19 @@ public final class Complex implements Serializable  {
             return new Complex(Double.POSITIVE_INFINITY, 0);
         } else if (neitherInfiniteNorZeroNorNaN(real) &&
                    imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(0, Math.PI * 0.5);
+            return new Complex(0, PI_OVER_2);
         } else if (real == Double.POSITIVE_INFINITY &&
                    neitherInfiniteNorZeroNorNaN(imaginary)) {
-            return new Complex(0, Math.PI * 0.5);
+            return new Complex(0, PI_OVER_2);
         } else if (real == Double.POSITIVE_INFINITY &&
                    imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(0, Math.PI * 0.5);
+            return new Complex(0, PI_OVER_2);
         } else if (real == Double.POSITIVE_INFINITY &&
                    Double.isNaN(imaginary)) {
             return new Complex(0, Double.NaN);
         } else if (Double.isNaN(real) &&
                    imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(0, Math.PI * 0.5);
+            return new Complex(0, PI_OVER_2);
         }
         return add(ONE).divide(ONE.subtract(this)).log().multiply(0.5);
     }
@@ -989,7 +993,7 @@ public final class Complex implements Serializable  {
     public Complex log() {
         if (real == Double.POSITIVE_INFINITY &&
             imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(Double.POSITIVE_INFINITY, Math.PI * 0.25);
+            return new Complex(Double.POSITIVE_INFINITY, PI_OVER_4);
         } else if (real == Double.POSITIVE_INFINITY &&
                    Double.isNaN(imaginary)) {
             return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
