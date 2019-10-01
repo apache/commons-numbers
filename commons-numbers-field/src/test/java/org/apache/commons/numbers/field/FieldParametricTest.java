@@ -22,6 +22,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
+import org.apache.commons.numbers.core.Addition;
+import org.apache.commons.numbers.core.Multiplication;
+
 /**
  * Tests for fields.
  */
@@ -126,6 +129,93 @@ public class FieldParametricTest {
         T c = data.getC();
         final T r1 = field.multiply(a, field.add(b, c));
         final T r2 = field.add(field.multiply(a, b), field.multiply(a, c));
+        assertEquals(r1, r2);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getList")
+    public <T extends Addition<T>> void testAdd(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        T b = data.getB();
+
+        final T r1 = field.add(a, b);
+        final T r2 = a.add(b);
+        assertEquals(r1, r2);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getList")
+    public <T extends Addition<T>> void testSubtract(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        T b = data.getB();
+
+        final T r1 = field.subtract(a, b);
+        final T r2 = a.add(b.negate());
+        assertEquals(r1, r2);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getList")
+    public <T extends Addition<T>> void testMultiplyInt(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        final int n = 5;
+
+        final T r1 = field.multiply(n, a);
+
+        T r2 = field.zero();
+        for (int i = 0; i < n; i++) {
+            r2 = r2.add(a);
+        }
+
+        assertEquals(r1, r2);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getList")
+    public <T extends Addition<T>> void testZero(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+
+        final T r1 = field.zero();
+        final T r2 = a.zero();
+        assertEquals(r1, r2);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getList")
+    public <T extends Multiplication<T>> void testMultiply(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        T b = data.getB();
+
+        final T r1 = field.multiply(a, b);
+        final T r2 = a.multiply(b);
+        assertEquals(r1, r2);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getList")
+    public <T extends Multiplication<T>> void testDivide(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+        T b = data.getB();
+
+        final T r1 = field.divide(a, b);
+        final T r2 = a.multiply(b.reciprocal());
+        assertEquals(r1, r2);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getList")
+    public <T extends Multiplication<T>> void testOne(FieldTestData<T> data) {
+        Field<T> field = data.getField();
+        T a = data.getA();
+
+        final T r1 = field.one();
+        final T r2 = a.one();
         assertEquals(r1, r2);
     }
 
