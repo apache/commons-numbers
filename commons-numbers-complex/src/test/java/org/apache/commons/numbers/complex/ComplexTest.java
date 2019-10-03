@@ -35,17 +35,17 @@ public class ComplexTest {
     private static final Complex oneNegInf = Complex.ofCartesian(1, neginf);
     private static final Complex infOne = Complex.ofCartesian(inf, 1);
     private static final Complex infZero = Complex.ofCartesian(inf, 0);
-    private static final Complex infNaN = Complex.ofCartesian(inf, nan);
+    private static final Complex infNan = Complex.ofCartesian(inf, nan);
     private static final Complex infNegInf = Complex.ofCartesian(inf, neginf);
     private static final Complex infInf = Complex.ofCartesian(inf, inf);
     private static final Complex negInfInf = Complex.ofCartesian(neginf, inf);
     private static final Complex negInfZero = Complex.ofCartesian(neginf, 0);
     private static final Complex negInfOne = Complex.ofCartesian(neginf, 1);
-    private static final Complex negInfNaN = Complex.ofCartesian(neginf, nan);
+    private static final Complex negInfNan = Complex.ofCartesian(neginf, nan);
     private static final Complex negInfNegInf = Complex.ofCartesian(neginf, neginf);
-    private static final Complex oneNaN = Complex.ofCartesian(1, nan);
+    private static final Complex oneNan = Complex.ofCartesian(1, nan);
     private static final Complex zeroInf = Complex.ofCartesian(0, inf);
-    private static final Complex zeroNaN = Complex.ofCartesian(0, nan);
+    private static final Complex zeroNan = Complex.ofCartesian(0, nan);
     private static final Complex nanInf = Complex.ofCartesian(nan, inf);
     private static final Complex nanNegInf = Complex.ofCartesian(nan, neginf);
     private static final Complex nanZero = Complex.ofCartesian(nan, 0);
@@ -202,12 +202,12 @@ public class ComplexTest {
     }
 
     @Test
-    public void testDivideNaNInf() {
+    public void testDivideNanInf() {
        Complex z = oneInf.divide(Complex.ONE);
        Assertions.assertTrue(Double.isNaN(z.getReal()));
        Assertions.assertEquals(inf, z.getImaginary(), 0);
 
-       z = negInfNegInf.divide(oneNaN);
+       z = negInfNegInf.divide(oneNan);
        Assertions.assertTrue(Double.isNaN(z.getReal()));
        Assertions.assertTrue(Double.isNaN(z.getImaginary()));
 
@@ -484,7 +484,7 @@ public class ComplexTest {
     }
 
     @Test
-    public void testFloatingPointEqualsWithRelativeToleranceNaN() {
+    public void testFloatingPointEqualsWithRelativeToleranceNan() {
         final Complex x = Complex.ofCartesian(0, Double.NaN);
         final Complex y = Complex.ofCartesian(Double.NaN, 0);
         Assertions.assertFalse(Complex.equalsWithRelativeTolerance(x, Complex.ZERO, 0.1));
@@ -520,10 +520,10 @@ public class ComplexTest {
         Assertions.assertNotEquals(x.hashCode(), y.hashCode());
         y = Complex.ofCartesian(0.0 + Double.MIN_VALUE, 0.0);
         Assertions.assertNotEquals(x.hashCode(), y.hashCode());
-        Complex realNaN = Complex.ofCartesian(Double.NaN, 0.0);
-        Complex imaginaryNaN = Complex.ofCartesian(0.0, Double.NaN);
-        Assertions.assertEquals(realNaN.hashCode(), imaginaryNaN.hashCode());
-        Assertions.assertEquals(imaginaryNaN.hashCode(), NAN.hashCode());
+        Complex realNan = Complex.ofCartesian(Double.NaN, 0.0);
+        Complex imaginaryNan = Complex.ofCartesian(0.0, Double.NaN);
+        Assertions.assertEquals(realNan.hashCode(), imaginaryNan.hashCode());
+        Assertions.assertEquals(imaginaryNan.hashCode(), NAN.hashCode());
 
         // MATH-1118
         // "equals" and "hashCode" must be compatible: if two objects have
@@ -579,7 +579,7 @@ public class ComplexTest {
     }
 
     @Test
-    public void testScalarPowNaNBase() {
+    public void testScalarPowNanBase() {
         Complex x = NAN;
         double yDouble = 5.0;
         Complex yComplex = Complex.ofReal(yDouble);
@@ -604,7 +604,7 @@ public class ComplexTest {
     }
 
     @Test
-    public void testScalarPowNaNExponent() {
+    public void testScalarPowNanExponent() {
         Complex x = Complex.ofCartesian(3, 4);
         double yDouble = Double.NaN;
         Complex yComplex = Complex.ofReal(yDouble);
@@ -803,7 +803,7 @@ public class ComplexTest {
     }
 
     @Test
-    public void testNthRootNaN() {
+    public void testNthRootNan() {
         final int n = 3;
         final Complex z = Complex.ofReal(Double.NaN);
         final List<Complex> r = z.nthRoot(n);
@@ -873,7 +873,7 @@ public class ComplexTest {
     @Test
     public void testGetArgumentNaN() {
         Assertions.assertTrue(Double.isNaN(nanZero.getArgument()));
-        Assertions.assertTrue(Double.isNaN(zeroNaN.getArgument()));
+        Assertions.assertTrue(Double.isNaN(zeroNan.getArgument()));
         Assertions.assertTrue(Double.isNaN(NAN.getArgument()));
     }
 
