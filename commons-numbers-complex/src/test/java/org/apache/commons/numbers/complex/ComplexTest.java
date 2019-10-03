@@ -587,6 +587,23 @@ public class ComplexTest {
     }
 
     @Test
+    public void testScalarPowZeroBaseZeroExponent() {
+        Complex x = Complex.ZERO;
+        double yDouble = 0;
+        Assertions.assertEquals(NAN, x.pow(yDouble));
+        Complex yComplex = Complex.ofReal(yDouble);
+        Assertions.assertEquals(NAN, x.pow(yComplex));
+    }
+    @Test
+    public void testScalarPowZeroBasePositiveExponent() {
+        Complex x = Complex.ZERO;
+        double yDouble = Double.MIN_VALUE;
+        Assertions.assertEquals(Complex.ZERO, x.pow(yDouble));
+        Complex yComplex = Complex.ofReal(yDouble);
+        Assertions.assertEquals(Complex.ZERO, x.pow(yComplex));
+    }
+
+    @Test
     public void testScalarPowNaNExponent() {
         Complex x = Complex.ofCartesian(3, 4);
         double yDouble = Double.NaN;
