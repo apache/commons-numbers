@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import org.apache.commons.numbers.core.ArithmeticUtils;
+import org.apache.commons.numbers.core.NativeOperators;
 
 /**
  * Representation of a rational number without any overflow. This class is
@@ -29,6 +30,7 @@ import org.apache.commons.numbers.core.ArithmeticUtils;
 public class BigFraction
     extends Number
     implements Comparable<BigFraction>,
+               NativeOperators<BigFraction>,
                Serializable {
     /** A fraction representing "0". */
     public static final BigFraction ZERO = of(0);
@@ -1288,6 +1290,18 @@ public class BigFraction
             str = numerator + " / " + denominator;
         }
         return str;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public BigFraction zero() {
+        return ZERO;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public BigFraction one() {
+        return ONE;
     }
 
     /**

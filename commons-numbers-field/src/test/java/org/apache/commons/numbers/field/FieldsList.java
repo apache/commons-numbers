@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.apache.commons.numbers.fraction.Fraction;
+import org.apache.commons.numbers.fraction.BigFraction;
 
 /**
  * List of fields.
@@ -38,6 +39,10 @@ final class FieldsList {
                 Fraction.of(13, 4),
                 Fraction.of(5, 29),
                 Fraction.of(-279, 11));
+            add(BigFractionField.get(),
+                BigFraction.of(13256093L, 43951044L),
+                BigFraction.of(543016315L, 29L),
+                BigFraction.of(-27930919051L, 11L));
             add(FP64Field.get(),
                 FP64.of(23.45678901),
                 FP64.of(-543.2109876),
@@ -50,8 +55,7 @@ final class FieldsList {
         }
     }
 
-    private FieldsList() {
-    }
+    private FieldsList() {}
 
     /**
      * @param field Field.
