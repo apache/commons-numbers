@@ -24,6 +24,16 @@ public class FP64Field extends AbstractField<FP64> {
     private static final FP64 ZERO = FP64.of(0d);
     /** 1d */
     private static final FP64 ONE = FP64.of(1d);
+    /** Singleton. */
+    private static final FP64Field INSTANCE = new FP64Field();
+
+    /** Singleton. */
+    private FP64Field() {}
+
+    /** @return the field instance. */
+    public static FP64Field get() {
+        return INSTANCE;
+    }
 
     /** {@inheritDoc} */
     @Override

@@ -34,11 +34,11 @@ final class FieldsList {
     static {
         try {
             // List of fields to test.
-            add(new FractionField(),
+            add(FractionField.get(),
                 Fraction.of(13, 4),
                 Fraction.of(5, 29),
                 Fraction.of(-279, 11));
-            add(new FP64Field(),
+            add(FP64Field.get(),
                 FP64.of(23.45678901),
                 FP64.of(-543.2109876),
                 FP64.of(-234.5678901));
