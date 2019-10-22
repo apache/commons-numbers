@@ -163,33 +163,28 @@ public class Fraction
             throw new ArithmeticException("division by zero");
         }
 
-        // If num and den are both 2^-31, or if one is 0 and the other is 2^-31,
-        // the calculation of the gcd below will fail. Ensure that this does not
-        // happen by dividing both by 2 in case both are even.
-        if (((num | den) & 1) == 0) {
-            num >>= 1;
-            den >>= 1;
-        }
-
-        // Reduce numerator and denominator by greatest common divisor.
-        final int d = ArithmeticUtils.gcd(num, den);
-        if (d > 1) {
-            num /= d;
-            den /= d;
-        }
-
-        // Move sign to numerator.
-        if (den < 0) {
-            if (num == Integer.MIN_VALUE ||
-                den == Integer.MIN_VALUE) {
-                throw new FractionException(FractionException.ERROR_NEGATION_OVERFLOW, num, den);
+        if (num == den) {
+            numerator = 1;
+            denominator = 1;
+        } else {
+            // If num and den are both 2^-31, or if one is 0 and the other is 2^-31,
+            // the calculation of the gcd below will fail. Ensure that this does not
+            // happen by dividing both by 2 in case both are even.
+            if (((num | den) & 1) == 0) {
+                num >>= 1;
+                den >>= 1;
             }
-            num = -num;
-            den = -den;
-        }
 
-        this.numerator   = num;
-        this.denominator = den;
+            // Reduce numerator and denominator by greatest common divisor.
+            final int d = ArithmeticUtils.gcd(num, den);
+            if (d > 1) {
+                num /= d;
+                den /= d;
+            }
+
+            numerator = num;
+            denominator = den;
+        }
     }
 
     /**
@@ -277,13 +272,9 @@ public class Fraction
      * @return the absolute value.
      */
     public Fraction abs() {
-        Fraction ret;
-        if (numerator >= 0) {
-            ret = this;
-        } else {
-            ret = negate();
-        }
-        return ret;
+        return signum() >= 0 ?
+            this :
+            negate();
     }
 
     /**
@@ -346,7 +337,7 @@ public class Fraction
      */
     @Override
     public float floatValue() {
-        return (float)doubleValue();
+        return (float) doubleValue();
     }
 
     /**
@@ -392,18 +383,31 @@ public class Fraction
     }
 
     /**
+     * Retrieves the sign of this fraction.
+     *
+     * @return -1 if the value is strictly negative, 1 if it is strictly
+     * positive, 0 if it is 0.
+     */
+    public int signum() {
+        if ((numerator > 0 && denominator > 0) ||
+            (numerator < 0 && denominator < 0)) {
+            return 1;
+        } else if (numerator == 0) {
+            return 0;
+        } else {
+            return -1;
+        }
+    }
+
+    /**
      * Computes the additive inverse of this fraction.
      *
      * @return the opposite.
      */
     public Fraction negate() {
-        if (numerator == Integer.MIN_VALUE) {
-            throw new FractionException(FractionException.ERROR_NEGATION_OVERFLOW,
-                                        numerator,
-                                        denominator);
-        }
-
-        return new Fraction(-numerator, denominator);
+        return numerator == Integer.MIN_VALUE ?
+            new Fraction(numerator, -denominator) :
+            new Fraction(-numerator, denominator);
     }
 
     /**

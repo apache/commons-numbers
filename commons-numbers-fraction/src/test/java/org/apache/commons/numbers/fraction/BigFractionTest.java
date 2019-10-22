@@ -488,18 +488,18 @@ public class BigFractionTest {
 
         f1 = BigFraction.of(Integer.MIN_VALUE, Integer.MAX_VALUE);
         f = f1.divide(BigInteger.valueOf(Integer.MIN_VALUE));
-        Assertions.assertEquals(Integer.MAX_VALUE, f.getDenominatorAsInt());
-        Assertions.assertEquals(1, f.getNumeratorAsInt());
+        Assertions.assertEquals(-Integer.MAX_VALUE, f.getDenominatorAsInt());
+        Assertions.assertEquals(-1, f.getNumeratorAsInt());
 
         f1 = BigFraction.of(Integer.MIN_VALUE, Integer.MAX_VALUE);
         f = f1.divide(Integer.MIN_VALUE);
-        Assertions.assertEquals(Integer.MAX_VALUE, f.getDenominatorAsInt());
-        Assertions.assertEquals(1, f.getNumeratorAsInt());
+        Assertions.assertEquals(-Integer.MAX_VALUE, f.getDenominatorAsInt());
+        Assertions.assertEquals(-1, f.getNumeratorAsInt());
 
         f1 = BigFraction.of(Integer.MIN_VALUE, Integer.MAX_VALUE);
         f = f1.divide((long) Integer.MIN_VALUE);
-        Assertions.assertEquals(Integer.MAX_VALUE, f.getDenominatorAsInt());
-        Assertions.assertEquals(1, f.getNumeratorAsInt());
+        Assertions.assertEquals(-Integer.MAX_VALUE, f.getDenominatorAsInt());
+        Assertions.assertEquals(-1, f.getNumeratorAsInt());
 
     }
 
@@ -565,21 +565,6 @@ public class BigFractionTest {
         BigFraction one = BigFraction.of(1, 1);
         Assertions.assertFalse((one.equals(zero) || zero.equals(one)));
         Assertions.assertEquals(BigFraction.ONE, one);
-    }
-
-    @Test
-    public void testGetReducedFraction() {
-        BigFraction threeFourths = BigFraction.of(3, 4);
-        Assertions.assertEquals(threeFourths, BigFraction.getReducedFraction(6, 8));
-        Assertions.assertEquals(BigFraction.ZERO, BigFraction.getReducedFraction(0, -1));
-        try {
-            BigFraction.getReducedFraction(1, 0);
-            Assertions.fail("expecting ArithmeticException");
-        } catch (ArithmeticException ex) {
-            // expected
-        }
-        Assertions.assertEquals(-1, BigFraction.getReducedFraction(2, Integer.MIN_VALUE).getNumeratorAsInt());
-        Assertions.assertEquals(-1, BigFraction.getReducedFraction(1, -1).getNumeratorAsInt());
     }
 
     @Test

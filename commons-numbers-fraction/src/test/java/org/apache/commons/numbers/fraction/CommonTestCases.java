@@ -78,16 +78,16 @@ class CommonTestCases {
 
         testCases.add(new UnaryOperatorTestCase(0, 1, 0, 1));
         testCases.add(new UnaryOperatorTestCase(0, 2, 0, 1));
-        testCases.add(new UnaryOperatorTestCase(0, -1, 0, 1));
+        testCases.add(new UnaryOperatorTestCase(0, -1, 0, -1));
         testCases.add(new UnaryOperatorTestCase(1, 2, 1, 2));
         testCases.add(new UnaryOperatorTestCase(2, 4, 1, 2));
         testCases.add(new UnaryOperatorTestCase(-1, 2, -1, 2));
-        testCases.add(new UnaryOperatorTestCase(1, -2, -1, 2));
+        testCases.add(new UnaryOperatorTestCase(1, -2, 1, -2));
         testCases.add(new UnaryOperatorTestCase(-2, 4, -1, 2));
-        testCases.add(new UnaryOperatorTestCase(2, -4, -1, 2));
+        testCases.add(new UnaryOperatorTestCase(2, -4, 1, -2));
 
-        testCases.add(new UnaryOperatorTestCase(2, Integer.MIN_VALUE, -1, - (Integer.MIN_VALUE / 2)));
-        testCases.add(new UnaryOperatorTestCase(Integer.MIN_VALUE, -2, - (Integer.MIN_VALUE / 2), 1));
+        testCases.add(new UnaryOperatorTestCase(2, Integer.MIN_VALUE, 1, Integer.MIN_VALUE / 2));
+        testCases.add(new UnaryOperatorTestCase(Integer.MIN_VALUE, -2, -Integer.MIN_VALUE / 2, -1));
 
         return testCases;
     }
@@ -158,8 +158,8 @@ class CommonTestCases {
         List<UnaryOperatorTestCase> testCases = new ArrayList<>();
 
         testCases.add(new UnaryOperatorTestCase(10, 21, 10, 21));
-        testCases.add(new UnaryOperatorTestCase(-10, 21, 10, 21));
-        testCases.add(new UnaryOperatorTestCase(10, -21, 10, 21));
+        testCases.add(new UnaryOperatorTestCase(-11, 23, 11, 23));
+        testCases.add(new UnaryOperatorTestCase(13, -24, -13, -24));
 
         return testCases;
     }
@@ -174,7 +174,7 @@ class CommonTestCases {
 
         testCases.add(new UnaryOperatorTestCase(50, 75, 3, 2));
         testCases.add(new UnaryOperatorTestCase(4, 3, 3, 4));
-        testCases.add(new UnaryOperatorTestCase(-15, 47, -47, 15));
+        testCases.add(new UnaryOperatorTestCase(-15, 47, 47, -15));
         testCases.add(new UnaryOperatorTestCase(Integer.MAX_VALUE, 1, 1, Integer.MAX_VALUE));
 
         return testCases;
@@ -191,6 +191,11 @@ class CommonTestCases {
         testCases.add(new UnaryOperatorTestCase(50, 75, -2, 3));
         testCases.add(new UnaryOperatorTestCase(-50, 75, 2, 3));
         testCases.add(new UnaryOperatorTestCase(Integer.MAX_VALUE - 1, Integer.MAX_VALUE, Integer.MIN_VALUE + 2, Integer.MAX_VALUE));
+        testCases.add(new UnaryOperatorTestCase(1, Integer.MIN_VALUE, -1, Integer.MIN_VALUE));
+
+        // XXX Failed by "BigFraction" (whose implementation differs from "Fraction").
+        // testCases.add(new UnaryOperatorTestCase(Integer.MIN_VALUE, Integer.MIN_VALUE, -1, 1));
+        // testCases.add(new UnaryOperatorTestCase(Integer.MIN_VALUE, 1, Integer.MIN_VALUE, -1));
 
         return testCases;
     }

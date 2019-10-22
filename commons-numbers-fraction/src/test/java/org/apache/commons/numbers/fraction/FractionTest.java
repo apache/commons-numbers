@@ -41,13 +41,10 @@ public class FractionTest {
             );
         }
 
-        // overflow
-        Assertions.assertThrows(ArithmeticException.class,
-                () -> Fraction.of(Integer.MIN_VALUE, -1)
-        );
-        Assertions.assertThrows(ArithmeticException.class,
-                () -> Fraction.of(1, Integer.MIN_VALUE)
-        );
+        // Special cases.
+        assertFraction(Integer.MIN_VALUE, -1, Fraction.of(Integer.MIN_VALUE, -1));
+        assertFraction(1, Integer.MIN_VALUE, Fraction.of(1, Integer.MIN_VALUE));
+        assertFraction(1, 1, Fraction.of(Integer.MIN_VALUE, Integer.MIN_VALUE));
     }
 
     @Test
@@ -229,13 +226,6 @@ public class FractionTest {
             Fraction f = Fraction.of(testCase.operandNumerator, testCase.operandDenominator);
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f.negate());
         }
-
-        {
-            final Fraction f = Fraction.of(Integer.MIN_VALUE, 1);
-            Assertions.assertThrows(ArithmeticException.class,
-                    f::negate
-            );
-        }
     }
 
     @Test
@@ -387,7 +377,7 @@ public class FractionTest {
         {
             Fraction b = Fraction.of(3, -7);
             assertFraction(1, 1, b.pow(0));
-            assertFraction(-3, 7, b.pow(1));
+            assertFraction(3, -7, b.pow(1));
             assertFraction(-7, 3, b.pow(-1));
             assertFraction(9, 49, b.pow(2));
             assertFraction(49, 9, b.pow(-2));
@@ -395,7 +385,7 @@ public class FractionTest {
 
         {
             Fraction c = Fraction.of(0, -11);
-            assertFraction(0, 1, c.pow(Integer.MAX_VALUE));
+            assertFraction(0, -1, c.pow(Integer.MAX_VALUE));
         }
     }
 
@@ -486,7 +476,7 @@ public class FractionTest {
         Assertions.assertEquals("3", Fraction.of(6, 2).toString());
         Assertions.assertEquals("2 / 3", Fraction.of(18, 27).toString());
         Assertions.assertEquals("-10 / 11", Fraction.of(-10, 11).toString());
-        Assertions.assertEquals("-10 / 11", Fraction.of(10, -11).toString());
+        Assertions.assertEquals("10 / -11", Fraction.of(10, -11).toString());
     }
 
     @Test

@@ -26,7 +26,10 @@ import org.apache.commons.numbers.core.ArithmeticUtils;
  * Representation of a rational number without any overflow. This class is
  * immutable.
  */
-public class BigFraction extends Number implements Comparable<BigFraction>, Serializable {
+public class BigFraction
+    extends Number
+    implements Comparable<BigFraction>,
+               Serializable {
     /** A fraction representing "0". */
     public static final BigFraction ZERO = of(0);
 
@@ -64,28 +67,17 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
         if (den.signum() == 0) {
             throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
         }
-        if (num.signum() == 0) {
-            numerator   = BigInteger.ZERO;
-            denominator = BigInteger.ONE;
-        } else {
 
-            // reduce numerator and denominator by greatest common denominator
-            final BigInteger gcd = num.gcd(den);
-            if (BigInteger.ONE.compareTo(gcd) < 0) {
-                num = num.divide(gcd);
-                den = den.divide(gcd);
-            }
-
-            // move sign to numerator
-            if (den.signum() == -1) {
-                num = num.negate();
-                den = den.negate();
-            }
-
-            // store the values in the final fields
-            numerator   = num;
-            denominator = den;
+        // reduce numerator and denominator by greatest common denominator
+        final BigInteger gcd = num.gcd(den);
+        if (BigInteger.ONE.compareTo(gcd) < 0) {
+            num = num.divide(gcd);
+            den = den.divide(gcd);
         }
+
+        // store the values in the final fields
+        numerator = num;
+        denominator = den;
     }
 
     /**
@@ -387,41 +379,15 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
 
     /**
      * <p>
-     * Creates a <code>BigFraction</code> instance with the 2 parts of a fraction
-     * Y/Z.
-     * </p>
-     *
-     * <p>
-     * Any negative signs are resolved to be on the numerator.
-     * </p>
-     *
-     * @param numerator
-     *            the numerator, for example the three in 'three sevenths'.
-     * @param denominator
-     *            the denominator, for example the seven in 'three sevenths'.
-     * @return a new fraction instance, with the numerator and denominator
-     *         reduced.
-     * @throws ArithmeticException
-     *             if the denominator is <code>zero</code>.
-     */
-    public static BigFraction getReducedFraction(final int numerator,
-                                                 final int denominator) {
-        if (numerator == 0) {
-            return ZERO; // normalize zero.
-        }
-
-        return of(numerator, denominator);
-    }
-
-    /**
-     * <p>
      * Returns the absolute value of this {@link BigFraction}.
      * </p>
      *
      * @return the absolute value as a {@link BigFraction}.
      */
     public BigFraction abs() {
-        return (numerator.signum() == 1) ? this : negate();
+        return signum() >= 0 ?
+            this :
+            negate();
     }
 
     /**
@@ -1087,6 +1053,26 @@ public class BigFraction extends Number implements Comparable<BigFraction>, Seri
         }
         return new BigFraction(numerator.multiply(fraction.numerator),
                                denominator.multiply(fraction.denominator));
+    }
+
+    /**
+     * Retrieves the sign of this fraction.
+     *
+     * @return -1 if the value is strictly negative, 1 if it is strictly
+     * positive, 0 if it is 0.
+     */
+    public int signum() {
+        final int numS = numerator.signum();
+        final int denS = denominator.signum();
+
+        if ((numS > 0 && denS > 0) ||
+            (numS < 0 && denS < 0)) {
+            return 1;
+        } else if (numS == 0) {
+            return 0;
+        } else {
+            return -1;
+        }
     }
 
     /**
