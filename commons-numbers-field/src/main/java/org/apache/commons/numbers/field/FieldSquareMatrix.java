@@ -113,6 +113,13 @@ public class FieldSquareMatrix<T> {
     }
 
     /**
+     * @return the field associated with the matrix entries.
+     */
+    public Field<T> getField() {
+        return field;
+    }
+
+    /**
      * Sets all elements to the given value.
      *
      * @param value Value of the elements of the matrix.

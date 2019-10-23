@@ -139,6 +139,12 @@ public class FP64FieldSquareMatrixTest {
                      0d);
     }
 
+    @Test
+    public void testGetField() {
+        final FieldSquareMatrix<FP64> a = FieldSquareMatrix.create(FP64Field.get(), 7);
+        Assertions.assertEquals(FP64Field.get(), a.getField());
+    }
+
     /**
      * Compares with result obtained from "Commons Math".
      *
