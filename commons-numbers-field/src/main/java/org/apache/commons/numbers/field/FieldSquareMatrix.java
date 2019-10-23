@@ -207,7 +207,7 @@ public class FieldSquareMatrix<T> {
     /**
      * Multiplication.
      *
-     * @param factor Matrix to multiply with.
+     * @param other Matrix to multiply with.
      * @return a new instance with the result of the multiplication.
      */
     public FieldSquareMatrix<T> multiply(FieldSquareMatrix<T> other) {
@@ -284,7 +284,7 @@ public class FieldSquareMatrix<T> {
     /**
      * Check that the given matrix has the same dimensions.
      *
-     * @param factor Matrix to check.
+     * @param other Matrix to check.
      * @throws IllegalArgumentException if the dimensions do not match.
      */
     private void checkDimension(FieldSquareMatrix<T> other) {
