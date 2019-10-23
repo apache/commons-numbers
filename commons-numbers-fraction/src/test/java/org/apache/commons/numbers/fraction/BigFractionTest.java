@@ -183,6 +183,9 @@ public class BigFractionTest {
         Assertions.assertEquals(0d, BigFraction.ZERO.doubleValue(), 0d);
 
         assertDoubleValue(0.5, 1, 2);
+        assertDoubleValue(-0.5, -1, 2);
+        assertDoubleValue(-0.5, 1, -2);
+        assertDoubleValue(0.5, -1, -2);
         assertDoubleValue(1.0 / 3.0, 1, 3);
 
         //NUMBERS-120

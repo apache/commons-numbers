@@ -662,8 +662,9 @@ public class BigFraction
             return 0L;
         }
 
-        final long sign = numerator.signum() == -1 ? 1L : 0L;
+        final long sign = (numerator.signum() * denominator.signum()) == -1 ? 1L : 0L;
         final BigInteger positiveNumerator = numerator.abs();
+        final BigInteger positiveDenominator = denominator.abs();
 
         /*
          * The most significant 1-bit of a non-zero number is not explicitly
@@ -678,8 +679,8 @@ public class BigFraction
          * are not relevant for the significand of the prospective binary
          * floating-point value.
          */
-        final int denRightShift = denominator.getLowestSetBit();
-        final BigInteger divisor = denominator.shiftRight(denRightShift);
+        final int denRightShift = positiveDenominator.getLowestSetBit();
+        final BigInteger divisor = positiveDenominator.shiftRight(denRightShift);
 
         /*
          * Now, we're going to calculate the (significandLength + 2) most
