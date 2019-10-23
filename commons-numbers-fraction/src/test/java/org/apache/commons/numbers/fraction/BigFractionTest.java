@@ -171,9 +171,9 @@ public class BigFractionTest {
         // the first  one is approximately PI - 3.07e-18
         // the second one is approximately PI + 1.936e-17
         BigFraction pi1 = BigFraction.of(1068966896, 340262731);
-        BigFraction pi2 = BigFraction.of( 411557987, 131002976);
+        BigFraction pi2 = BigFraction.of(411557987, 131002976);
         Assertions.assertEquals(-1, pi1.compareTo(pi2));
-        Assertions.assertEquals( 1, pi2.compareTo(pi1));
+        Assertions.assertEquals(1, pi2.compareTo(pi1));
         Assertions.assertEquals(0.0, pi1.doubleValue() - pi2.doubleValue(), 1.0e-20);
 
     }
@@ -273,7 +273,7 @@ public class BigFractionTest {
         final BigInteger pow401 = BigInteger.TEN.pow(401);
         final BigInteger two = new BigInteger("2");
         final BigFraction large = BigFraction.of(pow401.add(BigInteger.ONE),
-                                                  pow400.multiply(two));
+                pow400.multiply(two));
 
         Assertions.assertEquals(5, large.doubleValue(), 1e-15);
     }
@@ -285,7 +285,7 @@ public class BigFractionTest {
         final BigInteger pow401 = BigInteger.TEN.pow(401);
         final BigInteger two = new BigInteger("2");
         final BigFraction large = BigFraction.of(pow401.add(BigInteger.ONE),
-                                                  pow400.multiply(two));
+                pow400.multiply(two));
 
         Assertions.assertEquals(5, large.floatValue(), 1e-15);
     }
@@ -370,7 +370,7 @@ public class BigFractionTest {
         assertFraction(-6004799503160661l, 18014398509481984l, BigFraction.from(-1.0 / 3.0));
         assertFraction(-6124895493223875l, 36028797018963968l, BigFraction.from(17.0 / -100.0));
         assertFraction(-1784551352345559l, 562949953421312l, BigFraction.from(-317.0 / 100.0));
-        for (double v : new double[] { Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY}) {
+        for (double v : new double[]{Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY}) {
             try {
                 BigFraction.from(v);
                 Assertions.fail("Expecting IllegalArgumentException");
@@ -423,7 +423,7 @@ public class BigFractionTest {
         }
 
         {
-            final BigFraction f = BigFraction.of(-17 - 2*13*2, 13*13*17*2*2);
+            final BigFraction f = BigFraction.of(-17 - 2 * 13 * 2, 13 * 13 * 17 * 2 * 2);
             Assertions.assertThrows(NullPointerException.class,
                     () -> f.add((BigFraction) null)
             );
@@ -586,16 +586,16 @@ public class BigFractionTest {
         BigFraction fractionB = BigFraction.from(.37).reciprocal();
         BigFraction errorResult = fractionA.multiply(fractionB);
         BigFraction correctResult = BigFraction.of(fractionA.getNumerator().multiply(fractionB.getNumerator()),
-                                                    fractionA.getDenominator().multiply(fractionB.getDenominator()));
+                fractionA.getDenominator().multiply(fractionB.getDenominator()));
         Assertions.assertEquals(correctResult, errorResult);
     }
 
     @Test
     public void testSerial() {
         BigFraction[] fractions = {
-            BigFraction.of(3, 4), BigFraction.ONE, BigFraction.ZERO,
-            BigFraction.of(17), BigFraction.from(Math.PI, 1000),
-            BigFraction.of(-5, 2)
+                BigFraction.of(3, 4), BigFraction.ONE, BigFraction.ZERO,
+                BigFraction.of(17), BigFraction.from(Math.PI, 1000),
+                BigFraction.of(-5, 2)
         };
         for (BigFraction fraction : fractions) {
             Assertions.assertEquals(fraction, TestUtils.serializeAndRecover(fraction));
@@ -605,7 +605,7 @@ public class BigFractionTest {
 
     @Test
     public void testParse() {
-        String[] validExpressions = new String[] {
+        String[] validExpressions = new String[]{
                 "3",
                 "1 / 2",
                 "2147,483,647 / 2,147,483,648", //over largest int value
@@ -619,10 +619,39 @@ public class BigFractionTest {
                         new BigInteger("9223372036854775808"))
         };
         int inc = 0;
-        for (BigFraction fraction: fractions) {
+        for (BigFraction fraction : fractions) {
             Assertions.assertEquals(fraction,
                     BigFraction.parse(validExpressions[inc]));
             inc++;
         }
+    }
+
+    /**
+     * Perform a simple division of two negative numbers that should result in 0.5
+     */
+    @Test
+    public void simpleNegativeDivisionTest() {
+        final double numeratorDouble = -1;
+        final double denominatorDouble = -2;
+        final BigFraction numerator = BigFraction.from(numeratorDouble);
+        final BigFraction denominator = BigFraction.from(denominatorDouble);
+        final BigFraction bigFractionDivisionResult = numerator.divide(denominator);
+        final double result = bigFractionDivisionResult.doubleValue();
+        final double expectedResult = numeratorDouble / denominatorDouble;
+        Assertions.assertEquals(expectedResult, result, 0.001);
+    }
+
+    /**
+     * Perform a simple division of two negative numbers that should result in approx. 1.419
+     */
+    @Test
+    public void negativeDivisionTest() {
+        final double numeratorDouble = -257;
+        final double denominatorDouble = -181;
+        final BigFraction numerator = BigFraction.from(numeratorDouble);
+        final BigFraction denominator = BigFraction.from(denominatorDouble);
+        final double result = numerator.divide(denominator).doubleValue();
+        final double expectedResult = numeratorDouble / denominatorDouble;
+        Assertions.assertEquals(expectedResult, result, 0.001);
     }
 }
