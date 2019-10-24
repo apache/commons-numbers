@@ -338,29 +338,42 @@ public class BigFractionTest {
 
     @Test
     public void testFloatValue() {
-        BigFraction first = BigFraction.of(1, 2);
-        BigFraction second = BigFraction.of(1, 3);
+        Assertions.assertEquals(0.5f, BigFraction.of(1, 2).floatValue(), 0.0f);
+        Assertions.assertEquals(0.5f, BigFraction.of(-1, -2).floatValue(), 0.0f);
+        Assertions.assertEquals(-0.5f, BigFraction.of(-1, 2).floatValue(), 0.0f);
+        Assertions.assertEquals(-0.5f, BigFraction.of(1, -2).floatValue(), 0.0f);
 
-        Assertions.assertEquals(0.5f, first.floatValue(), 0.0f);
-        Assertions.assertEquals((float) (1.0 / 3.0), second.floatValue(), 0.0f);
+        final float e = 1f / 3f;
+        Assertions.assertEquals(e, BigFraction.of(1, 3).floatValue(), 0.0f);
+        Assertions.assertEquals(e, BigFraction.of(-1, -3).floatValue(), 0.0f);
+        Assertions.assertEquals(-e, BigFraction.of(-1, 3).floatValue(), 0.0f);
+        Assertions.assertEquals(-e, BigFraction.of(1, -3).floatValue(), 0.0f);
     }
 
     @Test
     public void testIntValue() {
-        BigFraction first = BigFraction.of(1, 2);
-        BigFraction second = BigFraction.of(3, 2);
+        Assertions.assertEquals(0, BigFraction.of(1, 2).intValue());
+        Assertions.assertEquals(0, BigFraction.of(-1, -2).intValue());
+        Assertions.assertEquals(0, BigFraction.of(-1, 2).intValue());
+        Assertions.assertEquals(0, BigFraction.of(1, -2).intValue());
 
-        Assertions.assertEquals(0, first.intValue());
-        Assertions.assertEquals(1, second.intValue());
+        Assertions.assertEquals(1, BigFraction.of(3, 2).intValue());
+        Assertions.assertEquals(1, BigFraction.of(-3, -2).intValue());
+        Assertions.assertEquals(-1, BigFraction.of(-3, 2).intValue());
+        Assertions.assertEquals(-1, BigFraction.of(3, -2).intValue());
     }
 
     @Test
     public void testLongValue() {
-        BigFraction first = BigFraction.of(1, 2);
-        BigFraction second = BigFraction.of(3, 2);
+        Assertions.assertEquals(0L, BigFraction.of(1, 2).longValue());
+        Assertions.assertEquals(0L, BigFraction.of(-1, -2).longValue());
+        Assertions.assertEquals(0L, BigFraction.of(-1, 2).longValue());
+        Assertions.assertEquals(0L, BigFraction.of(1, -2).longValue());
 
-        Assertions.assertEquals(0L, first.longValue());
-        Assertions.assertEquals(1L, second.longValue());
+        Assertions.assertEquals(1L, BigFraction.of(3, 2).longValue());
+        Assertions.assertEquals(1L, BigFraction.of(-3, -2).longValue());
+        Assertions.assertEquals(-1L, BigFraction.of(-3, 2).longValue());
+        Assertions.assertEquals(-1L, BigFraction.of(3, -2).longValue());
     }
 
     @Test
