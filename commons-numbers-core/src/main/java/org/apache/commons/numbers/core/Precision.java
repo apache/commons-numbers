@@ -175,7 +175,11 @@ public class Precision {
      * @return {@code true} if the values are equal or both are NaN.
      */
     public static boolean equalsIncludingNaN(float x, float y) {
-        return (x != x || y != y) ? !(x != x ^ y != y) : equals(x, y, 1);
+        final boolean xIsNan = Float.isNaN(x);
+        final boolean yIsNan = Float.isNaN(y);
+        return xIsNan || yIsNan ?
+            !(xIsNan ^ yIsNan) :
+            equals(x, y, 1);
     }
 
     /**
@@ -268,7 +272,11 @@ public class Precision {
      * {@code maxUlps} floating point values between {@code x} and {@code y}.
      */
     public static boolean equalsIncludingNaN(float x, float y, int maxUlps) {
-        return (x != x || y != y) ? !(x != x ^ y != y) : equals(x, y, maxUlps);
+        final boolean xIsNan = Float.isNaN(x);
+        final boolean yIsNan = Float.isNaN(y);
+        return xIsNan || yIsNan ?
+            !(xIsNan ^ yIsNan) :
+            equals(x, y, maxUlps);
     }
 
     /**
@@ -292,7 +300,11 @@ public class Precision {
      * @return {@code true} if the values are equal or both are NaN.
      */
     public static boolean equalsIncludingNaN(double x, double y) {
-        return (x != x || y != y) ? !(x != x ^ y != y) : equals(x, y, 1);
+        final boolean xIsNan = Double.isNaN(x);
+        final boolean yIsNan = Double.isNaN(y);
+        return xIsNan || yIsNan ?
+            !(xIsNan ^ yIsNan) :
+            equals(x, y, 1);
     }
 
     /**
@@ -414,7 +426,11 @@ public class Precision {
      * {@code maxUlps} floating point values between {@code x} and {@code y}.
      */
     public static boolean equalsIncludingNaN(double x, double y, int maxUlps) {
-        return (x != x || y != y) ? !(x != x ^ y != y) : equals(x, y, maxUlps);
+        final boolean xIsNan = Double.isNaN(x);
+        final boolean yIsNan = Double.isNaN(y);
+        return xIsNan || yIsNan ?
+            !(xIsNan ^ yIsNan) :
+            equals(x, y, maxUlps);
     }
 
     /**
