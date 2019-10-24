@@ -380,7 +380,7 @@ public class Combinations implements Iterable<int[]> {
                     throw new CombinatoricsException(CombinatoricsException.OUT_OF_RANGE, digit, 0, n - 1);
                 }
 
-                ret += c[i] * ArithmeticUtils.pow(n, i);
+                ret += c[i] * ArithmeticUtils.pow((long) n, i);
             }
             return ret;
         }
