@@ -47,6 +47,7 @@ Apache Commons Numbers
 [![Coverage Status](https://coveralls.io/repos/github/apache/commons-numbers/badge.svg?branch=master)](https://coveralls.io/github/apache/commons-numbers?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers/)
 [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![Code Quality: Java](https://img.shields.io/lgtm/grade/java/g/apache/commons-numbers.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/apache/commons-numbers/context:java)
 
 The Apache Commons Numbers project provides number types and utilities.
 
