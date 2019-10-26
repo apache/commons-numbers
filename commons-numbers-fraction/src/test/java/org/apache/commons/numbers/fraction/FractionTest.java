@@ -460,15 +460,18 @@ public class FractionTest {
     public void testEqualsAndHashCode() {
         Fraction zero = Fraction.of(0, 1);
         Fraction nullFraction = null;
-        Assertions.assertTrue(zero.equals(zero));
-        Assertions.assertFalse(zero.equals(nullFraction));
+        Assertions.assertEquals(zero, zero);
+        Assertions.assertNotEquals(zero, nullFraction);
         Assertions.assertFalse(zero.equals(Double.valueOf(0)));
         Fraction zero2 = Fraction.of(0, 2);
-        Assertions.assertTrue(zero.equals(zero2));
+        Assertions.assertEquals(zero, zero2);
         Assertions.assertEquals(zero.hashCode(), zero2.hashCode());
         Fraction one = Fraction.of(1, 1);
-        Assertions.assertFalse(zero.equals(one));
-        Assertions.assertFalse(one.equals(zero));
+        Assertions.assertNotEquals(zero, one);
+        Assertions.assertNotEquals(one, zero);
+        Fraction one2 = Fraction.of(-1, -1);
+        Assertions.assertEquals(one2, one);
+        Assertions.assertEquals(one, one2);
     }
     @Test
     public void testToString() {
