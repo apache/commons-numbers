@@ -853,16 +853,20 @@ public class BigFraction
      */
     @Override
     public boolean equals(final Object other) {
-        boolean ret = false;
-
         if (this == other) {
-            ret = true;
+            return true;
         } else if (other instanceof BigFraction) {
-            BigFraction rhs = (BigFraction) other;
-            ret = numerator.equals(rhs.numerator) && denominator.equals(rhs.denominator);
+            final BigFraction rhs = (BigFraction) other;
+
+            if (signum() == rhs.signum()) {
+                return numerator.abs().equals(rhs.numerator.abs()) &&
+                    denominator.abs().equals(rhs.denominator.abs());
+            } else {
+                return false;
+            }
         }
 
-        return ret;
+        return false;
     }
 
     /**

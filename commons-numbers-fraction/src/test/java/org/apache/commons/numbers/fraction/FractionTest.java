@@ -472,6 +472,11 @@ public class FractionTest {
         Fraction one2 = Fraction.of(-1, -1);
         Assertions.assertEquals(one2, one);
         Assertions.assertEquals(one, one2);
+
+        Fraction minusOne = Fraction.of(-1, 1);
+        Fraction minusOne2 = Fraction.of(1, -1);
+        Assertions.assertEquals(minusOne2, minusOne);
+        Assertions.assertEquals(minusOne, minusOne2);
     }
     @Test
     public void testToString() {

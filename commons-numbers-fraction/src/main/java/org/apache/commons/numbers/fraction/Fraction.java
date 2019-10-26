@@ -321,9 +321,13 @@ public class Fraction
         if (other instanceof Fraction) {
             // Since fractions are always in lowest terms, numerators and
             // denominators can be compared directly for equality.
-            Fraction rhs = (Fraction) other;
-            return numerator == rhs.numerator &&
-                denominator == rhs.denominator;
+            final Fraction rhs = (Fraction) other;
+            if (signum() == rhs.signum()) {
+                return Math.abs(numerator) == Math.abs(rhs.numerator) &&
+                    Math.abs(denominator) == Math.abs(rhs.denominator);
+            } else {
+                return false;
+            }
         }
 
         return false;
