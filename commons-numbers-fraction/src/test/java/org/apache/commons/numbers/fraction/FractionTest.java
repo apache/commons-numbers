@@ -458,18 +458,18 @@ public class FractionTest {
 
     @Test
     public void testEqualsAndHashCode() {
-        Fraction zero  = Fraction.of(0,1);
+        Fraction zero = Fraction.of(0, 1);
         Fraction nullFraction = null;
-        Assertions.assertTrue( zero.equals(zero));
+        Assertions.assertTrue(zero.equals(zero));
         Assertions.assertFalse(zero.equals(nullFraction));
         Assertions.assertFalse(zero.equals(Double.valueOf(0)));
-        Fraction zero2 = Fraction.of(0,2);
+        Fraction zero2 = Fraction.of(0, 2);
         Assertions.assertTrue(zero.equals(zero2));
         Assertions.assertEquals(zero.hashCode(), zero2.hashCode());
-        Fraction one = Fraction.of(1,1);
-        Assertions.assertFalse((one.equals(zero) ||zero.equals(one)));
+        Fraction one = Fraction.of(1, 1);
+        Assertions.assertFalse(zero.equals(one));
+        Assertions.assertFalse(one.equals(zero));
     }
-
     @Test
     public void testToString() {
         Assertions.assertEquals("0", Fraction.of(0, 3).toString());
