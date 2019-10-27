@@ -25,9 +25,6 @@ import org.apache.commons.numbers.core.Precision;
  * coefficients to evaluate the continued fraction.
  */
 public abstract class ContinuedFraction {
-    /** Maximum allowed numerical error. */
-    private static final double DEFAULT_EPSILON = 1e-9;
-
     /**
      * Defines the <a href="http://mathworld.wolfram.com/ContinuedFraction.html">
      * {@code n}-th "a" coefficient</a> of the continued fraction.
@@ -51,21 +48,6 @@ public abstract class ContinuedFraction {
     /**
      * Evaluates the continued fraction.
      *
-     * @param x Point at which to evaluate the continued fraction.
-     * @return the value of the continued fraction evaluated at {@code x}.
-     * @throws ArithmeticException if the algorithm fails to converge.
-     * @throws ArithmeticException if the maximal number of iterations is reached
-     * before the expected convergence is achieved.
-     *
-     * @see #evaluate(double,double,int)
-     */
-    public double evaluate(double x) {
-        return evaluate(x, DEFAULT_EPSILON, Integer.MAX_VALUE);
-    }
-
-    /**
-     * Evaluates the continued fraction.
-     *
      * @param x the evaluation point.
      * @param epsilon Maximum error allowed.
      * @return the value of the continued fraction evaluated at {@code x}.
@@ -77,21 +59,6 @@ public abstract class ContinuedFraction {
      */
     public double evaluate(double x, double epsilon) {
         return evaluate(x, epsilon, Integer.MAX_VALUE);
-    }
-
-    /**
-     * Evaluates the continued fraction at the value x.
-     * @param x the evaluation point.
-     * @param maxIterations Maximum number of iterations.
-     * @return the value of the continued fraction evaluated at {@code x}.
-     * @throws ArithmeticException if the algorithm fails to converge.
-     * @throws ArithmeticException if the maximal number of iterations is reached
-     * before the expected convergence is achieved.
-     *
-     * @see #evaluate(double,double,int)
-     */
-    public double evaluate(double x, int maxIterations) {
-        return evaluate(x, DEFAULT_EPSILON, maxIterations);
     }
 
     /**
