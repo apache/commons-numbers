@@ -60,6 +60,7 @@
     <numbers.checkstyle.version>3.0.0</numbers.checkstyle.version>
     <numbers.mathjax.version>2.7.2</numbers.mathjax.version>
     <numbers.junit.bom.version>5.4.2</numbers.junit.bom.version>
+    <numbers.commons.math3.version>3.6.1</numbers.commons.math3.version>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}</numbers.parent.dir>
 
