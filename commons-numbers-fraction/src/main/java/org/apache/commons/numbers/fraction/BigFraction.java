@@ -1315,8 +1315,8 @@ public class BigFraction
      *
      * @param s String representation.
      * @return an instance.
-     * @throws FractionException if the string does not
-     * conform to the specification.
+     * @throws NumberFormatException if the string does not conform
+     * to the specification.
      */
     public static BigFraction parse(String s) {
         s = s.replace(",", "");
