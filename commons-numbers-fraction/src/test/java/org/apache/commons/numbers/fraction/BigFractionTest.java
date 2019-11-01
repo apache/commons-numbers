@@ -627,27 +627,43 @@ public class BigFractionTest {
         }
     }
 
-
     @Test
     public void testParse() {
         String[] validExpressions = new String[] {
                 "3",
                 "1 / 2",
+                "-1 / 2",
+                "1 / -2",
+                "-1 / -2",
                 "2147,483,647 / 2,147,483,648", //over largest int value
                 "9,223,372,036,854,775,807 / 9,223,372,036,854,775,808" //over largest long value
         };
         BigFraction[] fractions = {
                 BigFraction.of(3),
                 BigFraction.of(1, 2),
+                BigFraction.of(-1, 2),
+                BigFraction.of(1, -2),
+                BigFraction.of(-1, -2),
                 BigFraction.of(2147483647, 2147483648L),
                 BigFraction.of(new BigInteger("9223372036854775807"),
-                        new BigInteger("9223372036854775808"))
+                               new BigInteger("9223372036854775808"))
         };
         int inc = 0;
         for (BigFraction fraction: fractions) {
             Assertions.assertEquals(fraction,
-                    BigFraction.parse(validExpressions[inc]));
+                                    BigFraction.parse(validExpressions[inc]));
             inc++;
+        }
+
+        {
+            Assertions.assertThrows(NumberFormatException.class,
+                                    () -> BigFraction.parse("1 // 2"));
+            Assertions.assertThrows(NumberFormatException.class,
+                                    () -> BigFraction.parse("1 / z"));
+            Assertions.assertThrows(NumberFormatException.class,
+                                    () -> BigFraction.parse("1 / --2"));
+            Assertions.assertThrows(NumberFormatException.class,
+                                    () -> BigFraction.parse("x"));
         }
     }
 }
