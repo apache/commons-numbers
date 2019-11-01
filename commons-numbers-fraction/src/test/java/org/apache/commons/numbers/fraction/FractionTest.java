@@ -504,12 +504,26 @@ public class FractionTest {
     public void testParse() {
         String[] validExpressions = new String[] {
             "1 / 2",
+            "-1 / 2",
+            "1 / -2",
+            "-1 / -2",
+            "01 / 2",
+            "01 / 02",
+            "-01 / 02",
+            "01 / -02",
             "15 / 16",
             "-2 / 3",
             "8 / 7"
         };
         Fraction[] fractions = {
             Fraction.of(1, 2),
+            Fraction.of(-1, 2),
+            Fraction.of(1, -2),
+            Fraction.of(-1, -2),
+            Fraction.of(1, 2),
+            Fraction.of(1, 2),
+            Fraction.of(-1, 2),
+            Fraction.of(1, -2),
             Fraction.of(15, 16),
             Fraction.of(-2, 3),
             Fraction.of(8, 7),
@@ -519,6 +533,17 @@ public class FractionTest {
             Assertions.assertEquals(fraction,
                                     Fraction.parse(validExpressions[inc]));
             inc++;
+        }
+
+        {
+            Assertions.assertThrows(NumberFormatException.class,
+                                    () -> Fraction.parse("1 // 2"));
+            Assertions.assertThrows(NumberFormatException.class,
+                                    () -> Fraction.parse("1 / z"));
+            Assertions.assertThrows(NumberFormatException.class,
+                                    () -> Fraction.parse("1 / --2"));
+            Assertions.assertThrows(NumberFormatException.class,
+                                    () -> Fraction.parse("x"));
         }
     }
 }
