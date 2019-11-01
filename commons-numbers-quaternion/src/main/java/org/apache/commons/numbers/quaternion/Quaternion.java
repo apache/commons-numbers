@@ -639,8 +639,8 @@ public final class Quaternion implements Serializable {
      *
      * @param s String representation.
      * @return an instance.
-     * @throws IllegalArgumentException if the string does not
-     * conform to the specification.
+     * @throws NumberFormatException if the string does not conform
+     * to the specification.
      */
     public static Quaternion parse(String s) {
         final int len = s.length();
@@ -704,7 +704,7 @@ public final class Quaternion implements Serializable {
     }
 
     /** See {@link #parse(String)}. */
-    private static class QuaternionParsingException extends IllegalArgumentException {
+    private static class QuaternionParsingException extends NumberFormatException {
         /** Serializable version identifier. */
         private static final long serialVersionUID = 20181128L;
 

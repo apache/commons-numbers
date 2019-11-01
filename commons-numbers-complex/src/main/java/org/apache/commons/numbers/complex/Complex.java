@@ -150,8 +150,8 @@ public final class Complex implements Serializable  {
      *
      * @param s String representation.
      * @return an instance.
-     * @throws IllegalArgumentException if the string does not
-     * conform to the specification.
+     * @throws NumberFormatException if the string does not conform
+     * to the specification.
      */
     public static Complex parse(String s) {
         final int len = s.length();
@@ -1379,7 +1379,7 @@ public final class Complex implements Serializable  {
     }
 
     /** See {@link #parse(String)}. */
-    private static class ComplexParsingException extends IllegalArgumentException {
+    private static class ComplexParsingException extends NumberFormatException {
         /** Serializable version identifier. */
         private static final long serialVersionUID = 20180430L;
 
