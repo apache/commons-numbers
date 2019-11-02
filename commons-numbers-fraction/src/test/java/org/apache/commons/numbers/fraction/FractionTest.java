@@ -523,7 +523,10 @@ public class FractionTest {
             "01 / -02",
             "15 / 16",
             "-2 / 3",
-            "8 / 7"
+            "8 / 7",
+            "5",
+            "-3",
+            "-3"
         };
         Fraction[] fractions = {
             Fraction.of(1, 2),
@@ -537,6 +540,9 @@ public class FractionTest {
             Fraction.of(15, 16),
             Fraction.of(-2, 3),
             Fraction.of(8, 7),
+            Fraction.of(5, 1),
+            Fraction.of(-3, 1),
+            Fraction.of(3, -1),
         };
         int inc = 0;
         for (Fraction fraction : fractions) {

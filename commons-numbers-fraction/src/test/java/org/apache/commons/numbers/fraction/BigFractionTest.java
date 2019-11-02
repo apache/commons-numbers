@@ -158,11 +158,11 @@ public class BigFractionTest {
 
     @Test
     public void testCompareTo() {
-        BigFraction a = BigFraction.of(1, 2);
-        BigFraction b = BigFraction.of(1, 3);
-        BigFraction c = BigFraction.of(1, 2);
-        BigFraction d = BigFraction.of(-1, 2);
-        BigFraction e = BigFraction.of(1, -2);
+        final BigFraction a = BigFraction.of(1, 2);
+        final BigFraction b = BigFraction.of(1, 3);
+        final BigFraction c = BigFraction.of(1, 2);
+        final BigFraction d = BigFraction.of(-1, 2);
+        final BigFraction e = BigFraction.of(1, -2);
 
         Assertions.assertEquals(0, a.compareTo(a));
         Assertions.assertEquals(0, a.compareTo(c));
@@ -174,11 +174,13 @@ public class BigFractionTest {
         Assertions.assertEquals(1, a.compareTo(e));
         Assertions.assertEquals(0, d.compareTo(e));
 
+        Assertions.assertEquals(0, BigFraction.of(0, 3).compareTo(BigFraction.of(0, -2)));
+
         // these two values are different approximations of PI
         // the first  one is approximately PI - 3.07e-18
         // the second one is approximately PI + 1.936e-17
-        BigFraction pi1 = BigFraction.of(1068966896, 340262731);
-        BigFraction pi2 = BigFraction.of( 411557987, 131002976);
+        final BigFraction pi1 = BigFraction.of(1068966896, 340262731);
+        final BigFraction pi2 = BigFraction.of( 411557987, 131002976);
         Assertions.assertEquals(-1, pi1.compareTo(pi2));
         Assertions.assertEquals(1, pi2.compareTo(pi1));
         Assertions.assertEquals(0.0, pi1.doubleValue() - pi2.doubleValue(), 1.0e-20);
