@@ -158,14 +158,21 @@ public class BigFractionTest {
 
     @Test
     public void testCompareTo() {
-        BigFraction first = BigFraction.of(1, 2);
-        BigFraction second = BigFraction.of(1, 3);
-        BigFraction third = BigFraction.of(1, 2);
+        BigFraction a = BigFraction.of(1, 2);
+        BigFraction b = BigFraction.of(1, 3);
+        BigFraction c = BigFraction.of(1, 2);
+        BigFraction d = BigFraction.of(-1, 2);
+        BigFraction e = BigFraction.of(1, -2);
 
-        Assertions.assertEquals(0, first.compareTo(first));
-        Assertions.assertEquals(0, first.compareTo(third));
-        Assertions.assertEquals(1, first.compareTo(second));
-        Assertions.assertEquals(-1, second.compareTo(first));
+        Assertions.assertEquals(0, a.compareTo(a));
+        Assertions.assertEquals(0, a.compareTo(c));
+        Assertions.assertEquals(1, a.compareTo(b));
+        Assertions.assertEquals(-1, b.compareTo(a));
+        Assertions.assertEquals(-1, d.compareTo(a));
+        Assertions.assertEquals(1, a.compareTo(d));
+        Assertions.assertEquals(-1, e.compareTo(a));
+        Assertions.assertEquals(1, a.compareTo(e));
+        Assertions.assertEquals(0, d.compareTo(e));
 
         // these two values are different approximations of PI
         // the first  one is approximately PI - 3.07e-18
@@ -173,9 +180,8 @@ public class BigFractionTest {
         BigFraction pi1 = BigFraction.of(1068966896, 340262731);
         BigFraction pi2 = BigFraction.of( 411557987, 131002976);
         Assertions.assertEquals(-1, pi1.compareTo(pi2));
-        Assertions.assertEquals( 1, pi2.compareTo(pi1));
+        Assertions.assertEquals(1, pi2.compareTo(pi1));
         Assertions.assertEquals(0.0, pi1.doubleValue() - pi2.doubleValue(), 1.0e-20);
-
     }
 
     @Test
@@ -517,6 +523,7 @@ public class BigFractionTest {
         Assertions.assertEquals(-Integer.MAX_VALUE, f.getDenominatorAsInt());
         Assertions.assertEquals(-1, f.getNumeratorAsInt());
 
+        Assertions.assertEquals(BigFraction.ZERO, BigFraction.of(0, 3).divide(BigInteger.valueOf(11)));
     }
 
     @Test

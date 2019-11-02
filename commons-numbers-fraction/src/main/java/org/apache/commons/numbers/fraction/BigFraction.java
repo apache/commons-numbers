@@ -535,16 +535,16 @@ public class BigFraction
      * Compares this object to another based on size.
      * </p>
      *
-     * @param object
-     *            the object to compare to, must not be <code>null</code>.
+     * @param other Object to compare to, must not be {@code null}.
      * @return -1 if this is less than {@code object}, +1 if this is greater
-     *         than {@code object}, 0 if they are equal.
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     * than {@code object}, 0 if they are equal.
+     *
+     * @see Comparable#compareTo(Object)
      */
     @Override
-    public int compareTo(final BigFraction object) {
-        int lhsSigNum = numerator.signum();
-        int rhsSigNum = object.numerator.signum();
+    public int compareTo(final BigFraction other) {
+        final int lhsSigNum = signum();
+        final int rhsSigNum = other.signum();
 
         if (lhsSigNum != rhsSigNum) {
             return (lhsSigNum > rhsSigNum) ? 1 : -1;
@@ -553,8 +553,8 @@ public class BigFraction
             return 0;
         }
 
-        BigInteger nOd = numerator.multiply(object.denominator);
-        BigInteger dOn = denominator.multiply(object.numerator);
+        final BigInteger nOd = numerator.multiply(other.denominator);
+        final BigInteger dOn = denominator.multiply(other.numerator);
         return nOd.compareTo(dOn);
     }
 
