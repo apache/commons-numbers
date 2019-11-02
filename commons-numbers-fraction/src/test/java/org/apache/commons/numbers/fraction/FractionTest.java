@@ -478,6 +478,16 @@ public class FractionTest {
         Assertions.assertEquals(minusOne2, minusOne);
         Assertions.assertEquals(minusOne, minusOne2);
     }
+
+    @Test
+    public void testAdditiveNeutral() {
+        Assertions.assertEquals(Fraction.ZERO, Fraction.ONE.zero());
+    }
+    @Test
+    public void testMultiplicativeNeutral() {
+        Assertions.assertEquals(Fraction.ONE, Fraction.ZERO.one());
+    }
+
     @Test
     public void testToString() {
         Assertions.assertEquals("0", Fraction.of(0, 3).toString());

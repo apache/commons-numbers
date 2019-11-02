@@ -212,6 +212,9 @@ class CommonTestCases {
         testCases.add(new BinaryOperatorTestCase(1, 2, 2, 3, 7, 6));
         testCases.add(new BinaryOperatorTestCase(2, 3, 1, 2, 7, 6));
         testCases.add(new BinaryOperatorTestCase(2, 3, 2, 3, 4, 3));
+        testCases.add(new BinaryOperatorTestCase(2, 3, 0, 5, 2, 3));
+        testCases.add(new BinaryOperatorTestCase(0, 7, 2, 3, 2, 3));
+        testCases.add(new BinaryOperatorTestCase(2, 3, -2, 3, 0, 1));
 
         testCases.add(new BinaryOperatorTestCase(
                 -1, 13*13*2*2,
@@ -256,6 +259,7 @@ class CommonTestCases {
         testCases.add(new BinaryOperatorTestCase(1, 2, 2, 3, 3, 4));
         testCases.add(new BinaryOperatorTestCase(2, 3, 1, 2, 4, 3));
         testCases.add(new BinaryOperatorTestCase(2, 3, 2, 3, 1, 1));
+        testCases.add(new BinaryOperatorTestCase(0, 3, 2, 3, 0, 1));
 
         testCases.add(new BinaryOperatorTestCase(
                 2, 7,
@@ -285,6 +289,8 @@ class CommonTestCases {
         testCases.add(new BinaryOperatorTestCase(1, 2, 2, 3, 1, 3));
         testCases.add(new BinaryOperatorTestCase(2, 3, 1, 2, 1, 3));
         testCases.add(new BinaryOperatorTestCase(2, 3, 2, 3, 4, 9));
+        testCases.add(new BinaryOperatorTestCase(0, 3, 2, 3, 0, 1));
+        testCases.add(new BinaryOperatorTestCase(2, 3, 0, 3, 0, 1));
 
         testCases.add(new BinaryOperatorTestCase(
                 Integer.MAX_VALUE, 1,
@@ -306,6 +312,8 @@ class CommonTestCases {
         testCases.add(new BinaryOperatorTestCase(1, 2, 2, 3, -1, 6));
         testCases.add(new BinaryOperatorTestCase(2, 3, 1, 2, 1, 6));
         testCases.add(new BinaryOperatorTestCase(2, 3, 2, 3, 0, 1));
+        testCases.add(new BinaryOperatorTestCase(0, 3, 1, 5, -1, 5));
+        testCases.add(new BinaryOperatorTestCase(2, 3, 0, 5, 2, 3));
 
         // if this fraction is subtracted naively, it will overflow the int range.
         // check that it doesn't.

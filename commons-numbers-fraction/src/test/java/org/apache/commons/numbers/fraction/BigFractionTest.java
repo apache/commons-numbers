@@ -482,13 +482,13 @@ public class BigFractionTest {
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.divide(f2));
         }
 
-        BigFraction f1 = BigFraction.of(3, 5);
-        BigFraction f2 = BigFraction.ZERO;
-        try {
-            f1.divide(f2);
-            Assertions.fail("expecting ArithmeticException");
-        } catch (ArithmeticException ex) {
+        {
+            Assertions.assertThrows(FractionException.class,
+                                    () -> BigFraction.of(1, 2).divide(BigInteger.ZERO));
         }
+
+        BigFraction f1;
+        BigFraction f2;
 
         f1 = BigFraction.of(0, 5);
         f2 = BigFraction.of(2, 7);
@@ -536,12 +536,17 @@ public class BigFractionTest {
         Assertions.assertEquals(Integer.MIN_VALUE, f.getNumeratorAsInt());
         Assertions.assertEquals(1, f.getDenominatorAsInt());
 
-        try {
-            f.multiply((BigFraction) null);
-            Assertions.fail("expecting NullPointerException");
-        } catch (NullPointerException ex) {
+        {
+            Assertions.assertThrows(NullPointerException.class,
+                                    () -> BigFraction.ONE.multiply((BigFraction) null));
         }
 
+        Assertions.assertEquals(BigFraction.ZERO, BigFraction.ZERO.multiply(BigInteger.ONE));
+        Assertions.assertEquals(BigFraction.ZERO, BigFraction.ONE.multiply(BigInteger.ZERO));
+        Assertions.assertEquals(BigFraction.ZERO, BigFraction.ZERO.multiply(1));
+        Assertions.assertEquals(BigFraction.ZERO, BigFraction.ONE.multiply(0));
+        Assertions.assertEquals(BigFraction.ZERO, BigFraction.ZERO.multiply(1L));
+        Assertions.assertEquals(BigFraction.ZERO, BigFraction.ONE.multiply(0L));
     }
 
     @Test
@@ -553,11 +558,16 @@ public class BigFractionTest {
         }
 
         BigFraction f = BigFraction.of(1, 1);
-        try {
-            f.subtract((BigFraction) null);
-            Assertions.fail("expecting NullPointerException");
-        } catch (NullPointerException ex) {
+        {
+            Assertions.assertThrows(NullPointerException.class,
+                                    () -> f.subtract((BigFraction) null));
         }
+
+        Assertions.assertEquals(BigFraction.ONE, BigFraction.ONE.subtract(BigInteger.ZERO));
+        Assertions.assertEquals(BigFraction.of(-1), BigFraction.ZERO.subtract(BigInteger.ONE));
+        Assertions.assertEquals(BigFraction.of(-2), BigFraction.ZERO.subtract(2));
+        Assertions.assertEquals(BigFraction.of(-123), BigFraction.ZERO.subtract(123L));
+        Assertions.assertEquals(BigFraction.of(-7, 3), BigFraction.of(2, 3).subtract(BigInteger.valueOf(3)));
     }
 
     @Test
@@ -603,6 +613,10 @@ public class BigFractionTest {
         Assertions.assertEquals(BigFraction.of(1594323, 8192), BigFraction.of(2, 3).pow(-13));
         Assertions.assertEquals(BigFraction.of(1594323, 8192), BigFraction.of(2, 3).pow(-13l));
         Assertions.assertEquals(BigFraction.of(1594323, 8192), BigFraction.of(2, 3).pow(BigInteger.valueOf(-13l)));
+        Assertions.assertEquals(BigFraction.ZERO, BigFraction.of(0, 5).pow(123));
+        Assertions.assertEquals(BigFraction.ZERO, BigFraction.of(0, 5).pow(123L));
+        Assertions.assertEquals(BigFraction.ZERO, BigFraction.of(0, 5).pow(new BigInteger("112233445566778899")));
+        Assertions.assertEquals(Math.sqrt(2d / 3), BigFraction.of(2, 3).pow(0.5), 1e-15);
     }
 
     @Test
@@ -625,6 +639,24 @@ public class BigFractionTest {
         for (BigFraction fraction : fractions) {
             Assertions.assertEquals(fraction, TestUtils.serializeAndRecover(fraction));
         }
+    }
+
+    @Test
+    public void testAdditiveNeutral() {
+        Assertions.assertEquals(BigFraction.ZERO, BigFraction.ONE.zero());
+    }
+    @Test
+    public void testMultiplicativeNeutral() {
+        Assertions.assertEquals(BigFraction.ONE, BigFraction.ZERO.one());
+    }
+
+    @Test
+    public void testToString() {
+        Assertions.assertEquals("0", BigFraction.of(0, 3).toString());
+        Assertions.assertEquals("3", BigFraction.of(6, 2).toString());
+        Assertions.assertEquals("2 / 3", BigFraction.of(18, 27).toString());
+        Assertions.assertEquals("-10 / 11", BigFraction.of(-10, 11).toString());
+        Assertions.assertEquals("10 / -11", BigFraction.of(10, -11).toString());
     }
 
     @Test
