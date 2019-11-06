@@ -23,35 +23,66 @@
     This ruleset checks the code for discouraged programming constructs.
   </description>
 
-  <rule ref="rulesets/java/basic.xml"/>
-
-  <rule ref="rulesets/java/braces.xml"/>
-
-  <rule ref="rulesets/java/comments.xml">
-    <exclude name="CommentSize"/>
+  <rule ref="category/java/bestpractices.xml">
+    <exclude name="UseVarargs" />
+    <!-- Allow private inner classes to access outer class methods/fields. -->
+    <exclude name="AccessorMethodGeneration" />
   </rule>
-  <rule ref="rulesets/java/comments.xml/CommentSize">
+  <rule ref="category/java/codestyle.xml">
+    <exclude name="MethodArgumentCouldBeFinal" />
+    <exclude name="ShortVariable" />
+    <exclude name="LongVariable" />
+    <exclude name="CommentDefaultAccessModifier" />
+    <exclude name="DefaultPackage" />
+    <exclude name="CallSuperInConstructor" />
+    <exclude name="AbstractNaming" />
+    <exclude name="UselessParentheses" />
+    <exclude name="AtLeastOneConstructor" />
+    <exclude name="GenericsNaming" />
+    <exclude name="OnlyOneReturn" />
+  </rule>
+  <rule ref="category/java/design.xml">
+    <exclude name="TooManyMethods" />
+    <exclude name="LawOfDemeter" />
+    <exclude name="NcssCount" />
+    <exclude name="LoosePackageCoupling" />
+  </rule>
+  <rule ref="category/java/documentation.xml">
+    <exclude name="CommentSize" />
+  </rule>
+  <rule ref="category/java/errorprone.xml">
+    <exclude name="BeanMembersShouldSerialize" />
+    <!-- This rule is known to be poor with Java 5 and later:
+      https://github.com/pmd/pmd/issues/873 -->
+    <exclude name="DataflowAnomalyAnalysis" />
+  </rule>
+  <rule ref="category/java/multithreading.xml">
+    <!-- <exclude name="..." /> -->
+  </rule>
+  <rule ref="category/java/performance.xml">
+    <!-- <exclude name="..." /> -->
+  </rule>
+
+  <!-- Rule customisations. -->
+
+  <rule ref="category/java/codestyle.xml/ShortMethodName">
     <properties>
-      <property name="maxLines"      value="200"/>
-      <property name="maxLineLength" value="256"/>
+      <!-- Allow classes to have factory constructor method 'of' -->
+      <property name="violationSuppressXPath" value="//ClassOrInterfaceDeclaration[matches(@Image, '^.*$')]"/>
     </properties>
   </rule>
 
-  <rule ref="rulesets/java/empty.xml"/>
+  <rule ref="category/java/design.xml/CyclomaticComplexity">
+    <properties>
+      <!-- Increase from default of 10 -->
+      <property name="methodReportLevel" value="20"/>
+    </properties>
+  </rule>
 
-  <rule ref="rulesets/java/finalizers.xml"/>
-
-  <rule ref="rulesets/java/imports.xml"/>
-
-  <rule ref="rulesets/java/typeresolution.xml"/>
-
-  <rule ref="rulesets/java/clone.xml"/>
-
-  <rule ref="rulesets/java/unnecessary.xml">
-    <!-- We do use extra parentheses there as most people do not recall operator precedence,
-         this means even if the parentheses are useless for the compiler, we don't consider
-         them useless for the developer. This is the reason why we disable this rule. -->
-    <exclude name="UselessParentheses"/>
+  <rule ref="category/java/errorprone.xml/AvoidLiteralsInIfCondition">
+    <properties>
+      <property name="ignoreMagicNumbers" value="-1,0,1" />
+    </properties>
   </rule>
 
 </ruleset>
