@@ -23,4 +23,7 @@ jdk:
 install: true
 
 script:
-  - mvn clean test pmd:pmd findbugs:findbugs checkstyle:checkstyle jacoco:report coveralls:report
+  - mvn
+
+after_success:
+  - mvn jacoco:report coveralls:report
