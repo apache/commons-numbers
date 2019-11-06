@@ -188,6 +188,8 @@
   </dependencies>
 
   <build>
+    <!--  TODO: Add binary compatibility check when released. -->
+    <defaultGoal>clean verify apache-rat:check checkstyle:check pmd:check spotbugs:check javadoc:javadoc</defaultGoal>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
