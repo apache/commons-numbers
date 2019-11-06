@@ -58,6 +58,7 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <numbers.pmd.version>3.9.0</numbers.pmd.version>
     <numbers.checkstyle.version>3.0.0</numbers.checkstyle.version>
+    <numbers.checkstyle.dep.version>8.20</numbers.checkstyle.dep.version>
     <numbers.mathjax.version>2.7.2</numbers.mathjax.version>
     <numbers.junit.bom.version>5.4.2</numbers.junit.bom.version>
     <numbers.commons.math3.version>3.6.1</numbers.commons.math3.version>
@@ -231,6 +232,25 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>${numbers.checkstyle.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>${numbers.checkstyle.dep.version}</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <includeTestSourceDirectory>true</includeTestSourceDirectory>
+          <configLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle.xml</configLocation>
+          <headerLocation>${numbers.parent.dir}/src/main/resources/checkstyle/license-header.txt</headerLocation>
+          <suppressionsLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
+          <enableRulesSummary>false</enableRulesSummary>
+          <logViolationsToConsole>false</logViolationsToConsole>
+          <failOnViolation>true</failOnViolation>
+          <resourceExcludes>NOTICE.txt,LICENSE.txt,**/maven-archiver/pom.properties,**/resolver-status.properties</resourceExcludes>
+          <excludes>**/generated/**.java</excludes>
+        </configuration>
         <executions>
           <execution>
             <id>validate</id>
@@ -369,8 +389,10 @@
         <configuration>
           <configLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle.xml</configLocation>
           <headerLocation>${numbers.parent.dir}/src/main/resources/checkstyle/license-header.txt</headerLocation>
+          <suppressionsLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
           <enableRulesSummary>false</enableRulesSummary>
           <includeResources>false</includeResources>
+          <excludes>**/generated/**.java</excludes>
         </configuration>
         <reportSets>
           <reportSet>
