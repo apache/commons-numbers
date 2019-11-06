@@ -116,7 +116,7 @@ public class Fraction
                 throw new FractionException(FractionException.ERROR_CONVERSION, value, p2, q2);
             }
 
-            double convergent = (double)p2 / (double)q2;
+            final double convergent = (double)p2 / (double)q2;
             if (n < maxIterations &&
                 Math.abs(convergent - value) > epsilon &&
                 q2 < maxDenominator) {
@@ -280,8 +280,8 @@ public class Fraction
      */
     @Override
     public int compareTo(Fraction object) {
-        long nOd = ((long) numerator) * object.denominator;
-        long dOn = ((long) denominator) * object.numerator;
+        final long nOd = ((long) numerator) * object.denominator;
+        final long dOn = ((long) denominator) * object.numerator;
         return nOd < dOn ? -1 :
             nOd > dOn ? 1 :
             0;
@@ -541,8 +541,8 @@ public class Fraction
 
         // knuth 4.5.1
         // Make sure we don't overflow unless the result *must* overflow.
-        int d1 = ArithmeticUtils.gcd(numerator, fraction.denominator);
-        int d2 = ArithmeticUtils.gcd(fraction.numerator, denominator);
+        final int d1 = ArithmeticUtils.gcd(numerator, fraction.denominator);
+        final int d2 = ArithmeticUtils.gcd(fraction.numerator, denominator);
         return of(Math.multiplyExact(numerator / d1, fraction.numerator / d2),
                   Math.multiplyExact(denominator / d2, fraction.denominator / d1));
     }
