@@ -97,10 +97,9 @@
         Temporary workaround?
     -->
     <commons.release.name>commons-numbers-${project.version}</commons.release.name>
-    <!-- Java8+ requires additional Javadoc qualifier for MathJax (default to empty). -->
-    <allowscript.javadoc.qualifier></allowscript.javadoc.qualifier>
-    <!-- Invalid flag for old javadoc versions (default to empty). -->
-    <doclint.javadoc.qualifier></doclint.javadoc.qualifier>
+    <!-- Java8+ requires additional Javadoc qualifier for scripts such as MathJax -->
+    <allowscript.javadoc.qualifier>--allow-script-in-comments</allowscript.javadoc.qualifier>
+    <doclint.javadoc.qualifier>-Xdoclint:all</doclint.javadoc.qualifier>
   </properties>
 
   <modules>
@@ -648,23 +647,6 @@
           </plugin>
         </plugins>
       </build>
-    </profile>
-
-    <profile>
-      <id>javadoc8</id>
-      <activation><jdk>[1.8,)</jdk></activation>
-      <properties>
-        <!-- Java8+ requires additional Javadoc qualifier for scripts such as MathJax -->
-        <allowscript.javadoc.qualifier>--allow-script-in-comments</allowscript.javadoc.qualifier>
-      </properties>
-    </profile>
-    <profile>
-      <id>javadoc7</id>
-      <activation><jdk>[1.7,)</jdk></activation>
-      <properties>
-        <!-- Invalid flag in earlier versions of javadoc -->
-        <doclint.javadoc.qualifier>-Xdoclint:all</doclint.javadoc.qualifier>
-      </properties>
     </profile>
   </profiles>
 
