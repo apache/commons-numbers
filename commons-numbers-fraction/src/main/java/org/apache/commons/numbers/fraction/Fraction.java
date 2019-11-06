@@ -115,17 +115,21 @@ public class Fraction
             p2 = (a1 * p1) + p0;
             q2 = (a1 * q1) + q0;
 
-            if ((Math.abs(p2) > overflow) || (Math.abs(q2) > overflow)) {
+            if (Math.abs(p2) > overflow ||
+                Math.abs(q2) > overflow) {
                 // in maxDenominator mode, if the last fraction was very close to the actual value
                 // q2 may overflow in the next iteration; in this case return the last one.
-                if (epsilon == 0.0 && Math.abs(q1) < maxDenominator) {
+                if (epsilon == 0.0 &&
+                    Math.abs(q1) < maxDenominator) {
                     break;
                 }
                 throw new FractionException(FractionException.ERROR_CONVERSION, value, p2, q2);
             }
 
             double convergent = (double)p2 / (double)q2;
-            if (n < maxIterations && Math.abs(convergent - value) > epsilon && q2 < maxDenominator) {
+            if (n < maxIterations &&
+                Math.abs(convergent - value) > epsilon &&
+                q2 < maxDenominator) {
                 p0 = p1;
                 p1 = p2;
                 q0 = q1;
