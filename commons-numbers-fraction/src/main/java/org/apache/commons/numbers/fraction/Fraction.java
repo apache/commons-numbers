@@ -28,29 +28,19 @@ public class Fraction
     implements Comparable<Fraction>,
                NativeOperators<Fraction>,
                Serializable {
-
     /** A fraction representing "1". */
     public static final Fraction ONE = new Fraction(1, 1);
-
     /** A fraction representing "0". */
     public static final Fraction ZERO = new Fraction(0, 1);
-
     /** Serializable version identifier */
     private static final long serialVersionUID = 20190701L;
-
     /** Parameter name for fraction (to satisfy checkstyle). */
     private static final String PARAM_NAME_FRACTION = "fraction";
-
     /** The default epsilon used for convergence. */
     private static final double DEFAULT_EPSILON = 1e-5;
-
-    /** The denominator of this fraction reduced to lowest terms. Always positive. */
+    /** The denominator of this fraction reduced to lowest terms. */
     private final int denominator;
-
-    /**
-     * The numerator of this fraction reduced to lowest terms. Negative if this
-     * fraction's value is negative.
-     */
+    /** The numerator of this fraction reduced to lowest terms. */
     private final int numerator;
 
     /**
