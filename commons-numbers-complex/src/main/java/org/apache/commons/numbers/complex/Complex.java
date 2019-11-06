@@ -135,7 +135,7 @@ public final class Complex implements Serializable  {
 
     /**
      * For a real constructor argument x, returns a new Complex object c
-     * where {@code c = cos(x) + i sin (x)}
+     * where {@code c = cos(x) + i sin (x)}.
      *
      * @param x {@code double} to build the cis number
      * @return {@code Complex}
@@ -288,8 +288,8 @@ public final class Complex implements Serializable  {
     }
 
      /**
-     * Returns the conjugate of this complex number.
-     * C++11 grammar.
+     * Returns the conjugate of this complex number
+     * (C++11 grammar).
      * @return the conjugate of this complex object.
      * @see #conjugate()
      */
@@ -537,7 +537,7 @@ public final class Complex implements Serializable  {
         return imaginary;
     }
     /**
-     * Access the imaginary part (C++ grammar)
+     * Access the imaginary part (C++ grammar).
      *
      * @return the imaginary part.
      */
@@ -555,7 +555,7 @@ public final class Complex implements Serializable  {
     }
 
      /**
-     * Access the real part (C++ grammar)
+     * Access the real part (C++ grammar).
      *
      * @return the real part.
      */
