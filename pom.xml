@@ -333,7 +333,7 @@
           <columnNames>Fix Version,Key,Component,Summary,Type,Resolution,Status</columnNames>
           <!-- Sort cols in natural order when using JQL for JIRA 5.1 -->
           <sortColumnNames>Fix Version DESC,Type,Key DESC</sortColumnNames>
-          <resolutionIds>Fixed</resolutionIds>
+          <resolutionIds>Fixed,Implemented</resolutionIds>
           <statusIds>Resolved,Closed</statusIds>
           <!-- Don't include sub-task -->
           <typeIds>Bug,New Feature,Task,Improvement,Wish,Test</typeIds>
