@@ -248,7 +248,8 @@
           <suppressionsLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
           <enableRulesSummary>false</enableRulesSummary>
           <logViolationsToConsole>false</logViolationsToConsole>
-          <failOnViolation>true</failOnViolation>
+          <!-- TODO: Set to true when Checkstyle has been fixed. -->
+          <failOnViolation>false</failOnViolation>
           <resourceExcludes>NOTICE.txt,LICENSE.txt,**/maven-archiver/pom.properties,**/resolver-status.properties</resourceExcludes>
           <excludes>**/generated/**.java</excludes>
         </configuration>
