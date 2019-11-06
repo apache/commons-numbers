@@ -92,7 +92,7 @@ public class CStandardTest {
         Complex z1 = Complex.ofReal(3.0);
         Complex z2 = Complex.ofCartesian(0.0, 3.0);
         assertComplex(z1.asin(), negI.multiply(z2.asinh()));
-        assertComplex(z1.atan(), negI.multiply(z2.atanh()), Math.ulp(1), Math.ulp(1));
+        assertComplex(z1.atan(), negI.multiply(z2.atanh()), Math.ulp(1.0), Math.ulp(1.0));
         assertComplex(z1.cos(), z2.cosh());
         assertComplex(z1.sin(), negI.multiply(z2.sinh()));
         assertComplex(z1.tan(), negI.multiply(z2.tanh()));
@@ -103,7 +103,7 @@ public class CStandardTest {
      */
     @Test
     public void testAcos() {
-        assertComplex(oneOne.acos().conj(), oneOne.conj().acos(), Math.ulp(1), Math.ulp(1));
+        assertComplex(oneOne.acos().conj(), oneOne.conj().acos(), Math.ulp(1.0), Math.ulp(1.0));
         assertComplex(Complex.ZERO.acos(), piTwoNegZero);
         assertComplex(negZeroZero.acos(), piTwoNegZero);
         assertComplex(zeroNaN.acos(), piTwoNaN);
