@@ -525,17 +525,7 @@ public final class Complex implements Serializable  {
             Double.isNaN(imaginary)) {
             return 7;
         }
-        return 37 * (17 * hash(imaginary) + hash(real));
-    }
-
-    /**
-     * @param d Value.
-     * @return a hash code for the given value.
-     */
-    private int hash(double d) {
-        final long v = Double.doubleToLongBits(d);
-        return (int) (v ^ (v >>> 32));
-        //return new Double(d).hashCode();
+        return 37 * (17 * Double.hashCode(imaginary) + Double.hashCode(real));
     }
 
     /**
