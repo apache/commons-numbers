@@ -291,6 +291,7 @@ public final class Complex implements Serializable  {
      * Returns the conjugate of this complex number.
      * C++11 grammar.
      * @return the conjugate of this complex object.
+     * @see #conjugate()
      */
     public Complex conj() {
         return conjugate();
