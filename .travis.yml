@@ -18,9 +18,10 @@ language: java
 jdk:
   - openjdk8
 
-# Skip the installation step:
-#   https://docs.travis-ci.com/user/job-lifecycle/#skipping-the-installation-phase
-install: true
+# The default build is so verbose the travis log file can exceed the allowed limit.
+# Run a custom install that hides all the Maven ‘Downloading’ messages.
+install:
+  - mvn install -Dmaven.javadoc.skip=true -V -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
 
 script:
   - mvn
