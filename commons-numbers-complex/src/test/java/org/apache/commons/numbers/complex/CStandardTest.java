@@ -23,6 +23,10 @@ import org.apache.commons.rng.simple.RandomSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
+
 /**
  * Tests the standards defined by the C.99 standard for complex numbers
  * defined in ISO/IEC 9899, Annex G.
@@ -36,6 +40,7 @@ public class CStandardTest {
     private static final double inf = Double.POSITIVE_INFINITY;
     private static final double negInf = Double.NEGATIVE_INFINITY;
     private static final double nan = Double.NaN;
+    private static final double max = Double.MAX_VALUE;
     private static final double piOverFour = Math.PI / 4.0;
     private static final double piOverTwo = Math.PI / 2.0;
     private static final double threePiOverFour = 3.0 * Math.PI / 4.0;
@@ -74,6 +79,9 @@ public class CStandardTest {
     private static final Complex threePiFourNegInf = complex(threePiOverFour, negInf);
     private static final Complex piFourNegInf = complex(piOverFour, negInf);
     private static final Complex NAN = complex(nan, nan);
+    private static final Complex maxMax = complex(max, max);
+    private static final Complex maxNan = complex(max, nan);
+    private static final Complex nanMax = complex(nan, max);
     // CHECKSTYLE: resume ConstantName
 
     /**
@@ -107,6 +115,24 @@ public class CStandardTest {
     }
 
     /**
+     * Assert the operation on the two complex numbers.
+     *
+     * @param c1 the first complex
+     * @param c2 the second complex
+     * @param operation the operation
+     * @param operationName the operation name
+     * @param expected the expected
+     * @param expectedName the expected name
+     */
+    private static void assertOperation(Complex c1, Complex c2,
+            BiFunction<Complex, Complex, Complex> operation, String operationName,
+            Predicate<Complex> expected, String expectedName) {
+        final Complex z = operation.apply(c1, c2);
+        Assertions.assertTrue(expected.test(z),
+            () -> String.format("%s expected: %s %s %s = %s", expectedName, c1, operationName, c2, z));
+    }
+
+    /**
      * Utility to create a Complex.
      *
      * @param real the real
@@ -115,6 +141,203 @@ public class CStandardTest {
      */
     private static Complex complex(double real, double imaginary) {
         return Complex.ofCartesian(real, imaginary);
+    }
+
+    /**
+     * Creates a list of Complex infinites.
+     *
+     * @return the list
+     */
+    private static ArrayList<Complex> createInfinites() {
+        final double[] values = {0, 1, inf, negInf, nan};
+        return createCombinations(values, Complex::isInfinite);
+    }
+
+    /**
+     * Creates a list of Complex finites that are not zero.
+     *
+     * @return the list
+     */
+    private static ArrayList<Complex> createNonZeroFinites() {
+        final double[] values = {-1, -0, 0, 1, Double.MAX_VALUE};
+        return createCombinations(values, c -> !CStandardTest.isZero(c));
+    }
+
+    /**
+     * Creates a list of Complex finites that are zero: [0,0], [-0,0], [0,-0], [-0,-0].
+     *
+     * @return the list
+     */
+    private static ArrayList<Complex> createZeroFinites() {
+        final double[] values = {-0, 0};
+        return createCombinations(values, c -> true);
+    }
+
+    /**
+     * Creates a list of Complex NaNs.
+     *
+     * @return the list
+     */
+    private static ArrayList<Complex> createNaNs() {
+        final double[] values = {0, 1, nan};
+        return createCombinations(values, Complex::isNaN);
+    }
+
+    /**
+     * Creates a list of Complex numbers as an all-vs-all combinations that pass the
+     * condition.
+     *
+     * @param values the values
+     * @param condition the condition
+     * @return the list
+     */
+    private static ArrayList<Complex> createCombinations(final double[] values, Predicate<Complex> condition) {
+        final ArrayList<Complex> list = new ArrayList<>();
+        for (double re : values) {
+            for (double im : values) {
+                final Complex z = complex(re, im);
+                if (condition.test(z)) {
+                    list.add(z);
+                }
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Checks if the complex is zero.
+     *
+     * @param c the complex
+     * @return true if zero
+     */
+    private static boolean isZero(Complex c) {
+        return Complex.equals(c, Complex.ZERO, 0);
+    }
+
+    /**
+     * ISO C Standard G.5 (4).
+     */
+    @Test
+    public void testMultiply() {
+        final ArrayList<Complex> infinites = createInfinites();
+        final ArrayList<Complex> nonZeroFinites = createNonZeroFinites();
+        final ArrayList<Complex> zeroFinites = createZeroFinites();
+
+        // C.99 refers to non-zero finites.
+        // Standard multiplication of zero with infinites is not defined.
+        Assertions.assertEquals(nan, 0.0 * inf, "0 * inf");
+        Assertions.assertEquals(nan, 0.0 * negInf, "0 * -inf");
+        Assertions.assertEquals(nan, -0.0 * inf, "-0 * inf");
+        Assertions.assertEquals(nan, -0.0 * negInf, "-0 * -inf");
+
+        // "if one operand is an infinity and the other operand is a nonzero finite number or an
+        // infinity, then the result of the * operator is an infinity;"
+        for (Complex z : infinites) {
+            for (Complex w : infinites) {
+                assertOperation(z, w, Complex::multiply, "*", Complex::isInfinite, "Inf");
+                assertOperation(w, z, Complex::multiply, "*", Complex::isInfinite, "Inf");
+            }
+            for (Complex w : nonZeroFinites) {
+                assertOperation(z, w, Complex::multiply, "*", Complex::isInfinite, "Inf");
+                assertOperation(w, z, Complex::multiply, "*", Complex::isInfinite, "Inf");
+            }
+            // C.99 refers to non-zero finites.
+            // Infer that Complex multiplication of zero with infinites is not defined.
+            for (Complex w : zeroFinites) {
+                assertOperation(z, w, Complex::multiply, "*", Complex::isNaN, "NaN");
+                assertOperation(w, z, Complex::multiply, "*", Complex::isNaN, "NaN");
+            }
+        }
+
+        // ISO C Standard in Annex G is missing an explicit definition of how to handle NaNs.
+        // We will assume multiplication by (nan,nan) is not allowed.
+        // It is undefined how to multiply when a complex has only one NaN component.
+        // The reference implementation allows it.
+
+        // The GNU g++ compiler computes:
+        // (1e300 + i 1e300) * (1e30 + i NAN) = inf + i inf
+        // Thus this is allowing some computations with NaN.
+
+        // Check multiply with (NaN,NaN) is not corrected
+        final double[] values = {0, 1, inf, negInf, nan};
+        for (Complex z : createCombinations(values, c -> true)) {
+            assertOperation(z, NAN, Complex::multiply, "*", Complex::isNaN, "NaN");
+            assertOperation(NAN, z, Complex::multiply, "*", Complex::isNaN, "NaN");
+        }
+
+        // Test multiply cases which result in overflow are corrected to infinity
+        assertOperation(maxMax, maxMax, Complex::multiply, "*", Complex::isInfinite, "Inf");
+        assertOperation(maxNan, maxNan, Complex::multiply, "*", Complex::isInfinite, "Inf");
+        assertOperation(nanMax, maxNan, Complex::multiply, "*", Complex::isInfinite, "Inf");
+        assertOperation(maxNan, nanMax, Complex::multiply, "*", Complex::isInfinite, "Inf");
+        assertOperation(nanMax, nanMax, Complex::multiply, "*", Complex::isInfinite, "Inf");
+    }
+
+    /**
+     * ISO C Standard G.5 (4).
+     */
+    @Test
+    public void testDivide() {
+        final ArrayList<Complex> infinites = createInfinites();
+        final ArrayList<Complex> nonZeroFinites = createNonZeroFinites();
+        final ArrayList<Complex> zeroFinites = createZeroFinites();
+        final ArrayList<Complex> nans = createNaNs();
+        final ArrayList<Complex> finites = new ArrayList<>(nonZeroFinites);
+        finites.addAll(zeroFinites);
+
+        // "if the first operand is an infinity and the second operand is a finite number, then the
+        // result of the / operator is an infinity;"
+        for (Complex z : infinites) {
+            for (Complex w : nonZeroFinites) {
+                assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, "Inf");
+            }
+            for (Complex w : zeroFinites) {
+                assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, "Inf");
+            }
+            // Check inf/inf cannot be done
+            for (Complex w : infinites) {
+                assertOperation(z, w, Complex::divide, "/", Complex::isNaN, "NaN");
+            }
+        }
+
+        // "if the first operand is a finite number and the second operand is an infinity, then the
+        // result of the / operator is a zero;"
+        for (Complex z : finites) {
+            for (Complex w : infinites) {
+                assertOperation(z, w, Complex::divide, "/", CStandardTest::isZero, "Zero");
+            }
+        }
+
+        // "if the first operand is a nonzero finite number or an infinity and the second operand is
+        // a zero, then the result of the / operator is an infinity."
+        for (Complex w : zeroFinites) {
+            for (Complex z : nonZeroFinites) {
+                assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, "Inf");
+            }
+            for (Complex z : infinites) {
+                assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, "Inf");
+            }
+        }
+
+        // ISO C Standard in Annex G is missing an explicit definition of how to handle NaNs.
+        // The reference implementation does not correct for divide by NaN components unless
+        // infinite.
+        for (Complex w : nans) {
+            for (Complex z : finites) {
+                assertOperation(z, w, Complex::divide, "/", c -> NAN.equals(c), "(NaN,NaN)");
+            }
+            for (Complex z : infinites) {
+                assertOperation(z, w, Complex::divide, "/", c -> NAN.equals(c), "(NaN,NaN)");
+            }
+        }
+
+        // Check (NaN,NaN) divide is not corrected for the edge case of divide by zero or infinite
+        for (Complex w : zeroFinites) {
+            assertOperation(NAN, w, Complex::divide, "/", Complex::isNaN, "NaN");
+        }
+        for (Complex w : infinites) {
+            assertOperation(NAN, w, Complex::divide, "/", Complex::isNaN, "NaN");
+        }
     }
 
     /**
@@ -210,7 +433,9 @@ public class CStandardTest {
         assertComplex(zeroNaN.acosh(), NAN);
         assertComplex(oneNaN.acosh(), NAN);
         assertComplex(negInfOne.acosh(), infPi);
+        assertComplex(negInfZero.acosh(), infPi);
         assertComplex(infOne.acosh(), infZero);
+        assertComplex(infZero.acosh(), infZero);
         assertComplex(negInfPosInf.acosh(), infThreePiFour);
         assertComplex(infInf.acosh(), infPiFour);
         assertComplex(infNaN.acosh(), infNaN);
@@ -218,6 +443,15 @@ public class CStandardTest {
         assertComplex(nanOne.acosh(), NAN);
         assertComplex(nanInf.acosh(), infNaN);
         assertComplex(NAN.acosh(), NAN);
+        // The standard mentions positive-signed y
+        Assertions.assertThrows(AssertionError.class, () -> {
+            // Not −∞ + iy, positive signed y
+            assertComplex(complex(negInf, -0.0).acosh(), infPi);
+        });
+        Assertions.assertThrows(AssertionError.class, () -> {
+            // Not ∞ + iy, positive signed y
+            assertComplex(complex(inf, -0.0).acosh(), infPi);
+        });
     }
 
     /**

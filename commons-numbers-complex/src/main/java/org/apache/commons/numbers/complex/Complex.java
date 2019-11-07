@@ -354,7 +354,7 @@ public final class Complex implements Serializable  {
         double d = divisor.getImaginary();
         int ilogbw = 0;
         final double logbw = Math.log(Math.max(Math.abs(c), Math.abs(d))) / Math.log(2);
-        if (!Double.isInfinite(logbw)) {
+        if (Double.isFinite(logbw)) {
             ilogbw = (int)logbw;
             c = Math.scalb(c, -ilogbw);
             d = Math.scalb(d, -ilogbw);
@@ -362,26 +362,80 @@ public final class Complex implements Serializable  {
         final double denom = c * c + d * d;
         double x = Math.scalb((a * c + b * d) / denom, -ilogbw);
         double y = Math.scalb((b * c - a * d) / denom, -ilogbw);
+        // Recover infinities and zeros that computed as NaN+iNaN
+        // the only cases are nonzero/zero, infinite/finite, and finite/infinite, ...
+        // --------------
+        // Modification from the listing in ISO C.99 G.5.1 (8):
+        // Prevent overflow in (a * c + b * d) and (b * c - a * d).
+        // It is only the sign that is important. not the magnitude.
+        // --------------
         if (Double.isNaN(x) && Double.isNaN(y)) {
             if ((denom == 0.0) &&
                     (!Double.isNaN(a) || !Double.isNaN(b))) {
+                // nonzero/zero
                 x = Math.copySign(Double.POSITIVE_INFINITY, c) * a;
                 y = Math.copySign(Double.POSITIVE_INFINITY, c) * b;
-            } else if ((Double.isInfinite(a) && Double.isInfinite(b)) &&
-                    !Double.isInfinite(c) && !Double.isInfinite(d)) {
-                a = Math.copySign(Double.isInfinite(a) ? 1.0 : 0.0, a);
-                b = Math.copySign(Double.isInfinite(b) ? 1.0 : 0.0, b);
-                x = Double.POSITIVE_INFINITY * (a * c + b * d);
-                y = Double.POSITIVE_INFINITY * (b * c - a * d);
-            } else if (Double.isInfinite(logbw) &&
-                    !Double.isInfinite(a) && !Double.isInfinite(b)) {
-                c = Math.copySign(Double.isInfinite(c) ? 1.0 : 0.0, c);
-                d = Math.copySign(Double.isInfinite(d) ? 1.0 : 0.0, d);
-                x = 0.0 * (a * c + b * d);
-                y = 0.0 * (b * c - a * d);
+            } else if ((Double.isInfinite(a) || Double.isInfinite(b)) &&
+                    Double.isFinite(c) && Double.isFinite(d)) {
+                // infinite/finite
+                a = boxInfinity(a);
+                b = boxInfinity(b);
+                x = Double.POSITIVE_INFINITY * computeACplusBD(a, b, c, d);
+                y = Double.POSITIVE_INFINITY * computeBCminusAD(a, b, c, d);
+            } else if (divisor.isInfinite() &&
+                    Double.isFinite(a) && Double.isFinite(b)) {
+                // finite/infinite
+                c = boxInfinity(c);
+                d = boxInfinity(d);
+                x = 0.0 * computeACplusBD(a, b, c, d);
+                y = 0.0 * computeBCminusAD(a, b, c, d);
             }
         }
         return new Complex(x, y);
+    }
+
+    /**
+     * Compute {@code a*c + b*d} without overflow.
+     * It is assumed: either {@code a} and {@code b} or {@code c} and {@code d} are
+     * either zero or one (i.e. a boxed infinity); and the sign of the result is important,
+     * not the value.
+     *
+     * @param a the a
+     * @param b the b
+     * @param c the c
+     * @param d the d
+     * @return the result
+     */
+    private static double computeACplusBD(double a, double b, double c, double d) {
+        final double ac = a * c;
+        final double bd = b * d;
+        double result = ac + bd;
+        return Double.isFinite(result) ?
+            result :
+            // Overflow. Just divide by 2 as it is the sign of the result that matters.
+            ac * 0.5 + bd * 0.5;
+    }
+
+    /**
+     * Compute {@code b*c - a*d} without overflow.
+     * It is assumed: either {@code a} and {@code b} or {@code c} and {@code d} are
+     * either zero or one (i.e. a boxed infinity); and the sign of the result is important,
+     * not the value.
+     *
+     * @param a the a
+     * @param b the b
+     * @param c the c
+     * @param d the d
+     * @return the result
+     */
+    private static double computeBCminusAD(double a, double b, double c, double d) {
+        final double bc = b * c;
+        final double ad = a * d;
+        final double result = bc - ad;
+        return Double.isFinite(result) ?
+            result :
+            // Overflow. Just divide by 2 as it is the sign of the result that matters.
+            bc * 0.5 + ad * 0.5;
     }
 
     /**
@@ -612,44 +666,51 @@ public final class Complex implements Serializable  {
         final double bc = b * c;
         double x = ac - bd;
         double y = ad + bc;
-        if (Double.isNaN(a) && Double.isNaN(b)) {
+
+        // --------------
+        // NaN can occur if:
+        // - any of (a,b,c,d) are NaN (for NaN or Infinite complex numbers)
+        // - a multiplication of infinity by zero (ac,bd,ad,bc).
+        // - a subtraction of infinity from infinity (e.g. ac - bd)
+        //   Note that (ac,bd,ad,bc) can be infinite due to overflow.
+        //
+        // Detect a NaN result and perform correction.
+        //
+        // Modification from the listing in ISO C.99 G.5.1 (6)
+        // Do not correct infinity multiplied by zero. This is left as NaN.
+        // --------------
+
+        if (Double.isNaN(x) && Double.isNaN(y)) {
+            // Recover infinities that computed as NaN+iNaN ...
             boolean recalc = false;
-            if (Double.isInfinite(a) || Double.isInfinite(b)) {
-                a = Math.copySign(Double.isInfinite(a) ? 1.0 : 0.0, a);
-                b = Math.copySign(Double.isInfinite(a) ? 1.0 : 0.0, a);
-                if (Double.isNaN(c)) {
-                    c = Math.copySign(0.0,  c);
-                }
-                if (Double.isNaN(d)) {
-                    d = Math.copySign(0.0,  d);
-                }
+            if (isInfinite() && isNotZero(c, d)) {
+                // This complex is infinite.
+                // "Box" the infinity and change NaNs in the other factor to 0.
+                a = boxInfinity(a);
+                b = boxInfinity(b);
+                c = changeNaNtoZero(c);
+                d = changeNaNtoZero(d);
                 recalc = true;
             }
-            if (Double.isInfinite(c) || Double.isInfinite(d)) {
-                c = Math.copySign(Double.isInfinite(c) ? 1.0 : 0.0, c);
-                d = Math.copySign(Double.isInfinite(d) ? 1.0 : 0.0, d);
-                if (Double.isNaN(a)) {
-                    a = Math.copySign(0.0,  a);
-                }
-                if (Double.isNaN(b)) {
-                    b = Math.copySign(0.0,  b);
-                }
+            // (c, d) may have been corrected so do not use factor.isInfinite().
+            if ((Double.isInfinite(c) || Double.isInfinite(d)) &&
+                isNotZero(a, b)) {
+                // This other complex is infinite.
+                // "Box" the infinity and change NaNs in the other factor to 0.
+                c = boxInfinity(c);
+                d = boxInfinity(d);
+                a = changeNaNtoZero(a);
+                b = changeNaNtoZero(b);
                 recalc = true;
             }
             if (!recalc && (Double.isInfinite(ac) || Double.isInfinite(bd) ||
-                    Double.isInfinite(ad) || Double.isInfinite(bc))) {
-                if (Double.isNaN(a)) {
-                    a = Math.copySign(0.0,  a);
-                }
-                if (Double.isNaN(b)) {
-                    b = Math.copySign(0.0,  b);
-                }
-                if (Double.isNaN(c)) {
-                    c = Math.copySign(0.0,  c);
-                }
-                if (Double.isNaN(d)) {
-                    d = Math.copySign(0.0,  d);
-                }
+                            Double.isInfinite(ad) || Double.isInfinite(bc))) {
+                // The result overflowed to infinity.
+                // Recover infinities from overflow by changing NaNs to 0 ...
+                a = changeNaNtoZero(a);
+                b = changeNaNtoZero(b);
+                c = changeNaNtoZero(c);
+                d = changeNaNtoZero(d);
                 recalc = true;
             }
             if (recalc) {
@@ -658,6 +719,49 @@ public final class Complex implements Serializable  {
             }
         }
         return new Complex(x, y);
+    }
+
+    /**
+     * Box values for the real or imaginary component of an infinite complex number.
+     * Any infinite value will be returned as one. Non-infinite values will be returned as zero.
+     * The sign is maintained.
+     *
+     * <pre>
+     *  inf  =  1
+     * -inf  = -1
+     *  x    =  0
+     * -x    = -0
+     * </pre>
+     *
+     * @param component the component
+     * @return the boxed value
+     */
+    private static double boxInfinity(double component) {
+        return Math.copySign(Double.isInfinite(component) ? 1.0 : 0.0, component);
+    }
+
+    /**
+     * Checks if the complex number is not zero.
+     *
+     * @param real the real component
+     * @param imaginary the imaginary component
+     * @return true if the complex is zero
+     */
+    private static boolean isNotZero(double real, double imaginary) {
+        // The use of equals is deliberate.
+        // This method must distinguish NaN from zero thus ruling out:
+        // (real != 0.0 || imaginary != 0.0)
+        return !(real == 0.0 && imaginary == 0.0);
+    }
+
+    /**
+     * Change NaN to zero preserving the sign; otherwise return the value.
+     *
+     * @param value the value
+     * @return the new value
+     */
+    private static double changeNaNtoZero(double value) {
+        return Double.isNaN(value) ? Math.copySign(0.0, value) : value;
     }
 
     /**
@@ -830,7 +934,7 @@ public final class Complex implements Serializable  {
             imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(Double.POSITIVE_INFINITY, PI_OVER_2);
         } else if (real == Double.POSITIVE_INFINITY &&
-                   !Double.isInfinite(imaginary) && !Double.isNaN(imaginary)) {
+                   Double.isFinite(imaginary)) {
             return new Complex(Double.POSITIVE_INFINITY, 0);
         } else if (real == Double.POSITIVE_INFINITY &&
                    imaginary == Double.POSITIVE_INFINITY) {
@@ -1073,8 +1177,8 @@ public final class Complex implements Serializable  {
             return new Complex(Double.POSITIVE_INFINITY, PI_OVER_4);
         } else if ((real == Double.POSITIVE_INFINITY &&
                     Double.isNaN(imaginary)) ||
-                   ((Double.isNaN(real) &&
-                    imaginary == Double.POSITIVE_INFINITY))) {
+                   (Double.isNaN(real) &&
+                    imaginary == Double.POSITIVE_INFINITY)) {
             return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
         }
         return new Complex(Math.log(abs()),
@@ -1095,8 +1199,8 @@ public final class Complex implements Serializable  {
             return new Complex(Double.POSITIVE_INFINITY, PI_OVER_4);
         } else if ((real == Double.POSITIVE_INFINITY &&
                     Double.isNaN(imaginary)) ||
-                   ((Double.isNaN(real) &&
-                    imaginary == Double.POSITIVE_INFINITY))) {
+                   (Double.isNaN(real) &&
+                    imaginary == Double.POSITIVE_INFINITY)) {
             return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
         }
         return new Complex(Math.log(abs()) / Math.log(10),
@@ -1479,15 +1583,15 @@ public final class Complex implements Serializable  {
      *  <li>it is not infinite,</li>
      *  <li>it is positive signed,</li>
      * </ul>
-     * 
-     * <p>Note: This is true for negative zero.</p>
+     *
+     * <p>Note: This is false for negative zero.</p>
      *
      * @param d Value.
      * @return {@code true} if {@code d} meets all the conditions and
      * {@code false} otherwise.
      */
     private static boolean positiveSignedFinite(double d) {
-        return Double.isFinite(d) && d >= 0;
+        return (Double.isFinite(d) && d > 0) || Double.doubleToLongBits(d) == 0;
     }
 
     /** See {@link #parse(String)}. */
