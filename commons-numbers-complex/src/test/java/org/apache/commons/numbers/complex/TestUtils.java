@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.apache.commons.numbers.complex.Complex;
 import org.apache.commons.numbers.core.Precision;
 
 import org.junit.jupiter.api.Assertions;
@@ -32,7 +31,7 @@ import org.junit.jupiter.api.Assertions;
  * Test utilities.
  * TODO: Cleanup (remove unused and obsolete methods).
  */
-public class TestUtils {
+public final class TestUtils {
     /**
      * Collection of static methods used in math unit tests.
      */
@@ -41,8 +40,12 @@ public class TestUtils {
     }
 
     /**
-     * Verifies that real and imaginary parts of the two complex arguments
-     * are exactly the same.  Also ensures that NaN / infinite components match.
+     * Verifies that real and imaginary parts of the two complex arguments are exactly the
+     * same as defined by {@link Double#compare(double, double)}. Also ensures that NaN /
+     * infinite components match.
+     *
+     * @param expected the expected value
+     * @param actual the actual value
      */
     public static void assertSame(Complex expected, Complex actual) {
         Assertions.assertEquals(expected.getReal(), actual.getReal());
@@ -50,8 +53,12 @@ public class TestUtils {
     }
 
     /**
-     * Verifies that real and imaginary parts of the two complex arguments
-     * differ by at most delta.  Also ensures that NaN / infinite components match.
+     * Verifies that real and imaginary parts of the two complex arguments differ by at
+     * most delta. Also ensures that NaN / infinite components match.
+     *
+     * @param expected the expected value
+     * @param actual the actual value
+     * @param delta the delta
      */
     public static void assertEquals(Complex expected, Complex actual, double delta) {
         Assertions.assertEquals(expected.getReal(), actual.getReal(), delta);
@@ -68,17 +75,17 @@ public class TestUtils {
     public static Object serializeAndRecover(Object o) {
         try {
             // serialize the Object
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream so = new ObjectOutputStream(bos);
+            final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            final ObjectOutputStream so = new ObjectOutputStream(bos);
             so.writeObject(o);
 
             // deserialize the Object
-            ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-            ObjectInputStream si = new ObjectInputStream(bis);
+            final ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+            final ObjectInputStream si = new ObjectInputStream(bis);
             return si.readObject();
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             return null;
-        } catch (ClassNotFoundException cnfe) {
+        } catch (final ClassNotFoundException cnfe) {
             return null;
         }
     }
@@ -90,7 +97,7 @@ public class TestUtils {
      * @param object  the object to serialize and recover
      */
     public static void checkSerializedEquality(Object object) {
-        Object object2 = serializeAndRecover(object);
+        final Object object2 = serializeAndRecover(object);
         Assertions.assertEquals(object, object2, "Equals check");
         Assertions.assertEquals(object.hashCode(), object2.hashCode(), "HashCode check");
     }
@@ -130,7 +137,7 @@ public class TestUtils {
         } else if (expected == 0.0) {
             Assertions.assertEquals(actual, expected, relativeError, msg);
         } else {
-            double absError = Math.abs(expected) * relativeError;
+            final double absError = Math.abs(expected) * relativeError;
             Assertions.assertEquals(expected, actual, absError, msg);
         }
     }
@@ -145,7 +152,7 @@ public class TestUtils {
      */
     public static void assertContains(String msg, Complex[] values,
                                       Complex z, double epsilon) {
-        for (Complex value : values) {
+        for (final Complex value : values) {
             if (Precision.equals(value.getReal(), z.getReal(), epsilon) &&
                 Precision.equals(value.getImaginary(), z.getImaginary(), epsilon)) {
                 return;
@@ -176,7 +183,7 @@ public class TestUtils {
      */
     public static void assertContains(String msg, double[] values,
             double x, double epsilon) {
-        for (double value : values) {
+        for (final double value : values) {
             if (Precision.equals(value, x, epsilon)) {
                 return;
             }
@@ -193,12 +200,12 @@ public class TestUtils {
      */
     public static void assertContains(double[] values, double x,
             double epsilon) {
-       assertContains(null, values, x, epsilon);
+        assertContains(null, values, x, epsilon);
     }
 
     /** verifies that two arrays are close (sup norm) */
     public static void assertEquals(String msg, Complex[] expected, Complex[] observed, double tolerance) {
-        StringBuilder out = new StringBuilder(msg);
+        final StringBuilder out = new StringBuilder(msg);
         if (expected.length != observed.length) {
             out.append("\n Arrays not same length. \n");
             out.append("expected has length ");
@@ -208,7 +215,7 @@ public class TestUtils {
             Assertions.fail(out.toString());
         }
         boolean failure = false;
-        for (int i=0; i < expected.length; i++) {
+        for (int i = 0; i < expected.length; i++) {
             if (!Precision.equalsIncludingNaN(expected[i].getReal(), observed[i].getReal(), tolerance)) {
                 failure = true;
                 out.append("\n Real elements at index ");
@@ -265,8 +272,8 @@ public class TestUtils {
             }
         }
         if (positiveMassCount < densityValues.length) {
-            int[] newPoints = new int[positiveMassCount];
-            double[] newValues = new double[positiveMassCount];
+            final int[] newPoints = new int[positiveMassCount];
+            final double[] newValues = new double[positiveMassCount];
             int j = 0;
             for (int i = 0; i < densityValues.length; i++) {
                 if (densityValues[i] > 0) {
@@ -275,8 +282,8 @@ public class TestUtils {
                     j++;
                 }
             }
-            System.arraycopy(newPoints,0,densityPoints,0,positiveMassCount);
-            System.arraycopy(newValues,0,densityValues,0,positiveMassCount);
+            System.arraycopy(newPoints, 0, densityPoints, 0, positiveMassCount);
+            System.arraycopy(newValues, 0, densityValues, 0, positiveMassCount);
         }
         return positiveMassCount;
     }
