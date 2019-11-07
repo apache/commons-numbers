@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.PrimitiveIterator;
 import java.util.Set;
 
 /**
@@ -31,7 +32,7 @@ import java.util.Set;
  */
 class SmallPrimes {
     /**
-     * The first 512 prime numbers.
+     * The first 512 prime numbers, in ascending order.
      * <p>
      * It contains all primes smaller or equal to the cubic square of Integer.MAX_VALUE.
      * As a result, <code>int</code> numbers which are not reduced by those primes are guaranteed
@@ -73,38 +74,42 @@ class SmallPrimes {
      * 0 (inclusive) and the least common multiple, i.e. the product, of those
      * prime numbers (exclusive) that are not divisible by any of these prime
      * numbers. The prime numbers in the set are among the first 512 prime
-     * numbers, and the {@code int} array containing the numbers undivisible by
+     * numbers, and the {@code int} array containing the numbers indivisible by
      * these prime numbers is sorted in ascending order.
      *
-     * <p>The purpose of this field is to speed up trial division by skipping
-     * multiples of individual prime numbers, specifically those contained
-     * in the key of this {@code Entry}, by only trying integers that are equivalent
-     * to one of the integers contained in the value of this {@code Entry} modulo
-     * the least common multiple of the prime numbers in the set.</p>
+     * <p>The purpose of this field is to facilitate iterating over potential
+     * prime numbers by skipping multiples of individual primes, specifically
+     * those contained in the key of this {@code Entry}, by only selecting
+     * integers that are equivalent to one of the integers contained in the
+     * value of this {@code Entry} modulo the least common multiple of the prime
+     * numbers in the set.</p>
      *
-     * <p>Note that, if {@code product} is the product of the prime numbers,
+     * <p>Note that, if \(\mathit{product}\) is the product of the prime numbers,
      * the last number in the array of coprime integers is necessarily
-     * {@code product - 1}, because if {@code product ≡ 0 mod p}, then
-     * {@code product - 1 ≡ -1 mod p}, and {@code 0 ≢ -1 mod p} for any prime number p.</p>
+     * \(\mathit{product} - 1\), because if \(\mathit{product} \equiv 0 \pmod{p}\),
+     * then \(\mathit{product} - 1 \equiv -1 \pmod{p}\), and
+     * \(0 \not\equiv -1 \pmod{p}\) for any prime number \(p\).</p>
+     *
+     * @see #potentialPrimesGTE(int)
      */
     static final Entry<Set<Integer>, int[]> PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES;
 
     static {
         /*
-        According to the Chinese Remainder Theorem, for every combination of
-        congruence classes modulo distinct, pairwise coprime moduli, there
-        exists exactly one congruence class modulo the product of these
-        moduli that is contained in every one of the former congruence
-        classes. Since the number of congruence classes coprime to a prime
-        number p is p-1, the number of congruence classes coprime to all
-        prime numbers p_1, p_2, p_3 … is (p_1 - 1) * (p_2 - 1) * (p_3 - 1) …
-
-        Therefore, when using the first five prime numbers as those whose multiples
-        are to be skipped in trial division, the array containing the coprime
-        equivalence classes will have to hold (2-1)*(3-1)*(5-1)*(7-1)*(11-1) = 480
-        values. As a consequence, the amount of integers to be tried in
-        trial division is reduced to 480/(2*3*5*7*11), which is about 20.78%,
-        of all integers.
+         * According to the Chinese Remainder Theorem, for every combination of
+         * congruence classes modulo distinct, pairwise coprime moduli, there
+         * exists exactly one congruence class modulo the product of these
+         * moduli that is contained in every one of the former congruence
+         * classes. Since the number of congruence classes coprime to a prime
+         * number p is p-1, the number of congruence classes coprime to all
+         * prime numbers p_1, p_2, p_3 … is (p_1 - 1) * (p_2 - 1) * (p_3 - 1) …
+         *
+         * Therefore, when choosing the first five prime numbers as those whose
+         * multiples should be skipped during an iteration, the array containing
+         * the coprime equivalence classes will have to hold
+         * (2-1)*(3-1)*(5-1)*(7-1)*(11-1) = 480 values. As a consequence, the
+         * amount of potential prime numbers is reduced to 480/(2*3*5*7*11),
+         * which is about 20.78%, of all integers.
          */
         Set<Integer> primeNumbers = new HashSet<>();
         primeNumbers.add(Integer.valueOf(2));
@@ -171,43 +176,18 @@ class SmallPrimes {
     static int boundedTrialDivision(int n,
                                     int maxFactor,
                                     List<Integer> factors) {
-        int minFactor = PRIMES_LAST + 2;
-
-        /*
-        only trying integers of the form k*m + c, where k >= 0, m is the
-        product of some prime numbers which n is required not to contain
-        as prime factors, and c is an integer undivisible by all of those
-        prime numbers; in other words, skipping multiples of these primes
-         */
-        int m = PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue()[PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue().length - 1] + 1;
-        int km = m * (minFactor / m);
-        int currentEquivalenceClassIndex = Arrays.binarySearch(
-                PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue(),
-                minFactor % m);
-
-        /*
-        Since minFactor is the next smallest prime number after the
-        first 512 primes, it cannot be a multiple of one of them, therefore,
-        the index returned by the above binary search must be non-negative.
-         */
+        PrimitiveIterator.OfInt potentialPrimesIterator = potentialPrimesGTE(PRIMES_LAST + 2);
 
         boolean done = false;
         while (!done) {
             // no check is done about n >= f
-            int f = km + PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue()[currentEquivalenceClassIndex];
+            int f = potentialPrimesIterator.next();
             if (f > maxFactor) {
                 done = true;
             } else if (0 == n % f) {
                 n /= f;
                 factors.add(f);
                 done = true;
-            } else {
-                if (currentEquivalenceClassIndex == PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue().length - 1) {
-                    km += m;
-                    currentEquivalenceClassIndex = 0;
-                } else {
-                    currentEquivalenceClassIndex++;
-                }
             }
         }
         if (n != 1) {
@@ -283,5 +263,72 @@ class SmallPrimes {
             }
         }
         return true; // definitely prime
+    }
+
+    /**
+     * Returns an iterator that iterates, in ascending oder, over all positive
+     * integers greater than or equal to ("GTE") the passed lower bound, skipping
+     * numbers that are a multiple of any of the prime numbers contained in the
+     * key of {@link #PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES}.
+     *
+     * <p>
+     * NOTE: The iterator returned by this method will be completely oblivious
+     * to the inherent limitation of the {@code int} range and will simply
+     * continue iterating past {@code Integer.MAX_VALUE}, producing an infinite
+     * sequence of invalid results from then on. It is therefore the
+     * responsibility of the caller to account for the possibility of overflow
+     * (the first invalid result will be negative).
+     * </p>
+     *
+     * @param lowerBound the lower bound for the iteration results
+     * @return an iterator as described above
+     */
+    static PrimitiveIterator.OfInt potentialPrimesGTE(final int lowerBound) {
+        /*
+         * The numbers that should be iterated over are of the form k*m + c,
+         * where k >= 0, m is the least common multiple, that is, the product of
+         * the prime numbers whose multiples should be skipped, and c is a
+         * positive integer between 0 and m that is indivisible by any of these
+         * prime numbers.
+         */
+        return new PrimitiveIterator.OfInt() {
+            private final int m;
+            private int kTimesM;
+            private int indexForNextC;
+
+            {
+                m = PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue()[PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue().length - 1] + 1;
+
+                int initialValue = Math.max(lowerBound, 1);
+                int remainder = initialValue % m;
+                kTimesM = initialValue - remainder;
+
+                indexForNextC = Arrays.binarySearch(
+                        PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue(),
+                        remainder
+                );
+                if (indexForNextC < 0) {
+                    // the last element in the array is m-1, so the remainder
+                    // cannot be greater than the last element in the array
+                    indexForNextC = - (indexForNextC + 1);
+                }
+            }
+
+            @Override
+            public int nextInt() {
+                int next = kTimesM + PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue()[indexForNextC];
+                indexForNextC++;
+                if (indexForNextC == PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue().length) {
+                    indexForNextC = 0;
+                    kTimesM += m;
+                }
+                return next;
+            }
+
+            @Override
+            public boolean hasNext() {
+                return true;
+            }
+        };
     }
 }
