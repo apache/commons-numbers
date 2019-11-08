@@ -57,6 +57,11 @@ public final class Quaternion implements Serializable {
     /** {@link #toString() String representation}. */
     private static final String FORMAT_SEP = " ";
 
+    /** The number of dimensions for the vector part of the quaternion. */
+    private static final int VECTOR_DIMENSIONS = 3;
+    /** The number of parts when parsing a text representation of the quaternion. */
+    private static final int NUMBER_OF_PARTS = 4;
+
     /** For enabling specialized method implementations. */
     private final Type type;
     /** First component (scalar part). */
@@ -85,6 +90,13 @@ public final class Quaternion implements Serializable {
                             Normalized.NORM,
                             Normalized.IS_UNIT);
 
+        /** {@link Quaternion#normSq()}. */
+        private final ToDoubleFunction<Quaternion> normSq;
+        /** {@link Quaternion#norm()}. */
+        private final ToDoubleFunction<Quaternion> norm;
+        /** {@link Quaternion#isUnit()}. */
+        private final BiPredicate<Quaternion, Double> testIsUnit;
+
         /** Default implementations. */
         private static final class Default {
             /** {@link Quaternion#normSq()}. */
@@ -99,6 +111,7 @@ public final class Quaternion implements Serializable {
             private static final BiPredicate<Quaternion, Double> IS_UNIT = (q, eps) ->
                 Precision.equals(NORM.applyAsDouble(q), 1d, eps);
         }
+
         /** Implementations for normalized quaternions. */
         private static final class Normalized {
             /** {@link Quaternion#norm()} returns 1. */
@@ -106,13 +119,6 @@ public final class Quaternion implements Serializable {
             /** {@link Quaternion#isUnit(double)} returns 1. */
             static final BiPredicate<Quaternion, Double> IS_UNIT = (q, eps) -> true;
         }
-
-        /** {@link Quaternion#normSq()}. */
-        private final ToDoubleFunction<Quaternion> normSq;
-        /** {@link Quaternion#norm()}. */
-        private final ToDoubleFunction<Quaternion> norm;
-        /** {@link Quaternion#isUnit()}. */
-        private final BiPredicate<Quaternion, Double> isUnit;
 
         /**
          * @param normSq {@code normSq} method.
@@ -124,7 +130,7 @@ public final class Quaternion implements Serializable {
              BiPredicate<Quaternion, Double> isUnit)  {
             this.normSq = normSq;
             this.norm = norm;
-            this.isUnit = isUnit;
+            this.testIsUnit = isUnit;
         }
 
         /**
@@ -148,7 +154,7 @@ public final class Quaternion implements Serializable {
          */
         boolean isUnit(Quaternion q,
                        double eps) {
-            return isUnit.test(q, eps);
+            return testIsUnit.test(q, eps);
         }
     }
 
@@ -216,7 +222,7 @@ public final class Quaternion implements Serializable {
      */
     public static Quaternion of(final double scalar,
                                 final double[] v) {
-        if (v.length != 3) {
+        if (v.length != VECTOR_DIMENSIONS) {
             throw new IllegalArgumentException("Size of array must be 3");
         }
 
@@ -643,17 +649,17 @@ public final class Quaternion implements Serializable {
      * to the specification.
      */
     public static Quaternion parse(String s) {
-        final int len = s.length();
         final int startBracket = s.indexOf(FORMAT_START);
         if (startBracket != 0) {
             throw new QuaternionParsingException("Expected start string: " + FORMAT_START);
         }
+        final int len = s.length();
         final int endBracket = s.indexOf(FORMAT_END);
         if (endBracket != len - 1) {
             throw new QuaternionParsingException("Expected end string: " + FORMAT_END);
         }
         final String[] elements = s.substring(1, s.length() - 1).split(FORMAT_SEP);
-        if (elements.length != 4) {
+        if (elements.length != NUMBER_OF_PARTS) {
             throw new QuaternionParsingException("Incorrect number of parts: Expected 4 but was " +
                                                  elements.length +
                                                  " (separator is '" + FORMAT_SEP + "')");
@@ -663,25 +669,25 @@ public final class Quaternion implements Serializable {
         try {
             a = Double.parseDouble(elements[0]);
         } catch (NumberFormatException ex) {
-            throw new QuaternionParsingException("Could not parse scalar part" + elements[0]);
+            throw new QuaternionParsingException("Could not parse scalar part" + elements[0], ex);
         }
         final double b;
         try {
             b = Double.parseDouble(elements[1]);
         } catch (NumberFormatException ex) {
-            throw new QuaternionParsingException("Could not parse i part" + elements[1]);
+            throw new QuaternionParsingException("Could not parse i part" + elements[1], ex);
         }
         final double c;
         try {
             c = Double.parseDouble(elements[2]);
         } catch (NumberFormatException ex) {
-            throw new QuaternionParsingException("Could not parse j part" + elements[2]);
+            throw new QuaternionParsingException("Could not parse j part" + elements[2], ex);
         }
         final double d;
         try {
             d = Double.parseDouble(elements[3]);
         } catch (NumberFormatException ex) {
-            throw new QuaternionParsingException("Could not parse k part" + elements[3]);
+            throw new QuaternionParsingException("Could not parse k part" + elements[3], ex);
         }
 
         return of(a, b, c, d);
@@ -713,6 +719,15 @@ public final class Quaternion implements Serializable {
          */
         QuaternionParsingException(String msg) {
             super(msg);
+        }
+
+        /**
+         * @param msg Error message.
+         * @param cause Cause of the exception.
+         */
+        QuaternionParsingException(String msg, Throwable cause) {
+            super(msg);
+            initCause(cause);
         }
     }
 }
