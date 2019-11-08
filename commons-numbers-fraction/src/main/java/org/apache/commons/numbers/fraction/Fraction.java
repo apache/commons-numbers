@@ -23,7 +23,7 @@ import org.apache.commons.numbers.core.NativeOperators;
 /**
  * Representation of a rational number.
  */
-public class Fraction
+public final class Fraction
     extends Number
     implements Comparable<Fraction>,
                NativeOperators<Fraction>,
@@ -474,10 +474,6 @@ public class Fraction
      * cannot be represented in an {@code int}.
      */
     private Fraction addSub(Fraction fraction, boolean isAdd) {
-        if (fraction == null) {
-            throw new NullPointerException(PARAM_NAME_FRACTION);
-        }
-
         // Zero is identity for addition.
         if (numerator == 0) {
             return isAdd ? fraction : fraction.negate();
@@ -530,10 +526,6 @@ public class Fraction
      * exceeds {@code Integer.MAX_VALUE}
      */
     public Fraction multiply(Fraction fraction) {
-        if (fraction == null) {
-            throw new NullPointerException(PARAM_NAME_FRACTION);
-        }
-
         if (numerator == 0 ||
             fraction.numerator == 0) {
             return ZERO;
@@ -567,9 +559,6 @@ public class Fraction
      * {@code Integer.MAX_VALUE}
      */
     public Fraction divide(Fraction fraction) {
-        if (fraction == null) {
-            throw new NullPointerException(PARAM_NAME_FRACTION);
-        }
         if (fraction.numerator == 0) {
             throw new FractionException("the fraction to divide by must not be zero: {0}/{1}",
                                         fraction.numerator, fraction.denominator);
