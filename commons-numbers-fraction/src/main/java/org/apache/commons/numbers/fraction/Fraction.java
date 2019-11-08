@@ -23,7 +23,7 @@ import org.apache.commons.numbers.core.NativeOperators;
 /**
  * Representation of a rational number.
  */
-public class Fraction
+public final class Fraction
     extends Number
     implements Comparable<Fraction>,
                NativeOperators<Fraction>,

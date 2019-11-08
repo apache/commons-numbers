@@ -27,7 +27,7 @@ import org.apache.commons.numbers.core.NativeOperators;
  * Representation of a rational number without any overflow. This class is
  * immutable.
  */
-public class BigFraction
+public final class BigFraction
     extends Number
     implements Comparable<BigFraction>,
                NativeOperators<BigFraction>,
