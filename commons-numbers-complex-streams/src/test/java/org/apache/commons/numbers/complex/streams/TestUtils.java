@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Assertions;
  * Test utilities.
  */
 @SuppressWarnings("WeakerAccess")
-class TestUtils {
+final class TestUtils {
     /**
      * Collection of static methods used in math unit tests.
      */
@@ -87,7 +87,7 @@ class TestUtils {
     /** verifies that two 2D arrays are close (sup norm) */
     public static void assertEquals(String msg, double[][] expected, double[][] observed, double tolerance) {
         assertArrayLengthsEqual(msg, expected.length, observed.length);
-        for (int i=0; i < expected.length; i++) {
+        for (int i = 0; i < expected.length; i++) {
             Assertions.assertArrayEquals(expected[i], observed[i], tolerance, msg + "[" + i + "]");
         }
     }
@@ -95,7 +95,7 @@ class TestUtils {
     /** verifies that two 3D arrays are close (sup norm) */
     public static void assertEquals(String msg, double[][][] expected, double[][][] observed, double tolerance) {
         assertArrayLengthsEqual(msg, expected.length, observed.length);
-        for (int i=0; i < expected.length; i++) {
+        for (int i = 0; i < expected.length; i++) {
             assertEquals(msg + "[" + i + "]", expected[i], observed[i], tolerance);
         }
     }
@@ -103,7 +103,7 @@ class TestUtils {
     /** verifies that two 4D arrays are close (sup norm) */
     public static void assertEquals(String msg, double[][][][] expected, double[][][][] observed, double tolerance) {
         assertArrayLengthsEqual(msg, expected.length, observed.length);
-        for (int i=0; i < expected.length; i++) {
+        for (int i = 0; i < expected.length; i++) {
             assertEquals(msg + "[" + i + "]", expected[i], observed[i], tolerance);
         }
     }
@@ -111,7 +111,7 @@ class TestUtils {
     /** verifies that two 4D arrays are close (sup norm) */
     public static void assertEquals(String msg, float[][][][] expected, float[][][][] observed, float tolerance) {
         assertArrayLengthsEqual(msg, expected.length, observed.length);
-        for (int i=0; i < expected.length; i++) {
+        for (int i = 0; i < expected.length; i++) {
             assertEquals(msg + "[" + i + "]", expected[i], observed[i], tolerance);
         }
     }
@@ -119,7 +119,7 @@ class TestUtils {
     /** verifies that two 2D arrays are close (sup norm) */
     public static void assertEquals(String msg, float[][] expected, float[][] observed, float tolerance) {
         assertArrayLengthsEqual(msg, expected.length, observed.length);
-        for (int i=0; i < expected.length; i++) {
+        for (int i = 0; i < expected.length; i++) {
             Assertions.assertArrayEquals(expected[i], observed[i], tolerance, msg + "[" + i + "]");
         }
     }
@@ -127,7 +127,7 @@ class TestUtils {
     /** verifies that two 3D arrays are close (sup norm) */
     public static void assertEquals(String msg, float[][][] expected, float[][][] observed, float tolerance) {
         assertArrayLengthsEqual(msg, expected.length, observed.length);
-        for (int i=0; i < expected.length; i++) {
+        for (int i = 0; i < expected.length; i++) {
             assertEquals(msg + "[" + i + "]", expected[i], observed[i], tolerance);
         }
     }
@@ -137,7 +137,7 @@ class TestUtils {
         assertArrayLengthsEqual(msg, expected.length, observed.length);
         StringBuilder out = new StringBuilder(msg);
         boolean failure = false;
-        for (int i=0; i < expected.length; i++) {
+        for (int i = 0; i < expected.length; i++) {
             if (!Precision.equalsIncludingNaN(expected[i].getReal(), observed[i].getReal(), tolerance)) {
                 failure = true;
                 out.append("\n[").append(i).append("] ");
@@ -165,7 +165,7 @@ class TestUtils {
     /** verifies that two 2D arrays are close (sup norm) */
     public static void assertEquals(String msg, Complex[][] expected, Complex[][] observed, double tolerance) {
         assertArrayLengthsEqual(msg, expected.length, observed.length);
-        for (int i=0; i < expected.length; i++) {
+        for (int i = 0; i < expected.length; i++) {
             assertEquals(msg + "[" + i + "]", expected[i], observed[i], tolerance);
         }
     }
@@ -173,7 +173,7 @@ class TestUtils {
     /** verifies that two 3D arrays are close (sup norm) */
     public static void assertEquals(String msg, Complex[][][] expected, Complex[][][] observed, double tolerance) {
         assertArrayLengthsEqual(msg, expected.length, observed.length);
-        for (int i=0; i < expected.length; i++) {
+        for (int i = 0; i < expected.length; i++) {
             assertEquals(msg + "[" + i + "]", expected[i], observed[i], tolerance);
         }
     }
@@ -181,7 +181,7 @@ class TestUtils {
     /** verifies that two 4D arrays are close (sup norm) */
     public static void assertEquals(String msg, Complex[][][][] expected, Complex[][][][] observed, double tolerance) {
         assertArrayLengthsEqual(msg, expected.length, observed.length);
-        for (int i=0; i < expected.length; i++) {
+        for (int i = 0; i < expected.length; i++) {
             assertEquals(msg + "[" + i + "]", expected[i], observed[i], tolerance);
         }
     }
@@ -195,7 +195,9 @@ class TestUtils {
     private static void assertArrayLengthsEqual(String msg, int expectedLength, int observedLength) {
         if (expectedLength != observedLength) {
             StringBuilder out = new StringBuilder(msg);
-            if (msg != null && msg.length()>0) out.append("\n");
+            if (msg != null && msg.length() > 0) {
+                out.append("\n");
+            }
             out.append("Arrays not same length. \n");
             out.append("expected has length ").append(expectedLength);
             out.append(" observed has length = ").append(observedLength);

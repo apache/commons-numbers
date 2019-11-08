@@ -22,7 +22,7 @@ import org.apache.commons.numbers.complex.Complex;
 /**
  * Static implementations of common {@link Complex} utilities functions.
  */
-public class ComplexUtils {
+public final class ComplexUtils {
 
     /**
      * Utility class.
@@ -33,7 +33,7 @@ public class ComplexUtils {
      * Creates a complex number from the given polar representation.
      * <p>
      * If either {@code r} or {@code theta} is NaN, or {@code theta} is
-     * infinite, {@link Complex#NAN} is returned.
+     * infinite, {@code Complex(NaN, NaN)} is returned.
      * <p>
      * If {@code r} is infinite and {@code theta} is finite, infinite or NaN
      * values may be returned in parts of the result, following the rules for
@@ -242,7 +242,7 @@ public class ComplexUtils {
      * @return size 2 array.
      */
     public static double[] extractInterleavedFromComplexArray(Complex[] complex, int index) {
-        return new double[] { complex[index].getReal(), complex[index].getImaginary() };
+        return new double[] {complex[index].getReal(), complex[index].getImaginary()};
     }
 
     /**
@@ -254,7 +254,7 @@ public class ComplexUtils {
      * @return size 2 {@code float[]}.
      */
     public static float[] extractInterleavedFloatFromComplexArray(Complex[] complex, int index) {
-        return new float[] { (float) complex[index].getReal(), (float) complex[index].getImaginary() };
+        return new float[] {(float) complex[index].getReal(), (float) complex[index].getImaginary()};
     }
 
     /**
@@ -714,7 +714,7 @@ public class ComplexUtils {
 
     /**
      * Converts a complex interleaved {@code double[]} array to a
-     * {@code Complex[]} array
+     * {@code Complex[]} array.
      *
      * @param interleaved array of numbers to be converted to their {@code Complex} equivalent
      * @return {@code Complex} array
@@ -730,7 +730,7 @@ public class ComplexUtils {
 
     /**
      * Converts a complex interleaved {@code float[]} array to a
-     * {@code Complex[]} array
+     * {@code Complex[]} array.
      *
      * @param interleaved float[] array of numbers to be converted to their {@code Complex} equivalent
      * @return {@code Complex} array
@@ -746,7 +746,7 @@ public class ComplexUtils {
 
     /**
      * Converts a {@code Complex[]} array to an interleaved complex
-     * {@code double[]} array
+     * {@code double[]} array.
      *
      * @param c Complex array
      * @return complex interleaved array alternating real and
@@ -767,7 +767,7 @@ public class ComplexUtils {
 
     /**
      * Converts a {@code Complex[]} array to an interleaved complex
-     * {@code float[]} array
+     * {@code float[]} array.
      *
      * @param c Complex array
      * @return complex interleaved {@code float[]} alternating real and
@@ -934,8 +934,8 @@ public class ComplexUtils {
                 for (int y = 0; y < h; y++) {
                     for (int z = 0; z < d; z++) {
                         for (int t = 0; t < v; t++) {
-                        i[x][y][z * 2][t] = c[x][y][z][t].getReal();
-                        i[x][y][z * 2 + 1][t] = c[x][y][z][t].getImaginary();
+                            i[x][y][z * 2][t] = c[x][y][z][t].getReal();
+                            i[x][y][z * 2 + 1][t] = c[x][y][z][t].getImaginary();
                         }
                     }
                 }
@@ -946,8 +946,8 @@ public class ComplexUtils {
                 for (int y = 0; y < h; y++) {
                     for (int z = 0; z < d; z++) {
                         for (int t = 0; t < v; t++) {
-                        i[x][y][z][t * 2] = c[x][y][z][t].getReal();
-                        i[x][y][z][t * 2 + 1] = c[x][y][z][t].getImaginary();
+                            i[x][y][z][t * 2] = c[x][y][z][t].getReal();
+                            i[x][y][z][t * 2 + 1] = c[x][y][z][t].getImaginary();
                         }
                     }
                 }
@@ -1329,7 +1329,7 @@ public class ComplexUtils {
         Complex[][][] c;
         if (interleavedDim == 0) {
             c = new Complex[w / 2][h][d];
-            for (int x = 0; x < w/2; x ++) {
+            for (int x = 0; x < w / 2; x++) {
                 for (int y = 0; y < h; y++) {
                     for (int z = 0; z < d; z++) {
                         c[x][y][z] = Complex.ofCartesian(i[x * 2][y][z], i[x * 2 + 1][y][z]);
@@ -1339,7 +1339,7 @@ public class ComplexUtils {
         } else if (interleavedDim == 1) {
             c = new Complex[w][h / 2][d];
             for (int x = 0; x < w; x++) {
-                for (int y = 0; y < h/2; y ++) {
+                for (int y = 0; y < h / 2; y++) {
                     for (int z = 0; z < d; z++) {
                         c[x][y][z] = Complex.ofCartesian(i[x][y * 2][z], i[x][y * 2 + 1][z]);
                     }
@@ -1349,7 +1349,7 @@ public class ComplexUtils {
             c = new Complex[w][h][d / 2];
             for (int x = 0; x < w; x++) {
                 for (int y = 0; y < h; y++) {
-                    for (int z = 0; z < d/2; z++) {
+                    for (int z = 0; z < d / 2; z++) {
                         c[x][y][z] = Complex.ofCartesian(i[x][y][z * 2], i[x][y][z * 2 + 1]);
                     }
                 }
