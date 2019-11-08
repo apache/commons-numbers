@@ -25,7 +25,10 @@ import java.util.List;
  * and {@link BigFraction}, e.g. for operations and expected results that
  * involve numerators and denominators in the {@code int} range.
  */
-class CommonTestCases {
+final class CommonTestCases {
+
+    // CHECKSTYLE: stop ConstantName
+
     /**
      * See {@link #numDenConstructorTestCases()}
      */
@@ -71,6 +74,8 @@ class CommonTestCases {
      */
     private static final List<BinaryOperatorTestCase> subtractFractionTestCasesList;
 
+    // CHECKSTYLE: resume ConstantName
+
     static {
         numDenConstructorTestCasesList = collectNumDenConstructorTestCases();
         doubleConstructorTestCasesList = collectDoubleConstructorTestCases();
@@ -82,6 +87,8 @@ class CommonTestCases {
         multiplyByFractionTestCasesList = collectMultiplyByFractionTestCases();
         subtractFractionTestCasesList = collectSubtractFractionTestCases();
     }
+
+    private CommonTestCases() {}
 
     /**
      * Defines test cases as described in
@@ -116,47 +123,47 @@ class CommonTestCases {
     private static List<DoubleToFractionTestCase> collectDoubleConstructorTestCases() {
         List<DoubleToFractionTestCase> testCases = new ArrayList<>();
 
-        testCases.add(new DoubleToFractionTestCase(1d/2d, 1, 2));
-        testCases.add(new DoubleToFractionTestCase(1d/3d, 1, 3));
-        testCases.add(new DoubleToFractionTestCase(2d/3d, 2, 3));
-        testCases.add(new DoubleToFractionTestCase(1d/4d, 1, 4));
-        testCases.add(new DoubleToFractionTestCase(3d/4d, 3, 4));
-        testCases.add(new DoubleToFractionTestCase(1d/5d, 1, 5));
-        testCases.add(new DoubleToFractionTestCase(2d/5d, 2, 5));
-        testCases.add(new DoubleToFractionTestCase(3d/5d, 3, 5));
-        testCases.add(new DoubleToFractionTestCase(4d/5d, 4, 5));
-        testCases.add(new DoubleToFractionTestCase(1d/6d, 1, 6));
-        testCases.add(new DoubleToFractionTestCase(5d/6d, 5, 6));
-        testCases.add(new DoubleToFractionTestCase(1d/7d, 1, 7));
-        testCases.add(new DoubleToFractionTestCase(2d/7d, 2, 7));
-        testCases.add(new DoubleToFractionTestCase(3d/7d, 3, 7));
-        testCases.add(new DoubleToFractionTestCase(4d/7d, 4, 7));
-        testCases.add(new DoubleToFractionTestCase(5d/7d, 5, 7));
-        testCases.add(new DoubleToFractionTestCase(6d/7d, 6, 7));
-        testCases.add(new DoubleToFractionTestCase(1d/8d, 1, 8));
-        testCases.add(new DoubleToFractionTestCase(3d/8d, 3, 8));
-        testCases.add(new DoubleToFractionTestCase(5d/8d, 5, 8));
-        testCases.add(new DoubleToFractionTestCase(7d/8d, 7, 8));
-        testCases.add(new DoubleToFractionTestCase(1d/9d, 1, 9));
-        testCases.add(new DoubleToFractionTestCase(2d/9d, 2, 9));
-        testCases.add(new DoubleToFractionTestCase(4d/9d, 4, 9));
-        testCases.add(new DoubleToFractionTestCase(5d/9d, 5, 9));
-        testCases.add(new DoubleToFractionTestCase(7d/9d, 7, 9));
-        testCases.add(new DoubleToFractionTestCase(8d/9d, 8, 9));
-        testCases.add(new DoubleToFractionTestCase(1d/10d, 1, 10));
-        testCases.add(new DoubleToFractionTestCase(3d/10d, 3, 10));
-        testCases.add(new DoubleToFractionTestCase(7d/10d, 7, 10));
-        testCases.add(new DoubleToFractionTestCase(9d/10d, 9, 10));
-        testCases.add(new DoubleToFractionTestCase(1d/11d, 1, 11));
-        testCases.add(new DoubleToFractionTestCase(2d/11d, 2, 11));
-        testCases.add(new DoubleToFractionTestCase(3d/11d, 3, 11));
-        testCases.add(new DoubleToFractionTestCase(4d/11d, 4, 11));
-        testCases.add(new DoubleToFractionTestCase(5d/11d, 5, 11));
-        testCases.add(new DoubleToFractionTestCase(6d/11d, 6, 11));
-        testCases.add(new DoubleToFractionTestCase(7d/11d, 7, 11));
-        testCases.add(new DoubleToFractionTestCase(8d/11d, 8, 11));
-        testCases.add(new DoubleToFractionTestCase(9d/11d, 9, 11));
-        testCases.add(new DoubleToFractionTestCase(10d/11d, 10, 11));
+        testCases.add(new DoubleToFractionTestCase(1d / 2d, 1, 2));
+        testCases.add(new DoubleToFractionTestCase(1d / 3d, 1, 3));
+        testCases.add(new DoubleToFractionTestCase(2d / 3d, 2, 3));
+        testCases.add(new DoubleToFractionTestCase(1d / 4d, 1, 4));
+        testCases.add(new DoubleToFractionTestCase(3d / 4d, 3, 4));
+        testCases.add(new DoubleToFractionTestCase(1d / 5d, 1, 5));
+        testCases.add(new DoubleToFractionTestCase(2d / 5d, 2, 5));
+        testCases.add(new DoubleToFractionTestCase(3d / 5d, 3, 5));
+        testCases.add(new DoubleToFractionTestCase(4d / 5d, 4, 5));
+        testCases.add(new DoubleToFractionTestCase(1d / 6d, 1, 6));
+        testCases.add(new DoubleToFractionTestCase(5d / 6d, 5, 6));
+        testCases.add(new DoubleToFractionTestCase(1d / 7d, 1, 7));
+        testCases.add(new DoubleToFractionTestCase(2d / 7d, 2, 7));
+        testCases.add(new DoubleToFractionTestCase(3d / 7d, 3, 7));
+        testCases.add(new DoubleToFractionTestCase(4d / 7d, 4, 7));
+        testCases.add(new DoubleToFractionTestCase(5d / 7d, 5, 7));
+        testCases.add(new DoubleToFractionTestCase(6d / 7d, 6, 7));
+        testCases.add(new DoubleToFractionTestCase(1d / 8d, 1, 8));
+        testCases.add(new DoubleToFractionTestCase(3d / 8d, 3, 8));
+        testCases.add(new DoubleToFractionTestCase(5d / 8d, 5, 8));
+        testCases.add(new DoubleToFractionTestCase(7d / 8d, 7, 8));
+        testCases.add(new DoubleToFractionTestCase(1d / 9d, 1, 9));
+        testCases.add(new DoubleToFractionTestCase(2d / 9d, 2, 9));
+        testCases.add(new DoubleToFractionTestCase(4d / 9d, 4, 9));
+        testCases.add(new DoubleToFractionTestCase(5d / 9d, 5, 9));
+        testCases.add(new DoubleToFractionTestCase(7d / 9d, 7, 9));
+        testCases.add(new DoubleToFractionTestCase(8d / 9d, 8, 9));
+        testCases.add(new DoubleToFractionTestCase(1d / 10d, 1, 10));
+        testCases.add(new DoubleToFractionTestCase(3d / 10d, 3, 10));
+        testCases.add(new DoubleToFractionTestCase(7d / 10d, 7, 10));
+        testCases.add(new DoubleToFractionTestCase(9d / 10d, 9, 10));
+        testCases.add(new DoubleToFractionTestCase(1d / 11d, 1, 11));
+        testCases.add(new DoubleToFractionTestCase(2d / 11d, 2, 11));
+        testCases.add(new DoubleToFractionTestCase(3d / 11d, 3, 11));
+        testCases.add(new DoubleToFractionTestCase(4d / 11d, 4, 11));
+        testCases.add(new DoubleToFractionTestCase(5d / 11d, 5, 11));
+        testCases.add(new DoubleToFractionTestCase(6d / 11d, 6, 11));
+        testCases.add(new DoubleToFractionTestCase(7d / 11d, 7, 11));
+        testCases.add(new DoubleToFractionTestCase(8d / 11d, 8, 11));
+        testCases.add(new DoubleToFractionTestCase(9d / 11d, 9, 11));
+        testCases.add(new DoubleToFractionTestCase(10d / 11d, 10, 11));
 
         testCases.add(new DoubleToFractionTestCase(0.00000000000001, 0, 1));
         testCases.add(new DoubleToFractionTestCase(0.40000000000001, 2, 5));
@@ -233,9 +240,10 @@ class CommonTestCases {
         testCases.add(new BinaryOperatorTestCase(2, 3, -2, 3, 0, 1));
 
         testCases.add(new BinaryOperatorTestCase(
-                -1, 13*13*2*2,
-                -2, 13*17*2,
-                -17 - 2*13*2, 13*13*17*2*2));
+                -1, 13 * 13 * 2 * 2,
+                -2, 13 * 17 * 2,
+                -17 - 2 * 13 * 2,
+                13 * 13 * 17 * 2 * 2));
 
         // if this fraction is added naively, it will overflow the int range.
         // check that it doesn't.
@@ -347,7 +355,7 @@ class CommonTestCases {
         testCases.add(new BinaryOperatorTestCase(
                 Integer.MAX_VALUE, 1,
                 1, 1,
-                Integer.MAX_VALUE-1, 1
+                Integer.MAX_VALUE - 1, 1
         ));
 
         return testCases;
@@ -466,6 +474,8 @@ class CommonTestCases {
     static List<BinaryOperatorTestCase> subtractFractionTestCases() {
         return Collections.unmodifiableList(subtractFractionTestCasesList);
     }
+
+    // CHECKSTYLE: stop VisibilityModifier
 
     /**
      * Represents a test case where a unary operation should be performed on

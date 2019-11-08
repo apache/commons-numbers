@@ -56,16 +56,16 @@ public class BigFractionTest {
             );
         }
 
-        assertFraction(0, 1, BigFraction.of(0l, 2l));
-        assertFraction(11, 1, BigFraction.of(11));
-        assertFraction(11, 1, BigFraction.of(11l));
+        assertFraction(0, 1, BigFraction.of(0L, 2L));
+        assertFraction(1L, 1, BigFraction.of(1L));
+        assertFraction(11, 1, BigFraction.of(11L));
         assertFraction(11, 1, BigFraction.of(new BigInteger("11")));
 
         Assertions.assertEquals(0.00000000000001, BigFraction.from(0.00000000000001).doubleValue(), 0.0);
         Assertions.assertEquals(0.40000000000001, BigFraction.from(0.40000000000001).doubleValue(), 0.0);
         Assertions.assertEquals(15.0000000000001, BigFraction.from(15.0000000000001).doubleValue(), 0.0);
-        assertFraction(3602879701896487l, 9007199254740992l, BigFraction.from(0.40000000000001));
-        assertFraction(1055531162664967l, 70368744177664l, BigFraction.from(15.0000000000001));
+        assertFraction(3602879701896487L, 9007199254740992L, BigFraction.from(0.40000000000001));
+        assertFraction(1055531162664967L, 70368744177664L, BigFraction.from(15.0000000000001));
         try {
             BigFraction.of(null, BigInteger.ONE);
             Assertions.fail("Expecting NullPointerException");
@@ -96,7 +96,7 @@ public class BigFractionTest {
     public void testGoldenRatio() {
         // the golden ratio is notoriously a difficult number for continuous fraction
         Assertions.assertThrows(FractionException.class,
-                () -> BigFraction.from((1 + Math.sqrt(5)) / 2, 1.0e-12, 25)
+            () -> BigFraction.from((1 + Math.sqrt(5)) / 2, 1.0e-12, 25)
         );
     }
 
@@ -132,7 +132,7 @@ public class BigFractionTest {
     @Test
     public void testPositiveValueOverflow() {
         Assertions.assertThrows(ArithmeticException.class,
-                () -> assertFraction((long) 1e10, 1, BigFraction.from(1e10, 1000))
+            () -> assertFraction((long) 1e10, 1, BigFraction.from(1e10, 1000))
         );
     }
 
@@ -140,7 +140,7 @@ public class BigFractionTest {
     @Test
     public void testNegativeValueOverflow() {
         Assertions.assertThrows(ArithmeticException.class,
-                () -> assertFraction((long) -1e10, 1, BigFraction.from(-1e10, 1000))
+            () -> assertFraction((long) -1e10, 1, BigFraction.from(-1e10, 1000))
         );
     }
 
@@ -180,7 +180,7 @@ public class BigFractionTest {
         // the first  one is approximately PI - 3.07e-18
         // the second one is approximately PI + 1.936e-17
         final BigFraction pi1 = BigFraction.of(1068966896, 340262731);
-        final BigFraction pi2 = BigFraction.of( 411557987, 131002976);
+        final BigFraction pi2 = BigFraction.of(411557987, 131002976);
         Assertions.assertEquals(-1, pi1.compareTo(pi2));
         Assertions.assertEquals(1, pi2.compareTo(pi1));
         Assertions.assertEquals(0.0, pi1.doubleValue() - pi2.doubleValue(), 1.0e-20);
@@ -217,7 +217,8 @@ public class BigFractionTest {
 
     @Test
     public void testDoubleValueForSubnormalNumbers() {
-        assertDoubleValue( //Double.MIN_VALUE * 2/3
+        assertDoubleValue(
+                //Double.MIN_VALUE * 2/3
                 Double.MIN_VALUE,
                 BigInteger.ONE,
                 BigInteger.ONE.shiftLeft(1073).multiply(BigInteger.valueOf(3L))
@@ -304,14 +305,12 @@ public class BigFractionTest {
     @Test
     public void testDoubleValueForLargeNumeratorAndSmallDenominator() {
         // NUMBERS-15
-        {
-            final BigInteger pow300 = BigInteger.TEN.pow(300);
-            final BigInteger pow330 = BigInteger.TEN.pow(330);
-            final BigFraction large = BigFraction.of(pow330.add(BigInteger.ONE),
-                    pow300);
+        final BigInteger pow300 = BigInteger.TEN.pow(300);
+        final BigInteger pow330 = BigInteger.TEN.pow(330);
+        final BigFraction large = BigFraction.of(pow330.add(BigInteger.ONE),
+                pow300);
 
-            Assertions.assertEquals(1e30, large.doubleValue(), 1e-15);
-        }
+        Assertions.assertEquals(1e30, large.doubleValue(), 1e-15);
 
         // NUMBERS-120
         assertDoubleValue(
@@ -387,14 +386,14 @@ public class BigFractionTest {
     @Test
     public void testConstructorDouble() {
         assertFraction(1, 2, BigFraction.from(0.5));
-        assertFraction(6004799503160661l, 18014398509481984l, BigFraction.from(1.0 / 3.0));
-        assertFraction(6124895493223875l, 36028797018963968l, BigFraction.from(17.0 / 100.0));
-        assertFraction(1784551352345559l, 562949953421312l, BigFraction.from(317.0 / 100.0));
+        assertFraction(6004799503160661L, 18014398509481984L, BigFraction.from(1.0 / 3.0));
+        assertFraction(6124895493223875L, 36028797018963968L, BigFraction.from(17.0 / 100.0));
+        assertFraction(1784551352345559L, 562949953421312L, BigFraction.from(317.0 / 100.0));
         assertFraction(-1, 2, BigFraction.from(-0.5));
-        assertFraction(-6004799503160661l, 18014398509481984l, BigFraction.from(-1.0 / 3.0));
-        assertFraction(-6124895493223875l, 36028797018963968l, BigFraction.from(17.0 / -100.0));
-        assertFraction(-1784551352345559l, 562949953421312l, BigFraction.from(-317.0 / 100.0));
-        for (double v : new double[] { Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY}) {
+        assertFraction(-6004799503160661L, 18014398509481984L, BigFraction.from(-1.0 / 3.0));
+        assertFraction(-6124895493223875L, 36028797018963968L, BigFraction.from(17.0 / -100.0));
+        assertFraction(-1784551352345559L, 562949953421312L, BigFraction.from(-317.0 / 100.0));
+        for (double v : new double[] {Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY}) {
             try {
                 BigFraction.from(v);
                 Assertions.fail("Expecting IllegalArgumentException");
@@ -402,8 +401,8 @@ public class BigFractionTest {
                 // expected
             }
         }
-        Assertions.assertEquals(1l, BigFraction.from(Double.MAX_VALUE).getDenominatorAsLong());
-        Assertions.assertEquals(1l, BigFraction.from(Double.longBitsToDouble(0x0010000000000000L)).getNumeratorAsLong());
+        Assertions.assertEquals(1L, BigFraction.from(Double.MAX_VALUE).getDenominatorAsLong());
+        Assertions.assertEquals(1L, BigFraction.from(Double.longBitsToDouble(0x0010000000000000L)).getNumeratorAsLong());
         assertFraction(BigInteger.ONE, BigInteger.ONE.shiftLeft(1074), BigFraction.from(Double.MIN_VALUE));
     }
 
@@ -446,12 +445,10 @@ public class BigFractionTest {
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.add(f2));
         }
 
-        {
-            final BigFraction f = BigFraction.of(-17 - 2*13*2, 13*13*17*2*2);
-            Assertions.assertThrows(NullPointerException.class,
-                    () -> f.add((BigFraction) null)
-            );
-        }
+        final BigFraction f0 = BigFraction.of(-17 - 2 * 13 * 2, 13 * 13 * 17 * 2 * 2);
+        Assertions.assertThrows(NullPointerException.class,
+            () -> f0.add((BigFraction) null)
+        );
 
         BigFraction f1 = BigFraction.of(Integer.MAX_VALUE - 1, 1);
         BigFraction f = f1.add(BigInteger.ONE);
@@ -472,11 +469,11 @@ public class BigFractionTest {
         Assertions.assertEquals(1, f.getDenominatorAsInt());
 
         f1 = BigFraction.of(Integer.MAX_VALUE - 1, 1);
-        f = f1.add(1l);
+        f = f1.add(1L);
         Assertions.assertEquals(Integer.MAX_VALUE, f.getNumeratorAsInt());
         Assertions.assertEquals(1, f.getDenominatorAsInt());
 
-        f = f.add(0l);
+        f = f.add(0L);
         Assertions.assertEquals(Integer.MAX_VALUE, f.getNumeratorAsInt());
         Assertions.assertEquals(1, f.getDenominatorAsInt());
 
@@ -490,10 +487,7 @@ public class BigFractionTest {
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.divide(f2));
         }
 
-        {
-            Assertions.assertThrows(FractionException.class,
-                                    () -> BigFraction.of(1, 2).divide(BigInteger.ZERO));
-        }
+        Assertions.assertThrows(FractionException.class, () -> BigFraction.of(1, 2).divide(BigInteger.ZERO));
 
         BigFraction f1;
         BigFraction f2;
@@ -503,12 +497,10 @@ public class BigFractionTest {
         BigFraction f = f1.divide(f2);
         Assertions.assertSame(BigFraction.ZERO, f);
 
-        {
-            final BigFraction f3 = BigFraction.of(Integer.MIN_VALUE, 1);
-            Assertions.assertThrows(NullPointerException.class,
-                    () -> f3.divide((BigFraction) null)
-            );
-        }
+        final BigFraction f3 = BigFraction.of(Integer.MIN_VALUE, 1);
+        Assertions.assertThrows(NullPointerException.class,
+            () -> f3.divide((BigFraction) null)
+        );
 
         f1 = BigFraction.of(Integer.MIN_VALUE, Integer.MAX_VALUE);
         f = f1.divide(BigInteger.valueOf(Integer.MIN_VALUE));
@@ -545,10 +537,7 @@ public class BigFractionTest {
         Assertions.assertEquals(Integer.MIN_VALUE, f.getNumeratorAsInt());
         Assertions.assertEquals(1, f.getDenominatorAsInt());
 
-        {
-            Assertions.assertThrows(NullPointerException.class,
-                                    () -> BigFraction.ONE.multiply((BigFraction) null));
-        }
+        Assertions.assertThrows(NullPointerException.class, () -> BigFraction.ONE.multiply((BigFraction) null));
 
         Assertions.assertEquals(BigFraction.ZERO, BigFraction.ZERO.multiply(BigInteger.ONE));
         Assertions.assertEquals(BigFraction.ZERO, BigFraction.ONE.multiply(BigInteger.ZERO));
@@ -567,10 +556,7 @@ public class BigFractionTest {
         }
 
         BigFraction f = BigFraction.of(1, 1);
-        {
-            Assertions.assertThrows(NullPointerException.class,
-                                    () -> f.subtract((BigFraction) null));
-        }
+        Assertions.assertThrows(NullPointerException.class, () -> f.subtract((BigFraction) null));
 
         Assertions.assertEquals(BigFraction.ONE, BigFraction.ONE.subtract(BigInteger.ZERO));
         Assertions.assertEquals(BigFraction.of(-1), BigFraction.ZERO.subtract(BigInteger.ONE));
@@ -614,14 +600,14 @@ public class BigFractionTest {
     @Test
     public void testPow() {
         Assertions.assertEquals(BigFraction.of(8192, 1594323), BigFraction.of(2, 3).pow(13));
-        Assertions.assertEquals(BigFraction.of(8192, 1594323), BigFraction.of(2, 3).pow(13l));
-        Assertions.assertEquals(BigFraction.of(8192, 1594323), BigFraction.of(2, 3).pow(BigInteger.valueOf(13l)));
+        Assertions.assertEquals(BigFraction.of(8192, 1594323), BigFraction.of(2, 3).pow(13L));
+        Assertions.assertEquals(BigFraction.of(8192, 1594323), BigFraction.of(2, 3).pow(BigInteger.valueOf(13L)));
         Assertions.assertEquals(BigFraction.ONE, BigFraction.of(2, 3).pow(0));
-        Assertions.assertEquals(BigFraction.ONE, BigFraction.of(2, 3).pow(0l));
-        Assertions.assertEquals(BigFraction.ONE, BigFraction.of(2, 3).pow(BigInteger.valueOf(0l)));
+        Assertions.assertEquals(BigFraction.ONE, BigFraction.of(2, 3).pow(0L));
+        Assertions.assertEquals(BigFraction.ONE, BigFraction.of(2, 3).pow(BigInteger.valueOf(0L)));
         Assertions.assertEquals(BigFraction.of(1594323, 8192), BigFraction.of(2, 3).pow(-13));
-        Assertions.assertEquals(BigFraction.of(1594323, 8192), BigFraction.of(2, 3).pow(-13l));
-        Assertions.assertEquals(BigFraction.of(1594323, 8192), BigFraction.of(2, 3).pow(BigInteger.valueOf(-13l)));
+        Assertions.assertEquals(BigFraction.of(1594323, 8192), BigFraction.of(2, 3).pow(-13L));
+        Assertions.assertEquals(BigFraction.of(1594323, 8192), BigFraction.of(2, 3).pow(BigInteger.valueOf(-13L)));
         Assertions.assertEquals(BigFraction.ZERO, BigFraction.of(0, 5).pow(123));
         Assertions.assertEquals(BigFraction.ZERO, BigFraction.of(0, 5).pow(123L));
         Assertions.assertEquals(BigFraction.ZERO, BigFraction.of(0, 5).pow(new BigInteger("112233445566778899")));
@@ -671,13 +657,13 @@ public class BigFractionTest {
     @Test
     public void testParse() {
         String[] validExpressions = new String[] {
-                "3",
-                "1 / 2",
-                "-1 / 2",
-                "1 / -2",
-                "-1 / -2",
-                "2147,483,647 / 2,147,483,648", //over largest int value
-                "9,223,372,036,854,775,807 / 9,223,372,036,854,775,808" //over largest long value
+            "3",
+            "1 / 2",
+            "-1 / 2",
+            "1 / -2",
+            "-1 / -2",
+            "2147,483,647 / 2,147,483,648", //over largest int value
+            "9,223,372,036,854,775,807 / 9,223,372,036,854,775,808" //over largest long value
         };
         BigFraction[] fractions = {
                 BigFraction.of(3),
@@ -696,15 +682,9 @@ public class BigFractionTest {
             inc++;
         }
 
-        {
-            Assertions.assertThrows(NumberFormatException.class,
-                                    () -> BigFraction.parse("1 // 2"));
-            Assertions.assertThrows(NumberFormatException.class,
-                                    () -> BigFraction.parse("1 / z"));
-            Assertions.assertThrows(NumberFormatException.class,
-                                    () -> BigFraction.parse("1 / --2"));
-            Assertions.assertThrows(NumberFormatException.class,
-                                    () -> BigFraction.parse("x"));
-        }
+        Assertions.assertThrows(NumberFormatException.class, () -> BigFraction.parse("1 // 2"));
+        Assertions.assertThrows(NumberFormatException.class, () -> BigFraction.parse("1 / z"));
+        Assertions.assertThrows(NumberFormatException.class, () -> BigFraction.parse("1 / --2"));
+        Assertions.assertThrows(NumberFormatException.class, () -> BigFraction.parse("x"));
     }
 }

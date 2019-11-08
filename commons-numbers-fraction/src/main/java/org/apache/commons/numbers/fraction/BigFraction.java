@@ -120,7 +120,7 @@ public final class BigFraction
         long a0 = (long) Math.floor(r0);
 
         if (Math.abs(a0) > overflow) {
-            throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, a0, 1l);
+            throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, a0, 1L);
         }
 
         // check for (almost) integer arguments, which should not go

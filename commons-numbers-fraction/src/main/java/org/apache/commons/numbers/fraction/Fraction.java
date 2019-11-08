@@ -32,7 +32,7 @@ public final class Fraction
     public static final Fraction ONE = new Fraction(1, 1);
     /** A fraction representing "0". */
     public static final Fraction ZERO = new Fraction(0, 1);
-    /** Serializable version identifier */
+    /** Serializable version identifier. */
     private static final long serialVersionUID = 20190701L;
     /** Parameter name for fraction (to satisfy checkstyle). */
     private static final String PARAM_NAME_FRACTION = "fraction";
@@ -78,7 +78,7 @@ public final class Fraction
         double r0 = value;
         long a0 = (long)Math.floor(r0);
         if (Math.abs(a0) > overflow) {
-            throw new FractionException(FractionException.ERROR_CONVERSION, value, a0, 1l);
+            throw new FractionException(FractionException.ERROR_CONVERSION, value, a0, 1L);
         }
 
         // check for (almost) integer arguments, which should not go to iterations.
@@ -232,7 +232,7 @@ public final class Fraction
      * @return a new instance.
      */
     public static Fraction from(double value, int maxDenominator) {
-       return new Fraction(value, 0, maxDenominator, 100);
+        return new Fraction(value, 0, maxDenominator, 100);
     }
 
     /**
