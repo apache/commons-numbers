@@ -27,6 +27,7 @@ public class InverseErfTest {
     public void testErfInvNaN() {
         Assertions.assertTrue(Double.isNaN(InverseErf.value(-1.001)));
         Assertions.assertTrue(Double.isNaN(InverseErf.value(+1.001)));
+        Assertions.assertTrue(Double.isNaN(InverseErf.value(Double.NaN)));
     }
 
     @Test

@@ -40,7 +40,7 @@ public final class InverseErf {
      */
     public static double value(final double x) {
         // Beware that the logarithm argument must be
-        // commputed as (1 - x) * (1 + x),
+        // computed as (1 - x) * (1 + x),
         // it must NOT be simplified as 1 - x * x as this
         // would induce rounding errors near the boundaries +/-1
         double w = -Math.log((1 - x) * (1 + x));
@@ -92,7 +92,7 @@ public final class InverseErf {
             p =     0.005370914553590063617 + p * w;
             p =       1.0052589676941592334 + p * w;
             p =       3.0838856104922207635 + p * w;
-        } else if (!Double.isInfinite(w)) {
+        } else if (w < Double.POSITIVE_INFINITY) {
             w = Math.sqrt(w) - 5;
             p =  -2.7109920616438573243e-11;
             p =  -2.5556418169965252055e-10 + p * w;
@@ -111,7 +111,7 @@ public final class InverseErf {
             p =  -0.00013871931833623122026 + p * w;
             p =       1.0103004648645343977 + p * w;
             p =       4.8499064014085844221 + p * w;
-        } else {
+        } else if (w == Double.POSITIVE_INFINITY) {
             // this branch does not appears in the original code, it
             // was added because the previous branch does not handle
             // x = +/-1 correctly. In this case, w is positive infinity
@@ -121,6 +121,10 @@ public final class InverseErf {
             // So the branch above incorrectly returns negative infinity
             // instead of the correct positive infinity.
             p = Double.POSITIVE_INFINITY;
+        } else {
+            // this branch does not appears in the original code, it
+            // occurs when the input is NaN or not in the range [-1, 1].
+            return Double.NaN;
         }
 
         return p * x;
