@@ -222,7 +222,7 @@ public final class ArithmeticUtils {
         if (a == 0 || b == 0) {
             return 0;
         }
-        int lcm = Math.abs(Math.multiplyExact(a / gcd(a, b), b));
+        final int lcm = Math.abs(Math.multiplyExact(a / gcd(a, b), b));
         if (lcm == Integer.MIN_VALUE) {
             throw new NumbersArithmeticException("overflow: lcm({0}, {1}) is 2^31",
                                               a, b);
@@ -255,7 +255,7 @@ public final class ArithmeticUtils {
         if (a == 0 || b == 0) {
             return 0;
         }
-        long lcm = Math.abs(Math.multiplyExact(a / gcd(a, b), b));
+        final long lcm = Math.abs(Math.multiplyExact(a / gcd(a, b), b));
         if (lcm == Long.MIN_VALUE) {
             throw new NumbersArithmeticException("overflow: lcm({0}, {1}) is 2^63",
                                               a, b);
@@ -355,19 +355,20 @@ public final class ArithmeticUtils {
      * @return k<sup>e</sup>
      * @throws IllegalArgumentException if {@code e < 0}.
      */
-    public static BigInteger pow(final BigInteger k, long e) {
+    public static BigInteger pow(final BigInteger k, final long e) {
         if (e < 0) {
             throw new IllegalArgumentException(NEGATIVE_EXPONENT_1 + e + NEGATIVE_EXPONENT_2);
         }
 
+        long exp = e;
         BigInteger result = BigInteger.ONE;
         BigInteger k2p    = k;
-        while (e != 0) {
-            if ((e & 0x1) != 0) {
+        while (exp != 0) {
+            if ((exp & 0x1) != 0) {
                 result = result.multiply(k2p);
             }
             k2p = k2p.multiply(k2p);
-            e >>= 1;
+            exp >>= 1;
         }
 
         return result;
@@ -382,19 +383,20 @@ public final class ArithmeticUtils {
      * @return k<sup>e</sup>
      * @throws IllegalArgumentException if {@code e < 0}.
      */
-    public static BigInteger pow(final BigInteger k, BigInteger e) {
+    public static BigInteger pow(final BigInteger k, final BigInteger e) {
         if (e.compareTo(BigInteger.ZERO) < 0) {
             throw new IllegalArgumentException(NEGATIVE_EXPONENT_1 + e + NEGATIVE_EXPONENT_2);
         }
 
+        BigInteger exp = e;
         BigInteger result = BigInteger.ONE;
         BigInteger k2p    = k;
-        while (!BigInteger.ZERO.equals(e)) {
-            if (e.testBit(0)) {
+        while (!BigInteger.ZERO.equals(exp)) {
+            if (exp.testBit(0)) {
                 result = result.multiply(k2p);
             }
             k2p = k2p.multiply(k2p);
-            e = e.shiftRight(1);
+            exp = exp.shiftRight(1);
         }
 
         return result;
@@ -428,7 +430,7 @@ public final class ArithmeticUtils {
             }
             // The implementation is a Java port of algorithm described in the book
             // "Hacker's Delight" (section "Unsigned short division from signed division").
-            int q = ((dividend >>> 1) / divisor) << 1;
+            final int q = ((dividend >>> 1) / divisor) << 1;
             dividend -= q * divisor;
             if (dividend < 0 || dividend >= divisor) {
                 dividend -= divisor;
@@ -456,7 +458,7 @@ public final class ArithmeticUtils {
             }
             // The implementation is a Java port of algorithm described in the book
             // "Hacker's Delight" (section "Unsigned short division from signed division").
-            long q = ((dividend >>> 1) / divisor) << 1;
+            final long q = ((dividend >>> 1) / divisor) << 1;
             dividend -= q * divisor;
             if (dividend < 0L || dividend >= divisor) {
                 dividend -= divisor;
