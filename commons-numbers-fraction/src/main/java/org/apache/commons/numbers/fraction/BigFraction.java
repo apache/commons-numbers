@@ -64,8 +64,6 @@ public class BigFraction
      * @throws ArithmeticException if the denominator is zero.
      */
     private BigFraction(BigInteger num, BigInteger den) {
-        checkNotNull(num, "numerator");
-        checkNotNull(den, "denominator");
         if (den.signum() == 0) {
             throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
         }
@@ -403,8 +401,6 @@ public class BigFraction
      * @return a <code>BigFraction</code> instance with the resulting values.
      */
     public BigFraction add(final BigInteger bg) {
-        checkNotNull(bg, PARAM_NAME_BG);
-
         if (numerator.signum() == 0) {
             return of(bg);
         }
@@ -454,7 +450,6 @@ public class BigFraction
      * @return a {@link BigFraction} instance with the resulting values.
      */
     public BigFraction add(final BigFraction fraction) {
-        checkNotNull(fraction, PARAM_NAME_FRACTION);
         if (fraction.numerator.signum() == 0) {
             return this;
         }
@@ -569,7 +564,6 @@ public class BigFraction
      * @throws ArithmeticException if the fraction to divide by is zero
      */
     public BigFraction divide(final BigInteger bg) {
-        checkNotNull(bg, PARAM_NAME_BG);
         if (bg.signum() == 0) {
             throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
         }
@@ -618,7 +612,6 @@ public class BigFraction
      * @throws ArithmeticException if the fraction to divide by is zero
      */
     public BigFraction divide(final BigFraction fraction) {
-        checkNotNull(fraction, PARAM_NAME_FRACTION);
         if (fraction.numerator.signum() == 0) {
             throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
         }
@@ -1000,7 +993,6 @@ public class BigFraction
      * @return a {@code BigFraction} instance with the resulting values.
      */
     public BigFraction multiply(final BigInteger bg) {
-        checkNotNull(bg, PARAM_NAME_BG);
         if (numerator.signum() == 0 || bg.signum() == 0) {
             return ZERO;
         }
@@ -1053,7 +1045,6 @@ public class BigFraction
      * @return a {@link BigFraction} instance with the resulting values.
      */
     public BigFraction multiply(final BigFraction fraction) {
-        checkNotNull(fraction, PARAM_NAME_FRACTION);
         if (numerator.signum() == 0 ||
             fraction.numerator.signum() == 0) {
             return ZERO;
@@ -1208,7 +1199,6 @@ public class BigFraction
      * @return a {@code BigFraction} instance with the resulting values.
      */
     public BigFraction subtract(final BigInteger bg) {
-        checkNotNull(bg, PARAM_NAME_BG);
         if (bg.signum() == 0) {
             return this;
         }
@@ -1255,7 +1245,6 @@ public class BigFraction
      * @return a {@link BigFraction} instance with the resulting values
      */
     public BigFraction subtract(final BigFraction fraction) {
-        checkNotNull(fraction, PARAM_NAME_FRACTION);
         if (fraction.numerator.signum() == 0) {
             return this;
         }
@@ -1329,19 +1318,6 @@ public class BigFraction
                     s.substring(0, slashLoc).trim());
             final BigInteger denom = new BigInteger(s.substring(slashLoc + 1).trim());
             return of(num, denom);
-        }
-    }
-
-
-    /**
-     * Check that the argument is not null and throw a NullPointerException
-     * if it is.
-     * @param arg     the argument to check
-     * @param argName the name of the argument
-     */
-    private static void checkNotNull(Object arg, String argName) {
-        if (arg == null) {
-            throw new NullPointerException(argName);
         }
     }
 }
