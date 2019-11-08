@@ -23,7 +23,7 @@ import java.math.RoundingMode;
 /**
  * Utilities for comparing numbers.
  */
-public class Precision {
+public final class Precision {
     /**
      * <p>
      * Largest double-precision floating-point number such that
@@ -47,7 +47,7 @@ public class Precision {
     public static final double SAFE_MIN;
 
     /** Exponent offset in IEEE754 representation. */
-    private static final long EXPONENT_OFFSET = 1023l;
+    private static final long EXPONENT_OFFSET = 1023L;
 
     /** Offset to order signed double numbers lexicographically. */
     private static final long SGN_MASK = 0x8000000000000000L;
@@ -66,18 +66,18 @@ public class Precision {
 
     static {
         /*
-         *  This was previously expressed as = 0x1.0p-53;
+         *  This was previously expressed as = 0x1.0p-53
          *  However, OpenJDK (Sparc Solaris) cannot handle such small
          *  constants: MATH-721
          */
-        EPSILON = Double.longBitsToDouble((EXPONENT_OFFSET - 53l) << 52);
+        EPSILON = Double.longBitsToDouble((EXPONENT_OFFSET - 53L) << 52);
 
         /*
-         * This was previously expressed as = 0x1.0p-1022;
+         * This was previously expressed as = 0x1.0p-1022
          * However, OpenJDK (Sparc Solaris) cannot handle such small
          * constants: MATH-721
          */
-        SAFE_MIN = Double.longBitsToDouble((EXPONENT_OFFSET - 1022l) << 52);
+        SAFE_MIN = Double.longBitsToDouble((EXPONENT_OFFSET - 1022L) << 52);
     }
 
     /**
@@ -387,7 +387,7 @@ public class Precision {
         final long yInt = Double.doubleToRawLongBits(y);
 
         final boolean isEqual;
-        if (((xInt ^ yInt) & SGN_MASK) == 0l) {
+        if (((xInt ^ yInt) & SGN_MASK) == 0L) {
             // number have same sign, there is no risk of overflow
             isEqual = Math.abs(xInt - yInt) <= maxUlps;
         } else {
@@ -472,9 +472,8 @@ public class Precision {
         } catch (NumberFormatException ex) {
             if (Double.isInfinite(x)) {
                 return x;
-            } else {
-                return Double.NaN;
             }
+            return Double.NaN;
         }
     }
 

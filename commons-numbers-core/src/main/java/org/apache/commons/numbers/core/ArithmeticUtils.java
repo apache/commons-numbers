@@ -29,9 +29,9 @@ public final class ArithmeticUtils {
     /** Overflow gcd exception message for 2^63. */
     private static final String OVERFLOW_GCD_MESSAGE_2_POWER_63 = "overflow: gcd({0}, {1}) is 2^63";
 
-    /** Negative exponent exception message part 1 */
+    /** Negative exponent exception message part 1. */
     private static final String NEGATIVE_EXPONENT_1 = "negative exponent ({";
-    /** Negative exponent exception message part 2 */
+    /** Negative exponent exception message part 2. */
     private static final String NEGATIVE_EXPONENT_2 = "})";
 
     /** Private constructor. */
@@ -143,7 +143,7 @@ public final class ArithmeticUtils {
         long u = p;
         long v = q;
         if ((u == 0) || (v == 0)) {
-            if ((u == Long.MIN_VALUE) || (v == Long.MIN_VALUE)){
+            if ((u == Long.MIN_VALUE) || (v == Long.MIN_VALUE)) {
                 throw new NumbersArithmeticException(OVERFLOW_GCD_MESSAGE_2_POWER_63,
                                                   p, q);
             }
@@ -219,7 +219,7 @@ public final class ArithmeticUtils {
      * a non-negative {@code int} value.
      */
     public static int lcm(int a, int b) {
-        if (a == 0 || b == 0){
+        if (a == 0 || b == 0) {
             return 0;
         }
         int lcm = Math.abs(Math.multiplyExact(a / gcd(a, b), b));
@@ -252,11 +252,11 @@ public final class ArithmeticUtils {
      * as a non-negative {@code long} value.
      */
     public static long lcm(long a, long b) {
-        if (a == 0 || b == 0){
+        if (a == 0 || b == 0) {
             return 0;
         }
         long lcm = Math.abs(Math.multiplyExact(a / gcd(a, b), b));
-        if (lcm == Long.MIN_VALUE){
+        if (lcm == Long.MIN_VALUE) {
             throw new NumbersArithmeticException("overflow: lcm({0}, {1}) is 2^63",
                                               a, b);
         }
@@ -540,20 +540,13 @@ public final class ArithmeticUtils {
         private static final long serialVersionUID = 20180130L;
 
         /**
-         * Default constructor.
-         */
-        NumbersArithmeticException() {
-            this("arithmetic exception");
-        }
-
-        /**
          * Constructor with a specific message.
          *
          * @param message Message pattern providing the specific context of
          * the error.
          * @param args Arguments.
          */
-        NumbersArithmeticException(String message, Object ... args) {
+        NumbersArithmeticException(String message, Object... args) {
             super(MessageFormat.format(message, args));
         }
     }

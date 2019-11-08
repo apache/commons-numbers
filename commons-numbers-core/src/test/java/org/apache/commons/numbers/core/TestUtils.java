@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Assertions;
  * Test utilities.
  * TODO: Cleanup (remove unused and obsolete methods).
  */
-public class TestUtils {
+public final class TestUtils {
     /**
      * Collection of static methods used in math unit tests.
      */
@@ -141,7 +141,7 @@ public class TestUtils {
      */
     public static void assertContains(double[] values, double x,
             double epsilon) {
-       assertContains(null, values, x, epsilon);
+        assertContains(null, values, x, epsilon);
     }
 
     /**
@@ -184,8 +184,8 @@ public class TestUtils {
                     j++;
                 }
             }
-            System.arraycopy(newPoints,0,densityPoints,0,positiveMassCount);
-            System.arraycopy(newValues,0,densityValues,0,positiveMassCount);
+            System.arraycopy(newPoints, 0, densityPoints, 0, positiveMassCount);
+            System.arraycopy(newValues, 0, densityValues, 0, positiveMassCount);
         }
         return positiveMassCount;
     }
