@@ -27,7 +27,6 @@ import org.junit.jupiter.api.Test;
  */
 public class ComplexUtilsTest {
 
-    // CHECKSTYLE: stop ConstantName
     private static final double inf = Double.POSITIVE_INFINITY;
     private static final double negInf = Double.NEGATIVE_INFINITY;
     private static final double nan = Double.NaN;
@@ -66,7 +65,6 @@ public class ComplexUtilsTest {
     private static float[][][] fi3d0, fi3d1, fi3d2, sfr3d, sfi3d;
     private static float[][][][] sfr4d, sfi4d;
     // CHECKSTYLE: resume MultipleVariableDeclarations
-    // CHECKSTYLE: resume ConstantName
 
     // CHECKSTYLE: stop MethodLength
     private static void setArrays() { // initial setup method

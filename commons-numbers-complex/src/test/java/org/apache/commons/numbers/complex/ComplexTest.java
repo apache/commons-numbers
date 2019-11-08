@@ -30,7 +30,6 @@ import org.junit.jupiter.api.Test;
  */
 public class ComplexTest {
 
-    // CHECKSTYLE: stop ConstantName
     private static final double inf = Double.POSITIVE_INFINITY;
     private static final double neginf = Double.NEGATIVE_INFINITY;
     private static final double nan = Double.NaN;
@@ -55,7 +54,6 @@ public class ComplexTest {
     private static final Complex nanZero = Complex.ofCartesian(nan, 0);
     private static final Complex NAN = Complex.ofCartesian(nan, nan);
     private static final Complex INF = Complex.ofCartesian(inf, inf);
-    // CHECKSTYLE: resume ConstantName
 
     /**
      * Used to test the number category of a Complex.

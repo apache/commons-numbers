@@ -36,7 +36,6 @@ import java.util.function.Predicate;
  */
 public class CStandardTest {
 
-    // CHECKSTYLE: stop ConstantName
     private static final double inf = Double.POSITIVE_INFINITY;
     private static final double negInf = Double.NEGATIVE_INFINITY;
     private static final double nan = Double.NaN;
@@ -82,7 +81,6 @@ public class CStandardTest {
     private static final Complex maxMax = complex(max, max);
     private static final Complex maxNan = complex(max, nan);
     private static final Complex nanMax = complex(nan, max);
-    // CHECKSTYLE: resume ConstantName
 
     /**
      * Assert the two complex numbers have their real and imaginary components within

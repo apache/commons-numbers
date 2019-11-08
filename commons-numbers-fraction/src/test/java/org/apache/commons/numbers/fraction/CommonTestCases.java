@@ -27,8 +27,6 @@ import java.util.List;
  */
 final class CommonTestCases {
 
-    // CHECKSTYLE: stop ConstantName
-
     /**
      * See {@link #numDenConstructorTestCases()}
      */
@@ -73,8 +71,6 @@ final class CommonTestCases {
      * See {@link #subtractFractionTestCases()}
      */
     private static final List<BinaryOperatorTestCase> subtractFractionTestCasesList;
-
-    // CHECKSTYLE: resume ConstantName
 
     static {
         numDenConstructorTestCasesList = collectNumDenConstructorTestCases();
