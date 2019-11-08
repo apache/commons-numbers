@@ -20,6 +20,9 @@ package org.apache.commons.numbers.gamma;
  * <a href="http://mathworld.wolfram.com/Erfc.html">Complementary error function</a>.
  */
 public final class Erfc {
+    /** The threshold value for returning the extreme value. */
+    private static final double EXTREME_VALUE_BOUND = 40;
+
     /** Private constructor. */
     private Erfc() {
         // intentionally empty.
@@ -46,7 +49,7 @@ public final class Erfc {
      * @see RegularizedGamma.Q#value(double, double, double, int)
      */
     public static double value(double x) {
-        if (Math.abs(x) > 40) {
+        if (Math.abs(x) > EXTREME_VALUE_BOUND) {
             return x > 0 ? 0 : 2;
         }
         final double ret = RegularizedGamma.Q.value(0.5, x * x, 1e-15, 10000);

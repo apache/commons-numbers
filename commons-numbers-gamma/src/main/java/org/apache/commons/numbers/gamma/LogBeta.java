@@ -23,6 +23,13 @@ package org.apache.commons.numbers.gamma;
  * </p>
  */
 public final class LogBeta {
+    /** The threshold value of 10 where the series expansion of the Δ function applies. */
+    private static final double TEN = 10;
+    /** The threshold value of 2 for algorithm switch. */
+    private static final double TWO = 2;
+    /** The threshold value of 1000 for algorithm switch. */
+    private static final double THOUSAND = 1000;
+
     /** The constant value of ½log 2π. */
     private static final double HALF_LOG_TWO_PI = 0.9189385332046727;
 
@@ -85,8 +92,8 @@ public final class LogBeta {
             a > b) {
             throw new GammaException(GammaException.OUT_OF_RANGE, a, 0, b);
         }
-        if (b < 10) {
-            throw new GammaException(GammaException.OUT_OF_RANGE, b, 10, Double.POSITIVE_INFINITY);
+        if (b < TEN) {
+            throw new GammaException(GammaException.OUT_OF_RANGE, b, TEN, Double.POSITIVE_INFINITY);
         }
 
         final double h = a / b;
@@ -126,11 +133,11 @@ public final class LogBeta {
     private static double sumDeltaMinusDeltaSum(final double p,
                                                 final double q) {
 
-        if (p < 10) {
-            throw new GammaException(GammaException.OUT_OF_RANGE, p, 10, Double.POSITIVE_INFINITY);
+        if (p < TEN) {
+            throw new GammaException(GammaException.OUT_OF_RANGE, p, TEN, Double.POSITIVE_INFINITY);
         }
-        if (q < 10) {
-            throw new GammaException(GammaException.OUT_OF_RANGE, q, 10, Double.POSITIVE_INFINITY);
+        if (q < TEN) {
+            throw new GammaException(GammaException.OUT_OF_RANGE, q, TEN, Double.POSITIVE_INFINITY);
         }
 
         final double a = Math.min(p, q);
@@ -165,7 +172,7 @@ public final class LogBeta {
 
         final double a = Math.min(p, q);
         final double b = Math.max(p, q);
-        if (a >= 10) {
+        if (a >= TEN) {
             final double w = sumDeltaMinusDeltaSum(a, b);
             final double h = a / b;
             final double c = h / (1 + h);
@@ -176,8 +183,8 @@ public final class LogBeta {
             } else {
                 return (((-0.5 * Math.log(b) + HALF_LOG_TWO_PI) + w) - v) - u;
             }
-        } else if (a > 2) {
-            if (b > 1000) {
+        } else if (a > TWO) {
+            if (b > THOUSAND) {
                 final int n = (int) Math.floor(a - 1);
                 double prod = 1;
                 double ared = a;
@@ -196,7 +203,7 @@ public final class LogBeta {
                     final double h = ared / b;
                     prod1 *= h / (1 + h);
                 }
-                if (b < 10) {
+                if (b < TEN) {
                     double prod2 = 1;
                     double bred = b;
                     while (bred > 2) {
@@ -215,8 +222,8 @@ public final class LogBeta {
                 }
             }
         } else if (a >= 1) {
-            if (b > 2) {
-                if (b < 10) {
+            if (b > TWO) {
+                if (b < TEN) {
                     double prod = 1;
                     double bred = b;
                     while (bred > 2) {
@@ -237,7 +244,7 @@ public final class LogBeta {
                        LogGammaSum.value(a, b);
             }
         } else {
-            if (b >= 10) {
+            if (b >= TEN) {
                 return LogGamma.value(a) +
                        logGammaMinusLogGammaSum(a, b);
             } else {
@@ -265,8 +272,8 @@ public final class LogBeta {
         if (a < 0) {
             throw new GammaException(GammaException.OUT_OF_RANGE, a, 0, Double.POSITIVE_INFINITY);
         }
-        if (b < 10) {
-            throw new GammaException(GammaException.OUT_OF_RANGE, b, 10, Double.POSITIVE_INFINITY);
+        if (b < TEN) {
+            throw new GammaException(GammaException.OUT_OF_RANGE, b, TEN, Double.POSITIVE_INFINITY);
         }
 
         /*

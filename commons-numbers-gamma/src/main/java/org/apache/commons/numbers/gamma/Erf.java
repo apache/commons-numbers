@@ -20,6 +20,9 @@ package org.apache.commons.numbers.gamma;
  * <a href="http://mathworld.wolfram.com/Erf.html">Error function</a>.
  */
 public final class Erf {
+    /** The threshold value for returning the extreme value. */
+    private static final double EXTREME_VALUE_BOUND = 40;
+
     /** Private constructor. */
     private Erf() {
         // intenitonal empty.
@@ -46,7 +49,7 @@ public final class Erf {
      * @see RegularizedGamma.P#value(double, double, double, int)
      */
     public static double value(double x) {
-        if (Math.abs(x) > 40) {
+        if (Math.abs(x) > EXTREME_VALUE_BOUND) {
             return x > 0 ? 1 : -1;
         }
         final double ret = RegularizedGamma.P.value(0.5, x * x, 1e-15, 10000);

@@ -31,6 +31,9 @@ package org.apache.commons.numbers.gamma;
  * </p>
  */
 public final class Gamma {
+    /** The threshold value for choosing the Lanczos approximation. */
+    private static final double LANCZOS_THRESHOLD = 20;
+
     /** &radic;(2&pi;). */
     private static final double SQRT_TWO_PI = 2.506628274631000502;
 
@@ -55,7 +58,7 @@ public final class Gamma {
         }
 
         final double absX = Math.abs(x);
-        if (absX <= 20) {
+        if (absX <= LANCZOS_THRESHOLD) {
             if (x >= 1) {
                 /*
                  * From the recurrence relation
