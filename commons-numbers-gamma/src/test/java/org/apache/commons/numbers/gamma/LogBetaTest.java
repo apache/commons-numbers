@@ -285,68 +285,9 @@ public class LogBetaTest {
         {10000.0, 10000.0, -13866.28325676141},
     };
 
-    @Test
-    public void testLogBeta() {
-        final int ulps = 3;
-        for (int i = 0; i < LOG_BETA_REF.length; i++) {
-            final double[] ref = LOG_BETA_REF[i];
-            final double a = ref[0];
-            final double b = ref[1];
-            final double expected = ref[2];
-            final double actual = LogBeta.value(a, b);
-            final double tol = ulps * Math.ulp(expected);
-            final StringBuilder builder = new StringBuilder();
-            builder.append(a).append(", ").append(b);
-            Assertions.assertEquals(expected, actual, tol, builder.toString());
-        }
-    }
-
-    @Test
-    public void testLogBetaNanPositive() {
-        testLogBeta(Double.NaN, Double.NaN, 2);
-    }
-
-    @Test
-    public void testLogBetaPositiveNan() {
-        testLogBeta(Double.NaN, 1, Double.NaN);
-    }
-
-    @Test
-    public void testLogBetaNegativePositive() {
-        testLogBeta(Double.NaN, -1, 2);
-    }
-
-    @Test
-    public void testLogBetaPositiveNegative() {
-        testLogBeta(Double.NaN, 1, -2);
-    }
-
-    @Test
-    public void testLogBetaZeroPositive() {
-        testLogBeta(Double.NaN, 0, 2);
-    }
-
-    @Test
-    public void testLogBetaPositiveZero() {
-        testLogBeta(Double.NaN, 1, 0);
-    }
-
-    @Test
-    public void testLogBetaPositivePositive() {
-        testLogBeta(-0.693147180559945, 1, 2);
-    }
-
-    private void testLogBeta(double expected,
-                             double a,
-                             double b) {
-        double actual = LogBeta.value(a, b);
-        Assertions.assertEquals(expected, actual, 1e-15);
-    }
-
-    // CHECKSTYLE: stop DeclarationOrder
     private static final double[][] LOG_GAMMA_MINUS_LOG_GAMMA_SUM_REF = {
-//        { 0.0 , 8.0 , 0.0 },
-//        { 0.0 , 9.0 , 0.0 },
+//          { 0.0 , 8.0 , 0.0 },
+//          { 0.0 , 9.0 , 0.0 },
         {0.0, 10.0, 0.0},
         {0.0, 11.0, 0.0},
         {0.0, 12.0, 0.0},
@@ -467,60 +408,6 @@ public class LogBetaTest {
         {10.0, 17.0, -30.58984165492133},
         {10.0, 18.0, -31.05246517686944},
     };
-
-    private static double logGammaMinusLogGammaSum(final double a,
-                                                   final double b) {
-        /*
-         * Use reflection to access private method.
-         */
-        try {
-            final Method m = LogBeta.class.getDeclaredMethod("logGammaMinusLogGammaSum",
-                                                             Double.TYPE, Double.TYPE);
-            m.setAccessible(true);
-            return ((Double) m.invoke(null, a, b)).doubleValue();
-        } catch (NoSuchMethodException e) {
-            Assertions.fail(e.getMessage());
-        } catch (IllegalAccessException e) {
-            Assertions.fail(e.getMessage());
-        } catch (InvocationTargetException e) {
-            if (e.getTargetException() instanceof GammaException) {
-                throw (GammaException) e.getTargetException();
-            } else {
-                Assertions.fail(e.getTargetException().getMessage());
-            }
-        }
-        return Double.NaN;
-    }
-
-    @Test
-    public void testLogGammaMinusLogGammaSum() {
-        final int ulps = 4;
-        for (int i = 0; i < LOG_GAMMA_MINUS_LOG_GAMMA_SUM_REF.length; i++) {
-            final double[] ref = LOG_GAMMA_MINUS_LOG_GAMMA_SUM_REF[i];
-            final double a = ref[0];
-            final double b = ref[1];
-            final double expected = ref[2];
-            final double actual = logGammaMinusLogGammaSum(a, b);
-            final double tol = ulps * Math.ulp(expected);
-            final StringBuilder builder = new StringBuilder();
-            builder.append(a).append(", ").append(b);
-            Assertions.assertEquals(expected, actual, tol, builder.toString());
-        }
-    }
-
-    @Test
-    public void testLogGammaMinusLogGammaSumPrecondition1() {
-        Assertions.assertThrows(IllegalArgumentException.class,
-            () -> logGammaMinusLogGammaSum(-1, 8)
-        );
-    }
-
-    @Test
-    public void testLogGammaMinusLogGammaSumPrecondition2() {
-        Assertions.assertThrows(IllegalArgumentException.class,
-            () -> logGammaMinusLogGammaSum(1, 7)
-        );
-    }
 
     private static final double[][] SUM_DELTA_MINUS_DELTA_SUM_REF = {
         {10.0, 10.0, .01249480717472882},
@@ -645,6 +532,118 @@ public class LogBetaTest {
         {20.0, 19.0, .006415174623476747},
         {20.0, 20.0, .006249349445691423},
     };
+
+    @Test
+    public void testLogBeta() {
+        final int ulps = 3;
+        for (int i = 0; i < LOG_BETA_REF.length; i++) {
+            final double[] ref = LOG_BETA_REF[i];
+            final double a = ref[0];
+            final double b = ref[1];
+            final double expected = ref[2];
+            final double actual = LogBeta.value(a, b);
+            final double tol = ulps * Math.ulp(expected);
+            final StringBuilder builder = new StringBuilder();
+            builder.append(a).append(", ").append(b);
+            Assertions.assertEquals(expected, actual, tol, builder.toString());
+        }
+    }
+
+    @Test
+    public void testLogBetaNanPositive() {
+        testLogBeta(Double.NaN, Double.NaN, 2);
+    }
+
+    @Test
+    public void testLogBetaPositiveNan() {
+        testLogBeta(Double.NaN, 1, Double.NaN);
+    }
+
+    @Test
+    public void testLogBetaNegativePositive() {
+        testLogBeta(Double.NaN, -1, 2);
+    }
+
+    @Test
+    public void testLogBetaPositiveNegative() {
+        testLogBeta(Double.NaN, 1, -2);
+    }
+
+    @Test
+    public void testLogBetaZeroPositive() {
+        testLogBeta(Double.NaN, 0, 2);
+    }
+
+    @Test
+    public void testLogBetaPositiveZero() {
+        testLogBeta(Double.NaN, 1, 0);
+    }
+
+    @Test
+    public void testLogBetaPositivePositive() {
+        testLogBeta(-0.693147180559945, 1, 2);
+    }
+
+    private void testLogBeta(double expected,
+                             double a,
+                             double b) {
+        double actual = LogBeta.value(a, b);
+        Assertions.assertEquals(expected, actual, 1e-15);
+    }
+
+    private static double logGammaMinusLogGammaSum(final double a,
+                                                   final double b) {
+        /*
+         * Use reflection to access private method.
+         */
+        try {
+            final Method m = LogBeta.class.getDeclaredMethod("logGammaMinusLogGammaSum",
+                                                             Double.TYPE, Double.TYPE);
+            m.setAccessible(true);
+            return ((Double) m.invoke(null, a, b)).doubleValue();
+        } catch (NoSuchMethodException e) {
+            Assertions.fail(e.getMessage());
+        } catch (IllegalAccessException e) {
+            Assertions.fail(e.getMessage());
+        } catch (InvocationTargetException e) {
+            if (e.getTargetException() instanceof GammaException) {
+                throw (GammaException) e.getTargetException();
+            } else {
+                Assertions.fail(e.getTargetException().getMessage());
+            }
+        }
+        return Double.NaN;
+    }
+
+    @Test
+    public void testLogGammaMinusLogGammaSum() {
+        final int ulps = 4;
+        for (int i = 0; i < LOG_GAMMA_MINUS_LOG_GAMMA_SUM_REF.length; i++) {
+            final double[] ref = LOG_GAMMA_MINUS_LOG_GAMMA_SUM_REF[i];
+            final double a = ref[0];
+            final double b = ref[1];
+            final double expected = ref[2];
+            final double actual = logGammaMinusLogGammaSum(a, b);
+            final double tol = ulps * Math.ulp(expected);
+            final StringBuilder builder = new StringBuilder();
+            builder.append(a).append(", ").append(b);
+            Assertions.assertEquals(expected, actual, tol, builder.toString());
+        }
+    }
+
+    @Test
+    public void testLogGammaMinusLogGammaSumPrecondition1() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> logGammaMinusLogGammaSum(-1, 8)
+        );
+    }
+
+    @Test
+    public void testLogGammaMinusLogGammaSumPrecondition2() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> logGammaMinusLogGammaSum(1, 7)
+        );
+    }
 
     private static double sumDeltaMinusDeltaSum(final double a,
                                                 final double b) {
