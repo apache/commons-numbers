@@ -240,7 +240,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>${numbers.checkstyle.version}</version>
         <dependencies>
           <dependency>
             <groupId>com.puppycrawl.tools</groupId>
@@ -255,8 +254,7 @@
           <suppressionsLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
           <enableRulesSummary>false</enableRulesSummary>
           <logViolationsToConsole>false</logViolationsToConsole>
-          <!-- TODO: Set to true when Checkstyle has been fixed. -->
-          <failOnViolation>false</failOnViolation>
+          <failOnViolation>true</failOnViolation>
           <resourceExcludes>NOTICE.txt,LICENSE.txt,**/maven-archiver/pom.properties,**/resolver-status.properties</resourceExcludes>
           <excludes>**/generated/**.java</excludes>
         </configuration>
@@ -355,14 +353,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
           <version>${numbers.checkstyle.version}</version>
-          <configuration>
-            <includeTestSourceDirectory>false</includeTestSourceDirectory>
-            <configLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle.xml</configLocation>
-            <headerLocation>${numbers.parent.dir}/src/main/resources/checkstyle/license-header.txt</headerLocation>
-            <logViolationsToConsole>false</logViolationsToConsole>
-            <failOnViolation>false</failOnViolation>
-            <resourceExcludes>NOTICE.txt,LICENSE.txt</resourceExcludes>
-          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
