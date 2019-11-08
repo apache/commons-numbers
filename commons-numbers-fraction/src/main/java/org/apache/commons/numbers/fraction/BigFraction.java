@@ -41,12 +41,6 @@ public final class BigFraction
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20190701L;
 
-    /** Parameter name for fraction (to satisfy checkstyle). */
-    private static final String PARAM_NAME_FRACTION = "fraction";
-
-    /** Parameter name for BigIntegers (to satisfy checkstyle). */
-    private static final String PARAM_NAME_BG = "bg";
-
     /**
      * The numerator of this fraction reduced to lowest terms. Negative if this
      * fraction's value is negative.
@@ -115,7 +109,7 @@ public final class BigFraction
                                     final double epsilon,
                                     final int maxDenominator,
                                     final int maxIterations) {
-        long overflow = Integer.MAX_VALUE;
+        final long overflow = Integer.MAX_VALUE;
         double r0 = value;
         long a0 = (long) Math.floor(r0);
 
@@ -250,17 +244,17 @@ public final class BigFraction
         long m;
         int k;
 
-        if (exponent != 0) {
-            // Normalized number: Add the implicit most significant bit.
-            m = mantissa | 0x0010000000000000L;
-            k = ((int) (exponent >> 52)) - 1075; // Exponent bias is 1023.
-        } else {
+        if (exponent == 0) {
             m = mantissa;
             k = 0; // For simplicity, when number is 0.
             if (m != 0) {
                 // Subnormal number, the effective exponent bias is 1022, not 1023.
                 k = -1074;
             }
+        } else {
+            // Normalized number: Add the implicit most significant bit.
+            m = mantissa | 0x0010000000000000L;
+            k = ((int) (exponent >> 52)) - 1075; // Exponent bias is 1023.
         }
         if (sign != 0) {
             m = -m;
@@ -449,6 +443,7 @@ public final class BigFraction
      *            the {@link BigFraction} to add, must not be <code>null</code>.
      * @return a {@link BigFraction} instance with the resulting values.
      */
+    @Override
     public BigFraction add(final BigFraction fraction) {
         if (fraction.numerator.signum() == 0) {
             return this;
@@ -611,6 +606,7 @@ public final class BigFraction
      * @return a {@link BigFraction} instance with the resulting values.
      * @throws ArithmeticException if the fraction to divide by is zero
      */
+    @Override
     public BigFraction divide(final BigFraction fraction) {
         if (fraction.numerator.signum() == 0) {
             throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
@@ -1009,6 +1005,7 @@ public final class BigFraction
      *            the {@code int} to multiply by.
      * @return a {@link BigFraction} instance with the resulting values.
      */
+    @Override
     public BigFraction multiply(final int i) {
         if (i == 0 || numerator.signum() == 0) {
             return ZERO;
@@ -1044,6 +1041,7 @@ public final class BigFraction
      * @param fraction Fraction to multiply by, must not be {@code null}.
      * @return a {@link BigFraction} instance with the resulting values.
      */
+    @Override
     public BigFraction multiply(final BigFraction fraction) {
         if (numerator.signum() == 0 ||
             fraction.numerator.signum() == 0) {
@@ -1081,6 +1079,7 @@ public final class BigFraction
      *
      * @return the negation of this fraction.
      */
+    @Override
     public BigFraction negate() {
         return new BigFraction(numerator.negate(), denominator);
     }
@@ -1096,6 +1095,7 @@ public final class BigFraction
      *            raised.
      * @return \(\mathit{this}^{\mathit{exponent}}\).
      */
+    @Override
     public BigFraction pow(final int exponent) {
         if (exponent == 0) {
             return ONE;
@@ -1185,6 +1185,7 @@ public final class BigFraction
      *
      * @return the reciprocal fraction.
      */
+    @Override
     public BigFraction reciprocal() {
         return new BigFraction(denominator, numerator);
     }
@@ -1244,6 +1245,7 @@ public final class BigFraction
      * @param fraction {@link BigFraction} to subtract, must not be {@code null}.
      * @return a {@link BigFraction} instance with the resulting values
      */
+    @Override
     public BigFraction subtract(final BigFraction fraction) {
         if (fraction.numerator.signum() == 0) {
             return this;
@@ -1309,7 +1311,7 @@ public final class BigFraction
      */
     public static BigFraction parse(String s) {
         s = s.replace(",", "");
-        final int slashLoc = s.indexOf("/");
+        final int slashLoc = s.indexOf('/');
         // if no slash, parse as single number
         if (slashLoc == -1) {
             return BigFraction.of(new BigInteger(s.trim()));

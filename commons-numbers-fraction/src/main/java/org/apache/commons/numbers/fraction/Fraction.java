@@ -34,8 +34,6 @@ public final class Fraction
     public static final Fraction ZERO = new Fraction(0, 1);
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20190701L;
-    /** Parameter name for fraction (to satisfy checkstyle). */
-    private static final String PARAM_NAME_FRACTION = "fraction";
     /** The default epsilon used for convergence. */
     private static final double DEFAULT_EPSILON = 1e-5;
     /** The denominator of this fraction reduced to lowest terms. */
@@ -74,7 +72,7 @@ public final class Fraction
      * to converge.
      */
     private Fraction(double value, double epsilon, int maxDenominator, int maxIterations) {
-        long overflow = Integer.MAX_VALUE;
+        final long overflow = Integer.MAX_VALUE;
         double r0 = value;
         long a0 = (long)Math.floor(r0);
         if (Math.abs(a0) > overflow) {
@@ -100,8 +98,8 @@ public final class Fraction
         boolean stop = false;
         do {
             ++n;
-            double r1 = 1.0 / (r0 - a0);
-            long a1 = (long)Math.floor(r1);
+            final double r1 = 1.0 / (r0 - a0);
+            final long a1 = (long)Math.floor(r1);
             p2 = (a1 * p1) + p0;
             q2 = (a1 * q1) + q0;
 
@@ -402,6 +400,7 @@ public final class Fraction
      *
      * @return the opposite.
      */
+    @Override
     public Fraction negate() {
         return numerator == Integer.MIN_VALUE ?
             new Fraction(numerator, -denominator) :
@@ -413,6 +412,7 @@ public final class Fraction
      *
      * @return the reciprocal.
      */
+    @Override
     public Fraction reciprocal() {
         return new Fraction(denominator, numerator);
     }
@@ -427,6 +427,7 @@ public final class Fraction
      * @throws ArithmeticException if the resulting numerator or denominator
      * exceeds {@code Integer.MAX_VALUE}
      */
+    @Override
     public Fraction add(Fraction fraction) {
         return addSub(fraction, true /* add */);
     }
@@ -450,6 +451,7 @@ public final class Fraction
      * @throws ArithmeticException if the resulting numerator or denominator
      * cannot be represented in an {@code int}.
      */
+    @Override
     public Fraction subtract(Fraction fraction) {
         return addSub(fraction, false /* subtract */);
     }
@@ -509,7 +511,7 @@ public final class Fraction
          * coprime to both v'/d1 and u'/d1. However, it might have a common
          * factor with d1.
          */
-        final long d2 = ArithmeticUtils.gcd(t, (long) d1);
+        final long d2 = ArithmeticUtils.gcd(t, d1);
         // result is (t/d2) / (u'/d1)(v'/d2)
         return of(Math.toIntExact(t / d2),
                   Math.multiplyExact(denominator / d1,
@@ -525,6 +527,7 @@ public final class Fraction
      * @throws ArithmeticException if the resulting numerator or denominator
      * exceeds {@code Integer.MAX_VALUE}
      */
+    @Override
     public Fraction multiply(Fraction fraction) {
         if (numerator == 0 ||
             fraction.numerator == 0) {
@@ -545,6 +548,7 @@ public final class Fraction
      * @param i Value to multiply by.
      * @return {@code this * i}.
      */
+    @Override
     public Fraction multiply(final int i) {
         return multiply(of(i));
     }
@@ -558,6 +562,7 @@ public final class Fraction
      * or if the resulting numerator or denominator exceeds
      * {@code Integer.MAX_VALUE}
      */
+    @Override
     public Fraction divide(Fraction fraction) {
         if (fraction.numerator == 0) {
             throw new FractionException("the fraction to divide by must not be zero: {0}/{1}",
@@ -581,6 +586,7 @@ public final class Fraction
      * @param n Power.
      * @return <code>this<sup>n</sup></code>.
      */
+    @Override
     public Fraction pow(final int n) {
         if (n == 0) {
             return ONE;
@@ -632,7 +638,7 @@ public final class Fraction
      * specification.
      */
     public static Fraction parse(String s) {
-        final int slashLoc = s.indexOf("/");
+        final int slashLoc = s.indexOf('/');
         // if no slash, parse as single number
         if (slashLoc == -1) {
             return Fraction.of(Integer.parseInt(s.trim()));
