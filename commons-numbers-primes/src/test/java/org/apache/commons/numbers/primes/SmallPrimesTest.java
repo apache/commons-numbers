@@ -26,13 +26,15 @@ import org.junit.jupiter.api.Test;
 
 public class SmallPrimesTest {
 
+    // CHECKSTYLE: stop MethodName
+
     // Primes larger than the small PRIMES array in SmallPrimes
     private static final int[] LARGE_PRIME = {3673, 3677};
 
     @Test
     public void smallTrialDivision_smallComposite() {
         final List<Integer> factors = new ArrayList<Integer>();
-        final int result = SmallPrimes.smallTrialDivision(3*7*23, factors);
+        final int result = SmallPrimes.smallTrialDivision(3 * 7 * 23, factors);
         Assertions.assertEquals(1, result);
         Assertions.assertEquals(Arrays.asList(3, 7, 23), factors);
     }
@@ -40,7 +42,7 @@ public class SmallPrimesTest {
     @Test
     public void smallTrialDivision_repeatedFactors() {
         final List<Integer> factors = new ArrayList<Integer>();
-        final int result = SmallPrimes.smallTrialDivision(2*2*3*3*3, factors);
+        final int result = SmallPrimes.smallTrialDivision(2 * 2 * 3 * 3 * 3, factors);
         Assertions.assertEquals(1, result);
         Assertions.assertEquals(Arrays.asList(2, 2, 3, 3, 3), factors);
     }
@@ -56,8 +58,8 @@ public class SmallPrimesTest {
     @Test
     public void smallTrialDivision_BoundaryPrimes() {
         final List<Integer> factors = new ArrayList<Integer>();
-        final int penultimatePrime = SmallPrimes.PRIMES[SmallPrimes.PRIMES.length-2];
-        final int result = SmallPrimes.smallTrialDivision(penultimatePrime*SmallPrimes.PRIMES_LAST, factors);
+        final int penultimatePrime = SmallPrimes.PRIMES[SmallPrimes.PRIMES.length - 2];
+        final int result = SmallPrimes.smallTrialDivision(penultimatePrime * SmallPrimes.PRIMES_LAST, factors);
         Assertions.assertEquals(1, result);
         Assertions.assertEquals(Arrays.asList(penultimatePrime, SmallPrimes.PRIMES_LAST), factors);
     }
@@ -65,7 +67,7 @@ public class SmallPrimesTest {
     @Test
     public void smallTrialDivision_largeComposite() {
         final List<Integer> factors = new ArrayList<Integer>();
-        final int result = SmallPrimes.smallTrialDivision(2*5*LARGE_PRIME[0], factors);
+        final int result = SmallPrimes.smallTrialDivision(2 * 5 * LARGE_PRIME[0], factors);
         Assertions.assertEquals(LARGE_PRIME[0], result);
         Assertions.assertEquals(Arrays.asList(2, 5), factors);
     }
@@ -73,15 +75,16 @@ public class SmallPrimesTest {
     @Test
     public void smallTrialDivision_noSmallPrimeFactors() {
         final List<Integer> factors = new ArrayList<Integer>();
-        final int result = SmallPrimes.smallTrialDivision(LARGE_PRIME[0]*LARGE_PRIME[1], factors);
-        Assertions.assertEquals(LARGE_PRIME[0]*LARGE_PRIME[1], result);
+        final int result = SmallPrimes.smallTrialDivision(LARGE_PRIME[0] * LARGE_PRIME[1], factors);
+        Assertions.assertEquals(LARGE_PRIME[0] * LARGE_PRIME[1], result);
         Assertions.assertEquals(Collections.<Integer>emptyList(), factors);
     }
-    
+
     @Test
     public void boundedTrialDivision_twoDifferentFactors() {
         final List<Integer> factors = new ArrayList<Integer>();
-        final int result = SmallPrimes.boundedTrialDivision(LARGE_PRIME[0]*LARGE_PRIME[1], Integer.MAX_VALUE, factors);
+        final int result = SmallPrimes.boundedTrialDivision(LARGE_PRIME[0] * LARGE_PRIME[1], Integer.MAX_VALUE,
+            factors);
         Assertions.assertEquals(LARGE_PRIME[1], result);
         Assertions.assertEquals(Arrays.asList(LARGE_PRIME[0], LARGE_PRIME[1]), factors);
     }
@@ -89,20 +92,21 @@ public class SmallPrimesTest {
     @Test
     public void boundedTrialDivision_square() {
         final List<Integer> factors = new ArrayList<Integer>();
-        final int result = SmallPrimes.boundedTrialDivision(LARGE_PRIME[0]*LARGE_PRIME[0], Integer.MAX_VALUE, factors);
+        final int result = SmallPrimes.boundedTrialDivision(LARGE_PRIME[0] * LARGE_PRIME[0], Integer.MAX_VALUE,
+            factors);
         Assertions.assertEquals(LARGE_PRIME[0], result);
         Assertions.assertEquals(Arrays.asList(LARGE_PRIME[0], LARGE_PRIME[0]), factors);
     }
 
     @Test
     public void trialDivision_smallComposite() {
-        final List<Integer> factors = SmallPrimes.trialDivision(5*11*29*103);
+        final List<Integer> factors = SmallPrimes.trialDivision(5 * 11 * 29 * 103);
         Assertions.assertEquals(Arrays.asList(5, 11, 29, 103), factors);
     }
 
     @Test
     public void trialDivision_repeatedFactors() {
-        final List<Integer> factors = SmallPrimes.trialDivision(2*2*2*2*5*5);
+        final List<Integer> factors = SmallPrimes.trialDivision(2 * 2 * 2 * 2 * 5 * 5);
         Assertions.assertEquals(Arrays.asList(2, 2, 2, 2, 5, 5), factors);
     }
 
@@ -114,13 +118,13 @@ public class SmallPrimesTest {
 
     @Test
     public void trialDivision_largeComposite() {
-        final List<Integer> factors = SmallPrimes.trialDivision(2*3*LARGE_PRIME[0]);
+        final List<Integer> factors = SmallPrimes.trialDivision(2 * 3 * LARGE_PRIME[0]);
         Assertions.assertEquals(Arrays.asList(2, 3, LARGE_PRIME[0]), factors);
     }
 
     @Test
     public void trialDivision_veryLargeComposite() {
-        final List<Integer> factors = SmallPrimes.trialDivision(2*LARGE_PRIME[0]*LARGE_PRIME[1]);
+        final List<Integer> factors = SmallPrimes.trialDivision(2 * LARGE_PRIME[0] * LARGE_PRIME[1]);
         Assertions.assertEquals(Arrays.asList(2, LARGE_PRIME[0], LARGE_PRIME[1]), factors);
     }
 
@@ -136,7 +140,7 @@ public class SmallPrimesTest {
     @Test
     public void millerRabinPrimeTest_composites() {
         for (final int n : PrimesTest.NOT_PRIMES) {
-            if (n %2 == 1) {
+            if (n % 2 == 1) {
                 Assertions.assertFalse(SmallPrimes.millerRabinPrimeTest(n));
             }
         }

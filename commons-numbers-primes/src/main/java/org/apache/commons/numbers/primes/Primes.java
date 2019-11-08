@@ -19,16 +19,15 @@ package org.apache.commons.numbers.primes;
 import java.text.MessageFormat;
 import java.util.List;
 
-
 /**
- * Methods related to prime numbers in the range of <code>int</code>:
+ * Methods related to prime numbers in the range of <code>int</code>.
  * <ul>
  * <li>primality test</li>
  * <li>prime number generation</li>
  * <li>factorization</li>
  * </ul>
  */
-public class Primes {
+public final class Primes {
     /** Exception message format when an argument is too small. */
     static final String NUMBER_TOO_SMALL = "{0} is smaller than the minimum ({1})";
 
@@ -105,7 +104,7 @@ public class Primes {
     }
 
     /**
-     * Prime factors decomposition
+     * Prime factors decomposition.
      *
      * @param n Number to factorize: must be &ge; 2.
      * @return the list of prime factors of {@code n}.
