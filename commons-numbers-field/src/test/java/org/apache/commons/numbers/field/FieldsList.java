@@ -16,7 +16,6 @@
  */
 package org.apache.commons.numbers.field;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,7 +48,6 @@ final class FieldsList {
                 FP64.of(-234.5678901));
 
         } catch (Exception e) {
-            System.err.println("Unexpected exception while creating the list of fields: " + e);
             e.printStackTrace(System.err);
             throw new RuntimeException(e);
         }

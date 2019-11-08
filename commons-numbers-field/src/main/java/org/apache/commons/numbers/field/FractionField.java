@@ -21,7 +21,7 @@ import org.apache.commons.numbers.fraction.Fraction;
 /**
  * {@link Fraction} field.
  */
-public class FractionField extends AbstractField<Fraction> {
+public final class FractionField extends AbstractField<Fraction> {
     /** Singleton. */
     private static final FractionField INSTANCE = new FractionField();
 

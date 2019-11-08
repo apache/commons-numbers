@@ -23,9 +23,11 @@ import org.apache.commons.numbers.core.Precision;
  * Wraps a {@code double} value in order to be used as a field
  * element.
  */
-public class FP64 extends Number
+public final class FP64 extends Number
     implements NativeOperators<FP64>,
                Comparable<FP64> {
+    private static final long serialVersionUID = 1L;
+
     /** Additive neutral. */
     private static final FP64 ZERO = new FP64(0);
     /** Multiplicative neutral. */

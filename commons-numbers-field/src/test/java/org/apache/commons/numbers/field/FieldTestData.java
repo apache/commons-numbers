@@ -16,8 +16,6 @@
  */
 package org.apache.commons.numbers.field;
 
-import java.util.Arrays;
-
 /**
  * Data store for {@link FieldParametricTest}.
  */
@@ -27,10 +25,10 @@ class FieldTestData<T> {
     private final T b;
     private final T c;
 
-    public FieldTestData(Field<T> field,
-                         T a,
-                         T b,
-                         T c) {
+    FieldTestData(Field<T> field,
+                  T a,
+                  T b,
+                  T c) {
         this.field = field;
         this.a = a;
         this.b = b;

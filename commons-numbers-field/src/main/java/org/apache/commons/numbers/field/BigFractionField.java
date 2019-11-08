@@ -21,7 +21,7 @@ import org.apache.commons.numbers.fraction.BigFraction;
 /**
  * {@link BigFraction} field.
  */
-public class BigFractionField extends AbstractField<BigFraction> {
+public final class BigFractionField extends AbstractField<BigFraction> {
     /** Singleton. */
     private static final BigFractionField INSTANCE = new BigFractionField();
 
