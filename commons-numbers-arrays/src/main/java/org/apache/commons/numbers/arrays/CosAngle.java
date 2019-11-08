@@ -19,7 +19,7 @@ package org.apache.commons.numbers.arrays;
 /**
  * Computes the cosine of the angle between two vectors.
  */
-public class CosAngle {
+public final class CosAngle {
 
     /** Private constructor. */
     private CosAngle() {

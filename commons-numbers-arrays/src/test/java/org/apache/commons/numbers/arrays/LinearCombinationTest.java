@@ -1,15 +1,18 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with this
- * work for additional information regarding copyright ownership. The ASF
- * licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law
- * or agreed to in writing, software distributed under the License is
- * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language
- * governing permissions and limitations under the License.
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.commons.numbers.arrays;
 
@@ -19,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
 import org.apache.commons.numbers.fraction.BigFraction;
-    
+
 /**
  * Test cases for the {@link LinearCombination} class.
  */
@@ -27,14 +30,14 @@ public class LinearCombinationTest {
     // MATH-1005
     @Test
     public void testSingleElementArray() {
-        final double[] a = { 1.23456789 };
-        final double[] b = { 98765432.1 };
+        final double[] a = {1.23456789};
+        final double[] b = {98765432.1};
 
         Assertions.assertEquals(a[0] * b[0], LinearCombination.value(a, b), 0d);
     }
 
     @Test
-    public void testTwoSums() { 
+    public void testTwoSums() {
         final BigFraction[] aF = new BigFraction[] {
             BigFraction.of(-1321008684645961L, 268435456L),
             BigFraction.of(-5774608829631843L, 268435456L),
@@ -92,20 +95,20 @@ public class LinearCombinationTest {
 
             // One sum.
             sInline = LinearCombination.value(u1, v1, u2, v2);
-            sArray = LinearCombination.value(new double[] { u1, u2 },
-                                             new double[] { v1, v2 });
+            sArray = LinearCombination.value(new double[] {u1, u2},
+                                             new double[] {v1, v2});
             Assertions.assertEquals(sInline, sArray, 0);
 
             // Two sums.
             sInline = LinearCombination.value(u1, v1, u2, v2, u3, v3);
-            sArray = LinearCombination.value(new double[] { u1, u2, u3 },
-                                             new double[] { v1, v2, v3 });
+            sArray = LinearCombination.value(new double[] {u1, u2, u3},
+                                             new double[] {v1, v2, v3});
             Assertions.assertEquals(sInline, sArray, 0);
 
             // Three sums.
             sInline = LinearCombination.value(u1, v1, u2, v2, u3, v3, u4, v4);
-            sArray = LinearCombination.value(new double[] { u1, u2, u3, u4 },
-                                             new double[] { v1, v2, v3, v4 });
+            sArray = LinearCombination.value(new double[] {u1, u2, u3, u4},
+                                             new double[] {v1, v2, v3, v4});
             Assertions.assertEquals(sInline, sArray, 0);
         }
     }
@@ -146,24 +149,24 @@ public class LinearCombinationTest {
     @Test
     public void testInfinite() {
         final double[][] a = new double[][] {
-            { 1, 2, 3, 4 },
-            { 1, Double.POSITIVE_INFINITY, 3, 4 },
-            { 1, 2, Double.POSITIVE_INFINITY, 4 },
-            { 1, Double.POSITIVE_INFINITY, 3, Double.NEGATIVE_INFINITY },
-            { 1, 2, 3, 4 },
-            { 1, 2, 3, 4 },
-            { 1, 2, 3, 4 },
-            { 1, 2, 3, 4 }
+            {1, 2, 3, 4},
+            {1, Double.POSITIVE_INFINITY, 3, 4},
+            {1, 2, Double.POSITIVE_INFINITY, 4},
+            {1, Double.POSITIVE_INFINITY, 3, Double.NEGATIVE_INFINITY},
+            {1, 2, 3, 4},
+            {1, 2, 3, 4},
+            {1, 2, 3, 4},
+            {1, 2, 3, 4}
         };
         final double[][] b = new double[][] {
-            { 1, -2, 3, 4 },
-            { 1, -2, 3, 4 },
-            { 1, -2, 3, 4 },
-            { 1, -2, 3, 4 },
-            { 1, Double.POSITIVE_INFINITY, 3, 4 },
-            { 1, -2, Double.POSITIVE_INFINITY, 4 },
-            { 1, Double.POSITIVE_INFINITY, 3, Double.NEGATIVE_INFINITY },
-            { Double.NaN, -2, 3, 4 }
+            {1, -2, 3, 4},
+            {1, -2, 3, 4},
+            {1, -2, 3, 4},
+            {1, -2, 3, 4},
+            {1, Double.POSITIVE_INFINITY, 3, 4},
+            {1, -2, Double.POSITIVE_INFINITY, 4},
+            {1, Double.POSITIVE_INFINITY, 3, Double.NEGATIVE_INFINITY},
+            {Double.NaN, -2, 3, 4}
         };
 
         Assertions.assertEquals(-3,

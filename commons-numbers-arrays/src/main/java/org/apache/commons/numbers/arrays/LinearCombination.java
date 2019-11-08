@@ -28,7 +28,7 @@ package org.apache.commons.numbers.arrays;
  * Accurate Sum and Dot Product</a> by Takeshi Ogita, Siegfried M. Rump,
  * and Shin'ichi Oishi published in <em>SIAM J. Sci. Comput</em>.
  */
-public class LinearCombination {
+public final class LinearCombination {
     /*
      * Caveat:
      *

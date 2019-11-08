@@ -21,7 +21,7 @@ package org.apache.commons.numbers.arrays;
  * Translation of the <a href="http://www.netlib.org/minpack">minpack</a>
  * "enorm" subroutine.
  */
-public class SafeNorm {
+public final class SafeNorm {
     /** Constant. */
     private static final double R_DWARF = 3.834e-20;
     /** Constant. */

@@ -20,6 +20,7 @@
     "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 <suppressions>
   <suppress checks="Indentation" files=".*/combinatorics/Factorial" />
+  <suppress checks="ParameterNumber" files=".*/arrays/LinearCombination" />
 
   <!-- Be more lenient on tests. -->
   <suppress checks="Javadoc" files=".*[/\\]test[/\\].*" />
