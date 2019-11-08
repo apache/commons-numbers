@@ -255,8 +255,6 @@ public final class Complex implements Serializable  {
      * project onto real infinity, as described in the
      * <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/cproj.html">
      * IEEE and ISO C standards</a>.
-     * <p>
-     *
      *
      * @return {@code Complex} projected onto the Riemann sphere.
      */
@@ -279,25 +277,15 @@ public final class Complex implements Serializable  {
     public double abs() {
         // Delegate
         return Math.hypot(real, imaginary);
-
-        //if (Math.abs(real) < Math.abs(imaginary)) {
-        //    final double q = real / imaginary;
-        //    return Math.abs(imaginary) * Math.sqrt(1 + q * q);
-        //}
-        //if (real == 0) {
-        //    return Math.abs(imaginary);
-        //}
-        //final double q = imaginary / real;
-        //return Math.abs(real) * Math.sqrt(1 + q * q);
     }
 
     /**
      * Returns a {@code Complex} whose value is
      * {@code (this + addend)}.
      * Uses the definitional formula
-     * <p>
-     *   {@code (a + bi) + (c + di) = (a+c) + (b+d)i}
-     * </p>
+     * <pre>
+     *   (a + bi) + (c + di) = (a+c) + (b+d)i
+     * </pre>
      *
      * @param  addend Value to be added to this {@code Complex}.
      * @return {@code this + addend}.
@@ -329,7 +317,7 @@ public final class Complex implements Serializable  {
         return new Complex(real, -imaginary);
     }
 
-     /**
+    /**
      * Returns the conjugate of this complex number
      * (C++11 grammar).
      *
@@ -340,23 +328,19 @@ public final class Complex implements Serializable  {
         return conjugate();
     }
 
-
     /**
      * Returns a {@code Complex} whose value is
      * {@code (this / divisor)}.
      * Implements the definitional formula
      * <pre>
-     *  <code>
-     *    a + bi          ac + bd + (bc - ad)i
-     *    ----------- = -------------------------
-     *    c + di         c<sup>2</sup> + d<sup>2</sup>
-     *  </code>
+     *   a + bi     ac + bd + (bc - ad)i
+     *   ------  =  --------------------
+     *   c + di           c<sup>2</sup> + d<sup>2</sup>
      * </pre>
      *
-     *
-     * Recalculates to recover infinities as specified in C.99
+     * <p>Recalculates to recover infinities as specified in C.99
      * standard G.5.1. Method is fully in accordance with
-     * C++11 standards for complex numbers.
+     * C++11 standards for complex numbers.</p>
      *
      * @param divisor Value by which this {@code Complex} is to be divided.
      * @return {@code this / divisor}.
@@ -614,6 +598,7 @@ public final class Complex implements Serializable  {
      */
     @Override
     public int hashCode() {
+        // TODO: Infinity can contain NaNs. This would get the same hashcode.
         if (Double.isNaN(real) ||
             Double.isNaN(imaginary)) {
             return 7;
@@ -629,6 +614,7 @@ public final class Complex implements Serializable  {
     public double getImaginary() {
         return imaginary;
     }
+
     /**
      * Access the imaginary part (C++ grammar).
      *
@@ -659,12 +645,13 @@ public final class Complex implements Serializable  {
     /**
      * Returns a {@code Complex} whose value is {@code this * factor}.
      * Implements the definitional formula:
+     * <pre>
+     *   (a + bi)(c + di) = (ac - bd) + (ad + bc)i
+     * </pre>
      *
-     *   {@code (a + bi)(c + di) = (ac - bd) + (ad + bc)i}
-     *
-     * Recalculates to recover infinities as specified in C.99
+     * <p>Recalculates to recover infinities as specified in C.99
      * standard G.5.1. Method is fully in accordance with
-     * C++11 standards for complex numbers.
+     * C++11 standards for complex numbers.</p>
      *
      * @param  factor value to be multiplied by this {@code Complex}.
      * @return {@code this * factor}.
@@ -844,9 +831,9 @@ public final class Complex implements Serializable  {
      * <a href="http://mathworld.wolfram.com/InverseCosine.html">
      * inverse cosine</a> of this complex number.
      * Implements the formula:
-     * <p>
-     *  {@code acos(z) = -i (log(z + i (sqrt(1 - z<sup>2</sup>))))}
-     * </p>
+     * <pre>
+     *   acos(z) = -i (log(z + i (sqrt(1 - z<sup>2</sup>))))
+     * </pre>
      *
      * @return the inverse cosine of this complex number.
      */
@@ -884,7 +871,7 @@ public final class Complex implements Serializable  {
      * <a href="http://mathworld.wolfram.com/InverseSine.html">
      * inverse sine</a> of this complex number.
      * <pre>
-     *  asin(z) = -i (log(sqrt(1 - z<sup>2</sup>) + iz))
+     *   asin(z) = -i (log(sqrt(1 - z<sup>2</sup>) + iz))
      * </pre>
      *
      * <p>As per the C.99 standard this function is computed using the trigonomic identity:</p>
@@ -906,7 +893,7 @@ public final class Complex implements Serializable  {
      * inverse tangent</a> of this complex number.
      * Implements the formula:
      * <pre>
-     *  atan(z) = (i/2) log((i + z)/(i - z))
+     *   atan(z) = (i/2) log((i + z)/(i - z))
      * </pre>
      *
      * <p>As per the C.99 standard this function is computed using the trigonomic identity:</p>
@@ -1159,9 +1146,7 @@ public final class Complex implements Serializable  {
      * exponential function</a> of this complex number.
      * Implements the formula:
      * <pre>
-     *  <code>
      *   exp(a + bi) = exp(a)cos(b) + exp(a)sin(b)i
-     *  </code>
      * </pre>
      * where the (real) functions on the right-hand side are
      * {@link Math#exp}, {@link Math#cos}, and
@@ -1197,9 +1182,7 @@ public final class Complex implements Serializable  {
      * natural logarithm</a> of this complex number.
      * Implements the formula:
      * <pre>
-     *  <code>
      *   log(a + bi) = ln(|a + bi|) + arg(a + bi)i
-     *  </code>
      * </pre>
      * where ln on the right hand side is {@link Math#log},
      * {@code |a + bi|} is the modulus, {@link Complex#abs},  and
@@ -1227,8 +1210,8 @@ public final class Complex implements Serializable  {
      * <a href="http://mathworld.wolfram.com/CommonLogarithm.html">
      * common logarithm</a> of this complex number.
      *
-     *  @return the base 10 logarithm of <code>this</code>.
-    */
+     * @return the base 10 logarithm of <code>this</code>.
+     */
     public Complex log10() {
         // Same edge cases as log()
         if (real == Double.POSITIVE_INFINITY &&
@@ -1248,15 +1231,13 @@ public final class Complex implements Serializable  {
      * Returns of value of this complex number raised to the power of {@code x}.
      * Implements the formula:
      * <pre>
-     *  <code>
      *   y<sup>x</sup> = exp(x&middot;log(y))
-     *  </code>
      * </pre>
      * where {@code exp} and {@code log} are {@link #exp} and
      * {@link #log}, respectively.
      *
      * @param  x exponent to which this {@code Complex} is to be raised.
-     * @return <code> this<sup>x</sup></code>.
+     * @return <code>this<sup>x</sup></code>.
      */
     public Complex pow(Complex x) {
         if (real == 0 &&
@@ -1327,9 +1308,7 @@ public final class Complex implements Serializable  {
      * hyperbolic sine</a> of this complex number.
      * Implements the formula:
      * <pre>
-     *  <code>
      *   sinh(a + bi) = sinh(a)cos(b)) + cosh(a)sin(b)i
-     *  </code>
      * </pre>
      * where the (real) functions on the right-hand side are
      * {@link Math#sin}, {@link Math#cos},
@@ -1430,8 +1409,9 @@ public final class Complex implements Serializable  {
      * <a href="http://mathworld.wolfram.com/SquareRoot.html">
      * square root</a> of <code>1 - this<sup>2</sup></code> for this complex
      * number.
-     * Computes the result directly as
-     * {@code sqrt(ONE.subtract(z.multiply(z)))}.
+     *
+     * <p>Computes the result directly as
+     * {@code sqrt(ONE.subtract(z.multiply(z)))}.</p>
      *
      * @return the square root of <code>1 - this<sup>2</sup></code>.
      */
@@ -1495,7 +1475,7 @@ public final class Complex implements Serializable  {
      * @return the hyperbolic tangent of this complex number
      */
     private static Complex tanh(double real, double imaginary, ComplexConstructor constructor) {
-        // TODO - should these checks be made on real2 and imaginary2?
+        // TODO: Should these checks be made on real2 and imaginary2?
         // Compare to other library implementations.
         //
         // Math.cos and Math.sin return NaN for infinity.
@@ -1524,13 +1504,13 @@ public final class Complex implements Serializable  {
      * The value returned is between -PI (not inclusive)
      * and PI (inclusive), with negative values returned for numbers with
      * negative imaginary parts.
-     * <p>
-     * If either real or imaginary part (or both) is NaN, NaN is returned.
+     *
+     * <p>If either real or imaginary part (or both) is NaN, NaN is returned.
      * Infinite parts are handled as {@code Math.atan2} handles them,
      * essentially treating finite parts as zero in the presence of an
      * infinite coordinate and returning a multiple of pi/4 depending on
      * the signs of the infinite parts.
-     * See the javadoc for {@code Math.atan2} for full details.
+     * See the javadoc for {@code Math.atan2} for full details.</p>
      *
      * @return the argument of {@code this}.
      */
@@ -1554,9 +1534,7 @@ public final class Complex implements Serializable  {
      * Computes the n-th roots of this complex number.
      * The nth roots are defined by the formula:
      * <pre>
-     *  <code>
      *   z<sub>k</sub> = abs<sup>1/n</sup> (cos(phi + 2&pi;k/n) + i (sin(phi + 2&pi;k/n))
-     *  </code>
      * </pre>
      * for <i>{@code k=0, 1, ..., n-1}</i>, where {@code abs} and {@code phi}
      * are respectively the {@link #abs() modulus} and
@@ -1658,7 +1636,7 @@ public final class Complex implements Serializable  {
      * equivalent of:
      *
      * <pre>
-     *  z = new Complex(real, imaginary).multiply(new Complex(0, -1));
+     *   z = new Complex(real, imaginary).multiply(new Complex(0, -1));
      * </pre>
      *
      * @param real Real part.
