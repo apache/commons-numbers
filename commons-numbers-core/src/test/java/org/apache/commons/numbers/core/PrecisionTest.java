@@ -250,41 +250,39 @@ public class PrecisionTest {
 
     @Test
     public void testCompareToMaxUlps() {
-        // CHECKSTYLE: stop ParenPad
-        double a     = 152.32;
+        double a = 152.32;
         double delta = Math.ulp(a);
         for (int i = 0; i <= 10; ++i) {
             if (i <= 5) {
-                Assertions.assertEquals( 0, Precision.compareTo(a, a + i * delta, 5));
-                Assertions.assertEquals( 0, Precision.compareTo(a, a - i * delta, 5));
+                Assertions.assertEquals(+0, Precision.compareTo(a, a + i * delta, 5));
+                Assertions.assertEquals(+0, Precision.compareTo(a, a - i * delta, 5));
             } else {
                 Assertions.assertEquals(-1, Precision.compareTo(a, a + i * delta, 5));
                 Assertions.assertEquals(+1, Precision.compareTo(a, a - i * delta, 5));
             }
         }
 
-        Assertions.assertEquals( 0, Precision.compareTo(-0.0, 0.0, 0));
+        Assertions.assertEquals(+0, Precision.compareTo(-0.0, 0.0, 0));
 
         Assertions.assertEquals(-1, Precision.compareTo(-Double.MIN_VALUE, -0.0, 0));
-        Assertions.assertEquals( 0, Precision.compareTo(-Double.MIN_VALUE, -0.0, 1));
+        Assertions.assertEquals(+0, Precision.compareTo(-Double.MIN_VALUE, -0.0, 1));
         Assertions.assertEquals(-1, Precision.compareTo(-Double.MIN_VALUE, +0.0, 0));
-        Assertions.assertEquals( 0, Precision.compareTo(-Double.MIN_VALUE, +0.0, 1));
+        Assertions.assertEquals(+0, Precision.compareTo(-Double.MIN_VALUE, +0.0, 1));
 
-        Assertions.assertEquals(+1, Precision.compareTo( Double.MIN_VALUE, -0.0, 0));
-        Assertions.assertEquals( 0, Precision.compareTo( Double.MIN_VALUE, -0.0, 1));
-        Assertions.assertEquals(+1, Precision.compareTo( Double.MIN_VALUE, +0.0, 0));
-        Assertions.assertEquals( 0, Precision.compareTo( Double.MIN_VALUE, +0.0, 1));
+        Assertions.assertEquals(+1, Precision.compareTo(+Double.MIN_VALUE, -0.0, 0));
+        Assertions.assertEquals(+0, Precision.compareTo(+Double.MIN_VALUE, -0.0, 1));
+        Assertions.assertEquals(+1, Precision.compareTo(+Double.MIN_VALUE, +0.0, 0));
+        Assertions.assertEquals(+0, Precision.compareTo(+Double.MIN_VALUE, +0.0, 1));
 
         Assertions.assertEquals(-1, Precision.compareTo(-Double.MIN_VALUE, Double.MIN_VALUE, 0));
         Assertions.assertEquals(-1, Precision.compareTo(-Double.MIN_VALUE, Double.MIN_VALUE, 1));
-        Assertions.assertEquals( 0, Precision.compareTo(-Double.MIN_VALUE, Double.MIN_VALUE, 2));
+        Assertions.assertEquals(+0, Precision.compareTo(-Double.MIN_VALUE, Double.MIN_VALUE, 2));
 
-        Assertions.assertEquals( 0, Precision.compareTo(Double.MAX_VALUE, Double.POSITIVE_INFINITY, 1));
+        Assertions.assertEquals(+0, Precision.compareTo(Double.MAX_VALUE, Double.POSITIVE_INFINITY, 1));
         Assertions.assertEquals(-1, Precision.compareTo(Double.MAX_VALUE, Double.POSITIVE_INFINITY, 0));
 
         Assertions.assertEquals(+1, Precision.compareTo(Double.MAX_VALUE, Double.NaN, Integer.MAX_VALUE));
         Assertions.assertEquals(+1, Precision.compareTo(Double.NaN, Double.MAX_VALUE, Integer.MAX_VALUE));
-        // CHECKSTYLE: resume ParenPad
     }
 
     @Test
