@@ -24,15 +24,12 @@ import java.util.HashMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import org.apache.commons.numbers.core.ArithmeticUtils;
-
 /**
  * Test cases for the {@link BinomialCoefficient} class.
  */
 public class BinomialCoefficientTest {
     /** Cached binomial coefficients. */
-    private static final List<Map<Integer, Long>> binomialCache =
-        new ArrayList<Map<Integer, Long>>();
+    private static final List<Map<Integer, Long>> binomialCache = new ArrayList<>();
 
     /** Verify that b(0,0) = 1 */
     @Test
@@ -42,8 +39,8 @@ public class BinomialCoefficientTest {
 
     @Test
     public void testBinomialCoefficient() {
-        final long[] bcoef5 = { 1, 5, 10, 10, 5, 1 };
-        final long[] bcoef6 = { 1, 6, 15, 20, 15, 6, 1 };
+        final long[] bcoef5 = {1, 5, 10, 10, 5, 1};
+        final long[] bcoef6 = {1, 6, 15, 20, 15, 6, 1};
 
         for (int i = 0; i < 6; i++) {
             Assertions.assertEquals(bcoef5[i], BinomialCoefficient.value(5, i), "5 choose " + i);
@@ -62,8 +59,8 @@ public class BinomialCoefficientTest {
             }
         }
 
-        final int[] n = { 34, 66, 100, 1500, 1500 };
-        final int[] k = { 17, 33, 10, 1500 - 4, 4 };
+        final int[] n = {34, 66, 100, 1500, 1500};
+        final int[] k = {17, 33, 10, 1500 - 4, 4};
         for (int i = 0; i < n.length; i++) {
             final long expected = binomialCoefficient(n[i], k[i]);
             Assertions.assertEquals(
@@ -84,29 +81,28 @@ public class BinomialCoefficientTest {
     @Test
     public void testBinomialCoefficientFail2() {
         Assertions.assertThrows(CombinatoricsException.class,
-                () -> BinomialCoefficient.value(-1, -2)
+            () -> BinomialCoefficient.value(-1, -2)
         );
     }
 
     @Test
-    public void testBinomialCoefficientFail3()
-    {
+    public void testBinomialCoefficientFail3() {
         Assertions.assertThrows(ArithmeticException.class,
-                () -> BinomialCoefficient.value(67, 30)
+            () -> BinomialCoefficient.value(67, 30)
         );
     }
 
     @Test
     public void testBinomialCoefficientFail4() {
         Assertions.assertThrows(ArithmeticException.class,
-                () -> BinomialCoefficient.value(67, 34)
+            () -> BinomialCoefficient.value(67, 34)
         );
     }
 
     @Test
     public void testBinomialCoefficientFail5() {
         Assertions.assertThrows(ArithmeticException.class,
-                () -> BinomialCoefficient.value(700, 300)
+            () -> BinomialCoefficient.value(700, 300)
         );
     }
 
@@ -135,7 +131,7 @@ public class BinomialCoefficientTest {
                 }
                 Assertions.assertEquals(exactResult, ourResult, n + " choose " + k);
                 Assertions.assertEquals(shouldThrow, didThrow, n + " choose " + k);
-                Assertions.assertTrue((n > 66 || !didThrow), n + " choose " + k);
+                Assertions.assertTrue(n > 66 || !didThrow, n + " choose " + k);
             }
         }
 
@@ -157,14 +153,14 @@ public class BinomialCoefficientTest {
     @Test
     public void checkNLessThanOne() {
         Assertions.assertThrows(CombinatoricsException.class,
-                () -> BinomialCoefficient.checkBinomial(-1, -2)
+            () -> BinomialCoefficient.checkBinomial(-1, -2)
         );
     }
 
     @Test
     public void checkKGreaterThanN() {
         Assertions.assertThrows(CombinatoricsException.class,
-                () -> BinomialCoefficient.checkBinomial(4, 5)
+            () -> BinomialCoefficient.checkBinomial(4, 5)
         );
     }
 

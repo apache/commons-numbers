@@ -30,7 +30,7 @@ import org.apache.commons.numbers.core.ArithmeticUtils;
  * combinations</a> {@code (n, k)} of {@code k} elements in a set of
  * {@code n} elements.
  */
-public class Combinations implements Iterable<int[]> {
+public final class Combinations implements Iterable<int[]> {
     /** Size of the set from which combinations are drawn. */
     private final int n;
     /** Number of elements in each combination. */
@@ -120,7 +120,7 @@ public class Combinations implements Iterable<int[]> {
      * <p>
      * Implementation follows Algorithm T in <i>The Art of Computer Programming</i>
      * Internet Draft (PRE-FASCICLE 3A), "A Draft of Section 7.2.1.3 Generating All
-     * Combinations</a>, D. Knuth, 2004.</p>
+     * Combinations, D. Knuth, 2004.</p>
      * <p>
      * The degenerate cases {@code k == 0} and {@code k == n} are NOT handled by this
      * implementation.  If constructor arguments satisfy {@code k == 0}
@@ -141,7 +141,7 @@ public class Combinations implements Iterable<int[]> {
          */
         private final int[] c;
 
-        /** Return value for {@link #hasNext()} */
+        /** Return value for {@link #hasNext()}. */
         private boolean more = true;
 
         /** Marker: smallest index such that {@code c[j + 1] > j}. */
@@ -249,7 +249,7 @@ public class Combinations implements Iterable<int[]> {
     private static class SingletonIterator implements Iterator<int[]> {
         /** Number of elements of the singleton array. */
         private final int n;
-        /** True on initialization, false after first call to next */
+        /** True on initialization, false after first call to next. */
         private boolean more = true;
         /**
          * Create a singleton iterator providing the given array.
@@ -288,7 +288,7 @@ public class Combinations implements Iterable<int[]> {
         /**
          * Unsupported.
          *
-         * @throws UnsupportedOperationException
+         * @throws UnsupportedOperationException Remove is not supported.
          */
         @Override
         public void remove() {

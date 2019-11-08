@@ -25,7 +25,7 @@ import org.apache.commons.numbers.gamma.LogGamma;
  * In case of cache miss, computation is performed by a call to
  * {@link LogGamma#value(double)}.
  */
-public class LogFactorial {
+public final class LogFactorial {
     /**
      * Size of precomputed factorials.
      * @see Factorial

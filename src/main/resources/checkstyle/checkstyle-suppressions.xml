@@ -19,6 +19,8 @@
     "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
     "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 <suppressions>
+  <suppress checks="Indentation" files=".*/combinatorics/Factorial" />
+
   <!-- Be more lenient on tests. -->
   <suppress checks="Javadoc" files=".*[/\\]test[/\\].*" />
   <suppress checks="MultipleStringLiterals" files=".*[/\\]test[/\\].*" />
@@ -26,4 +28,5 @@
   <suppress checks="LineLength" files=".*[/\\]test[/\\].*" />
   <suppress checks="IllegalCatch" files=".*[/\\]test[/\\].*" />
   <suppress checks="MethodName" files=".*[/\\]test[/\\].*" />
+  <suppress checks="ConstantName" files=".*[/\\]test[/\\].*" />
 </suppressions>

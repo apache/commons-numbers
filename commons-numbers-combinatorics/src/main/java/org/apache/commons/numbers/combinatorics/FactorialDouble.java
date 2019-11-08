@@ -22,7 +22,7 @@ package org.apache.commons.numbers.combinatorics;
  * <a href="http://mathworld.wolfram.com/Factorial.html">factorial of a number</a>.
  * It allows to allocate a cache of precomputed values.
  */
-public class FactorialDouble {
+public final class FactorialDouble {
     /**
      * Size of precomputed factorials.
      * @see Factorial
@@ -50,7 +50,7 @@ public class FactorialDouble {
         // Initialize first two entries.
         for (int i = 0, max = numValues < 2 ? numValues : 2;
              i < max; i++) {
-            factorialsDouble [i] = 1;
+            factorialsDouble[i] = 1;
         }
 
         final int beginCopy = 2;
@@ -130,5 +130,5 @@ public class FactorialDouble {
             result *= i;
         }
         return result;
-     }
+    }
 }

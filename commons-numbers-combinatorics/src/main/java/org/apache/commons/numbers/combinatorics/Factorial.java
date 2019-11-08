@@ -20,9 +20,9 @@ package org.apache.commons.numbers.combinatorics;
 /**
  * <a href="http://mathworld.wolfram.com/Factorial.html">Factorial of a number</a>.
  */
-public class Factorial {
+public final class Factorial {
 
-    /** All long-representable factorials */
+    /** All long-representable factorials. */
     static final long[] FACTORIALS = new long[] {
                        1L,                  1L,                   2L,
                        6L,                 24L,                 120L,
@@ -56,5 +56,4 @@ public class Factorial {
 
         return FACTORIALS[n];
     }
-
 }

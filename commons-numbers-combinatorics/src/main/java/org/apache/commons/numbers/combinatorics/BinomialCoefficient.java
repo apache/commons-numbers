@@ -25,7 +25,7 @@ import org.apache.commons.numbers.core.ArithmeticUtils;
  * It is "{@code n choose k}", the number of {@code k}-element subsets that
  * can be selected from an {@code n}-element set.
  */
-public class BinomialCoefficient {
+public final class BinomialCoefficient {
 
     /** Private constructor. */
     private BinomialCoefficient() {

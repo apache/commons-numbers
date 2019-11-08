@@ -35,7 +35,7 @@ public class FactorialDoubleTest {
                     factorialDirect(i), FactorialDouble.create().value(i), 0d, i + "!");
         }
     }
-    
+
     @Test
     public void testLargestFactorialDouble() {
         final int n = 170;
@@ -53,7 +53,7 @@ public class FactorialDoubleTest {
     @Test
     public void testNonPositiveArgument() {
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> FactorialDouble.create().value(-1)
+            () -> FactorialDouble.create().value(-1)
         );
     }
 

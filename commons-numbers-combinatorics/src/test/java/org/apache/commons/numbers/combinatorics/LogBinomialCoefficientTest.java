@@ -31,8 +31,8 @@ public class LogBinomialCoefficientTest {
 
     @Test
     public void testBinomialCoefficient() {
-        final long[] bcoef5 = { 1, 5, 10, 10, 5, 1 };
-        final long[] bcoef6 = { 1, 6, 15, 20, 15, 6, 1 };
+        final long[] bcoef5 = {1, 5, 10, 10, 5, 1};
+        final long[] bcoef6 = {1, 6, 15, 20, 15, 6, 1};
 
         for (int n = 1; n < 10; n++) {
             for (int k = 0; k <= n; k++) {
@@ -42,8 +42,8 @@ public class LogBinomialCoefficientTest {
             }
         }
 
-        final int[] n = { 34, 66, 100, 1500, 1500 };
-        final int[] k = { 17, 33, 10, 1500 - 4, 4 };
+        final int[] n = {34, 66, 100, 1500, 1500};
+        final int[] k = {17, 33, 10, 1500 - 4, 4};
         for (int i = 0; i < n.length; i++) {
             final long expected = BinomialCoefficientTest.binomialCoefficient(n[i], k[i]);
             Assertions.assertEquals(
@@ -63,7 +63,7 @@ public class LogBinomialCoefficientTest {
     @Test
     public void testBinomialCoefficientFail2() {
         Assertions.assertThrows(CombinatoricsException.class,
-                () -> LogBinomialCoefficient.value(-1, -2)
+            () -> LogBinomialCoefficient.value(-1, -2)
         );
     }
 

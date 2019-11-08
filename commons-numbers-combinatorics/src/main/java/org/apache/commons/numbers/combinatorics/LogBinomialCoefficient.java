@@ -23,7 +23,7 @@ package org.apache.commons.numbers.combinatorics;
  * It is "{@code n choose k}", the number of {@code k}-element subsets that
  * can be selected from an {@code n}-element set.
  */
-public class LogBinomialCoefficient {
+public final class LogBinomialCoefficient {
 
     /** Private constructor. */
     private LogBinomialCoefficient() {

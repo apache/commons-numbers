@@ -60,8 +60,8 @@ public class CombinationsTest {
         final int k = 3;
         final Comparator<int[]> comp = Combinations.of(n, k).comparator();
         Assertions.assertThrows(IllegalArgumentException.class,
-                                () -> comp.compare(new int[] {1},
-                                                   new int[] {0, 1, 2}));
+            () -> comp.compare(new int[] {1},
+                               new int[] {0, 1, 2}));
     }
 
     @Test
@@ -70,18 +70,18 @@ public class CombinationsTest {
         final int k = 3;
         final Comparator<int[]> comp = Combinations.of(n, k).comparator();
         Assertions.assertThrows(IllegalArgumentException.class,
-                                () -> comp.compare(new int[] {0, 1, 2},
-                                                   new int[] {0, 1, 2, 3}));
+            () -> comp.compare(new int[] {0, 1, 2},
+                               new int[] {0, 1, 2, 3}));
     }
 
     @Test
     public void testLexicographicComparatorWrongIterate3() {
         final int n = 5;
         final int k = 3;
-           final Comparator<int[]> comp = Combinations.of(n, k).comparator();
+        final Comparator<int[]> comp = Combinations.of(n, k).comparator();
         Assertions.assertThrows(IllegalArgumentException.class,
-                                () -> comp.compare(new int[] {1, 2, 5},
-                                                   new int[] {0, 1, 2}));
+            () -> comp.compare(new int[] {1, 2, 5},
+                               new int[] {0, 1, 2}));
     }
 
     @Test
@@ -90,8 +90,8 @@ public class CombinationsTest {
         final int k = 3;
         final Comparator<int[]> comp = Combinations.of(n, k).comparator();
         Assertions.assertThrows(IllegalArgumentException.class,
-                                () -> comp.compare(new int[] {1, 2, 4},
-                                                   new int[] {-1, 1, 2}));
+            () -> comp.compare(new int[] {1, 2, 4},
+                               new int[] {-1, 1, 2}));
     }
 
     @Test
@@ -185,11 +185,11 @@ public class CombinationsTest {
     @Test
     public void testCombinationsPrecondition1() {
         Assertions.assertThrows(IllegalArgumentException.class,
-                                () -> Combinations.of(4, 5));
+            () -> Combinations.of(4, 5));
     }
     @Test
     public void testCombinationsPrecondition2() {
         Assertions.assertThrows(IllegalArgumentException.class,
-                                () -> Combinations.of(-1, -2));
+            () -> Combinations.of(-1, -2));
     }
 }

@@ -28,7 +28,7 @@ public class LogFactorialTest {
     @Test
     public void testNonPositiveArgument() {
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> LogFactorial.create().withCache(-1)
+            () -> LogFactorial.create().withCache(-1)
         );
     }
 
