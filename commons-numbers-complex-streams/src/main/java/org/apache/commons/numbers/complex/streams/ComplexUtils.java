@@ -23,6 +23,12 @@ import org.apache.commons.numbers.complex.Complex;
  * Static implementations of common {@link Complex} utilities functions.
  */
 public final class ComplexUtils {
+    /** Dimension X. */
+    private static final int DIM_X = 0;
+    /** Dimension Y. */
+    private static final int DIM_Y = 1;
+    /** Dimension Z. */
+    private static final int DIM_Z = 2;
 
     /**
      * Utility class.
@@ -266,7 +272,7 @@ public final class ComplexUtils {
     public static Complex[] real2Complex(double[] real) {
         int index = 0;
         final Complex[] c = new Complex[real.length];
-        for (double d : real) {
+        for (final double d : real) {
             c[index] = Complex.ofReal(d);
             index++;
         }
@@ -282,7 +288,7 @@ public final class ComplexUtils {
     public static Complex[] real2Complex(float[] real) {
         int index = 0;
         final Complex[] c = new Complex[real.length];
-        for (float d : real) {
+        for (final float d : real) {
             c[index] = Complex.ofReal(d);
             index++;
         }
@@ -379,7 +385,7 @@ public final class ComplexUtils {
     public static double[] complex2Real(Complex[] c) {
         int index = 0;
         final double[] d = new double[c.length];
-        for (Complex cc : c) {
+        for (final Complex cc : c) {
             d[index] = cc.getReal();
             index++;
         }
@@ -396,7 +402,7 @@ public final class ComplexUtils {
     public static float[] complex2RealFloat(Complex[] c) {
         int index = 0;
         final float[] f = new float[c.length];
-        for (Complex cc : c) {
+        for (final Complex cc : c) {
             f[index] = (float) cc.getReal();
             index++;
         }
@@ -412,7 +418,7 @@ public final class ComplexUtils {
      */
     public static double[][] complex2Real(Complex[][] c) {
         final int length = c.length;
-        double[][] d = new double[length][];
+        final double[][] d = new double[length][];
         for (int n = 0; n < length; n++) {
             d[n] = complex2Real(c[n]);
         }
@@ -428,7 +434,7 @@ public final class ComplexUtils {
      */
     public static float[][] complex2RealFloat(Complex[][] c) {
         final int length = c.length;
-        float[][] f = new float[length][];
+        final float[][] f = new float[length][];
         for (int n = 0; n < length; n++) {
             f[n] = complex2RealFloat(c[n]);
         }
@@ -444,7 +450,7 @@ public final class ComplexUtils {
      */
     public static double[][][] complex2Real(Complex[][][] c) {
         final int length = c.length;
-        double[][][] d = new double[length][][];
+        final double[][][] d = new double[length][][];
         for (int n = 0; n < length; n++) {
             d[n] = complex2Real(c[n]);
         }
@@ -460,7 +466,7 @@ public final class ComplexUtils {
      */
     public static float[][][] complex2RealFloat(Complex[][][] c) {
         final int length = c.length;
-        float[][][] f = new float[length][][];
+        final float[][][] f = new float[length][][];
         for (int n = 0; n < length; n++) {
             f[n] = complex2RealFloat(c[n]);
         }
@@ -476,7 +482,7 @@ public final class ComplexUtils {
      */
     public static double[][][][] complex2Real(Complex[][][][] c) {
         final int length = c.length;
-        double[][][][] d = new double[length][][][];
+        final double[][][][] d = new double[length][][][];
         for (int n = 0; n < length; n++) {
             d[n] = complex2Real(c[n]);
         }
@@ -492,7 +498,7 @@ public final class ComplexUtils {
      */
     public static float[][][][] complex2RealFloat(Complex[][][][] c) {
         final int length = c.length;
-        float[][][][] f = new float[length][][][];
+        final float[][][][] f = new float[length][][][];
         for (int n = 0; n < length; n++) {
             f[n] = complex2RealFloat(c[n]);
         }
@@ -509,7 +515,7 @@ public final class ComplexUtils {
     public static Complex[] imaginary2Complex(double[] imaginary) {
         int index = 0;
         final Complex[] c = new Complex[imaginary.length];
-        for (double d : imaginary) {
+        for (final double d : imaginary) {
             c[index] = Complex.ofCartesian(0, d);
             index++;
         }
@@ -525,7 +531,7 @@ public final class ComplexUtils {
     public static Complex[] imaginary2Complex(float[] imaginary) {
         int index = 0;
         final Complex[] c = new Complex[imaginary.length];
-        for (float d : imaginary) {
+        for (final float d : imaginary) {
             c[index] = Complex.ofCartesian(0, d);
             index++;
         }
@@ -540,8 +546,8 @@ public final class ComplexUtils {
      * @return 2D {@code Complex} array
      */
     public static Complex[][] imaginary2Complex(double[][] i) {
-        int w = i.length;
-        Complex[][] c = new Complex[w][];
+        final int w = i.length;
+        final Complex[][] c = new Complex[w][];
         for (int n = 0; n < w; n++) {
             c[n] = ComplexUtils.imaginary2Complex(i[n]);
         }
@@ -556,8 +562,8 @@ public final class ComplexUtils {
      * @return 3D {@code Complex} array
      */
     public static Complex[][][] imaginary2Complex(double[][][] i) {
-        int w = i.length;
-        Complex[][][] c = new Complex[w][][];
+        final int w = i.length;
+        final Complex[][][] c = new Complex[w][][];
         for (int n = 0; n < w; n++) {
             c[n] = ComplexUtils.imaginary2Complex(i[n]);
         }
@@ -572,8 +578,8 @@ public final class ComplexUtils {
      * @return 4D {@code Complex} array
      */
     public static Complex[][][][] imaginary2Complex(double[][][][] i) {
-        int w = i.length;
-        Complex[][][][] c = new Complex[w][][][];
+        final int w = i.length;
+        final Complex[][][][] c = new Complex[w][][][];
         for (int n = 0; n < w; n++) {
             c[n] = ComplexUtils.imaginary2Complex(i[n]);
         }
@@ -590,7 +596,7 @@ public final class ComplexUtils {
     public static double[] complex2Imaginary(Complex[] c) {
         int index = 0;
         final double[] i = new double[c.length];
-        for (Complex cc : c) {
+        for (final Complex cc : c) {
             i[index] = cc.getImaginary();
             index++;
         }
@@ -607,7 +613,7 @@ public final class ComplexUtils {
     public static float[] complex2ImaginaryFloat(Complex[] c) {
         int index = 0;
         final float[] f = new float[c.length];
-        for (Complex cc : c) {
+        for (final Complex cc : c) {
             f[index] = (float) cc.getImaginary();
             index++;
         }
@@ -623,7 +629,7 @@ public final class ComplexUtils {
      */
     public static double[][] complex2Imaginary(Complex[][] c) {
         final int length = c.length;
-        double[][] i = new double[length][];
+        final double[][] i = new double[length][];
         for (int n = 0; n < length; n++) {
             i[n] = complex2Imaginary(c[n]);
         }
@@ -639,7 +645,7 @@ public final class ComplexUtils {
      */
     public static float[][] complex2ImaginaryFloat(Complex[][] c) {
         final int length = c.length;
-        float[][] f = new float[length][];
+        final float[][] f = new float[length][];
         for (int n = 0; n < length; n++) {
             f[n] = complex2ImaginaryFloat(c[n]);
         }
@@ -655,7 +661,7 @@ public final class ComplexUtils {
      */
     public static double[][][] complex2Imaginary(Complex[][][] c) {
         final int length = c.length;
-        double[][][] i = new double[length][][];
+        final double[][][] i = new double[length][][];
         for (int n = 0; n < length; n++) {
             i[n] = complex2Imaginary(c[n]);
         }
@@ -671,7 +677,7 @@ public final class ComplexUtils {
      */
     public static float[][][] complex2ImaginaryFloat(Complex[][][] c) {
         final int length = c.length;
-        float[][][] f = new float[length][][];
+        final float[][][] f = new float[length][][];
         for (int n = 0; n < length; n++) {
             f[n] = complex2ImaginaryFloat(c[n]);
         }
@@ -687,7 +693,7 @@ public final class ComplexUtils {
      */
     public static double[][][][] complex2Imaginary(Complex[][][][] c) {
         final int length = c.length;
-        double[][][][] i = new double[length][][][];
+        final double[][][][] i = new double[length][][][];
         for (int n = 0; n < length; n++) {
             i[n] = complex2Imaginary(c[n]);
         }
@@ -703,7 +709,7 @@ public final class ComplexUtils {
      */
     public static float[][][][] complex2ImaginaryFloat(Complex[][][][] c) {
         final int length = c.length;
-        float[][][][] f = new float[length][][][];
+        final float[][][][] f = new float[length][][][];
         for (int n = 0; n < length; n++) {
             f[n] = complex2ImaginaryFloat(c[n]);
         }
@@ -755,9 +761,9 @@ public final class ComplexUtils {
     public static double[] complex2Interleaved(Complex[] c) {
         int index = 0;
         final double[] i = new double[c.length * 2];
-        for (Complex cc : c) {
-            int real = index * 2;
-            int imag = index * 2 + 1;
+        for (final Complex cc : c) {
+            final int real = index * 2;
+            final int imag = index * 2 + 1;
             i[real] = cc.getReal();
             i[imag] = cc.getImaginary();
             index++;
@@ -776,9 +782,9 @@ public final class ComplexUtils {
     public static float[] complex2InterleavedFloat(Complex[] c) {
         int index = 0;
         final float[] f = new float[c.length * 2];
-        for (Complex cc : c) {
-            int real = index * 2;
-            int imag = index * 2 + 1;
+        for (final Complex cc : c) {
+            final int real = index * 2;
+            final int imag = index * 2 + 1;
             f[real] = (float) cc.getReal();
             f[imag] = (float) cc.getImaginary();
             index++;
@@ -848,9 +854,9 @@ public final class ComplexUtils {
         if (interleavedDim > 2 || interleavedDim < 0) {
             throw new IndexOutOfRangeException(interleavedDim);
         }
-        int w = c.length;
-        int h = c[0].length;
-        int d = c[0][0].length;
+        final int w = c.length;
+        final int h = c[0].length;
+        final int d = c[0][0].length;
         double[][][] i;
         if (interleavedDim == 0) {
             i = new double[2 * w][h][d];
@@ -899,12 +905,12 @@ public final class ComplexUtils {
         if (interleavedDim > 3 || interleavedDim < 0) {
             throw new IndexOutOfRangeException(interleavedDim);
         }
-        int w = c.length;
-        int h = c[0].length;
-        int d = c[0][0].length;
-        int v = c[0][0][0].length;
+        final int w = c.length;
+        final int h = c[0].length;
+        final int d = c[0][0].length;
+        final int v = c[0][0][0].length;
         double[][][][] i;
-        if (interleavedDim == 0) {
+        if (interleavedDim == DIM_X) {
             i = new double[2 * w][h][d][v];
             for (int x = 0; x < w; x++) {
                 for (int y = 0; y < h; y++) {
@@ -916,7 +922,7 @@ public final class ComplexUtils {
                     }
                 }
             }
-        } else if (interleavedDim == 1) {
+        } else if (interleavedDim == DIM_Y) {
             i = new double[w][2 * h][d][v];
             for (int x = 0; x < w; x++) {
                 for (int y = 0; y < h; y++) {
@@ -928,7 +934,7 @@ public final class ComplexUtils {
                     }
                 }
             }
-        } else if (interleavedDim == 2) {
+        } else if (interleavedDim == DIM_Z) {
             i = new double[w][h][2 * d][v];
             for (int x = 0; x < w; x++) {
                 for (int y = 0; y < h; y++) {
@@ -1158,7 +1164,7 @@ public final class ComplexUtils {
         final int h = i[0].length;
         final int d = i[0][0].length;
         Complex[][][] c;
-        if (interleavedDim == 0) {
+        if (interleavedDim == DIM_X) {
             c = new Complex[w / 2][h][d];
             for (int x = 0; x < w / 2; x++) {
                 for (int y = 0; y < h; y++) {
@@ -1167,7 +1173,7 @@ public final class ComplexUtils {
                     }
                 }
             }
-        } else if (interleavedDim == 1) {
+        } else if (interleavedDim == DIM_Y) {
             c = new Complex[w][h / 2][d];
             for (int x = 0; x < w; x++) {
                 for (int y = 0; y < h / 2; y++) {
@@ -1399,7 +1405,7 @@ public final class ComplexUtils {
      */
     public static Complex[][] split2Complex(double[][] real, double[][] imag) {
         final int length = real.length;
-        Complex[][] c = new Complex[length][];
+        final Complex[][] c = new Complex[length][];
         for (int x = 0; x < length; x++) {
             c[x] = split2Complex(real[x], imag[x]);
         }
@@ -1416,7 +1422,7 @@ public final class ComplexUtils {
      */
     public static Complex[][][] split2Complex(double[][][] real, double[][][] imag) {
         final int length = real.length;
-        Complex[][][] c = new Complex[length][][];
+        final Complex[][][] c = new Complex[length][][];
         for (int x = 0; x < length; x++) {
             c[x] = split2Complex(real[x], imag[x]);
         }
@@ -1433,7 +1439,7 @@ public final class ComplexUtils {
      */
     public static Complex[][][][] split2Complex(double[][][][] real, double[][][][] imag) {
         final int length = real.length;
-        Complex[][][][] c = new Complex[length][][][];
+        final Complex[][][][] c = new Complex[length][][][];
         for (int x = 0; x < length; x++) {
             c[x] = split2Complex(real[x], imag[x]);
         }
@@ -1467,7 +1473,7 @@ public final class ComplexUtils {
      */
     public static Complex[][] split2Complex(float[][] real, float[][] imag) {
         final int length = real.length;
-        Complex[][] c = new Complex[length][];
+        final Complex[][] c = new Complex[length][];
         for (int x = 0; x < length; x++) {
             c[x] = split2Complex(real[x], imag[x]);
         }
@@ -1484,7 +1490,7 @@ public final class ComplexUtils {
      */
     public static Complex[][][] split2Complex(float[][][] real, float[][][] imag) {
         final int length = real.length;
-        Complex[][][] c = new Complex[length][][];
+        final Complex[][][] c = new Complex[length][][];
         for (int x = 0; x < length; x++) {
             c[x] = split2Complex(real[x], imag[x]);
         }
