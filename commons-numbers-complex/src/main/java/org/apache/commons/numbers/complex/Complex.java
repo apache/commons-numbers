@@ -333,9 +333,11 @@ public final class Complex implements Serializable  {
      * {@code (this / divisor)}.
      * Implements the definitional formula
      * <pre>
+     * <code>
      *   a + bi     ac + bd + (bc - ad)i
      *   ------  =  --------------------
      *   c + di           c<sup>2</sup> + d<sup>2</sup>
+     * </code>
      * </pre>
      *
      * <p>Recalculates to recover infinities as specified in C.99
@@ -832,7 +834,9 @@ public final class Complex implements Serializable  {
      * inverse cosine</a> of this complex number.
      * Implements the formula:
      * <pre>
+     * <code>
      *   acos(z) = -i (log(z + i (sqrt(1 - z<sup>2</sup>))))
+     * </code>
      * </pre>
      *
      * @return the inverse cosine of this complex number.
@@ -871,7 +875,9 @@ public final class Complex implements Serializable  {
      * <a href="http://mathworld.wolfram.com/InverseSine.html">
      * inverse sine</a> of this complex number.
      * <pre>
+     * <code>
      *   asin(z) = -i (log(sqrt(1 - z<sup>2</sup>) + iz))
+     * </code>
      * </pre>
      *
      * <p>As per the C.99 standard this function is computed using the trigonomic identity:</p>
@@ -1231,7 +1237,9 @@ public final class Complex implements Serializable  {
      * Returns of value of this complex number raised to the power of {@code x}.
      * Implements the formula:
      * <pre>
+     * <code>
      *   y<sup>x</sup> = exp(x&middot;log(y))
+     * </code>
      * </pre>
      * where {@code exp} and {@code log} are {@link #exp} and
      * {@link #log}, respectively.
@@ -1534,7 +1542,9 @@ public final class Complex implements Serializable  {
      * Computes the n-th roots of this complex number.
      * The nth roots are defined by the formula:
      * <pre>
+     * <code>
      *   z<sub>k</sub> = abs<sup>1/n</sup> (cos(phi + 2&pi;k/n) + i (sin(phi + 2&pi;k/n))
+     * </code>
      * </pre>
      * for <i>{@code k=0, 1, ..., n-1}</i>, where {@code abs} and {@code phi}
      * are respectively the {@link #abs() modulus} and
