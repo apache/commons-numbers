@@ -84,7 +84,7 @@ public class QuaternionTest {
         final double q1 = 5.4;
         final double q2 = 17;
         final double q3 = 0.0005;
-        final Quaternion q = Quaternion.of(q0, new double[] { q1, q2, q3 });
+        final Quaternion q = Quaternion.of(q0, new double[] {q1, q2, q3});
 
         final double sP = q.getScalarPart();
         final double[] vP = q.getVectorPart();
@@ -98,7 +98,7 @@ public class QuaternionTest {
     @Test
     public void testWrongDimension() {
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> Quaternion.of(new double[] { 1, 2 })
+            () -> Quaternion.of(new double[] {1, 2})
         );
     }
 
@@ -297,7 +297,7 @@ public class QuaternionTest {
         Assertions.assertEquals(x, qb.getX(), EPS);
         Assertions.assertEquals(y, qb.getY(), EPS);
         Assertions.assertEquals(z, qb.getZ(), EPS);
-}
+    }
 
     @Test
     public final void testNorm() {
@@ -692,42 +692,42 @@ public class QuaternionTest {
     @Test
     public final void testParseMissingEnd() {
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> Quaternion.parse("[1.0 2.0 3.0 4.0")
+            () -> Quaternion.parse("[1.0 2.0 3.0 4.0")
         );
     }
 
     @Test
     public final void testParseMissingPart() {
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> Quaternion.parse("[1.0 2.0 3.0 ]")
+            () -> Quaternion.parse("[1.0 2.0 3.0 ]")
         );
     }
 
     @Test
     public final void testParseInvalidScalar() {
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> Quaternion.parse("[1.x 2.0 3.0 4.0]")
+            () -> Quaternion.parse("[1.x 2.0 3.0 4.0]")
         );
     }
 
     @Test
     public final void testParseInvalidI() {
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> Quaternion.parse("[1.0 2.0x 3.0 4.0]")
+            () -> Quaternion.parse("[1.0 2.0x 3.0 4.0]")
         );
     }
 
     @Test
     public final void testParseInvalidJ() {
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> Quaternion.parse("[1.0 2.0 3.0x 4.0]")
+            () -> Quaternion.parse("[1.0 2.0 3.0x 4.0]")
         );
     }
 
     @Test
     public final void testParseInvalidK() {
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> Quaternion.parse("[1.0 2.0 3.0 4.0x]")
+            () -> Quaternion.parse("[1.0 2.0 3.0 4.0x]")
         );
     }
 

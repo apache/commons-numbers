@@ -182,23 +182,23 @@ public class SlerpTest {
 
         Slerp slerp = new Slerp(q0, q1);
 
-        double[] vec = { 2, 0, 1 };
+        double[] vec = {2, 0, 1};
 
         // act/assert
-        Assertions.assertArrayEquals(new double[] { 2, 0, 1 },
-                transformVector(slerp.apply(0), vec), EPS);
+        Assertions.assertArrayEquals(new double[] {2, 0, 1},
+            transformVector(slerp.apply(0), vec), EPS);
 
-        Assertions.assertArrayEquals(new double[] { SQRT_2, SQRT_2, 1 },
-                transformVector(slerp.apply(0.25), vec), EPS);
+        Assertions.assertArrayEquals(new double[] {SQRT_2, SQRT_2, 1},
+            transformVector(slerp.apply(0.25), vec), EPS);
 
-        Assertions.assertArrayEquals(new double[] { 0, 2, 1 },
-                transformVector(slerp.apply(0.5), vec), EPS);
+        Assertions.assertArrayEquals(new double[] {0, 2, 1},
+            transformVector(slerp.apply(0.5), vec), EPS);
 
-        Assertions.assertArrayEquals(new double[] { -SQRT_2, SQRT_2, 1 },
-                transformVector(slerp.apply(0.75), vec), EPS);
+        Assertions.assertArrayEquals(new double[] {-SQRT_2, SQRT_2, 1},
+            transformVector(slerp.apply(0.75), vec), EPS);
 
-        Assertions.assertArrayEquals(new double[] { -2, 0, 1 },
-                transformVector(slerp.apply(1), vec), EPS);
+        Assertions.assertArrayEquals(new double[] {-2, 0, 1},
+            transformVector(slerp.apply(1), vec), EPS);
     }
 
     @Test
@@ -238,8 +238,8 @@ public class SlerpTest {
 
         // act/assert
         // test each quaternion against all of the others (including itself)
-        for (int i=0; i<quaternions.length; ++i) {
-            for (int j=0; j<quaternions.length; ++j) {
+        for (int i = 0; i < quaternions.length; ++i) {
+            for (int j = 0; j < quaternions.length; ++j) {
                 checkSlerpCombination(quaternions[i], quaternions[j]);
             }
         }
@@ -248,7 +248,7 @@ public class SlerpTest {
     private void checkSlerpCombination(Quaternion start, Quaternion end) {
         Slerp slerp = new Slerp(start, end);
 
-        double[] vec = { 1, 2, 3 };
+        double[] vec = {1, 2, 3};
         double vecNorm = norm(vec);
 
         double[] startVec = transformVector(start, vec);
@@ -263,7 +263,7 @@ public class SlerpTest {
         final int numSteps = 100;
         final double delta = 1.0 / numSteps;
         for (int step = 0; step <= numSteps; ++step) {
-            final double t= step * delta;
+            final double t = step * delta;
             Quaternion result = slerp.apply(t);
 
             double[] slerpVec = transformVector(result, vec);
@@ -291,20 +291,20 @@ public class SlerpTest {
         Quaternion q1 = Quaternion.of(Math.cos(halfAngle1), 0, 0, Math.sin(halfAngle1)); // pi/4 around +z
         Quaternion q2 = Quaternion.of(Math.cos(halfAngle2), 0, 0, Math.sin(halfAngle2)); // 3pi/4 around +z
 
-        double[] vec = new double[] { 1, 0, 0 };
+        double[] vec = new double[] {1, 0, 0};
 
         // act/assert
         Slerp slerp12 = new Slerp(q1, q2);
-        Assertions.assertArrayEquals(new double[] { 1, 0, 0 }, transformVector(slerp12.apply(-4.5), vec), EPS);
-        Assertions.assertArrayEquals(new double[] { 1, 0, 0 }, transformVector(slerp12.apply(-0.5), vec), EPS);
-        Assertions.assertArrayEquals(new double[] { -1, 0, 0 }, transformVector(slerp12.apply(1.5), vec), EPS);
-        Assertions.assertArrayEquals(new double[] { -1, 0, 0 }, transformVector(slerp12.apply(5.5), vec), EPS);
+        Assertions.assertArrayEquals(new double[] {1, 0, 0}, transformVector(slerp12.apply(-4.5), vec), EPS);
+        Assertions.assertArrayEquals(new double[] {1, 0, 0}, transformVector(slerp12.apply(-0.5), vec), EPS);
+        Assertions.assertArrayEquals(new double[] {-1, 0, 0}, transformVector(slerp12.apply(1.5), vec), EPS);
+        Assertions.assertArrayEquals(new double[] {-1, 0, 0}, transformVector(slerp12.apply(5.5), vec), EPS);
 
         Slerp slerp21 = new Slerp(q2, q1);
-        Assertions.assertArrayEquals(new double[] { -1, 0, 0 }, transformVector(slerp21.apply(-4.5), vec), EPS);
-        Assertions.assertArrayEquals(new double[] { -1, 0, 0 }, transformVector(slerp21.apply(-0.5), vec), EPS);
-        Assertions.assertArrayEquals(new double[] { 1, 0, 0 }, transformVector(slerp21.apply(1.5), vec), EPS);
-        Assertions.assertArrayEquals(new double[] { 1, 0, 0 }, transformVector(slerp21.apply(5.5), vec), EPS);
+        Assertions.assertArrayEquals(new double[] {-1, 0, 0}, transformVector(slerp21.apply(-4.5), vec), EPS);
+        Assertions.assertArrayEquals(new double[] {-1, 0, 0}, transformVector(slerp21.apply(-0.5), vec), EPS);
+        Assertions.assertArrayEquals(new double[] {1, 0, 0}, transformVector(slerp21.apply(1.5), vec), EPS);
+        Assertions.assertArrayEquals(new double[] {1, 0, 0}, transformVector(slerp21.apply(5.5), vec), EPS);
     }
 
     /**
@@ -325,7 +325,7 @@ public class SlerpTest {
      */
     private static double norm(double[] vec) {
         double sum = 0.0;
-        for (int i=0; i<vec.length; ++i) {
+        for (int i = 0; i < vec.length; ++i) {
             sum += vec[i] * vec[i];
         }
         return Math.sqrt(sum);
@@ -351,7 +351,7 @@ public class SlerpTest {
      */
     private static double dot(double[] a, double[] b) {
         double result = 0.0;
-        for (int i=0; i<a.length; ++i) {
+        for (int i = 0; i < a.length; ++i) {
             result += a[i] * b[i];
         }
         return result;
@@ -371,7 +371,7 @@ public class SlerpTest {
 
         Quaternion result = q.multiply(qVec).multiply(qConj);
 
-        return new double[] { result.getX(), result.getY(), result.getZ() };
+        return new double[] {result.getX(), result.getY(), result.getZ()};
     }
 
     /**

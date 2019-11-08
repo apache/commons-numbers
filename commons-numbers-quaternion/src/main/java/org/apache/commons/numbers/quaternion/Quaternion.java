@@ -38,11 +38,11 @@ public final class Quaternion implements Serializable {
     public static final Quaternion ZERO = of(0, 0, 0, 0);
     /** Identity quaternion. */
     public static final Quaternion ONE = new Quaternion(Type.POSITIVE_POLAR_FORM, 1, 0, 0, 0);
-    /** i */
+    /** i. */
     public static final Quaternion I = new Quaternion(Type.POSITIVE_POLAR_FORM, 0, 1, 0, 0);
-    /** j */
+    /** j. */
     public static final Quaternion J = new Quaternion(Type.POSITIVE_POLAR_FORM, 0, 0, 1, 0);
-    /** k */
+    /** k. */
     public static final Quaternion K = new Quaternion(Type.POSITIVE_POLAR_FORM, 0, 0, 0, 1);
 
     /** Serializable version identifier. */
@@ -103,7 +103,7 @@ public final class Quaternion implements Serializable {
         private static final class Normalized {
             /** {@link Quaternion#norm()} returns 1. */
             static final ToDoubleFunction<Quaternion> NORM = q -> 1;
-            /** {@link Quaternion#isUnit()} returns 1. */
+            /** {@link Quaternion#isUnit(double)} returns 1. */
             static final BiPredicate<Quaternion, Double> IS_UNIT = (q, eps) -> true;
         }
 
@@ -432,7 +432,7 @@ public final class Quaternion implements Serializable {
      */
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new double[] { w, x, y, z });
+        return Arrays.hashCode(new double[] {w, x, y, z});
     }
 
     /**
@@ -604,7 +604,7 @@ public final class Quaternion implements Serializable {
      * @see #getZ()
      */
     public double[] getVectorPart() {
-        return new double[] { x, y, z };
+        return new double[] {x, y, z};
     }
 
     /**
