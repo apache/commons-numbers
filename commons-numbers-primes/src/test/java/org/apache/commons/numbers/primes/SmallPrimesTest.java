@@ -26,8 +26,6 @@ import org.junit.jupiter.api.Test;
 
 public class SmallPrimesTest {
 
-    // CHECKSTYLE: stop MethodName
-
     // Primes larger than the small PRIMES array in SmallPrimes
     private static final int[] LARGE_PRIME = {3673, 3677};
 
