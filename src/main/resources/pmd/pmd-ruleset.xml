@@ -69,7 +69,7 @@
 
   <rule ref="category/java/codestyle.xml/ShortMethodName">
     <properties>
-      <!-- Allow classes to have factory constructor method 'of' -->
+      <!-- TODO: Current regex effectively disables this rule. -->
       <property name="violationSuppressXPath" value="//ClassOrInterfaceDeclaration[matches(@Image, '^.*$')]"/>
     </properties>
   </rule>
