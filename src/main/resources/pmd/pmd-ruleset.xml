@@ -90,6 +90,28 @@
       <property name="methodReportLevel" value="20"/>
     </properties>
   </rule>
+  <rule ref="category/java/design.xml/ExcessivePublicCount">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="//ClassOrInterfaceDeclaration[@Image='Complex'
+               or @Image='Fraction' 
+               or @Image='BigFraction']"/>
+    </properties>
+  </rule>
+  <rule ref="category/java/design.xml/ExcessiveClassLength">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="//ClassOrInterfaceDeclaration[@Image='Complex'
+               or @Image='Fraction' 
+               or @Image='BigFraction']"/>
+    </properties>
+  </rule>
+  <rule ref="category/java/design.xml/GodClass">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="//ClassOrInterfaceDeclaration[@Image='Fraction']"/>
+    </properties>
+  </rule>
 
   <rule ref="category/java/errorprone.xml/AvoidLiteralsInIfCondition">
     <properties>

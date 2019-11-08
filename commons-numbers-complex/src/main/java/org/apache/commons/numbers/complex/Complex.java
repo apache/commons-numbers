@@ -66,6 +66,8 @@ public final class Complex implements Serializable  {
     private static final double PI_OVER_2 = 0.5 * Math.PI;
     /** &pi;/4. */
     private static final double PI_OVER_4 = 0.25 * Math.PI;
+    /** Expected number of elements when parsing text: 2. */
+    private static final int TWO_ELEMENTS = 2;
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20180201L;
@@ -179,17 +181,17 @@ public final class Complex implements Serializable  {
      * to the specification.
      */
     public static Complex parse(String s) {
-        final int len = s.length();
         final int startParen = s.indexOf(FORMAT_START);
         if (startParen != 0) {
             throw new ComplexParsingException("Expected start string: " + FORMAT_START);
         }
+        final int len = s.length();
         final int endParen = s.indexOf(FORMAT_END);
         if (endParen != len - 1) {
             throw new ComplexParsingException("Expected end string: " + FORMAT_END);
         }
         final String[] elements = s.substring(1, s.length() - 1).split(FORMAT_SEP);
-        if (elements.length != 2) {
+        if (elements.length != TWO_ELEMENTS) {
             throw new ComplexParsingException("Incorrect number of parts: Expected 2 but was " +
                                               elements.length +
                                               " (separator is '" + FORMAT_SEP + "')");
@@ -199,13 +201,13 @@ public final class Complex implements Serializable  {
         try {
             re = Double.parseDouble(elements[0]);
         } catch (final NumberFormatException ex) {
-            throw new ComplexParsingException("Could not parse real part" + elements[0]);
+            throw new ComplexParsingException("Could not parse real part" + elements[0], ex);
         }
         final double im;
         try {
             im = Double.parseDouble(elements[1]);
         } catch (final NumberFormatException ex) {
-            throw new ComplexParsingException("Could not parse imaginary part" + elements[1]);
+            throw new ComplexParsingException("Could not parse imaginary part" + elements[1], ex);
         }
 
         return ofCartesian(re, im);
@@ -409,7 +411,7 @@ public final class Complex implements Serializable  {
     private static double computeACplusBD(double a, double b, double c, double d) {
         final double ac = a * c;
         final double bd = b * d;
-        double result = ac + bd;
+        final double result = ac + bd;
         return Double.isFinite(result) ?
             result :
             // Overflow. Just divide by 2 as it is the sign of the result that matters.
@@ -1667,6 +1669,15 @@ public final class Complex implements Serializable  {
          */
         ComplexParsingException(String msg) {
             super(msg);
+        }
+
+        /**
+         * @param msg Error message.
+         * @param cause Cause.
+         */
+        ComplexParsingException(String msg, Throwable cause) {
+            super(msg);
+            initCause(cause);
         }
     }
 }
