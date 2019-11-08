@@ -22,22 +22,22 @@ import java.util.function.DoubleUnaryOperator;
  * Wrapper class for counting functions calls.
  */
 class MonitoredFunction implements DoubleUnaryOperator {
-    final int maxCount;
+    private final int maxCount;
     private int callsCount;
     private final DoubleUnaryOperator f;
 
-    public MonitoredFunction(DoubleUnaryOperator f) {
+    MonitoredFunction(DoubleUnaryOperator f) {
         this(f, Integer.MAX_VALUE);
     }
 
-    public MonitoredFunction(DoubleUnaryOperator f,
-                             int maxCount) {
+    MonitoredFunction(DoubleUnaryOperator f,
+                      int maxCount) {
         callsCount = 0;
         this.f = f;
         this.maxCount = maxCount;
     }
 
-    public int getCallsCount() {
+    int getCallsCount() {
         return callsCount;
     }
 
