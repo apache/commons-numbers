@@ -51,7 +51,7 @@ public final class Primes {
             return false;
         }
 
-        for (int p : SmallPrimes.PRIMES) {
+        for (final int p : SmallPrimes.PRIMES) {
             if (0 == (n % p)) {
                 return n == p;
             }

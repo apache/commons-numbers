@@ -107,20 +107,20 @@ final class SmallPrimes {
         trial division is reduced to 480/(2*3*5*7*11), which is about 20.78%,
         of all integers.
          */
-        Set<Integer> primeNumbers = new HashSet<>();
+        final Set<Integer> primeNumbers = new HashSet<>();
         primeNumbers.add(Integer.valueOf(2));
         primeNumbers.add(Integer.valueOf(3));
         primeNumbers.add(Integer.valueOf(5));
         primeNumbers.add(Integer.valueOf(7));
         primeNumbers.add(Integer.valueOf(11));
 
-        int product = primeNumbers.stream().reduce(1, (a, b) -> a * b);
-        int[] equivalenceClasses = new int[primeNumbers.stream().mapToInt(a -> a - 1).reduce(1, (a, b) -> a * b)];
+        final int product = primeNumbers.stream().reduce(1, (a, b) -> a * b);
+        final int[] equivalenceClasses = new int[primeNumbers.stream().mapToInt(a -> a - 1).reduce(1, (a, b) -> a * b)];
 
         int equivalenceClassIndex = 0;
         for (int i = 0; i < product; i++) {
             boolean foundPrimeFactor = false;
-            for (Integer prime : primeNumbers) {
+            for (final Integer prime : primeNumbers) {
                 if (i % prime == 0) {
                     foundPrimeFactor = true;
                     break;
@@ -150,7 +150,7 @@ final class SmallPrimes {
      */
     static int smallTrialDivision(int n,
                                   final List<Integer> factors) {
-        for (int p : PRIMES) {
+        for (final int p : PRIMES) {
             while (0 == n % p) {
                 n /= p;
                 factors.add(p);
@@ -172,7 +172,7 @@ final class SmallPrimes {
     static int boundedTrialDivision(int n,
                                     int maxFactor,
                                     List<Integer> factors) {
-        int minFactor = PRIMES_LAST + 2;
+        final int minFactor = PRIMES_LAST + 2;
 
         /*
         only trying integers of the form k*m + c, where k >= 0, m is the
@@ -180,7 +180,7 @@ final class SmallPrimes {
         as prime factors, and c is an integer undivisible by all of those
         prime numbers; in other words, skipping multiples of these primes
          */
-        int m = PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue()
+        final int m = PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue()
             [PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue().length - 1] + 1;
         int km = m * (minFactor / m);
         int currentEquivalenceClassIndex = Arrays.binarySearch(
@@ -196,7 +196,7 @@ final class SmallPrimes {
         boolean done = false;
         while (!done) {
             // no check is done about n >= f
-            int f = km + PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue()[currentEquivalenceClassIndex];
+            final int f = km + PRIME_NUMBERS_AND_COPRIME_EQUIVALENCE_CLASSES.getValue()[currentEquivalenceClassIndex];
             if (f > maxFactor) {
                 done = true;
             } else if (0 == n % f) {
@@ -273,7 +273,7 @@ final class SmallPrimes {
             if ((1 != y) && (y != nMinus1)) {
                 int j = 1;
                 while ((j <= s - 1) && (nMinus1 != y)) {
-                    long square = ((long) y) * y;
+                    final long square = ((long) y) * y;
                     y = (int) (square % n);
                     if (1 == y) {
                         return false;
