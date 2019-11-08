@@ -130,7 +130,7 @@ public class ErfTest {
             0.99999999980338395581, 0.99999999999846254017, 0.99999999999999264217, 0.99999999999999997848,
             1,  1,  1,  1,
             1,  1,  1,  1};
-        
+
         double x = -10;
         for (int i = 0; i < 41; i++) {
             Assertions.assertEquals(gnuValues[i], Erf.value(x), tol);

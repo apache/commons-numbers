@@ -19,8 +19,7 @@ package org.apache.commons.numbers.gamma;
 /**
  * <a href="http://mathworld.wolfram.com/Erf.html">Error function</a>.
  */
-public class Erf {
-
+public final class Erf {
     /** Private constructor. */
     private Erf() {
         // intenitonal empty.

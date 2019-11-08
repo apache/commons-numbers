@@ -19,8 +19,7 @@ package org.apache.commons.numbers.gamma;
 /**
  * Computes the difference between {@link Erf error function values}.
  */
-public class ErfDifference {
-
+public final class ErfDifference {
     /**
      * This number solves {@code erf(x) = 0.5} within 1 ulp.
      * More precisely, the current implementations of

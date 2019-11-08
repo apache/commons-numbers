@@ -21,8 +21,7 @@ package org.apache.commons.numbers.gamma;
  *
  * Class is immutable.
  */
-class LogGamma1p {
-
+final class LogGamma1p {
     /** Private constructor. */
     private LogGamma1p() {
         // intentionally empty

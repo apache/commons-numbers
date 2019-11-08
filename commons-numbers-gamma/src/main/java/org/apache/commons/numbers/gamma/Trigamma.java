@@ -22,8 +22,7 @@ package org.apache.commons.numbers.gamma;
  * It is the derivative of the {@link Digamma digamma function}:
  * \( \psi_1(x) = \frac{d^2}{dx^2} (\ln \Gamma(x)) \).
  */
-public class Trigamma {
-
+public final class Trigamma {
     /** C limit. */
     private static final double C_LIMIT = 49;
 

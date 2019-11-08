@@ -19,8 +19,7 @@ package org.apache.commons.numbers.gamma;
 /**
  * <a href="http://mathworld.wolfram.com/Erfc.html">Complementary error function</a>.
  */
-public class Erfc {
-
+public final class Erfc {
     /** Private constructor. */
     private Erfc() {
         // intentionally empty.

@@ -25,8 +25,7 @@ import org.apache.commons.numbers.fraction.ContinuedFraction;
  * This class is immutable.
  * </p>
  */
-public class RegularizedBeta {
-
+public final class RegularizedBeta {
     /** Maximum allowed numerical error. */
     private static final double DEFAULT_EPSILON = 1e-14;
 

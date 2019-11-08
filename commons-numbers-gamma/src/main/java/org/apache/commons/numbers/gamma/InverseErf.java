@@ -26,8 +26,7 @@ package org.apache.commons.numbers.gamma;
  * The source code is available <a href="http://gpucomputing.net/?q=node/1828">here</a>.
  * </p>
  */
-public class InverseErf {
-
+public final class InverseErf {
     /** Private constructor. */
     private InverseErf() {
         // intentionally empty.

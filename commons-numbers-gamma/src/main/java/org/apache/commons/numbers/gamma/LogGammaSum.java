@@ -22,8 +22,7 @@ package org.apache.commons.numbers.gamma;
  * This class is immutable.
  * </p>
  */
-class LogGammaSum {
-
+final class LogGammaSum {
     /** Private constructor. */
     private LogGammaSum() {
         // intentionally empty

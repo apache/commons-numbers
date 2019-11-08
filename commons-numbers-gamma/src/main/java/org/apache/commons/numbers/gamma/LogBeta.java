@@ -22,20 +22,18 @@ package org.apache.commons.numbers.gamma;
  * This class is immutable.
  * </p>
  */
-public class LogBeta {
-
-
+public final class LogBeta {
     /** The constant value of ½log 2π. */
     private static final double HALF_LOG_TWO_PI = 0.9189385332046727;
 
     /**
-     * <p>
      * The coefficients of the series expansion of the Δ function. This function
-     * is defined as follows
-     * </p>
-     * <center>Δ(x) = log Γ(x) - (x - 0.5) log a + a - 0.5 log 2π,</center>
+     * is defined as follows:
+     * <pre>
+     * Δ(x) = log Γ(x) - (x - 0.5) log a + a - 0.5 log 2π,
+     * </pre>
      * <p>
-     * see equation (23) in Didonato and Morris (1992). The series expansion,
+     * See equation (23) in Didonato and Morris (1992). The series expansion,
      * which applies for x ≥ 10, reads
      * </p>
      * <pre>
@@ -46,7 +44,7 @@ public class LogBeta {
      *             x  /      n
      *                ====
      *                n = 0
-     * <pre>
+     * </pre>
      */
     private static final double[] DELTA = {
         .833333333333333333333333333333E-01,

@@ -32,7 +32,7 @@ public class InverseErfcTest {
     @Test
     public void testErfcInvInfinite() {
         Assertions.assertTrue(Double.isInfinite(InverseErfc.value(-0)));
-        Assertions.assertTrue(InverseErfc.value( 0) > 0);
+        Assertions.assertTrue(InverseErfc.value(0) > 0);
         Assertions.assertTrue(Double.isInfinite(InverseErfc.value(+2)));
         Assertions.assertTrue(InverseErfc.value(+2) < 0);
     }
