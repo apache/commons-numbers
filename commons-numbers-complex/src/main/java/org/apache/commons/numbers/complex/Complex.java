@@ -66,8 +66,6 @@ public final class Complex implements Serializable  {
     private static final double PI_OVER_2 = 0.5 * Math.PI;
     /** &pi;/4. */
     private static final double PI_OVER_4 = 0.25 * Math.PI;
-    /** "-i". */
-    private static final Complex MINUS_I = new Complex(0, -1);
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20180201L;
@@ -83,6 +81,22 @@ public final class Complex implements Serializable  {
     private final double imaginary;
     /** The real part. */
     private final double real;
+
+    /**
+     * Define a constructor for a Complex.
+     * This is used in functions that implement trigonomic identities.
+     */
+    @FunctionalInterface
+    private interface ComplexConstructor {
+        /**
+         * Create a complex number given the real and imaginary parts.
+         *
+         * @param real Real part.
+         * @param imaginary Imaginary part.
+         * @return {@code Complex} object
+         */
+        Complex create(double real, double imaginary);
+    }
 
     /**
      * Private default constructor.
@@ -863,23 +877,27 @@ public final class Complex implements Serializable  {
                    imaginary == Double.POSITIVE_INFINITY) {
             return new Complex(Double.NaN, Double.NEGATIVE_INFINITY);
         }
-        return add(sqrt1z().multiply(I)).log().multiply(I.negate());
+        return add(sqrt1z().multiplyByI()).log().multiplyByNegI();
     }
     /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/InverseSine.html">
      * inverse sine</a> of this complex number.
-     * <p>
-     *  {@code asin(z) = -i (log(sqrt(1 - z<sup>2</sup>) + iz))}
-     * </p><p>
+     * <pre>
+     *  asin(z) = -i (log(sqrt(1 - z<sup>2</sup>) + iz))
+     * </pre>
+     *
+     * <p>As per the C.99 standard this function is computed using the trigonomic identity:</p>
+     * <pre>
+     *   asin(z) = -i asinh(iz)
+     * </pre>
+     *
      * @return the inverse sine of this complex number
      */
     public Complex asin() {
         // Define in terms of asinh
         // asin(z) = -i asinh(iz)
         return multiplyByI().asinh().multiplyByNegI();
-
-        //return sqrt1z().add(multiply(I)).log().multiply(I.negate());
     }
 
     /**
@@ -887,18 +905,21 @@ public final class Complex implements Serializable  {
      * <a href="http://mathworld.wolfram.com/InverseTangent.html">
      * inverse tangent</a> of this complex number.
      * Implements the formula:
-     * <p>
-     * {@code atan(z) = (i/2) log((i + z)/(i - z))}
-     * </p><p>
+     * <pre>
+     *  atan(z) = (i/2) log((i + z)/(i - z))
+     * </pre>
+     *
+     * <p>As per the C.99 standard this function is computed using the trigonomic identity:</p>
+     * <pre>
+     *   atan(z) = -i atanh(iz)
+     * </pre>
+     *
      * @return the inverse tangent of this complex number
      */
     public Complex atan() {
         // Define in terms of atanh
         // atan(z) = -i atanh(iz)
         return multiplyByI().atanh().multiplyByNegI();
-
-        // This is not exact to 1 ulp
-        //return add(I).divide(I.subtract(this)).log().multiply(I.multiply(0.5));
     }
 
     /**
@@ -924,10 +945,11 @@ public final class Complex implements Serializable  {
      * <a href="http://mathworld.wolfram.com/InverseHyperbolicSine.html">
      * inverse hyperbolic sine</a> of this complex number.
      * Implements the formula:
-     * <p>
-     * {@code asinh(z) = log(z+sqrt(z^2+1))}
-     * </p><p>
-     * @return the inverse hyperbolic cosine of this complex number
+     * <pre>
+     *   asinh(z) = log(z+sqrt(z^2+1))
+     * </pre>
+     *
+     * @return the inverse hyperbolic sine of this complex number
      */
     public Complex asinh() {
         if (neitherInfiniteNorZeroNorNaN(real) &&
@@ -952,15 +974,16 @@ public final class Complex implements Serializable  {
         return square().add(ONE).sqrt().add(this).log();
     }
 
-   /**
+    /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/InverseHyperbolicTangent.html">
      * inverse hyperbolic tangent</a> of this complex number.
      * Implements the formula:
-     * <p>
-     * {@code atanh(z) = log((1+z)/(1-z))/2}
-     * </p><p>
-     * @return the inverse hyperbolic cosine of this complex number
+     * <pre>
+     *   atanh(z) = log((1+z)/(1-z))/2
+     * </pre>
+     *
+     * @return the inverse hyperbolic tangent of this complex number
      */
     public Complex atanh() {
         if (real == 0 &&
@@ -993,9 +1016,9 @@ public final class Complex implements Serializable  {
      * <a href="http://mathworld.wolfram.com/InverseHyperbolicCosine.html">
      * inverse hyperbolic cosine</a> of this complex number.
      * Implements the formula:
-     * <p>
-     * {@code acosh(z) = log(z+sqrt(z^2-1))}
-     * </p>
+     * <pre>
+     *   acosh(z) = log(z+sqrt(z^2-1))
+     * </pre>
      *
      * @return the inverse hyperbolic cosine of this complex number
      */
@@ -1058,23 +1081,25 @@ public final class Complex implements Serializable  {
      * <a href="http://mathworld.wolfram.com/Cosine.html">
      * cosine</a> of this complex number.
      * Implements the formula:
-     * <p>
-     * {@code cos(a + bi) = cos(a)cosh(b) - sin(a)sinh(b)i}
-     * </p><p>
+     * <pre>
+     *   cos(a + bi) = cos(a)cosh(b) - sin(a)sinh(b)i}
+     * </pre>
      * where the (real) functions on the right-hand side are
      * {@link Math#sin}, {@link Math#cos},
      * {@link Math#cosh} and {@link Math#sinh}.
-     * </p><p>
+     *
+     * <p>As per the C.99 standard this function is computed using the trigonomic identity:</p>
+     * <pre>
+     *   cos(z) = cosh(iz)
+     * </pre>
      *
      * @return the cosine of this complex number.
      */
     public Complex cos() {
         // Define in terms of cosh
         // cos(z) = cosh(iz)
-        return multiplyByI().cosh();
-
-        //return new Complex(Math.cos(real) * Math.cosh(imaginary),
-        //                  -Math.sin(real) * Math.sinh(imaginary));
+        // Multiply this number by I and compute cosh.
+        return cosh(-imaginary, real, Complex::ofCartesian);
     }
 
     /**
@@ -1083,37 +1108,49 @@ public final class Complex implements Serializable  {
      * hyperbolic cosine</a> of this complex number.
      * Implements the formula:
      * <pre>
-     *  <code>
      *   cosh(a + bi) = cosh(a)cos(b) + sinh(a)sin(b)i
-     *  </code>
      * </pre>
      * where the (real) functions on the right-hand side are
      * {@link Math#sin}, {@link Math#cos},
      * {@link Math#cosh} and {@link Math#sinh}.
-     * <p>
      *
      * @return the hyperbolic cosine of this complex number.
      */
     public Complex cosh() {
+        return cosh(real, imaginary, Complex::ofCartesian);
+    }
+
+    /**
+     * Compute the hyperbolic cosine of the complex number.
+     *
+     * <p>This function exists to allow implementation of the identity
+     * {@code cos(z) = cosh(iz)}.<p>
+     *
+     * @param real Real part.
+     * @param imaginary Imaginary part.
+     * @param constructor Constructor.
+     * @return the hyperbolic cosine of this complex number
+     */
+    private static Complex cosh(double real, double imaginary, ComplexConstructor constructor) {
         if (real == 0 &&
             imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(Double.NaN, 0);
+            return constructor.create(Double.NaN, 0);
         } else if (real == 0 &&
                    Double.isNaN(imaginary)) {
-            return new Complex(Double.NaN, 0);
+            return constructor.create(Double.NaN, 0);
         } else if (real == Double.POSITIVE_INFINITY &&
                    imaginary == 0) {
-            return new Complex(Double.POSITIVE_INFINITY, 0);
+            return constructor.create(Double.POSITIVE_INFINITY, 0);
         } else if (real == Double.POSITIVE_INFINITY &&
                    (imaginary == Double.POSITIVE_INFINITY || Double.isNaN(imaginary))) {
-            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
+            return constructor.create(Double.POSITIVE_INFINITY, Double.NaN);
         } else if (Double.isNaN(real) &&
                    imaginary == 0) {
-            return new Complex(Double.NaN, 0);
+            return constructor.create(Double.NaN, 0);
         }
 
-        return new Complex(Math.cosh(real) * Math.cos(imaginary),
-                           Math.sinh(real) * Math.sin(imaginary));
+        return constructor.create(Math.cosh(real) * Math.cos(imaginary),
+                                  Math.sinh(real) * Math.sin(imaginary));
     }
 
     /**
@@ -1264,23 +1301,24 @@ public final class Complex implements Serializable  {
      * of this complex number.
      * Implements the formula:
      * <pre>
-     *  <code>
      *   sin(a + bi) = sin(a)cosh(b) - cos(a)sinh(b)i
-     *  </code>
      * </pre>
      * where the (real) functions on the right-hand side are
      * {@link Math#sin}, {@link Math#cos},
      * {@link Math#cosh} and {@link Math#sinh}.
+     *
+     * <p>As per the C.99 standard this function is computed using the trigonomic identity:</p>
+     * <pre>
+     *   sin(z) = -i sinh(iz)
+     * </pre>
      *
      * @return the sine of this complex number.
      */
     public Complex sin() {
         // Define in terms of sinh
         // sin(z) = -i sinh(iz)
-        return multiplyByI().sinh().multiplyByNegI();
-
-        //return new Complex(Math.sin(real) * Math.cosh(imaginary),
-        //                   Math.cos(real) * Math.sinh(imaginary));
+        // Multiply this number by I, compute cosh, then multiply by back
+        return sinh(-imaginary, real, Complex::multiplyNegativeI);
     }
 
     /**
@@ -1300,30 +1338,48 @@ public final class Complex implements Serializable  {
      * @return the hyperbolic sine of {@code this}.
      */
     public Complex sinh() {
+        return sinh(real, imaginary, Complex::ofCartesian);
+    }
+
+    /**
+     * Compute the hyperbolic sine of the complex number.
+     *
+     * <p>This function exists to allow implementation of the identity
+     * {@code sin(z) = -i sinh(iz)}.<p>
+     *
+     * @param real Real part.
+     * @param imaginary Imaginary part.
+     * @param constructor Constructor.
+     * @return the hyperbolic sine of this complex number
+     */
+    private static Complex sinh(double real, double imaginary, ComplexConstructor constructor) {
         if (real == 0 &&
             imaginary == 0) {
+            // Ignore the constructor.
+            // It is used in trignomic identities to multiply the result by -i.
+            // Here the result would still be zero.
             return Complex.ZERO;
         } else if (real == 0 &&
                    imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(0, Double.NaN);
+            return constructor.create(0, Double.NaN);
         } else if (real == 0 &&
                    Double.isNaN(imaginary)) {
-            return new Complex(0, Double.NaN);
+            return constructor.create(0, Double.NaN);
         } else if (real == Double.POSITIVE_INFINITY &&
                    imaginary == 0) {
-            return new Complex(Double.POSITIVE_INFINITY, 0);
+            return constructor.create(Double.POSITIVE_INFINITY, 0);
         } else if (real == Double.POSITIVE_INFINITY &&
                    imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
+            return constructor.create(Double.POSITIVE_INFINITY, Double.NaN);
         } else if (real == Double.POSITIVE_INFINITY &&
                    Double.isNaN(imaginary)) {
-            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
+            return constructor.create(Double.POSITIVE_INFINITY, Double.NaN);
         } else if (Double.isNaN(real) &&
                    imaginary == 0) {
-            return new Complex(Double.NaN, 0);
+            return constructor.create(Double.NaN, 0);
         }
-        return new Complex(Math.sinh(real) * Math.cos(imaginary),
-                           Math.cosh(real) * Math.sin(imaginary));
+        return constructor.create(Math.sinh(real) * Math.cos(imaginary),
+                                  Math.cosh(real) * Math.sin(imaginary));
     }
 
     /**
@@ -1389,34 +1445,24 @@ public final class Complex implements Serializable  {
      * tangent</a> of this complex number.
      * Implements the formula:
      * <pre>
-     *  <code>
      *   tan(a + bi) = sin(2a)/(cos(2a)+cosh(2b)) + [sinh(2b)/(cos(2a)+cosh(2b))]i
-     *  </code>
      * </pre>
      * where the (real) functions on the right-hand side are
      * {@link Math#sin}, {@link Math#cos}, {@link Math#cosh} and
      * {@link Math#sinh}.
+     *
+     * <p>As per the C.99 standard this function is computed using the trigonomic identity:</p>
+     * <pre>
+     *   tan(z) = -i tanh(iz)
+     * </pre>
      *
      * @return the tangent of {@code this}.
      */
     public Complex tan() {
         // Define in terms of tanh
         // tan(z) = -i tanh(iz)
-        return multiplyByI().tanh().multiplyByNegI();
-
-        //if (imaginary > 20) {
-        //    return ONE;
-        //}
-        //if (imaginary < -20) {
-        //    return MINUS_I;
-        //}
-        //
-        //final double real2 = 2 * real;
-        //final double imaginary2 = 2 * imaginary;
-        //final double d = Math.cos(real2) + Math.cosh(imaginary2);
-        //
-        //return new Complex(Math.sin(real2) / d,
-        //                   Math.sinh(imaginary2) / d);
+        // Multiply this number by I, compute cosh, then multiply by back
+        return tanh(-imaginary, real, Complex::multiplyNegativeI);
     }
 
     /**
@@ -1425,9 +1471,7 @@ public final class Complex implements Serializable  {
      * hyperbolic tangent</a> of this complex number.
      * Implements the formula:
      * <pre>
-     *  <code>
      *   tan(a + bi) = sinh(2a)/(cosh(2a)+cos(2b)) + [sin(2b)/(cosh(2a)+cos(2b))]i
-     *  </code>
      * </pre>
      * where the (real) functions on the right-hand side are
      * {@link Math#sin}, {@link Math#cos}, {@link Math#cosh} and
@@ -1436,27 +1480,41 @@ public final class Complex implements Serializable  {
      * @return the hyperbolic tangent of {@code this}.
      */
     public Complex tanh() {
+        return tanh(real, imaginary, Complex::ofCartesian);
+    }
+
+    /**
+     * Compute the hyperbolic tangent of this complex number.
+     *
+     * <p>This function exists to allow implementation of the identity
+     * {@code tan(z) = -i tanh(iz)}.<p>
+     *
+     * @param real Real part.
+     * @param imaginary Imaginary part.
+     * @param constructor Constructor.
+     * @return the hyperbolic tangent of this complex number
+     */
+    private static Complex tanh(double real, double imaginary, ComplexConstructor constructor) {
         // TODO - should these checks be made on real2 and imaginary2?
+        // Compare to other library implementations.
+        //
         // Math.cos and Math.sin return NaN for infinity.
         // Math.cosh returns positive infinity for infinity.
         // Math.sinh returns the input infinity for infinity.
 
         if (real == Double.POSITIVE_INFINITY &&
-            imaginary == Double.POSITIVE_INFINITY) {
-            return ONE;
-        } else if (real == Double.POSITIVE_INFINITY &&
-                   Double.isNaN(imaginary)) {
-            return ONE;
+            (imaginary == Double.POSITIVE_INFINITY || Double.isNaN(imaginary))) {
+            return constructor.create(1, 0);
         } else if (Double.isNaN(real) &&
                    imaginary == 0) {
-            return new Complex(Double.NaN, 0);
+            return constructor.create(Double.NaN, 0);
         }
         final double real2 = 2 * real;
         final double imaginary2 = 2 * imaginary;
         final double d = Math.cosh(real2) + Math.cos(imaginary2);
 
-        return new Complex(Math.sinh(real2) / d,
-                           Math.sin(imaginary2) / d);
+        return constructor.create(Math.sinh(real2) / d,
+                                  Math.sin(imaginary2) / d);
     }
 
    /**
@@ -1594,7 +1652,24 @@ public final class Complex implements Serializable  {
         return (Double.isFinite(d) && d > 0) || Double.doubleToLongBits(d) == 0;
     }
 
-    /** See {@link #parse(String)}. */
+    /**
+     * Create a complex number given the real and imaginary parts, then multiply by {@code -i}.
+     * This is used in functions that implement trigonomic identities. It is the functional
+     * equivalent of:
+     *
+     * <pre>
+     *  z = new Complex(real, imaginary).multiply(new Complex(0, -1));
+     * </pre>
+     *
+     * @param real Real part.
+     * @param imaginary Imaginary part.
+     * @return {@code Complex} object
+     */
+    private static Complex multiplyNegativeI(double real, double imaginary) {
+        return new Complex(imaginary, -real);
+    }
+
+     /** See {@link #parse(String)}. */
     private static class ComplexParsingException extends NumberFormatException {
         /** Serializable version identifier. */
         private static final long serialVersionUID = 20180430L;
