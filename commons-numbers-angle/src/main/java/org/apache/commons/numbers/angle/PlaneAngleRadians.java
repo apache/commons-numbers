@@ -22,7 +22,7 @@ package org.apache.commons.numbers.angle;
  *
  * @see PlaneAngle
  */
-public class PlaneAngleRadians {
+public final class PlaneAngleRadians {
     /** Utility class. */
     private PlaneAngleRadians() {}
 

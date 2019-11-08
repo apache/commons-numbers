@@ -19,7 +19,7 @@ package org.apache.commons.numbers.angle;
 /**
  * Represents the <a href="https://en.wikipedia.org/wiki/Angle">angle</a> concept.
  */
-public class PlaneAngle {
+public final class PlaneAngle {
     /** Zero. */
     public static final PlaneAngle ZERO = new PlaneAngle(0);
     /** Half-turn (aka &pi; radians). */
@@ -51,6 +51,7 @@ public class PlaneAngle {
     public static PlaneAngle ofTurns(double angle) {
         return new PlaneAngle(angle);
     }
+
     /**
      * @param angle (in <a href="https://en.wikipedia.org/wiki/Radian">radians</a>).
      * @return a new intance.
@@ -58,6 +59,7 @@ public class PlaneAngle {
     public static PlaneAngle ofRadians(double angle) {
         return new PlaneAngle(angle * FROM_RADIANS);
     }
+
     /**
      * @param angle (in <a href="https://en.wikipedia.org/wiki/Degree_%28angle%29">degrees</a>).
      * @return a new intance.
@@ -72,12 +74,14 @@ public class PlaneAngle {
     public double toTurns() {
         return value;
     }
+
     /**
      * @return the value in <a href="https://en.wikipedia.org/wiki/Radian">radians</a>.
      */
     public double toRadians() {
         return value * TO_RADIANS;
     }
+
     /**
      * @return the value in <a href="https://en.wikipedia.org/wiki/Degree_%28angle%29">degrees</a>.
      */
@@ -125,7 +129,7 @@ public class PlaneAngle {
         if (this == other) {
             return true;
         }
-        if (other instanceof PlaneAngle){
+        if (other instanceof PlaneAngle) {
             return Double.doubleToLongBits(value) ==
                     Double.doubleToLongBits(((PlaneAngle) other).value);
         }
