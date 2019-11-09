@@ -110,6 +110,6 @@ public final class LogFactorial {
         }
 
         // Delegate.
-        return LogGamma.value(n + 1);
+        return LogGamma.value(n + 1.0);
     }
 }
