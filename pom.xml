@@ -253,7 +253,10 @@
           <headerLocation>${numbers.parent.dir}/src/main/resources/checkstyle/license-header.txt</headerLocation>
           <suppressionsLocation>${numbers.parent.dir}/src/main/resources/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
           <enableRulesSummary>false</enableRulesSummary>
-          <logViolationsToConsole>false</logViolationsToConsole>
+          <!-- Output issues to console. -->
+          <consoleOutput>false</consoleOutput>
+          <!-- Output the detected violations to the console (for checkstyle:check). -->
+          <logViolationsToConsole>true</logViolationsToConsole>
           <failOnViolation>true</failOnViolation>
           <resourceExcludes>NOTICE.txt,LICENSE.txt,**/maven-archiver/pom.properties,**/resolver-status.properties</resourceExcludes>
           <excludes>**/generated/**.java</excludes>
@@ -294,6 +297,7 @@
           </dependency>
         </dependencies>
         <configuration>
+          <printFailingErrors>true</printFailingErrors>
           <!-- TODO: remove this when PMD has been fixed. -->
           <failOnViolation>false</failOnViolation>
           <targetJdk>${maven.compiler.target}</targetJdk>
@@ -436,6 +440,8 @@
         <artifactId>maven-pmd-plugin</artifactId>
         <version>${numbers.pmd.version}</version>
         <configuration>
+          <verbose>false</verbose>
+          <printFailingErrors>true</printFailingErrors>
           <targetJdk>${maven.compiler.target}</targetJdk>
           <skipEmptyReport>false</skipEmptyReport>
           <analysisCache>true</analysisCache>
