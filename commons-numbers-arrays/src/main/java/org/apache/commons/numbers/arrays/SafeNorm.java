@@ -42,28 +42,28 @@ public final class SafeNorm {
         double s3 = 0;
         double x1max = 0;
         double x3max = 0;
-        double floatn = v.length;
-        double agiant = R_GIANT / floatn;
+        final double floatn = v.length;
+        final double agiant = R_GIANT / floatn;
         for (int i = 0; i < v.length; i++) {
-            double xabs = Math.abs(v[i]);
+            final double xabs = Math.abs(v[i]);
             if (xabs < R_DWARF || xabs > agiant) {
                 if (xabs > R_DWARF) {
                     if (xabs > x1max) {
-                        double r = x1max / xabs;
+                        final double r = x1max / xabs;
                         s1 = 1 + s1 * r * r;
                         x1max = xabs;
                     } else {
-                        double r = xabs / x1max;
+                        final double r = xabs / x1max;
                         s1 += r * r;
                     }
                 } else {
                     if (xabs > x3max) {
-                        double r = x3max / xabs;
+                        final double r = x3max / xabs;
                         s3 = 1 + s3 * r * r;
                         x3max = xabs;
                     } else {
                         if (xabs != 0) {
-                            double r = xabs / x3max;
+                            final double r = xabs / x3max;
                             s3 += r * r;
                         }
                     }
