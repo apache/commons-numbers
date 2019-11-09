@@ -48,8 +48,8 @@ public final class FactorialDouble {
 
         factorialsDouble = new double[numValues];
         // Initialize first two entries.
-        for (int i = 0, max = numValues < 2 ? numValues : 2;
-             i < max; i++) {
+        final int max = numValues < 2 ? numValues : 2;
+        for (int i = 0; i < max; i++) {
             factorialsDouble[i] = 1;
         }
 
