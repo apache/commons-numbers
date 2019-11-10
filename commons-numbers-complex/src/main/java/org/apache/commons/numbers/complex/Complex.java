@@ -214,12 +214,20 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Returns true if either real or imaginary component of the Complex is NaN and the
-     * Complex is not infinite.
+     * Returns true if either the real <em>or</em> imaginary component of the Complex is NaN
+     * <em>and</em> the Complex is not infinite.
+     *
+     * <p>Note that in contrast to {@link Double#isNaN()}:
+     * <ul>
+     *   <li>There is more than one complex number that can return {@code true}.
+     *   <li>Different representations of NaN can be distinguished by the
+     *       {@link #equals(Object) Complex.equals(Object)} method.
+     * </ul>
      *
      * @return {@code true} if this instance contains NaN and no infinite parts.
      * @see Double#isNaN(double)
      * @see #isInfinite()
+     * @see #equals(Object) Complex.equals(Object)
      */
     public boolean isNaN() {
         if (Double.isNaN(real) || Double.isNaN(imaginary)) {
@@ -480,28 +488,58 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Test for equality with another object.
-     * If both the real and imaginary parts of two complex numbers
-     * are exactly the same, and neither is {@code Double.NaN}, the two
-     * Complex objects are considered to be equal.
-     * The behavior is the same as for JDK's {@link Double#equals(Object)
-     * Double}:
+     * Test for equality with another object. If the other object is a {@code Complex} then a
+     * comparison is made of the real and imaginary parts; otherwise {@code false} is returned.
+     *
+     * <p>If both the real and imaginary parts of two complex numbers
+     * are exactly the same the two {@code Complex} objects are considered to be equal.
+     * For this purpose, two {@code double} values are considered to be
+     * the same if and only if the method {@link Double #doubleToLongBits(double)}
+     * returns the identical {@code long} value when applied to each.
+     *
+     * <p>Note that in most cases, for two instances of class
+     * {@code Complex}, {@code c1} and {@code c2}, the
+     * value of {@code c1.equals(c2)} is {@code true} if and only if
+     *
+     * <pre>
+     *  {@code c1.getReal() == c2.getReal() && c1.getImaginary() == c2.getImaginary()}
+     * </pre>
+     *
+     * <p>also has the value {@code true}. However, there are exceptions:
+     *
      * <ul>
-     *  <li>All {@code NaN} values are considered to be equal,
-     *   i.e, if either (or both) real and imaginary parts of the complex
-     *   number are equal to {@code Double.NaN}, the complex number is equal
-     *   to {@code NaN}.
+     *  <li>
+     *   Instances that contain {@code NaN} values in the same part
+     *   are considered to be equal for that part, even though {@code Double.NaN==Double.NaN}
+     *   has the value {@code false}.
      *  </li>
      *  <li>
-     *   Instances constructed with different representations of zero (i.e.
-     *   either "0" or "-0") are <em>not</em> considered to be equal.
+     *   Instances that share a {@code NaN} value in one part
+     *   but have different values in the other part are <em>not</em> considered equal.
+     *  </li>
+     *  <li>
+     *   Instances that contain different representations of zero in the same part
+     *   are <em>not</em> considered to be equal for that part, even though {@code -0.0==0.0}
+     *   has the value {@code true}.
      *  </li>
      * </ul>
+     *
+     * <p>The behavior is the same as if the components of the two complex numbers were passed
+     * to {@link java.util.Arrays#equals(double[], double[]) Arrays.equals(double[], double[])}:
+     *
+     * <pre>
+     *  <code>
+     *   Arrays.equals(new double[]{c1.getReal(), c1.getImaginary()},
+     *                 new double[]{c2.getReal(), c2.getImaginary()});
+     *  </code>
+     * </pre>
      *
      * @param other Object to test for equality with this instance.
      * @return {@code true} if the objects are equal, {@code false} if object
      * is {@code null}, not an instance of {@code Complex}, or not equal to
      * this instance.
+     * @see java.lang.Double#doubleToLongBits(double)
+     * @see java.util.Arrays#equals(double[], double[])
      */
     @Override
     public boolean equals(Object other) {
@@ -595,19 +633,19 @@ public final class Complex implements Serializable  {
 
     /**
      * Get a hash code for the complex number.
-     * Any {@code Double.NaN} value in real or imaginary part produces
-     * the same hash code {@code 7}.
+     *
+     * <p>The behavior is the same as if the components of the complex number were passed
+     * to {@link java.util.Arrays#hashCode(double[]) Arrays.hashCode(double[])}:
+     * <pre>
+     *  {@code Arrays.hashCode(new double[]{getReal(), getImaginary()})}
+     * </pre>
      *
      * @return a hash code value for this object.
+     * @see java.util.Arrays#hashCode(double[]) Arrays.hashCode(double[])
      */
     @Override
     public int hashCode() {
-        // TODO: Infinity can contain NaNs. This would get the same hashcode.
-        if (Double.isNaN(real) ||
-            Double.isNaN(imaginary)) {
-            return 7;
-        }
-        return 37 * (17 * Double.hashCode(imaginary) + Double.hashCode(real));
+        return 31 * (31 + Double.hashCode(real)) + Double.hashCode(imaginary);
     }
 
     /**

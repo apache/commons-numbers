@@ -17,6 +17,8 @@
 
 package org.apache.commons.numbers.complex;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.rng.UniformRandomProvider;
@@ -477,13 +479,6 @@ public class ComplexTest {
         Assertions.assertEquals(x.subtract(yComplex), x.subtract(yDouble));
     }
 
-
-    @Test
-    public void testEqualsNull() {
-        final Complex x = Complex.ofCartesian(3.0, 4.0);
-        Assertions.assertNotEquals(null, x);
-    }
-
     @Test
     public void testFloatingPointEqualsPrecondition1() {
         Assertions.assertThrows(NullPointerException.class,
@@ -496,18 +491,6 @@ public class ComplexTest {
         Assertions.assertThrows(NullPointerException.class,
             () -> Complex.equals(null, Complex.ofCartesian(3.0, 4.0), 3)
         );
-    }
-
-    @Test
-    public void testEqualsClass() {
-        final Complex x = Complex.ofCartesian(3.0, 4.0);
-        Assertions.assertFalse(x.equals(this));
-    }
-
-    @Test
-    public void testEqualsSame() {
-        final Complex x = Complex.ofCartesian(3.0, 4.0);
-        Assertions.assertEquals(x, x);
     }
 
     @Test
@@ -588,52 +571,239 @@ public class ComplexTest {
     }
 
     @Test
-    public void testEqualsTrue() {
+    public void testEqualsWithNull() {
+        final Complex x = Complex.ofCartesian(3.0, 4.0);
+        Assertions.assertFalse(x.equals(null));
+    }
+
+    @Test
+    public void testEqualsWithAnotherClass() {
+        final Complex x = Complex.ofCartesian(3.0, 4.0);
+        Assertions.assertFalse(x.equals(new Object()));
+    }
+
+    @Test
+    public void testEqualsWithSameObject() {
+        final Complex x = Complex.ofCartesian(3.0, 4.0);
+        Assertions.assertEquals(x, x);
+    }
+
+    @Test
+    public void testEqualsWithCopyObject() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final Complex y = Complex.ofCartesian(3.0, 4.0);
         Assertions.assertEquals(x, y);
     }
 
     @Test
-    public void testEqualsRealDifference() {
+    public void testEqualsWithRealDifference() {
         final Complex x = Complex.ofCartesian(0.0, 0.0);
         final Complex y = Complex.ofCartesian(0.0 + Double.MIN_VALUE, 0.0);
         Assertions.assertNotEquals(x, y);
     }
 
     @Test
-    public void testEqualsImaginaryDifference() {
+    public void testEqualsWithImaginaryDifference() {
         final Complex x = Complex.ofCartesian(0.0, 0.0);
         final Complex y = Complex.ofCartesian(0.0, 0.0 + Double.MIN_VALUE);
         Assertions.assertNotEquals(x, y);
     }
 
+    /**
+     * Test {@link Complex#equals(Object)}. It should be consistent with
+     * {@link Arrays#equals(double[], double[])} called using the components of two complex numbers.
+     */
+    @Test
+    public void testEqualsIsConsistentWithArraysEquals() {
+        // Explicit check of the cases documented in the Javadoc:
+        assertEqualsIsConsistentWithArraysEquals(
+                Complex.ofCartesian(Double.NaN, 0.0),
+                Complex.ofCartesian(Double.NaN, 1.0), "NaN real and different non-NaN imaginary");
+        assertEqualsIsConsistentWithArraysEquals(
+                Complex.ofCartesian(0.0, Double.NaN),
+                Complex.ofCartesian(1.0, Double.NaN), "Different non-NaN real and NaN imaginary");
+        assertEqualsIsConsistentWithArraysEquals(
+                Complex.ofCartesian(0.0, 0.0),
+                Complex.ofCartesian(-0.0, 0.0), "Different real zeros");
+        assertEqualsIsConsistentWithArraysEquals(
+                Complex.ofCartesian(0.0, 0.0),
+                Complex.ofCartesian(0.0, -0.0), "Different imaginary zeros");
+
+        // Test some values of edge cases
+        final double[] values = {
+            Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, -1, 0, 1
+        };
+        final ArrayList<Complex> list = createCombinations(values);
+
+        for (Complex c : list) {
+            final double real = c.getReal();
+            final double imag = c.getImaginary();
+
+            // Check a copy is equal
+            assertEqualsIsConsistentWithArraysEquals(c, Complex.ofCartesian(real, imag), "Copy complex");
+
+            // Perform the smallest change to the two components
+            final double realDelta = smallestChange(real);
+            final double imagDelta = smallestChange(imag);
+            Assertions.assertNotEquals(real, realDelta, "Real was not changed");
+            Assertions.assertNotEquals(imag, imagDelta, "Imaginary was not changed");
+
+            assertEqualsIsConsistentWithArraysEquals(c, Complex.ofCartesian(realDelta, imag), "Delta real");
+            assertEqualsIsConsistentWithArraysEquals(c, Complex.ofCartesian(real, imagDelta), "Delta imaginary");
+        }
+    }
+
+    /**
+     * Specific test to target different representations that return {@code true} for
+     * {@link Complex#isNaN()} are {@code false} for {@link Complex#equals(Object)}.
+     */
+    @Test
+    public void testEqualsWithDifferentNaNs() {
+        // Test some NaN combinations
+        final double[] values = {
+            Double.NaN, 0, 1
+        };
+        final ArrayList<Complex> list = createCombinations(values);
+
+        // Is the all-vs-all comparison only the exact same values should be equal, e.g.
+        // (nan,0) not equals (nan,nan)
+        // (nan,0) equals (nan,0)
+        // (nan,0) not equals (0,nan)
+        for (int i = 0; i < list.size(); i++) {
+            final Complex c1 = list.get(i);
+            final Complex copy = Complex.ofCartesian(c1.getReal(), c1.getImaginary());
+            assertEqualsIsConsistentWithArraysEquals(c1, copy, "Copy is not equal");
+            for (int j = i + 1; j < list.size(); j++) {
+                final Complex c2 = list.get(j);
+                assertEqualsIsConsistentWithArraysEquals(c1, c2, "Different NaNs should not be equal");
+            }
+        }
+    }
+
+    /**
+     * Test the two complex numbers with {@link Complex#equals(Object)} and check the result
+     * is consistent with {@link Arrays#equals(double[], double[])}.
+     *
+     * @param c1 the first complex
+     * @param c2 the second complex
+     * @param msg the message to append to an assertion error
+     */
+    private static void assertEqualsIsConsistentWithArraysEquals(Complex c1, Complex c2, String msg) {
+        final boolean expected = Arrays.equals(new double[]{c1.getReal(), c1.getImaginary()},
+                                               new double[]{c2.getReal(), c2.getImaginary()});
+        final boolean actual = c1.equals(c2);
+        Assertions.assertEquals(expected, actual, () -> String.format(
+            "equals(Object) is not consistent with Arrays.equals: %s. %s vs %s", msg, c1, c2));
+    }
+
+    /**
+     * Test {@link Complex#hashCode()}. It should be consistent with
+     * {@link Arrays#hashCode(double[])} called using the components of the complex number
+     * and fulfil the contract of {@link Object#hashCode()},
+     * i.e. objects with different hash codes are {@code false} for {@link Object#equals(Object)}.
+     */
     @Test
     public void testHashCode() {
-        Complex x = Complex.ofCartesian(0.0, 0.0);
-        Complex y = Complex.ofCartesian(0.0, 0.0 + Double.MIN_VALUE);
-        Assertions.assertNotEquals(x.hashCode(), y.hashCode());
-        y = Complex.ofCartesian(0.0 + Double.MIN_VALUE, 0.0);
-        Assertions.assertNotEquals(x.hashCode(), y.hashCode());
-        final Complex realNan = Complex.ofCartesian(Double.NaN, 0.0);
-        final Complex imaginaryNan = Complex.ofCartesian(0.0, Double.NaN);
-        Assertions.assertEquals(realNan.hashCode(), imaginaryNan.hashCode());
-        Assertions.assertEquals(imaginaryNan.hashCode(), NAN.hashCode());
+        // Test some values match Arrays.hashCode(double[])
+        final double[] values = {
+            Double.NaN, Double.NEGATIVE_INFINITY, -3.45, -1, -0.0, 0.0,
+            Double.MIN_VALUE, 1, 3.45, Double.POSITIVE_INFINITY
+        };
+        final ArrayList<Complex> list = createCombinations(values);
 
-        // MATH-1118
-        // "equals" and "hashCode" must be compatible: if two objects have
-        // different hash codes, "equals" must return false.
         final String msg = "'equals' not compatible with 'hashCode'";
 
-        x = Complex.ofCartesian(0.0, 0.0);
-        y = Complex.ofCartesian(0.0, -0.0);
-        Assertions.assertTrue(x.hashCode() != y.hashCode());
-        Assertions.assertNotEquals(x, y, msg);
+        for (Complex c : list) {
+            final double real = c.getReal();
+            final double imag = c.getImaginary();
+            final int expected = Arrays.hashCode(new double[] {real, imag});
+            final int hash = c.hashCode();
+            Assertions.assertEquals(expected, hash, "hashCode does not match Arrays.hashCode({re, im})");
 
-        x = Complex.ofCartesian(0.0, 0.0);
-        y = Complex.ofCartesian(-0.0, 0.0);
-        Assertions.assertTrue(x.hashCode() != y.hashCode());
-        Assertions.assertNotEquals(x, y, msg);
+            // Test a copy has the same hash code, i.e. is not System.identityHashCode(Object)
+            final Complex copy = Complex.ofCartesian(real, imag);
+            Assertions.assertEquals(hash, copy.hashCode(), "Copy hash code is not equal");
+
+            // MATH-1118
+            // "equals" and "hashCode" must be compatible: if two objects have
+            // different hash codes, "equals" must return false.
+            // Perform the smallest change to the two components.
+            // Note: The hash could actually be the same so we check it changes.
+            final double realDelta = smallestChange(real);
+            final double imagDelta = smallestChange(imag);
+            Assertions.assertNotEquals(real, realDelta, "Real was not changed");
+            Assertions.assertNotEquals(imag, imagDelta, "Imaginary was not changed");
+
+            Complex cRealDelta = Complex.ofCartesian(realDelta, imag);
+            Complex cImagDelta = Complex.ofCartesian(real, imagDelta);
+            if (hash != cRealDelta.hashCode()) {
+                Assertions.assertNotEquals(c, cRealDelta, () -> "real+delta: " + msg);
+            }
+            if (hash != cImagDelta.hashCode()) {
+                Assertions.assertNotEquals(c, cImagDelta, () -> "imaginary+delta: " + msg);
+            }
+        }
+    }
+
+    /**
+     * Specific test that different representations of zero satisfy the contract of
+     * {@link Object#hashCode()}: if two objects have different hash codes, "equals" must
+     * return false. This is an issue with using {@link Double#hashCode(double)} to create hash
+     * codes and {@code ==} for equality when using different representations of zero:
+     * Double.hashCode(-0.0) != Double.hashCode(0.0) but -0.0 == 0.0 is {@code true}.
+     *
+     * @see <a href="https://issues.apache.org/jira/projects/MATH/issues/MATH-1118">MATH-1118</a>
+     */
+    @Test
+    public void testHashCodeWithDifferentZeros() {
+        final double[] values = {-0.0, 0.0};
+        final ArrayList<Complex> list = createCombinations(values);
+
+        // Explicit test for issue MATH-1118
+        // "equals" and "hashCode" must be compatible
+        for (int i = 0; i < list.size(); i++) {
+            final Complex c1 = list.get(i);
+            for (int j = i + 1; j < list.size(); j++) {
+                final Complex c2 = list.get(j);
+                if (c1.hashCode() != c2.hashCode()) {
+                    Assertions.assertNotEquals(c1, c2, "'equals' not compatible with 'hashCode'");
+                }
+            }
+        }
+    }
+
+    /**
+     * Creates a list of Complex numbers using an all-vs-all combination of the provided
+     * values for both the real and imaginary parts.
+     *
+     * @param values the values
+     * @return the list
+     */
+    private static ArrayList<Complex> createCombinations(final double[] values) {
+        final ArrayList<Complex> list = new ArrayList<>(values.length * values.length);
+        for (double re : values) {
+            for (double im : values) {
+                list.add(Complex.ofCartesian(re, im));
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Perform the smallest change to the value. This returns the next double value adjacent to
+     * d in the direction of infinity. Edge cases: if already infinity then return the next closest
+     * in the direction of negative infinity; if nan then return 0.
+     *
+     * @param x the x
+     * @return the new value
+     */
+    private static double smallestChange(double x) {
+        if (Double.isNaN(x)) {
+            return 0;
+        }
+        return x == Double.POSITIVE_INFINITY ?
+                Math.nextDown(x) :
+                Math.nextUp(x);
     }
 
     @Test
