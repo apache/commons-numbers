@@ -16,13 +16,13 @@
    See the License for the specific language governing permissions and
    limitations under the License.
   -->
-  
+
 <?xml-stylesheet type="text/xsl" href="./xdoc.xsl"?>
 <document>
   <properties>
     <title>User Guide - Module "core"</title>
   </properties>
-  
+
 <body>
 
 <section name="Core">

@@ -94,7 +94,7 @@
     <properties>
       <property name="violationSuppressXPath"
         value="//ClassOrInterfaceDeclaration[@Image='Complex'
-               or @Image='Fraction' 
+               or @Image='Fraction'
                or @Image='BigFraction']"/>
     </properties>
   </rule>
@@ -102,7 +102,7 @@
     <properties>
       <property name="violationSuppressXPath"
         value="//ClassOrInterfaceDeclaration[@Image='Complex'
-               or @Image='Fraction' 
+               or @Image='Fraction'
                or @Image='BigFraction']"/>
     </properties>
   </rule>
@@ -118,8 +118,8 @@
       <property name="ignoreMagicNumbers" value="-1,0,1" />
       <property name="violationSuppressXPath"
         value="//ClassOrInterfaceDeclaration[@Image='LogGamma'
-               or @Image='LogGammaSum' 
-               or @Image='InverseErf' 
+               or @Image='LogGammaSum'
+               or @Image='InverseErf'
                or @Image='InvGamma1pm1']"/>
     </properties>
   </rule>

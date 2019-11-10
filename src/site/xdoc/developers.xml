@@ -15,12 +15,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
   -->
-  
+
 <document>
   <properties>
     <title>Developers Guide</title>
   </properties>
-  
+
   <body>
 
     <section name="Aims">
@@ -30,7 +30,7 @@
         to ensure that the code they create can be successfully maintained by others.
       </p>
     </section>
-    
+
     <section name='Guidelines'>
       <p>
         Developers are asked to comply with the following development guidelines.
@@ -55,8 +55,8 @@
             </li>
             <li>
               Like most commons components, Commons Numbers uses Apache Maven as our
-              build tool. The sources can also be built using Ant (a working 
-              Ant build.xml is included in the top level project directory). 
+              build tool. The sources can also be built using Ant (a working
+              Ant build.xml is included in the top level project directory).
               To build Commons Numbers using Maven, you can follow the instructions for
               <a href="http://maven.apache.org/run-maven/index.html">Building a
               project with Maven</a>.
@@ -68,7 +68,7 @@
               Maven.
             </li>
             <li>
-              Be sure to join the commons-dev and commons-user 
+              Be sure to join the commons-dev and commons-user
               <a href="mail-lists.html">
                 email lists</a> and use them appropriately (make sure the string
                 "[Numbers]" starts the Subject line of all your postings).
@@ -79,11 +79,11 @@
                 Setup an account on JIRA
               </a>
               and use it to submit patches and
-              identify bugs. Read the 
+              identify bugs. Read the
               <a href="https://issues.apache.org/bugwritinghelp.html">
               directions</a>
               for submitting bugs and search the database to
-              determine if an issue exists or has already been dealt with.        
+              determine if an issue exists or has already been dealt with.
               <p>
                 See the <a href="http://commons.apache.org/numbers/issue-tracking.html">
                 Commons Numbers Issue Tracking Page</a>
@@ -105,7 +105,7 @@
         <p>
           Follow the steps below when making suggestions for additions or
           enhancements to Commons Numbers. This will make it easier for the community
-          to comment on your ideas and for the committers to keep track of them. 
+          to comment on your ideas and for the committers to keep track of them.
           Thanks in advance!
           <ol>
             <li>Start with a post to the commons-dev mailing list, with [Numbers] at
@@ -135,7 +135,7 @@
             ticket if a patch goes more than a few days with no comment or commit.
             </li>
           </ol>
-        </p>   
+        </p>
       </subsection>
 
       <subsection name='Coding Style'>
@@ -196,7 +196,7 @@
           </li>
           <li>
             Implementations <i>should</i> use standard algorithms and
-            references or full descriptions of all algorithms <i>should</i> be 
+            references or full descriptions of all algorithms <i>should</i> be
             provided.
           </li>
           <li>
@@ -241,7 +241,7 @@
             License in a comment that begins the file.
           </li>
           <li>
-            All contributions must comply with the terms of the Apache 
+            All contributions must comply with the terms of the Apache
             <a href="http://www.apache.org/licenses/cla.pdf">Contributor License
             Agreement (CLA)</a>.
           </li>
@@ -255,7 +255,7 @@
           <li>
             References to source materials covered by restrictive proprietary
             licenses should be avoided.  In particular, contributions should not
-            implement or include references to algorithms in 
+            implement or include references to algorithms in
             <a href="http://www.nr.com/">Numerical Recipes (NR)</a>.
             Any questions about copyright or patent issues should be raised on
             the commons-dev mailing list before contributing or committing code.

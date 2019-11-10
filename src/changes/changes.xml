@@ -36,7 +36,7 @@ The <action> type attribute can be add,update,fix,remove.
 -->
 
 <!-- NOTE:
-The description attribute entries below are specially formatted 
+The description attribute entries below are specially formatted
 so as to improve the layout of the generated text release notes.
 
 The parsing process removes all line feeds, replacing them with a single space.
