@@ -23,6 +23,21 @@ package org.apache.commons.numbers.angle;
  * @see PlaneAngle
  */
 public final class PlaneAngleRadians {
+    /** Value of \( \pi \): {@value}. */
+    public static final double PI = Math.PI;
+    /** Value of \( -\pi \): {@value}. */
+    public static final double MINUS_PI = -PI;
+    /** Value of \( 2\pi \): {@value}. */
+    public static final double TWO_PI = 2 * PI;
+    /** Value of \( -2\pi \): {@value}. */
+    public static final double MINUS_TWO_PI = -TWO_PI;
+    /** Value of \( \pi/2 \): {@value}. */
+    public static final double PI_OVER_TWO = 0.5 * PI;
+    /** Value of \( -\pi/2 \): {@value}. */
+    public static final double MINUS_PI_OVER_TWO = -PI_OVER_TWO;
+    /** Value of \( 3\pi/2 \): {@value}. */
+    public static final double THREE_PI_OVER_TWO = 3 * PI_OVER_TWO;
+
     /** Utility class. */
     private PlaneAngleRadians() {}
 

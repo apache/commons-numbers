@@ -27,7 +27,7 @@ public final class PlaneAngle {
     /** Conversion factor. */
     private static final double HALF_TURN = 0.5;
     /** Conversion factor. */
-    private static final double TO_RADIANS = 2 * Math.PI;
+    private static final double TO_RADIANS = PlaneAngleRadians.TWO_PI;
     /** Conversion factor. */
     private static final double FROM_RADIANS = 1d / TO_RADIANS;
     /** Conversion factor. */
