@@ -27,16 +27,16 @@ public class PlaneAngleRadiansTest {
     public void testConstants() {
         final double eps = 0;
 
-        Assertions.assertEquals(PlaneAngleRadians.PI, Math.PI, eps);
-        Assertions.assertEquals(PlaneAngleRadians.MINUS_PI, -Math.PI, eps);
+        Assertions.assertEquals(Math.PI, PlaneAngleRadians.PI, eps);
+        Assertions.assertEquals(-Math.PI, PlaneAngleRadians.MINUS_PI, eps);
 
-        Assertions.assertEquals(PlaneAngleRadians.TWO_PI, 2 * Math.PI, eps);
-        Assertions.assertEquals(PlaneAngleRadians.MINUS_TWO_PI, -2 * Math.PI, eps);
+        Assertions.assertEquals(2 * Math.PI, PlaneAngleRadians.TWO_PI, eps);
+        Assertions.assertEquals(-2 * Math.PI, PlaneAngleRadians.MINUS_TWO_PI, eps);
 
-        Assertions.assertEquals(PlaneAngleRadians.PI_OVER_TWO, Math.PI / 2, eps);
-        Assertions.assertEquals(PlaneAngleRadians.MINUS_PI_OVER_TWO, -Math.PI / 2, eps);
+        Assertions.assertEquals(Math.PI / 2, PlaneAngleRadians.PI_OVER_TWO, eps);
+        Assertions.assertEquals(-Math.PI / 2, PlaneAngleRadians.MINUS_PI_OVER_TWO, eps);
 
-        Assertions.assertEquals(PlaneAngleRadians.THREE_PI_OVER_TWO, 3 * Math.PI / 2, eps);
+        Assertions.assertEquals(3 * Math.PI / 2, PlaneAngleRadians.THREE_PI_OVER_TWO, eps);
     }
 
     // Test constants using "sin" and "cos".
@@ -44,26 +44,26 @@ public class PlaneAngleRadiansTest {
     public void testConstants2() {
         final double eps = Math.ulp(1d);
 
-        Assertions.assertEquals(Math.sin(PlaneAngleRadians.PI), 0d, eps);
-        Assertions.assertEquals(Math.cos(PlaneAngleRadians.PI), -1d, eps);
+        Assertions.assertEquals(0d, Math.sin(PlaneAngleRadians.PI), eps);
+        Assertions.assertEquals(-1d, Math.cos(PlaneAngleRadians.PI), eps);
 
-        Assertions.assertEquals(Math.sin(PlaneAngleRadians.MINUS_PI), 0d, eps);
-        Assertions.assertEquals(Math.cos(PlaneAngleRadians.MINUS_PI), -1d, eps);
+        Assertions.assertEquals(0d, Math.sin(PlaneAngleRadians.MINUS_PI), eps);
+        Assertions.assertEquals(-1d, Math.cos(PlaneAngleRadians.MINUS_PI), eps);
 
-        Assertions.assertEquals(Math.sin(PlaneAngleRadians.TWO_PI), 0d, 2 * eps);
-        Assertions.assertEquals(Math.cos(PlaneAngleRadians.TWO_PI), 1d, eps);
+        Assertions.assertEquals(0d, Math.sin(PlaneAngleRadians.TWO_PI), 2 * eps);
+        Assertions.assertEquals(1d, Math.cos(PlaneAngleRadians.TWO_PI), eps);
 
-        Assertions.assertEquals(Math.sin(PlaneAngleRadians.MINUS_TWO_PI), 0d, 2 * eps);
-        Assertions.assertEquals(Math.cos(PlaneAngleRadians.MINUS_TWO_PI), 1d, eps);
+        Assertions.assertEquals(0d, Math.sin(PlaneAngleRadians.MINUS_TWO_PI), 2 * eps);
+        Assertions.assertEquals(1d, Math.cos(PlaneAngleRadians.MINUS_TWO_PI), eps);
 
-        Assertions.assertEquals(Math.sin(PlaneAngleRadians.PI_OVER_TWO), 1d, eps);
-        Assertions.assertEquals(Math.cos(PlaneAngleRadians.PI_OVER_TWO), 0d, eps);
+        Assertions.assertEquals(1d, Math.sin(PlaneAngleRadians.PI_OVER_TWO), eps);
+        Assertions.assertEquals(0d, Math.cos(PlaneAngleRadians.PI_OVER_TWO), eps);
 
-        Assertions.assertEquals(Math.sin(PlaneAngleRadians.MINUS_PI_OVER_TWO), -1d, eps);
-        Assertions.assertEquals(Math.cos(PlaneAngleRadians.MINUS_PI_OVER_TWO), 0d, eps);
+        Assertions.assertEquals(-1d, Math.sin(PlaneAngleRadians.MINUS_PI_OVER_TWO), eps);
+        Assertions.assertEquals(0d, Math.cos(PlaneAngleRadians.MINUS_PI_OVER_TWO), eps);
 
-        Assertions.assertEquals(Math.sin(PlaneAngleRadians.THREE_PI_OVER_TWO), -1d, eps);
-        Assertions.assertEquals(Math.cos(PlaneAngleRadians.THREE_PI_OVER_TWO), 0d, eps);
+        Assertions.assertEquals(-1d, Math.sin(PlaneAngleRadians.THREE_PI_OVER_TWO), eps);
+        Assertions.assertEquals(0d, Math.cos(PlaneAngleRadians.THREE_PI_OVER_TWO), eps);
     }
 
     @Test
