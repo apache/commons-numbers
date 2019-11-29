@@ -726,7 +726,7 @@ public final class BigFraction
          * exponent, we also need to add the exponent bias.
          */
         final int exponentBias = (1 << (exponentLength - 1)) - 1;
-        long exponent = numRightShift - denRightShift + quotRightShift + significandLength + exponentBias;
+        long exponent = (long) numRightShift - denRightShift + quotRightShift + significandLength + exponentBias;
         final long maxExponent = (1L << exponentLength) - 1L; //special exponent for infinities and NaN
 
         if (exponent >= maxExponent) { //infinity
