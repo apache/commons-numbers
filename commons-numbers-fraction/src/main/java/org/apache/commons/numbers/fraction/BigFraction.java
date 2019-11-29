@@ -41,13 +41,10 @@ public final class BigFraction
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20190701L;
 
-    /**
-     * The numerator of this fraction reduced to lowest terms. Negative if this
-     * fraction's value is negative.
-     */
+    /** The numerator of this fraction reduced to lowest terms. */
     private final BigInteger numerator;
 
-    /** The denominator of this fraction reduced to lowest terms. Always positive. */
+    /** The denominator of this fraction reduced to lowest terms. */
     private final BigInteger denominator;
 
     /**
