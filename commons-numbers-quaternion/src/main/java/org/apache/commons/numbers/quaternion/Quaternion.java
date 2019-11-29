@@ -598,7 +598,7 @@ public final class Quaternion implements Serializable {
      * @see #getW()
      */
     public double getScalarPart() {
-        return w;
+        return getW();
     }
 
     /**
