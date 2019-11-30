@@ -55,11 +55,27 @@ public class SafeNormTest {
     @Test
     public void testSimple() {
         final double[] v = new double[] {-0.9, 8.7, -6.5, -4.3, -2.1, 0, 1.2, 3.4, -5.6, 7.8, 9.0};
+        final double expected = direct(v);
+        Assertions.assertEquals(expected, SafeNorm.value(v), 0d);
+    }
+
+    @Test
+    public void testZero() {
+        final double[] v = new double[] {0, 0, 0, 0, 0};
+        Assertions.assertEquals(0d, SafeNorm.value(v), 0d);
+    }
+
+    /**
+     * Direct computation.
+     *
+     * @param v Array.
+     * @return the norm using direct summation.
+     */
+    private double direct(double[] v) {
         double n = 0;
         for (int i = 0; i < v.length; i++) {
             n += v[i] * v[i];
         }
-        final double expected = Math.sqrt(n);
-        Assertions.assertEquals(expected, SafeNorm.value(v), 0d);
+        return Math.sqrt(n);
     }
 }
