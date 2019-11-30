@@ -28,14 +28,8 @@ public class PlaneAngleRadiansTest {
         final double eps = 0;
 
         Assertions.assertEquals(Math.PI, PlaneAngleRadians.PI, eps);
-        Assertions.assertEquals(-Math.PI, PlaneAngleRadians.MINUS_PI, eps);
-
         Assertions.assertEquals(2 * Math.PI, PlaneAngleRadians.TWO_PI, eps);
-        Assertions.assertEquals(-2 * Math.PI, PlaneAngleRadians.MINUS_TWO_PI, eps);
-
         Assertions.assertEquals(Math.PI / 2, PlaneAngleRadians.PI_OVER_TWO, eps);
-        Assertions.assertEquals(-Math.PI / 2, PlaneAngleRadians.MINUS_PI_OVER_TWO, eps);
-
         Assertions.assertEquals(3 * Math.PI / 2, PlaneAngleRadians.THREE_PI_OVER_TWO, eps);
     }
 
@@ -47,20 +41,11 @@ public class PlaneAngleRadiansTest {
         Assertions.assertEquals(0d, Math.sin(PlaneAngleRadians.PI), eps);
         Assertions.assertEquals(-1d, Math.cos(PlaneAngleRadians.PI), eps);
 
-        Assertions.assertEquals(0d, Math.sin(PlaneAngleRadians.MINUS_PI), eps);
-        Assertions.assertEquals(-1d, Math.cos(PlaneAngleRadians.MINUS_PI), eps);
-
         Assertions.assertEquals(0d, Math.sin(PlaneAngleRadians.TWO_PI), 2 * eps);
         Assertions.assertEquals(1d, Math.cos(PlaneAngleRadians.TWO_PI), eps);
 
-        Assertions.assertEquals(0d, Math.sin(PlaneAngleRadians.MINUS_TWO_PI), 2 * eps);
-        Assertions.assertEquals(1d, Math.cos(PlaneAngleRadians.MINUS_TWO_PI), eps);
-
         Assertions.assertEquals(1d, Math.sin(PlaneAngleRadians.PI_OVER_TWO), eps);
         Assertions.assertEquals(0d, Math.cos(PlaneAngleRadians.PI_OVER_TWO), eps);
-
-        Assertions.assertEquals(-1d, Math.sin(PlaneAngleRadians.MINUS_PI_OVER_TWO), eps);
-        Assertions.assertEquals(0d, Math.cos(PlaneAngleRadians.MINUS_PI_OVER_TWO), eps);
 
         Assertions.assertEquals(-1d, Math.sin(PlaneAngleRadians.THREE_PI_OVER_TWO), eps);
         Assertions.assertEquals(0d, Math.cos(PlaneAngleRadians.THREE_PI_OVER_TWO), eps);
@@ -90,7 +75,7 @@ public class PlaneAngleRadiansTest {
     @Test
     public void testNormalizeBetweenMinusPiAndPi2() {
         final double value = 0.75 * PlaneAngleRadians.TWO_PI;
-        final double expected = PlaneAngleRadians.MINUS_PI_OVER_TWO;
+        final double expected = -PlaneAngleRadians.PI_OVER_TWO;
         final double actual = PlaneAngleRadians.normalizeBetweenMinusPiAndPi(value);
         final double tol = Math.ulp(expected);
         Assertions.assertEquals(expected, actual, tol);
@@ -98,7 +83,7 @@ public class PlaneAngleRadiansTest {
     @Test
     public void testNormalizeBetweenMinusPiAndPi3() {
         final double value = PlaneAngleRadians.PI + 1e-10;
-        final double expected = PlaneAngleRadians.MINUS_PI + 1e-10;
+        final double expected = -PlaneAngleRadians.PI + 1e-10;
         final double actual = PlaneAngleRadians.normalizeBetweenMinusPiAndPi(value);
         final double tol = Math.ulp(expected);
         Assertions.assertEquals(expected, actual, tol);
@@ -115,7 +100,7 @@ public class PlaneAngleRadiansTest {
     @Test
     public void testNormalizeBetweenMinusPiAndPi_lowerBound() {
         final double value = PlaneAngleRadians.PI;
-        final double expected = PlaneAngleRadians.MINUS_PI;
+        final double expected = -PlaneAngleRadians.PI;
         final double actual = PlaneAngleRadians.normalizeBetweenMinusPiAndPi(value);
         final double tol = Math.ulp(expected);
         Assertions.assertEquals(expected, actual, tol);
@@ -123,7 +108,7 @@ public class PlaneAngleRadiansTest {
     @Test
     public void testNormalizeBetweenMinusPiAndPi_upperBound() {
         final double value = PlaneAngleRadians.PI;
-        final double expected = PlaneAngleRadians.MINUS_PI;
+        final double expected = -PlaneAngleRadians.PI;
         final double actual = PlaneAngleRadians.normalizeBetweenMinusPiAndPi(value);
         final double tol = Math.ulp(expected);
         Assertions.assertEquals(expected, actual, tol);
@@ -147,7 +132,7 @@ public class PlaneAngleRadiansTest {
     }
     @Test
     public void testNormalizeBetweenZeroAndTwoPi3() {
-        final double value = PlaneAngleRadians.MINUS_PI + 1e-10;
+        final double value = -PlaneAngleRadians.PI + 1e-10;
         final double expected = PlaneAngleRadians.PI + 1e-10;
         final double actual = PlaneAngleRadians.normalizeBetweenZeroAndTwoPi(value);
         final double tol = Math.ulp(expected);
