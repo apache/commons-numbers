@@ -89,9 +89,6 @@
     <numbers.jgit.buildnumber.version>1.2.10</numbers.jgit.buildnumber.version>
     <implementation.build>${git.revision}; ${maven.build.timestamp}</implementation.build>
 
-    <!-- Override default buildNumber timestamp format, needed for coveralls plugin -->
-    <maven.buildNumber.timestampFormat>{0,date,yyyy-MM-dd HH:mm:ssZ}</maven.buildNumber.timestampFormat>
-
     <!--
         Override so that "mvn commons:download-page" will generates a web page
         referring to the files created by the "dist-archive" module.
@@ -645,7 +642,10 @@
           <plugin>
             <groupId>org.eluder.coveralls</groupId>
             <artifactId>coveralls-maven-plugin</artifactId>
-            <version>3.1.0</version>
+            <version>${commons.coveralls.version}</version>
+            <configuration>
+              <timestampFormat>${commons.coveralls.timestampFormat}</timestampFormat>
+            </configuration>
           </plugin>
         </plugins>
       </build>
