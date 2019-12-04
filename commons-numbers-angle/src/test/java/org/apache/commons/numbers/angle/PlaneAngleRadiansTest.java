@@ -27,10 +27,10 @@ public class PlaneAngleRadiansTest {
     public void testConstants() {
         final double eps = 0;
 
-        Assertions.assertEquals(Math.PI, PlaneAngleRadians.PI, eps);
-        Assertions.assertEquals(2 * Math.PI, PlaneAngleRadians.TWO_PI, eps);
-        Assertions.assertEquals(Math.PI / 2, PlaneAngleRadians.PI_OVER_TWO, eps);
-        Assertions.assertEquals(3 * Math.PI / 2, PlaneAngleRadians.THREE_PI_OVER_TWO, eps);
+        Assertions.assertEquals(PlaneAngleRadians.PI, Math.PI, eps);
+        Assertions.assertEquals(PlaneAngleRadians.TWO_PI, 2 * Math.PI, eps);
+        Assertions.assertEquals(PlaneAngleRadians.PI_OVER_TWO, Math.PI / 2, eps);
+        Assertions.assertEquals(PlaneAngleRadians.THREE_PI_OVER_TWO, 3 * Math.PI / 2, eps);
     }
 
     // Test constants using "sin" and "cos".
