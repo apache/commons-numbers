@@ -1043,7 +1043,7 @@ public final class Complex implements Serializable  {
                 return z == this ? result : result.conjugate();
             }
             if (Double.isInfinite(imaginary)) {
-                return new Complex(Double.POSITIVE_INFINITY, Math.copySign(PI_OVER_2, imaginary));
+                return new Complex(Math.copySign(Double.POSITIVE_INFINITY, real), Math.copySign(PI_OVER_2, imaginary));
             }
             // imaginary is NaN
             return NAN;
