@@ -788,7 +788,7 @@ public final class Complex implements Serializable  {
      *
      * @param real the real component
      * @param imaginary the imaginary component
-     * @return true if the complex is zero
+     * @return true if the complex is not zero
      */
     private static boolean isNotZero(double real, double imaginary) {
         // The use of equals is deliberate.
