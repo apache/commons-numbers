@@ -1246,12 +1246,17 @@ public class ComplexTest {
 
     @Test
     public void testLog10() {
+        final double ln10 = Math.log(10);
         final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
         for (int i = 0; i < 10; i++) {
             final Complex z = Complex.ofCartesian(rng.nextDouble(), rng.nextDouble());
             final Complex lnz = z.log();
             final Complex log10z = z.log10();
-            Assertions.assertEquals(Math.log10(Math.exp(lnz.getReal())), log10z.getReal(), "real");
+            // This is prone to floating-point error so use a delta
+            Assertions.assertEquals(lnz.getReal() / ln10, log10z.getReal(), 1e-12, "real");
+            // This test should be exact
+            final double abs = z.abs();
+            Assertions.assertEquals(Math.log10(abs), log10z.getReal(), "real");
             Assertions.assertEquals(lnz.getImaginary(), log10z.getImaginary(), "imag");
         }
     }
