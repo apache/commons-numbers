@@ -1246,13 +1246,12 @@ public class ComplexTest {
 
     @Test
     public void testLog10() {
-        final double ln10 = Math.log(10.0);
         final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
         for (int i = 0; i < 10; i++) {
             final Complex z = Complex.ofCartesian(rng.nextDouble(), rng.nextDouble());
             final Complex lnz = z.log();
             final Complex log10z = z.log10();
-            Assertions.assertEquals(lnz.getReal() / ln10, log10z.getReal(), "real");
+            Assertions.assertEquals(Math.log10(Math.exp(lnz.getReal())), log10z.getReal(), "real");
             Assertions.assertEquals(lnz.getImaginary(), log10z.getImaginary(), "imag");
         }
     }
