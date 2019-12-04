@@ -855,6 +855,17 @@ public class ComplexTest {
     }
 
     @Test
+    public void testPowComplexRealZero() {
+        // Hits the edge case when real == 0 but imaginary != 0
+        final Complex x = Complex.ofCartesian(0, 1);
+        final Complex z = Complex.ofCartesian(2, 3);
+        final Complex c = x.pow(z);
+        // Answer from g++
+        Assertions.assertEquals(-0.008983291021129429, c.getReal());
+        Assertions.assertEquals(1.1001358594835313e-18, c.getImaginary());
+    }
+
+    @Test
     public void testPowComplexZeroBase() {
         final double x = Double.MIN_VALUE;
         assertPowComplexZeroBase(0, 0, NAN);
@@ -867,6 +878,16 @@ public class ComplexTest {
         final Complex z = Complex.ofCartesian(re, im);
         final Complex c = Complex.ZERO.pow(z);
         Assertions.assertEquals(expected, c);
+    }
+
+    @Test
+    public void testPowScalerRealZero() {
+        // Hits the edge case when real == 0 but imaginary != 0
+        final Complex x = Complex.ofCartesian(0, 1);
+        final Complex c = x.pow(2);
+        // Answer from g++
+        Assertions.assertEquals(-1, c.getReal());
+        Assertions.assertEquals(1.2246467991473532e-16, c.getImaginary());
     }
 
     @Test
