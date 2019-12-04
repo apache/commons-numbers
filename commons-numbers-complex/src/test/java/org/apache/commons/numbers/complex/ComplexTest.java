@@ -819,6 +819,7 @@ public class ComplexTest {
     @Test
     @Disabled("Used to output the java environment")
     public void testJava() {
+        // NOSONAR
         // CHECKSTYLE: stop Regexp
         System.out.println(">>testJava()");
         // MathTest#testExpSpecialCases() checks the following:
