@@ -89,6 +89,8 @@ public class CStandardTest {
     private static final Complex maxMax = complex(max, max);
     private static final Complex maxNan = complex(max, nan);
     private static final Complex nanMax = complex(nan, max);
+    private static final boolean ODD = true;
+    private static final boolean EVEN = false;
 
     /**
      * Assert the two complex numbers have equivalent real and imaginary components as
@@ -180,6 +182,73 @@ public class CStandardTest {
             !equals(c1.getImaginary(), c2.getImaginary())) {
             Assertions.fail(String.format("Conjugate equality failed (z=%s). Expected: %s but was: %s",
                                           z, c2, c1));
+        }
+    }
+
+    /**
+     * Assert the operation on the complex number is odd or even.
+     *
+     * <pre>
+     * Odd : f(z) = -f(-z)
+     * Even: f(z) =  f(-z)
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     *
+     * @param operation the operation
+     * @param odd true if odd
+     */
+    private static void assertOddOrEven(UnaryOperator<Complex> operation, boolean odd) {
+        // Edge cases
+        final double[] parts = {Double.NEGATIVE_INFINITY, -1, -0.0, 0.0, 1,
+                                Double.POSITIVE_INFINITY, Double.NaN};
+        for (final double x : parts) {
+            for (final double y : parts) {
+                assertOddOrEven(x, y, operation, odd);
+            }
+        }
+        // Random numbers
+        final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
+        for (int i = 0; i < 100; i++) {
+            final double x = next(rng);
+            final double y = next(rng);
+            assertOddOrEven(x, y, operation, odd);
+        }
+    }
+
+    /**
+     * Assert the operation on the complex number is odd or even.
+     *
+     * <pre>
+     * Odd : f(z) = -f(-z)
+     * Even: f(z) =  f(-z)
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     *
+     * @param operation the operation
+     *
+     * @param re the real component
+     * @param im the imaginary component
+     * @param maxUlps {@code (maxUlps - 1)} is the number of floating point
+     * values between the real (resp. imaginary) parts of {@code x} and
+     * {@code y}.
+     * @param operation the operation
+     */
+    private static void assertOddOrEven(double re, double im,
+            UnaryOperator<Complex> operation, boolean odd) {
+        final Complex z = complex(re, im);
+        final Complex c1 = operation.apply(z);
+        Complex c2 = operation.apply(z.negate());
+        if (odd) {
+            c2 = c2.negate();
+        }
+
+        // Test for binary equality
+        if (!equals(c1.getReal(), c2.getReal()) ||
+            !equals(c1.getImaginary(), c2.getImaginary())) {
+            Assertions.fail(String.format("%s equality failed (z=%s). Expected: %s but was: %s",
+                                          odd ? "Odd" : "Even", z, c2, c1));
         }
     }
 
@@ -539,7 +608,7 @@ public class CStandardTest {
         assertComplex(NAN, Complex::acosh, NAN);
     }
 
-    // TODO: test the 'IS ODD/ EVEN' specification
+    // TODO: fix the 'IS ODD/ EVEN' specification
 
     /**
      * ISO C Standard G.6.2.2.
@@ -547,7 +616,7 @@ public class CStandardTest {
     @Test
     public void testAsinh() {
         assertConjugateEquality(Complex::asinh);
-        // AND ASINH IS ODD
+        //assertOddOrEven(Complex::asinh, ODD);
         assertComplex(Complex.ZERO, Complex::asinh, Complex.ZERO);
         assertComplex(negZeroZero, Complex::asinh, negZeroZero);
         assertComplex(zeroNaN, Complex::asinh, NAN);
@@ -573,7 +642,7 @@ public class CStandardTest {
     @Test
     public void testAtanh() {
         assertConjugateEquality(Complex::atanh);
-        // AND ATANH IS ODD
+        //assertOddOrEven(Complex::atanh, ODD);
         assertComplex(Complex.ZERO, Complex::atanh, Complex.ZERO);
         assertComplex(negZeroZero, Complex::atanh, negZeroZero);
         assertComplex(zeroNaN, Complex::atanh, zeroNaN);
@@ -600,7 +669,7 @@ public class CStandardTest {
     @Test
     public void testCosh() {
         assertConjugateEquality(Complex::cosh);
-        // AND CCOSH IS EVEN
+        //assertOddOrEven(Complex::cosh, EVEN);
         assertComplex(Complex.ZERO, Complex::cosh, Complex.ONE);
         assertComplex(negZeroZero, Complex::cosh, oneNegZero);
         assertComplex(zeroInf, Complex::cosh, nanZero);
@@ -639,7 +708,7 @@ public class CStandardTest {
     @Test
     public void testSinh() {
         assertConjugateEquality(Complex::sinh);
-        // AND CSINH IS ODD
+        //assertOddOrEven(Complex::sinh, ODD);
         assertComplex(Complex.ZERO, Complex::sinh, Complex.ZERO);
         assertComplex(negZeroZero, Complex::sinh, negZeroZero);
         assertComplex(zeroInf, Complex::sinh, zeroNaN);
@@ -678,7 +747,7 @@ public class CStandardTest {
     @Test
     public void testTanh() {
         assertConjugateEquality(Complex::tanh);
-        // AND TANH IS ODD
+        assertOddOrEven(Complex::tanh, ODD);
         assertComplex(Complex.ZERO, Complex::tanh, Complex.ZERO);
         assertComplex(negZeroZero, Complex::tanh, negZeroZero);
         assertComplex(zeroInf, Complex::tanh, NAN);
