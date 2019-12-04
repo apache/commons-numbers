@@ -818,6 +818,7 @@ public class ComplexTest {
 
     @Test
     @Disabled("Used to output the java environment")
+    @SuppressWarnings("squid:S2699")
     public void testJava() {
         // CHECKSTYLE: stop Regexp
         System.out.println(">>testJava()");
