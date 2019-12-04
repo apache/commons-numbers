@@ -1259,18 +1259,8 @@ public final class Complex implements Serializable  {
      * @return the base 10 logarithm of <code>this</code>.
      */
     public Complex log10() {
-        // Same edge cases as log()
-        if (real == Double.POSITIVE_INFINITY &&
-            imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(Double.POSITIVE_INFINITY, PI_OVER_4);
-        } else if ((real == Double.POSITIVE_INFINITY &&
-                    Double.isNaN(imaginary)) ||
-                   (Double.isNaN(real) &&
-                    imaginary == Double.POSITIVE_INFINITY)) {
-            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
-        }
-        return new Complex(Math.log(abs()) / Math.log(10),
-                           Math.atan2(imaginary, real));
+        Complex logE = log();
+        return ofCartesian(logE.real / Math.log(10), logE.imaginary);
     }
 
     /**
