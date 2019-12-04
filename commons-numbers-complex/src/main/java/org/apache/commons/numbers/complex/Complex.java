@@ -1039,7 +1039,7 @@ public final class Complex implements Serializable  {
                 // ISO C99: Preserve the equality
                 // asinh(conj(z)) = conj(asinh(z))
                 final Complex z = negative(imaginary) ? conjugate() : this;
-                final Complex result = z.square().add(ONE).sqrt().add(z).log();
+                final Complex result = z.square().add(1).sqrt().add(z).log();
                 return z == this ? result : result.conjugate();
             }
             if (Double.isInfinite(imaginary)) {
@@ -1142,7 +1142,7 @@ public final class Complex implements Serializable  {
                 // ISO C99: Preserve the equality
                 // acosh(conj(z)) = conj(acosh(z))
                 final Complex z = negative(imaginary) ? conjugate() : this;
-                final Complex result = z.square().subtract(ONE).sqrt().add(z).log();
+                final Complex result = z.square().subtract(1).sqrt().add(z).log();
                 return z == this ? result : result.conjugate();
             }
             if (Double.isInfinite(imaginary)) {
@@ -1561,13 +1561,10 @@ public final class Complex implements Serializable  {
      * square root</a> of <code>1 - this<sup>2</sup></code> for this complex
      * number.
      *
-     * <p>Computes the result directly as
-     * {@code sqrt(ONE.subtract(z.multiply(z)))}.</p>
-     *
      * @return the square root of <code>1 - this<sup>2</sup></code>.
      */
     private Complex sqrt1z() {
-        return ONE.subtract(square()).sqrt();
+        return square().subtractFromReal(1).sqrt();
     }
 
     /**
