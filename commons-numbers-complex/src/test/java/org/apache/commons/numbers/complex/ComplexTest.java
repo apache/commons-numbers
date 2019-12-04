@@ -372,6 +372,16 @@ public class ComplexTest {
     }
 
     @Test
+    public void testReciprocalMax() {
+        // This hits the edge case in reciprocal() for when q != 0 but scale == 0
+        final double smaller = Math.nextDown(Double.MAX_VALUE);
+        Complex z = Complex.ofCartesian(smaller, Double.MAX_VALUE);
+        Assertions.assertEquals(Complex.ofCartesian(0.0, -0.0), z.reciprocal());
+        z = Complex.ofCartesian(Double.MAX_VALUE, smaller);
+        Assertions.assertEquals(Complex.ofCartesian(0.0, -0.0), z.reciprocal());
+    }
+
+    @Test
     public void testMultiply() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final Complex y = Complex.ofCartesian(5.0, 6.0);
