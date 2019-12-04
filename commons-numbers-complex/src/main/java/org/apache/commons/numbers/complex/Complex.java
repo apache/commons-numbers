@@ -858,6 +858,22 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns a {@code Complex} whose value is
+     * {@code (minuend - this)}.
+     * Uses the definitional formula
+     * <p>
+     *  {@code a - (c + di) = (a-c) -di}
+     * </p>
+     *
+     * @param  minuend value that this {@code Complex} is to be subtracted from.
+     * @return {@code minuend - this}.
+     */
+    private Complex subtractFromReal(double minuend) {
+        return new Complex(minuend - real,
+                           -imaginary);
+    }
+
+    /**
+     * Returns a {@code Complex} whose value is
      * {@code (this - subtrahend)}.
      *
      * @param  subtrahend value to be subtracted from this {@code Complex}.
@@ -1080,7 +1096,7 @@ public final class Complex implements Serializable  {
                 // ISO C99: Preserve the equality
                 // atanh(conj(z)) = conj(atanh(z))
                 final Complex z = negative(imaginary) ? conjugate() : this;
-                final Complex result = z.add(ONE).divide(ONE.subtract(z)).log().multiply(0.5);
+                final Complex result = z.add(1).divide(z.subtractFromReal(1)).log().multiply(0.5);
                 return z == this ? result : result.conjugate();
             }
             if (Double.isInfinite(imaginary)) {

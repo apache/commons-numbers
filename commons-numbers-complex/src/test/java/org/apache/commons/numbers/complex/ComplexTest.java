@@ -1299,4 +1299,13 @@ public class ComplexTest {
         TestUtils.assertEquals(Complex.ONE, Complex.ofCartesian(0, 25).tan(), 0);
         TestUtils.assertEquals(Complex.ofCartesian(0, -1), Complex.ofCartesian(0, -25).tan(), 0);
     }
+
+    @Test
+    public void testAtanhEdgeConditions() {
+        // Hits the edge case when imaginary == 0 but real != 0 or 1
+        final Complex c = Complex.ofCartesian(2, 0).atanh();
+        // Answer from g++
+        Assertions.assertEquals(0.54930614433405489, c.getReal());
+        Assertions.assertEquals(1.5707963267948966, c.getImaginary());
+    }
 }
