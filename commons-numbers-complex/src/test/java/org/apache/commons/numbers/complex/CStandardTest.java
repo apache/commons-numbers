@@ -172,8 +172,8 @@ public class CStandardTest {
     private static void assertConjugateEquality(double re, double im,
             UnaryOperator<Complex> operation) {
         final Complex z = complex(re, im);
-        final Complex c1 = operation.apply(z.conj());
-        final Complex c2 = operation.apply(z).conj();
+        final Complex c1 = operation.apply(z.conjugate());
+        final Complex c2 = operation.apply(z).conjugate();
 
         // Test for binary equality
         if (!equals(c1.getReal(), c2.getReal()) ||
