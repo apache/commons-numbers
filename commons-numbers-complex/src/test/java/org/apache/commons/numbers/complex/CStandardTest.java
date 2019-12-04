@@ -17,7 +17,6 @@
 
 package org.apache.commons.numbers.complex;
 
-import org.apache.commons.numbers.core.Precision;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
 import org.junit.jupiter.api.Assertions;
@@ -26,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 /**
  * Tests the standards defined by the C.99 standard for complex numbers
@@ -43,15 +43,19 @@ public class CStandardTest {
     private static final double piOverFour = Math.PI / 4.0;
     private static final double piOverTwo = Math.PI / 2.0;
     private static final double threePiOverFour = 3.0 * Math.PI / 4.0;
-    private static final Complex oneOne = complex(1, 1);
     private static final Complex oneZero = complex(1, 0);
     private static final Complex oneInf = complex(1, inf);
     private static final Complex oneNaN = complex(1, nan);
+    private static final Complex oneNegZero = complex(1, -0.0);
     private static final Complex zeroInf = complex(0, inf);
     private static final Complex zeroNegInf = complex(0, negInf);
+    private static final Complex zeroNegZero = complex(0, -0.0);
     private static final Complex zeroNaN = complex(0, nan);
     private static final Complex zeroPiTwo = complex(0.0, piOverTwo);
+    private static final Complex negZeroPiTwo = complex(-0.0, piOverTwo);
     private static final Complex negZeroZero = complex(-0.0, 0);
+    private static final Complex negZeroNegZero = complex(-0.0, -0.0);
+    private static final Complex negZeroNaN = complex(-0.0, nan);
     private static final Complex negI = complex(0.0, -1.0);
     private static final Complex infOne = complex(inf, 1);
     private static final Complex infZero = complex(inf, 0);
@@ -61,12 +65,16 @@ public class CStandardTest {
     private static final Complex infThreePiFour = complex(inf, threePiOverFour);
     private static final Complex infPiFour = complex(inf, piOverFour);
     private static final Complex infPi = complex(inf, Math.PI);
+    private static final Complex infNegZero = complex(inf, -0.0);
+    private static final Complex negOneZero = complex(-1, 0);
+    private static final Complex negOneNegZero = complex(-1, -0.0);
     private static final Complex negInfInf = complex(negInf, inf);
     private static final Complex negInfZero = complex(negInf, 0);
+    private static final Complex negInfNegZero = complex(negInf, -0.0);
     private static final Complex negInfOne = complex(negInf, 1);
     private static final Complex negInfNaN = complex(negInf, nan);
-    private static final Complex negInfPosInf = complex(negInf, inf);
     private static final Complex negInfPi = complex(negInf, Math.PI);
+    private static final Complex negInfPiFour = complex(negInf, piOverFour);
     private static final Complex nanInf = complex(nan, inf);
     private static final Complex nanNegInf = complex(nan, negInf);
     private static final Complex nanZero = complex(nan, 0);
@@ -83,33 +91,16 @@ public class CStandardTest {
     private static final Complex nanMax = complex(nan, max);
 
     /**
-     * Assert the two complex numbers have their real and imaginary components within
-     * the given tolerance.
-     *
-     * @param c1 the first complex
-     * @param c2 the second complex
-     * @param maxUlps {@code (maxUlps - 1)} is the number of floating point
-     * values between the real (resp. imaginary) parts of {@code x} and
-     * {@code y}.
-     */
-    public void assertComplex(Complex c1, Complex c2, int maxUlps) {
-        if (!Precision.equals(c1.getReal(), c2.getReal(), maxUlps) ||
-            !Precision.equals(c1.getImaginary(), c2.getImaginary(), maxUlps)) {
-            Assertions.fail(c1 + " != " + c2);
-        }
-    }
-
-    /**
      * Assert the two complex numbers have equivalent real and imaginary components as
      * defined by the {@code ==} operator.
      *
-     * @param c1 the first complex
-     * @param c2 the second complex
+     * @param c1 the first complex (actual)
+     * @param c2 the second complex (expected)
      */
-    public void assertComplex(Complex c1, Complex c2) {
+    private static void assertComplex(Complex c1, Complex c2) {
         // Use a delta of zero to allow comparison of -0.0 to 0.0
-        Assertions.assertEquals(c1.getReal(), c2.getReal(), 0.0, "real");
-        Assertions.assertEquals(c1.getImaginary(), c2.getImaginary(), 0.0, "imaginary");
+        Assertions.assertEquals(c2.getReal(), c1.getReal(), 0.0, "real");
+        Assertions.assertEquals(c2.getImaginary(), c1.getImaginary(), 0.0, "imaginary");
     }
 
     /**
@@ -128,6 +119,109 @@ public class CStandardTest {
         final Complex z = operation.apply(c1, c2);
         Assertions.assertTrue(expected.test(z),
             () -> String.format("%s expected: %s %s %s = %s", expectedName, c1, operationName, c2, z));
+    }
+
+    /**
+     * Assert the operation on the complex number satisfies the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     *
+     * @param operation the operation
+     */
+    private static void assertConjugateEquality(UnaryOperator<Complex> operation) {
+        // Edge cases
+        final double[] parts = {Double.NEGATIVE_INFINITY, -1, -0.0, 0.0, 1,
+                                Double.POSITIVE_INFINITY, Double.NaN};
+        for (final double x : parts) {
+            for (final double y : parts) {
+                // No conjugate for imaginary NaN
+                if (!Double.isNaN(y)) {
+                    assertConjugateEquality(x, y, operation);
+                }
+            }
+        }
+        // Random numbers
+        final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
+        for (int i = 0; i < 100; i++) {
+            final double x = next(rng);
+            final double y = next(rng);
+            assertConjugateEquality(x, y, operation);
+        }
+    }
+
+    /**
+     * Assert the operation on the complex number satisfies the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     *
+     * @param re the real component
+     * @param im the imaginary component
+     * @param maxUlps {@code (maxUlps - 1)} is the number of floating point
+     * values between the real (resp. imaginary) parts of {@code x} and
+     * {@code y}.
+     * @param operation the operation
+     */
+    private static void assertConjugateEquality(double re, double im,
+            UnaryOperator<Complex> operation) {
+        final Complex z = complex(re, im);
+        final Complex c1 = operation.apply(z.conj());
+        final Complex c2 = operation.apply(z).conj();
+
+        // Test for binary equality
+        if (!equals(c1.getReal(), c2.getReal()) ||
+            !equals(c1.getImaginary(), c2.getImaginary())) {
+            Assertions.fail(String.format("Conjugate equality failed (z=%s). Expected: %s but was: %s",
+                                          z, c2, c1));
+        }
+    }
+
+    /**
+     * Assert the operation on the complex number is equal to the expected value.
+     * If the imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     *
+     * @param z the complex
+     * @param operation the operation
+     * @param expected the expected
+     */
+    private static void assertComplex(Complex z,
+            UnaryOperator<Complex> operation, Complex expected) {
+        // Test the operation
+        final Complex c1 = operation.apply(z);
+        if (!equals(c1.getReal(), expected.getReal()) ||
+            !equals(c1.getImaginary(), expected.getImaginary())) {
+            Assertions.fail(String.format("Operation failed (z=%s). Expected: %s but was: %s",
+                                          z, expected, c1));
+        }
+
+        if (!Double.isNaN(z.getImaginary())) {
+            assertConjugateEquality(z.getReal(), z.getImaginary(), operation);
+        }
+    }
+
+    /**
+     * Returns {@code true} if the values are equal according to semantics of
+     * {@link Double#equals(Object)}.
+     *
+     * @param x Value
+     * @param y Value
+     * @return {@code Double.valueof(x).equals(Double.valueOf(y))}
+     */
+    private static boolean equals(double x, double y) {
+        return Double.doubleToLongBits(x) == Double.doubleToLongBits(y);
     }
 
     /**
@@ -191,8 +285,8 @@ public class CStandardTest {
      */
     private static ArrayList<Complex> createCombinations(final double[] values, Predicate<Complex> condition) {
         final ArrayList<Complex> list = new ArrayList<>();
-        for (double re : values) {
-            for (double im : values) {
+        for (final double re : values) {
+            for (final double im : values) {
                 final Complex z = complex(re, im);
                 if (condition.test(z)) {
                     list.add(z);
@@ -230,18 +324,18 @@ public class CStandardTest {
 
         // "if one operand is an infinity and the other operand is a nonzero finite number or an
         // infinity, then the result of the * operator is an infinity;"
-        for (Complex z : infinites) {
-            for (Complex w : infinites) {
+        for (final Complex z : infinites) {
+            for (final Complex w : infinites) {
                 assertOperation(z, w, Complex::multiply, "*", Complex::isInfinite, "Inf");
                 assertOperation(w, z, Complex::multiply, "*", Complex::isInfinite, "Inf");
             }
-            for (Complex w : nonZeroFinites) {
+            for (final Complex w : nonZeroFinites) {
                 assertOperation(z, w, Complex::multiply, "*", Complex::isInfinite, "Inf");
                 assertOperation(w, z, Complex::multiply, "*", Complex::isInfinite, "Inf");
             }
             // C.99 refers to non-zero finites.
             // Infer that Complex multiplication of zero with infinites is not defined.
-            for (Complex w : zeroFinites) {
+            for (final Complex w : zeroFinites) {
                 assertOperation(z, w, Complex::multiply, "*", Complex::isNaN, "NaN");
                 assertOperation(w, z, Complex::multiply, "*", Complex::isNaN, "NaN");
             }
@@ -258,7 +352,7 @@ public class CStandardTest {
 
         // Check multiply with (NaN,NaN) is not corrected
         final double[] values = {0, 1, inf, negInf, nan};
-        for (Complex z : createCombinations(values, c -> true)) {
+        for (final Complex z : createCombinations(values, c -> true)) {
             assertOperation(z, NAN, Complex::multiply, "*", Complex::isNaN, "NaN");
             assertOperation(NAN, z, Complex::multiply, "*", Complex::isNaN, "NaN");
         }
@@ -285,34 +379,34 @@ public class CStandardTest {
 
         // "if the first operand is an infinity and the second operand is a finite number, then the
         // result of the / operator is an infinity;"
-        for (Complex z : infinites) {
-            for (Complex w : nonZeroFinites) {
+        for (final Complex z : infinites) {
+            for (final Complex w : nonZeroFinites) {
                 assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, "Inf");
             }
-            for (Complex w : zeroFinites) {
+            for (final Complex w : zeroFinites) {
                 assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, "Inf");
             }
             // Check inf/inf cannot be done
-            for (Complex w : infinites) {
+            for (final Complex w : infinites) {
                 assertOperation(z, w, Complex::divide, "/", Complex::isNaN, "NaN");
             }
         }
 
         // "if the first operand is a finite number and the second operand is an infinity, then the
         // result of the / operator is a zero;"
-        for (Complex z : finites) {
-            for (Complex w : infinites) {
+        for (final Complex z : finites) {
+            for (final Complex w : infinites) {
                 assertOperation(z, w, Complex::divide, "/", CStandardTest::isZero, "Zero");
             }
         }
 
         // "if the first operand is a nonzero finite number or an infinity and the second operand is
         // a zero, then the result of the / operator is an infinity."
-        for (Complex w : zeroFinites) {
-            for (Complex z : nonZeroFinites) {
+        for (final Complex w : zeroFinites) {
+            for (final Complex z : nonZeroFinites) {
                 assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, "Inf");
             }
-            for (Complex z : infinites) {
+            for (final Complex z : infinites) {
                 assertOperation(z, w, Complex::divide, "/", Complex::isInfinite, "Inf");
             }
         }
@@ -320,20 +414,20 @@ public class CStandardTest {
         // ISO C Standard in Annex G is missing an explicit definition of how to handle NaNs.
         // The reference implementation does not correct for divide by NaN components unless
         // infinite.
-        for (Complex w : nans) {
-            for (Complex z : finites) {
+        for (final Complex w : nans) {
+            for (final Complex z : finites) {
                 assertOperation(z, w, Complex::divide, "/", c -> NAN.equals(c), "(NaN,NaN)");
             }
-            for (Complex z : infinites) {
+            for (final Complex z : infinites) {
                 assertOperation(z, w, Complex::divide, "/", c -> NAN.equals(c), "(NaN,NaN)");
             }
         }
 
         // Check (NaN,NaN) divide is not corrected for the edge case of divide by zero or infinite
-        for (Complex w : zeroFinites) {
+        for (final Complex w : zeroFinites) {
             assertOperation(NAN, w, Complex::divide, "/", Complex::isNaN, "NaN");
         }
-        for (Complex w : infinites) {
+        for (final Complex w : infinites) {
             assertOperation(NAN, w, Complex::divide, "/", Complex::isNaN, "NaN");
         }
     }
@@ -367,13 +461,13 @@ public class CStandardTest {
     }
 
     /**
-     * Create a number in the range {@code (-1,1)}.
+     * Create a number in the range {@code (-5,5)}.
      *
      * @param rng the random generator
      * @return the number
      */
     private static double next(UniformRandomProvider rng) {
-        return rng.nextDouble() * (rng.nextBoolean() ? -1 : 1);
+        return rng.nextDouble() * (rng.nextBoolean() ? -5 : 5);
     }
 
     /**
@@ -402,21 +496,23 @@ public class CStandardTest {
      */
     @Test
     public void testAcos() {
-        assertComplex(oneOne.acos().conj(), oneOne.conj().acos(), 1);
-        assertComplex(Complex.ZERO.acos(), piTwoNegZero);
-        assertComplex(negZeroZero.acos(), piTwoNegZero);
-        assertComplex(zeroNaN.acos(), piTwoNaN);
-        assertComplex(oneInf.acos(), piTwoNegInf);
-        assertComplex(oneNaN.acos(), NAN);
-        assertComplex(negInfOne.acos(), piNegInf);
-        assertComplex(infOne.acos(), zeroNegInf);
-        assertComplex(negInfPosInf.acos(), threePiFourNegInf);
-        assertComplex(infInf.acos(), piFourNegInf);
-        assertComplex(infNaN.acos(), nanInf);
-        assertComplex(negInfNaN.acos(), nanNegInf);
-        assertComplex(nanOne.acos(), NAN);
-        assertComplex(nanInf.acos(), nanNegInf);
-        assertComplex(NAN.acos(), NAN);
+        assertConjugateEquality(Complex::acos);
+        assertComplex(Complex.ZERO, Complex::acos, piTwoNegZero);
+        assertComplex(negZeroZero, Complex::acos, piTwoNegZero);
+        assertComplex(zeroNaN, Complex::acos, piTwoNaN);
+        assertComplex(oneNaN, Complex::acos, NAN);
+        assertComplex(oneInf, Complex::acos, piTwoNegInf);
+        assertComplex(negInfZero, Complex::acos, piNegInf);
+        assertComplex(negInfOne, Complex::acos, piNegInf);
+        assertComplex(infZero, Complex::acos, zeroNegInf);
+        assertComplex(infOne, Complex::acos, zeroNegInf);
+        assertComplex(negInfInf, Complex::acos, threePiFourNegInf);
+        assertComplex(infInf, Complex::acos, piFourNegInf);
+        assertComplex(infNaN, Complex::acos, nanInf);
+        assertComplex(negInfNaN, Complex::acos, nanNegInf);
+        assertComplex(nanOne, Complex::acos, NAN);
+        assertComplex(nanInf, Complex::acos, nanNegInf);
+        assertComplex(NAN, Complex::acos, NAN);
     }
 
     /**
@@ -424,51 +520,51 @@ public class CStandardTest {
      */
     @Test
     public void testAcosh() {
-        assertComplex(oneOne.acosh().conj(), oneOne.conj().acosh(), 1);
-        assertComplex(Complex.ZERO.acosh(), zeroPiTwo);
-        assertComplex(negZeroZero.acosh(), zeroPiTwo);
-        assertComplex(oneInf.acosh(), infPiTwo);
-        assertComplex(zeroNaN.acosh(), NAN);
-        assertComplex(oneNaN.acosh(), NAN);
-        assertComplex(negInfOne.acosh(), infPi);
-        assertComplex(negInfZero.acosh(), infPi);
-        assertComplex(infOne.acosh(), infZero);
-        assertComplex(infZero.acosh(), infZero);
-        assertComplex(negInfPosInf.acosh(), infThreePiFour);
-        assertComplex(infInf.acosh(), infPiFour);
-        assertComplex(infNaN.acosh(), infNaN);
-        assertComplex(negInfNaN.acosh(), infNaN);
-        assertComplex(nanOne.acosh(), NAN);
-        assertComplex(nanInf.acosh(), infNaN);
-        assertComplex(NAN.acosh(), NAN);
-        // The standard mentions positive-signed y
-        Assertions.assertThrows(AssertionError.class, () -> {
-            // Not −∞ + iy, positive signed y
-            assertComplex(complex(negInf, -0.0).acosh(), infPi);
-        });
-        Assertions.assertThrows(AssertionError.class, () -> {
-            // Not ∞ + iy, positive signed y
-            assertComplex(complex(inf, -0.0).acosh(), infPi);
-        });
+        assertConjugateEquality(Complex::acosh);
+        assertComplex(Complex.ZERO, Complex::acosh, zeroPiTwo);
+        assertComplex(negZeroZero, Complex::acosh, negZeroPiTwo);
+        assertComplex(zeroNaN, Complex::acosh, NAN);
+        assertComplex(oneNaN, Complex::acosh, NAN);
+        assertComplex(oneInf, Complex::acosh, infPiTwo);
+        assertComplex(negInfZero, Complex::acosh, infPi);
+        assertComplex(negInfOne, Complex::acosh, infPi);
+        assertComplex(infZero, Complex::acosh, infZero);
+        assertComplex(infOne, Complex::acosh, infZero);
+        assertComplex(negInfInf, Complex::acosh, infThreePiFour);
+        assertComplex(infInf, Complex::acosh, infPiFour);
+        assertComplex(infNaN, Complex::acosh, infNaN);
+        assertComplex(negInfNaN, Complex::acosh, infNaN);
+        assertComplex(nanOne, Complex::acosh, NAN);
+        assertComplex(nanInf, Complex::acosh, infNaN);
+        assertComplex(NAN, Complex::acosh, NAN);
     }
+
+    // TODO: test the 'IS ODD/ EVEN' specification
 
     /**
      * ISO C Standard G.6.2.2.
      */
     @Test
     public void testAsinh() {
-        // TODO: test for which Asinh is odd
-        assertComplex(oneOne.conj().asinh(), oneOne.asinh().conj());
-        assertComplex(Complex.ZERO.asinh(), Complex.ZERO);
-        assertComplex(oneInf.asinh(), infPiTwo);
-        assertComplex(oneNaN.asinh(), NAN);
-        assertComplex(infOne.asinh(), infZero);
-        assertComplex(infInf.asinh(), infPiFour);
-        assertComplex(infNaN.asinh(), infNaN);
-        assertComplex(nanZero.asinh(), nanZero);
-        assertComplex(nanOne.asinh(), NAN);
-        assertComplex(nanInf.asinh(), infNaN);
-        assertComplex(NAN, NAN);
+        assertConjugateEquality(Complex::asinh);
+        // AND ASINH IS ODD
+        assertComplex(Complex.ZERO, Complex::asinh, Complex.ZERO);
+        assertComplex(negZeroZero, Complex::asinh, negZeroZero);
+        assertComplex(zeroNaN, Complex::asinh, NAN);
+        assertComplex(oneNaN, Complex::asinh, NAN);
+        assertComplex(oneInf, Complex::asinh, infPiTwo);
+        assertComplex(negInfZero, Complex::asinh, negInfZero);
+        assertComplex(negInfOne, Complex::asinh, negInfZero);
+        assertComplex(infZero, Complex::asinh, infZero);
+        assertComplex(infOne, Complex::asinh, infZero);
+        assertComplex(negInfInf, Complex::asinh, negInfPiFour);
+        assertComplex(infInf, Complex::asinh, infPiFour);
+        assertComplex(infNaN, Complex::asinh, infNaN);
+        assertComplex(negInfNaN, Complex::asinh, negInfNaN);
+        assertComplex(nanZero, Complex::asinh, nanZero);
+        assertComplex(nanOne, Complex::asinh, NAN);
+        assertComplex(nanInf, Complex::asinh, infNaN);
+        assertComplex(NAN, Complex::asinh, NAN);
     }
 
     /**
@@ -476,18 +572,26 @@ public class CStandardTest {
      */
     @Test
     public void testAtanh() {
-        assertComplex(oneOne.conj().atanh(), oneOne.atanh().conj());
-        assertComplex(Complex.ZERO.atanh(), Complex.ZERO);
-        assertComplex(zeroNaN.atanh(), zeroNaN);
-        assertComplex(oneZero.atanh(), infZero);
-        assertComplex(oneInf.atanh(), zeroPiTwo);
-        assertComplex(oneNaN.atanh(), NAN);
-        assertComplex(infOne.atanh(), zeroPiTwo);
-        assertComplex(infInf.atanh(), zeroPiTwo);
-        assertComplex(infNaN.atanh(), zeroNaN);
-        assertComplex(nanOne.atanh(), NAN);
-        assertComplex(nanInf.atanh(), zeroPiTwo);
-        assertComplex(NAN.atanh(), NAN);
+        assertConjugateEquality(Complex::atanh);
+        // AND ATANH IS ODD
+        assertComplex(Complex.ZERO, Complex::atanh, Complex.ZERO);
+        assertComplex(negZeroZero, Complex::atanh, negZeroZero);
+        assertComplex(zeroNaN, Complex::atanh, zeroNaN);
+        assertComplex(oneNaN, Complex::atanh, NAN);
+        assertComplex(oneZero, Complex::atanh, infZero);
+        assertComplex(oneInf, Complex::atanh, zeroPiTwo);
+        assertComplex(negInfZero, Complex::atanh, negZeroPiTwo);
+        assertComplex(negInfOne, Complex::atanh, negZeroPiTwo);
+        assertComplex(infZero, Complex::atanh, zeroPiTwo);
+        assertComplex(infOne, Complex::atanh, zeroPiTwo);
+        assertComplex(negInfInf, Complex::atanh, negZeroPiTwo);
+        assertComplex(infInf, Complex::atanh, zeroPiTwo);
+        assertComplex(infNaN, Complex::atanh, zeroNaN);
+        assertComplex(negInfNaN, Complex::atanh, negZeroNaN);
+        assertComplex(nanZero, Complex::atanh, NAN);
+        assertComplex(nanOne, Complex::atanh, NAN);
+        assertComplex(nanInf, Complex::atanh, zeroPiTwo);
+        assertComplex(NAN, Complex::atanh, NAN);
     }
 
     /**
@@ -495,21 +599,38 @@ public class CStandardTest {
      */
     @Test
     public void testCosh() {
-        assertComplex(oneOne.cosh().conj(), oneOne.conj().cosh());
-        assertComplex(Complex.ZERO.cosh(), Complex.ONE);
-        assertComplex(zeroInf.cosh(), nanZero);
-        assertComplex(zeroNaN.cosh(), nanZero);
-        assertComplex(oneInf.cosh(), NAN);
-        assertComplex(oneNaN.cosh(), NAN);
-        assertComplex(infZero.cosh(), infZero);
-        // the next test does not appear to make sense:
-        // (inf + iy) = inf + cis(y)
-        // skipped
-        assertComplex(infInf.cosh(), infNaN);
-        assertComplex(infNaN.cosh(), infNaN);
-        assertComplex(nanZero.cosh(), nanZero);
-        assertComplex(nanOne.cosh(), NAN);
-        assertComplex(NAN.cosh(), NAN);
+        assertConjugateEquality(Complex::cosh);
+        // AND CCOSH IS EVEN
+        assertComplex(Complex.ZERO, Complex::cosh, Complex.ONE);
+        assertComplex(negZeroZero, Complex::cosh, oneNegZero);
+        assertComplex(zeroInf, Complex::cosh, nanZero);
+        assertComplex(oneInf, Complex::cosh, NAN);
+        assertComplex(zeroNaN, Complex::cosh, nanZero);
+        assertComplex(oneNaN, Complex::cosh, NAN);
+        // (inf + iy) = inf * cis(y)
+        // where cis(y) = cos(y) + i sin(y), and y is finite non-zero
+        //
+        // Note that y == 0: complex(1, 0).multiply(inf) = (inf, NaN)
+        // But the cosh is (inf, 0). This result is computed by g++ and we test it separately.
+        assertComplex(negInfNegZero, Complex::cosh, infZero);
+        assertComplex(negInfZero, Complex::cosh, infNegZero);
+        assertComplex(infNegZero, Complex::cosh, infNegZero);
+        assertComplex(infZero, Complex::cosh, infZero);
+        for (int i = 1; i < 10; i++) {
+            final double y = i * 0.5;
+            assertComplex(complex(inf, y), Complex::cosh, Complex.ofCis(y).multiply(inf));
+            assertComplex(complex(inf, -y), Complex::cosh, Complex.ofCis(-y).multiply(inf));
+            assertComplex(complex(-inf, y), Complex::cosh, Complex.ofCis(y).multiply(-inf));
+            assertComplex(complex(-inf, -y), Complex::cosh, Complex.ofCis(-y).multiply(-inf));
+        }
+        assertComplex(negInfInf, Complex::cosh, infNaN);
+        assertComplex(infInf, Complex::cosh, infNaN);
+        assertComplex(infNaN, Complex::cosh, infNaN);
+        assertComplex(negInfNaN, Complex::cosh, infNaN);
+        assertComplex(nanZero, Complex::cosh, nanZero);
+        assertComplex(nanOne, Complex::cosh, NAN);
+        assertComplex(nanInf, Complex::cosh, NAN);
+        assertComplex(NAN, Complex::cosh, NAN);
     }
 
     /**
@@ -517,19 +638,38 @@ public class CStandardTest {
      */
     @Test
     public void testSinh() {
-        assertComplex(oneOne.sinh().conj(), oneOne.conj().sinh()); // AND CSINH IS ODD
-        assertComplex(Complex.ZERO.sinh(), Complex.ZERO);
-        assertComplex(zeroInf.sinh(), zeroNaN);
-        assertComplex(zeroNaN.sinh(), zeroNaN);
-        assertComplex(oneInf.sinh(), NAN);
-        assertComplex(oneNaN.sinh(), NAN);
-        assertComplex(infZero.sinh(), infZero);
-        // skipped test similar to previous section
-        assertComplex(infInf.sinh(), infNaN);
-        assertComplex(infNaN.sinh(), infNaN);
-        assertComplex(nanZero.sinh(), nanZero);
-        assertComplex(nanOne.sinh(), NAN);
-        assertComplex(NAN.sinh(), NAN);
+        assertConjugateEquality(Complex::sinh);
+        // AND CSINH IS ODD
+        assertComplex(Complex.ZERO, Complex::sinh, Complex.ZERO);
+        assertComplex(negZeroZero, Complex::sinh, negZeroZero);
+        assertComplex(zeroInf, Complex::sinh, zeroNaN);
+        assertComplex(oneInf, Complex::sinh, NAN);
+        assertComplex(zeroNaN, Complex::sinh, zeroNaN);
+        assertComplex(oneNaN, Complex::sinh, NAN);
+        // (inf + iy) = inf * cis(y)
+        // where cis(y) = cos(y) + i sin(y), and y is finite non-zero
+        //
+        // Note that y == 0: complex(1, 0).multiply(inf) = (inf, NaN)
+        // But the sinh is (inf, 0). This result is computed by g++ and we test it separately.
+        assertComplex(negInfNegZero, Complex::sinh, negInfNegZero);
+        assertComplex(negInfZero, Complex::sinh, negInfZero);
+        assertComplex(infNegZero, Complex::sinh, infNegZero);
+        assertComplex(infZero, Complex::sinh, infZero);
+        for (int i = 1; i < 10; i++) {
+            final double y = i * 0.5;
+            assertComplex(complex(inf, y), Complex::sinh, Complex.ofCis(y).multiply(inf));
+            assertComplex(complex(inf, -y), Complex::sinh, Complex.ofCis(-y).multiply(inf));
+            assertComplex(complex(-inf, y), Complex::sinh, Complex.ofCis(y).multiply(-inf));
+            assertComplex(complex(-inf, -y), Complex::sinh, Complex.ofCis(-y).multiply(-inf));
+        }
+        assertComplex(negInfInf, Complex::sinh, infNaN);
+        assertComplex(infInf, Complex::sinh, infNaN);
+        assertComplex(infNaN, Complex::sinh, infNaN);
+        assertComplex(negInfNaN, Complex::sinh, infNaN);
+        assertComplex(nanZero, Complex::sinh, nanZero);
+        assertComplex(nanOne, Complex::sinh, NAN);
+        assertComplex(nanInf, Complex::sinh, NAN);
+        assertComplex(NAN, Complex::sinh, NAN);
     }
 
     /**
@@ -537,16 +677,36 @@ public class CStandardTest {
      */
     @Test
     public void testTanh() {
-        assertComplex(oneOne.tanh().conj(), oneOne.conj().tanh()); // AND CSINH IS ODD
-        assertComplex(Complex.ZERO.tanh(), Complex.ZERO);
-        assertComplex(oneInf.tanh(), NAN);
-        assertComplex(oneNaN.tanh(), NAN);
-        //Do Not Understand the Next Test
-        assertComplex(infInf.tanh(), oneZero);
-        assertComplex(infNaN.tanh(), oneZero);
-        assertComplex(nanZero.tanh(), nanZero);
-        assertComplex(nanOne.tanh(), NAN);
-        assertComplex(NAN.tanh(), NAN);
+        assertConjugateEquality(Complex::tanh);
+        // AND TANH IS ODD
+        assertComplex(Complex.ZERO, Complex::tanh, Complex.ZERO);
+        assertComplex(negZeroZero, Complex::tanh, negZeroZero);
+        assertComplex(zeroInf, Complex::tanh, NAN);
+        assertComplex(oneInf, Complex::tanh, NAN);
+        assertComplex(zeroNaN, Complex::tanh, NAN);
+        assertComplex(oneNaN, Complex::tanh, NAN);
+        // (inf + iy) = 1 + i0 sin(2y), and y is positive-signed finite
+        // Note: no specification for other -inf and/or negative y.
+        // g++ returns the result using (+/-1, i0 sin(2y)) where the sign of the 1 is from the inf.
+        assertComplex(negInfNegZero, Complex::tanh, negOneNegZero);
+        assertComplex(negInfZero, Complex::tanh, negOneZero);
+        assertComplex(infNegZero, Complex::tanh, oneNegZero);
+        assertComplex(infZero, Complex::tanh, oneZero);
+        for (int i = 1; i < 10; i++) {
+            final double y = i * 0.5;
+            assertComplex(complex(inf, y), Complex::tanh, complex(1.0, Math.copySign(0, Math.sin(2 * y))));
+            assertComplex(complex(inf, -y), Complex::tanh, complex(1.0, Math.copySign(0, Math.sin(2 * -y))));
+            assertComplex(complex(-inf, y), Complex::tanh, complex(-1.0, Math.copySign(0, Math.sin(2 * y))));
+            assertComplex(complex(-inf, -y), Complex::tanh, complex(-1.0, Math.copySign(0, Math.sin(2 * -y))));
+        }
+        assertComplex(negInfInf, Complex::tanh, negOneZero);
+        assertComplex(infInf, Complex::tanh, oneZero);
+        assertComplex(infNaN, Complex::tanh, oneZero);
+        assertComplex(negInfNaN, Complex::tanh, negOneZero);
+        assertComplex(nanZero, Complex::tanh, nanZero);
+        assertComplex(nanOne, Complex::tanh, NAN);
+        assertComplex(nanInf, Complex::tanh, NAN);
+        assertComplex(NAN, Complex::tanh, NAN);
     }
 
     /**
@@ -554,20 +714,37 @@ public class CStandardTest {
      */
     @Test
     public void testExp() {
-        assertComplex(oneOne.conj().exp(), oneOne.exp().conj());
-        assertComplex(Complex.ZERO.exp(), oneZero);
-        assertComplex(negZeroZero.exp(), oneZero);
-        assertComplex(oneInf.exp(), NAN);
-        assertComplex(oneNaN.exp(), NAN);
-        assertComplex(infZero.exp(), infZero);
-        // Do not understand next test
-        assertComplex(negInfInf.exp(), Complex.ZERO);
-        assertComplex(infInf.exp(), infNaN);
-        assertComplex(negInfNaN.exp(), Complex.ZERO);
-        assertComplex(infNaN.exp(), infNaN);
-        assertComplex(nanZero.exp(), nanZero);
-        assertComplex(nanOne.exp(), NAN);
-        assertComplex(NAN.exp(), NAN);
+        assertConjugateEquality(Complex::exp);
+        assertComplex(Complex.ZERO, Complex::exp, oneZero);
+        assertComplex(negZeroZero, Complex::exp, oneZero);
+        assertComplex(zeroInf, Complex::exp, NAN);
+        assertComplex(oneInf, Complex::exp, NAN);
+        assertComplex(zeroNaN, Complex::exp, NAN);
+        assertComplex(oneNaN, Complex::exp, NAN);
+        assertComplex(infNegZero, Complex::exp, infNegZero);
+        assertComplex(infZero, Complex::exp, infZero);
+        // (-inf + iy) = +0 cis(y)
+        // where cis(y) = cos(y) + i sin(y), and y is finite
+        for (int i = 0; i < 10; i++) {
+            final double y = i * 0.5;
+            assertComplex(complex(-inf, y), Complex::exp, Complex.ofCis(y).multiply(0.0));
+            assertComplex(complex(-inf, -y), Complex::exp, Complex.ofCis(-y).multiply(0.0));
+        }
+        // (inf + iy) = +inf cis(y)
+        // where cis(y) = cos(y) + i sin(y), and y is non-zero finite
+        for (int i = 1; i < 10; i++) {
+            final double y = i * 0.5;
+            assertComplex(complex(inf, y), Complex::exp, Complex.ofCis(y).multiply(inf));
+            assertComplex(complex(inf, -y), Complex::exp, Complex.ofCis(-y).multiply(inf));
+        }
+        assertComplex(negInfInf, Complex::exp, Complex.ZERO);
+        assertComplex(infInf, Complex::exp, infNaN);
+        assertComplex(negInfNaN, Complex::exp, Complex.ZERO);
+        assertComplex(infNaN, Complex::exp, infNaN);
+        assertComplex(nanZero, Complex::exp, nanZero);
+        assertComplex(nanOne, Complex::exp, NAN);
+        assertComplex(nanInf, Complex::exp, NAN);
+        assertComplex(NAN, Complex::exp, NAN);
     }
 
     /**
@@ -575,38 +752,52 @@ public class CStandardTest {
      */
     @Test
     public void testLog() {
-        assertComplex(oneOne.log().conj(), oneOne.conj().log());
-        assertComplex(negZeroZero.log(), negInfPi);
-        assertComplex(Complex.ZERO.log(), negInfZero);
-        assertComplex(oneInf.log(), infPiTwo);
-        assertComplex(oneNaN.log(), NAN);
-        assertComplex(negInfOne.log(), infPi);
-        assertComplex(infOne.log(), infZero);
-        assertComplex(infInf.log(), infPiFour);
-        assertComplex(infNaN.log(), infNaN);
-        assertComplex(nanOne.log(), NAN);
-        assertComplex(nanInf.log(), infNaN);
-        assertComplex(NAN.log(), NAN);
+        assertConjugateEquality(Complex::log);
+        assertComplex(negZeroZero, Complex::log, negInfPi);
+        assertComplex(Complex.ZERO, Complex::log, negInfZero);
+        assertComplex(zeroInf, Complex::log, infPiTwo);
+        assertComplex(oneInf, Complex::log, infPiTwo);
+        assertComplex(zeroNaN, Complex::log, NAN);
+        assertComplex(oneNaN, Complex::log, NAN);
+        assertComplex(negInfZero, Complex::log, infPi);
+        assertComplex(negInfOne, Complex::log, infPi);
+        assertComplex(infZero, Complex::log, infZero);
+        assertComplex(infOne, Complex::log, infZero);
+        assertComplex(negInfInf, Complex::log, infThreePiFour);
+        assertComplex(infInf, Complex::log, infPiFour);
+        assertComplex(negInfNaN, Complex::log, infNaN);
+        assertComplex(infNaN, Complex::log, infNaN);
+        assertComplex(nanZero, Complex::log, NAN);
+        assertComplex(nanOne, Complex::log, NAN);
+        assertComplex(nanInf, Complex::log, infNaN);
+        assertComplex(NAN, Complex::log, NAN);
     }
 
     /**
-     * Same edge cases as log() since the real component is divided by Math.log(10) whic
+     * Same edge cases as log() since the real component is divided by Math.log(10) which
      * has no effect on infinite or nan.
      */
     @Test
     public void testLog10() {
-        assertComplex(oneOne.log10().conj(), oneOne.conj().log10());
-        assertComplex(negZeroZero.log10(), negInfPi);
-        assertComplex(Complex.ZERO.log10(), negInfZero);
-        assertComplex(oneInf.log10(), infPiTwo);
-        assertComplex(oneNaN.log10(), NAN);
-        assertComplex(negInfOne.log10(), infPi);
-        assertComplex(infOne.log10(), infZero);
-        assertComplex(infInf.log10(), infPiFour);
-        assertComplex(infNaN.log10(), infNaN);
-        assertComplex(nanOne.log10(), NAN);
-        assertComplex(nanInf.log10(), infNaN);
-        assertComplex(NAN.log10(), NAN);
+        assertConjugateEquality(Complex::log10);
+        assertComplex(negZeroZero, Complex::log10, negInfPi);
+        assertComplex(Complex.ZERO, Complex::log10, negInfZero);
+        assertComplex(zeroInf, Complex::log10, infPiTwo);
+        assertComplex(oneInf, Complex::log10, infPiTwo);
+        assertComplex(zeroNaN, Complex::log10, NAN);
+        assertComplex(oneNaN, Complex::log10, NAN);
+        assertComplex(negInfZero, Complex::log10, infPi);
+        assertComplex(negInfOne, Complex::log10, infPi);
+        assertComplex(infZero, Complex::log10, infZero);
+        assertComplex(infOne, Complex::log10, infZero);
+        assertComplex(negInfInf, Complex::log10, infThreePiFour);
+        assertComplex(infInf, Complex::log10, infPiFour);
+        assertComplex(negInfNaN, Complex::log10, infNaN);
+        assertComplex(infNaN, Complex::log10, infNaN);
+        assertComplex(nanZero, Complex::log10, NAN);
+        assertComplex(nanOne, Complex::log10, NAN);
+        assertComplex(nanInf, Complex::log10, infNaN);
+        assertComplex(NAN, Complex::log10, NAN);
     }
 
     /**
@@ -614,14 +805,25 @@ public class CStandardTest {
      */
     @Test
     public void testSqrt2() {
-        assertComplex(oneOne.sqrt().conj(), oneOne.conj().sqrt());
-        assertComplex(Complex.ZERO.sqrt(), Complex.ZERO);
-        assertComplex(oneInf.sqrt(), infInf);
-        assertComplex(negInfOne.sqrt(), zeroNaN);
-        assertComplex(infOne.sqrt(), infZero);
-        assertComplex(negInfNaN.sqrt(), nanInf);
-        assertComplex(infNaN.sqrt(), infNaN);
-        assertComplex(nanOne.sqrt(), NAN);
-        assertComplex(NAN.sqrt(), NAN);
+        assertConjugateEquality(Complex::sqrt);
+        assertComplex(negZeroZero, Complex::sqrt, Complex.ZERO);
+        assertComplex(Complex.ZERO, Complex::sqrt, Complex.ZERO);
+        assertComplex(zeroNegZero, Complex::sqrt, zeroNegZero);
+        assertComplex(negZeroNegZero, Complex::sqrt, zeroNegZero);
+        assertComplex(zeroInf, Complex::sqrt, infInf);
+        assertComplex(oneInf, Complex::sqrt, infInf);
+        assertComplex(infInf, Complex::sqrt, infInf);
+        assertComplex(nanInf, Complex::sqrt, infInf);
+        assertComplex(zeroNaN, Complex::sqrt, NAN);
+        assertComplex(oneNaN, Complex::sqrt, NAN);
+        assertComplex(negInfZero, Complex::sqrt, zeroInf);
+        assertComplex(negInfOne, Complex::sqrt, zeroInf);
+        assertComplex(infZero, Complex::sqrt, infZero);
+        assertComplex(infOne, Complex::sqrt, infZero);
+        assertComplex(negInfNaN, Complex::sqrt, nanInf);
+        assertComplex(infNaN, Complex::sqrt, infNaN);
+        assertComplex(nanZero, Complex::sqrt, NAN);
+        assertComplex(nanOne, Complex::sqrt, NAN);
+        assertComplex(NAN, Complex::sqrt, NAN);
     }
 }

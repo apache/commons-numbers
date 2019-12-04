@@ -882,34 +882,53 @@ public final class Complex implements Serializable  {
      * @return the inverse cosine of this complex number.
      */
     public Complex acos() {
-        if (real == 0 &&
-            Double.isNaN(imaginary)) {
-            return new Complex(PI_OVER_2, Double.NaN);
-        } else if (neitherInfiniteNorZeroNorNaN(real) &&
-                   imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(PI_OVER_2, Double.NEGATIVE_INFINITY);
-        } else if (real == Double.NEGATIVE_INFINITY &&
-                   imaginary == 1) {
-            return new Complex(Math.PI, Double.NEGATIVE_INFINITY);
-        } else if (real == Double.POSITIVE_INFINITY &&
-                   imaginary == 1) {
-            return new Complex(0, Double.NEGATIVE_INFINITY);
-        } else if (real == Double.NEGATIVE_INFINITY &&
-                   imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(PI_3_OVER_4, Double.NEGATIVE_INFINITY);
-        } else if (real == Double.POSITIVE_INFINITY &&
-                   imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(PI_OVER_4, Double.NEGATIVE_INFINITY);
-        } else if (Double.isInfinite(real) &&
-                   Double.isNaN(imaginary)) {
+        if (Double.isFinite(real)) {
+            if (Double.isFinite(imaginary)) {
+                // Special case for zero
+                if (real == 0 && imaginary == 0) {
+                    return new Complex(PI_OVER_2, Math.copySign(0, -imaginary));
+                }
+                // ISO C99: Preserve the equality
+                // acos(conj(z)) = conj(acos(z))
+                Complex z;
+                ComplexConstructor constructor;
+                if (negative(imaginary)) {
+                    z = conj();
+                    constructor = Complex::ofCartesianConjugate;
+                } else {
+                    z = this;
+                    constructor = Complex::ofCartesian;
+                }
+                return z.add(z.sqrt1z().multiplyByI()).log().multiplyByNegI(constructor);
+            }
+            if (Double.isInfinite(imaginary)) {
+                return new Complex(PI_OVER_2, Math.copySign(Double.POSITIVE_INFINITY, -imaginary));
+            }
+            // imaginary is NaN
+            // Special case for real == 0
+            return real == 0 ? new Complex(PI_OVER_2, Double.NaN) : NAN;
+        }
+        if (Double.isInfinite(real)) {
+            if (Double.isFinite(imaginary)) {
+                final double re = real == Double.NEGATIVE_INFINITY ? Math.PI : 0;
+                return new Complex(re, Math.copySign(Double.POSITIVE_INFINITY, -imaginary));
+            }
+            if (Double.isInfinite(imaginary)) {
+                final double re = real == Double.NEGATIVE_INFINITY ? PI_3_OVER_4 : PI_OVER_4;
+                return new Complex(re, Math.copySign(Double.POSITIVE_INFINITY, -imaginary));
+            }
+            // imaginary is NaN
             // Swap real and imaginary
             return new Complex(Double.NaN, real);
-        } else if (Double.isNaN(real) &&
-                   imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(Double.NaN, Double.NEGATIVE_INFINITY);
         }
-        return add(sqrt1z().multiplyByI()).log().multiplyByNegI();
+        // real is NaN
+        if (Double.isInfinite(imaginary)) {
+            return new Complex(Double.NaN, -imaginary);
+        }
+        // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
+        return NAN;
     }
+
     /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/InverseSine.html">
@@ -974,6 +993,16 @@ public final class Complex implements Serializable  {
     }
 
     /**
+     * Multiply the Complex by -I and create the result using the constructor.
+     *
+     * @param constructor Constructor
+     * @return the result (-iz)
+     */
+    private Complex multiplyByNegI(ComplexConstructor constructor) {
+        return constructor.create(imaginary, -real);
+    }
+
+    /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/InverseHyperbolicSine.html">
      * inverse hyperbolic sine</a> of this complex number.
@@ -985,26 +1014,43 @@ public final class Complex implements Serializable  {
      * @return the inverse hyperbolic sine of this complex number
      */
     public Complex asinh() {
-        if (neitherInfiniteNorZeroNorNaN(real) &&
-            imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(Double.POSITIVE_INFINITY, PI_OVER_2);
-        } else if (real == Double.POSITIVE_INFINITY &&
-                   Double.isFinite(imaginary)) {
-            return new Complex(Double.POSITIVE_INFINITY, 0);
-        } else if (real == Double.POSITIVE_INFINITY &&
-                   imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(Double.POSITIVE_INFINITY, PI_OVER_4);
-        } else if (real == Double.POSITIVE_INFINITY &&
-                   Double.isNaN(imaginary)) {
-            return new Complex(Double.POSITIVE_INFINITY,  Double.NaN);
-        } else if (Double.isNaN(real) &&
-                   imaginary == 0) {
-            return new Complex(Double.NaN, 0);
-        } else if (Double.isNaN(real) &&
-                   imaginary == Double.POSITIVE_INFINITY) {
+        if (Double.isFinite(real)) {
+            if (Double.isFinite(imaginary)) {
+                // Special case for zero
+                if (real == 0 && imaginary == 0) {
+                    return this;
+                }
+                // ISO C99: Preserve the equality
+                // asinh(conj(z)) = conj(asinh(z))
+                final Complex z = negative(imaginary) ? conjugate() : this;
+                final Complex result = z.square().add(ONE).sqrt().add(z).log();
+                return z == this ? result : result.conjugate();
+            }
+            if (Double.isInfinite(imaginary)) {
+                return new Complex(Double.POSITIVE_INFINITY, Math.copySign(PI_OVER_2, imaginary));
+            }
+            // imaginary is NaN
+            return NAN;
+        }
+        if (Double.isInfinite(real)) {
+            if (Double.isFinite(imaginary)) {
+                return new Complex(real, Math.copySign(0, imaginary));
+            }
+            if (Double.isInfinite(imaginary)) {
+                return new Complex(real, Math.copySign(PI_OVER_4, imaginary));
+            }
+            // imaginary is NaN
+            return new Complex(real, Double.NaN);
+        }
+        // real is NaN
+        if (imaginary == 0) {
+            return new Complex(Double.NaN, Math.copySign(0, imaginary));
+        }
+        if (Double.isInfinite(imaginary)) {
             return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
         }
-        return square().add(ONE).sqrt().add(this).log();
+        // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
+        return NAN;
     }
 
     /**
@@ -1019,29 +1065,44 @@ public final class Complex implements Serializable  {
      * @return the inverse hyperbolic tangent of this complex number
      */
     public Complex atanh() {
-        if (real == 0 &&
-            Double.isNaN(imaginary)) {
-            return new Complex(0, Double.NaN);
-        } else if (neitherInfiniteNorZeroNorNaN(real) &&
-                   imaginary == 0) {
-            return new Complex(Double.POSITIVE_INFINITY, 0);
-        } else if (neitherInfiniteNorZeroNorNaN(real) &&
-                   imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(0, PI_OVER_2);
-        } else if (real == Double.POSITIVE_INFINITY &&
-                   neitherInfiniteNorZeroNorNaN(imaginary)) {
-            return new Complex(0, PI_OVER_2);
-        } else if (real == Double.POSITIVE_INFINITY &&
-                   imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(0, PI_OVER_2);
-        } else if (real == Double.POSITIVE_INFINITY &&
-                   Double.isNaN(imaginary)) {
-            return new Complex(0, Double.NaN);
-        } else if (Double.isNaN(real) &&
-                   imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(0, PI_OVER_2);
+        if (Double.isFinite(real)) {
+            if (Double.isFinite(imaginary)) {
+                // Special case for zero
+                if (imaginary == 0) {
+                    if (real == 0) {
+                        return this;
+                    }
+                    if (Math.abs(real) == 1) {
+                        // raises the ‘‘divide-by-zero’’ floating-point exception.
+                        return new Complex(Math.copySign(Double.POSITIVE_INFINITY, real), imaginary);
+                    }
+                }
+                // ISO C99: Preserve the equality
+                // atanh(conj(z)) = conj(atanh(z))
+                final Complex z = negative(imaginary) ? conjugate() : this;
+                final Complex result = z.add(ONE).divide(ONE.subtract(z)).log().multiply(0.5);
+                return z == this ? result : result.conjugate();
+            }
+            if (Double.isInfinite(imaginary)) {
+                return new Complex(Math.copySign(0, real), Math.copySign(PI_OVER_2, imaginary));
+            }
+            // imaginary is NaN
+            // Special case for real == 0
+            return real == 0 ? new Complex(real, Double.NaN) : NAN;
         }
-        return add(ONE).divide(ONE.subtract(this)).log().multiply(0.5);
+        if (Double.isInfinite(real)) {
+            if (Double.isNaN(imaginary)) {
+                return new Complex(Math.copySign(0, real), Double.NaN);
+            }
+            // imaginary is finite or infinite
+            return new Complex(Math.copySign(0, real), Math.copySign(PI_OVER_2, imaginary));
+        }
+        // real is NaN
+        if (Double.isInfinite(imaginary)) {
+            return new Complex(0, Math.copySign(PI_OVER_2, imaginary));
+        }
+        // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
+        return NAN;
     }
 
     /**
@@ -1057,47 +1118,41 @@ public final class Complex implements Serializable  {
      */
     public Complex acosh() {
         if (Double.isFinite(real)) {
-            if (real == 0 &&
-                imaginary == 0) {
-                return new Complex(0, PI_OVER_2);
+            if (Double.isFinite(imaginary)) {
+                // Special case for zero
+                if (real == 0 && imaginary == 0) {
+                    return new Complex(real, Math.copySign(PI_OVER_2, imaginary));
+                }
+                // ISO C99: Preserve the equality
+                // acosh(conj(z)) = conj(acosh(z))
+                final Complex z = negative(imaginary) ? conjugate() : this;
+                final Complex result = z.square().subtract(ONE).sqrt().add(z).log();
+                return z == this ? result : result.conjugate();
             }
-            if (imaginary == Double.POSITIVE_INFINITY) {
-                return new Complex(Double.POSITIVE_INFINITY, PI_OVER_2);
+            if (Double.isInfinite(imaginary)) {
+                return new Complex(Double.POSITIVE_INFINITY, Math.copySign(PI_OVER_2, imaginary));
             }
-            if (Double.isNaN(imaginary)) {
-                return NAN;
-            }
-        } else if (Double.isInfinite(real)) {
-            if (real == Double.NEGATIVE_INFINITY &&
-                positiveSignedFinite(imaginary)) {
-                return new Complex(Double.POSITIVE_INFINITY, Math.PI);
-            }
-            if (real == Double.POSITIVE_INFINITY &&
-                positiveSignedFinite(imaginary)) {
-                return new Complex(Double.POSITIVE_INFINITY, 0);
-            }
-            if (real == Double.NEGATIVE_INFINITY &&
-                imaginary == Double.POSITIVE_INFINITY) {
-                return new Complex(Double.POSITIVE_INFINITY, PI_3_OVER_4);
-            }
-            if (real == Double.POSITIVE_INFINITY &&
-                imaginary == Double.POSITIVE_INFINITY) {
-                return new Complex(Double.POSITIVE_INFINITY, PI_OVER_4);
-            }
-            if (Double.isNaN(imaginary)) {
-                return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
-            }
-        } else if (Double.isNaN(real)) {
-            if (imaginary == Double.POSITIVE_INFINITY) {
-                return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
-            }
-            if (Double.isFinite(imaginary) || Double.isNaN(imaginary)) {
-                // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
-                // No condition for imaginary as negative infinity
-                return NAN;
-            }
+            // imaginary is NaN
+            return NAN;
         }
-        return square().subtract(ONE).sqrt().add(this).log();
+        if (Double.isInfinite(real)) {
+            if (Double.isFinite(imaginary)) {
+                final double im = real == Double.NEGATIVE_INFINITY ? Math.PI : 0;
+                return new Complex(Double.POSITIVE_INFINITY, Math.copySign(im, imaginary));
+            }
+            if (Double.isInfinite(imaginary)) {
+                final double im = real == Double.NEGATIVE_INFINITY ? PI_3_OVER_4 : PI_OVER_4;
+                return new Complex(Double.POSITIVE_INFINITY, Math.copySign(im, imaginary));
+            }
+            // imaginary is NaN
+            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
+        }
+        // real is NaN
+        if (Double.isInfinite(imaginary)) {
+            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
+        }
+        // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
+        return NAN;
     }
 
     /**
@@ -1165,25 +1220,36 @@ public final class Complex implements Serializable  {
      * @return the hyperbolic cosine of this complex number
      */
     private static Complex cosh(double real, double imaginary, ComplexConstructor constructor) {
-        if (real == 0 &&
-            imaginary == Double.POSITIVE_INFINITY) {
-            return constructor.create(Double.NaN, 0);
-        } else if (real == 0 &&
-                   Double.isNaN(imaginary)) {
-            return constructor.create(Double.NaN, 0);
-        } else if (real == Double.POSITIVE_INFINITY &&
-                   imaginary == 0) {
-            return constructor.create(Double.POSITIVE_INFINITY, 0);
-        } else if (real == Double.POSITIVE_INFINITY &&
-                   (imaginary == Double.POSITIVE_INFINITY || Double.isNaN(imaginary))) {
-            return constructor.create(Double.POSITIVE_INFINITY, Double.NaN);
-        } else if (Double.isNaN(real) &&
-                   imaginary == 0) {
-            return constructor.create(Double.NaN, 0);
+        if (Double.isFinite(real)) {
+            if (Double.isFinite(imaginary)) {
+                return constructor.create(Math.cosh(real) * Math.cos(imaginary),
+                                          Math.sinh(real) * Math.sin(imaginary));
+            }
+            // Special case for real == 0
+            final double im = real == 0 ? Math.copySign(0, imaginary) : Double.NaN;
+            return constructor.create(Double.NaN, im);
         }
-
-        return constructor.create(Math.cosh(real) * Math.cos(imaginary),
-                                  Math.sinh(real) * Math.sin(imaginary));
+        if (Double.isInfinite(real)) {
+            if (Double.isFinite(imaginary)) {
+                if (imaginary == 0) {
+                    // Determine sign
+                    final double im = real > 0 ? imaginary : -imaginary;
+                    return constructor.create(Double.POSITIVE_INFINITY, im);
+                }
+                // inf * cis(y)
+                final double re = real * Math.cos(imaginary);
+                final double im = real * Math.sin(imaginary);
+                return constructor.create(re, im);
+            }
+            // imaginary is infinite or NaN
+            return constructor.create(Double.POSITIVE_INFINITY, Double.NaN);
+        }
+        // real is NaN
+        if (imaginary == 0) {
+            return constructor.create(Double.NaN, Math.copySign(0, imaginary));
+        }
+        // optionally raises the ‘‘invalid’’ floating-point exception, for nonzero y.
+        return NAN;
     }
 
     /**
@@ -1201,25 +1267,48 @@ public final class Complex implements Serializable  {
      * @return <code><i>e</i><sup>this</sup></code>.
      */
     public Complex exp() {
-        if (real == Double.POSITIVE_INFINITY &&
-            imaginary == 0) {
-            return new Complex(Double.POSITIVE_INFINITY, 0);
-        } else if (real == Double.NEGATIVE_INFINITY &&
-                   imaginary == Double.POSITIVE_INFINITY) {
-            return Complex.ZERO;
-        } else if (real == Double.POSITIVE_INFINITY &&
-                   (imaginary == Double.POSITIVE_INFINITY || Double.isNaN(imaginary))) {
-            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
-        } else if (real == Double.NEGATIVE_INFINITY &&
-                   Double.isNaN(imaginary)) {
-            return Complex.ZERO;
-        } else if (Double.isNaN(real) &&
-                   imaginary == 0) {
-            return new Complex(Double.NaN, 0);
+        if (Double.isFinite(real)) {
+            if (Double.isFinite(imaginary)) {
+                final double expReal = Math.exp(real);
+                if (imaginary == 0) {
+                    // Preserve sign for conjugate equality
+                    return new Complex(expReal, imaginary);
+                }
+                return new Complex(expReal * Math.cos(imaginary),
+                                   expReal * Math.sin(imaginary));
+            }
+            // Imaginary is infinite or nan
+            return NAN;
         }
-        final double expReal = Math.exp(real);
-        return new Complex(expReal *  Math.cos(imaginary),
-                           expReal * Math.sin(imaginary));
+        if (Double.isInfinite(real)) {
+            if (Double.isFinite(imaginary)) {
+                if (real == Double.POSITIVE_INFINITY) {
+                    if (imaginary == 0) {
+                        return this;
+                    }
+                    // inf * cis(y)
+                    final double re = Double.POSITIVE_INFINITY * Math.cos(imaginary);
+                    final double im = Double.POSITIVE_INFINITY * Math.sin(imaginary);
+                    return new Complex(re, im);
+                }
+                // +0 * cis(y)
+                final double re = 0.0 * Math.cos(imaginary);
+                final double im = 0.0 * Math.sin(imaginary);
+                return new Complex(re, im);
+            }
+            // imaginary is infinite or NaN
+            if (real == Double.POSITIVE_INFINITY) {
+                return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
+            }
+            // Preserve sign for conjugate equality
+            return new Complex(0, Math.copySign(0, imaginary));
+        }
+        // real is NaN
+        if (imaginary == 0) {
+            return new Complex(Double.NaN, Math.copySign(0, imaginary));
+        }
+        // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
+        return NAN;
     }
 
     /**
@@ -1231,22 +1320,13 @@ public final class Complex implements Serializable  {
      *   log(a + bi) = ln(|a + bi|) + arg(a + bi)i
      * </pre>
      * where ln on the right hand side is {@link Math#log},
-     * {@code |a + bi|} is the modulus, {@link Complex#abs},  and
+     * {@code |a + bi|} is the modulus, {@link Complex#abs}, and
      * {@code arg(a + bi) = }{@link Math#atan2}(b, a).
      *
-     * @return the value <code>ln &nbsp; this</code>, the natural logarithm
-     * of {@code this}.
+     * @return the natural logarithm of {@code this}.
      */
     public Complex log() {
-        if (real == Double.POSITIVE_INFINITY &&
-            imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(Double.POSITIVE_INFINITY, PI_OVER_4);
-        } else if ((real == Double.POSITIVE_INFINITY &&
-                    Double.isNaN(imaginary)) ||
-                   (Double.isNaN(real) &&
-                    imaginary == Double.POSITIVE_INFINITY)) {
-            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
-        }
+        // All edge cases satisfied by the Math library
         return new Complex(Math.log(abs()),
                            Math.atan2(imaginary, real));
     }
@@ -1255,21 +1335,19 @@ public final class Complex implements Serializable  {
      * Compute the base 10 or
      * <a href="http://mathworld.wolfram.com/CommonLogarithm.html">
      * common logarithm</a> of this complex number.
+     * Implements the formula:
+     * <pre>
+     *   log10(a + bi) = log(|a + bi|) + arg(a + bi)i
+     * </pre>
+     * where log on the right hand side is {@link Math#log10},
+     * {@code |a + bi|} is the modulus, {@link Complex#abs}, and
+     * {@code arg(a + bi) = }{@link Math#atan2}(b, a).
      *
-     * @return the base 10 logarithm of <code>this</code>.
+     * @return the base 10 logarithm of {@code this}.
      */
     public Complex log10() {
-        // Same edge cases as log()
-        if (real == Double.POSITIVE_INFINITY &&
-            imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(Double.POSITIVE_INFINITY, PI_OVER_4);
-        } else if ((real == Double.POSITIVE_INFINITY &&
-                    Double.isNaN(imaginary)) ||
-                   (Double.isNaN(real) &&
-                    imaginary == Double.POSITIVE_INFINITY)) {
-            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
-        }
-        return new Complex(Math.log(abs()) / Math.log(10),
+        // All edge cases satisfied by the Math library
+        return new Complex(Math.log10(abs()),
                            Math.atan2(imaginary, real));
     }
 
@@ -1380,33 +1458,34 @@ public final class Complex implements Serializable  {
      * @return the hyperbolic sine of this complex number
      */
     private static Complex sinh(double real, double imaginary, ComplexConstructor constructor) {
-        if (real == 0 &&
-            imaginary == 0) {
-            // Ignore the constructor.
-            // It is used in trignomic identities to multiply the result by -i.
-            // Here the result would still be zero.
-            return Complex.ZERO;
-        } else if (real == 0 &&
-                   imaginary == Double.POSITIVE_INFINITY) {
-            return constructor.create(0, Double.NaN);
-        } else if (real == 0 &&
-                   Double.isNaN(imaginary)) {
-            return constructor.create(0, Double.NaN);
-        } else if (real == Double.POSITIVE_INFINITY &&
-                   imaginary == 0) {
-            return constructor.create(Double.POSITIVE_INFINITY, 0);
-        } else if (real == Double.POSITIVE_INFINITY &&
-                   imaginary == Double.POSITIVE_INFINITY) {
-            return constructor.create(Double.POSITIVE_INFINITY, Double.NaN);
-        } else if (real == Double.POSITIVE_INFINITY &&
-                   Double.isNaN(imaginary)) {
-            return constructor.create(Double.POSITIVE_INFINITY, Double.NaN);
-        } else if (Double.isNaN(real) &&
-                   imaginary == 0) {
-            return constructor.create(Double.NaN, 0);
+        if (Double.isFinite(real)) {
+            if (Double.isFinite(imaginary)) {
+                return constructor.create(Math.sinh(real) * Math.cos(imaginary),
+                                          Math.cosh(real) * Math.sin(imaginary));
+            }
+            // Special case for real == 0
+            final double re = real == 0 ? real : Double.NaN;
+            return constructor.create(re, Double.NaN);
         }
-        return constructor.create(Math.sinh(real) * Math.cos(imaginary),
-                                  Math.cosh(real) * Math.sin(imaginary));
+        if (Double.isInfinite(real)) {
+            if (Double.isFinite(imaginary)) {
+                if (imaginary == 0) {
+                    return constructor.create(real, imaginary);
+                }
+                // inf * cis(y)
+                final double re = real * Math.cos(imaginary);
+                final double im = real * Math.sin(imaginary);
+                return constructor.create(re, im);
+            }
+            // imaginary is infinite or NaN
+            return constructor.create(Double.POSITIVE_INFINITY, Double.NaN);
+        }
+        // real is NaN
+        if (imaginary == 0) {
+            return constructor.create(Double.NaN, Math.copySign(0, imaginary));
+        }
+        // optionally raises the ‘‘invalid’’ floating-point exception, for nonzero y.
+        return NAN;
     }
 
     /**
@@ -1427,29 +1506,37 @@ public final class Complex implements Serializable  {
      * @return the square root of {@code this}.
      */
     public Complex sqrt() {
-        if (real == 0 &&
-            imaginary == 0) {
-            return ZERO;
-        } else if (neitherInfiniteNorZeroNorNaN(real) &&
-                   imaginary == Double.POSITIVE_INFINITY) {
-            return new Complex(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
-        } else if (real == Double.NEGATIVE_INFINITY &&
-                   neitherInfiniteNorZeroNorNaN(imaginary)) {
-            return new Complex(0, Double.NaN);
-        } else if (real == Double.NEGATIVE_INFINITY &&
-                   Double.isNaN(imaginary)) {
-            return new Complex(Double.NaN, Double.POSITIVE_INFINITY);
-        } else if (real == Double.POSITIVE_INFINITY &&
-                   Double.isNaN(imaginary)) {
-            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
+        // Special case for infinite imaginary for all real including nan
+        if (Double.isInfinite(imaginary)) {
+            return new Complex(Double.POSITIVE_INFINITY, imaginary);
         }
-
-        final double t = Math.sqrt((Math.abs(real) + abs()) / 2);
-        if (real >= 0) {
-            return new Complex(t, imaginary / (2 * t));
+        if (Double.isFinite(real)) {
+            if (Double.isFinite(imaginary)) {
+                // Handle zero
+                if (real == 0 && imaginary == 0) {
+                    return new Complex(0, imaginary);
+                }
+                final double t = Math.sqrt((Math.abs(real) + abs()) / 2);
+                if (real >= 0) {
+                    return new Complex(t, imaginary / (2 * t));
+                }
+                return new Complex(Math.abs(imaginary) / (2 * t),
+                                   Math.copySign(1d, imaginary) * t);
+            }
+            // Imaginary is nan
+            return NAN;
         }
-        return new Complex(Math.abs(imaginary) / (2 * t),
-                           Math.copySign(1d, imaginary) * t);
+        if (Double.isInfinite(real)) {
+            // imaginary is finite or NaN
+            final double part = Double.isNaN(imaginary) ? Double.NaN : 0;
+            if (real == Double.NEGATIVE_INFINITY) {
+                return new Complex(part, Math.copySign(Double.POSITIVE_INFINITY, imaginary));
+            }
+            return new Complex(Double.POSITIVE_INFINITY, Math.copySign(part, imaginary));
+        }
+        // real is NaN
+        // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
+        return NAN;
     }
 
     /**
@@ -1530,19 +1617,30 @@ public final class Complex implements Serializable  {
         // Math.cosh returns positive infinity for infinity.
         // Math.sinh returns the input infinity for infinity.
 
-        if (real == Double.POSITIVE_INFINITY &&
-            (imaginary == Double.POSITIVE_INFINITY || Double.isNaN(imaginary))) {
-            return constructor.create(1, 0);
-        } else if (Double.isNaN(real) &&
-                   imaginary == 0) {
-            return constructor.create(Double.NaN, 0);
-        }
-        final double real2 = 2 * real;
-        final double imaginary2 = 2 * imaginary;
-        final double d = Math.cosh(real2) + Math.cos(imaginary2);
+        if (Double.isFinite(real)) {
+            if (Double.isFinite(imaginary)) {
+                final double real2 = 2 * real;
+                final double imaginary2 = 2 * imaginary;
+                final double d = Math.cosh(real2) + Math.cos(imaginary2);
 
-        return constructor.create(Math.sinh(real2) / d,
-                                  Math.sin(imaginary2) / d);
+                return constructor.create(Math.sinh(real2) / d,
+                                          Math.sin(imaginary2) / d);
+            }
+            return NAN;
+        }
+        if (Double.isInfinite(real)) {
+            if (Double.isFinite(imaginary)) {
+                return constructor.create(Math.copySign(1, real), Math.copySign(0, Math.sin(2 * imaginary)));
+            }
+            // imaginary is infinite or NaN
+            return constructor.create(Math.copySign(1, real), Math.copySign(0, imaginary));
+        }
+        // real is NaN
+        if (imaginary == 0) {
+            return constructor.create(Double.NaN, Math.copySign(0, imaginary));
+        }
+        // optionally raises the ‘‘invalid’’ floating-point exception, for nonzero y.
+        return NAN;
     }
 
    /**
@@ -1647,37 +1745,19 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Check that a value meets all the following conditions.
+     * Check that a value is negative. It must meet all the following conditions:
      * <ul>
      *  <li>it is not {@code NaN},</li>
-     *  <li>it is not infinite,</li>
-     *  <li>it is not zero,</li>
+     *  <li>it is negative signed,</li>
      * </ul>
      *
-     * @param d Value.
-     * @return {@code true} if {@code d} meets all the conditions and
-     * {@code false} otherwise.
-     */
-    private static boolean neitherInfiniteNorZeroNorNaN(double d) {
-        return Double.isFinite(d) && d != 0;
-    }
-
-    /**
-     * Check that a value meets all the following conditions.
-     * <ul>
-     *  <li>it is not {@code NaN},</li>
-     *  <li>it is not infinite,</li>
-     *  <li>it is positive signed,</li>
-     * </ul>
-     *
-     * <p>Note: This is false for negative zero.</p>
+     * <p>Note: This is true for negative zero.</p>
      *
      * @param d Value.
-     * @return {@code true} if {@code d} meets all the conditions and
-     * {@code false} otherwise.
+     * @return {@code true} if {@code d} is negative.
      */
-    private static boolean positiveSignedFinite(double d) {
-        return (Double.isFinite(d) && d > 0) || Double.doubleToLongBits(d) == 0;
+    private static boolean negative(double d) {
+        return d < 0 || equals(d, -0.0);
     }
 
     /**
@@ -1695,6 +1775,23 @@ public final class Complex implements Serializable  {
      */
     private static Complex multiplyNegativeI(double real, double imaginary) {
         return new Complex(imaginary, -real);
+    }
+
+    /**
+     * Create the conjugate of a complex number given the real and imaginary parts.
+     * This is used in functions that implement conjugate identities. It is the functional
+     * equivalent of:
+     *
+     * <pre>
+     *   z = new Complex(real, imaginary).conjugate();
+     * </pre>
+     *
+     * @param real Real part.
+     * @param imaginary Imaginary part.
+     * @return {@code Complex} object
+     */
+    private static Complex ofCartesianConjugate(double real, double imaginary) {
+        return new Complex(real, -imaginary);
     }
 
      /** See {@link #parse(String)}. */
