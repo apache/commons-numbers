@@ -152,7 +152,7 @@ public class CStandardTest {
             for (final double y : parts) {
                 // No conjugate for imaginary NaN
                 if (!Double.isNaN(y)) {
-                    assertConjugateEquality(x, y, operation);
+                    assertConjugateEquality(complex(x, y), operation);
                 }
             }
         }
@@ -161,7 +161,7 @@ public class CStandardTest {
         for (int i = 0; i < 100; i++) {
             final double x = next(rng);
             final double y = next(rng);
-            assertConjugateEquality(x, y, operation);
+            assertConjugateEquality(complex(x, y), operation);
         }
     }
 
@@ -174,16 +174,11 @@ public class CStandardTest {
      *
      * <p>The results must be binary equal. This includes the sign of zero.
      *
-     * @param re the real component
-     * @param im the imaginary component
-     * @param maxUlps {@code (maxUlps - 1)} is the number of floating point
-     * values between the real (resp. imaginary) parts of {@code x} and
-     * {@code y}.
+     * @param z the complex number
      * @param operation the operation
      */
-    private static void assertConjugateEquality(double re, double im,
+    private static void assertConjugateEquality(Complex z,
             UnaryOperator<Complex> operation) {
-        final Complex z = complex(re, im);
         final Complex c1 = operation.apply(z.conjugate());
         final Complex c2 = operation.apply(z).conjugate();
 
@@ -222,7 +217,7 @@ public class CStandardTest {
         final double[] parts = {-2, -1, -0.0, 0.0, 1, 2};
         for (final double x : parts) {
             for (final double y : parts) {
-                assertFunctionType(x, y, operation, type);
+                assertFunctionType(complex(x, y), operation, type);
             }
         }
         // Random numbers
@@ -230,7 +225,7 @@ public class CStandardTest {
         for (int i = 0; i < 100; i++) {
             final double x = next(rng);
             final double y = next(rng);
-            assertFunctionType(x, y, operation, type);
+            assertFunctionType(complex(x, y), operation, type);
         }
     }
 
@@ -244,20 +239,12 @@ public class CStandardTest {
      *
      * <p>The results must be binary equal. This includes the sign of zero.
      *
+     * @param z the complex number
      * @param operation the operation
-     *
-     * @param re the real component
-     * @param im the imaginary component
-     * @param operation the operation
-     * @param type the type
+     * @param type the type (assumed to be ODD/EVEN)
      */
-    private static void assertFunctionType(double re, double im,
+    private static void assertFunctionType(Complex z,
             UnaryOperator<Complex> operation, FunctionType type) {
-        if (type == FunctionType.NONE) {
-            return;
-        }
-
-        final Complex z = complex(re, im);
         final Complex c1 = operation.apply(z);
         Complex c2 = operation.apply(z.negate());
         if (type == FunctionType.ODD) {
@@ -288,6 +275,33 @@ public class CStandardTest {
      */
     private static void assertComplex(Complex z,
             UnaryOperator<Complex> operation, Complex expected) {
+        assertComplex(z, operation, expected, FunctionType.NONE);
+    }
+
+    /**
+     * Assert the operation on the complex number is equal to the expected value. If the
+     * imaginary part is not NaN the operation must also satisfy the conjugate equality.
+     *
+     * <pre>
+     * op(conj(z)) = conj(op(z))
+     * </pre>
+     *
+     * <p>If the function type is ODD/EVEN the operation must satisfy the function type equality.
+     *
+     * <pre>
+     * Odd : f(z) = -f(-z)
+     * Even: f(z) =  f(-z)
+     * </pre>
+     *
+     * <p>The results must be binary equal. This includes the sign of zero.
+     *
+     * @param z the complex
+     * @param operation the operation
+     * @param expected the expected
+     * @param type the type
+     */
+    private static void assertComplex(Complex z,
+            UnaryOperator<Complex> operation, Complex expected, FunctionType type) {
         // Test the operation
         final Complex c1 = operation.apply(z);
         if (!equals(c1.getReal(), expected.getReal()) ||
@@ -297,7 +311,11 @@ public class CStandardTest {
         }
 
         if (!Double.isNaN(z.getImaginary())) {
-            assertConjugateEquality(z.getReal(), z.getImaginary(), operation);
+            assertConjugateEquality(z, operation);
+        }
+
+        if (type != FunctionType.NONE) {
+            assertFunctionType(z, operation, type);
         }
     }
 
@@ -598,7 +616,7 @@ public class CStandardTest {
         assertComplex(negInfInf, Complex::acos, threePiFourNegInf);
         assertComplex(infInf, Complex::acos, piFourNegInf);
         assertComplex(infNaN, Complex::acos, nanInf);
-        assertComplex(negInfNaN, Complex::acos, nanNegInf);
+        assertComplex(negInfNaN, Complex::acos, nanNegInf); // Unspecified imaginary sign
         assertComplex(nanOne, Complex::acos, NAN);
         assertComplex(nanInf, Complex::acos, nanNegInf);
         assertComplex(NAN, Complex::acos, NAN);
@@ -635,23 +653,23 @@ public class CStandardTest {
     public void testAsinh() {
         assertConjugateEquality(Complex::asinh);
         assertFunctionType(Complex::asinh, FunctionType.ODD);
-        assertComplex(Complex.ZERO, Complex::asinh, Complex.ZERO);
-        assertComplex(negZeroZero, Complex::asinh, negZeroZero);
-        assertComplex(zeroNaN, Complex::asinh, NAN);
-        assertComplex(oneNaN, Complex::asinh, NAN);
-        assertComplex(oneInf, Complex::asinh, infPiTwo);
-        assertComplex(negInfZero, Complex::asinh, negInfZero);
-        assertComplex(negInfOne, Complex::asinh, negInfZero);
-        assertComplex(infZero, Complex::asinh, infZero);
-        assertComplex(infOne, Complex::asinh, infZero);
-        assertComplex(negInfInf, Complex::asinh, negInfPiFour);
-        assertComplex(infInf, Complex::asinh, infPiFour);
-        assertComplex(infNaN, Complex::asinh, infNaN);
-        assertComplex(negInfNaN, Complex::asinh, negInfNaN);
-        assertComplex(nanZero, Complex::asinh, nanZero);
-        assertComplex(nanOne, Complex::asinh, NAN);
-        assertComplex(nanInf, Complex::asinh, infNaN);
-        assertComplex(NAN, Complex::asinh, NAN);
+        assertComplex(Complex.ZERO, Complex::asinh, Complex.ZERO, FunctionType.ODD);
+        assertComplex(negZeroZero, Complex::asinh, negZeroZero, FunctionType.ODD);
+        assertComplex(zeroNaN, Complex::asinh, NAN, FunctionType.ODD);
+        assertComplex(oneNaN, Complex::asinh, NAN, FunctionType.ODD);
+        assertComplex(oneInf, Complex::asinh, infPiTwo, FunctionType.ODD);
+        assertComplex(negInfZero, Complex::asinh, negInfZero, FunctionType.ODD);
+        assertComplex(negInfOne, Complex::asinh, negInfZero, FunctionType.ODD);
+        assertComplex(infZero, Complex::asinh, infZero, FunctionType.ODD);
+        assertComplex(infOne, Complex::asinh, infZero, FunctionType.ODD);
+        assertComplex(negInfInf, Complex::asinh, negInfPiFour, FunctionType.ODD);
+        assertComplex(infInf, Complex::asinh, infPiFour, FunctionType.ODD);
+        assertComplex(infNaN, Complex::asinh, infNaN, FunctionType.ODD);
+        assertComplex(negInfNaN, Complex::asinh, negInfNaN, FunctionType.ODD);
+        assertComplex(nanZero, Complex::asinh, nanZero, FunctionType.ODD);
+        assertComplex(nanOne, Complex::asinh, NAN, FunctionType.ODD);
+        assertComplex(nanInf, Complex::asinh, infNaN); // Unspecified real sign
+        assertComplex(NAN, Complex::asinh, NAN, FunctionType.ODD);
     }
 
     /**
@@ -661,24 +679,24 @@ public class CStandardTest {
     public void testAtanh() {
         assertConjugateEquality(Complex::atanh);
         assertFunctionType(Complex::atanh, FunctionType.ODD);
-        assertComplex(Complex.ZERO, Complex::atanh, Complex.ZERO);
-        assertComplex(negZeroZero, Complex::atanh, negZeroZero);
-        assertComplex(zeroNaN, Complex::atanh, zeroNaN);
-        assertComplex(oneNaN, Complex::atanh, NAN);
-        assertComplex(oneZero, Complex::atanh, infZero);
-        assertComplex(oneInf, Complex::atanh, zeroPiTwo);
-        assertComplex(negInfZero, Complex::atanh, negZeroPiTwo);
-        assertComplex(negInfOne, Complex::atanh, negZeroPiTwo);
-        assertComplex(infZero, Complex::atanh, zeroPiTwo);
-        assertComplex(infOne, Complex::atanh, zeroPiTwo);
-        assertComplex(negInfInf, Complex::atanh, negZeroPiTwo);
-        assertComplex(infInf, Complex::atanh, zeroPiTwo);
-        assertComplex(infNaN, Complex::atanh, zeroNaN);
-        assertComplex(negInfNaN, Complex::atanh, negZeroNaN);
-        assertComplex(nanZero, Complex::atanh, NAN);
-        assertComplex(nanOne, Complex::atanh, NAN);
-        assertComplex(nanInf, Complex::atanh, zeroPiTwo);
-        assertComplex(NAN, Complex::atanh, NAN);
+        assertComplex(Complex.ZERO, Complex::atanh, Complex.ZERO, FunctionType.ODD);
+        assertComplex(negZeroZero, Complex::atanh, negZeroZero, FunctionType.ODD);
+        assertComplex(zeroNaN, Complex::atanh, zeroNaN, FunctionType.ODD);
+        assertComplex(oneNaN, Complex::atanh, NAN, FunctionType.ODD);
+        assertComplex(oneZero, Complex::atanh, infZero, FunctionType.ODD);
+        assertComplex(oneInf, Complex::atanh, zeroPiTwo, FunctionType.ODD);
+        assertComplex(negInfZero, Complex::atanh, negZeroPiTwo, FunctionType.ODD);
+        assertComplex(negInfOne, Complex::atanh, negZeroPiTwo, FunctionType.ODD);
+        assertComplex(infZero, Complex::atanh, zeroPiTwo, FunctionType.ODD);
+        assertComplex(infOne, Complex::atanh, zeroPiTwo, FunctionType.ODD);
+        assertComplex(negInfInf, Complex::atanh, negZeroPiTwo, FunctionType.ODD);
+        assertComplex(infInf, Complex::atanh, zeroPiTwo, FunctionType.ODD);
+        assertComplex(infNaN, Complex::atanh, zeroNaN, FunctionType.ODD);
+        assertComplex(negInfNaN, Complex::atanh, negZeroNaN, FunctionType.ODD);
+        assertComplex(nanZero, Complex::atanh, NAN, FunctionType.ODD);
+        assertComplex(nanOne, Complex::atanh, NAN, FunctionType.ODD);
+        assertComplex(nanInf, Complex::atanh, zeroPiTwo); // Unspecified real sign
+        assertComplex(NAN, Complex::atanh, NAN, FunctionType.ODD);
     }
 
     /**
@@ -689,35 +707,35 @@ public class CStandardTest {
         assertConjugateEquality(Complex::cosh);
         assertFunctionType(Complex::cosh, FunctionType.EVEN);
         assertComplex(Complex.ZERO, Complex::cosh, Complex.ONE);
-        assertComplex(negZeroZero, Complex::cosh, oneNegZero);
-        assertComplex(zeroInf, Complex::cosh, nanZero);
-        assertComplex(oneInf, Complex::cosh, NAN);
-        assertComplex(zeroNaN, Complex::cosh, nanZero);
-        assertComplex(oneNaN, Complex::cosh, NAN);
+        assertComplex(negZeroZero, Complex::cosh, oneNegZero, FunctionType.EVEN);
+        assertComplex(zeroInf, Complex::cosh, nanZero); // Unspecified imaginary sign
+        assertComplex(oneInf, Complex::cosh, NAN, FunctionType.EVEN);
+        assertComplex(zeroNaN, Complex::cosh, nanZero); // Unspecified imaginary sign
+        assertComplex(oneNaN, Complex::cosh, NAN, FunctionType.EVEN);
         // (inf + iy) = inf * cis(y)
         // where cis(y) = cos(y) + i sin(y), and y is finite non-zero
         //
         // Note that y == 0: complex(1, 0).multiply(inf) = (inf, NaN)
         // But the cosh is (inf, 0). This result is computed by g++ and we test it separately.
-        assertComplex(negInfNegZero, Complex::cosh, infZero);
-        assertComplex(negInfZero, Complex::cosh, infNegZero);
-        assertComplex(infNegZero, Complex::cosh, infNegZero);
-        assertComplex(infZero, Complex::cosh, infZero);
+        assertComplex(negInfNegZero, Complex::cosh, infZero, FunctionType.EVEN);
+        assertComplex(negInfZero, Complex::cosh, infNegZero, FunctionType.EVEN);
+        assertComplex(infNegZero, Complex::cosh, infNegZero, FunctionType.EVEN);
+        assertComplex(infZero, Complex::cosh, infZero, FunctionType.EVEN);
         for (int i = 1; i < 10; i++) {
             final double y = i * 0.5;
-            assertComplex(complex(inf, y), Complex::cosh, Complex.ofCis(y).multiply(inf));
-            assertComplex(complex(-inf, -y), Complex::cosh, Complex.ofCis(y).multiply(inf));
-            assertComplex(complex(inf, -y), Complex::cosh, Complex.ofCis(-y).multiply(inf));
-            assertComplex(complex(-inf, y), Complex::cosh, Complex.ofCis(-y).multiply(inf));
+            assertComplex(complex(inf, y), Complex::cosh, Complex.ofCis(y).multiply(inf), FunctionType.EVEN);
+            assertComplex(complex(-inf, -y), Complex::cosh, Complex.ofCis(y).multiply(inf), FunctionType.EVEN);
+            assertComplex(complex(inf, -y), Complex::cosh, Complex.ofCis(-y).multiply(inf), FunctionType.EVEN);
+            assertComplex(complex(-inf, y), Complex::cosh, Complex.ofCis(-y).multiply(inf), FunctionType.EVEN);
         }
-        assertComplex(negInfInf, Complex::cosh, infNaN);
-        assertComplex(infInf, Complex::cosh, infNaN);
-        assertComplex(infNaN, Complex::cosh, infNaN);
-        assertComplex(negInfNaN, Complex::cosh, infNaN);
-        assertComplex(nanZero, Complex::cosh, nanZero);
-        assertComplex(nanOne, Complex::cosh, NAN);
-        assertComplex(nanInf, Complex::cosh, NAN);
-        assertComplex(NAN, Complex::cosh, NAN);
+        assertComplex(negInfInf, Complex::cosh, infNaN); // Unspecified real sign
+        assertComplex(infInf, Complex::cosh, infNaN); // Unspecified real sign
+        assertComplex(infNaN, Complex::cosh, infNaN, FunctionType.EVEN);
+        assertComplex(negInfNaN, Complex::cosh, infNaN, FunctionType.EVEN);
+        assertComplex(nanZero, Complex::cosh, nanZero); // Unspecified imaginary sign
+        assertComplex(nanOne, Complex::cosh, NAN, FunctionType.EVEN);
+        assertComplex(nanInf, Complex::cosh, NAN, FunctionType.EVEN);
+        assertComplex(NAN, Complex::cosh, NAN, FunctionType.EVEN);
     }
 
     /**
@@ -728,35 +746,35 @@ public class CStandardTest {
         assertConjugateEquality(Complex::sinh);
         assertFunctionType(Complex::sinh, FunctionType.ODD);
         assertComplex(Complex.ZERO, Complex::sinh, Complex.ZERO);
-        assertComplex(negZeroZero, Complex::sinh, negZeroZero);
-        assertComplex(zeroInf, Complex::sinh, zeroNaN);
-        assertComplex(oneInf, Complex::sinh, NAN);
-        assertComplex(zeroNaN, Complex::sinh, zeroNaN);
-        assertComplex(oneNaN, Complex::sinh, NAN);
+        assertComplex(negZeroZero, Complex::sinh, negZeroZero, FunctionType.ODD);
+        assertComplex(zeroInf, Complex::sinh, zeroNaN); // Unspecified real sign
+        assertComplex(oneInf, Complex::sinh, NAN, FunctionType.ODD);
+        assertComplex(zeroNaN, Complex::sinh, zeroNaN); // Unspecified real sign
+        assertComplex(oneNaN, Complex::sinh, NAN, FunctionType.ODD);
         // (inf + iy) = inf * cis(y)
         // where cis(y) = cos(y) + i sin(y), and y is finite non-zero
         //
         // Note that y == 0: complex(1, 0).multiply(inf) = (inf, NaN)
         // But the sinh is (inf, 0). This result is computed by g++ and we test it separately.
-        assertComplex(negInfNegZero, Complex::sinh, negInfNegZero);
-        assertComplex(negInfZero, Complex::sinh, negInfZero);
-        assertComplex(infNegZero, Complex::sinh, infNegZero);
-        assertComplex(infZero, Complex::sinh, infZero);
+        assertComplex(negInfNegZero, Complex::sinh, negInfNegZero, FunctionType.ODD);
+        assertComplex(negInfZero, Complex::sinh, negInfZero, FunctionType.ODD);
+        assertComplex(infNegZero, Complex::sinh, infNegZero, FunctionType.ODD);
+        assertComplex(infZero, Complex::sinh, infZero, FunctionType.ODD);
         for (int i = 1; i < 10; i++) {
             final double y = i * 0.5;
-            assertComplex(complex(inf, y), Complex::sinh, Complex.ofCis(y).multiply(inf));
-            assertComplex(complex(inf, -y), Complex::sinh, Complex.ofCis(-y).multiply(inf));
-            assertComplex(complex(-inf, y), Complex::sinh, Complex.ofCis(y).multiply(-inf));
-            assertComplex(complex(-inf, -y), Complex::sinh, Complex.ofCis(-y).multiply(-inf));
+            assertComplex(complex(inf, y), Complex::sinh, Complex.ofCis(y).multiply(inf), FunctionType.ODD);
+            assertComplex(complex(inf, -y), Complex::sinh, Complex.ofCis(-y).multiply(inf), FunctionType.ODD);
+            assertComplex(complex(-inf, y), Complex::sinh, Complex.ofCis(y).multiply(-inf), FunctionType.ODD);
+            assertComplex(complex(-inf, -y), Complex::sinh, Complex.ofCis(-y).multiply(-inf), FunctionType.ODD);
         }
-        assertComplex(negInfInf, Complex::sinh, infNaN);
-        assertComplex(infInf, Complex::sinh, infNaN);
-        assertComplex(infNaN, Complex::sinh, infNaN);
-        assertComplex(negInfNaN, Complex::sinh, infNaN);
-        assertComplex(nanZero, Complex::sinh, nanZero);
-        assertComplex(nanOne, Complex::sinh, NAN);
-        assertComplex(nanInf, Complex::sinh, NAN);
-        assertComplex(NAN, Complex::sinh, NAN);
+        assertComplex(negInfInf, Complex::sinh, infNaN); // Unspecified real sign
+        assertComplex(infInf, Complex::sinh, infNaN); // Unspecified real sign
+        assertComplex(infNaN, Complex::sinh, infNaN); // Unspecified real sign
+        assertComplex(negInfNaN, Complex::sinh, infNaN); // Unspecified real sign
+        assertComplex(nanZero, Complex::sinh, nanZero, FunctionType.ODD);
+        assertComplex(nanOne, Complex::sinh, NAN, FunctionType.ODD);
+        assertComplex(nanInf, Complex::sinh, NAN, FunctionType.ODD);
+        assertComplex(NAN, Complex::sinh, NAN, FunctionType.ODD);
     }
 
     /**
@@ -766,34 +784,34 @@ public class CStandardTest {
     public void testTanh() {
         assertConjugateEquality(Complex::tanh);
         assertFunctionType(Complex::tanh, FunctionType.ODD);
-        assertComplex(Complex.ZERO, Complex::tanh, Complex.ZERO);
-        assertComplex(negZeroZero, Complex::tanh, negZeroZero);
-        assertComplex(zeroInf, Complex::tanh, NAN);
-        assertComplex(oneInf, Complex::tanh, NAN);
-        assertComplex(zeroNaN, Complex::tanh, NAN);
-        assertComplex(oneNaN, Complex::tanh, NAN);
+        assertComplex(Complex.ZERO, Complex::tanh, Complex.ZERO, FunctionType.ODD);
+        assertComplex(negZeroZero, Complex::tanh, negZeroZero, FunctionType.ODD);
+        assertComplex(zeroInf, Complex::tanh, NAN, FunctionType.ODD);
+        assertComplex(oneInf, Complex::tanh, NAN, FunctionType.ODD);
+        assertComplex(zeroNaN, Complex::tanh, NAN, FunctionType.ODD);
+        assertComplex(oneNaN, Complex::tanh, NAN, FunctionType.ODD);
         // (inf + iy) = 1 + i0 sin(2y), and y is positive-signed finite
         // Note: no specification for other -inf and/or negative y.
         // g++ returns the result using (+/-1, i0 sin(2y)) where the sign of the 1 is from the inf.
-        assertComplex(negInfNegZero, Complex::tanh, negOneNegZero);
-        assertComplex(negInfZero, Complex::tanh, negOneZero);
-        assertComplex(infNegZero, Complex::tanh, oneNegZero);
-        assertComplex(infZero, Complex::tanh, oneZero);
+        assertComplex(negInfNegZero, Complex::tanh, negOneNegZero, FunctionType.ODD);
+        assertComplex(negInfZero, Complex::tanh, negOneZero, FunctionType.ODD);
+        assertComplex(infNegZero, Complex::tanh, oneNegZero, FunctionType.ODD);
+        assertComplex(infZero, Complex::tanh, oneZero, FunctionType.ODD);
         for (int i = 1; i < 10; i++) {
             final double y = i * 0.5;
-            assertComplex(complex(inf, y), Complex::tanh, complex(1.0, Math.copySign(0, Math.sin(2 * y))));
-            assertComplex(complex(inf, -y), Complex::tanh, complex(1.0, Math.copySign(0, Math.sin(2 * -y))));
-            assertComplex(complex(-inf, y), Complex::tanh, complex(-1.0, Math.copySign(0, Math.sin(2 * y))));
-            assertComplex(complex(-inf, -y), Complex::tanh, complex(-1.0, Math.copySign(0, Math.sin(2 * -y))));
+            assertComplex(complex(inf, y), Complex::tanh, complex(1.0, Math.copySign(0, Math.sin(2 * y))), FunctionType.ODD);
+            assertComplex(complex(inf, -y), Complex::tanh, complex(1.0, Math.copySign(0, Math.sin(2 * -y))), FunctionType.ODD);
+            assertComplex(complex(-inf, y), Complex::tanh, complex(-1.0, Math.copySign(0, Math.sin(2 * y))), FunctionType.ODD);
+            assertComplex(complex(-inf, -y), Complex::tanh, complex(-1.0, Math.copySign(0, Math.sin(2 * -y))), FunctionType.ODD);
         }
-        assertComplex(negInfInf, Complex::tanh, negOneZero);
-        assertComplex(infInf, Complex::tanh, oneZero);
-        assertComplex(infNaN, Complex::tanh, oneZero);
-        assertComplex(negInfNaN, Complex::tanh, negOneZero);
-        assertComplex(nanZero, Complex::tanh, nanZero);
-        assertComplex(nanOne, Complex::tanh, NAN);
-        assertComplex(nanInf, Complex::tanh, NAN);
-        assertComplex(NAN, Complex::tanh, NAN);
+        assertComplex(negInfInf, Complex::tanh, negOneZero); // Unspecified imaginary sign
+        assertComplex(infInf, Complex::tanh, oneZero); // Unspecified imaginary sign
+        assertComplex(infNaN, Complex::tanh, oneZero, FunctionType.ODD);
+        assertComplex(negInfNaN, Complex::tanh, negOneZero, FunctionType.ODD);
+        assertComplex(nanZero, Complex::tanh, nanZero, FunctionType.ODD);
+        assertComplex(nanOne, Complex::tanh, NAN, FunctionType.ODD);
+        assertComplex(nanInf, Complex::tanh, NAN, FunctionType.ODD);
+        assertComplex(NAN, Complex::tanh, NAN, FunctionType.ODD);
     }
 
     /**
@@ -824,10 +842,10 @@ public class CStandardTest {
             assertComplex(complex(inf, y), Complex::exp, Complex.ofCis(y).multiply(inf));
             assertComplex(complex(inf, -y), Complex::exp, Complex.ofCis(-y).multiply(inf));
         }
-        assertComplex(negInfInf, Complex::exp, Complex.ZERO);
+        assertComplex(negInfInf, Complex::exp, Complex.ZERO); // Unspecified real/imaginary sign
         assertComplex(infInf, Complex::exp, infNaN);
-        assertComplex(negInfNaN, Complex::exp, Complex.ZERO);
-        assertComplex(infNaN, Complex::exp, infNaN);
+        assertComplex(negInfNaN, Complex::exp, Complex.ZERO); // Unspecified real/imaginary sign
+        assertComplex(infNaN, Complex::exp, infNaN); // Unspecified real/imaginary sign
         assertComplex(nanZero, Complex::exp, nanZero);
         assertComplex(nanOne, Complex::exp, NAN);
         assertComplex(nanInf, Complex::exp, NAN);
@@ -907,7 +925,7 @@ public class CStandardTest {
         assertComplex(negInfOne, Complex::sqrt, zeroInf);
         assertComplex(infZero, Complex::sqrt, infZero);
         assertComplex(infOne, Complex::sqrt, infZero);
-        assertComplex(negInfNaN, Complex::sqrt, nanInf);
+        assertComplex(negInfNaN, Complex::sqrt, nanInf); // Unspecified imaginary sign
         assertComplex(infNaN, Complex::sqrt, infNaN);
         assertComplex(nanZero, Complex::sqrt, NAN);
         assertComplex(nanOne, Complex::sqrt, NAN);
