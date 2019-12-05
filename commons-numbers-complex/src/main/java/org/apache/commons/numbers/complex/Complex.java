@@ -20,6 +20,9 @@ package org.apache.commons.numbers.complex;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
+
 import org.apache.commons.numbers.core.Precision;
 
 /**
@@ -1040,9 +1043,12 @@ public final class Complex implements Serializable  {
                 }
                 // ISO C99: Preserve the equality
                 // asinh(conj(z)) = conj(asinh(z))
-                final Complex z = negative(imaginary) ? conjugate() : this;
+                // and the odd function: f(z) = -f(-z)
+                // by always computing on a positive valued Complex number.
+                final Function<Complex, Complex> fun = createPositiveDomainFunction();
+                final Complex z = fun.apply(this);
                 final Complex result = z.square().add(1).sqrt().add(z).log();
-                return z == this ? result : result.conjugate();
+                return fun.apply(result);
             }
             if (Double.isInfinite(imaginary)) {
                 return new Complex(Math.copySign(Double.POSITIVE_INFINITY, real), Math.copySign(PI_OVER_2, imaginary));
@@ -1097,9 +1103,12 @@ public final class Complex implements Serializable  {
                 }
                 // ISO C99: Preserve the equality
                 // atanh(conj(z)) = conj(atanh(z))
-                final Complex z = negative(imaginary) ? conjugate() : this;
+                // and the odd function: f(z) = -f(-z)
+                // by always computing on a positive valued Complex number.
+                final Function<Complex, Complex> fun = createPositiveDomainFunction();
+                final Complex z = fun.apply(this);
                 final Complex result = z.add(1).divide(z.subtractFromReal(1)).log().multiply(0.5);
-                return z == this ? result : result.conjugate();
+                return fun.apply(result);
             }
             if (Double.isInfinite(imaginary)) {
                 return new Complex(Math.copySign(0, real), Math.copySign(PI_OVER_2, imaginary));
@@ -1121,6 +1130,40 @@ public final class Complex implements Serializable  {
         }
         // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
         return NAN;
+    }
+
+    /**
+     * Creates a function to transform this Complex into a Complex with positive real and imaginary
+     * components. This is used to maintain the conjugate equality and the oddness of a function
+     * f(z) by always computing the result on positive valued input. Given:
+     *
+     * <pre>
+     * conj(f(z)) = f(conj(z))
+     * f(z) = -f(-z)
+     * </pre>
+     *
+     * <p>The Complex can be tranformed to the positve domain using the a combination of
+     * {@link #negate()} and/or {@link #conjugate()} functions, the function f(z) computed and
+     * the result transformed back using the same mapping function to the original domain.</p>
+     *
+     * <p>If the Complex is already in the correct domain then this returns an identify
+     * function.</p>
+     *
+     * @return the function
+     */
+    private Function<Complex, Complex> createPositiveDomainFunction() {
+        Function<Complex, Complex> fun;
+        if (negative(real)) {
+            fun = Complex::negate;
+            if (!negative(imaginary)) {
+                fun = fun.andThen(Complex::conjugate);
+            }
+        } else if (negative(imaginary)) {
+            fun = Complex::conjugate;
+        } else {
+            fun = UnaryOperator.identity();
+        }
+        return fun;
     }
 
     /**
