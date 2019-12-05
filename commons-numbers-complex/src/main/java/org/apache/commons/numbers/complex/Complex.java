@@ -1511,9 +1511,16 @@ public final class Complex implements Serializable  {
                     return constructor.create(real, imaginary);
                 }
                 // inf * cis(y)
-                final double re = real * Math.cos(imaginary);
-                final double im = real * Math.sin(imaginary);
-                return constructor.create(re, im);
+                // ISO C99: Preserve the equality
+                // sinh(conj(z)) = conj(sinh(z))
+                // and the odd function: f(z) = -f(-z)
+                // by always computing on a positive valued Complex number.
+                // Math.cos(-x) == Math.cos(x) so ignore sign transform.
+                final double signIm = imaginary < 0 ? -1 : 1;
+                final double re = Double.POSITIVE_INFINITY * Math.cos(imaginary);
+                final double im = Double.POSITIVE_INFINITY * Math.sin(imaginary * signIm);
+                // Transform back
+                return constructor.create(real < 0 ? -re : re, im * signIm);
             }
             // imaginary is infinite or NaN
             return constructor.create(Double.POSITIVE_INFINITY, Double.NaN);
@@ -1879,7 +1886,7 @@ public final class Complex implements Serializable  {
      * <pre>
      * real    imaginary    g(z)
      * +       +            identity
-     * -       +            negateReal
+     * -       +            negateReal (negate && conjugate)
      * +       -            conjugate
      * -       -            negate
      * </pre>
