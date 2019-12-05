@@ -181,7 +181,7 @@ public class CStandardTest {
         if (!equals(c1.getReal(), c2.getReal()) ||
             !equals(c1.getImaginary(), c2.getImaginary())) {
             Assertions.fail(String.format("Conjugate equality failed (z=%s). Expected: %s but was: %s",
-                                          z, c2, c1));
+                                          z, c1, c2));
         }
     }
 
@@ -247,8 +247,8 @@ public class CStandardTest {
         // Test for binary equality
         if (!equals(c1.getReal(), c2.getReal()) ||
             !equals(c1.getImaginary(), c2.getImaginary())) {
-            Assertions.fail(String.format("%s equality failed (z=%s). Expected: %s but was: %s",
-                                          odd ? "Odd" : "Even", z, c2, c1));
+            Assertions.fail(String.format("%s equality failed (z=%s, -z=%s). Expected: %s but was: %s",
+                                          odd ? "Odd" : "Even", z, z.negate(), c1, c2));
         }
     }
 
