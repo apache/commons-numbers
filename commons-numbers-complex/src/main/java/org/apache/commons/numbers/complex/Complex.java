@@ -145,10 +145,10 @@ public final class Complex implements Serializable  {
      * <pre>
      * Examples:
      * {@code
-     * polar2Complex(INFINITY, \(\pi\)) = INFINITY + INFINITY i
-     * polar2Complex(INFINITY, 0) = INFINITY + NaN i
-     * polar2Complex(INFINITY, \(-\frac{\pi}{4}\)) = INFINITY - INFINITY i
-     * polar2Complex(INFINITY, \(5\frac{\pi}{4}\)) = -INFINITY - INFINITY i }
+     * ofPolar(INFINITY, \(\pi\)) = INFINITY + INFINITY i
+     * ofPolar(INFINITY, 0) = INFINITY + NaN i
+     * ofPolar(INFINITY, \(-\frac{\pi}{4}\)) = INFINITY - INFINITY i
+     * ofPolar(INFINITY, \(5\frac{\pi}{4}\)) = -INFINITY - INFINITY i }
      * </pre>
      *
      * @param r the modulus of the complex number to create
