@@ -1215,7 +1215,7 @@ public class ComplexTest {
     public void testParseWrongStart() {
         final String re = "1.234";
         final String im = "5.678";
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrows(NumberFormatException.class,
             () -> Complex.parse(re + "," + im + ")")
         );
     }
@@ -1224,7 +1224,7 @@ public class ComplexTest {
     public void testParseWrongEnd() {
         final String re = "1.234";
         final String im = "5.678";
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrows(NumberFormatException.class,
             () -> Complex.parse("(" + re + "," + im)
         );
     }
@@ -1233,7 +1233,7 @@ public class ComplexTest {
     public void testParseMissingSeparator() {
         final String re = "1.234";
         final String im = "5.678";
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrows(NumberFormatException.class,
             () -> Complex.parse("(" + re + " " + im + ")")
         );
     }
@@ -1242,7 +1242,7 @@ public class ComplexTest {
     public void testParseInvalidRe() {
         final String re = "I.234";
         final String im = "5.678";
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrows(NumberFormatException.class,
             () -> Complex.parse("(" + re + "," + im + ")")
         );
     }
@@ -1251,7 +1251,7 @@ public class ComplexTest {
     public void testParseInvalidIm() {
         final String re = "1.234";
         final String im = "5.G78";
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrows(NumberFormatException.class,
             () -> Complex.parse("(" + re + "," + im + ")")
         );
     }
