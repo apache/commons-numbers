@@ -199,9 +199,13 @@ public class CStandardTest {
      * @param odd true if odd
      */
     private static void assertOddOrEven(UnaryOperator<Complex> operation, boolean odd) {
-        // Edge cases
-        //final double[] parts = {Double.NEGATIVE_INFINITY, -1, -0.0, 0.0, 1,
-        //                        Double.POSITIVE_INFINITY, Double.NaN};
+        // Note: It may not be possible to satisfy the conjugate equality
+        // and be an odd/even function with regard to zero.
+        // The C99 standard allows for these cases to have unspecified sign.
+        // This test ignores parts that can result in unspecified signed results.
+        // The valid edge cases should be tested for each function separately.
+
+        // Edge cases around zero.
         final double[] parts = {-2, -1, -0.0, 0.0, 1, 2};
         for (final double x : parts) {
             for (final double y : parts) {
@@ -245,10 +249,6 @@ public class CStandardTest {
             c2 = c2.negate();
         }
 
-        // Note: It is not possible to satisfy the conjugate equality
-        // and be an even function with regard to zero.
-        
-        
         // Test for binary equality
         if (!equals(c1.getReal(), c2.getReal()) ||
             !equals(c1.getImaginary(), c2.getImaginary())) {
@@ -612,8 +612,6 @@ public class CStandardTest {
         assertComplex(nanInf, Complex::acosh, infNaN);
         assertComplex(NAN, Complex::acosh, NAN);
     }
-
-    // TODO: fix the 'IS ODD/ EVEN' specification
 
     /**
      * ISO C Standard G.6.2.2.
