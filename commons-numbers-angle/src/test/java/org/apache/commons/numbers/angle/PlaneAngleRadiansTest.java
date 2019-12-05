@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
  */
 public class PlaneAngleRadiansTest {
     @Test
-    SuppressWarnings("squid:S3415")
+    @SuppressWarnings("squid:S3415")
     public void testConstants() {
         final double eps = 0;
 
