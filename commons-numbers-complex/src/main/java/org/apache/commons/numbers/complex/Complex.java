@@ -1243,7 +1243,7 @@ public final class Complex implements Serializable  {
      * @param real Real part.
      * @param imaginary Imaginary part.
      * @param constructor Constructor.
-     * @return the hyperbolic cosine of this complex number
+     * @return the hyperbolic cosine of the complex number
      */
     private static Complex cosh(double real, double imaginary, ComplexConstructor constructor) {
         if (Double.isFinite(real)) {
@@ -1462,7 +1462,7 @@ public final class Complex implements Serializable  {
     public Complex sin() {
         // Define in terms of sinh
         // sin(z) = -i sinh(iz)
-        // Multiply this number by I, compute cosh, then multiply by back
+        // Multiply this number by I, compute sinh, then multiply by back
         return sinh(-imaginary, real, Complex::multiplyNegativeI);
     }
 
@@ -1493,7 +1493,7 @@ public final class Complex implements Serializable  {
      * @param real Real part.
      * @param imaginary Imaginary part.
      * @param constructor Constructor.
-     * @return the hyperbolic sine of this complex number
+     * @return the hyperbolic sine of the complex number
      */
     private static Complex sinh(double real, double imaginary, ComplexConstructor constructor) {
         if (Double.isFinite(real)) {
@@ -1611,7 +1611,7 @@ public final class Complex implements Serializable  {
     public Complex tan() {
         // Define in terms of tanh
         // tan(z) = -i tanh(iz)
-        // Multiply this number by I, compute cosh, then multiply by back
+        // Multiply this number by I, compute tanh, then multiply by back
         return tanh(-imaginary, real, Complex::multiplyNegativeI);
     }
 
@@ -1642,7 +1642,7 @@ public final class Complex implements Serializable  {
      * @param real Real part.
      * @param imaginary Imaginary part.
      * @param constructor Constructor.
-     * @return the hyperbolic tangent of this complex number
+     * @return the hyperbolic tangent of the complex number
      */
     private static Complex tanh(double real, double imaginary, ComplexConstructor constructor) {
         // TODO: Should these checks be made on real2 and imaginary2?
