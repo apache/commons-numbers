@@ -20,7 +20,6 @@ package org.apache.commons.numbers.complex;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import org.apache.commons.numbers.core.Precision;
@@ -321,7 +320,7 @@ public final class Complex implements Serializable  {
         return new Complex(real + addend, imaginary);
     }
 
-     /**
+    /**
      * Returns the conjugate of this complex number.
      * The conjugate of {@code a + bi} is {@code a - bi}.
      *
@@ -1044,10 +1043,10 @@ public final class Complex implements Serializable  {
                 // asinh(conj(z)) = conj(asinh(z))
                 // and the odd function: f(z) = -f(-z)
                 // by always computing on a positive valued Complex number.
-                final Function<Complex, Complex> fun = createPositiveDomainFunction();
-                final Complex z = fun.apply(this);
+                final UnaryOperator<Complex> g = mapToPositiveDomain();
+                final Complex z = g.apply(this);
                 final Complex result = z.square().add(1).sqrt().add(z).log();
-                return fun.apply(result);
+                return g.apply(result);
             }
             if (Double.isInfinite(imaginary)) {
                 return new Complex(Math.copySign(Double.POSITIVE_INFINITY, real), Math.copySign(PI_OVER_2, imaginary));
@@ -1104,10 +1103,10 @@ public final class Complex implements Serializable  {
                 // atanh(conj(z)) = conj(atanh(z))
                 // and the odd function: f(z) = -f(-z)
                 // by always computing on a positive valued Complex number.
-                final Function<Complex, Complex> fun = createPositiveDomainFunction();
-                final Complex z = fun.apply(this);
+                final UnaryOperator<Complex> g = mapToPositiveDomain();
+                final Complex z = g.apply(this);
                 final Complex result = z.add(1).divide(z.subtractFromReal(1)).log().multiply(0.5);
-                return fun.apply(result);
+                return g.apply(result);
             }
             if (Double.isInfinite(imaginary)) {
                 return new Complex(Math.copySign(0, real), Math.copySign(PI_OVER_2, imaginary));
@@ -1132,40 +1131,6 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Creates a function to transform this Complex into a Complex with positive real and imaginary
-     * components. This is used to maintain the conjugate equality and the oddness of a function
-     * f(z) by always computing the result on positive valued input. Given:
-     *
-     * <pre>
-     * conj(f(z)) = f(conj(z))
-     * f(z) = -f(-z)
-     * </pre>
-     *
-     * <p>The Complex can be tranformed to the positve domain using the a combination of
-     * {@link #negate()} and/or {@link #conjugate()} functions, the function f(z) computed and
-     * the result transformed back using the same mapping function to the original domain.</p>
-     *
-     * <p>If the Complex is already in the correct domain then this returns an identify
-     * function.</p>
-     *
-     * @return the function
-     */
-    private Function<Complex, Complex> createPositiveDomainFunction() {
-        Function<Complex, Complex> fun;
-        if (negative(real)) {
-            fun = Complex::negate;
-            if (!negative(imaginary)) {
-                fun = fun.andThen(Complex::conjugate);
-            }
-        } else if (negative(imaginary)) {
-            fun = Complex::conjugate;
-        } else {
-            fun = UnaryOperator.identity();
-        }
-        return fun;
-    }
-
-    /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/InverseHyperbolicCosine.html">
      * inverse hyperbolic cosine</a> of this complex number.
@@ -1185,9 +1150,10 @@ public final class Complex implements Serializable  {
                 }
                 // ISO C99: Preserve the equality
                 // acosh(conj(z)) = conj(acosh(z))
-                final Complex z = negative(imaginary) ? conjugate() : this;
+                final UnaryOperator<Complex> g = mapImaginaryToPositiveDomain();
+                final Complex z = g.apply(this);
                 final Complex result = z.square().subtract(1).sqrt().add(z).log();
-                return z == this ? result : result.conjugate();
+                return g.apply(result);
             }
             if (Double.isInfinite(imaginary)) {
                 return new Complex(Double.POSITIVE_INFINITY, Math.copySign(PI_OVER_2, imaginary));
@@ -1886,5 +1852,97 @@ public final class Complex implements Serializable  {
         }
 
         return new NumberFormatException(sb.toString());
+    }
+
+    /**
+     * Creates a function to transform this Complex into a Complex with positive real and imaginary
+     * components. This is used to maintain the conjugate equality and the oddness of a function
+     * f(z) by always computing the result on positive valued input. Given:
+     *
+     * <pre>
+     * conj(f(z)) = f(conj(z))
+     * f(z) = -f(-z)
+     * </pre>
+     *
+     * <p>The Complex can be transformed to the positive domain using a combination of
+     * {@link #negate()} and/or {@link #conjugate()} functions, the function f(z) computed and
+     * the result transformed back using the same mapping function to the original domain.</p>
+     *
+     * <pre>
+     * g(z) = mapToPositiveDomain()
+     * f(z) = g(f(g(z)))
+     * </pre>
+     *
+     * <p>If the Complex is already in the correct domain then this returns an identify
+     * function. The function will be computed as:</p>
+     *
+     * <pre>
+     * real    imaginary    g(z)
+     * +       +            identity
+     * -       +            negateReal
+     * +       -            conjugate
+     * -       -            negate
+     * </pre>
+     *
+     * @return the function
+     */
+    private UnaryOperator<Complex> mapToPositiveDomain() {
+        if (negative(real)) {
+            return negative(imaginary) ? Complex::negate : Complex::negateReal;
+        } else if (negative(imaginary)) {
+            return Complex::conjugate;
+        }
+        return Complex::identity;
+    }
+
+    /**
+     * Creates a function to transform this Complex into a Complex with positive imaginary
+     * components. This is used to maintain the conjugate equality of a function
+     * f(z) by always computing the result on positive valued input. Given:
+     *
+     * <pre>
+     * conj(f(z)) = f(conj(z))
+     * </pre>
+     *
+     * <p>The Complex can be transformed to the positive domain using the {@link #conjugate()}
+     * function, the function f(z) computed and the result transformed back using the same
+     * mapping function to the original domain.</p>
+     *
+     * <pre>
+     * g(z) = mapImaginaryToPositiveDomain()
+     * f(z) = g(f(g(z)))
+     * </pre>
+     *
+     * <p>If the Complex is already in the correct domain then this returns an identify
+     * function. The function will be computed as:</p>
+     *
+     * <pre>
+     * imaginary    g(z)
+     * +            identity
+     * -            conjugate
+     * </pre>
+     *
+     * @return the function
+     */
+    private UnaryOperator<Complex> mapImaginaryToPositiveDomain() {
+        return negative(imaginary) ? Complex::conjugate : Complex::identity;
+    }
+
+    /**
+     * Returns a {@code Complex} whose real value is negated.
+     *
+     * @return {@code Complex(-real, imaginary)}.
+     */
+    private Complex negateReal() {
+        return new Complex(-real, imaginary);
+    }
+
+    /**
+     * Returns this {@code Complex}.
+     *
+     * @return {@code this}.
+     */
+    private Complex identity() {
+        return this;
     }
 }
