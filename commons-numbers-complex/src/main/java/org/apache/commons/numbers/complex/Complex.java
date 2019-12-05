@@ -186,33 +186,32 @@ public final class Complex implements Serializable  {
     public static Complex parse(String s) {
         final int startParen = s.indexOf(FORMAT_START);
         if (startParen != 0) {
-            throw new NumberFormatException("Expected start string: " + FORMAT_START);
+            throw parsingException("Expected start string", FORMAT_START, null);
         }
         final int len = s.length();
+
         final int endParen = s.indexOf(FORMAT_END);
         if (endParen != len - 1) {
-            throw new NumberFormatException("Expected end string: " + FORMAT_END);
+            throw parsingException("Expected end string", FORMAT_END, null);
         }
+
         final String[] elements = s.substring(1, s.length() - 1).split(FORMAT_SEP);
         if (elements.length != TWO_ELEMENTS) {
-            throw new NumberFormatException("Incorrect number of parts: Expected 2 but was " +
-                                            elements.length +
-                                            " (separator is '" + FORMAT_SEP + "')");
+            throw parsingException("Incorrect number of parts: Expected 2 but was " + elements.length,
+                                   "separator is '" + FORMAT_SEP + "'", null);
         }
 
         final double re;
         try {
             re = Double.parseDouble(elements[0]);
         } catch (final NumberFormatException ex) {
-            throw new NumberFormatException("Could not parse real part (" + elements[0] + "): " +
-                                            ex.getMessage());
+            throw parsingException("Could not parse real part", elements[0], ex);
         }
         final double im;
         try {
             im = Double.parseDouble(elements[1]);
         } catch (final NumberFormatException ex) {
-            throw new NumberFormatException("Could not parse imaginary part (" + elements[1] + "): " +
-                                            ex.getMessage());
+            throw parsingException("Could not parse imaginary part", elements[1], ex);
         }
 
         return ofCartesian(re, im);
@@ -1862,5 +1861,30 @@ public final class Complex implements Serializable  {
      */
     private static Complex ofCartesianConjugate(double real, double imaginary) {
         return new Complex(real, -imaginary);
+    }
+
+    /**
+     * Creates an exception.
+     *
+     * @param message Message prefix.
+     * @param error Input that caused the error.
+     * @param cause Underlying exception (if any).
+     * @return a new instance.
+     */
+    private static NumberFormatException parsingException(String message,
+                                                          String error,
+                                                          Throwable cause) {
+        final StringBuilder sb = new StringBuilder();
+        if (message != null) {
+            sb.append(message);
+        }
+        if (error != null) {
+            sb.append(" (").append(error).append(" )");
+        }
+        if (cause != null) {
+            sb.append(": ").append(cause.getMessage());
+        }
+
+        return new NumberFormatException(sb.toString());
     }
 }
