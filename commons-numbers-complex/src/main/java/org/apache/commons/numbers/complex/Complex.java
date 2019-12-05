@@ -1847,13 +1847,10 @@ public final class Complex implements Serializable  {
     private static NumberFormatException parsingException(String message,
                                                           String error,
                                                           Throwable cause) {
-        final StringBuilder sb = new StringBuilder();
-        if (message != null) {
-            sb.append(message);
-        }
-        if (error != null) {
-            sb.append(" (").append(error).append(" )");
-        }
+        // Not called with a null message or error
+        final StringBuilder sb = new StringBuilder(100)
+            .append(message)
+            .append(" (").append(error).append(" )");
         if (cause != null) {
             sb.append(": ").append(cause.getMessage());
         }
