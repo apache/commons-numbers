@@ -1043,7 +1043,7 @@ public final class Complex implements Serializable  {
                 return z == this ? result : result.conjugate();
             }
             if (Double.isInfinite(imaginary)) {
-                return new Complex(Double.POSITIVE_INFINITY, Math.copySign(PI_OVER_2, imaginary));
+                return new Complex(Math.copySign(Double.POSITIVE_INFINITY, real), Math.copySign(PI_OVER_2, imaginary));
             }
             // imaginary is NaN
             return NAN;
@@ -1241,6 +1241,12 @@ public final class Complex implements Serializable  {
                 return constructor.create(Math.cosh(real) * Math.cos(imaginary),
                                           Math.sinh(real) * Math.sin(imaginary));
             }
+            // ISO C99: Preserve the even function
+            // f(z) = f(-z)
+            if (negative(real)) {
+                real = -real;
+                imaginary = -imaginary;
+            }
             // Special case for real == 0
             final double im = real == 0 ? Math.copySign(0, imaginary) : Double.NaN;
             return constructor.create(Double.NaN, im);
@@ -1253,6 +1259,12 @@ public final class Complex implements Serializable  {
                     return constructor.create(Double.POSITIVE_INFINITY, im);
                 }
                 // inf * cis(y)
+                // ISO C99: Preserve the even function
+                // f(z) = f(-z)
+                if (real < 0) {
+                    real = -real;
+                    imaginary = -imaginary;
+                }
                 final double re = real * Math.cos(imaginary);
                 final double im = real * Math.sin(imaginary);
                 return constructor.create(re, im);
@@ -1262,7 +1274,7 @@ public final class Complex implements Serializable  {
         }
         // real is NaN
         if (imaginary == 0) {
-            return constructor.create(Double.NaN, Math.copySign(0, imaginary));
+            return constructor.create(Double.NaN, imaginary);
         }
         // optionally raises the ‘‘invalid’’ floating-point exception, for nonzero y.
         return NAN;
