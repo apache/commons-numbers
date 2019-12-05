@@ -89,8 +89,18 @@ public class CStandardTest {
     private static final Complex maxMax = complex(max, max);
     private static final Complex maxNan = complex(max, nan);
     private static final Complex nanMax = complex(nan, max);
-    private static final boolean ODD = true;
-    private static final boolean EVEN = false;
+
+    /**
+     * The type of function.
+     */
+    private enum FunctionType {
+        /** Odd: f(z) = -f(-z). */
+        ODD,
+        /** Even: f(z) = f(-z). */
+        EVEN,
+        /** Not Odd or Even. */
+        NONE;
+    }
 
     /**
      * Assert the two complex numbers have equivalent real and imaginary components as
@@ -196,20 +206,23 @@ public class CStandardTest {
      * <p>The results must be binary equal. This includes the sign of zero.
      *
      * @param operation the operation
-     * @param odd true if odd
+     * @param type the type
      */
-    private static void assertOddOrEven(UnaryOperator<Complex> operation, boolean odd) {
+    private static void assertFunctionType(UnaryOperator<Complex> operation, FunctionType type) {
         // Note: It may not be possible to satisfy the conjugate equality
         // and be an odd/even function with regard to zero.
         // The C99 standard allows for these cases to have unspecified sign.
         // This test ignores parts that can result in unspecified signed results.
         // The valid edge cases should be tested for each function separately.
+        if (type == FunctionType.NONE) {
+            return;
+        }
 
         // Edge cases around zero.
         final double[] parts = {-2, -1, -0.0, 0.0, 1, 2};
         for (final double x : parts) {
             for (final double y : parts) {
-                assertOddOrEven(x, y, operation, odd);
+                assertFunctionType(x, y, operation, type);
             }
         }
         // Random numbers
@@ -217,7 +230,7 @@ public class CStandardTest {
         for (int i = 0; i < 100; i++) {
             final double x = next(rng);
             final double y = next(rng);
-            assertOddOrEven(x, y, operation, odd);
+            assertFunctionType(x, y, operation, type);
         }
     }
 
@@ -235,17 +248,19 @@ public class CStandardTest {
      *
      * @param re the real component
      * @param im the imaginary component
-     * @param maxUlps {@code (maxUlps - 1)} is the number of floating point
-     * values between the real (resp. imaginary) parts of {@code x} and
-     * {@code y}.
      * @param operation the operation
+     * @param type the type
      */
-    private static void assertOddOrEven(double re, double im,
-            UnaryOperator<Complex> operation, boolean odd) {
+    private static void assertFunctionType(double re, double im,
+            UnaryOperator<Complex> operation, FunctionType type) {
+        if (type == FunctionType.NONE) {
+            return;
+        }
+
         final Complex z = complex(re, im);
         final Complex c1 = operation.apply(z);
         Complex c2 = operation.apply(z.negate());
-        if (odd) {
+        if (type == FunctionType.ODD) {
             c2 = c2.negate();
         }
 
@@ -253,7 +268,7 @@ public class CStandardTest {
         if (!equals(c1.getReal(), c2.getReal()) ||
             !equals(c1.getImaginary(), c2.getImaginary())) {
             Assertions.fail(String.format("%s equality failed (z=%s, -z=%s). Expected: %s but was: %s",
-                                          odd ? "Odd" : "Even", z, z.negate(), c1, c2));
+                                          type, z, z.negate(), c1, c2));
         }
     }
 
@@ -619,7 +634,7 @@ public class CStandardTest {
     @Test
     public void testAsinh() {
         assertConjugateEquality(Complex::asinh);
-        assertOddOrEven(Complex::asinh, ODD);
+        assertFunctionType(Complex::asinh, FunctionType.ODD);
         assertComplex(Complex.ZERO, Complex::asinh, Complex.ZERO);
         assertComplex(negZeroZero, Complex::asinh, negZeroZero);
         assertComplex(zeroNaN, Complex::asinh, NAN);
@@ -645,7 +660,7 @@ public class CStandardTest {
     @Test
     public void testAtanh() {
         assertConjugateEquality(Complex::atanh);
-        assertOddOrEven(Complex::atanh, ODD);
+        assertFunctionType(Complex::atanh, FunctionType.ODD);
         assertComplex(Complex.ZERO, Complex::atanh, Complex.ZERO);
         assertComplex(negZeroZero, Complex::atanh, negZeroZero);
         assertComplex(zeroNaN, Complex::atanh, zeroNaN);
@@ -672,7 +687,7 @@ public class CStandardTest {
     @Test
     public void testCosh() {
         assertConjugateEquality(Complex::cosh);
-        assertOddOrEven(Complex::cosh, EVEN);
+        assertFunctionType(Complex::cosh, FunctionType.EVEN);
         assertComplex(Complex.ZERO, Complex::cosh, Complex.ONE);
         assertComplex(negZeroZero, Complex::cosh, oneNegZero);
         assertComplex(zeroInf, Complex::cosh, nanZero);
@@ -711,7 +726,7 @@ public class CStandardTest {
     @Test
     public void testSinh() {
         assertConjugateEquality(Complex::sinh);
-        assertOddOrEven(Complex::sinh, ODD);
+        assertFunctionType(Complex::sinh, FunctionType.ODD);
         assertComplex(Complex.ZERO, Complex::sinh, Complex.ZERO);
         assertComplex(negZeroZero, Complex::sinh, negZeroZero);
         assertComplex(zeroInf, Complex::sinh, zeroNaN);
@@ -750,7 +765,7 @@ public class CStandardTest {
     @Test
     public void testTanh() {
         assertConjugateEquality(Complex::tanh);
-        assertOddOrEven(Complex::tanh, ODD);
+        assertFunctionType(Complex::tanh, FunctionType.ODD);
         assertComplex(Complex.ZERO, Complex::tanh, Complex.ZERO);
         assertComplex(negZeroZero, Complex::tanh, negZeroZero);
         assertComplex(zeroInf, Complex::tanh, NAN);
