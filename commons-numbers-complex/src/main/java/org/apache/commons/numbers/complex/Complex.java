@@ -1278,15 +1278,17 @@ public final class Complex implements Serializable  {
         if (Double.isNaN(imaginary) && Double.isFinite(real)) {
             return NAN;
         }
-        return acos(real, imaginary, (re, im) -> {
+        // ISO C99: Preserve the equality
+        // acos(conj(z)) = conj(acos(z))
+        // by always computing on a positive imaginary Complex number.
+        return acos(real, Math.abs(imaginary), (re, im) ->
             // Set the sign appropriately for C99 equalities.
-            // TODO: This function currently conflicts with the CReferenceTest
-            return (negative(im)) ?
+            (im > 0) ?
+                // Multiply by -I and map back to the correct sign
+                new Complex(im, changeSign(-re, imaginary)) :
                 // Multiply by I
-                new Complex(-im, re) :
-                // Multiply by -I
-                new Complex(im, -re);
-        });
+                new Complex(-im, changeSign(re, imaginary))
+        );
     }
 
     /**
