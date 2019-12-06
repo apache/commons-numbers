@@ -826,7 +826,7 @@ public class CStandardTest {
         final UnaryOperator<Complex> operation = Complex::acosh;
         assertConjugateEquality(operation);
         assertComplex(Complex.ZERO, operation, zeroPiTwo);
-        assertComplex(negZeroZero, operation, negZeroPiTwo);
+        assertComplex(negZeroZero, operation, zeroPiTwo);
         for (double x : finite) {
             assertComplex(complex(x, inf), operation, infPiTwo);
         }
