@@ -877,23 +877,6 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns a {@code Complex} whose value is {@code this * factor}, with {@code factor}
-     * interpreted as a integer number.
-     * Implements the formula:
-     * <pre>
-     *   (a + b i) c = (a + b i)(c + 0 i)
-     *               = ac + bc i
-     * </pre>
-     *
-     * @param  factor value to be multiplied by this {@code Complex}.
-     * @return {@code this * factor}.
-     * @see #multiply(Complex)
-     */
-    public Complex multiply(final int factor) {
-        return new Complex(real * factor, imaginary * factor);
-    }
-
-    /**
-     * Returns a {@code Complex} whose value is {@code this * factor}, with {@code factor}
      * interpreted as a real number.
      * Implements the formula:
      * <pre>
