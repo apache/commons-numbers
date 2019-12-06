@@ -469,7 +469,7 @@ public final class Complex implements Serializable  {
         return Double.isFinite(result) ?
             result :
             // Overflow. Just divide by 2 as it is the sign of the result that matters.
-            bc * 0.5 + ad * 0.5;
+            bc * 0.5 - ad * 0.5;
     }
 
     /**
