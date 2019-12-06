@@ -334,19 +334,6 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Returns a {@code Complex} whose value is {@code this + (a + b i))}.
-     *
-     * <p>This function is used internally in trigonomic functions.
-     *
-     * @param a Real component a.
-     * @param b Imaginary component b.
-     * @return {@code this + (a + b i)}.
-     */
-    private Complex add(double a, double b) {
-        return new Complex(real + a, imaginary + b);
-    }
-
-    /**
      * Returns the
      * <a href="http://mathworld.wolfram.com/ComplexConjugate.html">conjugate</a>
      * z&#773; of this complex number z.
@@ -1011,10 +998,10 @@ public final class Complex implements Serializable  {
                 // (x + y i) = iz + sqrt(1 - z^2)
                 final double x = -b + sqrt1mz2.real;
                 final double y = a + sqrt1mz2.imaginary;
-                // (pi / 2) + i ln(iz + sqrt(1 - z^2))
+                // (re + im i) = (pi / 2) + i ln(iz + sqrt(1 - z^2))
                 final double re = PI_OVER_2 - getArgument(x, y);
                 final double im = Math.log(getAbsolute(x, y));
-                // Map back to the correct domain
+                // Map back to the correct sign
                 return constructor.create(re, negative(imaginary) ? -im : im);
             }
             if (Double.isInfinite(imaginary)) {
@@ -1151,10 +1138,19 @@ public final class Complex implements Serializable  {
                 final double a = Math.abs(real);
                 final double b = Math.abs(imaginary);
                 // square() is implemented using multiply
-                final Complex result = multiply(a, b, a, b).add(1).sqrt().add(a, b).log();
-                // Map back to the correct domain
-                return constructor.create(Math.copySign(result.real, real),
-                                          Math.copySign(result.imaginary, imaginary));
+                final Complex z2 = multiply(a, b, a, b);
+                // sqrt(1 + z^2)
+                final Complex sqrt1pz2 = sqrt(1 + z2.real, z2.imaginary);
+                // Compute the rest inline to avoid Complex object creation.
+                // (x + y i) = z + sqrt(1 + z^2)
+                final double x = a + sqrt1pz2.real;
+                final double y = b + sqrt1pz2.imaginary;
+                // (re + im i) = ln(z + sqrt(1 + z^2))
+                final double re = Math.log(getAbsolute(x, y));
+                final double im = getArgument(x, y);
+                // Map back to the correct sign
+                return constructor.create(Math.copySign(re, real),
+                                          Math.copySign(im, imaginary));
             }
             if (Double.isInfinite(imaginary)) {
                 return constructor.create(Math.copySign(Double.POSITIVE_INFINITY, real),
@@ -1232,11 +1228,12 @@ public final class Complex implements Serializable  {
                 // (1 + (a + b i)) / (1 - (a + b i))
                 final Complex result = divide(1 + a, b, 1 - a, -b);
                 // Compute the rest inline to avoid Complex object creation.
-                final double re = Math.log(result.abs());
-                final double im = result.getArgument();
-                // Map back to the correct domain and divide by 2
-                return constructor.create(Math.copySign(re * 0.5, real),
-                                          Math.copySign(im * 0.5, imaginary));
+                // (re + im i) = (1/2) * ln((1 + z) / (1 - z))
+                final double re = 0.5 * Math.log(result.abs());
+                final double im = 0.5 * result.getArgument();
+                // Map back to the correct sign
+                return constructor.create(Math.copySign(re, real),
+                                          Math.copySign(im, imaginary));
             }
             if (Double.isInfinite(imaginary)) {
                 return constructor.create(Math.copySign(0, real), Math.copySign(PI_OVER_2, imaginary));
