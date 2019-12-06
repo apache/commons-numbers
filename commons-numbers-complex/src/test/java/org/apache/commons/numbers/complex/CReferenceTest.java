@@ -67,6 +67,12 @@ public class CReferenceTest {
         final Complex z1 = Complex.ofCartesian(2, 3).acos();
         assertEquals("real", 1.0001435424737972, z1.getReal());
         assertEquals("imaginary", -1.9833870299165355, z1.getImaginary());
+        final Complex z2 = Complex.ofCartesian(0, 0.75).acos();
+        assertEquals("real", 1.5707963267948966, z2.getReal());
+        assertEquals("imaginary", -0.69314718055994529, z2.getImaginary());
+        final Complex z3 = Complex.ofCartesian(0.75, 0).acos();
+        assertEquals("real", 0.72273424781341566, z3.getReal());
+        assertEquals("imaginary", -0, z3.getImaginary());
     }
 
     @Test
@@ -74,6 +80,12 @@ public class CReferenceTest {
         final Complex z1 = Complex.ofCartesian(2, 3).acosh();
         assertEquals("real", 1.9833870299165355, z1.getReal());
         assertEquals("imaginary", 1.0001435424737972, z1.getImaginary());
+        final Complex z2 = Complex.ofCartesian(0, 0.75).acosh();
+        assertEquals("real", 0.69314718055994529, z2.getReal());
+        assertEquals("imaginary", 1.5707963267948966, z2.getImaginary());
+        final Complex z3 = Complex.ofCartesian(0.75, 0).acosh();
+        assertEquals("real", 0, z3.getReal());
+        assertEquals("imaginary", 0.72273424781341566, z3.getImaginary());
     }
 
     @Test
@@ -81,6 +93,12 @@ public class CReferenceTest {
         final Complex z1 = Complex.ofCartesian(2, 3).asinh();
         assertEquals("real", 1.9686379257930964, z1.getReal());
         assertEquals("imaginary", 0.96465850440760281, z1.getImaginary());
+        final Complex z2 = Complex.ofCartesian(0, 0.75).asinh();
+        assertEquals("real", 0, z2.getReal());
+        assertEquals("imaginary", 0.848062078981481, z2.getImaginary());
+        final Complex z3 = Complex.ofCartesian(0.75, 0).asinh();
+        assertEquals("real", 0.69314718055994529, z3.getReal());
+        assertEquals("imaginary", 0, z3.getImaginary());
     }
 
     @Test
@@ -88,6 +106,12 @@ public class CReferenceTest {
         final Complex z1 = Complex.ofCartesian(2, 3).atanh();
         assertEquals("real", 0.14694666622552977, z1.getReal());
         assertEquals("imaginary", 1.3389725222944935, z1.getImaginary());
+        final Complex z2 = Complex.ofCartesian(0, 0.75).atanh();
+        assertEquals("real", 0, z2.getReal());
+        assertEquals("imaginary", 0.64350110879328437, z2.getImaginary());
+        final Complex z3 = Complex.ofCartesian(0.75, 0).atanh();
+        assertEquals("real", 0.97295507452765662, z3.getReal());
+        assertEquals("imaginary", 0, z3.getImaginary());
     }
 
     @Test
@@ -95,6 +119,12 @@ public class CReferenceTest {
         final Complex z1 = Complex.ofCartesian(2, 3).cosh();
         assertEquals("real", -3.7245455049153224, z1.getReal());
         assertEquals("imaginary", 0.51182256998738462, z1.getImaginary());
+        final Complex z2 = Complex.ofCartesian(0, 0.75).cosh();
+        assertEquals("real", 0.7316888688738209, z2.getReal());
+        assertEquals("imaginary", 0, z2.getImaginary());
+        final Complex z3 = Complex.ofCartesian(0.75, 0).cosh();
+        assertEquals("real", 1.2946832846768448, z3.getReal());
+        assertEquals("imaginary", 0, z3.getImaginary());
     }
 
     @Test
@@ -102,6 +132,12 @@ public class CReferenceTest {
         final Complex z1 = Complex.ofCartesian(2, 3).sinh();
         assertEquals("real", -3.5905645899857799, z1.getReal());
         assertEquals("imaginary", 0.53092108624851975, z1.getImaginary());
+        final Complex z2 = Complex.ofCartesian(0, 0.75).sinh();
+        assertEquals("real", 0, z2.getReal());
+        assertEquals("imaginary", 0.68163876002333412, z2.getImaginary());
+        final Complex z3 = Complex.ofCartesian(0.75, 0).sinh();
+        assertEquals("real", 0.82231673193582999, z3.getReal());
+        assertEquals("imaginary", 0, z3.getImaginary());
     }
 
     @Test
@@ -109,6 +145,12 @@ public class CReferenceTest {
         final Complex z1 = Complex.ofCartesian(2, 3).tanh();
         assertEquals("real", 0.96538587902213302, z1.getReal());
         assertEquals("imaginary", -0.0098843750383224918, z1.getImaginary());
+        final Complex z2 = Complex.ofCartesian(0, 0.75).tanh();
+        assertEquals("real", 0, z2.getReal());
+        assertEquals("imaginary", 0.93159645994407225, z2.getImaginary(), 3);
+        final Complex z3 = Complex.ofCartesian(0.75, 0).tanh();
+        assertEquals("real", 0.63514895238728741, z3.getReal());
+        assertEquals("imaginary", 0, z3.getImaginary());
     }
 
     @Test
@@ -116,6 +158,12 @@ public class CReferenceTest {
         final Complex z1 = Complex.ofCartesian(2, 3).exp();
         assertEquals("real", -7.3151100949011028, z1.getReal());
         assertEquals("imaginary", 1.0427436562359045, z1.getImaginary());
+        final Complex z2 = Complex.ofCartesian(0, 0.75).exp();
+        assertEquals("real", 0.7316888688738209, z2.getReal());
+        assertEquals("imaginary", 0.68163876002333412, z2.getImaginary());
+        final Complex z3 = Complex.ofCartesian(0.75, 0).exp();
+        assertEquals("real", 2.1170000166126748, z3.getReal());
+        assertEquals("imaginary", 0, z3.getImaginary());
     }
 
     @Test
@@ -123,6 +171,12 @@ public class CReferenceTest {
         final Complex z1 = Complex.ofCartesian(2, 3).log();
         assertEquals("real", 1.2824746787307684, z1.getReal());
         assertEquals("imaginary", 0.98279372324732905, z1.getImaginary());
+        final Complex z2 = Complex.ofCartesian(0, 0.75).log();
+        assertEquals("real", -0.2876820724517809, z2.getReal());
+        assertEquals("imaginary", 1.5707963267948966, z2.getImaginary());
+        final Complex z3 = Complex.ofCartesian(0.75, 0).log();
+        assertEquals("real", -0.2876820724517809, z3.getReal());
+        assertEquals("imaginary", 0, z3.getImaginary());
     }
 
     @Test
@@ -130,7 +184,14 @@ public class CReferenceTest {
         final Complex z1 = Complex.ofCartesian(2, 3).sqrt();
         assertEquals("real", 1.6741492280355401, z1.getReal());
         assertEquals("imaginary", 0.89597747612983814, z1.getImaginary());
+        final Complex z2 = Complex.ofCartesian(0, 0.75).sqrt();
+        assertEquals("real", 0.61237243569579447, z2.getReal());
+        assertEquals("imaginary", 0.61237243569579447, z2.getImaginary());
+        final Complex z3 = Complex.ofCartesian(0.75, 0).sqrt();
+        assertEquals("real", 0.8660254037844386, z3.getReal());
+        assertEquals("imaginary", 0, z3.getImaginary());
     }
+
 
     @Test
     public void testMultiply() {
