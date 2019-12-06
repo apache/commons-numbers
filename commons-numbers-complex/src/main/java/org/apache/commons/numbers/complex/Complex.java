@@ -1127,16 +1127,22 @@ public final class Complex implements Serializable  {
     private static Complex asinh(double real, double imaginary, ComplexConstructor constructor) {
         if (Double.isFinite(real)) {
             if (Double.isFinite(imaginary)) {
-                // Special case for zero
-                if (real == 0 && imaginary == 0) {
-                    return constructor.create(real, imaginary);
-                }
                 // ISO C99: Preserve the equality
                 // asinh(conj(z)) = conj(asinh(z))
                 // and the odd function: f(z) = -f(-z)
                 // by always computing on a positive valued Complex number.
                 final double a = Math.abs(real);
                 final double b = Math.abs(imaginary);
+                // C99. G.7: Special case for imaginary only numbers
+                if (a == 0 && b <= 1.0) {
+                    if (imaginary == 0) {
+                        return constructor.create(real, imaginary);
+                    }
+                    // asinh(iy) = i asin(y)
+                    final double re = -Math.asin(b);
+                    return constructor.create(changeSign(re, real),
+                                              imaginary);
+                }
                 // square() is implemented using multiply
                 final Complex z2 = multiply(a, b, a, b);
                 // sqrt(1 + z^2)
@@ -1209,22 +1215,27 @@ public final class Complex implements Serializable  {
     private static Complex atanh(double real, double imaginary, ComplexConstructor constructor) {
         if (Double.isFinite(real)) {
             if (Double.isFinite(imaginary)) {
-                // Special case for zero
-                if (imaginary == 0) {
-                    if (real == 0) {
-                        return constructor.create(real, imaginary);
-                    }
-                    if (Math.abs(real) == 1) {
-                        // raises the ‘‘divide-by-zero’’ floating-point exception.
-                        return constructor.create(Math.copySign(Double.POSITIVE_INFINITY, real), imaginary);
-                    }
-                }
                 // ISO C99: Preserve the equality
                 // atanh(conj(z)) = conj(atanh(z))
                 // and the odd function: f(z) = -f(-z)
                 // by always computing on a positive valued Complex number.
                 final double a = Math.abs(real);
                 final double b = Math.abs(imaginary);
+                // Special case for divide-by-zero
+                if (a == 1 && b == 0) {
+                    // raises the ‘‘divide-by-zero’’ floating-point exception.
+                    return constructor.create(Math.copySign(Double.POSITIVE_INFINITY, real), imaginary);
+                }
+                // C99. G.7: Special case for imaginary only numbers
+                if (a == 0) {
+                    if (imaginary == 0) {
+                        return constructor.create(real, imaginary);
+                    }
+                    // atanh(iy) = i atan(y)
+                    final double re = -Math.atan(b);
+                    return constructor.create(changeSign(re, real),
+                                              imaginary);
+                }
                 // (1 + (a + b i)) / (1 - (a + b i))
                 final Complex result = divide(1 + a, b, 1 - a, -b);
                 // Compute the rest inline to avoid Complex object creation.
