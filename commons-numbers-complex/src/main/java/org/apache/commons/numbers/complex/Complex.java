@@ -1901,39 +1901,6 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Creates a function to transform this Complex into a Complex with positive imaginary
-     * components. This is used to maintain the conjugate equality of a function
-     * f(z) by always computing the result on positive valued input. Given:
-     *
-     * <pre>
-     * conj(f(z)) = f(conj(z))
-     * </pre>
-     *
-     * <p>The Complex can be transformed to the positive domain using the {@link #conjugate()}
-     * function, the function f(z) computed and the result transformed back using the same
-     * mapping function to the original domain.</p>
-     *
-     * <pre>
-     * g(z) = mapImaginaryToPositiveDomain()
-     * f(z) = g(f(g(z)))
-     * </pre>
-     *
-     * <p>If the Complex is already in the correct domain then this returns an identify
-     * function. The function will be computed as:</p>
-     *
-     * <pre>
-     * imaginary    g(z)
-     * +            identity
-     * -            conjugate
-     * </pre>
-     *
-     * @return the function
-     */
-    private UnaryOperator<Complex> mapImaginaryToPositiveDomain() {
-        return negative(imaginary) ? Complex::conjugate : Complex::identity;
-    }
-
-    /**
      * Returns a {@code Complex} whose real value is negated.
      *
      * @return {@code Complex(-real, imaginary)}.
