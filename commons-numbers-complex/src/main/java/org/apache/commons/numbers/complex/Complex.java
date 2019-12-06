@@ -1002,7 +1002,7 @@ public final class Complex implements Serializable  {
                 final double re = PI_OVER_2 - getArgument(x, y);
                 final double im = Math.log(getAbsolute(x, y));
                 // Map back to the correct sign
-                return constructor.create(re, negative(imaginary) ? -im : im);
+                return constructor.create(re, changeSign(im, imaginary));
             }
             if (Double.isInfinite(imaginary)) {
                 return constructor.create(PI_OVER_2, Math.copySign(Double.POSITIVE_INFINITY, -imaginary));
@@ -1149,8 +1149,8 @@ public final class Complex implements Serializable  {
                 final double re = Math.log(getAbsolute(x, y));
                 final double im = getArgument(x, y);
                 // Map back to the correct sign
-                return constructor.create(Math.copySign(re, real),
-                                          Math.copySign(im, imaginary));
+                return constructor.create(changeSign(re, real),
+                                          changeSign(im, imaginary));
             }
             if (Double.isInfinite(imaginary)) {
                 return constructor.create(Math.copySign(Double.POSITIVE_INFINITY, real),
@@ -1232,8 +1232,8 @@ public final class Complex implements Serializable  {
                 final double re = 0.5 * Math.log(result.abs());
                 final double im = 0.5 * result.getArgument();
                 // Map back to the correct sign
-                return constructor.create(Math.copySign(re, real),
-                                          Math.copySign(im, imaginary));
+                return constructor.create(changeSign(re, real),
+                                          changeSign(im, imaginary));
             }
             if (Double.isInfinite(imaginary)) {
                 return constructor.create(Math.copySign(0, real), Math.copySign(PI_OVER_2, imaginary));
@@ -1945,6 +1945,27 @@ public final class Complex implements Serializable  {
      */
     private static Complex multiplyNegativeI(double real, double imaginary) {
         return new Complex(imaginary, -real);
+    }
+
+    /**
+     * Change the sign of the magnitude based on the signed value.
+     *
+     * <p>If the signed value is negative then the result is {@code -magnitude}; otherwise
+     * return {@code magnitude}.
+     *
+     * <p>A signed value of {@code -0.0} is treated as negative. A signed value of {@code NaN}
+     * is treated as positive.
+     *
+     * <p>This is not the same as {@link Math#copySign(double, double)} as this method
+     * will change the sign based on the signed value rather than copy the sign.
+     *
+     * @param magnitude the magnitude
+     * @param signedValue the signed value
+     * @return magnitude or -magnitude
+     * @see #negative(double)
+     */
+    private static double changeSign(double magnitude, double signedValue) {
+        return negative(signedValue) ? -magnitude : magnitude;
     }
 
     /**
