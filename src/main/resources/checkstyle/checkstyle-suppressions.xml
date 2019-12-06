@@ -21,6 +21,7 @@
 <suppressions>
   <suppress checks="Indentation" files=".*/combinatorics/Factorial" />
   <suppress checks="ParameterNumber" files=".*/arrays/LinearCombination" />
+  <suppress checks="FileLengthCheck" files=".*/Complex" />
 
   <!-- Be more lenient on tests. -->
   <suppress checks="Javadoc" files=".*[/\\]test[/\\].*" />
