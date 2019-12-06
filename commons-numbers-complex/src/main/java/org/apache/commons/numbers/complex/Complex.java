@@ -1121,10 +1121,10 @@ public final class Complex implements Serializable  {
                     if (imaginary == 0) {
                         return constructor.create(real, imaginary);
                     }
-                    // asinh(iy) = i asin(y)
-                    final double re = -Math.asin(b);
-                    return constructor.create(changeSign(re, real),
-                                              imaginary);
+//                    // asinh(iy) = i asin(y)
+//                    final double re = -Math.asin(b);
+//                    return constructor.create(changeSign(re, real),
+//                                              imaginary);
                 }
                 // square() is implemented using multiply
                 final Complex z2 = multiply(a, b, a, b);
@@ -1214,10 +1214,10 @@ public final class Complex implements Serializable  {
                     if (imaginary == 0) {
                         return constructor.create(real, imaginary);
                     }
-                    // atanh(iy) = i atan(y)
-                    final double re = -Math.atan(b);
-                    return constructor.create(changeSign(re, real),
-                                              imaginary);
+//                    // atanh(iy) = i atan(y)
+//                    final double re = -Math.atan(b);
+//                    return constructor.create(changeSign(re, real),
+//                                              imaginary);
                 }
                 // (1 + (a + b i)) / (1 - (a + b i))
                 final Complex result = divide(1 + a, b, 1 - a, -b);
@@ -1278,10 +1278,15 @@ public final class Complex implements Serializable  {
         if (Double.isNaN(imaginary) && Double.isFinite(real)) {
             return NAN;
         }
-        // TODO - use the static acos function
-        final Complex result = acos();
-        // Set the sign appropriately for C99 equalities.
-        return (negative(result.imaginary)) ? result.multiplyByI() : result.multiplyByNegI();
+        return acos(real, imaginary, (re, im) -> {
+            // Set the sign appropriately for C99 equalities.
+            // TODO: This function currently conflicts with the CReferenceTest
+            return (negative(im)) ?
+                // Multiply by I
+                new Complex(-im, re) :
+                // Multiply by -I
+                new Complex(im, -re);
+        });
     }
 
     /**
