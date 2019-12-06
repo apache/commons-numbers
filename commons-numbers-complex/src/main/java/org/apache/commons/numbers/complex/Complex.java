@@ -1134,51 +1134,32 @@ public final class Complex implements Serializable  {
      * Compute the
      * <a href="http://mathworld.wolfram.com/InverseHyperbolicCosine.html">
      * inverse hyperbolic cosine</a> of this complex number.
-     * Implements the formula:
      * <pre>
-     *   acosh(z) = log(z+sqrt(z^2-1))
+     *   acosh(z) = ln(z + sqrt(z + 1) * sqrt(z - 1))
      * </pre>
+     *
+     * <p>This function is computed using the trigonomic identity:</p>
+     * <pre>
+     *   acosh(z) = +-i acos(z)
+     * </pre>
+     *
+     * <p>The sign of the multiplier is chosen to give {@code z.acosh().real() >= 0}
+     * and compatibility with the C.99 standard.</p>
      *
      * @return the inverse hyperbolic cosine of this complex number
      */
     public Complex acosh() {
-        if (Double.isFinite(real)) {
-            if (Double.isFinite(imaginary)) {
-                // Special case for zero
-                if (real == 0 && imaginary == 0) {
-                    return new Complex(real, Math.copySign(PI_OVER_2, imaginary));
-                }
-                // ISO C99: Preserve the equality
-                // acosh(conj(z)) = conj(acosh(z))
-                final UnaryOperator<Complex> g = mapImaginaryToPositiveDomain();
-                final Complex z = g.apply(this);
-                final Complex result = z.square().subtract(1).sqrt().add(z).log();
-                return g.apply(result);
-            }
-            if (Double.isInfinite(imaginary)) {
-                return new Complex(Double.POSITIVE_INFINITY, Math.copySign(PI_OVER_2, imaginary));
-            }
-            // imaginary is NaN
+        // Define in terms of acos
+        // acosh(z) = +-i acos(z)
+        // Handle special case:
+        // acos(+-0 + iNaN) = π/2 + iNaN
+        // acosh(x + iNaN) = NaN + iNaN for all finite x (including zero)
+        if (Double.isNaN(imaginary) && Double.isFinite(real)) {
             return NAN;
         }
-        if (Double.isInfinite(real)) {
-            if (Double.isFinite(imaginary)) {
-                final double im = real == Double.NEGATIVE_INFINITY ? Math.PI : 0;
-                return new Complex(Double.POSITIVE_INFINITY, Math.copySign(im, imaginary));
-            }
-            if (Double.isInfinite(imaginary)) {
-                final double im = real == Double.NEGATIVE_INFINITY ? PI_3_OVER_4 : PI_OVER_4;
-                return new Complex(Double.POSITIVE_INFINITY, Math.copySign(im, imaginary));
-            }
-            // imaginary is NaN
-            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
-        }
-        // real is NaN
-        if (Double.isInfinite(imaginary)) {
-            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
-        }
-        // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
-        return NAN;
+        final Complex result = acos();
+        // Set the sign appropriately for C99 equalities.
+        return (negative(result.imaginary)) ? result.multiplyByI() : result.multiplyByNegI();
     }
 
     /**
