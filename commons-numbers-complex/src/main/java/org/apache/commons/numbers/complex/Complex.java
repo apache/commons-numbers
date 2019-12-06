@@ -20,7 +20,6 @@ package org.apache.commons.numbers.complex;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.UnaryOperator;
 
 import org.apache.commons.numbers.core.Precision;
 
@@ -1950,64 +1949,5 @@ public final class Complex implements Serializable  {
         }
 
         return new NumberFormatException(sb.toString());
-    }
-
-    /**
-     * Creates a function to transform this Complex into a Complex with positive real and imaginary
-     * components. This is used to maintain the conjugate equality and the oddness of a function
-     * f(z) by always computing the result on positive valued input. Given:
-     *
-     * <pre>
-     * conj(f(z)) = f(conj(z))
-     * f(z) = -f(-z)
-     * </pre>
-     *
-     * <p>The Complex can be transformed to the positive domain using a combination of
-     * {@link #negate()} and/or {@link #conjugate()} functions, the function f(z) computed and
-     * the result transformed back using the same mapping function to the original domain.</p>
-     *
-     * <pre>
-     * g(z) = mapToPositiveDomain()
-     * f(z) = g(f(g(z)))
-     * </pre>
-     *
-     * <p>If the Complex is already in the correct domain then this returns an identify
-     * function. The function will be computed as:</p>
-     *
-     * <pre>
-     * real    imaginary    g(z)
-     * +       +            identity
-     * -       +            negateReal (negate && conjugate)
-     * +       -            conjugate
-     * -       -            negate
-     * </pre>
-     *
-     * @return the function
-     */
-    private UnaryOperator<Complex> mapToPositiveDomain() {
-        if (negative(real)) {
-            return negative(imaginary) ? Complex::negate : Complex::negateReal;
-        } else if (negative(imaginary)) {
-            return Complex::conjugate;
-        }
-        return Complex::identity;
-    }
-
-    /**
-     * Returns a {@code Complex} whose real value is negated.
-     *
-     * @return {@code Complex(-real, imaginary)}.
-     */
-    private Complex negateReal() {
-        return new Complex(-real, imaginary);
-    }
-
-    /**
-     * Returns this {@code Complex}.
-     *
-     * @return {@code this}.
-     */
-    private Complex identity() {
-        return this;
     }
 }
