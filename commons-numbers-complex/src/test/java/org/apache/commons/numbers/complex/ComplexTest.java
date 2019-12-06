@@ -1294,14 +1294,6 @@ public class ComplexTest {
     }
 
     @Test
-    @Disabled("Required if not implemented in terms of tanh")
-    public void testTan() {
-        // Check the conditions on the imaginary component that create special results.
-        TestUtils.assertEquals(Complex.ONE, Complex.ofCartesian(0, 25).tan(), 0);
-        TestUtils.assertEquals(Complex.ofCartesian(0, -1), Complex.ofCartesian(0, -25).tan(), 0);
-    }
-
-    @Test
     public void testAtanhEdgeConditions() {
         // Hits the edge case when imaginary == 0 but real != 0 or 1
         final Complex c = Complex.ofCartesian(2, 0).atanh();
