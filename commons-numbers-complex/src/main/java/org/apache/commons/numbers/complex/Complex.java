@@ -322,7 +322,20 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Returns the 
+     * Returns a {@code Complex} whose value is {@code this + (a + b i))}.
+     *
+     * <p>This function is used internally in trigonomic functions.
+     *
+     * @param a Real component a.
+     * @param b Imaginary component b.
+     * @return {@code this + (a + b i)}.
+     */
+    private Complex add(double a, double b) {
+        return new Complex(real + a, imaginary + b);
+    }
+
+    /**
+     * Returns the
      * <a href="http://mathworld.wolfram.com/ComplexConjugate.html">conjugate</a>
      * z&#773; of this complex number z.
      * <pre>
@@ -717,10 +730,26 @@ public final class Complex implements Serializable  {
      * @see <a href="http://mathworld.wolfram.com/ComplexMultiplication.html">Complex Muliplication</a>
      */
     public Complex multiply(Complex factor) {
-        double a = real;
-        double b = imaginary;
-        double c = factor.getReal();
-        double d = factor.getImaginary();
+        return multiply(real, imaginary, factor.real, factor.imaginary);
+    }
+
+    /**
+     * Returns a {@code Complex} whose value is:
+     * <pre>
+     *   (a + b i)(c + d i) = (ac - bd) + i (ad + bc)
+     * </pre>
+     *
+     * <p>Recalculates to recover infinities as specified in C.99
+     * standard G.5.1. Method is fully in accordance with
+     * C++11 standards for complex numbers.</p>
+     *
+     * @param a Real component of first number.
+     * @param b Imaginary component of first number.
+     * @param c Real component of second number.
+     * @param d Imaginary component of second number.
+     * @return (a + b i)(c + d i).
+     */
+    private static Complex multiply(double a, double b, double c, double d) {
         final double ac = a * c;
         final double bd = b * d;
         final double ad = a * d;
@@ -744,7 +773,8 @@ public final class Complex implements Serializable  {
         if (Double.isNaN(x) && Double.isNaN(y)) {
             // Recover infinities that computed as NaN+iNaN ...
             boolean recalc = false;
-            if (isInfinite() && isNotZero(c, d)) {
+            if ((Double.isInfinite(a) || Double.isInfinite(b)) &&
+                isNotZero(c, d)) {
                 // This complex is infinite.
                 // "Box" the infinity and change NaNs in the other factor to 0.
                 a = boxInfinity(a);
@@ -1002,7 +1032,8 @@ public final class Complex implements Serializable  {
     public Complex asin() {
         // Define in terms of asinh
         // asin(z) = -i asinh(iz)
-        return multiplyByI().asinh().multiplyByNegI();
+        // Multiply this number by I, compute asinh, then multiply by back
+        return asinh(-imaginary, real, Complex::multiplyNegativeI);
     }
 
     /**
@@ -1068,43 +1099,62 @@ public final class Complex implements Serializable  {
      * @return the inverse hyperbolic sine of this complex number
      */
     public Complex asinh() {
+        return asinh(real, imaginary, Complex::ofCartesian);
+    }
+
+    /**
+     * Compute the inverse hyperbolic sine of the complex number.
+     *
+     * <p>This function exists to allow implementation of the identity
+     * {@code sin(z) = -i sinh(iz)}.<p>
+     *
+     * @param real Real part.
+     * @param imaginary Imaginary part.
+     * @param constructor Constructor.
+     * @return the inverse hyperbolic sine of this complex number
+     */
+    private static Complex asinh(double real, double imaginary, ComplexConstructor constructor) {
         if (Double.isFinite(real)) {
             if (Double.isFinite(imaginary)) {
                 // Special case for zero
                 if (real == 0 && imaginary == 0) {
-                    return this;
+                    return constructor.create(real, imaginary);
                 }
                 // ISO C99: Preserve the equality
                 // asinh(conj(z)) = conj(asinh(z))
                 // and the odd function: f(z) = -f(-z)
                 // by always computing on a positive valued Complex number.
-                final UnaryOperator<Complex> g = mapToPositiveDomain();
-                final Complex z = g.apply(this);
-                final Complex result = z.square().add(1).sqrt().add(z).log();
-                return g.apply(result);
+                final double a = Math.abs(real);
+                final double b = Math.abs(imaginary);
+                // square() is implemented using multiply
+                final Complex result = multiply(a, b, a, b).add(1).sqrt().add(a, b).log();
+                // Map back to the correct domain
+                return constructor.create(Math.copySign(result.real, real),
+                                          Math.copySign(result.imaginary, imaginary));
             }
             if (Double.isInfinite(imaginary)) {
-                return new Complex(Math.copySign(Double.POSITIVE_INFINITY, real), Math.copySign(PI_OVER_2, imaginary));
+                return constructor.create(Math.copySign(Double.POSITIVE_INFINITY, real),
+                                          Math.copySign(PI_OVER_2, imaginary));
             }
             // imaginary is NaN
             return NAN;
         }
         if (Double.isInfinite(real)) {
             if (Double.isFinite(imaginary)) {
-                return new Complex(real, Math.copySign(0, imaginary));
+                return constructor.create(real, Math.copySign(0, imaginary));
             }
             if (Double.isInfinite(imaginary)) {
-                return new Complex(real, Math.copySign(PI_OVER_4, imaginary));
+                return constructor.create(real, Math.copySign(PI_OVER_4, imaginary));
             }
             // imaginary is NaN
-            return new Complex(real, Double.NaN);
+            return constructor.create(real, Double.NaN);
         }
         // real is NaN
         if (imaginary == 0) {
-            return new Complex(Double.NaN, Math.copySign(0, imaginary));
+            return constructor.create(Double.NaN, Math.copySign(0, imaginary));
         }
         if (Double.isInfinite(imaginary)) {
-            return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
+            return constructor.create(Double.POSITIVE_INFINITY, Double.NaN);
         }
         // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
         return NAN;
