@@ -287,6 +287,19 @@ public final class Complex implements Serializable  {
      * @return the absolute value.
      */
     public double abs() {
+        return getAbsolute(real, imaginary);
+    }
+
+    /**
+     * Compute the argument of the complex number.
+     *
+     * <p>This function exists for use in trigonomic functions.
+     *
+     * @param real Real part.
+     * @param imaginary Imaginary part.
+     * @return the argument
+     */
+    private static double getAbsolute(double real, double imaginary) {
         // Delegate
         return Math.hypot(real, imaginary);
     }
@@ -937,26 +950,6 @@ public final class Complex implements Serializable  {
 
     /**
      * Returns a {@code Complex} whose value is
-     * {@code (minuend - this)}.
-     * Implements the formula:
-     * <pre>
-     *  a - (c + d i) = (a - c) - d i
-     * </pre>
-     *
-     * <p>Note: This will produce a different result than using
-     * {@code Complex.ofCartesian(minuend, 0).subtract(z)} when the imaginary component is
-     * zero; in this method the sign of the zero is negated.
-     *
-     * @param  minuend value that this {@code Complex} is to be subtracted from.
-     * @return {@code minuend - this}.
-     */
-    private Complex subtractFromReal(double minuend) {
-        return new Complex(minuend - real,
-                           -imaginary);
-    }
-
-    /**
-     * Returns a {@code Complex} whose value is
      * {@code (this - subtrahend)}.
      * Implements the formula:
      * <pre>
@@ -978,55 +971,75 @@ public final class Complex implements Serializable  {
      * Implements the formula:
      * <pre>
      * <code>
-     *   acos(z) = -i (ln(z + i (sqrt(1 - z<sup>2</sup>))))
+     *   acos(z) = (pi / 2) + i ln(iz + sqrt(1 - z<sup>2</sup>))
      * </code>
      * </pre>
      *
      * @return the inverse cosine of this complex number.
      */
     public Complex acos() {
+        return acos(real, imaginary, Complex::ofCartesian);
+    }
+
+    /**
+     * Compute the inverse cosine of the complex number.
+     *
+     * <p>This function exists to allow implementation of the identity
+     * {@code acosh(z) = +-i acos(z)}.<p>
+     *
+     * @param real Real part.
+     * @param imaginary Imaginary part.
+     * @param constructor Constructor.
+     * @return the inverse cosine of the complex number.
+     */
+    private static Complex acos(double real, double imaginary, ComplexConstructor constructor) {
         if (Double.isFinite(real)) {
             if (Double.isFinite(imaginary)) {
                 // Special case for zero
                 if (real == 0 && imaginary == 0) {
-                    return new Complex(PI_OVER_2, Math.copySign(0, -imaginary));
+                    return constructor.create(PI_OVER_2, Math.copySign(0, -imaginary));
                 }
                 // ISO C99: Preserve the equality
                 // acos(conj(z)) = conj(acos(z))
-                Complex z;
-                ComplexConstructor constructor;
-                if (negative(imaginary)) {
-                    z = conj();
-                    constructor = Complex::ofCartesianConjugate;
-                } else {
-                    z = this;
-                    constructor = Complex::ofCartesian;
-                }
-                return z.add(z.square().subtractFromReal(1).sqrt().multiplyByI()).log().multiplyByNegI(constructor);
+                // by always computing on a positive imaginary Complex number.
+                final double a = real;
+                final double b = Math.abs(imaginary);
+                final Complex z2 = multiply(a, b, a, b);
+                // sqrt(1 - z^2)
+                final Complex sqrt1mz2 = sqrt(1 - z2.real, -z2.imaginary);
+                // Compute the rest inline to avoid Complex object creation.
+                // (x + y i) = iz + sqrt(1 - z^2)
+                final double x = -b + sqrt1mz2.real;
+                final double y = a + sqrt1mz2.imaginary;
+                // (pi / 2) + i ln(iz + sqrt(1 - z^2))
+                final double re = PI_OVER_2 - getArgument(x, y);
+                final double im = Math.log(getAbsolute(x, y));
+                // Map back to the correct domain
+                return constructor.create(re, negative(imaginary) ? -im : im);
             }
             if (Double.isInfinite(imaginary)) {
-                return new Complex(PI_OVER_2, Math.copySign(Double.POSITIVE_INFINITY, -imaginary));
+                return constructor.create(PI_OVER_2, Math.copySign(Double.POSITIVE_INFINITY, -imaginary));
             }
             // imaginary is NaN
             // Special case for real == 0
-            return real == 0 ? new Complex(PI_OVER_2, Double.NaN) : NAN;
+            return real == 0 ? constructor.create(PI_OVER_2, Double.NaN) : NAN;
         }
         if (Double.isInfinite(real)) {
             if (Double.isFinite(imaginary)) {
                 final double re = real == Double.NEGATIVE_INFINITY ? Math.PI : 0;
-                return new Complex(re, Math.copySign(Double.POSITIVE_INFINITY, -imaginary));
+                return constructor.create(re, Math.copySign(Double.POSITIVE_INFINITY, -imaginary));
             }
             if (Double.isInfinite(imaginary)) {
                 final double re = real == Double.NEGATIVE_INFINITY ? PI_3_OVER_4 : PI_OVER_4;
-                return new Complex(re, Math.copySign(Double.POSITIVE_INFINITY, -imaginary));
+                return constructor.create(re, Math.copySign(Double.POSITIVE_INFINITY, -imaginary));
             }
             // imaginary is NaN
             // Swap real and imaginary
-            return new Complex(Double.NaN, real);
+            return constructor.create(Double.NaN, real);
         }
         // real is NaN
         if (Double.isInfinite(imaginary)) {
-            return new Complex(Double.NaN, -imaginary);
+            return constructor.create(Double.NaN, -imaginary);
         }
         // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
         return NAN;
@@ -1094,16 +1107,6 @@ public final class Complex implements Serializable  {
      */
     private Complex multiplyByNegI() {
         return new Complex(imaginary, -real);
-    }
-
-    /**
-     * Multiply the Complex by -I and create the result using the constructor.
-     *
-     * @param constructor Constructor
-     * @return the result (-iz)
-     */
-    private Complex multiplyByNegI(ComplexConstructor constructor) {
-        return constructor.create(imaginary, -real);
     }
 
     /**
@@ -1224,16 +1227,16 @@ public final class Complex implements Serializable  {
                 // atanh(conj(z)) = conj(atanh(z))
                 // and the odd function: f(z) = -f(-z)
                 // by always computing on a positive valued Complex number.
-                double a = Math.abs(real);
-                double b = Math.abs(imaginary);
+                final double a = Math.abs(real);
+                final double b = Math.abs(imaginary);
                 // (1 + (a + b i)) / (1 - (a + b i))
-                Complex result = divide(1 + a, b, 1 - a, -b);
-                // Compute the log here to avoid: result = result.log()
-                a = Math.log(result.abs());
-                b = result.getArgument();
+                final Complex result = divide(1 + a, b, 1 - a, -b);
+                // Compute the rest inline to avoid Complex object creation.
+                final double re = Math.log(result.abs());
+                final double im = result.getArgument();
                 // Map back to the correct domain and divide by 2
-                return constructor.create(Math.copySign(a * 0.5, real),
-                                          Math.copySign(b * 0.5, imaginary));
+                return constructor.create(Math.copySign(re * 0.5, real),
+                                          Math.copySign(im * 0.5, imaginary));
             }
             if (Double.isInfinite(imaginary)) {
                 return constructor.create(Math.copySign(0, real), Math.copySign(PI_OVER_2, imaginary));
@@ -1284,6 +1287,7 @@ public final class Complex implements Serializable  {
         if (Double.isNaN(imaginary) && Double.isFinite(real)) {
             return NAN;
         }
+        // TODO - use the static acos function
         final Complex result = acos();
         // Set the sign appropriately for C99 equalities.
         return (negative(result.imaginary)) ? result.multiplyByI() : result.multiplyByNegI();
@@ -1659,6 +1663,29 @@ public final class Complex implements Serializable  {
      * @return the square root of {@code this}.
      */
     public Complex sqrt() {
+        return sqrt(real, imaginary);
+    }
+
+    /**
+     * Compute the square root of the complex number.
+     * Implements the following algorithm to compute {@code sqrt(a + b i)}:
+     * <ol>
+     * <li>Let {@code t = sqrt((|a| + |a + b i|) / 2)}
+     * <li>if {@code (a >= 0)} return {@code t + (b / 2t) i}
+     * <li>else return {@code |b| / 2t + sign(b)t i }
+     * </ol>
+     * where:
+     * <ul>
+     * <li>{@code |a| = }{@link Math#abs}(a)
+     * <li>{@code |a + b i| = }{@link Complex#abs}(a + b i)
+     * <li>{@code sign(b) =  }{@link Math#copySign(double,double) copySign(1.0, b)}
+     * </ul>
+     *
+     * @param real Real component.
+     * @param imaginary Imaginary component.
+     * @return the square root of the complex number.
+     */
+    private static Complex sqrt(double real, double imaginary) {
         // Special case for infinite imaginary for all real including nan
         if (Double.isInfinite(imaginary)) {
             return new Complex(Double.POSITIVE_INFINITY, imaginary);
@@ -1669,7 +1696,7 @@ public final class Complex implements Serializable  {
                 if (real == 0 && imaginary == 0) {
                     return new Complex(0, imaginary);
                 }
-                final double t = Math.sqrt((Math.abs(real) + abs()) / 2);
+                final double t = Math.sqrt((Math.abs(real) + Math.hypot(real, imaginary)) / 2);
                 if (real >= 0) {
                     return new Complex(t, imaginary / (2 * t));
                 }
@@ -1796,8 +1823,7 @@ public final class Complex implements Serializable  {
      * @see Math#atan2(double, double)
      */
     public double getArgument() {
-        // Delegate
-        return Math.atan2(imaginary, real);
+        return getArgument(real, imaginary);
     }
 
     /**
@@ -1808,7 +1834,19 @@ public final class Complex implements Serializable  {
      * @see #getArgument()
      */
     public double arg() {
-        return getArgument();
+        return getArgument(real, imaginary);
+    }
+
+    /**
+     * Compute the argument of the complex number.
+     *
+     * @param real Real part.
+     * @param imaginary Imaginary part.
+     * @return the argument
+     */
+    private static double getArgument(double real, double imaginary) {
+        // Delegate
+        return Math.atan2(imaginary, real);
     }
 
     /**
@@ -1910,23 +1948,6 @@ public final class Complex implements Serializable  {
      */
     private static Complex multiplyNegativeI(double real, double imaginary) {
         return new Complex(imaginary, -real);
-    }
-
-    /**
-     * Create the conjugate of a complex number given the real and imaginary parts.
-     * This is used in functions that implement conjugate identities. It is the functional
-     * equivalent of:
-     *
-     * <pre>
-     *   z = new Complex(real, imaginary).conjugate();
-     * </pre>
-     *
-     * @param real Real part.
-     * @param imaginary Imaginary part.
-     * @return {@code Complex} object
-     */
-    private static Complex ofCartesianConjugate(double real, double imaginary) {
-        return new Complex(real, -imaginary);
     }
 
     /**
