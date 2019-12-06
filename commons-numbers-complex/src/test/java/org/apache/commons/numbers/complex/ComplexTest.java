@@ -1308,7 +1308,7 @@ public class ComplexTest {
         final double min = -5;
         final double range = -2 * min;
         for (int i = 0; i < 10; i++) {
-            final Complex z = Complex.ofCartesian(min + range * rng.nextDouble(), 
+            final Complex z = Complex.ofCartesian(min + range * rng.nextDouble(),
                                                   min + range * rng.nextDouble());
             final Complex c1 = z.multiply(z);
             final Complex c2 = z.square();
