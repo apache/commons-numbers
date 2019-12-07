@@ -1676,7 +1676,7 @@ public final class Complex implements Serializable  {
      * <ul>
      * <li>{@code |a| = }{@link Math#abs}(a)
      * <li>{@code |a + b i| = }{@link Complex#abs}(a + b i)
-     * <li>{@code sign(b) =  }{@link Math#copySign(double,double) copySign(1.0, b)}
+     * <li>{@code sign(b) = }{@link Math#copySign(double,double) copySign}(1.0, b)
      * </ul>
      *
      * @param real Real component.
@@ -1694,11 +1694,13 @@ public final class Complex implements Serializable  {
                 if (real == 0 && imaginary == 0) {
                     return new Complex(0, imaginary);
                 }
-                final double t = Math.sqrt((Math.abs(real) + Math.hypot(real, imaginary)) / 2);
+                final double t = Math.sqrt(average(Math.abs(real), Math.hypot(real, imaginary)));
+                // t is positive:
+                // To prevent overflow dividing by (2 * t) divide by t then by 2.
                 if (real >= 0) {
-                    return new Complex(t, imaginary / (2 * t));
+                    return new Complex(t, (imaginary / t) / 2);
                 }
-                return new Complex(Math.abs(imaginary) / (2 * t),
+                return new Complex((Math.abs(imaginary) / t) / 2,
                                    Math.copySign(1.0, imaginary) * t);
             }
             // Imaginary is nan
@@ -1715,6 +1717,19 @@ public final class Complex implements Serializable  {
         // real is NaN
         // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
         return NAN;
+    }
+
+    /**
+     * Compute {@code (a + b) / 2} without overflow.
+     *
+     * @param a the a
+     * @param b the b
+     * @return the average
+     */
+    private static double average(double a, double b) {
+        return (b < a) ?
+                a + (b - a) / 2 :
+                b + (a - b) / 2;
     }
 
     /**
