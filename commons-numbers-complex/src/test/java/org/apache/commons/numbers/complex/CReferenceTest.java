@@ -148,6 +148,12 @@ public class CReferenceTest {
         assertEquals(() -> c1 + " op " + c2 + ": imaginary", y, z.getImaginary(), maxUlps);
     }
 
+    // Fix:
+    // acos
+    // acosh
+    // asinh
+    // Q. Are these the function in boost?
+
     @Test
     public void testAcos() {
 //        assertComplex(-1e+308, 0.0, Complex::acos, nan, -inf);
