@@ -473,11 +473,11 @@ public class CReferenceTest {
 
     @Test
     public void testTanh() {
-//        assertComplex(-1e+308, 0.0, Complex::tanh, -1, -0.0);
-//        assertComplex(-1e+308, 0.5, Complex::tanh, -1, 0.0);
-//        assertComplex(-1e+308, 1, Complex::tanh, -1, 0.0);
-//        assertComplex(-1e+308, 2, Complex::tanh, -1, 0.0);
-//        assertComplex(-1e+308, 1e+308, Complex::tanh, nan, nan);
+        assertComplex(-1e+308, 0.0, Complex::tanh, -1, -0.0);
+        assertComplex(-1e+308, 0.5, Complex::tanh, -1, 0.0);
+        assertComplex(-1e+308, 1, Complex::tanh, -1, 0.0);
+        assertComplex(-1e+308, 2, Complex::tanh, -1, 0.0);
+        assertComplex(-1e+308, 1e+308, Complex::tanh, nan, nan);
         assertComplex(-2, 0.0, Complex::tanh, -0.9640275800758169, 0.0);
         assertComplex(-2, 0.5, Complex::tanh, -0.97994084996173814, 0.030215987322877575);
         assertComplex(-2, 1, Complex::tanh, -1.0147936161466335, 0.033812826079896691);
@@ -518,10 +518,10 @@ public class CReferenceTest {
         assertComplex(2, 1, Complex::tanh, 1.0147936161466335, 0.033812826079896691);
         assertComplex(2, 2, Complex::tanh, 1.0238355945704727, -0.028392952868232287);
         assertComplex(2, 1e+308, Complex::tanh, nan, nan);
-//        assertComplex(1e+308, 0.0, Complex::tanh, 1, -0.0);
-//        assertComplex(1e+308, 0.5, Complex::tanh, 1, 0.0);
-//        assertComplex(1e+308, 1, Complex::tanh, 1, 0.0);
-//        assertComplex(1e+308, 2, Complex::tanh, 1, 0.0);
+        assertComplex(1e+308, 0.0, Complex::tanh, 1, -0.0);
+        assertComplex(1e+308, 0.5, Complex::tanh, 1, 0.0);
+        assertComplex(1e+308, 1, Complex::tanh, 1, 0.0);
+        assertComplex(1e+308, 2, Complex::tanh, 1, 0.0);
         assertComplex(1e+308, 1e+308, Complex::tanh, nan, nan);
     }
 

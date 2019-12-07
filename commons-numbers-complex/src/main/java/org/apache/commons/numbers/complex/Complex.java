@@ -1785,27 +1785,38 @@ public final class Complex implements Serializable  {
      * @return the hyperbolic tangent of the complex number
      */
     private static Complex tanh(double real, double imaginary, ComplexConstructor constructor) {
-        // TODO: Should these checks be made on real2 and imaginary2?
-        // Compare to other library implementations.
-        //
         // Math.cos and Math.sin return NaN for infinity.
-        // Math.cosh returns positive infinity for infinity.
-        // Math.sinh returns the input infinity for infinity.
+        // Perform edge-condition checks on the twice the imaginary value.
+        // This handles very big imaginary numbers as infinite.
+
+        final double imaginary2 = 2 * imaginary;
 
         if (Double.isFinite(real)) {
-            if (Double.isFinite(imaginary)) {
-                final double real2 = 2 * real;
-                final double imaginary2 = 2 * imaginary;
+            if (Double.isFinite(imaginary2)) {
+                double real2 = 2 * real;
+
+                // Math.cosh returns positive infinity for infinity.
+                // cosh -> inf
                 final double d = Math.cosh(real2) + Math.cos(imaginary2);
 
-                return constructor.create(Math.sinh(real2) / d,
+                // Math.sinh returns the input infinity for infinity.
+                // sinh -> inf for positive x; else -inf
+                final double sinhRe2 = Math.sinh(real2);
+
+                // Avoid inf / inf
+                if (Double.isInfinite(sinhRe2) && Double.isInfinite(d)) {
+                    // Fall-through to the result if infinite
+                    return constructor.create(Math.copySign(1, real), Math.copySign(0, Math.sin(imaginary2)));
+                }
+                return constructor.create(sinhRe2 / d,
                                           Math.sin(imaginary2) / d);
             }
+            // imaginary is infinite or NaN
             return NAN;
         }
         if (Double.isInfinite(real)) {
-            if (Double.isFinite(imaginary)) {
-                return constructor.create(Math.copySign(1, real), Math.copySign(0, Math.sin(2 * imaginary)));
+            if (Double.isFinite(imaginary2)) {
+                return constructor.create(Math.copySign(1, real), Math.copySign(0, Math.sin(imaginary2)));
             }
             // imaginary is infinite or NaN
             return constructor.create(Math.copySign(1, real), Math.copySign(0, imaginary));
