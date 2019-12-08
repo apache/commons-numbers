@@ -177,22 +177,22 @@ public class ComplexTest {
     }
 
     @Test
-    public void testAbsolute() {
+    public void testAbs() {
         final Complex z = Complex.ofCartesian(3.0, 4.0);
-        Assertions.assertEquals(5.0, z.getAbsolute());
+        Assertions.assertEquals(5.0, z.abs());
     }
 
     @Test
-    public void testAbsoluteNaN() {
+    public void testAbsNaN() {
         // The result is NaN if either argument is NaN and the other is not infinite
-        Assertions.assertEquals(nan, NAN.getAbsolute());
-        Assertions.assertEquals(nan, Complex.ofCartesian(3.0, nan).getAbsolute());
-        Assertions.assertEquals(nan, Complex.ofCartesian(nan, 3.0).getAbsolute());
+        Assertions.assertEquals(nan, NAN.abs());
+        Assertions.assertEquals(nan, Complex.ofCartesian(3.0, nan).abs());
+        Assertions.assertEquals(nan, Complex.ofCartesian(nan, 3.0).abs());
         // The result is positive infinite if either argument is infinite
-        Assertions.assertEquals(inf, Complex.ofCartesian(inf, nan).getAbsolute());
-        Assertions.assertEquals(inf, Complex.ofCartesian(-inf, nan).getAbsolute());
-        Assertions.assertEquals(inf, Complex.ofCartesian(nan, inf).getAbsolute());
-        Assertions.assertEquals(inf, Complex.ofCartesian(nan, -inf).getAbsolute());
+        Assertions.assertEquals(inf, Complex.ofCartesian(inf, nan).abs());
+        Assertions.assertEquals(inf, Complex.ofCartesian(-inf, nan).abs());
+        Assertions.assertEquals(inf, Complex.ofCartesian(nan, inf).abs());
+        Assertions.assertEquals(inf, Complex.ofCartesian(nan, -inf).abs());
     }
 
     @Test
@@ -1206,7 +1206,7 @@ public class ComplexTest {
     }
 
     private static void assertGetArgument(double expected, Complex complex, double delta) {
-        final double actual = complex.getArgument();
+        final double actual = complex.arg();
         Assertions.assertEquals(expected, actual, delta);
         Assertions.assertEquals(actual, complex.arg(), delta);
     }
@@ -1286,8 +1286,6 @@ public class ComplexTest {
             Assertions.assertEquals(z.getReal(), z.real(), "real");
             Assertions.assertEquals(z.getImaginary(), z.imag(), "imag");
             Assertions.assertEquals(z.conjugate(), z.conj(), "conj");
-            Assertions.assertEquals(z.getArgument(), z.arg(), "arg");
-            Assertions.assertEquals(z.getAbsolute(), z.abs(), "abs");
         }
     }
 
@@ -1302,7 +1300,7 @@ public class ComplexTest {
             // This is prone to floating-point error so use a delta
             Assertions.assertEquals(lnz.getReal() / ln10, log10z.getReal(), 1e-12, "real");
             // This test should be exact
-            final double abs = z.getAbsolute();
+            final double abs = z.abs();
             Assertions.assertEquals(Math.log10(abs), log10z.getReal(), "real");
             Assertions.assertEquals(lnz.getImaginary(), log10z.getImaginary(), "imag");
         }

@@ -24,30 +24,24 @@ import java.util.List;
 import org.apache.commons.numbers.core.Precision;
 
 /**
- * Representation of a Complex number, i.e. a number which has both a
+ * Cartesian representation of a Complex number, i.e. a number which has both a
  * real and imaginary part.
  *
- * <p>Implementations of arithmetic operations handle {@code NaN} and
- * infinite values according to the rules for {@link java.lang.Double}, i.e.
- * {@link #equals} is an equivalence relation for all instances that have
- * a {@code NaN} in either real or imaginary part, e.g. the following are
- * considered equal:</p>
- * <ul>
- *  <li>{@code 1 + NaNi}</li>
- *  <li>{@code NaN + i}</li>
- *  <li>{@code NaN + NaNi}</li>
- * </ul>
- *
- * <p>Note that this contradicts the IEEE-754 standard for floating
- * point numbers (according to which the test {@code x == x} must fail if
- * {@code x} is {@code NaN}). The method
- * {@link org.apache.commons.numbers.core.Precision#equals(double,double,int)
- * equals for primitive double} in class {@code Precision} conforms with
- * IEEE-754 while this class conforms with the standard behavior for Java
- * object types.</p>
+ * <p>This class is immutable. All arithmetic will create a new instance for the
+ * result.</p>
  *
  * <p>Arithmetic in this class conforms to the C.99 standard for complex numbers
- * defined in ISO/IEC 9899, Annex G.<p>
+ * defined in ISO/IEC 9899, Annex G. All methods have been named using the equivalent
+ * method in ISO C.99.</p>
+ *
+ * <p>Operations ({@code op}) with no arguments obey the conjuagte equality:</p>
+ * <pre>z.op().conjugate() == z.conjugate().op()</pre>
+ *
+ * <p>Operations that are odd or even obey the equality:</p>
+ * <pre>
+ * Odd:  f(z) = -f(-z)
+ * Even: f(z) =  f(-z)
+ * </pre>
  *
  * @see <a href="http://www.open-std.org/JTC1/SC22/WG14/www/standards">
  *    ISO/IEC 9899 - Programming languages - C</a>
@@ -294,36 +288,28 @@ public final class Complex implements Serializable  {
      *
      * <p>This code follows the
      * <a href="http://www.iso-9899.info/wiki/The_Standard">ISO C Standard</a>, Annex G,
-     * in calculating the returned value using the {@code hypot(x,y)} method.
+     * in calculating the returned value using the {@code hypot(a, b)} method for complex
+     * {@code a + b i}.
      *
      * @return the absolute value.
      * @see #isInfinite()
      * @see #isNaN()
      * @see Math#hypot(double, double)
      */
-    public double getAbsolute() {
-        return getAbsolute(real, imaginary);
-    }
-
-    /**
-     * Compute the absolute of this complex number
-     * (C++11 grammar).
-     *
-     * @return the absolute of {@code this}.
-     * @see #getAbsolute()
-     */
     public double abs() {
-        return getAbsolute(real, imaginary);
+        // Delegate
+        return Math.hypot(real, imaginary);
     }
 
     /**
-     * Compute the argument of the complex number.
+     * Compute the absolute of the complex number.
      *
      * <p>This function exists for use in trigonomic functions.
      *
      * @param real Real part.
      * @param imaginary Imaginary part.
-     * @return the argument
+     * @return the absolute value.
+     * @see Math#hypot(double, double)
      */
     private static double getAbsolute(double real, double imaginary) {
         // Delegate
@@ -1250,7 +1236,7 @@ public final class Complex implements Serializable  {
                 // Compute the rest inline to avoid Complex object creation.
                 // (re + im i) = (1/2) * ln((1 + z) / (1 - z))
                 final double re = 0.5 * Math.log(result.abs());
-                final double im = 0.5 * result.getArgument();
+                final double im = 0.5 * result.arg();
                 // Map back to the correct sign
                 return constructor.create(changeSign(re, real),
                                           changeSign(im, imaginary));
@@ -1493,7 +1479,7 @@ public final class Complex implements Serializable  {
     public Complex log() {
         // All edge cases satisfied by the Math library
         return new Complex(Math.log(abs()),
-                           getArgument());
+                           arg());
     }
 
     /**
@@ -1513,7 +1499,7 @@ public final class Complex implements Serializable  {
     public Complex log10() {
         // All edge cases satisfied by the Math library
         return new Complex(Math.log10(abs()),
-                           getArgument());
+                           arg());
     }
 
     /**
@@ -1870,30 +1856,28 @@ public final class Complex implements Serializable  {
      * infinite coordinate and returning a multiple of pi/4 depending on
      * the signs of the infinite parts.
      *
+     * <p>This code follows the
+     * <a href="http://www.iso-9899.info/wiki/The_Standard">ISO C Standard</a>, Annex G,
+     * in calculating the returned value using the {@code atan2(b, a)} method for complex
+     * {@code a + b i}.
+     *
      * @return the argument of {@code this}.
      * @see Math#atan2(double, double)
      */
-    public double getArgument() {
-        return getArgument(real, imaginary);
-    }
-
-    /**
-     * Compute the argument of this complex number
-     * (C++11 grammar).
-     *
-     * @return the argument of {@code this}.
-     * @see #getArgument()
-     */
     public double arg() {
-        return getArgument(real, imaginary);
+        // Delegate
+        return Math.atan2(imaginary, real);
     }
 
     /**
      * Compute the argument of the complex number.
      *
+     * <p>This function exists for use in trigonomic functions.
+     *
      * @param real Real part.
      * @param imaginary Imaginary part.
-     * @return the argument
+     * @return the argument.
+     * @see Math#atan2(double, double)
      */
     private static double getArgument(double real, double imaginary) {
         // Delegate
@@ -1910,7 +1894,7 @@ public final class Complex implements Serializable  {
      * </pre>
      * for <i>{@code k=0, 1, ..., n-1}</i>, where {@code abs} and {@code phi}
      * are respectively the {@link #abs() modulus} and
-     * {@link #getArgument() argument} of this complex number.
+     * {@link #arg() argument} of this complex number.
      *
      * <p>If one or both parts of this complex number is NaN, a list with all
      * all elements set to {@code NaN + NaN i} is returned.</p>
@@ -1930,7 +1914,7 @@ public final class Complex implements Serializable  {
         final double nthRootOfAbs = Math.pow(abs(), 1.0 / n);
 
         // Compute nth roots of complex number with k = 0, 1, ... n-1
-        final double nthPhi = getArgument() / n;
+        final double nthPhi = arg() / n;
         final double slice = 2 * Math.PI / n;
         double innerPart = nthPhi;
         for (int k = 0; k < Math.abs(n); k++) {
