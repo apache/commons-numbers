@@ -40,6 +40,7 @@ public class ComplexTest {
     private static final Complex oneNegInf = Complex.ofCartesian(1, neginf);
     private static final Complex infOne = Complex.ofCartesian(inf, 1);
     private static final Complex infZero = Complex.ofCartesian(inf, 0);
+    private static final Complex infNegZero = Complex.ofCartesian(inf, -0.0);
     private static final Complex infNan = Complex.ofCartesian(inf, nan);
     private static final Complex infNegInf = Complex.ofCartesian(inf, neginf);
     private static final Complex infInf = Complex.ofCartesian(inf, inf);
@@ -163,8 +164,16 @@ public class ComplexTest {
     public void testProj() {
         final Complex z = Complex.ofCartesian(3.0, 4.0);
         Assertions.assertSame(z, z.proj());
+        // Sign must be the same for projection
         TestUtils.assertSame(infZero, Complex.ofCartesian(inf, 4.0).proj());
+        TestUtils.assertSame(infZero, Complex.ofCartesian(inf, inf).proj());
+        TestUtils.assertSame(infZero, Complex.ofCartesian(inf, nan).proj());
         TestUtils.assertSame(infZero, Complex.ofCartesian(3.0, inf).proj());
+        TestUtils.assertSame(infZero, Complex.ofCartesian(nan, inf).proj());
+        TestUtils.assertSame(infNegZero, Complex.ofCartesian(inf, -4.0).proj());
+        TestUtils.assertSame(infNegZero, Complex.ofCartesian(inf, -inf).proj());
+        TestUtils.assertSame(infNegZero, Complex.ofCartesian(3.0, -inf).proj());
+        TestUtils.assertSame(infNegZero, Complex.ofCartesian(nan, -inf).proj());
     }
 
     @Test

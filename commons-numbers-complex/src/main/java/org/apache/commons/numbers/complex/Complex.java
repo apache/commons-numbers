@@ -262,18 +262,24 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Returns projection of this complex number onto the Riemann sphere,
-     * i.e. all infinities (including those with an NaN component)
-     * project onto real infinity, as described in the
-     * <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/cproj.html">
-     * IEEE and ISO C standards</a>.
+     * Returns projection of this complex number onto the Riemann sphere.
      *
-     * @return {@code Complex} projected onto the Riemann sphere.
+     * <p>{@code z} projects to {@code z}, except that all complex infinities (even those
+     * with one infinite part and one NaN part) project to positive infinity on the real axis.
+     *
+     * If {@code z} has an infinite part, then {@code z.proj()} shall be equivalent to:</p>
+     * <pre>
+     *   return Complex.ofCartesian(Double.POSITIVE_INFINITY, Math.copySign(0.0, imag());
+     * </pre>
+     *
+     * @return {@code z} projected onto the Riemann sphere.
+     * @see #isInfinite()
+     * @see <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/cproj.html">
+     * IEEE and ISO C standards: cproj</a>
      */
     public Complex proj() {
-        if (Double.isInfinite(real) ||
-            Double.isInfinite(imaginary)) {
-            return new Complex(Double.POSITIVE_INFINITY, 0);
+        if (isInfinite()) {
+            return new Complex(Double.POSITIVE_INFINITY, Math.copySign(0.0, imaginary));
         }
         return this;
     }
