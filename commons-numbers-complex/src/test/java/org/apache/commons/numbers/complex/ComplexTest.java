@@ -200,8 +200,8 @@ public class ComplexTest {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final Complex y = Complex.ofCartesian(5.0, 6.0);
         final Complex z = x.add(y);
-        Assertions.assertEquals(8.0, z.getReal(), 1.0e-5);
-        Assertions.assertEquals(10.0, z.getImaginary(), 1.0e-5);
+        Assertions.assertEquals(8.0, z.getReal());
+        Assertions.assertEquals(10.0, z.getImaginary());
     }
 
     @Test
@@ -249,8 +249,8 @@ public class ComplexTest {
     public void testConjugate() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final Complex z = x.conjugate();
-        Assertions.assertEquals(3.0, z.getReal(), 1.0e-5);
-        Assertions.assertEquals(-4.0, z.getImaginary(), 1.0e-5);
+        Assertions.assertEquals(3.0, z.getReal());
+        Assertions.assertEquals(-4.0, z.getImaginary());
     }
 
     @Test
@@ -272,15 +272,15 @@ public class ComplexTest {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final Complex y = Complex.ofCartesian(5.0, 6.0);
         final Complex z = x.divide(y);
-        Assertions.assertEquals(39.0 / 61.0, z.getReal(), 1.0e-5);
-        Assertions.assertEquals(2.0 / 61.0, z.getImaginary(), 1.0e-5);
+        Assertions.assertEquals(39.0 / 61.0, z.getReal());
+        Assertions.assertEquals(2.0 / 61.0, z.getImaginary());
     }
 
     @Test
     public void testDivideReal() {
         final Complex x = Complex.ofCartesian(2d, 3d);
         final Complex y = Complex.ofCartesian(2d, 0d);
-        Assertions.assertEquals(Complex.ofCartesian(1d, 1.5), x.divide(y));
+        Assertions.assertEquals(Complex.ofCartesian(1.0, 1.5), x.divide(y));
 
     }
 
@@ -288,7 +288,7 @@ public class ComplexTest {
     public void testDivideImaginary() {
         final Complex x = Complex.ofCartesian(2d, 3d);
         final Complex y = Complex.ofCartesian(0d, 2d);
-        Assertions.assertEquals(Complex.ofCartesian(1.5d, -1d), x.divide(y));
+        Assertions.assertEquals(Complex.ofCartesian(1.5d, -1.0), x.divide(y));
     }
 
     @Test
@@ -400,8 +400,8 @@ public class ComplexTest {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final Complex y = Complex.ofCartesian(5.0, 6.0);
         final Complex z = x.multiply(y);
-        Assertions.assertEquals(-9.0, z.getReal(), 1.0e-5);
-        Assertions.assertEquals(38.0, z.getImaginary(), 1.0e-5);
+        Assertions.assertEquals(-9.0, z.getReal());
+        Assertions.assertEquals(38.0, z.getImaginary());
     }
 
     @Test
@@ -445,8 +445,8 @@ public class ComplexTest {
     public void testNegate() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final Complex z = x.negate();
-        Assertions.assertEquals(-3.0, z.getReal(), 1.0e-5);
-        Assertions.assertEquals(-4.0, z.getImaginary(), 1.0e-5);
+        Assertions.assertEquals(-3.0, z.getReal());
+        Assertions.assertEquals(-4.0, z.getImaginary());
     }
 
     @Test
@@ -460,8 +460,8 @@ public class ComplexTest {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final Complex y = Complex.ofCartesian(5.0, 6.0);
         final Complex z = x.subtract(y);
-        Assertions.assertEquals(-2.0, z.getReal(), 1.0e-5);
-        Assertions.assertEquals(-2.0, z.getImaginary(), 1.0e-5);
+        Assertions.assertEquals(-2.0, z.getReal());
+        Assertions.assertEquals(-2.0, z.getImaginary());
     }
 
     @Test
@@ -1104,31 +1104,31 @@ public class ComplexTest {
         // The List holding all fourth roots
         Complex[] fourthRootsOfZ = z.nthRoot(4).toArray(new Complex[0]);
         // test z_0
-        Assertions.assertEquals(1,     fourthRootsOfZ[0].getReal(),      1.0e-5);
+        Assertions.assertEquals(1,   fourthRootsOfZ[0].getReal(),      1.0e-5);
         Assertions.assertEquals(0,   fourthRootsOfZ[0].getImaginary(), 1.0e-5);
         // test z_1
-        Assertions.assertEquals(0,    fourthRootsOfZ[1].getReal(),      1.0e-5);
-        Assertions.assertEquals(1,     fourthRootsOfZ[1].getImaginary(), 1.0e-5);
+        Assertions.assertEquals(0,   fourthRootsOfZ[1].getReal(),      1.0e-5);
+        Assertions.assertEquals(1,   fourthRootsOfZ[1].getImaginary(), 1.0e-5);
         // test z_2
-        Assertions.assertEquals(-1,    fourthRootsOfZ[2].getReal(),      1.0e-5);
-        Assertions.assertEquals(0,    fourthRootsOfZ[2].getImaginary(), 1.0e-5);
+        Assertions.assertEquals(-1,  fourthRootsOfZ[2].getReal(),      1.0e-5);
+        Assertions.assertEquals(0,   fourthRootsOfZ[2].getImaginary(), 1.0e-5);
         // test z_3
         Assertions.assertEquals(0,   fourthRootsOfZ[3].getReal(),      1.0e-5);
-        Assertions.assertEquals(-1,    fourthRootsOfZ[3].getImaginary(), 1.0e-5);
+        Assertions.assertEquals(-1,  fourthRootsOfZ[3].getImaginary(), 1.0e-5);
         // go clockwise around the unit circle using negative argument
         fourthRootsOfZ = z.nthRoot(-4).toArray(new Complex[0]);
         // test z_0
-        Assertions.assertEquals(1,     fourthRootsOfZ[0].getReal(),      1.0e-5);
+        Assertions.assertEquals(1,   fourthRootsOfZ[0].getReal(),      1.0e-5);
         Assertions.assertEquals(0,   fourthRootsOfZ[0].getImaginary(), 1.0e-5);
         // test z_1
-        Assertions.assertEquals(0,    fourthRootsOfZ[1].getReal(),      1.0e-5);
-        Assertions.assertEquals(-1,     fourthRootsOfZ[1].getImaginary(), 1.0e-5);
+        Assertions.assertEquals(0,   fourthRootsOfZ[1].getReal(),      1.0e-5);
+        Assertions.assertEquals(-1,  fourthRootsOfZ[1].getImaginary(), 1.0e-5);
         // test z_2
-        Assertions.assertEquals(-1,    fourthRootsOfZ[2].getReal(),      1.0e-5);
-        Assertions.assertEquals(0,    fourthRootsOfZ[2].getImaginary(), 1.0e-5);
+        Assertions.assertEquals(-1,  fourthRootsOfZ[2].getReal(),      1.0e-5);
+        Assertions.assertEquals(0,   fourthRootsOfZ[2].getImaginary(), 1.0e-5);
         // test z_3
         Assertions.assertEquals(0,   fourthRootsOfZ[3].getReal(),      1.0e-5);
-        Assertions.assertEquals(1,    fourthRootsOfZ[3].getImaginary(), 1.0e-5);
+        Assertions.assertEquals(1,   fourthRootsOfZ[3].getImaginary(), 1.0e-5);
     }
 
     @Test
