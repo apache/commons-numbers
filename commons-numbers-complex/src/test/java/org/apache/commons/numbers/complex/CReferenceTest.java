@@ -263,31 +263,7 @@ public class CReferenceTest {
 
     @Test
     public void testAsinh() {
-//        assertComplex(-1e+308, 0.0, Complex::asinh, -inf, nan);
-//        assertComplex(-1e+308, 0.5, Complex::asinh, -inf, 0.78539816339744828);
-//        assertComplex(-1e+308, 1, Complex::asinh, -inf, 0.78539816339744828);
-//        assertComplex(-1e+308, 2, Complex::asinh, -inf, 0.78539816339744828);
-        assertComplex(-1e+308, 1e+308, Complex::asinh, -inf, 0.78539816339744828);
-        assertComplex(-2, 0.0, Complex::asinh, -1.4436354751788099, 0.0, 2);
-        assertComplex(-2, 0.5, Complex::asinh, -1.4657153519472903, 0.22101863562288368, 6);
-        assertComplex(-2, 1, Complex::asinh, -1.5285709194809995, 0.42707858639247681, 12);
-        assertComplex(-2, 2, Complex::asinh, -1.7343245214879652, 0.75424914469804549, 6);
-        assertComplex(-2, 1e+308, Complex::asinh, -inf, 0.78539816339744828);
-        assertComplex(-1, 0.0, Complex::asinh, -0.88137358701954283, 0.0);
-        assertComplex(-1, 0.5, Complex::asinh, -0.92613303135018232, 0.34943906285721327, 2);
-        assertComplex(-1, 1, Complex::asinh, -1.0612750619050355, 0.66623943249251527);
-        assertComplex(-1, 2, Complex::asinh, -1.4693517443681841, 1.0634400235777519, 5);
-        assertComplex(-1, 1e+308, Complex::asinh, -inf, 0.78539816339744828);
-        assertComplex(-0.5, 0.0, Complex::asinh, -0.48121182505960336, 0.0, 2);
-        assertComplex(-0.5, 0.5, Complex::asinh, -0.53063753095251776, 0.4522784471511907);
-        assertComplex(-0.5, 1, Complex::asinh, -0.73285767597364526, 0.89590748120889041, 2);
-        assertComplex(-0.5, 2, Complex::asinh, -1.3618009008578469, 1.2930420702371832, 5);
-        assertComplex(-0.5, 1e+308, Complex::asinh, -inf, 1.5707963267948966);
-        assertComplex(-0.0, 0.0, Complex::asinh, -0.0, 0.0);
-        assertComplex(-0.0, 0.5, Complex::asinh, -1.1102230246251565e-16, 0.52359877559829893);
-        assertComplex(-0.0, 1, Complex::asinh, -0.0, 1.5707963267948966);
-        assertComplex(-0.0, 2, Complex::asinh, -1.3169578969248164, 1.5707963267948961, 2);
-        assertComplex(-0.0, 1e+308, Complex::asinh, -inf, 1.5707963267948966);
+        // Odd function: negative real cases defined by positive real cases 
         assertComplex(0.0, 0.0, Complex::asinh, 0.0, 0.0);
         assertComplex(0.0, 0.5, Complex::asinh, 1.1102230246251565e-16, 0.52359877559829893);
         assertComplex(0.0, 1, Complex::asinh, 0.0, 1.5707963267948966);
@@ -317,31 +293,7 @@ public class CReferenceTest {
 
     @Test
     public void testAtanh() {
-        assertComplex(-1e+308, 0.0, Complex::atanh, -0.0, 1.5707963267948966);
-        assertComplex(-1e+308, 0.5, Complex::atanh, -0.0, 1.5707963267948966);
-        assertComplex(-1e+308, 1, Complex::atanh, -0.0, 1.5707963267948966);
-        assertComplex(-1e+308, 2, Complex::atanh, -0.0, 1.5707963267948966);
-        assertComplex(-1e+308, 1e+308, Complex::atanh, -inf, 1.5707963267948966);
-        assertComplex(-2, 0.0, Complex::atanh, -0.54930614433405489, 1.5707963267948966);
-        assertComplex(-2, 0.5, Complex::atanh, -0.50037000005253107, 1.4215468610018069);
-        assertComplex(-2, 1, Complex::atanh, -0.40235947810852507, 1.3389725222944935);
-        assertComplex(-2, 2, Complex::atanh, -0.23887786125685917, 1.311223269671635, 4);
-        assertComplex(-2, 1e+308, Complex::atanh, -0.0, 1.5707963267948966);
-        assertComplex(-1, 0.0, Complex::atanh, -inf, 0.0);
-        assertComplex(-1, 0.5, Complex::atanh, -0.70830333601405404, 0.90788749496088039);
-        assertComplex(-1, 1, Complex::atanh, -0.40235947810852507, 1.0172219678978514);
-        assertComplex(-1, 2, Complex::atanh, -0.17328679513998629, 1.1780972450961724, 2);
-        assertComplex(-1, 1e+308, Complex::atanh, -0.0, 1.5707963267948966);
-        assertComplex(-0.5, 0.0, Complex::atanh, -0.54930614433405489, 0.0);
-        assertComplex(-0.5, 0.5, Complex::atanh, -0.40235947810852507, 0.5535743588970452);
-        assertComplex(-0.5, 1, Complex::atanh, -0.23887786125685906, 0.84757566067082901, 2);
-        assertComplex(-0.5, 2, Complex::atanh, -0.096415620202996155, 1.1265564408348223, 3);
-        assertComplex(-0.5, 1e+308, Complex::atanh, -0.0, 1.5707963267948966);
-        assertComplex(-0.0, 0.0, Complex::atanh, -0.0, 0.0);
-        assertComplex(-0.0, 0.5, Complex::atanh, -0.0, 0.46364760900080615);
-        assertComplex(-0.0, 1, Complex::atanh, -0.0, 0.78539816339744828);
-        assertComplex(-0.0, 2, Complex::atanh, -0.0, 1.1071487177940904);
-        assertComplex(-0.0, 1e+308, Complex::atanh, -0.0, 1.5707963267948966);
+        // Odd function: negative real cases defined by positive real cases 
         assertComplex(0.0, 0.0, Complex::atanh, 0.0, 0.0);
         assertComplex(0.0, 0.5, Complex::atanh, 0.0, 0.46364760900080615);
         assertComplex(0.0, 1, Complex::atanh, 0.0, 0.78539816339744828);
@@ -371,31 +323,7 @@ public class CReferenceTest {
 
     @Test
     public void testCosh() {
-        assertComplex(-1e+308, 0.0, Complex::cosh, inf, nan);
-        assertComplex(-1e+308, 0.5, Complex::cosh, inf, -inf);
-        assertComplex(-1e+308, 1, Complex::cosh, inf, -inf);
-        assertComplex(-1e+308, 2, Complex::cosh, -inf, -inf);
-        assertComplex(-1e+308, 1e+308, Complex::cosh, -inf, -inf);
-        assertComplex(-2, 0.0, Complex::cosh, 3.7621956910836314, -0.0);
-        assertComplex(-2, 0.5, Complex::cosh, 3.3016373329140944, -1.7388095044743164);
-        assertComplex(-2, 1, Complex::cosh, 2.0327230070196656, -3.0518977991517997);
-        assertComplex(-2, 2, Complex::cosh, -1.5656258353157435, -3.2978948363112366);
-        assertComplex(-2, 1e+308, Complex::cosh, -3.3532786447904863, -1.6444057804572179);
-        assertComplex(-1, 0.0, Complex::cosh, 1.5430806348152437, -0.0);
-        assertComplex(-1, 0.5, Complex::cosh, 1.3541806567045842, -0.5634214652309818);
-        assertComplex(-1, 1, Complex::cosh, 0.83373002513114913, -0.98889770576286506);
-        assertComplex(-1, 2, Complex::cosh, -0.64214812471551996, -1.0686074213827783);
-        assertComplex(-1, 1e+308, Complex::cosh, -1.375361561382608, -0.5328320968314485);
-        assertComplex(-0.5, 0.0, Complex::cosh, 1.1276259652063807, -0.0);
-        assertComplex(-0.5, 0.5, Complex::cosh, 0.9895848833999199, -0.24982639750046154);
-        assertComplex(-0.5, 1, Complex::cosh, 0.60925890915779424, -0.43848657989259532);
-        assertComplex(-0.5, 2, Complex::cosh, -0.46925797822905341, -0.473830620416407);
-        assertComplex(-0.5, 1e+308, Complex::cosh, -1.0050631011564148, -0.23626278272774978);
-        assertComplex(-0.0, 0.0, Complex::cosh, 1, 0.0);
-        assertComplex(-0.0, 0.5, Complex::cosh, 0.87758256189037276, -0.0);
-        assertComplex(-0.0, 1, Complex::cosh, 0.54030230586813977, -0.0);
-        assertComplex(-0.0, 2, Complex::cosh, -0.41614683654714241, -0.0);
-        assertComplex(-0.0, 1e+308, Complex::cosh, -0.89130893768703345, -0.0);
+        // Even function: negative real cases defined by positive real cases 
         assertComplex(0.0, 0.0, Complex::cosh, 1, 0.0);
         assertComplex(0.0, 0.5, Complex::cosh, 0.87758256189037276, 0.0);
         assertComplex(0.0, 1, Complex::cosh, 0.54030230586813977, 0.0);
@@ -425,31 +353,7 @@ public class CReferenceTest {
 
     @Test
     public void testSinh() {
-        assertComplex(-1e+308, 0.0, Complex::sinh, -inf, nan);
-        assertComplex(-1e+308, 0.5, Complex::sinh, -inf, inf);
-        assertComplex(-1e+308, 1, Complex::sinh, -inf, inf);
-        assertComplex(-1e+308, 2, Complex::sinh, inf, inf);
-        assertComplex(-1e+308, 1e+308, Complex::sinh, inf, inf);
-        assertComplex(-2, 0.0, Complex::sinh, -3.6268604078470186, 0.0);
-        assertComplex(-2, 0.5, Complex::sinh, -3.1828694483371489, 1.8036926955321817);
-        assertComplex(-2, 1, Complex::sinh, -1.9596010414216061, 3.1657785132161682);
-        assertComplex(-2, 2, Complex::sinh, 1.5093064853236156, 3.4209548611170133);
-        assertComplex(-2, 1e+308, Complex::sinh, 3.2326530972572871, 1.7057663229177449);
-        assertComplex(-1, 0.0, Complex::sinh, -1.1752011936438014, 0.0);
-        assertComplex(-1, 0.5, Complex::sinh, -1.0313360742545512, 0.73979226445601376);
-        assertComplex(-1, 1, Complex::sinh, -0.63496391478473613, 1.2984575814159773);
-        assertComplex(-1, 2, Complex::sinh, 0.48905625904129368, 1.4031192506220405);
-        assertComplex(-1, 1e+308, Complex::sinh, 1.0474673274751902, 0.69962734438628826);
-        assertComplex(-0.5, 0.0, Complex::sinh, -0.52109530549374738, 0.0);
-        assertComplex(-0.5, 0.5, Complex::sinh, -0.45730415318424927, 0.54061268571315335);
-        assertComplex(-0.5, 1, Complex::sinh, -0.28154899513533443, 0.94886453143716798);
-        assertComplex(-0.5, 2, Complex::sinh, 0.21685216292078974, 1.0253473885839877);
-        assertComplex(-0.5, 1e+308, Complex::sinh, 0.46445690317333216, 0.51126165522310774);
-        assertComplex(-0.0, 0.0, Complex::sinh, -0.0, 0.0);
-        assertComplex(-0.0, 0.5, Complex::sinh, -0.0, 0.47942553860420301);
-        assertComplex(-0.0, 1, Complex::sinh, -0.0, 0.8414709848078965);
-        assertComplex(-0.0, 2, Complex::sinh, 0.0, 0.90929742682568171);
-        assertComplex(-0.0, 1e+308, Complex::sinh, 0.0, 0.4533964905016491);
+        // Odd function: negative real cases defined by positive real cases 
         assertComplex(0.0, 0.0, Complex::sinh, 0.0, 0.0);
         assertComplex(0.0, 0.5, Complex::sinh, 0.0, 0.47942553860420301);
         assertComplex(0.0, 1, Complex::sinh, 0.0, 0.8414709848078965);
@@ -479,31 +383,7 @@ public class CReferenceTest {
 
     @Test
     public void testTanh() {
-        assertComplex(-1e+308, 0.0, Complex::tanh, -1, -0.0);
-        assertComplex(-1e+308, 0.5, Complex::tanh, -1, 0.0);
-        assertComplex(-1e+308, 1, Complex::tanh, -1, 0.0);
-        assertComplex(-1e+308, 2, Complex::tanh, -1, 0.0);
-        assertComplex(-1e+308, 1e+308, Complex::tanh, nan, nan);
-        assertComplex(-2, 0.0, Complex::tanh, -0.9640275800758169, 0.0);
-        assertComplex(-2, 0.5, Complex::tanh, -0.97994084996173814, 0.030215987322877575);
-        assertComplex(-2, 1, Complex::tanh, -1.0147936161466335, 0.033812826079896691);
-        assertComplex(-2, 2, Complex::tanh, -1.0238355945704727, -0.028392952868232287);
-        assertComplex(-2, 1e+308, Complex::tanh, nan, nan);
-        assertComplex(-1, 0.0, Complex::tanh, -0.76159415595576485, 0.0);
-        assertComplex(-1, 0.5, Complex::tanh, -0.84296620484578311, 0.19557731006593398);
-        assertComplex(-1, 1, Complex::tanh, -1.0839233273386946, 0.27175258531951174);
-        assertComplex(-1, 2, Complex::tanh, -1.1667362572409199, -0.24345820118572523);
-        assertComplex(-1, 1e+308, Complex::tanh, nan, nan);
-        assertComplex(-0.5, 0.0, Complex::tanh, -0.46211715726000974, 0.0);
-        assertComplex(-0.5, 0.5, Complex::tanh, -0.56408314126749848, 0.40389645531602575, 2);
-        assertComplex(-0.5, 1, Complex::tanh, -1.042830728344361, 0.80687741216308495);
-        assertComplex(-0.5, 2, Complex::tanh, -1.3212865837711918, -0.85087812114493777, 2);
-        assertComplex(-0.5, 1e+308, Complex::tanh, nan, nan);
-        assertComplex(-0.0, 0.0, Complex::tanh, -0.0, 0.0);
-        assertComplex(-0.0, 0.5, Complex::tanh, -0.0, 0.54630248984379048);
-        assertComplex(-0.0, 1, Complex::tanh, -0.0, 1.5574077246549021);
-        assertComplex(-0.0, 2, Complex::tanh, -0.0, -2.1850398632615189);
-        assertComplex(-0.0, 1e+308, Complex::tanh, nan, nan);
+        // Odd function: negative real cases defined by positive real cases 
         assertComplex(0.0, 0.0, Complex::tanh, 0.0, 0.0);
         assertComplex(0.0, 0.5, Complex::tanh, 0.0, 0.54630248984379048);
         assertComplex(0.0, 1, Complex::tanh, 0.0, 1.5574077246549021);
