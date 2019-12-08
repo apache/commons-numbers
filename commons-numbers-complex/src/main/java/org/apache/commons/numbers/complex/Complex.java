@@ -1082,24 +1082,6 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Multiply the Complex by I.
-     *
-     * @return the result (iz)
-     */
-    private Complex multiplyByI() {
-        return new Complex(-imaginary, real);
-    }
-
-    /**
-     * Multiply the Complex by -I.
-     *
-     * @return the result (-iz)
-     */
-    private Complex multiplyByNegI() {
-        return new Complex(imaginary, -real);
-    }
-
-    /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/InverseHyperbolicSine.html">
      * inverse hyperbolic sine</a> of this complex number.
