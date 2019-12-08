@@ -1711,13 +1711,23 @@ public final class Complex implements Serializable  {
                 if (real == 0 && imaginary == 0) {
                     return new Complex(0, imaginary);
                 }
-                final double t = Math.sqrt(average(Math.abs(real), Math.hypot(real, imaginary)));
-                // t is positive:
-                // To prevent overflow dividing by (2 * t) divide by t then by 2.
-                if (real >= 0) {
-                    return new Complex(t, (imaginary / t) / 2);
+                final double abs = getAbsolute(real, imaginary);
+                final double av = average(Math.abs(real), abs);
+                if (av == Double.POSITIVE_INFINITY) {
+                    // Compute in polar coords.
+                    // This handles extreme values that fail in the cartesian representation.
+                    final double sqrtAbs = Math.sqrt(abs);
+                    final double halfArg = getArgument(real, imaginary) / 2;
+                    final double re = sqrtAbs * Math.cos(halfArg);
+                    final double im = sqrtAbs * Math.sin(halfArg);
+                    return new Complex(re, im);
                 }
-                return new Complex((Math.abs(imaginary) / t) / 2,
+
+                final double t = Math.sqrt(av);
+                if (real >= 0) {
+                    return new Complex(t, imaginary / (2 * t));
+                }
+                return new Complex(Math.abs(imaginary) / (2 * t),
                                    Math.copySign(1.0, imaginary) * t);
             }
             // Imaginary is nan
@@ -1744,7 +1754,7 @@ public final class Complex implements Serializable  {
      * @return the average
      */
     private static double average(double a, double b) {
-        return (b < a) ?
+        return (a < b) ?
                 a + (b - a) / 2 :
                 b + (a - b) / 2;
     }
