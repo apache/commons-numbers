@@ -1102,6 +1102,8 @@ public final class Complex implements Serializable  {
      * </code>
      * </pre>
      *
+     * <p>This is an odd function: {@code f(z) = -f(-z)}.
+     *
      * @return the inverse hyperbolic sine of this complex number
      */
     public Complex asinh() {
@@ -1189,6 +1191,8 @@ public final class Complex implements Serializable  {
      * <pre>
      *   atanh(z) = (1/2) ln((1 + z) / (1 - z))
      * </pre>
+     *
+     * <p>This is an odd function: {@code f(z) = -f(-z)}.
      *
      * @return the inverse hyperbolic tangent of this complex number
      */
@@ -1343,6 +1347,8 @@ public final class Complex implements Serializable  {
      * <pre>
      *   cosh(a + b i) = cosh(a)cos(b) + i sinh(a)sin(b)
      * </pre>
+     *
+     * <p>This is an even function: {@code f(z) = f(-z)}.
      *
      * @return the hyperbolic cosine of this complex number.
      */
@@ -1594,9 +1600,8 @@ public final class Complex implements Serializable  {
      * <pre>
      *   sinh(a + b i) = sinh(a)cos(b)) + i cosh(a)sin(b)
      * </pre>
-     * where the (real) functions on the right-hand side are
-     * {@link Math#sin}, {@link Math#cos},
-     * {@link Math#cosh} and {@link Math#sinh}.
+     *
+     * <p>This is an odd function: {@code f(z) = -f(-z)}.
      *
      * @return the hyperbolic sine of {@code this}.
      */
@@ -1775,9 +1780,8 @@ public final class Complex implements Serializable  {
      * <pre>
      *   tan(a + b i) = sinh(2a)/(cosh(2a)+cos(2b)) + i [sin(2b)/(cosh(2a)+cos(2b))]
      * </pre>
-     * where the (real) functions on the right-hand side are
-     * {@link Math#sin}, {@link Math#cos}, {@link Math#cosh} and
-     * {@link Math#sinh}.
+     *
+     * <p>This is an odd function: {@code f(z) = -f(-z)}.
      *
      * @return the hyperbolic tangent of {@code this}.
      */
