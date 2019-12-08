@@ -177,17 +177,22 @@ public class ComplexTest {
     }
 
     @Test
-    public void testAbs() {
+    public void testAbsolute() {
         final Complex z = Complex.ofCartesian(3.0, 4.0);
-        Assertions.assertEquals(5.0, z.abs(), 1.0e-5);
+        Assertions.assertEquals(5.0, z.getAbsolute());
     }
 
     @Test
-    public void testAbsNaN() {
-        Assertions.assertTrue(Double.isNaN(NAN.abs()));
-        // The result is infinite if either argument is infinite
-        Assertions.assertEquals(inf, Complex.ofCartesian(inf, nan).abs());
-        Assertions.assertEquals(inf, Complex.ofCartesian(nan, inf).abs());
+    public void testAbsoluteNaN() {
+        // The result is NaN if either argument is NaN and the other is not infinite
+        Assertions.assertEquals(nan, NAN.getAbsolute());
+        Assertions.assertEquals(nan, Complex.ofCartesian(3.0, nan).getAbsolute());
+        Assertions.assertEquals(nan, Complex.ofCartesian(nan, 3.0).getAbsolute());
+        // The result is positive infinite if either argument is infinite
+        Assertions.assertEquals(inf, Complex.ofCartesian(inf, nan).getAbsolute());
+        Assertions.assertEquals(inf, Complex.ofCartesian(-inf, nan).getAbsolute());
+        Assertions.assertEquals(inf, Complex.ofCartesian(nan, inf).getAbsolute());
+        Assertions.assertEquals(inf, Complex.ofCartesian(nan, -inf).getAbsolute());
     }
 
     @Test
@@ -1282,6 +1287,7 @@ public class ComplexTest {
             Assertions.assertEquals(z.getImaginary(), z.imag(), "imag");
             Assertions.assertEquals(z.conjugate(), z.conj(), "conj");
             Assertions.assertEquals(z.getArgument(), z.arg(), "arg");
+            Assertions.assertEquals(z.getAbsolute(), z.abs(), "abs");
         }
     }
 
@@ -1296,7 +1302,7 @@ public class ComplexTest {
             // This is prone to floating-point error so use a delta
             Assertions.assertEquals(lnz.getReal() / ln10, log10z.getReal(), 1e-12, "real");
             // This test should be exact
-            final double abs = z.abs();
+            final double abs = z.getAbsolute();
             Assertions.assertEquals(Math.log10(abs), log10z.getReal(), "real");
             Assertions.assertEquals(lnz.getImaginary(), log10z.getImaginary(), "imag");
         }

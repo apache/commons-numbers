@@ -284,13 +284,33 @@ public final class Complex implements Serializable  {
         return this;
     }
 
-     /**
-     * Return the absolute value of this complex number.
-     * This code follows the <a href="http://www.iso-9899.info/wiki/The_Standard">ISO C Standard</a>, Annex G,
-     * in calculating the returned value (i.e. the hypot(x,y) method)
-     * and in handling of NaNs.
+    /**
+     * Return the absolute value of this complex number. This is also called norm, modulus,
+     * or magnitude.
+     * <pre>abs(a + b i) = sqrt(a^2 + b^2)</pre>
+     *
+     * <p>If either component is infinite then the result is positive infinity. If either
+     * component is NaN and this is not {@link #isInfinite() infinite} then the result is NaN.
+     *
+     * <p>This code follows the
+     * <a href="http://www.iso-9899.info/wiki/The_Standard">ISO C Standard</a>, Annex G,
+     * in calculating the returned value using the {@code hypot(x,y)} method.
      *
      * @return the absolute value.
+     * @see #isInfinite()
+     * @see #isNaN()
+     * @see Math#hypot(double, double)
+     */
+    public double getAbsolute() {
+        return getAbsolute(real, imaginary);
+    }
+
+    /**
+     * Compute the absolute of this complex number
+     * (C++11 grammar).
+     *
+     * @return the absolute of {@code this}.
+     * @see #getAbsolute()
      */
     public double abs() {
         return getAbsolute(real, imaginary);
@@ -1837,7 +1857,8 @@ public final class Complex implements Serializable  {
 
    /**
      * Compute the argument of this complex number.
-     * The argument is the angle phi between the positive real axis and
+     *
+     * <p>The argument is the angle phi between the positive real axis and
      * the point representing this number in the complex plane.
      * The value returned is between -PI (not inclusive)
      * and PI (inclusive), with negative values returned for numbers with
