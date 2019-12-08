@@ -1125,6 +1125,7 @@ public final class Complex implements Serializable  {
                     if (imaginary == 0) {
                         return constructor.create(real, imaginary);
                     }
+                    // TODO: Check why this does not work
 //                    // asinh(iy) = i asin(y)
 //                    final double re = -Math.asin(b);
 //                    return constructor.create(changeSign(re, real),
@@ -1220,6 +1221,7 @@ public final class Complex implements Serializable  {
                     if (imaginary == 0) {
                         return constructor.create(real, imaginary);
                     }
+                    // TODO: Check why this does not work
 //                    // atanh(iy) = i atan(y)
 //                    final double re = -Math.atan(b);
 //                    return constructor.create(changeSign(re, real),
