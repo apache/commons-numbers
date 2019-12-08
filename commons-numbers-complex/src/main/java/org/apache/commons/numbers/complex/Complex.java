@@ -1819,7 +1819,7 @@ public final class Complex implements Serializable  {
 
         if (Double.isFinite(real)) {
             if (Double.isFinite(imaginary2)) {
-                double real2 = 2 * real;
+                final double real2 = 2 * real;
 
                 // Math.cosh returns positive infinity for infinity.
                 // cosh -> inf
