@@ -410,14 +410,18 @@ public final class Complex implements Serializable  {
      * standard G.5.1. Method is fully in accordance with
      * C++11 standards for complex numbers.</p>
      *
-     * @param a Real component of first number.
-     * @param b Imaginary component of first number.
-     * @param c Real component of second number.
-     * @param d Imaginary component of second number.
+     * @param re1 Real component of first number.
+     * @param im1 Imaginary component of first number.
+     * @param re2 Real component of second number.
+     * @param im2 Imaginary component of second number.
      * @return (a + b i) / (c + d i).
      * @see <a href="http://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
      */
-    private static Complex divide(double a, double b, double c, double d) {
+    private static Complex divide(double re1, double im1, double re2, double im2) {
+        double a = re1;
+        double b = im1;
+        double c = re2;
+        double d = im2;
         int ilogbw = 0;
         final double logbw = Math.log(Math.max(Math.abs(c), Math.abs(d))) / Math.log(2);
         if (Double.isFinite(logbw)) {
@@ -775,13 +779,17 @@ public final class Complex implements Serializable  {
      * standard G.5.1. Method is fully in accordance with
      * C++11 standards for complex numbers.</p>
      *
-     * @param a Real component of first number.
-     * @param b Imaginary component of first number.
-     * @param c Real component of second number.
-     * @param d Imaginary component of second number.
+     * @param re1 Real component of first number.
+     * @param im1 Imaginary component of first number.
+     * @param re2 Real component of second number.
+     * @param im2 Imaginary component of second number.
      * @return (a + b i)(c + d i).
      */
-    private static Complex multiply(double a, double b, double c, double d) {
+    private static Complex multiply(double re1, double im1, double re2, double im2) {
+        double a = re1;
+        double b = im1;
+        double c = re2;
+        double d = im2;
         final double ac = a * c;
         final double bd = b * d;
         final double ad = a * d;
@@ -1373,15 +1381,20 @@ public final class Complex implements Serializable  {
                 return constructor.create(Math.cosh(real) * Math.cos(imaginary),
                                           Math.sinh(real) * Math.sin(imaginary));
             }
-            // ISO C99: Preserve the even function
+            // ISO C99: Preserve the even function by mapping to positive
             // f(z) = f(-z)
+            double re;
+            double im;
             if (negative(real)) {
-                real = -real;
-                imaginary = -imaginary;
+                re = -real;
+                im = -imaginary;
+            } else {
+                re = real;
+                im = imaginary;
             }
             // Special case for real == 0
-            final double im = real == 0 ? Math.copySign(0, imaginary) : Double.NaN;
-            return constructor.create(Double.NaN, im);
+            return constructor.create(Double.NaN,
+                                      re == 0 ? Math.copySign(0, im) : Double.NaN);
         }
         if (Double.isInfinite(real)) {
             if (Double.isFinite(imaginary)) {
@@ -1393,13 +1406,16 @@ public final class Complex implements Serializable  {
                 // inf * cis(y)
                 // ISO C99: Preserve the even function
                 // f(z) = f(-z)
+                double re;
+                double im;
                 if (real < 0) {
-                    real = -real;
-                    imaginary = -imaginary;
+                    re = -real;
+                    im = -imaginary;
+                } else {
+                    re = real;
+                    im = imaginary;
                 }
-                final double re = real * Math.cos(imaginary);
-                final double im = real * Math.sin(imaginary);
-                return constructor.create(re, im);
+                return constructor.create(re * Math.cos(im), re * Math.sin(im));
             }
             // imaginary is infinite or NaN
             return constructor.create(Double.POSITIVE_INFINITY, Double.NaN);
