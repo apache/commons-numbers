@@ -1714,9 +1714,13 @@ public final class Complex implements Serializable  {
         }
         if (Double.isFinite(real)) {
             if (Double.isFinite(imaginary)) {
-                // Handle zero
-                if (real == 0 && imaginary == 0) {
-                    return new Complex(0, imaginary);
+                // Edge case for real numbers
+                if (imaginary == 0) {
+                    final double sqrtAbs = Math.sqrt(Math.abs(real));
+                    if (real < 0) {
+                        return new Complex(0, Math.copySign(sqrtAbs, imaginary));
+                    }
+                    return new Complex(sqrtAbs, Math.copySign(0, imaginary));
                 }
                 final double abs = getAbsolute(real, imaginary);
                 final double av = (Math.abs(real) + abs) / 2;
