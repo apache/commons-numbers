@@ -766,7 +766,7 @@ public class ComplexUtilsTest {
         double[] observed = ComplexUtils.arg(c);
         Assertions.assertEquals(c.length, observed.length);
         for (int i = 0; i < c.length; i++) {
-            Assertions.assertEquals(c[i].getArgument(), observed[i], 0);
+            Assertions.assertEquals(c[i].arg(), observed[i], 0);
         }
     }
 }
