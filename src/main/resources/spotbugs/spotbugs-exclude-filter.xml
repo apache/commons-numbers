@@ -26,10 +26,15 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="https://github.com/spotbugs/filter/3.1.0 https://raw.githubusercontent.com/spotbugs/spotbugs/3.1.0/spotbugs/etc/findbugsfilter.xsd">
 
+  <!-- Deliberately floating-point equality checks. -->
   <Match>
-    <!-- The Brent method deliberately checks equality. -->
     <Class name="org.apache.commons.numbers.rootfinder.BrentSolver"/>
     <Method name="brent"/>
+    <BugPattern name="FE_FLOATING_POINT_EQUALITY"/>
+  </Match>
+  <Match>
+    <Class name="org.apache.commons.numbers.complex.Complex"/>
+    <Method name="sqrt"/>
     <BugPattern name="FE_FLOATING_POINT_EQUALITY"/>
   </Match>
 
