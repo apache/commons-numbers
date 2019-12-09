@@ -124,4 +124,11 @@
     </properties>
   </rule>
 
+  <rule ref="category/java/errorprone.xml/AvoidFieldNameMatchingMethodName">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="//ClassOrInterfaceDeclaration[@Image='Complex']"/>
+    </properties>
+  </rule>
+
 </ruleset>
