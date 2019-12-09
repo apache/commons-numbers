@@ -1701,6 +1701,13 @@ public final class Complex implements Serializable  {
      * @return the square root of the complex number.
      */
     private static Complex sqrt(double real, double imaginary) {
+//        final double abs = getAbsolute(real, imaginary);
+//        final double sqrtAbs = Math.sqrt(abs);
+//        final double halfArg = getArgument(real, imaginary) / 2;
+//        final double re = sqrtAbs * Math.cos(halfArg);
+//        final double im = sqrtAbs * Math.sin(halfArg);
+//        return new Complex(re, im);
+
         // Special case for infinite imaginary for all real including nan
         if (Double.isInfinite(imaginary)) {
             return new Complex(Double.POSITIVE_INFINITY, imaginary);
@@ -1712,7 +1719,7 @@ public final class Complex implements Serializable  {
                     return new Complex(0, imaginary);
                 }
                 final double abs = getAbsolute(real, imaginary);
-                final double av = average(Math.abs(real), abs);
+                final double av = (Math.abs(real) + abs) / 2;
                 if (av == Double.POSITIVE_INFINITY) {
                     // Compute in polar coords.
                     // This handles extreme values that fail in the cartesian representation.
@@ -1744,19 +1751,6 @@ public final class Complex implements Serializable  {
         // real is NaN
         // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
         return NAN;
-    }
-
-    /**
-     * Compute {@code (a + b) / 2} without overflow.
-     *
-     * @param a the a
-     * @param b the b
-     * @return the average
-     */
-    private static double average(double a, double b) {
-        return (a < b) ?
-                a + (b - a) / 2 :
-                b + (a - b) / 2;
     }
 
     /**
