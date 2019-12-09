@@ -1690,13 +1690,6 @@ public final class Complex implements Serializable  {
      * @return the square root of the complex number.
      */
     private static Complex sqrt(double real, double imaginary) {
-//        final double abs = getAbsolute(real, imaginary);
-//        final double sqrtAbs = Math.sqrt(abs);
-//        final double halfArg = getArgument(real, imaginary) / 2;
-//        final double re = sqrtAbs * Math.cos(halfArg);
-//        final double im = sqrtAbs * Math.sin(halfArg);
-//        return new Complex(re, im);
-
         // Special case for infinite imaginary for all real including nan
         if (Double.isInfinite(imaginary)) {
             return new Complex(Double.POSITIVE_INFINITY, imaginary);

@@ -399,24 +399,25 @@ public class CReferenceTest {
 
     @Test
     public void testSqrt() {
-        // TODO: GNU g++ computes in polar coordinates.
-        // Test other reference implementations.
-        // This gives strange results for real negative and imaginary 0.
+        // Note: When computed in polar coordinates:
+        //   real = (x^2 + y^2)^0.25 * cos(0.5 * atan2(y, x))
+        // If x is positive and y is +/-0.0 atan2 returns +/-0.
+        // If x is negative and y is +/-0.0 atan2 returns +/-PI.
+        // This causes problems as
+        //   cos(0.5 * PI) = 6.123233995736766e-17
+        // assert: Math.cos(Math.acos(0)) != 0.0
+        // Thus polar computation will produce incorrect output when
+        // there is no imaginary component and real is negative.
+        // The computation should be done for real only numbers separately.
 
-        // Polar result
-        //assertComplex(-2, 0.0, Complex::sqrt, 8.6595605623549341e-17, 1.4142135623730951);
         assertComplex(-2, 0.0, Complex::sqrt, 0, 1.4142135623730951);
         assertComplex(-2, 0.5, Complex::sqrt, 0.17543205637629397, 1.425053124063947, 5);
         assertComplex(-2, 1, Complex::sqrt, 0.3435607497225126, 1.4553466902253549, 3);
         assertComplex(-2, 2, Complex::sqrt, 0.64359425290558281, 1.5537739740300374, 2);
-        // Polar result
-        //assertComplex(-1, 0.0, Complex::sqrt, 6.123233995736766e-17, 1);
         assertComplex(-1, 0.0, Complex::sqrt, 0, 1);
         assertComplex(-1, 0.5, Complex::sqrt, 0.24293413587832291, 1.0290855136357462, 3);
         assertComplex(-1, 1, Complex::sqrt, 0.45508986056222739, 1.0986841134678098);
         assertComplex(-1, 2, Complex::sqrt, 0.78615137775742339, 1.2720196495140688);
-        // Polar result
-        //assertComplex(-0.5, 0.0, Complex::sqrt, 4.329780281177467e-17, 0.70710678118654757);
         assertComplex(-0.5, 0.0, Complex::sqrt, 0, 0.70710678118654757);
         assertComplex(-0.5, 0.5, Complex::sqrt, 0.3217971264527914, 0.77688698701501868, 2);
         assertComplex(-0.5, 1, Complex::sqrt, 0.55589297025142126, 0.89945371997393353);
