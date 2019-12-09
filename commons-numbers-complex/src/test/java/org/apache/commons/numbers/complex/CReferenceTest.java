@@ -35,7 +35,6 @@ import java.util.function.UnaryOperator;
  */
 public class CReferenceTest {
     private static final double inf = Double.POSITIVE_INFINITY;
-    private static final double nan = Double.NaN;
 
     /**
      * Assert the two numbers are equal within the provided units of least precision.
@@ -401,6 +400,7 @@ public class CReferenceTest {
     public void testSqrt() {
         // Note: When computed in polar coordinates:
         //   real = (x^2 + y^2)^0.25 * cos(0.5 * atan2(y, x))
+        //   imag = (x^2 + y^2)^0.25 * sin(0.5 * atan2(y, x))
         // If x is positive and y is +/-0.0 atan2 returns +/-0.
         // If x is negative and y is +/-0.0 atan2 returns +/-PI.
         // This causes problems as
@@ -409,6 +409,21 @@ public class CReferenceTest {
         // Thus polar computation will produce incorrect output when
         // there is no imaginary component and real is negative.
         // The computation should be done for real only numbers separately.
+
+        // Check overflow safe.
+        final double a = Double.MAX_VALUE;
+        final double b = a / 4;
+        Assertions.assertEquals(inf, Complex.ofCartesian(a, b).abs(), "Expected overflow");
+        // Compute the expected new magnitude by expressing b as a scale factor of a:
+        // (x^2 + y^2)^0.25
+        // = sqrt(sqrt(a^2 + (b/a)^2 * a^2))
+        // = sqrt(sqrt((1+(b/a)^2) * a^2))
+        // = sqrt(sqrt((1+(b/a)^2))) * sqrt(a)
+        final double newAbs = Math.sqrt(Math.sqrt(1 + (b / a) * (b / a))) * Math.sqrt(a);
+        assertComplex(a, b, Complex::sqrt, newAbs * Math.cos(0.5 * Math.atan2(b, a)),
+                                           newAbs * Math.sin(0.5 * Math.atan2(b, a)), 3);
+        assertComplex(b, a, Complex::sqrt, newAbs * Math.cos(0.5 * Math.atan2(a, b)),
+                                           newAbs * Math.sin(0.5 * Math.atan2(a, b)), 2);
 
         assertComplex(-2, 0.0, Complex::sqrt, 0, 1.4142135623730951);
         assertComplex(-2, 0.5, Complex::sqrt, 0.17543205637629397, 1.425053124063947, 5);

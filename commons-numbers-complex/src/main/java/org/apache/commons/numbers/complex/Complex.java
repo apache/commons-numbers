@@ -1704,19 +1704,33 @@ public final class Complex implements Serializable  {
                     }
                     return new Complex(sqrtAbs, imaginary);
                 }
-                final double abs = getAbsolute(real, imaginary);
-                final double av = (Math.abs(real) + abs) / 2;
-                if (av == Double.POSITIVE_INFINITY) {
-                    // Compute in polar coords.
-                    // This handles extreme values that fail in the cartesian representation.
-                    final double sqrtAbs = Math.sqrt(abs);
-                    final double halfArg = getArgument(real, imaginary) / 2;
-                    final double re = sqrtAbs * Math.cos(halfArg);
-                    final double im = sqrtAbs * Math.sin(halfArg);
-                    return new Complex(re, im);
+                // Get the absolute of the real
+                double absA = Math.abs(real);
+                // Compute |a + b i|
+                double absC = getAbsolute(real, imaginary);
+
+                // t = sqrt((|a| + |a + b i|) / 2)
+                // This is always representable as this complex is finite.
+                double t;
+
+                // Overflow safe
+                if (absC == Double.POSITIVE_INFINITY) {
+                    // Complex is too large.
+                    // Divide by the largest absolute component,
+                    // compute the required sqrt and then scale back.
+                    // Use the equality: sqrt(n) = sqrt(s) * sqrt(n/s)
+                    // t = sqrt(max) * sqrt((|a|/max + |a + b i|/max) / 2)
+                    // Note: The function may be non-monotonic at the junction.
+                    // The alternative of returning infinity for a finite input is worse.
+                    final double max = Math.max(absA, Math.abs(imaginary));
+                    absA /= max;
+                    absC = getAbsolute(absA, imaginary / max);
+                    t = Math.sqrt(max) * Math.sqrt((absA + absC) / 2);
+                } else {
+                    // Over-flow safe average
+                    t = Math.sqrt(average(absA, absC));
                 }
 
-                final double t = Math.sqrt(av);
                 if (real >= 0) {
                     return new Complex(t, imaginary / (2 * t));
                 }
@@ -1737,6 +1751,19 @@ public final class Complex implements Serializable  {
         // real is NaN
         // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
         return NAN;
+    }
+
+    /**
+     * Compute the average of two positive finite values in an overflow safe manner.
+     *
+     * @param a the first value
+     * @param b the second value
+     * @return the average
+     */
+    private static double average(double a, double b) {
+        return (a < b) ?
+            a + (b - a) / 2 :
+            b + (a - b) / 2;
     }
 
     /**
