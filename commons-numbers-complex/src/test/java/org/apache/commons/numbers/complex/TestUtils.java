@@ -17,19 +17,22 @@
 
 package org.apache.commons.numbers.complex;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.numbers.core.Precision;
 
 import org.junit.jupiter.api.Assertions;
 
 /**
- * Test utilities.
- * TODO: Cleanup (remove unused and obsolete methods).
+ * Test utilities. TODO: Cleanup (remove unused and obsolete methods).
  */
 public final class TestUtils {
     /**
@@ -40,9 +43,9 @@ public final class TestUtils {
     }
 
     /**
-     * Verifies that real and imaginary parts of the two complex arguments are exactly the
-     * same as defined by {@link Double#compare(double, double)}. Also ensures that NaN /
-     * infinite components match.
+     * Verifies that real and imaginary parts of the two complex arguments are
+     * exactly the same as defined by {@link Double#compare(double, double)}. Also
+     * ensures that NaN / infinite components match.
      *
      * @param expected the expected value
      * @param actual the actual value
@@ -53,8 +56,8 @@ public final class TestUtils {
     }
 
     /**
-     * Verifies that real and imaginary parts of the two complex arguments differ by at
-     * most delta. Also ensures that NaN / infinite components match.
+     * Verifies that real and imaginary parts of the two complex arguments differ by
+     * at most delta. Also ensures that NaN / infinite components match.
      *
      * @param expected the expected value
      * @param actual the actual value
@@ -66,11 +69,11 @@ public final class TestUtils {
     }
 
     /**
-     * Serializes an object to a bytes array and then recovers the object from the bytes array.
-     * Returns the deserialized object.
+     * Serializes an object to a bytes array and then recovers the object from the
+     * bytes array. Returns the deserialized object.
      *
-     * @param o  object to serialize and recover
-     * @return  the recovered, deserialized object
+     * @param o object to serialize and recover
+     * @return the recovered, deserialized object
      */
     public static Object serializeAndRecover(Object o) {
         try {
@@ -91,10 +94,10 @@ public final class TestUtils {
     }
 
     /**
-     * Verifies that serialization preserves equals and hashCode.
-     * Serializes the object, then recovers it and checks equals and hash code.
+     * Verifies that serialization preserves equals and hashCode. Serializes the
+     * object, then recovers it and checks equals and hash code.
      *
-     * @param object  the object to serialize and recover
+     * @param object the object to serialize and recover
      */
     public static void checkSerializedEquality(Object object) {
         final Object object2 = serializeAndRecover(object);
@@ -103,31 +106,29 @@ public final class TestUtils {
     }
 
     /**
-     * Verifies that the relative error in actual vs. expected is less than or
-     * equal to relativeError.  If expected is infinite or NaN, actual must be
-     * the same (NaN or infinity of the same sign).
+     * Verifies that the relative error in actual vs. expected is less than or equal
+     * to relativeError. If expected is infinite or NaN, actual must be the same
+     * (NaN or infinity of the same sign).
      *
      * @param expected expected value
-     * @param actual  observed value
-     * @param relativeError  maximum allowable relative error
+     * @param actual observed value
+     * @param relativeError maximum allowable relative error
      */
-    public static void assertRelativelyEquals(double expected, double actual,
-            double relativeError) {
+    public static void assertRelativelyEquals(double expected, double actual, double relativeError) {
         assertRelativelyEquals(null, expected, actual, relativeError);
     }
 
     /**
-     * Verifies that the relative error in actual vs. expected is less than or
-     * equal to relativeError.  If expected is infinite or NaN, actual must be
-     * the same (NaN or infinity of the same sign).
+     * Verifies that the relative error in actual vs. expected is less than or equal
+     * to relativeError. If expected is infinite or NaN, actual must be the same
+     * (NaN or infinity of the same sign).
      *
-     * @param msg  message to return with failure
+     * @param msg message to return with failure
      * @param expected expected value
-     * @param actual  observed value
-     * @param relativeError  maximum allowable relative error
+     * @param actual observed value
+     * @param relativeError maximum allowable relative error
      */
-    public static void assertRelativelyEquals(String msg, double expected,
-            double actual, double relativeError) {
+    public static void assertRelativelyEquals(String msg, double expected, double actual, double relativeError) {
         if (Double.isNaN(expected)) {
             Assertions.assertTrue(Double.isNaN(actual), msg);
         } else if (Double.isNaN(actual)) {
@@ -145,16 +146,15 @@ public final class TestUtils {
     /**
      * Fails iff values does not contain a number within epsilon of z.
      *
-     * @param msg  message to return with failure
+     * @param msg message to return with failure
      * @param values complex array to search
-     * @param z  value sought
-     * @param epsilon  tolerance
+     * @param z value sought
+     * @param epsilon tolerance
      */
-    public static void assertContains(String msg, Complex[] values,
-                                      Complex z, double epsilon) {
+    public static void assertContains(String msg, Complex[] values, Complex z, double epsilon) {
         for (final Complex value : values) {
             if (Precision.equals(value.getReal(), z.getReal(), epsilon) &&
-                Precision.equals(value.getImaginary(), z.getImaginary(), epsilon)) {
+                    Precision.equals(value.getImaginary(), z.getImaginary(), epsilon)) {
                 return;
             }
         }
@@ -165,24 +165,22 @@ public final class TestUtils {
      * Fails iff values does not contain a number within epsilon of z.
      *
      * @param values complex array to search
-     * @param z  value sought
-     * @param epsilon  tolerance
+     * @param z value sought
+     * @param epsilon tolerance
      */
-    public static void assertContains(Complex[] values,
-            Complex z, double epsilon) {
+    public static void assertContains(Complex[] values, Complex z, double epsilon) {
         assertContains(null, values, z, epsilon);
     }
 
     /**
      * Fails iff values does not contain a number within epsilon of x.
      *
-     * @param msg  message to return with failure
+     * @param msg message to return with failure
      * @param values double array to search
      * @param x value sought
-     * @param epsilon  tolerance
+     * @param epsilon tolerance
      */
-    public static void assertContains(String msg, double[] values,
-            double x, double epsilon) {
+    public static void assertContains(String msg, double[] values, double x, double epsilon) {
         for (final double value : values) {
             if (Precision.equals(value, x, epsilon)) {
                 return;
@@ -196,10 +194,9 @@ public final class TestUtils {
      *
      * @param values double array to search
      * @param x value sought
-     * @param epsilon  tolerance
+     * @param epsilon tolerance
      */
-    public static void assertContains(double[] values, double x,
-            double epsilon) {
+    public static void assertContains(double[] values, double x, double epsilon) {
         assertContains(null, values, x, epsilon);
     }
 
@@ -243,8 +240,8 @@ public final class TestUtils {
     }
 
     /**
-     * Updates observed counts of values in quartiles.
-     * counts[0] <-> 1st quartile ... counts[3] <-> top quartile
+     * Updates observed counts of values in quartiles. counts[0] <-> 1st quartile
+     * ... counts[3] <-> top quartile
      */
     public static void updateCounts(double value, long[] counts, double[] quartiles) {
         if (value < quartiles[0]) {
@@ -259,10 +256,10 @@ public final class TestUtils {
     }
 
     /**
-     * Eliminates points with zero mass from densityPoints and densityValues parallel
-     * arrays.  Returns the number of positive mass points and collapses the arrays so
-     * that the first <returned value> elements of the input arrays represent the positive
-     * mass points.
+     * Eliminates points with zero mass from densityPoints and densityValues
+     * parallel arrays. Returns the number of positive mass points and collapses the
+     * arrays so that the first <returned value> elements of the input arrays
+     * represent the positive mass points.
      */
     public static int eliminateZeroMassPoints(int[] densityPoints, double[] densityValues) {
         int positiveMassCount = 0;
@@ -287,6 +284,63 @@ public final class TestUtils {
         }
         return positiveMassCount;
     }
+
+    /**
+     * Load test data from resources.
+     *
+     * <p>This method can be used to load input complex numbers and the expected
+     * result after applying a function.
+     *
+     * <p>Data is assumed to be a resource available to the class loader. The data
+     * should be space delimited doubles. Each pair of doubles on a line is
+     * converted to a Complex. For example the following represents the numbers (0.5
+     * - 0 i) and (1.5 + 2 i):
+     *
+     * <pre>
+     * 0.5 -0.0 1.5 2
+     * </pre>
+     *
+     * <p>An unmatched double not part of a pair on a line will raise an
+     * AssertionError.
+     *
+     * <p>Lines starting with the {@code #} character are ignored.
+     *
+     * <p>Lines starting with the {@code ;} character are ignored but printed. This can be used
+     * to disable tests in the data file.
+     *
+     * @param name the resource name
+     * @return the list
+     */
+    public static List<Complex[]> loadTestData(String name) {
+        final List<Complex[]> data = new ArrayList<>();
+        try (BufferedReader input = new BufferedReader(
+                new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(name)))) {
+            for  (String line = input.readLine(); line != null; line = input.readLine()) {
+                // Skip comments and empty lines
+                if (line.length() == 0 || line.charAt(0) == '#') {
+                    continue;
+                }
+                if (line.charAt(0) == ';') {
+                    // CHECKSTYLE: stop all
+                    System.out.println(line);
+                    // CHECKSTYLE: resume
+                    continue;
+                }
+                final String[] parts = line.split(" ");
+                if ((parts.length & 0x1) == 1) {
+                    Assertions.fail("Odd count of numbers on the line: " + line);
+                }
+                final Complex[] numbers = new Complex[parts.length / 2];
+                for (int i = 0; i < parts.length; i += 2) {
+                    final double a = Double.parseDouble(parts[i]);
+                    final double b = Double.parseDouble(parts[i + 1]);
+                    numbers[i / 2] = Complex.ofCartesian(a, b);
+                }
+                data.add(numbers);
+            }
+        } catch (NumberFormatException | IOException e) {
+            Assertions.fail("Failed to load test data: " + name, e);
+        }
+        return data;
+    }
 }
-
-

@@ -317,8 +317,7 @@
             <!-- version 0.8 of apache-rat-plugin does not exclude properly
                  some default development tools files (see RAT-126) -->
             <exclude>.ekstazi/**</exclude>
-            <exclude>src/site/resources/txt/userguide/stress/dh/**</exclude>
-            <exclude>src/site/resources/txt/userguide/stress/tu/**</exclude>
+            <exclude>src/test/resources/data/**</exclude>
             <exclude>dist-archive/**</exclude>
           </excludes>
         </configuration>
