@@ -1709,7 +1709,7 @@ public final class Complex implements Serializable  {
                     if (real < 0) {
                         return new Complex(0, Math.copySign(sqrtAbs, imaginary));
                     }
-                    return new Complex(sqrtAbs, Math.copySign(0, imaginary));
+                    return new Complex(sqrtAbs, imaginary);
                 }
                 final double abs = getAbsolute(real, imaginary);
                 final double av = (Math.abs(real) + abs) / 2;
