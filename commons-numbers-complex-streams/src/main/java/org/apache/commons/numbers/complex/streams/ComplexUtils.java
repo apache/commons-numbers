@@ -1571,7 +1571,7 @@ public final class ComplexUtils {
         final int length = c.length;
         final double[] i = new double[length];
         for (int x = 0; x < length; x++) {
-            i[x] = c[x].getArgument();
+            i[x] = c[x].arg();
         }
         return i;
     }
