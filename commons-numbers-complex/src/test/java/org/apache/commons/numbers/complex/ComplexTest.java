@@ -248,23 +248,23 @@ public class ComplexTest {
     @Test
     public void testConjugate() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
-        final Complex z = x.conjugate();
+        final Complex z = x.conj();
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(-4.0, z.getImaginary());
     }
 
     @Test
     public void testConjugateNaN() {
-        final Complex z = NAN.conjugate();
+        final Complex z = NAN.conj();
         Assertions.assertTrue(z.isNaN());
     }
 
     @Test
     public void testConjugateInfiinite() {
         Complex z = Complex.ofCartesian(0, inf);
-        Assertions.assertEquals(neginf, z.conjugate().getImaginary(), 0);
+        Assertions.assertEquals(neginf, z.conj().getImaginary(), 0);
         z = Complex.ofCartesian(0, neginf);
-        Assertions.assertEquals(inf, z.conjugate().getImaginary(), 0);
+        Assertions.assertEquals(inf, z.conj().getImaginary(), 0);
     }
 
     @Test
@@ -1285,7 +1285,7 @@ public class ComplexTest {
             final Complex z = Complex.ofCartesian(rng.nextDouble(), rng.nextDouble());
             Assertions.assertEquals(z.getReal(), z.real(), "real");
             Assertions.assertEquals(z.getImaginary(), z.imag(), "imag");
-            Assertions.assertEquals(z.conjugate(), z.conj(), "conj");
+            Assertions.assertEquals(z.conj(), z.conj(), "conj");
         }
     }
 

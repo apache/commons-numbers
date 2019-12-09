@@ -283,8 +283,8 @@ public class CStandardTest {
      */
     private static void assertConjugateEquality(Complex z,
             UnaryOperator<Complex> operation, UnspecifiedSign sign) {
-        final Complex c1 = operation.apply(z.conjugate());
-        final Complex c2 = operation.apply(z).conjugate();
+        final Complex c1 = operation.apply(z.conj());
+        final Complex c2 = operation.apply(z).conj();
         final Complex t1 = sign.removeSign(c1);
         final Complex t2 = sign.removeSign(c2);
 

@@ -357,19 +357,8 @@ public final class Complex implements Serializable  {
      *
      * @return the conjugate (z&#773;) of this complex object.
      */
-    public Complex conjugate() {
-        return new Complex(real, -imaginary);
-    }
-
-    /**
-     * Returns the conjugate of this complex number
-     * (C++11 grammar).
-     *
-     * @return the conjugate of this complex object.
-     * @see #conjugate()
-     */
     public Complex conj() {
-        return conjugate();
+        return new Complex(real, -imaginary);
     }
 
     /**
