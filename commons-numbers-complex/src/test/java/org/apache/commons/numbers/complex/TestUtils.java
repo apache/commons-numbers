@@ -26,6 +26,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.apache.commons.numbers.core.Precision;
 
@@ -35,6 +36,18 @@ import org.junit.jupiter.api.Assertions;
  * Test utilities. TODO: Cleanup (remove unused and obsolete methods).
  */
 public final class TestUtils {
+
+    /**
+     * The option for how to process test data lines flagged (prefixed)
+     * with the {@code ;} character
+     */
+    public enum TestDataFlagOption {
+        /** Ignore the line. */
+        IGNORE,
+        /** Load the data by stripping the {@code ;} character. */
+        LOAD
+    }
+
     /**
      * Collection of static methods used in math unit tests.
      */
@@ -288,42 +301,40 @@ public final class TestUtils {
     /**
      * Load test data from resources.
      *
-     * <p>This method can be used to load input complex numbers and the expected
-     * result after applying a function.
+     * <p>This method can be used to load input complex numbers and the expected result
+     * after applying a function.
      *
-     * <p>Data is assumed to be a resource available to the class loader. The data
-     * should be space delimited doubles. Each pair of doubles on a line is
-     * converted to a Complex. For example the following represents the numbers (0.5
-     * - 0 i) and (1.5 + 2 i):
+     * <p>Data is assumed to be a resource available to the class loader. The data should
+     * be space delimited doubles. Each pair of doubles on a line is converted to a
+     * Complex. For example the following represents the numbers (0.5 - 0 i) and (1.5 + 2
+     * i):
      *
      * <pre>
      * 0.5 -0.0 1.5 2
      * </pre>
      *
-     * <p>An unmatched double not part of a pair on a line will raise an
-     * AssertionError.
+     * <p>An unmatched double not part of a pair on a line will raise an AssertionError.
      *
      * <p>Lines starting with the {@code #} character are ignored.
      *
-     * <p>Lines starting with the {@code ;} character are ignored but printed. This can be used
-     * to disable tests in the data file.
+     * <p>Lines starting with the {@code ;} character are processed using the provided
+     * flag option. This character can be used to disable tests in the data file.
+     *
+     * <p>The flagged data will be passed to the consumer.
      *
      * @param name the resource name
+     * @param option the option controlling processing of flagged data
+     * @param flaggedDataConsumer the flagged data consumer (can be null)
      * @return the list
      */
-    public static List<Complex[]> loadTestData(String name) {
+    public static List<Complex[]> loadTestData(String name, TestDataFlagOption option,
+            Consumer<String> flaggedDataConsumer) {
         final List<Complex[]> data = new ArrayList<>();
         try (BufferedReader input = new BufferedReader(
                 new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(name)))) {
             for  (String line = input.readLine(); line != null; line = input.readLine()) {
-                // Skip comments and empty lines
-                if (line.length() == 0 || line.charAt(0) == '#') {
-                    continue;
-                }
-                if (line.charAt(0) == ';') {
-                    // CHECKSTYLE: stop all
-                    System.out.println(line);
-                    // CHECKSTYLE: resume
+                line = preprocessTestData(line, option, flaggedDataConsumer);
+                if (line == null) {
                     continue;
                 }
                 final String[] parts = line.split(" ");
@@ -342,5 +353,39 @@ public final class TestUtils {
             Assertions.fail("Failed to load test data: " + name, e);
         }
         return data;
+    }
+
+    /**
+     * Pre-process the next line of data from the input.
+     * Returns null when the line should be ignored.
+     *
+     * @param input the input
+     * @param option the option controlling processing of flagged data
+     * @param flaggedDataConsumer the flagged data consumer (can be null)
+     * @return the line of data (or null)
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
+    private static String preprocessTestData(String line, TestDataFlagOption option,
+            Consumer<String> flaggedDataConsumer) {
+        // Skip comments and empty lines
+        if (line.length() == 0 || line.charAt(0) == '#') {
+            return null;
+        }
+        if (line.charAt(0) == ';') {
+            switch (option) {
+            case LOAD:
+                // Strip the leading character
+                line = line.substring(1);
+                break;
+            case IGNORE:
+            default:
+                if (flaggedDataConsumer != null) {
+                    flaggedDataConsumer.accept(line.substring(1));
+                }
+                // Ignore the line
+                line = null;
+            }
+        }
+        return line;
     }
 }

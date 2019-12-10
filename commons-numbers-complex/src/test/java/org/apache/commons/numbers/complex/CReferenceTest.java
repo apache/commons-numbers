@@ -17,6 +17,7 @@
 
 package org.apache.commons.numbers.complex;
 
+import org.apache.commons.numbers.complex.TestUtils.TestDataFlagOption;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -37,14 +38,33 @@ import java.util.function.UnaryOperator;
  */
 public class CReferenceTest {
     /**
-     * The maximum units of least precision allowed between values.
+     * The maximum units of least precision (ULPs) allowed between values.
+     * This is a global setting used to override individual test settings for ULPs as follows:
      *
-     * <p>In the normal use case this is set to zero and ignored.
-     * It can be set to a non-zero value and it overrides the ulps values used in
-     * each test if greater in magnitude. This can be used to output a report
-     * of the ULPS between Complex and the reference data.
+     * <ul>
+     * <li>In the normal use case this is set to zero and ignored.
+     * <li>If the sign matches the setting of the test then the larger magnitude is used.
+     * <li>If the global setting is negative and the test setting is positive then it overrides
+     * the individual test setting for reporting purposes.
+     * <li>If the global setting is positive and the test setting is negative then the test
+     * setting takes precedence.
+     * </ul>
+     *
+     * <p>During testing if the difference between an expected and actual result is greater in
+     * magnitude than the current ULPS then this is considered an error. If the maximum ULPs is
+     * positive then an assertion error is raised. If negative then the error is printed to
+     * System out. This allows reporting of large deviations between the library and the
+     * reference data.
+     *
+     * <p>In a standard use-case all tests will have a configured positive maximum ULPs to
+     * pass the current test data. The global setting can be set to a negative value to allow
+     * reporting of errors larger in magnitude to the console.
+     *
+     * <p>Setting the global maximum ULPs to negative has the second effect of loading all
+     * data that has been flagged in data files. Otherwise this data is ignored by testing and
+     * printed to System out.
      */
-    private static final long MAX_ULPS = 0;
+    private static long globalMaxUlps = 0;
 
     /**
      * Assert the two numbers are equal within the provided units of least precision.
@@ -81,16 +101,17 @@ public class CReferenceTest {
      * {@code maxUlps - 1}.
      *
      * @param c Input number.
+     * @param name the operation name
      * @param operation the operation
      * @param expected Expected result.
      * @param maxUlps the maximum units of least precision between the two values
      */
     private static void assertComplex(Complex c,
-            UnaryOperator<Complex> operation,
+            String name, UnaryOperator<Complex> operation,
             Complex expected, long maxUlps) {
         final Complex z = operation.apply(c);
-        assertEquals(() -> c + ": real", expected.real(), z.real(), maxUlps);
-        assertEquals(() -> c + ": imaginary", expected.imag(), z.imag(), maxUlps);
+        assertEquals(() -> c + "." + name + "(): real", expected.real(), z.real(), maxUlps);
+        assertEquals(() -> c + "." + name + "(): imaginary", expected.imag(), z.imag(), maxUlps);
     }
 
     /**
@@ -102,31 +123,48 @@ public class CReferenceTest {
      *
      * @param c1 First number.
      * @param c2 Second number.
+     * @param name the operation name
      * @param operation the operation
      * @param expected Expected real part.
      * @param maxUlps the maximum units of least precision between the two values
      */
     private static void assertComplex(Complex c1, Complex c2,
-            BiFunction<Complex, Complex, Complex> operation,
+            String name, BiFunction<Complex, Complex, Complex> operation,
             Complex expected, long maxUlps) {
         final Complex z = operation.apply(c1, c2);
-        assertEquals(() -> c1 + " op " + c2 + ": real", expected.real(), z.real(), maxUlps);
-        assertEquals(() -> c1 + " op " + c2 + ": imaginary", expected.imag(), z.imag(), maxUlps);
+        assertEquals(() -> c1 + "." + name + c2 + ": real", expected.real(), z.real(), maxUlps);
+        assertEquals(() -> c1 + "." + name + c2 + ": imaginary", expected.imag(), z.imag(), maxUlps);
     }
 
     /**
      * Assert the operation using the data loaded from test resources.
      *
-     * @param testData Test data resource name.
+     * @param name the operation name
      * @param operation the operation
      * @param maxUlps the maximum units of least precision between the two values
      */
-    private static void assertOperation(String testData,
+    private static void assertOperation(String name,
             UnaryOperator<Complex> operation, long maxUlps) {
-        final List<Complex[]> data = TestUtils.loadTestData(testData);
+        final List<Complex[]> data = loadTestData(name);
         final long ulps = getTestUlps(maxUlps);
         for (final Complex[] pair : data) {
-            assertComplex(pair[0], operation, pair[1], ulps);
+            assertComplex(pair[0], name, operation, pair[1], ulps);
+        }
+    }
+
+    /**
+     * Assert the operation using the data loaded from test resources.
+     *
+     * @param name the operation name
+     * @param operation the operation
+     * @param maxUlps the maximum units of least precision between the two values
+     */
+    private static void assertBiOperation(String name,
+            BiFunction<Complex, Complex, Complex> operation, long maxUlps) {
+        final List<Complex[]> data = loadTestData(name);
+        final long ulps = getTestUlps(maxUlps);
+        for (final Complex[] triple : data) {
+            assertComplex(triple[0], triple[1], name, operation, triple[2], ulps);
         }
     }
 
@@ -134,16 +172,16 @@ public class CReferenceTest {
      * Assert the operation using the data loaded from test resources.
      *
      * @param testData Test data resource name.
-     * @param operation the operation
-     * @param maxUlps the maximum units of least precision between the two values
+     * @return the list
      */
-    private static void assertBiOperation(String testData,
-            BiFunction<Complex, Complex, Complex> operation, long maxUlps) {
-        final List<Complex[]> data = TestUtils.loadTestData(testData);
-        final long ulps = getTestUlps(maxUlps);
-        for (final Complex[] triple : data) {
-            assertComplex(triple[0], triple[1], operation, triple[2], ulps);
-        }
+    private static List<Complex[]> loadTestData(String name) {
+        final String testData = "data/" + name + ".txt";
+        final TestDataFlagOption option = globalMaxUlps < 1 ?
+            TestDataFlagOption.LOAD : TestDataFlagOption.IGNORE;
+        return TestUtils.loadTestData(testData, option,
+            // CHECKSTYLE: stop Regex
+            s -> System.out.println(name + " IGNORED: " + s));
+            // CHECKSTYLE: resume Regex
     }
 
     /**
@@ -154,78 +192,90 @@ public class CReferenceTest {
      * @return the test ulps
      */
     private static long getTestUlps(long ulps) {
-        final long max = Math.max(Math.abs(ulps), Math.abs(MAX_ULPS));
-        // If either are negative then choose negative for debugging output
-        return (ulps | MAX_ULPS) < 0 ? -max : max;
+        // If sign matches use the larger magnitude.
+        // xor the sign bytes will be negative if the sign does not match
+        if ((globalMaxUlps ^ ulps) >= 0) {
+            final long max = Math.max(Math.abs(globalMaxUlps), Math.abs(ulps));
+            // restore sign
+            return ulps < 0 ? -max : max;
+        }
+        // If the global setting is negative and the test setting is positive then it overrides
+        // the individual test setting for reporting purposes.
+        if (globalMaxUlps < 0) {
+            return globalMaxUlps;
+        }
+        // If the global setting is positive and the test setting is negative then the test
+        // setting takes precedence.
+        return ulps;
     }
 
     @Test
     public void testAcos() {
-        assertOperation("data/acos.txt", Complex::acos, 36);
+        assertOperation("acos", Complex::acos, 36);
     }
 
     @Test
     public void testAcosh() {
-        assertOperation("data/acosh.txt", Complex::acosh, 36);
+        assertOperation("acosh", Complex::acosh, 36);
     }
 
     @Test
     public void testAsinh() {
         // Odd function: negative real cases defined by positive real cases
-        assertOperation("data/asinh.txt", Complex::asinh, 2);
+        assertOperation("asinh", Complex::asinh, 2);
     }
 
     @Test
     public void testAtanh() {
         // Odd function: negative real cases defined by positive real cases
-        assertOperation("data/atanh.txt", Complex::atanh, 26);
+        assertOperation("atanh", Complex::atanh, 26);
     }
 
     @Test
     public void testCosh() {
         // Even function: negative real cases defined by positive real cases
-        assertOperation("data/cosh.txt", Complex::cosh, 2);
+        assertOperation("cosh", Complex::cosh, 2);
     }
 
     @Test
     public void testSinh() {
         // Odd function: negative real cases defined by positive real cases
-        assertOperation("data/sinh.txt", Complex::sinh, 2);
+        assertOperation("sinh", Complex::sinh, 2);
     }
 
     @Test
     public void testTanh() {
         // Odd function: negative real cases defined by positive real cases
-        assertOperation("data/tanh.txt", Complex::tanh, 34);
+        assertOperation("tanh", Complex::tanh, 34);
     }
 
     @Test
     public void testExp() {
-        assertOperation("data/exp.txt", Complex::exp, 2);
+        assertOperation("exp", Complex::exp, 2);
     }
 
     @Test
     public void testLog() {
-        assertOperation("data/log.txt", Complex::log, 3);
+        assertOperation("log", Complex::log, 3);
     }
 
     @Test
     public void testSqrt() {
-        assertOperation("data/sqrt.txt", Complex::sqrt, 1);
+        assertOperation("sqrt", Complex::sqrt, 1);
     }
 
     @Test
     public void testMultiply() {
-        assertBiOperation("data/multiply.txt", Complex::multiply, 0);
+        assertBiOperation("multiply", Complex::multiply, 0);
     }
 
     @Test
     public void testDivide() {
-        assertBiOperation("data/divide.txt", Complex::divide, 0);
+        assertBiOperation("divide", Complex::divide, 0);
     }
 
     @Test
     public void testPowComplex() {
-        assertBiOperation("data/pow.txt", Complex::pow, 17);
+        assertBiOperation("pow", Complex::pow, 17);
     }
 }
