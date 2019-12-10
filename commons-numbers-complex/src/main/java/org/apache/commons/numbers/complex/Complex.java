@@ -96,6 +96,21 @@ public final class Complex implements Serializable  {
     }
 
     /**
+     * Define a unary operation on a double.
+     * This is used in the log() and log10() functions.
+     */
+    @FunctionalInterface
+    private interface UnaryOperation {
+        /**
+         * Apply an operation to a value.
+         *
+         * @param value The value.
+         * @return The result.
+         */
+        double apply(double value);
+    }
+
+    /**
      * Private default constructor.
      *
      * @param real Real part.
@@ -1469,13 +1484,11 @@ public final class Complex implements Serializable  {
      * @see #arg()
      */
     public Complex log() {
-        // All edge cases satisfied by the Math library
-        return new Complex(Math.log(abs()),
-                           arg());
+        return log(Math::log);
     }
 
     /**
-     * Compute the base 10 or
+     * Compute the base 10
      * <a href="http://mathworld.wolfram.com/CommonLogarithm.html">
      * common logarithm</a> of this complex number.
      * Implements the formula:
@@ -1489,8 +1502,37 @@ public final class Complex implements Serializable  {
      * @see #arg()
      */
     public Complex log10() {
-        // All edge cases satisfied by the Math library
-        return new Complex(Math.log10(abs()),
+        return log(Math::log10);
+    }
+
+    /**
+     * Compute the logarithm of this complex number using the provided function.
+     * Implements the formula:
+     * <pre>
+     *   log(a +  bi) = log(|a + b i|) + i arg(a + b i)
+     * </pre>
+     *
+     * @param log Log function.
+     * @return the logarithm of {@code this}.
+     * @see #abs()
+     * @see #arg()
+     */
+    private Complex log(UnaryOperation log) {
+        // All ISO C99 edge cases satisfied by the Math library.
+        // Make computation overflow safe.
+        final double abs = abs();
+        if (abs == Double.POSITIVE_INFINITY && isFinite()) {
+            // Edge-case where the |a + b i| overflows.
+            // |a + b i| = sqrt(a^2 + b^2)
+            // This can be scaled linearly.
+            // Scale the absolute and exploit:
+            // ln(abs / s) = ln(abs) - ln(s)
+            // ln(abs) = ln(abs / s) + ln(s)
+            final double s = Math.max(Math.abs(real), Math.abs(imaginary));
+            final double absOs = Math.hypot(real / s, imaginary / s);
+            return new Complex(log.apply(absOs) + log.apply(s), arg());
+        }
+        return new Complex(log.apply(abs),
                            arg());
     }
 
