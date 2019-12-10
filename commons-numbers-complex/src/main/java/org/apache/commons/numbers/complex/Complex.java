@@ -974,9 +974,10 @@ public final class Complex implements Serializable  {
     private static Complex acos(double real, double imaginary, ComplexConstructor constructor) {
         if (Double.isFinite(real)) {
             if (Double.isFinite(imaginary)) {
-                // Special case for zero
-                if (real == 0 && imaginary == 0) {
-                    return constructor.create(PI_OVER_2, Math.copySign(0, -imaginary));
+                // Special case for real numbers
+                if (imaginary == 0 && Math.abs(real) <= 1) {
+                    return constructor.create(real == 0.0 ? PI_OVER_2 : Math.acos(real),
+                                              Math.copySign(0, -imaginary));
                 }
                 // ISO C99: Preserve the equality
                 // acos(conj(z)) = conj(acos(z))
@@ -1114,11 +1115,9 @@ public final class Complex implements Serializable  {
                     if (imaginary == 0) {
                         return constructor.create(real, imaginary);
                     }
-                    // TODO: Check why this does not work
-//                    // asinh(iy) = i asin(y)
-//                    final double re = -Math.asin(b);
-//                    return constructor.create(changeSign(re, real),
-//                                              imaginary);
+                    // asinh(iy) = i asin(y)
+                    final double im = Math.asin(imaginary);
+                    return constructor.create(real, im);
                 }
                 // square() is implemented using multiply
                 final Complex z2 = multiply(a, b, a, b);
@@ -1210,11 +1209,9 @@ public final class Complex implements Serializable  {
                     if (imaginary == 0) {
                         return constructor.create(real, imaginary);
                     }
-                    // TODO: Check why this does not work
-//                    // atanh(iy) = i atan(y)
-//                    final double re = -Math.atan(b);
-//                    return constructor.create(changeSign(re, real),
-//                                              imaginary);
+                    // atanh(iy) = i atan(y)
+                    final double im = Math.atan(imaginary);
+                    return constructor.create(real, im);
                 }
                 // (1 + (a + b i)) / (1 - (a + b i))
                 final Complex result = divide(1 + a, b, 1 - a, -b);
