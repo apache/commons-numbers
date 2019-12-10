@@ -1816,13 +1816,22 @@ public final class Complex implements Serializable  {
      */
     private static Complex tanh(double real, double imaginary, ComplexConstructor constructor) {
         // Math.cos and Math.sin return NaN for infinity.
-        // Perform edge-condition checks on the twice the imaginary value.
+        // Perform edge-condition checks on twice the imaginary value.
         // This handles very big imaginary numbers as infinite.
 
         final double imaginary2 = 2 * imaginary;
 
         if (Double.isFinite(real)) {
             if (Double.isFinite(imaginary2)) {
+                if (real == 0) {
+                    // Identity: sin x / (1 + cos x) = tan(x/2)
+                    return constructor.create(real, Math.tan(imaginary));
+                }
+                if (imaginary == 0) {
+                    // Identity: sinh x / (1 + cosh x) = tanh(x/2)
+                    return constructor.create(Math.tanh(real), imaginary);
+                }
+
                 final double real2 = 2 * real;
 
                 // Math.cosh returns positive infinity for infinity.
