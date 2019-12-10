@@ -49,7 +49,6 @@ public class CStandardTest {
     private static final Complex zeroNegInf = complex(0, negInf);
     private static final Complex zeroNaN = complex(0, nan);
     private static final Complex zeroPiTwo = complex(0.0, piOverTwo);
-    private static final Complex negZeroPiTwo = complex(-0.0, piOverTwo);
     private static final Complex negZeroZero = complex(-0.0, 0);
     private static final Complex negZeroNaN = complex(-0.0, nan);
     private static final Complex negI = complex(0.0, -1.0);
@@ -637,7 +636,7 @@ public class CStandardTest {
         // ISO C Standard in Annex G is missing an explicit definition of how to handle NaNs.
         // We will assume multiplication by (nan,nan) is not allowed.
         // It is undefined how to multiply when a complex has only one NaN component.
-        // The reference implementation allows it.
+        // The reference implementation in Annex G allows it.
 
         // The GNU g++ compiler computes:
         // (1e300 + i 1e300) * (1e30 + i NAN) = inf + i inf
