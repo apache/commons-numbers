@@ -96,7 +96,7 @@ public class CReferenceTest {
      * @param actual the actual
      * @param maxUlps the maximum units of least precision between the two values
      */
-    private static void assertEquals(Supplier<String> msg, double expected, double actual, long maxUlps) {
+    static void assertEquals(Supplier<String> msg, double expected, double actual, long maxUlps) {
         final long e = Double.doubleToLongBits(expected);
         final long a = Double.doubleToLongBits(actual);
 
@@ -160,7 +160,7 @@ public class CReferenceTest {
      * @param expected Expected result.
      * @param maxUlps the maximum units of least precision between the two values
      */
-    private static void assertComplex(Complex c,
+    static void assertComplex(Complex c,
             String name, UnaryOperator<Complex> operation,
             Complex expected, long maxUlps) {
         final Complex z = operation.apply(c);
@@ -184,7 +184,7 @@ public class CReferenceTest {
      * @param expected Expected real part.
      * @param maxUlps the maximum units of least precision between the two values
      */
-    private static void assertComplex(Complex c1, Complex c2,
+    static void assertComplex(Complex c1, Complex c2,
             String name, BiFunction<Complex, Complex, Complex> operation,
             Complex expected, long maxUlps) {
         final Complex z = operation.apply(c1, c2);
