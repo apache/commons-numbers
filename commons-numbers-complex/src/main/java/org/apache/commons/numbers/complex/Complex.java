@@ -63,7 +63,7 @@ public final class Complex implements Serializable  {
      */
     public static final Complex ZERO = new Complex(0, 0);
 
-    /** A complex number representing "NaN + NaN i": {@code NaN + i NaN} */
+    /** A complex number representing {@code NaN + i NaN}. */
     private static final Complex NAN = new Complex(Double.NaN, Double.NaN);
     /** 3*&pi;/4. */
     private static final double PI_3_OVER_4 = 0.75 * Math.PI;
