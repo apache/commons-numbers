@@ -464,9 +464,11 @@ public final class Complex implements Serializable  {
         double c = re2;
         double d = im2;
         int ilogbw = 0;
-        final double logbw = Math.log(Math.max(Math.abs(c), Math.abs(d))) / Math.log(2);
-        if (Double.isFinite(logbw)) {
-            ilogbw = (int)logbw;
+        // Get the exponent to scale the divisor.
+        // This is equivalent to (int) Math.log2(double).
+        final int exponent = Math.getExponent(Math.max(Math.abs(c), Math.abs(d)));
+        if (exponent <= Double.MAX_EXPONENT) {
+            ilogbw = exponent;
             c = Math.scalb(c, -ilogbw);
             d = Math.scalb(d, -ilogbw);
         }
