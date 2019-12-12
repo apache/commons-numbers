@@ -71,8 +71,6 @@ public final class Complex implements Serializable  {
     private static final double PI_OVER_2 = 0.5 * Math.PI;
     /** &pi;/4. */
     private static final double PI_OVER_4 = 0.25 * Math.PI;
-    /** Expected number of elements when parsing text: 2. */
-    private static final int TWO_ELEMENTS = 2;
     /** Mask an integer number to even by discarding the lowest bit. */
     private static final int MASK_INT_TO_EVEN = ~0x1;
     /** Natural logarithm of 2 (ln(2)). */
@@ -83,12 +81,25 @@ public final class Complex implements Serializable  {
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20180201L;
 
+    /**
+     * The size of the buffer for {@link #toString()}.
+     *
+     * <p>The longest double will require a sign, a maximum of 17 digits, the decimal place
+     * and the exponent, e.g. for max value this is 24 chars: -1.7976931348623157e+308.
+     * Set the buffer size to twice this and round up to a power of 2 thus
+     * allowing for formatting characters. The size is 64.
+     */
+    private static final int TO_STRING_SIZE = 64;
+    /** The minimum number of characters in the format. */
+    private static final int FORMAT_MIN_LEN = 5;
     /** {@link #toString() String representation}. */
-    private static final String FORMAT_START = "(";
+    private static final char FORMAT_START = '(';
     /** {@link #toString() String representation}. */
-    private static final String FORMAT_END = ")";
+    private static final char FORMAT_END = ')';
     /** {@link #toString() String representation}. */
-    private static final String FORMAT_SEP = ",";
+    private static final char FORMAT_SEP = ',';
+    /** The minimum number of characters before the separator. This is 2, e.g. {@code "(1"}. */
+    private static final int BEFORE_SEP = 2;
 
     /** The imaginary part. */
     private final double imaginary;
@@ -188,43 +199,81 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Parses a string that would be produced by {@link #toString()}
-     * and instantiates the corresponding object.
+     * Returns a {@code Complex} instance representing the specified string {@code s}.
+     *
+     * <p>If {@code s} is {@code null}, then a {@code NullPointerException} is thrown.
+     *
+     * <p>The string must be in a format compatible with that produced by
+     * {@link #toString() Complex.toString()}.
+     * The format expects a start and end string surrounding two numeric parts split
+     * by a separator. Leading and trailing spaces are allowed around each numeric part.
+     * Each numeric part is parsed using {@link Double#parseDouble(String)}. The parts
+     * are interpreted as the real and imaginary parts of the complex number.
+     *
+     * <p>Examples of valid strings and the equivalent {@code Complex} are shown below:
+     *
+     * <pre>
+     * "(0,0)"             = Complex.ofCartesian(0, 0)
+     * "(0.0,0.0)"         = Complex.ofCartesian(0, 0)
+     * "(-0.0, 0.0)"       = Complex.ofCartesian(-0.0, 0)
+     * "(-1.23, 4.56)"     = Complex.ofCartesian(-123, 4.56)
+     * "(1e300,-1.1e-2)"   = Complex.ofCartesian(1e300, -1.1e-2)
+     * </pre>
      *
      * @param s String representation.
      * @return an instance.
-     * @throws NumberFormatException if the string does not conform
-     * to the specification.
+     * @throws NullPointerException if the string is null.
+     * @throws NumberFormatException if the string does not contain a parsable complex number.
+     * @see Double#parseDouble(String)
+     * @see #toString()
      */
     public static Complex parse(String s) {
+        final int len = s.length();
+        if (len < FORMAT_MIN_LEN) {
+            throw parsingException("Expected format",
+                FORMAT_START + "real" + FORMAT_SEP + "imaginary" + FORMAT_END, null);
+        }
+
+        // Confirm start: "^(.*"
         final int startParen = s.indexOf(FORMAT_START);
         if (startParen != 0) {
             throw parsingException("Expected start string", FORMAT_START, null);
         }
-        final int len = s.length();
 
+        // Confirm end: "^(.*)$"
         final int endParen = s.indexOf(FORMAT_END);
         if (endParen != len - 1) {
             throw parsingException("Expected end string", FORMAT_END, null);
         }
 
-        final String[] elements = s.substring(1, s.length() - 1).split(FORMAT_SEP);
-        if (elements.length != TWO_ELEMENTS) {
-            throw parsingException("Incorrect number of parts: Expected 2 but was " + elements.length,
-                                   "separator is '" + FORMAT_SEP + "'", null);
+        // Confirm separator: "^([^,]+,[^,]+)$"
+        final int sep = s.indexOf(FORMAT_SEP, 1);
+        if (sep < BEFORE_SEP || sep == endParen - 1) {
+            throw parsingException("Expected separator string between two numbers", FORMAT_SEP, null);
         }
 
+        // Should be no more separators
+        if (s.indexOf(FORMAT_SEP, sep + 1) != -1) {
+            throw parsingException("Incorrect number of parts: Expected only 2",
+                "separator is '" + FORMAT_SEP + "'", null);
+        }
+
+        // Try to parse the parts
+
+        final String rePart = s.substring(1, sep);
         final double re;
         try {
-            re = Double.parseDouble(elements[0]);
+            re = Double.parseDouble(rePart);
         } catch (final NumberFormatException ex) {
-            throw parsingException("Could not parse real part", elements[0], ex);
+            throw parsingException("Could not parse real part", rePart, ex);
         }
+
+        final String imPart = s.substring(sep + 1, endParen);
         final double im;
         try {
-            im = Double.parseDouble(elements[1]);
+            im = Double.parseDouble(imPart);
         } catch (final NumberFormatException ex) {
-            throw parsingException("Could not parse imaginary part", elements[1], ex);
+            throw parsingException("Could not parse imaginary part", imPart, ex);
         }
 
         return ofCartesian(re, im);
@@ -2120,16 +2169,28 @@ public final class Complex implements Serializable  {
         return result;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Returns a string representation of the complex number.
+     *
+     * <p>The string will represent the numeric values of the real and imaginary parts.
+     * The values are split by a separator and surrounded by parentheses.
+     * The string can be {@link #parse(String) parsed} to obtain an instance with the same value.
+     *
+     * <p>The format for complex number {@code (a + i b)} is {@code "(a,b)"}, with {@code a} and
+     * {@code b} converted as if using {@link Double#toString(double)}.
+     *
+     * @return a string representation of the complex number.
+     * @see #parse(String)
+     * @see Double#toString(double)
+     */
     @Override
     public String toString() {
-        final StringBuilder s = new StringBuilder();
-        s.append(FORMAT_START)
+        return new StringBuilder(TO_STRING_SIZE)
+            .append(FORMAT_START)
             .append(real).append(FORMAT_SEP)
             .append(imaginary)
-            .append(FORMAT_END);
-
-        return s.toString();
+            .append(FORMAT_END)
+            .toString();
     }
 
     /**
@@ -2231,7 +2292,7 @@ public final class Complex implements Serializable  {
      * @return a new instance.
      */
     private static NumberFormatException parsingException(String message,
-                                                          String error,
+                                                          Object error,
                                                           Throwable cause) {
         // Not called with a null message or error
         final StringBuilder sb = new StringBuilder(100)

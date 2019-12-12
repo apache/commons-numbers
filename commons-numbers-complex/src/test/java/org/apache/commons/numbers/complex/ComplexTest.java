@@ -1437,69 +1437,91 @@ public class ComplexTest {
 
     @Test
     public void testParse() {
-        Assertions.assertEquals(Complex.ZERO, Complex.parse(Complex.ZERO.toString()));
-        Assertions.assertEquals(Complex.ONE, Complex.parse(Complex.ONE.toString()));
-        Assertions.assertEquals(Complex.I, Complex.parse(Complex.I.toString()));
-        Assertions.assertEquals(INF, Complex.parse(INF.toString()));
-        Assertions.assertEquals(NAN, Complex.parse(NAN.toString()));
-        Assertions.assertEquals(oneInf, Complex.parse(oneInf.toString()));
-        Assertions.assertEquals(negInfZero, Complex.parse(negInfZero.toString()));
-        Assertions.assertEquals(Complex.ofCartesian(0.0, pi), Complex.parse(Complex.ofCartesian(0.0, pi).toString()));
+        final double[] parts = {Double.NEGATIVE_INFINITY, -1, -0.0, 0.0, 1, Math.PI,
+                                Double.POSITIVE_INFINITY, Double.NaN};
+        for (final double x : parts) {
+            for (final double y : parts) {
+                final Complex z = Complex.ofCartesian(x, y);
+                Assertions.assertEquals(z, Complex.parse(z.toString()));
+            }
+        }
+        final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
+        for (int i = 0; i < 10; i++) {
+            final double x = -1 + rng.nextDouble() * 2;
+            final double y = -1 + rng.nextDouble() * 2;
+            final Complex z = Complex.ofCartesian(x, y);
+            Assertions.assertEquals(z, Complex.parse(z.toString()));
+        }
+
+        // Special values not covered
         Assertions.assertEquals(Complex.ofPolar(2, pi), Complex.parse(Complex.ofPolar(2, pi).toString()));
         Assertions.assertEquals(Complex.ofCis(pi), Complex.parse(Complex.ofCis(pi).toString()));
     }
 
     @Test
+    public void testParseNull() {
+        Assertions.assertThrows(NullPointerException.class, () -> Complex.parse(null));
+    }
+
+    @Test
+    public void testParseEmpty() {
+        Assertions.assertThrows(NumberFormatException.class, () -> Complex.parse(""));
+        Assertions.assertThrows(NumberFormatException.class, () -> Complex.parse(" "));
+    }
+
+    @Test
     public void testParseWrongStart() {
-        final String re = "1.234";
-        final String im = "5.678";
-        Assertions.assertThrows(NumberFormatException.class,
-            () -> Complex.parse(re + "," + im + ")")
-        );
+        Assertions.assertThrows(NumberFormatException.class, () -> Complex.parse("1.0,2.0)"));
+        Assertions.assertThrows(NumberFormatException.class, () -> Complex.parse("[1.0,2.0)"));
     }
 
     @Test
     public void testParseWrongEnd() {
-        final String re = "1.234";
-        final String im = "5.678";
-        Assertions.assertThrows(NumberFormatException.class,
-            () -> Complex.parse("(" + re + "," + im)
-        );
+        Assertions.assertThrows(NumberFormatException.class, () -> Complex.parse("(1.0,2.0"));
+        Assertions.assertThrows(NumberFormatException.class, () -> Complex.parse("(1.0,2.0]"));
     }
 
     @Test
-    public void testParseMissingSeparator() {
-        final String re = "1.234";
-        final String im = "5.678";
-        Assertions.assertThrows(NumberFormatException.class,
-            () -> Complex.parse("(" + re + " " + im + ")")
-        );
+    public void testParseWrongSeparator() {
+        Assertions.assertThrows(NumberFormatException.class, () -> Complex.parse("(1.0 2.0)"));
+        Assertions.assertThrows(NumberFormatException.class, () -> Complex.parse("(1.0:2.0)"));
+    }
+
+    @Test
+    public void testParseSeparatorOutsideStartAndEnd() {
+        Assertions.assertThrows(NumberFormatException.class, () -> Complex.parse("(1.0,2.0),"));
+        Assertions.assertThrows(NumberFormatException.class, () -> Complex.parse(",(1.0,2.0)"));
+    }
+
+    @Test
+    public void testParseExtraSeparator() {
+        Assertions.assertThrows(NumberFormatException.class, () -> Complex.parse("(1.0,,2.0)"));
+        Assertions.assertThrows(NumberFormatException.class, () -> Complex.parse("(1.0,2.0,)"));
+        Assertions.assertThrows(NumberFormatException.class, () -> Complex.parse("(,1.0,2.0)"));
+        Assertions.assertThrows(NumberFormatException.class, () -> Complex.parse("(1.0,2,0)"));
     }
 
     @Test
     public void testParseInvalidRe() {
-        final String re = "I.234";
-        final String im = "5.678";
-        Assertions.assertThrows(NumberFormatException.class,
-            () -> Complex.parse("(" + re + "," + im + ")")
-        );
+        Assertions.assertThrows(NumberFormatException.class, () -> Complex.parse("(I.0,2.0)"));
     }
 
     @Test
     public void testParseInvalidIm() {
-        final String re = "1.234";
-        final String im = "5.G78";
-        Assertions.assertThrows(NumberFormatException.class,
-            () -> Complex.parse("(" + re + "," + im + ")")
-        );
+        Assertions.assertThrows(NumberFormatException.class, () -> Complex.parse("(1.0,2.G)"));
     }
 
     @Test
     public void testParseSpaceAllowedAroundNumbers() {
         final double re = 1.234;
         final double im = 5.678;
-        final String str = "(  " + re + "  , " + im + "     )";
-        Assertions.assertEquals(Complex.ofCartesian(re, im), Complex.parse(str));
+        final Complex z = Complex.ofCartesian(re, im);
+        Assertions.assertEquals(z, Complex.parse("(" + re + "," + im + ")"));
+        Assertions.assertEquals(z, Complex.parse("( " + re + "," + im + ")"));
+        Assertions.assertEquals(z, Complex.parse("(" + re + " ," + im + ")"));
+        Assertions.assertEquals(z, Complex.parse("(" + re + ", " + im + ")"));
+        Assertions.assertEquals(z, Complex.parse("(" + re + "," + im + " )"));
+        Assertions.assertEquals(z, Complex.parse("(  " + re + "  , " + im + "     )"));
     }
 
     @Test
