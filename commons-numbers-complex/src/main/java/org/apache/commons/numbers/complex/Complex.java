@@ -63,6 +63,8 @@ public final class Complex implements Serializable  {
     private static final double PI_OVER_4 = 0.25 * Math.PI;
     /** Expected number of elements when parsing text: 2. */
     private static final int TWO_ELEMENTS = 2;
+    /** Mask an integer number to even by discarding the lowest bit. */
+    private static final int MASK_INT_TO_EVEN = ~0x1;
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20180201L;
@@ -1340,13 +1342,13 @@ public final class Complex implements Serializable  {
                 }
                 // (1 + (a + b i)) / (1 - (a + b i))
                 final Complex result = divide(1 + a, b, 1 - a, -b);
-                // Compute the rest inline to avoid Complex object creation.
+                // Compute the log:
                 // (re + im i) = (1/2) * ln((1 + z) / (1 - z))
-                final double re = 0.5 * Math.log(result.abs());
-                final double im = 0.5 * result.arg();
-                // Map back to the correct sign
-                return constructor.create(changeSign(re, real),
-                                          changeSign(im, imaginary));
+                return result.log(Math::log, (re, im) ->
+                   // Divide log() by 2 and map back to the correct sign
+                   constructor.create(0.5 * changeSign(re, real),
+                                      0.5 * changeSign(im, imaginary))
+                );
             }
             if (Double.isInfinite(imaginary)) {
                 return constructor.create(Math.copySign(0, real), Math.copySign(PI_OVER_2, imaginary));
@@ -1594,7 +1596,7 @@ public final class Complex implements Serializable  {
      * @see #arg()
      */
     public Complex log() {
-        return log(Math::log);
+        return log(Math::log, Complex::ofCartesian);
     }
 
     /**
@@ -1612,7 +1614,7 @@ public final class Complex implements Serializable  {
      * @see #arg()
      */
     public Complex log10() {
-        return log(Math::log10);
+        return log(Math::log10, Complex::ofCartesian);
     }
 
     /**
@@ -1623,11 +1625,12 @@ public final class Complex implements Serializable  {
      * </pre>
      *
      * @param log Log function.
+     * @param constructor Constructor for the returned complex.
      * @return the logarithm of {@code this}.
      * @see #abs()
      * @see #arg()
      */
-    private Complex log(UnaryOperation log) {
+    private Complex log(UnaryOperation log, ComplexConstructor constructor) {
         // All ISO C99 edge cases satisfied by the Math library.
         // Make computation overflow safe.
         final double abs = abs();
@@ -1636,14 +1639,18 @@ public final class Complex implements Serializable  {
             // |a + b i| = sqrt(a^2 + b^2)
             // This can be scaled linearly.
             // Scale the absolute and exploit:
-            // ln(abs / s) = ln(abs) - ln(s)
-            // ln(abs) = ln(abs / s) + ln(s)
-            final double s = Math.max(Math.abs(real), Math.abs(imaginary));
-            final double absOs = Math.hypot(real / s, imaginary / s);
-            return new Complex(log.apply(absOs) + log.apply(s), arg());
+            // ln(abs / scale) = ln(abs) - ln(scale)
+            // ln(abs) = ln(abs / scale) + ln(scale)
+            // Use precise scaling with:
+            // scale ~ 2^exponent
+            final double scale = Math.max(Math.abs(real), Math.abs(imaginary));
+            final int exponent = Math.getExponent(scale);
+            // Implement scaling using 2^-exponent
+            final double absOs = Math.hypot(Math.scalb(real, -exponent), Math.scalb(imaginary, -exponent));
+            // log(2^exponent) = ln2(2^exponent) * log(2)
+            return constructor.create(log.apply(absOs) + exponent * log.apply(2), arg());
         }
-        return new Complex(log.apply(abs),
-                           arg());
+        return constructor.create(log.apply(abs), arg());
     }
 
     /**
@@ -1867,14 +1874,23 @@ public final class Complex implements Serializable  {
                     // Complex is too large.
                     // Divide by the largest absolute component,
                     // compute the required sqrt and then scale back.
-                    // Use the equality: sqrt(n) = sqrt(s) * sqrt(n/s)
+                    // Use the equality: sqrt(n) = sqrt(scale) * sqrt(n/scale)
                     // t = sqrt(max) * sqrt((|a|/max + |a + b i|/max) / 2)
                     // Note: The function may be non-monotonic at the junction.
                     // The alternative of returning infinity for a finite input is worse.
-                    final double max = Math.max(absA, Math.abs(imaginary));
-                    absA /= max;
-                    absC = getAbsolute(absA, imaginary / max);
-                    t = Math.sqrt(max) * Math.sqrt((absA + absC) / 2);
+                    // Use precise scaling with:
+                    // scale ~ 2^exponent
+                    final double scale = Math.max(absA, Math.abs(imaginary));
+                    // Make this even for fast rescaling using sqrt(2^exponent).
+                    final int exponent = Math.getExponent(scale) & MASK_INT_TO_EVEN;
+                    // Implement scaling using 2^-exponent
+                    final double scaleA = Math.scalb(absA, -exponent);
+                    final double scaleB = Math.scalb(imaginary, -exponent);
+                    absC = getAbsolute(scaleA, scaleB);
+                    // t = Math.sqrt(2^exponent) * Math.sqrt((scaleA + absC) / 2)
+                    // This works if exponent is even:
+                    // sqrt(2^exponent) = (2^exponent)^0.5 = 2^(exponent*0.5)
+                    t = Math.scalb(Math.sqrt((scaleA + absC) / 2), exponent / 2);
                 } else {
                     // Over-flow safe average
                     t = Math.sqrt(average(absA, absC));
