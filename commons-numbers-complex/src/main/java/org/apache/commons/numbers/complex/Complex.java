@@ -469,14 +469,13 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Returns a {@code Complex} whose value is
-     * {@code (this / divisor)}.
+     * Returns a {@code Complex} whose value is {@code (this / divisor)}.
      * Implements the formula:
      * <pre>
      * <code>
-     *   a + b i     ac + bd + i (bc - ad)
-     *   -------  =  ---------------------
-     *   c + d i           c<sup>2</sup> + d<sup>2</sup>
+     *   a + i b     (ac + bd) + i (bc - ad)
+     *   -------  =  -----------------------
+     *   c + i d            c<sup>2</sup> + d<sup>2</sup>
      * </code>
      * </pre>
      *
@@ -496,9 +495,9 @@ public final class Complex implements Serializable  {
      * Returns a {@code Complex} whose value is:
      * <pre>
      * <code>
-     *   a + b i     ac + bd + i (bc - ad)
-     *   -------  =  ---------------------
-     *   c + d i           c<sup>2</sup> + d<sup>2</sup>
+     *   a + i b     (ac + bd) + i (bc - ad)
+     *   -------  =  -----------------------
+     *   c + i d            c<sup>2</sup> + d<sup>2</sup>
      * </code>
      * </pre>
      *
@@ -510,7 +509,7 @@ public final class Complex implements Serializable  {
      * @param im1 Imaginary component of first number.
      * @param re2 Real component of second number.
      * @param im2 Imaginary component of second number.
-     * @return (a + b i) / (c + d i).
+     * @return (a + i b) / (c + i d).
      * @see <a href="http://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
      */
     private static Complex divide(double re1, double im1, double re2, double im2) {
@@ -610,15 +609,51 @@ public final class Complex implements Serializable  {
      * with {@code divisor} interpreted as a real number.
      * Implements the formula:
      * <pre>
-     *   (a + b i) / c = (a + b i) / (c + 0 i)
+     *   (a + i b) / c = (a + i b) / (c + i 0)
+     *                 = (a/c) + i (b/c)
      * </pre>
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * real-only and complex numbers.</p>
+     *
+     * <p>Note: Due to floating-point addition arithmetic on negative zeros this method should be
+     * preferred over using {@link #divide(Complex) divide(Complex.ofCartesian(factor, 0))}. If
+     * {@code this} complex has zeros for the real and/or imaginary component, or the factor
+     * is zero, the sign of the zero or infinite components of the result may differ between the
+     * two divide methods.
      *
      * @param  divisor Value by which this {@code Complex} is to be divided.
      * @return {@code this / divisor}.
      * @see #divide(Complex)
      */
     public Complex divide(double divisor) {
-        return divide(new Complex(divisor, 0));
+        return new Complex(real / divisor, imaginary / divisor);
+    }
+
+    /**
+     * Returns a {@code Complex} whose value is {@code (this / divisor)},
+     * with {@code divisor} interpreted as an imaginary number.
+     * Implements the formula:
+     * <pre>
+     *   (a + i b) / id = (a + i b) / (0 + i d)
+     *                  = (b/d) + i (-a/d)
+     * </pre>
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * imaginary-only and complex numbers.</p>
+     *
+     * <p>Note: Due to floating-point addition arithmetic on negative zeros this method should be
+     * preferred over using {@link #divide(Complex) divide(Complex.ofCartesian(0, factor))}. If
+     * {@code this} complex has zeros for the real and/or imaginary component, or the factor
+     * is zero, the sign of the zero or infinite components of the result may differ between the
+     * two divide methods.
+     *
+     * @param  divisor Value by which this {@code Complex} is to be divided.
+     * @return {@code this / divisor}.
+     * @see #divide(Complex)
+     */
+    public Complex divideImaginary(double divisor) {
+        return new Complex(imaginary / divisor, -real / divisor);
     }
 
     /**
@@ -851,7 +886,7 @@ public final class Complex implements Serializable  {
      * Returns a {@code Complex} whose value is {@code this * factor}.
      * Implements the formula:
      * <pre>
-     *   (a + b i)(c + d i) = (ac - bd) + i (ad + bc)
+     *   (a + i b)(c + i d) = (ac - bd) + i (ad + bc)
      * </pre>
      *
      * <p>Recalculates to recover infinities as specified in C.99
@@ -869,7 +904,7 @@ public final class Complex implements Serializable  {
     /**
      * Returns a {@code Complex} whose value is:
      * <pre>
-     *   (a + b i)(c + d i) = (ac - bd) + i (ad + bc)
+     *   (a + i b)(c + i d) = (ac - bd) + i (ad + bc)
      * </pre>
      *
      * <p>Recalculates to recover infinities as specified in C.99
@@ -997,9 +1032,18 @@ public final class Complex implements Serializable  {
      * interpreted as a real number.
      * Implements the formula:
      * <pre>
-     *   (a + b i) c = (a + b i)(c + 0 i)
-     *               = ac + bc i
+     *   (a + i b) c = (a + i b)(c + 0 i)
+     *               = (ac) + i (bc)
      * </pre>
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * real-only and complex numbers.</p>
+     *
+     * <p>Note: Due to floating-point addition arithmetic on negative zeros this method should be
+     * preferred over using {@link #multiply(Complex) multiply(Complex.ofCartesian(factor, 0))}. If
+     * {@code this} complex has zeros for the real and/or imaginary component, or the factor
+     * is zero, the sign of the zero components of the result may differ between the two multiply
+     * methods.
      *
      * @param  factor value to be multiplied by this {@code Complex}.
      * @return {@code this * factor}.
@@ -1007,6 +1051,41 @@ public final class Complex implements Serializable  {
      */
     public Complex multiply(double factor) {
         return new Complex(real * factor, imaginary * factor);
+    }
+
+    /**
+     * Returns a {@code Complex} whose value is {@code this * factor}, with {@code factor}
+     * interpreted as an imaginary number.
+     * Implements the formula:
+     * <pre>
+     *   (a + i b) id = (a + i b)(0 + i d)
+     *                = (-bd) + i (ad)
+     * </pre>
+     *
+     * <p>This method can be used to compute the multiplication of this complex number {@code z}
+     * by {@code i}. This should be used in preference to
+     * {@link #multiply(Complex) multiply(Complex.I)} with or without {@link #negate() negation}:</p>
+     *
+     * <pre>
+     *   iz = (-b + i a) = this.multiply(1);
+     *  -iz = (b + i -a) = this.multiply(-1);
+     * </pre>
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * imaginary-only and complex numbers.</p>
+     *
+     * <p>Note: Due to floating-point addition arithmetic on negative zeros this method should be
+     * preferred over using {@link #multiply(Complex) multiply(Complex.ofCartesian(0, factor))}. If
+     * {@code this} complex has zeros for the real and/or imaginary component, or the factor
+     * is zero, the sign of the zero components of the result may differ between the two multiply
+     * methods.
+     *
+     * @param  factor value to be multiplied by this {@code Complex}.
+     * @return {@code this * factor}.
+     * @see #multiply(Complex)
+     */
+    public Complex multiplyImaginary(double factor) {
+        return new Complex(-imaginary * factor, real * factor);
     }
 
     /**

@@ -68,21 +68,21 @@ public class ComplexTest {
     }
 
     /**
-    * Create a complex number given the real part.
-    *
-    * @param real Real part.
-    * @return {@code Complex} object
-    */
+     * Create a complex number given the real part.
+     *
+     * @param real Real part.
+     * @return {@code Complex} object
+     */
     private static Complex ofReal(double real) {
         return Complex.ofCartesian(real, 0);
     }
 
     /**
-    * Create a complex number given the imaginary part.
-    *
-    * @param imaginary Imaginary part.
-    * @return {@code Complex} object
-    */
+     * Create a complex number given the imaginary part.
+     *
+     * @param imaginary Imaginary part.
+     * @return {@code Complex} object
+     */
     private static Complex ofImaginary(double imaginary) {
         return Complex.ofCartesian(0, imaginary);
     }
@@ -270,7 +270,9 @@ public class ComplexTest {
         Assertions.assertEquals(8.0, z.getReal());
         Assertions.assertEquals(-0.0, z.getImaginary(), "Expected sign preservation");
         // Sign-preservation is a problem: -0.0 + 0.0 == 0.0
-        Assertions.assertNotEquals(z, x.add(ofReal(y)));
+        Complex z2 = x.add(ofReal(y));
+        Assertions.assertEquals(8.0, z2.getReal());
+        Assertions.assertEquals(0.0, z2.getImaginary(), "Expected no-sign preservation");
     }
 
     @Test
@@ -311,10 +313,12 @@ public class ComplexTest {
         final Complex x = Complex.ofCartesian(-0.0, 4.0);
         final double y = 5.0;
         Complex z = x.addImaginary(y);
-        Assertions.assertEquals(-0.0, z.getReal());
-        Assertions.assertEquals(9.0, z.getImaginary(), "Expected sign preservation");
+        Assertions.assertEquals(-0.0, z.getReal(), "Expected sign preservation");
+        Assertions.assertEquals(9.0, z.getImaginary());
         // Sign-preservation is a problem: -0.0 + 0.0 == 0.0
-        Assertions.assertNotEquals(z, x.add(ofImaginary(y)));
+        Complex z2 = x.add(ofImaginary(y));
+        Assertions.assertEquals(0.0, z2.getReal(), "Expected no-sign preservation");
+        Assertions.assertEquals(9.0, z2.getImaginary());
     }
 
     @Test
@@ -332,11 +336,11 @@ public class ComplexTest {
     }
 
     @Test
-    public void testConjugateInfiinite() {
+    public void testConjugateInfinite() {
         Complex z = Complex.ofCartesian(0, inf);
-        Assertions.assertEquals(neginf, z.conj().getImaginary(), 0);
+        Assertions.assertEquals(neginf, z.conj().getImaginary());
         z = Complex.ofCartesian(0, neginf);
-        Assertions.assertEquals(inf, z.conj().getImaginary(), 0);
+        Assertions.assertEquals(inf, z.conj().getImaginary());
     }
 
     @Test
@@ -346,21 +350,6 @@ public class ComplexTest {
         final Complex z = x.divide(y);
         Assertions.assertEquals(39.0 / 61.0, z.getReal());
         Assertions.assertEquals(2.0 / 61.0, z.getImaginary());
-    }
-
-    @Test
-    public void testDivideReal() {
-        final Complex x = Complex.ofCartesian(2d, 3d);
-        final Complex y = Complex.ofCartesian(2d, 0d);
-        Assertions.assertEquals(Complex.ofCartesian(1.0, 1.5), x.divide(y));
-
-    }
-
-    @Test
-    public void testDivideImaginary() {
-        final Complex x = Complex.ofCartesian(2d, 3d);
-        final Complex y = Complex.ofCartesian(0d, 2d);
-        Assertions.assertEquals(Complex.ofCartesian(1.5d, -1.0), x.divide(y));
     }
 
     @Test
@@ -400,25 +389,131 @@ public class ComplexTest {
     }
 
     @Test
-    public void testScalarDivide() {
+    public void testDivideReal() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
-        final double yDouble = 2.0;
-        final Complex yComplex = ofReal(yDouble);
-        Assertions.assertEquals(x.divide(yComplex), x.divide(yDouble));
+        final double y = 2.0;
+        Complex z = x.divide(y);
+        Assertions.assertEquals(1.5, z.getReal());
+        Assertions.assertEquals(2.0, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.divide(ofReal(y)));
+
+        z = x.divide(-y);
+        Assertions.assertEquals(-1.5, z.getReal());
+        Assertions.assertEquals(-2.0, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.divide(ofReal(-y)));
     }
 
     @Test
-    public void testScalarDivideNaN() {
+    public void testDivideRealNaN() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
-        final double yDouble = Double.NaN;
-        final Complex yComplex = ofReal(yDouble);
-        Assertions.assertEquals(x.divide(yComplex), x.divide(yDouble));
+        final double y = nan;
+        Complex z = x.divide(y);
+        Assertions.assertEquals(nan, z.getReal());
+        Assertions.assertEquals(nan, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.divide(ofReal(y)));
     }
 
     @Test
-    public void testScalarDivideZero() {
-        final Complex x = Complex.ofCartesian(1, 1);
-        TestUtils.assertEquals(x.divide(Complex.ZERO), x.divide(0), 0);
+    public void testDivideRealInf() {
+        final Complex x = Complex.ofCartesian(3.0, 4.0);
+        final double y = inf;
+        Complex z = x.divide(y);
+        Assertions.assertEquals(0.0, z.getReal());
+        Assertions.assertEquals(0.0, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.divide(ofReal(y)));
+
+        z = x.divide(-y);
+        Assertions.assertEquals(-0.0, z.getReal());
+        Assertions.assertEquals(-0.0, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.divide(ofReal(-y)));
+    }
+
+    @Test
+    public void testDivideRealZero() {
+        final Complex x = Complex.ofCartesian(3.0, 4.0);
+        final double y = 0.0;
+        Complex z = x.divide(y);
+        Assertions.assertEquals(inf, z.getReal());
+        Assertions.assertEquals(inf, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.divide(ofReal(y)));
+
+        z = x.divide(-y);
+        Assertions.assertEquals(-inf, z.getReal());
+        Assertions.assertEquals(-inf, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.divide(ofReal(-y)));
+    }
+
+    @Test
+    public void testDivideImaginary() {
+        final Complex x = Complex.ofCartesian(3.0, 4.0);
+        final double y = 2.0;
+        Complex z = x.divideImaginary(y);
+        Assertions.assertEquals(2.0, z.getReal());
+        Assertions.assertEquals(-1.5, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.divide(ofImaginary(y)));
+
+        z = x.divideImaginary(-y);
+        Assertions.assertEquals(-2.0, z.getReal());
+        Assertions.assertEquals(1.5, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.divide(ofImaginary(-y)));
+    }
+
+    @Test
+    public void testDivideImaginaryNaN() {
+        final Complex x = Complex.ofCartesian(3.0, 4.0);
+        final double y = nan;
+        Complex z = x.divideImaginary(y);
+        Assertions.assertEquals(nan, z.getReal());
+        Assertions.assertEquals(nan, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.divide(ofImaginary(y)));
+    }
+
+    @Test
+    public void testDivideImaginaryInf() {
+        final Complex x = Complex.ofCartesian(3.0, 4.0);
+        final double y = inf;
+        Complex z = x.divideImaginary(y);
+        Assertions.assertEquals(0.0, z.getReal());
+        Assertions.assertEquals(-0.0, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.divide(ofImaginary(y)));
+
+        z = x.divideImaginary(-y);
+        Assertions.assertEquals(-0.0, z.getReal());
+        Assertions.assertEquals(0.0, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.divide(ofImaginary(-y)));
+    }
+
+    @Test
+    public void testDivideImaginaryZero() {
+        final Complex x = Complex.ofCartesian(3.0, 4.0);
+        final double y = 0.0;
+        Complex z = x.divideImaginary(y);
+        Assertions.assertEquals(inf, z.getReal());
+        Assertions.assertEquals(-inf, z.getImaginary());
+        // Sign-preservation is a problem for imaginary: 0.0 - -0.0 == 0.0
+        Complex z2 = x.divide(ofImaginary(y));
+        Assertions.assertEquals(inf, z2.getReal());
+        Assertions.assertEquals(inf, z2.getImaginary(), "Expected no sign preservation");
+
+        z = x.divideImaginary(-y);
+        Assertions.assertEquals(-inf, z.getReal());
+        Assertions.assertEquals(inf, z.getImaginary());
+        // Sign-preservation is a problem for real: 0.0 + -0.0 == 0.0
+        z2 = x.divide(ofImaginary(-y));
+        Assertions.assertEquals(inf, z2.getReal(), "Expected no sign preservation");
+        Assertions.assertEquals(inf, z2.getImaginary());
     }
 
     @Test
@@ -478,40 +573,246 @@ public class ComplexTest {
 
     @Test
     public void testMultiplyInfInf() {
-        // Assert.assertTrue(infInf.multiply(infInf).isNaN()); // MATH-620
-        Assertions.assertTrue(infInf.multiply(infInf).isInfinite());
+        final Complex z = infInf.multiply(infInf);
+        // Assert.assertTrue(z.isNaN()); // MATH-620
+        Assertions.assertTrue(z.isInfinite());
+
+        // Expected results from g++:
+        Assertions.assertEquals(Complex.ofCartesian(nan, inf), infInf.multiply(infInf));
+        Assertions.assertEquals(Complex.ofCartesian(inf, nan), infInf.multiply(infNegInf));
+        Assertions.assertEquals(Complex.ofCartesian(-inf, nan), infInf.multiply(negInfInf));
+        Assertions.assertEquals(Complex.ofCartesian(nan, -inf), infInf.multiply(negInfNegInf));
     }
 
     @Test
-    public void testScalarMultiply() {
+    public void testMultiplyReal() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
-        final double yDouble = 2.0;
-        final Complex yComplex = ofReal(yDouble);
-        Assertions.assertEquals(x.multiply(yComplex), x.multiply(yDouble));
-        final int zInt = -5;
-        final Complex zComplex = ofReal(zInt);
-        Assertions.assertEquals(x.multiply(zComplex), x.multiply(zInt));
+        final double y = 2.0;
+        Complex z = x.multiply(y);
+        Assertions.assertEquals(6.0, z.getReal());
+        Assertions.assertEquals(8.0, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.multiply(ofReal(y)));
+
+        z = x.multiply(-y);
+        Assertions.assertEquals(-6.0, z.getReal());
+        Assertions.assertEquals(-8.0, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.multiply(ofReal(-y)));
     }
 
     @Test
-    public void testScalarMultiplyNaN() {
+    public void testMultiplyRealNaN() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
-        final double yDouble = Double.NaN;
-        final Complex yComplex = ofReal(yDouble);
-        Assertions.assertEquals(x.multiply(yComplex), x.multiply(yDouble));
+        final double y = nan;
+        Complex z = x.multiply(y);
+        Assertions.assertEquals(nan, z.getReal());
+        Assertions.assertEquals(nan, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.multiply(ofReal(y)));
     }
 
     @Test
-    public void testScalarMultiplyInf() {
-        final Complex x = Complex.ofCartesian(1, 1);
-        double yDouble = Double.POSITIVE_INFINITY;
-        Complex yComplex = ofReal(yDouble);
-        Assertions.assertEquals(x.multiply(yComplex), x.multiply(yDouble));
+    public void testMultiplyRealInf() {
+        final Complex x = Complex.ofCartesian(3.0, 4.0);
+        final double y = inf;
+        Complex z = x.multiply(y);
+        Assertions.assertEquals(inf, z.getReal());
+        Assertions.assertEquals(inf, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.multiply(ofReal(y)));
 
-        yDouble = Double.NEGATIVE_INFINITY;
-        yComplex = ofReal(yDouble);
-        Assertions.assertEquals(x.multiply(yComplex), x.multiply(yDouble));
+        z = x.multiply(-y);
+        Assertions.assertEquals(-inf, z.getReal());
+        Assertions.assertEquals(-inf, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.multiply(ofReal(-y)));
     }
+
+    @Test
+    public void testMultiplyRealZero() {
+        final Complex x = Complex.ofCartesian(3.0, 4.0);
+        final double y = 0.0;
+        Complex z = x.multiply(y);
+        Assertions.assertEquals(0.0, z.getReal());
+        Assertions.assertEquals(0.0, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.multiply(ofReal(y)));
+
+        z = x.multiply(-y);
+        Assertions.assertEquals(-0.0, z.getReal());
+        Assertions.assertEquals(-0.0, z.getImaginary());
+        // Sign-preservation is a problem for imaginary: 0.0 - -0.0 == 0.0
+        Complex z2 = x.multiply(ofReal(-y));
+        Assertions.assertEquals(-0.0, z2.getReal());
+        Assertions.assertEquals(0.0, z2.getImaginary(), "Expected no sign preservation");
+    }
+
+    @Test
+    public void testMultiplyImaginary() {
+        final Complex x = Complex.ofCartesian(3.0, 4.0);
+        final double y = 2.0;
+        Complex z = x.multiplyImaginary(y);
+        Assertions.assertEquals(-8.0, z.getReal());
+        Assertions.assertEquals(6.0, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.multiply(ofImaginary(y)));
+
+        z = x.multiplyImaginary(-y);
+        Assertions.assertEquals(8.0, z.getReal());
+        Assertions.assertEquals(-6.0, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.multiply(ofImaginary(-y)));
+    }
+
+    @Test
+    public void testMultiplyImaginaryNaN() {
+        final Complex x = Complex.ofCartesian(3.0, 4.0);
+        final double y = nan;
+        Complex z = x.multiplyImaginary(y);
+        Assertions.assertEquals(nan, z.getReal());
+        Assertions.assertEquals(nan, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.multiply(ofImaginary(y)));
+    }
+
+    @Test
+    public void testMultiplyImaginaryInf() {
+        final Complex x = Complex.ofCartesian(3.0, 4.0);
+        final double y = inf;
+        Complex z = x.multiplyImaginary(y);
+        Assertions.assertEquals(-inf, z.getReal());
+        Assertions.assertEquals(inf, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.multiply(ofImaginary(y)));
+
+        z = x.multiplyImaginary(-y);
+        Assertions.assertEquals(inf, z.getReal());
+        Assertions.assertEquals(-inf, z.getImaginary());
+        // Equivalent
+        Assertions.assertEquals(z, x.multiply(ofImaginary(-y)));
+    }
+
+    @Test
+    public void testMultiplyImaginaryZero() {
+        final Complex x = Complex.ofCartesian(3.0, 4.0);
+        final double y = 0.0;
+        Complex z = x.multiplyImaginary(y);
+        Assertions.assertEquals(-0.0, z.getReal());
+        Assertions.assertEquals(0.0, z.getImaginary());
+        // Sign-preservation is a problem for real: 0.0 - -0.0 == 0.0
+        Complex z2 = x.multiply(ofImaginary(y));
+        Assertions.assertEquals(0.0, z2.getReal(), "Expected no sign preservation");
+        Assertions.assertEquals(0.0, z2.getImaginary());
+
+        z = x.multiplyImaginary(-y);
+        Assertions.assertEquals(0.0, z.getReal());
+        Assertions.assertEquals(-0.0, z.getImaginary());
+        // Sign-preservation is a problem for imaginary: -0.0 - 0.0 == 0.0
+        z2 = x.multiply(ofImaginary(-y));
+        Assertions.assertEquals(0.0, z2.getReal());
+        Assertions.assertEquals(0.0, z2.getImaginary(), "Expected no sign preservation");
+    }
+
+    @Test
+    public void testNonZeroMultiplyI() {
+        final double[] parts = {3.0, 4.0};
+        for (final double a : parts) {
+            for (final double b : parts) {
+                final Complex c = Complex.ofCartesian(a, b);
+                final Complex x = c.multiplyImaginary(1.0);
+                // Check verses algebra solution
+                Assertions.assertEquals(-b, x.getReal());
+                Assertions.assertEquals(a, x.getImaginary());
+                final Complex z = c.multiply(Complex.I);
+                Assertions.assertEquals(x, z);
+            }
+        }
+    }
+
+    @Test
+    public void testNonZeroMultiplyNegativeI() {
+        // This works no matter how you represent -I as a Complex
+        final double[] parts = {3.0, 4.0};
+        final Complex[] negIs = {Complex.ofCartesian(-0.0, -1), Complex.ofCartesian(0.0, -1)};
+        for (final double a : parts) {
+            for (final double b : parts) {
+                final Complex c = Complex.ofCartesian(a, b);
+                final Complex x = c.multiplyImaginary(-1.0);
+                // Check verses algebra solution
+                Assertions.assertEquals(b, x.getReal());
+                Assertions.assertEquals(-a, x.getImaginary());
+                for (Complex negI : negIs) {
+                    final Complex z = c.multiply(negI);
+                    Assertions.assertEquals(x, z);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testZeroMultiplyI() {
+        final double[] zeros = {-0.0, 0.0};
+        for (double a : zeros) {
+            for (double b : zeros) {
+                final Complex c = Complex.ofCartesian(a, b);
+                Complex x = c.multiplyImaginary(1.0);
+                // Check verses algebra solution
+                Assertions.assertEquals(-b, x.getReal());
+                Assertions.assertEquals(a, x.getImaginary());
+                Complex z = c.multiply(Complex.I);
+                // Does not work when imaginary part is +0.0.
+                if (Double.compare(b, 0.0) == 0) {
+                    // (-0.0, 0.0).multiply( (0,1) ) => (-0.0, 0.0)   expected (-0.0,-0.0)
+                    // ( 0.0, 0.0).multiply( (0,1) ) => ( 0.0, 0.0)   expected (-0.0, 0.0)
+                    Assertions.assertEquals(0, z.getReal(), 0.0);
+                    Assertions.assertEquals(0, z.getImaginary(), 0.0);
+                    Assertions.assertNotEquals(x, z);
+                } else {
+                    Assertions.assertEquals(x, z);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testZeroMultiplyNegativeI() {
+        // Depending on how we represent -I this does not work for 2/4 cases
+        // but the cases are different. Here we test the negation of I.
+        Complex negI = Complex.I.negate();
+        final double[] zeros = {-0.0, 0.0};
+        for (double a : zeros) {
+            for (double b : zeros) {
+                final Complex c = Complex.ofCartesian(a, b);
+                Complex x = c.multiplyImaginary(-1.0);
+                // Check verses algebra solution
+                Assertions.assertEquals(b, x.getReal());
+                Assertions.assertEquals(-a, x.getImaginary());
+                Complex z = c.multiply(negI);
+                Complex z2 = c.multiply(Complex.I).negate();
+                // Does not work when imaginary part is -0.0.
+                if (Double.compare(b, -0.0) == 0) {
+                    // (-0.0,-0.0).multiply( (-0.0,-1) ) => ( 0.0, 0.0)   expected (-0.0, 0.0)
+                    // ( 0.0,-0.0).multiply( (-0.0,-1) ) => (-0.0, 0.0)   expected (-0.0,-0.0)
+                    Assertions.assertEquals(0, z.getReal(), 0.0);
+                    Assertions.assertEquals(0, z.getImaginary(), 0.0);
+                    Assertions.assertNotEquals(x, z);
+                    // When multiply by I.negate() fails multiply by I then negate() works!
+                    Assertions.assertEquals(x, z2);
+                } else {
+                    Assertions.assertEquals(x, z);
+                    // When multiply by I.negate() works multiply by I then negate() fails!
+                    Assertions.assertNotEquals(x, z2);
+                }
+            }
+        }
+    }
+
+    // TODO
+    // Add a comprehensive arithmetic test using combinations of +/-0.0 for real, imaginary and
+    // and the double argument for add, subtract, subtractFrom, multiply, divide.
+    // The test should count the number of differences between the complex version and
+    // the non-complex version. Any with differences above zero should be documented in Complex.
 
     @Test
     public void testNegate() {
