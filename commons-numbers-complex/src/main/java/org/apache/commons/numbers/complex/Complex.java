@@ -47,13 +47,23 @@ import org.apache.commons.numbers.core.Precision;
  *    ISO/IEC 9899 - Programming languages - C</a>
  */
 public final class Complex implements Serializable  {
-    /** The square root of -1, a.k.a. "i". */
+    /**
+     * A complex number representing {@code i}, the square root of -1.
+     * <pre>{@code 0 + i 1}</pre>
+     */
     public static final Complex I = new Complex(0, 1);
-    /** A complex number representing one. */
+    /**
+     * A complex number representing one.
+     * <pre>{@code 1 + i 0}</pre>
+     */
     public static final Complex ONE = new Complex(1, 0);
-    /** A complex number representing zero. */
+    /**
+     * A complex number representing zero.
+     * <pre>{@code 0 + i 0}</pre>
+     */
     public static final Complex ZERO = new Complex(0, 0);
-    /** A complex number representing "NaN + NaN i". */
+
+    /** A complex number representing "NaN + NaN i": {@code NaN + i NaN} */
     private static final Complex NAN = new Complex(Double.NaN, Double.NaN);
     /** 3*&pi;/4. */
     private static final double PI_3_OVER_4 = 0.75 * Math.PI;
