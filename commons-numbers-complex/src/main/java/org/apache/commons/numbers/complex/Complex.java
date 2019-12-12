@@ -149,6 +149,16 @@ public final class Complex implements Serializable  {
     }
 
     /**
+    * Create a complex number given the imaginary part.
+    *
+    * @param imaginary Imaginary part.
+    * @return {@code Complex} object
+    */
+    public static Complex ofImaginary(double imaginary) {
+        return new Complex(0, imaginary);
+    }
+
+    /**
      * Creates a Complex from its polar representation.
      *
      * <p>If {@code r} is infinite and {@code theta} is finite, infinite or NaN
@@ -391,13 +401,13 @@ public final class Complex implements Serializable  {
      *
      * <p>Note: This method preserves the sign of the real component {@code a} if it is {@code -0.0}.
      * The sign would be lost if adding {@code (0 + i d)} using
-     * {@link #add(Complex) add(Complex.ofCartesian(0, addend))} since
+     * {@link #add(Complex) add(Complex.ofImaginary(addend))} since
      * {@code -0.0 + 0.0 = 0.0}.
      *
      * @param addend Value to be added to this {@code Complex}.
      * @return {@code this + addend}.
      * @see #add(Complex)
-     * @see #ofCartesian(double, double)
+     * @see #ofImaginary(double)
      */
     public Complex addImaginary(double addend) {
         return new Complex(real, imaginary + addend);
@@ -1062,13 +1072,13 @@ public final class Complex implements Serializable  {
      *
      * <p>Note: This method inverts the sign of the real component {@code a} if it is {@code 0.0}.
      * The sign would not be inverted if subtracting from {@code (0 + i d)} using
-     * {@link #subtract(Complex) Complex.ofCartesian(0, minuend).subtract(this))} since
+     * {@link #subtract(Complex) Complex.ofImaginary(minuend).subtract(this))} since
      * {@code 0.0 - 0.0 = 0.0}.
      *
      * @param  minuend value this {@code Complex} is to be subtracted from.
      * @return {@code this - subtrahend}.
      * @see #subtract(Complex)
-     * @see #ofCartesian(double, double)
+     * @see #ofImaginary(double)
      */
     public Complex subtractFromImaginary(double minuend) {
         return new Complex(-real, minuend - imaginary);

@@ -67,16 +67,6 @@ public class ComplexTest {
         FINITE
     }
 
-    /**
-     * Convenience constructor for testing using only and imaginary component.
-     *
-     * @param imaginary the imaginary part
-     * @return the complex
-     */
-    private static Complex ofImaginary(double imaginary) {
-        return Complex.ofCartesian(0, imaginary);
-    }
-
     @Test
     public void testCartesianConstructor() {
         final Complex z = Complex.ofCartesian(3.0, 4.0);
@@ -89,6 +79,13 @@ public class ComplexTest {
         final Complex z = Complex.ofReal(3.0);
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(0.0, z.getImaginary());
+    }
+
+    @Test
+    public void testImaginaryConstructor() {
+        final Complex z = Complex.ofImaginary(3.0);
+        Assertions.assertEquals(0.0, z.getReal());
+        Assertions.assertEquals(3.0, z.getImaginary());
     }
 
     @Test
@@ -278,7 +275,7 @@ public class ComplexTest {
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(9.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.add(ofImaginary(y)));
+        Assertions.assertEquals(z, x.add(Complex.ofImaginary(y)));
     }
 
     @Test
@@ -289,7 +286,7 @@ public class ComplexTest {
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(nan, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.add(ofImaginary(y)));
+        Assertions.assertEquals(z, x.add(Complex.ofImaginary(y)));
     }
 
     @Test
@@ -300,7 +297,7 @@ public class ComplexTest {
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(inf, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.add(ofImaginary(y)));
+        Assertions.assertEquals(z, x.add(Complex.ofImaginary(y)));
     }
 
     @Test
@@ -311,7 +308,7 @@ public class ComplexTest {
         Assertions.assertEquals(-0.0, z.getReal());
         Assertions.assertEquals(9.0, z.getImaginary(), "Expected sign preservation");
         // Sign-preservation is a problem: -0.0 + 0.0 == 0.0
-        Assertions.assertNotEquals(z, x.add(ofImaginary(y)));
+        Assertions.assertNotEquals(z, x.add(Complex.ofImaginary(y)));
     }
 
     @Test
@@ -599,7 +596,7 @@ public class ComplexTest {
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(-1.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.subtract(ofImaginary(y)));
+        Assertions.assertEquals(z, x.subtract(Complex.ofImaginary(y)));
     }
 
     @Test
@@ -610,7 +607,7 @@ public class ComplexTest {
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(nan, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.subtract(ofImaginary(y)));
+        Assertions.assertEquals(z, x.subtract(Complex.ofImaginary(y)));
     }
 
     @Test
@@ -621,7 +618,7 @@ public class ComplexTest {
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(-inf, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.subtract(ofImaginary(y)));
+        Assertions.assertEquals(z, x.subtract(Complex.ofImaginary(y)));
     }
 
     @Test
@@ -633,7 +630,7 @@ public class ComplexTest {
         Assertions.assertEquals(-1.0, z.getImaginary());
         // Equivalent
         // Sign-preservation is not a problem: -0.0 - 0.0 == -0.0
-        Assertions.assertEquals(z, x.subtract(ofImaginary(y)));
+        Assertions.assertEquals(z, x.subtract(Complex.ofImaginary(y)));
     }
 
     @Test
@@ -688,7 +685,7 @@ public class ComplexTest {
         Assertions.assertEquals(-3.0, z.getReal());
         Assertions.assertEquals(1.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, ofImaginary(y).subtract(x));
+        Assertions.assertEquals(z, Complex.ofImaginary(y).subtract(x));
     }
 
     @Test
@@ -699,7 +696,7 @@ public class ComplexTest {
         Assertions.assertEquals(-3.0, z.getReal());
         Assertions.assertEquals(nan, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, ofImaginary(y).subtract(x));
+        Assertions.assertEquals(z, Complex.ofImaginary(y).subtract(x));
     }
 
     @Test
@@ -710,7 +707,7 @@ public class ComplexTest {
         Assertions.assertEquals(-3.0, z.getReal());
         Assertions.assertEquals(inf, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, ofImaginary(y).subtract(x));
+        Assertions.assertEquals(z, Complex.ofImaginary(y).subtract(x));
     }
 
     @Test
@@ -721,7 +718,7 @@ public class ComplexTest {
         Assertions.assertEquals(-0.0, z.getReal(), "Expected sign inversion");
         Assertions.assertEquals(1.0, z.getImaginary());
         // Sign-inversion is a problem: 0.0 - 0.0 == 0.0
-        Assertions.assertNotEquals(z, ofImaginary(y).subtract(x));
+        Assertions.assertNotEquals(z, Complex.ofImaginary(y).subtract(x));
     }
 
     @Test
