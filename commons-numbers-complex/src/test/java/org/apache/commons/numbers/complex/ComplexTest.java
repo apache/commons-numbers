@@ -1531,7 +1531,6 @@ public class ComplexTest {
             final Complex z = Complex.ofCartesian(rng.nextDouble(), rng.nextDouble());
             Assertions.assertEquals(z.getReal(), z.real(), "real");
             Assertions.assertEquals(z.getImaginary(), z.imag(), "imag");
-            Assertions.assertEquals(z.conj(), z.conj(), "conj");
         }
     }
 
