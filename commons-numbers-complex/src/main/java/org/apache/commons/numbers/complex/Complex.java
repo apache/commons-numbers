@@ -332,11 +332,10 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Returns a {@code Complex} whose value is
-     * {@code (this + addend)}.
+     * Returns a {@code Complex} whose value is {@code (this + addend)}.
      * Implements the formula:
      * <pre>
-     *   (a + b i) + (c + d i) = (a + c) + i (b + d)
+     *   (a + i b) + (c + i d) = (a + c) + i (b + d)
      * </pre>
      *
      * @param  addend Value to be added to this {@code Complex}.
@@ -351,13 +350,51 @@ public final class Complex implements Serializable  {
     /**
      * Returns a {@code Complex} whose value is {@code (this + addend)},
      * with {@code addend} interpreted as a real number.
+     * Implements the formula:
+     * <pre>
+     *  (a + i b) + c = (a + c) + i b
+     * </pre>
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * real-only and complex numbers.</p>
+     *
+     * <p>Note: This method preserves the sign of the imaginary component {@code b} if it is {@code -0.0}.
+     * The sign would be lost if adding {@code (c + i 0)} using
+     * {@link #add(Complex) add(Complex.ofReal(addend))} since
+     * {@code -0.0 + 0.0 = 0.0}.
      *
      * @param addend Value to be added to this {@code Complex}.
      * @return {@code this + addend}.
      * @see #add(Complex)
+     * @see #ofReal(double)
      */
     public Complex add(double addend) {
         return new Complex(real + addend, imaginary);
+    }
+
+    /**
+     * Returns a {@code Complex} whose value is {@code (this + addend)},
+     * with {@code addend} interpreted as an imaginary number.
+     * Implements the formula:
+     * <pre>
+     *  (a + i b) + i d = a + i (b + d)
+     * </pre>
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * imaginary-only and complex numbers.</p>
+     *
+     * <p>Note: This method preserves the sign of the real component {@code a} if it is {@code -0.0}.
+     * The sign would be lost if adding {@code (0 + i d)} using
+     * {@link #add(Complex) add(Complex.ofCartesian(0, addend))} since
+     * {@code -0.0 + 0.0 = 0.0}.
+     *
+     * @param addend Value to be added to this {@code Complex}.
+     * @return {@code this + addend}.
+     * @see #add(Complex)
+     * @see #ofCartesian(double, double)
+     */
+    public Complex addImaginary(double addend) {
+        return new Complex(real, imaginary + addend);
     }
 
     /**
@@ -926,11 +963,10 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Returns a {@code Complex} whose value is
-     * {@code (this - subtrahend)}.
+     * Returns a {@code Complex} whose value is {@code (this - subtrahend)}.
      * Implements the formula:
      * <pre>
-     *  (a + b i) - (c + d i) = (a - c) + i (b - d)
+     *  (a + i b) - (c + i d) = (a - c) + i (b - d)
      * </pre>
      *
      * @param  subtrahend value to be subtracted from this {@code Complex}.
@@ -943,12 +979,15 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Returns a {@code Complex} whose value is
-     * {@code (this - subtrahend)}.
+     * Returns a {@code Complex} whose value is {@code (this - subtrahend)},
+     * with {@code subtrahend} interpreted as a real number.
      * Implements the formula:
      * <pre>
-     *  (a + b i) - c = (a - c) + b i
+     *  (a + i b) - c = (a - c) + i b
      * </pre>
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * real-only and complex numbers.</p>
      *
      * @param  subtrahend value to be subtracted from this {@code Complex}.
      * @return {@code this - subtrahend}.
@@ -956,6 +995,75 @@ public final class Complex implements Serializable  {
      */
     public Complex subtract(double subtrahend) {
         return new Complex(real - subtrahend, imaginary);
+    }
+
+    /**
+     * Returns a {@code Complex} whose value is {@code (this - subtrahend)},
+     * with {@code subtrahend} interpreted as an imaginary number.
+     * Implements the formula:
+     * <pre>
+     *  (a + i b) - i d = a + i (b - d)
+     * </pre>
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * imaginary-only and complex numbers.</p>
+     *
+     * @param  subtrahend value to be subtracted from this {@code Complex}.
+     * @return {@code this - subtrahend}.
+     * @see #subtract(Complex)
+     */
+    public Complex subtractImaginary(double subtrahend) {
+        return new Complex(real, imaginary - subtrahend);
+    }
+
+    /**
+     * Returns a {@code Complex} whose value is {@code (minuend - this)},
+     * with {@code minuend} interpreted as a real number.
+     * Implements the formula:
+     * <pre>
+     *  c - (a + i b) = (c - a) - i b
+     * </pre>
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * real-only and complex numbers.</p>
+     *
+     * <p>Note: This method inverts the sign of the imaginary component {@code b} if it is {@code 0.0}.
+     * The sign would not be inverted if subtracting from {@code (c + i 0)} using
+     * {@link #subtract(Complex) Complex.ofReal(minuend).subtract(this))} since
+     * {@code 0.0 - 0.0 = 0.0}.
+     *
+     * @param  minuend value this {@code Complex} is to be subtracted from.
+     * @return {@code minuend - this}.
+     * @see #subtract(Complex)
+     * @see #ofReal(double)
+     */
+    public Complex subtractFrom(double minuend) {
+        return new Complex(minuend - real, -imaginary);
+    }
+
+    /**
+     * Returns a {@code Complex} whose value is {@code (this - subtrahend)},
+     * with {@code minuend} interpreted as an imaginary number.
+     * Implements the formula:
+     * <pre>
+     *  i d - (a + i b) = -a + i (d - b)
+     * </pre>
+     *
+     * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
+     * imaginary-only and complex numbers.</p>
+     *
+     * <p>Note: This method inverts the sign of the real component {@code a} if it is {@code 0.0}.
+     * The sign would not be inverted if subtracting from {@code (0 + i d)} using
+     * {@link #subtract(Complex) Complex.ofCartesian(0, minuend).subtract(this))} since
+     * {@code 0.0 - 0.0 = 0.0}.
+     *
+     * @param  minuend value this {@code Complex} is to be subtracted from.
+     * @return {@code this - subtrahend}.
+     * @see #subtract(Complex)
+     * @see #ofCartesian(double, double)
+     */
+    public Complex subtractFromImaginary(double minuend) {
+        return new Complex(-real, minuend - imaginary);
     }
 
     /**
