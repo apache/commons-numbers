@@ -1416,15 +1416,6 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Compute the square of this complex number.
-     *
-     * @return square of this complex number
-     */
-    public Complex square() {
-        return multiply(this);
-    }
-
-    /**
      * Compute the
      * <a href="http://mathworld.wolfram.com/Cosine.html">
      * cosine</a> of this complex number.

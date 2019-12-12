@@ -1538,19 +1538,4 @@ public class ComplexTest {
         Assertions.assertEquals(0.54930614433405489, c.getReal());
         Assertions.assertEquals(1.5707963267948966, c.getImaginary());
     }
-
-    @Test
-    public void testSquare() {
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
-        final double min = -5;
-        final double range = -2 * min;
-        for (int i = 0; i < 10; i++) {
-            final Complex z = Complex.ofCartesian(min + range * rng.nextDouble(),
-                                                  min + range * rng.nextDouble());
-            final Complex c1 = z.multiply(z);
-            final Complex c2 = z.square();
-            Assertions.assertEquals(c1.getReal(), c2.getReal(), "real");
-            Assertions.assertEquals(c1.getImaginary(), c2.getImaginary(), "imaginary");
-        }
-    }
 }
