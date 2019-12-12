@@ -65,6 +65,10 @@ public final class Complex implements Serializable  {
     private static final int TWO_ELEMENTS = 2;
     /** Mask an integer number to even by discarding the lowest bit. */
     private static final int MASK_INT_TO_EVEN = ~0x1;
+    /** Natural logarithm of 2 (ln(2)). */
+    private static final double LN_2 = Math.log(2);
+    /** Base 10 logarithm of 2 (log10(2)). */
+    private static final double LOG10_2 = Math.log10(2);
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20180201L;
@@ -1344,7 +1348,7 @@ public final class Complex implements Serializable  {
                 final Complex result = divide(1 + a, b, 1 - a, -b);
                 // Compute the log:
                 // (re + im i) = (1/2) * ln((1 + z) / (1 - z))
-                return result.log(Math::log, (re, im) ->
+                return result.log(Math::log, LN_2, (re, im) ->
                    // Divide log() by 2 and map back to the correct sign
                    constructor.create(0.5 * changeSign(re, real),
                                       0.5 * changeSign(im, imaginary))
@@ -1596,7 +1600,7 @@ public final class Complex implements Serializable  {
      * @see #arg()
      */
     public Complex log() {
-        return log(Math::log, Complex::ofCartesian);
+        return log(Math::log, LN_2, Complex::ofCartesian);
     }
 
     /**
@@ -1614,7 +1618,7 @@ public final class Complex implements Serializable  {
      * @see #arg()
      */
     public Complex log10() {
-        return log(Math::log10, Complex::ofCartesian);
+        return log(Math::log10, LOG10_2, Complex::ofCartesian);
     }
 
     /**
@@ -1624,13 +1628,18 @@ public final class Complex implements Serializable  {
      *   log(a +  bi) = log(|a + b i|) + i arg(a + b i)
      * </pre>
      *
+     * <p>Warning: The argument {@code logOf2} must be equal to {@code log(2)} using the
+     * provided log function otherwise scaling using powers of 2 in the case of overflow
+     * will be incorrect. This is provided as an internal optimisation.
+     *
      * @param log Log function.
+     * @param logOf2 The log function applied to 2.
      * @param constructor Constructor for the returned complex.
      * @return the logarithm of {@code this}.
      * @see #abs()
      * @see #arg()
      */
-    private Complex log(UnaryOperation log, ComplexConstructor constructor) {
+    private Complex log(UnaryOperation log, double logOf2, ComplexConstructor constructor) {
         // All ISO C99 edge cases satisfied by the Math library.
         // Make computation overflow safe.
         final double abs = abs();
@@ -1648,7 +1657,7 @@ public final class Complex implements Serializable  {
             // Implement scaling using 2^-exponent
             final double absOs = Math.hypot(Math.scalb(real, -exponent), Math.scalb(imaginary, -exponent));
             // log(2^exponent) = ln2(2^exponent) * log(2)
-            return constructor.create(log.apply(absOs) + exponent * log.apply(2), arg());
+            return constructor.create(log.apply(absOs) + exponent * logOf2, arg());
         }
         return constructor.create(log.apply(abs), arg());
     }
