@@ -491,8 +491,7 @@ public final class Complex implements Serializable  {
         double d = im2;
         int ilogbw = 0;
         // Get the exponent to scale the divisor.
-        // This is equivalent to (int) Math.log2(double).
-        final int exponent = Math.getExponent(Math.max(Math.abs(c), Math.abs(d)));
+        final int exponent = getMaxExponent(c, d);
         if (exponent <= Double.MAX_EXPONENT) {
             ilogbw = exponent;
             c = Math.scalb(c, -ilogbw);
@@ -1672,8 +1671,7 @@ public final class Complex implements Serializable  {
             // ln(abs) = ln(abs / scale) + ln(scale)
             // Use precise scaling with:
             // scale ~ 2^exponent
-            final double scale = Math.max(Math.abs(real), Math.abs(imaginary));
-            final int exponent = Math.getExponent(scale);
+            final int exponent = getMaxExponent(real, imaginary);
             // Implement scaling using 2^-exponent
             final double absOs = Math.hypot(Math.scalb(real, -exponent), Math.scalb(imaginary, -exponent));
             // log(2^exponent) = ln2(2^exponent) * log(2)
@@ -1909,9 +1907,8 @@ public final class Complex implements Serializable  {
                     // The alternative of returning infinity for a finite input is worse.
                     // Use precise scaling with:
                     // scale ~ 2^exponent
-                    final double scale = Math.max(absA, Math.abs(imaginary));
-                    // Make this even for fast rescaling using sqrt(2^exponent).
-                    final int exponent = Math.getExponent(scale) & MASK_INT_TO_EVEN;
+                    // Make exponent even for fast rescaling using sqrt(2^exponent).
+                    final int exponent = getMaxExponent(absA, imaginary) & MASK_INT_TO_EVEN;
                     // Implement scaling using 2^-exponent
                     final double scaleA = Math.scalb(absA, -exponent);
                     final double scaleB = Math.scalb(imaginary, -exponent);
@@ -2228,6 +2225,30 @@ public final class Complex implements Serializable  {
      */
     private static double changeSign(double magnitude, double signedValue) {
         return negative(signedValue) ? -magnitude : magnitude;
+    }
+
+    /**
+     * Returns the largest unbiased exponent used in the representation of the
+     * two numbers. Special cases:
+     *
+     * <ul>
+     * <li>If either argument is NaN or infinite, then the result is
+     * {@link Double#MAX_EXPONENT} + 1.
+     * <li>If both arguments are zero or subnormal, then the result is
+     * {@link Double#MIN_EXPONENT} -1.
+     * </ul>
+     *
+     * @param a the first value
+     * @param b the second value
+     * @return the maximum unbiased exponent of the values
+     * @see Math#getExponent(double)
+     */
+    private static int getMaxExponent(double a, double b) {
+        // This could return:
+        // Math.getExponent(Math.max(Math.abs(a), Math.abs(b)))
+        // A speed test is required to determine performance.
+
+        return Math.max(Math.getExponent(a), Math.getExponent(b));
     }
 
     /**
