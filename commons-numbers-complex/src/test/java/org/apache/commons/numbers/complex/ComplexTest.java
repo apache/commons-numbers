@@ -67,25 +67,31 @@ public class ComplexTest {
         FINITE
     }
 
+    /**
+    * Create a complex number given the real part.
+    *
+    * @param real Real part.
+    * @return {@code Complex} object
+    */
+    private static Complex ofReal(double real) {
+        return Complex.ofCartesian(real, 0);
+    }
+
+    /**
+    * Create a complex number given the imaginary part.
+    *
+    * @param imaginary Imaginary part.
+    * @return {@code Complex} object
+    */
+    private static Complex ofImaginary(double imaginary) {
+        return Complex.ofCartesian(0, imaginary);
+    }
+
     @Test
     public void testCartesianConstructor() {
         final Complex z = Complex.ofCartesian(3.0, 4.0);
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(4.0, z.getImaginary());
-    }
-
-    @Test
-    public void testRealConstructor() {
-        final Complex z = Complex.ofReal(3.0);
-        Assertions.assertEquals(3.0, z.getReal());
-        Assertions.assertEquals(0.0, z.getImaginary());
-    }
-
-    @Test
-    public void testImaginaryConstructor() {
-        final Complex z = Complex.ofImaginary(3.0);
-        Assertions.assertEquals(0.0, z.getReal());
-        Assertions.assertEquals(3.0, z.getImaginary());
     }
 
     @Test
@@ -231,7 +237,7 @@ public class ComplexTest {
         Assertions.assertEquals(8.0, z.getReal());
         Assertions.assertEquals(4.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.add(Complex.ofReal(y)));
+        Assertions.assertEquals(z, x.add(ofReal(y)));
     }
 
     @Test
@@ -242,7 +248,7 @@ public class ComplexTest {
         Assertions.assertEquals(nan, z.getReal());
         Assertions.assertEquals(4.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.add(Complex.ofReal(y)));
+        Assertions.assertEquals(z, x.add(ofReal(y)));
     }
 
     @Test
@@ -253,7 +259,7 @@ public class ComplexTest {
         Assertions.assertEquals(inf, z.getReal());
         Assertions.assertEquals(4.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.add(Complex.ofReal(y)));
+        Assertions.assertEquals(z, x.add(ofReal(y)));
     }
 
     @Test
@@ -264,7 +270,7 @@ public class ComplexTest {
         Assertions.assertEquals(8.0, z.getReal());
         Assertions.assertEquals(-0.0, z.getImaginary(), "Expected sign preservation");
         // Sign-preservation is a problem: -0.0 + 0.0 == 0.0
-        Assertions.assertNotEquals(z, x.add(Complex.ofReal(y)));
+        Assertions.assertNotEquals(z, x.add(ofReal(y)));
     }
 
     @Test
@@ -275,7 +281,7 @@ public class ComplexTest {
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(9.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.add(Complex.ofImaginary(y)));
+        Assertions.assertEquals(z, x.add(ofImaginary(y)));
     }
 
     @Test
@@ -286,7 +292,7 @@ public class ComplexTest {
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(nan, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.add(Complex.ofImaginary(y)));
+        Assertions.assertEquals(z, x.add(ofImaginary(y)));
     }
 
     @Test
@@ -297,7 +303,7 @@ public class ComplexTest {
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(inf, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.add(Complex.ofImaginary(y)));
+        Assertions.assertEquals(z, x.add(ofImaginary(y)));
     }
 
     @Test
@@ -308,7 +314,7 @@ public class ComplexTest {
         Assertions.assertEquals(-0.0, z.getReal());
         Assertions.assertEquals(9.0, z.getImaginary(), "Expected sign preservation");
         // Sign-preservation is a problem: -0.0 + 0.0 == 0.0
-        Assertions.assertNotEquals(z, x.add(Complex.ofImaginary(y)));
+        Assertions.assertNotEquals(z, x.add(ofImaginary(y)));
     }
 
     @Test
@@ -397,7 +403,7 @@ public class ComplexTest {
     public void testScalarDivide() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double yDouble = 2.0;
-        final Complex yComplex = Complex.ofReal(yDouble);
+        final Complex yComplex = ofReal(yDouble);
         Assertions.assertEquals(x.divide(yComplex), x.divide(yDouble));
     }
 
@@ -405,7 +411,7 @@ public class ComplexTest {
     public void testScalarDivideNaN() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double yDouble = Double.NaN;
-        final Complex yComplex = Complex.ofReal(yDouble);
+        final Complex yComplex = ofReal(yDouble);
         Assertions.assertEquals(x.divide(yComplex), x.divide(yDouble));
     }
 
@@ -480,10 +486,10 @@ public class ComplexTest {
     public void testScalarMultiply() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double yDouble = 2.0;
-        final Complex yComplex = Complex.ofReal(yDouble);
+        final Complex yComplex = ofReal(yDouble);
         Assertions.assertEquals(x.multiply(yComplex), x.multiply(yDouble));
         final int zInt = -5;
-        final Complex zComplex = Complex.ofReal(zInt);
+        final Complex zComplex = ofReal(zInt);
         Assertions.assertEquals(x.multiply(zComplex), x.multiply(zInt));
     }
 
@@ -491,7 +497,7 @@ public class ComplexTest {
     public void testScalarMultiplyNaN() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final double yDouble = Double.NaN;
-        final Complex yComplex = Complex.ofReal(yDouble);
+        final Complex yComplex = ofReal(yDouble);
         Assertions.assertEquals(x.multiply(yComplex), x.multiply(yDouble));
     }
 
@@ -499,11 +505,11 @@ public class ComplexTest {
     public void testScalarMultiplyInf() {
         final Complex x = Complex.ofCartesian(1, 1);
         double yDouble = Double.POSITIVE_INFINITY;
-        Complex yComplex = Complex.ofReal(yDouble);
+        Complex yComplex = ofReal(yDouble);
         Assertions.assertEquals(x.multiply(yComplex), x.multiply(yDouble));
 
         yDouble = Double.NEGATIVE_INFINITY;
-        yComplex = Complex.ofReal(yDouble);
+        yComplex = ofReal(yDouble);
         Assertions.assertEquals(x.multiply(yComplex), x.multiply(yDouble));
     }
 
@@ -551,7 +557,7 @@ public class ComplexTest {
         Assertions.assertEquals(-2.0, z.getReal());
         Assertions.assertEquals(4.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.subtract(Complex.ofReal(y)));
+        Assertions.assertEquals(z, x.subtract(ofReal(y)));
     }
 
     @Test
@@ -562,7 +568,7 @@ public class ComplexTest {
         Assertions.assertEquals(nan, z.getReal());
         Assertions.assertEquals(4.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.subtract(Complex.ofReal(y)));
+        Assertions.assertEquals(z, x.subtract(ofReal(y)));
     }
 
     @Test
@@ -573,7 +579,7 @@ public class ComplexTest {
         Assertions.assertEquals(-inf, z.getReal());
         Assertions.assertEquals(4.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.subtract(Complex.ofReal(y)));
+        Assertions.assertEquals(z, x.subtract(ofReal(y)));
     }
 
     @Test
@@ -585,7 +591,7 @@ public class ComplexTest {
         Assertions.assertEquals(-0.0, z.getImaginary());
         // Equivalent
         // Sign-preservation is not a problem: -0.0 - 0.0 == -0.0
-        Assertions.assertEquals(z, x.subtract(Complex.ofReal(y)));
+        Assertions.assertEquals(z, x.subtract(ofReal(y)));
     }
 
     @Test
@@ -596,7 +602,7 @@ public class ComplexTest {
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(-1.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.subtract(Complex.ofImaginary(y)));
+        Assertions.assertEquals(z, x.subtract(ofImaginary(y)));
     }
 
     @Test
@@ -607,7 +613,7 @@ public class ComplexTest {
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(nan, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.subtract(Complex.ofImaginary(y)));
+        Assertions.assertEquals(z, x.subtract(ofImaginary(y)));
     }
 
     @Test
@@ -618,7 +624,7 @@ public class ComplexTest {
         Assertions.assertEquals(3.0, z.getReal());
         Assertions.assertEquals(-inf, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, x.subtract(Complex.ofImaginary(y)));
+        Assertions.assertEquals(z, x.subtract(ofImaginary(y)));
     }
 
     @Test
@@ -630,7 +636,7 @@ public class ComplexTest {
         Assertions.assertEquals(-1.0, z.getImaginary());
         // Equivalent
         // Sign-preservation is not a problem: -0.0 - 0.0 == -0.0
-        Assertions.assertEquals(z, x.subtract(Complex.ofImaginary(y)));
+        Assertions.assertEquals(z, x.subtract(ofImaginary(y)));
     }
 
     @Test
@@ -641,7 +647,7 @@ public class ComplexTest {
         Assertions.assertEquals(2.0, z.getReal());
         Assertions.assertEquals(-4.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, Complex.ofReal(y).subtract(x));
+        Assertions.assertEquals(z, ofReal(y).subtract(x));
     }
 
     @Test
@@ -652,7 +658,7 @@ public class ComplexTest {
         Assertions.assertEquals(nan, z.getReal());
         Assertions.assertEquals(-4.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, Complex.ofReal(y).subtract(x));
+        Assertions.assertEquals(z, ofReal(y).subtract(x));
     }
 
     @Test
@@ -663,7 +669,7 @@ public class ComplexTest {
         Assertions.assertEquals(inf, z.getReal());
         Assertions.assertEquals(-4.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, Complex.ofReal(y).subtract(x));
+        Assertions.assertEquals(z, ofReal(y).subtract(x));
     }
 
     @Test
@@ -674,7 +680,7 @@ public class ComplexTest {
         Assertions.assertEquals(2.0, z.getReal());
         Assertions.assertEquals(-0.0, z.getImaginary(), "Expected sign inversion");
         // Sign-inversion is a problem: 0.0 - 0.0 == 0.0
-        Assertions.assertNotEquals(z, Complex.ofReal(y).subtract(x));
+        Assertions.assertNotEquals(z, ofReal(y).subtract(x));
     }
 
     @Test
@@ -685,7 +691,7 @@ public class ComplexTest {
         Assertions.assertEquals(-3.0, z.getReal());
         Assertions.assertEquals(1.0, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, Complex.ofImaginary(y).subtract(x));
+        Assertions.assertEquals(z, ofImaginary(y).subtract(x));
     }
 
     @Test
@@ -696,7 +702,7 @@ public class ComplexTest {
         Assertions.assertEquals(-3.0, z.getReal());
         Assertions.assertEquals(nan, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, Complex.ofImaginary(y).subtract(x));
+        Assertions.assertEquals(z, ofImaginary(y).subtract(x));
     }
 
     @Test
@@ -707,7 +713,7 @@ public class ComplexTest {
         Assertions.assertEquals(-3.0, z.getReal());
         Assertions.assertEquals(inf, z.getImaginary());
         // Equivalent
-        Assertions.assertEquals(z, Complex.ofImaginary(y).subtract(x));
+        Assertions.assertEquals(z, ofImaginary(y).subtract(x));
     }
 
     @Test
@@ -718,7 +724,7 @@ public class ComplexTest {
         Assertions.assertEquals(-0.0, z.getReal(), "Expected sign inversion");
         Assertions.assertEquals(1.0, z.getImaginary());
         // Sign-inversion is a problem: 0.0 - 0.0 == 0.0
-        Assertions.assertNotEquals(z, Complex.ofImaginary(y).subtract(x));
+        Assertions.assertNotEquals(z, ofImaginary(y).subtract(x));
     }
 
     @Test
@@ -1083,7 +1089,7 @@ public class ComplexTest {
     public void testPow() {
         final Complex x = Complex.ofCartesian(3, 4);
         final double yDouble = 5.0;
-        final Complex yComplex = Complex.ofReal(yDouble);
+        final Complex yComplex = ofReal(yDouble);
         Assertions.assertEquals(x.pow(yComplex), x.pow(yDouble));
     }
 
@@ -1139,7 +1145,7 @@ public class ComplexTest {
     public void testPowNanBase() {
         final Complex x = NAN;
         final double yDouble = 5.0;
-        final Complex yComplex = Complex.ofReal(yDouble);
+        final Complex yComplex = ofReal(yDouble);
         Assertions.assertEquals(x.pow(yComplex), x.pow(yDouble));
     }
 
@@ -1147,7 +1153,7 @@ public class ComplexTest {
     public void testPowNanExponent() {
         final Complex x = Complex.ofCartesian(3, 4);
         final double yDouble = Double.NaN;
-        final Complex yComplex = Complex.ofReal(yDouble);
+        final Complex yComplex = ofReal(yDouble);
         Assertions.assertEquals(x.pow(yComplex), x.pow(yDouble));
     }
 
@@ -1352,7 +1358,7 @@ public class ComplexTest {
     @Test
     public void testNthRootNan() {
         final int n = 3;
-        final Complex z = Complex.ofReal(Double.NaN);
+        final Complex z = ofReal(Double.NaN);
         final List<Complex> r = z.nthRoot(n);
         Assertions.assertEquals(n, r.size());
         for (final Complex c : r) {
@@ -1363,7 +1369,7 @@ public class ComplexTest {
     @Test
     public void testNthRootInf() {
         final int n = 3;
-        final Complex z = Complex.ofReal(Double.NEGATIVE_INFINITY);
+        final Complex z = ofReal(Double.NEGATIVE_INFINITY);
         final List<Complex> r = z.nthRoot(n);
         Assertions.assertEquals(n, r.size());
     }
@@ -1438,7 +1444,7 @@ public class ComplexTest {
         Assertions.assertEquals(NAN, Complex.parse(NAN.toString()));
         Assertions.assertEquals(oneInf, Complex.parse(oneInf.toString()));
         Assertions.assertEquals(negInfZero, Complex.parse(negInfZero.toString()));
-        Assertions.assertEquals(Complex.ofReal(pi), Complex.parse(Complex.ofReal(pi).toString()));
+        Assertions.assertEquals(Complex.ofCartesian(0.0, pi), Complex.parse(Complex.ofCartesian(0.0, pi).toString()));
         Assertions.assertEquals(Complex.ofPolar(2, pi), Complex.parse(Complex.ofPolar(2, pi).toString()));
         Assertions.assertEquals(Complex.ofCis(pi), Complex.parse(Complex.ofCis(pi).toString()));
     }

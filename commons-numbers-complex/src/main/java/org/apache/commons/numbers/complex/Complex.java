@@ -138,34 +138,14 @@ public final class Complex implements Serializable  {
     }
 
     /**
-    * Create a complex number given the real and imaginary parts.
-    *
-    * @param real Real part.
-    * @param imaginary Imaginary part.
-    * @return {@code Complex} object
-    */
+     * Create a complex number given the real and imaginary parts.
+     *
+     * @param real Real part.
+     * @param imaginary Imaginary part.
+     * @return {@code Complex} object
+     */
     public static Complex ofCartesian(double real, double imaginary) {
         return new Complex(real, imaginary);
-    }
-
-    /**
-    * Create a complex number given the real part.
-    *
-    * @param real Real part.
-    * @return {@code Complex} object
-    */
-    public static Complex ofReal(double real) {
-        return new Complex(real, 0);
-    }
-
-    /**
-    * Create a complex number given the imaginary part.
-    *
-    * @param imaginary Imaginary part.
-    * @return {@code Complex} object
-    */
-    public static Complex ofImaginary(double imaginary) {
-        return new Complex(0, imaginary);
     }
 
     /**
@@ -386,13 +366,13 @@ public final class Complex implements Serializable  {
      *
      * <p>Note: This method preserves the sign of the imaginary component {@code b} if it is {@code -0.0}.
      * The sign would be lost if adding {@code (c + i 0)} using
-     * {@link #add(Complex) add(Complex.ofReal(addend))} since
+     * {@link #add(Complex) add(Complex.ofCartesian(addend, 0))} since
      * {@code -0.0 + 0.0 = 0.0}.
      *
      * @param addend Value to be added to this {@code Complex}.
      * @return {@code this + addend}.
      * @see #add(Complex)
-     * @see #ofReal(double)
+     * @see #ofCartesian(double, double)
      */
     public Complex add(double addend) {
         return new Complex(real + addend, imaginary);
@@ -411,13 +391,13 @@ public final class Complex implements Serializable  {
      *
      * <p>Note: This method preserves the sign of the real component {@code a} if it is {@code -0.0}.
      * The sign would be lost if adding {@code (0 + i d)} using
-     * {@link #add(Complex) add(Complex.ofImaginary(addend))} since
+     * {@link #add(Complex) add(Complex.ofCartesian(0, addend))} since
      * {@code -0.0 + 0.0 = 0.0}.
      *
      * @param addend Value to be added to this {@code Complex}.
      * @return {@code this + addend}.
      * @see #add(Complex)
-     * @see #ofImaginary(double)
+     * @see #ofCartesian(double, double)
      */
     public Complex addImaginary(double addend) {
         return new Complex(real, imaginary + addend);
@@ -1056,13 +1036,13 @@ public final class Complex implements Serializable  {
      *
      * <p>Note: This method inverts the sign of the imaginary component {@code b} if it is {@code 0.0}.
      * The sign would not be inverted if subtracting from {@code (c + i 0)} using
-     * {@link #subtract(Complex) Complex.ofReal(minuend).subtract(this))} since
+     * {@link #subtract(Complex) Complex.ofCartesian(minuend, 0).subtract(this))} since
      * {@code 0.0 - 0.0 = 0.0}.
      *
      * @param  minuend value this {@code Complex} is to be subtracted from.
      * @return {@code minuend - this}.
      * @see #subtract(Complex)
-     * @see #ofReal(double)
+     * @see #ofCartesian(double, double)
      */
     public Complex subtractFrom(double minuend) {
         return new Complex(minuend - real, -imaginary);
@@ -1081,13 +1061,13 @@ public final class Complex implements Serializable  {
      *
      * <p>Note: This method inverts the sign of the real component {@code a} if it is {@code 0.0}.
      * The sign would not be inverted if subtracting from {@code (0 + i d)} using
-     * {@link #subtract(Complex) Complex.ofImaginary(minuend).subtract(this))} since
+     * {@link #subtract(Complex) Complex.ofCartesian(0, minuend).subtract(this))} since
      * {@code 0.0 - 0.0 = 0.0}.
      *
      * @param  minuend value this {@code Complex} is to be subtracted from.
      * @return {@code this - subtrahend}.
      * @see #subtract(Complex)
-     * @see #ofImaginary(double)
+     * @see #ofCartesian(double, double)
      */
     public Complex subtractFromImaginary(double minuend) {
         return new Complex(-real, minuend - imaginary);
