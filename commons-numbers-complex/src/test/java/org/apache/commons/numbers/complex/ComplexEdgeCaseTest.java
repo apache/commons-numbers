@@ -76,8 +76,8 @@ public class ComplexEdgeCaseTest {
             String name, UnaryOperator<Complex> operation,
             double x, double y, long maxUlps) {
         final Complex c = Complex.ofCartesian(a, b);
-        final Complex z = operation.apply(c);
-        CReferenceTest.assertComplex(c, name, operation, z, maxUlps);
+        final Complex e = Complex.ofCartesian(x, y);
+        CReferenceTest.assertComplex(c, name, operation, e, maxUlps);
     }
 
     /**
@@ -123,8 +123,8 @@ public class ComplexEdgeCaseTest {
             double x, double y, long maxUlps) {
         final Complex c1 = Complex.ofCartesian(a, b);
         final Complex c2 = Complex.ofCartesian(c, d);
-        final Complex z = operation.apply(c1, c2);
-        CReferenceTest.assertComplex(c1, c2, name, operation, z, maxUlps);
+        final Complex e = Complex.ofCartesian(x, y);
+        CReferenceTest.assertComplex(c1, c2, name, operation, e, maxUlps);
     }
 
     @Test
@@ -186,14 +186,14 @@ public class ComplexEdgeCaseTest {
         assertComplex(1000, 1, name, operation, inf, inf);
         assertComplex(1000, 2, name, operation, -inf, inf);
         assertComplex(1000, 3, name, operation, -inf, inf);
-        assertComplex(1000, 4, name, operation, inf, inf);
+        assertComplex(1000, 4, name, operation, -inf, -inf);
 
         // Underflow if exp(a) == 0
         assertComplex(-1000, 0, name, operation, 0.0, 0.0);
         assertComplex(-1000, 1, name, operation, 0.0, 0.0);
         assertComplex(-1000, 2, name, operation, -0.0, 0.0);
         assertComplex(-1000, 3, name, operation, -0.0, 0.0);
-        assertComplex(-1000, 4, name, operation, 0.0, 0.0);
+        assertComplex(-1000, 4, name, operation, -0.0, -0.0);
     }
 
     @Test
