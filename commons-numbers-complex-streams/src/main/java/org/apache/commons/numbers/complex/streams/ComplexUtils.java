@@ -128,7 +128,7 @@ public final class ComplexUtils {
      * @return {@code Complex}.
      */
     public static Complex extractComplexFromRealArray(double[] real, int index) {
-        return Complex.ofReal(real[index]);
+        return Complex.ofCartesian(real[index], 0);
     }
 
     /**
@@ -140,7 +140,7 @@ public final class ComplexUtils {
      * @return {@code Complex} array
      */
     public static Complex extractComplexFromRealArray(float[] real, int index) {
-        return Complex.ofReal(real[index]);
+        return Complex.ofCartesian(real[index], 0);
     }
 
     /**
@@ -273,7 +273,7 @@ public final class ComplexUtils {
         int index = 0;
         final Complex[] c = new Complex[real.length];
         for (final double d : real) {
-            c[index] = Complex.ofReal(d);
+            c[index] = Complex.ofCartesian(d, 0);
             index++;
         }
         return c;
@@ -289,7 +289,7 @@ public final class ComplexUtils {
         int index = 0;
         final Complex[] c = new Complex[real.length];
         for (final float d : real) {
-            c[index] = Complex.ofReal(d);
+            c[index] = Complex.ofCartesian(d, 0);
             index++;
         }
         return c;

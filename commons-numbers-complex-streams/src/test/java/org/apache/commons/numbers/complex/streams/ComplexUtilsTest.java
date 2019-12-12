@@ -119,7 +119,7 @@ public class ComplexUtilsTest {
 
             // Complex arrays
             c[halfI] = Complex.ofCartesian(i, i + 1);
-            cr[halfI] = Complex.ofReal(halfI);
+            cr[halfI] = Complex.ofCartesian(halfI, 0);
             ci[halfI] = Complex.ofCartesian(0, halfI);
 
             // standalone - split equivalent to c
@@ -146,7 +146,7 @@ public class ComplexUtilsTest {
 
                 // Complex arrays
                 c2d[i][halfJ] = Complex.ofCartesian(real, imaginary);
-                cr2d[i][halfJ] = Complex.ofReal(real);
+                cr2d[i][halfJ] = Complex.ofCartesian(real, 0);
                 ci2d[i][halfJ] = Complex.ofCartesian(0, imaginary);
 
                 // standalone - split equivalent to c2d, standalone equivalent to cr2d or ci2d
@@ -175,7 +175,7 @@ public class ComplexUtilsTest {
 
                     // Complex arrays
                     c3d[i][j][halfK] = Complex.ofCartesian(real, imaginary);
-                    cr3d[i][j][halfK] = Complex.ofReal(real);
+                    cr3d[i][j][halfK] = Complex.ofCartesian(real, 0);
                     ci3d[i][j][halfK] = Complex.ofCartesian(0, imaginary);
 
                     // standalone - split equivalent to c3d, standalone equivalent to cr3d or ci3d
@@ -210,7 +210,7 @@ public class ComplexUtilsTest {
 
                         // Complex arrays
                         c4d[i][j][k][halfL] = Complex.ofCartesian(real, imaginary);
-                        cr4d[i][j][k][halfL] = Complex.ofReal(real);
+                        cr4d[i][j][k][halfL] = Complex.ofCartesian(real, 0);
                         ci4d[i][j][k][halfL] = Complex.ofCartesian(0, imaginary);
 
                         // standalone - split equivalent to c4d, standalone equivalent to cr4d or ci4d
@@ -375,9 +375,9 @@ public class ComplexUtilsTest {
     public void testExtractionMethods() {
         setArrays();
         // Extract complex from real double array, index 3
-        TestUtils.assertSame(Complex.ofReal(3), ComplexUtils.extractComplexFromRealArray(d, 3));
+        TestUtils.assertSame(Complex.ofCartesian(3, 0), ComplexUtils.extractComplexFromRealArray(d, 3));
         // Extract complex from real float array, index 3
-        TestUtils.assertSame(Complex.ofReal(3), ComplexUtils.extractComplexFromRealArray(f, 3));
+        TestUtils.assertSame(Complex.ofCartesian(3, 0), ComplexUtils.extractComplexFromRealArray(f, 3));
         // Extract complex from real double array, index 3
         TestUtils.assertSame(Complex.ofCartesian(0, 3), ComplexUtils.extractComplexFromImaginaryArray(d, 3));
         // Extract complex from real float array, index 3
