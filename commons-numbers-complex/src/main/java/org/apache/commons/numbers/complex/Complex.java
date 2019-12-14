@@ -90,7 +90,7 @@ public final class Complex implements Serializable  {
      * allowing for formatting characters. The size is 64.
      */
     private static final int TO_STRING_SIZE = 64;
-    /** The minimum number of characters in the format. */
+    /** The minimum number of characters in the format. This is 5, e.g. {@code "(0,0)"}. */
     private static final int FORMAT_MIN_LEN = 5;
     /** {@link #toString() String representation}. */
     private static final char FORMAT_START = '(';
@@ -98,7 +98,7 @@ public final class Complex implements Serializable  {
     private static final char FORMAT_END = ')';
     /** {@link #toString() String representation}. */
     private static final char FORMAT_SEP = ',';
-    /** The minimum number of characters before the separator. This is 2, e.g. {@code "(1"}. */
+    /** The minimum number of characters before the separator. This is 2, e.g. {@code "(0"}. */
     private static final int BEFORE_SEP = 2;
 
     /** The imaginary part. */
@@ -234,28 +234,28 @@ public final class Complex implements Serializable  {
                 FORMAT_START + "real" + FORMAT_SEP + "imaginary" + FORMAT_END, null);
         }
 
-        // Confirm start: "^(.*"
-        final int startParen = s.indexOf(FORMAT_START);
-        if (startParen != 0) {
-            throw parsingException("Expected start string", FORMAT_START, null);
+        // Confirm start: '('
+        if (s.charAt(0) != FORMAT_START) {
+            throw parsingException("Expected start", FORMAT_START, null);
         }
 
-        // Confirm end: "^(.*)$"
-        final int endParen = s.indexOf(FORMAT_END);
-        if (endParen != len - 1) {
-            throw parsingException("Expected end string", FORMAT_END, null);
+        // Confirm end: ')'
+        if (s.charAt(len - 1) != FORMAT_END) {
+            throw parsingException("Expected end", FORMAT_END, null);
         }
 
-        // Confirm separator: "^([^,]+,[^,]+)$"
-        final int sep = s.indexOf(FORMAT_SEP, 1);
-        if (sep < BEFORE_SEP || sep == endParen - 1) {
-            throw parsingException("Expected separator string between two numbers", FORMAT_SEP, null);
+        // Confirm separator ',' is between at least 2 characters from
+        // either end: "(x,x)"
+        // Count back from the end ignoring the last 2 characters.
+        final int sep = s.lastIndexOf(FORMAT_SEP, len - 3);
+        if (sep < BEFORE_SEP) {
+            throw parsingException("Expected separator between two numbers", FORMAT_SEP, null);
         }
 
         // Should be no more separators
         if (s.indexOf(FORMAT_SEP, sep + 1) != -1) {
-            throw parsingException("Incorrect number of parts: Expected only 2",
-                "separator is '" + FORMAT_SEP + "'", null);
+            throw parsingException("Incorrect number of parts, expected only 2 using separator",
+                FORMAT_SEP, null);
         }
 
         // Try to parse the parts
@@ -268,7 +268,7 @@ public final class Complex implements Serializable  {
             throw parsingException("Could not parse real part", rePart, ex);
         }
 
-        final String imPart = s.substring(sep + 1, endParen);
+        final String imPart = s.substring(sep + 1, len - 1);
         final double im;
         try {
             im = Double.parseDouble(imPart);
@@ -2376,7 +2376,7 @@ public final class Complex implements Serializable  {
         // Not called with a null message or error
         final StringBuilder sb = new StringBuilder(100)
             .append(message)
-            .append(" (").append(error).append(" )");
+            .append(" '").append(error).append('\'');
         if (cause != null) {
             sb.append(": ").append(cause.getMessage());
         }
