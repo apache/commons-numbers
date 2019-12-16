@@ -280,9 +280,7 @@ public final class Fraction
     public int compareTo(Fraction object) {
         final long nOd = ((long) numerator) * object.denominator;
         final long dOn = ((long) denominator) * object.numerator;
-        return nOd < dOn ? -1 :
-            nOd > dOn ? 1 :
-            0;
+        return Long.compare(nOd, dOn);
     }
 
     /**

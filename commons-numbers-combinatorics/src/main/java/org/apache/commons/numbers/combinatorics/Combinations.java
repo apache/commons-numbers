@@ -350,13 +350,7 @@ public final class Combinations implements Iterable<int[]> {
             final long v1 = lexNorm(c1s);
             final long v2 = lexNorm(c2s);
 
-            if (v1 < v2) {
-                return -1;
-            } else if (v1 > v2) {
-                return 1;
-            } else {
-                return 0;
-            }
+            return Long.compare(v1, v2);
         }
 
         /**
