@@ -505,12 +505,16 @@ public final class Complex implements Serializable  {
      * standard G.5.1. Method is fully in accordance with
      * C++11 standards for complex numbers.</p>
      *
+     * <p>Note: In the event of divide by zero this method produces the same result
+     * as dividing by a real-only zero using {@link #divide(double)}.
+     *
      * @param re1 Real component of first number.
      * @param im1 Imaginary component of first number.
      * @param re2 Real component of second number.
      * @param im2 Imaginary component of second number.
      * @return (a + i b) / (c + i d).
      * @see <a href="http://mathworld.wolfram.com/ComplexDivision.html">Complex Division</a>
+     * @see #divide(double)
      */
     private static Complex divide(double re1, double im1, double re2, double im2) {
         double a = re1;
@@ -539,6 +543,8 @@ public final class Complex implements Serializable  {
             if ((denom == 0.0) &&
                     (!Double.isNaN(a) || !Double.isNaN(b))) {
                 // nonzero/zero
+                // This case produces the same result as divide by a real-only zero
+                // using divide(+/-0.0).
                 x = Math.copySign(Double.POSITIVE_INFINITY, c) * a;
                 y = Math.copySign(Double.POSITIVE_INFINITY, c) * b;
             } else if ((Double.isInfinite(a) || Double.isInfinite(b)) &&
@@ -616,11 +622,12 @@ public final class Complex implements Serializable  {
      * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
      * real-only and complex numbers.</p>
      *
-     * <p>Note: Due to floating-point addition arithmetic on negative zeros this method should be
-     * preferred over using {@link #divide(Complex) divide(Complex.ofCartesian(factor, 0))}. If
-     * {@code this} complex has zeros for the real and/or imaginary component, or the factor
-     * is zero, the sign of the zero or infinite components of the result may differ between the
-     * two divide methods.
+     * <p>Note: This method should be preferred over using
+     * {@link #divide(Complex) divide(Complex.ofCartesian(divisor, 0))}. Division
+     * can generate signed zeros if {@code this} complex has zeros for the real
+     * and/or imaginary component, or the divisor is infinity. The summation of signed zeros
+     * in {@link #divide(Complex)} may create zeros in the result that differ in sign
+     * from the equivalent call to divide by a real-only number.
      *
      * @param  divisor Value by which this {@code Complex} is to be divided.
      * @return {@code this / divisor}.
@@ -642,15 +649,25 @@ public final class Complex implements Serializable  {
      * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
      * imaginary-only and complex numbers.</p>
      *
-     * <p>Note: Due to floating-point addition arithmetic on negative zeros this method should be
-     * preferred over using {@link #divide(Complex) divide(Complex.ofCartesian(0, factor))}. If
-     * {@code this} complex has zeros for the real and/or imaginary component, or the factor
-     * is zero, the sign of the zero or infinite components of the result may differ between the
-     * two divide methods.
+     * <p>Note: This method should be preferred over using
+     * {@link #divide(Complex) divide(Complex.ofCartesian(0, divisor))}. Division
+     * can generate signed zeros if {@code this} complex has zeros for the real
+     * and/or imaginary component, or the divisor is infinity. The summation of signed zeros
+     * in {@link #divide(Complex)} may create zeros in the result that differ in sign
+     * from the equivalent call to divide by an imaginary-only number.
+     *
+     * <p>Warning: This method will generate a different result from
+     * {@link #divide(Complex) divide(Complex.ofCartesian(0, divisor))} if the divisor is zero.
+     * In this case the divide method using a zero-valued Complex will produce the same result
+     * as dividing by a real-only zero. The output from dividing by imaginary zero will create
+     * infinite and NaN values in the same component parts as the output from
+     * {@code this.divide(Complex.ZERO).multiplyImaginary(1)}, however the sign
+     * of some infinity values may be negated.
      *
      * @param  divisor Value by which this {@code Complex} is to be divided.
      * @return {@code this / divisor}.
      * @see #divide(Complex)
+     * @see #divide(double)
      */
     public Complex divideImaginary(double divisor) {
         return new Complex(imaginary / divisor, -real / divisor);
@@ -1039,11 +1056,12 @@ public final class Complex implements Serializable  {
      * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
      * real-only and complex numbers.</p>
      *
-     * <p>Note: Due to floating-point addition arithmetic on negative zeros this method should be
-     * preferred over using {@link #multiply(Complex) multiply(Complex.ofCartesian(factor, 0))}. If
-     * {@code this} complex has zeros for the real and/or imaginary component, or the factor
-     * is zero, the sign of the zero components of the result may differ between the two multiply
-     * methods.
+     * <p>Note: This method should be preferred over using
+     * {@link #multiply(Complex) multiply(Complex.ofCartesian(factor, 0))}. Multiplication
+     * can generate signed zeros if either {@code this} complex has zeros for the real
+     * and/or imaginary component, or if the factor is zero. The summation of signed zeros
+     * in {@link #multiply(Complex)} may create zeros in the result that differ in sign
+     * from the equivalent call to multiply by a real-only number.
      *
      * @param  factor value to be multiplied by this {@code Complex}.
      * @return {@code this * factor}.
@@ -1074,11 +1092,12 @@ public final class Complex implements Serializable  {
      * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
      * imaginary-only and complex numbers.</p>
      *
-     * <p>Note: Due to floating-point addition arithmetic on negative zeros this method should be
-     * preferred over using {@link #multiply(Complex) multiply(Complex.ofCartesian(0, factor))}. If
-     * {@code this} complex has zeros for the real and/or imaginary component, or the factor
-     * is zero, the sign of the zero components of the result may differ between the two multiply
-     * methods.
+     * <p>Note: This method should be preferred over using
+     * {@link #multiply(Complex) multiply(Complex.ofCartesian(0, factor))}. Multiplication
+     * can generate signed zeros if either {@code this} complex has zeros for the real
+     * and/or imaginary component, or if the factor is zero. The summation of signed zeros
+     * in {@link #multiply(Complex)} may create zeros in the result that differ in sign
+     * from the equivalent call to multiply by an imaginary-only number.
      *
      * @param  factor value to be multiplied by this {@code Complex}.
      * @return {@code this * factor}.

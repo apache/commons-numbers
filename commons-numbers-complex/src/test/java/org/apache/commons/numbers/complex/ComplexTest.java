@@ -20,6 +20,9 @@ package org.apache.commons.numbers.complex;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.DoubleFunction;
+import java.util.function.UnaryOperator;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
@@ -808,11 +811,159 @@ public class ComplexTest {
         }
     }
 
-    // TODO
-    // Add a comprehensive arithmetic test using combinations of +/-0.0 for real, imaginary and
-    // and the double argument for add, subtract, subtractFrom, multiply, divide.
-    // The test should count the number of differences between the complex version and
-    // the non-complex version. Any with differences above zero should be documented in Complex.
+    /**
+     * Arithmetic test using combinations of +/- x for real, imaginary and
+     * and the double argument for add, subtract, subtractFrom, multiply and divide,
+     * where x is zero or non-zero.
+     *
+     * <p>The differences to the same argument as a Complex are tested. The only differences
+     * should be the sign of zero in certain cases.
+     */
+    @Test
+    public void testSignedArithmetic() {
+        // The following lists the conditions for the double primitive operation where
+        // the Complex operation is different. Here the double argument can be:
+        // x   : any value
+        // +x  : positive
+        // +0.0: positive zero
+        // -x  : negative
+        // -0.0: negative zero
+        // 0   : any zero
+        // use y for any non-zero value
+
+        // Check the known fail cases using an integer as a bit set.
+        // If a bit is 1 then the case is known to fail.
+        // The 64 cases are enumerated as:
+        // 4 cases: (a,-0.0) operation on -0.0, 0.0, -2, 3
+        // 4 cases: (a, 0.0) operation on -0.0, 0.0, -2, 3
+        // 4 cases: (a,-2.0) operation on -0.0, 0.0, -2, 3
+        // 4 cases: (a, 3.0) operation on -0.0, 0.0, -2, 3
+        // with a in [-0.0, 0.0, -2, 3]
+        // The least significant bit is for the first case.
+
+        // The bit set was generated for this test. The summary below demonstrates
+        // documenting the sign change cases for multiply and divide is non-trivial
+        // and the javadoc in Complex does not break down the actual cases.
+
+        // 16: (x,-0.0) + x
+        assertSignedZeroArithmetic("addReal", Complex::add, ComplexTest::ofReal, Complex::add, 0b1111000000000000111100000000000011110000000000001111L);
+        // 16: (-0.0,x) + x
+        assertSignedZeroArithmetic("addImaginary", Complex::addImaginary, ComplexTest::ofImaginary, Complex::add, 0b1111111111111111L);
+        // 0:
+        assertSignedZeroArithmetic("subtractReal", Complex::subtract, ComplexTest::ofReal, Complex::subtract, 0);
+        // 0:
+        assertSignedZeroArithmetic("subtractImaginary", Complex::subtractImaginary, ComplexTest::ofImaginary, Complex::subtract, 0);
+        // 16: x - (x,+0.0)
+        assertSignedZeroArithmetic("subtractFromReal", Complex::subtractFrom, ComplexTest::ofReal, (y, z) -> z.subtract(y), 0b11110000000000001111000000000000111100000000000011110000L);
+        // 16: x - (+0.0,x)
+        assertSignedZeroArithmetic("subtractFromImaginary", Complex::subtractFromImaginary, ComplexTest::ofImaginary, (y, z) -> z.subtract(y), 0b11111111111111110000000000000000L);
+        // 4: (-0.0,-x) * +x
+        // 4: (+0.0,-0.0) * x
+        // 4: (+0.0,x) * -x
+        // 2: (-y,-x) * +0.0
+        // 2: (+y,+0.0) * -x
+        // 2: (+y,-0.0) * +x
+        // 2: (+y,-x) * -0.0
+        // 2: (+x,-y) * +0.0
+        // 2: (+x,+y) * -0.0
+        assertSignedZeroArithmetic("multiplyReal", Complex::multiply, ComplexTest::ofReal, Complex::multiply, 0b1001101011011000000100000001000010111010111110000101000001010L);
+        // 4: (-0.0,+x) * +x
+        // 2: (+0.0,-0.0) * -x
+        // 4: (+0.0,+0.0) * x
+        // 2: (+0.0,+y) * -x
+        // 2: (-y,+x) * +0.0
+        // 4: (+y,x) * -0.0
+        // 2: (+0.0,+/-y) * -/+0
+        // 2: (+y,+/-0.0) * +/-y  (sign 0.0 matches sign y)
+        // 2: (+y,+x) * +0.0
+        assertSignedZeroArithmetic("multiplyImaginary", Complex::multiplyImaginary, ComplexTest::ofImaginary, Complex::multiply, 0b11000110110101001000000010000001110001111101011010000010100000L);
+        // 2: (-0.0,0) / +y
+        // 2: (+0.0,+x) / -y
+        // 2: (-x,0) / -y
+        // 1: (-0.0,+y) / +y
+        // 1: (-y,+0.0) / -y
+        assertSignedZeroArithmetic("divideReal", Complex::divide, ComplexTest::ofReal, Complex::divide, 0b100100001000000010000001000000011001000L);
+
+        // DivideImaginary has its own test as the result is not always equal ignoring the sign.
+    }
+
+    private static void assertSignedZeroArithmetic(String name,
+            BiFunction<Complex, Double, Complex> doubleOperation,
+            DoubleFunction<Complex> doubleToComplex,
+            BiFunction<Complex, Complex, Complex> complexOperation, long expectedFailures) {
+        // With an operation on zero or non-zero arguments
+        final double[] arguments = {-0.0, 0.0, -2, 3};
+        for (double a : arguments) {
+            for (double b : arguments) {
+                final Complex c = Complex.ofCartesian(a, b);
+                for (final double arg : arguments) {
+                    Complex y = doubleOperation.apply(c, arg);
+                    Complex z = complexOperation.apply(c, doubleToComplex.apply(arg));
+                    boolean expectedFailure = (expectedFailures & 0x1) == 1;
+                    expectedFailures >>>= 1;
+                    // Check the same answer. Sign is allowed to be different for zero.
+                    Assertions.assertEquals(y.getReal(), z.getReal(), 0, () -> c + " " + name + " " + arg + ": real");
+                    Assertions.assertEquals(y.getImaginary(), z.getImaginary(), 0, () -> c + " " + name + " " + arg + ": imaginary");
+                    Assertions.assertEquals(expectedFailure, !y.equals(z), () -> c + " " + name + " " + arg + ": sign-difference");
+                }
+            }
+        }
+    }
+
+    /**
+     * Arithmetic test using combinations of +/- x for real, imaginary and
+     * and the double argument for divideImaginary,
+     * where x is zero or non-zero.
+     *
+     * <p>The differences to the same argument as a Complex are tested. This checks for sign
+     * differences of zero or, if divide by zero, that the result is equal
+     * to divide by zero using a Complex then multiplied by I.
+     */
+    @Test
+    public void testDivideImaginaryArithmetic() {
+        // Cases for divide by non-zero:
+        // 2: (-0.0,+x) / -y
+        // 4: (+x,+/-0.0) / -/+y
+        // 2: (+0.0,+x) / +y
+        // Cases for divide by zero after multiplication of the Complex result by I:
+        // 2: (-0.0,+/-y) / +0.0
+        // 2: (+0.0,+/-y) / +0.0
+        // 4: (-y,x) / +0.0
+        // 4: (y,x) / +0.0
+        // If multiplied by -I all the divide by -0.0 cases have sign errors and / +0.0 is OK.
+        long expectedFailures = 0b11001101111011001100110011001110110011110010000111001101000000L;
+        // With an operation on zero or non-zero arguments
+        final double[] arguments = {-0.0, 0.0, -2, 3};
+        for (double a : arguments) {
+            for (double b : arguments) {
+                final Complex c = Complex.ofCartesian(a, b);
+                for (final double arg : arguments) {
+                    Complex y = c.divideImaginary(arg);
+                    Complex z = c.divide(ofImaginary(arg));
+                    boolean expectedFailure = (expectedFailures & 0x1) == 1;
+                    expectedFailures >>>= 1;
+                    // If divide by zero then the divide(Complex) method matches divide by real.
+                    // To match divide by imaginary requires multiplication by I.
+                    if (arg == 0) {
+                        // Same result if multiplied by I. The sign may not match so
+                        // optionally ignore the sign of the infinity.
+                        z = z.multiplyImaginary(1);
+                        double ya = expectedFailure ? Math.abs(y.getReal()) : y.getReal();
+                        double yb = expectedFailure ? Math.abs(y.getImaginary()) : y.getImaginary();
+                        double za = expectedFailure ? Math.abs(z.getReal()) : z.getReal();
+                        double zb = expectedFailure ? Math.abs(z.getImaginary()) : z.getImaginary();
+                        Assertions.assertEquals(ya, za, () -> c + " divideImaginary " + arg + ": real");
+                        Assertions.assertEquals(yb, zb, () -> c + " divideImaginary " + arg + ": imaginary");
+                    } else {
+                        // Check the same answer. Sign is allowed to be different for zero.
+                        Assertions.assertEquals(y.getReal(), z.getReal(), 0, () -> c + " divideImaginary " + arg + ": real");
+                        Assertions.assertEquals(y.getImaginary(), z.getImaginary(), 0, () -> c + " divideImaginary " + arg + ": imaginary");
+                        Assertions.assertEquals(expectedFailure, !y.equals(z), () -> c + " divideImaginary " + arg + ": sign-difference");
+                    }
+                }
+            }
+        }
+    }
 
     @Test
     public void testNegate() {
