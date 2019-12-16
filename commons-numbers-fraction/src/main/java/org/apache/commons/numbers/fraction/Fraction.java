@@ -272,15 +272,14 @@ public final class Fraction
     /**
      * Compares this object to another based on size.
      *
-     * @param object Object to compare to.
+     * @param other Object to compare to.
      * @return -1 if this is less than {@code object}, +1 if this is greater
      * than {@code object}, 0 if they are equal.
      */
     @Override
-    public int compareTo(Fraction object) {
-        final long nOd = ((long) numerator) * object.denominator;
-        final long dOn = ((long) denominator) * object.numerator;
-        return Long.compare(nOd, dOn);
+    public int compareTo(Fraction other) {
+        return Long.compare(((long) numerator) * other.denominator,
+                            ((long) denominator) * other.numerator);
     }
 
     /**
