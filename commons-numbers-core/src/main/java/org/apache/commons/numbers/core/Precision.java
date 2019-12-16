@@ -435,7 +435,7 @@ public final class Precision {
 
     /**
      * Rounds the given value to the specified number of decimal places.
-     * The value is rounded using the {@link BigDecimal#ROUND_HALF_UP} method.
+     * The value is rounded using the {@link RoundingMode#HALF_UP} method.
      *
      * @param x Value to round.
      * @param scale Number of digits to the right of the decimal point.
