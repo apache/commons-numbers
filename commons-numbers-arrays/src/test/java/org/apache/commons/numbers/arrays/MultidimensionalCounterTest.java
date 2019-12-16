@@ -109,30 +109,30 @@ public class MultidimensionalCounterTest {
     public void testIterationConsistency() {
         final MultidimensionalCounter c = MultidimensionalCounter.of(2, 3, 4);
         final int[][] expected = new int[][] {
-            { 0, 0, 0 },
-            { 0, 0, 1 },
-            { 0, 0, 2 },
-            { 0, 0, 3 },
-            { 0, 1, 0 },
-            { 0, 1, 1 },
-            { 0, 1, 2 },
-            { 0, 1, 3 },
-            { 0, 2, 0 },
-            { 0, 2, 1 },
-            { 0, 2, 2 },
-            { 0, 2, 3 },
-            { 1, 0, 0 },
-            { 1, 0, 1 },
-            { 1, 0, 2 },
-            { 1, 0, 3 },
-            { 1, 1, 0 },
-            { 1, 1, 1 },
-            { 1, 1, 2 },
-            { 1, 1, 3 },
-            { 1, 2, 0 },
-            { 1, 2, 1 },
-            { 1, 2, 2 },
-            { 1, 2, 3 }
+            {0, 0, 0},
+            {0, 0, 1},
+            {0, 0, 2},
+            {0, 0, 3},
+            {0, 1, 0},
+            {0, 1, 1},
+            {0, 1, 2},
+            {0, 1, 3},
+            {0, 2, 0},
+            {0, 2, 1},
+            {0, 2, 2},
+            {0, 2, 3},
+            {1, 0, 0},
+            {1, 0, 1},
+            {1, 0, 2},
+            {1, 0, 3},
+            {1, 1, 0},
+            {1, 1, 1},
+            {1, 1, 2},
+            {1, 1, 3},
+            {1, 2, 0},
+            {1, 2, 1},
+            {1, 2, 2},
+            {1, 2, 3}
         };
 
         final int totalSize = c.getSize();
@@ -153,7 +153,7 @@ public class MultidimensionalCounterTest {
 
     @Test
     public void testToString() {
-        final int[] sizes = new int[] { 7, 5, 3, 1 };
+        final int[] sizes = new int[] {7, 5, 3, 1};
         final MultidimensionalCounter c = MultidimensionalCounter.of(sizes);
         Assertions.assertEquals(Arrays.toString(sizes), c.toString());
     }

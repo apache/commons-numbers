@@ -38,7 +38,7 @@ import java.util.Arrays;
  *  <li>(1, 3, 2) corresponds to 23</li>
  * </ul>
  */
-public class MultidimensionalCounter {
+public final class MultidimensionalCounter {
     /**
      * Number of dimensions.
      */
@@ -67,13 +67,13 @@ public class MultidimensionalCounter {
      * @throws IllegalArgumentException if one of the sizes is negative
      * or zero.
      */
-    private MultidimensionalCounter(int ... size) {
+    private MultidimensionalCounter(int... size) {
         dimension = size.length;
         this.size = Arrays.copyOf(size, size.length);
 
         uniCounterOffset = new int[dimension];
 
-        last = dimension - 1; 
+        last = dimension - 1;
         uniCounterOffset[last] = 1;
 
         int tS = 1;
@@ -97,7 +97,7 @@ public class MultidimensionalCounter {
      * @throws IllegalArgumentException if one of the sizes is negative
      * or zero.
      */
-    public static MultidimensionalCounter of(int ... size) {
+    public static MultidimensionalCounter of(int... size) {
         return new MultidimensionalCounter(size);
     }
 
@@ -111,7 +111,7 @@ public class MultidimensionalCounter {
     }
 
     /**
-     * Converts to multidimensional counter.
+     * Converts to a multidimensional counter.
      *
      * @param index Index in unidimensional counter.
      * @return the multidimensional counts.
@@ -121,7 +121,7 @@ public class MultidimensionalCounter {
     public int[] toMulti(int index) {
         if (index < 0 ||
             index >= totalSize) {
-            throw new IndexOutOfBoundsException("Index out of bounds [0, " + (totalSize - 1) + "]: " + index);
+            throw new IndexOutOfBoundsException(createIndexOutOfBoundsMessage(totalSize, index));
         }
 
         final int[] indices = new int[dimension];
@@ -145,7 +145,7 @@ public class MultidimensionalCounter {
     }
 
     /**
-     * Converts to unidimensional counter.
+     * Converts to a unidimensional counter.
      *
      * @param c Indices in multidimensional counter.
      * @return the index within the unidimensionl counter.
@@ -153,9 +153,9 @@ public class MultidimensionalCounter {
      * does not match the size of the array given in the constructor.
      * @throws IndexOutOfBoundsException if a value of {@code c} is not in
      * the range of the corresponding dimension, as defined in the
-     * {@link MultidimensionalCounter#MultidimensionalCounter(int...) constructor}.
+     * {@link MultidimensionalCounter#of(int...) constructor}.
      */
-    public int toUni(int ... c) {
+    public int toUni(int... c) {
         if (c.length != dimension) {
             throw new IllegalArgumentException("Wrong number of arguments: " + c.length +
                                                "(expected: " + dimension + ")");
@@ -165,7 +165,7 @@ public class MultidimensionalCounter {
             final int index = c[i];
             if (index < 0 ||
                 index >= size[i]) {
-                throw new IndexOutOfBoundsException("Index out of bounds [0, " + (size[i] - 1) + "]: " + index);
+                throw new IndexOutOfBoundsException(createIndexOutOfBoundsMessage(size[i], index));
             }
             count += uniCounterOffset[i] * index;
         }
@@ -194,5 +194,16 @@ public class MultidimensionalCounter {
     @Override
     public String toString() {
         return Arrays.toString(size);
+    }
+
+    /**
+     * Creates the message for the index out of bounds exception.
+     *
+     * @param size the size
+     * @param index the index
+     * @return the message
+     */
+    private static String createIndexOutOfBoundsMessage(int size, int index) {
+        return "Index out of bounds [0, " + (size - 1) + "]: " + index;
     }
 }
