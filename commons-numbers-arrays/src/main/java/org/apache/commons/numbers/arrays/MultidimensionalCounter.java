@@ -126,20 +126,13 @@ public final class MultidimensionalCounter {
 
         final int[] indices = new int[dimension];
 
-        int count = 0;
         for (int i = 0; i < last; i++) {
-            int idx = 0;
-            final int offset = uniCounterOffset[i];
-            while (count <= index) {
-                count += offset;
-                ++idx;
-            }
-            --idx;
-            count -= offset;
-            indices[i] = idx;
+            indices[i] = index / uniCounterOffset[i];
+            // index = index % uniCounterOffset[i]
+            index = index - indices[i] * uniCounterOffset[i];
         }
 
-        indices[last] = index - count;
+        indices[last] = index;
 
         return indices;
     }
