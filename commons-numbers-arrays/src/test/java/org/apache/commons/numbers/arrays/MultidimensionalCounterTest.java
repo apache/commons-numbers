@@ -31,6 +31,8 @@ public class MultidimensionalCounterTest {
         Assertions.assertThrows(IllegalArgumentException.class, () -> MultidimensionalCounter.of(0, 1));
         Assertions.assertThrows(IllegalArgumentException.class, () -> MultidimensionalCounter.of(2, 0));
         Assertions.assertThrows(IllegalArgumentException.class, () -> MultidimensionalCounter.of(-1, 1));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> MultidimensionalCounter.of(-1, -1));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> MultidimensionalCounter.of(Integer.MAX_VALUE, 2, Integer.MAX_VALUE));
 
         final MultidimensionalCounter c = MultidimensionalCounter.of(2, 3);
         Assertions.assertThrows(IllegalArgumentException.class, () -> c.toUni(1, 1, 1));
