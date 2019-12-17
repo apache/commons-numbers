@@ -28,58 +28,16 @@ import org.junit.jupiter.api.Test;
 public class MultidimensionalCounterTest {
     @Test
     public void testPreconditions() {
-        MultidimensionalCounter c;
+        Assertions.assertThrows(IllegalArgumentException.class, () -> MultidimensionalCounter.of(0, 1));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> MultidimensionalCounter.of(2, 0));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> MultidimensionalCounter.of(-1, 1));
 
-        try {
-            c = MultidimensionalCounter.of(0, 1);
-            Assertions.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
-            // Expected.
-        }
-        try {
-            c = MultidimensionalCounter.of(2, 0);
-            Assertions.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
-            // Expected.
-        }
-        try {
-            c = MultidimensionalCounter.of(-1, 1);
-            Assertions.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
-            // Expected.
-        }
-
-        c = MultidimensionalCounter.of(2, 3);
-        try {
-            c.toUni(1, 1, 1);
-            Assertions.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException e) {
-            // Expected.
-        }
-        try {
-            c.toUni(3, 1);
-            Assertions.fail("IndexOutOfBoundsException expected");
-        } catch (IndexOutOfBoundsException e) {
-            // Expected.
-        }
-        try {
-            c.toUni(0, -1);
-            Assertions.fail("IndexOutOfBoundsException expected");
-        } catch (IndexOutOfBoundsException e) {
-            // Expected.
-        }
-        try {
-            c.toMulti(-1);
-            Assertions.fail("IndexOutOfBoundsException expected");
-        } catch (IndexOutOfBoundsException e) {
-            // Expected.
-        }
-        try {
-            c.toMulti(6);
-            Assertions.fail("IndexOutOfBoundsException expected");
-        } catch (IndexOutOfBoundsException e) {
-            // Expected.
-        }
+        final MultidimensionalCounter c = MultidimensionalCounter.of(2, 3);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> c.toUni(1, 1, 1));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> c.toUni(3, 1));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> c.toUni(0, -1));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> c.toMulti(-1));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> c.toMulti(6));
     }
 
     @Test
