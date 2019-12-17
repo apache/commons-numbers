@@ -79,14 +79,14 @@ public final class MultidimensionalCounter {
         int tS = 1;
         for (int i = last - 1; i >= 0; i--) {
             final int index = i + 1;
+            checkStrictlyPositive("index size", size[index]);
             tS *= size[index];
+            checkStrictlyPositive("cumulative size", tS);
             uniCounterOffset[i] = tS;
         }
 
         totalSize = tS * size[0];
-        if (totalSize <= 0) {
-            throw new IllegalArgumentException("Negative size: " + totalSize);
-        }
+        checkStrictlyPositive("total size", totalSize);
     }
 
     /**
@@ -187,6 +187,18 @@ public final class MultidimensionalCounter {
     @Override
     public String toString() {
         return Arrays.toString(size);
+    }
+
+    /**
+     * Check the size is strictly positive: {@code size > 0}.
+     *
+     * @param name the name of the size
+     * @param size the size
+     */
+    private static void checkStrictlyPositive(String name, int size) {
+        if (size <= 0) {
+            throw new IllegalArgumentException("Not positive " + name + ": " + size);
+        }
     }
 
     /**
