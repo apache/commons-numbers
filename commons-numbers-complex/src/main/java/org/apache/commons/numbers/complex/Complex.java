@@ -78,6 +78,36 @@ public final class Complex implements Serializable  {
     /** Base 10 logarithm of 2 (log10(2)). */
     private static final double LOG10_2 = Math.log10(2);
 
+    /** Crossover point to switch computation for asin factor A. */
+    private static final double A_CROSSOVER = 10;
+    /** Crossover point to switch computation for asin factor B. */
+    private static final double B_CROSSOVER = 0.6471;
+    /**
+     * The safe maximum double value {@code x} to avoid loss of precision in asin.
+     * Equal to sqrt(M) / 8 in the Hull, et al with M the largest normalised floating-point value.
+     */
+    private static final double SAFE_MAX = Math.sqrt(Double.MAX_VALUE) / 8;
+    /**
+     * The safe minimum double value {@code x} to avoid loss of precision/underflow in asin.
+     * Equal to sqrt(u) * 4 in the Hull, et al with u the smallest normalised floating-point value.
+     */
+    private static final double SAFE_MIN = Math.sqrt(Double.MIN_NORMAL) * 4;
+    /** Exponent offset in IEEE754 representation. */
+    private static final long EXPONENT_OFFSET = 1023L;
+    /**
+     * Largest double-precision floating-point number such that
+     * {@code 1 + EPSILON} is numerically equal to 1. This value is an upper
+     * bound on the relative error due to rounding real numbers to double
+     * precision floating-point numbers.
+     *
+     * <p>In IEEE 754 arithmetic, this is 2<sup>-53</sup>.</p>
+     *
+     * <p>Copied from o.a.c.numbers.core.Precision
+     *
+     * @see <a href="http://en.wikipedia.org/wiki/Machine_epsilon">Machine epsilon</a>
+     */
+    public static final double EPSILON = Double.longBitsToDouble((EXPONENT_OFFSET - 53L) << 52);
+
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20180201L;
 
@@ -1312,18 +1342,162 @@ public final class Complex implements Serializable  {
      * </code>
      * </pre>
      *
-     * <p>As per the C.99 standard this function is computed using the trigonomic identity:</p>
+     * <p>This is implemented using real {@code x} and imaginary {@code y} parts:</p>
      * <pre>
-     *   asin(z) = -i asinh(iz)
+     * <code>
+     *   asin(z) = asin(B) + i sign(y)log(A + sqrt(A<sup>2</sup>-1))
+     *   A = 0.5 [ sqrt((x+1)<sup>2</sup>+y<sup>2</sup>) + sqrt((x-1)<sup>2</sup>+y<sup>2</sup>) ]
+     *   B = 0.5 [ sqrt((x+1)<sup>2</sup>+y<sup>2</sup>) - sqrt((x-1)<sup>2</sup>+y<sup>2</sup>) ]
+     *   sign(y) = {@link Math#copySign(double,double) copySign(1.0, y)}
+     * </code>
      * </pre>
+     *
+     * <p>The implementation is based on the method described in:</p>
+     * <blockquote>
+     * T E Hull, Thomas F Fairgrieve and Ping Tak Peter Tang (1997)
+     * Implementing the complex Arcsine and Arccosine Functions using Exception Handling.
+     * ACM Transactions on Mathematical Software, Vol 23, No 3, pp 299-335.
+     * </blockquote>
+     *
+     * <p>The code has been adapted from the <a href="https://www.boost.org/">Boost</a>
+     * {@code c++} implementation {@code <boost/math/complex/asin.hpp>}. The function is well
+     * defined over the entire complex number range, and produces accurate values even at the
+     * extremes due to special handling of overflow and underflow conditions.</p>
      *
      * @return the inverse sine of this complex number
      */
     public Complex asin() {
-        // Define in terms of asinh
-        // asin(z) = -i asinh(iz)
-        // Multiply this number by I, compute asinh, then multiply by back
-        return asinh(-imaginary, real, Complex::multiplyNegativeI);
+        return asin(real, imaginary, Complex::ofCartesian);
+    }
+
+    /**
+     * Compute the inverse sine of the complex number.
+     *
+     * <p>This function exists to allow implementation of the identity
+     * {@code asinh(z) = -i asin(iz)}.<p>
+     *
+     * <p>The code has been adapted from the <a href="https://www.boost.org/">Boost</a>
+     * {@code c++} implementation {@code <boost/math/complex/asin.hpp>}.</p>
+     *
+     * @param real Real part.
+     * @param imaginary Imaginary part.
+     * @param constructor Constructor.
+     * @return the inverse sine of this complex number
+     */
+    private static Complex asin(double real, double imaginary, ComplexConstructor constructor) {
+        // Compute with positive values and determine sign at the end
+        double x = Math.abs(real);
+        double y = Math.abs(imaginary);
+        // The result (without sign correction)
+        double re;
+        double im;
+
+        // Handle C99 special cases
+        if (Double.isNaN(x)) {
+            if (isPosInfinite(y)) {
+                re = x;
+                im = y;
+            } else {
+                // No-use of the input constructor
+                return NAN;
+            }
+        } else if (Double.isNaN(y)) {
+            if (x == 0) {
+                re = 0;
+                im = y;
+            } else if (isPosInfinite(x)) {
+                re = y;
+                im = x;
+            } else {
+                // No-use of the input constructor
+                return NAN;
+            }
+        } else if (isPosInfinite(x)) {
+            re = isPosInfinite(y) ? PI_OVER_4 : PI_OVER_2;
+            im = x;
+        } else if (isPosInfinite(y)) {
+            re = 0;
+            im = y;
+        } else {
+            // Special case for real numbers:
+            if (y == 0 && x <= 1) {
+                return constructor.create(Math.asin(real), imaginary);
+            }
+
+            double xp1 = x + 1;
+            double xm1 = x - 1;
+
+            if ((x < SAFE_MAX) && (x > SAFE_MIN) && (y < SAFE_MAX) && (y > SAFE_MIN)) {
+                double yy = y * y;
+                double r = Math.sqrt(xp1 * xp1 + yy);
+                double s = Math.sqrt(xm1 * xm1 + yy);
+                double a = 0.5 * (r + s);
+                double b = x / a;
+
+                if (b <= B_CROSSOVER) {
+                    re = Math.asin(b);
+                } else {
+                    double apx = a + x;
+                    if (x <= 1) {
+                        re = Math.atan(x / Math.sqrt(0.5 * apx * (yy / (r + xp1) + (s - xm1))));
+                    } else {
+                        re = Math.atan(x / (y * Math.sqrt(0.5 * (apx / (r + xp1) + apx / (s + xm1)))));
+                    }
+                }
+
+                if (a <= A_CROSSOVER) {
+                    double am1;
+                    if (x < 1) {
+                        am1 = 0.5 * (yy / (r + xp1) + yy / (s - xm1));
+                    } else {
+                        am1 = 0.5 * (yy / (r + xp1) + (s + xm1));
+                    }
+                    im = Math.log1p(am1 + Math.sqrt(am1 * (a + 1)));
+                } else {
+                    im = Math.log(a + Math.sqrt(a * a - 1));
+                }
+            } else {
+                // Hull et al: Exception handling code from figure 3
+                if (y <= (EPSILON * Math.abs(xm1))) {
+                    if (x < 1) {
+                        re = Math.asin(x);
+                        im = y / Math.sqrt(-xp1 * xm1);
+                    } else {
+                        re = PI_OVER_2;
+                        if ((Double.MAX_VALUE / xp1) > xm1) {
+                            // xp1 * xm1 won't overflow:
+                            im = Math.log1p(xm1 + Math.sqrt(xp1 * xm1));
+                        } else {
+                            im = LN_2 + Math.log(x);
+                        }
+                    }
+                } else if (y <= SAFE_MIN) {
+                    // Hull et al: Assume x == 1.
+                    // True if:
+                    // E^2 > 8*sqrt(u)
+                    //
+                    // E = Machine epsilon: (1 + epsilon) = 1
+                    // u = Double.MIN_NORMAL
+                    re = PI_OVER_2 - Math.sqrt(y);
+                    im = Math.sqrt(y);
+                } else if (EPSILON * y - 1 >= x) {
+                    // Possible underflow:
+                    re = x / y;
+                    im = LN_2 + Math.log(y);
+                } else if (x > 1) {
+                    re = Math.atan(x / y);
+                    double xoy = x / y;
+                    im = LN_2 + Math.log(y) + 0.5 * Math.log1p(xoy * xoy);
+                } else {
+                    double a = Math.sqrt(1 + y * y);
+                    // Possible underflow:
+                    re = x / a;
+                    im = 0.5 * Math.log1p(2 * y * (y + a));
+                }
+            }
+        }
+
+        return constructor.create(changeSign(re, real), changeSign(im, imaginary));
     }
 
     /**
@@ -1361,17 +1535,27 @@ public final class Complex implements Serializable  {
      *
      * <p>This is an odd function: {@code f(z) = -f(-z)}.
      *
+     * <p>This function is computed using the trigonomic identity:</p>
+     * <pre>
+     *   asinh(z) = -i asin(iz)
+     * </pre>
+     *
      * @return the inverse hyperbolic sine of this complex number
      */
     public Complex asinh() {
-        return asinh(real, imaginary, Complex::ofCartesian);
+        // Define in terms of asin
+        // asinh(z) = -i asin(iz)
+        // Note: This is the opposite the the identity defined in the C.99 standard:
+        // asin(z) = -i asinh(iz)
+        // Multiply this number by I, compute asin, then multiply by back
+        return asin(-imaginary, real, Complex::multiplyNegativeI);
     }
 
     /**
      * Compute the inverse hyperbolic sine of the complex number.
      *
      * <p>This function exists to allow implementation of the identity
-     * {@code sin(z) = -i sinh(iz)}.<p>
+     * {@code asin(z) = -i asinh(iz)}.<p>
      *
      * @param real Real part.
      * @param imaginary Imaginary part.
@@ -1460,7 +1644,7 @@ public final class Complex implements Serializable  {
      * Compute the inverse hyperbolic tangent of this complex number.
      *
      * <p>This function exists to allow implementation of the identity
-     * {@code sin(z) = -i sinh(iz)}.<p>
+     * {@code atan(z) = -i atanh(iz)}.<p>
      *
      * @param real Real part.
      * @param imaginary Imaginary part.
@@ -1962,7 +2146,7 @@ public final class Complex implements Serializable  {
      * <ul>
      * <li>{@code |a| = }{@link Math#abs}(a)
      * <li>{@code |a + b i| = }{@link Complex#abs}(a + b i)
-     * <li>{@code sign(b) =  }{@link Math#copySign(double,double) copySign(1.0, b)}
+     * <li>{@code sign(b) = }{@link Math#copySign(double,double) copySign(1.0, b)}
      * </ul>
      *
      * @return the square root of {@code this}.
@@ -2320,12 +2504,24 @@ public final class Complex implements Serializable  {
     }
 
     /**
+     * Check that a value is positive infinity. Used to replace {@link Double#isInfinite()}
+     * when the input value is known to be positive (i.e. in the case where it have been
+     * set using {@link Math#abs(double)}).
+     *
+     * @param d Value.
+     * @return {@code true} if {@code d} is +inf.
+     */
+    private static boolean isPosInfinite(double d) {
+        return d == Double.POSITIVE_INFINITY;
+    }
+
+    /**
      * Create a complex number given the real and imaginary parts, then multiply by {@code -i}.
      * This is used in functions that implement trigonomic identities. It is the functional
      * equivalent of:
      *
      * <pre>
-     *   z = new Complex(real, imaginary).multiply(new Complex(0, -1));
+     *   z = new Complex(real, imaginary).multiplyImaginary(-1);
      * </pre>
      *
      * @param real Real part.

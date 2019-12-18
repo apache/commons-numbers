@@ -278,7 +278,7 @@ public class CReferenceTest {
     @Test
     public void testAsinh() {
         // Odd function: negative real cases defined by positive real cases
-        assertOperation("asinh", Complex::asinh, 1);
+        assertOperation("asinh", Complex::asinh, 3);
     }
 
     @Test
