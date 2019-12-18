@@ -51,7 +51,6 @@ public class CStandardTest {
     private static final Complex zeroPiTwo = complex(0.0, piOverTwo);
     private static final Complex negZeroZero = complex(-0.0, 0);
     private static final Complex negZeroNaN = complex(-0.0, nan);
-    private static final Complex negI = complex(0.0, -1.0);
     private static final Complex infZero = complex(inf, 0);
     private static final Complex infNaN = complex(inf, nan);
     private static final Complex infInf = complex(inf, inf);
@@ -743,12 +742,12 @@ public class CStandardTest {
             final double re = next(rng);
             final double im = next(rng);
             final Complex z = complex(re, im);
-            final Complex iz = Complex.I.multiply(z);
-            assertComplex(z.asin(), negI.multiply(iz.asinh()));
-            assertComplex(z.atan(), negI.multiply(iz.atanh()));
+            final Complex iz = z.multiplyImaginary(1);
+            assertComplex(z.asin(), iz.asinh().multiplyImaginary(-1));
+            assertComplex(z.atan(), iz.atanh().multiplyImaginary(-1));
             assertComplex(z.cos(), iz.cosh());
-            assertComplex(z.sin(), negI.multiply(iz.sinh()));
-            assertComplex(z.tan(), negI.multiply(iz.tanh()));
+            assertComplex(z.sin(), iz.sinh().multiplyImaginary(-1));
+            assertComplex(z.tan(), iz.tanh().multiplyImaginary(-1));
         }
     }
 
