@@ -161,18 +161,40 @@ public class ComplexEdgeCaseTest {
         assertComplex(1.00000002785941, 5.72464869028403e-200, name, operation, 2.4252018043912224e-196, -0.00023604834149293664);
     }
 
-    @Test
-    public void testAcosh() {
-        // Defined by acos() so edge cases are the same
-        // TODO
-    }
+    // acosh is defined by acos so is not tested
 
     @Test
-    public void testAsinh() {
-        // asinh(z) = ln(z + sqrt(1 + z^2))
-        // Odd function: negative real cases defined by positive real cases
-        // TODO
+    public void testAsin() {
+        // asin(z) = -i (ln(iz + sqrt(1 - z^2)))
+        final String name = "asin";
+        final UnaryOperator<Complex> operation = Complex::asin;
+
+        // This method is essentially the same as acos and the edge cases are the same.
+        // The results have been generated using g++ -std=c++11 asin.
+        double huge = Math.sqrt(Double.MAX_VALUE) * 2;
+        double big = Math.sqrt(Double.MAX_VALUE) / 8;
+        double medium = 100;
+        double small = Math.sqrt(Double.MIN_NORMAL) * 4;
+        assertComplex(huge, big, name, operation, 1.5083775167989393, 356.27960012801969);
+        assertComplex(huge, medium, name, operation, 1.5707963267948966, 356.27765080781188);
+        assertComplex(huge, small, name, operation, 1.5707963267948966, 356.27765080781188);
+        assertComplex(big, big, name, operation, 0.78539816339744828, 353.85163567585209);
+        assertComplex(big, medium, name, operation, 1.5707963267948966, 353.50506208557209);
+        assertComplex(big, small, name, operation, 1.5707963267948966, 353.50506208557209);
+        assertComplex(medium, big, name, operation, 5.9666725849601662e-152, 353.50506208557209);
+        assertComplex(medium, medium, name, operation, 0.78538566339745486, 5.6448909570623842);
+        assertComplex(medium, small, name, operation, 1.5707963267948966, 5.298292365610485);
+        assertComplex(small, big, name, operation, 3.560118173611523e-307, 353.50506208557209);
+        assertComplex(small, medium, name, operation, 5.9663742737040751e-156, 5.2983423656105888);
+        assertComplex(small, small, name, operation, 5.9666725849601654e-154, 5.9666725849601654e-154);
+        // Additional cases to achieve full coverage
+        // xm1 = 0
+        assertComplex(1, small, name, operation, 1.5707963267948966, 2.4426773395109241e-77);
+        // https://svn.boost.org/trac10/ticket/7290
+        assertComplex(1.00000002785941, 5.72464869028403e-200, name, operation, 1.5707963267948966, 0.00023604834149293664);
     }
+
+    // asinh is defined by asin so is not tested
 
     @Test
     public void testAtanh() {
