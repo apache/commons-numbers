@@ -2036,5 +2036,10 @@ public class ComplexTest {
         Assertions.assertEquals(1, (1 - safeLower) * (1 - safeLower));
         // Can we assume 1 - y^2 = 1 when y is small
         Assertions.assertEquals(1, 1 - safeLower * safeLower);
+        // Can we assume Math.log1p(4 * x / y / y) = (4 * x / y / y) when big y and small x
+        final double result = 4 * safeLower / safeUpper / safeUpper;
+        Assertions.assertEquals(result, Math.log1p(result));
+        Assertions.assertEquals(result, result - result * result / 2,
+                "Expected log1p Taylor series to be redundant");
     }
 }

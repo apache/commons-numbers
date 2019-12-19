@@ -1782,9 +1782,9 @@ public final class Complex implements Serializable  {
                         re = Math.log1p((4 * x / y) / (mxp1 * mxp1 / y + y));
                     } else {
                         // Big y, small x, as above but neglect (1-x)^2/y:
-                        // Note: The boost version has no log1p here.
-                        // This will tend towards 0 and log1p(0) = 0 so it may not matter.
-                        re = Math.log1p(4 * x / y / y);
+                        // Note: log1p(v) == v - v^2/2 + v^3/3 ... Taylor series when v is small.
+                        // Here v is so small only the first term matters.
+                        re = 4 * x / y / y;
                     }
                 } else if (x == 1) {
                     // x = 1, small y:
