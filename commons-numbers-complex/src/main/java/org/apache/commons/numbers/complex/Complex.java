@@ -2359,8 +2359,8 @@ public final class Complex implements Serializable  {
                     // sqrt(2^exponent) = (2^exponent)^0.5 = 2^(exponent*0.5)
                     t = Math.scalb(Math.sqrt((scaleA + absC) / 2), exponent / 2);
                 } else {
-                    // Over-flow safe average
-                    t = Math.sqrt(average(absA, absC));
+                    // Over-flow safe average: absA < absC and abdC is finite.
+                    t = Math.sqrt(absA + (absC - absA) / 2);
                 }
 
                 if (real >= 0) {
@@ -2383,19 +2383,6 @@ public final class Complex implements Serializable  {
         // real is NaN
         // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
         return NAN;
-    }
-
-    /**
-     * Compute the average of two positive finite values in an overflow safe manner.
-     *
-     * @param a the first value
-     * @param b the second value
-     * @return the average
-     */
-    private static double average(double a, double b) {
-        return (a < b) ?
-            a + (b - a) / 2 :
-            b + (a - b) / 2;
     }
 
     /**
@@ -2527,21 +2514,6 @@ public final class Complex implements Serializable  {
      * @see Math#atan2(double, double)
      */
     public double arg() {
-        // Delegate
-        return Math.atan2(imaginary, real);
-    }
-
-    /**
-     * Compute the argument of the complex number.
-     *
-     * <p>This function exists for use in trigonomic functions.
-     *
-     * @param real Real part.
-     * @param imaginary Imaginary part.
-     * @return the argument.
-     * @see Math#atan2(double, double)
-     */
-    private static double getArgument(double real, double imaginary) {
         // Delegate
         return Math.atan2(imaginary, real);
     }
