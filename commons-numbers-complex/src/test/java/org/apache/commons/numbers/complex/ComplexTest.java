@@ -2003,8 +2003,6 @@ public class ComplexTest {
             // This is prone to floating-point error so use a delta
             Assertions.assertEquals(lnz.getReal() / ln10, log10z.getReal(), 1e-12, "real");
             // This test should be exact
-            final double abs = z.abs();
-            Assertions.assertEquals(Math.log10(abs), log10z.getReal(), "real");
             Assertions.assertEquals(lnz.getImaginary(), log10z.getImaginary(), "imag");
         }
     }
