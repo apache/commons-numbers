@@ -65,8 +65,6 @@ public final class Complex implements Serializable  {
 
     /** A complex number representing {@code NaN + i NaN}. */
     private static final Complex NAN = new Complex(Double.NaN, Double.NaN);
-    /** 3*&pi;/4. */
-    private static final double PI_3_OVER_4 = 0.75 * Math.PI;
     /** &pi;/2. */
     private static final double PI_OVER_2 = 0.5 * Math.PI;
     /** &pi;/4. */
@@ -1304,7 +1302,7 @@ public final class Complex implements Serializable  {
      * @param constructor Constructor.
      * @return the inverse cosine of the complex number.
      */
-    private static Complex acos(final double real, final double imaginary, 
+    private static Complex acos(final double real, final double imaginary,
                                 final ComplexConstructor constructor) {
         // Compute with positive values and determine sign at the end
         double x = Math.abs(real);
@@ -1472,7 +1470,7 @@ public final class Complex implements Serializable  {
      * @param constructor Constructor.
      * @return the inverse sine of this complex number
      */
-    private static Complex asin(final double real, final double imaginary, 
+    private static Complex asin(final double real, final double imaginary,
                                 final ComplexConstructor constructor) {
         // Compute with positive values and determine sign at the end
         double x = Math.abs(real);
@@ -1639,78 +1637,6 @@ public final class Complex implements Serializable  {
         // asin(z) = -i asinh(iz)
         // Multiply this number by I, compute asin, then multiply by back
         return asin(-imaginary, real, Complex::multiplyNegativeI);
-    }
-
-    /**
-     * Compute the inverse hyperbolic sine of the complex number.
-     *
-     * <p>This function exists to allow implementation of the identity
-     * {@code asin(z) = -i asinh(iz)}.<p>
-     *
-     * @param real Real part.
-     * @param imaginary Imaginary part.
-     * @param constructor Constructor.
-     * @return the inverse hyperbolic sine of the complex number
-     */
-    private static Complex asinh(double real, double imaginary, ComplexConstructor constructor) {
-        if (Double.isFinite(real)) {
-            if (Double.isFinite(imaginary)) {
-                // ISO C99: Preserve the equality
-                // asinh(conj(z)) = conj(asinh(z))
-                // and the odd function: f(z) = -f(-z)
-                // by always computing on a positive valued Complex number.
-                final double a = Math.abs(real);
-                final double b = Math.abs(imaginary);
-                // C99. G.7: Special case for imaginary only numbers
-                if (a == 0 && b <= 1.0) {
-                    if (imaginary == 0) {
-                        return constructor.create(real, imaginary);
-                    }
-                    // asinh(iy) = i asin(y)
-                    final double im = Math.asin(imaginary);
-                    return constructor.create(real, im);
-                }
-                // square() is implemented using multiply
-                final Complex z2 = multiply(a, b, a, b);
-                // sqrt(1 + z^2)
-                final Complex sqrt1pz2 = sqrt(1 + z2.real, z2.imaginary);
-                // Compute the rest inline to avoid Complex object creation.
-                // (x + y i) = z + sqrt(1 + z^2)
-                final double x = a + sqrt1pz2.real;
-                final double y = b + sqrt1pz2.imaginary;
-                // (re + im i) = ln(z + sqrt(1 + z^2))
-                final double re = Math.log(getAbsolute(x, y));
-                final double im = getArgument(x, y);
-                // Map back to the correct sign
-                return constructor.create(changeSign(re, real),
-                                          changeSign(im, imaginary));
-            }
-            if (Double.isInfinite(imaginary)) {
-                return constructor.create(Math.copySign(Double.POSITIVE_INFINITY, real),
-                                          Math.copySign(PI_OVER_2, imaginary));
-            }
-            // imaginary is NaN
-            return NAN;
-        }
-        if (Double.isInfinite(real)) {
-            if (Double.isFinite(imaginary)) {
-                return constructor.create(real, Math.copySign(0, imaginary));
-            }
-            if (Double.isInfinite(imaginary)) {
-                return constructor.create(real, Math.copySign(PI_OVER_4, imaginary));
-            }
-            // imaginary is NaN
-            return constructor.create(real, Double.NaN);
-        }
-        // real is NaN
-        if (imaginary == 0) {
-            return constructor.create(Double.NaN, Math.copySign(0, imaginary));
-        }
-        if (Double.isInfinite(imaginary)) {
-            return constructor.create(Double.POSITIVE_INFINITY, Double.NaN);
-        }
-        // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
-        return NAN;
     }
 
     /**
