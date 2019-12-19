@@ -1786,12 +1786,7 @@ public final class Complex implements Serializable  {
                         // This will tend towards 0 and log1p(0) = 0 so it may not matter.
                         re = Math.log1p(4 * x / y / y);
                     }
-                } else if (x != 1) {
-                    // Modified from boost which checks y > SAFE_LOWER.
-                    // if y*y -> 0 it will be ignored so always include it.
-                    final double mxp1 = 1 - x;
-                    re = Math.log1p((4 * x) / (mxp1 * mxp1 + y * y));
-                } else {
+                } else if (x == 1) {
                     // x = 1, small y:
                     // Special case when x == 1 as (1-x) is invalid.
                     // Simplify the following formula:
@@ -1803,6 +1798,11 @@ public final class Complex implements Serializable  {
                     // Multiply by 2 as it will be divided by 4 at the end.
                     // C99: if y=0 raises the ‘‘divide-by-zero’’ floating-point exception.
                     re = 2 * (LN_2 - Math.log(y));
+                } else {
+                    // Modified from boost which checks y > SAFE_LOWER.
+                    // if y*y -> 0 it will be ignored so always include it.
+                    final double mxp1 = 1 - x;
+                    re = Math.log1p((4 * x) / (mxp1 * mxp1 + y * y));
                 }
 
                 // Imaginary part:
