@@ -807,7 +807,7 @@ public class CStandardTest {
         }
         assertComplex(negInfInf, operation, threePiFourNegInf);
         assertComplex(infInf, operation, piFourNegInf);
-        assertComplex(infNaN, operation, nanInf);
+        assertComplex(infNaN, operation, nanInf, UnspecifiedSign.IMAGINARY);
         assertComplex(negInfNaN, operation, nanNegInf, UnspecifiedSign.IMAGINARY);
         for (double y : finite) {
             assertComplex(complex(nan, y), operation, NAN);
