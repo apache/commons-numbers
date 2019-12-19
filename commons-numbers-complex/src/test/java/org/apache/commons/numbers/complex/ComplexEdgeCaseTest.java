@@ -150,7 +150,28 @@ public class ComplexEdgeCaseTest {
     public void testAtanh() {
         // atanh(z) = (1/2) ln((1 + z) / (1 - z))
         // Odd function: negative real cases defined by positive real cases
-        // TODO
+        final String name = "atanh";
+        final UnaryOperator<Complex> operation = Complex::atanh;
+
+        // Edge cases are when values are big but not infinite and small but not zero.
+        // Big and small are set using the limits in atanh.
+        // A medium value is used to test outside the range of the CReferenceTest.
+        // It hits an edge case when x is big and y > 1.
+        // The results have been generated using g++ -std=c++11 atanh.
+        double big = Math.sqrt(Double.MAX_VALUE) / 2;
+        double medium = 100;
+        double small = Math.sqrt(Double.MIN_NORMAL) * 2;
+        assertComplex(inf, big, name, operation, 0, 1.5707963267948966);
+        assertComplex(big, inf, name, operation, 0, 1.5707963267948966);
+        assertComplex(big, big, name, operation, 7.4583407312002067e-155, 1.5707963267948966);
+        assertComplex(big, medium, name, operation, 1.4916681462400417e-154, 1.5707963267948966);
+        assertComplex(big, small, name, operation, 1.4916681462400417e-154, 1.5707963267948966);
+        assertComplex(medium, big, name, operation, 2.225073858507202e-306, 1.5707963267948966);
+        assertComplex(medium, medium, name, operation, 0.0049999166641667555, 1.5657962434640633);
+        assertComplex(medium, small, name, operation, 0.010000333353334761, 1.5707963267948966);
+        assertComplex(small, big, name, operation, 0, 1.5707963267948966);
+        assertComplex(small, medium, name, operation, 2.9830379886812147e-158, 1.5607966601082315);
+        assertComplex(small, small, name, operation, 2.9833362924800827e-154, 2.9833362924800827e-154);
     }
 
     @Test
