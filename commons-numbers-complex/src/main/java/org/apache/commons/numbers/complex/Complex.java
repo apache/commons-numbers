@@ -1353,7 +1353,7 @@ public final class Complex implements Serializable  {
             final double xp1 = x + 1;
             final double xm1 = x - 1;
 
-            if ((x < SAFE_MAX) && (x > SAFE_MIN) && (y < SAFE_MAX) && (y > SAFE_MIN)) {
+            if (inRegion(x, y, SAFE_MIN, SAFE_MAX)) {
                 final double yy = y * y;
                 final double r = Math.sqrt(xp1 * xp1 + yy);
                 final double s = Math.sqrt(xm1 * xm1 + yy);
@@ -1524,7 +1524,7 @@ public final class Complex implements Serializable  {
             final double xp1 = x + 1;
             final double xm1 = x - 1;
 
-            if ((x < SAFE_MAX) && (x > SAFE_MIN) && (y < SAFE_MAX) && (y > SAFE_MIN)) {
+            if (inRegion(x, y, SAFE_MIN, SAFE_MAX)) {
                 final double yy = y * y;
                 final double r = Math.sqrt(xp1 * xp1 + yy);
                 final double s = Math.sqrt(xm1 * xm1 + yy);
@@ -1723,10 +1723,10 @@ public final class Complex implements Serializable  {
             // Check the safe region.
             // The lower and upper bounds have been copied from boost::math::atanh.
             // They are different from the safe region for asin and acos.
-            // x >= SAFE_UPPER: (1-x) == x
+            // x >= SAFE_UPPER: (1-x) == -x
             // x <= SAFE_LOWER: 1 - x^2 = 1
 
-            if ((x > SAFE_LOWER) && (x < SAFE_UPPER) && (y > SAFE_LOWER) && (y < SAFE_UPPER)) {
+            if (inRegion(x, y, SAFE_LOWER, SAFE_UPPER)) {
                 // Normal computation within a safe region.
 
                 // minus x plus 1: (-x+1)
@@ -2686,6 +2686,19 @@ public final class Complex implements Serializable  {
         // A speed test is required to determine performance.
 
         return Math.max(Math.getExponent(a), Math.getExponent(b));
+    }
+
+    /**
+     * Checks if both x and y are in the region defined by the minimum and maximum.
+     *
+     * @param x x value.
+     * @param y y value.
+     * @param min the minimum (exclusive).
+     * @param max the maximum (exclusive).
+     * @return true if inside the region
+     */
+    private static boolean inRegion(double x, double y, double min, double max) {
+        return (x < max) && (x > min) && (y < max) && (y > min);
     }
 
     /**
