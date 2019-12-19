@@ -78,9 +78,14 @@ public final class Complex implements Serializable  {
     /** Base 10 logarithm of 2 (log10(2)). */
     private static final double LOG10_2 = Math.log10(2);
 
-    /** Crossover point to switch computation for asin factor A. */
+    /**
+     * Crossover point to switch computation for asin/acos factor A.
+     * This has been updated from the 1.5 value used by Hull et al to 10
+     * as used in boost::math::complex.
+     * @see <a href="https://svn.boost.org/trac/boost/ticket/7290">Boost ticket 7290</a>
+     */
     private static final double A_CROSSOVER = 10;
-    /** Crossover point to switch computation for asin factor B. */
+    /** Crossover point to switch computation for asin/acos factor B. */
     private static final double B_CROSSOVER = 0.6471;
     /**
      * The safe maximum double value {@code x} to avoid loss of precision in asin.
@@ -1261,6 +1266,27 @@ public final class Complex implements Serializable  {
      * </code>
      * </pre>
      *
+     * <p>This is implemented using real {@code x} and imaginary {@code y} parts:</p>
+     * <pre>
+     * <code>
+     *   acos(z) = acos(B) - i ln(A + sqrt(A<sup>2</sup>-1))
+     *   A = 0.5 [ sqrt((x+1)<sup>2</sup>+y<sup>2</sup>) + sqrt((x-1)<sup>2</sup>+y<sup>2</sup>) ]
+     *   B = 0.5 [ sqrt((x+1)<sup>2</sup>+y<sup>2</sup>) - sqrt((x-1)<sup>2</sup>+y<sup>2</sup>) ]
+     * </code>
+     * </pre>
+     *
+     * <p>The implementation is based on the method described in:</p>
+     * <blockquote>
+     * T E Hull, Thomas F Fairgrieve and Ping Tak Peter Tang (1997)
+     * Implementing the complex Arcsine and Arccosine Functions using Exception Handling.
+     * ACM Transactions on Mathematical Software, Vol 23, No 3, pp 299-335.
+     * </blockquote>
+     *
+     * <p>The code has been adapted from the <a href="https://www.boost.org/">Boost</a>
+     * {@code c++} implementation {@code <boost/math/complex/acos.hpp>}. The function is well
+     * defined over the entire complex number range, and produces accurate values even at the
+     * extremes due to special handling of overflow and underflow conditions.</p>
+     *
      * @return the inverse cosine of this complex number.
      */
     public Complex acos() {
@@ -1278,58 +1304,120 @@ public final class Complex implements Serializable  {
      * @param constructor Constructor.
      * @return the inverse cosine of the complex number.
      */
-    private static Complex acos(double real, double imaginary, ComplexConstructor constructor) {
-        if (Double.isFinite(real)) {
-            if (Double.isFinite(imaginary)) {
-                // Special case for real numbers
-                if (imaginary == 0 && Math.abs(real) <= 1) {
-                    return constructor.create(real == 0.0 ? PI_OVER_2 : Math.acos(real),
-                                              Math.copySign(0, -imaginary));
+    private static Complex acos(final double real, final double imaginary, 
+                                final ComplexConstructor constructor) {
+        // Compute with positive values and determine sign at the end
+        double x = Math.abs(real);
+        double y = Math.abs(imaginary);
+        // The result (without sign correction)
+        double re;
+        double im;
+
+        // Handle C99 special cases
+        if (isPosInfinite(x)) {
+            if (isPosInfinite(y)) {
+                re = PI_OVER_4;
+                im = y;
+            } else if (Double.isNaN(y)) {
+                // sign of the imaginary part of the result is unspecified
+                return constructor.create(imaginary, real);
+            } else {
+                re = 0;
+                im = Double.POSITIVE_INFINITY;
+            }
+        } else if (Double.isNaN(x)) {
+            if (isPosInfinite(y)) {
+                return constructor.create(x, -imaginary);
+            }
+            // No-use of the input constructor
+            return NAN;
+        } else if (isPosInfinite(y)) {
+            re = PI_OVER_2;
+            im = y;
+        } else if (Double.isNaN(y)) {
+            return constructor.create(x == 0 ? PI_OVER_2 : y, y);
+        } else {
+            // Special case for real numbers:
+            if (y == 0 && x <= 1) {
+                return constructor.create(x == 0 ? PI_OVER_2 : Math.acos(real), -imaginary);
+            }
+
+            double xp1 = x + 1;
+            double xm1 = x - 1;
+
+            if ((x < SAFE_MAX) && (x > SAFE_MIN) && (y < SAFE_MAX) && (y > SAFE_MIN)) {
+                double yy = y * y;
+                double r = Math.sqrt(xp1 * xp1 + yy);
+                double s = Math.sqrt(xm1 * xm1 + yy);
+                double a = 0.5 * (r + s);
+                double b = x / a;
+
+                if (b <= B_CROSSOVER) {
+                    re = Math.acos(b);
+                } else {
+                    double apx = a + x;
+                    if (x <= 1) {
+                        re = Math.atan(Math.sqrt(0.5 * apx * (yy / (r + xp1) + (s - xm1))) / x);
+                    } else {
+                        re = Math.atan((y * Math.sqrt(0.5 * (apx / (r + xp1) + apx / (s + xm1)))) / x);
+                    }
                 }
-                // ISO C99: Preserve the equality
-                // acos(conj(z)) = conj(acos(z))
-                // by always computing on a positive imaginary Complex number.
-                final double a = real;
-                final double b = Math.abs(imaginary);
-                final Complex z2 = multiply(a, b, a, b);
-                // sqrt(1 - z^2)
-                final Complex sqrt1mz2 = sqrt(1 - z2.real, -z2.imaginary);
-                // Compute the rest inline to avoid Complex object creation.
-                // (x + y i) = iz + sqrt(1 - z^2)
-                final double x = -b + sqrt1mz2.real;
-                final double y = a + sqrt1mz2.imaginary;
-                // (re + im i) = (pi / 2) + i ln(iz + sqrt(1 - z^2))
-                final double re = PI_OVER_2 - getArgument(x, y);
-                final double im = Math.log(getAbsolute(x, y));
-                // Map back to the correct sign
-                return constructor.create(re, changeSign(im, imaginary));
+
+                if (a <= A_CROSSOVER) {
+                    double am1;
+                    if (x < 1) {
+                        am1 = 0.5 * (yy / (r + xp1) + yy / (s - xm1));
+                    } else {
+                        am1 = 0.5 * (yy / (r + xp1) + (s + xm1));
+                    }
+                    im = Math.log1p(am1 + Math.sqrt(am1 * (a + 1)));
+                } else {
+                    im = Math.log(a + Math.sqrt(a * a - 1));
+                }
+            } else {
+                // Hull et al: Exception handling code from figure 6
+                if (y <= (EPSILON * Math.abs(xm1))) {
+                    if (x < 1) {
+                        re = Math.acos(x);
+                        im = y / Math.sqrt(xp1 * (1 - x));
+                    } else {
+                        // This deviates from Hull et al's paper as per
+                        // https://svn.boost.org/trac/boost/ticket/7290
+                        if ((Double.MAX_VALUE / xp1) > xm1) {
+                            // xp1 * xm1 won't overflow:
+                            re = y / Math.sqrt(xm1 * xp1);
+                            im = Math.log1p(xm1 + Math.sqrt(xp1 * xm1));
+                        } else {
+                            re = y / x;
+                            im = LN_2 + Math.log(x);
+                        }
+                    }
+                } else if (y <= SAFE_MIN) {
+                    // Hull et al: Assume x == 1.
+                    // True if:
+                    // E^2 > 8*sqrt(u)
+                    //
+                    // E = Machine epsilon: (1 + epsilon) = 1
+                    // u = Double.MIN_NORMAL
+                    re = Math.sqrt(y);
+                    im = Math.sqrt(y);
+                } else if (EPSILON * y - 1 >= x) {
+                    re = PI_OVER_2;
+                    im = LN_2 + Math.log(y);
+                } else if (x > 1) {
+                    re = Math.atan(y / x);
+                    double xoy = x / y;
+                    im = LN_2 + Math.log(y) + 0.5 * Math.log1p(xoy * xoy);
+                } else {
+                    re = PI_OVER_2;
+                    double a = Math.sqrt(1 + y * y);
+                    im = 0.5 * Math.log1p(2 * y * (y + a));
+                }
             }
-            if (Double.isInfinite(imaginary)) {
-                return constructor.create(PI_OVER_2, Math.copySign(Double.POSITIVE_INFINITY, -imaginary));
-            }
-            // imaginary is NaN
-            // Special case for real == 0
-            return real == 0 ? constructor.create(PI_OVER_2, Double.NaN) : NAN;
         }
-        if (Double.isInfinite(real)) {
-            if (Double.isFinite(imaginary)) {
-                final double re = real == Double.NEGATIVE_INFINITY ? Math.PI : 0;
-                return constructor.create(re, Math.copySign(Double.POSITIVE_INFINITY, -imaginary));
-            }
-            if (Double.isInfinite(imaginary)) {
-                final double re = real == Double.NEGATIVE_INFINITY ? PI_3_OVER_4 : PI_OVER_4;
-                return constructor.create(re, Math.copySign(Double.POSITIVE_INFINITY, -imaginary));
-            }
-            // imaginary is NaN
-            // Swap real and imaginary
-            return constructor.create(Double.NaN, real);
-        }
-        // real is NaN
-        if (Double.isInfinite(imaginary)) {
-            return constructor.create(Double.NaN, -imaginary);
-        }
-        // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
-        return NAN;
+
+        return constructor.create(negative(real) ? Math.PI - re : re,
+                                  negative(imaginary) ? im : -im);
     }
 
     /**
@@ -1345,7 +1433,7 @@ public final class Complex implements Serializable  {
      * <p>This is implemented using real {@code x} and imaginary {@code y} parts:</p>
      * <pre>
      * <code>
-     *   asin(z) = asin(B) + i sign(y)log(A + sqrt(A<sup>2</sup>-1))
+     *   asin(z) = asin(B) + i sign(y)ln(A + sqrt(A<sup>2</sup>-1))
      *   A = 0.5 [ sqrt((x+1)<sup>2</sup>+y<sup>2</sup>) + sqrt((x-1)<sup>2</sup>+y<sup>2</sup>) ]
      *   B = 0.5 [ sqrt((x+1)<sup>2</sup>+y<sup>2</sup>) - sqrt((x-1)<sup>2</sup>+y<sup>2</sup>) ]
      *   sign(y) = {@link Math#copySign(double,double) copySign(1.0, y)}
@@ -1384,7 +1472,8 @@ public final class Complex implements Serializable  {
      * @param constructor Constructor.
      * @return the inverse sine of this complex number
      */
-    private static Complex asin(double real, double imaginary, ComplexConstructor constructor) {
+    private static Complex asin(final double real, final double imaginary, 
+                                final ComplexConstructor constructor) {
         // Compute with positive values and determine sign at the end
         double x = Math.abs(real);
         double y = Math.abs(imaginary);
@@ -1497,7 +1586,8 @@ public final class Complex implements Serializable  {
             }
         }
 
-        return constructor.create(changeSign(re, real), changeSign(im, imaginary));
+        return constructor.create(changeSign(re, real),
+                                  changeSign(im, imaginary));
     }
 
     /**
@@ -1733,16 +1823,13 @@ public final class Complex implements Serializable  {
         if (Double.isNaN(imaginary) && Double.isFinite(real)) {
             return NAN;
         }
-        // ISO C99: Preserve the equality
-        // acos(conj(z)) = conj(acos(z))
-        // by always computing on a positive imaginary Complex number.
-        return acos(real, Math.abs(imaginary), (re, im) ->
-            // Set the sign appropriately for C99 equalities.
-            (im > 0) ?
-                // Multiply by -I and map back to the correct sign
-                new Complex(im, changeSign(-re, imaginary)) :
+        return acos(real, imaginary, (re, im) ->
+            // Set the sign appropriately for real >= 0
+            (negative(im)) ?
                 // Multiply by I
-                new Complex(-im, changeSign(re, imaginary))
+                new Complex(-im, re) :
+                // Multiply by -I
+                new Complex(im, -re)
         );
     }
 
