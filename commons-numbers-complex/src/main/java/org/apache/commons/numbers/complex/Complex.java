@@ -1315,8 +1315,8 @@ public final class Complex implements Serializable  {
     private static Complex acos(final double real, final double imaginary,
                                 final ComplexConstructor constructor) {
         // Compute with positive values and determine sign at the end
-        double x = Math.abs(real);
-        double y = Math.abs(imaginary);
+        final double x = Math.abs(real);
+        final double y = Math.abs(imaginary);
         // The result (without sign correction)
         double re;
         double im;
@@ -1350,20 +1350,20 @@ public final class Complex implements Serializable  {
                 return constructor.create(x == 0 ? PI_OVER_2 : Math.acos(real), -imaginary);
             }
 
-            double xp1 = x + 1;
-            double xm1 = x - 1;
+            final double xp1 = x + 1;
+            final double xm1 = x - 1;
 
             if ((x < SAFE_MAX) && (x > SAFE_MIN) && (y < SAFE_MAX) && (y > SAFE_MIN)) {
-                double yy = y * y;
-                double r = Math.sqrt(xp1 * xp1 + yy);
-                double s = Math.sqrt(xm1 * xm1 + yy);
-                double a = 0.5 * (r + s);
-                double b = x / a;
+                final double yy = y * y;
+                final double r = Math.sqrt(xp1 * xp1 + yy);
+                final double s = Math.sqrt(xm1 * xm1 + yy);
+                final double a = 0.5 * (r + s);
+                final double b = x / a;
 
                 if (b <= B_CROSSOVER) {
                     re = Math.acos(b);
                 } else {
-                    double apx = a + x;
+                    final double apx = a + x;
                     if (x <= 1) {
                         re = Math.atan(Math.sqrt(0.5 * apx * (yy / (r + xp1) + (s - xm1))) / x);
                     } else {
@@ -1414,11 +1414,11 @@ public final class Complex implements Serializable  {
                     im = LN_2 + Math.log(y);
                 } else if (x > 1) {
                     re = Math.atan(y / x);
-                    double xoy = x / y;
+                    final double xoy = x / y;
                     im = LN_2 + Math.log(y) + 0.5 * Math.log1p(xoy * xoy);
                 } else {
                     re = PI_OVER_2;
-                    double a = Math.sqrt(1 + y * y);
+                    final double a = Math.sqrt(1 + y * y);
                     im = 0.5 * Math.log1p(2 * y * (y + a));
                 }
             }
@@ -1483,8 +1483,8 @@ public final class Complex implements Serializable  {
     private static Complex asin(final double real, final double imaginary,
                                 final ComplexConstructor constructor) {
         // Compute with positive values and determine sign at the end
-        double x = Math.abs(real);
-        double y = Math.abs(imaginary);
+        final double x = Math.abs(real);
+        final double y = Math.abs(imaginary);
         // The result (without sign correction)
         double re;
         double im;
@@ -1521,20 +1521,20 @@ public final class Complex implements Serializable  {
                 return constructor.create(Math.asin(real), imaginary);
             }
 
-            double xp1 = x + 1;
-            double xm1 = x - 1;
+            final double xp1 = x + 1;
+            final double xm1 = x - 1;
 
             if ((x < SAFE_MAX) && (x > SAFE_MIN) && (y < SAFE_MAX) && (y > SAFE_MIN)) {
-                double yy = y * y;
-                double r = Math.sqrt(xp1 * xp1 + yy);
-                double s = Math.sqrt(xm1 * xm1 + yy);
-                double a = 0.5 * (r + s);
-                double b = x / a;
+                final double yy = y * y;
+                final double r = Math.sqrt(xp1 * xp1 + yy);
+                final double s = Math.sqrt(xm1 * xm1 + yy);
+                final double a = 0.5 * (r + s);
+                final double b = x / a;
 
                 if (b <= B_CROSSOVER) {
                     re = Math.asin(b);
                 } else {
-                    double apx = a + x;
+                    final double apx = a + x;
                     if (x <= 1) {
                         re = Math.atan(x / Math.sqrt(0.5 * apx * (yy / (r + xp1) + (s - xm1))));
                     } else {
@@ -1583,10 +1583,10 @@ public final class Complex implements Serializable  {
                     im = LN_2 + Math.log(y);
                 } else if (x > 1) {
                     re = Math.atan(x / y);
-                    double xoy = x / y;
+                    final double xoy = x / y;
                     im = LN_2 + Math.log(y) + 0.5 * Math.log1p(xoy * xoy);
                 } else {
-                    double a = Math.sqrt(1 + y * y);
+                    final double a = Math.sqrt(1 + y * y);
                     // Possible underflow:
                     re = x / a;
                     im = 0.5 * Math.log1p(2 * y * (y + a));
@@ -1693,8 +1693,8 @@ public final class Complex implements Serializable  {
     private static Complex atanh(final double real, final double imaginary,
                                  final ComplexConstructor constructor) {
         // Compute with positive values and determine sign at the end
-        double x = Math.abs(real);
-        double y = Math.abs(imaginary);
+        final double x = Math.abs(real);
+        final double y = Math.abs(imaginary);
         // The result (without sign correction)
         double re;
         double im;
@@ -1731,8 +1731,8 @@ public final class Complex implements Serializable  {
                 // Normal computation within a safe region.
 
                 // minus x plus 1: (-x+1)
-                double mxp1 = 1 - x;
-                double yy = y * y;
+                final double mxp1 = 1 - x;
+                final double yy = y * y;
                 // The definition of real component is:
                 // real = log( ((x+1)^2+y^2) / ((1-x)^2+y^2) ) / 4
                 // This simplifies by adding 1 and subtracting 1 as a fraction:
@@ -1785,7 +1785,7 @@ public final class Complex implements Serializable  {
                 } else if (y >= SAFE_UPPER) {
                     if (x > 1) {
                         // Big y, medium x, divide through by y:
-                        double mxp1 = 1 - x;
+                        final double mxp1 = 1 - x;
                         re = Math.log1p((4 * x / y) / (y + mxp1 * mxp1 / y));
                     } else {
                         // Big y, small x, as above but neglect (1-x)^2/y:
@@ -1796,7 +1796,7 @@ public final class Complex implements Serializable  {
                 } else if (x != 1) {
                     // Modified from boost which checks y > SAFE_LOWER.
                     // if y*y -> 0 it will be ignored so always include it.
-                    double mxp1 = 1 - x;
+                    final double mxp1 = 1 - x;
                     re = Math.log1p((4 * x) / (mxp1 * mxp1 + y * y));
                 } else {
                     // x = 1, small y:
@@ -2324,7 +2324,7 @@ public final class Complex implements Serializable  {
                     return new Complex(sqrtAbs, imaginary);
                 }
                 // Get the absolute of the real
-                double absA = Math.abs(real);
+                final double absA = Math.abs(real);
                 // Compute |a + b i|
                 double absC = getAbsolute(real, imaginary);
 
