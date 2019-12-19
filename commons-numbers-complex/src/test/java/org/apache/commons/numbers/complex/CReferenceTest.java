@@ -312,7 +312,7 @@ public class CReferenceTest {
 
     @Test
     public void testLog() {
-        assertOperation("log", Complex::log, 3);
+        assertOperation("log", Complex::log, 1);
     }
 
     @Test
