@@ -267,12 +267,12 @@ public class CReferenceTest {
 
     @Test
     public void testAcos() {
-        assertOperation("acos", Complex::acos, 36);
+        assertOperation("acos", Complex::acos, 2);
     }
 
     @Test
     public void testAcosh() {
-        assertOperation("acosh", Complex::acosh, 36);
+        assertOperation("acosh", Complex::acosh, 2);
     }
 
     @Test
