@@ -1719,13 +1719,12 @@ public final class Complex implements Serializable  {
             return NAN;
         } else {
             // x && y are finite or infinite.
-            // Cases for very large finite are handled as if infinite.
 
             // Check the safe region.
             // The lower and upper bounds have been copied from boost::math::atanh.
             // They are different from the safe region for asin and acos.
-            // x >= SAFE_UPPER: (1-x) == x && x^2 -> inf
-            // x <= SAFE_LOWER: x^2 -> 0
+            // x >= SAFE_UPPER: (1-x) == x
+            // x <= SAFE_LOWER: 1 - x^2 = 1
 
             if ((x > SAFE_LOWER) && (x < SAFE_UPPER) && (y > SAFE_LOWER) && (y < SAFE_UPPER)) {
                 // Normal computation within a safe region.
@@ -1762,35 +1761,29 @@ public final class Complex implements Serializable  {
                 // real = Math.log1p(4x / (1 + x(x-2) + y^2))
                 // without either overflow or underflow in the squared terms.
                 if (x >= SAFE_UPPER) {
-                    // (1-x) = x to machine precision
+                    // (1-x) = -x to machine precision:
+                    // log1p(4x / (x^2 + y^2))
                     if (isPosInfinite(x) || isPosInfinite(y)) {
                         re = 0;
                     } else if (y >= SAFE_UPPER) {
                         // Big x and y: divide by x*y
-                        // This has been modified from the boost version to
-                        // include 1/(x*y) and -2/y. These are harmless if
-                        // machine precision prevents their addition to have an effect:
-                        // 1/(x*y) -> 0
-                        // (x-2) -> x
-                        re = Math.log1p((4 / y) / (1 / (x * y) + (x - 2) / y + y / x));
+                        re = Math.log1p((4 / y) / (x / y + y / x));
                     } else if (y > 1) {
                         // Big x: divide through by x:
-                        // This has been modified from the boost version to
-                        // include 1/x and -2:
-                        re = Math.log1p(4 / (1 / x + x - 2 + y * y / x));
+                        re = Math.log1p(4 / (x + y * y / x));
                     } else {
                         // Big x small y, as above but neglect y^2/x:
-                        re = Math.log1p(4 / (1 / x + x - 2));
+                        re = Math.log1p(4 / x);
                     }
                 } else if (y >= SAFE_UPPER) {
                     if (x > 1) {
                         // Big y, medium x, divide through by y:
                         final double mxp1 = 1 - x;
-                        re = Math.log1p((4 * x / y) / (y + mxp1 * mxp1 / y));
+                        re = Math.log1p((4 * x / y) / (mxp1 * mxp1 / y + y));
                     } else {
                         // Big y, small x, as above but neglect (1-x)^2/y:
                         // Note: The boost version has no log1p here.
-                        // This will tend towards 0 and log1p(0) = 0.
+                        // This will tend towards 0 and log1p(0) = 0 so it may not matter.
                         re = Math.log1p(4 * x / y / y);
                     }
                 } else if (x != 1) {
