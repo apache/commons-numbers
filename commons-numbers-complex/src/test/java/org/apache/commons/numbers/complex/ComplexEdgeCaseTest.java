@@ -130,7 +130,35 @@ public class ComplexEdgeCaseTest {
     @Test
     public void testAcos() {
         // acos(z) = (pi / 2) + i ln(iz + sqrt(1 - z^2))
-        // TODO
+        final String name = "acos";
+        final UnaryOperator<Complex> operation = Complex::acos;
+
+        // Edge cases are when values are big but not infinite and small but not zero.
+        // Big and small are set using the limits in atanh.
+        // A medium value is used to test outside the range of the CReferenceTest.
+        // The results have been generated using g++ -std=c++11 acos.
+        // xp1 * xm1 will overflow:
+        double huge = Math.sqrt(Double.MAX_VALUE) * 2;
+        double big = Math.sqrt(Double.MAX_VALUE) / 8;
+        double medium = 100;
+        double small = Math.sqrt(Double.MIN_NORMAL) * 4;
+        assertComplex(huge, big, name, operation, 0.06241880999595735, -356.27960012801969);
+        assertComplex(huge, medium, name, operation, 3.7291703656001039e-153, -356.27765080781188);
+        assertComplex(huge, small, name, operation, 2.2250738585072019e-308, -356.27765080781188);
+        assertComplex(big, big, name, operation, 0.78539816339744828, -353.85163567585209);
+        assertComplex(big, medium, name, operation, 5.9666725849601662e-152, -353.50506208557209);
+        assertComplex(big, small, name, operation, 3.560118173611523e-307, -353.50506208557209);
+        assertComplex(medium, big, name, operation, 1.5707963267948966, -353.50506208557209);
+        assertComplex(medium, medium, name, operation, 0.78541066339744181, -5.6448909570623842);
+        assertComplex(medium, small, name, operation, 5.9669709409662999e-156, -5.298292365610485);
+        assertComplex(small, big, name, operation, 1.5707963267948966, -353.50506208557209);
+        assertComplex(small, medium, name, operation, 1.5707963267948966, -5.2983423656105888);
+        assertComplex(small, small, name, operation, 1.5707963267948966, -5.9666725849601654e-154);
+        // Additional cases to achieve full coverage
+        // xm1 = 0
+        assertComplex(1, small, name, operation, 2.4426773395109241e-77, -2.4426773395109241e-77);
+        // https://svn.boost.org/trac10/ticket/7290
+        assertComplex(1.00000002785941, 5.72464869028403e-200, name, operation, 2.4252018043912224e-196, -0.00023604834149293664);
     }
 
     @Test
@@ -161,8 +189,6 @@ public class ComplexEdgeCaseTest {
         double big = Math.sqrt(Double.MAX_VALUE) / 2;
         double medium = 100;
         double small = Math.sqrt(Double.MIN_NORMAL) * 2;
-        assertComplex(inf, big, name, operation, 0, 1.5707963267948966);
-        assertComplex(big, inf, name, operation, 0, 1.5707963267948966);
         assertComplex(big, big, name, operation, 7.4583407312002067e-155, 1.5707963267948966);
         assertComplex(big, medium, name, operation, 1.4916681462400417e-154, 1.5707963267948966);
         assertComplex(big, small, name, operation, 1.4916681462400417e-154, 1.5707963267948966);
@@ -172,6 +198,9 @@ public class ComplexEdgeCaseTest {
         assertComplex(small, big, name, operation, 0, 1.5707963267948966);
         assertComplex(small, medium, name, operation, 2.9830379886812147e-158, 1.5607966601082315);
         assertComplex(small, small, name, operation, 2.9833362924800827e-154, 2.9833362924800827e-154);
+        // Additional cases to achieve full coverage
+        assertComplex(inf, big, name, operation, 0, 1.5707963267948966);
+        assertComplex(big, inf, name, operation, 0, 1.5707963267948966);
     }
 
     @Test
