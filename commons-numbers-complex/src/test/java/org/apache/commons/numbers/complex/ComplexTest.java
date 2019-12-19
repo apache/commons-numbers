@@ -2041,5 +2041,8 @@ public class ComplexTest {
         Assertions.assertEquals(result, Math.log1p(result));
         Assertions.assertEquals(result, result - result * result / 2,
                 "Expected log1p Taylor series to be redundant");
+        // Can we assume if x != 1 then (x-1) is valid for multiplications.
+        Assertions.assertNotEquals(0, 1 - Math.nextUp(1));
+        Assertions.assertNotEquals(0, 1 - Math.nextDown(1));
     }
 }
