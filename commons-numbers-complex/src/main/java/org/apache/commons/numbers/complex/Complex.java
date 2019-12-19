@@ -2097,6 +2097,18 @@ public final class Complex implements Serializable  {
     private Complex log(UnaryOperation log, double logOf2, ComplexConstructor constructor) {
         // All ISO C99 edge cases satisfied by the Math library.
         // Make computation overflow safe.
+
+        // Note:
+        // log(|a + b i|) = log(sqrt(a^2 + b^2)) = 0.5 * log(a^2 + b^2)
+        // If real and imaginary are with a safe region then omit the sqrt().
+        final double x = Math.abs(real);
+        final double y = Math.abs(imaginary);
+
+        // Use the safe region defined for atanh to avoid over/underflow for x^2
+        if ((x > SAFE_LOWER) && (x < SAFE_UPPER) && (y > SAFE_LOWER) && (y < SAFE_UPPER)) {
+            return constructor.create(0.5 * log.apply(x * x + y * y), arg());
+        }
+
         final double abs = abs();
         if (abs == Double.POSITIVE_INFINITY && isFinite()) {
             // Edge-case where the |a + b i| overflows.
