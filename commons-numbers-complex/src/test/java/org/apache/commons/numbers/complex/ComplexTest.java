@@ -1636,7 +1636,7 @@ public class ComplexTest {
 
     /**
      * Test: computing <b>third roots</b> of z.
-     * 
+     *
      * <pre>
      * <code>
      * <b>z = -2 + 2 * i</b>
@@ -1667,7 +1667,7 @@ public class ComplexTest {
 
     /**
      * Test: computing <b>fourth roots</b> of z.
-     * 
+     *
      * <pre>
      * <code>
      * <b>z = 5 - 2 * i</b>
@@ -1702,7 +1702,7 @@ public class ComplexTest {
 
     /**
      * Test: computing <b>third roots</b> of z.
-     * 
+     *
      * <pre>
      * <code>
      * <b>z = 8</b>
@@ -1734,7 +1734,7 @@ public class ComplexTest {
 
     /**
      * Test: computing <b>third roots</b> of z with real part 0.
-     * 
+     *
      * <pre>
      * <code>
      * <b>z = 2 * i</b>
@@ -1767,7 +1767,7 @@ public class ComplexTest {
      * Test: compute <b>third roots</b> using a negative argument to go clockwise around
      * the unit circle. Fourth roots of one are taken in both directions around the circle
      * using positive and negative arguments.
-     * 
+     *
      * <pre>
      * <code>
      * <b>z = 1</b>
