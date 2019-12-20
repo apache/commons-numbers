@@ -87,12 +87,12 @@ public final class Complex implements Serializable  {
     private static final double B_CROSSOVER = 0.6471;
     /**
      * The safe maximum double value {@code x} to avoid loss of precision in asin/acos.
-     * Equal to sqrt(M) / 8 in the Hull, et al with M the largest normalised floating-point value.
+     * Equal to sqrt(M) / 8 in Hull, et al (1997) with M the largest normalised floating-point value.
      */
     private static final double SAFE_MAX = Math.sqrt(Double.MAX_VALUE) / 8;
     /**
      * The safe minimum double value {@code x} to avoid loss of precision/underflow in asin/acos.
-     * Equal to sqrt(u) * 4 in the Hull, et al with u the smallest normalised floating-point value.
+     * Equal to sqrt(u) * 4 in Hull, et al (1997) with u the smallest normalised floating-point value.
      */
     private static final double SAFE_MIN = Math.sqrt(Double.MIN_NORMAL) * 4;
     /**
