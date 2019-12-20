@@ -1296,6 +1296,7 @@ public final class Complex implements Serializable  {
      * extremes due to special handling of overflow and underflow conditions.</p>
      *
      * @return the inverse cosine of this complex number.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcCos/">ArcCos</a>
      */
     public Complex acos() {
         return acos(real, imaginary, Complex::ofCartesian);
@@ -1461,6 +1462,7 @@ public final class Complex implements Serializable  {
      * extremes due to special handling of overflow and underflow conditions.</p>
      *
      * @return the inverse sine of this complex number
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcSin/">ArcSin</a>
      */
     public Complex asin() {
         return asin(real, imaginary, Complex::ofCartesian);
@@ -1612,6 +1614,7 @@ public final class Complex implements Serializable  {
      * </pre>
      *
      * @return the inverse tangent of this complex number
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcTan/">ArcTan</a>
      */
     public Complex atan() {
         // Define in terms of atanh
@@ -1639,6 +1642,7 @@ public final class Complex implements Serializable  {
      * </pre>
      *
      * @return the inverse hyperbolic sine of this complex number
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcSinh/">ArcSinh</a>
      */
     public Complex asinh() {
         // Define in terms of asin
@@ -1853,6 +1857,7 @@ public final class Complex implements Serializable  {
      * and compatibility with the C.99 standard.</p>
      *
      * @return the inverse hyperbolic cosine of this complex number
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcCosh/">ArcCosh</a>
      */
     public Complex acosh() {
         // Define in terms of acos
@@ -1888,6 +1893,7 @@ public final class Complex implements Serializable  {
      * </pre>
      *
      * @return the cosine of this complex number.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Cos/">Cos</a>
      */
     public Complex cos() {
         // Define in terms of cosh
@@ -1908,6 +1914,7 @@ public final class Complex implements Serializable  {
      * <p>This is an even function: {@code f(z) = f(-z)}.
      *
      * @return the hyperbolic cosine of this complex number.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Cosh/">Cosh</a>
      */
     public Complex cosh() {
         return cosh(real, imaginary, Complex::ofCartesian);
@@ -1987,6 +1994,7 @@ public final class Complex implements Serializable  {
      * </pre>
      *
      * @return <code><i>e</i><sup>this</sup></code>.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Exp/">Exp</a>
      */
     public Complex exp() {
         if (Double.isFinite(real)) {
@@ -2046,6 +2054,7 @@ public final class Complex implements Serializable  {
      * @see Math#log(double)
      * @see #abs()
      * @see #arg()
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Log/">Log</a>
      */
     public Complex log() {
         return log(Math::log, LN_2, Complex::ofCartesian);
@@ -2136,6 +2145,7 @@ public final class Complex implements Serializable  {
      *
      * @param  x exponent to which this {@code Complex} is to be raised.
      * @return <code>this<sup>x</sup></code>.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Power/">Power</a>
      */
     public Complex pow(Complex x) {
         if (real == 0 &&
@@ -2167,6 +2177,7 @@ public final class Complex implements Serializable  {
      * @param  x exponent to which this {@code Complex} is to be raised.
      * @return <code>this<sup>x</sup></code>.
      * @see #pow(Complex)
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Power/">Power</a>
      */
     public Complex pow(double x) {
         if (real == 0 &&
@@ -2197,6 +2208,7 @@ public final class Complex implements Serializable  {
      * </pre>
      *
      * @return the sine of this complex number.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Sin/">Sin</a>
      */
     public Complex sin() {
         // Define in terms of sinh
@@ -2217,6 +2229,7 @@ public final class Complex implements Serializable  {
      * <p>This is an odd function: {@code f(z) = -f(-z)}.
      *
      * @return the hyperbolic sine of {@code this}.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Sinh/">Sinh</a>
      */
     public Complex sinh() {
         return sinh(real, imaginary, Complex::ofCartesian);
@@ -2289,6 +2302,7 @@ public final class Complex implements Serializable  {
      * </ul>
      *
      * @return the square root of {@code this}.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Sqrt/">Sqrt</a>
      */
     public Complex sqrt() {
         return sqrt(real, imaginary);
@@ -2581,6 +2595,7 @@ public final class Complex implements Serializable  {
      * @param n Degree of root.
      * @return a List of all {@code n}-th roots of {@code this}.
      * @throws IllegalArgumentException if {@code n} is zero.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Root/">Root</a>
      */
     public List<Complex> nthRoot(int n) {
         if (n == 0) {
