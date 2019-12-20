@@ -1997,48 +1997,37 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Exp/">Exp</a>
      */
     public Complex exp() {
-        if (Double.isFinite(real)) {
-            if (Double.isFinite(imaginary)) {
-                final double expReal = Math.exp(real);
-                if (imaginary == 0) {
-                    // Preserve sign for conjugate equality
-                    return new Complex(expReal, imaginary);
-                }
-                return new Complex(expReal * Math.cos(imaginary),
-                                   expReal * Math.sin(imaginary));
-            }
-            // Imaginary is infinite or nan
-            return NAN;
-        }
+        // Set the values used to compute exp(real) * cis(im)
+        double expReal;
+        double im = imaginary;
         if (Double.isInfinite(real)) {
-            if (Double.isFinite(imaginary)) {
-                if (real == Double.POSITIVE_INFINITY) {
-                    if (imaginary == 0) {
-                        return this;
-                    }
-                    // inf * cis(y)
-                    final double re = Double.POSITIVE_INFINITY * Math.cos(imaginary);
-                    final double im = Double.POSITIVE_INFINITY * Math.sin(imaginary);
-                    return new Complex(re, im);
+            if (real < 0) {
+                expReal = 0;
+                if (!Double.isFinite(im)) {
+                    // Preserve conjugate equality
+                    im = Math.copySign(1, im);
                 }
-                // +0 * cis(y)
-                final double re = 0.0 * Math.cos(imaginary);
-                final double im = 0.0 * Math.sin(imaginary);
-                return new Complex(re, im);
+            } else {
+                if (im == 0 || !Double.isFinite(im)){
+                    return Double.isInfinite(im) ?
+                        new Complex(real, Double.NaN) :
+                        this;
+                }
+                expReal = real;
             }
-            // imaginary is infinite or NaN
-            if (real == Double.POSITIVE_INFINITY) {
-                return new Complex(Double.POSITIVE_INFINITY, Double.NaN);
-            }
-            // Preserve sign for conjugate equality
-            return new Complex(0, Math.copySign(0, imaginary));
+        } else if (imaginary == 0) {
+            // Real-only number
+            return Double.isNaN(real) ?
+                this :
+                new Complex(Math.exp(real), imaginary);
+        } else if (Double.isNaN(real)) {
+            return NAN;
+        } else {
+            // real is finite
+            expReal = Math.exp(real);
         }
-        // real is NaN
-        if (imaginary == 0) {
-            return new Complex(Double.NaN, Math.copySign(0, imaginary));
-        }
-        // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
-        return NAN;
+        return new Complex(expReal * Math.cos(im),
+                           expReal * Math.sin(im));
     }
 
     /**
