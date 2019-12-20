@@ -1932,56 +1932,22 @@ public final class Complex implements Serializable  {
      * @return the hyperbolic cosine of the complex number
      */
     private static Complex cosh(double real, double imaginary, ComplexConstructor constructor) {
-        if (Double.isFinite(real)) {
-            if (Double.isFinite(imaginary)) {
-                return constructor.create(Math.cosh(real) * Math.cos(imaginary),
-                                          Math.sinh(real) * Math.sin(imaginary));
-            }
-            // ISO C99: Preserve the even function by mapping to positive
-            // f(z) = f(-z)
-            double re;
-            double im;
-            if (negative(real)) {
-                re = -real;
-                im = -imaginary;
-            } else {
-                re = real;
-                im = imaginary;
-            }
-            // Special case for real == 0
-            return constructor.create(Double.NaN,
-                                      re == 0 ? Math.copySign(0, im) : Double.NaN);
+        // ISO C99: Preserve the even function by mapping to positive
+        // f(z) = f(-z)
+        if (Double.isInfinite(real) && !Double.isFinite(imaginary)) {
+            return constructor.create(Math.abs(real), Double.NaN);
         }
-        if (Double.isInfinite(real)) {
-            if (Double.isFinite(imaginary)) {
-                if (imaginary == 0) {
-                    // Determine sign
-                    final double im = real > 0 ? imaginary : -imaginary;
-                    return constructor.create(Double.POSITIVE_INFINITY, im);
-                }
-                // inf * cis(y)
-                // ISO C99: Preserve the even function
-                // f(z) = f(-z)
-                double re;
-                double im;
-                if (real < 0) {
-                    re = -real;
-                    im = -imaginary;
-                } else {
-                    re = real;
-                    im = imaginary;
-                }
-                return constructor.create(re * Math.cos(im), re * Math.sin(im));
-            }
-            // imaginary is infinite or NaN
-            return constructor.create(Double.POSITIVE_INFINITY, Double.NaN);
+        if (real == 0 && !Double.isFinite(imaginary)) {
+            return constructor.create(Double.NaN, changeSign(real, imaginary));
         }
-        // real is NaN
-        if (imaginary == 0) {
-            return constructor.create(Double.NaN, imaginary);
+        if (real == 0 && imaginary == 0) {
+            return constructor.create(1, changeSign(real, imaginary));
         }
-        // optionally raises the ‘‘invalid’’ floating-point exception, for nonzero y.
-        return NAN;
+        if (imaginary == 0 && !Double.isFinite(real)) {
+            return constructor.create(Math.abs(real), changeSign(imaginary, real));
+        }
+        return constructor.create(Math.cosh(real) * Math.cos(imaginary),
+                                  Math.sinh(real) * Math.sin(imaginary));
     }
 
     /**
@@ -2008,7 +1974,7 @@ public final class Complex implements Serializable  {
                     im = Math.copySign(1, im);
                 }
             } else {
-                if (im == 0 || !Double.isFinite(im)){
+                if (im == 0 || !Double.isFinite(im)) {
                     return Double.isInfinite(im) ?
                         new Complex(real, Double.NaN) :
                         this;
@@ -2236,41 +2202,15 @@ public final class Complex implements Serializable  {
      * @return the hyperbolic sine of the complex number
      */
     private static Complex sinh(double real, double imaginary, ComplexConstructor constructor) {
-        if (Double.isFinite(real)) {
-            if (Double.isFinite(imaginary)) {
-                return constructor.create(Math.sinh(real) * Math.cos(imaginary),
-                                          Math.cosh(real) * Math.sin(imaginary));
-            }
-            // Special case for real == 0
-            final double re = real == 0 ? real : Double.NaN;
-            return constructor.create(re, Double.NaN);
+        if ((Double.isInfinite(real) && !Double.isFinite(imaginary)) ||
+            (real == 0 && !Double.isFinite(imaginary))) {
+            return constructor.create(real, Double.NaN);
         }
-        if (Double.isInfinite(real)) {
-            if (Double.isFinite(imaginary)) {
-                if (imaginary == 0) {
-                    return constructor.create(real, imaginary);
-                }
-                // inf * cis(y)
-                // ISO C99: Preserve the equality
-                // sinh(conj(z)) = conj(sinh(z))
-                // and the odd function: f(z) = -f(-z)
-                // by always computing on a positive valued Complex number.
-                // Math.cos(-x) == Math.cos(x) so ignore sign transform.
-                final double signIm = imaginary < 0 ? -1 : 1;
-                final double re = Double.POSITIVE_INFINITY * Math.cos(imaginary);
-                final double im = Double.POSITIVE_INFINITY * Math.sin(imaginary * signIm);
-                // Transform back
-                return constructor.create(real < 0 ? -re : re, im * signIm);
-            }
-            // imaginary is infinite or NaN
-            return constructor.create(Double.POSITIVE_INFINITY, Double.NaN);
+        if (imaginary == 0 && !Double.isFinite(real)) {
+            return constructor.create(real, imaginary);
         }
-        // real is NaN
-        if (imaginary == 0) {
-            return constructor.create(Double.NaN, Math.copySign(0, imaginary));
-        }
-        // optionally raises the ‘‘invalid’’ floating-point exception, for nonzero y.
-        return NAN;
+        return constructor.create(Math.sinh(real) * Math.cos(imaginary),
+                                  Math.cosh(real) * Math.sin(imaginary));
     }
 
     /**
@@ -2438,42 +2378,6 @@ public final class Complex implements Serializable  {
      * @return the hyperbolic tangent of the complex number
      */
     private static Complex tanh(double real, double imaginary, ComplexConstructor constructor) {
-        // Math.cos and Math.sin return NaN for infinity.
-        // Perform edge-condition checks on twice the imaginary value.
-        // This handles very big imaginary numbers as infinite.
-
-        if (Double.isFinite(real)) {
-            if (Double.isFinite(imaginary)) {
-                if (real == 0) {
-                    // Identity: sin x / (1 + cos x) = tan(x/2)
-                    return constructor.create(real, Math.tan(imaginary));
-                }
-                if (imaginary == 0) {
-                    // Identity: sinh x / (1 + cosh x) = tanh(x/2)
-                    return constructor.create(Math.tanh(real), imaginary);
-                }
-
-                final double real2 = 2 * real;
-
-                // Math.cosh returns positive infinity for infinity.
-                // cosh -> inf
-                final double divisor = Math.cosh(real2) + cos2(imaginary);
-
-                // Math.sinh returns the input infinity for infinity.
-                // sinh -> inf for positive x; else -inf
-                final double sinhRe2 = Math.sinh(real2);
-
-                // Avoid inf / inf
-                if (Double.isInfinite(sinhRe2) && Double.isInfinite(divisor)) {
-                    // Handle as if real was infinite
-                    return constructor.create(Math.copySign(1, real), Math.copySign(0, sin2(imaginary)));
-                }
-                return constructor.create(sinhRe2 / divisor,
-                                          sin2(imaginary) / divisor);
-            }
-            // imaginary is infinite or NaN
-            return NAN;
-        }
         if (Double.isInfinite(real)) {
             if (Double.isFinite(imaginary)) {
                 return constructor.create(Math.copySign(1, real), Math.copySign(0, sin2(imaginary)));
@@ -2481,12 +2385,39 @@ public final class Complex implements Serializable  {
             // imaginary is infinite or NaN
             return constructor.create(Math.copySign(1, real), Math.copySign(0, imaginary));
         }
-        // real is NaN
-        if (imaginary == 0) {
-            return constructor.create(Double.NaN, Math.copySign(0, imaginary));
+
+        if (real == 0) {
+            if (Double.isFinite(imaginary)) {
+                // Identity: sin x / (1 + cos x) = tan(x/2)
+                return constructor.create(real, Math.tan(imaginary));
+            }
+            return constructor.create(Double.NaN, Double.NaN);
         }
-        // optionally raises the ‘‘invalid’’ floating-point exception, for nonzero y.
-        return NAN;
+        if (imaginary == 0) {
+            if (Double.isNaN(real)) {
+                return constructor.create(Double.NaN, imaginary);
+            }
+            // Identity: sinh x / (1 + cosh x) = tanh(x/2)
+            return constructor.create(Math.tanh(real), imaginary);
+        }
+
+        final double real2 = 2 * real;
+
+        // Math.cosh returns positive infinity for infinity.
+        // cosh -> inf
+        final double divisor = Math.cosh(real2) + cos2(imaginary);
+
+        // Math.sinh returns the input infinity for infinity.
+        // sinh -> inf for positive x; else -inf
+        final double sinhRe2 = Math.sinh(real2);
+
+        // Avoid inf / inf
+        if (Double.isInfinite(sinhRe2) && Double.isInfinite(divisor)) {
+            // Handle as if real was infinite
+            return constructor.create(Math.copySign(1, real), Math.copySign(0, imaginary));
+        }
+        return constructor.create(sinhRe2 / divisor,
+                                  sin2(imaginary) / divisor);
     }
 
     /**
