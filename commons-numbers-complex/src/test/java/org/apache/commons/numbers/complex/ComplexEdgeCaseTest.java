@@ -229,14 +229,46 @@ public class ComplexEdgeCaseTest {
     public void testCosh() {
         // cosh(a + b i) = cosh(a)cos(b) + i sinh(a)sin(b)
         // Even function: negative real cases defined by positive real cases
-        // TODO
+        final String name = "cosh";
+        final UnaryOperator<Complex> operation = Complex::cosh;
+
+        // Implementation defers to java.util.Math.
+        // Hit edge cases for extreme values.
+        double big = Double.MAX_VALUE;
+        double medium = 2;
+        double small = Double.MIN_NORMAL;
+        assertComplex(big, big, name, operation, -inf, inf);
+        assertComplex(big, medium, name, operation, -inf, inf);
+        assertComplex(big, small, name, operation, inf, inf);
+        assertComplex(medium, big, name, operation, -3.7621493762972804, 0.017996317370418576);
+        assertComplex(medium, medium, name, operation, -1.5656258353157435, 3.297894836311237);
+        assertComplex(medium, small, name, operation, 3.7621956910836314, 8.0700322819551687e-308);
+        assertComplex(small, big, name, operation, -0.99998768942655991, 1.1040715888508271e-310);
+        assertComplex(small, medium, name, operation, -0.41614683654714241, 2.0232539340376892e-308);
+        assertComplex(small, small, name, operation, 1, 0);
     }
 
     @Test
     public void testSinh() {
         // sinh(a + b i) = sinh(a)cos(b)) + i cosh(a)sin(b)
         // Odd function: negative real cases defined by positive real cases
-        // TODO
+        final String name = "sinh";
+        final UnaryOperator<Complex> operation = Complex::sinh;
+
+        // Implementation defers to java.util.Math.
+        // Hit edge cases for extreme values.
+        double big = Double.MAX_VALUE;
+        double medium = 2;
+        double small = Double.MIN_NORMAL;
+        assertComplex(big, big, name, operation, -inf, inf);
+        assertComplex(big, medium, name, operation, -inf, inf);
+        assertComplex(big, small, name, operation, inf, inf);
+        assertComplex(medium, big, name, operation, -3.6268157591156114, 0.018667844927220067);
+        assertComplex(medium, medium, name, operation, -1.5093064853236158, 3.4209548611170133);
+        assertComplex(medium, small, name, operation, 3.626860407847019, 8.3711632828186228e-308);
+        assertComplex(small, big, name, operation, -2.2250464665720564e-308, 0.004961954789184062);
+        assertComplex(small, medium, name, operation, -9.2595744730151568e-309, 0.90929742682568171);
+        assertComplex(small, small, name, operation, 2.2250738585072014e-308, 2.2250738585072014e-308);
     }
 
     @Test
