@@ -243,7 +243,35 @@ public class ComplexEdgeCaseTest {
     public void testTanh() {
         // tan(a + b i) = sinh(2a)/(cosh(2a)+cos(2b)) + i [sin(2b)/(cosh(2a)+cos(2b))]
         // Odd function: negative real cases defined by positive real cases
-        // TODO
+        final String name = "tanh";
+        final UnaryOperator<Complex> operation = Complex::tanh;
+
+        // Overflow on 2b:
+        // cos(2b) = cos(inf) = NaN
+        // sin(2b) = sin(inf) = NaN
+        assertComplex(1, Double.MAX_VALUE, name, operation, 0.76160203106265523, -0.0020838895895863505);
+
+        // Underflow on 2b:
+        // cos(2b) -> 1
+        // sin(2b) -> 0
+        assertComplex(1, Double.MIN_NORMAL, name, operation, 0.76159415595576485, 9.344739287691424e-309);
+        assertComplex(1, Double.MIN_VALUE, name, operation, 0.76159415595576485, 0);
+
+        // Overflow on 2a:
+        // sinh(2a) = sinh(inf) = inf
+        // cosh(2a) = cosh(inf) = inf
+        // Test all sign variants as this execution path to treat real as infinite
+        // is not tested else where.
+        assertComplex(Double.MAX_VALUE, 1, name, operation, 1, 0.0);
+        assertComplex(Double.MAX_VALUE, -1, name, operation, 1, -0.0);
+        assertComplex(-Double.MAX_VALUE, 1, name, operation, -1, 0.0);
+        assertComplex(-Double.MAX_VALUE, -1, name, operation, -1, -0.0);
+
+        // Underflow on 2a:
+        // sinh(2a) -> 0
+        // cosh(2a) -> 0
+        assertComplex(Double.MIN_NORMAL, 1, name, operation, 7.6220323800193346e-308, 1.5574077246549021);
+        assertComplex(Double.MIN_VALUE, 1, name, operation, 1.4821969375237396e-323, 1.5574077246549021);
     }
 
     @Test

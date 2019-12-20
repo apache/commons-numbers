@@ -2400,6 +2400,7 @@ public final class Complex implements Serializable  {
      * </pre>
      *
      * @return the tangent of {@code this}.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Tan/">Tangent</a>
      */
     public Complex tan() {
         // Define in terms of tanh
@@ -2420,6 +2421,7 @@ public final class Complex implements Serializable  {
      * <p>This is an odd function: {@code f(z) = -f(-z)}.
      *
      * @return the hyperbolic tangent of {@code this}.
+     * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Tanh/">Tanh</a>
      */
     public Complex tanh() {
         return tanh(real, imaginary, Complex::ofCartesian);
@@ -2441,10 +2443,8 @@ public final class Complex implements Serializable  {
         // Perform edge-condition checks on twice the imaginary value.
         // This handles very big imaginary numbers as infinite.
 
-        final double imaginary2 = 2 * imaginary;
-
         if (Double.isFinite(real)) {
-            if (Double.isFinite(imaginary2)) {
+            if (Double.isFinite(imaginary)) {
                 if (real == 0) {
                     // Identity: sin x / (1 + cos x) = tan(x/2)
                     return constructor.create(real, Math.tan(imaginary));
@@ -2458,26 +2458,26 @@ public final class Complex implements Serializable  {
 
                 // Math.cosh returns positive infinity for infinity.
                 // cosh -> inf
-                final double d = Math.cosh(real2) + Math.cos(imaginary2);
+                final double divisor = Math.cosh(real2) + cos2(imaginary);
 
                 // Math.sinh returns the input infinity for infinity.
                 // sinh -> inf for positive x; else -inf
                 final double sinhRe2 = Math.sinh(real2);
 
                 // Avoid inf / inf
-                if (Double.isInfinite(sinhRe2) && Double.isInfinite(d)) {
-                    // Fall-through to the result if infinite
-                    return constructor.create(Math.copySign(1, real), Math.copySign(0, Math.sin(imaginary2)));
+                if (Double.isInfinite(sinhRe2) && Double.isInfinite(divisor)) {
+                    // Handle as if real was infinite
+                    return constructor.create(Math.copySign(1, real), Math.copySign(0, sin2(imaginary)));
                 }
-                return constructor.create(sinhRe2 / d,
-                                          Math.sin(imaginary2) / d);
+                return constructor.create(sinhRe2 / divisor,
+                                          sin2(imaginary) / divisor);
             }
             // imaginary is infinite or NaN
             return NAN;
         }
         if (Double.isInfinite(real)) {
-            if (Double.isFinite(imaginary2)) {
-                return constructor.create(Math.copySign(1, real), Math.copySign(0, Math.sin(imaginary2)));
+            if (Double.isFinite(imaginary)) {
+                return constructor.create(Math.copySign(1, real), Math.copySign(0, sin2(imaginary)));
             }
             // imaginary is infinite or NaN
             return constructor.create(Math.copySign(1, real), Math.copySign(0, imaginary));
@@ -2490,7 +2490,52 @@ public final class Complex implements Serializable  {
         return NAN;
     }
 
-   /**
+    /**
+     * Safely compute {@code cos(2*a)} when {@code a} is finite.
+     * Note that {@link Math#cos(double)} returns NaN when the input is infinite.
+     * If {@code 2*a} is finite use {@code Math.cos(2*a)}; otherwise use the identity:
+     * <pre>
+     * <code>
+     *   cos(2a) = 2 cos<sup>2</sup>(a) - 1
+     * </code>
+     * </pre>
+     *
+     * @param a Angle a.
+     * @return the cosine of 2a
+     * @see Math#cos(double)
+     */
+    private static double cos2(double a) {
+        final double twoA = 2 * a;
+        if (Double.isFinite(twoA)) {
+            return Math.cos(twoA);
+        }
+        final double cosA = Math.cos(a);
+        return 2 * cosA * cosA - 1;
+    }
+
+    /**
+     * Safely compute {@code sin(2*a)} when {@code a} is finite.
+     * Note that {@link Math#sin(double)} returns NaN when the input is infinite.
+     * If {@code 2*a} is finite use {@code Math.sin(2*a)}; otherwise use the identity:
+     * <pre>
+     * <code>
+     *   sin(2a) = 2 sin(a) cos(a)
+     * </code>
+     * </pre>
+     *
+     * @param a Angle a.
+     * @return the sine of 2a
+     * @see Math#sin(double)
+     */
+    private static double sin2(double a) {
+        final double twoA = 2 * a;
+        if (Double.isFinite(twoA)) {
+            return Math.sin(twoA);
+        }
+        return 2 * Math.sin(a) * Math.cos(a);
+    }
+
+    /**
      * Compute the argument of this complex number.
      *
      * <p>The argument is the angle phi between the positive real axis and
