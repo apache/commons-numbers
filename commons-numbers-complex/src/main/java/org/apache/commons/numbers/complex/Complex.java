@@ -2107,7 +2107,7 @@ public final class Complex implements Serializable  {
         final double y = Math.abs(imaginary);
 
         // Use the safe region defined for atanh to avoid over/underflow for x^2
-        if ((x > SAFE_LOWER) && (x < SAFE_UPPER) && (y > SAFE_LOWER) && (y < SAFE_UPPER)) {
+        if (inRegion(x, y, SAFE_LOWER, SAFE_UPPER)) {
             return constructor.create(0.5 * log.apply(x * x + y * y), arg());
         }
 
@@ -2332,60 +2332,6 @@ public final class Complex implements Serializable  {
         if (Double.isInfinite(imaginary)) {
             return new Complex(Double.POSITIVE_INFINITY, imaginary);
         }
-        if (Double.isFinite(real)) {
-            if (Double.isFinite(imaginary)) {
-                // Edge case for real numbers
-                if (imaginary == 0) {
-                    final double sqrtAbs = Math.sqrt(Math.abs(real));
-                    if (real < 0) {
-                        return new Complex(0, Math.copySign(sqrtAbs, imaginary));
-                    }
-                    return new Complex(sqrtAbs, imaginary);
-                }
-                // Get the absolute of the real
-                final double absA = Math.abs(real);
-                // Compute |a + b i|
-                double absC = getAbsolute(real, imaginary);
-
-                // t = sqrt((|a| + |a + b i|) / 2)
-                // This is always representable as this complex is finite.
-                double t;
-
-                // Overflow safe
-                if (absC == Double.POSITIVE_INFINITY) {
-                    // Complex is too large.
-                    // Divide by the largest absolute component,
-                    // compute the required sqrt and then scale back.
-                    // Use the equality: sqrt(n) = sqrt(scale) * sqrt(n/scale)
-                    // t = sqrt(max) * sqrt((|a|/max + |a + b i|/max) / 2)
-                    // Note: The function may be non-monotonic at the junction.
-                    // The alternative of returning infinity for a finite input is worse.
-                    // Use precise scaling with:
-                    // scale ~ 2^exponent
-                    // Make exponent even for fast rescaling using sqrt(2^exponent).
-                    final int exponent = getMaxExponent(absA, imaginary) & MASK_INT_TO_EVEN;
-                    // Implement scaling using 2^-exponent
-                    final double scaleA = Math.scalb(absA, -exponent);
-                    final double scaleB = Math.scalb(imaginary, -exponent);
-                    absC = getAbsolute(scaleA, scaleB);
-                    // t = Math.sqrt(2^exponent) * Math.sqrt((scaleA + absC) / 2)
-                    // This works if exponent is even:
-                    // sqrt(2^exponent) = (2^exponent)^0.5 = 2^(exponent*0.5)
-                    t = Math.scalb(Math.sqrt((scaleA + absC) / 2), exponent / 2);
-                } else {
-                    // Over-flow safe average: absA < absC and abdC is finite.
-                    t = Math.sqrt(absA + (absC - absA) / 2);
-                }
-
-                if (real >= 0) {
-                    return new Complex(t, imaginary / (2 * t));
-                }
-                return new Complex(Math.abs(imaginary) / (2 * t),
-                                   Math.copySign(1.0, imaginary) * t);
-            }
-            // Imaginary is nan
-            return NAN;
-        }
         if (Double.isInfinite(real)) {
             // imaginary is finite or NaN
             final double part = Double.isNaN(imaginary) ? Double.NaN : 0;
@@ -2394,9 +2340,59 @@ public final class Complex implements Serializable  {
             }
             return new Complex(Double.POSITIVE_INFINITY, Math.copySign(part, imaginary));
         }
-        // real is NaN
-        // optionally raises the ‘‘invalid’’ floating-point exception, for finite y.
-        return NAN;
+        if (Double.isNaN(real) || Double.isNaN(imaginary)) {
+            return NAN;
+        }
+        // Finite real and imaginary
+
+        // Edge case for real numbers
+        if (imaginary == 0) {
+            final double sqrtAbs = Math.sqrt(Math.abs(real));
+            if (real < 0) {
+                return new Complex(0, Math.copySign(sqrtAbs, imaginary));
+            }
+            return new Complex(sqrtAbs, imaginary);
+        }
+        // Get the absolute of the real
+        final double absA = Math.abs(real);
+        // Compute |a + b i|
+        double absC = getAbsolute(real, imaginary);
+
+        // t = sqrt((|a| + |a + b i|) / 2)
+        // This is always representable as this complex is finite.
+        double t;
+
+        // Overflow safe
+        if (absC == Double.POSITIVE_INFINITY) {
+            // Complex is too large.
+            // Divide by the largest absolute component,
+            // compute the required sqrt and then scale back.
+            // Use the equality: sqrt(n) = sqrt(scale) * sqrt(n/scale)
+            // t = sqrt(max) * sqrt((|a|/max + |a + b i|/max) / 2)
+            // Note: The function may be non-monotonic at the junction.
+            // The alternative of returning infinity for a finite input is worse.
+            // Use precise scaling with:
+            // scale ~ 2^exponent
+            // Make exponent even for fast rescaling using sqrt(2^exponent).
+            final int exponent = getMaxExponent(absA, imaginary) & MASK_INT_TO_EVEN;
+            // Implement scaling using 2^-exponent
+            final double scaleA = Math.scalb(absA, -exponent);
+            final double scaleB = Math.scalb(imaginary, -exponent);
+            absC = getAbsolute(scaleA, scaleB);
+            // t = Math.sqrt(2^exponent) * Math.sqrt((scaleA + absC) / 2)
+            // This works if exponent is even:
+            // sqrt(2^exponent) = (2^exponent)^0.5 = 2^(exponent*0.5)
+            t = Math.scalb(Math.sqrt((scaleA + absC) / 2), exponent / 2);
+        } else {
+            // Over-flow safe average: absA < absC and abdC is finite.
+            t = Math.sqrt(absA + (absC - absA) / 2);
+        }
+
+        if (real >= 0) {
+            return new Complex(t, imaginary / (2 * t));
+        }
+        return new Complex(Math.abs(imaginary) / (2 * t),
+                           Math.copySign(1.0, imaginary) * t);
     }
 
     /**
