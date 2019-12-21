@@ -97,8 +97,29 @@ public class ComplexTest {
         Assertions.assertEquals(r * y.getReal(), z.getReal());
         Assertions.assertEquals(r * y.getImaginary(), z.getImaginary());
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> Complex.ofPolar(-1, 0),
-            "negative modulus should not be allowed");
+        // Edge cases
+        // Non-finite theta
+        Assertions.assertEquals(NAN, Complex.ofPolar(1, -inf));
+        Assertions.assertEquals(NAN, Complex.ofPolar(1, inf));
+        Assertions.assertEquals(NAN, Complex.ofPolar(1, nan));
+        // Infinite rho is invalid when theta is NaN
+        // i.e. do not create an infinite complex such as (inf, nan)
+        Assertions.assertEquals(NAN, Complex.ofPolar(inf, nan));
+        // negative or NaN rho
+        Assertions.assertEquals(NAN, Complex.ofPolar(-inf, 1));
+        Assertions.assertEquals(NAN, Complex.ofPolar(-0.0, 1));
+        Assertions.assertEquals(NAN, Complex.ofPolar(nan, 1));
+
+        // Construction from infinity has values left to double arithmetic.
+        // Test the examples from the javadoc
+        Assertions.assertEquals(NAN, Complex.ofPolar(-0.0, 0.0));
+        Assertions.assertEquals(Complex.ofCartesian(0.0, 0.0), Complex.ofPolar(0.0, 0.0));
+        Assertions.assertEquals(Complex.ofCartesian(1.0, 0.0), Complex.ofPolar(1.0, 0.0));
+        Assertions.assertEquals(Complex.ofCartesian(-1.0, Math.sin(pi)), Complex.ofPolar(1.0, pi));
+        Assertions.assertEquals(Complex.ofCartesian(-inf, inf), Complex.ofPolar(inf, pi));
+        Assertions.assertEquals(Complex.ofCartesian(inf, nan), Complex.ofPolar(inf, 0.0));
+        Assertions.assertEquals(Complex.ofCartesian(inf, -inf), Complex.ofPolar(inf, -pi / 4));
+        Assertions.assertEquals(Complex.ofCartesian(-inf, -inf), Complex.ofPolar(inf, 5 * pi / 4));
     }
 
     @Test

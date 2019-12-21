@@ -196,46 +196,73 @@ public final class Complex implements Serializable  {
      *
      * @param real Real part.
      * @param imaginary Imaginary part.
-     * @return {@code Complex} object
+     * @return {@code Complex} number
      */
     public static Complex ofCartesian(double real, double imaginary) {
         return new Complex(real, imaginary);
     }
 
     /**
-     * Creates a Complex from its polar representation.
+     * Creates a complex number from its polar representation using modulus {@code rho}
+     * and phase angle {@code theta}.
+     * <pre>
+     *  x = rho * cos(theta)
+     *  y = rho * sin(theta)
+     * </pre>
      *
-     * <p>If {@code r} is infinite and {@code theta} is finite, infinite or NaN
-     * values may be returned in parts of the result, following the rules for
-     * double arithmetic.</p>
+     * <p>Requires that {@code rho} is non-negative and non-NaN and {@code theta} is finite;
+     * otherwise returns a complex with NaN real and imaginary parts. A value of {@code -0.0} is
+     * considered negative and an invalid modulus.
+     *
+     * <p>A non-NaN complex number constructed using this method will satisfy the following
+     * to within floating-point error:</p>
+     * <pre>
+     *  Complex.ofPolar(rho, theta).abs() == rho
+     *  Complex.ofPolar(rho, theta).arg() == theta; theta in (\(-\pi\), \(\pi\)]
+     * </pre>
+     *
+     * <p>If {@code rho} is infinite then the resulting parts may be infinite or NaN
+     * following the rules for double arithmetic.</p>
      *
      * <pre>
      * Examples:
      * {@code
-     * ofPolar(INFINITY, \(\pi\)) = INFINITY + INFINITY i
+     * ofPolar(-0.0, 0.0) = NaN + NaN i
+     * ofPolar(0.0, 0.0) = 0.0 + 0.0 i
+     * ofPolar(1.0, 0.0) = 1.0 + 0.0 i
+     * ofPolar(1.0, \(\pi\)) = -1.0 + sin(\(\pi\)) i
+     * ofPolar(INFINITY, \(\pi\)) = -INFINITY + INFINITY i
      * ofPolar(INFINITY, 0) = INFINITY + NaN i
      * ofPolar(INFINITY, \(-\frac{\pi}{4}\)) = INFINITY - INFINITY i
      * ofPolar(INFINITY, \(5\frac{\pi}{4}\)) = -INFINITY - INFINITY i }
      * </pre>
      *
-     * @param r the modulus of the complex number to create
+     * @param rho the modulus of the complex number to create
      * @param theta the argument of the complex number to create
-     * @return {@code Complex}
-     * @throws IllegalArgumentException if {@code r} is non-positive
+     * @return {@code Complex} number
+     * @see <a href="http://mathworld.wolfram.com/PolarCoordinates.html">Polar Coordinates</a>
      */
-    public static Complex ofPolar(double r, double theta) {
-        if (r <= 0) {
-            throw new IllegalArgumentException("Non-positive polar modulus argument: " + r);
+    public static Complex ofPolar(double rho, double theta) {
+        // Require finite theta and non-negative, non-nan rho
+        if (!Double.isFinite(theta) || negative(rho) || Double.isNaN(rho)) {
+            return NAN;
         }
-        return new Complex(r * Math.cos(theta), r * Math.sin(theta));
+        final double x = rho * Math.cos(theta);
+        final double y = rho * Math.sin(theta);
+        return new Complex(x, y);
     }
 
     /**
-     * For a real constructor argument x, returns a new Complex object c
-     * where {@code c = cos(x) + i sin (x)}.
+     * Create a complex cis number. This is also known as the complex exponential:
+     * <pre>
+     * <code>
+     *   cis(x) = e<sup>ix</sup> = cos(x) + i sin(x)
+     * </code>
+     * </pre>
      *
      * @param x {@code double} to build the cis number
-     * @return {@code Complex}
+     * @return {@code Complex} cis number
+     * @see <a href="http://mathworld.wolfram.com/Cis.html">Cis</a>
      */
     public static Complex ofCis(double x) {
         return new Complex(Math.cos(x), Math.sin(x));
@@ -264,7 +291,7 @@ public final class Complex implements Serializable  {
      * </pre>
      *
      * @param s String representation.
-     * @return an instance.
+     * @return {@code Complex} number
      * @throws NullPointerException if the string is null.
      * @throws NumberFormatException if the string does not contain a parsable complex number.
      * @see Double#parseDouble(String)
@@ -392,7 +419,7 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Return the absolute value of this complex number. This is also called norm, modulus,
+     * Return the absolute value of this complex number. This is also called complex norm, modulus,
      * or magnitude.
      * <pre>abs(a + b i) = sqrt(a^2 + b^2)</pre>
      *
