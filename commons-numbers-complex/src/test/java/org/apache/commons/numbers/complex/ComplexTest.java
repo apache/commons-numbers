@@ -224,6 +224,25 @@ public class ComplexTest {
     }
 
     @Test
+    public void testNorm() {
+        final Complex z = Complex.ofCartesian(3.0, 4.0);
+        Assertions.assertEquals(25.0, z.norm());
+    }
+
+    @Test
+    public void testNormNaN() {
+        // The result is NaN if either argument is NaN and the other is not infinite
+        Assertions.assertEquals(nan, NAN.norm());
+        Assertions.assertEquals(nan, Complex.ofCartesian(3.0, nan).norm());
+        Assertions.assertEquals(nan, Complex.ofCartesian(nan, 3.0).norm());
+        // The result is positive infinite if either argument is infinite
+        Assertions.assertEquals(inf, Complex.ofCartesian(inf, nan).norm());
+        Assertions.assertEquals(inf, Complex.ofCartesian(-inf, nan).norm());
+        Assertions.assertEquals(inf, Complex.ofCartesian(nan, inf).norm());
+        Assertions.assertEquals(inf, Complex.ofCartesian(nan, -inf).norm());
+    }
+
+    @Test
     public void testAdd() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final Complex y = Complex.ofCartesian(5.0, 6.0);

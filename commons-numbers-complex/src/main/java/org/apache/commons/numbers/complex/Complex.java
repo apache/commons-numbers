@@ -435,6 +435,7 @@ public final class Complex implements Serializable  {
      * @see #isInfinite()
      * @see #isNaN()
      * @see Math#hypot(double, double)
+     * @see <a href="http://mathworld.wolfram.com/ComplexModulus.html">Complex modulus</a>
      */
     public double abs() {
         // Delegate
@@ -454,6 +455,31 @@ public final class Complex implements Serializable  {
     private static double getAbsolute(double real, double imaginary) {
         // Delegate
         return Math.hypot(real, imaginary);
+    }
+
+    /**
+     * Return the squared norm value of this complex number. This is also called the absolute
+     * square.
+     * <pre>norm(a + b i) = a^2 + b^2</pre>
+     *
+     * <p>If either component is infinite then the result is positive infinity. If either
+     * component is NaN and this is not {@link #isInfinite() infinite} then the result is NaN.
+     *
+     * <p>This method will return the square of {@link #abs()}. It can be used as a faster
+     * alternative for ranking by magnitude although overflow to infinity will create equal
+     * ranking for values that may be still distinguished by {@code abs()}.
+     *
+     * @return the square norm value.
+     * @see #isInfinite()
+     * @see #isNaN()
+     * @see #abs()
+     * @see <a href="http://mathworld.wolfram.com/AbsoluteSquare.html">Absolute square</a>
+     */
+    public double norm() {
+        if (isInfinite()) {
+            return Double.POSITIVE_INFINITY;
+        }
+        return real * real + imaginary * imaginary;
     }
 
     /**
