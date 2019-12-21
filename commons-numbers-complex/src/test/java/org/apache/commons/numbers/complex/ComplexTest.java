@@ -123,6 +123,21 @@ public class ComplexTest {
     }
 
     @Test
+    public void testPolarConstructorAbsArg() {
+        // The test should work with any seed but use a fixed seed to avoid build instability.
+        final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64, 678678638L);
+        for (int i = 0; i < 10; i++) {
+            final double rho = rng.nextDouble();
+            // Range (pi, pi]: lower exclusive, upper inclusive
+            final double theta = pi - rng.nextDouble() * 2 * pi;
+            final Complex z = Complex.ofPolar(rho, theta);
+            // Match within 1 ULP
+            Assertions.assertEquals(rho, z.abs(), Math.ulp(rho));
+            Assertions.assertEquals(theta, z.arg(), Math.ulp(theta));
+        }
+    }
+
+    @Test
     public void testCisConstructor() {
         final double x = 0.12345;
         final Complex z = Complex.ofCis(x);
