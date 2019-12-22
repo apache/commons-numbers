@@ -119,7 +119,7 @@ public final class Complex implements Serializable  {
      *
      * @see <a href="http://en.wikipedia.org/wiki/Machine_epsilon">Machine epsilon</a>
      */
-    public static final double EPSILON = Double.longBitsToDouble((EXPONENT_OFFSET - 53L) << 52);
+    private static final double EPSILON = Double.longBitsToDouble((EXPONENT_OFFSET - 53L) << 52);
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20180201L;
