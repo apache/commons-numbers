@@ -290,7 +290,7 @@ public class CStandardTest {
         if (!equals(t1.getReal(), t2.getReal()) ||
             !equals(t1.getImaginary(), t2.getImaginary())) {
             Assertions.fail(
-                String.format("Conjugate equality failed (z=%s). Expected: %s but was: %s (Sign specification = %s)",
+                String.format("Conjugate equality failed (z=%s). Expected: %s but was: %s (Unspecified sign = %s)",
                               z, c1, c2, sign));
         }
     }
@@ -364,7 +364,7 @@ public class CStandardTest {
         if (!equals(t1.getReal(), t2.getReal()) ||
             !equals(t1.getImaginary(), t2.getImaginary())) {
             Assertions.fail(
-                String.format("%s equality failed (z=%s, -z=%s). Expected: %s but was: %s (Sign specification = %s)",
+                String.format("%s equality failed (z=%s, -z=%s). Expected: %s but was: %s (Unspecified sign = %s)",
                               type, z, z.negate(), c1, c2, sign));
             new Exception().printStackTrace();
         }
@@ -479,7 +479,7 @@ public class CStandardTest {
         if (!equals(t1.getReal(), t2.getReal()) ||
             !equals(t1.getImaginary(), t2.getImaginary())) {
             Assertions.fail(
-                String.format("Operation failed (z=%s). Expected: %s but was: %s (Sign specification = %s)",
+                String.format("Operation failed (z=%s). Expected: %s but was: %s (Unspecified sign = %s)",
                               z, expected, c, sign));
         }
 
