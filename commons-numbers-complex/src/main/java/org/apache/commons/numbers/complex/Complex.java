@@ -2016,37 +2016,55 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Exp/">Exp</a>
      */
     public Complex exp() {
-        // Set the values used to compute exp(real) * cis(im)
-        double expReal;
-        double im = imaginary;
         if (Double.isInfinite(real)) {
+            // Set the scale factor applied to cis(y)
+            double zeroOrInf;
             if (real < 0) {
-                expReal = 0;
-                if (!Double.isFinite(im)) {
-                    // Preserve conjugate equality
-                    im = Math.copySign(1, im);
+                if (!Double.isFinite(imaginary)) {
+                    // (−∞ + i∞) or (−∞ + iNaN) returns (±0 ± i0) (where the signs of the
+                    // real and imaginary parts of the result are unspecified).
+                    // Here we preserve the conjugate equality.
+                    return new Complex(0, Math.copySign(0, imaginary));
                 }
+                // (−∞ + iy) returns +0 cis(y), for finite y
+                zeroOrInf = 0;
             } else {
-                if (im == 0 || !Double.isFinite(im)) {
-                    return Double.isInfinite(im) ?
-                        new Complex(real, Double.NaN) :
-                        this;
+                // (+∞ + i0) returns +∞ + i0.
+                if (imaginary == 0) {
+                    return this;
                 }
-                expReal = real;
+                // (+∞ + i∞) or (+∞ + iNaN) returns (±∞ + iNaN) and raises the invalid
+                // floating-point exception (where the sign of the real part of the
+                // result is unspecified).
+                if (!Double.isFinite(imaginary)) {
+                    return new Complex(real, Double.NaN);
+                }
+                // (+∞ + iy) returns (+∞ cis(y)), for finite nonzero y.
+                zeroOrInf = real;
             }
-        } else if (imaginary == 0) {
-            // Real-only number
-            return Double.isNaN(real) ?
-                this :
-                new Complex(Math.exp(real), imaginary);
+            return new Complex(zeroOrInf * Math.cos(imaginary),
+                               zeroOrInf * Math.sin(imaginary));
         } else if (Double.isNaN(real)) {
+            // (NaN + i0) returns (NaN + i0);
+            // (NaN + iy) returns (NaN + iNaN) and optionally raises the invalid floating-point exception
+            // (NaN + iNaN) returns (NaN + iNaN)
+            return imaginary == 0 ? this : NAN;
+        } else if (!Double.isFinite(imaginary)) {
+            // (x + i∞) or (x + iNaN) returns (NaN + iNaN) and raises the invalid
+            // floating-point exception, for finite x.
             return NAN;
-        } else {
-            // real is finite
-            expReal = Math.exp(real);
         }
-        return new Complex(expReal * Math.cos(im),
-                           expReal * Math.sin(im));
+        // real and imaginary are finite.
+        // Compute e^a * (cos(b) + i sin(b)).
+
+        // Special case:
+        // (±0 + i0) returns (1 + i0)
+        final double exp = Math.exp(real);
+        if (imaginary == 0) {
+            return new Complex(exp, imaginary);
+        }
+        return new Complex(exp * Math.cos(imaginary),
+                           exp * Math.sin(imaginary));
     }
 
     /**
@@ -2105,6 +2123,12 @@ public final class Complex implements Serializable  {
      * @see #arg()
      */
     private Complex log(UnaryOperation log, double logOf2, ComplexConstructor constructor) {
+        // TODO - Add edge cases with values for abs() close to 1
+        // These should be handled correctly.
+
+        // Change this to use a method based on glibc with detection of values of
+        // abs() close to 1 and switch to using log1p(abs - 1).
+
         // All ISO C99 edge cases satisfied by the Math library.
         // Make computation overflow safe.
 
@@ -2116,6 +2140,7 @@ public final class Complex implements Serializable  {
 
         // Use the safe region defined for atanh to avoid over/underflow for x^2
         if (inRegion(x, y, SAFE_LOWER, SAFE_UPPER)) {
+            //return constructor.create(log.apply(abs()), arg());
             return constructor.create(0.5 * log.apply(x * x + y * y), arg());
         }
 
