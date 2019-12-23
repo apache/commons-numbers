@@ -429,8 +429,8 @@ public class ComplexEdgeCaseTest {
         assertComplex(1, 1, nan, 1, name, operation, nan, nan);
         assertComplex(1, 1, 1, nan, name, operation, nan, nan);
 
-        // Test overflow
-        assertComplex(Double.MAX_VALUE, 1, 2, 0, name, operation, inf, inf);
-        assertComplex(1, Double.MAX_VALUE, 2, 0, name, operation, -inf, inf);
+        // Test overflow.
+        assertComplex(Double.MAX_VALUE, 1, 2, 2, name, operation, inf, -inf);
+        assertComplex(1, Double.MAX_VALUE, 2, 2, name, operation, -inf, inf);
     }
 }
