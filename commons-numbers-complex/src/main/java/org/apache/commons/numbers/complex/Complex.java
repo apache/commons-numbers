@@ -73,8 +73,16 @@ public final class Complex implements Serializable  {
     private static final int MASK_INT_TO_EVEN = ~0x1;
     /** Natural logarithm of 2 (ln(2)). */
     private static final double LN_2 = Math.log(2);
+    /** Base 10 logarithm of 10 divided by 2 (log10(e)/2). */
+    private static final double LOG_10E_O_2 = Math.log10(Math.E) / 2;
     /** Base 10 logarithm of 2 (log10(2)). */
     private static final double LOG10_2 = Math.log10(2);
+    /** {@code 1/2}. */
+    private static final double HALF = 0.5;
+    /** {@code sqrt(2)}. */
+    private static final double ROOT2 = Math.sqrt(2);
+    /** The number of bits of precision of the mantissa of a {@code double} + 1: {@code 54}. */
+    private static final double PRECISION_1 = 54;
 
     /**
      * Crossover point to switch computation for asin/acos factor A.
@@ -2076,6 +2084,13 @@ public final class Complex implements Serializable  {
      *   ln(a + b i) = ln(|a + b i|) + i arg(a + b i)
      * </pre>
      *
+     * <p>The implementation is based on the method described in:</p>
+     * <blockquote>
+     * T E Hull, Thomas F Fairgrieve and Ping Tak Peter Tang (1994)
+     * Implementing complex elementary functions using exception handling.
+     * ACM Transactions on Mathematical Software, Vol 20, No 2, pp 215-244.
+     * </blockquote>
+     *
      * @return the natural logarithm of {@code this}.
      * @see Math#log(double)
      * @see #abs()
@@ -2083,7 +2098,7 @@ public final class Complex implements Serializable  {
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Log/">Log</a>
      */
     public Complex log() {
-        return log(Math::log, LN_2, Complex::ofCartesian);
+        return log(Math::log, HALF, LN_2, Complex::ofCartesian);
     }
 
     /**
@@ -2101,7 +2116,7 @@ public final class Complex implements Serializable  {
      * @see #arg()
      */
     public Complex log10() {
-        return log(Math::log10, LOG10_2, Complex::ofCartesian);
+        return log(Math::log10, LOG_10E_O_2, LOG10_2, Complex::ofCartesian);
     }
 
     /**
@@ -2116,51 +2131,131 @@ public final class Complex implements Serializable  {
      * will be incorrect. This is provided as an internal optimisation.
      *
      * @param log Log function.
+     * @param logOfeOver2 The log function applied to e, then divided by 2.
      * @param logOf2 The log function applied to 2.
      * @param constructor Constructor for the returned complex.
      * @return the logarithm of {@code this}.
      * @see #abs()
      * @see #arg()
      */
-    private Complex log(UnaryOperation log, double logOf2, ComplexConstructor constructor) {
-        // TODO - Add edge cases with values for abs() close to 1
-        // These should be handled correctly.
-
-        // Change this to use a method based on glibc with detection of values of
-        // abs() close to 1 and switch to using log1p(abs - 1).
-
-        // All ISO C99 edge cases satisfied by the Math library.
-        // Make computation overflow safe.
-
-        // Note:
-        // log(|a + b i|) = log(sqrt(a^2 + b^2)) = 0.5 * log(a^2 + b^2)
-        // If real and imaginary are with a safe region then omit the sqrt().
-        final double x = Math.abs(real);
-        final double y = Math.abs(imaginary);
-
-        // Use the safe region defined for atanh to avoid over/underflow for x^2
-        if (inRegion(x, y, SAFE_LOWER, SAFE_UPPER)) {
-            //return constructor.create(log.apply(abs()), arg());
-            return constructor.create(0.5 * log.apply(x * x + y * y), arg());
+    private Complex log(UnaryOperation log, double logOfeOver2, double logOf2, ComplexConstructor constructor) {
+        // Handle NaN
+        if (Double.isNaN(real) || Double.isNaN(imaginary)) {
+            // Return NaN unless infinite
+            if (isInfinite()) {
+                return constructor.create(Double.POSITIVE_INFINITY, Double.NaN);
+            }
+            // No-use of the input constructor
+            return NAN;
         }
 
-        final double abs = abs();
-        if (abs == Double.POSITIVE_INFINITY && isFinite()) {
-            // Edge-case where the |a + b i| overflows.
-            // |a + b i| = sqrt(a^2 + b^2)
-            // This can be scaled linearly.
-            // Scale the absolute and exploit:
-            // ln(abs / scale) = ln(abs) - ln(scale)
-            // ln(abs) = ln(abs / scale) + ln(scale)
-            // Use precise scaling with:
-            // scale ~ 2^exponent
-            final int exponent = getMaxExponent(real, imaginary);
-            // Implement scaling using 2^-exponent
-            final double absOs = Math.hypot(Math.scalb(real, -exponent), Math.scalb(imaginary, -exponent));
-            // log(2^exponent) = ln2(2^exponent) * log(2)
-            return constructor.create(log.apply(absOs) + exponent * logOf2, arg());
+        // Compute the real part:
+        // log(sqrt(x^2 + y^2))
+        // log(x^2 + y^2) / 2
+
+        // Compute with positive values
+        double x = Math.abs(real);
+        double y = Math.abs(imaginary);
+
+        // Find the larger magnitude.
+        if (x < y) {
+            double tmp = x;
+            x = y;
+            y = tmp;
         }
-        return constructor.create(log.apply(abs), arg());
+
+        if (x == 0) {
+            // Handle zero: raises the ‘‘divide-by-zero’’ floating-point exception.
+            return constructor.create(Double.NEGATIVE_INFINITY,
+                                      negative(real) ? Math.copySign(Math.PI, imaginary) : imaginary);
+        }
+
+        double re;
+
+        if (x > HALF && x < ROOT2) {
+            // x^2+y^2 close to 1. Use log1p(x^2+y^2 - 1) / 2.
+            re = Math.log1p(x2y2m1(x, y)) * logOfeOver2;
+        } else if (y == 0) {
+            // Handle real only number
+            re = log.apply(x);
+        } else if (x > SAFE_MAX || x < SAFE_MIN || y < SAFE_MIN) {
+            // Over/underflow of sqrt(x^2+y^2)
+            if (isPosInfinite(x)) {
+                // Handle infinity
+                re = x;
+            } else {
+                // Do scaling
+                int expx = Math.getExponent(x);
+                int expy = Math.getExponent(y);
+                if (2 * (expx - expy) > PRECISION_1) {
+                    // y can be ignored
+                    re = log.apply(x);
+                } else {
+                    // Hull et al:
+                    // "It is important that the scaling be chosen so
+                    // that there is no possibility of cancellation in this addition"
+                    // i.e. sx^2 + sy^2 should not be close to 1.
+                    // Their paper uses expx + 2 for underflow but expx for overflow.
+                    // It has been modified here to use expx - 2.
+                    int scale;
+                    if (x > SAFE_MAX) {
+                        // overflow
+                        scale = expx - 2;
+                    } else {
+                        // underflow
+                        scale = expx + 2;
+                    }
+                    double sx = Math.scalb(x, -scale);
+                    double sy = Math.scalb(y, -scale);
+                    re = scale * logOf2 + 0.5 * log.apply(sx * sx + sy * sy);
+                }
+            }
+        } else {
+            // Safe region that avoids under/overflow
+            re = 0.5 * log.apply(x * x + y * y);
+        }
+
+        // All ISO C99 edge cases for the imaginary are satisfied by the Math library.
+        return constructor.create(re, arg());
+    }
+
+    /**
+     * Compute {@code x^2 + y^2 - 1} in high precision.
+     * Assumes that the values x and y can be multiplied without overflow; that
+     * {@code x >= y}; and both values are positive.
+     *
+     * @param x the x value
+     * @param y the y value
+     * @return {@code x^2 + y^2 - 1}
+     */
+    private static double x2y2m1(double x, double y) {
+        // Hull et al used (x-1)*(x+1)+y*y.
+        // From the paper on page 236:
+
+        // If x == 1 there is no cancellation.
+
+        // If x > 1, there is also no cancellation, but the argument is now accurate
+        // only to within a factor of 1 + 3 EPSILSON (note that x – 1 is exact),
+        // so that error = 3 EPSILON.
+
+        // If x < 1, there can be serious cancellation:
+
+        // If 4 y^2 < |x^2 – 1| the cancellation is not serious ... the argument is accurate
+        // only to within a factor of 1 + 4 EPSILSON so that error = 4 EPSILON.
+
+        // Otherwise there can be serious cancellation and the relative error in the real part
+        // could be enormous.
+
+        // TODO - investigate the computation in high precision using
+        // LinearCombination#value(double, double, double, double, double, double)
+        // from o.a.c.numbers.arrays.
+        final double xm1xp1 = (x - 1) * (x + 1);
+        final double yy = y * y;
+        if (x < 1 && 4 * yy > Math.abs(xm1xp1)) {
+            // Large relative error...
+            return xm1xp1 + yy;
+        }
+        return xm1xp1 + yy;
     }
 
     /**

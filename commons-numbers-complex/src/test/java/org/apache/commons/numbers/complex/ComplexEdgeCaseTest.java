@@ -20,6 +20,7 @@ package org.apache.commons.numbers.complex;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
 
@@ -344,9 +345,88 @@ public class ComplexEdgeCaseTest {
         assertComplex(-Double.MAX_VALUE, Double.MAX_VALUE / 4, name, operation, 7.098130252042921e2, 2.896613990462929);
         assertComplex(Double.MAX_VALUE, Double.MAX_VALUE / 4, name, operation, 7.098130252042921e2, 2.449786631268641e-1, 2);
 
-        // Underflow if sqrt(a^2 + b^2) == 0
-        assertComplex(-Double.MIN_VALUE, Double.MIN_VALUE, name, operation, -744.44007192138122, 2.3561944901923448);
-        assertComplex(Double.MIN_VALUE, Double.MIN_VALUE, name, operation, -744.44007192138122, 0.78539816339744828);
+        // Underflow if sqrt(a^2 + b^2) -> 0
+        assertComplex(-Double.MIN_NORMAL, Double.MIN_NORMAL, name, operation, -708.04984494198413, 2.3561944901923448);
+        assertComplex(Double.MIN_NORMAL, Double.MIN_NORMAL, name, operation, -708.04984494198413, 0.78539816339744828);
+        // Math.hypot(min, min) = min.
+        // To compute the expected result do scaling of the actual hypot = sqrt(2).
+        // log(a/n) = log(a) - log(n)
+        // n = 2^1074 => log(a) - log(2) * 1074
+        double expected = Math.log(Math.sqrt(2)) - Math.log(2) * 1074;
+        assertComplex(-Double.MIN_VALUE, Double.MIN_VALUE, name, operation, expected, Math.atan2(1, -1));
+        expected = Math.log(Math.sqrt(5)) - Math.log(2) * 1074;
+        assertComplex(-Double.MIN_VALUE, 2 * Double.MIN_VALUE, name, operation, expected, Math.atan2(2, -1));
+
+        // Imprecision if sqrt(a^2 + b^2) == 1 as log(1) is 0.
+        // Method should switch to using log1p(x^2 + x^2 - 1) * 0.5.
+
+        // In the following:
+        // max = max(real, imaginary)
+        // min = min(real, imaginary)
+
+        // No cancellation error when max > 1
+
+        assertLog(1.0001, Math.sqrt(1.2 - 1.0001 * 1.0001), 1);
+        assertLog(1.0001, Math.sqrt(1.1 - 1.0001 * 1.0001), 2);
+        assertLog(1.0001, Math.sqrt(1.02 - 1.0001 * 1.0001), 6);
+
+        // Cancellation error when max < 1.
+        // The ULPs may need to be revised if the log() method is improved.
+
+        // Hard: 4 * min^2 < |max^2 - 1|
+        assertLog(0.9, 0.00001, 3);
+        assertLog(0.95, 0.00001, 8);
+
+        // Very hard: 4 * min^2 > |max^2 - 1|
+
+        // Radius 0.99
+        assertLog(0.97, Math.sqrt(0.99 - 0.97 * 0.97), 30);
+        // Radius 1.01
+        assertLog(0.97, Math.sqrt(1.01 - 0.97 * 0.97), 34);
+
+        // Massive relative error
+        // Radius 0.9999
+        assertLog(0.97, Math.sqrt(0.9999 - 0.97 * 0.97), 3639);
+
+        // This code is for demonstration purposes.
+
+//        // Demonstrate relative error using
+//        // cis numbers on a 1/8 circle with a set radius.
+//        int steps = 10;
+//        for (double radius : new double[] {0.99, 1.0, 1.01}) {
+//            for (int i = 1; i < steps; i++) {
+//                double theta = i * Math.PI / (8 * steps);
+//                assertLog(radius * Math.sin(theta), radius * Math.cos(theta), -1);
+//            }
+//        }
+//
+//        // Extreme. Here for documentation of the relative error.
+//        double up1 = Math.nextUp(1.0);
+//        double down1 = Math.nextDown(1.0);
+//        assertLog(up1, Double.MIN_NORMAL, -1);
+//        assertLog(up1, Double.MIN_VALUE, -1);
+//        assertLog(down1, Double.MIN_NORMAL, -1);
+//        assertLog(down1, Double.MIN_VALUE, -1);
+    }
+
+    /**
+     * Assert the Complex log function using BigDecimal to compute the field norm
+     * {@code x*x + y*y} and then {@link Math#log1p(double)} to compute the log of
+     * the modulus \ using {@code 0.5 * log1p(x*x + y*y - 1)}. This test is for the
+     * extreme case for performance around {@code sqrt(x*x + y*y) = 1} where using
+     * {@link Math#log(double)} will fail dramatically.
+     *
+     * @param x the real value of the complex
+     * @param y the imaginary value of the complex
+     * @param maxUlps the maximum units of least precision between the two values
+     */
+    private static void assertLog(double x, double y, long maxUlps) {
+        // Compute the best value we can
+        BigDecimal bx = BigDecimal.valueOf(x);
+        BigDecimal by = BigDecimal.valueOf(y);
+        double real = 0.5 * Math.log1p(bx.multiply(bx).add(by.multiply(by)).subtract(BigDecimal.ONE).doubleValue());
+        double imag = Math.atan2(y, x);
+        assertComplex(x, y, "log", Complex::log, real, imag, maxUlps);
     }
 
     @Test
