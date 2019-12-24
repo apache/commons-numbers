@@ -113,21 +113,6 @@ public final class Complex implements Serializable  {
      * Equal to sqrt(u) * 2 with u the smallest normalised floating-point value.
      */
     private static final double SAFE_LOWER = Math.sqrt(Double.MIN_NORMAL) * 2;
-    /** Exponent offset in IEEE754 representation. */
-    private static final long EXPONENT_OFFSET = 1023L;
-    /**
-     * Largest double-precision floating-point number such that
-     * {@code 1 + EPSILON} is numerically equal to 1. This value is an upper
-     * bound on the relative error due to rounding real numbers to double
-     * precision floating-point numbers.
-     *
-     * <p>In IEEE 754 arithmetic, this is 2<sup>-53</sup>.</p>
-     *
-     * <p>Copied from o.a.c.numbers.core.Precision
-     *
-     * @see <a href="http://en.wikipedia.org/wiki/Machine_epsilon">Machine epsilon</a>
-     */
-    private static final double EPSILON = Double.longBitsToDouble((EXPONENT_OFFSET - 53L) << 52);
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20180201L;
@@ -1431,7 +1416,7 @@ public final class Complex implements Serializable  {
                 }
             } else {
                 // Hull et al: Exception handling code from figure 6
-                if (y <= (EPSILON * Math.abs(xm1))) {
+                if (y <= (Precision.EPSILON * Math.abs(xm1))) {
                     if (x < 1) {
                         re = Math.acos(x);
                         im = y / Math.sqrt(xp1 * (1 - x));
@@ -1456,7 +1441,7 @@ public final class Complex implements Serializable  {
                     // u = Double.MIN_NORMAL
                     re = Math.sqrt(y);
                     im = Math.sqrt(y);
-                } else if (EPSILON * y - 1 >= x) {
+                } else if (Precision.EPSILON * y - 1 >= x) {
                     re = PI_OVER_2;
                     im = LN_2 + Math.log(y);
                 } else if (x > 1) {
@@ -1603,7 +1588,7 @@ public final class Complex implements Serializable  {
                 }
             } else {
                 // Hull et al: Exception handling code from figure 3
-                if (y <= (EPSILON * Math.abs(xm1))) {
+                if (y <= (Precision.EPSILON * Math.abs(xm1))) {
                     if (x < 1) {
                         re = Math.asin(x);
                         im = y / Math.sqrt(-xp1 * xm1);
@@ -1625,7 +1610,7 @@ public final class Complex implements Serializable  {
                     // u = Double.MIN_NORMAL
                     re = PI_OVER_2 - Math.sqrt(y);
                     im = Math.sqrt(y);
-                } else if (EPSILON * y - 1 >= x) {
+                } else if (Precision.EPSILON * y - 1 >= x) {
                     // Possible underflow:
                     re = x / y;
                     im = LN_2 + Math.log(y);
