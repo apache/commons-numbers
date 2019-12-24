@@ -107,7 +107,7 @@ public final class TestUtils {
         } else if (Double.isInfinite(actual) || Double.isInfinite(expected)) {
             Assertions.assertEquals(expected, actual, relativeError);
         } else if (expected == 0.0) {
-            Assertions.assertEquals(actual, expected, relativeError, msg);
+            Assertions.assertEquals(expected, actual, relativeError, msg);
         } else {
             double absError = Math.abs(expected) * relativeError;
             Assertions.assertEquals(expected, actual, absError, msg);
