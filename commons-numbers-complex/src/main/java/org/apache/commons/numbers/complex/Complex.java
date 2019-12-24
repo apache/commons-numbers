@@ -2159,7 +2159,7 @@ public final class Complex implements Serializable  {
 
         // Find the larger magnitude.
         if (x < y) {
-            double tmp = x;
+            final double tmp = x;
             x = y;
             y = tmp;
         }
@@ -2185,8 +2185,8 @@ public final class Complex implements Serializable  {
                 re = x;
             } else {
                 // Do scaling
-                int expx = Math.getExponent(x);
-                int expy = Math.getExponent(y);
+                final int expx = Math.getExponent(x);
+                final int expy = Math.getExponent(y);
                 if (2 * (expx - expy) > PRECISION_1) {
                     // y can be ignored
                     re = log.apply(x);
@@ -2205,8 +2205,8 @@ public final class Complex implements Serializable  {
                         // underflow
                         scale = expx + 2;
                     }
-                    double sx = Math.scalb(x, -scale);
-                    double sy = Math.scalb(y, -scale);
+                    final double sx = Math.scalb(x, -scale);
+                    final double sy = Math.scalb(y, -scale);
                     re = scale * logOf2 + 0.5 * log.apply(sx * sx + sy * sy);
                 }
             }

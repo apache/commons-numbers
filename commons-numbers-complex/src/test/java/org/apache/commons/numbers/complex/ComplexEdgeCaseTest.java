@@ -139,10 +139,10 @@ public class ComplexEdgeCaseTest {
         // A medium value is used to test outside the range of the CReferenceTest.
         // The results have been generated using g++ -std=c++11 acos.
         // xp1 * xm1 will overflow:
-        double huge = Math.sqrt(Double.MAX_VALUE) * 2;
-        double big = Math.sqrt(Double.MAX_VALUE) / 8;
-        double medium = 100;
-        double small = Math.sqrt(Double.MIN_NORMAL) * 4;
+        final double huge = Math.sqrt(Double.MAX_VALUE) * 2;
+        final double big = Math.sqrt(Double.MAX_VALUE) / 8;
+        final double medium = 100;
+        final double small = Math.sqrt(Double.MIN_NORMAL) * 4;
         assertComplex(huge, big, name, operation, 0.06241880999595735, -356.27960012801969);
         assertComplex(huge, medium, name, operation, 3.7291703656001039e-153, -356.27765080781188);
         assertComplex(huge, small, name, operation, 2.2250738585072019e-308, -356.27765080781188);
@@ -172,10 +172,10 @@ public class ComplexEdgeCaseTest {
 
         // This method is essentially the same as acos and the edge cases are the same.
         // The results have been generated using g++ -std=c++11 asin.
-        double huge = Math.sqrt(Double.MAX_VALUE) * 2;
-        double big = Math.sqrt(Double.MAX_VALUE) / 8;
-        double medium = 100;
-        double small = Math.sqrt(Double.MIN_NORMAL) * 4;
+        final double huge = Math.sqrt(Double.MAX_VALUE) * 2;
+        final double big = Math.sqrt(Double.MAX_VALUE) / 8;
+        final double medium = 100;
+        final double small = Math.sqrt(Double.MIN_NORMAL) * 4;
         assertComplex(huge, big, name, operation, 1.5083775167989393, 356.27960012801969);
         assertComplex(huge, medium, name, operation, 1.5707963267948966, 356.27765080781188);
         assertComplex(huge, small, name, operation, 1.5707963267948966, 356.27765080781188);
@@ -209,9 +209,9 @@ public class ComplexEdgeCaseTest {
         // A medium value is used to test outside the range of the CReferenceTest.
         // It hits an edge case when x is big and y > 1.
         // The results have been generated using g++ -std=c++11 atanh.
-        double big = Math.sqrt(Double.MAX_VALUE) / 2;
-        double medium = 100;
-        double small = Math.sqrt(Double.MIN_NORMAL) * 2;
+        final double big = Math.sqrt(Double.MAX_VALUE) / 2;
+        final double medium = 100;
+        final double small = Math.sqrt(Double.MIN_NORMAL) * 2;
         assertComplex(big, big, name, operation, 7.4583407312002067e-155, 1.5707963267948966);
         assertComplex(big, medium, name, operation, 1.4916681462400417e-154, 1.5707963267948966);
         assertComplex(big, small, name, operation, 1.4916681462400417e-154, 1.5707963267948966);
@@ -235,9 +235,9 @@ public class ComplexEdgeCaseTest {
 
         // Implementation defers to java.util.Math.
         // Hit edge cases for extreme values.
-        double big = Double.MAX_VALUE;
-        double medium = 2;
-        double small = Double.MIN_NORMAL;
+        final double big = Double.MAX_VALUE;
+        final double medium = 2;
+        final double small = Double.MIN_NORMAL;
         assertComplex(big, big, name, operation, -inf, inf);
         assertComplex(big, medium, name, operation, -inf, inf);
         assertComplex(big, small, name, operation, inf, inf);
@@ -258,9 +258,9 @@ public class ComplexEdgeCaseTest {
 
         // Implementation defers to java.util.Math.
         // Hit edge cases for extreme values.
-        double big = Double.MAX_VALUE;
-        double medium = 2;
-        double small = Double.MIN_NORMAL;
+        final double big = Double.MAX_VALUE;
+        final double medium = 2;
+        final double small = Double.MIN_NORMAL;
         assertComplex(big, big, name, operation, -inf, inf);
         assertComplex(big, medium, name, operation, -inf, inf);
         assertComplex(big, small, name, operation, inf, inf);
@@ -422,10 +422,10 @@ public class ComplexEdgeCaseTest {
      */
     private static void assertLog(double x, double y, long maxUlps) {
         // Compute the best value we can
-        BigDecimal bx = BigDecimal.valueOf(x);
-        BigDecimal by = BigDecimal.valueOf(y);
-        double real = 0.5 * Math.log1p(bx.multiply(bx).add(by.multiply(by)).subtract(BigDecimal.ONE).doubleValue());
-        double imag = Math.atan2(y, x);
+        final BigDecimal bx = BigDecimal.valueOf(x);
+        final BigDecimal by = BigDecimal.valueOf(y);
+        final double real = 0.5 * Math.log1p(bx.multiply(bx).add(by.multiply(by)).subtract(BigDecimal.ONE).doubleValue());
+        final double imag = Math.atan2(y, x);
         assertComplex(x, y, "log", Complex::log, real, imag, maxUlps);
     }
 
