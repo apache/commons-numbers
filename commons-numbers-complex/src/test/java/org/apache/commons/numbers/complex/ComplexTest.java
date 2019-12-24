@@ -2052,7 +2052,7 @@ public class ComplexTest {
         final double ln10 = Math.log(10);
         final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
         for (int i = 0; i < 10; i++) {
-            final Complex z = Complex.ofCartesian(rng.nextDouble(), rng.nextDouble());
+            final Complex z = Complex.ofCartesian(rng.nextDouble() * 2, rng.nextDouble() * 2);
             final Complex lnz = z.log();
             final Complex log10z = z.log10();
             // This is prone to floating-point error so use a delta
