@@ -571,8 +571,8 @@ public class ComplexTest {
         final Complex act = z.reciprocal();
         final double expRe = 5.0 / 61.0;
         final double expIm = -6.0 / 61.0;
-        Assertions.assertEquals(expRe, act.getReal(), Math.ulp(expRe));
-        Assertions.assertEquals(expIm, act.getImaginary(), Math.ulp(expIm));
+        Assertions.assertEquals(expRe, act.getReal());
+        Assertions.assertEquals(expIm, act.getImaginary());
     }
 
     @Test
@@ -602,13 +602,28 @@ public class ComplexTest {
     }
 
     @Test
-    public void testReciprocalMax() {
-        // This hits the edge case in reciprocal() for when q != 0 but scale == 0
-        final double smaller = Math.nextDown(Double.MAX_VALUE);
-        Complex z = Complex.ofCartesian(smaller, Double.MAX_VALUE);
-        Assertions.assertEquals(Complex.ofCartesian(0.0, -0.0), z.reciprocal());
-        z = Complex.ofCartesian(Double.MAX_VALUE, smaller);
-        Assertions.assertEquals(Complex.ofCartesian(0.0, -0.0), z.reciprocal());
+    public void testReciprocalZero() {
+        final Complex z = Complex.ZERO.reciprocal();
+        Assertions.assertEquals(inf, z.getReal());
+        Assertions.assertEquals(nan, z.getImaginary());
+    }
+
+    @Test
+    public void testReciprocalMatchesDivide() {
+        final double[] parts = {Double.NEGATIVE_INFINITY, -1, -0.0, 0.0, 1, Math.PI, Double.POSITIVE_INFINITY, Double.NaN};
+        for (final double x : parts) {
+            for (final double y : parts) {
+                final Complex z = Complex.ofCartesian(x, y);
+                Assertions.assertEquals(Complex.ONE.divide(z), z.reciprocal(), () -> z.toString());
+            }
+        }
+        final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
+        for (int i = 0; i < 10; i++) {
+            final double x = -1 + rng.nextDouble() * 2;
+            final double y = -1 + rng.nextDouble() * 2;
+            final Complex z = Complex.ofCartesian(x, y);
+            Assertions.assertEquals(Complex.ONE.divide(z), z.reciprocal());
+        }
     }
 
     @Test

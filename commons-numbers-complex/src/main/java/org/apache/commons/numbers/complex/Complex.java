@@ -748,30 +748,22 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Returns the multiplicative inverse of this instance.
+     * Returns the multiplicative inverse of this instance \( z \).
+     * \[ \frac{1}{z} = \frac{1}{a + i b} = \frac{a}{a^2+b^2} - i \frac{b}{a^2+b^2} \]
+     * This method produces the same result as:
+     * <pre>
+     *  Complex.ONE.divide(this)
+     * </pre>
      *
      * @return {@code 1 / this}.
      * @see #divide(Complex)
      */
     public Complex reciprocal() {
-        if (Math.abs(real) < Math.abs(imaginary)) {
-            final double q = real / imaginary;
-            final double scale = 1.0 / (real * q + imaginary);
-            double scaleQ = 0;
-            if (q != 0 &&
-                scale != 0) {
-                scaleQ = scale * q;
-            }
-            return new Complex(scaleQ, -scale);
-        }
-        final double q = imaginary / real;
-        final double scale = 1.0 / (imaginary * q + real);
-        double scaleQ = 0;
-        if (q != 0 &&
-            scale != 0) {
-            scaleQ = scale * q;
-        }
-        return new Complex(scale, -scaleQ);
+        // Note that this cannot be optimised assuming a=1 and b=0.
+        // These preserve compatibility with the divide method:
+        // 1. create NaNs for infinite parts c or d: 0.0 * inf = nan
+        // 2. maintain signs when either c or d are negative signed and the other part is zero
+        return divide(1.0, 0.0, real, imaginary);
     }
 
     /**
