@@ -1587,11 +1587,11 @@ public final class Complex implements Serializable  {
                     im = Math.log(a + Math.sqrt(a * a - 1));
                 }
             } else {
-                // Hull et al: Exception handling code from figure 3
+                // Hull et al: Exception handling code from figure 4
                 if (y <= (Precision.EPSILON * Math.abs(xm1))) {
                     if (x < 1) {
                         re = Math.asin(x);
-                        im = y / Math.sqrt(-xp1 * xm1);
+                        im = y / Math.sqrt(xp1 * (1 - x));
                     } else {
                         re = PI_OVER_2;
                         if ((Double.MAX_VALUE / xp1) > xm1) {
