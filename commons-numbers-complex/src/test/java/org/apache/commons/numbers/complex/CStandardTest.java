@@ -588,13 +588,14 @@ public class CStandardTest {
     }
 
     /**
-     * Checks if the complex is zero.
+     * Checks if the complex is zero. This method uses the {@code ==} operator and allows
+     * equality between signed zeros: {@code -0.0 == 0.0}.
      *
      * @param c the complex
      * @return true if zero
      */
     private static boolean isZero(Complex c) {
-        return Complex.equals(c, Complex.ZERO, 0);
+        return c.getReal() == 0 && c.getImaginary() == 0;
     }
 
     /**
