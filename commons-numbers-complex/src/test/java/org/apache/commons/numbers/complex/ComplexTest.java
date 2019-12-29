@@ -566,67 +566,6 @@ public class ComplexTest {
     }
 
     @Test
-    public void testReciprocal() {
-        final Complex z = Complex.ofCartesian(5.0, 6.0);
-        final Complex act = z.reciprocal();
-        final double expRe = 5.0 / 61.0;
-        final double expIm = -6.0 / 61.0;
-        Assertions.assertEquals(expRe, act.getReal());
-        Assertions.assertEquals(expIm, act.getImaginary());
-    }
-
-    @Test
-    public void testReciprocalReciprocal() {
-        final Complex z = Complex.ofCartesian(5.0, 6.0);
-        final Complex zRR = z.reciprocal().reciprocal();
-        final double tol = 1e-14;
-        Assertions.assertEquals(zRR.getReal(), z.getReal(), tol);
-        Assertions.assertEquals(zRR.getImaginary(), z.getImaginary(), tol);
-    }
-
-    @Test
-    public void testReciprocalReal() {
-        final Complex z = Complex.ofCartesian(-2.0, 0.0);
-        Assertions.assertTrue(Complex.equals(Complex.ofCartesian(-0.5, 0.0), z.reciprocal()));
-    }
-
-    @Test
-    public void testReciprocalImaginary() {
-        final Complex z = Complex.ofCartesian(0.0, -2.0);
-        Assertions.assertEquals(Complex.ofCartesian(0.0, 0.5), z.reciprocal());
-    }
-
-    @Test
-    public void testReciprocalNaN() {
-        Assertions.assertTrue(NAN.reciprocal().isNaN());
-    }
-
-    @Test
-    public void testReciprocalZero() {
-        final Complex z = Complex.ZERO.reciprocal();
-        Assertions.assertEquals(inf, z.getReal());
-        Assertions.assertEquals(nan, z.getImaginary());
-    }
-
-    @Test
-    public void testReciprocalMatchesDivide() {
-        final double[] parts = {Double.NEGATIVE_INFINITY, -1, -0.0, 0.0, 1, Math.PI, Double.POSITIVE_INFINITY, Double.NaN};
-        for (final double x : parts) {
-            for (final double y : parts) {
-                final Complex z = Complex.ofCartesian(x, y);
-                Assertions.assertEquals(Complex.ONE.divide(z), z.reciprocal(), () -> z.toString());
-            }
-        }
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
-        for (int i = 0; i < 10; i++) {
-            final double x = -1 + rng.nextDouble() * 2;
-            final double y = -1 + rng.nextDouble() * 2;
-            final Complex z = Complex.ofCartesian(x, y);
-            Assertions.assertEquals(Complex.ONE.divide(z), z.reciprocal());
-        }
-    }
-
-    @Test
     public void testMultiply() {
         final Complex x = Complex.ofCartesian(3.0, 4.0);
         final Complex y = Complex.ofCartesian(5.0, 6.0);
