@@ -85,6 +85,8 @@ public final class Complex implements Serializable  {
     private static final double ROOT2 = Math.sqrt(2);
     /** The number of bits of precision of the mantissa of a {@code double} + 1: {@code 54}. */
     private static final double PRECISION_1 = 54;
+    /** The bit representation of {@code -0.0}. */
+    private static final long NEGATIVE_ZERO_LONG_BITS = Double.doubleToLongBits(-0.0);
 
     /**
      * Crossover point to switch computation for asin/acos factor A.
@@ -2544,7 +2546,7 @@ public final class Complex implements Serializable  {
      * @return {@code true} if {@code d} is negative.
      */
     private static boolean negative(double d) {
-        return d < 0 || equals(d, -0.0);
+        return d < 0 || Double.doubleToLongBits(d) == NEGATIVE_ZERO_LONG_BITS;
     }
 
     /**
