@@ -413,15 +413,15 @@ public final class Complex implements Serializable  {
      * Returns the absolute value of this complex number. This is also called complex norm, modulus,
      * or magnitude.
      *
-     * \[ \text{abs}(a + i b) = \sqrt{(a^2 + b^2)} \]
+     * \[ \text{abs}(x + i y) = \sqrt{(x^2 + y^2)} \]
      *
      * <p>If either component is infinite then the result is positive infinity. If either
      * component is NaN and this is not {@link #isInfinite() infinite} then the result is NaN.
      *
      * <p>This code follows the
      * <a href="http://www.iso-9899.info/wiki/The_Standard">ISO C Standard</a>, Annex G,
-     * in calculating the returned value using the {@code hypot(a, b)} method for complex
-     * \( a + i b \).
+     * in calculating the returned value using the {@code hypot(x, y)} method for complex
+     * \( x + i y \).
      *
      * @return The absolute value.
      * @see #isInfinite()
@@ -438,7 +438,7 @@ public final class Complex implements Serializable  {
      * Returns the squared norm value of this complex number. This is also called the absolute
      * square.
      *
-     * \[ \text{norm}(a + i b) = a^2 + b^2 \]
+     * \[ \text{norm}(x + i y) = x^2 + y^2 \]
      *
      * <p>If either component is infinite then the result is positive infinity. If either
      * component is NaN and this is not {@link #isInfinite() infinite} then the result is NaN.
@@ -528,8 +528,8 @@ public final class Complex implements Serializable  {
      * <a href="http://mathworld.wolfram.com/ComplexConjugate.html">conjugate</a>
      * \( \overline{z} \) of this complex number \( z \).
      *
-     * \[ z           = a + i b \\
-     *   \overline{z} = a - i b \]
+     * \[ z           = x + i y \\
+     *   \overline{z} = x - i y \]
      *
      * @return The conjugate (\( \overline{z} \)) of this complex number.
      */
@@ -2018,7 +2018,7 @@ public final class Complex implements Serializable  {
      * Returns the logarithm of this complex number using the provided function.
      * Implements the formula:
      * <pre>
-     *   log(a +  bi) = log(|a + b i|) + i arg(a + b i)
+     *   log(x + i y) = log(|x + i y|) + i arg(x + i y)
      * </pre>
      *
      * <p>Warning: The argument {@code logOf2} must be equal to {@code log(2)} using the
@@ -2314,7 +2314,7 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Returns the square root of the complex number {@code sqrt(a + b i)}.
+     * Returns the square root of the complex number {@code sqrt(x + i y)}.
      *
      * @param real Real component.
      * @param imaginary Imaginary component.
