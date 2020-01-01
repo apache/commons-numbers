@@ -65,6 +65,7 @@ public class CStandardTest {
     private static final Complex nanInf = complex(nan, inf);
     private static final Complex nanNegInf = complex(nan, negInf);
     private static final Complex nanZero = complex(nan, 0);
+    private static final Complex nanPiTwo = complex(nan, piOverTwo);
     private static final Complex piTwoNaN = complex(piOverTwo, nan);
     private static final Complex piNegInf = complex(Math.PI, negInf);
     private static final Complex piTwoNegInf = complex(piOverTwo, negInf);
@@ -819,6 +820,9 @@ public class CStandardTest {
 
     /**
      * ISO C Standard G.6.2.1.
+     *
+     * @see <a href="http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1892.htm#dr_471">
+     *   Complex math functions cacosh and ctanh</a>
      */
     @Test
     public void testAcosh() {
@@ -829,7 +833,9 @@ public class CStandardTest {
         for (double x : finite) {
             assertComplex(complex(x, inf), operation, infPiTwo);
         }
-        for (double x : finite) {
+        assertComplex(zeroNaN, operation, nanPiTwo);
+        assertComplex(negZeroNaN, operation, nanPiTwo);
+        for (double x : nonZeroFinite) {
             assertComplex(complex(x, nan), operation, NAN);
         }
         for (double y : positiveFinite) {
@@ -974,6 +980,9 @@ public class CStandardTest {
 
     /**
      * ISO C Standard G.6.2.6.
+     *
+     * @see <a href="http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1892.htm#dr_471">
+     *   Complex math functions cacosh and ctanh</a>
      */
     @Test
     public void testTanh() {
@@ -982,10 +991,12 @@ public class CStandardTest {
         assertConjugateEquality(operation);
         assertFunctionType(operation, type);
         assertComplex(Complex.ZERO, operation, Complex.ZERO, type);
-        for (double x : finite) {
+        assertComplex(zeroInf, operation, zeroNaN, type);
+        for (double x : nonZeroFinite) {
             assertComplex(complex(x, inf), operation, NAN, type);
         }
-        for (double x : finite) {
+        assertComplex(zeroNaN, operation, zeroNaN, type);
+        for (double x : nonZeroFinite) {
             assertComplex(complex(x, nan), operation, NAN, type);
         }
         for (double y : positiveFinite) {

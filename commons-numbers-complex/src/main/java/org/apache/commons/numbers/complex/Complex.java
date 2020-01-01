@@ -1785,7 +1785,8 @@ public final class Complex implements Serializable  {
      * <li>{@code z.conj().acosh() == z.acosh().conj()}.
      * <li>If {@code z} is ±0 + i0, returns +0 + iπ/2.
      * <li>If {@code z} is x + i∞ for finite x, returns +∞ + iπ/2.
-     * <li>If {@code z} is x + iNaN for finite x, returns NaN + iNaN.
+     * <li>If {@code z} is 0 + iNaN, returns NaN + iπ/2 <sup>[1]</sup>.
+     * <li>If {@code z} is x + iNaN for finite non-zero x, returns NaN + iNaN.
      * <li>If {@code z} is −∞ + iy for positive-signed finite y, returns +∞ + iπ.
      * <li>If {@code z} is +∞ + iy for positive-signed finite y, returns +∞ + i0.
      * <li>If {@code z} is −∞ + i∞, returns +∞ + i3π/4.
@@ -1795,6 +1796,10 @@ public final class Complex implements Serializable  {
      * <li>If {@code z} is NaN + i∞, returns +∞ + iNaN.
      * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
      * </ul>
+     *
+     * <p>[1] This has been updated as per
+     * <a href="http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1892.htm#dr_471">
+     * DR 471: Complex math functions cacosh and ctanh</a>.
      *
      * <p>This function is computed using the trigonomic identity:
      *
@@ -1809,11 +1814,13 @@ public final class Complex implements Serializable  {
     public Complex acosh() {
         // Define in terms of acos
         // acosh(z) = +-i acos(z)
-        // Handle special case:
+        // Note the special case:
         // acos(+-0 + iNaN) = π/2 + iNaN
-        // acosh(x + iNaN) = NaN + iNaN for all finite x (including zero)
-        if (Double.isNaN(imaginary) && Double.isFinite(real)) {
-            return NAN;
+        // acosh(0 + iNaN) = NaN + iπ/2
+        // will not appropriately multiply by I to maintain positive imaginary if
+        // acos() imaginary computes as NaN. So do this explicitly.
+        if (Double.isNaN(imaginary) && real == 0) {
+            return new Complex(Double.NaN, PI_OVER_2);
         }
         return acos(real, imaginary, (re, im) ->
             // Set the sign appropriately for real >= 0
@@ -2517,6 +2524,8 @@ public final class Complex implements Serializable  {
         return tanh(-imaginary, real, Complex::multiplyNegativeI);
     }
 
+    // TODO
+
     /**
      * Returns the
      * <a href="http://mathworld.wolfram.com/HyperbolicTangent.html">
@@ -2535,8 +2544,10 @@ public final class Complex implements Serializable  {
      * <li>{@code z.conj().tanh() == z.tanh().conj()}.
      * <li>This is an odd function: \( \tanh(z) = -\tanh(-z) \).
      * <li>If {@code z} is +0 + i0, returns +0 + i0.
-     * <li>If {@code z} is x + i∞ for finite x, returns NaN + iNaN.
-     * <li>If {@code z} is x + iNaN for finite x, returns NaN + iNaN.
+     * <li>If {@code z} is 0 + i∞, returns 0 + iNaN.
+     * <li>If {@code z} is x + i∞ for finite non-zero x, returns NaN + iNaN.
+     * <li>If {@code z} is 0 + iNaN, returns 0 + iNAN.
+     * <li>If {@code z} is x + iNaN for finite non-zero x, returns NaN + iNaN.
      * <li>If {@code z} is +∞ + iy for positive-signed finite y, returns 1 + i0 sin(2y).
      * <li>If {@code z} is +∞ + i∞, returns 1 ± i0 (where the sign of the imaginary part of the result is unspecified).
      * <li>If {@code z} is +∞ + iNaN, returns 1 ± i0 (where the sign of the imaginary part of the result is unspecified).
@@ -2544,6 +2555,10 @@ public final class Complex implements Serializable  {
      * <li>If {@code z} is NaN + iy for all nonzero numbers y, returns NaN + iNaN.
      * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
      * </ul>
+     *
+     * <p>[1] This has been updated as per
+     * <a href="http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1892.htm#dr_471">
+     * DR 471: Complex math functions cacosh and ctanh</a>.
      *
      * <p>This is implemented using real \( x \) and imaginary \( y \) parts:
      *
@@ -2581,7 +2596,7 @@ public final class Complex implements Serializable  {
                 // Identity: sin x / (1 + cos x) = tan(x/2)
                 return constructor.create(real, Math.tan(imaginary));
             }
-            return constructor.create(Double.NaN, Double.NaN);
+            return constructor.create(real, Double.NaN);
         }
         if (imaginary == 0) {
             if (Double.isNaN(real)) {
