@@ -32,15 +32,15 @@ import org.apache.commons.numbers.core.Precision;
  *
  * <p>Arithmetic in this class conforms to the C99 standard for complex numbers
  * defined in ISO/IEC 9899, Annex G. All methods have been named using the equivalent
- * method in ISO C99.</p>
+ * method in ISO C99. The behaviour for special cases is listed as defined in C99.</p>
  *
- * <p>Operations ({@code op}) with no arguments obey the conjugate equality:</p>
- * <pre>z.op().conjugate() == z.conjugate().op()</pre>
+ * <p>For functions \( f \) which obey the conjugate equality \( conj(f(z)) = f(conj(z)) \),
+ * the specifications for the upper half-plane imply the specifications for the lower
+ * half-plane.</p>
  *
- * <p>Operations that are odd or even obey the equality:</p>
- *
- * <p>Odd: \( f(z) = -f(-z) \)
- * <p>Even: \( f(z) =  f(-z) \)
+ * <p>For functions that are either odd, \( f(z) = -f(-z) \), or even, \( f(z) =  f(-z) \)
+ * the specifications for the first quadrant imply the specifications for the other three
+ * quadrants.</p>
  *
  * @see <a href="http://www.open-std.org/JTC1/SC22/WG14/www/standards">
  *    ISO/IEC 9899 - Programming languages - C</a>
@@ -415,7 +415,7 @@ public final class Complex implements Serializable  {
      * Returns the absolute value of this complex number. This is also called complex norm, modulus,
      * or magnitude.
      *
-     * \[ \text{abs}(x + i y) = \sqrt{(x^2 + y^2)} \]
+     * <p>\[ \text{abs}(x + i y) = \sqrt{(x^2 + y^2)} \]
      *
      * <p>If either component is infinite then the result is positive infinity. If either
      * component is NaN and this is not {@link #isInfinite() infinite} then the result is NaN.
@@ -440,7 +440,7 @@ public final class Complex implements Serializable  {
      * Returns the squared norm value of this complex number. This is also called the absolute
      * square.
      *
-     * \[ \text{norm}(x + i y) = x^2 + y^2 \]
+     * <p>\[ \text{norm}(x + i y) = x^2 + y^2 \]
      *
      * <p>If either component is infinite then the result is positive infinity. If either
      * component is NaN and this is not {@link #isInfinite() infinite} then the result is NaN.
@@ -466,7 +466,7 @@ public final class Complex implements Serializable  {
      * Returns a {@code Complex} whose value is {@code (this + addend)}.
      * Implements the formula:
      *
-     * \[ (a + i b) + (c + i d) = (a + c) + i (b + d) \]
+     * <p>\[ (a + i b) + (c + i d) = (a + c) + i (b + d) \]
      *
      * @param  addend Value to be added to this complex number.
      * @return {@code this + addend}.
@@ -482,7 +482,7 @@ public final class Complex implements Serializable  {
      * with {@code addend} interpreted as a real number.
      * Implements the formula:
      *
-     * \[ (a + i b) + c = (a + c) + i b \]
+     * <p>\[ (a + i b) + c = (a + c) + i b \]
      *
      * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
      * real-only and complex numbers.</p>
@@ -506,7 +506,7 @@ public final class Complex implements Serializable  {
      * with {@code addend} interpreted as an imaginary number.
      * Implements the formula:
      *
-     * \[ (a + i b) + i d = a + i (b + d) \]
+     * <p>\[ (a + i b) + i d = a + i (b + d) \]
      *
      * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
      * imaginary-only and complex numbers.</p>
@@ -530,8 +530,8 @@ public final class Complex implements Serializable  {
      * <a href="http://mathworld.wolfram.com/ComplexConjugate.html">conjugate</a>
      * \( \overline{z} \) of this complex number \( z \).
      *
-     * \[ z           = x + i y \\
-     *   \overline{z} = x - i y \]
+     * <p>\[ z           = x + i y \\
+     *      \overline{z} = x - i y \]
      *
      * @return The conjugate (\( \overline{z} \)) of this complex number.
      */
@@ -543,7 +543,7 @@ public final class Complex implements Serializable  {
      * Returns a {@code Complex} whose value is {@code (this / divisor)}.
      * Implements the formula:
      *
-     * \[ \frac{a + i b}{c + i d} = \frac{(ac + bd) + i (bc - ad)}{c^2+d^2} \]
+     * <p>\[ \frac{a + i b}{c + i d} = \frac{(ac + bd) + i (bc - ad)}{c^2+d^2} \]
      *
      * <p>Re-calculates NaN result values to recover infinities as specified in C99 standard G.5.1.
      *
@@ -678,7 +678,8 @@ public final class Complex implements Serializable  {
      * Returns a {@code Complex} whose value is {@code (this / divisor)},
      * with {@code divisor} interpreted as a real number.
      * Implements the formula:
-     * \[ \frac{a + i b}{c} = \frac{a}{c} + i \frac{b}{c} \]
+     *
+     * <p>\[ \frac{a + i b}{c} = \frac{a}{c} + i \frac{b}{c} \]
      *
      * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
      * real-only and complex numbers.</p>
@@ -702,7 +703,8 @@ public final class Complex implements Serializable  {
      * Returns a {@code Complex} whose value is {@code (this / divisor)},
      * with {@code divisor} interpreted as an imaginary number.
      * Implements the formula:
-     * \[ \frac{a + i b}{id} = \frac{b}{d} - i \frac{a}{d} \]
+     *
+     * <p>\[ \frac{a + i b}{id} = \frac{b}{d} - i \frac{a}{d} \]
      *
      * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
      * imaginary-only and complex numbers.</p>
@@ -852,7 +854,8 @@ public final class Complex implements Serializable  {
     /**
      * Returns a {@code Complex} whose value is {@code this * factor}.
      * Implements the formula:
-     * \[ (a + i b)(c + i d) = (ac - bd) + i (ad + bc) \]
+     *
+     * <p>\[ (a + i b)(c + i d) = (ac - bd) + i (ad + bc) \]
      *
      * <p>Recalculates to recover infinities as specified in C99 standard G.5.1.
      *
@@ -992,7 +995,8 @@ public final class Complex implements Serializable  {
      * Returns a {@code Complex} whose value is {@code this * factor}, with {@code factor}
      * interpreted as a real number.
      * Implements the formula:
-     * \[ (a + i b) c =  (ac) + i (bc) \]
+     *
+     * <p>\[ (a + i b) c =  (ac) + i (bc) \]
      *
      * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
      * real-only and complex numbers.</p>
@@ -1016,7 +1020,8 @@ public final class Complex implements Serializable  {
      * Returns a {@code Complex} whose value is {@code this * factor}, with {@code factor}
      * interpreted as an imaginary number.
      * Implements the formula:
-     * \[ (a + i b) id = (-bd) + i (ad) \]
+     *
+     * <p>\[ (a + i b) id = (-bd) + i (ad) \]
      *
      * <p>This method can be used to compute the multiplication of this complex number \( z \)
      * by \( i \). This should be used in preference to
@@ -1056,7 +1061,8 @@ public final class Complex implements Serializable  {
     /**
      * Returns a {@code Complex} whose value is {@code (this - subtrahend)}.
      * Implements the formula:
-     * \[ (a + i b) - (c + i d) = (a - c) + i (b - d) \]
+     *
+     * <p>\[ (a + i b) - (c + i d) = (a - c) + i (b - d) \]
      *
      * @param  subtrahend Value to be subtracted from this complex number.
      * @return {@code this - subtrahend}.
@@ -1071,7 +1077,8 @@ public final class Complex implements Serializable  {
      * Returns a {@code Complex} whose value is {@code (this - subtrahend)},
      * with {@code subtrahend} interpreted as a real number.
      * Implements the formula:
-     * \[ (a + i b) - c = (a - c) + i b \]
+     *
+     * <p>\[ (a + i b) - c = (a - c) + i b \]
      *
      * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
      * real-only and complex numbers.</p>
@@ -1088,7 +1095,8 @@ public final class Complex implements Serializable  {
      * Returns a {@code Complex} whose value is {@code (this - subtrahend)},
      * with {@code subtrahend} interpreted as an imaginary number.
      * Implements the formula:
-     * \[ (a + i b) - i d = a + i (b - d) \]
+     *
+     * <p>\[ (a + i b) - i d = a + i (b - d) \]
      *
      * <p>This method is included for compatibility with ISO C99 which defines arithmetic between
      * imaginary-only and complex numbers.</p>
@@ -1151,10 +1159,31 @@ public final class Complex implements Serializable  {
      * Returns the
      * <a href="http://mathworld.wolfram.com/InverseCosine.html">
      * inverse cosine</a> of this complex number.
-     * \[ \cos^{-1}(z) = \frac{\pi}{2} + i \left(\ln{iz + \sqrt{1 - z^2}}\right) \]
      *
-     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:</p>
-     * \[ \cos^{-1}(z) = \cos^{-1}(B) - i\ \text{sgn}(y) \ln\left(A + \sqrt{A^2-1}\right) \\
+     * <p>\[ \cos^{-1}(z) = \frac{\pi}{2} + i \left(\ln{iz + \sqrt{1 - z^2}}\right) \]
+     *
+     * <p>The inverse cosine of \( z \) is in the range \( [0, \infty) \) along the real axis and
+     * in the range \( [-\pi, \pi] \) along the imaginary axis. Special cases:
+     *
+     * <ul>
+     * <li>{@code z.conj().acos() == z.acos().conj()}.
+     * <li>If {@code z} is ±0 + i0, returns π/2 − i0.
+     * <li>If {@code z} is ±0 + iNaN, returns π/2 + iNaN.
+     * <li>If {@code z} is x + i∞ for finite x, returns π/2 − i∞.
+     * <li>If {@code z} is x + iNaN, returns NaN + iNaN.
+     * <li>If {@code z} is −∞ + iy for positive-signed finite y, returns π − i∞.
+     * <li>If {@code z} is +∞ + iy for positive-signed finite y, returns +0 − i∞.
+     * <li>If {@code z} is −∞ + i∞, returns 3π /4 − i∞.
+     * <li>If {@code z} is +∞ + i∞, returns π /4 − i∞.
+     * <li>If {@code z} is ±∞ + iNaN, returns NaN ± i∞ where the sign of the imaginary part of the result is unspecified.
+     * <li>If {@code z} is NaN + iy for finite y, returns NaN + iNaN.
+     * <li>If {@code z} is NaN + i∞, returns NaN − i∞.
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * </ul>
+     *
+     * <p>This function is implemented using real \( x \) and imaginary \( y \) parts:
+     *
+     * <p>\[ \cos^{-1}(z) = \cos^{-1}(B) - i\ \text{sgn}(y) \ln\left(A + \sqrt{A^2-1}\right) \\
      *   A = \frac{1}{2} \left[ \sqrt{(x+1)^2+y^2} + \sqrt{(x-1)^2+y^2} \right] \\
      *   B = \frac{1}{2} \left[ \sqrt{(x+1)^2+y^2} - \sqrt{(x-1)^2+y^2} \right] \]
      *
@@ -1311,10 +1340,16 @@ public final class Complex implements Serializable  {
      * Returns the
      * <a href="http://mathworld.wolfram.com/InverseSine.html">
      * inverse sine</a> of this complex number.
-     * \[ \sin^{-1}(z) = - i \left(\ln{iz + \sqrt{1 - z^2}}\right) \]
      *
-     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:</p>
-     * \[ \sin^{-1}(z) = \sin^{-1}(B) + i\ \text{sgn}(y)\ln \left(A + \sqrt{A^2-1} \right) \\
+     * <p>\[ \sin^{-1}(z) = - i \left(\ln{iz + \sqrt{1 - z^2}}\right) \]
+     *
+     * <p>The inverse sine of \( z \) is unbounded along the imaginary axis and
+     * in the range \( [-\pi, \pi] \) along the real axis. Special cases are handled
+     * as if the operation is implemented using \( \sin^{-1}(z) = -i \sinh^{-1}(iz) \).
+     *
+     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:
+     *
+     * <p>\[ \sin^{-1}(z) = \sin^{-1}(B) + i\ \text{sgn}(y)\ln \left(A + \sqrt{A^2-1} \right) \\
      *   A = \frac{1}{2} \left[ \sqrt{(x+1)^2+y^2} + \sqrt{(x-1)^2+y^2} \right] \\
      *   B = \frac{1}{2} \left[ \sqrt{(x+1)^2+y^2} - \sqrt{(x-1)^2+y^2} \right] \]
      *
@@ -1476,7 +1511,8 @@ public final class Complex implements Serializable  {
      * Returns the
      * <a href="http://mathworld.wolfram.com/InverseTangent.html">
      * inverse tangent</a> of this complex number.
-     * \[ \tan^{-1}(z) = \frac{i}{2} \ln \left( \frac{i + z}{i - z} \right) \]
+     *
+     * <p>\[ \tan^{-1}(z) = \frac{i}{2} \ln \left( \frac{i + z}{i - z} \right) \]
      *
      * <p>As per the C99 standard this function is computed using the trigonomic identity:
      * \[ \tan^{-1}(z) = -i \tanh^{-1}(iz) \]
@@ -1495,12 +1531,30 @@ public final class Complex implements Serializable  {
      * Returns the
      * <a href="http://mathworld.wolfram.com/InverseHyperbolicSine.html">
      * inverse hyperbolic sine</a> of this complex number.
-     * \[ \sinh^{-1}(z) = \ln \left(z + \sqrt{1 + z^2} \right) \]
      *
-     * <p>This is an odd function: \( \sinh^{-1}(z) = -\sinh^{-1}(-z) \).
+     * <p>\[ \sinh^{-1}(z) = \ln \left(z + \sqrt{1 + z^2} \right) \]
+     *
+     * <p>The inverse hyperbolic sine of \( z \) is unbounded along the real axis and
+     * in the range \( [-\pi, \pi] \) along the imaginary axis. Special cases:
+     *
+     * <ul>
+     * <li>{@code z.conj().asinh() == z.asinh().conj()}.
+     * <li>This is an odd function: \( \sinh^{-1}(z) = -\sinh^{-1}(-z) \).
+     * <li>If {@code z} is +0 + i0, returns 0 + i0.
+     * <li>If {@code z} is x + i∞ for positive-signed finite x, returns +∞ + iπ/2.
+     * <li>If {@code z} is x + iNaN for finite x, returns NaN + iNaN.
+     * <li>If {@code z} is +∞ + iy for positive-signed finite y, returns +∞ + i0.
+     * <li>If {@code z} is +∞ + i∞, returns +∞ + iπ/4.
+     * <li>If {@code z} is +∞ + iNaN, returns +∞ + iNaN.
+     * <li>If {@code z} is NaN + i0, returns NaN + i0.
+     * <li>If {@code z} is NaN + iy for finite nonzero y, returns NaN + iNaN.
+     * <li>If {@code z} is NaN + i∞, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified).
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * </ul>
      *
      * <p>This function is computed using the trigonomic identity:
-     * \[ \sinh^{-1}(z) = -i \sin^{-1}(iz) \]
+     *
+     * <p>\[ \sinh^{-1}(z) = -i \sin^{-1}(iz) \]
      *
      * @return The inverse hyperbolic sine of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcSinh/">ArcSinh</a>
@@ -1518,13 +1572,32 @@ public final class Complex implements Serializable  {
      * Returns the
      * <a href="http://mathworld.wolfram.com/InverseHyperbolicTangent.html">
      * inverse hyperbolic tangent</a> of this complex number.
-     * \[ \tanh^{-1}(z) = \frac{1}{2} \ln \left( \frac{1 + z}{1 - z} \right) \]
      *
-     * <p>This is an odd function: \( \tanh^{-1}(z) = -\tanh^{-1}(-z) \).
+     * <p>\[ \tanh^{-1}(z) = \frac{1}{2} \ln \left( \frac{1 + z}{1 - z} \right) \]
      *
-     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:</p>
-     * \[ \tanh^{-1}(z) = \frac{1}{4} \ln \left(1 + \frac{4x}{(1-x)^2+y^2} \right) + \\
-     *                    i \frac{1}{2} \left( \tan^{-1} \left(\frac{2y}{1-x^2-y^2} \right) + \frac{\pi}{2} \left(\text{sgn}(x^2+y^2-1)+1 \right) \text{sgn}(y) \right) \]
+     * <p>The inverse hyperbolic tangent of \( z \) is unbounded along the real axis and
+     * in the range \( [-\pi, \pi] \) along the imaginary axis. Special cases:
+     *
+     * <ul>
+     * <li>{@code z.conj().atanh() == z.atanh().conj()}.
+     * <li>This is an odd function: \( \tanh^{-1}(z) = -\tanh^{-1}(-z) \).
+     * <li>If {@code z} is +0 + i0, returns +0 + i0.
+     * <li>If {@code z} is +0 + iNaN, returns +0 + iNaN.
+     * <li>If {@code z} is +1 + i0, returns +∞ + i0.
+     * <li>If {@code z} is x + i∞ for finite positive-signed x, returns +0 + iπ /2.
+     * <li>If {@code z} is x+iNaN for nonzero finite x, returns NaN+iNaN.
+     * <li>If {@code z} is +∞ + iy for finite positive-signed y, returns +0 + iπ /2.
+     * <li>If {@code z} is +∞ + i∞, returns +0 + iπ /2.
+     * <li>If {@code z} is +∞ + iNaN, returns +0 + iNaN.
+     * <li>If {@code z} is NaN+iy for finite y, returns NaN+iNaN.
+     * <li>If {@code z} is NaN + i∞, returns ±0 + iπ /2 (where the sign of the real part of the result is unspecified).
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * </ul>
+     *
+     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:
+     *
+     * <p>\[ \tanh^{-1}(z) = \frac{1}{4} \ln \left(1 + \frac{4x}{(1-x)^2+y^2} \right) + \\
+     *                     i \frac{1}{2} \left( \tan^{-1} \left(\frac{2y}{1-x^2-y^2} \right) + \frac{\pi}{2} \left(\text{sgn}(x^2+y^2-1)+1 \right) \text{sgn}(y) \right) \]
      *
      * <p>The imaginary part is computed using {@link Math#atan2(double, double)} to ensure the
      * correct quadrant is returned from \( \tan^{-1} \left(\frac{2y}{1-x^2-y^2} \right) \).
@@ -1532,7 +1605,7 @@ public final class Complex implements Serializable  {
      * <p>The code has been adapted from the <a href="https://www.boost.org/">Boost</a>
      * {@code c++} implementation {@code <boost/math/complex/atanh.hpp>}. The function is well
      * defined over the entire complex number range, and produces accurate values even at the
-     * extremes due to special handling of overflow and underflow conditions.</p>
+     * extremes due to special handling of overflow and underflow conditions.
      *
      * @return The inverse hyperbolic tangent of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcTanh/">ArcTanh</a>
@@ -1702,13 +1775,33 @@ public final class Complex implements Serializable  {
      * Returns the
      * <a href="http://mathworld.wolfram.com/InverseHyperbolicCosine.html">
      * inverse hyperbolic cosine</a> of this complex number.
-     * \[ \cosh^{-1}(z) = \ln \left(z + \sqrt{z + 1} \sqrt{z - 1} \right) \]
      *
-     * <p>This function is computed using the trigonomic identity:</p>
-     * \[ \cosh^{-1}(z) = \pm i \cos^{-1}(z) \]
+     * <p>\[ \cosh^{-1}(z) = \ln \left(z + \sqrt{z + 1} \sqrt{z - 1} \right) \]
+     *
+     * <p>The inverse hyperbolic cosine of \( z \) is in the range \( [0, \infty) \) along the real axis and
+     * in the range \( [-\pi, \pi] \) along the imaginary axis. Special cases:
+     *
+     * <ul>
+     * <li>{@code z.conj().acosh() == z.acosh().conj()}.
+     * <li>If {@code z} is ±0 + i0, returns +0 + iπ/2.
+     * <li>If {@code z} is x + i∞ for finite x, returns +∞ + iπ/2.
+     * <li>If {@code z} is x + iNaN for finite x, returns NaN + iNaN.
+     * <li>If {@code z} is −∞ + iy for positive-signed finite y, returns +∞ + iπ.
+     * <li>If {@code z} is +∞ + iy for positive-signed finite y, returns +∞ + i0.
+     * <li>If {@code z} is −∞ + i∞, returns +∞ + i3π/4.
+     * <li>If {@code z} is +∞ + i∞, returns +∞ + iπ/4.
+     * <li>If {@code z} is ±∞ + iNaN, returns +∞ + iNaN.
+     * <li>If {@code z} is NaN + iy for finite y, returns NaN + iNaN.
+     * <li>If {@code z} is NaN + i∞, returns +∞ + iNaN.
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * </ul>
+     *
+     * <p>This function is computed using the trigonomic identity:
+     *
+     * <p>\[ \cosh^{-1}(z) = \pm i \cos^{-1}(z) \]
      *
      * <p>The sign of the multiplier is chosen to give {@code z.acosh().real() >= 0}
-     * and compatibility with the C99 standard.</p>
+     * and compatibility with the C99 standard.
      *
      * @return The inverse hyperbolic cosine of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcCosh/">ArcCosh</a>
@@ -1736,15 +1829,18 @@ public final class Complex implements Serializable  {
      * Returns the
      * <a href="http://mathworld.wolfram.com/Cosine.html">
      * cosine</a> of this complex number.
-     * \[ \cos(z) = \frac{1}{2} \left( e^{iz} + e^{-iz} \right) \]
+     *
+     * <p>\[ \cos(z) = \frac{1}{2} \left( e^{iz} + e^{-iz} \right) \]
      *
      * <p>This is an even function: \( \cos(z) = \cos(-z) \).
      *
-     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:</p>
-     * \[ \cos(x + iy) = \cos(x)\cosh(y) - i \sin(x)\sinh(y) \]
+     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:
      *
-     * <p>As per the C99 standard this function is computed using the trigonomic identity:</p>
-     * \[ cos(z) = cosh(iz) \]
+     * <p>\[ \cos(x + iy) = \cos(x)\cosh(y) - i \sin(x)\sinh(y) \]
+     *
+     * <p>As per the C99 standard this function is computed using the trigonomic identity:
+     *
+     * <p>\[ cos(z) = cosh(iz) \]
      *
      * @return The cosine of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Cos/">Cos</a>
@@ -1760,12 +1856,32 @@ public final class Complex implements Serializable  {
      * Returns the
      * <a href="http://mathworld.wolfram.com/HyperbolicCosine.html">
      * hyperbolic cosine</a> of this complex number.
-     * \[ \cosh(z) = \frac{1}{2} \left( e^{z} + e^{-z} \right) \]
      *
-     * <p>This is an even function: \( \cosh(z) = \cosh(-z) \).
+     * <p>\[ \cosh(z) = \frac{1}{2} \left( e^{z} + e^{-z} \right) \]
      *
-     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:</p>
-     * \[ \cosh(x + iy) = \cosh(x)\cos(y) + i \sinh(x)\sin(y) \]
+     * <p>The hyperbolic cosine of \( z \) is an entire function in the complex plane.
+     * and is periodic with respect to the imaginary component with period \( 2\pi i \).
+     *
+     * <ul>
+     * <li>{@code z.conj().cosh() == z.cosh().conj()}.
+     * <li>This is an even function: \( \cosh(z) = \cosh(-z) \).
+     * <li>If {@code z} is +0 + i0, returns 1 + i0.
+     * <li>If {@code z} is +0 + i∞, returns NaN ± i0 (where the sign of the imaginary part of the result is unspecified).
+     * <li>If {@code z} is +0 + iNaN, returns NaN ± i0 (where the sign of the imaginary part of the result is unspecified).
+     * <li>If {@code z} is x + i∞ for finite nonzero x, returns NaN + iNaN.
+     * <li>If {@code z} is x + iNaN for finite nonzero x, returns NaN + iNaN.
+     * <li>If {@code z} is +∞ + i0, returns +∞ + i0.
+     * <li>If {@code z} is +∞ + iy for finite nonzero y, returns +∞ cis(y) (see {@link #ofCis(double)}).
+     * <li>If {@code z} is +∞ + i∞, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified).
+     * <li>If {@code z} is +∞ + iNaN, returns +∞ + iNaN.
+     * <li>If {@code z} is NaN + i0, returns NaN ± i0 (where the sign of the imaginary part of the result is unspecified).
+     * <li>If {@code z} is NaN + iy for all nonzero numbers y, returns NaN + iNaN.
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * </ul>
+     *
+     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:
+     *
+     * <p>\[ \cosh(x + iy) = \cosh(x)\cos(y) + i \sinh(x)\sin(y) \]
      *
      * @return The hyperbolic cosine of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Cosh/">Cosh</a>
@@ -1808,10 +1924,32 @@ public final class Complex implements Serializable  {
      * Returns the
      * <a href="http://mathworld.wolfram.com/ExponentialFunction.html">
      * exponential function</a> of this complex number.
-     * \[ \exp(z) = e^z \]
+     *
+     * <p>\[ \exp(z) = e^z \]
+     *
+     * <p>The exponential function of \( z \) is an entire function in the complex plane.
+     * Special cases:
+     *
+     * <ul>
+     * <li>{@code z.conj().exp() == z.exp().conj()}.
+     * <li>If {@code z} is ±0 + i0, returns 1 + i0.
+     * <li>If {@code z} is x + i∞ for finite x, returns NaN + iNaN.
+     * <li>If {@code z} is x + iNaN for finite x, returns NaN + iNaN.
+     * <li>If {@code z} is +∞ + i0, returns +∞ + i0.
+     * <li>If {@code z} is −∞ + iy for finite y, returns +0 cis(y) (see {@link #ofCis(double)}).
+     * <li>If {@code z} is +∞ + iy for finite nonzero y, returns +∞ cis(y).
+     * <li>If {@code z} is −∞ + i∞, returns ±0 ± i0 (where the signs of the real and imaginary parts of the result are unspecified).
+     * <li>If {@code z} is +∞ + i∞, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified).
+     * <li>If {@code z} is −∞ + iNaN, returns ±0 ± i0 (where the signs of the real and imaginary parts of the result are unspecified).
+     * <li>If {@code z} is +∞ + iNaN, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified).
+     * <li>If {@code z} is NaN + i0, returns NaN + i0.
+     * <li>If {@code z} is NaN + iy for all nonzero numbers y, returns NaN + iNaN.
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * </ul>
      *
      * <p>Implements the formula:
-     * \[ \exp(x + iy) = e^x (\cos(y) + i \sin(y)) \]
+     *
+     * <p>\[ \exp(x + iy) = e^x (\cos(y) + i \sin(y)) \]
      *
      * @return <code>e<sup>this</sup></code>.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Exp/">Exp</a>
@@ -1872,8 +2010,29 @@ public final class Complex implements Serializable  {
      * Returns the
      * <a href="http://mathworld.wolfram.com/NaturalLogarithm.html">
      * natural logarithm</a> of this complex number.
-     * Implements the formula:
-     * \[ \ln(z) = \ln |z| + i \arg(z) \]
+     *
+     * <p>The natural logarithm of \( z \) is unbounded along the real axis and
+     * in the range \( [-\pi, \pi] \) along the imaginary axis. Special cases:
+     *
+     * <ul>
+     * <li>{@code z.conj().log() == z.log().conj()}.
+     * <li>If {@code z} is −0 + i0, returns −∞ + iπ.
+     * <li>If {@code z} is +0 + i0, returns −∞ + i0.
+     * <li>If {@code z} is x + i∞ for finite x, returns +∞ + iπ/2.
+     * <li>If {@code z} is x + iNaN for finite x, returns NaN + iNaN.
+     * <li>If {@code z} is −∞ + iy for finite positive-signed y, returns +∞ + iπ.
+     * <li>If {@code z} is +∞ + iy for finite positive-signed y, returns +∞ + i0.
+     * <li>If {@code z} is −∞ + i∞, returns +∞ + i3π/4.
+     * <li>If {@code z} is +∞ + i∞, returns +∞ + iπ/4.
+     * <li>If {@code z} is ±∞ + iNaN, returns +∞ + iNaN.
+     * <li>If {@code z} is NaN + iy for finite y, returns NaN + iNaN.
+     * <li>If {@code z} is NaN + i∞, returns +∞ + iNaN.
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * </ul>
+     *
+     * <p>Implements the formula:
+     *
+     * <p>\[ \ln(z) = \ln |z| + i \arg(z) \]
      *
      * <p>where \( |z| \) is the absolute and \( \arg(z) \) is the argument.
      *
@@ -1898,9 +2057,14 @@ public final class Complex implements Serializable  {
      * Returns the base 10
      * <a href="http://mathworld.wolfram.com/CommonLogarithm.html">
      * common logarithm</a> of this complex number.
-     * Implements the formula:
-     * Implements the formula:
-     * \[ \log_{10}(z) = \log_{10} |z| + i \arg(z) \]
+     *
+     * <p>The common logarithm of \( z \) is unbounded along the real axis and
+     * in the range \( [-\pi, \pi] \) along the imaginary axis. Special cases are as
+     * defined in the {@link #log() natural logarithm}:
+     *
+     * <p>Implements the formula:
+     *
+     * <p>\[ \log_{10}(z) = \log_{10} |z| + i \arg(z) \]
      *
      * <p>where \( |z| \) is the absolute and \( \arg(z) \) is the argument.
      *
@@ -2055,11 +2219,12 @@ public final class Complex implements Serializable  {
     /**
      * Returns the complex power of this complex number raised to the power of \( x \).
      * Implements the formula:
-     * \[ z^x = e^{x \ln(z)} \]
+     *
+     * <p>\[ z^x = e^{x \ln(z)} \]
      *
      * <p>If this complex number is zero then this method returns zero if \( x \) is positive
      * in the real component and zero in the imaginary component;
-     * otherwise it returns (NaN + i NaN).
+     * otherwise it returns NaN + iNaN.
      *
      * @param  x The exponent to which this complex number is to be raised.
      * @return <code>this<sup>x</sup></code>.
@@ -2087,10 +2252,11 @@ public final class Complex implements Serializable  {
     /**
      * Returns the complex power of this complex number raised to the power of \( x \).
      * Implements the formula:
-     * \[ z^x = e^{x \ln(z)} \]
+     *
+     * <p>\[ z^x = e^{x \ln(z)} \]
      *
      * <p>If this complex number is zero then this method returns zero if \( x \) is positive;
-     * otherwise it returns (NaN + i NaN).
+     * otherwise it returns NaN + iNaN.
      *
      * @param  x The exponent to which this complex number is to be raised.
      * @return <code>this<sup>x</sup></code>.
@@ -2118,15 +2284,18 @@ public final class Complex implements Serializable  {
      * Returns the
      * <a href="http://mathworld.wolfram.com/Sine.html">
      * sine</a> of this complex number.
-     * \[ \sin(z) = \frac{1}{2} i \left( e^{-iz} - e^{iz} \right) \]
+     *
+     * <p>\[ \sin(z) = \frac{1}{2} i \left( e^{-iz} - e^{iz} \right) \]
      *
      * <p>This is an odd function: \( \sin(z) = -\sin(-z) \).
      *
-     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:</p>
-     * \[ \sin(x + iy) = \sin(x)\cosh(y) + i \cos(x)\sinh(y) \]
+     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:
      *
-     * <p>As per the C99 standard this function is computed using the trigonomic identity:</p>
-     * \[ \sin(z) = -i \sinh(iz) \]
+     * <p>\[ \sin(x + iy) = \sin(x)\cosh(y) + i \cos(x)\sinh(y) \]
+     *
+     * <p>As per the C99 standard this function is computed using the trigonomic identity:
+     *
+     * <p>\[ \sin(z) = -i \sinh(iz) \]
      *
      * @return The sine of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Sin/">Sin</a>
@@ -2142,12 +2311,32 @@ public final class Complex implements Serializable  {
      * Returns the
      * <a href="http://mathworld.wolfram.com/HyperbolicSine.html">
      * hyperbolic sine</a> of this complex number.
-     * \[ \sinh(z) = \frac{1}{2} \left( e^{z} - e^{-z} \right) \]
      *
-     * <p>This is an odd function: \( \sinh(z) = -\sinh(-z) \).
+     * <p>\[ \sinh(z) = \frac{1}{2} \left( e^{z} - e^{-z} \right) \]
      *
-     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:</p>
-     * \[ \sinh(x + iy) = \sinh(x)\cos(y) + i \cosh(x)\sin(y) \]
+     * <p>The hyperbolic sine of \( z \) is an entire function in the complex plane.
+     * and is periodic with respect to the imaginary component with period \( 2\pi i \).
+     *
+     * <ul>
+     * <li>{@code z.conj().sinh() == z.sinh().conj()}.
+     * <li>This is an odd function: \( \sinh(z) = -\sinh(-z) \).
+     * <li>If {@code z} is +0 + i0, returns +0 + i0.
+     * <li>If {@code z} is +0 + i∞, returns ±0 + iNaN (where the sign of the real part of the result is unspecified).
+     * <li>If {@code z} is +0 + iNaN, returns ±0 + iNaN (where the sign of the real part of the result is unspecified).
+     * <li>If {@code z} is x + i∞ for positive finite x, returns NaN + iNaN.
+     * <li>If {@code z} is x + iNaN for finite nonzero x, returns NaN + iNaN.
+     * <li>If {@code z} is +∞ + i0, returns +∞ + i0.
+     * <li>If {@code z} is +∞ + iy for positive finite y, returns +∞ cis(y) (see {@link #ofCis(double)}.
+     * <li>If {@code z} is +∞ + i∞, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified).
+     * <li>If {@code z} is +∞ + iNaN, returns ±∞ + iNaN (where the sign of the real part of the result is unspecified).
+     * <li>If {@code z} is NaN + i0, returns NaN + i0.
+     * <li>If {@code z} is NaN + iy for all nonzero numbers y, returns NaN + iNaN.
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * </ul>
+     *
+     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:
+     *
+     * <p>\[ \sinh(x + iy) = \sinh(x)\cos(y) + i \cosh(x)\sin(y) \]
      *
      * @return The hyperbolic sine of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Sinh/">Sinh</a>
@@ -2183,7 +2372,24 @@ public final class Complex implements Serializable  {
      * Returns the
      * <a href="http://mathworld.wolfram.com/SquareRoot.html">
      * square root</a> of this complex number.
-     * \[ \sqrt{x + iy} = \frac{1}{2} \sqrt{2} \left( \sqrt{ \sqrt{x^2 + y^2} + x } + i\ \text{sgn}(y) \sqrt{ \sqrt{x^2 + y^2} - x } \right) \]
+     *
+     * <p>\[ \sqrt{x + iy} = \frac{1}{2} \sqrt{2} \left( \sqrt{ \sqrt{x^2 + y^2} + x } + i\ \text{sgn}(y) \sqrt{ \sqrt{x^2 + y^2} - x } \right) \]
+     *
+     * <p>The square root of \( z \) is in the range \( [0, +\infty) \) along the real axis and
+     * is unbounded along the imaginary axis. Special cases:
+     *
+     * <ul>
+     * <li>{@code z.conj().sqrt() == z.sqrt().conj()}.
+     * <li>If {@code z} is ±0 + i0, returns +0 + i0.
+     * <li>If {@code z} is x + i∞ for all x (including NaN), returns +∞ + i∞.
+     * <li>If {@code z} is x + iNaN for finite x, returns NaN + iNaN.
+     * <li>If {@code z} is −∞ + iy for finite positive-signed y, returns +0 + i∞.
+     * <li>If {@code z} is +∞ + iy for finite positive-signed y, returns +∞ + i0.
+     * <li>If {@code z} is −∞ + iNaN, returns NaN ± i∞ (where the sign of the imaginary part of the result is unspecified).
+     * <li>If {@code z} is +∞ + iNaN, returns +∞ + iNaN.
+     * <li>If {@code z} is NaN + iy for finite y, returns NaN + iNaN.
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * </ul>
      *
      * <p>Implements the following algorithm to compute \( \sqrt{x + iy} \):
      * <ol>
@@ -2290,7 +2496,8 @@ public final class Complex implements Serializable  {
      * Returns the
      * <a href="http://mathworld.wolfram.com/Tangent.html">
      * tangent</a> of this complex number.
-     * \[ \tan(z) = \frac{i(e^{-iz} - e^{iz})}{e^{-iz} + e^{iz}} \]
+     *
+     * <p>\[ \tan(z) = \frac{i(e^{-iz} - e^{iz})}{e^{-iz} + e^{iz}} \]
      *
      * <p>This is an odd function: \( \tan(z) = -\tan(-z) \).
      *
@@ -2314,12 +2521,33 @@ public final class Complex implements Serializable  {
      * Returns the
      * <a href="http://mathworld.wolfram.com/HyperbolicTangent.html">
      * hyperbolic tangent</a> of this complex number.
-     * \[ \tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}} \]
      *
-     * <p>This is an odd function: \( \tanh(z) = -\tanh(-z) \).
+     * <p>\[ \tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}} \]
      *
-     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:</p>
-     * \[ \tan(x + iy) = \frac{\sinh(2x)}{\cosh(2x)+\cos(2y)} + i \frac{\sin(2y)}{\cosh(2x)+\cos(2y)} \]
+     * <p>The hyperbolic tangent of \( z \) is an entire function in the complex plane.
+     * and is periodic with respect to the imaginary component with period \( \pi i \)
+     * and has poles of the first order along the imaginary line, at coordinates
+     * \( (0, \pi(\frac{1}{2} + n)) \).
+     * Note that the {@code double} floating-point representation is unable to exactly represent
+     * \( \pi/2 \) and there is no value for which a pole error occurs.
+     *
+     * <ul>
+     * <li>{@code z.conj().tanh() == z.tanh().conj()}.
+     * <li>This is an odd function: \( \tanh(z) = -\tanh(-z) \).
+     * <li>If {@code z} is +0 + i0, returns +0 + i0.
+     * <li>If {@code z} is x + i∞ for finite x, returns NaN + iNaN.
+     * <li>If {@code z} is x + iNaN for finite x, returns NaN + iNaN.
+     * <li>If {@code z} is +∞ + iy for positive-signed finite y, returns 1 + i0 sin(2y).
+     * <li>If {@code z} is +∞ + i∞, returns 1 ± i0 (where the sign of the imaginary part of the result is unspecified).
+     * <li>If {@code z} is +∞ + iNaN, returns 1 ± i0 (where the sign of the imaginary part of the result is unspecified).
+     * <li>If {@code z} is NaN + i0, returns NaN + i0.
+     * <li>If {@code z} is NaN + iy for all nonzero numbers y, returns NaN + iNaN.
+     * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
+     * </ul>
+     *
+     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:
+     *
+     * <p>\[ \tan(x + iy) = \frac{\sinh(2x)}{\cosh(2x)+\cos(2y)} + i \frac{\sin(2y)}{\cosh(2x)+\cos(2y)} \]
      *
      * @return The hyperbolic tangent of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Tanh/">Tanh</a>
@@ -2458,7 +2686,8 @@ public final class Complex implements Serializable  {
     /**
      * Returns the n-th roots of this complex number.
      * The nth roots are defined by the formula:
-     * \[ z_k = |z|^{\frac{1}{n}} \left( \cos \left(\phi + \frac{2\pi k}{n} \right) + i \sin \left(\phi + \frac{2\pi k}{n} \right) \right) \]
+     *
+     * <p>\[ z_k = |z|^{\frac{1}{n}} \left( \cos \left(\phi + \frac{2\pi k}{n} \right) + i \sin \left(\phi + \frac{2\pi k}{n} \right) \right) \]
      *
      * <p>for \( k=0, 1, \ldots, n-1 \), where \( |z| \) and \( \phi \)
      * are respectively the {@link #abs() modulus} and
