@@ -92,7 +92,7 @@ public final class Complex implements Serializable  {
      * {@code 1 + EPSILON} is numerically equal to 1. This value is an upper
      * bound on the relative error due to rounding real numbers to double
      * precision floating-point numbers.
-     * 
+     *
      * <p>In IEEE 754 arithmetic, this is 2<sup>-53</sup>.
      * Copied from o.a.c.numbers.Precision.
      *
@@ -224,10 +224,11 @@ public final class Complex implements Serializable  {
      *
      * <p>A non-NaN complex number constructed using this method will satisfy the following
      * to within floating-point error when {@code theta} is in the range
-     * \( -\pi\ \lt \theta \leq \pi \):</p>
+     * \( -\pi\ \lt \theta \leq \pi \):
+     *
      * <pre>
      *  Complex.ofPolar(rho, theta).abs() == rho
-     *  Complex.ofPolar(rho, theta).arg() == theta </pre>
+     *  Complex.ofPolar(rho, theta).arg() == theta</pre>
      *
      * <p>If {@code rho} is infinite then the resulting parts may be infinite or NaN
      * following the rules for double arithmetic, for example:</p>
@@ -292,8 +293,7 @@ public final class Complex implements Serializable  {
      * "(0.0,0.0)"         = Complex.ofCartesian(0, 0)
      * "(-0.0, 0.0)"       = Complex.ofCartesian(-0.0, 0)
      * "(-1.23, 4.56)"     = Complex.ofCartesian(-123, 4.56)
-     * "(1e300,-1.1e-2)"   = Complex.ofCartesian(1e300, -1.1e-2)
-     * </pre>
+     * "(1e300,-1.1e-2)"   = Complex.ofCartesian(1e300, -1.1e-2)</pre>
      *
      * @param s String representation.
      * @return {@code Complex} number.
@@ -406,10 +406,9 @@ public final class Complex implements Serializable  {
      * <p>\( z \) projects to \( z \), except that all complex infinities (even those
      * with one infinite part and one NaN part) project to positive infinity on the real axis.
      *
-     * If \( z \) has an infinite part, then {@code z.proj()} shall be equivalent to:</p>
-     * <pre>
-     *   return Complex.ofCartesian(Double.POSITIVE_INFINITY, Math.copySign(0.0, z.imag());
-     * </pre>
+     * If \( z \) has an infinite part, then {@code z.proj()} shall be equivalent to:
+     *
+     * <pre>return Complex.ofCartesian(Double.POSITIVE_INFINITY, Math.copySign(0.0, z.imag());</pre>
      *
      * @return \( z \) projected onto the Riemann sphere.
      * @see #isInfinite()
@@ -760,7 +759,7 @@ public final class Complex implements Serializable  {
      * value of {@code c1.equals(c2)} is {@code true} if and only if
      *
      * <pre>
-     * {@code c1.getReal() == c2.getReal() && c1.getImaginary() == c2.getImaginary()}</pre>
+     *  {@code c1.getReal() == c2.getReal() && c1.getImaginary() == c2.getImaginary()}</pre>
      *
      * <p>also has the value {@code true}. However, there are exceptions:
      *
@@ -813,9 +812,9 @@ public final class Complex implements Serializable  {
      *
      * <p>The behavior is the same as if the components of the complex number were passed
      * to {@link java.util.Arrays#hashCode(double[]) Arrays.hashCode(double[])}:
+     *
      * <pre>
-     *  {@code Arrays.hashCode(new double[] {getReal(), getImaginary()})}
-     * </pre>
+     *  {@code Arrays.hashCode(new double[] {getReal(), getImaginary()})}</pre>
      *
      * @return A hash code value for this object.
      * @see java.util.Arrays#hashCode(double[]) Arrays.hashCode(double[])
@@ -882,8 +881,7 @@ public final class Complex implements Serializable  {
     /**
      * Returns a {@code Complex} whose value is:
      * <pre>
-     *   (a + i b)(c + i d) = (ac - bd) + i (ad + bc)
-     * </pre>
+     *  (a + i b)(c + i d) = (ac - bd) + i (ad + bc)</pre>
      *
      * <p>Recalculates to recover infinities as specified in C99 standard G.5.1.
      *
@@ -2099,9 +2097,9 @@ public final class Complex implements Serializable  {
     /**
      * Returns the logarithm of this complex number using the provided function.
      * Implements the formula:
+     *
      * <pre>
-     *   log(x + i y) = log(|x + i y|) + i arg(x + i y)
-     * </pre>
+     *   log(x + i y) = log(|x + i y|) + i arg(x + i y)</pre>
      *
      * <p>Warning: The argument {@code logOf2} must be equal to {@code log(2)} using the
      * provided log function otherwise scaling using powers of 2 in the case of overflow
@@ -2641,11 +2639,9 @@ public final class Complex implements Serializable  {
      * Safely compute {@code cos(2*a)} when {@code a} is finite.
      * Note that {@link Math#cos(double)} returns NaN when the input is infinite.
      * If {@code 2*a} is finite use {@code Math.cos(2*a)}; otherwise use the identity:
+     *
      * <pre>
-     * <code>
-     *   cos(2a) = 2 cos<sup>2</sup>(a) - 1
-     * </code>
-     * </pre>
+     *  <code>cos(2a) = 2 cos<sup>2</sup>(a) - 1</code></pre>
      *
      * @param a Angle a.
      * @return The cosine of 2a.
@@ -2664,11 +2660,9 @@ public final class Complex implements Serializable  {
      * Safely compute {@code sin(2*a)} when {@code a} is finite.
      * Note that {@link Math#sin(double)} returns NaN when the input is infinite.
      * If {@code 2*a} is finite use {@code Math.sin(2*a)}; otherwise use the identity:
+     *
      * <pre>
-     * <code>
-     *   sin(2a) = 2 sin(a) cos(a)
-     * </code>
-     * </pre>
+     *  <code>sin(2a) = 2 sin(a) cos(a)</code></pre>
      *
      * @param a Angle a.
      * @return The sine of 2a.
@@ -2823,8 +2817,7 @@ public final class Complex implements Serializable  {
      * equivalent of:
      *
      * <pre>
-     *   z = new Complex(real, imaginary).multiplyImaginary(-1);
-     * </pre>
+     *  z = new Complex(real, imaginary).multiplyImaginary(-1);</pre>
      *
      * @param real Real part.
      * @param imaginary Imaginary part.
