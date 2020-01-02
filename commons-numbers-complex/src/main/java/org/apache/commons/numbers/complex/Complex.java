@@ -99,6 +99,10 @@ public final class Complex implements Serializable  {
      * @see <a href="http://en.wikipedia.org/wiki/Machine_epsilon">Machine epsilon</a>
      */
     private static final double EPSILON = Double.longBitsToDouble((EXPONENT_OFFSET - 53L) << 52);
+    /** The multiplier used to split the double value into hi and low parts. This must be odd
+     * and a value of 2^s + 1 in the range {@code p/2 <= s <= p-1} where p is the number of
+     * bits of precision of the floating point number. Here {@code s = 27}.*/
+    private static final double MULTIPLIER = (1 << 27) + 1.0;
 
     /**
      * Crossover point to switch computation for asin/acos factor A.
@@ -2221,16 +2225,132 @@ public final class Complex implements Serializable  {
         // Otherwise there can be serious cancellation and the relative error in the real part
         // could be enormous.
 
-        // TODO - investigate the computation in high precision using
-        // LinearCombination#value(double, double, double, double, double, double)
-        // from o.a.c.numbers.arrays.
-        final double xm1xp1 = (x - 1) * (x + 1);
         final double yy = y * y;
-        if (x < 1 && 4 * yy > Math.abs(xm1xp1)) {
-            // Large relative error...
-            return xm1xp1 + yy;
+        // Modify to use high precision before the threshold set by Hull et al.
+        // This is to preserve the monotonic output of the computation at the switch.
+        // Set the threshold when x^2 + y^2 is above 0.5 thus subtracting 1 results in a number
+        // that can be expressed with a higher precision than any number in the range 0.5-1.0
+        // due to the variable exponent used below 0.5.
+        if (x < 1 && x * x + yy > 0.5) {
+            // Large relative error.
+            // This does not use o.a.c.numbers.LinearCombination.value(x, x, y, y, 1, -1).
+            // It is optimised knowing that:
+            // - the products are squares
+            // - the final term is -1 (which does not require split multiplication and addition)
+            // - The answer will not be NaN as the terms are not NaN components
+            // - The order is known to be 1 > |x| >= |y|
+            // The squares are computed using a split multiply algorithm and
+            // the summation using a fast-expansion-sum algorithm.
+
+            // Split x and y as one 26 bits number and one 27 bits number
+            final double xHigh        = splitHigh(x);
+            final double xLow         = x - xHigh;
+            final double yHigh        = splitHigh(y);
+            final double yLow         = y - yHigh;
+
+            // Accurate split multiplication x * x and y * y
+            final double x2High       = x * x;
+            final double x2Low        = squareRoundOff(xLow, xHigh, x2High);
+            final double y2High       = y * y;
+            final double y2Low        = squareRoundOff(yLow, yHigh, y2High);
+
+            return fastExpansionSumx2y2m1(x2High, x2Low, y2High, y2Low);
         }
-        return xm1xp1 + yy;
+        return (x - 1) * (x + 1) + yy;
+    }
+
+    /**
+     * Implement Dekker's method to split a value into two parts. Multiplying by (2^s + 1) create
+     * a big value from which to derive the two split parts.
+     * <pre>
+     * c = (2^s + 1) * a
+     * a_big = c - a
+     * a_hi = c - a_big
+     * a_lo = a - a_hi
+     * a = a_hi + a_lo
+     * </pre>
+     *
+     * <p>The multiplicand must be odd allowing a p-bit value to be split into
+     * (p-s)-bit value {@code a_hi} and a nonoverlapping (s-1)-bit value {@code a_lo}.
+     * Combined they have (p􏰔-1) bits of significand but the sign bit of {@code a_lo}
+     * contains a bit of information.
+     *
+     * @param a Value.
+     * @return the high part of the value.
+     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * Shewchuk (1997) Theorum 17</a>
+     */
+    private static double splitHigh(double a) {
+        final double c = MULTIPLIER * a;
+        return c - (c - a);
+    }
+
+    /**
+     * Compute the round-off from the square of a split number with {@code low} and {@code high}
+     * components. Uses Dekker's algorithm for split multiplication modified for a square product.
+     *
+     * @param low Low part of number.
+     * @param high High part of number.
+     * @param square Square of the number.
+     * @return <code>low * low - ((product - high * high) - 2 * low * high)</code>
+     */
+    private static double squareRoundOff(double low, double high, double square) {
+        return low * low - ((square - high * high) - 2 * low * high);
+    }
+
+    /**
+     * Compute the round-off from the sum of two numbers {@code a} and {@code b} using
+     * Knuth's two-sum algorithm. The values are not required to be ordered by magnitude.
+     *
+     * @param a First part of sum.
+     * @param b Second part of sum.
+     * @param sum Sum.
+     * @return <code>(b - (sum - (sum - b))) + (a - (sum - b))</code>
+     */
+    private static double sumRoundOff(double a, double b, double sum) {
+        final double aPrime = sum - b;
+        // sum - aPrime == bPrime.
+        // a - aPrime == a round-off
+        // b - bPrime == b round-off
+        return (a - aPrime) + (b - (sum - aPrime));
+    }
+
+    /**
+     * Sum x^2 + y^2 - 1.
+     *
+     * <p>Uses Shewchuk's fast expansion sum under the assumption that {@code 1 > |x| >= |y|}
+     * thus the high and low products from {@code x^2} and {@code y^2} can be ordered into
+     * a single sequence g, in order of nondecreasing magnitude with no sorting.
+     *
+     * @param x2High High part of x^2.
+     * @param x2Low Low part of x^2.
+     * @param y2High High part of y^2.
+     * @param y2Low Low part of y^2.
+     * @return x^2 + y^2 - 1
+     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * Shewchuk (1997) Adaptive Precision Floating-Point Arithmetic and Fast Robust Geometric Predicates: Theorum 13</a>
+     */
+    private static double fastExpansionSumx2y2m1(double x2High, double x2Low, double y2High, double y2Low) {
+        // Create a single sequence g that is in order of nondecreasing magnitude.
+        // Since |x| >= |y| then x2High >= y2High and the two smallest components are the
+        // round-off from x^2 and y^2. The final term is -1 which will never have a bit overlap
+        // with the products x^2 or y^2 as 1 has no bits.
+        // Thus this implements fast-two-sum: e + f as {x2Low, x2High} + {y2Low, y2High, -1}.
+        // In Shewchuk the two smallest components are added using a
+        // fast-two-sum which requires ordering. Here we use a two-sum to avoid order comparators.
+        // The remaining components are added with a two-sum that does not require ordering.
+        // Q_i is the running total of summing sequence g, {y2Low, x2Low, y2High, x2High, -1}.
+        // h_i is the output sequence; this is guaranteed to produce a strongly non-overlapping
+        // output if its inputs are strongly non-overlapping. The sum of h is the sum of e + f.
+        final double q1 = x2Low + y2Low;
+        final double h1 = sumRoundOff(x2Low, y2Low, q1);
+        final double q2 = q1 + y2High;
+        final double h2 = sumRoundOff(q1, y2High, q2);
+        final double q3 = q2 + x2High;
+        final double h3 = sumRoundOff(q2, x2High, q3);
+        final double h5 = q3 - 1;
+        final double h4 = sumRoundOff(q3, -1, h5);
+        return h1 + h2 + h3 + h4 + h5;
     }
 
     /**
@@ -2533,8 +2653,6 @@ public final class Complex implements Serializable  {
         // Multiply this number by I, compute tanh, then multiply by back
         return tanh(-imaginary, real, Complex::multiplyNegativeI);
     }
-
-    // TODO
 
     /**
      * Returns the

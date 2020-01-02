@@ -367,46 +367,60 @@ public class ComplexEdgeCaseTest {
         // No cancellation error when max > 1
 
         assertLog(1.0001, Math.sqrt(1.2 - 1.0001 * 1.0001), 1);
-        assertLog(1.0001, Math.sqrt(1.1 - 1.0001 * 1.0001), 2);
-        assertLog(1.0001, Math.sqrt(1.02 - 1.0001 * 1.0001), 6);
+        assertLog(1.0001, Math.sqrt(1.1 - 1.0001 * 1.0001), 1);
+        assertLog(1.0001, Math.sqrt(1.02 - 1.0001 * 1.0001), 0);
+        assertLog(1.0001, Math.sqrt(1.01 - 1.0001 * 1.0001), 0);
 
         // Cancellation error when max < 1.
-        // The ULPs may need to be revised if the log() method is improved.
 
         // Hard: 4 * min^2 < |max^2 - 1|
-        assertLog(0.9, 0.00001, 3);
-        assertLog(0.95, 0.00001, 8);
+        // Gets harder as max is further from 1
+        assertLog(0.99, 0.00001, 0);
+        assertLog(0.95, 0.00001, 0);
+        assertLog(0.9, 0.00001, 0);
+        assertLog(0.85, 0.00001, 0);
+        assertLog(0.8, 0.00001, 0);
+        assertLog(0.75, 0.00001, 0);
+        // At this point the log function does not use high precision computation
+        assertLog(0.7, 0.00001, 2);
 
         // Very hard: 4 * min^2 > |max^2 - 1|
 
         // Radius 0.99
-        assertLog(0.97, Math.sqrt(0.99 - 0.97 * 0.97), 30);
+        assertLog(0.97, Math.sqrt(0.99 - 0.97 * 0.97), 0);
         // Radius 1.01
-        assertLog(0.97, Math.sqrt(1.01 - 0.97 * 0.97), 34);
+        assertLog(0.97, Math.sqrt(1.01 - 0.97 * 0.97), 0);
 
         // Massive relative error
         // Radius 0.9999
-        assertLog(0.97, Math.sqrt(0.9999 - 0.97 * 0.97), 3639);
+        assertLog(0.97, Math.sqrt(0.9999 - 0.97 * 0.97), 0);
 
-        // This code is for demonstration purposes.
+        // cis numbers on a 1/8 circle with a set radius.
+        final int steps = 20;
+        final double[] radius = {0.99, 1.0, 1.01};
+        final int[] ulps = {0, 1, 1};
+        for (int j = 0; j < radius.length; j++) {
+            for (int i = 1; i <= steps; i++) {
+                final double theta = i * Math.PI / (4 * steps);
+                assertLog(radius[j] * Math.sin(theta), radius[j] * Math.cos(theta), ulps[j]);
+            }
+        }
 
-//        // Demonstrate relative error using
-//        // cis numbers on a 1/8 circle with a set radius.
-//        int steps = 10;
-//        for (double radius : new double[] {0.99, 1.0, 1.01}) {
-//            for (int i = 1; i < steps; i++) {
-//                double theta = i * Math.PI / (8 * steps);
-//                assertLog(radius * Math.sin(theta), radius * Math.cos(theta), -1);
-//            }
-//        }
-//
-//        // Extreme. Here for documentation of the relative error.
-//        double up1 = Math.nextUp(1.0);
-//        double down1 = Math.nextDown(1.0);
-//        assertLog(up1, Double.MIN_NORMAL, -1);
-//        assertLog(up1, Double.MIN_VALUE, -1);
-//        assertLog(down1, Double.MIN_NORMAL, -1);
-//        assertLog(down1, Double.MIN_VALUE, -1);
+        // cis numbers using an increasingly smaller angle
+        double theta = Math.PI / (4 * steps);
+        while (theta > 0) {
+            theta /= 2;
+            assertLog(Math.sin(theta), Math.cos(theta), 1);
+        }
+
+        // Extreme cases.
+        final double up1 = Math.nextUp(1.0);
+        final double down1 = Math.nextDown(1.0);
+        assertLog(down1, Double.MIN_NORMAL, 0);
+        assertLog(down1, Double.MIN_VALUE, 0);
+        // No use of high-precision computation
+        assertLog(up1, Double.MIN_NORMAL, 2);
+        assertLog(up1, Double.MIN_VALUE, 2);
     }
 
     /**
@@ -422,9 +436,10 @@ public class ComplexEdgeCaseTest {
      */
     private static void assertLog(double x, double y, long maxUlps) {
         // Compute the best value we can
-        final BigDecimal bx = BigDecimal.valueOf(x);
-        final BigDecimal by = BigDecimal.valueOf(y);
-        final double real = 0.5 * Math.log1p(bx.multiply(bx).add(by.multiply(by)).subtract(BigDecimal.ONE).doubleValue());
+        final BigDecimal bx = new BigDecimal(x);
+        final BigDecimal by = new BigDecimal(y);
+        final BigDecimal exact = bx.multiply(bx).add(by.multiply(by)).subtract(BigDecimal.ONE);
+        final double real = 0.5 * Math.log1p(exact.doubleValue());
         final double imag = Math.atan2(y, x);
         assertComplex(x, y, "log", Complex::log, real, imag, maxUlps);
     }
