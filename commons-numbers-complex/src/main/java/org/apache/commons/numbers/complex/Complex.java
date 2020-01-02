@@ -21,8 +21,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.numbers.core.Precision;
-
 /**
  * Cartesian representation of a complex number, i.e. a number which has both a
  * real and imaginary part.
@@ -87,6 +85,20 @@ public final class Complex implements Serializable  {
     private static final double PRECISION_1 = 54;
     /** The bit representation of {@code -0.0}. */
     private static final long NEGATIVE_ZERO_LONG_BITS = Double.doubleToLongBits(-0.0);
+    /** Exponent offset in IEEE754 representation. */
+    private static final long EXPONENT_OFFSET = 1023L;
+    /**
+     * Largest double-precision floating-point number such that
+     * {@code 1 + EPSILON} is numerically equal to 1. This value is an upper
+     * bound on the relative error due to rounding real numbers to double
+     * precision floating-point numbers.
+     * 
+     * <p>In IEEE 754 arithmetic, this is 2<sup>-53</sup>.
+     * Copied from o.a.c.numbers.Precision.
+     *
+     * @see <a href="http://en.wikipedia.org/wiki/Machine_epsilon">Machine epsilon</a>
+     */
+    private static final double EPSILON = Double.longBitsToDouble((EXPONENT_OFFSET - 53L) << 52);
 
     /**
      * Crossover point to switch computation for asin/acos factor A.
@@ -1292,7 +1304,7 @@ public final class Complex implements Serializable  {
                 }
             } else {
                 // Hull et al: Exception handling code from figure 6
-                if (y <= (Precision.EPSILON * Math.abs(xm1))) {
+                if (y <= (EPSILON * Math.abs(xm1))) {
                     if (x < 1) {
                         re = Math.acos(x);
                         im = y / Math.sqrt(xp1 * (1 - x));
@@ -1317,7 +1329,7 @@ public final class Complex implements Serializable  {
                     // u = Double.MIN_NORMAL
                     re = Math.sqrt(y);
                     im = Math.sqrt(y);
-                } else if (Precision.EPSILON * y - 1 >= x) {
+                } else if (EPSILON * y - 1 >= x) {
                     re = PI_OVER_2;
                     im = LN_2 + Math.log(y);
                 } else if (x > 1) {
@@ -1464,7 +1476,7 @@ public final class Complex implements Serializable  {
                 }
             } else {
                 // Hull et al: Exception handling code from figure 4
-                if (y <= (Precision.EPSILON * Math.abs(xm1))) {
+                if (y <= (EPSILON * Math.abs(xm1))) {
                     if (x < 1) {
                         re = Math.asin(x);
                         im = y / Math.sqrt(xp1 * (1 - x));
@@ -1486,7 +1498,7 @@ public final class Complex implements Serializable  {
                     // u = Double.MIN_NORMAL
                     re = PI_OVER_2 - Math.sqrt(y);
                     im = Math.sqrt(y);
-                } else if (Precision.EPSILON * y - 1 >= x) {
+                } else if (EPSILON * y - 1 >= x) {
                     // Possible underflow:
                     re = x / y;
                     im = LN_2 + Math.log(y);
