@@ -1642,8 +1642,8 @@ public final class Complex implements Serializable  {
     private static Complex atanh(final double real, final double imaginary,
                                  final ComplexConstructor constructor) {
         // Compute with positive values and determine sign at the end
-        final double x = Math.abs(real);
-        final double y = Math.abs(imaginary);
+        double x = Math.abs(real);
+        double y = Math.abs(imaginary);
         // The result (without sign correction)
         double re;
         double im;
@@ -1680,7 +1680,7 @@ public final class Complex implements Serializable  {
 
                 // minus x plus 1: (-x+1)
                 final double mxp1 = 1 - x;
-                final double yy = y * y;
+                double yy = y * y;
                 // The definition of real component is:
                 // real = log( ((x+1)^2+y^2) / ((1-x)^2+y^2) ) / 4
                 // This simplifies by adding 1 and subtracting 1 as a fraction:
@@ -1688,9 +1688,28 @@ public final class Complex implements Serializable  {
                 //
                 // real(atanh(z)) == log(1 + 4*x / ((1-x)^2+y^2)) / 4
                 // imag(atanh(z)) == tan^-1 (2y, (1-x)(1+x) - y^2) / 2
+                // imag(atanh(z)) == tan^-1 (2y, (1 - x^2 - y^2) / 2
                 // The division is done at the end of the function.
                 re = Math.log1p(4 * x / (mxp1 * mxp1 + yy));
-                im = Math.atan2(2 * y, mxp1 * (1 + x) - yy);
+                // Modified from boost which does not switch the magnitude of x and y.
+                // The denominator for atan2 is 1 - x^2 - y^2.
+                // This can be made more precise if |x| > |y|.
+                final double numerator = 2 * y;
+                double denominator;
+                if (x < y) {
+                    final double tmp = x;
+                    x = y;
+                    y = tmp;
+                }
+                // 1 - x is precise if |x| >= 1
+                if (x >= 1) {
+                    denominator = (1 - x) * (1 + x) - y * y;
+                } else {
+                    // |x| < 1: Use high precision if possible:
+                    // 1 - x^2 - y^2 = -(x^2 + y^2 - 1)
+                    denominator = -x2y2m1(x, y);
+                }
+                im = Math.atan2(numerator, denominator);
             } else {
                 // This section handles exception cases that would normally cause
                 // underflow or overflow in the main formulas.
@@ -1772,7 +1791,7 @@ public final class Complex implements Serializable  {
                 } else {
                     // Medium x, small y.
                     // Modified from boost which checks (y == 0) && (x == 1) and sets re = 0.
-                    // This is same as the result from calling atan2(0, 0) so just do that.
+                    // This is same as the result from calling atan2(0, 0) so exclude this case.
                     // 1 - y^2 = 1 so ignore subtracting y^2
                     im = Math.atan2(2 * y, (1 - x) * (1 + x));
                 }
