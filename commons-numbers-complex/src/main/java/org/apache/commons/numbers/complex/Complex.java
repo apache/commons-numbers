@@ -2259,7 +2259,7 @@ public final class Complex implements Serializable  {
             // - The answer will not be NaN as the terms are not NaN components
             // - The order is known to be 1 > |x| >= |y|
             // The squares are computed using a split multiply algorithm and
-            // the summation using a fast-expansion-sum algorithm.
+            // the summation using a double-length summation algorithm.
 
             // Split x and y as one 26 bits number and one 27 bits number
             final double xHigh        = splitHigh(x);
@@ -2273,7 +2273,7 @@ public final class Complex implements Serializable  {
             final double y2High       = y * y;
             final double y2Low        = squareRoundOff(yLow, yHigh, y2High);
 
-            return fastExpansionSumx2y2m1(x2High, x2Low, y2High, y2Low);
+            return sumx2y2m1(x2High, x2Low, y2High, y2Low);
         }
         return (x - 1) * (x + 1) + yy;
     }
@@ -2290,14 +2290,14 @@ public final class Complex implements Serializable  {
      * </pre>
      *
      * <p>The multiplicand must be odd allowing a p-bit value to be split into
-     * (p-s)-bit value {@code a_hi} and a nonoverlapping (s-1)-bit value {@code a_lo}.
+     * (p-s)-bit value {@code a_hi} and a non-overlapping (s-1)-bit value {@code a_lo}.
      * Combined they have (p􏰔-1) bits of significand but the sign bit of {@code a_lo}
      * contains a bit of information.
      *
      * @param a Value.
      * @return the high part of the value.
-     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
-     * Shewchuk (1997) Theorum 17</a>
+     * @see <a href="https://doi.org/10.1007/BF01397083">
+     * Dekker (1971) A floating-point technique for extending the available precision</a>
      */
     private static double splitHigh(double a) {
         final double c = MULTIPLIER * a;
@@ -2312,64 +2312,37 @@ public final class Complex implements Serializable  {
      * @param high High part of number.
      * @param square Square of the number.
      * @return <code>low * low - ((product - high * high) - 2 * low * high)</code>
+     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * Shewchuk (1997) Theorum 18</a>
      */
     private static double squareRoundOff(double low, double high, double square) {
         return low * low - ((square - high * high) - 2 * low * high);
     }
 
     /**
-     * Compute the round-off from the sum of two numbers {@code a} and {@code b} using
-     * Knuth's two-sum algorithm. The values are not required to be ordered by magnitude.
-     *
-     * @param a First part of sum.
-     * @param b Second part of sum.
-     * @param sum Sum.
-     * @return <code>(b - (sum - (sum - b))) + (a - (sum - b))</code>
-     */
-    private static double sumRoundOff(double a, double b, double sum) {
-        final double aPrime = sum - b;
-        // sum - aPrime == bPrime.
-        // a - aPrime == a round-off
-        // b - bPrime == b round-off
-        return (a - aPrime) + (b - (sum - aPrime));
-    }
-
-    /**
      * Sum x^2 + y^2 - 1.
      *
-     * <p>Uses Shewchuk's fast expansion sum under the assumption that {@code 1 > |x| >= |y|}
-     * thus the high and low products from {@code x^2} and {@code y^2} can be ordered into
-     * a single sequence g, in order of nondecreasing magnitude with no sorting.
+     * <p>Implement Dekker's add2 sum under the assumption that {@code |x| >= |y|}.
      *
      * @param x2High High part of x^2.
      * @param x2Low Low part of x^2.
      * @param y2High High part of y^2.
      * @param y2Low Low part of y^2.
      * @return x^2 + y^2 - 1
-     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
-     * Shewchuk (1997) Adaptive Precision Floating-Point Arithmetic and Fast Robust Geometric Predicates: Theorum 13</a>
      */
-    private static double fastExpansionSumx2y2m1(double x2High, double x2Low, double y2High, double y2Low) {
-        // Create a single sequence g that is in order of nondecreasing magnitude.
-        // Since |x| >= |y| then x2High >= y2High and the two smallest components are the
-        // round-off from x^2 and y^2. The final term is -1 which will never have a bit overlap
-        // with the products x^2 or y^2 as 1 has no bits.
-        // Thus this implements fast-two-sum: e + f as {x2Low, x2High} + {y2Low, y2High, -1}.
-        // In Shewchuk the two smallest components are added using a
-        // fast-two-sum which requires ordering. Here we use a two-sum to avoid order comparators.
-        // The remaining components are added with a two-sum that does not require ordering.
-        // Q_i is the running total of summing sequence g, {y2Low, x2Low, y2High, x2High, -1}.
-        // h_i is the output sequence; this is guaranteed to produce a strongly non-overlapping
-        // output if its inputs are strongly non-overlapping. The sum of h is the sum of e + f.
-        final double q1 = x2Low + y2Low;
-        final double h1 = sumRoundOff(x2Low, y2Low, q1);
-        final double q2 = q1 + y2High;
-        final double h2 = sumRoundOff(q1, y2High, q2);
-        final double q3 = q2 + x2High;
-        final double h3 = sumRoundOff(q2, x2High, q3);
-        final double h5 = q3 - 1;
-        final double h4 = sumRoundOff(q3, -1, h5);
-        return h1 + h2 + h3 + h4 + h5;
+    private static double sumx2y2m1(double x2High, double x2Low, double y2High, double y2Low) {
+        // Dekker's add2 algorithm to compute the double length scalar product x^2 + y^2.
+        // See Dekker (1971) Numerische Mathematik 18, p.240.
+        double r = x2High + y2High;
+        // Assume |x| > |y|
+        double s = x2High - r + y2High + y2Low + x2Low;
+        final double z = r + s;
+        final double zz = r - z + s;
+        // Repeat with (z, zz) add (-1, 0) to create the upper part of the
+        // double length scalar product x^2 + y^2 - 1.
+        r = z - 1;
+        s = z - r - 1 + zz;
+        return r + s;
     }
 
     /**
