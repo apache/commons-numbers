@@ -1988,14 +1988,26 @@ public final class Complex implements Serializable  {
         if (Double.isInfinite(real) && !Double.isFinite(imaginary)) {
             return constructor.create(Math.abs(real), Double.NaN);
         }
-        if (real == 0 && !Double.isFinite(imaginary)) {
+        if (real == 0) {
+            // Imaginary-only cosh(iy) = cos(y).
+            if (Double.isFinite(imaginary)) {
+                // Maintain periodic property with respect to the imaginary component.
+                // sinh(+/-0.0) * sin(+/-x) = +/-0 * sin(x)
+                return constructor.create(Math.cos(imaginary),
+                                          changeSign(real, Math.sin(imaginary)));
+            }
+            // If imaginary is inf/NaN the sign of the imaginary part is unspecified.
+            // Although not required by C99 changing the sign maintains the conjugate equality.
+            // It is not possible to also maintain the even function (hence the unspecified sign).
             return constructor.create(Double.NaN, changeSign(real, imaginary));
         }
-        if (real == 0 && imaginary == 0) {
-            return constructor.create(1, changeSign(real, imaginary));
-        }
-        if (imaginary == 0 && !Double.isFinite(real)) {
-            return constructor.create(Math.abs(real), changeSign(imaginary, real));
+        if (imaginary == 0) {
+            // Real-only cosh(x).
+            // Change sign to preserve conjugate equality and even function.
+            // sin(+/-0) * sinh(+/-x) = +/-0 * +/-a (sinh is monotonic and same sign)
+            // => change the sign of imaginary using real. Handles special case of infinite real.
+            // If real is NaN the sign of the imaginary part is unspecified.
+            return constructor.create(Math.cosh(real), changeSign(imaginary, real));
         }
         return constructor.create(Math.cosh(real) * Math.cos(imaginary),
                                   Math.sinh(real) * Math.sin(imaginary));
@@ -2532,12 +2544,25 @@ public final class Complex implements Serializable  {
      * @return The hyperbolic sine of the complex number.
      */
     private static Complex sinh(double real, double imaginary, ComplexConstructor constructor) {
-        if ((Double.isInfinite(real) && !Double.isFinite(imaginary)) ||
-            (real == 0 && !Double.isFinite(imaginary))) {
+        if (Double.isInfinite(real) && !Double.isFinite(imaginary)) {
             return constructor.create(real, Double.NaN);
         }
-        if (imaginary == 0 && !Double.isFinite(real)) {
-            return constructor.create(real, imaginary);
+        if (real == 0) {
+            // Imaginary-only sinh(iy) = i sin(y).
+            if (Double.isFinite(imaginary)) {
+                // Maintain periodic property with respect to the imaginary component.
+                // sinh(+/-0.0) * cos(+/-x) = +/-0 * cos(x)
+                return constructor.create(changeSign(real, Math.cos(imaginary)),
+                                          Math.sin(imaginary));
+            }
+            // If imaginary is inf/NaN the sign of the real part is unspecified.
+            // Returning the same real value maintains the conjugate equality.
+            // It is not possible to also maintain the odd function (hence the unspecified sign).
+            return constructor.create(real, Double.NaN);
+        }
+        if (imaginary == 0) {
+            // Real-only sinh(x).
+            return constructor.create(Math.sinh(real), imaginary);
         }
         return constructor.create(Math.sinh(real) * Math.cos(imaginary),
                                   Math.cosh(real) * Math.sin(imaginary));
@@ -2760,6 +2785,7 @@ public final class Complex implements Serializable  {
         }
 
         if (real == 0) {
+            // Imaginary-only tanh(iy) = i tan(y)
             if (Double.isFinite(imaginary)) {
                 // Identity: sin x / (1 + cos x) = tan(x/2)
                 return constructor.create(real, Math.tan(imaginary));
@@ -2959,7 +2985,7 @@ public final class Complex implements Serializable  {
 
     /**
      * Check that a value is positive infinity. Used to replace {@link Double#isInfinite()}
-     * when the input value is known to be positive (i.e. in the case where it have been
+     * when the input value is known to be positive (i.e. in the case where it has been
      * set using {@link Math#abs(double)}).
      *
      * @param d Value.
