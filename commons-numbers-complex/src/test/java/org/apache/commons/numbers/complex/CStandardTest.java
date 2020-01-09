@@ -246,7 +246,9 @@ public class CStandardTest {
      * @param operation the operation
      */
     private static void assertConjugateEquality(UnaryOperator<Complex> operation) {
-        // Edge cases.
+        // Edge cases. Inf/NaN are specifically handled in the C99 test cases
+        // but are repeated here to enforce the conjugate equality even when the C99
+        // standard does not specify a sign. This may be revised in the future.
         final double[] parts = {Double.NEGATIVE_INFINITY, -1, -0.0, 0.0, 1,
                                 Double.POSITIVE_INFINITY, Double.NaN};
         for (final double x : parts) {
