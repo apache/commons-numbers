@@ -2301,13 +2301,14 @@ public final class Complex implements Serializable  {
         // Otherwise there can be serious cancellation and the relative error in the real part
         // could be enormous.
 
+        final double xx = x * x;
         final double yy = y * y;
         // Modify to use high precision before the threshold set by Hull et al.
         // This is to preserve the monotonic output of the computation at the switch.
         // Set the threshold when x^2 + y^2 is above 0.5 thus subtracting 1 results in a number
         // that can be expressed with a higher precision than any number in the range 0.5-1.0
         // due to the variable exponent used below 0.5.
-        if (x < 1 && x * x + yy > 0.5) {
+        if (x < 1 && xx + yy > 0.5) {
             // Large relative error.
             // This does not use o.a.c.numbers.LinearCombination.value(x, x, y, y, 1, -1).
             // It is optimised knowing that:
@@ -2319,18 +2320,16 @@ public final class Complex implements Serializable  {
             // the summation using a double-length summation algorithm.
 
             // Split x and y as one 26 bits number and one 27 bits number
-            final double xHigh        = splitHigh(x);
-            final double xLow         = x - xHigh;
-            final double yHigh        = splitHigh(y);
-            final double yLow         = y - yHigh;
+            final double xHigh = splitHigh(x);
+            final double xLow  = x - xHigh;
+            final double yHigh = splitHigh(y);
+            final double yLow  = y - yHigh;
 
             // Accurate split multiplication x * x and y * y
-            final double x2High       = x * x;
-            final double x2Low        = squareRoundOff(xLow, xHigh, x2High);
-            final double y2High       = y * y;
-            final double y2Low        = squareRoundOff(yLow, yHigh, y2High);
+            final double x2Low = squareRoundOff(xLow, xHigh, xx);
+            final double y2Low = squareRoundOff(yLow, yHigh, yy);
 
-            return sumx2y2m1(x2High, x2Low, y2High, y2Low);
+            return sumx2y2m1(xx, x2Low, yy, y2Low);
         }
         return (x - 1) * (x + 1) + yy;
     }
@@ -2379,7 +2378,8 @@ public final class Complex implements Serializable  {
     /**
      * Sum x^2 + y^2 - 1.
      *
-     * <p>Implement Dekker's add2 sum under the assumption that {@code |x| >= |y|}.
+     * <p>Implement Dekker's add2 sum under the assumption that {@code |x| >= |y|},
+     * {@code 0.5 < |x| < 1} and {@code x^2 + y^2 > 0.5}.
      *
      * @param x2High High part of x^2.
      * @param x2Low Low part of x^2.
@@ -2392,14 +2392,15 @@ public final class Complex implements Serializable  {
         // See Dekker (1971) Numerische Mathematik 18, p.240.
         double r = x2High + y2High;
         // Assume |x| > |y|
-        double s = x2High - r + y2High + y2Low + x2Low;
+        final double s = x2High - r + y2High + y2Low + x2Low;
         final double z = r + s;
         final double zz = r - z + s;
         // Repeat with (z, zz) add (-1, 0) to create the upper part of the
         // double length scalar product x^2 + y^2 - 1.
-        r = z - 1;
-        s = z - r - 1 + zz;
-        return r + s;
+        // Note however that this method is called when 0.5<|x|<1, |y|<|x| and x^2+y^2>0.5 so
+        // z is in the range (0.5, 2). In all cases z-1 is exact with no round-off term so
+        // we can skip a second add2 split addition.
+        return z - 1 + zz;
     }
 
     /**
