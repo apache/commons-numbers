@@ -398,7 +398,7 @@ public class ComplexEdgeCaseTest {
         // cis numbers on a 1/8 circle with a set radius.
         final int steps = 20;
         final double[] radius = {0.99, 1.0, 1.01};
-        final int[] ulps = {0, 1, 1};
+        final int[] ulps = {0, -1, 1};
         for (int j = 0; j < radius.length; j++) {
             for (int i = 1; i <= steps; i++) {
                 final double theta = i * Math.PI / (4 * steps);
@@ -421,6 +421,25 @@ public class ComplexEdgeCaseTest {
         // No use of high-precision computation
         assertLog(up1, Double.MIN_NORMAL, 2);
         assertLog(up1, Double.MIN_VALUE, 2);
+
+        // Add some cases known to fail without very high precision computation.
+        // These have been found using randomly generated cis numbers and the
+        // previous Dekker split-summation algorithm:
+        // theta = rng.nextDouble()
+        // x = Math.sin(theta)
+        // y = Math.cos(theta)
+        // Easy: <16 ulps with the Dekker summation
+        assertLog(0.007640392270319105, 0.9999708117770016, 0);
+        assertLog(0.40158433204881533, 0.9158220483548684, 0);
+        assertLog(0.13258789214774552, 0.9911712520325727, 0);
+        assertLog(0.2552206803398717, 0.9668828286441191, 0);
+        // Hard: >1024 ulps with the Dekker summation
+        assertLog(0.4650816500945186, 0.8852677892848919, 0);
+        assertLog(0.06548693057069123, 0.9978534270745526, 0);
+        assertLog(0.08223027214657339, 0.9966133564942327, 0);
+        assertLog(0.06548693057069123, 0.9978534270745526, 0);
+        assertLog(0.04590800199633988, 0.9989456718724518, 0);
+        assertLog(0.3019636508581243, 0.9533194394118022, 0);
     }
 
     /**

@@ -1716,7 +1716,7 @@ public final class Complex implements Serializable  {
 
                 // minus x plus 1: (-x+1)
                 final double mxp1 = 1 - x;
-                double yy = y * y;
+                final double yy = y * y;
                 // The definition of real component is:
                 // real = log( ((x+1)^2+y^2) / ((1-x)^2+y^2) ) / 4
                 // This simplifies by adding 1 and subtracting 1 as a fraction:
@@ -2317,7 +2317,7 @@ public final class Complex implements Serializable  {
             // - The answer will not be NaN as the terms are not NaN components
             // - The order is known to be 1 > |x| >= |y|
             // The squares are computed using a split multiply algorithm and
-            // the summation using a double-length summation algorithm.
+            // the summation using a double-length summation algorithm to 3-fold precision.
 
             // Split x and y as one 26 bits number and one 27 bits number
             final double xHigh = splitHigh(x);
@@ -2326,8 +2326,8 @@ public final class Complex implements Serializable  {
             final double yLow  = y - yHigh;
 
             // Accurate split multiplication x * x and y * y
-            final double x2Low = squareRoundOff(xLow, xHigh, xx);
-            final double y2Low = squareRoundOff(yLow, yHigh, yy);
+            final double x2Low = squareLow(xLow, xHigh, xx);
+            final double y2Low = squareLow(yLow, yHigh, yy);
 
             return sumx2y2m1(xx, x2Low, yy, y2Low);
         }
@@ -2371,36 +2371,69 @@ public final class Complex implements Serializable  {
      * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
      * Shewchuk (1997) Theorum 18</a>
      */
-    private static double squareRoundOff(double low, double high, double square) {
+    private static double squareLow(double low, double high, double square) {
         return low * low - ((square - high * high) - 2 * low * high);
+    }
+
+    /**
+     * Compute the round-off from the sum of two numbers {@code a} and {@code b} using
+     * Knuth's two-sum algorithm. The values are not required to be ordered by magnitude.
+     *
+     * @param a First part of sum.
+     * @param b Second part of sum.
+     * @param sum Sum.
+     * @return <code>(b - (sum - (sum - b))) + (a - (sum - b))</code>
+     */
+    private static double sumLow(double a, double b, double sum) {
+        final double aPrime = sum - b;
+        // sum - aPrime == bPrime.
+        // a - aPrime == a round-off
+        // b - bPrime == b round-off
+        return (a - aPrime) + (b - (sum - aPrime));
     }
 
     /**
      * Sum x^2 + y^2 - 1.
      *
-     * <p>Implement Dekker's add2 sum under the assumption that {@code |x| >= |y|},
-     * {@code 0.5 < |x| < 1} and {@code x^2 + y^2 > 0.5}.
+     * <p>Implement Ogita's dotK sum using K=3.
      *
      * @param x2High High part of x^2.
      * @param x2Low Low part of x^2.
      * @param y2High High part of y^2.
      * @param y2Low Low part of y^2.
      * @return x^2 + y^2 - 1
+     * @see <a href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.2.1547">
+     * Ogita et al (2005) Accurate Sum and Dot Product</a>
      */
     private static double sumx2y2m1(double x2High, double x2Low, double y2High, double y2Low) {
-        // Dekker's add2 algorithm to compute the double length scalar product x^2 + y^2.
-        // See Dekker (1971) Numerische Mathematik 18, p.240.
-        double r = x2High + y2High;
-        // Assume |x| > |y|
-        final double s = x2High - r + y2High + y2Low + x2Low;
-        final double z = r + s;
-        final double zz = r - z + s;
-        // Repeat with (z, zz) add (-1, 0) to create the upper part of the
-        // double length scalar product x^2 + y^2 - 1.
-        // Note however that this method is called when 0.5<|x|<1, |y|<|x| and x^2+y^2>0.5 so
-        // z is in the range (0.5, 2). In all cases z-1 is exact with no round-off term so
-        // we can skip a second add2 split addition.
-        return z - 1 + zz;
+        // Implement a dotK summation using K=3.
+        // See Ogita et al (2005) SIAM J. Sci. Comput: Algorithm 4.8.
+        // We have the split products from x^2 and y^2. The final product (-1*1) has no error.
+        // Collect the error terms into an array p_i. The lower entries are the errors from
+        // the products and the upper entries from their running sum.
+        // s is the running dot sum. This becomes the final term.
+        double p0 = x2Low;
+        double p1 = y2Low;
+        // Sum the products and store the error terms.
+        double s = x2High + y2High;
+        double p2 = sumLow(x2High, y2High, s);
+        double p4 = s - 1;
+        double p3 = sumLow(s, -1, p4);
+        // Cascade summation of the terms p_i
+        s = p0 + p1;
+        p0 = sumLow(p0, p1, s);
+        p1 = s;
+        s += p2;
+        p1 = sumLow(p1, p2, s);
+        p2 = s;
+        s += p3;
+        p2 = sumLow(p2, p3, s);
+        p3 = s;
+        s += p4;
+        p3 = sumLow(p3, p4, s);
+        p4 = s;
+        // Final summation
+        return p0 + p1 + p2 + p3 + p4;
     }
 
     /**
