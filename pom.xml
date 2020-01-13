@@ -667,6 +667,11 @@
       <id>erans</id>
       <email>erans at apache dot org</email>
     </developer>
+    <developer>
+      <name>Alex Herbert</name>
+      <id>aherbert</id>
+      <email>aherbert at apache dot org</email>
+    </developer>
   </developers>
 
   <contributors>
