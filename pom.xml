@@ -654,6 +654,15 @@
         </plugins>
       </build>
     </profile>
+    <!--
+        Profiles for modules with special requirements.
+    -->
+    <profile>
+      <id>commons-numbers-examples</id>
+      <modules>
+        <module>commons-numbers-examples</module>
+      </modules>
+    </profile>
   </profiles>
 
   <developers>

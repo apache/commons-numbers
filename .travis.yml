@@ -25,6 +25,7 @@ install:
 
 script:
   - mvn
+  - mvn -P commons-numbers-examples --projects commons-numbers-examples verify apache-rat:check checkstyle:check
 
 after_success:
   - mvn jacoco:report coveralls:report
