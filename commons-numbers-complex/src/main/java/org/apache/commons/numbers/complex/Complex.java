@@ -2232,9 +2232,9 @@ public final class Complex implements Serializable  {
         } else if (y == 0) {
             // Handle real only number
             re = log.apply(x);
-        } else if (x > SAFE_MAX || x < SAFE_MIN || y < SAFE_MIN) {
+        } else if (x > SAFE_MAX || y < SAFE_MIN) {
             // Over/underflow of sqrt(x^2+y^2)
-            // Note: Since y<x no check for y > SAFE_MAX.
+            // Note: Since y<x no check for y > SAFE_MAX or x < SAFE_MIN.
             if (isPosInfinite(x)) {
                 // Handle infinity
                 re = x;
