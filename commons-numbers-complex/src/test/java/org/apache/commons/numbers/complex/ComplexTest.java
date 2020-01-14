@@ -1965,4 +1965,63 @@ public class ComplexTest {
         Assertions.assertNotEquals(0, 1 - Math.nextUp(1));
         Assertions.assertNotEquals(0, 1 - Math.nextDown(1));
     }
+
+    @Test
+    public void testTanhAssumptions() {
+        // Use the same constants used by tanh
+        final double safeExpMax = 709;
+
+        final double big = Math.exp(safeExpMax);
+        final double small = Math.exp(-safeExpMax);
+
+        // Overflow assumptions
+        Assertions.assertTrue(Double.isFinite(big));
+        Assertions.assertTrue(Double.isInfinite(Math.exp(safeExpMax + 1)));
+
+        // Can we assume cosh(x) = (e^x + e^-x) / 2 = e^|x| / 2
+        Assertions.assertEquals(big + small, big);
+        Assertions.assertEquals(Math.cosh(safeExpMax), big / 2);
+        Assertions.assertEquals(Math.cosh(-safeExpMax), big / 2);
+
+        // Can we assume sinh(x) = (e^x - e^-x) / 2 = sign(x) * e^|x| / 2
+        Assertions.assertEquals(big - small, big);
+        Assertions.assertEquals(small - big, -big);
+        Assertions.assertEquals(Math.sinh(safeExpMax), big / 2);
+        Assertions.assertEquals(Math.sinh(-safeExpMax), -big / 2);
+
+        // Can we assume sinh(x/2) * cosh(x/2) is finite
+        Assertions.assertTrue(Double.isFinite(Math.sinh(safeExpMax / 2) * Math.cosh(safeExpMax / 2)));
+
+        // Is overflow point monotonic:
+        // The values at the switch are exact. Previous values are close.
+        final double x = Double.MAX_VALUE / 2;
+        final double x1 = Math.nextDown(x);
+        final double x2 = Math.nextDown(x1);
+        // sin(2x) = 2 sin(x) cos(x) (within 1 ulp)
+        Assertions.assertEquals(Double.POSITIVE_INFINITY, 2 * Math.nextUp(x));
+        Assertions.assertEquals(Math.sin(2 * x), 2 * Math.sin(x) * Math.cos(x));
+        Assertions.assertEquals(Math.sin(2 * x1), 2 * Math.sin(x1) * Math.cos(x1), Math.ulp(Math.sin(2 * x1)));
+        Assertions.assertEquals(Math.sin(2 * x2), 2 * Math.sin(x2) * Math.cos(x2), Math.ulp(Math.sin(2 * x2)));
+        // cos(2x) = 2 * cos^2(x) - 1 (within 4 ulp)
+        Assertions.assertEquals(Math.cos(2 * x), 2 * Math.cos(x) * Math.cos(x) - 1);
+        Assertions.assertEquals(Math.cos(2 * x1), 2 * Math.cos(x1) * Math.cos(x1) - 1, 4 * Math.ulp(Math.cos(2 * x1)));
+        Assertions.assertEquals(Math.cos(2 * x2), 2 * Math.cos(x2) * Math.cos(x2) - 1, 2 * Math.ulp(Math.cos(2 * x2)));
+    }
+
+    /**
+     * Test that sin and cos are linear around zero. This can be used for fast computation
+     * of sin and cos together when |x| is small.
+     */
+    @Test
+    public void testSinCosLinearAssumptions() {
+        // Are cos and sin linear around zero?
+        // If cos is still 1 then since d(sin) dx = cos then sin is linear.
+        Assertions.assertEquals(Math.cos(Double.MIN_NORMAL), 1.0);
+        Assertions.assertEquals(Math.sin(Double.MIN_NORMAL), Double.MIN_NORMAL);
+
+        // Are cosh and sinh linear around zero?
+        // If cosh is still 1 then since d(sinh) dx = cosh then sinh is linear.
+        Assertions.assertEquals(Math.cosh(Double.MIN_NORMAL), 1.0);
+        Assertions.assertEquals(Math.sinh(Double.MIN_NORMAL), Double.MIN_NORMAL);
+    }
 }

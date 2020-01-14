@@ -146,6 +146,18 @@ public final class Complex implements Serializable  {
      * Equal to sqrt(u) * 2 with u the smallest normalised floating-point value.
      */
     private static final double SAFE_LOWER = Math.sqrt(Double.MIN_NORMAL) * 2;
+    /**
+     * A safe maximum double value {@code x} where {@code e^x} is not infinite.
+     * This can be used when functions require approximations of sinh(x) or cosh(x)
+     * when x is large:
+     * <pre>
+     * sinh(x) = (e^x - e^-x) / 2 = sign(x) * e^|x| / 2
+     * cosh(x) = (e^x + e^-x) / 2 = e^|x| / 2 </pre>
+     *
+     * <p>The value should be ln(max_value) ~ 709.08. However it is set to an integer (709)
+     * to provide headroom.
+     */
+    private static final double SAFE_EXP_MAX = 709;
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20180201L;
@@ -2009,6 +2021,12 @@ public final class Complex implements Serializable  {
             // If real is NaN the sign of the imaginary part is unspecified.
             return constructor.create(Math.cosh(real), changeSign(imaginary, real));
         }
+        final double x = Math.abs(real);
+        if (x > SAFE_EXP_MAX) {
+            final double exp2 = Math.exp(x) / 2;
+            return constructor.create(exp2 * Math.cos(imaginary),
+                                      Math.copySign(exp2, real) * Math.sin(imaginary));
+        }
         return constructor.create(Math.cosh(real) * Math.cos(imaginary),
                                   Math.sinh(real) * Math.sin(imaginary));
     }
@@ -2598,6 +2616,12 @@ public final class Complex implements Serializable  {
             // Real-only sinh(x).
             return constructor.create(Math.sinh(real), imaginary);
         }
+        final double x = Math.abs(real);
+        if (x > SAFE_EXP_MAX) {
+            final double exp2 = Math.exp(x) / 2;
+            return constructor.create(Math.copySign(exp2, real) * Math.cos(imaginary),
+                                      exp2 * Math.sin(imaginary));
+        }
         return constructor.create(Math.sinh(real) * Math.cos(imaginary),
                                   Math.cosh(real) * Math.sin(imaginary));
     }
@@ -2810,46 +2834,77 @@ public final class Complex implements Serializable  {
      * @return The hyperbolic tangent of the complex number.
      */
     private static Complex tanh(double real, double imaginary, ComplexConstructor constructor) {
-        if (Double.isInfinite(real)) {
-            if (Double.isFinite(imaginary)) {
-                return constructor.create(Math.copySign(1, real), Math.copySign(0, sin2(imaginary)));
+        // Cache the absolute real value
+        final double x = Math.abs(real);
+
+        // Handle inf or nan
+        if (!(x <= Double.MAX_VALUE) || !Double.isFinite(imaginary)) {
+            if (isPosInfinite(x)) {
+                if (Double.isFinite(imaginary)) {
+                    return constructor.create(Math.copySign(1, real),
+                                              Math.copySign(0, sin2(imaginary)));
+                }
+                // imaginary is infinite or NaN
+                return constructor.create(Math.copySign(1, real), Math.copySign(0, imaginary));
             }
-            // imaginary is infinite or NaN
-            return constructor.create(Math.copySign(1, real), Math.copySign(0, imaginary));
+            // Remaining cases:
+            // (0 + i inf), returns (0 + i NaN)
+            // (0 + i NaN), returns (0 + i NaN)
+            // (x + i inf), returns (NaN + i NaN) for non-zero x (including infinite)
+            // (x + i NaN), returns (NaN + i NaN) for non-zero x (including infinite)
+            // (NaN + i 0), returns (NaN + i 0)
+            // (NaN + i y), returns (NaN + i NaN) for non-zero y (including infinite)
+            // (NaN + i NaN), returns (NaN + i NaN)
+            return constructor.create(real == 0 ? real : Double.NaN,
+                                      imaginary == 0 ? imaginary : Double.NaN);
         }
+
+        // Finite components
+        // tanh(x+iy) = (sinh(2x) + i sin(2y)) / (cosh(2x) + cos(2y))
 
         if (real == 0) {
             // Imaginary-only tanh(iy) = i tan(y)
-            if (Double.isFinite(imaginary)) {
-                // Identity: sin x / (1 + cos x) = tan(x/2)
-                return constructor.create(real, Math.tan(imaginary));
-            }
-            return constructor.create(real, Double.NaN);
+            // Identity: sin 2y / (1 + cos 2y) = tan(y)
+            return constructor.create(real, Math.tan(imaginary));
         }
         if (imaginary == 0) {
-            if (Double.isNaN(real)) {
-                return constructor.create(Double.NaN, imaginary);
-            }
-            // Identity: sinh x / (1 + cosh x) = tanh(x/2)
+            // Identity: sinh 2x / (1 + cosh 2x) = tanh(x)
             return constructor.create(Math.tanh(real), imaginary);
         }
 
-        final double real2 = 2 * real;
+        // The double angles can be avoided using the identities:
+        // sinh(2x) = 2 sinh(x) cosh(x)
+        // sin(2y) = 2 sin(y) cos(y)
+        // cosh(2x) = 2 sinh^2(x) + 1
+        // cos(2y) = 2 cos^2(y) - 1
+        // tanh(x+iy) = (sinh(x)cosh(x) + i sin(y)cos(y)) / (sinh^2(x) + cos^2(y))
 
-        // Math.cosh returns positive infinity for infinity.
-        // cosh -> inf
-        final double divisor = Math.cosh(real2) + cos2(imaginary);
-
-        // Math.sinh returns the input infinity for infinity.
-        // sinh -> inf for positive x; else -inf
-        final double sinhRe2 = Math.sinh(real2);
-
-        // Avoid inf / inf
-        if (Double.isInfinite(sinhRe2) && Double.isInfinite(divisor)) {
-            // Handle as if real was infinite
-            return constructor.create(Math.copySign(1, real), Math.copySign(0, imaginary));
+        // Check for overflow in sinh/cosh:
+        // sinh = (e^x - e^-x) / 2
+        // cosh = (e^x + e^-x) / 2
+        // sinh(x) -> sign(x) * e^|x| / 2 when x is large.
+        // cosh(x) -> e^|x| / 2 when x is large.
+        // sinh^2(x) -> e^2|x| / 4 when x is large.
+        if (x > SAFE_EXP_MAX / 2) {
+            // Ignore cos^2(y) in the divisor.
+            // real = sinh(x)cosh(x) / sinh^2(x) = +/-1
+            // imag = sin(2y) / (e^2|x| / 4) = 2 sin(2y) / e^2|x|
+            return constructor.create(Math.copySign(1, real),
+                                      2 * sin2(imaginary) / Math.exp(2 * x));
         }
-        return constructor.create(sinhRe2 / divisor,
+
+        // No overflow of sinh(2x) and cosh(2x)
+
+        // Note: This does not use the double angle identities and returns the
+        // definitional formula when 2y is finite. The transition when 2y overflows
+        // and cos(2y) and sin(2y) switch to identities is monotonic at the junction
+        // but the function is not smooth due to the sampling
+        // of the 2 pi period at very large jumps of x. Thus this returns a value
+        // but the usefulness as y -> inf may be limited.
+
+        final double real2 = 2 * real;
+        final double divisor = Math.cosh(real2) + cos2(imaginary);
+        return constructor.create(Math.sinh(real2) / divisor,
                                   sin2(imaginary) / divisor);
     }
 
