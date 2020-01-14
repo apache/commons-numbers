@@ -90,7 +90,7 @@ public class SinCosPerformance {
         /**
          * The type of the data.
          */
-        @Param({"pi", "random", "edge"})
+        @Param({"pi", "pi/2", "random", "edge"})
         private String type;
 
         /**
@@ -127,6 +127,8 @@ public class SinCosPerformance {
             DoubleSupplier generator;
             if ("pi".equals(type)) {
                 generator = () -> rng.nextDouble() * 2 * Math.PI - Math.PI;
+            } else if ("pi/2".equals(type)) {
+                generator = () -> rng.nextDouble() * Math.PI - Math.PI / 2;
             } else if ("random".equals(type)) {
                 generator = () -> createRandomNumber(rng);
             } else if ("edge".equals(type)) {
