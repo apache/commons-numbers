@@ -154,7 +154,7 @@ public final class Complex implements Serializable  {
      * sinh(x) = (e^x - e^-x) / 2 = sign(x) * e^|x| / 2
      * cosh(x) = (e^x + e^-x) / 2 = e^|x| / 2 </pre>
      *
-     * <p>The value should be ln(max_value) ~ 709.08. However it is set to an integer (709)
+     * <p>The value should be ln(max_value) ~ 709.783. However it is set to an integer (709)
      * to provide headroom.
      */
     private static final double SAFE_EXP_MAX = 709;
