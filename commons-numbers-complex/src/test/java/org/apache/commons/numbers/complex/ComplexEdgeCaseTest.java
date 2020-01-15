@@ -247,11 +247,53 @@ public class ComplexEdgeCaseTest {
         assertComplex(small, big, name, operation, -0.99998768942655991, 1.1040715888508271e-310);
         assertComplex(small, medium, name, operation, -0.41614683654714241, 2.0232539340376892e-308);
         assertComplex(small, small, name, operation, 1, 0);
+
+        // Overflow test.
+        // Based on MATH-901 discussion of FastMath functionality.
+        // https://issues.apache.org/jira/browse/MATH-901#comment-13500669
+        // sinh(x)/cosh(x) can be approximated by exp(x) but must be overflow safe.
+
+        // sinh(x) = sign(x) * e^|x| / 2 when x is large.
+        // cosh(x) = e^|x| / 2 when x is large.
+        // Thus e^|x| can overflow but e^|x| / 2 may not.
+        // (e^|x| / 2) * sin/cos will always be smaller.
+        final double tiny = Double.MIN_VALUE;
+        final double x = 709.783;
+        Assertions.assertEquals(inf, Math.exp(x));
+        // As computed by GNU g++
+        assertComplex(x, 0, name, operation, 8.9910466927705402e+307, 0.0);
+        assertComplex(-x, 0, name, operation, 8.9910466927705402e+307, -0.0);
+        // sub-normal number x:
+        // cos(x) = 1 => real = (e^|x| / 2)
+        // sin(x) = x => imaginary = x * (e^|x| / 2)
+        assertComplex(x, small, name, operation, 8.9910466927705402e+307, 2.0005742956701358);
+        assertComplex(-x, small, name, operation, 8.9910466927705402e+307, -2.0005742956701358);
+        assertComplex(x, tiny, name, operation, 8.9910466927705402e+307, 4.4421672910524807e-16);
+        assertComplex(-x, tiny, name, operation, 8.9910466927705402e+307, -4.4421672910524807e-16);
+        // Should not overflow imaginary.
+        assertComplex(2 * x, tiny, name, operation, inf, 7.9879467061901743e+292);
+        assertComplex(-2 * x, tiny, name, operation, inf, -7.9879467061901743e+292);
+        // Test when large enough to overflow any non-zero value to infinity. Result should be
+        // as if x was infinite and y was finite.
+        assertComplex(3 * x, tiny, name, operation, inf, inf);
+        assertComplex(-3 * x, tiny, name, operation, inf, -inf);
+        // pi / 2 x:
+        // cos(x) = ~0 => real = x * (e^|x| / 2)
+        // sin(x) = ~1 => imaginary = (e^|x| / 2)
+        final double pi2 = Math.PI / 2;
+        assertComplex(x, pi2, name, operation, 5.5054282766429199e+291, 8.9910466927705402e+307);
+        assertComplex(-x, pi2, name, operation, 5.5054282766429199e+291, -8.9910466927705402e+307);
+        assertComplex(2 * x, pi2, name, operation, inf, inf);
+        assertComplex(-2 * x, pi2, name, operation, inf, -inf);
+        // Test when large enough to overflow any non-zero value to infinity. Result should be
+        // as if x was infinite and y was finite.
+        assertComplex(3 * x, pi2, name, operation, inf, inf);
+        assertComplex(-3 * x, pi2, name, operation, inf, -inf);
     }
 
     @Test
     public void testSinh() {
-        // sinh(a + b i) = sinh(a)cos(b)) + i cosh(a)sin(b)
+        // sinh(a + b i) = sinh(a)cos(b) + i cosh(a)sin(b)
         // Odd function: negative real cases defined by positive real cases
         final String name = "sinh";
         final UnaryOperator<Complex> operation = Complex::sinh;
@@ -270,6 +312,46 @@ public class ComplexEdgeCaseTest {
         assertComplex(small, big, name, operation, -2.2250464665720564e-308, 0.004961954789184062);
         assertComplex(small, medium, name, operation, -9.2595744730151568e-309, 0.90929742682568171);
         assertComplex(small, small, name, operation, 2.2250738585072014e-308, 2.2250738585072014e-308);
+
+        // Overflow test.
+        // As per cosh with sign changes to real and imaginary
+
+        // sinh(x) = sign(x) * e^|x| / 2 when x is large.
+        // cosh(x) = e^|x| / 2 when x is large.
+        // Thus e^|x| can overflow but e^|x| / 2 may not.
+        // sinh(x) * sin/cos will always be smaller.
+        final double tiny = Double.MIN_VALUE;
+        final double x = 709.783;
+        Assertions.assertEquals(inf, Math.exp(x));
+        // As computed by GNU g++
+        assertComplex(x, 0, name, operation, 8.9910466927705402e+307, 0.0);
+        assertComplex(-x, 0, name, operation, -8.9910466927705402e+307, 0.0);
+        // sub-normal number:
+        // cos(x) = 1 => real = (e^|x| / 2)
+        // sin(x) = x => imaginary = x * (e^|x| / 2)
+        assertComplex(x, small, name, operation, 8.9910466927705402e+307, 2.0005742956701358);
+        assertComplex(-x, small, name, operation, -8.9910466927705402e+307, 2.0005742956701358);
+        assertComplex(x, tiny, name, operation, 8.9910466927705402e+307, 4.4421672910524807e-16);
+        assertComplex(-x, tiny, name, operation, -8.9910466927705402e+307, 4.4421672910524807e-16);
+        // Should not overflow imaginary.
+        assertComplex(2 * x, tiny, name, operation, inf, 7.9879467061901743e+292);
+        assertComplex(-2 * x, tiny, name, operation, -inf, 7.9879467061901743e+292);
+        // Test when large enough to overflow any non-zero value to infinity. Result should be
+        // as if x was infinite and y was finite.
+        assertComplex(3 * x, tiny, name, operation, inf, inf);
+        assertComplex(-3 * x, tiny, name, operation, -inf, inf);
+        // pi / 2 x:
+        // cos(x) = ~0 => real = x * (e^|x| / 2)
+        // sin(x) = ~1 => imaginary = (e^|x| / 2)
+        final double pi2 = Math.PI / 2;
+        assertComplex(x, pi2, name, operation, 5.5054282766429199e+291, 8.9910466927705402e+307);
+        assertComplex(-x, pi2, name, operation, -5.5054282766429199e+291, 8.9910466927705402e+307);
+        assertComplex(2 * x, pi2, name, operation, inf, inf);
+        assertComplex(-2 * x, pi2, name, operation, -inf, inf);
+        // Test when large enough to overflow any non-zero value to infinity. Result should be
+        // as if x was infinite and y was finite.
+        assertComplex(3 * x, pi2, name, operation, inf, inf);
+        assertComplex(-3 * x, pi2, name, operation, -inf, inf);
     }
 
     @Test
@@ -305,6 +387,18 @@ public class ComplexEdgeCaseTest {
         // cosh(2a) -> 0
         assertComplex(Double.MIN_NORMAL, 1, name, operation, 7.6220323800193346e-308, 1.5574077246549021);
         assertComplex(Double.MIN_VALUE, 1, name, operation, 1.4821969375237396e-323, 1.5574077246549021);
+
+        // Underflow test.
+        // sinh(x) can be approximated by exp(x) but must be overflow safe.
+        // im = 2 sin(2y) / e^2|x|
+        // This can be computed when e^2|x| only just overflows.
+        // Set a case where e^2|x| overflows but the imaginary can be computed
+        double x = 709.783 / 2;
+        double y = Math.PI / 4;
+        Assertions.assertEquals(1.0, Math.sin(2 * y), 1e-16);
+        Assertions.assertEquals(Double.POSITIVE_INFINITY, Math.exp(2 * x));
+        // As computed by GNU g++
+        assertComplex(x, y, name, operation, 1, 1.1122175583895849e-308);
     }
 
     @Test

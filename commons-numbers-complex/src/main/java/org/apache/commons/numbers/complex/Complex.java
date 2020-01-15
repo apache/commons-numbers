@@ -147,17 +147,37 @@ public final class Complex implements Serializable  {
      */
     private static final double SAFE_LOWER = Math.sqrt(Double.MIN_NORMAL) * 2;
     /**
-     * A safe maximum double value {@code x} where {@code e^x} is not infinite.
+     * A safe maximum double value {@code m} where {@code e^m} is not infinite.
      * This can be used when functions require approximations of sinh(x) or cosh(x)
-     * when x is large:
+     * when x is large using exp(x):
      * <pre>
      * sinh(x) = (e^x - e^-x) / 2 = sign(x) * e^|x| / 2
      * cosh(x) = (e^x + e^-x) / 2 = e^|x| / 2 </pre>
      *
-     * <p>The value should be ln(max_value) ~ 709.783. However it is set to an integer (709)
-     * to provide headroom.
+     * <p>This value can be used to approximate e^x using a product:
+     *
+     * <pre>
+     * e^x = product_n (e^m) * e^(x-nm)
+     * n = (int) x/m
+     * e.g. e^2000 = e^m * e^m * e^(2000 - 2m) </pre>
+     *
+     * <p>The value should be below ln(max_value) ~ 709.783.
+     * The value m is set to an integer for less error when subtracting m and chosen as
+     * even (m=708) as it is used as a threshold in tanh with m/2.
+     *
+     * <p>The value is used to compute e^x multiplied by a small number avoiding
+     * overflow (sinh/cosh) or a small number divided by e^x without underflow due to
+     * infinite e^x (tanh). The following conditions are used:
+     * <pre>
+     * 0.5 * e^m * Double.MIN_VALUE * e^m * e^m = Infinity
+     * 2.0 / e^m / e^m = 0.0 </pre>
      */
-    private static final double SAFE_EXP_MAX = 709;
+    private static final double SAFE_EXP = 708;
+    /**
+     * The value of Math.exp(SAFE_EXP): e^708.
+     * To be used in overflow/underflow safe products of e^m to approximate e^x where x > m.
+     */
+    private static final double EXP_M = Math.exp(SAFE_EXP);
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20180201L;
@@ -2022,13 +2042,73 @@ public final class Complex implements Serializable  {
             return constructor.create(Math.cosh(real), changeSign(imaginary, real));
         }
         final double x = Math.abs(real);
-        if (x > SAFE_EXP_MAX) {
-            final double exp2 = Math.exp(x) / 2;
-            return constructor.create(exp2 * Math.cos(imaginary),
-                                      Math.copySign(exp2, real) * Math.sin(imaginary));
+        if (x > SAFE_EXP) {
+            // Approximate sinh/cosh(x) using exp^|x| / 2
+            return coshsinh(x, real, imaginary, false, constructor);
         }
+        // No overflow of sinh/cosh
         return constructor.create(Math.cosh(real) * Math.cos(imaginary),
                                   Math.sinh(real) * Math.sin(imaginary));
+    }
+
+    /**
+     * Compute cosh or sinh when the absolute real component |x| is large. In this case
+     * cosh(x) and sinh(x) can be approximated by exp(|x|) / 2:
+     *
+     * <pre>
+     * cosh(x+iy) real = (e^|x| / 2) * cos(y)
+     * cosh(x+iy) imag = (e^|x| / 2) * sin(y) * sign(x)
+     * sinh(x+iy) real = (e^|x| / 2) * cos(y) * sign(x)
+     * sinh(x+iy) imag = (e^|x| / 2) * sin(y)
+     * </pre>
+     *
+     * @param x Absolute real component |x|.
+     * @param real Real part (x).
+     * @param imaginary Imaginary part (y).
+     * @param sinh Set to true to compute sinh, otherwise cosh.
+     * @param constructor Constructor.
+     * @return The hyperbolic sine/cosine of the complex number.
+     */
+    private static Complex coshsinh(double x, double real, double imaginary, boolean sinh,
+                                    ComplexConstructor constructor) {
+        // Always require the cos and sin.
+        double re = Math.cos(imaginary);
+        double im = Math.sin(imaginary);
+        // Compute the correct function
+        if (sinh) {
+            re = changeSign(re, real);
+        } else {
+            im = changeSign(im, real);
+        }
+        // Multiply by (e^|x| / 2).
+        // Overflow safe computation since sin/cos can be very small allowing a result
+        // when e^x overflows: e^x / 2 = (e^m / 2) * e^m * e^(x-2m)
+        if (x > SAFE_EXP * 3) {
+            // e^x > e^m * e^m * e^m
+            // y * (e^m / 2) * e^m * e^m will overflow when starting with Double.MIN_VALUE.
+            // Note: Do not multiply by +inf to safeguard against sin(y)=0.0 which
+            // will create 0 * inf = nan.
+            re *= Double.MAX_VALUE * Double.MAX_VALUE * Double.MAX_VALUE;
+            im *= Double.MAX_VALUE * Double.MAX_VALUE * Double.MAX_VALUE;
+        } else {
+            // Initial part of (e^x / 2) using (e^m / 2)
+            re *= EXP_M / 2;
+            im *= EXP_M / 2;
+            double xm;
+            if (x > SAFE_EXP * 2) {
+                // e^x = e^m * e^m * e^(x-2m)
+                re *= EXP_M;
+                im *= EXP_M;
+                xm = x - SAFE_EXP * 2;
+            } else {
+                // e^x = e^m * e^(x-m)
+                xm = x - SAFE_EXP;
+            }
+            final double exp = Math.exp(xm);
+            re *= exp;
+            im *= exp;
+        }
+        return constructor.create(re, im);
     }
 
     /**
@@ -2095,7 +2175,7 @@ public final class Complex implements Serializable  {
             return new Complex(zeroOrInf * Math.cos(imaginary),
                                zeroOrInf * Math.sin(imaginary));
         } else if (Double.isNaN(real)) {
-            // (NaN + i0) returns (NaN + i0);
+            // (NaN + i0) returns (NaN + i0)
             // (NaN + iy) returns (NaN + iNaN) and optionally raises the invalid floating-point exception
             // (NaN + iNaN) returns (NaN + iNaN)
             return imaginary == 0 ? this : NAN;
@@ -2617,11 +2697,11 @@ public final class Complex implements Serializable  {
             return constructor.create(Math.sinh(real), imaginary);
         }
         final double x = Math.abs(real);
-        if (x > SAFE_EXP_MAX) {
-            final double exp2 = Math.exp(x) / 2;
-            return constructor.create(Math.copySign(exp2, real) * Math.cos(imaginary),
-                                      exp2 * Math.sin(imaginary));
+        if (x > SAFE_EXP) {
+            // Approximate sinh/cosh(x) using exp^|x| / 2
+            return coshsinh(x, real, imaginary, true, constructor);
         }
+        // No overflow of sinh/cosh
         return constructor.create(Math.sinh(real) * Math.cos(imaginary),
                                   Math.cosh(real) * Math.sin(imaginary));
     }
@@ -2837,7 +2917,8 @@ public final class Complex implements Serializable  {
         // Cache the absolute real value
         final double x = Math.abs(real);
 
-        // Handle inf or nan
+        // Handle inf or nan.
+        // Deliberate logic inversion using x to match !Double.isFinite(x) knowing x is absolute.
         if (!(x <= Double.MAX_VALUE) || !Double.isFinite(imaginary)) {
             if (isPosInfinite(x)) {
                 if (Double.isFinite(imaginary)) {
@@ -2878,19 +2959,30 @@ public final class Complex implements Serializable  {
         // cosh(2x) = 2 sinh^2(x) + 1
         // cos(2y) = 2 cos^2(y) - 1
         // tanh(x+iy) = (sinh(x)cosh(x) + i sin(y)cos(y)) / (sinh^2(x) + cos^2(y))
+        // tanh(x+iy) = (sinh(x)cosh(x) + i 0.5 sin(2y)) / (sinh^2(x) + cos^2(y))
 
-        // Check for overflow in sinh/cosh:
-        // sinh = (e^x - e^-x) / 2
-        // cosh = (e^x + e^-x) / 2
-        // sinh(x) -> sign(x) * e^|x| / 2 when x is large.
-        // cosh(x) -> e^|x| / 2 when x is large.
-        // sinh^2(x) -> e^2|x| / 4 when x is large.
-        if (x > SAFE_EXP_MAX / 2) {
-            // Ignore cos^2(y) in the divisor.
+        if (x > SAFE_EXP / 2) {
+            // Potential overflow in sinh/cosh(2x).
+            // Approximate sinh/cosh using exp^x.
+            // Ignore cos^2(y) in the divisor as it is insignificant.
             // real = sinh(x)cosh(x) / sinh^2(x) = +/-1
-            // imag = sin(2y) / (e^2|x| / 4) = 2 sin(2y) / e^2|x|
-            return constructor.create(Math.copySign(1, real),
-                                      2 * sin2(imaginary) / Math.exp(2 * x));
+            final double re = Math.copySign(1, real);
+            // imag = sin(2y) / 2 sinh^2(x)
+            // sinh(x) -> sign(x) * e^|x| / 2 when x is large.
+            // sinh^2(x) -> e^2|x| / 4 when x is large.
+            // imag = sin(2y) / 2 (e^2|x| / 4) = 2 sin(2y) / e^2|x|
+            // Underflow safe divide as e^2|x| may overflow:
+            // imag = 2 sin(2y) / e^m / e^(2|x| - m)
+            double im = sin2(imaginary);
+            if (x > SAFE_EXP) {
+                // e^2|x| > e^m * e^m
+                // This will underflow 2.0 / e^m / e^m
+                im = Math.copySign(0.0, im);
+            } else {
+                // e^2|x| = e^m * e^(2|x| - m)
+                im = 2 * im / EXP_M / Math.exp(2 * x - SAFE_EXP);
+            }
+            return constructor.create(re, im);
         }
 
         // No overflow of sinh(2x) and cosh(2x)

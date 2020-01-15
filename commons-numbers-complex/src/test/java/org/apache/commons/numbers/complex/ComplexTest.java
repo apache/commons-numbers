@@ -1967,16 +1967,16 @@ public class ComplexTest {
     }
 
     @Test
-    public void testTanhAssumptions() {
-        // Use the same constants used by tanh
-        final double safeExpMax = 709;
+    public void testCoshSinhTanhAssumptions() {
+        // Use the same constants used to approximate cosh/sinh with e^|x| / 2
+        final double safeExpMax = 708;
 
         final double big = Math.exp(safeExpMax);
         final double small = Math.exp(-safeExpMax);
 
         // Overflow assumptions
         Assertions.assertTrue(Double.isFinite(big));
-        Assertions.assertTrue(Double.isInfinite(Math.exp(safeExpMax + 1)));
+        Assertions.assertTrue(Double.isInfinite(Math.exp(safeExpMax + 2)));
 
         // Can we assume cosh(x) = (e^x + e^-x) / 2 = e^|x| / 2
         Assertions.assertEquals(big + small, big);
@@ -1992,6 +1992,15 @@ public class ComplexTest {
         // Can we assume sinh(x/2) * cosh(x/2) is finite
         Assertions.assertTrue(Double.isFinite(Math.sinh(safeExpMax / 2) * Math.cosh(safeExpMax / 2)));
 
+        // Will 2.0 / (2 * (e^|x|)) underflow
+        Assertions.assertNotEquals(0.0, 2.0 / big);
+        Assertions.assertEquals(0.0, 2.0 / big / big);
+
+        // This is an assumption used in sinh/cosh.
+        // Will 3 * (e^|x|/2) * y overflow for any positive y
+        Assertions.assertTrue(Double.isFinite(0.5 * big * Double.MIN_VALUE * big));
+        Assertions.assertTrue(Double.isInfinite(0.5 * big * Double.MIN_VALUE * big * big));
+
         // Is overflow point monotonic:
         // The values at the switch are exact. Previous values are close.
         final double x = Double.MAX_VALUE / 2;
@@ -2006,6 +2015,10 @@ public class ComplexTest {
         Assertions.assertEquals(Math.cos(2 * x), 2 * Math.cos(x) * Math.cos(x) - 1);
         Assertions.assertEquals(Math.cos(2 * x1), 2 * Math.cos(x1) * Math.cos(x1) - 1, 4 * Math.ulp(Math.cos(2 * x1)));
         Assertions.assertEquals(Math.cos(2 * x2), 2 * Math.cos(x2) * Math.cos(x2) - 1, 2 * Math.ulp(Math.cos(2 * x2)));
+
+        // tanh: 2.0 / Double.MAX_VALUE does not underflow.
+        // Thus 2 sin(2y) / e^2|x| can be computed when e^2|x| only just overflows
+        Assertions.assertTrue(2.0 / Double.MAX_VALUE > 0);
     }
 
     /**
