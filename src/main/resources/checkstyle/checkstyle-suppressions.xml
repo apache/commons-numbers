@@ -20,8 +20,9 @@
     "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 <suppressions>
   <suppress checks="Indentation" files=".*[/\\]combinatorics[/\\]Factorial\.java" />
-  <suppress checks="ParameterNumber" files=".*[/\\]arrays[/\\]LinearCombination\.java" />
+  <suppress checks="ParameterNumber" files=".*[/\\]arrays[/\\]LinearCombination[s]?\.java" />
   <suppress checks="FileLengthCheck" files=".*[/\\]Complex(Test)?\.java" />
+  <suppress checks="FileLengthCheck" files=".*jmh[/\\]arrays[/\\]LinearCombinations.java" />
   <suppress checks="MethodLength" files=".*[/\\]Complex\.java" />
 
   <!-- Be more lenient on tests. -->
@@ -32,4 +33,5 @@
   <suppress checks="IllegalCatch" files=".*[/\\]test[/\\].*" />
   <suppress checks="MethodName" files=".*[/\\]test[/\\].*" />
   <suppress checks="ConstantName" files=".*[/\\]test[/\\].*" />
+  <suppress checks="MethodLength" files=".*/LinearCombination.*Test.java" />
 </suppressions>
