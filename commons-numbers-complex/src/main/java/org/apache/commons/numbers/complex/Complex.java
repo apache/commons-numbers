@@ -2415,7 +2415,7 @@ public final class Complex implements Serializable  {
             // - The answer will not be NaN as the terms are not NaN components
             // - The order is known to be 1 > |x| >= |y|
             // The squares are computed using a split multiply algorithm and
-            // the summation using a double-length summation algorithm to 3-fold precision.
+            // the summation using an extended precision summation algorithm.
 
             // Split x and y as one 26 bits number and one 27 bits number
             final double xHigh = splitHigh(x);
@@ -2491,47 +2491,64 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Sum x^2 + y^2 - 1.
+     * Sum x^2 + y^2 - 1. It is assumed that {@code y <= x < 1}.
      *
-     * <p>Implement Ogita's dotK sum using K=3.
+     * <p>Implement Shewchuk's expansion-sum algorithm: [x2Low, x2High, -1] + [y2Low, y2High].
      *
      * @param x2High High part of x^2.
      * @param x2Low Low part of x^2.
      * @param y2High High part of y^2.
      * @param y2Low Low part of y^2.
      * @return x^2 + y^2 - 1
-     * @see <a href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.2.1547">
-     * Ogita et al (2005) Accurate Sum and Dot Product</a>
+     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * Shewchuk (1997) Theorum 12</a>
      */
     private static double sumx2y2m1(double x2High, double x2Low, double y2High, double y2Low) {
-        // Implement a dotK summation using K=3.
-        // See Ogita et al (2005) SIAM J. Sci. Comput: Algorithm 4.8.
-        // We have the split products from x^2 and y^2. The final product (-1*1) has no error.
-        // Collect the error terms into an array p_i. The lower entries are the errors from
-        // the products and the upper entries from their running sum.
-        // s is the running dot sum. This becomes the final term.
-        double p0 = x2Low;
-        double p1 = y2Low;
-        // Sum the products and store the error terms.
-        double s = x2High + y2High;
-        double p2 = sumLow(x2High, y2High, s);
-        double p4 = s - 1;
-        double p3 = sumLow(s, -1, p4);
-        // Cascade summation of the terms p_i
-        s = p0 + p1;
-        p0 = sumLow(p0, p1, s);
-        p1 = s;
-        s += p2;
-        p1 = sumLow(p1, p2, s);
-        p2 = s;
-        s += p3;
-        p2 = sumLow(p2, p3, s);
-        p3 = s;
-        s += p4;
-        p3 = sumLow(p3, p4, s);
-        p4 = s;
+        // Let e and f be non-overlapping expansions of components of length m and n.
+        // The following algorithm will produce a non-overlapping expansion h where the
+        // sum h_i = e + f and components of h are in increasing order of magnitude.
+
+        // Expansion sum proceeds by a grow-expansion of the first part from one expansion
+        // into the other, extending its length by 1. The process repeats for the next part
+        // but the grow expansion starts at the previous merge position + 1.
+        // Thus expansion sum requires mn two-sum operations to merge length m into length n
+        // resulting in length m+n-1.
+
+        // Variables numbered from 1 as per Figure 7 (p.12). The output expansion h is placed
+        // into e increasing its length for each grow expansion.
+
+        double e1 = x2Low;
+        double e2 = x2High;
+        double e3 = -1;
+        double e4;
+        double e5;
+        final double f1 = y2Low;
+        final double f2 = y2High;
+
+        // q=running sum, p=previous sum
+        double q;
+        double p;
+
+        // Grow expansion of f1 into e
+        q = f1 + e1;
+        e1 = sumLow(f1, e1, q);
+        p = q;
+        q += e2;
+        e2 = sumLow(p, e2, q);
+        e4 = q + e3;
+        e3 = sumLow(q, e3, e4);
+
+        // Grow expansion of f2 into e (only required to start at e2)
+        q = f2 + e2;
+        e2 = sumLow(f2, e2, q);
+        p = q;
+        q += e3;
+        e3 = sumLow(p, e3, q);
+        e5 = q + e4;
+        e4 = sumLow(q, e4, e5);
+
         // Final summation
-        return p0 + p1 + p2 + p3 + p4;
+        return e1 + e2 + e3 + e4 + e5;
     }
 
     /**
