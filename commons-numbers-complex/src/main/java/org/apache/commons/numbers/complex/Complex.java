@@ -94,8 +94,8 @@ public final class Complex implements Serializable  {
     private static final double HALF = 0.5;
     /** {@code sqrt(2)}. */
     private static final double ROOT2 = Math.sqrt(2);
-    /** The number of bits of precision of the mantissa of a {@code double} + 1: {@code 54}. */
-    private static final double PRECISION_1 = 54;
+    /** Half the number of bits of precision of the mantissa of a {@code double} rounded up: {@code 27}. */
+    private static final double HALF_PRECISION = 27;
     /** The bit representation of {@code -0.0}. */
     private static final long NEGATIVE_ZERO_LONG_BITS = Double.doubleToLongBits(-0.0);
     /** Exponent offset in IEEE754 representation. */
@@ -2340,7 +2340,9 @@ public final class Complex implements Serializable  {
                 // Do scaling
                 final int expx = Math.getExponent(x);
                 final int expy = Math.getExponent(y);
-                if (2 * (expx - expy) > PRECISION_1) {
+                // Hull et al: 2 * (expx - expy) > precision + 1
+                // Modified to use the pre-computed half precision
+                if ((expx - expy) > HALF_PRECISION) {
                     // y can be ignored
                     re = log.apply(x);
                 } else {
