@@ -492,7 +492,7 @@ public class ComplexEdgeCaseTest {
         // cis numbers on a 1/8 circle with a set radius.
         final int steps = 20;
         final double[] radius = {0.99, 1.0, 1.01};
-        final int[] ulps = {0, -1, 1};
+        final int[] ulps = {0, 0, 1};
         for (int j = 0; j < radius.length; j++) {
             for (int i = 1; i <= steps; i++) {
                 final double theta = i * Math.PI / (4 * steps);
