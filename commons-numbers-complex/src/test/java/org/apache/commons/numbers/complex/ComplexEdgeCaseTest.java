@@ -614,9 +614,48 @@ public class ComplexEdgeCaseTest {
         assertComplex(a, -a, name, operation, 1.6388720948399111e-154, -6.7884304867749655e-155);
     }
 
-    // Note:
-    // multiply is tested in CStandardTest
-    // divide is tested in CStandardTest
+    // Note: inf/nan edge cases for
+    // multiply/divide are tested in CStandardTest
+
+    @Test
+    public void testDivide() {
+        final String name = "divide";
+        final BiFunction<Complex, Complex, Complex> operation = Complex::divide;
+
+        // Should be able to divide by a complex whose absolute (c*c+d*d)
+        // overflows or underflows including all sub-normal numbers.
+
+        // Worst case is using Double.MIN_VALUE
+        // Should normalise c and d to range [1, 2) resulting in:
+        // c = d = 1
+        // c * c + d * d = 2
+        // scaled x = (a * c + b * d) / denom = Double.MIN_VALUE
+        // scaled y = (b * c - a * d) / denom = 0
+        // The values are rescaled by 1023 + 51 (shift the last bit of the 52 bit mantissa)
+        double x = Math.scalb(Double.MIN_VALUE, 1023 + 51);
+        Assertions.assertEquals(1.0, x);
+        // In other words the result is (x+iy) / (x+iy) = (1+i0)
+        // The result is the same if imaginary is zero (i.e. a real only divide)
+
+        assertComplex(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, name, operation, 1.0, 0.0);
+        assertComplex(Double.MAX_VALUE, 0.0, Double.MAX_VALUE, 0.0, name, operation, 1.0, 0.0);
+
+        assertComplex(1.0, 1.0, 1.0, 1.0, name, operation, 1.0, 0.0);
+        assertComplex(1.0, 0.0, 1.0, 0.0, name, operation, 1.0, 0.0);
+        // Should work for all small values
+        x = Double.MIN_NORMAL;
+        while (x != 0) {
+            assertComplex(x, x, x, x, name, operation, 1.0, 0.0);
+            assertComplex(x, 0, x, 0, name, operation, 1.0, 0.0);
+            x /= 2;
+        }
+
+        // Some cases of not self-divide
+        assertComplex(1, 1, Double.MIN_VALUE, Double.MIN_VALUE, name, operation, inf, 0);
+        // As computed by GNU g++
+        assertComplex(Double.MIN_NORMAL, Double.MIN_NORMAL, Double.MIN_VALUE, Double.MIN_VALUE, name, operation, 4503599627370496L, 0);
+        assertComplex(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_NORMAL, Double.MIN_NORMAL, name, operation, 2.2204460492503131e-16, 0);
+    }
 
     @Test
     public void testPow() {

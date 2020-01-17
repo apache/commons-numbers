@@ -112,6 +112,10 @@ public final class Complex implements Serializable  {
      * @see <a href="http://en.wikipedia.org/wiki/Machine_epsilon">Machine epsilon</a>
      */
     private static final double EPSILON = Double.longBitsToDouble((EXPONENT_OFFSET - 53L) << 52);
+    /** Mask to remove the sign bit from a long. */
+    private static final long UNSIGN_MASK = 0x7fffffffffffffffL;
+    /** Mask to extract the 52-bit mantissa from a long representation of a double. */
+    private static final long MANTISSA_MASK = 0x000fffffffffffffL;
     /** The multiplier used to split the double value into hi and low parts. This must be odd
      * and a value of 2^s + 1 in the range {@code p/2 <= s <= p-1} where p is the number of
      * bits of precision of the floating point number. Here {@code s = 27}.*/
@@ -646,14 +650,22 @@ public final class Complex implements Serializable  {
         double c = re2;
         double d = im2;
         int ilogbw = 0;
-        // Get the exponent to scale the divisor.
-        final int exponent = getMaxExponent(c, d);
+        // Get the exponent to scale the divisor parts to the range [1, 2).
+        final int exponent = getScale(c, d);
         if (exponent <= Double.MAX_EXPONENT) {
             ilogbw = exponent;
             c = Math.scalb(c, -ilogbw);
             d = Math.scalb(d, -ilogbw);
         }
         final double denom = c * c + d * d;
+        // Divisor is in the range [1, 2).
+        // Avoid overflow if a or b are very big. Here we do not need to
+        // handle sub-normal exponents so just get the maximum exponent.
+        if (getMaxExponent(a, b) > Double.MAX_EXPONENT - 2) {
+            ilogbw -= 2;
+            a /= 4;
+            b /= 4;
+        }
         double x = Math.scalb((a * c + b * d) / denom, -ilogbw);
         double y = Math.scalb((b * c - a * d) / denom, -ilogbw);
         // Recover infinities and zeros that computed as NaN+iNaN
@@ -2834,7 +2846,7 @@ public final class Complex implements Serializable  {
             } else {
                 // Over/underflow
                 // scale so that abs(x) is near 1, with even exponent.
-                final int scale = getMaxExponent(x, y) & MASK_INT_TO_EVEN;
+                final int scale = getScale(x, y) & MASK_INT_TO_EVEN;
                 final double sx = Math.scalb(x, -scale);
                 final double sy = Math.scalb(y, -scale);
                 final double st = Math.sqrt(2 * (Math.sqrt(sx * sx + sy * sy) + sx));
@@ -3233,6 +3245,70 @@ public final class Complex implements Serializable  {
     }
 
     /**
+     * Returns a scale suitable for use with {@link Math#scalb(double, int)} to normalise
+     * the number to the interval {@code [1, 2)}.
+     *
+     * <p>The scale is typically the largest unbiased exponent used in the representation of the
+     * two numbers. In contrast to {@link Math#getExponent(double)} this handles
+     * sub-normal numbers by computing the number of leading zeros in the mantissa
+     * and shifting the unbiased exponent. The result is that for all finite, non-zero,
+     * numbers {@code a, b}, the magnitude of {@code scalb(x, -getScale(x))} is
+     * always in the range {@code [1, 2)}, where {@code x = max(|a|, |b|)}.
+     *
+     * <p>This method is a functional equivalent of the c function ilogb(double) adapted for
+     * two input arguments.
+     *
+     * <p>The result is to be used to scale a complex number using {@link Math#scalb(double, int)}.
+     * Hence the special case of both zero arguments is handled using the return value for NaN
+     * as zero cannot be scaled. This is different from {@link Math#getExponent(double)}
+     * or {@link #getMaxExponent(double, double)}.
+     *
+     * <p>Special cases:
+     *
+     * <ul>
+     * <li>If either argument is NaN or infinite, then the result is
+     * {@link Double#MAX_EXPONENT} + 1.
+     * <li>If both arguments are zero, then the result is
+     * {@link Double#MAX_EXPONENT} + 1.
+     * </ul>
+     *
+     * @param a the first value
+     * @param b the second value
+     * @return The maximum unbiased exponent of the values to be used for scaling
+     * @see Math#getExponent(double)
+     * @see Math#scalb(double, int)
+     * @see <a href="http://www.cplusplus.com/reference/cmath/ilogb/">ilogb</a>
+     */
+    private static int getScale(double a, double b) {
+        // Only interested in the exponent and mantissa so remove the sign bit
+        final long x = Double.doubleToRawLongBits(a) & UNSIGN_MASK;
+        final long y = Double.doubleToRawLongBits(b) & UNSIGN_MASK;
+        // Only interested in the maximum
+        final long max = Math.max(x, y);
+        // Get the unbiased exponent
+        int exp = (int) ((max >>> 52) - EXPONENT_OFFSET);
+
+        // Do not distinguish nan/inf
+        if (exp == Double.MAX_EXPONENT + 1) {
+            return exp;
+        }
+        // Handle sub-normal numbers
+        if (exp == Double.MIN_EXPONENT - 1) {
+            // Special case for zero, return as nan/inf to indicate scaling is not possible
+            if (max == 0) {
+                return Double.MAX_EXPONENT + 1;
+            }
+            // A sub-normal number has an exponent below -1022. The amount below
+            // is defined by the number of shifts of the most significant bit in
+            // the mantissa that is required to get a 1 at position 53 (i.e. as
+            // if it were a normal number with assumed leading bit)
+            final long mantissa = max & MANTISSA_MASK;
+            exp -= Long.numberOfLeadingZeros(mantissa << 12);
+        }
+        return exp;
+    }
+
+    /**
      * Returns the largest unbiased exponent used in the representation of the
      * two numbers. Special cases:
      *
@@ -3243,16 +3319,20 @@ public final class Complex implements Serializable  {
      * {@link Double#MIN_EXPONENT} -1.
      * </ul>
      *
+     * <p>This is used by {@link #divide(double, double, double, double)} as
+     * a simple detection that a number may overflow if multiplied
+     * by a value in the interval [1, 2).
+     *
      * @param a the first value
      * @param b the second value
      * @return The maximum unbiased exponent of the values.
      * @see Math#getExponent(double)
+     * @see #divide(double, double, double, double)
      */
     private static int getMaxExponent(double a, double b) {
         // This could return:
         // Math.getExponent(Math.max(Math.abs(a), Math.abs(b)))
         // A speed test is required to determine performance.
-
         return Math.max(Math.getExponent(a), Math.getExponent(b));
     }
 
