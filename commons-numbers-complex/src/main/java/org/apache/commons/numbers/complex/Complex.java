@@ -2489,19 +2489,43 @@ public final class Complex implements Serializable  {
 
     /**
      * Compute the round-off from the sum of two numbers {@code a} and {@code b} using
+     * Dekker's two-sum algorithm. The values are required to be ordered by magnitude:
+     * {@code |a| >= |b|}.
+     *
+     * @param a First part of sum.
+     * @param b Second part of sum.
+     * @param x Sum.
+     * @return <code>b - (x - a)</code>
+     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * Shewchuk (1997) Theorum 6</a>
+     */
+    private static double fastSumLow(double a, double b, double x) {
+        // x = a + b
+        // bVirtual = x - a
+        // y = b - bVirtual
+        return b - (x - a);
+    }
+
+    /**
+     * Compute the round-off from the sum of two numbers {@code a} and {@code b} using
      * Knuth's two-sum algorithm. The values are not required to be ordered by magnitude.
      *
      * @param a First part of sum.
      * @param b Second part of sum.
-     * @param sum Sum.
-     * @return <code>(b - (sum - (sum - b))) + (a - (sum - b))</code>
+     * @param x Sum.
+     * @return <code>(a - (x - (x - a))) + (b - (x - a))</code>
+     * @see <a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">
+     * Shewchuk (1997) Theorum 7</a>
      */
-    private static double sumLow(double a, double b, double sum) {
-        final double aPrime = sum - b;
-        // sum - aPrime == bPrime.
-        // a - aPrime == a round-off
-        // b - bPrime == b round-off
-        return (a - aPrime) + (b - (sum - aPrime));
+    private static double sumLow(double a, double b, double x) {
+        // x = a + b
+        // bVirtual = x - a
+        // aVirtual = x - bVirtual
+        // bRoundoff = b - bVirtual
+        // aRoundoff = a - aVirtual
+        // y = aRoundoff + bRoundoff
+        final double bVirtual = x - a;
+        return (a - (x - bVirtual)) + (b - bVirtual);
     }
 
     /**
@@ -2531,25 +2555,27 @@ public final class Complex implements Serializable  {
         // Variables numbered from 1 as per Figure 7 (p.12). The output expansion h is placed
         // into e increasing its length for each grow expansion.
 
-        double e1 = x2Low;
-        double e2 = x2High;
-        double e3 = -1;
-        double e4;
-        double e5;
+        // We have two expansions for x^2 and y^2 and the whole number -1.
+        // Expecting (x^2 + y^2) close to 1 we generate first the intermediate expansion
+        // (x^2 - 1) moving the result away from 1 where there are sparse floating point
+        // representations. This is then added to a similar magnitude y^2.
+
+        // q=running sum
+        double q = x2Low - 1;
+        double e1 = fastSumLow(-1, x2Low, q);
+        double e3 = q + x2High;
+        double e2 = sumLow(q, x2High, e3);
+
         final double f1 = y2Low;
         final double f2 = y2High;
-
-        // q=running sum, p=previous sum
-        double q;
-        double p;
 
         // Grow expansion of f1 into e
         q = f1 + e1;
         e1 = sumLow(f1, e1, q);
-        p = q;
+        double p = q;
         q += e2;
         e2 = sumLow(p, e2, q);
-        e4 = q + e3;
+        double e4 = q + e3;
         e3 = sumLow(q, e3, e4);
 
         // Grow expansion of f2 into e (only required to start at e2)
@@ -2558,7 +2584,7 @@ public final class Complex implements Serializable  {
         p = q;
         q += e3;
         e3 = sumLow(p, e3, q);
-        e5 = q + e4;
+        final double e5 = q + e4;
         e4 = sumLow(q, e4, e5);
 
         // Final summation
