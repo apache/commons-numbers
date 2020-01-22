@@ -22,10 +22,12 @@ import org.apache.commons.rng.simple.RandomSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
 
 /**
@@ -507,6 +509,123 @@ public class CStandardTest {
     }
 
     /**
+     * Assert {@link Complex#abs()} is functionally equivalent to using
+     * {@link Math#hypot(double, double)}. If the results differ the true result
+     * is computed with extended precision. The test fails if the result is further
+     * than the provided ULPs from the reference result.
+     *
+     * <p>This can be used to assert that the custom implementation of abs() is no worse than
+     * {@link Math#hypot(double, double)} which aims to be within 1 ULP of the exact result.
+     *
+     * <p>Note: This method will not handle an input complex that is infinite or nan so should
+     * not be used for edge case tests.
+     *
+     * <p>Note: The true result is the sum {@code x^2 + y^2} computed using BigDecimal,
+     * converted to a double and the sqrt computed using standard precision.
+     * This is not the exact result as the BigDecimal
+     * sqrt() function was added in Java 9 and is unavailable for the current build target.
+     * In this case we require a measure of how close you can get to the nearest-double
+     * representing the answer, and the not the exact distance from the answer, so this
+     * is valid assuming {@link Math#sqrt(double)} has no error. The test then becomes a
+     * measure of the accuracy of the high-precision sum {@code x^2 + y^2}.
+     *
+     * @param z the complex
+     * @param ulps the maximum allowed ULPs from the exact result
+     */
+    private static void assertAbs(Complex z, int ulps) {
+        double x = z.getReal();
+        double y = z.getImaginary();
+        // For speed use Math.hypot as the reference, not BigDecimal computation.
+        final double expected = Math.hypot(x, y);
+        final double observed = z.abs();
+        if (expected == observed) {
+            // This condition will occur in the majority of cases.
+            return;
+        }
+        // Compute the 'exact' result.
+        // JDK 9 BigDecimal.sqrt() is not available so compute the standard sqrt of the
+        // high precision sum. Do scaling as the high precision sum may not be in the
+        // range of a double.
+        int scale = 0;
+        x = Math.abs(x);
+        y = Math.abs(y);
+        if (Math.max(x, y) > 0x1.0p+500) {
+            scale = Math.getExponent(Math.max(x, y));
+        } else if (Math.min(x, y) < 0x1.0p-500) {
+            scale = Math.getExponent(Math.min(x, y));
+        }
+        if (scale != 0) {
+            x = Math.scalb(x, -scale);
+            y = Math.scalb(y, -scale);
+        }
+        // Compute and re-scale. 'exact' must be effectively final for use in the
+        // assertion message supplier.
+        final double result = Math.sqrt(new BigDecimal(x).pow(2).add(new BigDecimal(y).pow(2)).doubleValue());
+        final double exact = scale != 0 ? Math.scalb(result, scale) : result;
+        if (exact == observed) {
+            // Different from Math.hypot but matches the 'exact' result
+            return;
+        }
+        // Distance from the 'exact' result should be within tolerance.
+        final long obsBits = Double.doubleToLongBits(observed);
+        final long exactBits = Double.doubleToLongBits(exact);
+        final long obsUlp = Math.abs(exactBits - obsBits);
+        Assertions.assertTrue(obsUlp <= ulps, () -> {
+            // Compute for Math.hypot for reference.
+            final long expBits = Double.doubleToLongBits(expected);
+            final long expUlp = Math.abs(exactBits - expBits);
+            return String.format("%s.abs(). Expected %s, was %s (%d ulps). hypot %s (%d ulps)",
+                z, exact, observed, obsUlp, expected, expUlp);
+        });
+    }
+
+    /**
+     * Assert {@link Complex#abs()} functions as per {@link Math#hypot(double, double)}.
+     * The two numbers for {@code z = x + iy} are generated from the two function.
+     *
+     * <p>The functions should not generate numbers that are infinite or nan.
+     *
+     * @param rng Source of randomness
+     * @param fx Function to generate x
+     * @param fy Function to generate y
+     * @param samples Number of samples
+     */
+    private static void assertAbs(UniformRandomProvider rng,
+                                  ToDoubleFunction<UniformRandomProvider> fx,
+                                  ToDoubleFunction<UniformRandomProvider> fy,
+                                  int samples) {
+        for (int i = 0; i < samples; i++) {
+            double x = fx.applyAsDouble(rng);
+            double y = fy.applyAsDouble(rng);
+            assertAbs(Complex.ofCartesian(x, y), 1);
+        }
+    }
+
+    /**
+     * Creates a sub-normal number with up to 52-bits in the mantissa. The number of bits
+     * to drop must be in the range [0, 51].
+     *
+     * @param rng Source of randomness
+     * @param drop The number of mantissa bits to drop.
+     * @return the number
+     */
+    private static double createSubNormalNumber(UniformRandomProvider rng, int drop) {
+        return Double.longBitsToDouble(rng.nextLong() >>> (12 + drop));
+    }
+
+    /**
+     * Creates a number in the range {@code [1, 2)} with up to 52-bits in the mantissa.
+     * Then modifies the exponent by the given amount.
+     *
+     * @param rng Source of randomness
+     * @param exponent Amount to change the exponent (in range [-1023, 1023])
+     * @return the number
+     */
+    private static double createFixedExponentNumber(UniformRandomProvider rng, int exponent) {
+        return Double.longBitsToDouble((rng.nextLong() >>> 12) | ((1023L + exponent) << 52));
+    }
+
+    /**
      * Returns {@code true} if the values are equal according to semantics of
      * {@link Double#equals(Object)}.
      *
@@ -756,25 +875,26 @@ public class CStandardTest {
     }
 
     /**
-     * Create a number in the range {@code (-5,5)}.
+     * Create a number in the range {@code [-5,5)}.
      *
      * @param rng the random generator
      * @return the number
      */
     private static double next(UniformRandomProvider rng) {
-        return rng.nextDouble() * (rng.nextBoolean() ? -5 : 5);
+        // Note: [0, 1) minus 1 is [-1, 0). This occurs half the time to create [-1, 1).
+        return (rng.nextDouble() - rng.nextInt(1)) * 5;
     }
 
     /**
      * ISO C Standard G.6 (6) for abs().
-     * Defined by ISO C Standard F.9.4.3 hypot function.
+     * Functionality is defined by ISO C Standard F.9.4.3 hypot function.
      */
     @Test
     public void testAbs() {
         Assertions.assertEquals(inf, complex(inf, nan).abs());
         Assertions.assertEquals(inf, complex(negInf, nan).abs());
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
-        for (int i = 0; i < 100; i++) {
+        final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_128_PP);
+        for (int i = 0; i < 10; i++) {
             final double x = next(rng);
             final double y = next(rng);
             Assertions.assertEquals(complex(x, y).abs(), complex(y, x).abs());
@@ -784,6 +904,71 @@ public class CStandardTest {
             Assertions.assertEquals(inf, complex(inf, y).abs());
             Assertions.assertEquals(inf, complex(negInf, y).abs());
         }
+
+        // Test verses Math.hypot due to the use of a custom implementation.
+        // First test edge cases. Use negatives to test the sign is correctly removed.
+        final double[] parts = {-0.0, -Double.MIN_VALUE, -Double.MIN_NORMAL, -Double.MAX_VALUE,
+            Double.NEGATIVE_INFINITY, Double.NaN};
+        for (final double x : parts) {
+            for (final double y : parts) {
+                Assertions.assertEquals(Math.hypot(x, y), complex(x, y).abs());
+            }
+        }
+
+        // The reference fdlibm hypot implementation orders using the upper 32-bits of the double.
+        // Tests using random numbers that differ in only the lower 32-bits
+        // show a frequency of <1e-9 that the computation is not commutative: f(x, y) != f(y, x)
+        // Test known cases where ordering is required on the lower 32-bits to ensure |z| == |iz|.
+        // These cases would fail a direct fdlibm conversion of this:
+        // https://www.netlib.org/fdlibm/e_hypot.c
+        for (final double[] pair : new double[][] {
+                {1.3122561682406755, 1.3122565442732959},
+                {1.40905821964671, 1.4090583434236112},
+                {1.912164268932753, 1.9121638616231227}}) {
+            final Complex z = complex(pair[0], pair[1]);
+            Assertions.assertEquals(z.abs(), z.multiplyImaginary(1).abs(), "Expected |z| == |iz|");
+        }
+
+        // Test with a range of numbers.
+        // Sub-normals require special handling so we use different variations of these to
+        // ensure they are handled correctly.
+        // Note:
+        // 1 ULP differences with Math.hypot can be observed due to the different implementations.
+        // For normal numbers observable differences require billions of numbers to show a
+        // few hundred cases of lower ULPs and a magnitude smaller count of higher ULPs.
+        // For sub-normal numbers a few thousand examples can demonstrate
+        // a larger count of 1 ULP improvements than 1 ULP errors verses Math.hypot.
+        // A formal statistical test to demonstrate differences are significant is not implemented.
+        // This test simply asserts the answer is either the same as Math.hypot or else is within
+        // 1 ULP of a high precision computation.
+        final int samples = 100;
+        assertAbs(rng, r -> createSubNormalNumber(r, 0), r -> createSubNormalNumber(r, 0), samples);
+        assertAbs(rng, r -> createSubNormalNumber(r, 0), r -> createSubNormalNumber(r, 1), samples);
+        assertAbs(rng, r -> createSubNormalNumber(r, 0), r -> createSubNormalNumber(r, 2), samples);
+        // Numbers on the same scale (fixed exponent)
+        assertAbs(rng, r -> createFixedExponentNumber(r, 0), r -> createFixedExponentNumber(r, 0), samples);
+        // Numbers on different scales
+        assertAbs(rng, r -> createFixedExponentNumber(r, 0), r -> createFixedExponentNumber(r, 1), samples);
+        assertAbs(rng, r -> createFixedExponentNumber(r, 0), r -> createFixedExponentNumber(r, 2 + r.nextInt(10)), samples);
+        // Intermediate overflow / underflow
+        assertAbs(rng, r -> createFixedExponentNumber(r, 1022), r -> createFixedExponentNumber(r, 1022), samples);
+        assertAbs(rng, r -> createFixedExponentNumber(r, -1022), r -> createFixedExponentNumber(r, -1022), samples);
+        // Complex cis numbers
+        final ToDoubleFunction<UniformRandomProvider> cisGenerator = new ToDoubleFunction<UniformRandomProvider>() {
+            private double tmp = Double.NaN;
+            @Override
+            public double applyAsDouble(UniformRandomProvider rng) {
+                if (Double.isNaN(tmp)) {
+                    double u = rng.nextDouble() * Math.PI;
+                    tmp = Math.cos(u);
+                    return Math.sin(u);
+                }
+                final double r = tmp;
+                tmp = Double.NaN;
+                return r;
+            }
+        };
+        assertAbs(rng, cisGenerator, cisGenerator, samples);
     }
 
     /**

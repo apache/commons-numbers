@@ -131,4 +131,12 @@
     </properties>
   </rule>
 
+  <!-- Long methods are based on reference implementations. -->
+  <rule ref="category/java/design.xml/ExcessiveMethodLength">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="//ClassOrInterfaceDeclaration[@Image='Complex']"/>
+    </properties>
+  </rule>
+
 </ruleset>

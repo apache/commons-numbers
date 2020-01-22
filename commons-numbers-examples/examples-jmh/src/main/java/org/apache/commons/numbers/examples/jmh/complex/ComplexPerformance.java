@@ -71,7 +71,7 @@ public class ComplexPerformance {
         /**
          * The size of the data.
          */
-        @Param({"1000"})
+        @Param({"10000"})
         private int size;
 
         /**
@@ -497,6 +497,26 @@ public class ComplexPerformance {
     @Benchmark
     public double[] norm(ComplexNumbers numbers) {
         return apply(numbers.getNumbers(), Complex::norm);
+    }
+
+    /**
+     * This test demonstrates that the method used in abs() is not as fast as using square
+     * root of the norm. The C99 standard for the abs() function requires over/underflow
+     * protection in the intermediate computation and infinity edge case handling. This
+     * has a performance overhead.
+     */
+    @Benchmark
+    public double[] sqrtNorm(ComplexNumbers numbers) {
+        return apply(numbers.getNumbers(), (ToDoubleFunction<Complex>) z -> Math.sqrt(z.norm()));
+    }
+
+    /**
+     * This test demonstrates that the {@link Math#hypot(double, double)} method
+     * is not as fast as the custom implementation in abs().
+     */
+    @Benchmark
+    public double[] absMathHypot(ComplexNumbers numbers) {
+        return apply(numbers.getNumbers(), (ToDoubleFunction<Complex>) z -> Math.hypot(z.real(), z.imag()));
     }
 
     // Unary operations that return a complex number

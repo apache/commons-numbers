@@ -238,6 +238,10 @@ public class ComplexTest {
         Assertions.assertEquals(inf, Complex.ofCartesian(-inf, nan).abs());
         Assertions.assertEquals(inf, Complex.ofCartesian(nan, inf).abs());
         Assertions.assertEquals(inf, Complex.ofCartesian(nan, -inf).abs());
+        Assertions.assertEquals(inf, Complex.ofCartesian(inf, 3.0).abs());
+        Assertions.assertEquals(inf, Complex.ofCartesian(-inf, 3.0).abs());
+        Assertions.assertEquals(inf, Complex.ofCartesian(3.0, inf).abs());
+        Assertions.assertEquals(inf, Complex.ofCartesian(3.0, -inf).abs());
     }
 
     @Test
