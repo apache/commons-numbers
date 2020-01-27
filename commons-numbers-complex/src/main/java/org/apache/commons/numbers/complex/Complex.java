@@ -119,7 +119,7 @@ public final class Complex implements Serializable  {
     /** The multiplier used to split the double value into hi and low parts. This must be odd
      * and a value of 2^s + 1 in the range {@code p/2 <= s <= p-1} where p is the number of
      * bits of precision of the floating point number. Here {@code s = 27}.*/
-    private static final double MULTIPLIER = (1 << 27) + 1.0;
+    private static final double MULTIPLIER = 1.34217729E8;
 
     /**
      * Crossover point to switch computation for asin/acos factor A.
