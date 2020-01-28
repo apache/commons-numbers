@@ -3278,7 +3278,7 @@ public final class Complex implements Serializable  {
      * two numbers. In contrast to {@link Math#getExponent(double)} this handles
      * sub-normal numbers by computing the number of leading zeros in the mantissa
      * and shifting the unbiased exponent. The result is that for all finite, non-zero,
-     * numbers {@code a, b}, the magnitude of {@code scalb(x, -getScale(x))} is
+     * numbers {@code a, b}, the magnitude of {@code scalb(x, -getScale(a, b))} is
      * always in the range {@code [1, 2)}, where {@code x = max(|a|, |b|)}.
      *
      * <p>This method is a functional equivalent of the c function ilogb(double) adapted for
@@ -3310,25 +3310,22 @@ public final class Complex implements Serializable  {
         final long x = Double.doubleToRawLongBits(a) & UNSIGN_MASK;
         final long y = Double.doubleToRawLongBits(b) & UNSIGN_MASK;
         // Only interested in the maximum
-        final long max = Math.max(x, y);
+        final long bits = Math.max(x, y);
         // Get the unbiased exponent
-        int exp = ((int) (max >>> 52)) - EXPONENT_OFFSET;
+        int exp = ((int) (bits >>> 52)) - EXPONENT_OFFSET;
 
-        // Do not distinguish nan/inf
-        if (exp == Double.MAX_EXPONENT + 1) {
-            return exp;
-        }
+        // No case to distinguish nan/inf
         // Handle sub-normal numbers
         if (exp == Double.MIN_EXPONENT - 1) {
             // Special case for zero, return as nan/inf to indicate scaling is not possible
-            if (max == 0) {
+            if (bits == 0) {
                 return Double.MAX_EXPONENT + 1;
             }
             // A sub-normal number has an exponent below -1022. The amount below
             // is defined by the number of shifts of the most significant bit in
             // the mantissa that is required to get a 1 at position 53 (i.e. as
             // if it were a normal number with assumed leading bit)
-            final long mantissa = max & MANTISSA_MASK;
+            final long mantissa = bits & MANTISSA_MASK;
             exp -= Long.numberOfLeadingZeros(mantissa << 12);
         }
         return exp;
