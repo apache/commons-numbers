@@ -658,29 +658,29 @@ public final class Complex implements Serializable  {
             d = Math.scalb(d, -ilogbw);
         }
         final double denom = c * c + d * d;
-        // Divisor is in the range [1, 2).
-        // Avoid overflow if a or b are very big. Here we do not need to
-        // handle sub-normal exponents so just get the maximum exponent.
+
+        // Note: Modification from the listing in ISO C99 G.5.1 (8):
+        // Avoid overflow if a or b are very big.
+        // Since (c, d) in the range [1, 2) the sum (ac + bd) could overflow
+        // when (a, b) are both above (Double.MAX_VALUE / 4). The same applies to
+        // (bc - ad) with large negative values.
+        // Use the maximum exponent as an approximation to the magnitude.
         if (getMaxExponent(a, b) > Double.MAX_EXPONENT - 2) {
             ilogbw -= 2;
             a /= 4;
             b /= 4;
         }
+
         double x = Math.scalb((a * c + b * d) / denom, -ilogbw);
         double y = Math.scalb((b * c - a * d) / denom, -ilogbw);
         // Recover infinities and zeros that computed as NaN+iNaN
         // the only cases are nonzero/zero, infinite/finite, and finite/infinite, ...
-        // --------------
-        // Modification from the listing in ISO C99 G.5.1 (8):
-        // Prevent overflow in (a * c + b * d) and (b * c - a * d).
-        // It is only the sign that is important. not the magnitude.
-        // --------------
         if (Double.isNaN(x) && Double.isNaN(y)) {
             if ((denom == 0.0) &&
                     (!Double.isNaN(a) || !Double.isNaN(b))) {
                 // nonzero/zero
                 // This case produces the same result as divide by a real-only zero
-                // using divide(+/-0.0).
+                // using Complex.divide(+/-0.0)
                 x = Math.copySign(Double.POSITIVE_INFINITY, c) * a;
                 y = Math.copySign(Double.POSITIVE_INFINITY, c) * b;
             } else if ((Double.isInfinite(a) || Double.isInfinite(b)) &&
@@ -688,62 +688,18 @@ public final class Complex implements Serializable  {
                 // infinite/finite
                 a = boxInfinity(a);
                 b = boxInfinity(b);
-                x = Double.POSITIVE_INFINITY * computeACplusBD(a, b, c, d);
-                y = Double.POSITIVE_INFINITY * computeBCminusAD(a, b, c, d);
+                x = Double.POSITIVE_INFINITY * (a * c + b * d);
+                y = Double.POSITIVE_INFINITY * (b * c - a * d);
             } else if ((Double.isInfinite(c) || Double.isInfinite(d)) &&
                     Double.isFinite(a) && Double.isFinite(b)) {
                 // finite/infinite
                 c = boxInfinity(c);
                 d = boxInfinity(d);
-                x = 0.0 * computeACplusBD(a, b, c, d);
-                y = 0.0 * computeBCminusAD(a, b, c, d);
+                x = 0.0 * (a * c + b * d);
+                y = 0.0 * (b * c - a * d);
             }
         }
         return new Complex(x, y);
-    }
-
-    /**
-     * Compute {@code a*c + b*d} without overflow.
-     * It is assumed: either {@code a} an\( b \)b} or {@code c} and {@code d} are
-     * either zero or one (i.e. a boxed infinity); and the sign of the result is important,
-     * not the value.
-     *
-     * @param a the a
-     * @param b the b
-     * @param c the c
-     * @param d the d
-     * @return The result
-     */
-    private static double computeACplusBD(double a, double b, double c, double d) {
-        final double ac = a * c;
-        final double bd = b * d;
-        final double result = ac + bd;
-        return Double.isFinite(result) ?
-            result :
-            // Overflow. Just divide by 2 as it is the sign of the result that matters.
-            ac * 0.5 + bd * 0.5;
-    }
-
-    /**
-     * Compute {@code b*c - a*d} without overflow.
-     * It is assumed: either {@code a} and {@code b} or {@code c} and {@code d} are
-     * either zero or one (i.e. a boxed infinity); and the sign of the result is important,
-     * not the value.
-     *
-     * @param a the a
-     * @param b the b
-     * @param c the c
-     * @param d the d
-     * @return The result
-     */
-    private static double computeBCminusAD(double a, double b, double c, double d) {
-        final double bc = b * c;
-        final double ad = a * d;
-        final double result = bc - ad;
-        return Double.isFinite(result) ?
-            result :
-            // Overflow. Just divide by 2 as it is the sign of the result that matters.
-            bc * 0.5 - ad * 0.5;
     }
 
     /**
