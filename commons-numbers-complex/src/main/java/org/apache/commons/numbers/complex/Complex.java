@@ -99,7 +99,7 @@ public final class Complex implements Serializable  {
     /** The bit representation of {@code -0.0}. */
     private static final long NEGATIVE_ZERO_LONG_BITS = Double.doubleToLongBits(-0.0);
     /** Exponent offset in IEEE754 representation. */
-    private static final long EXPONENT_OFFSET = 1023L;
+    private static final int EXPONENT_OFFSET = 1023;
     /**
      * Largest double-precision floating-point number such that
      * {@code 1 + EPSILON} is numerically equal to 1. This value is an upper
@@ -113,9 +113,9 @@ public final class Complex implements Serializable  {
      */
     private static final double EPSILON = Double.longBitsToDouble((EXPONENT_OFFSET - 53L) << 52);
     /** Mask to remove the sign bit from a long. */
-    private static final long UNSIGN_MASK = 0x7fffffffffffffffL;
+    private static final long UNSIGN_MASK = 0x7fff_ffff_ffff_ffffL;
     /** Mask to extract the 52-bit mantissa from a long representation of a double. */
-    private static final long MANTISSA_MASK = 0x000fffffffffffffL;
+    private static final long MANTISSA_MASK = 0x000f_ffff_ffff_ffffL;
     /** The multiplier used to split the double value into hi and low parts. This must be odd
      * and a value of 2^s + 1 in the range {@code p/2 <= s <= p-1} where p is the number of
      * bits of precision of the floating point number. Here {@code s = 27}.*/
@@ -127,7 +127,7 @@ public final class Complex implements Serializable  {
      * as used in boost::math::complex.
      * @see <a href="https://svn.boost.org/trac/boost/ticket/7290">Boost ticket 7290</a>
      */
-    private static final double A_CROSSOVER = 10;
+    private static final double A_CROSSOVER = 10.0;
     /** Crossover point to switch computation for asin/acos factor B. */
     private static final double B_CROSSOVER = 0.6471;
     /**
@@ -3312,7 +3312,7 @@ public final class Complex implements Serializable  {
         // Only interested in the maximum
         final long max = Math.max(x, y);
         // Get the unbiased exponent
-        int exp = (int) ((max >>> 52) - EXPONENT_OFFSET);
+        int exp = ((int) (max >>> 52)) - EXPONENT_OFFSET;
 
         // Do not distinguish nan/inf
         if (exp == Double.MAX_EXPONENT + 1) {
