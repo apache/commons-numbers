@@ -179,6 +179,11 @@
         <artifactId>commons-rng-simple</artifactId>
         <version>${numbers.commons.rng.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-rng-sampling</artifactId>
+        <version>${numbers.commons.rng.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
