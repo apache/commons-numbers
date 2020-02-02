@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.DoubleFunction;
+import java.util.function.Supplier;
+
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
 import org.junit.jupiter.api.Assertions;
@@ -2036,5 +2038,123 @@ public class ComplexTest {
         // If cosh is still 1 then since d(sinh) dx = cosh then sinh is linear.
         Assertions.assertEquals(Math.cosh(Double.MIN_NORMAL), 1.0);
         Assertions.assertEquals(Math.sinh(Double.MIN_NORMAL), Double.MIN_NORMAL);
+    }
+
+    /**
+     * Test the abs and sqrt functions are consistent. The definition of sqrt uses abs
+     * and the result should be computed using the same representation of the
+     * complex number's magnitude (abs). If the sqrt function uses a simple representation
+     * {@code sqrt(x^2 + y^2)} then this may have a 1 ulp or more difference from the high
+     * accuracy result computed by abs. This will propagate to create differences in sqrt.
+     *
+     * <p>Note: This test is separated from the similar test for log to allow testing
+     * different numbers.
+     */
+    @Test
+    public void testAbsVsSqrt() {
+        final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_128_PP);
+        // Note: All methods implement scaling to ensure the magnitude can be computed.
+        // Try very large or small numbers that will over/underflow to test that the scaling
+        // is consistent. Note that:
+        // - sqrt will reduce the size of the real and imaginary
+        //   components when |z|>1 and increase them when |z|<1.
+
+        // Each sample fails approximately 3% of the time if using a standard x^2+y^2 in sqrt()
+        // and high accuracy representation in abs().
+        // Use 1000 samples to ensure the behaviour is OK.
+        // Do not use data which will over/underflow so we can use a simple computation in the test
+        assertAbsVsSqrt(1000, () -> Complex.ofCartesian(createFixedExponentNumber(rng, 1000),
+                                                        createFixedExponentNumber(rng, 1000)));
+        assertAbsVsSqrt(1000, () -> Complex.ofCartesian(createFixedExponentNumber(rng, -1000),
+                                                        createFixedExponentNumber(rng, -1000)));
+    }
+
+    private static void assertAbsVsSqrt(int samples, Supplier<Complex> supplier) {
+        // Note: All methods implement scaling to ensure the magnitude can be computed.
+        // Try very large or small numbers that will over/underflow to test that the scaling
+        // is consistent.
+        for (int i = 0; i < samples; i++) {
+            final Complex z = supplier.get();
+            final double abs = z.abs();
+            final double x = Math.abs(z.getReal());
+            final double y = Math.abs(z.getImaginary());
+
+            // Target the formula provided in the documentation for sqrt:
+            // sqrt(x + iy)
+            // t = sqrt( 2 (|x| + |x + iy|) )
+            // if x >= 0: (t/2, y/t)
+            // else     : (|y| / t, t/2 * sgn(y))
+            // Note this is not the definitional polar computation using absolute and argument:
+            // real = sqrt(|z|) * cos(0.5 * arg(z))
+            // imag = sqrt(|z|) * sin(0.5 * arg(z))
+            final Complex c = z.sqrt();
+            final double t = Math.sqrt(2 * (x + abs));
+            if (z.getReal() >= 0) {
+                Assertions.assertEquals(t / 2, c.getReal());
+                Assertions.assertEquals(z.getImaginary() / t, c.getImaginary());
+            } else {
+                Assertions.assertEquals(y / t, c.getReal());
+                Assertions.assertEquals(Math.copySign(t / 2, z.getImaginary()), c.getImaginary());
+            }
+        }
+    }
+
+    /**
+     * Test the abs and log functions are consistent. The definition of log uses abs
+     * and the result should be computed using the same representation of the
+     * complex number's magnitude (abs). If the log function uses a simple representation
+     * {@code sqrt(x^2 + y^2)} then this may have a 1 ulp or more difference from the high
+     * accuracy result computed by abs. This will propagate to create differences in log.
+     *
+     * <p>Note: This test is separated from the similar test for sqrt to allow testing
+     * different numbers.
+     */
+    @Test
+    public void testAbsVsLog() {
+        final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_128_PP);
+        // Note: All methods implement scaling to ensure the magnitude can be computed.
+        // Try very large or small numbers that will over/underflow to test that the scaling
+        // is consistent. Note that:
+        // - log will set the real component using log(|z|). This will massively reduce
+        //   the magnitude when |z| >> 1. Highest accuracy will be when |z| is as large
+        //   as possible before computing the log.
+
+        // No test around |z| == 1 as a high accuracy computation is required: Math.log1p(x*x+y*y-1)
+
+        // Each sample fails approximately 25% of the time if using a standard x^2+y^2 in log()
+        // and high accuracy representation in abs(). Use 100 samples to ensure the behaviour is OK.
+        assertAbsVsLog(100, () -> Complex.ofCartesian(createFixedExponentNumber(rng, 1022),
+                                                      createFixedExponentNumber(rng, 1022)));
+        assertAbsVsLog(100, () -> Complex.ofCartesian(createFixedExponentNumber(rng, -1022),
+                                                      createFixedExponentNumber(rng, -1022)));
+    }
+
+    private static void assertAbsVsLog(int samples, Supplier<Complex> supplier) {
+        // Note: All methods implement scaling to ensure the magnitude can be computed.
+        // Try very large or small numbers that will over/underflow to test that the scaling
+        // is consistent.
+        for (int i = 0; i < samples; i++) {
+            final Complex z = supplier.get();
+            final double abs = z.abs();
+            final double x = Math.abs(z.getReal());
+            final double y = Math.abs(z.getImaginary());
+
+            // log(x + iy) = log(|x + i y|) + i arg(x + i y)
+            // Only test the real component
+            final Complex c = z.log();
+            Assertions.assertEquals(Math.log(abs), c.getReal());
+        }
+    }
+
+    /**
+     * Creates a number in the range {@code [1, 2)} with up to 52-bits in the mantissa.
+     * Then modifies the exponent by the given amount.
+     *
+     * @param rng Source of randomness
+     * @param exponent Amount to change the exponent (in range [-1023, 1023])
+     * @return the number
+     */
+    private static double createFixedExponentNumber(UniformRandomProvider rng, int exponent) {
+        return Double.longBitsToDouble((rng.nextLong() >>> 12) | ((1023L + exponent) << 52));
     }
 }

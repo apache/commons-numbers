@@ -82,8 +82,6 @@ public final class Complex implements Serializable  {
     private static final double PI_OVER_2 = 0.5 * Math.PI;
     /** &pi;/4. */
     private static final double PI_OVER_4 = 0.25 * Math.PI;
-    /** Mask an integer number to even by discarding the lowest bit. */
-    private static final int MASK_INT_TO_EVEN = ~0x1;
     /** Natural logarithm of 2 (ln(2)). */
     private static final double LN_2 = Math.log(2);
     /** Base 10 logarithm of 10 divided by 2 (log10(e)/2). */
@@ -94,8 +92,6 @@ public final class Complex implements Serializable  {
     private static final double HALF = 0.5;
     /** {@code sqrt(2)}. */
     private static final double ROOT2 = Math.sqrt(2);
-    /** Half the number of bits of precision of the mantissa of a {@code double} rounded up: {@code 27}. */
-    private static final double HALF_PRECISION = 27;
     /** The bit representation of {@code -0.0}. */
     private static final long NEGATIVE_ZERO_LONG_BITS = Double.doubleToLongBits(-0.0);
     /** Exponent offset in IEEE754 representation. */
@@ -150,6 +146,8 @@ public final class Complex implements Serializable  {
      * Equal to sqrt(u) * 2 with u the smallest normalised floating-point value.
      */
     private static final double SAFE_LOWER = Math.sqrt(Double.MIN_NORMAL) * 2;
+    /** The safe maximum double value {@code x} to avoid overflow in sqrt. */
+    private static final double SQRT_SAFE_UPPER = Double.MAX_VALUE / 8;
     /**
      * A safe maximum double value {@code m} where {@code e^m} is not infinite.
      * This can be used when functions require approximations of sinh(x) or cosh(x)
@@ -481,22 +479,57 @@ public final class Complex implements Serializable  {
      *
      * <p>\[ \text{abs}(x + i y) = \sqrt{(x^2 + y^2)} \]
      *
-     * <p>If either component is infinite then the result is positive infinity. If either
-     * component is NaN and this is not {@link #isInfinite() infinite} then the result is NaN.
+     * <p>Special cases:
+     *
+     * <ul>
+     * <li>{@code \text{abs}(x + iy) == \text{abs}(y + ix) == \text{abs}(x - iy)}.
+     * <li>If {@code z} is ±∞ + iy for any y, returns +∞.
+     * <li>If {@code z} is x + iNaN for non-infinite x, returns NaN.
+     * <li>If {@code z} is x + i0, returns |x|.
+     * </ul>
+     *
+     * <p>The cases ensure that if either component is infinite then the result is positive
+     * infinity. If either component is NaN and this is not {@link #isInfinite() infinite} then
+     * the result is NaN.
      *
      * <p>This code follows the
      * <a href="http://www.iso-9899.info/wiki/The_Standard">ISO C Standard</a>, Annex G,
-     * in calculating the returned value using the {@code hypot(x, y)} method for complex
-     * \( x + i y \).
+     * in calculating the returned value without intermediate overflow or underflow.
      *
      * @return The absolute value.
      * @see #isInfinite()
      * @see #isNaN()
-     * @see Math#hypot(double, double)
      * @see <a href="http://mathworld.wolfram.com/ComplexModulus.html">Complex modulus</a>
      */
     public double abs() {
-        // Delegate
+        return abs(real, imaginary);
+    }
+
+    /**
+     * Returns the absolute value of the complex number.
+     * <pre>abs(x + i y) = sqrt(x^2 + y^2)</pre>
+     *
+     * <p>This should satisfy the special cases of the hypot function in ISO C99 F.9.4.3:
+     * "The hypot functions compute the square root of the sum of the squares of x and y,
+     * without undue overflow or underflow."
+     *
+     * <ul>
+     * <li>hypot(x, y), hypot(y, x), and hypot(x, −y) are equivalent.
+     * <li>hypot(x, ±0) is equivalent to |x|.
+     * <li>hypot(±∞, y) returns +∞, even if y is a NaN.
+     * </ul>
+     *
+     * <p>This method is called by all methods that require the absolute value of the complex
+     * number, e.g. abs(), sqrt() and log().
+     *
+     * @param real Real part.
+     * @param imaginary Imaginary part.
+     * @return The absolute value.
+     */
+    private static double abs(double real, double imaginary) {
+        // Delegate.
+        // Note that Math.hypot is slow in JDK 8. Using JDK 9+ improves performance 7-fold.
+        // This function is a candidate for optimisation.
         return Math.hypot(real, imaginary);
     }
 
@@ -2292,50 +2325,47 @@ public final class Complex implements Serializable  {
 
         double re;
 
+        // This alters the implementation of Hull et al (1994) which used a standard
+        // precision representation of |z|: sqrt(x*x + y*y).
+        // This formula should use the same definition of the magnitude returned
+        // by Complex.abs() which is a high precision computation with scaling.
+        // The checks for overflow thus only require ensuring the output of |z|
+        // will not overflow or underflow.
+
         if (x > HALF && x < ROOT2) {
             // x^2+y^2 close to 1. Use log1p(x^2+y^2 - 1) / 2.
             re = Math.log1p(x2y2m1(x, y)) * logOfeOver2;
-        } else if (y == 0) {
-            // Handle real only number
-            re = log.apply(x);
-        } else if (x > SAFE_MAX || y < SAFE_MIN) {
-            // Over/underflow of sqrt(x^2+y^2)
-            // Note: Since y<x no check for y > SAFE_MAX or x < SAFE_MIN.
-            if (isPosInfinite(x)) {
-                // Handle infinity
-                re = x;
-            } else {
-                // Do scaling
-                final int expx = Math.getExponent(x);
-                final int expy = Math.getExponent(y);
-                // Hull et al: 2 * (expx - expy) > precision + 1
-                // Modified to use the pre-computed half precision
-                if ((expx - expy) > HALF_PRECISION) {
-                    // y can be ignored
-                    re = log.apply(x);
-                } else {
-                    // Hull et al:
-                    // "It is important that the scaling be chosen so
-                    // that there is no possibility of cancellation in this addition"
-                    // i.e. sx^2 + sy^2 should not be close to 1.
-                    // Their paper uses expx + 2 for underflow but expx for overflow.
-                    // It has been modified here to use expx - 2.
-                    int scale;
-                    if (x > SAFE_MAX) {
-                        // overflow
-                        scale = expx - 2;
-                    } else {
-                        // underflow
-                        scale = expx + 2;
-                    }
-                    final double sx = Math.scalb(x, -scale);
-                    final double sy = Math.scalb(y, -scale);
-                    re = scale * logOf2 + 0.5 * log.apply(sx * sx + sy * sy);
-                }
-            }
         } else {
-            // Safe region that avoids under/overflow
-            re = 0.5 * log.apply(x * x + y * y);
+            // Check for over/underflow in |z|
+            // When scaling:
+            // log(a / b) = log(a) - log(b)
+            // So initialise the result with the log of the scale factor.
+            re = 0;
+            if (x > Double.MAX_VALUE / 2) {
+                // Potential overflow.
+                if (isPosInfinite(x)) {
+                    // Handle infinity
+                    return constructor.create(x, arg());
+                }
+                // Scale down.
+                x /= 2;
+                y /= 2;
+                // log(2)
+                re = logOf2;
+            } else if (y < Double.MIN_NORMAL) {
+                // Potential underflow.
+                if (y == 0) {
+                    // Handle real only number
+                    return constructor.create(log.apply(x), arg());
+                }
+                // Scale up sub-normal numbers to make them normal by scaling by 2^54,
+                // i.e. more than the mantissa digits.
+                x *= 0x1.0p54;
+                y *= 0x1.0p54;
+                // log(2^-54) = -54 * log(2)
+                re = -54 * logOf2;
+            }
+            re += log.apply(abs(x, y));
         }
 
         // All ISO C99 edge cases for the imaginary are satisfied by the Math library.
@@ -2794,15 +2824,22 @@ public final class Complex implements Serializable  {
         }
 
         // Compute with positive values and determine sign at the end
-        final double x = Math.abs(real);
-        final double y = Math.abs(imaginary);
+        double x = Math.abs(real);
+        double y = Math.abs(imaginary);
 
         // Compute
         double t;
 
-        if (inRegion(x, y, SAFE_MIN, SAFE_MAX)) {
-            // No over/underflow of x^2 + y^2
-            t = Math.sqrt(2 * (Math.sqrt(x * x + y * y) + x));
+        // This alters the implementation of Hull et al (1994) which used a standard
+        // precision representation of |z|: sqrt(x*x + y*y).
+        // This formula should use the same definition of the magnitude returned
+        // by Complex.abs() which is a high precision computation with scaling.
+        // Worry about overflow if 2 * (|z| + |x|) will overflow.
+        // Worry about underflow if |z| or |x| are sub-normal components.
+
+        if (inRegion(x, y, Double.MIN_NORMAL, SQRT_SAFE_UPPER)) {
+            // No over/underflow
+            t = Math.sqrt(2 * (abs(x, y) + x));
         } else {
             // Potential over/underflow. First check infinites and real/imaginary only.
 
@@ -2826,15 +2863,29 @@ public final class Complex implements Serializable  {
                 final double sqrtAbs = Math.sqrt(y) / ROOT2;
                 return new Complex(sqrtAbs, Math.copySign(sqrtAbs, imaginary));
             } else {
-                // Over/underflow
-                // scale so that abs(x) is near 1, with even exponent.
-                final int scale = getScale(x, y) & MASK_INT_TO_EVEN;
-                final double sx = Math.scalb(x, -scale);
-                final double sy = Math.scalb(y, -scale);
-                final double st = Math.sqrt(2 * (Math.sqrt(sx * sx + sy * sy) + sx));
-                // Rescale. This works if exponent is even:
-                // st * sqrt(2^scale) = st * (2^scale)^0.5 = st * 2^(scale*0.5)
-                t = Math.scalb(st, scale / 2);
+                // Over/underflow.
+                // Full scaling is not required as this is done in the hypotenuse function.
+                // Keep the number as big as possible for maximum precision in the second sqrt.
+                // Note if we scale by an even power of 2, we can re-scale by sqrt of the number.
+                // a = sqrt(b)
+                // a = sqrt(b/4) * sqrt(4)
+
+                double rescale;
+                double sx;
+                double sy;
+                if (Math.max(x, y) > SQRT_SAFE_UPPER) {
+                    // Overflow
+                    sx = x * 0x1.0p-4;
+                    sy = y * 0x1.0p-4;
+                    rescale = 0x1.0p2;
+                } else {
+                    // Sub-normal numbers. Make them normal by scaling by 2^54,
+                    // i.e. more than the mantissa digits and rescale by half.
+                    sx = x * 0x1.0p54;
+                    sy = y * 0x1.0p54;
+                    rescale = 0x1.0p-27;
+                }
+                t = rescale * Math.sqrt(2 * (abs(sx, sy) + sx));
             }
         }
 
