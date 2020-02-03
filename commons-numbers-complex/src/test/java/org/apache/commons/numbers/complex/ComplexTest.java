@@ -1992,9 +1992,11 @@ public class ComplexTest {
         Assertions.assertEquals(Math.sinh(-safeExpMax), -big / 2);
 
         // Can we assume sinh(x/2) * cosh(x/2) is finite
+        // Can we assume sinh(x/2)^2 is finite
         Assertions.assertTrue(Double.isFinite(Math.sinh(safeExpMax / 2) * Math.cosh(safeExpMax / 2)));
+        Assertions.assertTrue(Double.isFinite(Math.sinh(safeExpMax / 2) * Math.sinh(safeExpMax / 2)));
 
-        // Will 2.0 / (2 * (e^|x|)) underflow
+        // Will 2.0 / e^|x| / e^|x| underflow
         Assertions.assertNotEquals(0.0, 2.0 / big);
         Assertions.assertEquals(0.0, 2.0 / big / big);
 
@@ -2003,20 +2005,11 @@ public class ComplexTest {
         Assertions.assertTrue(Double.isFinite(0.5 * big * Double.MIN_VALUE * big));
         Assertions.assertTrue(Double.isInfinite(0.5 * big * Double.MIN_VALUE * big * big));
 
-        // Is overflow point monotonic:
-        // The values at the switch are exact. Previous values are close.
-        final double x = Double.MAX_VALUE / 2;
-        final double x1 = Math.nextDown(x);
-        final double x2 = Math.nextDown(x1);
-        // sin(2x) = 2 sin(x) cos(x) (within 1 ulp)
-        Assertions.assertEquals(Double.POSITIVE_INFINITY, 2 * Math.nextUp(x));
-        Assertions.assertEquals(Math.sin(2 * x), 2 * Math.sin(x) * Math.cos(x));
-        Assertions.assertEquals(Math.sin(2 * x1), 2 * Math.sin(x1) * Math.cos(x1), Math.ulp(Math.sin(2 * x1)));
-        Assertions.assertEquals(Math.sin(2 * x2), 2 * Math.sin(x2) * Math.cos(x2), Math.ulp(Math.sin(2 * x2)));
-        // cos(2x) = 2 * cos^2(x) - 1 (within 4 ulp)
-        Assertions.assertEquals(Math.cos(2 * x), 2 * Math.cos(x) * Math.cos(x) - 1);
-        Assertions.assertEquals(Math.cos(2 * x1), 2 * Math.cos(x1) * Math.cos(x1) - 1, 4 * Math.ulp(Math.cos(2 * x1)));
-        Assertions.assertEquals(Math.cos(2 * x2), 2 * Math.cos(x2) * Math.cos(x2) - 1, 2 * Math.ulp(Math.cos(2 * x2)));
+        // Assume the sign of sin(2y) = sin(y) * cos(y) when |y| < pi/2
+        for (final double y : new double[] {Math.PI / 2, Math.PI / 4, 1.0, 0.5, 0.0}) {
+            Assertions.assertEquals(Math.signum(Math.sin(2 * y)), Math.signum(Math.sin(y) * Math.cos(y)));
+            Assertions.assertEquals(Math.signum(Math.sin(2 * -y)), Math.signum(Math.sin(-y) * Math.cos(-y)));
+        }
 
         // tanh: 2.0 / Double.MAX_VALUE does not underflow.
         // Thus 2 sin(2y) / e^2|x| can be computed when e^2|x| only just overflows

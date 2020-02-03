@@ -2965,9 +2965,12 @@ public final class Complex implements Serializable  {
      * <a href="http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1892.htm#dr_471">
      * DR 471: Complex math functions cacosh and ctanh</a>.
      *
-     * <p>This is implemented using real \( x \) and imaginary \( y \) parts:
+     * <p>This is defined using real \( x \) and imaginary \( y \) parts:
      *
      * <p>\[ \tan(x + iy) = \frac{\sinh(2x)}{\cosh(2x)+\cos(2y)} + i \frac{\sin(2y)}{\cosh(2x)+\cos(2y)} \]
+     *
+     * <p>The implementation uses double-angle identities to avoid overflow of {@code 2x}
+     * and {@code 2y}.
      *
      * @return The hyperbolic tangent of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Tanh/">Tanh</a>
@@ -2996,8 +2999,15 @@ public final class Complex implements Serializable  {
         if (!(x <= Double.MAX_VALUE) || !Double.isFinite(imaginary)) {
             if (isPosInfinite(x)) {
                 if (Double.isFinite(imaginary)) {
+                    // The sign is copied from sin(2y)
+                    // The identity sin(2a) = 2 sin(a) cos(a) is used for consistency
+                    // with the computation below. Only the magnitude is important
+                    // so drop the 2. When |y| is small sign(sin(2y)) = sign(y).
+                    final double sign = Math.abs(imaginary) < PI_OVER_2 ?
+                                        imaginary :
+                                        Math.sin(imaginary) * Math.cos(imaginary);
                     return constructor.create(Math.copySign(1, real),
-                                              Math.copySign(0, sin2(imaginary)));
+                                              Math.copySign(0, sign));
                 }
                 // imaginary is infinite or NaN
                 return constructor.create(Math.copySign(1, real), Math.copySign(0, imaginary));
@@ -3033,7 +3043,8 @@ public final class Complex implements Serializable  {
         // cosh(2x) = 2 sinh^2(x) + 1
         // cos(2y) = 2 cos^2(y) - 1
         // tanh(x+iy) = (sinh(x)cosh(x) + i sin(y)cos(y)) / (sinh^2(x) + cos^2(y))
-        // tanh(x+iy) = (sinh(x)cosh(x) + i 0.5 sin(2y)) / (sinh^2(x) + cos^2(y))
+        // To avoid a junction when swapping between the double angles and the identities
+        // the identities are used in all cases.
 
         if (x > SAFE_EXP / 2) {
             // Potential overflow in sinh/cosh(2x).
@@ -3045,74 +3056,34 @@ public final class Complex implements Serializable  {
             // sinh(x) -> sign(x) * e^|x| / 2 when x is large.
             // sinh^2(x) -> e^2|x| / 4 when x is large.
             // imag = sin(2y) / 2 (e^2|x| / 4) = 2 sin(2y) / e^2|x|
+            //      = 4 * sin(y) cos(y) / e^2|x|
             // Underflow safe divide as e^2|x| may overflow:
-            // imag = 2 sin(2y) / e^m / e^(2|x| - m)
-            double im = sin2(imaginary);
+            // imag = 4 * sin(y) cos(y) / e^m / e^(2|x| - m)
+            // (|im| is a maximum of 2)
+            double im = Math.sin(imaginary) * Math.cos(imaginary);
             if (x > SAFE_EXP) {
                 // e^2|x| > e^m * e^m
                 // This will underflow 2.0 / e^m / e^m
                 im = Math.copySign(0.0, im);
             } else {
                 // e^2|x| = e^m * e^(2|x| - m)
-                im = 2 * im / EXP_M / Math.exp(2 * x - SAFE_EXP);
+                im = 4 * im / EXP_M / Math.exp(2 * x - SAFE_EXP);
             }
             return constructor.create(re, im);
         }
 
         // No overflow of sinh(2x) and cosh(2x)
 
-        // Note: This does not use the double angle identities and returns the
-        // definitional formula when 2y is finite. The transition when 2y overflows
-        // and cos(2y) and sin(2y) switch to identities is monotonic at the junction
-        // but the function is not smooth due to the sampling
-        // of the 2 pi period at very large jumps of x. Thus this returns a value
-        // but the usefulness as y -> inf may be limited.
+        // Note: This does not use the definitional formula but uses the identity:
+        // tanh(x+iy) = (sinh(x)cosh(x) + i sin(y)cos(y)) / (sinh^2(x) + cos^2(y))
 
-        final double real2 = 2 * real;
-        final double divisor = Math.cosh(real2) + cos2(imaginary);
-        return constructor.create(Math.sinh(real2) / divisor,
-                                  sin2(imaginary) / divisor);
-    }
-
-    /**
-     * Safely compute {@code cos(2*a)} when {@code a} is finite.
-     * Note that {@link Math#cos(double)} returns NaN when the input is infinite.
-     * If {@code 2*a} is finite use {@code Math.cos(2*a)}; otherwise use the identity:
-     *
-     * <pre>
-     *  <code>cos(2a) = 2 cos<sup>2</sup>(a) - 1</code></pre>
-     *
-     * @param a Angle a.
-     * @return The cosine of 2a.
-     * @see Math#cos(double)
-     */
-    private static double cos2(double a) {
-        final double twoA = 2 * a;
-        if (Double.isFinite(twoA)) {
-            return Math.cos(twoA);
-        }
-        final double cosA = Math.cos(a);
-        return 2 * cosA * cosA - 1;
-    }
-
-    /**
-     * Safely compute {@code sin(2*a)} when {@code a} is finite.
-     * Note that {@link Math#sin(double)} returns NaN when the input is infinite.
-     * If {@code 2*a} is finite use {@code Math.sin(2*a)}; otherwise use the identity:
-     *
-     * <pre>
-     *  <code>sin(2a) = 2 sin(a) cos(a)</code></pre>
-     *
-     * @param a Angle a.
-     * @return The sine of 2a.
-     * @see Math#sin(double)
-     */
-    private static double sin2(double a) {
-        final double twoA = 2 * a;
-        if (Double.isFinite(twoA)) {
-            return Math.sin(twoA);
-        }
-        return 2 * Math.sin(a) * Math.cos(a);
+        final double sinhx = Math.sinh(real);
+        final double coshx = Math.cosh(real);
+        final double siny = Math.sin(imaginary);
+        final double cosy = Math.cos(imaginary);
+        final double divisor = sinhx * sinhx + cosy * cosy;
+        return constructor.create(sinhx * coshx / divisor,
+                                  siny * cosy / divisor);
     }
 
     /**
