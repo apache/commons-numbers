@@ -2995,8 +2995,7 @@ public final class Complex implements Serializable  {
         final double x = Math.abs(real);
 
         // Handle inf or nan.
-        // Deliberate logic inversion using x to match !Double.isFinite(x) knowing x is absolute.
-        if (!(x <= Double.MAX_VALUE) || !Double.isFinite(imaginary)) {
+        if (!isPosFinite(x) || !Double.isFinite(imaginary)) {
             if (isPosInfinite(x)) {
                 if (Double.isFinite(imaginary)) {
                     // The sign is copied from sin(2y)
@@ -3219,6 +3218,18 @@ public final class Complex implements Serializable  {
      */
     private static boolean isPosInfinite(double d) {
         return d == Double.POSITIVE_INFINITY;
+    }
+
+    /**
+     * Check that an absolute value is finite. Used to replace {@link Double#isFinite()}
+     * when the input value is known to be positive (i.e. in the case where it has been
+     * set using {@link Math#abs(double)}).
+     *
+     * @param d Value.
+     * @return {@code true} if {@code d} is +finite.
+     */
+    private static boolean isPosFinite(double d) {
+        return d <= Double.MAX_VALUE;
     }
 
     /**
