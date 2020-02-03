@@ -2829,8 +2829,8 @@ public final class Complex implements Serializable  {
         }
 
         // Compute with positive values and determine sign at the end
-        double x = Math.abs(real);
-        double y = Math.abs(imaginary);
+        final double x = Math.abs(real);
+        final double y = Math.abs(imaginary);
 
         // Compute
         double t;
