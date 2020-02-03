@@ -91,7 +91,12 @@ public final class Complex implements Serializable  {
     /** {@code 1/2}. */
     private static final double HALF = 0.5;
     /** {@code sqrt(2)}. */
-    private static final double ROOT2 = Math.sqrt(2);
+    private static final double ROOT2 = 1.4142135623730951;
+    /** {@code 1.0 / sqrt(2)}.
+     * This is pre-computed to the closest double from the exact result.
+     * It is 1 ULP different from 1.0 / Math.sqrt(2) but equal to Math.sqrt(2) / 2.
+     */
+    private static final double ONE_OVER_ROOT2 = 0.7071067811865476;
     /** The bit representation of {@code -0.0}. */
     private static final long NEGATIVE_ZERO_LONG_BITS = Double.doubleToLongBits(-0.0);
     /** Exponent offset in IEEE754 representation. */
@@ -2859,8 +2864,13 @@ public final class Complex implements Serializable  {
                 }
                 return new Complex(sqrtAbs, imaginary);
             } else if (x == 0) {
-                // Imaginary only
-                final double sqrtAbs = Math.sqrt(y) / ROOT2;
+                // Imaginary only. This sets the two components to the same magnitude.
+                // Note: In polar coordinates this does not happen:
+                // real = sqrt(abs()) * Math.cos(arg() / 2)
+                // imag = sqrt(abs()) * Math.sin(arg() / 2)
+                // arg() / 2 = pi/4 and cos and sin should both return sqrt(2)/2 but
+                // are different by 1 ULP.
+                final double sqrtAbs = Math.sqrt(y) * ONE_OVER_ROOT2;
                 return new Complex(sqrtAbs, Math.copySign(sqrtAbs, imaginary));
             } else {
                 // Over/underflow.
@@ -2874,13 +2884,13 @@ public final class Complex implements Serializable  {
                 double sx;
                 double sy;
                 if (Math.max(x, y) > SQRT_SAFE_UPPER) {
-                    // Overflow
-                    sx = x * 0x1.0p-4;
-                    sy = y * 0x1.0p-4;
-                    rescale = 0x1.0p2;
+                    // Overflow. Scale down by 16 and rescale by sqrt(16).
+                    sx = x / 16;
+                    sy = y / 16;
+                    rescale = 4;
                 } else {
                     // Sub-normal numbers. Make them normal by scaling by 2^54,
-                    // i.e. more than the mantissa digits and rescale by half.
+                    // i.e. more than the mantissa digits, and rescale by sqrt(2^54) = 2^27.
                     sx = x * 0x1.0p54;
                     sy = y * 0x1.0p54;
                     rescale = 0x1.0p-27;

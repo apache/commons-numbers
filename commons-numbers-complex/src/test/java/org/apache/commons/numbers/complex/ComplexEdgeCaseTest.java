@@ -562,41 +562,64 @@ public class ComplexEdgeCaseTest {
         final String name = "sqrt";
         final UnaryOperator<Complex> operation = Complex::sqrt;
 
-        // Computed in polar coordinates:
-        //   real = (x^2 + y^2)^0.25 * cos(0.5 * atan2(y, x))
-        //   imag = (x^2 + y^2)^0.25 * sin(0.5 * atan2(y, x))
-        // ---
-        // Note:
-        // If x is positive and y is +/-0.0 atan2 returns +/-0.
-        // If x is negative and y is +/-0.0 atan2 returns +/-PI.
-        // This causes problems as
-        //   cos(0.5 * PI) = 6.123233995736766e-17
-        // assert: Math.cos(Math.acos(0)) != 0.0
-        // Thus an unchecked polar computation will produce incorrect output when
-        // there is no imaginary component and real is negative.
-        // The computation should be done for real only numbers separately.
-        // This condition is tested in the reference test against known data
-        // so not repeated here.
-        // ---
+        // Test real/imaginary only numbers satisfy the definition using polar coordinates:
+        // real = sqrt(abs()) * Math.cos(arg() / 2)
+        // imag = sqrt(abs()) * Math.sin(arg() / 2)
+        // However direct use of sin/cos will result in incorrect results due floating-point error.
+        // This test asserts the on the closest result to the exact answer which is possible
+        // if not using a simple polar computation.
+        // Note: If this test fails in the set-up assertions it is due to a change in the
+        // precision of java.util.Math.
+
+        // For positive real-only the argument is +/-0.
+        // For negative real-only the argument is +/-pi.
+        Assertions.assertEquals(0, Math.atan2(0, 1));
+        Assertions.assertEquals(Math.PI, Math.atan2(0, -1));
+        // In both cases the trigonomic functions should be exact but
+        // cos(pi/2) cannot be as pi/2 is not exact.
+        final double cosArgRe = 1.0;
+        final double sinArgRe = 0.0;
+        Assertions.assertNotEquals(0.0, Math.cos(Math.PI / 2), "Expected cos(pi/2) to be non-zero");
+        Assertions.assertEquals(0.0, Math.cos(Math.PI / 2), 6.123233995736766e-17);
+        // For imaginary-only the argument is Math.atan2(y, 0) = +/- pi/2.
+        Assertions.assertEquals(Math.PI / 2, Math.atan2(1, 0));
+        Assertions.assertEquals(-Math.PI / 2, Math.atan2(-1, 0));
+        // There is 1 ULP difference in the result of cos/sin of pi/4.
+        // It should be sqrt(2) / 2 for both.
+        final double cosArgIm = Math.cos(Math.PI / 4);
+        final double sinArgIm = Math.sin(Math.PI / 4);
+        final double root2over2 = Math.sqrt(2) / 2;
+        final double ulp = Math.ulp(cosArgIm);
+        Assertions.assertNotEquals(cosArgIm, sinArgIm, "Expected cos(pi/4) to not exactly equal sin(pi/4)");
+        Assertions.assertEquals(root2over2, cosArgIm, 0, "Expected cos(pi/4) to be sqrt(2) / 2");
+        Assertions.assertEquals(root2over2, sinArgIm, ulp, "Expected sin(pi/4) to be 1 ulp from sqrt(2) / 2");
+        for (final double a : new double[] {0.5, 1.0, 1.2322, 345345.234523}) {
+            final double rootA = Math.sqrt(a);
+            assertComplex(a, 0, name, operation, rootA * cosArgRe, rootA * sinArgRe, 0);
+            // This should be exact. It will fail if using the polar computation
+            // real = sqrt(abs()) * Math.cos(arg() / 2) as cos(pi/2) is not 0.0 but 6.123233995736766e-17
+            assertComplex(-a, 0, name, operation, rootA * sinArgRe, rootA * cosArgRe, 0);
+            // This should be exact. It won't be if Complex is using polar computation
+            // with sin/cos which does not output the same result for angle pi/4.
+            assertComplex(0, a, name, operation, rootA * root2over2, rootA * root2over2, 0);
+            assertComplex(0, -a, name, operation, rootA * root2over2, -rootA * root2over2, 0);
+        }
 
         // Check overflow safe.
         double a = Double.MAX_VALUE;
         final double b = a / 4;
         Assertions.assertEquals(inf, Complex.ofCartesian(a, b).abs(), "Expected overflow");
-        // The expected absolute value has been compute using BigDecimal on Java 9
+        // The expected absolute value has been computed using BigDecimal on Java 9
         //final double newAbs = new BigDecimal(a).multiply(new BigDecimal(a)).add(
         //                      new BigDecimal(b).multiply(new BigDecimal(b)))
         //                     .sqrt(MathContext.DECIMAL128).sqrt(MathContext.DECIMAL128).doubleValue()
         final double newAbs = 1.3612566508088272E154;
-//        assertComplex(a, b, name, operation, newAbs * Math.cos(0.5 * Math.atan2(b, a)),
-//                                             newAbs * Math.sin(0.5 * Math.atan2(b, a)), 3);
-//        assertComplex(b, a, name, operation, newAbs * Math.cos(0.5 * Math.atan2(a, b)),
-//                                             newAbs * Math.sin(0.5 * Math.atan2(a, b)), 2);
+        assertComplex(a, b, name, operation, newAbs * Math.cos(0.5 * Math.atan2(b, a)),
+                                             newAbs * Math.sin(0.5 * Math.atan2(b, a)), 3);
+        assertComplex(b, a, name, operation, newAbs * Math.cos(0.5 * Math.atan2(a, b)),
+                                             newAbs * Math.sin(0.5 * Math.atan2(a, b)), 2);
 
-        // In polar coords:
-        // real = sqrt(abs()) * Math.cos(arg() / 2)
-        // imag = sqrt(abs()) * Math.sin(arg() / 2)
-        // This is possible if abs() does not overflow.
+        // Note that the computation is possible in polar coords if abs() does not overflow.
         a = Double.MAX_VALUE / 2;
         assertComplex(-a, a, name, operation, 4.3145940638864765e+153, 1.0416351505169177e+154, 2);
         assertComplex(a, a, name, operation, 1.0416351505169177e+154, 4.3145940638864758e+153);
@@ -604,7 +627,7 @@ public class ComplexEdgeCaseTest {
         assertComplex(a, -a, name, operation, 1.0416351505169177e+154, -4.3145940638864758e+153);
 
         // Check minimum normal value conditions
-        // Computing in Polar coords produces a very different result with
+        // Computing in polar coords produces a very different result with
         // MIN_VALUE so use MIN_NORMAL
         a = Double.MIN_NORMAL;
         assertComplex(-a, a, name, operation, 6.7884304867749663e-155, 1.6388720948399111e-154);
