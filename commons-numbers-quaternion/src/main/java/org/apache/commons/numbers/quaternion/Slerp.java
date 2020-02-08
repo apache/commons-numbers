@@ -110,7 +110,7 @@ public class Slerp implements DoubleFunction<Quaternion> {
     }
 
     /**
-     * Spherical interpolation, used whe the quaternions are too closely aligned.
+     * Spherical interpolation, used when the quaternions are too closely aligned.
      * When we may end up dividing by zero (cf. 1/sin(theta) term below).
      * {@link Linear} interpolation must be used.
      */

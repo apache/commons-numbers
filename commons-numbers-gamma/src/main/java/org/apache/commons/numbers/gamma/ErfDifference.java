@@ -45,6 +45,7 @@ public final class ErfDifference {
      * @param x1 First value.
      * @param x2 Second value.
      * @return {@link Erf#value(double) Erf.value(x2) - Erf.value(x1)}.
+     * @throws ArithmeticException if the algorithm fails to converge.
      */
     public static double value(double x1,
                                double x2) {

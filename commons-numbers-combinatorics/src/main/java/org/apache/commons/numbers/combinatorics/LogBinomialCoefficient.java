@@ -40,8 +40,6 @@ public final class LogBinomialCoefficient {
      * @return {@code log(n choose k)}.
      * @throws IllegalArgumentException if {@code n < 0}.
      * @throws IllegalArgumentException if {@code k > n}.
-     * @throws IllegalArgumentException if the result is too large to be
-     * represented by a {@code long}.
      */
     public static double value(int n, int k) {
         BinomialCoefficient.checkBinomial(n, k);

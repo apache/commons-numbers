@@ -32,6 +32,7 @@ public final class CosAngle {
      * @param v1 Cartesian coordinates of the first vector.
      * @param v2 Cartesian coordinates of the second vector.
      * @return the cosine of the angle between the vectors.
+     * @throws IllegalArgumentException if the sizes of the input arrays are different
      */
     public static double value(double[] v1,
                                double[] v2) {

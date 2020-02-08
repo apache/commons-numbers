@@ -33,7 +33,7 @@ public final class BinomialCoefficient {
     }
 
     /**
-     * Computes de binomial coefficient.
+     * Computes the binomial coefficient.
      * The largest value of {@code n} for which all coefficients can
      * fit into a {@code long} is 66.
      *

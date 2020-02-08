@@ -16,6 +16,8 @@
  */
 package org.apache.commons.numbers.gamma;
 
+import java.text.MessageFormat;
+
 import org.apache.commons.numbers.fraction.ContinuedFraction;
 
 /**
@@ -49,6 +51,7 @@ public final class RegularizedGamma {
          * @param a Argument.
          * @param x Argument.
          * @return \( P(a, x) \).
+         * @throws ArithmeticException if the continued fraction fails to converge.
          */
         public static double value(double a,
                                    double x) {
@@ -79,6 +82,7 @@ public final class RegularizedGamma {
          * @param epsilon Tolerance in continued fraction evaluation.
          * @param maxIterations Maximum number of iterations in continued fraction evaluation.
          * @return \( P(a, x) \).
+         * @throws ArithmeticException if the continued fraction fails to converge.
          */
         public static double value(double a,
                                    double x,
@@ -110,7 +114,8 @@ public final class RegularizedGamma {
                     sum += an;
                 }
                 if (n >= maxIterations) {
-                    throw new GammaException(GammaException.CONVERGENCE, maxIterations);
+                    throw new ArithmeticException(
+                            MessageFormat.format("Failed to converge within {0} iterations", maxIterations));
                 } else if (Double.isInfinite(sum)) {
                     return 1;
                 } else {
@@ -136,6 +141,7 @@ public final class RegularizedGamma {
          * @param a Argument.
          * @param x Argument.
          * @return \( Q(a, x) \).
+         * @throws ArithmeticException if the continued fraction fails to converge.
          */
         public static double value(double a,
                                    double x) {
@@ -162,6 +168,7 @@ public final class RegularizedGamma {
          * @param x Argument.
          * @param epsilon Tolerance in continued fraction evaluation.
          * @param maxIterations Maximum number of iterations in continued fraction evaluation.
+         * @throws ArithmeticException if the continued fraction fails to converge.
          * @return \( Q(a, x) \).
          */
         public static double value(final double a,

@@ -57,6 +57,7 @@ public final class ComplexUtils {
      * @param r the modulus of the complex number to create
      * @param theta the argument of the complex number to create
      * @return {@code Complex}
+     * @throws IllegalArgumentException if {@code r} is negative
      */
     public static Complex polar2Complex(double r, double theta) {
         if (r < 0) {
@@ -72,6 +73,7 @@ public final class ComplexUtils {
      * @param r {@code double[]} of moduli
      * @param theta {@code double[]} of arguments
      * @return {@code Complex[]}
+     * @throws IllegalArgumentException if any element in {@code r} is negative
      */
     public static Complex[] polar2Complex(double[] r, double[] theta) {
         final int length = r.length;
@@ -92,6 +94,7 @@ public final class ComplexUtils {
      * @param r {@code double[]} of moduli
      * @param theta {@code double[]} of arguments
      * @return {@code Complex[][]}
+     * @throws IllegalArgumentException if any element in {@code r} is negative
      */
     public static Complex[][] polar2Complex(double[][] r, double[][] theta) {
         final int length = r.length;
@@ -109,6 +112,7 @@ public final class ComplexUtils {
      * @param r array of moduli
      * @param theta array of arguments
      * @return {@code Complex}
+     * @throws IllegalArgumentException if any element in {@code r} is negative
      */
     public static Complex[][][] polar2Complex(double[][][] r, double[][][] theta) {
         final int length = r.length;
@@ -220,7 +224,8 @@ public final class ComplexUtils {
      * {@code index}.
      *
      * @param d array of interleaved complex numbers alternating real and imaginary values
-     * @param index location in the array This is the location by complex number, e.g. index number 5 in the array will return {@code Complex.ofCartesian(d[10], d[11])}
+     * @param index location in the array This is the location by complex number, e.g. index number 5 in the
+     *      array will return {@code Complex.ofCartesian(d[10], d[11])}
      * @return {@code Complex}.
      */
     public static Complex extractComplexFromInterleavedArray(double[] d, int index) {
@@ -232,7 +237,8 @@ public final class ComplexUtils {
      * {@code index}.
      *
      * @param f float array of interleaved complex numbers alternating real and imaginary values
-     * @param index location in the array This is the location by complex number, e.g. index number 5 in the {@code float[]} array will return new {@code Complex(d[10], d[11])}
+     * @param index location in the array This is the location by complex number, e.g. index number 5
+     *      in the {@code float[]} array will return new {@code Complex(d[10], d[11])}
      * @return {@code Complex}.
      */
     public static Complex extractComplexFromInterleavedArray(float[] f, int index) {
@@ -800,6 +806,7 @@ public final class ComplexUtils {
      * @param interleavedDim Depth level of the array to interleave
      * @return complex interleaved array alternating real and
      *         imaginary values
+     * @throws IllegalArgumentException if {@code interleavedDim} is not 0 or 1
      */
     public static double[][] complex2Interleaved(Complex[][] c, int interleavedDim) {
         if (interleavedDim > 1 || interleavedDim < 0) {
@@ -849,6 +856,7 @@ public final class ComplexUtils {
      * @param interleavedDim Depth level of the array to interleave
      * @return complex interleaved array alternating real and
      *         imaginary values
+     * @throws IllegalArgumentException if {@code interleavedDim} is not 0, 1, or 2
      */
     public static double[][][] complex2Interleaved(Complex[][][] c, int interleavedDim) {
         if (interleavedDim > 2 || interleavedDim < 0) {
@@ -900,6 +908,7 @@ public final class ComplexUtils {
      * @param interleavedDim Depth level of the array to interleave
      * @return complex interleaved array alternating real and
      *         imaginary values
+     * @throws IllegalArgumentException if {@code interleavedDim} is not in the range {@code [0, 3]}
      */
     public static double[][][][] complex2Interleaved(Complex[][][][] c, int interleavedDim) {
         if (interleavedDim > 3 || interleavedDim < 0) {
@@ -996,6 +1005,7 @@ public final class ComplexUtils {
      * @param interleavedDim Depth level of the array to interleave
      * @return complex interleaved {@code float[][]} alternating real and
      *         imaginary values
+     * @throws IllegalArgumentException if {@code interleavedDim} is not 0 or 1
      */
     public static float[][] complex2InterleavedFloat(Complex[][] c, int interleavedDim) {
         if (interleavedDim > 1 || interleavedDim < 0) {
@@ -1046,6 +1056,7 @@ public final class ComplexUtils {
      * @param interleavedDim Depth level of the array to interleave
      * @return complex interleaved {@code float[][][]} alternating real and
      *         imaginary values
+     * @throws IllegalArgumentException if {@code interleavedDim} is not 0, 1, or 2
      */
     public static float[][][] complex2InterleavedFloat(Complex[][][] c, int interleavedDim) {
         if (interleavedDim > 2 || interleavedDim < 0) {
@@ -1110,6 +1121,7 @@ public final class ComplexUtils {
      * @param i 2D complex interleaved array
      * @param interleavedDim Depth level of the array to interleave
      * @return 2D {@code Complex} array
+     * @throws IllegalArgumentException if {@code interleavedDim} is not 0 or 1
      */
     public static Complex[][] interleaved2Complex(double[][] i, int interleavedDim) {
         if (interleavedDim > 1 || interleavedDim < 0) {
@@ -1155,6 +1167,7 @@ public final class ComplexUtils {
      * @param i 3D complex interleaved array
      * @param interleavedDim Depth level of the array to interleave
      * @return 3D {@code Complex} array
+     * @throws IllegalArgumentException if {@code interleavedDim} is not 0, 1, or 2
      */
     public static Complex[][][] interleaved2Complex(double[][][] i, int interleavedDim) {
         if (interleavedDim > 2 || interleavedDim < 0) {
@@ -1202,6 +1215,7 @@ public final class ComplexUtils {
      * @param i 4D complex interleaved array
      * @param interleavedDim Depth level of the array to interleave
      * @return 4D {@code Complex} array
+     * @throws IllegalArgumentException if {@code interleavedDim} is not in the range {@code [0, 3]}
      */
     public static Complex[][][][] interleaved2Complex(double[][][][] i, int interleavedDim) {
         if (interleavedDim > 3 || interleavedDim < 0) {
@@ -1279,6 +1293,7 @@ public final class ComplexUtils {
      * @param i 2D complex interleaved float array
      * @param interleavedDim Depth level of the array to interleave
      * @return 2D {@code Complex} array
+     * @throws IllegalArgumentException if {@code interleavedDim} is not 0 or 1
      */
     public static Complex[][] interleaved2Complex(float[][] i, int interleavedDim) {
         if (interleavedDim > 1 || interleavedDim < 0) {
@@ -1324,6 +1339,7 @@ public final class ComplexUtils {
      * @param i 3D complex interleaved float array
      * @param interleavedDim Depth level of the array to interleave
      * @return 3D {@code Complex} array
+     * @throws IllegalArgumentException if {@code interleavedDim} is not 0, 1, or 2
      */
     public static Complex[][][] interleaved2Complex(float[][][] i, int interleavedDim) {
         if (interleavedDim > 2 || interleavedDim < 0) {
