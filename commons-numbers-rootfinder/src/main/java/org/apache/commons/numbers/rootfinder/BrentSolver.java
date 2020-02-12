@@ -66,6 +66,9 @@ public class BrentSolver {
      * @param min Lower bound.
      * @param max Upper bound.
      * @return the root.
+     * @throws IllegalArgumentException if {@code min > max}.
+     * @throws IllegalArgumentException if the given interval does
+     * not bracket the root.
      */
     public double findRoot(DoubleUnaryOperator func,
                            double min,
@@ -82,6 +85,10 @@ public class BrentSolver {
      * @param initial Initial guess.
      * @param max Upper bound.
      * @return the root.
+     * @throws IllegalArgumentException if {@code min > max} or
+     * {@code initial} is not in the {@code [min, max]} interval.
+     * @throws IllegalArgumentException if the given interval does
+     * not bracket the root.
      */
     public double findRoot(DoubleUnaryOperator func,
                            double min,

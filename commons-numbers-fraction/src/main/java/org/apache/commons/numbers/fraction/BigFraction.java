@@ -337,6 +337,7 @@ public final class BigFraction
      * @param num the numerator.
      * @param den the denominator.
      * @return a new instance.
+     * @throws ArithmeticException if {@code den} is zero.
      */
     public static BigFraction of(final int num, final int den) {
         return new BigFraction(BigInteger.valueOf(num), BigInteger.valueOf(den));
@@ -363,6 +364,7 @@ public final class BigFraction
      * @param num the numerator.
      * @param den the denominator.
      * @return a new instance.
+     * @throws ArithmeticException if {@code den} is zero.
      */
     public static BigFraction of(final long num, final long den) {
         return new BigFraction(BigInteger.valueOf(num), BigInteger.valueOf(den));
@@ -511,6 +513,8 @@ public final class BigFraction
      *            see {@link BigDecimal} for more information.
      * @param roundingMode Rounding mode to apply.
      * @return the fraction as a <code>BigDecimal</code>.
+     * @throws ArithmeticException if {@code roundingMode} == {@link RoundingMode#UNNECESSARY} and
+     *      the specified scale is insufficient to represent the result of the division exactly.
      * @see BigDecimal
      */
     public BigDecimal bigDecimalValue(final int scale, RoundingMode roundingMode) {
@@ -553,7 +557,7 @@ public final class BigFraction
      *
      * @param bg the {@code BigInteger} to divide by, must not be {@code null}
      * @return a {@link BigFraction} instance with the resulting values
-     * @throws ArithmeticException if the fraction to divide by is zero
+     * @throws ArithmeticException if the value to divide by is zero
      */
     public BigFraction divide(final BigInteger bg) {
         if (bg.signum() == 0) {
@@ -573,7 +577,7 @@ public final class BigFraction
      *
      * @param i the {@code int} to divide by
      * @return a {@link BigFraction} instance with the resulting values
-     * @throws ArithmeticException if the fraction to divide by is zero
+     * @throws ArithmeticException if the value to divide by is zero
      */
     public BigFraction divide(final int i) {
         return divide(BigInteger.valueOf(i));
@@ -587,7 +591,7 @@ public final class BigFraction
      *
      * @param l the {@code long} to divide by
      * @return a {@link BigFraction} instance with the resulting values
-     * @throws ArithmeticException if the fraction to divide by is zero
+     * @throws ArithmeticException if the value to divide by is zero
      */
     public BigFraction divide(final long l) {
         return divide(BigInteger.valueOf(l));

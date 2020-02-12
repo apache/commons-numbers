@@ -31,7 +31,7 @@ public final class BinomialCoefficientDouble {
     }
 
     /**
-     * Computes de binomial coefficient.
+     * Computes the binomial coefficient.
      * The largest value of {@code n} for which all coefficients can
      * fit into a {@code long} is 66.
      *
@@ -40,8 +40,6 @@ public final class BinomialCoefficientDouble {
      * @return {@code n choose k}.
      * @throws IllegalArgumentException if {@code n < 0}.
      * @throws IllegalArgumentException if {@code k > n}.
-     * @throws IllegalArgumentException if the result is too large to be
-     * represented by a {@code long}.
      */
     public static double value(int n, int k) {
         BinomialCoefficient.checkBinomial(n, k);

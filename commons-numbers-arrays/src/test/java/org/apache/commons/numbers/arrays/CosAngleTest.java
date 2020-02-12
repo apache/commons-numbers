@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
  * Test cases for the {@link CosAngle} class.
  */
 public class CosAngleTest {
+
     @Test
     public void testCosAngle2D() {
         double expected;
@@ -76,5 +77,15 @@ public class CosAngleTest {
         final double[] v3 = {big, -big};
         expected = 0;
         Assertions.assertEquals(expected, CosAngle.value(v1, v3), 1e-15);
+    }
+
+    @Test
+    public void testCosAngle_dimensionMismatch() {
+        final double[] a = {1.0};
+        final double[] b = {1.0, 2.0};
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            CosAngle.value(a, b);
+        });
     }
 }

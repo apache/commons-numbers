@@ -68,7 +68,7 @@ public final class Fraction
      * within {@code epsilon} of {@code value}, in absolute terms.
      * @param maxDenominator maximum denominator value allowed.
      * @param maxIterations maximum number of convergents
-     * @throws IllegalArgumentException if the continued fraction failed
+     * @throws ArithmeticException if the continued fraction failed
      * to converge.
      */
     private Fraction(double value, double epsilon, int maxDenominator, int maxIterations) {
@@ -183,7 +183,7 @@ public final class Fraction
      * Creates an instance.
      *
      * @param value Value to convert to a fraction.
-     * @throws IllegalArgumentException if the continued fraction failed to
+     * @throws ArithmeticException if the continued fraction failed to
      * converge.
      * @return a new instance.
      */
@@ -205,7 +205,7 @@ public final class Fraction
      * @param epsilon maximum error allowed.  The resulting fraction is within
      * {@code epsilon} of {@code value}, in absolute terms.
      * @param maxIterations maximum number of convergents
-     * @throws IllegalArgumentException if the continued fraction failed to
+     * @throws ArithmeticException if the continued fraction failed to
      * converge.
      * @return a new instance.
      */
@@ -225,7 +225,7 @@ public final class Fraction
      *
      * @param value the double value to convert to a fraction.
      * @param maxDenominator The maximum allowed value for denominator
-     * @throws IllegalArgumentException if the continued fraction failed to
+     * @throws ArithmeticException if the continued fraction failed to
      * converge.
      * @return a new instance.
      */
@@ -422,7 +422,7 @@ public final class Fraction
      * @param fraction Fraction to add.
      * @return a new instance.
      * @throws ArithmeticException if the resulting numerator or denominator
-     * exceeds {@code Integer.MAX_VALUE}
+     * cannot be represented in an {@code int}.
      */
     @Override
     public Fraction add(Fraction fraction) {
@@ -522,7 +522,7 @@ public final class Fraction
      * @param fraction Fraction to multiply by.
      * @return a new instance.
      * @throws ArithmeticException if the resulting numerator or denominator
-     * exceeds {@code Integer.MAX_VALUE}
+     * cannot be represented in an {@code int}.
      */
     @Override
     public Fraction multiply(Fraction fraction) {
@@ -556,8 +556,8 @@ public final class Fraction
      * @param fraction Fraction to divide by.
      * @return a new instance.
      * @throws ArithmeticException if the fraction to divide by is zero
-     * or if the resulting numerator or denominator exceeds
-     * {@code Integer.MAX_VALUE}
+     * or if the resulting numerator or denominator cannot be represented
+     * by an {@code int}.
      */
     @Override
     public Fraction divide(Fraction fraction) {

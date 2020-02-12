@@ -24,8 +24,6 @@ import java.text.MessageFormat;
 class GammaException extends IllegalArgumentException {
     /** Error message for "out of range" condition. */
     static final String OUT_OF_RANGE = "Number {0} is out of range [{1}, {2}]";
-    /** Error message for convergence failure. */
-    static final String CONVERGENCE = "Failed to converge within {0} iterations";
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20170505L;
