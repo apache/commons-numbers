@@ -22,9 +22,13 @@
   put here to instruct spotbugs it must ignore them.
 -->
 <FindBugsFilter
-    xmlns="https://github.com/spotbugs/filter/3.1.0"
+    xmlns="https://github.com/spotbugs/filter/3.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="https://github.com/spotbugs/filter/3.1.0 https://raw.githubusercontent.com/spotbugs/spotbugs/3.1.0/spotbugs/etc/findbugsfilter.xsd">
+    xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0 https://raw.githubusercontent.com/spotbugs/spotbugs/3.1.0/spotbugs/etc/findbugsfilter.xsd">
+
+  <Match>
+    <Class name="~.*\.jmh\..*generated\..*"/>
+  </Match>
 
   <!-- Deliberately floating-point equality checks. -->
   <Match>
@@ -36,6 +40,12 @@
     <Class name="org.apache.commons.numbers.complex.Complex"/>
     <Method name="sqrt"/>
     <BugPattern name="FE_FLOATING_POINT_EQUALITY"/>
+  </Match>
+
+  <Match>
+    <!-- Benchmark state classes can expose internal representations -->
+    <Class name="~org.apache.commons.numbers.examples.jmh..*Performance.*"/>
+    <BugPattern name="EI_EXPOSE_REP"/>
   </Match>
 
 </FindBugsFilter>
