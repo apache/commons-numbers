@@ -323,9 +323,6 @@
           gets consistent output.
         -->
           <excludes combine.children="append">
-            <!-- version 0.8 of apache-rat-plugin does not exclude properly
-                 some default development tools files (see RAT-126) -->
-            <exclude>.ekstazi/**</exclude>
             <exclude>src/test/resources/data/**</exclude>
             <exclude>dist-archive/**</exclude>
           </excludes>
@@ -374,9 +371,6 @@
         <configuration>
          <!--  Should agree with apache-rat-plugin config under <build> -->
           <excludes combine.children="append">
-            <!-- version 0.8 of apache-rat-plugin does not exclude properly
-                 some default development tools files (see RAT-126) -->
-            <exclude>.ekstazi/**</exclude>
             <exclude>src/test/resources/data/**</exclude>
             <exclude>dist-archive/**</exclude>
           </excludes>
