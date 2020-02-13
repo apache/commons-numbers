@@ -329,6 +329,10 @@
             <exclude>.ekstazi/**</exclude>
             <exclude>src/test/resources/data/**</exclude>
             <exclude>dist-archive/**</exclude>
+            <exclude>**/.classpath</exclude>
+            <exclude>**/.project</exclude>
+            <exclude>**/.settings/**</exclude>
+            <exclude>**/target/**</exclude>
           </excludes>
         </configuration>
       </plugin>
