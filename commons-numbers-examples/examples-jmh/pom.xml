@@ -82,6 +82,8 @@
     <jmh.version>1.22</jmh.version>
     <uberjar.name>examples-jmh</uberjar.name>
     <project.mainClass>org.openjdk.jmh.Main</project.mainClass>
+    <!-- Disable analysis for benchmarking code. -->
+    <pmd.skip>true</pmd.skip>
   </properties>
 
   <profiles>
