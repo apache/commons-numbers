@@ -335,7 +335,6 @@
         <configuration>
           <!--  Enable MathJax -->
           <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalOptions>
-          <!-- <aggregate>true</aggregate> -->
         </configuration>
       </plugin>
       <plugin>
@@ -463,7 +462,6 @@
         <configuration>
           <!--  Enable MathJax -->
           <additionalOptions>${doclint.javadoc.qualifier} ${allowscript.javadoc.qualifier} -header '&lt;script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/${numbers.mathjax.version}/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;&lt;/script&gt;'</additionalOptions>
-          <!-- <aggregate>true</aggregate> -->
         </configuration>
       </plugin>
     </plugins>
