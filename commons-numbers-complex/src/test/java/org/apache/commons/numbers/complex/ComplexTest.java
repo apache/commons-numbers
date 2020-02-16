@@ -2024,13 +2024,13 @@ public class ComplexTest {
     public void testSinCosLinearAssumptions() {
         // Are cos and sin linear around zero?
         // If cos is still 1 then since d(sin) dx = cos then sin is linear.
-        Assertions.assertEquals(Math.cos(Double.MIN_NORMAL), 1.0);
-        Assertions.assertEquals(Math.sin(Double.MIN_NORMAL), Double.MIN_NORMAL);
+        Assertions.assertEquals(1.0, Math.cos(Double.MIN_NORMAL));
+        Assertions.assertEquals(Double.MIN_NORMAL, Math.sin(Double.MIN_NORMAL));
 
         // Are cosh and sinh linear around zero?
         // If cosh is still 1 then since d(sinh) dx = cosh then sinh is linear.
-        Assertions.assertEquals(Math.cosh(Double.MIN_NORMAL), 1.0);
-        Assertions.assertEquals(Math.sinh(Double.MIN_NORMAL), Double.MIN_NORMAL);
+        Assertions.assertEquals(1.0, Math.cosh(Double.MIN_NORMAL));
+        Assertions.assertEquals(Double.MIN_NORMAL, Math.sinh(Double.MIN_NORMAL));
     }
 
     /**
