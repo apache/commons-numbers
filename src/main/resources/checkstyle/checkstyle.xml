@@ -22,7 +22,7 @@
           "https://checkstyle.org/dtds/configuration_1_3.dtd">
 
 <!--
-  Commons RNG customization of default Checkstyle behaviour:
+  Commons Numbers customization of default Checkstyle behaviour:
   https://github.com/checkstyle/checkstyle/blob/master/src/main/resources/sun_checks.xml
 -->
 <module name="Checker">
@@ -57,6 +57,12 @@
   <!-- Checks for Size Violations. -->
   <!-- See http://checkstyle.sourceforge.net/config_sizes.html -->
   <module name="FileLength" />
+  <module name="LineLength">
+    <property name="fileExtensions" value="java"/>
+    <!-- Ignore lines that begin with " * ", such as within a Javadoc comment. -->
+    <property name="ignorePattern" value="^ *\* *[^ ]"/>
+    <property name="max" value="120"/>
+  </module>
 
   <!-- Checks for whitespace -->
   <!-- See http://checkstyle.sourceforge.net/config_whitespace.html -->
@@ -81,12 +87,8 @@
 
     <!-- Checks for Javadoc comments. -->
     <!-- See http://checkstyle.sourceforge.net/config_javadoc.html -->
-    <!-- Require method javadocs, allow undeclared RTE -->
-    <module name="JavadocMethod">
-      <property name="allowUndeclaredRTE" value="true"/>
-      <property name="allowThrowsTagsForSubclasses" value="true"/>
-      <property name="validateThrows" value="false"/>
-    </module>
+    <module name="InvalidJavadocPosition"/>
+    <module name="JavadocMethod" />
     <module name="JavadocType" />
     <module name="JavadocVariable" />
     <module name="JavadocStyle" />
@@ -115,11 +117,6 @@
 
     <!-- Checks for Size Violations. -->
     <!-- See http://checkstyle.sourceforge.net/config_sizes.html -->
-    <module name="LineLength">
-      <!-- Ignore lines that begin with " * ", such as within a Javadoc comment. -->
-      <property name="ignorePattern" value="^ *\* *[^ ]"/>
-      <property name="max" value="120"/>
-    </module>
     <module name="MethodLength" />
     <module name="ParameterNumber" />
 
