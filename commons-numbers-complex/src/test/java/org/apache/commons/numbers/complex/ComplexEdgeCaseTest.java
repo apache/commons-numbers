@@ -489,14 +489,14 @@ public class ComplexEdgeCaseTest {
         // Radius 0.9999
         assertLog(0.97, Math.sqrt(0.9999 - 0.97 * 0.97), 0);
 
-        // cis numbers on a 1/8 circle with a set radius.
+        // polar numbers on a 1/8 circle with a magnitude close to 1.
         final int steps = 20;
-        final double[] radius = {0.99, 1.0, 1.01};
+        final double[] magnitude = {0.999, 1.0, 1.001};
         final int[] ulps = {0, 0, 1};
-        for (int j = 0; j < radius.length; j++) {
+        for (int j = 0; j < magnitude.length; j++) {
             for (int i = 1; i <= steps; i++) {
                 final double theta = i * Math.PI / (4 * steps);
-                assertLog(radius[j] * Math.sin(theta), radius[j] * Math.cos(theta), ulps[j]);
+                assertLog(magnitude[j] * Math.sin(theta), magnitude[j] * Math.cos(theta), ulps[j]);
             }
         }
 
@@ -504,7 +504,7 @@ public class ComplexEdgeCaseTest {
         double theta = Math.PI / (4 * steps);
         while (theta > 0) {
             theta /= 2;
-            assertLog(Math.sin(theta), Math.cos(theta), 1);
+            assertLog(Math.sin(theta), Math.cos(theta), 0);
         }
 
         // Extreme cases.

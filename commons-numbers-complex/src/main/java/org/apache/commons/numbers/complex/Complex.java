@@ -2522,7 +2522,7 @@ public final class Complex implements Serializable  {
     /**
      * Sum x^2 + y^2 - 1. It is assumed that {@code y <= x < 1}.
      *
-     * <p>Implement Shewchuk's expansion-sum algorithm: [x2Low, x2High, -1] + [y2Low, y2High].
+     * <p>Implement Shewchuk's expansion-sum algorithm: [x2Low, x2High] + [-1] + [y2Low, y2High].
      *
      * @param x2High High part of x^2.
      * @param x2Low Low part of x^2.
@@ -2537,10 +2537,10 @@ public final class Complex implements Serializable  {
         // The following algorithm will produce a non-overlapping expansion h where the
         // sum h_i = e + f and components of h are in increasing order of magnitude.
 
-        // Expansion sum proceeds by a grow-expansion of the first part from one expansion
+        // Expansion-sum proceeds by a grow-expansion of the first part from one expansion
         // into the other, extending its length by 1. The process repeats for the next part
-        // but the grow expansion starts at the previous merge position + 1.
-        // Thus expansion sum requires mn two-sum operations to merge length m into length n
+        // but the grow-expansion starts at the previous merge position + 1.
+        // Thus expansion-sum requires mn two-sum operations to merge length m into length n
         // resulting in length m+n-1.
 
         // Variables numbered from 1 as per Figure 7 (p.12). The output expansion h is placed
@@ -2549,7 +2549,21 @@ public final class Complex implements Serializable  {
         // We have two expansions for x^2 and y^2 and the whole number -1.
         // Expecting (x^2 + y^2) close to 1 we generate first the intermediate expansion
         // (x^2 - 1) moving the result away from 1 where there are sparse floating point
-        // representations. This is then added to a similar magnitude y^2.
+        // representations. This is then added to a similar magnitude y^2. Leaving the -1
+        // until last suffers from 1 ulp rounding errors more often and the requirement
+        // for a distillation sum to reduce rounding error frequency.
+
+        // Note: Do not use the alternative fast-expansion-sum of the parts sorted by magnitude.
+        // The parts can be ordered with a single comparison into:
+        // [y2Low, (y2High|x2Low), x2High, -1]
+        // The fast-two-sum saves 1 fast-two-sum and 3 two-sum operations (21 additions) and
+        // adds a penalty of a single branch condition.
+        // However the order in not "strongly non-overlapping" and the fast-expansion-sum
+        // output will not be strongly non-overlapping. The sum of the output has 1 ulp error
+        // on random cis numbers approximately 1 in 160 events. This can be removed by a
+        // distillation two-sum pass over the final expansion as a cost of 1 fast-two-sum and
+        // 3 two-sum operations! So we use the expansion sum with the same operations and
+        // no branches.
 
         // q=running sum
         double q = x2Low - 1;
@@ -2563,22 +2577,27 @@ public final class Complex implements Serializable  {
         // Grow expansion of f1 into e
         q = f1 + e1;
         e1 = sumLow(f1, e1, q);
-        double p = q;
-        q += e2;
-        e2 = sumLow(p, e2, q);
-        double e4 = q + e3;
-        e3 = sumLow(q, e3, e4);
+        double p = q + e2;
+        e2 = sumLow(q, e2, p);
+        double e4 = p + e3;
+        e3 = sumLow(p, e3, e4);
 
         // Grow expansion of f2 into e (only required to start at e2)
         q = f2 + e2;
         e2 = sumLow(f2, e2, q);
-        p = q;
-        q += e3;
-        e3 = sumLow(p, e3, q);
-        final double e5 = q + e4;
-        e4 = sumLow(q, e4, e5);
+        p = q + e3;
+        e3 = sumLow(q, e3, p);
+        final double e5 = p + e4;
+        e4 = sumLow(p, e4, e5);
 
-        // Final summation
+        // Final summation:
+        // The sum of the parts is within 1 ulp of the true expansion value e:
+        // |e - sum| < ulp(sum).
+        // To achieve the exact result requires iteration of a distillation two-sum through
+        // the expansion until convergence, i.e. no smaller term changes higher terms.
+        // This requires (n-1) iterations for length n. Here we neglect this as
+        // although the method is not ensured to be exact is it robust on random
+        // cis numbers.
         return e1 + e2 + e3 + e4 + e5;
     }
 
