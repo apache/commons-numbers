@@ -984,10 +984,9 @@ public final class Complex implements Serializable  {
                 d = changeNaNtoZero(d);
                 recalc = true;
             }
-            // (c, d) may have been corrected so do not use factor.isInfinite().
             if ((Double.isInfinite(c) || Double.isInfinite(d)) &&
                 isNotZero(a, b)) {
-                // This other complex is infinite.
+                // The other complex is infinite.
                 // "Box" the infinity and change NaNs in the other factor to 0.
                 c = boxInfinity(c);
                 d = boxInfinity(d);
