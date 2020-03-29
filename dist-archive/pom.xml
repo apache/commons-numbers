@@ -25,7 +25,7 @@ under the License.
   <parent>
     <groupId>org.apache.commons</groupId>
     <artifactId>commons-numbers-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-B1</version>
   </parent>
 
   <artifactId>commons-numbers</artifactId>
@@ -46,22 +46,59 @@ under the License.
   </properties>
 
   <dependencies>
-
-    <!-- Module: Core -->
+    <!-- Module: Angle -->
     <dependency>
       <groupId>org.apache.commons</groupId>
-      <artifactId>commons-numbers-core</artifactId>
+      <artifactId>commons-numbers-angle</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
-      <artifactId>commons-numbers-core</artifactId>
+      <artifactId>commons-numbers-angle</artifactId>
       <version>${project.version}</version>
       <classifier>sources</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
-      <artifactId>commons-numbers-core</artifactId>
+      <artifactId>commons-numbers-angle</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
+    </dependency>
+
+    <!-- Module: Arrays -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-arrays</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-arrays</artifactId>
+      <version>${project.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-arrays</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
+    </dependency>
+
+    <!-- Module: Combinatorics -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-combinatorics</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-combinatorics</artifactId>
+      <version>${project.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-combinatorics</artifactId>
       <version>${project.version}</version>
       <classifier>javadoc</classifier>
     </dependency>
@@ -85,6 +122,120 @@ under the License.
       <classifier>javadoc</classifier>
     </dependency>
 
+    <!-- Module: Core -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-core</artifactId>
+      <version>${project.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-core</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
+    </dependency>
+
+      <!-- Module: Examples JMH -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-examples-jmh</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-examples-jmh</artifactId>
+      <version>${project.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-examples-jmh</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
+    </dependency>
+
+    <!-- Module: Field -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-field</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-field</artifactId>
+      <version>${project.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-field</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
+    </dependency>
+
+    <!-- Module: Fraction -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-fraction</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-fraction</artifactId>
+      <version>${project.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-fraction</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
+    </dependency>
+
+    <!-- Module: Gamma -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-gamma</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-gamma</artifactId>
+      <version>${project.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-gamma</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
+    </dependency>
+
+    <!-- Module: Primes -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-primes</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-primes</artifactId>
+      <version>${project.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-primes</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
+    </dependency>
+
     <!-- Module: Quaternion -->
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -100,6 +251,25 @@ under the License.
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-numbers-quaternion</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
+    </dependency>
+
+    <!-- Module: Rootfinder -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-rootfinder</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-rootfinder</artifactId>
+      <version>${project.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-numbers-rootfinder</artifactId>
       <version>${project.version}</version>
       <classifier>javadoc</classifier>
     </dependency>
