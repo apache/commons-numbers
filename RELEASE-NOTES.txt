@@ -1,0 +1,31 @@
+
+              Apache Commons Numbers 1.0-B1 RELEASE NOTES
+
+The Apache Commons Numbers team is pleased to announce the release of commons-numbers-parent-1.0-B1
+
+The Apache Commons Numbers project provides number types and utilities.
+
+This is the first release of Apache Commons Numbers. This is a beta release. No guarantees are made regarding the stability of the API or compatibility with future releases.
+Apache Commons Numbers 1.0-B1 contains the following modules:
+ commons-numbers-angle (requires Java 8)
+ commons-numbers-arrays (requires Java 8)
+ commons-numbers-combinatorics (requires Java 8)
+ commons-numbers-complex (requires Java 8)
+ commons-numbers-core (requires Java 8)
+ commons-numbers-examples (requires Java 8)
+ commons-numbers-examples-jmh (requires Java 8)
+ commons-numbers-field (requires Java 8)
+ commons-numbers-fraction (requires Java 8)
+ commons-numbers-gamma (requires Java 8)
+ commons-numbers-primes (requires Java 8)
+ commons-numbers-quaternion (requires Java 8)
+ commons-numbers-rootfinder (requires Java 8)
+
+No changes defined in this version.
+
+For complete information on Apache Commons Numbers, including instructions on how to submit bug reports,
+patches, or suggestions for improvement, see the Apache Commons Numbers website:
+
+http://commons.apache.org/proper/commons-numbers/
+
+
