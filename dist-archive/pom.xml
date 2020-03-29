@@ -33,6 +33,18 @@ under the License.
   <name>Apache Commons Numbers (full distribution)</name>
   <description>This module creates the Apache Commons Numbers distribution.</description>
 
+  <properties>
+    <checkstyle.skip>true</checkstyle.skip>
+    <animal.sniffer.skip>true</animal.sniffer.skip>
+    <!-- Commons Release Plugin -->
+    <commons.release.isDistModule>true</commons.release.isDistModule>
+    <commons.siteOutputDirectory>${basedir}/../target/site</commons.siteOutputDirectory>
+    <commons.releaseNotesLocation>${basedir}/../RELEASE-NOTES.txt</commons.releaseNotesLocation>
+    <commons.distSvnStagingUrl>scm:svn:https://dist.apache.org/repos/dist/dev/commons/${commons.componentid}</commons.distSvnStagingUrl>
+    <commons.releaseManagerName>Matt Juntunen</commons.releaseManagerName>
+    <commons.releaseManagerKey>7DD53AEFEDF1C3D392B51EBE346F4FCECFB70B1A</commons.releaseManagerKey>
+  </properties>
+
   <dependencies>
 
     <!-- Module: Core -->
