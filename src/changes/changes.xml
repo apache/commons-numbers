@@ -51,9 +51,9 @@ If the output is not quite correct, check for invisible trailing spaces!
   </properties>
   <body>
     <release version="1.0-B1" date="2020-04-05" description="
-This is the first release of Apache Commons Numbers. This is a beta release.
-No guarantees are made regarding the stability of the API or compatibility with
-future releases.
+This is a beta release of Apache Commons Numbers. No guarantees are
+made regarding the stability of the API or compatibility with future
+releases.
 
 Apache Commons Numbers 1.0-B1 contains the following modules:
   commons-numbers-angle (requires Java 8)
