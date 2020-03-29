@@ -15,7 +15,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project name="Numbers">
+<project name="Fraction">
   <bannerRight>
     <name>Apache Commons Numbers</name>
     <src>/images/commons_numbers.small.png</src>
@@ -23,12 +23,12 @@
   </bannerRight>
 
   <body>
-    <menu name="Numbers Complex">
+    <menu name="Numbers Fraction">
       <item name="Overview" href="index.html"/>
       <item name="Latest API docs (development)"
             href="apidocs/index.html"/>
       <item name="Javadoc (1.0-B1 release)"
-          href="http://commons.apache.org/numbers/commons-numbers-complex/javadocs/api-1.0-B1/index.html"/>
+          href="http://commons.apache.org/numbers/commons-numbers-fraction/javadocs/api-1.0-B1/index.html"/>
     </menu>
 
   </body>

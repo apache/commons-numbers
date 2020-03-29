@@ -20,7 +20,7 @@
 <document>
 
   <properties>
-    <title>Commons Numbers Complex</title>
+    <title>Commons Numbers Quaternion</title>
   </properties>
 
   <body>
@@ -31,7 +31,7 @@
       </p>
 
       <p>
-        The "complex" module contains utilities for working with complex numbers.
+        The "quaternion" module contains utilities related to quaternions.
       </p>
     </section>
 

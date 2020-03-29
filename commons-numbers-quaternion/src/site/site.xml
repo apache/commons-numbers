@@ -23,12 +23,12 @@
   </bannerRight>
 
   <body>
-    <menu name="Numbers Complex">
+    <menu name="Numbers Quaternion">
       <item name="Overview" href="index.html"/>
       <item name="Latest API docs (development)"
             href="apidocs/index.html"/>
       <item name="Javadoc (1.0-B1 release)"
-          href="http://commons.apache.org/numbers/commons-numbers-complex/javadocs/api-1.0-B1/index.html"/>
+          href="http://commons.apache.org/numbers/commons-numbers-quaternion/javadocs/api-1.0-B1/index.html"/>
     </menu>
 
   </body>
