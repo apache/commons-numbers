@@ -323,6 +323,7 @@
         -->
           <excludes combine.children="append">
             <exclude>src/test/resources/data/**</exclude>
+            <exclude>src/site/resources/release-notes/RELEASE-NOTES-*.txt</exclude>
             <exclude>dist-archive/**</exclude>
           </excludes>
         </configuration>
@@ -370,6 +371,7 @@
          <!--  Should agree with apache-rat-plugin config under <build> -->
           <excludes combine.children="append">
             <exclude>src/test/resources/data/**</exclude>
+            <exclude>src/site/resources/release-notes/RELEASE-NOTES-*.txt</exclude>
             <exclude>dist-archive/**</exclude>
           </excludes>
         </configuration>
