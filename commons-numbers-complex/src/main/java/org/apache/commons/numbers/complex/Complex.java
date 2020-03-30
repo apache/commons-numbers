@@ -30,7 +30,7 @@ import java.util.List;
  *
  * <p>Arithmetic in this class conforms to the C99 standard for complex numbers
  * defined in ISO/IEC 9899, Annex G. Methods have been named using the equivalent
- * method in ISO C99. The behaviour for special cases is listed as defined in C99.</p>
+ * method in ISO C99. The behaviorfor special cases is listed as defined in C99.</p>
  *
  * <p>For functions \( f \) which obey the conjugate equality \( conj(f(z)) = f(conj(z)) \),
  * the specifications for the upper half-plane imply the specifications for the lower
