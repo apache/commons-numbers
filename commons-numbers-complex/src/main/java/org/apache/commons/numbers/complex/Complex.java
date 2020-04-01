@@ -20,6 +20,7 @@ package org.apache.commons.numbers.complex;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.DoubleUnaryOperator;
 
 /**
  * Cartesian representation of a complex number, i.e. a number which has both a
@@ -243,21 +244,6 @@ public final class Complex implements Serializable  {
          * @return {@code Complex} object.
          */
         Complex create(double real, double imaginary);
-    }
-
-    /**
-     * Define a unary operation on a double.
-     * This is used in the log() and log10() functions.
-     */
-    @FunctionalInterface
-    private interface UnaryOperation {
-        /**
-         * Apply an operation to a value.
-         *
-         * @param value The value.
-         * @return The result.
-         */
-        double apply(double value);
     }
 
     /**
@@ -2336,7 +2322,7 @@ public final class Complex implements Serializable  {
      * @see #abs()
      * @see #arg()
      */
-    private Complex log(UnaryOperation log, double logOfeOver2, double logOf2, ComplexConstructor constructor) {
+    private Complex log(DoubleUnaryOperator log, double logOfeOver2, double logOf2, ComplexConstructor constructor) {
         // Handle NaN
         if (Double.isNaN(real) || Double.isNaN(imaginary)) {
             // Return NaN unless infinite
@@ -2401,7 +2387,7 @@ public final class Complex implements Serializable  {
                 // Potential underflow.
                 if (y == 0) {
                     // Handle real only number
-                    return constructor.create(log.apply(x), arg());
+                    return constructor.create(log.applyAsDouble(x), arg());
                 }
                 // Scale up sub-normal numbers to make them normal by scaling by 2^54,
                 // i.e. more than the mantissa digits.
@@ -2410,7 +2396,7 @@ public final class Complex implements Serializable  {
                 // log(2^-54) = -54 * log(2)
                 re = -54 * logOf2;
             }
-            re += log.apply(abs(x, y));
+            re += log.applyAsDouble(abs(x, y));
         }
 
         // All ISO C99 edge cases for the imaginary are satisfied by the Math library.
