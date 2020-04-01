@@ -1943,7 +1943,7 @@ public final class Complex implements Serializable  {
      * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
      * </ul>
      *
-     * <p>[1] This has been updated as per
+     * <p>Special cases include the technical corrigendum
      * <a href="http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1892.htm#dr_471">
      * DR 471: Complex math functions cacosh and ctanh</a>.
      *
@@ -2019,6 +2019,7 @@ public final class Complex implements Serializable  {
      *
      * <p>The hyperbolic cosine of \( z \) is an entire function in the complex plane
      * and is periodic with respect to the imaginary component with period \( 2\pi i \).
+     * Special cases:
      *
      * <ul>
      * <li>{@code z.conj().cosh() == z.cosh().conj()}.
@@ -2647,17 +2648,17 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Returns the complex power of this complex number raised to the power of \( x \).
+     * Returns the complex power of this complex number raised to the power of {@code x}.
      * Implements the formula:
      *
      * <p>\[ z^x = e^{x \ln(z)} \]
      *
-     * <p>If this complex number is zero then this method returns zero if \( x \) is positive
+     * <p>If this complex number is zero then this method returns zero if {@code x} is positive
      * in the real component and zero in the imaginary component;
      * otherwise it returns NaN + iNaN.
      *
      * @param  x The exponent to which this complex number is to be raised.
-     * @return <code>this<sup>x</sup></code>.
+     * @return This complex number raised to the power of {@code x}.
      * @see #log()
      * @see #multiply(Complex)
      * @see #exp()
@@ -2680,16 +2681,17 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Returns the complex power of this complex number raised to the power of \( x \).
+     * Returns the complex power of this complex number raised to the power of {@code x},
+     * with {@code x} interpreted as a real number.
      * Implements the formula:
      *
      * <p>\[ z^x = e^{x \ln(z)} \]
      *
-     * <p>If this complex number is zero then this method returns zero if \( x \) is positive;
+     * <p>If this complex number is zero then this method returns zero if {@code x} is positive;
      * otherwise it returns NaN + iNaN.
      *
      * @param  x The exponent to which this complex number is to be raised.
-     * @return <code>this<sup>x</sup></code>.
+     * @return This complex number raised to the power of {@code x}.
      * @see #log()
      * @see #multiply(double)
      * @see #exp()
@@ -2747,6 +2749,7 @@ public final class Complex implements Serializable  {
      *
      * <p>The hyperbolic sine of \( z \) is an entire function in the complex plane
      * and is periodic with respect to the imaginary component with period \( 2\pi i \).
+     * Special cases:
      *
      * <ul>
      * <li>{@code z.conj().sinh() == z.sinh().conj()}.
@@ -3007,7 +3010,7 @@ public final class Complex implements Serializable  {
      * and has poles of the first order along the imaginary line, at coordinates
      * \( (0, \pi(\frac{1}{2} + n)) \).
      * Note that the {@code double} floating-point representation is unable to exactly represent
-     * \( \pi/2 \) and there is no value for which a pole error occurs.
+     * \( \pi/2 \) and there is no value for which a pole error occurs. Special cases:
      *
      * <ul>
      * <li>{@code z.conj().tanh() == z.tanh().conj()}.
@@ -3025,7 +3028,7 @@ public final class Complex implements Serializable  {
      * <li>If {@code z} is NaN + iNaN, returns NaN + iNaN.
      * </ul>
      *
-     * <p>[1] This has been updated as per
+     * <p>Special cases include the technical corrigendum
      * <a href="http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1892.htm#dr_471">
      * DR 471: Complex math functions cacosh and ctanh</a>.
      *
