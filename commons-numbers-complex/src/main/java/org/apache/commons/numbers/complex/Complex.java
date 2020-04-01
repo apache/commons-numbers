@@ -3147,7 +3147,7 @@ public final class Complex implements Serializable  {
             // inner part
             final double realPart = nthRootOfAbs *  Math.cos(innerPart);
             final double imaginaryPart = nthRootOfAbs *  Math.sin(innerPart);
-            result.add(new Complex(realPart, imaginaryPart));
+            result.add(ofCartesian(realPart, imaginaryPart));
             innerPart += slice;
         }
 
