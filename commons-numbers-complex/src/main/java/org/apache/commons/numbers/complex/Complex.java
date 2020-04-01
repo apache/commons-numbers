@@ -1307,6 +1307,14 @@ public final class Complex implements Serializable  {
      * <p>This function exists to allow implementation of the identity
      * {@code acosh(z) = +-i acos(z)}.
      *
+     * <p>Adapted from {@code <boost/math/complex/acos.hpp>}.
+     * The original notice is shown below and the licence is shown in full in LICENSE.txt:
+     * <pre>
+     * (C) Copyright John Maddock 2005.
+     * Distributed under the Boost Software License, Version 1.0. (See accompanying
+     * file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+     * </pre>
+     *
      * @param real Real part.
      * @param imaginary Imaginary part.
      * @param constructor Constructor.
@@ -1475,8 +1483,13 @@ public final class Complex implements Serializable  {
      * <p>This function exists to allow implementation of the identity
      * {@code asinh(z) = -i asin(iz)}.
      *
-     * <p>The code has been adapted from the <a href="https://www.boost.org/">Boost</a>
-     * {@code c++} implementation {@code <boost/math/complex/asin.hpp>}.</p>
+     * <p>Adapted from {@code <boost/math/complex/asin.hpp>}.
+     * The original notice is shown below and the licence is shown in full in LICENSE.txt:
+     * <pre>
+     * (C) Copyright John Maddock 2005.
+     * Distributed under the Boost Software License, Version 1.0. (See accompanying
+     * file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+     * </pre>
      *
      * @param real Real part.
      * @param imaginary Imaginary part.
@@ -1726,6 +1739,13 @@ public final class Complex implements Serializable  {
      *
      * <p>This function exists to allow implementation of the identity
      * {@code atan(z) = -i atanh(iz)}.
+     *
+     * The original notice is shown below and the licence is shown in full in LICENSE.txt:
+     * <pre>
+     * (C) Copyright John Maddock 2005.
+     * Distributed under the Boost Software License, Version 1.0. (See accompanying
+     * file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+     * </pre>
      *
      * @param real Real part.
      * @param imaginary Imaginary part.
