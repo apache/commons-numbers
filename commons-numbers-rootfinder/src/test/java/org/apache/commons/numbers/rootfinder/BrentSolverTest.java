@@ -149,7 +149,7 @@ public class BrentSolverTest {
         double result;
         MonitoredFunction f;
 
-        // Very large bracket around 1 for testing fast growth behaviour.
+        // Very large bracket around 1 for testing fast growth behavior.
         f = new MonitoredFunction(func);
         result = solver.findRoot(f, 0.85, 5);
         Assertions.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);

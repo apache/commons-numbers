@@ -2058,7 +2058,7 @@ public class ComplexTest {
 
         // Each sample fails approximately 3% of the time if using a standard x^2+y^2 in sqrt()
         // and high accuracy representation in abs().
-        // Use 1000 samples to ensure the behaviour is OK.
+        // Use 1000 samples to ensure the behavior is OK.
         // Do not use data which will over/underflow so we can use a simple computation in the test
         assertAbsVsSqrt(1000, () -> Complex.ofCartesian(createFixedExponentNumber(rng, 1000),
                                                         createFixedExponentNumber(rng, 1000)));
@@ -2119,7 +2119,7 @@ public class ComplexTest {
         // No test around |z| == 1 as a high accuracy computation is required: Math.log1p(x*x+y*y-1)
 
         // Each sample fails approximately 25% of the time if using a standard x^2+y^2 in log()
-        // and high accuracy representation in abs(). Use 100 samples to ensure the behaviour is OK.
+        // and high accuracy representation in abs(). Use 100 samples to ensure the behavior is OK.
         assertAbsVsLog(100, () -> Complex.ofCartesian(createFixedExponentNumber(rng, 1022),
                                                       createFixedExponentNumber(rng, 1022)));
         assertAbsVsLog(100, () -> Complex.ofCartesian(createFixedExponentNumber(rng, -1022),
