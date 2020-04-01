@@ -30,13 +30,13 @@ import java.util.List;
  *
  * <p>Arithmetic in this class conforms to the C99 standard for complex numbers
  * defined in ISO/IEC 9899, Annex G. Methods have been named using the equivalent
- * method in ISO C99. The behaviorfor special cases is listed as defined in C99.</p>
+ * method in ISO C99. The behavior for special cases is listed as defined in C99.</p>
  *
  * <p>For functions \( f \) which obey the conjugate equality \( conj(f(z)) = f(conj(z)) \),
  * the specifications for the upper half-plane imply the specifications for the lower
  * half-plane.</p>
  *
- * <p>For functions that are either odd, \( f(z) = -f(-z) \), or even, \( f(z) =  f(-z) \)
+ * <p>For functions that are either odd, \( f(z) = -f(-z) \), or even, \( f(z) =  f(-z) \),
  * the specifications for the first quadrant imply the specifications for the other three
  * quadrants.</p>
  *
@@ -46,7 +46,8 @@ import java.util.List;
  * <a href="https://en.cppreference.com/w/c/numeric/fenv/FE_exceptions">floating-point
  * exceptions</a> return the documented value without an explicit mechanism to notify
  * of the exception case, that is no exceptions are thrown during computations in-line with
- * the convention of the corresponding single-valued functions in {@link java.lang.Math}.
+ * the convention of the corresponding single-valued functions in
+ * {@link java.lang.Math java.lang.Math}.
  * These cases are documented in the method special cases as "invalid" or "divide-by-zero"
  * floating-point operation.
  * Note: Invalid floating-point exception cases will result in a complex number where the
@@ -289,8 +290,8 @@ public final class Complex implements Serializable  {
      *    y = \rho \sin(\theta) \]
      *
      * <p>Requires that {@code rho} is non-negative and non-NaN and {@code theta} is finite;
-     * otherwise returns a complex with NaN real and imaginary parts. A value of {@code -0.0} is
-     * considered negative and an invalid modulus.
+     * otherwise returns a complex with NaN real and imaginary parts. A {@code rho} value of
+     * {@code -0.0} is considered negative and an invalid modulus.
      *
      * <p>A non-NaN complex number constructed using this method will satisfy the following
      * to within floating-point error when {@code theta} is in the range
@@ -362,7 +363,7 @@ public final class Complex implements Serializable  {
      * "(0,0)"             = Complex.ofCartesian(0, 0)
      * "(0.0,0.0)"         = Complex.ofCartesian(0, 0)
      * "(-0.0, 0.0)"       = Complex.ofCartesian(-0.0, 0)
-     * "(-1.23, 4.56)"     = Complex.ofCartesian(-123, 4.56)
+     * "(-1.23, 4.56)"     = Complex.ofCartesian(-1.23, 4.56)
      * "(1e300,-1.1e-2)"   = Complex.ofCartesian(1e300, -1.1e-2)</pre>
      *
      * @param s String representation.
@@ -428,7 +429,7 @@ public final class Complex implements Serializable  {
      * Returns {@code true} if either the real <em>or</em> imaginary component of the complex number is NaN
      * <em>and</em> the complex number is not infinite.
      *
-     * <p>Note that in contrast to {@link Double#isNaN()}:
+     * <p>Note that:
      * <ul>
      *   <li>There is more than one complex number that can return {@code true}.
      *   <li>Different representations of NaN can be distinguished by the
@@ -450,8 +451,8 @@ public final class Complex implements Serializable  {
     /**
      * Returns {@code true} if either real or imaginary component of the complex number is infinite.
      *
-     * <p>Note: A complex or imaginary value with at least one infinite part is regarded
-     * as an infinity (even if its other part is a NaN).</p>
+     * <p>Note: A complex number with at least one infinite part is regarded
+     * as an infinity (even if its other part is a NaN).
      *
      * @return {@code true} if this instance contains an infinite value.
      * @see Double#isInfinite(double)
@@ -471,7 +472,7 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Returns projection of this complex number onto the Riemann sphere.
+     * Returns the projection of this complex number onto the Riemann sphere.
      *
      * <p>\( z \) projects to \( z \), except that all complex infinities (even those
      * with one infinite part and one NaN part) project to positive infinity on the real axis.
@@ -501,7 +502,7 @@ public final class Complex implements Serializable  {
      * <p>Special cases:
      *
      * <ul>
-     * <li>{@code \text{abs}(x + iy) == \text{abs}(y + ix) == \text{abs}(x - iy)}.
+     * <li>{@code abs(x + iy) == abs(y + ix) == abs(x - iy)}.
      * <li>If {@code z} is ±∞ + iy for any y, returns +∞.
      * <li>If {@code z} is x + iNaN for non-infinite x, returns NaN.
      * <li>If {@code z} is x + i0, returns |x|.
@@ -511,9 +512,11 @@ public final class Complex implements Serializable  {
      * infinity. If either component is NaN and this is not {@link #isInfinite() infinite} then
      * the result is NaN.
      *
-     * <p>This code follows the
+     * <p>This method follows the
      * <a href="http://www.iso-9899.info/wiki/The_Standard">ISO C Standard</a>, Annex G,
      * in calculating the returned value without intermediate overflow or underflow.
+     *
+     * <p>The computed result will be within 1 ulp of the exact result.
      *
      * @return The absolute value.
      * @see #isInfinite()
@@ -560,9 +563,12 @@ public final class Complex implements Serializable  {
      * <p>If either component is infinite then the result is positive infinity. If either
      * component is NaN and this is not {@link #isInfinite() infinite} then the result is NaN.
      *
-     * <p>This method will return the square of {@link #abs()}. It can be used as a faster
-     * alternative for ranking by magnitude although overflow to infinity will create equal
-     * ranking for values that may be still distinguished by {@code abs()}.
+     * <p>Note: This method may not return the same value as the square of {@link #abs()} as
+     * that method uses an extended precision computation.
+     *
+     * <p>{@code norm()} can be used as a faster alternative than {@code abs()} for ranking by
+     * magnitude. If used for ranking any overflow to infinity will create an equal ranking for
+     * values that may be still distinguished by {@code abs()}.
      *
      * @return The square norm value.
      * @see #isInfinite()
@@ -645,8 +651,8 @@ public final class Complex implements Serializable  {
      * <a href="http://mathworld.wolfram.com/ComplexConjugate.html">conjugate</a>
      * \( \overline{z} \) of this complex number \( z \).
      *
-     * <p>\[ z           = x + i y \\
-     *      \overline{z} = x - i y \]
+     * <p>\[ z           = a + i b \\
+     *      \overline{z} = a - i b \]
      *
      * @return The conjugate (\( \overline{z} \)) of this complex number.
      */
@@ -766,7 +772,7 @@ public final class Complex implements Serializable  {
      * <p>Note: This method should be preferred over using
      * {@link #divide(Complex) divide(Complex.ofCartesian(divisor, 0))}. Division
      * can generate signed zeros if {@code this} complex has zeros for the real
-     * and/or imaginary component, or the divisor is infinity. The summation of signed zeros
+     * and/or imaginary component, or the divisor is infinite. The summation of signed zeros
      * in {@link #divide(Complex)} may create zeros in the result that differ in sign
      * from the equivalent call to divide by a real-only number.
      *
@@ -791,7 +797,7 @@ public final class Complex implements Serializable  {
      * <p>Note: This method should be preferred over using
      * {@link #divide(Complex) divide(Complex.ofCartesian(0, divisor))}. Division
      * can generate signed zeros if {@code this} complex has zeros for the real
-     * and/or imaginary component, or the divisor is infinity. The summation of signed zeros
+     * and/or imaginary component, or the divisor is infinite. The summation of signed zeros
      * in {@link #divide(Complex)} may create zeros in the result that differ in sign
      * from the equivalent call to divide by an imaginary-only number.
      *
@@ -801,7 +807,7 @@ public final class Complex implements Serializable  {
      * as dividing by a real-only zero. The output from dividing by imaginary zero will create
      * infinite and NaN values in the same component parts as the output from
      * {@code this.divide(Complex.ZERO).multiplyImaginary(1)}, however the sign
-     * of some infinity values may be negated.
+     * of some infinite values may be negated.
      *
      * @param  divisor Value by which this complex number is to be divided.
      * @return {@code this / divisor}.
@@ -834,7 +840,7 @@ public final class Complex implements Serializable  {
      * <ul>
      *  <li>
      *   Instances that contain {@code NaN} values in the same part
-     *   are considered to be equal for that part, even though {@code Double.NaN==Double.NaN}
+     *   are considered to be equal for that part, even though {@code Double.NaN == Double.NaN}
      *   has the value {@code false}.
      *  </li>
      *  <li>
@@ -843,7 +849,7 @@ public final class Complex implements Serializable  {
      *  </li>
      *  <li>
      *   Instances that contain different representations of zero in the same part
-     *   are <em>not</em> considered to be equal for that part, even though {@code -0.0==0.0}
+     *   are <em>not</em> considered to be equal for that part, even though {@code -0.0 == 0.0}
      *   has the value {@code true}.
      *  </li>
      * </ul>
@@ -893,7 +899,7 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Gets the imaginary part.
+     * Gets the imaginary part \( b \) of this complex number \( (a + i b) \).
      *
      * @return The imaginary part.
      */
@@ -902,7 +908,9 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Gets the imaginary part (C++ grammar).
+     * Gets the imaginary part \( b \) of this complex number \( (a + i b) \).
+     *
+     * <p>This method is the equivalent of the C++ method {@code std::complex::imag}.
      *
      * @return The imaginary part.
      * @see #getImaginary()
@@ -912,7 +920,7 @@ public final class Complex implements Serializable  {
     }
 
     /**
-     * Gets the real part.
+     * Gets the real part \( a \) of this complex number \( (a + i b) \).
      *
      * @return The real part.
      */
@@ -920,8 +928,10 @@ public final class Complex implements Serializable  {
         return real;
     }
 
-     /**
-     * Gets the real part (C++ grammar).
+    /**
+     * Gets the real part \( a \) of this complex number \( (a + i b) \).
+     *
+     * <p>This method is the equivalent of the C++ method {@code std::complex::real}.
      *
      * @return The real part.
      * @see #getReal()
@@ -1101,7 +1111,7 @@ public final class Complex implements Serializable  {
      * <p>\[ (a + i b) id = (-bd) + i (ad) \]
      *
      * <p>This method can be used to compute the multiplication of this complex number \( z \)
-     * by \( i \). This should be used in preference to
+     * by \( i \) using a factor with magnitude 1.0. This should be used in preference to
      * {@link #multiply(Complex) multiply(Complex.I)} with or without {@link #negate() negation}:</p>
      *
      * \[ iz = (-b + i a) \\
@@ -1128,6 +1138,9 @@ public final class Complex implements Serializable  {
     /**
      * Returns a {@code Complex} whose value is the negation of both the real and imaginary parts
      * of complex number \( z \).
+     *
+     * <p>\[ z  =  a + i b \\
+     *      -z  = -a - i b \]
      *
      * @return \( -z \).
      */
@@ -1197,7 +1210,7 @@ public final class Complex implements Serializable  {
      *
      * <p>Note: This method inverts the sign of the imaginary component \( b \) if it is {@code 0.0}.
      * The sign would not be inverted if subtracting from \( c + i 0 \) using
-     * {@link #subtract(Complex) Complex.ofCartesian(minuend, 0).subtract(this))} since
+     * {@link #subtract(Complex) Complex.ofCartesian(minuend, 0).subtract(this)} since
      * {@code 0.0 - 0.0 = 0.0}.
      *
      * @param  minuend Value this complex number is to be subtracted from.
@@ -1220,7 +1233,7 @@ public final class Complex implements Serializable  {
      *
      * <p>Note: This method inverts the sign of the real component \( a \) if it is {@code 0.0}.
      * The sign would not be inverted if subtracting from \( 0 + i d \) using
-     * {@link #subtract(Complex) Complex.ofCartesian(0, minuend).subtract(this))} since
+     * {@link #subtract(Complex) Complex.ofCartesian(0, minuend).subtract(this)} since
      * {@code 0.0 - 0.0 = 0.0}.
      *
      * @param  minuend Value this complex number is to be subtracted from.
@@ -1279,9 +1292,7 @@ public final class Complex implements Serializable  {
      * </blockquote>
      *
      * <p>The code has been adapted from the <a href="https://www.boost.org/">Boost</a>
-     * {@code c++} implementation {@code <boost/math/complex/acos.hpp>}. The function is well
-     * defined over the entire complex number range, and produces accurate values even at the
-     * extremes due to special handling of overflow and underflow conditions.</p>
+     * {@code c++} implementation {@code <boost/math/complex/acos.hpp>}.
      *
      * @return The inverse cosine of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcCos/">ArcCos</a>
@@ -1294,7 +1305,7 @@ public final class Complex implements Serializable  {
      * Returns the inverse cosine of the complex number.
      *
      * <p>This function exists to allow implementation of the identity
-     * {@code acosh(z) = +-i acos(z)}.<p>
+     * {@code acosh(z) = +-i acos(z)}.
      *
      * @param real Real part.
      * @param imaginary Imaginary part.
@@ -1449,9 +1460,7 @@ public final class Complex implements Serializable  {
      * </blockquote>
      *
      * <p>The code has been adapted from the <a href="https://www.boost.org/">Boost</a>
-     * {@code c++} implementation {@code <boost/math/complex/asin.hpp>}. The function is well
-     * defined over the entire complex number range, and produces accurate values even at the
-     * extremes due to special handling of overflow and underflow conditions.</p>
+     * {@code c++} implementation {@code <boost/math/complex/asin.hpp>}.
      *
      * @return The inverse sine of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcSin/">ArcSin</a>
@@ -1464,7 +1473,7 @@ public final class Complex implements Serializable  {
      * Returns the inverse sine of the complex number.
      *
      * <p>This function exists to allow implementation of the identity
-     * {@code asinh(z) = -i asin(iz)}.<p>
+     * {@code asinh(z) = -i asin(iz)}.
      *
      * <p>The code has been adapted from the <a href="https://www.boost.org/">Boost</a>
      * {@code c++} implementation {@code <boost/math/complex/asin.hpp>}.</p>
@@ -1703,9 +1712,7 @@ public final class Complex implements Serializable  {
      * correct quadrant is returned from \( \tan^{-1} \left(\frac{2y}{1-x^2-y^2} \right) \).
      *
      * <p>The code has been adapted from the <a href="https://www.boost.org/">Boost</a>
-     * {@code c++} implementation {@code <boost/math/complex/atanh.hpp>}. The function is well
-     * defined over the entire complex number range, and produces accurate values even at the
-     * extremes due to special handling of overflow and underflow conditions.
+     * {@code c++} implementation {@code <boost/math/complex/atanh.hpp>}.
      *
      * @return The inverse hyperbolic tangent of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/ArcTanh/">ArcTanh</a>
@@ -1718,7 +1725,7 @@ public final class Complex implements Serializable  {
      * Returns the inverse hyperbolic tangent of this complex number.
      *
      * <p>This function exists to allow implementation of the identity
-     * {@code atan(z) = -i atanh(iz)}.<p>
+     * {@code atan(z) = -i atanh(iz)}.
      *
      * @param real Real part.
      * @param imaginary Imaginary part.
@@ -2160,7 +2167,7 @@ public final class Complex implements Serializable  {
      *
      * <p>\[ \exp(x + iy) = e^x (\cos(y) + i \sin(y)) \]
      *
-     * @return <code>e<sup>this</sup></code>.
+     * @return The exponential of this complex number.
      * @see <a href="http://functions.wolfram.com/ElementaryFunctions/Exp/">Exp</a>
      */
     public Complex exp() {
@@ -3131,7 +3138,7 @@ public final class Complex implements Serializable  {
      * and \( \pi \) (inclusive), with negative values returned for numbers with
      * negative imaginary parts.
      *
-     * <p>If either real or imaginary part (or both) is NaN, NaN is returned.
+     * <p>If either real or imaginary part (or both) is NaN, then the result is NaN.
      * Infinite parts are handled as {@linkplain Math#atan2} handles them,
      * essentially treating finite parts as zero in the presence of an
      * infinite coordinate and returning a multiple of \( \frac{\pi}{4} \) depending on
