@@ -362,18 +362,21 @@ public final class Complex implements Serializable  {
     public static Complex parse(String s) {
         final int len = s.length();
         if (len < FORMAT_MIN_LEN) {
-            throw parsingException("Expected format",
-                FORMAT_START + "real" + FORMAT_SEP + "imaginary" + FORMAT_END, null);
+            throw new NumberFormatException(
+                parsingExceptionMsg("Input too short, expected format",
+                                    FORMAT_START + "x" + FORMAT_SEP + "y" + FORMAT_END, s));
         }
 
         // Confirm start: '('
         if (s.charAt(0) != FORMAT_START) {
-            throw parsingException("Expected start", FORMAT_START, null);
+            throw new NumberFormatException(
+                parsingExceptionMsg("Expected start delimiter", FORMAT_START, s));
         }
 
         // Confirm end: ')'
         if (s.charAt(len - 1) != FORMAT_END) {
-            throw parsingException("Expected end", FORMAT_END, null);
+            throw new NumberFormatException(
+                parsingExceptionMsg("Expected end delimiter", FORMAT_END, s));
         }
 
         // Confirm separator ',' is between at least 2 characters from
@@ -381,13 +384,15 @@ public final class Complex implements Serializable  {
         // Count back from the end ignoring the last 2 characters.
         final int sep = s.lastIndexOf(FORMAT_SEP, len - 3);
         if (sep < BEFORE_SEP) {
-            throw parsingException("Expected separator between two numbers", FORMAT_SEP, null);
+            throw new NumberFormatException(
+                parsingExceptionMsg("Expected separator between two numbers", FORMAT_SEP, s));
         }
 
         // Should be no more separators
         if (s.indexOf(FORMAT_SEP, sep + 1) != -1) {
-            throw parsingException("Incorrect number of parts, expected only 2 using separator",
-                FORMAT_SEP, null);
+            throw new NumberFormatException(
+                parsingExceptionMsg("Incorrect number of parts, expected only 2 using separator",
+                                    FORMAT_SEP, s));
         }
 
         // Try to parse the parts
@@ -397,7 +402,8 @@ public final class Complex implements Serializable  {
         try {
             re = Double.parseDouble(rePart);
         } catch (final NumberFormatException ex) {
-            throw parsingException("Could not parse real part", rePart, ex);
+            throw new NumberFormatException(
+                parsingExceptionMsg("Could not parse real part", rePart, s));
         }
 
         final String imPart = s.substring(sep + 1, len - 1);
@@ -405,32 +411,29 @@ public final class Complex implements Serializable  {
         try {
             im = Double.parseDouble(imPart);
         } catch (final NumberFormatException ex) {
-            throw parsingException("Could not parse imaginary part", imPart, ex);
+            throw new NumberFormatException(
+                parsingExceptionMsg("Could not parse imaginary part", imPart, s));
         }
 
         return ofCartesian(re, im);
     }
 
     /**
-     * Creates an exception.
+     * Creates an exception message.
      *
      * @param message Message prefix.
      * @param error Input that caused the error.
-     * @param cause Underlying exception (if any).
-     * @return A new instance.
+     * @param s String representation.
+     * @return A message.
      */
-    private static NumberFormatException parsingException(String message,
-                                                          Object error,
-                                                          Throwable cause) {
-        // Not called with a null message or error
+    private static String parsingExceptionMsg(String message,
+                                              Object error,
+                                              String s) {
         final StringBuilder sb = new StringBuilder(100)
             .append(message)
-            .append(" '").append(error).append('\'');
-        if (cause != null) {
-            sb.append(": ").append(cause.getMessage());
-        }
-
-        return new NumberFormatException(sb.toString());
+            .append(" '").append(error)
+            .append("' for input \"").append(s).append('"');
+        return sb.toString();
     }
 
     /**
