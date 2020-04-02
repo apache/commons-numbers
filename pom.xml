@@ -26,7 +26,7 @@
 
   <groupId>org.apache.commons</groupId>
   <artifactId>commons-numbers-parent</artifactId>
-  <version>1.0-B1</version>
+  <version>1.0-beta1</version>
   <packaging>pom</packaging>
   <name>Apache Commons Numbers</name>
   <description>The Apache Commons Numbers project provides number types and utilities.</description>
@@ -46,7 +46,7 @@
     <!-- OSGi -->
     <commons.osgi.export>org.apache.commons.numbers</commons.osgi.export>
     <!-- do not use snapshot suffix here -->
-    <commons.release.version>1.0-B1</commons.release.version>
+    <commons.release.version>1.0-beta1</commons.release.version>
     <commons.release.desc>(requires Java 8+)</commons.release.desc>
     <commons.rc.version>RC1</commons.rc.version>
     <commons.binary.suffix>-bin</commons.binary.suffix>
@@ -66,6 +66,11 @@
     <numbers.commons.rng.version>1.3</numbers.commons.rng.version>
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}</numbers.parent.dir>
+
+    <!-- Fix to avoid JXR 3.0.0 forking the lifecycle phase 'compile' during site report
+       jxr:aggregate. If compile is forked, the dist-archive build fails when attempting
+       to collect the artifacts from other modules. -->
+    <commons.jxr.version>2.5</commons.jxr.version>
 
     <!-- Temporary fix to support Java 8 -->
     <commons.jacoco.version>0.8.2</commons.jacoco.version>
@@ -325,6 +330,7 @@
             <exclude>src/test/resources/data/**</exclude>
             <exclude>src/site/resources/release-notes/RELEASE-NOTES-*.txt</exclude>
             <exclude>dist-archive/**</exclude>
+            <exclude>**/site-content/**</exclude>
           </excludes>
         </configuration>
       </plugin>
@@ -373,6 +379,7 @@
             <exclude>src/test/resources/data/**</exclude>
             <exclude>src/site/resources/release-notes/RELEASE-NOTES-*.txt</exclude>
             <exclude>dist-archive/**</exclude>
+            <exclude>**/site-content/**</exclude>
           </excludes>
         </configuration>
       </plugin>

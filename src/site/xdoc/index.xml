@@ -25,27 +25,30 @@
 
  <body>
 
-  <section name="Commons Numbers: Extended number types and utilities" href="summary">
+  <section name="Commons Numbers: Number types and utilities" href="summary">
    <p>
-     Commons Numbers provides implementations of extended number types such as
-     <ul>
-       <li>complex</li>
-       <li>quaternion</li>
-       <li>fraction</li>
-     </ul>
-   </p>
+      Commons Numbers provides implementations of number types and utilities.
+      Features include
+      <ul>
+        <li>arithmetic</li>
+        <li>primes</li>
+        <li>fractions</li>
+        <li>combinatorics</li>
+        <li>complex numbers</li>
+        <li>quaternions</li>
+        <li>gamma functions</li>
+        <li>root finding</li>
+      </ul>
+    </p>
   </section>
 
   <section name="Download Commons Numbers">
     <subsection name="Releases">
-      <p>There is no offcial release yet. Come and join development work!</p>
-    <!--
       <p>
         Download the
         <a href="http://commons.apache.org/numbers/download_numbers.cgi">
           Latest Release</a> of Commons Numbers.
       </p>
-    -->
     </subsection>
 
   </section>
