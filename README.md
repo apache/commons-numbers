@@ -25,7 +25,7 @@
  | commons-build-plugin/trunk/src/main/resources/commons-xdoc-templates |
  +======================================================================+
  |                                                                      |
- | 1) Re-generate using: mvn commons:readme-md                          |
+ | 1) Re-generate using: mvn commons-build:readme-md                    |
  |                                                                      |
  | 2) Set the following properties in the component's pom:              |
  |    - commons.componentid (required, alphabetic, lower case)          |
@@ -43,19 +43,30 @@
 Apache Commons Numbers
 ===================
 
-[![Build Status](https://travis-ci.org/apache/commons-numbers.svg?branch=master)](https://travis-ci.org/apache/commons-numbers)
-[![Coverage Status](https://coveralls.io/repos/github/apache/commons-numbers/badge.svg?branch=master)](https://coveralls.io/github/apache/commons-numbers?branch=master)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers/)
-[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
-[![Code Quality: Java](https://img.shields.io/lgtm/grade/java/g/apache/commons-numbers.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/apache/commons-numbers/context:java)
+[![Build Status](https://travis-ci.org/apache/commons-numbers.svg)](https://travis-ci.org/apache/commons-numbers)
+[![Coverage Status](https://coveralls.io/repos/apache/commons-numbers/badge.svg)](https://coveralls.io/r/apache/commons-numbers)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-parent/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-parent/)
 
 The Apache Commons Numbers project provides number types and utilities.
 
 Documentation
 -------------
 
-More information can be found on the [homepage](https://commons.apache.org/proper/commons-numbers).
-The [JavaDoc](https://commons.apache.org/proper/commons-numbers/javadocs/api-release) can be browsed.
+More information can be found on the [Apache Commons Numbers homepage](https://commons.apache.org/proper/commons-numbers).
+The Javadoc for each of the modules can be browsed:
+
+- [Commons Numbers Core](https://commons.apache.org/proper/commons-numbers/commons-numbers-core/apidocs/)
+- [Commons Numbers Complex](https://commons.apache.org/proper/commons-numbers/commons-numbers-complex/apidocs/)
+- [Commons Numbers Primes](https://commons.apache.org/proper/commons-numbers/commons-numbers-primes/apidocs/)
+- [Commons Numbers Quaternion](https://commons.apache.org/proper/commons-numbers/commons-numbers-quaternion/apidocs/)
+- [Commons Numbers Fraction](https://commons.apache.org/proper/commons-numbers/commons-numbers-fraction/apidocs/)
+- [Commons Numbers Angle](https://commons.apache.org/proper/commons-numbers/commons-numbers-angle/apidocs/)
+- [Commons Numbers Gamma](https://commons.apache.org/proper/commons-numbers/commons-numbers-gamma/apidocs/)
+- [Commons Numbers Combinatorics](https://commons.apache.org/proper/commons-numbers/commons-numbers-combinatorics/apidocs/)
+- [Commons Numbers Arrays](https://commons.apache.org/proper/commons-numbers/commons-numbers-arrays/apidocs/)
+- [Commons Numbers Field](https://commons.apache.org/proper/commons-numbers/commons-numbers-field/apidocs/)
+- [Commons Numbers RootFinder](https://commons.apache.org/proper/commons-numbers/commons-numbers-rootfinder/apidocs/)
+
 Questions related to the usage of Apache Commons Numbers should be posted to the [user mailing list][ml].
 
 Where can I get the latest release?
@@ -67,7 +78,7 @@ Alternatively you can pull it from the central Maven repositories:
 ```xml
 <dependency>
   <groupId>org.apache.commons</groupId>
-  <artifactId>commons-numbers</artifactId>
+  <artifactId>commons-numbers-parent</artifactId>
   <version>1.0</version>
 </dependency>
 ```
@@ -75,7 +86,7 @@ Alternatively you can pull it from the central Maven repositories:
 Contributing
 ------------
 
-We accept PRs via github. The [developer mailing list][ml] is the main channel of communication for contributors.
+We accept Pull Requests via GitHub. The [developer mailing list][ml] is the main channel of communication for contributors.
 There are some guidelines which will make applying PRs easier for us:
 + No tabs! Please use spaces for indentation.
 + Respect the code style.
@@ -87,7 +98,9 @@ You can learn more about contributing via GitHub in our [contribution guidelines
 
 License
 -------
-Code is under the [Apache Licence v2](https://www.apache.org/licenses/LICENSE-2.0.txt).
+This code is under the [Apache Licence v2](https://www.apache.org/licenses/LICENSE-2.0).
+
+See the `NOTICE.txt` file for required notices and attributions.
 
 Donations
 ---------
@@ -97,8 +110,8 @@ Additional Resources
 --------------------
 
 + [Apache Commons Homepage](https://commons.apache.org/)
-+ [Apache Bugtracker (JIRA)](https://issues.apache.org/jira/)
++ [Apache Issue Tracker (JIRA)](https://issues.apache.org/jira/browse/NUMBERS)
 + [Apache Commons Twitter Account](https://twitter.com/ApacheCommons)
-+ #apachecommons IRC channel on freenode.org
++ `#apache-commons` IRC channel on `irc.freenode.org`
 
 [ml]:https://commons.apache.org/mail-lists.html

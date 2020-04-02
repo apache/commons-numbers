@@ -25,7 +25,7 @@
  | commons-build-plugin/trunk/src/main/resources/commons-xdoc-templates |
  +======================================================================+
  |                                                                      |
- | 1) Re-generate using: mvn commons:readme-md                          |
+ | 1) Re-generate using: mvn commons-build:readme-md                    |
  |                                                                      |
  | 2) Set the following properties in the component's pom:              |
  |    - commons.componentid (required, alphabetic, lower case)          |
@@ -43,19 +43,19 @@
 Apache Commons Numbers Complex Streams
 ===================
 
-[![Build Status](https://travis-ci.org/apache/commons-numbers-complex-streams.svg?branch=master)](https://travis-ci.org/apache/commons-numbers-complex-streams)
-[![Coverage Status](https://coveralls.io/repos/apache/commons-numbers-complex-streams/badge.svg?branch=master)](https://coveralls.io/r/apache/commons-numbers-complex-streams)
+[![Build Status](https://travis-ci.org/apache/commons-numbers.svg)](https://travis-ci.org/apache/commons-numbers)
+[![Coverage Status](https://coveralls.io/repos/apache/commons-numbers/badge.svg)](https://coveralls.io/r/apache/commons-numbers)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-complex-streams/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-complex-streams/)
-[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![Javadocs](https://javadoc.io/badge/org.apache.commons/commons-numbers-complex-streams/1.0.svg)](https://javadoc.io/doc/org.apache.commons/commons-numbers-complex-streams/1.0)
 
 Arrays, streams and collections of complex numbers.
 
 Documentation
 -------------
 
-More information can be found on the [Apache Commons Numbers Complex Streams homepage](https://commons.apache.org/proper/commons-numbers).
-The [JavaDoc](https://commons.apache.org/proper/commons-numbers/javadocs/api-release) can be browsed.
-Questions related to the usage of Apache Commons Numbers Complex Streams should be posted to the [user mailing list][ml].
+More information can be found on the [Apache Commons Numbers homepage](https://commons.apache.org/proper/commons-numbers).
+The [Javadoc](https://commons.apache.org/proper/commons-numbers/commons-numbers-complex-streams/apidocs) can be browsed.
+Questions related to the usage of Apache Commons Numbers should be posted to the [user mailing list][ml].
 
 Where can I get the latest release?
 -----------------------------------
@@ -92,7 +92,7 @@ See the `NOTICE.txt` file for required notices and attributions.
 
 Donations
 ---------
-You like Apache Commons Numbers Complex Streams? Then [donate back to the ASF](https://www.apache.org/foundation/contributing.html) to support the development.
+You like Apache Commons Numbers? Then [donate back to the ASF](https://www.apache.org/foundation/contributing.html) to support the development.
 
 Additional Resources
 --------------------
