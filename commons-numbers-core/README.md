@@ -88,7 +88,7 @@ License
 -------
 This code is under the [Apache Licence v2](https://www.apache.org/licenses/LICENSE-2.0).
 
-See the `NOTICE.txt` file for required notices and attributions.
+See the `NOTICE` file for required notices and attributions.
 
 Donations
 ---------

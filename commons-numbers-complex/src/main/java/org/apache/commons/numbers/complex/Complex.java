@@ -1810,11 +1810,11 @@ public final class Complex implements Serializable  {
      * {@code asinh(z) = -i asin(iz)}.
      *
      * <p>Adapted from {@code <boost/math/complex/asin.hpp>}.
-     * The original notice is shown below and the licence is shown in full in LICENSE.txt:
+     * The original notice is shown below and the licence is shown in full in LICENSE:
      * <pre>
      * (C) Copyright John Maddock 2005.
      * Distributed under the Boost Software License, Version 1.0. (See accompanying
-     * file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+     * file LICENSE.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
      * </pre>
      *
      * @param real Real part.
@@ -2003,11 +2003,11 @@ public final class Complex implements Serializable  {
      * {@code acosh(z) = +-i acos(z)}.
      *
      * <p>Adapted from {@code <boost/math/complex/acos.hpp>}.
-     * The original notice is shown below and the licence is shown in full in LICENSE.txt:
+     * The original notice is shown below and the licence is shown in full in LICENSE:
      * <pre>
      * (C) Copyright John Maddock 2005.
      * Distributed under the Boost Software License, Version 1.0. (See accompanying
-     * file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+     * file LICENSE.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
      * </pre>
      *
      * @param real Real part.
@@ -2704,11 +2704,11 @@ public final class Complex implements Serializable  {
      * <p>This function exists to allow implementation of the identity
      * {@code atan(z) = -i atanh(iz)}.
      *
-     * The original notice is shown below and the licence is shown in full in LICENSE.txt:
+     * The original notice is shown below and the licence is shown in full in LICENSE:
      * <pre>
      * (C) Copyright John Maddock 2005.
      * Distributed under the Boost Software License, Version 1.0. (See accompanying
-     * file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+     * file LICENSE.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
      * </pre>
      *
      * @param real Real part.
