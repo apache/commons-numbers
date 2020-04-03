@@ -188,8 +188,8 @@ public final class Complex implements Serializable  {
      */
     private static final double EXP_M = Math.exp(SAFE_EXP);
 
-    /** 60 shifted 20-bits to align with the exponent of the upper 32-bits of a double. */
-    private static final int EXP_60 = 0x3c_00000;
+    /** 54 shifted 20-bits to align with the exponent of the upper 32-bits of a double. */
+    private static final int EXP_54 = 0x36_00000;
     /** Represents an exponent of 500 in unbiased form shifted 20-bits to align with the upper 32-bits of a double. */
     private static final int EXP_500 = 0x5f3_00000;
     /** Represents an exponent of 1024 in unbiased form (infinite or nan)
@@ -3538,15 +3538,14 @@ public final class Complex implements Serializable  {
         // the implementations compute a different result.
         //
         // 3. An alteration is done here to add an 'else if' instead of a second
-        // 'if' statement. Since the exponent difference between a and b
-        // is below 60, if a's exponent is above 500 then b's cannot be below
-        // -500 even after scaling by -600 in the first conditional:
-        // ((>500 - 60) - 600) > -500. Thus you cannot scale down and up at the same time.
+        // 'if' statement. Thus you cannot scale down and up at the same time.
         //
         // 4. There is no use of the absolute double value. The magnitude comparison is
         // performed using the long bit representation. The computation x^2+y^2 is
         // insensitive to the sign bit. Thus use of Math.abs(double) is only in edge-case
         // branches.
+        //
+        // 5. The exponent different to ignore the smaller component has changed from 60 to 54.
         //
         // Original comments from fdlibm are in c style: /* */
         // Extra comments added for reference.
@@ -3580,12 +3579,11 @@ public final class Complex implements Serializable  {
         }
 
         // Check if the smaller part is significant.
-        // Do not replace this with 27 since the product x^2 is computed in
-        // extended precision for an effective mantissa of 106-bits. Potentially it could be
-        // replaced with 54 where y^2 will not overlap extended precision x^2.
-        if ((ha - hb) > EXP_60) {
-            /* x/y > 2**60 */
-            // or x is Inf or NaN.
+        // a^2 is computed in extended precision for an effective mantissa of 106-bits.
+        // An exponent difference of 54 is where b^2 will not overlap a^2.
+        if ((ha - hb) > EXP_54) {
+            /* a/b > 2**54 */
+            // or a is Inf or NaN.
             // No addition of a + b for sNaN.
             return Math.abs(a);
         }
@@ -3604,7 +3602,7 @@ public final class Complex implements Serializable  {
             /* scale a and b by 2^-600 */
             // Before scaling: a in [2^500, 2^1023].
             // After scaling: a in [2^-100, 2^423].
-            // After scaling: b in [2^-160, 2^423].
+            // After scaling: b in [2^-154, 2^423].
             a *= TWO_POW_NEG_600;
             b *= TWO_POW_NEG_600;
             rescale = TWO_POW_600;
@@ -3622,7 +3620,7 @@ public final class Complex implements Serializable  {
             // Effective min exponent of a sub-normal = -1022 - 52 = -1074.
             // Before scaling: b in [2^-1074, 2^-501].
             // After scaling: b in [2^-474, 2^99].
-            // After scaling: a in [2^-474, 2^159].
+            // After scaling: a in [2^-474, 2^153].
             a *= TWO_POW_600;
             b *= TWO_POW_600;
             rescale = TWO_POW_NEG_600;
