@@ -4,3 +4,13 @@ Copyright 2001-2020 The Apache Software Foundation
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
 
+For portions of the Commons Numbers Complex component
+The org.apache.commons.numbers.complex package contains derivative
+work originating from the "Freely Distributable Math Library".
+https://www.netlib.org/fdlibm/
+Copyright 1993 Sun Microsystems, Inc.
+
+The org.apache.commons.numbers.complex package contains derivative
+work originating from the "Boost C++ Libraries" <boost/math/complex>.
+https://www.boost.org/
+Copyright 2005 John Maddock 2005.

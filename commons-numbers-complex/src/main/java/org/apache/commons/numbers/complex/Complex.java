@@ -1809,12 +1809,13 @@ public final class Complex implements Serializable  {
      * <p>This function exists to allow implementation of the identity
      * {@code asinh(z) = -i asin(iz)}.
      *
-     * <p>Adapted from {@code <boost/math/complex/asin.hpp>}.
+     * <p>Adapted from {@code <boost/math/complex/asin.hpp>}. This method only (and not
+     * invoked methods within) is distributed under the Boost Software License V1.0.
      * The original notice is shown below and the licence is shown in full in LICENSE:
      * <pre>
      * (C) Copyright John Maddock 2005.
      * Distributed under the Boost Software License, Version 1.0. (See accompanying
-     * file LICENSE.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+     * file LICENSE or copy at https://www.boost.org/LICENSE_1_0.txt)
      * </pre>
      *
      * @param real Real part.
@@ -2002,12 +2003,13 @@ public final class Complex implements Serializable  {
      * <p>This function exists to allow implementation of the identity
      * {@code acosh(z) = +-i acos(z)}.
      *
-     * <p>Adapted from {@code <boost/math/complex/acos.hpp>}.
+     * <p>Adapted from {@code <boost/math/complex/acos.hpp>}. This method only (and not
+     * invoked methods within) is distributed under the Boost Software License V1.0.
      * The original notice is shown below and the licence is shown in full in LICENSE:
      * <pre>
      * (C) Copyright John Maddock 2005.
      * Distributed under the Boost Software License, Version 1.0. (See accompanying
-     * file LICENSE.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+     * file LICENSE or copy at https://www.boost.org/LICENSE_1_0.txt)
      * </pre>
      *
      * @param real Real part.
@@ -2704,11 +2706,13 @@ public final class Complex implements Serializable  {
      * <p>This function exists to allow implementation of the identity
      * {@code atan(z) = -i atanh(iz)}.
      *
+     * <p>Adapted from {@code <boost/math/complex/atanh.hpp>}. This method only (and not
+     * invoked methods within) is distributed under the Boost Software License V1.0.
      * The original notice is shown below and the licence is shown in full in LICENSE:
      * <pre>
      * (C) Copyright John Maddock 2005.
      * Distributed under the Boost Software License, Version 1.0. (See accompanying
-     * file LICENSE.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
+     * file LICENSE or copy at https://www.boost.org/LICENSE_1_0.txt)
      * </pre>
      *
      * @param real Real part.
@@ -2784,6 +2788,7 @@ public final class Complex implements Serializable  {
                 } else {
                     // |x| < 1: Use high precision if possible:
                     // 1 - x^2 - y^2 = -(x^2 + y^2 - 1)
+                    // Modified from boost to use the custom high precision method.
                     denominator = -x2y2m1(x, y);
                 }
                 im = Math.atan2(numerator, denominator);
@@ -3475,9 +3480,9 @@ public final class Complex implements Serializable  {
      * performance gains are related to edge case handling and elimination of an unpredictable
      * branch in the computation of {@code x^2 + y^2}.
      *
-     * <p>This port was adapted from the c source code for the
-     * "Freely Distributable Math Library" hypot function.
-     * The original notice is shown below:
+     * <p>This port was adapted from the "Freely Distributable Math Library" hypot function.
+     * This method only (and not invoked methods within) is distributed under the terms of the
+     * original notice as shown below:
      * <pre>
      * ====================================================
      * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
