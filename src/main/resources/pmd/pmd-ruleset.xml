@@ -70,7 +70,7 @@
   <rule ref="category/java/codestyle.xml/ShortMethodName">
     <properties>
       <!-- TODO: Current regex effectively disables this rule. -->
-      <property name="violationSuppressXPath" value="//ClassOrInterfaceDeclaration[matches(@Image, '^.*$')]"/>
+      <property name="violationSuppressXPath" value="//ClassOrInterfaceType[matches(@Image, '^.*$')]"/>
     </properties>
   </rule>
   <rule ref="category/java/codestyle.xml/ClassNamingConventions">
@@ -93,7 +93,7 @@
   <rule ref="category/java/design.xml/ExcessivePublicCount">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@Image='Complex'
+        value="//ClassOrInterfaceType[@Image='Complex'
                or @Image='Fraction'
                or @Image='BigFraction']"/>
     </properties>
@@ -101,7 +101,7 @@
   <rule ref="category/java/design.xml/ExcessiveClassLength">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@Image='Complex'
+        value="//ClassOrInterfaceType[@Image='Complex'
                or @Image='Fraction'
                or @Image='BigFraction']"/>
     </properties>
@@ -109,7 +109,7 @@
   <rule ref="category/java/design.xml/GodClass">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@Image='Fraction']"/>
+        value="//ClassOrInterfaceType[@Image='Fraction']"/>
     </properties>
   </rule>
 
@@ -117,7 +117,7 @@
     <properties>
       <property name="ignoreMagicNumbers" value="-1,0,1" />
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@Image='LogGamma'
+        value="//ClassOrInterfaceType[@Image='LogGamma'
                or @Image='LogGammaSum'
                or @Image='InverseErf'
                or @Image='InvGamma1pm1']"/>
@@ -127,7 +127,7 @@
   <rule ref="category/java/errorprone.xml/AvoidFieldNameMatchingMethodName">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@Image='Complex']"/>
+        value="//ClassOrInterfaceType[@Image='Complex']"/>
     </properties>
   </rule>
 
@@ -135,7 +135,22 @@
   <rule ref="category/java/design.xml/ExcessiveMethodLength">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceDeclaration[@Image='Complex']"/>
+        value="//ClassOrInterfaceType[@Image='Complex']"/>
+    </properties>
+  </rule>
+
+  <!-- Complex parse deliberately catches and re-throws a new NumberFormatException
+       to include the full input string in the exception message. -->
+  <rule ref="category/java/design.xml/AvoidThrowingNewInstanceOfSameException">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="//ClassOrInterfaceType[@Image='Complex']"/>
+    </properties>
+  </rule>
+  <rule ref="category/java/bestpractices.xml/PreserveStackTrace">
+    <properties>
+      <property name="violationSuppressXPath"
+        value="//ClassOrInterfaceType[@Image='Complex']"/>
     </properties>
   </rule>
 
