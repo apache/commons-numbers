@@ -51,6 +51,13 @@ public class FactorialDoubleTest {
     }
 
     @Test
+    public void testNonPositiveArgumentWithCache() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> FactorialDouble.create().withCache(-1)
+        );
+    }
+
+    @Test
     public void testNonPositiveArgument() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> FactorialDouble.create().value(-1)
