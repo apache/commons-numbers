@@ -26,9 +26,17 @@ import org.junit.jupiter.api.Test;
  */
 public class LogFactorialTest {
     @Test
-    public void testNonPositiveArgument() {
+    public void testNonPositiveArgumentWithCache() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> LogFactorial.create().withCache(-1)
+        );
+    }
+
+    @Test
+    public void testNonPositiveArgument() {
+        final LogFactorial f = LogFactorial.create();
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> f.value(-1)
         );
     }
 
