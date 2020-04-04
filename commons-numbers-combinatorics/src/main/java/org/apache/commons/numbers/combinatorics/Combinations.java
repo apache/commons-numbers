@@ -123,8 +123,7 @@ public final class Combinations implements Iterable<int[]> {
      * Combinations, D. Knuth, 2004.</p>
      * <p>
      * The degenerate cases {@code k == 0} and {@code k == n} are NOT handled by this
-     * implementation.  If constructor arguments satisfy {@code k == 0}
-     * or {@code k >= n}, no exception is generated, but the iterator is empty.
+     * implementation. It is assumed that {@code n > k > 0}.
      * </p>
      */
     private static class LexicographicIterator implements Iterator<int[]> {
@@ -151,8 +150,7 @@ public final class Combinations implements Iterable<int[]> {
          * Construct a CombinationIterator to enumerate {@code k}-sets from a set
          * of size {@code n}.
          * <p>
-         * NOTE: If {@code k === 0} or {@code k >= n}, the Iterator will be empty
-         * (that is, {@link #hasNext()} will return {@code false} immediately.
+         * NOTE: It is assumed that {@code n > k > 0}.
          * </p>
          *
          * @param n Size of the set from which subsets are enumerated.
@@ -161,10 +159,6 @@ public final class Combinations implements Iterable<int[]> {
         LexicographicIterator(int n, int k) {
             this.k = k;
             c = new int[k + 3];
-            if (k == 0 || k >= n) {
-                more = false;
-                return;
-            }
             // Initialize c to start with lexicographically first k-set
             for (int i = 1; i <= k; i++) {
                 c[i] = i - 1;

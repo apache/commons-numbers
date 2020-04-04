@@ -17,6 +17,7 @@
 package org.apache.commons.numbers.combinatorics;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Comparator;
 
 import org.junit.jupiter.api.Assertions;
@@ -48,10 +49,18 @@ public class CombinationsTest {
         checkLexicographicIterator(6, 1);
         checkLexicographicIterator(3, 3);
         checkLexicographicIterator(1, 1);
+        checkLexicographicIterator(2, 0);
         checkLexicographicIterator(1, 0);
         checkLexicographicIterator(0, 0);
         checkLexicographicIterator(4, 2);
         checkLexicographicIterator(123, 2);
+    }
+
+    @Test
+    public void testLexicographicIteratorThrows() {
+        checkLexicographicIteratorThrows(2, 1);
+        // Only 1 combination
+        checkLexicographicIteratorThrows(1, 1);
     }
 
     @Test
@@ -182,14 +191,54 @@ public class CombinationsTest {
         Assertions.assertEquals(BinomialCoefficient.value(n, k), numIterates);
     }
 
-    @Test
-    public void testCombinationsPrecondition1() {
-        Assertions.assertThrows(IllegalArgumentException.class,
-            () -> Combinations.of(4, 5));
+    /**
+     * Verifies that the iterator throws exceptions when misused.
+     *
+     * @param n Size of the set from which subsets are selected.
+     * @param k Size of the subsets to be enumerated.
+     */
+    private static void checkLexicographicIteratorThrows(int n,
+                                                         int k) {
+        Iterator<int[]> iter = Combinations.of(n, k).iterator();
+
+        // First call
+        iter.next();
+        // Check remove is not supported
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> iter.remove());
+
+        // Consume the rest
+        final long numIterates = BinomialCoefficient.value(n, k);
+        for (long i = 1; i < numIterates; i++) {
+            iter.next();
+        }
+        Assertions.assertThrows(NoSuchElementException.class, () -> iter.next());
     }
+
     @Test
-    public void testCombinationsPrecondition2() {
-        Assertions.assertThrows(IllegalArgumentException.class,
-            () -> Combinations.of(-1, -2));
+    public void testBinomialCoefficientKLargerThanN() {
+        Assertions.assertThrows(CombinatoricsException.class,
+            () -> Combinations.of(4, 5)
+        );
+    }
+
+    @Test
+    public void testBinomialCoefficientNegativeN() {
+        Assertions.assertThrows(CombinatoricsException.class,
+            () -> Combinations.of(-1, 1)
+        );
+    }
+
+    @Test
+    public void testBinomialCoefficientNegativeK() {
+        Assertions.assertThrows(CombinatoricsException.class,
+            () -> Combinations.of(10, -1)
+        );
+    }
+
+    @Test
+    public void testBinomialCoefficientKAboveN() {
+        Assertions.assertThrows(CombinatoricsException.class,
+            () -> Combinations.of(10, 20)
+        );
     }
 }
