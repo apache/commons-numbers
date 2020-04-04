@@ -78,7 +78,7 @@ public class LinearCombinationTest {
 
     @Test
     public void testArrayVsInline() {
-        final UniformRandomProvider rng = RandomSource.create(RandomSource.XOR_SHIFT_1024_S);
+        final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_SHI_RO_256_PP);
 
         double sInline;
         double sArray;
