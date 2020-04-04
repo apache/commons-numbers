@@ -38,6 +38,22 @@ public class FP64Test {
     }
 
     @Test
+    public void testEquals() {
+        final FP64 a = FP64.of(1.23);
+        final FP64 b = FP64.of(4.56);
+
+        // Same instance
+        Assertions.assertTrue(a.equals(a));
+        // Same value
+        Assertions.assertTrue(a.equals(FP64.of(a.doubleValue())));
+        // Different value
+        Assertions.assertFalse(a.equals(b));
+        // Different object
+        Assertions.assertFalse(a.equals(new Object()));
+        Assertions.assertFalse(a.equals(null));
+    }
+
+    @Test
     public void testOne() {
         Assertions.assertEquals(1d, FP64.of(-3.4).one().doubleValue(), 0d);
     }
