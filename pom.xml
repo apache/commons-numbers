@@ -67,14 +67,9 @@
     <!-- Workaround to avoid duplicating config files. -->
     <numbers.parent.dir>${basedir}</numbers.parent.dir>
 
-    <!-- Temporary fix to support Java 8 -->
-    <commons.jacoco.version>0.8.2</commons.jacoco.version>
-    <commons.jacoco.classRatio>0.96</commons.jacoco.classRatio>
-    <commons.jacoco.instructionRatio>0.8</commons.jacoco.instructionRatio>
-    <commons.jacoco.methodRatio>0.8</commons.jacoco.methodRatio>
-    <commons.jacoco.branchRatio>0.8</commons.jacoco.branchRatio>
-    <commons.jacoco.complexityRatio>0.8</commons.jacoco.complexityRatio>
-    <commons.jacoco.lineRatio>0.85</commons.jacoco.lineRatio>
+    <!-- Increase from commons-parent -->
+    <commons.jacoco.methodRatio>1.00</commons.jacoco.methodRatio>
+    <!-- Set to true when coverage goals are achieved -->
     <commons.jacoco.haltOnFailure>false</commons.jacoco.haltOnFailure>
 
     <!-- Override CP 47 -->
