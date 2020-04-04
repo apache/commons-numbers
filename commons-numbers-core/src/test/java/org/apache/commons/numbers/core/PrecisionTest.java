@@ -26,6 +26,29 @@ import org.junit.jupiter.api.Test;
  *
  */
 public class PrecisionTest {
+
+    // Interfaces to allow testing equals variants with the same conditions
+
+    @FunctionalInterface
+    private interface EqualsWithDelta {
+        boolean equals(double a, double b, double delta);
+    }
+
+    @FunctionalInterface
+    private interface EqualsWithUlps {
+        boolean equals(double a, double b, int ulps);
+    }
+
+    @FunctionalInterface
+    private interface FloatEqualsWithDelta {
+        boolean equals(float a, float b, float delta);
+    }
+
+    @FunctionalInterface
+    private interface FloatEqualsWithUlps {
+        boolean equals(float a, float b, int ulps);
+    }
+
     @Test
     public void testEqualsWithRelativeTolerance() {
         Assertions.assertTrue(Precision.equalsWithRelativeTolerance(0d, 0d, 0d));
@@ -76,167 +99,174 @@ public class PrecisionTest {
 
     @Test
     public void testEqualsWithAllowedDelta() {
-        Assertions.assertTrue(Precision.equals(153.0000, 153.0000, .0625));
-        Assertions.assertTrue(Precision.equals(153.0000, 153.0625, .0625));
-        Assertions.assertTrue(Precision.equals(152.9375, 153.0000, .0625));
-        Assertions.assertFalse(Precision.equals(153.0000, 153.0625, .0624));
-        Assertions.assertFalse(Precision.equals(152.9374, 153.0000, .0625));
-        Assertions.assertFalse(Precision.equals(Double.NaN, Double.NaN, 1.0));
-        Assertions.assertTrue(Precision.equals(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, 1.0));
-        Assertions.assertTrue(Precision.equals(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, 1.0));
-        Assertions.assertFalse(Precision.equals(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1.0));
-    }
-
-    @Test
-    public void testMath475() {
-        final double a = 1.7976931348623182E16;
-        final double b = Math.nextUp(a);
-
-        double diff = Math.abs(a - b);
-        // Because they are adjacent floating point numbers, "a" and "b" are
-        // considered equal even though the allowed error is smaller than
-        // their difference.
-        Assertions.assertTrue(Precision.equals(a, b, 0.5 * diff));
-
-        final double c = Math.nextUp(b);
-        diff = Math.abs(a - c);
-        // Because "a" and "c" are not adjacent, the tolerance is taken into
-        // account for assessing equality.
-        Assertions.assertTrue(Precision.equals(a, c, diff));
-        Assertions.assertFalse(Precision.equals(a, c, (1 - 1e-16) * diff));
+        assertEqualsWithAllowedDelta(Precision::equalsIncludingNaN, true);
     }
 
     @Test
     public void testEqualsIncludingNaNWithAllowedDelta() {
-        Assertions.assertTrue(Precision.equalsIncludingNaN(153.0000, 153.0000, .0625));
-        Assertions.assertTrue(Precision.equalsIncludingNaN(153.0000, 153.0625, .0625));
-        Assertions.assertTrue(Precision.equalsIncludingNaN(152.9375, 153.0000, .0625));
-        Assertions.assertTrue(Precision.equalsIncludingNaN(Double.NaN, Double.NaN, 1.0));
-        Assertions.assertTrue(Precision.equalsIncludingNaN(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, 1.0));
-        Assertions.assertTrue(Precision.equalsIncludingNaN(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, 1.0));
-        Assertions.assertFalse(Precision.equalsIncludingNaN(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1.0));
-        Assertions.assertFalse(Precision.equalsIncludingNaN(153.0000, 153.0625, .0624));
-        Assertions.assertFalse(Precision.equalsIncludingNaN(152.9374, 153.0000, .0625));
+        assertEqualsWithAllowedDelta(Precision::equalsIncludingNaN, true);
     }
 
-    // Tests for floating point equality
-    @Test
-    public void testFloatEqualsWithAllowedUlps() {
-        Assertions.assertTrue(Precision.equals(0.0f, -0.0f), "+0.0f == -0.0f");
-        Assertions.assertTrue(Precision.equals(0.0f, -0.0f, 1), "+0.0f == -0.0f (1 ulp)");
-        float oneFloat = 1.0f;
-        Assertions.assertTrue(Precision.equals(oneFloat, Float.intBitsToFloat(1 + Float.floatToIntBits(oneFloat))), "1.0f == 1.0f + 1 ulp");
-        Assertions.assertTrue(Precision.equals(oneFloat, Float.intBitsToFloat(1 + Float.floatToIntBits(oneFloat)), 1), "1.0f == 1.0f + 1 ulp (1 ulp)");
-        Assertions.assertFalse(Precision.equals(oneFloat, Float.intBitsToFloat(2 + Float.floatToIntBits(oneFloat)), 1), "1.0f != 1.0f + 2 ulp (1 ulp)");
-
-        Assertions.assertTrue(Precision.equals(153.0f, 153.0f, 1));
-
-        // These tests need adjusting for floating point precision
-//        Assert.assertTrue(Precision.equals(153.0f, 153.00000000000003f, 1));
-//        Assert.assertFalse(Precision.equals(153.0f, 153.00000000000006f, 1));
-//        Assert.assertTrue(Precision.equals(153.0f, 152.99999999999997f, 1));
-//        Assert.assertFalse(Precision.equals(153f, 152.99999999999994f, 1));
-//
-//        Assert.assertTrue(Precision.equals(-128.0f, -127.99999999999999f, 1));
-//        Assert.assertFalse(Precision.equals(-128.0f, -127.99999999999997f, 1));
-//        Assert.assertTrue(Precision.equals(-128.0f, -128.00000000000003f, 1));
-//        Assert.assertFalse(Precision.equals(-128.0f, -128.00000000000006f, 1));
-
-        Assertions.assertTrue(Precision.equals(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, 1));
-        Assertions.assertTrue(Precision.equals(Double.MAX_VALUE, Float.POSITIVE_INFINITY, 1));
-
-        Assertions.assertTrue(Precision.equals(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, 1));
-        Assertions.assertTrue(Precision.equals(-Float.MAX_VALUE, Float.NEGATIVE_INFINITY, 1));
-
-        Assertions.assertFalse(Precision.equals(Float.NaN, Float.NaN, 1));
-        Assertions.assertFalse(Precision.equals(Float.NaN, Float.NaN, 0));
-        Assertions.assertFalse(Precision.equals(Float.NaN, 0, 0));
-        Assertions.assertFalse(Precision.equals(Float.NaN, Float.POSITIVE_INFINITY, 0));
-        Assertions.assertFalse(Precision.equals(Float.NaN, Float.NEGATIVE_INFINITY, 0));
-
-        Assertions.assertFalse(Precision.equals(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, 100000));
+    private static void assertEqualsWithAllowedDelta(EqualsWithDelta fun, boolean nanAreEqual) {
+        Assertions.assertTrue(fun.equals(153.0000, 153.0000, .0625));
+        Assertions.assertTrue(fun.equals(153.0000, 153.0625, .0625));
+        Assertions.assertTrue(fun.equals(152.9375, 153.0000, .0625));
+        Assertions.assertFalse(fun.equals(153.0000, 153.0625, .0624));
+        Assertions.assertFalse(fun.equals(152.9374, 153.0000, .0625));
+        Assertions.assertEquals(nanAreEqual, fun.equals(Double.NaN, Double.NaN, 1.0));
+        Assertions.assertTrue(fun.equals(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, 1.0));
+        Assertions.assertTrue(fun.equals(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, 1.0));
+        Assertions.assertFalse(fun.equals(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1.0));
     }
 
     @Test
     public void testEqualsWithAllowedUlps() {
-        Assertions.assertTrue(Precision.equals(0.0, -0.0, 1));
+        assertEqualsIncludingNaNWithAllowedUlps(Precision::equals, false, false);
+    }
 
-        Assertions.assertTrue(Precision.equals(1.0, 1 + Math.ulp(1d), 1));
-        Assertions.assertFalse(Precision.equals(1.0, 1 + 2 * Math.ulp(1d), 1));
-
-        final double nUp1 = Math.nextAfter(1d, Double.POSITIVE_INFINITY);
-        final double nnUp1 = Math.nextAfter(nUp1, Double.POSITIVE_INFINITY);
-        Assertions.assertTrue(Precision.equals(1.0, nUp1, 1));
-        Assertions.assertTrue(Precision.equals(nUp1, nnUp1, 1));
-        Assertions.assertFalse(Precision.equals(1.0, nnUp1, 1));
-
-        Assertions.assertTrue(Precision.equals(0.0, Math.ulp(0d), 1));
-        Assertions.assertTrue(Precision.equals(0.0, -Math.ulp(0d), 1));
-
-        Assertions.assertTrue(Precision.equals(153.0, 153.0, 1));
-
-        Assertions.assertTrue(Precision.equals(153.0, 153.00000000000003, 1));
-        Assertions.assertFalse(Precision.equals(153.0, 153.00000000000006, 1));
-        Assertions.assertTrue(Precision.equals(153.0, 152.99999999999997, 1));
-        Assertions.assertFalse(Precision.equals(153, 152.99999999999994, 1));
-
-        Assertions.assertTrue(Precision.equals(-128.0, -127.99999999999999, 1));
-        Assertions.assertFalse(Precision.equals(-128.0, -127.99999999999997, 1));
-        Assertions.assertTrue(Precision.equals(-128.0, -128.00000000000003, 1));
-        Assertions.assertFalse(Precision.equals(-128.0, -128.00000000000006, 1));
-
-        Assertions.assertTrue(Precision.equals(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, 1));
-        Assertions.assertTrue(Precision.equals(Double.MAX_VALUE, Double.POSITIVE_INFINITY, 1));
-
-        Assertions.assertTrue(Precision.equals(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, 1));
-        Assertions.assertTrue(Precision.equals(-Double.MAX_VALUE, Double.NEGATIVE_INFINITY, 1));
-
-        Assertions.assertFalse(Precision.equals(Double.NaN, Double.NaN, 1));
-        Assertions.assertFalse(Precision.equals(Double.NaN, Double.NaN, 0));
-        Assertions.assertFalse(Precision.equals(Double.NaN, 0, 0));
-        Assertions.assertFalse(Precision.equals(Double.NaN, Double.POSITIVE_INFINITY, 0));
-        Assertions.assertFalse(Precision.equals(Double.NaN, Double.NEGATIVE_INFINITY, 0));
-
-        Assertions.assertFalse(Precision.equals(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 100000));
+    @Test
+    public void testEqualsWithImplicitAllowedUlpsOf1() {
+        // Use the version without the ulp argument
+        assertEqualsIncludingNaNWithAllowedUlps((a, b, ulp) -> Precision.equals(a, b), false, true);
     }
 
     @Test
     public void testEqualsIncludingNaNWithAllowedUlps() {
-        Assertions.assertTrue(Precision.equalsIncludingNaN(0.0, -0.0, 1));
+        assertEqualsIncludingNaNWithAllowedUlps(Precision::equalsIncludingNaN, true, false);
+    }
 
-        Assertions.assertTrue(Precision.equalsIncludingNaN(1.0, 1 + Math.ulp(1d), 1));
-        Assertions.assertFalse(Precision.equalsIncludingNaN(1.0, 1 + 2 * Math.ulp(1d), 1));
+    private static void assertEqualsIncludingNaNWithAllowedUlps(EqualsWithUlps fun,
+            boolean nanAreEqual, boolean fixed1Ulp) {
+        Assertions.assertTrue(fun.equals(0.0, -0.0, 1));
 
-        final double nUp1 = Math.nextAfter(1d, Double.POSITIVE_INFINITY);
-        final double nnUp1 = Math.nextAfter(nUp1, Double.POSITIVE_INFINITY);
-        Assertions.assertTrue(Precision.equalsIncludingNaN(1.0, nUp1, 1));
-        Assertions.assertTrue(Precision.equalsIncludingNaN(nUp1, nnUp1, 1));
-        Assertions.assertFalse(Precision.equalsIncludingNaN(1.0, nnUp1, 1));
+        Assertions.assertTrue(fun.equals(1.0, 1 + Math.ulp(1d), 1));
+        Assertions.assertFalse(fun.equals(1.0, 1 + 2 * Math.ulp(1d), 1));
 
-        Assertions.assertTrue(Precision.equalsIncludingNaN(0.0, Math.ulp(0d), 1));
-        Assertions.assertTrue(Precision.equalsIncludingNaN(0.0, -Math.ulp(0d), 1));
+        for (double value : new double[] {153.0, -128.0, 0.0, 1.0}) {
+            Assertions.assertTrue(fun.equals(value, value, 1));
+            Assertions.assertTrue(fun.equals(value, Math.nextUp(value), 1));
+            Assertions.assertFalse(fun.equals(value, Math.nextUp(Math.nextUp(value)), 1));
+            Assertions.assertTrue(fun.equals(value, Math.nextDown(value), 1));
+            Assertions.assertFalse(fun.equals(value, Math.nextDown(Math.nextDown(value)), 1));
+            // This test is conditional
+            if (!fixed1Ulp) {
+                Assertions.assertTrue(fun.equals(value, Math.nextUp(Math.nextUp(value)), 2));
+                Assertions.assertTrue(fun.equals(value, Math.nextDown(Math.nextDown(value)), 2));
+            }
+        }
 
-        Assertions.assertTrue(Precision.equalsIncludingNaN(153.0, 153.0, 1));
+        Assertions.assertTrue(fun.equals(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, 1));
+        Assertions.assertTrue(fun.equals(Double.MAX_VALUE, Double.POSITIVE_INFINITY, 1));
 
-        Assertions.assertTrue(Precision.equalsIncludingNaN(153.0, 153.00000000000003, 1));
-        Assertions.assertFalse(Precision.equalsIncludingNaN(153.0, 153.00000000000006, 1));
-        Assertions.assertTrue(Precision.equalsIncludingNaN(153.0, 152.99999999999997, 1));
-        Assertions.assertFalse(Precision.equalsIncludingNaN(153, 152.99999999999994, 1));
+        Assertions.assertTrue(fun.equals(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, 1));
+        Assertions.assertTrue(fun.equals(-Double.MAX_VALUE, Double.NEGATIVE_INFINITY, 1));
 
-        Assertions.assertTrue(Precision.equalsIncludingNaN(-128.0, -127.99999999999999, 1));
-        Assertions.assertFalse(Precision.equalsIncludingNaN(-128.0, -127.99999999999997, 1));
-        Assertions.assertTrue(Precision.equalsIncludingNaN(-128.0, -128.00000000000003, 1));
-        Assertions.assertFalse(Precision.equalsIncludingNaN(-128.0, -128.00000000000006, 1));
+        Assertions.assertEquals(nanAreEqual, fun.equals(Double.NaN, Double.NaN, 1));
+        Assertions.assertEquals(nanAreEqual, fun.equals(Double.NaN, Double.NaN, 0));
+        Assertions.assertFalse(fun.equals(Double.NaN, 0, 0));
+        Assertions.assertFalse(fun.equals(0, Double.NaN, 0));
+        Assertions.assertFalse(fun.equals(Double.NaN, Double.POSITIVE_INFINITY, 0));
+        Assertions.assertFalse(fun.equals(Double.NaN, Double.NEGATIVE_INFINITY, 0));
 
-        Assertions.assertTrue(Precision.equalsIncludingNaN(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, 1));
-        Assertions.assertTrue(Precision.equalsIncludingNaN(Double.MAX_VALUE, Double.POSITIVE_INFINITY, 1));
+        Assertions.assertFalse(fun.equals(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 100000));
+    }
 
-        Assertions.assertTrue(Precision.equalsIncludingNaN(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, 1));
-        Assertions.assertTrue(Precision.equalsIncludingNaN(-Double.MAX_VALUE, Double.NEGATIVE_INFINITY, 1));
+    // Tests for floating point equality match the above tests with arguments
+    // converted to float
 
-        Assertions.assertTrue(Precision.equalsIncludingNaN(Double.NaN, Double.NaN, 1));
+    @Test
+    public void testFloatEqualsIncludingNaN() {
+        float[] testArray = {
+            Float.NaN,
+            Float.POSITIVE_INFINITY,
+            Float.NEGATIVE_INFINITY,
+            1f,
+            0f };
+        for (int i = 0; i < testArray.length; i++) {
+            for (int j = 0; j < testArray.length; j++) {
+                if (i == j) {
+                    Assertions.assertTrue(Precision.equalsIncludingNaN(testArray[i], testArray[j]));
+                    Assertions.assertTrue(Precision.equalsIncludingNaN(testArray[j], testArray[i]));
+                } else {
+                    Assertions.assertFalse(Precision.equalsIncludingNaN(testArray[i], testArray[j]));
+                    Assertions.assertFalse(Precision.equalsIncludingNaN(testArray[j], testArray[i]));
+                }
+            }
+        }
+    }
 
-        Assertions.assertFalse(Precision.equalsIncludingNaN(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 100000));
+    @Test
+    public void testFloatEqualsWithAllowedDelta() {
+        assertFloatEqualsWithAllowedDelta(Precision::equalsIncludingNaN, true);
+    }
+
+    @Test
+    public void testFloatEqualsIncludingNaNWithAllowedDelta() {
+        assertFloatEqualsWithAllowedDelta(Precision::equalsIncludingNaN, true);
+    }
+
+    private static void assertFloatEqualsWithAllowedDelta(FloatEqualsWithDelta fun, boolean nanAreEqual) {
+        Assertions.assertTrue(fun.equals(153.0000f, 153.0000f, .0625f));
+        Assertions.assertTrue(fun.equals(153.0000f, 153.0625f, .0625f));
+        Assertions.assertTrue(fun.equals(152.9375f, 153.0000f, .0625f));
+        Assertions.assertFalse(fun.equals(153.0000f, 153.0625f, .0624f));
+        Assertions.assertFalse(fun.equals(152.9374f, 153.0000f, .0625f));
+        Assertions.assertEquals(nanAreEqual, fun.equals(Float.NaN, Float.NaN, 1.0f));
+        Assertions.assertTrue(fun.equals(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, 1.0f));
+        Assertions.assertTrue(fun.equals(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, 1.0f));
+        Assertions.assertFalse(fun.equals(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, 1.0f));
+    }
+
+    @Test
+    public void testFloatEqualsWithAllowedUlps() {
+        assertFloatEqualsIncludingNaNWithAllowedUlps(Precision::equals, false, false);
+    }
+
+    @Test
+    public void testFloatEqualsWithImplicitAllowedUlpsOf1() {
+        // Use the version without the ulp argument
+        assertFloatEqualsIncludingNaNWithAllowedUlps((a, b, ulp) -> Precision.equals(a, b), false, true);
+    }
+
+    @Test
+    public void testFloatEqualsIncludingNaNWithAllowedUlps() {
+        assertFloatEqualsIncludingNaNWithAllowedUlps(Precision::equalsIncludingNaN, true, false);
+    }
+
+    private static void assertFloatEqualsIncludingNaNWithAllowedUlps(FloatEqualsWithUlps fun,
+            boolean nanAreEqual, boolean fixed1Ulp) {
+        Assertions.assertTrue(fun.equals(0.0f, -0.0f, 1));
+
+        Assertions.assertTrue(fun.equals(1.0f, 1f + Math.ulp(1f), 1));
+        Assertions.assertFalse(fun.equals(1.0f, 1f + 2 * Math.ulp(1f), 1));
+
+        for (float value : new float[] {153.0f, -128.0f, 0.0f, 1.0f}) {
+            Assertions.assertTrue(fun.equals(value, value, 1));
+            Assertions.assertTrue(fun.equals(value, Math.nextUp(value), 1));
+            Assertions.assertFalse(fun.equals(value, Math.nextUp(Math.nextUp(value)), 1));
+            Assertions.assertTrue(fun.equals(value, Math.nextDown(value), 1));
+            Assertions.assertFalse(fun.equals(value, Math.nextDown(Math.nextDown(value)), 1));
+            // This test is conditional
+            if (!fixed1Ulp) {
+                Assertions.assertTrue(fun.equals(value, Math.nextUp(Math.nextUp(value)), 2));
+                Assertions.assertTrue(fun.equals(value, Math.nextDown(Math.nextDown(value)), 2));
+            }
+        }
+
+        Assertions.assertTrue(fun.equals(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, 1));
+        Assertions.assertTrue(fun.equals(Float.MAX_VALUE, Float.POSITIVE_INFINITY, 1));
+
+        Assertions.assertTrue(fun.equals(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, 1));
+        Assertions.assertTrue(fun.equals(-Float.MAX_VALUE, Float.NEGATIVE_INFINITY, 1));
+
+        Assertions.assertEquals(nanAreEqual, fun.equals(Float.NaN, Float.NaN, 1));
+        Assertions.assertEquals(nanAreEqual, fun.equals(Float.NaN, Float.NaN, 0));
+        Assertions.assertFalse(fun.equals(Float.NaN, 0, 0));
+        Assertions.assertFalse(fun.equals(0, Float.NaN, 0));
+        Assertions.assertFalse(fun.equals(Float.NaN, Float.POSITIVE_INFINITY, 0));
+        Assertions.assertFalse(fun.equals(Float.NaN, Float.NEGATIVE_INFINITY, 0));
+
+        Assertions.assertFalse(fun.equals(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, 100000));
     }
 
     @Test
@@ -390,14 +420,6 @@ public class PrecisionTest {
         Assertions.assertEquals("-0.0", Double.toString(Precision.round(-1e-10, 0)));
     }
 
-
-    @Test
-    public void testIssue721() {
-        Assertions.assertEquals(-53,   Math.getExponent(Precision.EPSILON));
-        Assertions.assertEquals(-1022, Math.getExponent(Precision.SAFE_MIN));
-    }
-
-
     @Test
     public void testRepresentableDelta() {
         int nonRepresentableCount = 0;
@@ -412,6 +434,50 @@ public class PrecisionTest {
         }
 
         Assertions.assertTrue(nonRepresentableCount / (double) numTrials > 0.9);
+    }
+
+    @Test
+    public void testIssue721() {
+        Assertions.assertEquals(-53, Math.getExponent(Precision.EPSILON));
+        Assertions.assertEquals(-1022, Math.getExponent(Precision.SAFE_MIN));
+    }
+
+    @Test
+    public void testMath475() {
+        final double a = 1.7976931348623182E16;
+        final double b = Math.nextUp(a);
+
+        double diff = Math.abs(a - b);
+        // Because they are adjacent floating point numbers, "a" and "b" are
+        // considered equal even though the allowed error is smaller than
+        // their difference.
+        Assertions.assertTrue(Precision.equals(a, b, 0.5 * diff));
+
+        final double c = Math.nextUp(b);
+        diff = Math.abs(a - c);
+        // Because "a" and "c" are not adjacent, the tolerance is taken into
+        // account for assessing equality.
+        Assertions.assertTrue(Precision.equals(a, c, diff));
+        Assertions.assertFalse(Precision.equals(a, c, Math.nextDown(1.0) * diff));
+    }
+
+    @Test
+    public void testMath475Float() {
+        final float a = 1.7976931348623182E16f;
+        final float b = Math.nextUp(a);
+
+        float diff = Math.abs(a - b);
+        // Because they are adjacent floating point numbers, "a" and "b" are
+        // considered equal even though the allowed error is smaller than
+        // their difference.
+        Assertions.assertTrue(Precision.equals(a, b, 0.5f * diff));
+
+        final float c = Math.nextUp(b);
+        diff = Math.abs(a - c);
+        // Because "a" and "c" are not adjacent, the tolerance is taken into
+        // account for assessing equality.
+        Assertions.assertTrue(Precision.equals(a, c, diff));
+        Assertions.assertFalse(Precision.equals(a, c, Math.nextDown(1.0f) * diff));
     }
 
     @Test
