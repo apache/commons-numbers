@@ -72,37 +72,30 @@ public class BinomialCoefficientTest {
     }
 
     @Test
-    public void testBinomialCoefficientFail1() {
+    public void testBinomialCoefficientKLargerThanN() {
         Assertions.assertThrows(CombinatoricsException.class,
             () -> BinomialCoefficient.value(4, 5)
         );
     }
 
     @Test
-    public void testBinomialCoefficientFail2() {
+    public void testBinomialCoefficientNegativeN() {
         Assertions.assertThrows(CombinatoricsException.class,
-            () -> BinomialCoefficient.value(-1, -2)
+            () -> BinomialCoefficient.value(-1, 1)
         );
     }
 
     @Test
-    public void testBinomialCoefficientFail3() {
+    public void testBinomialCoefficientNegativeK() {
+        Assertions.assertThrows(CombinatoricsException.class,
+            () -> BinomialCoefficient.value(10, -1)
+        );
+    }
+
+    @Test
+    public void testBinomialCoefficientNAbove66ResultOverflow() {
         Assertions.assertThrows(ArithmeticException.class,
             () -> BinomialCoefficient.value(67, 30)
-        );
-    }
-
-    @Test
-    public void testBinomialCoefficientFail4() {
-        Assertions.assertThrows(ArithmeticException.class,
-            () -> BinomialCoefficient.value(67, 34)
-        );
-    }
-
-    @Test
-    public void testBinomialCoefficientFail5() {
-        Assertions.assertThrows(ArithmeticException.class,
-            () -> BinomialCoefficient.value(700, 300)
         );
     }
 
