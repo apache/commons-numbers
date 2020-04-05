@@ -184,8 +184,9 @@ public final class Precision {
     }
 
     /**
-     * Returns true if the arguments are equal or within the range of allowed
-     * error (inclusive).  Returns {@code false} if either of the arguments
+     * Returns {@code true} if there is no float value strictly between the
+     * arguments or the difference between them is within the range of allowed
+     * error (inclusive). Returns {@code false} if either of the arguments
      * is NaN.
      *
      * @param x first value
@@ -198,8 +199,9 @@ public final class Precision {
     }
 
     /**
-     * Returns true if the arguments are both NaN, are equal, or are within the range
-     * of allowed error (inclusive).
+     * Returns true if the arguments are both NaN, there are no float value strictly
+     * between the arguments or the difference between them is within the range of allowed
+     * error (inclusive).
      *
      * @param x first value
      * @param y second value
@@ -208,18 +210,22 @@ public final class Precision {
      * or both are NaN.
      */
     public static boolean equalsIncludingNaN(float x, float y, float eps) {
-        return equalsIncludingNaN(x, y) || (Math.abs(y - x) <= eps);
+        return equalsIncludingNaN(x, y, 1) || (Math.abs(y - x) <= eps);
     }
 
     /**
      * Returns true if the arguments are equal or within the range of allowed
-     * error (inclusive).
-     * Two float numbers are considered equal if there are {@code (maxUlps - 1)}
-     * (or fewer) floating point numbers between them, i.e. two adjacent floating
-     * point numbers are considered equal.
+     * error (inclusive). Returns {@code false} if either of the arguments is NaN.
+     * <p>
+     * Two double numbers are considered equal if there are {@code (maxUlps - 1)}
+     * (or fewer) floating point numbers between them, i.e. two adjacent
+     * floating point numbers are considered equal.
+     * </p>
+     * <p>
      * Adapted from <a
      * href="http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/">
-     * Bruce Dawson</a>.  Returns {@code false} if either of the arguments is NaN.
+     * Bruce Dawson</a>.
+     * </p>
      *
      * @param x first value
      * @param y second value
@@ -258,11 +264,10 @@ public final class Precision {
         }
 
         return isEqual && !Float.isNaN(x) && !Float.isNaN(y);
-
     }
 
     /**
-     * Returns true if the arguments are both NaN or if they are equal as defined
+     * Returns true if both arguments are NaN or if they are equal as defined
      * by {@link #equals(float,float,int) equals(x, y, maxUlps)}.
      *
      * @param x first value
@@ -319,8 +324,7 @@ public final class Precision {
      * @param x First value.
      * @param y Second value.
      * @param eps Amount of allowed absolute error.
-     * @return {@code true} if the values are two adjacent floating point
-     * numbers or they are within range of each other.
+     * @return {@code true} if the values are equal or within range of each other.
      */
     public static boolean equals(double x, double y, double eps) {
         return equals(x, y, 1) || Math.abs(y - x) <= eps;
@@ -350,8 +354,9 @@ public final class Precision {
     }
 
     /**
-     * Returns true if the arguments are both NaN, are equal or are within the range
-     * of allowed error (inclusive).
+     * Returns true if the arguments are both NaN, there are no double value strictly
+     * between the arguments or the difference between them is within the range of allowed
+     * error (inclusive).
      *
      * @param x first value
      * @param y second value
@@ -365,7 +370,7 @@ public final class Precision {
 
     /**
      * Returns true if the arguments are equal or within the range of allowed
-     * error (inclusive).
+     * error (inclusive). Returns {@code false} if either of the arguments is NaN.
      * <p>
      * Two float numbers are considered equal if there are {@code (maxUlps - 1)}
      * (or fewer) floating point numbers between them, i.e. two adjacent
@@ -374,7 +379,7 @@ public final class Precision {
      * <p>
      * Adapted from <a
      * href="http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/">
-     * Bruce Dawson</a>. Returns {@code false} if either of the arguments is NaN.
+     * Bruce Dawson</a>.
      * </p>
      *
      * @param x first value
@@ -414,7 +419,6 @@ public final class Precision {
         }
 
         return isEqual && !Double.isNaN(x) && !Double.isNaN(y);
-
     }
 
     /**
