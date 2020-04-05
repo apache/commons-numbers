@@ -218,6 +218,18 @@ public class FractionTest {
         }
     }
 
+    /**
+     * Test special cases of negation that differ from BigFraction.
+     */
+    @Test
+    public void testNegateMinValue() {
+        final Fraction one = Fraction.of(Integer.MIN_VALUE, Integer.MIN_VALUE);
+        assertFraction(-1, 1, one.negate());
+        // Special case where the negation of the numerator is not possible.
+        final Fraction minValue = Fraction.of(Integer.MIN_VALUE, 1);
+        assertFraction(Integer.MIN_VALUE, -1, minValue.negate());
+    }
+
     @Test
     public void testAdd() {
         for (CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.addFractionTestCases()) {
@@ -419,6 +431,23 @@ public class FractionTest {
         Fraction minusOne2 = Fraction.of(1, -1);
         Assertions.assertEquals(minusOne2, minusOne);
         Assertions.assertEquals(minusOne, minusOne2);
+
+        // Same numerator or denominator as 1/1
+        Fraction half = Fraction.of(1, 2);
+        Fraction two = Fraction.of(2, 1);
+        Assertions.assertNotEquals(one, half);
+        Assertions.assertNotEquals(one, two);
+
+        // Check worst case fractions which will have a component using MIN_VALUE.
+        // Note: abs(MIN_VALUE) is negative but this should not effect the equals result.
+        Fraction almostOne = Fraction.of(Integer.MIN_VALUE, Integer.MAX_VALUE);
+        Fraction almostOne2 = Fraction.of(Integer.MIN_VALUE, -Integer.MAX_VALUE);
+        Assertions.assertEquals(almostOne, almostOne);
+        Assertions.assertNotEquals(almostOne, almostOne2);
+        Fraction almostZero = Fraction.of(-1, Integer.MIN_VALUE);
+        Fraction almostZero2 = Fraction.of(1, Integer.MIN_VALUE);
+        Assertions.assertEquals(almostZero, almostZero);
+        Assertions.assertNotEquals(almostZero, almostZero2);
     }
 
     @Test
@@ -433,6 +462,7 @@ public class FractionTest {
     @Test
     public void testToString() {
         Assertions.assertEquals("0", Fraction.of(0, 3).toString());
+        Assertions.assertEquals("0", Fraction.of(0, -3).toString());
         Assertions.assertEquals("3", Fraction.of(6, 2).toString());
         Assertions.assertEquals("2 / 3", Fraction.of(18, 27).toString());
         Assertions.assertEquals("-10 / 11", Fraction.of(-10, 11).toString());

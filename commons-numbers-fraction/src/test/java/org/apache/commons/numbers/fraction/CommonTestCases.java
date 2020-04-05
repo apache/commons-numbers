@@ -213,6 +213,7 @@ final class CommonTestCases {
         testCases.add(new UnaryOperatorTestCase(1, Integer.MIN_VALUE, -1, Integer.MIN_VALUE));
 
         // XXX Failed by "BigFraction" (whose implementation differs from "Fraction").
+        // These are tested explicitly in FractionTest.
         // testCases.add(new UnaryOperatorTestCase(Integer.MIN_VALUE, Integer.MIN_VALUE, -1, 1));
         // testCases.add(new UnaryOperatorTestCase(Integer.MIN_VALUE, 1, Integer.MIN_VALUE, -1));
 
