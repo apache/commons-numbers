@@ -20,13 +20,13 @@ import org.apache.commons.numbers.core.Precision;
 
 /**
  * Provides a generic means to evaluate
- * <a href="http://mathworld.wolfram.com/ContinuedFraction.html">continued fractions</a>.
+ * <a href="https://mathworld.wolfram.com/ContinuedFraction.html">continued fractions</a>.
  * Subclasses must provide the {@link #getA(int,double) a} and {@link #getB(int,double) b}
  * coefficients to evaluate the continued fraction.
  */
 public abstract class ContinuedFraction {
     /**
-     * Defines the <a href="http://mathworld.wolfram.com/ContinuedFraction.html">
+     * Defines the <a href="https://mathworld.wolfram.com/ContinuedFraction.html">
      * {@code n}-th "a" coefficient</a> of the continued fraction.
      *
      * @param n Index of the coefficient to retrieve.
@@ -36,7 +36,7 @@ public abstract class ContinuedFraction {
     protected abstract double getA(int n, double x);
 
     /**
-     * Defines the <a href="http://mathworld.wolfram.com/ContinuedFraction.html">
+     * Defines the <a href="https://mathworld.wolfram.com/ContinuedFraction.html">
      * {@code n}-th "b" coefficient</a> of the continued fraction.
      *
      * @param n Index of the coefficient to retrieve.
@@ -116,12 +116,12 @@ public abstract class ContinuedFraction {
             hN = hPrev * deltaN;
 
             if (Double.isInfinite(hN)) {
-                throw new FractionException("Continued fraction convergents diverged to +/- infinity for value {0}",
-                                               x);
+                throw new FractionException(
+                    "Continued fraction convergents diverged to +/- infinity for value {0}", x);
             }
             if (Double.isNaN(hN)) {
-                throw new FractionException("Continued fraction diverged to NaN for value {0}",
-                                               x);
+                throw new FractionException(
+                    "Continued fraction diverged to NaN for value {0}", x);
             }
 
             if (Math.abs(deltaN - 1) < epsilon) {
