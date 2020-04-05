@@ -150,6 +150,7 @@ public class PrecisionTest {
             Assertions.assertFalse(fun.equals(value, Math.nextDown(Math.nextDown(value)), 1));
             // This test is conditional
             if (!fixed1Ulp) {
+                Assertions.assertFalse(fun.equals(value, Math.nextUp(value), 0));
                 Assertions.assertTrue(fun.equals(value, Math.nextUp(Math.nextUp(value)), 2));
                 Assertions.assertTrue(fun.equals(value, Math.nextDown(Math.nextDown(value)), 2));
             }
@@ -248,6 +249,7 @@ public class PrecisionTest {
             Assertions.assertFalse(fun.equals(value, Math.nextDown(Math.nextDown(value)), 1));
             // This test is conditional
             if (!fixed1Ulp) {
+                Assertions.assertFalse(fun.equals(value, Math.nextUp(value), 0));
                 Assertions.assertTrue(fun.equals(value, Math.nextUp(Math.nextUp(value)), 2));
                 Assertions.assertTrue(fun.equals(value, Math.nextDown(Math.nextDown(value)), 2));
             }
