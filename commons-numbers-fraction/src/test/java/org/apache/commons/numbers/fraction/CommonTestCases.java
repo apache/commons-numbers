@@ -164,6 +164,7 @@ final class CommonTestCases {
         testCases.add(new DoubleToFractionTestCase(0.00000000000001, 0, 1));
         testCases.add(new DoubleToFractionTestCase(0.40000000000001, 2, 5));
         testCases.add(new DoubleToFractionTestCase(15.0000000000001, 15, 1));
+        testCases.add(new DoubleToFractionTestCase(0.0, 0, 1));
 
         return testCases;
     }

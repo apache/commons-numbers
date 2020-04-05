@@ -385,6 +385,7 @@ public class BigFractionTest {
 
     @Test
     public void testConstructorDouble() {
+        assertFraction(0, 1, BigFraction.from(0.0));
         assertFraction(1, 2, BigFraction.from(0.5));
         assertFraction(6004799503160661L, 18014398509481984L, BigFraction.from(1.0 / 3.0));
         assertFraction(6124895493223875L, 36028797018963968L, BigFraction.from(17.0 / 100.0));
@@ -477,6 +478,10 @@ public class BigFractionTest {
         Assertions.assertEquals(Integer.MAX_VALUE, f.getNumeratorAsInt());
         Assertions.assertEquals(1, f.getDenominatorAsInt());
 
+        // Special case when numerator signum is zero
+        f = BigFraction.ZERO.add(BigInteger.TEN);
+        Assertions.assertEquals(10, f.getNumeratorAsInt());
+        Assertions.assertEquals(1, f.getDenominatorAsInt());
     }
 
     @Test
@@ -488,6 +493,7 @@ public class BigFractionTest {
         }
 
         Assertions.assertThrows(FractionException.class, () -> BigFraction.of(1, 2).divide(BigInteger.ZERO));
+        Assertions.assertThrows(FractionException.class, () -> BigFraction.of(1, 2).divide(BigFraction.ZERO));
 
         BigFraction f1;
         BigFraction f2;
@@ -595,6 +601,12 @@ public class BigFractionTest {
         BigFraction minusOne2 = BigFraction.of(1, -1);
         Assertions.assertEquals(minusOne2, minusOne);
         Assertions.assertEquals(minusOne, minusOne2);
+
+        // Same numerator or denominator as 1/1
+        BigFraction half = BigFraction.of(1, 2);
+        BigFraction two = BigFraction.of(2, 1);
+        Assertions.assertNotEquals(one, half);
+        Assertions.assertNotEquals(one, two);
     }
 
     @Test
@@ -648,6 +660,7 @@ public class BigFractionTest {
     @Test
     public void testToString() {
         Assertions.assertEquals("0", BigFraction.of(0, 3).toString());
+        Assertions.assertEquals("0", BigFraction.of(0, -3).toString());
         Assertions.assertEquals("3", BigFraction.of(6, 2).toString());
         Assertions.assertEquals("2 / 3", BigFraction.of(18, 27).toString());
         Assertions.assertEquals("-10 / 11", BigFraction.of(-10, 11).toString());
