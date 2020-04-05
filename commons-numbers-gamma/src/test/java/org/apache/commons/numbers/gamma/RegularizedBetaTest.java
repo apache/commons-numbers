@@ -68,6 +68,12 @@ public class RegularizedBetaTest {
         testRegularizedBeta(Double.NaN, 0.5, 1.0, 0.0);
     }
 
+
+    @Test
+    public void testRegularizedBetaAboveOnePositivePositive() {
+        testRegularizedBeta(Double.NaN, 1.5, 1.0, 2.0);
+    }
+
     @Test
     public void testRegularizedBetaPositivePositivePositive() {
         testRegularizedBeta(0.75, 0.5, 1.0, 2.0);
