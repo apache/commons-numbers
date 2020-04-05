@@ -42,8 +42,10 @@ public class DigammaTest {
 
     @Test
     public void testDigammaSmallArgs() {
-        // values for negative powers of 10 from 1 to 30 as computed by webMathematica with 20 digits
-        // see functions.wolfram.com
+        // values for negative powers of 10 from 1 to 30 as computed by webMathematica with 20 digits.
+        // For example, to compute trigamma($i) = Polygamma(1, $i), use
+        //
+        // http://functions.wolfram.com/webMathematica/Evaluated.jsp?name=PolyGamma2&plottype=0&vars={%221%22,%22$i%22}&digits=20
         double[] expected = {-10.423754940411076795, -100.56088545786867450, -1000.5755719318103005,
             -10000.577051183514335, -100000.57719921568107, -1.0000005772140199687e6, -1.0000000577215500408e7,
             -1.0000000057721564845e8, -1.0000000005772156633e9, -1.0000000000577215665e10, -1.0000000000057721566e11,
@@ -53,6 +55,15 @@ public class DigammaTest {
         for (double n = 1; n < 30; n++) {
             checkRelativeError(String.format("Test %.0f: ", n), expected[(int) (n - 1)], Digamma.value(Math.pow(10.0, -n)), 1e-8);
         }
+    }
+
+    @Test
+    public void testDigammaZero() {
+        // webMathematica states Complexinfinity.
+        // The value computed is Double.NEGATIVE_INFINITY but we leave this as a test for infinity
+        // since the next value down -Double.MIN_VALUE is Double.POSITIVE_INFINITY indicating
+        // a branch-but in the complex plane around 0.
+        Assertions.assertTrue(Double.isInfinite(Digamma.value(0.0)));
     }
 
     @Test
