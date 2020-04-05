@@ -30,6 +30,14 @@ public class TrigammaTest {
         //
         // http://functions.wolfram.com/webMathematica/Evaluated.jsp?name=PolyGamma2&plottype=0&vars={%221%22,%22$i%22}&digits=20
         double[] data = {
+            0.0, Double.POSITIVE_INFINITY,
+            1e-11, 1e22,
+            1e-10, 1e20,
+            1e-9, 1.0000000000000000016e18,
+            1e-8, 1.0000000000000001645e16,
+            1e-7, 1.0000000000000164493e14,
+            1e-6, 1.0000000000016449317e12,
+            1e-5, 1.0000000001644910026e10,
             1e-4, 1.0000000164469368793e8,
             1e-3, 1.0000016425331958690e6,
             1e-2, 10001.621213528313220,
@@ -45,7 +53,11 @@ public class TrigammaTest {
             100, 0.010050166663333571395
         };
         for (int i = data.length - 2; i >= 0; i -= 2) {
-            Assertions.assertEquals(data[i + 1], Trigamma.value(data[i]), eps, String.format("trigamma %.0f", data[i]));
+            final double value = data[i];
+            final double expected = data[i + 1];
+            // Allowed error is 1e-8 relative or absolute error whichever is larger.
+            final double error = Math.max(expected * eps, eps);
+            Assertions.assertEquals(expected, Trigamma.value(value), error, () -> "trigamma " + value);
         }
     }
 
