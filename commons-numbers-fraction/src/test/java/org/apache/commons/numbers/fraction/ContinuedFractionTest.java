@@ -44,6 +44,25 @@ public class ContinuedFractionTest {
         Assertions.assertEquals(1.61803399, gr, eps);
     }
 
+    @Test
+    public void testMaxIterationsThrows() throws Exception {
+        ContinuedFraction cf = new ContinuedFraction() {
+            @Override
+            public double getA(int n, double x) {
+                return 1;
+            }
+
+            @Override
+            public double getB(int n, double x) {
+                return 1;
+            }
+        };
+
+        final double eps = 1e-8;
+        final int maxIterations = 3;
+        Assertions.assertThrows(FractionException.class, () -> cf.evaluate(0, eps, maxIterations));
+    }
+
     // NUMBERS-46
     @Test
     public void testOneIteration() {
