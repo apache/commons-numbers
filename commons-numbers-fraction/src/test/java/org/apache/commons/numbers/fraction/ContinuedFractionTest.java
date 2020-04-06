@@ -16,6 +16,7 @@
  */
 package org.apache.commons.numbers.fraction;
 
+import java.util.Locale;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -45,6 +46,41 @@ public class ContinuedFractionTest {
     }
 
     @Test
+    public void test415Over93() throws Exception {
+        // https://en.wikipedia.org/wiki/Continued_fraction
+        // 415             1
+        // ---  = 4 + ---------
+        //  93        2 +   1
+        //                -----
+        //                6 + 1
+        //                    -
+        //                    7
+        //      = [4; 2, 6, 7]
+
+        ContinuedFraction cf = new ContinuedFraction() {
+            @Override
+            public double getA(int n, double x) {
+                switch (n) {
+                    case 0: return 4;
+                    case 1: return 2;
+                    case 2: return 6;
+                    case 3: return 7;
+                    default: return 1;
+                }
+            }
+
+            @Override
+            public double getB(int n, double x) {
+                return n <= 3 ? 1 : 0;
+            }
+        };
+
+        final double eps = 1e-8;
+        double gr = cf.evaluate(0, eps, 5);
+        Assertions.assertEquals(415.0 / 93.0, gr, eps);
+    }
+
+    @Test
     public void testMaxIterationsThrows() throws Exception {
         ContinuedFraction cf = new ContinuedFraction() {
             @Override
@@ -60,7 +96,57 @@ public class ContinuedFractionTest {
 
         final double eps = 1e-8;
         final int maxIterations = 3;
-        Assertions.assertThrows(FractionException.class, () -> cf.evaluate(0, eps, maxIterations));
+        final Throwable t = Assertions.assertThrows(FractionException.class,
+            () -> cf.evaluate(0, eps, maxIterations));
+        assertExceptionMessageContains(t, "max");
+    }
+
+    @Test
+    public void testNaNThrows() throws Exception {
+        // Create a NaN during the iteration
+        ContinuedFraction cf = new ContinuedFraction() {
+            @Override
+            public double getA(int n, double x) {
+                return n == 0 ? 1 : Double.NaN;
+            }
+
+            @Override
+            public double getB(int n, double x) {
+                return 1;
+            }
+        };
+
+        final double eps = 1e-8;
+        final Throwable t = Assertions.assertThrows(FractionException.class,
+            () -> cf.evaluate(0, eps, 5));
+        assertExceptionMessageContains(t, "nan");
+    }
+
+    @Test
+    public void testInfThrows() throws Exception {
+        // Create an infinity during the iteration:
+        // b / cPrev  => b_1 / a_0 => Double.MAX_VALUE / 0.5
+        ContinuedFraction cf = new ContinuedFraction() {
+            @Override
+            public double getA(int n, double x) {
+                return 0.5;
+            }
+
+            @Override
+            public double getB(int n, double x) {
+                return n == 0 ? 1 : Double.MAX_VALUE;
+            }
+        };
+
+        final double eps = 1e-8;
+        final Throwable t = Assertions.assertThrows(FractionException.class,
+            () -> cf.evaluate(0, eps, 5));
+        assertExceptionMessageContains(t, "infinity");
+    }
+
+    private static void assertExceptionMessageContains(Throwable t, String text) {
+        Assertions.assertTrue(t.getMessage().toLowerCase(Locale.ROOT).contains(text),
+            () -> "Missing '" + text + "' from exception message: " + t.getMessage());
     }
 
     // NUMBERS-46

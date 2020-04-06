@@ -23,8 +23,27 @@ import org.apache.commons.numbers.core.Precision;
  * <a href="https://mathworld.wolfram.com/ContinuedFraction.html">continued fractions</a>.
  * Subclasses must provide the {@link #getA(int,double) a} and {@link #getB(int,double) b}
  * coefficients to evaluate the continued fraction.
+ *
+ * <p>The fraction uses the following form for the {@code a} and {@code b} coefficients:
+ * <pre>
+ *              b1
+ * a0 + ------------------
+ *      a1 +      b2
+ *           -------------
+ *           a2 +    b3
+ *                --------
+ *                a3 + ...
+ * </pre>
  */
 public abstract class ContinuedFraction {
+    /**
+     * The value for any number close to zero.
+     *
+     * <p>"The parameter small should be some non-zero number less than typical values of
+     * eps * |b_n|, e.g., 1e-50".
+     */
+    private static final double SMALL = 1e-50;
+
     /**
      * Defines the <a href="https://mathworld.wolfram.com/ContinuedFraction.html">
      * {@code n}-th "a" coefficient</a> of the continued fraction.
@@ -65,14 +84,16 @@ public abstract class ContinuedFraction {
      * Evaluates the continued fraction.
      * <p>
      * The implementation of this method is based on the modified Lentz algorithm as described
-     * on page 18 ff. in:
+     * on page 508 in:
      * </p>
      *
      * <ul>
      *   <li>
-     *   I. J. Thompson,  A. R. Barnett. "Coulomb and Bessel Functions of Complex Arguments and Order."
-     *   <a target="_blank" href="http://www.fresco.org.uk/papers/Thompson-JCP64p490.pdf">
-     *   http://www.fresco.org.uk/papers/Thompson-JCP64p490.pdf</a>
+     *   I. J. Thompson,  A. R. Barnett (1986).
+     *   "Coulomb and Bessel Functions of Complex Arguments and Order."
+     *   Journal of Computational Physics 64, 490-509.
+     *   <a target="_blank" href="https://www.fresco.org.uk/papers/Thompson-JCP64p490.pdf">
+     *   https://www.fresco.org.uk/papers/Thompson-JCP64p490.pdf</a>
      *   </li>
      * </ul>
      *
@@ -85,13 +106,7 @@ public abstract class ContinuedFraction {
      * before the expected convergence is achieved.
      */
     public double evaluate(double x, double epsilon, int maxIterations) {
-        final double small = 1e-50;
-        double hPrev = getA(0, x);
-
-        // use the value of small as epsilon criteria for zero checks
-        if (Precision.equals(hPrev, 0.0, small)) {
-            hPrev = small;
-        }
+        double hPrev = updateIfCloseToZero(getA(0, x));
 
         int n = 1;
         double dPrev = 0.0;
@@ -102,14 +117,8 @@ public abstract class ContinuedFraction {
             final double a = getA(n, x);
             final double b = getB(n, x);
 
-            double dN = a + b * dPrev;
-            if (Precision.equals(dN, 0.0, small)) {
-                dN = small;
-            }
-            double cN = a + b / cPrev;
-            if (Precision.equals(cN, 0.0, small)) {
-                cN = small;
-            }
+            double dN = updateIfCloseToZero(a + b * dPrev);
+            final double cN = updateIfCloseToZero(a + b / cPrev);
 
             dN = 1 / dN;
             final double deltaN = cN * dN;
@@ -135,5 +144,18 @@ public abstract class ContinuedFraction {
         }
 
         throw new FractionException("maximal count ({0}) exceeded", maxIterations);
+    }
+
+    /**
+     * Returns the value, or if close to zero returns a small epsilon.
+     *
+     * <p>This method is used in Thompson & Barnett to monitor both the numerator and denominator
+     * ratios for approaches to zero.
+     *
+     * @param value the value
+     * @return the value (or small epsilon)
+     */
+    private static double updateIfCloseToZero(double value) {
+        return Precision.equals(value, 0.0, SMALL) ? SMALL : value;
     }
 }
