@@ -119,7 +119,9 @@ public final class RegularizedGamma {
                 } else if (Double.isInfinite(sum)) {
                     return 1;
                 } else {
-                    return Math.exp(-x + (a * Math.log(x)) - LogGamma.value(a)) * sum;
+                    // Ensure result is in the range [0, 1]
+                    final double result = Math.exp(-x + (a * Math.log(x)) - LogGamma.value(a)) * sum;
+                    return result > 1.0 ? 1.0 : result;
                 }
             }
         }

@@ -17,7 +17,6 @@
 package org.apache.commons.numbers.gamma;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -59,7 +58,6 @@ public class RegularizedGammaTest {
         testRegularizedGamma(0.632120558828558, 1.0, 1.0);
     }
 
-    @Disabled
     @Test
     public void testRegularizedGammaPWithACloseToZero() {
         // Creates a case where the regularized gamma P series is evaluated and the
