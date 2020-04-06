@@ -32,7 +32,7 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
-
+import org.openjdk.jmh.infra.Blackhole;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
@@ -272,14 +272,12 @@ public class ComplexPerformance {
      *
      * @param numbers Numbers.
      * @param fun Function.
-     * @return the result of the function.
+     * @param bh Data sink.
      */
-    private static boolean[] apply(Complex[] numbers, Predicate<Complex> fun) {
-        final boolean[] result = new boolean[numbers.length];
+    private static void apply(Complex[] numbers, Predicate<Complex> fun, Blackhole bh) {
         for (int i = 0; i < numbers.length; i++) {
-            result[i] = fun.test(numbers[i]);
+            bh.consume(fun.test(numbers[i]));
         }
-        return result;
     }
 
     /**
@@ -287,14 +285,12 @@ public class ComplexPerformance {
      *
      * @param numbers Numbers.
      * @param fun Function.
-     * @return the result of the function.
+     * @param bh Data sink.
      */
-    private static double[] apply(Complex[] numbers, ToDoubleFunction<Complex> fun) {
-        final double[] result = new double[numbers.length];
+    private static void apply(Complex[] numbers, ToDoubleFunction<Complex> fun, Blackhole bh) {
         for (int i = 0; i < numbers.length; i++) {
-            result[i] = fun.applyAsDouble(numbers[i]);
+            bh.consume(fun.applyAsDouble(numbers[i]));
         }
-        return result;
     }
 
     /**
@@ -302,14 +298,12 @@ public class ComplexPerformance {
      *
      * @param numbers Numbers.
      * @param fun Function.
-     * @return the result of the function.
+     * @param bh Data sink.
      */
-    private static Complex[] apply(Complex[] numbers, UnaryOperator<Complex> fun) {
-        final Complex[] result = new Complex[numbers.length];
+    private static void apply(Complex[] numbers, UnaryOperator<Complex> fun, Blackhole bh) {
         for (int i = 0; i < numbers.length; i++) {
-            result[i] = fun.apply(numbers[i]);
+            bh.consume(fun.apply(numbers[i]));
         }
-        return result;
     }
 
     /**
@@ -318,15 +312,13 @@ public class ComplexPerformance {
      * @param numbers First numbers of the pairs.
      * @param numbers2 Second numbers of the pairs.
      * @param fun Function.
-     * @return the result of the function.
+     * @param bh Data sink.
      */
-    private static Complex[] apply(Complex[] numbers, Complex[] numbers2,
-            BiFunction<Complex, Complex, Complex> fun) {
-        final Complex[] result = new Complex[numbers.length];
+    private static void apply(Complex[] numbers, Complex[] numbers2,
+            BiFunction<Complex, Complex, Complex> fun, Blackhole bh) {
         for (int i = 0; i < numbers.length; i++) {
-            result[i] = fun.apply(numbers[i], numbers2[i]);
+            bh.consume(fun.apply(numbers[i], numbers2[i]));
         }
-        return result;
     }
 
     /**
@@ -335,15 +327,13 @@ public class ComplexPerformance {
      * @param numbers First numbers of the pairs.
      * @param numbers2 Second numbers of the pairs.
      * @param fun Function.
-     * @return the result of the function.
+     * @param bh Data sink.
      */
-    private static Complex[] apply(Complex[] numbers, double[] numbers2,
-            ComplexRealFunction fun) {
-        final Complex[] result = new Complex[numbers.length];
+    private static void apply(Complex[] numbers, double[] numbers2,
+            ComplexRealFunction fun, Blackhole bh) {
         for (int i = 0; i < numbers.length; i++) {
-            result[i] = fun.apply(numbers[i], numbers2[i]);
+            bh.consume(fun.apply(numbers[i], numbers2[i]));
         }
-        return result;
     }
 
     /**
@@ -379,124 +369,102 @@ public class ComplexPerformance {
 
     /**
      * Explicit benchmark without using a method reference.
-     * This should run in the same time as {@link #real(ComplexNumbers)}.
+     * This should run in the same time as {@link #real(ComplexNumbers, Blackhole)}.
      * This is commented out as it exists for reference purposes.
+     *
+     * @param numbers Numbers.
+     * @param bh Data sink.
      */
     //@Benchmark
-    public double[] real2(ComplexNumbers numbers) {
+    public void real2(ComplexNumbers numbers, Blackhole bh) {
         final Complex[] z = numbers.getNumbers();
-        final double[] result = new double[z.length];
         for (int i = 0; i < z.length; i++) {
-            result[i] = z[i].real();
+            bh.consume(z[i].real());
         }
-        return result;
     }
 
     /**
      * Explicit benchmark without using a method reference.
-     * This should run in the same time as {@link #conj(ComplexNumbers)}.
+     * This should run in the same time as {@link #conj(ComplexNumbers, Blackhole)}.
      * This is commented out as it exists for reference purposes.
+     *
+     * @param numbers Numbers.
+     * @param bh Data sink.
      */
     //@Benchmark
-    public Complex[] conj2(ComplexNumbers numbers) {
+    public void conj2(ComplexNumbers numbers, Blackhole bh) {
         final Complex[] z = numbers.getNumbers();
-        final Complex[] result = new Complex[z.length];
         for (int i = 0; i < z.length; i++) {
-            result[i] = z[i].conj();
+            bh.consume(z[i].conj());
         }
-        return result;
     }
 
     /**
-     * Baseline the creation of the new array of numbers.
-     * This contains the baseline JMH overhead for all the benchmarks that create complex numbers.
-     * All other methods are expected to be slower than this.
+     * Baseline the JMH overhead for the loop execute to consume Complex objects.
+     *
+     * @param numbers Numbers.
+     * @param bh Data sink.
      */
     @Benchmark
-    public Complex[] baselineNewArray(ComplexNumberSize numberSize) {
-        return new Complex[numberSize.getSize()];
+    public void baselineIdentity(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), ComplexPerformance::identity, bh);
     }
 
     /**
-     * Baseline the creation of a copy array of numbers.
-     * This is commented out as it provides no information other than to demonstrate that
-     * {@link #baselineCopy(ComplexNumbers)} is not being optimised to a single array copy
-     * operation.
-     */
-    //@Benchmark
-    public Complex[] baselineCopyArray(ComplexNumbers numbers) {
-        return Arrays.copyOf(numbers.getNumbers(), numbers.getNumbers().length);
-    }
-
-    /**
-     * Baseline the creation of the new array of numbers with the same complex number (an identity).
-     *
-     * <p>Note: This runs much faster than {@link #baselineCopy(ComplexNumbers)}. This is
-     * attributed to the identity function not requiring that the fields of the
-     * complex are accessed unlike all other methods that do computations on the real and/or
-     * imaginary parts. The method is slower than a creation of a new empty array or a
-     * copy array thus contains the loop overhead of the benchmarks that create new numbers.
-     *
-     * @see #baselineNewArray(ComplexNumberSize)
-     * @see #baselineCopyArray(ComplexNumbers)
-     */
-    @Benchmark
-    public Complex[] baselineIdentity(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), ComplexPerformance::identity);
-    }
-
-    /**
-     * Baseline the creation of the new array of numbers with a copy complex number. This
+     * Baseline the creation of a copy complex number. This
      * measures the overhead of creation of new complex numbers including field access
      * to the real and imaginary parts.
+     *
+     * @param numbers Numbers.
+     * @param bh Data sink.
      */
     @Benchmark
-    public Complex[] baselineCopy(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), ComplexPerformance::copy);
+    public void baselineCopy(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), ComplexPerformance::copy, bh);
     }
 
-    // Unary operations that return a boolean
+    // Unary operations that a boolean
 
     @Benchmark
-    public boolean[] isNaN(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::isNaN);
-    }
-
-    @Benchmark
-    public boolean[] isInfinite(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::isInfinite);
+    public void isNaN(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::isNaN, bh);
     }
 
     @Benchmark
-    public boolean[] isFinite(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::isFinite);
-    }
-
-    // Unary operations that return a double
-
-    @Benchmark
-    public double[] real(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::real);
+    public void isInfinite(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::isInfinite, bh);
     }
 
     @Benchmark
-    public double[] imag(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::imag);
+    public void isFinite(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::isFinite, bh);
+    }
+
+    // Unary operations that a double
+
+    @Benchmark
+    public void real(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::real, bh);
     }
 
     @Benchmark
-    public double[] abs(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::abs);
+    public void imag(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::imag, bh);
     }
 
     @Benchmark
-    public double[] arg(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::arg);
+    public void abs(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::abs, bh);
     }
 
     @Benchmark
-    public double[] norm(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::norm);
+    public void arg(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::arg, bh);
+    }
+
+    @Benchmark
+    public void norm(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::norm, bh);
     }
 
     /**
@@ -504,143 +472,149 @@ public class ComplexPerformance {
      * root of the norm. The C99 standard for the abs() function requires over/underflow
      * protection in the intermediate computation and infinity edge case handling. This
      * has a performance overhead.
+     *
+     * @param numbers Numbers.
+     * @param bh Data sink.
      */
     @Benchmark
-    public double[] sqrtNorm(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), (ToDoubleFunction<Complex>) z -> Math.sqrt(z.norm()));
+    public void sqrtNorm(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), (ToDoubleFunction<Complex>) z -> Math.sqrt(z.norm()), bh);
     }
 
     /**
      * This test demonstrates that the {@link Math#hypot(double, double)} method
      * is not as fast as the custom implementation in abs().
+     *
+     * @param numbers Numbers.
+     * @param bh Data sink.
      */
     @Benchmark
-    public double[] absMathHypot(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), (ToDoubleFunction<Complex>) z -> Math.hypot(z.real(), z.imag()));
+    public void absMathHypot(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), (ToDoubleFunction<Complex>) z -> Math.hypot(z.real(), z.imag()), bh);
     }
 
-    // Unary operations that return a complex number
+    // Unary operations that a complex number
 
     @Benchmark
-    public Complex[] conj(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::conj);
-    }
-
-    @Benchmark
-    public Complex[] negate(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::negate);
+    public void conj(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::conj, bh);
     }
 
     @Benchmark
-    public Complex[] proj(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::proj);
+    public void negate(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::negate, bh);
     }
 
     @Benchmark
-    public Complex[] cos(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::cos);
+    public void proj(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::proj, bh);
     }
 
     @Benchmark
-    public Complex[] cosh(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::cosh);
+    public void cos(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::cos, bh);
     }
 
     @Benchmark
-    public Complex[] exp(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::exp);
+    public void cosh(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::cosh, bh);
     }
 
     @Benchmark
-    public Complex[] log(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::log);
+    public void exp(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::exp, bh);
     }
 
     @Benchmark
-    public Complex[] log10(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::log10);
+    public void log(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::log, bh);
     }
 
     @Benchmark
-    public Complex[] sin(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::sin);
+    public void log10(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::log10, bh);
     }
 
     @Benchmark
-    public Complex[] sinh(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::sinh);
+    public void sin(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::sin, bh);
     }
 
     @Benchmark
-    public Complex[] sqrt(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::sqrt);
+    public void sinh(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::sinh, bh);
     }
 
     @Benchmark
-    public Complex[] tan(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::tan);
+    public void sqrt(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::sqrt, bh);
     }
 
     @Benchmark
-    public Complex[] tanh(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::tanh);
+    public void tan(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::tan, bh);
     }
 
     @Benchmark
-    public Complex[] acos(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::acos);
+    public void tanh(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::tanh, bh);
     }
 
     @Benchmark
-    public Complex[] acosh(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::acosh);
+    public void acos(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::acos, bh);
     }
 
     @Benchmark
-    public Complex[] asin(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::asin);
+    public void acosh(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::acosh, bh);
     }
 
     @Benchmark
-    public Complex[] asinh(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::asinh);
+    public void asin(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::asin, bh);
     }
 
     @Benchmark
-    public Complex[] atan(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::atan);
+    public void asinh(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::asinh, bh);
     }
 
     @Benchmark
-    public Complex[] atanh(ComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), Complex::atanh);
+    public void atan(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::atan, bh);
+    }
+
+    @Benchmark
+    public void atanh(ComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Complex::atanh, bh);
     }
 
     // Binary operations on two complex numbers.
 
     @Benchmark
-    public Complex[] pow(TwoComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::pow);
+    public void pow(TwoComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::pow, bh);
     }
 
     @Benchmark
-    public Complex[] multiply(TwoComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::multiply);
+    public void multiply(TwoComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::multiply, bh);
     }
 
     @Benchmark
-    public Complex[] divide(TwoComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::divide);
+    public void divide(TwoComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::divide, bh);
     }
 
     @Benchmark
-    public Complex[] add(TwoComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::add);
+    public void add(TwoComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::add, bh);
     }
 
     @Benchmark
-    public Complex[] subtract(TwoComplexNumbers numbers) {
-        return apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::subtract);
+    public void subtract(TwoComplexNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::subtract, bh);
     }
 
     // Binary operations on a complex and a real number.
@@ -655,27 +629,27 @@ public class ComplexPerformance {
     // - subtractFromImaginary
 
     @Benchmark
-    public Complex[] powReal(ComplexAndRealNumbers numbers) {
-        return apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::pow);
+    public void powReal(ComplexAndRealNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::pow, bh);
     }
 
     @Benchmark
-    public Complex[] multiplyReal(ComplexAndRealNumbers numbers) {
-        return apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::multiply);
+    public void multiplyReal(ComplexAndRealNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::multiply, bh);
     }
 
     @Benchmark
-    public Complex[] divideReal(ComplexAndRealNumbers numbers) {
-        return apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::divide);
+    public void divideReal(ComplexAndRealNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::divide, bh);
     }
 
     @Benchmark
-    public Complex[] addReal(ComplexAndRealNumbers numbers) {
-        return apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::add);
+    public void addReal(ComplexAndRealNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::add, bh);
     }
 
     @Benchmark
-    public Complex[] subtractReal(ComplexAndRealNumbers numbers) {
-        return apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::subtract);
+    public void subtractReal(ComplexAndRealNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), numbers.getNumbers2(), Complex::subtract, bh);
     }
 }

@@ -30,7 +30,7 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
-
+import org.openjdk.jmh.infra.Blackhole;
 import java.util.SplittableRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.DoubleSupplier;
@@ -187,14 +187,12 @@ public class SinCosPerformance {
      *
      * @param numbers Numbers.
      * @param fun Function.
-     * @return the result of the function.
+     * @param bh Data sink.
      */
-    private static double[] apply(double[] numbers, DoubleUnaryOperator fun) {
-        final double[] result = new double[numbers.length];
+    private static void apply(double[] numbers, DoubleUnaryOperator fun, Blackhole bh) {
         for (int i = 0; i < numbers.length; i++) {
-            result[i] = fun.applyAsDouble(numbers[i]);
+            bh.consume(fun.applyAsDouble(numbers[i]));
         }
-        return result;
     }
 
     /**
@@ -209,10 +207,6 @@ public class SinCosPerformance {
 
     // Benchmark methods.
     //
-    // The methods are partially documented as the names are self-documenting.
-    // CHECKSTYLE: stop JavadocMethod
-    // CHECKSTYLE: stop DesignForExtension
-    //
     // Benchmarks use function references to perform different operations on the numbers.
     // Tests show that explicit programming of the same benchmarks run in the same time.
     // For reference examples are provided for sin(x).
@@ -220,44 +214,72 @@ public class SinCosPerformance {
     /**
      * Explicit benchmark without using a method reference.
      * This is commented out as it exists for reference purposes.
+     *
+     * @param numbers Numbers.
+     * @param bh Data sink.
      */
     //@Benchmark
-    public double[] mathSin2(Numbers numbers) {
+    public void mathSin2(Numbers numbers, Blackhole bh) {
         final double[] x = numbers.getNumbers();
-        final double[] result = new double[x.length];
         for (int i = 0; i < x.length; i++) {
-            result[i] = Math.sin(x[i]);
+            bh.consume(Math.sin(x[i]));
         }
-        return result;
     }
 
     /**
-     * Baseline the creation of the new array of numbers with the same number (an identity).
-     * This contains the baseline JMH overhead for all the benchmarks that create numbers.
-     * All other methods are expected to be slower than this.
+     * Baseline the creation of the new array of numbers with the same number (an identity). This
+     * contains the baseline JMH overhead for all the benchmarks that create numbers. All other
+     * methods are expected to be slower than this.
+     *
+     * @param numbers Numbers.
+     * @param bh Data sink.
      */
     @Benchmark
-    public double[] baselineIdentity(Numbers numbers) {
-        return apply(numbers.getNumbers(), SinCosPerformance::identity);
+    public void baselineIdentity(Numbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), SinCosPerformance::identity, bh);
     }
 
+    /**
+     * Benchmark {@link Math#sin(double)}.
+     *
+     * @param numbers Numbers.
+     * @param bh Data sink.
+     */
     @Benchmark
-    public double[] mathSin(Numbers numbers) {
-        return apply(numbers.getNumbers(), Math::sin);
+    public void mathSin(Numbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Math::sin, bh);
     }
 
+    /**
+     * Benchmark {@link Math#cos(double)}.
+     *
+     * @param numbers Numbers.
+     * @param bh Data sink.
+     */
     @Benchmark
-    public double[] mathCos(Numbers numbers) {
-        return apply(numbers.getNumbers(), Math::cos);
+    public void mathCos(Numbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Math::cos, bh);
     }
 
+    /**
+     * Benchmark {@link FastMath#sin(double)}.
+     *
+     * @param numbers Numbers.
+     * @param bh Data sink.
+     */
     @Benchmark
-    public double[] fastMathSin(Numbers numbers) {
-        return apply(numbers.getNumbers(), FastMath::sin);
+    public void fastMathSin(Numbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), FastMath::sin, bh);
     }
 
+    /**
+     * Benchmark {@link FastMath#cos(double)}.
+     *
+     * @param numbers Numbers.
+     * @param bh Data sink.
+     */
     @Benchmark
-    public double[] fastMathCos(Numbers numbers) {
-        return apply(numbers.getNumbers(), FastMath::cos);
+    public void fastMathCos(Numbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), FastMath::cos, bh);
     }
 }
