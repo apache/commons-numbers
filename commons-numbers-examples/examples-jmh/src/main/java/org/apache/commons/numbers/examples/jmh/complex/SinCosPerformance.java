@@ -82,16 +82,9 @@ public class SinCosPerformance {
     /**
      * Contains an array of numbers.
      */
-    @State(Scope.Benchmark)
-    public static class Numbers extends NumberSize {
+    public static abstract class BaseNumbers extends NumberSize {
         /** The numbers. */
         protected double[] numbers;
-
-        /**
-         * The type of the data.
-         */
-        @Param({"pi", "pi/2", "random", "edge"})
-        private String type;
 
         /**
          * Gets the numbers.
@@ -123,7 +116,22 @@ public class SinCosPerformance {
          * @param rng Random number generator.
          * @return the random number
          */
-        private double[] createNumbers(SplittableRandom rng) {
+        protected abstract double[] createNumbers(SplittableRandom rng);
+    }
+
+    /**
+     * Contains an array of numbers.
+     */
+    @State(Scope.Benchmark)
+    public static class Numbers extends BaseNumbers {
+        /**
+         * The type of the data.
+         */
+        @Param({"pi", "pi/2", "random", "edge"})
+        private String type;
+
+        @Override
+        protected double[] createNumbers(SplittableRandom rng) {
             DoubleSupplier generator;
             if ("pi".equals(type)) {
                 generator = () -> rng.nextDouble() * 2 * Math.PI - Math.PI;
@@ -138,37 +146,52 @@ public class SinCosPerformance {
             }
             return DoubleStream.generate(generator).limit(getSize()).toArray();
         }
+    }
 
+    /**
+     * Contains an array of uniform numbers.
+     */
+    @State(Scope.Benchmark)
+    public static class UniformNumbers extends BaseNumbers {
         /**
-         * Assert the values are equal to the given ulps, else throw an AssertionError.
+         * The range of the data.
          *
-         * @param x the x
-         * @param y the y
-         * @param maxUlps the max ulps for equality
-         * @param msg the message upon failure
+         * <p>Note: Representations of half-pi and pi are rounded down
+         * to ensure the value is less than the exact representation.
          */
-        private static void assertEquals(double x, double y, int maxUlps, Supplier<String> msg) {
-            if (!Precision.equalsIncludingNaN(x, y, maxUlps)) {
-                throw new AssertionError(msg.get() + ": " + x + " != " + y);
-            }
+        @Param({"1.57079", "3.14159", "10", "100", "1e4", "1e8", "1e16", "1e32"})
+        private double range;
+
+        @Override
+        protected double[] createNumbers(SplittableRandom rng) {
+            return rng.doubles(getSize(), -range, range).toArray();
         }
     }
 
     /**
-     * Creates a random double number with a random sign and mantissa and a large range for
-     * the exponent. The numbers will not be uniform over the range.
+     * Assert the values are equal to the given ulps, else throw an AssertionError.
+     *
+     * @param x the x
+     * @param y the y
+     * @param maxUlps the max ulps for equality
+     * @param msg the message upon failure
+     */
+    static void assertEquals(double x, double y, int maxUlps, Supplier<String> msg) {
+        if (!Precision.equalsIncludingNaN(x, y, maxUlps)) {
+            throw new AssertionError(msg.get() + ": " + x + " != " + y);
+        }
+    }
+
+    /**
+     * Creates a random double number uniformly distributed over a range much larger than [-pi, pi].
+     * The data is a test of the reduction operation to convert a large number to the domain
+     * [0, pi/2).
      *
      * @param rng Random number generator.
      * @return the random number
      */
     private static double createRandomNumber(SplittableRandom rng) {
-        // Create random doubles using random bits in the sign bit and the mantissa.
-        // Then create an exponent in the range -64 to 64.
-        final long mask = ((1L << 52) - 1) | 1L << 63;
-        final long bits = rng.nextLong() & mask;
-        // The exponent must be unsigned so + 1023 to the signed exponent
-        final long exp = rng.nextInt(129) - 64 + 1023;
-        return Double.longBitsToDouble(bits | (exp << 52));
+        return rng.nextDouble(-1e200, 1e200);
     }
 
     /**
@@ -227,8 +250,7 @@ public class SinCosPerformance {
     }
 
     /**
-     * Baseline the creation of the new array of numbers with the same number (an identity). This
-     * contains the baseline JMH overhead for all the benchmarks that create numbers. All other
+     * Baseline the JMH overhead for all the benchmarks that create numbers. All other
      * methods are expected to be slower than this.
      *
      * @param numbers Numbers.
@@ -281,5 +303,27 @@ public class SinCosPerformance {
     @Benchmark
     public void fastMathCos(Numbers numbers, Blackhole bh) {
         apply(numbers.getNumbers(), FastMath::cos, bh);
+    }
+
+    /**
+     * Benchmark {@link Math#sin(double)} using a uniform range of numbers.
+     *
+     * @param numbers Numbers.
+     * @param bh Data sink.
+     */
+    @Benchmark
+    public void rangeMathSin(UniformNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), Math::sin, bh);
+    }
+
+    /**
+     * Benchmark {@link FastMath#sin(double)} using a uniform range of numbers.
+     *
+     * @param numbers Numbers.
+     * @param bh Data sink.
+     */
+    @Benchmark
+    public void rangeFastMathSin(UniformNumbers numbers, Blackhole bh) {
+        apply(numbers.getNumbers(), FastMath::sin, bh);
     }
 }
