@@ -17,6 +17,7 @@
 package org.apache.commons.numbers.gamma;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -58,10 +59,42 @@ public class RegularizedGammaTest {
         testRegularizedGamma(0.632120558828558, 1.0, 1.0);
     }
 
+    @Disabled
+    @Test
+    public void testRegularizedGammaPWithACloseToZero() {
+        // Creates a case where the regularized gamma P series is evaluated and the
+        // result is outside the expected bounds of [0, 1]. This should be clipped to 1.0.
+        final double a = 1e-18;
+        // x must force use of the series in regularized gamma P using x < a + 1
+        final double x = 0.5;
+        testRegularizedGamma(1.0, a, x);
+    }
+
+    @Test
+    public void testRegularizedGammaPWithAVeryCloseToZero() {
+        // Creates a case where the partial sum is infinite due to inclusion of 1 / a
+        final double a = Double.MIN_VALUE;
+        // x must force use of the series in regularized gamma P using x < a + 1
+        final double x = 0.5;
+        testRegularizedGamma(1.0, a, x);
+    }
+
     private void testRegularizedGamma(double expected, double a, double x) {
         double actualP = RegularizedGamma.P.value(a, x);
         double actualQ = RegularizedGamma.Q.value(a, x);
         Assertions.assertEquals(expected, actualP, 1e-15);
         Assertions.assertEquals(actualP, 1 - actualQ, 1e-15);
+    }
+
+    @Test
+    public void testRegularizedGammaMaxIterationsExceededThrows() {
+        final double a = 1.0;
+        final double x = 1.0;
+        // OK without
+        Assertions.assertEquals(0.632120558828558, RegularizedGamma.P.value(a, x), 1e-15);
+
+        final int maxIterations = 3;
+        Assertions.assertThrows(ArithmeticException.class, () ->
+            RegularizedGamma.P.value(a, x, 1e-15, maxIterations));
     }
 }
