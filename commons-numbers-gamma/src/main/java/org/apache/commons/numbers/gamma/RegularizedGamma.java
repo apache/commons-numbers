@@ -192,13 +192,13 @@ public final class RegularizedGamma {
                         /** {@inheritDoc} */
                         @Override
                         protected double getA(int n, double x) {
-                            return ((2 * n) + 1) - a + x;
+                            return n * (a - n);
                         }
 
                         /** {@inheritDoc} */
                         @Override
                         protected double getB(int n, double x) {
-                            return n * (a - n);
+                            return ((2 * n) + 1) - a + x;
                         }
                     };
 

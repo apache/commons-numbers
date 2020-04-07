@@ -20,7 +20,6 @@ import java.util.Locale;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-
 /**
  * Tests for {@link ContinuedFraction}.
  */
@@ -60,6 +59,11 @@ public class ContinuedFractionTest {
         ContinuedFraction cf = new ContinuedFraction() {
             @Override
             public double getA(int n, double x) {
+                return n <= 3 ? 1 : 0;
+            }
+
+            @Override
+            public double getB(int n, double x) {
                 switch (n) {
                     case 0: return 4;
                     case 1: return 2;
@@ -67,11 +71,6 @@ public class ContinuedFractionTest {
                     case 3: return 7;
                     default: return 1;
                 }
-            }
-
-            @Override
-            public double getB(int n, double x) {
-                return n <= 3 ? 1 : 0;
             }
         };
 
@@ -107,12 +106,12 @@ public class ContinuedFractionTest {
         ContinuedFraction cf = new ContinuedFraction() {
             @Override
             public double getA(int n, double x) {
-                return n == 0 ? 1 : Double.NaN;
+                return 1;
             }
 
             @Override
             public double getB(int n, double x) {
-                return 1;
+                return n == 0 ? 1 : Double.NaN;
             }
         };
 
@@ -125,16 +124,16 @@ public class ContinuedFractionTest {
     @Test
     public void testInfThrows() throws Exception {
         // Create an infinity during the iteration:
-        // b / cPrev  => b_1 / a_0 => Double.MAX_VALUE / 0.5
+        // a / cPrev  => a_1 / b_0 => Double.MAX_VALUE / 0.5
         ContinuedFraction cf = new ContinuedFraction() {
             @Override
             public double getA(int n, double x) {
-                return 0.5;
+                return n == 0 ? 1 : Double.MAX_VALUE;
             }
 
             @Override
             public double getB(int n, double x) {
-                return n == 0 ? 1 : Double.MAX_VALUE;
+                return 0.5;
             }
         };
 

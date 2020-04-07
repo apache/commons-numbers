@@ -99,7 +99,7 @@ public final class RegularizedBeta {
             final ContinuedFraction fraction = new ContinuedFraction() {
                 /** {@inheritDoc} */
                 @Override
-                protected double getB(int n, double x) {
+                protected double getA(int n, double x) {
                     if (n % 2 == 0) { // even
                         final double m = n / 2d;
                         return (m * (b - m) * x) /
@@ -113,7 +113,7 @@ public final class RegularizedBeta {
 
                 /** {@inheritDoc} */
                 @Override
-                protected double getA(int n, double x) {
+                protected double getB(int n, double x) {
                     return 1;
                 }
             };

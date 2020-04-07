@@ -21,19 +21,21 @@ import org.apache.commons.numbers.core.Precision;
 /**
  * Provides a generic means to evaluate
  * <a href="https://mathworld.wolfram.com/ContinuedFraction.html">continued fractions</a>.
- * Subclasses must provide the {@link #getA(int,double) a} and {@link #getB(int,double) b}
- * coefficients to evaluate the continued fraction.
  *
- * <p>The fraction uses the following form for the {@code a} and {@code b} coefficients:
+ * <p>The continued fraction uses the following form for the numerator ({@code a}) and
+ * denominator ({@code b}) coefficients:
  * <pre>
- *              b1
- * a0 + ------------------
- *      a1 +      b2
+ *              a1
+ * b0 + ------------------
+ *      b1 +      a2
  *           -------------
- *           a2 +    b3
+ *           b2 +    a3
  *                --------
- *                a3 + ...
+ *                b3 + ...
  * </pre>
+ *
+ * <p>Subclasses must provide the {@link #getA(int,double) a} and {@link #getB(int,double) b}
+ * coefficients to evaluate the continued fraction.
  */
 public abstract class ContinuedFraction {
     /**
@@ -106,7 +108,7 @@ public abstract class ContinuedFraction {
      * before the expected convergence is achieved.
      */
     public double evaluate(double x, double epsilon, int maxIterations) {
-        double hPrev = updateIfCloseToZero(getA(0, x));
+        double hPrev = updateIfCloseToZero(getB(0, x));
 
         int n = 1;
         double dPrev = 0.0;
@@ -117,8 +119,8 @@ public abstract class ContinuedFraction {
             final double a = getA(n, x);
             final double b = getB(n, x);
 
-            double dN = updateIfCloseToZero(a + b * dPrev);
-            final double cN = updateIfCloseToZero(a + b / cPrev);
+            double dN = updateIfCloseToZero(b + a * dPrev);
+            final double cN = updateIfCloseToZero(b + a / cPrev);
 
             dN = 1 / dN;
             final double deltaN = cN * dN;
