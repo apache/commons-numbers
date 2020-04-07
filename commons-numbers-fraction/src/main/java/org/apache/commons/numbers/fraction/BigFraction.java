@@ -628,6 +628,9 @@ public final class BigFraction
      * least significant bits used for the significand, the next more
      * significant bits for the exponent, and next more significant bit for the
      * sign.
+     *
+     * <p>Warning: The arguments are not validated.
+     *
      * @param exponentLength the number of bits allowed for the exponent; must be
      *                       between 1 and 32 (inclusive), and must not be greater
      *                       than {@code 63 - significandLength}
@@ -638,16 +641,14 @@ public final class BigFraction
      *                          {@code 63 - exponentLength} (inclusive)
      * @return the bits of an IEEE 754 binary floating-point representation of
      * this fraction encoded in a {@code long}, as described above.
-     * @throws IllegalArgumentException if the arguments do not meet the
-     *         criteria described above
      */
     private long toFloatingPointBits(int exponentLength, int significandLength) {
-        if (exponentLength < 1 ||
-            significandLength < 1 ||
-            exponentLength > Math.min(32, 63 - significandLength)) {
-            throw new IllegalArgumentException("exponent length: " + exponentLength +
-                                               "; significand length: " + significandLength);
-        }
+        // Assume the following conditions:
+        //assert exponentLength >= 1;
+        //assert exponentLength <= 32;
+        //assert significandLength >= 1;
+        //assert significandLength <= 63 - exponentLength;
+
         if (numerator.signum() == 0) {
             return 0L;
         }
