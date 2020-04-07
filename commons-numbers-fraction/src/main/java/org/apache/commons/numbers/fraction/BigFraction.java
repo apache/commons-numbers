@@ -274,8 +274,6 @@ public final class BigFraction
      * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
      * @throws ArithmeticException if the continued fraction failed to converge.
      * @return a new instance.
-     *
-     * @see #from(double,int)
      */
     public static BigFraction from(final double value,
                                    final double epsilon,
@@ -294,10 +292,9 @@ public final class BigFraction
      *
      * @param value Value to convert to a fraction.
      * @param maxDenominator Maximum allowed value for denominator.
+     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
      * @throws ArithmeticException if the continued fraction failed to converge.
      * @return a new instance.
-     *
-     * @see #from(double,double,int)
      */
     public static BigFraction from(final double value,
                                    final int maxDenominator) {
@@ -318,7 +315,7 @@ public final class BigFraction
     /**
      * Create a fraction given the numerator. The denominator is {@code 1}.
      *
-     * @param num the numerator.
+     * @param num Numerator.
      * @return a new instance.
      */
     public static BigFraction of(final long num) {
@@ -328,7 +325,7 @@ public final class BigFraction
     /**
      * Create a fraction given the numerator. The denominator is {@code 1}.
      *
-     * @param num the numerator.
+     * @param num Numerator.
      * @return a new instance.
      * @throws NullPointerException if numerator is null.
      */
@@ -340,8 +337,8 @@ public final class BigFraction
      * Create a fraction given the numerator and denominator.
      * The fraction is reduced to lowest terms.
      *
-     * @param num the numerator.
-     * @param den the denominator.
+     * @param num Numerator.
+     * @param den Denominator.
      * @return a new instance.
      * @throws ArithmeticException if {@code den} is zero.
      */
@@ -353,8 +350,8 @@ public final class BigFraction
      * Create a fraction given the numerator and denominator.
      * The fraction is reduced to lowest terms.
      *
-     * @param num the numerator.
-     * @param den the denominator.
+     * @param num Numerator.
+     * @param den Denominator.
      * @return a new instance.
      * @throws ArithmeticException if {@code den} is zero.
      */
@@ -366,36 +363,58 @@ public final class BigFraction
      * Create a fraction given the numerator and denominator.
      * The fraction is reduced to lowest terms.
      *
-     * @param num the numerator.
-     * @param den the denominator.
+     * @param num Numerator.
+     * @param den Denominator.
      * @return a new instance.
-     * @throws ArithmeticException if the denominator is zero.
      * @throws NullPointerException if numerator or denominator are null.
+     * @throws ArithmeticException if the denominator is zero.
      */
     public static BigFraction of(final BigInteger num, final BigInteger den) {
         return new BigFraction(num, den);
     }
 
-
     /**
-     * Parses a string that would be produced by {@link #toString()}
-     * and instantiates the corresponding object.
+     * Returns a {@code BigFraction} instance representing the specified string {@code s}.
+     *
+     * <p>If {@code s} is {@code null}, then a {@code NullPointerException} is thrown.
+     *
+     * <p>The string must be in a format compatible with that produced by
+     * {@link #toString() BigFraction.toString()}.
+     * The format expects an integer optionally followed by a {@code '/'} character and
+     * and second integer. Leading and trailing spaces are allowed around each numeric part.
+     * Each numeric part is parsed using {@link BigInteger#BigInteger(String)}. The parts
+     * are interpreted as the numerator and optional denominator of the fraction. If absent
+     * the denominator is assumed to be "1".
+     *
+     * <p>Examples of valid strings and the equivalent {@code BigFraction} are shown below:
+     *
+     * <pre>
+     * "0"                 = BigFraction.of(0)
+     * "42"                = BigFraction.of(42)
+     * "0 / 1"             = BigFraction.of(0, 1)
+     * "1 / 3"             = BigFraction.of(1, 3)
+     * "-4 / 13"           = BigFraction.of(-4, 13)</pre>
+     *
+     * <p>Note: The fraction is returned in reduced form and the numerator and denominator
+     * may not match the values in the input string. For this reason the result of
+     * {@code BigFraction.parse(s).toString().equals(s)} may not be {@code true}.
      *
      * @param s String representation.
      * @return an instance.
-     * @throws NumberFormatException if the string does not conform
-     * to the specification.
+     * @throws NullPointerException if the string is null.
+     * @throws NumberFormatException if the string does not contain a parsable fraction.
+     * @see BigInteger#BigInteger(String)
+     * @see #toString()
      */
     public static BigFraction parse(String s) {
-        s = s.replace(",", "");
-        final int slashLoc = s.indexOf('/');
+        final String stripped = s.replace(",", "");
+        final int slashLoc = stripped.indexOf('/');
         // if no slash, parse as single number
         if (slashLoc == -1) {
-            return BigFraction.of(new BigInteger(s.trim()));
+            return BigFraction.of(new BigInteger(stripped.trim()));
         }
-        final BigInteger num = new BigInteger(
-                s.substring(0, slashLoc).trim());
-        final BigInteger denom = new BigInteger(s.substring(slashLoc + 1).trim());
+        final BigInteger num = new BigInteger(stripped.substring(0, slashLoc).trim());
+        final BigInteger denom = new BigInteger(stripped.substring(slashLoc + 1).trim());
         return of(num, denom);
     }
 
@@ -494,33 +513,20 @@ public final class BigFraction
             negate();
     }
 
-    /**
-     * Return the additive inverse of this fraction, returning the result in
-     * reduced form.
-     *
-     * @return the negation of this fraction.
-     */
     @Override
     public BigFraction negate() {
         return new BigFraction(numerator.negate(), denominator);
     }
 
-    /**
-     * Return the multiplicative inverse of this fraction.
-     *
-     * @return the reciprocal fraction.
-     */
     @Override
     public BigFraction reciprocal() {
         return new BigFraction(denominator, numerator);
     }
 
     /**
-     * Gets the fraction as a {@code double}. This calculates the fraction as
-     * the numerator divided by denominator.
+     * Returns the {@code double} value closest to this fraction.
      *
-     * @return the fraction as a {@code double}
-     * @see java.lang.Number#doubleValue()
+     * @return the fraction as a {@code double}.
      */
     @Override
     public double doubleValue() {
@@ -528,11 +534,9 @@ public final class BigFraction
     }
 
     /**
-     * Retrieves the {@code float} value closest to this fraction.
-     * This calculates the fraction as numerator divided by denominator.
+     * Returns the {@code float} value closest to this fraction.
      *
-     * @return the fraction as a {@code float}.
-     * @see java.lang.Number#floatValue()
+     * @return the fraction as a {@code double}.
      */
     @Override
     public float floatValue() {
@@ -540,11 +544,9 @@ public final class BigFraction
     }
 
     /**
-     * Gets the fraction as an {@code int}. This returns the whole number part
-     * of the fraction.
+     * Returns the whole number part of the fraction.
      *
-     * @return the whole number fraction part.
-     * @see java.lang.Number#intValue()
+     * @return the largest {@code int} value that is not larger than this fraction.
      */
     @Override
     public int intValue() {
@@ -552,11 +554,9 @@ public final class BigFraction
     }
 
     /**
-     * Gets the fraction as a {@code long}. This returns the whole number part
-     * of the fraction.
+     * Returns the whole number part of the fraction.
      *
-     * @return the whole number fraction part.
-     * @see java.lang.Number#longValue()
+     * @return the largest {@code long} value that is not larger than this fraction.
      */
     @Override
     public long longValue() {
@@ -564,8 +564,8 @@ public final class BigFraction
     }
 
     /**
-     * Gets the fraction as a {@code BigDecimal}. This calculates the
-     * fraction as the numerator divided by denominator.
+     * Returns the {@code BigDecimal} representation of this fraction.
+     * This calculates the fraction as numerator divided by denominator.
      *
      * @return the fraction as a {@code BigDecimal}.
      * @throws ArithmeticException
@@ -578,9 +578,9 @@ public final class BigFraction
     }
 
     /**
-     * Gets the fraction as a {@code BigDecimal} following the passed
-     * rounding mode. This calculates the fraction as the numerator divided by
-     * denominator.
+     * Returns the {@code BigDecimal} representation of this fraction.
+     * This calculates the fraction as numerator divided by denominator
+     * following the passed rounding mode.
      *
      * @param roundingMode Rounding mode to apply.
      * @return the fraction as a {@code BigDecimal}.
@@ -591,9 +591,9 @@ public final class BigFraction
     }
 
     /**
-     * Gets the fraction as a {@code BigDecimal} following the passed scale
-     * and rounding mode. This calculates the fraction as the numerator divided
-     * by denominator.
+     * Returns the {@code BigDecimal} representation of this fraction.
+     * This calculates the fraction as numerator divided by denominator
+     * following the passed scale and rounding mode.
      *
      * @param scale
      *            scale of the {@code BigDecimal} quotient to be returned.
@@ -609,74 +609,70 @@ public final class BigFraction
     }
 
     /**
-     * Adds the value of this fraction to the passed {@code integer}, returning
+     * Adds the specified {@code value} to this fraction, returning
      * the result in reduced form.
      *
-     * @param i
-     *            the {@code integer} to add.
-     * @return a {@code BigFraction} instance with the resulting values.
+     * @param value Value to add.
+     * @return {@code this + value}.
      */
-    public BigFraction add(final int i) {
-        return add(BigInteger.valueOf(i));
+    public BigFraction add(final int value) {
+        return add(BigInteger.valueOf(value));
     }
 
     /**
-     * Adds the value of this fraction to the passed {@code long}, returning
+     * Adds the specified {@code value} to this fraction, returning
      * the result in reduced form.
      *
-     * @param l
-     *            the {@code long} to add.
-     * @return a {@code BigFraction} instance with the resulting values.
+     * @param value Value to add.
+     * @return {@code this + value}.
      */
-    public BigFraction add(final long l) {
-        return add(BigInteger.valueOf(l));
+    public BigFraction add(final long value) {
+        return add(BigInteger.valueOf(value));
     }
 
     /**
-     * Adds the value of this fraction to the passed {@link BigInteger},
-     * returning the result in reduced form.
+     * Adds the specified {@code value} to this fraction, returning
+     * the result in reduced form.
      *
-     * @param bg
-     *            the {@link BigInteger} to add, must'nt be {@code null}.
-     * @return a {@code BigFraction} instance with the resulting values.
+     * @param value Value to add.
+     * @return {@code this + value}.
      */
-    public BigFraction add(final BigInteger bg) {
+    public BigFraction add(final BigInteger value) {
         if (numerator.signum() == 0) {
-            return of(bg);
+            return of(value);
         }
-        if (bg.signum() == 0) {
+        if (value.signum() == 0) {
             return this;
         }
 
-        return new BigFraction(numerator.add(denominator.multiply(bg)), denominator);
+        return new BigFraction(numerator.add(denominator.multiply(value)), denominator);
     }
 
     /**
-     * Adds the value of this fraction to another, returning the result in
-     * reduced form.
+     * Adds the specified {@code value} to this fraction, returning
+     * the result in reduced form.
      *
-     * @param fraction
-     *            the {@link BigFraction} to add, must not be {@code null}.
-     * @return a {@link BigFraction} instance with the resulting values.
+     * @param value Value to add.
+     * @return {@code this + value}.
      */
     @Override
-    public BigFraction add(final BigFraction fraction) {
-        if (fraction.numerator.signum() == 0) {
+    public BigFraction add(final BigFraction value) {
+        if (value.numerator.signum() == 0) {
             return this;
         }
         if (numerator.signum() == 0) {
-            return fraction;
+            return value;
         }
 
         final BigInteger num;
         final BigInteger den;
 
-        if (denominator.equals(fraction.denominator)) {
-            num = numerator.add(fraction.numerator);
+        if (denominator.equals(value.denominator)) {
+            num = numerator.add(value.numerator);
             den = denominator;
         } else {
-            num = (numerator.multiply(fraction.denominator)).add((fraction.numerator).multiply(denominator));
-            den = denominator.multiply(fraction.denominator);
+            num = (numerator.multiply(value.denominator)).add((value.numerator).multiply(denominator));
+            den = denominator.multiply(value.denominator);
         }
 
         if (num.signum() == 0) {
@@ -687,207 +683,202 @@ public final class BigFraction
     }
 
     /**
-     * Subtracts the value of an {@code integer} from the value of this
-     * {@code BigFraction}, returning the result in reduced form.
+     * Subtracts the specified {@code value} from this fraction, returning
+     * the result in reduced form.
      *
-     * @param i the {@code integer} to subtract.
-     * @return a {@code BigFraction} instance with the resulting values.
+     * @param value Value to subtract.
+     * @return {@code this - value}.
      */
-    public BigFraction subtract(final int i) {
-        return subtract(BigInteger.valueOf(i));
+    public BigFraction subtract(final int value) {
+        return subtract(BigInteger.valueOf(value));
     }
 
     /**
-     * Subtracts the value of a {@code long} from the value of this
-     * {@code BigFraction}, returning the result in reduced form.
+     * Subtracts the specified {@code value} from this fraction, returning
+     * the result in reduced form.
      *
-     * @param l the {@code long} to subtract.
-     * @return a {@code BigFraction} instance with the resulting values.
+     * @param value Value to subtract.
+     * @return {@code this - value}.
      */
-    public BigFraction subtract(final long l) {
-        return subtract(BigInteger.valueOf(l));
+    public BigFraction subtract(final long value) {
+        return subtract(BigInteger.valueOf(value));
     }
 
     /**
-     * Subtracts the value of an {@link BigInteger} from the value of this
-     * {@code BigFraction}, returning the result in reduced form.
+     * Subtracts the specified {@code value} from this fraction, returning
+     * the result in reduced form.
      *
-     * @param bg the {@link BigInteger} to subtract, cannot be {@code null}.
-     * @return a {@code BigFraction} instance with the resulting values.
+     * @param value Value to subtract.
+     * @return {@code this - value}.
      */
-    public BigFraction subtract(final BigInteger bg) {
-        if (bg.signum() == 0) {
+    public BigFraction subtract(final BigInteger value) {
+        if (value.signum() == 0) {
             return this;
         }
         if (numerator.signum() == 0) {
-            return of(bg.negate());
+            return of(value.negate());
         }
 
-        return new BigFraction(numerator.subtract(denominator.multiply(bg)), denominator);
+        return new BigFraction(numerator.subtract(denominator.multiply(value)), denominator);
     }
 
     /**
-     * Subtracts the value of another fraction from the value of this one,
-     * returning the result in reduced form.
+     * Subtracts the specified {@code value} from this fraction, returning
+     * the result in reduced form.
      *
-     * @param fraction {@link BigFraction} to subtract, must not be {@code null}.
-     * @return a {@link BigFraction} instance with the resulting values
+     * @param value Value to subtract.
+     * @return {@code this - value}.
      */
     @Override
-    public BigFraction subtract(final BigFraction fraction) {
-        if (fraction.numerator.signum() == 0) {
+    public BigFraction subtract(final BigFraction value) {
+        if (value.numerator.signum() == 0) {
             return this;
         }
         if (numerator.signum() == 0) {
-            return fraction.negate();
+            return value.negate();
         }
 
         final BigInteger num;
         final BigInteger den;
-        if (denominator.equals(fraction.denominator)) {
-            num = numerator.subtract(fraction.numerator);
+        if (denominator.equals(value.denominator)) {
+            num = numerator.subtract(value.numerator);
             den = denominator;
         } else {
-            num = (numerator.multiply(fraction.denominator)).subtract((fraction.numerator).multiply(denominator));
-            den = denominator.multiply(fraction.denominator);
+            num = (numerator.multiply(value.denominator)).subtract((value.numerator).multiply(denominator));
+            den = denominator.multiply(value.denominator);
         }
         return new BigFraction(num, den);
     }
 
     /**
-     * Multiply the value of this fraction by the passed {@code int}, returning
+     * Multiply this fraction by the passed {@code value}, returning
      * the result in reduced form.
      *
-     * @param i
-     *            the {@code int} to multiply by.
-     * @return a {@link BigFraction} instance with the resulting values.
+     * @param value Value to multiply by.
+     * @return {@code this * value}.
      */
     @Override
-    public BigFraction multiply(final int i) {
-        if (i == 0 || numerator.signum() == 0) {
+    public BigFraction multiply(final int value) {
+        if (value == 0 || numerator.signum() == 0) {
             return ZERO;
         }
 
-        return multiply(BigInteger.valueOf(i));
+        return multiply(BigInteger.valueOf(value));
     }
 
     /**
-     * Multiply the value of this fraction by the passed {@code long},
-     * returning the result in reduced form.
+     * Multiply this fraction by the passed {@code value}, returning
+     * the result in reduced form.
      *
-     * @param l
-     *            the {@code long} to multiply by.
-     * @return a {@link BigFraction} instance with the resulting values.
+     * @param value Value to multiply by.
+     * @return {@code this * value}.
      */
-    public BigFraction multiply(final long l) {
-        if (l == 0 || numerator.signum() == 0) {
+    public BigFraction multiply(final long value) {
+        if (value == 0 || numerator.signum() == 0) {
             return ZERO;
         }
 
-        return multiply(BigInteger.valueOf(l));
+        return multiply(BigInteger.valueOf(value));
     }
 
     /**
-     * Multiplies the value of this fraction by the passed
-     * {@code BigInteger}, returning the result in reduced form.
+     * Multiply this fraction by the passed {@code value}, returning
+     * the result in reduced form.
      *
-     * @param bg the {@code BigInteger} to multiply by.
-     * @return a {@code BigFraction} instance with the resulting values.
+     * @param value Value to multiply by.
+     * @return {@code this * value}.
      */
-    public BigFraction multiply(final BigInteger bg) {
-        if (numerator.signum() == 0 || bg.signum() == 0) {
+    public BigFraction multiply(final BigInteger value) {
+        if (numerator.signum() == 0 || value.signum() == 0) {
             return ZERO;
         }
-        return new BigFraction(bg.multiply(numerator), denominator);
+        return new BigFraction(value.multiply(numerator), denominator);
     }
 
     /**
-     * Multiplies the value of this fraction by another, returning the result in
-     * reduced form.
+     * Multiply this fraction by the passed {@code value}, returning
+     * the result in reduced form.
      *
-     * @param fraction Fraction to multiply by, must not be {@code null}.
-     * @return a {@link BigFraction} instance with the resulting values.
+     * @param value Value to multiply by.
+     * @return {@code this * value}.
      */
     @Override
-    public BigFraction multiply(final BigFraction fraction) {
+    public BigFraction multiply(final BigFraction value) {
         if (numerator.signum() == 0 ||
-            fraction.numerator.signum() == 0) {
+            value.numerator.signum() == 0) {
             return ZERO;
         }
-        return new BigFraction(numerator.multiply(fraction.numerator),
-                               denominator.multiply(fraction.denominator));
+        return new BigFraction(numerator.multiply(value.numerator),
+                               denominator.multiply(value.denominator));
     }
 
     /**
-     * Divide the value of this fraction by the passed {@code int}, ie
-     * {@code this * 1 / i}, returning the result in reduced form.
+     * Divide this fraction by the passed {@code value}, returning
+     * the result in reduced form.
      *
-     * @param i the {@code int} to divide by
-     * @return a {@link BigFraction} instance with the resulting values
+     * @param value Value to divide by
+     * @return {@code this / value}.
      * @throws ArithmeticException if the value to divide by is zero
      */
-    public BigFraction divide(final int i) {
-        return divide(BigInteger.valueOf(i));
+    public BigFraction divide(final int value) {
+        return divide(BigInteger.valueOf(value));
     }
 
     /**
-     * Divide the value of this fraction by the passed {@code long}, ie
-     * {@code this * 1 / l}, returning the result in reduced form.
+     * Divide this fraction by the passed {@code value}, returning
+     * the result in reduced form.
      *
-     * @param l the {@code long} to divide by
-     * @return a {@link BigFraction} instance with the resulting values
+     * @param value Value to divide by
+     * @return {@code this / value}.
      * @throws ArithmeticException if the value to divide by is zero
      */
-    public BigFraction divide(final long l) {
-        return divide(BigInteger.valueOf(l));
+    public BigFraction divide(final long value) {
+        return divide(BigInteger.valueOf(value));
     }
 
     /**
-     * Divide the value of this fraction by the passed {@code BigInteger},
-     * ie {@code this * 1 / bg}, returning the result in reduced form.
+     * Divide this fraction by the passed {@code value}, returning
+     * the result in reduced form.
      *
-     * @param bg the {@code BigInteger} to divide by, must not be {@code null}
-     * @return a {@link BigFraction} instance with the resulting values
+     * @param value Value to divide by
+     * @return {@code this / value}.
      * @throws ArithmeticException if the value to divide by is zero
      */
-    public BigFraction divide(final BigInteger bg) {
-        if (bg.signum() == 0) {
+    public BigFraction divide(final BigInteger value) {
+        if (value.signum() == 0) {
             throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
         }
         if (numerator.signum() == 0) {
             return ZERO;
         }
-        return new BigFraction(numerator, denominator.multiply(bg));
+        return new BigFraction(numerator, denominator.multiply(value));
     }
 
     /**
-     * Divide the value of this fraction by another, returning the result in
-     * reduced form.
+     * Divide this fraction by the passed {@code value}, returning
+     * the result in reduced form.
      *
-     * @param fraction Fraction to divide by, must not be {@code null}.
-     * @return a {@link BigFraction} instance with the resulting values.
-     * @throws ArithmeticException if the fraction to divide by is zero
+     * @param value Value to divide by
+     * @return {@code this / value}.
+     * @throws ArithmeticException if the value to divide by is zero
      */
     @Override
-    public BigFraction divide(final BigFraction fraction) {
-        if (fraction.numerator.signum() == 0) {
+    public BigFraction divide(final BigFraction value) {
+        if (value.numerator.signum() == 0) {
             throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
         }
         if (numerator.signum() == 0) {
             return ZERO;
         }
-
-        return multiply(fraction.reciprocal());
+        return multiply(value.reciprocal());
     }
 
     /**
      * Returns a {@code BigFraction} whose value is
-     * {@code (this<sup>exponent</sup>)}, returning the result in reduced form.
+     * <code>this<sup>exponent</sup></code>, returning the result in reduced form.
      *
-     * @param exponent
-     *            exponent to which this {@code BigFraction} is to be
-     *            raised.
-     * @return \(\mathit{this}^{\mathit{exponent}}\).
+     * @param exponent exponent to which this {@code BigFraction} is to be raised.
+     * @return <code>this<sup>exponent</sup></code>.
      */
     @Override
     public BigFraction pow(final int exponent) {
@@ -906,11 +897,10 @@ public final class BigFraction
 
     /**
      * Returns a {@code BigFraction} whose value is
-     * \(\mathit{this}^{\mathit{exponent}}\), returning the result in reduced form.
+     * <code>this<sup>exponent</sup></code>, returning the result in reduced form.
      *
-     * @param exponent
-     *            exponent to which this {@code BigFraction} is to be raised.
-     * @return \(\mathit{this}^{\mathit{exponent}}\) as a {@code BigFraction}.
+     * @param exponent exponent to which this {@code BigFraction} is to be raised.
+     * @return <code>this<sup>exponent</sup></code>.
      */
     public BigFraction pow(final long exponent) {
         if (exponent == 0) {
@@ -930,11 +920,10 @@ public final class BigFraction
 
     /**
      * Returns a {@code BigFraction} whose value is
-     * \(\mathit{this}^{\mathit{exponent}}\), returning the result in reduced form.
+     * <code>this<sup>exponent</sup></code>, returning the result in reduced form.
      *
-     * @param exponent
-     *            exponent to which this {@code BigFraction} is to be raised.
-     * @return \(\mathit{this}^{\mathit{exponent}}\) as a {@code BigFraction}.
+     * @param exponent exponent to which this {@code BigFraction} is to be raised.
+     * @return <code>this<sup>exponent</sup></code>.
      */
     public BigFraction pow(final BigInteger exponent) {
         if (exponent.signum() == 0) {
@@ -954,12 +943,11 @@ public final class BigFraction
     }
 
     /**
-     * Returns a {@code double} whose value is
-     * \(\mathit{this}^{\mathit{exponent}}\), returning the result in reduced form.
+     * Returns a {@code BigFraction} whose value is
+     * <code>this<sup>exponent</sup></code>, returning the result in reduced form.
      *
-     * @param exponent
-     *            exponent to which this {@code BigFraction} is to be raised.
-     * @return \(\mathit{this}^{\mathit{exponent}}\).
+     * @param exponent exponent to which this {@code BigFraction} is to be raised.
+     * @return <code>this<sup>exponent</sup></code>.
      */
     public double pow(final double exponent) {
         return Math.pow(numerator.doubleValue(),   exponent) /
@@ -991,13 +979,10 @@ public final class BigFraction
     }
 
     /**
-     * Compares this object to another based on size.
+     * Compares this object with the specified object for order using the signed magnitude.
      *
-     * @param other Object to compare to, must not be {@code null}.
-     * @return -1 if this is less than {@code object}, +1 if this is greater
-     * than {@code object}, 0 if they are equal.
-     *
-     * @see Comparable#compareTo(Object)
+     * @param other {@inheritDoc}
+     * @return {@inheritDoc}
      */
     @Override
     public int compareTo(final BigFraction other) {
@@ -1017,9 +1002,8 @@ public final class BigFraction
     }
 
     /**
-     * Test for the equality of two fractions. If the lowest term numerator and
-     * denominators are the same for both fractions, the two fractions are
-     * considered to be equal.
+     * Test for equality with another object. If the other object is a {@code Fraction} then a
+     * comparison is made of the sign and magnitude; otherwise {@code false} is returned.
      *
      * @param other {@inheritDoc}
      * @return {@inheritDoc}
@@ -1028,9 +1012,12 @@ public final class BigFraction
     public boolean equals(final Object other) {
         if (this == other) {
             return true;
-        } else if (other instanceof BigFraction) {
-            final BigFraction rhs = (BigFraction) other;
+        }
 
+        if (other instanceof BigFraction) {
+            // Since fractions are always in lowest terms, numerators and
+            // denominators can be compared directly for equality.
+            final BigFraction rhs = (BigFraction) other;
             if (signum() == rhs.signum()) {
                 return numerator.abs().equals(rhs.numerator.abs()) &&
                        denominator.abs().equals(rhs.denominator.abs());
