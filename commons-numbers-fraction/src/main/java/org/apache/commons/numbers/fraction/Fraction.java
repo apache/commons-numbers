@@ -35,11 +35,11 @@ public final class Fraction
     implements Comparable<Fraction>,
                NativeOperators<Fraction>,
                Serializable {
-    /** A fraction representing "1". */
-    public static final Fraction ONE = new Fraction(1, 1);
-
     /** A fraction representing "0". */
     public static final Fraction ZERO = new Fraction(0, 1);
+
+    /** A fraction representing "1". */
+    public static final Fraction ONE = new Fraction(1, 1);
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20190701L;
@@ -47,11 +47,49 @@ public final class Fraction
     /** The default epsilon used for convergence. */
     private static final double DEFAULT_EPSILON = 1e-5;
 
+    /** The numerator of this fraction reduced to lowest terms. */
+    private final int numerator;
+
     /** The denominator of this fraction reduced to lowest terms. */
     private final int denominator;
 
-    /** The numerator of this fraction reduced to lowest terms. */
-    private final int numerator;
+
+    /**
+     * Constructs an instance.
+     *
+     * @param num Numerator.
+     * @param den Denominator.
+     * @throws ArithmeticException if the denominator is {@code zero}
+     * or if integer overflow occurs.
+     */
+    private Fraction(int num, int den) {
+        if (den == 0) {
+            throw new ArithmeticException("division by zero");
+        }
+
+        if (num == den) {
+            numerator = 1;
+            denominator = 1;
+        } else {
+            // If num and den are both 2^-31, or if one is 0 and the other is 2^-31,
+            // the calculation of the gcd below will fail. Ensure that this does not
+            // happen by dividing both by 2 in case both are even.
+            if (((num | den) & 1) == 0) {
+                num >>= 1;
+                den >>= 1;
+            }
+
+            // Reduce numerator and denominator by greatest common divisor.
+            final int d = ArithmeticUtils.gcd(num, den);
+            if (d > 1) {
+                num /= d;
+                den /= d;
+            }
+
+            numerator = num;
+            denominator = den;
+        }
+    }
 
     /**
      * Create a fraction given the double value and either the maximum error
@@ -85,7 +123,10 @@ public final class Fraction
      * @throws ArithmeticException if the continued fraction failed
      * to converge.
      */
-    private Fraction(double value, double epsilon, int maxDenominator, int maxIterations) {
+    private Fraction(final double value,
+                     final double epsilon,
+                     final int maxDenominator,
+                     final int maxIterations) {
         final long overflow = Integer.MAX_VALUE;
         double r0 = value;
         long a0 = (long)Math.floor(r0);
@@ -157,43 +198,6 @@ public final class Fraction
     }
 
     /**
-     * Constructs an instance.
-     *
-     * @param num Numerator.
-     * @param den Denominator.
-     * @throws ArithmeticException if the denominator is {@code zero}
-     * or if integer overflow occurs.
-     */
-    private Fraction(int num, int den) {
-        if (den == 0) {
-            throw new ArithmeticException("division by zero");
-        }
-
-        if (num == den) {
-            numerator = 1;
-            denominator = 1;
-        } else {
-            // If num and den are both 2^-31, or if one is 0 and the other is 2^-31,
-            // the calculation of the gcd below will fail. Ensure that this does not
-            // happen by dividing both by 2 in case both are even.
-            if (((num | den) & 1) == 0) {
-                num >>= 1;
-                den >>= 1;
-            }
-
-            // Reduce numerator and denominator by greatest common divisor.
-            final int d = ArithmeticUtils.gcd(num, den);
-            if (d > 1) {
-                num /= d;
-                den /= d;
-            }
-
-            numerator = num;
-            denominator = den;
-        }
-    }
-
-    /**
      * Create a fraction given the double value.
      *
      * @param value Value to convert to a fraction.
@@ -201,7 +205,7 @@ public final class Fraction
      * converge.
      * @return a new instance.
      */
-    public static Fraction from(double value) {
+    public static Fraction from(final double value) {
         return from(value, DEFAULT_EPSILON, 100);
     }
 
@@ -223,7 +227,9 @@ public final class Fraction
      * converge.
      * @return a new instance.
      */
-    public static Fraction from(double value, double epsilon, int maxIterations) {
+    public static Fraction from(final double value,
+                                final double epsilon,
+                                final int maxIterations) {
         return new Fraction(value, epsilon, Integer.MAX_VALUE, maxIterations);
     }
 
@@ -243,7 +249,8 @@ public final class Fraction
      * converge.
      * @return a new instance.
      */
-    public static Fraction from(double value, int maxDenominator) {
+    public static Fraction from(final double value,
+                                final int maxDenominator) {
         return new Fraction(value, 0, maxDenominator, 100);
     }
 
@@ -253,7 +260,7 @@ public final class Fraction
      * @param num Numerator.
      * @return a new instance.
      */
-    public static Fraction of(int num) {
+    public static Fraction of(final int num) {
         return of(num, 1);
     }
 
@@ -267,90 +274,39 @@ public final class Fraction
      * or if integer overflow occurs.
      * @return a new instance.
      */
-    public static Fraction of(int num, int den) {
+    public static Fraction of(final int num, final int den) {
         return new Fraction(num, den);
     }
 
     /**
-     * Returns the absolute value of this fraction.
+     * Parses a string that would be produced by {@link #toString()}
+     * and instantiates the corresponding object.
      *
-     * @return the absolute value.
+     * @param s String representation.
+     * @return an instance.
+     * @throws NumberFormatException if the string does not conform to the
+     * specification.
      */
-    public Fraction abs() {
-        return signum() >= 0 ?
-            this :
-            negate();
-    }
-
-    /**
-     * Compares this object to another based on size.
-     *
-     * @param other Object to compare to.
-     * @return -1 if this is less than {@code object}, +1 if this is greater
-     * than {@code object}, 0 if they are equal.
-     */
-    @Override
-    public int compareTo(Fraction other) {
-        return Long.compare(((long) numerator) * other.denominator,
-                            ((long) denominator) * other.numerator);
-    }
-
-    /**
-     * Retrieves the {@code double} value closest to this fraction.
-     * This calculates the fraction as numerator divided by denominator.
-     *
-     * @return the fraction as a {@code double}.
-     */
-    @Override
-    public double doubleValue() {
-        return (double) numerator / (double) denominator;
-    }
-
-    /**
-     * Test for the equality of two fractions.
-     * If the lowest term numerator and denominators are the same for
-     * both fractions, the two fractions are considered to be equal.
-     * @param other Fraction to test for equality with.
-     * @return {@code true} if the two fractions are equal, {@code false}
-     * otherwise.
-     */
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) {
-            return true;
+    public static Fraction parse(String s) {
+        final int slashLoc = s.indexOf('/');
+        // if no slash, parse as single number
+        if (slashLoc == -1) {
+            return Fraction.of(Integer.parseInt(s.trim()));
+        } else {
+            final int num = Integer.parseInt(s.substring(0, slashLoc).trim());
+            final int denom = Integer.parseInt(s.substring(slashLoc + 1).trim());
+            return of(num, denom);
         }
-
-        if (other instanceof Fraction) {
-            // Since fractions are always in lowest terms, numerators and
-            // denominators can be compared directly for equality.
-            final Fraction rhs = (Fraction) other;
-            if (signum() == rhs.signum()) {
-                return Math.abs(numerator) == Math.abs(rhs.numerator) &&
-                    Math.abs(denominator) == Math.abs(rhs.denominator);
-            } else {
-                return false;
-            }
-        }
-
-        return false;
     }
 
-    /**
-     * Retrieves the {@code float} value closest to this fraction.
-     * This calculates the fraction as numerator divided by denominator.
-     *
-     * @return the fraction as {@code float}.
-     */
     @Override
-    public float floatValue() {
-        return (float) doubleValue();
+    public Fraction zero() {
+        return ZERO;
     }
 
-    /**
-     * @return the denominator.
-     */
-    public int getDenominator() {
-        return denominator;
+    @Override
+    public Fraction one() {
+        return ONE;
     }
 
     /**
@@ -360,32 +316,11 @@ public final class Fraction
         return numerator;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public int hashCode() {
-        return 37 * (37 * 17 + numerator) + denominator;
-    }
-
     /**
-     * Retrieves the whole number part of the fraction.
-     *
-     * @return the largest {@code int} value that is not larger than
-     * this fraction.
+     * @return the denominator.
      */
-    @Override
-    public int intValue() {
-        return (int) doubleValue();
-    }
-
-    /**
-     * Retrieves the whole number part of the fraction.
-     *
-     * @return the largest {@code long} value that is not larger than
-     * this fraction.
-     */
-    @Override
-    public long longValue() {
-        return (long) doubleValue();
+    public int getDenominator() {
+        return denominator;
     }
 
     /**
@@ -403,6 +338,17 @@ public final class Fraction
         } else {
             return -1;
         }
+    }
+
+    /**
+     * Returns the absolute value of this fraction.
+     *
+     * @return the absolute value.
+     */
+    public Fraction abs() {
+        return signum() >= 0 ?
+            this :
+            negate();
     }
 
     /**
@@ -428,6 +374,60 @@ public final class Fraction
     }
 
     /**
+     * Retrieves the {@code double} value closest to this fraction.
+     * This calculates the fraction as numerator divided by denominator.
+     *
+     * @return the fraction as a {@code double}.
+     */
+    @Override
+    public double doubleValue() {
+        return (double) numerator / (double) denominator;
+    }
+
+    /**
+     * Retrieves the {@code float} value closest to this fraction.
+     * This calculates the fraction as numerator divided by denominator.
+     *
+     * @return the fraction as {@code float}.
+     */
+    @Override
+    public float floatValue() {
+        return (float) doubleValue();
+    }
+
+    /**
+     * Retrieves the whole number part of the fraction.
+     *
+     * @return the largest {@code int} value that is not larger than
+     * this fraction.
+     */
+    @Override
+    public int intValue() {
+        return (int) doubleValue();
+    }
+
+    /**
+     * Retrieves the whole number part of the fraction.
+     *
+     * @return the largest {@code long} value that is not larger than
+     * this fraction.
+     */
+    @Override
+    public long longValue() {
+        return (long) doubleValue();
+    }
+
+    /**
+     * Adds an integer to the fraction.
+     *
+     * @param i Value to add.
+     * @return {@code this + i}.
+     */
+    public Fraction add(final int i) {
+        return new Fraction(numerator + i * denominator, denominator);
+    }
+
+    /**
      * Adds the value of this fraction to another, returning the result
      * in reduced form.
      * The algorithm follows Knuth, 4.5.1.
@@ -443,13 +443,13 @@ public final class Fraction
     }
 
     /**
-     * Adds an integer to the fraction.
+     * Subtracts an integer from this fraction.
      *
-     * @param i Value to add.
-     * @return {@code this + i}.
+     * @param i Value to subtract.
+     * @return {@code this - i}.
      */
-    public Fraction add(final int i) {
-        return new Fraction(numerator + i * denominator, denominator);
+    public Fraction subtract(final int i) {
+        return new Fraction(numerator - i * denominator, denominator);
     }
 
     /**
@@ -464,16 +464,6 @@ public final class Fraction
     @Override
     public Fraction subtract(Fraction fraction) {
         return addSub(fraction, false /* subtract */);
-    }
-
-    /**
-     * Subtracts an integer from this fraction.
-     *
-     * @param i Value to subtract.
-     * @return {@code this - i}.
-     */
-    public Fraction subtract(final int i) {
-        return new Fraction(numerator - i * denominator, denominator);
     }
 
     /**
@@ -529,6 +519,17 @@ public final class Fraction
     }
 
     /**
+     * Multiplies the fraction by an integer.
+     *
+     * @param i Value to multiply by.
+     * @return {@code this * i}.
+     */
+    @Override
+    public Fraction multiply(final int i) {
+        return multiply(of(i));
+    }
+
+    /**
      * Multiplies the value of this fraction by another, returning the
      * result in reduced form.
      *
@@ -553,14 +554,13 @@ public final class Fraction
     }
 
     /**
-     * Multiplies the fraction by an integer.
+     * Divides the fraction by an integer.
      *
-     * @param i Value to multiply by.
+     * @param i Value to divide by.
      * @return {@code this * i}.
      */
-    @Override
-    public Fraction multiply(final int i) {
-        return multiply(of(i));
+    public Fraction divide(final int i) {
+        return divide(of(i));
     }
 
     /**
@@ -583,36 +583,38 @@ public final class Fraction
     }
 
     /**
-     * Divides the fraction by an integer.
+     * {@inheritDoc}
      *
-     * @param i Value to divide by.
-     * @return {@code this * i}.
-     */
-    public Fraction divide(final int i) {
-        return divide(of(i));
-    }
-
-    /**
-     * @param n Power.
-     * @return <code>this<sup>n</sup></code>.
+     * @param exponent {@inheritDoc}
+     * @return <code>this<sup>exponent</sup></code>.
      */
     @Override
-    public Fraction pow(final int n) {
-        if (n == 0) {
+    public Fraction pow(final int exponent) {
+        if (exponent == 0) {
             return ONE;
         }
         if (numerator == 0) {
             return this;
         }
 
-        return n < 0 ?
-            new Fraction(ArithmeticUtils.pow(denominator, -n),
-                         ArithmeticUtils.pow(numerator, -n)) :
-            new Fraction(ArithmeticUtils.pow(numerator, n),
-                         ArithmeticUtils.pow(denominator, n));
+        return exponent < 0 ?
+            new Fraction(ArithmeticUtils.pow(denominator, -exponent),
+                         ArithmeticUtils.pow(numerator, -exponent)) :
+            new Fraction(ArithmeticUtils.pow(numerator, exponent),
+                         ArithmeticUtils.pow(denominator, exponent));
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Returns the {@code String} representing this fraction.
+     * Uses:
+     * <ul>
+     *  <li>{@code "0"} if {@code numerator} is zero.
+     *  <li>{@code "numerator"} if {@code denominator} is one.
+     *  <li>{@code "numerator / denominator"} for all other cases.
+     * </ul>
+     *
+     * @return a string representation of the fraction.
+     */
     @Override
     public String toString() {
         final String str;
@@ -626,36 +628,46 @@ public final class Fraction
         return str;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Compares this object with the specified object for order using the signed magnitude.
+     *
+     * @param other {@inheritDoc}
+     * @return {@inheritDoc}
+     */
     @Override
-    public Fraction zero() {
-        return ZERO;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Fraction one() {
-        return ONE;
+    public int compareTo(Fraction other) {
+        return Long.compare(((long) numerator) * other.denominator,
+                            ((long) denominator) * other.numerator);
     }
 
     /**
-     * Parses a string that would be produced by {@link #toString()}
-     * and instantiates the corresponding object.
+     * Test for equality with another object. If the other object is a {@code Fraction} then a
+     * comparison is made of the sign and magnitude; otherwise {@code false} is returned.
      *
-     * @param s String representation.
-     * @return an instance.
-     * @throws NumberFormatException if the string does not conform to the
-     * specification.
+     * @param other {@inheritDoc}
+     * @return {@inheritDoc}
      */
-    public static Fraction parse(String s) {
-        final int slashLoc = s.indexOf('/');
-        // if no slash, parse as single number
-        if (slashLoc == -1) {
-            return Fraction.of(Integer.parseInt(s.trim()));
-        } else {
-            final int num = Integer.parseInt(s.substring(0, slashLoc).trim());
-            final int denom = Integer.parseInt(s.substring(slashLoc + 1).trim());
-            return of(num, denom);
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
         }
+
+        if (other instanceof Fraction) {
+            // Since fractions are always in lowest terms, numerators and
+            // denominators can be compared directly for equality.
+            final Fraction rhs = (Fraction) other;
+            if (signum() == rhs.signum()) {
+                return Math.abs(numerator) == Math.abs(rhs.numerator) &&
+                    Math.abs(denominator) == Math.abs(rhs.denominator);
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return 37 * (37 * 17 + numerator) + denominator;
     }
 }
