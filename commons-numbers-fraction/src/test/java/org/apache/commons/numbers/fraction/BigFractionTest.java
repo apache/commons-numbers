@@ -128,6 +128,18 @@ public class BigFractionTest {
         assertFraction(1, 2, BigFraction.from(0.5000000001, 10));
     }
 
+    @Test
+    public void testDoubleConstructorThrowsWithNonFinite() {
+        final double eps = 1e-5;
+        final int maxIterations = Integer.MAX_VALUE;
+        final int maxDenominator = Integer.MAX_VALUE;
+        for (final double value : new double[] {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY}) {
+            Assertions.assertThrows(IllegalArgumentException.class, () -> BigFraction.from(value));
+            Assertions.assertThrows(IllegalArgumentException.class, () -> BigFraction.from(value, eps, maxIterations));
+            Assertions.assertThrows(IllegalArgumentException.class, () -> BigFraction.from(value, maxDenominator));
+        }
+    }
+
     // MATH-1029
     @Test
     public void testPositiveValueOverflow() {

@@ -47,6 +47,9 @@ public final class BigFraction
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20190701L;
 
+    /** Message for non-finite input double argument to factory constructors. */
+    private static final String NOT_FINITE = "Not finite: ";
+
     /** The numerator of this fraction reduced to lowest terms. */
     private final BigInteger numerator;
 
@@ -110,12 +113,17 @@ public final class BigFraction
      * @param maxDenominator Maximum denominator value allowed.
      * @param maxIterations Maximum number of convergents.
      * @return a new instance.
+     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
      * @throws ArithmeticException if the continued fraction failed to converge.
      */
     private static BigFraction from(final double value,
                                     final double epsilon,
                                     final int maxDenominator,
                                     final int maxIterations) {
+        if (!Double.isFinite(value)) {
+            throw new IllegalArgumentException(NOT_FINITE + value);
+        }
+
         final long overflow = Integer.MAX_VALUE;
         double r0 = value;
         long a0 = (long) Math.floor(r0);
@@ -187,7 +195,7 @@ public final class BigFraction
     /**
      * Create a fraction given the double value.
      * <p>
-     * This factory method behaves <em>differently</em> from
+     * This factory method behaves <em>differently</em> to the method
      * {@link #from(double, double, int)}. It converts the double value
      * exactly, considering its internal bits representation. This works for all
      * values except NaN and infinities and does not requires any loop or
@@ -209,11 +217,8 @@ public final class BigFraction
      * @see #from(double,double,int)
      */
     public static BigFraction from(final double value) {
-        if (Double.isNaN(value)) {
-            throw new IllegalArgumentException("Cannot convert NaN value");
-        }
-        if (Double.isInfinite(value)) {
-            throw new IllegalArgumentException("Cannot convert infinite value");
+        if (!Double.isFinite(value)) {
+            throw new IllegalArgumentException(NOT_FINITE + value);
         }
 
         final long bits = Double.doubleToLongBits(value);
@@ -266,6 +271,7 @@ public final class BigFraction
      * @param epsilon Maximum error allowed. The resulting fraction is within
      * {@code epsilon} of {@code value}, in absolute terms.
      * @param maxIterations Maximum number of convergents.
+     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
      * @throws ArithmeticException if the continued fraction failed to converge.
      * @return a new instance.
      *

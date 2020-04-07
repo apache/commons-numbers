@@ -47,6 +47,9 @@ public final class Fraction
     /** The default epsilon used for convergence. */
     private static final double DEFAULT_EPSILON = 1e-5;
 
+    /** Message for non-finite input double argument to factory constructors. */
+    private static final String NOT_FINITE = "Not finite: ";
+
     /** The numerator of this fraction reduced to lowest terms. */
     private final int numerator;
 
@@ -55,7 +58,7 @@ public final class Fraction
 
 
     /**
-     * Constructs an instance.
+     * Private constructor: Instances are created using factory methods.
      *
      * @param num Numerator.
      * @param den Denominator.
@@ -98,16 +101,17 @@ public final class Fraction
      * <p>
      * NOTE: This constructor is called with:
      * <ul>
-     *  <li>EITHER a valid epsilon value and the maxDenominator set to Integer.MAX_VALUE
-     *      (that way the maxDenominator has no effect).
-     *  <li>OR a valid maxDenominator value and the epsilon value set to zero
-     *      (that way epsilon only has effect if there is an exact match before
-     *      the maxDenominator value is reached).
+     *  <li>EITHER a valid epsilon value and the maxDenominator set to
+     *      Integer.MAX_VALUE (that way the maxDenominator has no effect)
+     *  <li>OR a valid maxDenominator value and the epsilon value set to
+     *      zero (that way epsilon only has effect if there is an exact
+     *      match before the maxDenominator value is reached).
      * </ul>
      * <p>
-     * It has been done this way so that the same code can be (re)used for both
-     * scenarios. However this could be confusing to users if it were part of
-     * the public API and this constructor should therefore remain PRIVATE.
+     * It has been done this way so that the same code can be reused for
+     * both scenarios. However this could be confusing to users if it
+     * were part of the public API and this method should therefore remain
+     * PRIVATE.
      * </p>
      *
      * <p>
@@ -115,18 +119,23 @@ public final class Fraction
      *     https://issues.apache.org/jira/browse/MATH-181
      * </p>
      *
-     * @param value the double value to convert to a fraction.
-     * @param epsilon maximum error allowed.  The resulting fraction is
-     * within {@code epsilon} of {@code value}, in absolute terms.
-     * @param maxDenominator maximum denominator value allowed.
-     * @param maxIterations maximum number of convergents
-     * @throws ArithmeticException if the continued fraction failed
-     * to converge.
+     * @param value Value to convert to a fraction.
+     * @param epsilon Maximum error allowed.
+     * The resulting fraction is within {@code epsilon} of {@code value},
+     * in absolute terms.
+     * @param maxDenominator Maximum denominator value allowed.
+     * @param maxIterations Maximum number of convergents.
+     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
+     * @throws ArithmeticException if the continued fraction failed to converge.
      */
     private Fraction(final double value,
                      final double epsilon,
                      final int maxDenominator,
                      final int maxIterations) {
+        if (!Double.isFinite(value)) {
+            throw new IllegalArgumentException(NOT_FINITE + value);
+        }
+
         final long overflow = Integer.MAX_VALUE;
         double r0 = value;
         long a0 = (long)Math.floor(r0);
@@ -201,6 +210,7 @@ public final class Fraction
      * Create a fraction given the double value.
      *
      * @param value Value to convert to a fraction.
+     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
      * @throws ArithmeticException if the continued fraction failed to
      * converge.
      * @return a new instance.
@@ -223,6 +233,7 @@ public final class Fraction
      * @param epsilon maximum error allowed.  The resulting fraction is within
      * {@code epsilon} of {@code value}, in absolute terms.
      * @param maxIterations maximum number of convergents
+     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
      * @throws ArithmeticException if the continued fraction failed to
      * converge.
      * @return a new instance.
@@ -245,6 +256,7 @@ public final class Fraction
      *
      * @param value the double value to convert to a fraction.
      * @param maxDenominator The maximum allowed value for denominator
+     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
      * @throws ArithmeticException if the continued fraction failed to
      * converge.
      * @return a new instance.
