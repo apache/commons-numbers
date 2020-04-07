@@ -109,7 +109,8 @@
   <rule ref="category/java/design.xml/GodClass">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceType[@Image='Fraction']"/>
+        value="//ClassOrInterfaceType[@Image='Fraction'
+               or @Image='BigFraction']"/>
     </properties>
   </rule>
 
@@ -127,7 +128,9 @@
   <rule ref="category/java/errorprone.xml/AvoidFieldNameMatchingMethodName">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceType[@Image='Complex']"/>
+        value="//ClassOrInterfaceType[@Image='Complex'
+               or @Image='Fraction'
+               or @Image='BigFraction']"/>
     </properties>
   </rule>
 
@@ -135,7 +138,8 @@
   <rule ref="category/java/design.xml/ExcessiveMethodLength">
     <properties>
       <property name="violationSuppressXPath"
-        value="//ClassOrInterfaceType[@Image='Complex']"/>
+        value="//ClassOrInterfaceType[@Image='Complex'
+               or @Image='BigFraction']"/>
     </properties>
   </rule>
 
