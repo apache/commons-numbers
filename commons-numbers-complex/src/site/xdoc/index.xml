@@ -25,13 +25,13 @@
 
   <body>
 
-    <section name="Apache Commons Numbers: Number types" href="summary">
+    <section name="Apache Commons Numbers: Number Types and Utilities" href="summary">
       <p>
-        Commons Numbers provides utilities such as complex numbers and fractions.
+        Commons Numbers provides number types and utilities.
       </p>
 
       <p>
-        The "complex" module contains...
+        The "complex" module contains utilities for working with complex numbers.
       </p>
     </section>
 

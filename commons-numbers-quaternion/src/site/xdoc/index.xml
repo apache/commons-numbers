@@ -20,7 +20,7 @@
 <document>
 
   <properties>
-    <title>Commons Numbers Combinatorics</title>
+    <title>Commons Numbers Quaternion</title>
   </properties>
 
   <body>
@@ -31,7 +31,7 @@
       </p>
 
       <p>
-        The "combinatorics" module contains utilities such as factorial and binomial coefficients.
+        The "quaternion" module contains utilities related to quaternions.
       </p>
     </section>
 

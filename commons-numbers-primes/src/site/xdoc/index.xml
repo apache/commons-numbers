@@ -20,7 +20,7 @@
 <document>
 
   <properties>
-    <title>Commons Numbers Combinatorics</title>
+    <title>Commons Numbers Primes</title>
   </properties>
 
   <body>
@@ -31,7 +31,7 @@
       </p>
 
       <p>
-        The "combinatorics" module contains utilities such as factorial and binomial coefficients.
+        The "primes" module contains utilities related to prime numbers.
       </p>
     </section>
 

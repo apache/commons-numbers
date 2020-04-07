@@ -51,12 +51,6 @@
 
     <dependency>
       <groupId>org.apache.commons</groupId>
-      <artifactId>commons-math3</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.commons</groupId>
       <artifactId>commons-rng-simple</artifactId>
       <scope>test</scope>
     </dependency>

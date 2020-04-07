@@ -26,9 +26,9 @@ limitations under the License.
       <directory>${project.basedir}/..</directory>
       <excludes>
         <exclude>${project.build.directory}/**</exclude>
-        <exclude>.*/**</exclude>
-        <exclude>**/${project.build.directory}/**</exclude>
         <exclude>**/.*/**</exclude>
+        <exclude>**/${project.build.directory}/**</exclude>
+        <exclude>**/site-content/**</exclude>
       </excludes>
     </fileSet>
   </fileSets>
