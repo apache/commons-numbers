@@ -73,23 +73,29 @@ public final class Fraction
             numerator = 1;
             denominator = 1;
         } else {
+            // Reduce numerator (p) and denominator (q) by greatest common divisor.
+            int p;
+            int q;
+
             // If num and den are both 2^-31, or if one is 0 and the other is 2^-31,
             // the calculation of the gcd below will fail. Ensure that this does not
             // happen by dividing both by 2 in case both are even.
             if (((num | den) & 1) == 0) {
-                num >>= 1;
-                den >>= 1;
+                p = num >> 1;
+                q = den >> 1;
+            } else {
+                p = num;
+                q = den;
             }
 
-            // Reduce numerator and denominator by greatest common divisor.
-            final int d = ArithmeticUtils.gcd(num, den);
+            final int d = ArithmeticUtils.gcd(p, q);
             if (d > 1) {
-                num /= d;
-                den /= d;
+                p /= d;
+                q /= d;
             }
 
-            numerator = num;
-            denominator = den;
+            numerator = p;
+            denominator = q;
         }
     }
 

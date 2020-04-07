@@ -71,13 +71,12 @@ public final class BigFraction
         // reduce numerator and denominator by greatest common denominator
         final BigInteger gcd = num.gcd(den);
         if (BigInteger.ONE.compareTo(gcd) < 0) {
-            num = num.divide(gcd);
-            den = den.divide(gcd);
+            numerator = num.divide(gcd);
+            denominator = den.divide(gcd);
+        } else {
+            numerator = num;
+            denominator = den;
         }
-
-        // store the values in the final fields
-        numerator = num;
-        denominator = den;
     }
 
     /**
