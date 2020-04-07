@@ -22,6 +22,13 @@ import org.apache.commons.numbers.core.NativeOperators;
 
 /**
  * Representation of a rational number.
+ *
+ * <p>The number is expressed as the quotient {@code p/q} of two 32-bit integers,
+ * a numerator {@code p} and a non-zero denominator {@code q}.
+ *
+ * <p>This class is immutable.
+ *
+ * <a href="https://en.wikipedia.org/wiki/Rational_number">Rational number</a>
  */
 public final class Fraction
     extends Number
@@ -30,38 +37,45 @@ public final class Fraction
                Serializable {
     /** A fraction representing "1". */
     public static final Fraction ONE = new Fraction(1, 1);
+
     /** A fraction representing "0". */
     public static final Fraction ZERO = new Fraction(0, 1);
+
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20190701L;
+
     /** The default epsilon used for convergence. */
     private static final double DEFAULT_EPSILON = 1e-5;
+
     /** The denominator of this fraction reduced to lowest terms. */
     private final int denominator;
+
     /** The numerator of this fraction reduced to lowest terms. */
     private final int numerator;
 
     /**
      * Create a fraction given the double value and either the maximum error
      * allowed or the maximum number of denominator digits.
+     *
      * <p>
-     *
-     * NOTE: This constructor is called with EITHER
-     *   - a valid epsilon value and the maxDenominator set to Integer.MAX_VALUE
-     *     (that way the maxDenominator has no effect).
-     * OR
-     *   - a valid maxDenominator value and the epsilon value set to zero
-     *     (that way epsilon only has effect if there is an exact match before
-     *     the maxDenominator value is reached).
-     * </p><p>
-     *
+     * NOTE: This constructor is called with:
+     * <ul>
+     *  <li>EITHER a valid epsilon value and the maxDenominator set to Integer.MAX_VALUE
+     *      (that way the maxDenominator has no effect).
+     *  <li>OR a valid maxDenominator value and the epsilon value set to zero
+     *      (that way epsilon only has effect if there is an exact match before
+     *      the maxDenominator value is reached).
+     * </ul>
+     * <p>
      * It has been done this way so that the same code can be (re)used for both
      * scenarios. However this could be confusing to users if it were part of
      * the public API and this constructor should therefore remain PRIVATE.
      * </p>
      *
+     * <p>
      * See JIRA issue ticket MATH-181 for more details:
      *     https://issues.apache.org/jira/browse/MATH-181
+     * </p>
      *
      * @param value the double value to convert to a fraction.
      * @param epsilon maximum error allowed.  The resulting fraction is
@@ -146,7 +160,7 @@ public final class Fraction
      * Constructs an instance.
      *
      * @param num Numerator.
-     * @param den Nenominator.
+     * @param den Denominator.
      * @throws ArithmeticException if the denominator is {@code zero}
      * or if integer overflow occurs.
      */
@@ -180,7 +194,7 @@ public final class Fraction
     }
 
     /**
-     * Creates an instance.
+     * Create a fraction given the double value.
      *
      * @param value Value to convert to a fraction.
      * @throws ArithmeticException if the continued fraction failed to
@@ -214,7 +228,7 @@ public final class Fraction
     }
 
     /**
-     * Creates an instance.
+     * Create a fraction given the double value and maximum denominator.
      *
      * <p>
      * References:
@@ -234,8 +248,7 @@ public final class Fraction
     }
 
     /**
-     * Creates an instance.
-     * The fraction is {@code num / 1}.
+     * Create a fraction given the numerator. The denominator is {@code 1}.
      *
      * @param num Numerator.
      * @return a new instance.
@@ -245,7 +258,7 @@ public final class Fraction
     }
 
     /**
-     * Return a fraction given the numerator and denominator.
+     * Create a fraction given the numerator and denominator.
      * The fraction is reduced to lowest terms.
      *
      * @param num Numerator.
