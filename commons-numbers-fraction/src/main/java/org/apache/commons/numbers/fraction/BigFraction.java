@@ -638,11 +638,11 @@ public final class BigFraction
      * @return {@code this + value}.
      */
     public BigFraction add(final BigInteger value) {
-        if (numerator.signum() == 0) {
-            return of(value);
-        }
         if (value.signum() == 0) {
             return this;
+        }
+        if (isZero()) {
+            return of(value);
         }
 
         return new BigFraction(numerator.add(denominator.multiply(value)), denominator);
@@ -657,10 +657,10 @@ public final class BigFraction
      */
     @Override
     public BigFraction add(final BigFraction value) {
-        if (value.numerator.signum() == 0) {
+        if (value.isZero()) {
             return this;
         }
-        if (numerator.signum() == 0) {
+        if (isZero()) {
             return value;
         }
 
@@ -715,7 +715,7 @@ public final class BigFraction
         if (value.signum() == 0) {
             return this;
         }
-        if (numerator.signum() == 0) {
+        if (isZero()) {
             return of(value.negate());
         }
 
@@ -731,10 +731,10 @@ public final class BigFraction
      */
     @Override
     public BigFraction subtract(final BigFraction value) {
-        if (value.numerator.signum() == 0) {
+        if (value.isZero()) {
             return this;
         }
-        if (numerator.signum() == 0) {
+        if (isZero()) {
             return value.negate();
         }
 
@@ -759,7 +759,7 @@ public final class BigFraction
      */
     @Override
     public BigFraction multiply(final int value) {
-        if (value == 0 || numerator.signum() == 0) {
+        if (value == 0 || isZero()) {
             return ZERO;
         }
 
@@ -774,7 +774,7 @@ public final class BigFraction
      * @return {@code this * value}.
      */
     public BigFraction multiply(final long value) {
-        if (value == 0 || numerator.signum() == 0) {
+        if (value == 0 || isZero()) {
             return ZERO;
         }
 
@@ -789,7 +789,7 @@ public final class BigFraction
      * @return {@code this * value}.
      */
     public BigFraction multiply(final BigInteger value) {
-        if (numerator.signum() == 0 || value.signum() == 0) {
+        if (value.signum() == 0 || isZero()) {
             return ZERO;
         }
         return new BigFraction(value.multiply(numerator), denominator);
@@ -804,8 +804,7 @@ public final class BigFraction
      */
     @Override
     public BigFraction multiply(final BigFraction value) {
-        if (numerator.signum() == 0 ||
-            value.numerator.signum() == 0) {
+        if (value.isZero() || isZero()) {
             return ZERO;
         }
         return new BigFraction(numerator.multiply(value.numerator),
@@ -846,10 +845,10 @@ public final class BigFraction
      */
     public BigFraction divide(final BigInteger value) {
         if (value.signum() == 0) {
-            throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
+            throw new FractionException(FractionException.ERROR_DIVIDE_BY_ZERO);
         }
-        if (numerator.signum() == 0) {
-            return ZERO;
+        if (isZero()) {
+            return this;
         }
         return new BigFraction(numerator, denominator.multiply(value));
     }
@@ -864,11 +863,11 @@ public final class BigFraction
      */
     @Override
     public BigFraction divide(final BigFraction value) {
-        if (value.numerator.signum() == 0) {
-            throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
+        if (value.isZero()) {
+            throw new FractionException(FractionException.ERROR_DIVIDE_BY_ZERO);
         }
-        if (numerator.signum() == 0) {
-            return ZERO;
+        if (isZero()) {
+            return this;
         }
         return multiply(value.reciprocal());
     }
@@ -885,14 +884,16 @@ public final class BigFraction
         if (exponent == 0) {
             return ONE;
         }
-        if (numerator.signum() == 0) {
+        if (isZero()) {
             return this;
         }
 
         if (exponent < 0) {
-            return new BigFraction(denominator.pow(-exponent), numerator.pow(-exponent));
+            return new BigFraction(denominator.pow(-exponent),
+                                   numerator.pow(-exponent));
         }
-        return new BigFraction(numerator.pow(exponent), denominator.pow(exponent));
+        return new BigFraction(numerator.pow(exponent),
+                               denominator.pow(exponent));
     }
 
     /**
@@ -906,7 +907,7 @@ public final class BigFraction
         if (exponent == 0) {
             return ONE;
         }
-        if (numerator.signum() == 0) {
+        if (isZero()) {
             return this;
         }
 
@@ -929,7 +930,7 @@ public final class BigFraction
         if (exponent.signum() == 0) {
             return ONE;
         }
-        if (numerator.signum() == 0) {
+        if (isZero()) {
             return this;
         }
 
@@ -970,7 +971,7 @@ public final class BigFraction
         final String str;
         if (BigInteger.ONE.equals(denominator)) {
             str = numerator.toString();
-        } else if (BigInteger.ZERO.equals(numerator)) {
+        } else if (isZero()) {
             str = "0";
         } else {
             str = numerator + " / " + denominator;
@@ -1062,7 +1063,7 @@ public final class BigFraction
         //assert significandLength >= 1;
         //assert significandLength <= 63 - exponentLength;
 
-        if (numerator.signum() == 0) {
+        if (isZero()) {
             return 0L;
         }
 
@@ -1224,5 +1225,14 @@ public final class BigFraction
         }
 
         return result;
+    }
+
+    /**
+     * Returns true if this fraction is zero.
+     *
+     * @return true if zero
+     */
+    private boolean isZero() {
+        return numerator.signum() == 0;
     }
 }

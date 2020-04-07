@@ -31,6 +31,8 @@ class FractionException extends ArithmeticException {
     static final String ERROR_NEGATION_OVERFLOW = "Overflow in fraction {0}/{1}, cannot negate";
     /** Error message for zero-valued denominator. */
     static final String ERROR_ZERO_DENOMINATOR = "Denominator must be different from 0";
+    /** Error message for divide by zero. */
+    static final String ERROR_DIVIDE_BY_ZERO = "The value to divide by must not be zero";
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 201701191744L;

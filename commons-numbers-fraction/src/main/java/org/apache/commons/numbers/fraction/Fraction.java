@@ -56,7 +56,6 @@ public final class Fraction
     /** The denominator of this fraction reduced to lowest terms. */
     private final int denominator;
 
-
     /**
      * Private constructor: Instances are created using factory methods.
      *
@@ -67,7 +66,7 @@ public final class Fraction
      */
     private Fraction(int num, int den) {
         if (den == 0) {
-            throw new ArithmeticException("division by zero");
+            throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
         }
 
         if (num == den) {
@@ -371,7 +370,7 @@ public final class Fraction
         if ((numerator > 0 && denominator > 0) ||
             (numerator < 0 && denominator < 0)) {
             return 1;
-        } else if (numerator == 0) {
+        } else if (isZero()) {
             return 0;
         } else {
             return -1;
@@ -507,13 +506,12 @@ public final class Fraction
      * cannot be represented in an {@code int}.
      */
     private Fraction addSub(Fraction value, boolean isAdd) {
-        // Zero is identity for addition.
-        if (numerator == 0) {
-            return isAdd ? value : value.negate();
-        }
-
-        if (value.numerator == 0) {
+        if (value.isZero()) {
             return this;
+        }
+        // Zero is identity for addition.
+        if (isZero()) {
+            return isAdd ? value : value.negate();
         }
 
         /*
@@ -560,6 +558,9 @@ public final class Fraction
      */
     @Override
     public Fraction multiply(final int value) {
+        if (value == 0 || isZero()) {
+            return ZERO;
+        }
         return multiply(of(value));
     }
 
@@ -574,8 +575,7 @@ public final class Fraction
      */
     @Override
     public Fraction multiply(Fraction value) {
-        if (numerator == 0 ||
-            value.numerator == 0) {
+        if (value.isZero() || isZero()) {
             return ZERO;
         }
 
@@ -613,11 +613,9 @@ public final class Fraction
      */
     @Override
     public Fraction divide(Fraction value) {
-        if (value.numerator == 0) {
-            throw new FractionException("the fraction to divide by must not be zero: {0}/{1}",
-                                        value.numerator, value.denominator);
+        if (value.isZero()) {
+            throw new FractionException(FractionException.ERROR_DIVIDE_BY_ZERO);
         }
-
         return multiply(value.reciprocal());
     }
 
@@ -633,15 +631,16 @@ public final class Fraction
         if (exponent == 0) {
             return ONE;
         }
-        if (numerator == 0) {
+        if (isZero()) {
             return this;
         }
 
-        return exponent < 0 ?
-            new Fraction(ArithmeticUtils.pow(denominator, -exponent),
-                         ArithmeticUtils.pow(numerator, -exponent)) :
-            new Fraction(ArithmeticUtils.pow(numerator, exponent),
-                         ArithmeticUtils.pow(denominator, exponent));
+        if (exponent < 0) {
+            return new Fraction(ArithmeticUtils.pow(denominator, -exponent),
+                                ArithmeticUtils.pow(numerator,   -exponent));
+        }
+        return new Fraction(ArithmeticUtils.pow(numerator,   exponent),
+                            ArithmeticUtils.pow(denominator, exponent));
     }
 
     /**
@@ -660,7 +659,7 @@ public final class Fraction
         final String str;
         if (denominator == 1) {
             str = Integer.toString(numerator);
-        } else if (numerator == 0) {
+        } else if (isZero()) {
             str = "0";
         } else {
             str = numerator + " / " + denominator;
@@ -709,5 +708,14 @@ public final class Fraction
     @Override
     public int hashCode() {
         return 37 * (37 * 17 + numerator) + denominator;
+    }
+
+    /**
+     * Returns true if this fraction is zero.
+     *
+     * @return true if zero
+     */
+    private boolean isZero() {
+        return numerator == 0;
     }
 }

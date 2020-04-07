@@ -513,7 +513,7 @@ public class BigFractionTest {
         f1 = BigFraction.of(0, 5);
         f2 = BigFraction.of(2, 7);
         BigFraction f = f1.divide(f2);
-        Assertions.assertSame(BigFraction.ZERO, f);
+        Assertions.assertEquals(BigFraction.ZERO, f);
 
         final BigFraction f3 = BigFraction.of(Integer.MIN_VALUE, 1);
         Assertions.assertThrows(NullPointerException.class,
