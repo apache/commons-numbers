@@ -488,17 +488,7 @@ public final class BigFraction
      * positive, 0 if it is 0.
      */
     public int signum() {
-        final int numS = numerator.signum();
-        final int denS = denominator.signum();
-
-        if ((numS > 0 && denS > 0) ||
-            (numS < 0 && denS < 0)) {
-            return 1;
-        } else if (numS == 0) {
-            return 0;
-        } else {
-            return -1;
-        }
+        return numerator.signum() * denominator.signum();
     }
 
     /**

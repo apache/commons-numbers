@@ -373,14 +373,7 @@ public final class Fraction
      * positive, 0 if it is 0.
      */
     public int signum() {
-        if ((numerator > 0 && denominator > 0) ||
-            (numerator < 0 && denominator < 0)) {
-            return 1;
-        } else if (isZero()) {
-            return 0;
-        } else {
-            return -1;
-        }
+        return Integer.signum(numerator) * Integer.signum(denominator);
     }
 
     /**
