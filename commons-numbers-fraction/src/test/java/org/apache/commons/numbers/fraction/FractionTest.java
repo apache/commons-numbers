@@ -352,6 +352,10 @@ public class FractionTest {
         Fraction f1 = Fraction.of(6, 35);
         Fraction f = f1.multiply(15);
         assertFraction(18, 7, f);
+
+        // Test zero with multiply by integer
+        Assertions.assertEquals(Fraction.ZERO, Fraction.ZERO.multiply(42));
+        Assertions.assertEquals(Fraction.ZERO, Fraction.of(1, 3).multiply(0));
     }
 
     @Test
