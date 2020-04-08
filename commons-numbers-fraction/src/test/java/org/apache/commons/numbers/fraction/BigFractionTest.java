@@ -19,12 +19,11 @@ package org.apache.commons.numbers.fraction;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.Arrays;
 import org.apache.commons.numbers.core.TestUtils;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
 
 public class BigFractionTest {
 
@@ -595,7 +594,6 @@ public class BigFractionTest {
         Assertions.assertEquals(new BigDecimal("0.333"), BigFraction.of(1, 3).bigDecimalValue(3, RoundingMode.DOWN));
     }
 
-    @Disabled
     @Test
     public void testEqualsAndHashCode() {
         BigFraction zero = BigFraction.of(0, 1);
@@ -649,6 +647,12 @@ public class BigFractionTest {
         Assertions.assertNotSame(f1, f2, "Do not call this assertion with the same object");
         Assertions.assertEquals(f1, f2);
         Assertions.assertEquals(f1.hashCode(), f2.hashCode(), "Equal fractions have different hashCode");
+        // Check the hashcode computation.
+        // This is not mandated but is a recommendation.
+        final int expected = Arrays.hashCode(new Object[] {f1.signum(),
+                                                           f1.getNumerator().abs(),
+                                                           f1.getDenominator().abs()});
+        Assertions.assertEquals(expected, f1.hashCode(), "Hashcode not equal to using Arrays.hashCode");
     }
 
     @Test

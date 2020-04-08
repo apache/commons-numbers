@@ -16,12 +16,11 @@
  */
 package org.apache.commons.numbers.fraction;
 
+import java.util.Arrays;
 import org.apache.commons.numbers.core.TestUtils;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
 
 /**
  */
@@ -427,7 +426,6 @@ public class FractionTest {
         );
     }
 
-    @Disabled
     @Test
     public void testEqualsAndHashCode() {
         Fraction zero = Fraction.of(0, 1);
@@ -492,6 +490,12 @@ public class FractionTest {
         Assertions.assertNotSame(f1, f2, "Do not call this assertion with the same object");
         Assertions.assertEquals(f1, f2);
         Assertions.assertEquals(f1.hashCode(), f2.hashCode(), "Equal fractions have different hashCode");
+        // Check the hashcode computation.
+        // This is not mandated but is a recommendation.
+        final int expected = Arrays.hashCode(new int[] {f1.signum(),
+                                                        Math.abs(f1.getNumerator()),
+                                                        Math.abs(f1.getDenominator())});
+        Assertions.assertEquals(expected, f1.hashCode(), "Hashcode not equal to using Arrays.hashCode");
     }
 
     @Test
