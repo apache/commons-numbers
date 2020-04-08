@@ -100,6 +100,18 @@ public final class Fraction
     }
 
     /**
+     * Private constructor: Instances are created using factory methods.
+     *
+     * <p>This sets the denominator to 1.
+     *
+     * @param num Numerator.
+     */
+    private Fraction(int num) {
+        numerator = num;
+        denominator = 1;
+    }
+
+    /**
      * Create a fraction given the double value and either the maximum error
      * allowed or the maximum number of denominator digits.
      *
@@ -276,7 +288,7 @@ public final class Fraction
      * @return a new instance.
      */
     public static Fraction of(final int num) {
-        return of(num, 1);
+        return new Fraction(num);
     }
 
     /**
@@ -396,9 +408,9 @@ public final class Fraction
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * <p>Raises an exception if the fraction is equal to zero.
-     * 
+     *
      * @throws ArithmeticException if the current numerator is {@code zero}
      */
     @Override

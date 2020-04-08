@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.Objects;
 import org.apache.commons.numbers.core.ArithmeticUtils;
 import org.apache.commons.numbers.core.NativeOperators;
 
@@ -77,6 +78,18 @@ public final class BigFraction
             numerator = num;
             denominator = den;
         }
+    }
+
+    /**
+     * Private constructor: Instances are created using factory methods.
+     *
+     * <p>This sets the denominator to 1.
+     *
+     * @param num Numerator (must not be null).
+     */
+    private BigFraction(BigInteger num) {
+        numerator = num;
+        denominator = BigInteger.ONE;
     }
 
     /**
@@ -308,7 +321,7 @@ public final class BigFraction
      * @return a new instance.
      */
     public static BigFraction of(final int num) {
-        return new BigFraction(BigInteger.valueOf(num), BigInteger.ONE);
+        return new BigFraction(BigInteger.valueOf(num));
     }
 
     /**
@@ -318,7 +331,7 @@ public final class BigFraction
      * @return a new instance.
      */
     public static BigFraction of(final long num) {
-        return new BigFraction(BigInteger.valueOf(num), BigInteger.ONE);
+        return new BigFraction(BigInteger.valueOf(num));
     }
 
     /**
@@ -329,7 +342,8 @@ public final class BigFraction
      * @throws NullPointerException if numerator is null.
      */
     public static BigFraction of(final BigInteger num) {
-        return new BigFraction(num, BigInteger.ONE);
+        Objects.requireNonNull(num, "numerator");
+        return new BigFraction(num);
     }
 
     /**
