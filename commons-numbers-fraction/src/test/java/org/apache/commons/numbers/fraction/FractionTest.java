@@ -49,6 +49,9 @@ public class FractionTest {
         assertFraction(1, Integer.MIN_VALUE, Fraction.of(1, Integer.MIN_VALUE));
         assertFraction(-1, Integer.MIN_VALUE, Fraction.of(-1, Integer.MIN_VALUE));
         assertFraction(1, 1, Fraction.of(Integer.MIN_VALUE, Integer.MIN_VALUE));
+
+        // Divide by zero
+        Assertions.assertThrows(ArithmeticException.class, () -> Fraction.of(1, 0));
     }
 
     @Test
