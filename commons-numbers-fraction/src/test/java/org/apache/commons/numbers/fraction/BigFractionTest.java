@@ -31,6 +31,9 @@ public class BigFractionTest {
     private static void assertFraction(long expectedNumerator, long expectedDenominator, BigFraction actual) {
         Assertions.assertEquals(BigInteger.valueOf(expectedNumerator), actual.getNumerator());
         Assertions.assertEquals(BigInteger.valueOf(expectedDenominator), actual.getDenominator());
+        Assertions.assertEquals(
+            Long.signum(expectedNumerator) * Long.signum(expectedDenominator),
+            actual.signum());
     }
 
     private static void assertFraction(BigInteger expectedNumerator, BigInteger expectedDenominator, BigFraction actual) {

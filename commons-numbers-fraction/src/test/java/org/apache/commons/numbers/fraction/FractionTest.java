@@ -30,6 +30,9 @@ public class FractionTest {
     private void assertFraction(int expectedNumerator, int expectedDenominator, Fraction actual) {
         Assertions.assertEquals(expectedNumerator, actual.getNumerator());
         Assertions.assertEquals(expectedDenominator, actual.getDenominator());
+        Assertions.assertEquals(
+            Integer.signum(expectedNumerator) * Integer.signum(expectedDenominator),
+            actual.signum());
     }
 
     @Test
@@ -45,6 +48,7 @@ public class FractionTest {
         // Special cases.
         assertFraction(Integer.MIN_VALUE, -1, Fraction.of(Integer.MIN_VALUE, -1));
         assertFraction(1, Integer.MIN_VALUE, Fraction.of(1, Integer.MIN_VALUE));
+        assertFraction(-1, Integer.MIN_VALUE, Fraction.of(-1, Integer.MIN_VALUE));
         assertFraction(1, 1, Fraction.of(Integer.MIN_VALUE, Integer.MIN_VALUE));
     }
 

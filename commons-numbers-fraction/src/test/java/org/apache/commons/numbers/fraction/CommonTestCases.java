@@ -104,6 +104,7 @@ final class CommonTestCases {
         testCases.add(new UnaryOperatorTestCase(1, -2, 1, -2));
         testCases.add(new UnaryOperatorTestCase(-2, 4, -1, 2));
         testCases.add(new UnaryOperatorTestCase(2, -4, 1, -2));
+        testCases.add(new UnaryOperatorTestCase(-2, -4, -1, -2));
 
         testCases.add(new UnaryOperatorTestCase(2, Integer.MIN_VALUE, 1, Integer.MIN_VALUE / 2));
         testCases.add(new UnaryOperatorTestCase(Integer.MIN_VALUE, -2, -Integer.MIN_VALUE / 2, -1));
