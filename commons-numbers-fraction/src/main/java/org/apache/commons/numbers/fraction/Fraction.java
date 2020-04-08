@@ -36,10 +36,10 @@ public final class Fraction
                NativeOperators<Fraction>,
                Serializable {
     /** A fraction representing "0". */
-    public static final Fraction ZERO = new Fraction(0, 1);
+    public static final Fraction ZERO = of(0);
 
     /** A fraction representing "1". */
-    public static final Fraction ONE = new Fraction(1, 1);
+    public static final Fraction ONE = of(1);
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20190701L;
