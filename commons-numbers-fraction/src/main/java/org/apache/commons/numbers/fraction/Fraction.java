@@ -61,8 +61,7 @@ public final class Fraction
      *
      * @param num Numerator.
      * @param den Denominator.
-     * @throws ArithmeticException if the denominator is {@code zero}
-     * or if integer overflow occurs.
+     * @throws ArithmeticException if the denominator is {@code zero}.
      */
     private Fraction(int num, int den) {
         if (den == 0) {
@@ -88,6 +87,7 @@ public final class Fraction
                 q = den;
             }
 
+            // Will not throw
             final int d = ArithmeticUtils.gcd(p, q);
             if (d > 1) {
                 p /= d;
@@ -297,8 +297,7 @@ public final class Fraction
      *
      * @param num Numerator.
      * @param den Denominator.
-     * @throws ArithmeticException if the denominator is {@code zero}
-     * or if integer overflow occurs.
+     * @throws ArithmeticException if the denominator is {@code zero}.
      * @return a new instance.
      */
     public static Fraction of(final int num, final int den) {
