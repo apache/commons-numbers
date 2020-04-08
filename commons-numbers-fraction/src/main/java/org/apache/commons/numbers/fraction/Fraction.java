@@ -394,6 +394,13 @@ public final class Fraction
             new Fraction(-numerator, denominator);
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * <p>Raises an exception if the fraction is equal to zero.
+     * 
+     * @throws ArithmeticException if the current numerator is {@code zero}
+     */
     @Override
     public Fraction reciprocal() {
         return new Fraction(denominator, numerator);
