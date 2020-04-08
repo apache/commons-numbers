@@ -22,6 +22,7 @@ import java.math.RoundingMode;
 import org.apache.commons.numbers.core.TestUtils;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 
@@ -591,34 +592,60 @@ public class BigFractionTest {
         Assertions.assertEquals(new BigDecimal("0.333"), BigFraction.of(1, 3).bigDecimalValue(3, RoundingMode.DOWN));
     }
 
+    @Disabled
     @Test
     public void testEqualsAndHashCode() {
         BigFraction zero = BigFraction.of(0, 1);
-        BigFraction nullFraction = null;
         Assertions.assertEquals(zero, zero);
-        Assertions.assertFalse(zero.equals(nullFraction));
+        Assertions.assertFalse(zero.equals(null));
+        Assertions.assertFalse(zero.equals(new Object()));
         Assertions.assertFalse(zero.equals(Double.valueOf(0)));
+
+        // Equal to same rational number
         BigFraction zero2 = BigFraction.of(0, 2);
-        Assertions.assertEquals(zero, zero2);
-        Assertions.assertEquals(zero.hashCode(), zero2.hashCode());
+        assertEqualAndHashCodeEqual(zero, zero2);
+
+        // Not equal to different rational number
         BigFraction one = BigFraction.of(1, 1);
         Assertions.assertNotEquals(zero, one);
         Assertions.assertNotEquals(one, zero);
-        Assertions.assertEquals(BigFraction.ONE, one);
-        BigFraction one2 = BigFraction.of(-1, -1);
-        Assertions.assertEquals(one2, one);
-        Assertions.assertEquals(one, one2);
 
-        BigFraction minusOne = BigFraction.of(-1, 1);
-        BigFraction minusOne2 = BigFraction.of(1, -1);
-        Assertions.assertEquals(minusOne2, minusOne);
-        Assertions.assertEquals(minusOne, minusOne2);
+        // Test using different representations of the same fraction
+        // (Denominators are primes)
+        for (int[] f : new int[][] {{1, 1}, {2, 3}, {6826, 15373}, {1373, 103813}}) {
+            final int num = f[0];
+            final int den = f[1];
+            BigFraction f1 = BigFraction.of(-num, den);
+            BigFraction f2 = BigFraction.of(num, -den);
+            assertEqualAndHashCodeEqual(f1, f2);
+            assertEqualAndHashCodeEqual(f2, f1);
+            f1 = BigFraction.of(num, den);
+            f2 = BigFraction.of(-num, -den);
+            assertEqualAndHashCodeEqual(f1, f2);
+            assertEqualAndHashCodeEqual(f2, f1);
+        }
 
         // Same numerator or denominator as 1/1
         BigFraction half = BigFraction.of(1, 2);
         BigFraction two = BigFraction.of(2, 1);
         Assertions.assertNotEquals(one, half);
         Assertions.assertNotEquals(one, two);
+    }
+
+    /**
+     * Assert the two fractions are equal. The contract of {@link Object#hashCode()} requires
+     * that the hash code must also be equal.
+     *
+     * <p>This method must not be called with the same instance for both arguments. It is
+     * intended to be used to test different objects that are equal have the same hash code.
+     *
+     * @param f1 Fraction 1.
+     * @param f2 Fraction 2.
+     */
+    private static void assertEqualAndHashCodeEqual(BigFraction f1, BigFraction f2) {
+        Assertions.assertNotSame(f1, f2, "Do not call this assertion with the same object");
+        Assertions.assertEquals(f1, f2);
+        Assertions.assertEquals(f1.hashCode(), f2.hashCode(), "Equal fractions have different hashCode");
     }
 
     @Test

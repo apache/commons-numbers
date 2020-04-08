@@ -19,6 +19,7 @@ package org.apache.commons.numbers.fraction;
 import org.apache.commons.numbers.core.TestUtils;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 
@@ -422,27 +423,38 @@ public class FractionTest {
         );
     }
 
+    @Disabled
     @Test
     public void testEqualsAndHashCode() {
         Fraction zero = Fraction.of(0, 1);
-        Fraction nullFraction = null;
         Assertions.assertEquals(zero, zero);
-        Assertions.assertNotEquals(zero, nullFraction);
+        Assertions.assertNotEquals(zero, null);
+        Assertions.assertFalse(zero.equals(new Object()));
         Assertions.assertFalse(zero.equals(Double.valueOf(0)));
+
+        // Equal to same rational number
         Fraction zero2 = Fraction.of(0, 2);
-        Assertions.assertEquals(zero, zero2);
-        Assertions.assertEquals(zero.hashCode(), zero2.hashCode());
+        assertEqualAndHashCodeEqual(zero, zero2);
+
+        // Not equal to different rational number
         Fraction one = Fraction.of(1, 1);
         Assertions.assertNotEquals(zero, one);
         Assertions.assertNotEquals(one, zero);
-        Fraction one2 = Fraction.of(-1, -1);
-        Assertions.assertEquals(one2, one);
-        Assertions.assertEquals(one, one2);
 
-        Fraction minusOne = Fraction.of(-1, 1);
-        Fraction minusOne2 = Fraction.of(1, -1);
-        Assertions.assertEquals(minusOne2, minusOne);
-        Assertions.assertEquals(minusOne, minusOne2);
+        // Test using different representations of the same fraction
+        // (Denominators are primes)
+        for (int[] f : new int[][] {{1, 1}, {2, 3}, {6826, 15373}, {1373, 103813}}) {
+            final int num = f[0];
+            final int den = f[1];
+            Fraction f1 = Fraction.of(-num, den);
+            Fraction f2 = Fraction.of(num, -den);
+            assertEqualAndHashCodeEqual(f1, f2);
+            assertEqualAndHashCodeEqual(f2, f1);
+            f1 = Fraction.of(num, den);
+            f2 = Fraction.of(-num, -den);
+            assertEqualAndHashCodeEqual(f1, f2);
+            assertEqualAndHashCodeEqual(f2, f1);
+        }
 
         // Same numerator or denominator as 1/1
         Fraction half = Fraction.of(1, 2);
@@ -460,6 +472,22 @@ public class FractionTest {
         Fraction almostZero2 = Fraction.of(1, Integer.MIN_VALUE);
         Assertions.assertEquals(almostZero, almostZero);
         Assertions.assertNotEquals(almostZero, almostZero2);
+    }
+
+    /**
+     * Assert the two fractions are equal. The contract of {@link Object#hashCode()} requires
+     * that the hash code must also be equal.
+     *
+     * <p>This method must not be called with the same instance for both arguments. It is
+     * intended to be used to test different objects that are equal have the same hash code.
+     *
+     * @param f1 Fraction 1.
+     * @param f2 Fraction 2.
+     */
+    private static void assertEqualAndHashCodeEqual(Fraction f1, Fraction f2) {
+        Assertions.assertNotSame(f1, f2, "Do not call this assertion with the same object");
+        Assertions.assertEquals(f1, f2);
+        Assertions.assertEquals(f1.hashCode(), f2.hashCode(), "Equal fractions have different hashCode");
     }
 
     @Test
