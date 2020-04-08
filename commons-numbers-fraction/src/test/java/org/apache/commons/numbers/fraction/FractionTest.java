@@ -224,9 +224,7 @@ public class FractionTest {
         }
 
         final Fraction f = Fraction.of(0, 3);
-        Assertions.assertThrows(ArithmeticException.class,
-                f::reciprocal
-        );
+        Assertions.assertThrows(ArithmeticException.class, f::reciprocal);
     }
 
     @Test

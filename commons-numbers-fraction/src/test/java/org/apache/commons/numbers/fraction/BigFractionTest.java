@@ -69,30 +69,17 @@ public class BigFractionTest {
         Assertions.assertEquals(15.0000000000001, BigFraction.from(15.0000000000001).doubleValue(), 0.0);
         assertFraction(3602879701896487L, 9007199254740992L, BigFraction.from(0.40000000000001));
         assertFraction(1055531162664967L, 70368744177664L, BigFraction.from(15.0000000000001));
-        try {
-            BigFraction.of(null, BigInteger.ONE);
-            Assertions.fail("Expecting NullPointerException");
-        } catch (NullPointerException npe) {
-            // expected
-        }
-        try {
-            BigFraction.of(BigInteger.ONE, null);
-            Assertions.fail("Expecting NullPointerException");
-        } catch (NullPointerException npe) {
-            // expected
-        }
-        try {
-            BigFraction.of(BigInteger.ONE, BigInteger.ZERO);
-            Assertions.fail("Expecting ArithmeticException");
-        } catch (ArithmeticException ignored) {
-            // expected
-        }
-        try {
-            BigFraction.from(2.0 * Integer.MAX_VALUE, 1.0e-5, 100000);
-            Assertions.fail("Expecting ArithmeticException");
-        } catch (ArithmeticException ignored) {
-            // expected
-        }
+
+        // Divide by zero
+        Assertions.assertThrows(ArithmeticException.class, () -> BigFraction.of(BigInteger.ONE, BigInteger.ZERO));
+
+        // Null pointers
+        Assertions.assertThrows(NullPointerException.class, () -> BigFraction.of(null, BigInteger.ONE));
+        Assertions.assertThrows(NullPointerException.class, () -> BigFraction.of(BigInteger.ONE, null));
+        Assertions.assertThrows(NullPointerException.class, () -> BigFraction.of(null));
+
+        Assertions.assertThrows(ArithmeticException.class,
+            () -> BigFraction.from(2.0 * Integer.MAX_VALUE, 1.0e-5, 100000));
     }
 
     @Test
@@ -410,12 +397,7 @@ public class BigFractionTest {
         assertFraction(-6124895493223875L, 36028797018963968L, BigFraction.from(17.0 / -100.0));
         assertFraction(-1784551352345559L, 562949953421312L, BigFraction.from(-317.0 / 100.0));
         for (double v : new double[] {Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY}) {
-            try {
-                BigFraction.from(v);
-                Assertions.fail("Expecting IllegalArgumentException");
-            } catch (IllegalArgumentException iae) {
-                // expected
-            }
+            Assertions.assertThrows(IllegalArgumentException.class, () -> BigFraction.from(v));
         }
         Assertions.assertEquals(1L, BigFraction.from(Double.MAX_VALUE).getDenominatorAsLong());
         Assertions.assertEquals(1L, BigFraction.from(Double.longBitsToDouble(0x0010000000000000L)).getNumeratorAsLong());
@@ -438,11 +420,7 @@ public class BigFractionTest {
         }
 
         BigFraction f = BigFraction.of(0, 3);
-        try {
-            f = f.reciprocal();
-            Assertions.fail("expecting ArithmeticException");
-        } catch (ArithmeticException ignored) {
-        }
+        Assertions.assertThrows(ArithmeticException.class, f::reciprocal);
     }
 
     @Test
