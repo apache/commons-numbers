@@ -707,16 +707,15 @@ public final class Fraction
     @Override
     public int hashCode() {
         // Incorporate the sign and absolute values of the numerator and denominator.
-        // Equivalent to
-        // Arrays.hashCode(new int[] {signum(), Math.abs(numerator), Math.abs(denominator)})
+        // Equivalent to:
         // int hash = 1;
-        // hash = 31 * hash + signum();
         // hash = 31 * hash + Math.abs(numerator);
         // hash = 31 * hash + Math.abs(denominator);
-        // Note: x * Integer.signum(x) is equivalent to Math.abs(x).
+        // hash = hash * signum()
+        // Note: x * Integer.signum(x) == Math.abs(x).
         final int numS = Integer.signum(numerator);
         final int denS = Integer.signum(denominator);
-        return 31 * (31 * (31 + numS * denS) + numerator * numS) + denominator * denS;
+        return (31 * (31 + numerator * numS) + denominator * denS) * numS * denS;
     }
 
     /**

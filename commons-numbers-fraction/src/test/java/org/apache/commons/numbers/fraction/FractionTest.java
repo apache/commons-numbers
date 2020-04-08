@@ -490,10 +490,10 @@ public class FractionTest {
         Assertions.assertNotSame(f1, f2, "Do not call this assertion with the same object");
         Assertions.assertEquals(f1, f2);
         Assertions.assertEquals(f1.hashCode(), f2.hashCode(), "Equal fractions have different hashCode");
-        // Check the hashcode computation.
+        // Check the computation matches the result of Arrays.hashCode and the signum.
         // This is not mandated but is a recommendation.
-        final int expected = Arrays.hashCode(new int[] {f1.signum(),
-                                                        Math.abs(f1.getNumerator()),
+        final int expected = f1.signum() *
+                             Arrays.hashCode(new int[] {Math.abs(f1.getNumerator()),
                                                         Math.abs(f1.getDenominator())});
         Assertions.assertEquals(expected, f1.hashCode(), "Hashcode not equal to using Arrays.hashCode");
     }

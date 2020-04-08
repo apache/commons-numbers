@@ -1020,16 +1020,15 @@ public final class BigFraction
     @Override
     public int hashCode() {
         // Incorporate the sign and absolute values of the numerator and denominator.
-        // Equivalent to
-        // Arrays.hashCode(new int[] {signum(), numerator.abs(), denominator.abs()})
+        // Equivalent to:
         // int hash = 1;
-        // hash = 31 * hash + signum();
         // hash = 31 * hash + numerator.abs().hashCode();
         // hash = 31 * hash + denominator.abs().hashCode();
+        // hash = hash * signum()
         // Note: BigInteger.hashCode() * BigInteger.signum() == BigInteger.abs().hashCode().
         final int numS = numerator.signum();
         final int denS = denominator.signum();
-        return 31 * (31 * (31 + numS * denS) + numerator.hashCode() * numS) + denominator.hashCode() * denS;
+        return (31 * (31 + numerator.hashCode() * numS) + denominator.hashCode() * denS) * numS * denS;
     }
 
     /**
