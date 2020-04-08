@@ -27,8 +27,6 @@ class FractionException extends ArithmeticException {
     static final String ERROR_CONVERSION_OVERFLOW = "Overflow trying to convert {0} to fraction ({1}/{2})";
     /** Error message when iterative conversion fails. */
     static final String ERROR_CONVERSION = "Unable to convert {0} to fraction after {1} iterations";
-    /** Error message for overflow by negation. */
-    static final String ERROR_NEGATION_OVERFLOW = "Overflow in fraction {0}/{1}, cannot negate";
     /** Error message for zero-valued denominator. */
     static final String ERROR_ZERO_DENOMINATOR = "Denominator must be different from 0";
     /** Error message for divide by zero. */
