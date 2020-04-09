@@ -521,6 +521,13 @@ public final class BigFraction
         return new BigFraction(numerator.negate(), denominator);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Raises an exception if the fraction is equal to zero.
+     *
+     * @throws ArithmeticException if the current numerator is {@code zero}
+     */
     @Override
     public BigFraction reciprocal() {
         return new BigFraction(denominator, numerator);
