@@ -188,6 +188,8 @@ final class CommonTestCases {
         testCases.add(new UnaryOperatorTestCase(10, 21, 10, 21));
         testCases.add(new UnaryOperatorTestCase(-11, 23, 11, 23));
         testCases.add(new UnaryOperatorTestCase(13, -24, -13, -24));
+        testCases.add(new UnaryOperatorTestCase(0, 1, 0, 1));
+        testCases.add(new UnaryOperatorTestCase(0, -1, 0, -1));
 
         return testCases;
     }
@@ -220,6 +222,9 @@ final class CommonTestCases {
         testCases.add(new UnaryOperatorTestCase(-50, 75, 2, 3));
         testCases.add(new UnaryOperatorTestCase(Integer.MAX_VALUE - 1, Integer.MAX_VALUE, Integer.MIN_VALUE + 2, Integer.MAX_VALUE));
         testCases.add(new UnaryOperatorTestCase(1, Integer.MIN_VALUE, -1, Integer.MIN_VALUE));
+        // Negation of zero is a no-op
+        testCases.add(new UnaryOperatorTestCase(0, 1, 0, 1));
+        testCases.add(new UnaryOperatorTestCase(0, -1, 0, -1));
 
         // XXX Failed by "BigFraction" (whose implementation differs from "Fraction").
         // These are tested explicitly in FractionTest.
@@ -242,7 +247,9 @@ final class CommonTestCases {
         testCases.add(new BinaryOperatorTestCase(2, 3, 1, 2, 7, 6));
         testCases.add(new BinaryOperatorTestCase(2, 3, 2, 3, 4, 3));
         testCases.add(new BinaryOperatorTestCase(2, 3, 0, 5, 2, 3));
+        testCases.add(new BinaryOperatorTestCase(2, 3, 0, -5, 2, 3));
         testCases.add(new BinaryOperatorTestCase(0, 7, 2, 3, 2, 3));
+        testCases.add(new BinaryOperatorTestCase(0, -7, 2, 3, 2, 3));
         testCases.add(new BinaryOperatorTestCase(2, 3, -2, 3, 0, 1));
 
         testCases.add(new BinaryOperatorTestCase(
@@ -290,6 +297,8 @@ final class CommonTestCases {
         testCases.add(new BinaryOperatorTestCase(2, 3, 1, 2, 4, 3));
         testCases.add(new BinaryOperatorTestCase(2, 3, 2, 3, 1, 1));
         testCases.add(new BinaryOperatorTestCase(0, 3, 2, 3, 0, 1));
+        // Return the original zero representation
+        testCases.add(new BinaryOperatorTestCase(0, -3, 2, 3, 0, -1));
 
         testCases.add(new BinaryOperatorTestCase(
                 2, 7,
@@ -320,7 +329,9 @@ final class CommonTestCases {
         testCases.add(new BinaryOperatorTestCase(2, 3, 1, 2, 1, 3));
         testCases.add(new BinaryOperatorTestCase(2, 3, 2, 3, 4, 9));
         testCases.add(new BinaryOperatorTestCase(0, 3, 2, 3, 0, 1));
+        testCases.add(new BinaryOperatorTestCase(0, -3, 2, 3, 0, 1));
         testCases.add(new BinaryOperatorTestCase(2, 3, 0, 3, 0, 1));
+        testCases.add(new BinaryOperatorTestCase(2, 3, 0, -3, 0, 1));
 
         testCases.add(new BinaryOperatorTestCase(
                 Integer.MAX_VALUE, 1,
@@ -343,7 +354,9 @@ final class CommonTestCases {
         testCases.add(new BinaryOperatorTestCase(2, 3, 1, 2, 1, 6));
         testCases.add(new BinaryOperatorTestCase(2, 3, 2, 3, 0, 1));
         testCases.add(new BinaryOperatorTestCase(0, 3, 1, 5, -1, 5));
+        testCases.add(new BinaryOperatorTestCase(0, -3, 1, 5, -1, 5));
         testCases.add(new BinaryOperatorTestCase(2, 3, 0, 5, 2, 3));
+        testCases.add(new BinaryOperatorTestCase(2, 3, 0, -5, 2, 3));
 
         // if this fraction is subtracted naively, it will overflow the int range.
         // check that it doesn't.
