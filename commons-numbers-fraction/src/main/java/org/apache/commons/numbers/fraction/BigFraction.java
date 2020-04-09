@@ -954,11 +954,11 @@ public final class BigFraction
     }
 
     /**
-     * Returns a {@code BigFraction} whose value is
-     * <code>this<sup>exponent</sup></code>, returning the result in reduced form.
+     * Returns a {@code double} whose value is
+     * <code>this<sup>exponent</sup></code>.
      *
      * @param exponent exponent to which this {@code BigFraction} is to be raised.
-     * @return <code>this<sup>exponent</sup></code>.
+     * @return <code>this<sup>exponent</sup></code> as a {@code double}.
      */
     public double pow(final double exponent) {
         return Math.pow(numerator.doubleValue(),   exponent) /
