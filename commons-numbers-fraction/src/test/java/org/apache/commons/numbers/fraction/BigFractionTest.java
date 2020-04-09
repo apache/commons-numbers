@@ -635,6 +635,12 @@ public class BigFractionTest {
 
     @Test
     public void testPow() {
+        for (CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.powFractionTestCases()) {
+            BigFraction f1 = BigFraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            int exponent = testCase.secondOperand;
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.pow(exponent));
+        }
+
         Assertions.assertEquals(BigFraction.of(8192, 1594323), BigFraction.of(2, 3).pow(13));
         Assertions.assertEquals(BigFraction.of(8192, 1594323), BigFraction.of(2, 3).pow(13L));
         Assertions.assertEquals(BigFraction.of(8192, 1594323), BigFraction.of(2, 3).pow(BigInteger.valueOf(13L)));

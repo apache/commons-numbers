@@ -360,22 +360,11 @@ public class FractionTest {
 
     @Test
     public void testPow() {
-        Fraction a = Fraction.of(3, 7);
-        assertFraction(1, 1, a.pow(0));
-        assertFraction(3, 7, a.pow(1));
-        assertFraction(7, 3, a.pow(-1));
-        assertFraction(9, 49, a.pow(2));
-        assertFraction(49, 9, a.pow(-2));
-
-        Fraction b = Fraction.of(3, -7);
-        assertFraction(1, 1, b.pow(0));
-        assertFraction(3, -7, b.pow(1));
-        assertFraction(-7, 3, b.pow(-1));
-        assertFraction(9, 49, b.pow(2));
-        assertFraction(49, 9, b.pow(-2));
-
-        Fraction c = Fraction.of(0, -11);
-        assertFraction(0, -1, c.pow(Integer.MAX_VALUE));
+        for (CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.powFractionTestCases()) {
+            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            int exponent = testCase.secondOperand;
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.pow(exponent));
+        }
 
         Assertions.assertThrows(ArithmeticException.class, () -> Fraction.of(Integer.MAX_VALUE).pow(2));
         Assertions.assertThrows(ArithmeticException.class, () -> Fraction.of(1, Integer.MAX_VALUE).pow(2));
