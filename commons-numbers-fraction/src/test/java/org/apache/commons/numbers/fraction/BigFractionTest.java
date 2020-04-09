@@ -653,7 +653,6 @@ public class BigFractionTest {
         Assertions.assertEquals(BigFraction.ZERO, BigFraction.of(0, 5).pow(123));
         Assertions.assertEquals(BigFraction.ZERO, BigFraction.of(0, 5).pow(123L));
         Assertions.assertEquals(BigFraction.ZERO, BigFraction.of(0, 5).pow(new BigInteger("112233445566778899")));
-        Assertions.assertEquals(Math.sqrt(2d / 3), BigFraction.of(2, 3).pow(0.5), 1e-15);
     }
 
     @Test

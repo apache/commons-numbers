@@ -954,18 +954,6 @@ public final class BigFraction
     }
 
     /**
-     * Returns a {@code double} whose value is
-     * <code>this<sup>exponent</sup></code>.
-     *
-     * @param exponent exponent to which this {@code BigFraction} is to be raised.
-     * @return <code>this<sup>exponent</sup></code> as a {@code double}.
-     */
-    public double pow(final double exponent) {
-        return Math.pow(numerator.doubleValue(),   exponent) /
-               Math.pow(denominator.doubleValue(), exponent);
-    }
-
-    /**
      * Returns the {@code String} representing this fraction.
      * Uses:
      * <ul>
