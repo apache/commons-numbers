@@ -314,7 +314,7 @@ public class FractionTest {
         Fraction f3 = Fraction.of(0, 5);
         Fraction f4 = Fraction.of(2, 7);
         Fraction f = f3.divide(f4);
-        Assertions.assertSame(Fraction.ZERO, f);
+        Assertions.assertEquals(Fraction.ZERO, f);
 
         final Fraction f5 = Fraction.of(Integer.MIN_VALUE, 1);
         Assertions.assertThrows(NullPointerException.class,
