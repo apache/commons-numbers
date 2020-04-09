@@ -376,6 +376,11 @@ public class FractionTest {
 
         Fraction c = Fraction.of(0, -11);
         assertFraction(0, -1, c.pow(Integer.MAX_VALUE));
+
+        Assertions.assertThrows(ArithmeticException.class, () -> Fraction.of(Integer.MAX_VALUE).pow(2));
+        Assertions.assertThrows(ArithmeticException.class, () -> Fraction.of(1, Integer.MAX_VALUE).pow(2));
+        Assertions.assertThrows(ArithmeticException.class, () -> Fraction.of(Integer.MAX_VALUE).pow(-2));
+        Assertions.assertThrows(ArithmeticException.class, () -> Fraction.of(1, Integer.MAX_VALUE).pow(-2));
     }
 
     @Test

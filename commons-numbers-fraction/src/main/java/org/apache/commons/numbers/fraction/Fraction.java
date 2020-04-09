@@ -642,6 +642,7 @@ public final class Fraction
      *
      * @param exponent exponent to which this {@code Fraction} is to be raised.
      * @return <code>this<sup>exponent</sup></code>.
+     * @throws ArithmeticException if the intermediate result would overflow.
      */
     @Override
     public Fraction pow(final int exponent) {
