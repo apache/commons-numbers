@@ -591,7 +591,7 @@ public class BigFractionTest {
 
         // Test using different representations of the same fraction
         // (Denominators are primes)
-        for (int[] f : new int[][] {{1, 1}, {2, 3}, {6826, 15373}, {1373, 103813}}) {
+        for (int[] f : new int[][] {{1, 1}, {2, 3}, {6826, 15373}, {1373, 103813}, {0, 3}}) {
             final int num = f[0];
             final int den = f[1];
             BigFraction f1 = BigFraction.of(-num, den);
