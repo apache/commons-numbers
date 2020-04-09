@@ -888,6 +888,7 @@ public final class BigFraction
      *
      * @param exponent exponent to which this {@code BigFraction} is to be raised.
      * @return <code>this<sup>exponent</sup></code>.
+     * @throws ArithmeticException if the intermediate result would overflow.
      */
     @Override
     public BigFraction pow(final int exponent) {

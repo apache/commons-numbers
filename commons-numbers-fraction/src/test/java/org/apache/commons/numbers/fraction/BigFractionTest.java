@@ -641,6 +641,13 @@ public class BigFractionTest {
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.pow(exponent));
         }
 
+        // Note: BigInteger magnitude is limited to 2^Integer.MAX_VALUE exclusive
+        // in the reference implementation (up to at least JDK 14).
+        Assertions.assertThrows(ArithmeticException.class, () -> BigFraction.of(2).pow(Integer.MAX_VALUE));
+        Assertions.assertThrows(ArithmeticException.class, () -> BigFraction.of(1, 2).pow(Integer.MAX_VALUE));
+        Assertions.assertThrows(ArithmeticException.class, () -> BigFraction.of(2).pow(-Integer.MAX_VALUE));
+        Assertions.assertThrows(ArithmeticException.class, () -> BigFraction.of(1, 2).pow(-Integer.MAX_VALUE));
+
         Assertions.assertEquals(BigFraction.of(8192, 1594323), BigFraction.of(2, 3).pow(13));
         Assertions.assertEquals(BigFraction.of(8192, 1594323), BigFraction.of(2, 3).pow(13L));
         Assertions.assertEquals(BigFraction.of(8192, 1594323), BigFraction.of(2, 3).pow(BigInteger.valueOf(13L)));
