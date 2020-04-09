@@ -633,6 +633,9 @@ public final class Fraction
         if (value.isZero()) {
             throw new FractionException(FractionException.ERROR_DIVIDE_BY_ZERO);
         }
+        if (isZero()) {
+            return this;
+        }
         return multiply(value.reciprocal());
     }
 
