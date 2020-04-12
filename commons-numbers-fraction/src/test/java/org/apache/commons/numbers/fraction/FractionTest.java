@@ -65,14 +65,6 @@ public class FractionTest {
         Assertions.assertThrows(ArithmeticException.class, () -> Fraction.of(1, 0));
     }
 
-    @Test
-    public void testGoldenRatio() {
-        // the golden ratio is notoriously a difficult number for continuous fraction
-        Assertions.assertThrows(ArithmeticException.class,
-            () -> Fraction.from((1 + Math.sqrt(5)) / 2, 1.0e-12, 25)
-        );
-    }
-
     // MATH-179
     @Test
     public void testDoubleConstructor() throws Exception  {
@@ -111,6 +103,14 @@ public class FractionTest {
             Assertions.assertThrows(IllegalArgumentException.class, () -> Fraction.from(value, eps, maxIterations));
             Assertions.assertThrows(IllegalArgumentException.class, () -> Fraction.from(value, maxDenominator));
         }
+    }
+
+    @Test
+    public void testDoubleConstructorGoldenRatioThrows() {
+        // the golden ratio is notoriously a difficult number for continuous fraction
+        Assertions.assertThrows(ArithmeticException.class,
+            () -> Fraction.from((1 + Math.sqrt(5)) / 2, 1.0e-12, 25)
+        );
     }
 
     @Test
@@ -396,7 +396,7 @@ public class FractionTest {
 
     @Test
     public void testPow() {
-        for (CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.powFractionTestCases()) {
+        for (CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.powTestCases()) {
             Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
             int exponent = testCase.secondOperand;
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.pow(exponent));

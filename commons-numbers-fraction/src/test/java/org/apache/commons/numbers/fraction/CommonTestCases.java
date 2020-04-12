@@ -52,6 +52,8 @@ final class CommonTestCases {
      */
     private static final List<UnaryOperatorTestCase> negateTestCasesList;
 
+    // TODO addIntTestCasesList
+
     /**
      * See {@link #addFractionTestCases()}
      */
@@ -73,9 +75,9 @@ final class CommonTestCases {
     private static final List<BinaryOperatorTestCase> subtractFractionTestCasesList;
 
     /**
-     * See {@link #powFractionTestCases()}
+     * See {@link #powTestCases()}
      */
-    private static final List<BinaryIntOperatorTestCase> powFractionTestCasesList;
+    private static final List<BinaryIntOperatorTestCase> powTestCasesList;
 
     static {
         numDenConstructorTestCasesList = collectNumDenConstructorTestCases();
@@ -87,7 +89,7 @@ final class CommonTestCases {
         divideByFractionTestCasesList = collectDivideByFractionTestCases();
         multiplyByFractionTestCasesList = collectMultiplyByFractionTestCases();
         subtractFractionTestCasesList = collectSubtractFractionTestCases();
-        powFractionTestCasesList = collectPowFractionTestCases();
+        powTestCasesList = collectPowTestCases();
     }
 
     private CommonTestCases() {}
@@ -382,10 +384,10 @@ final class CommonTestCases {
 
     /**
      * Defines test cases as described in
-     * {@link #powFractionTestCases()} and collects them into a {@code List}.
+     * {@link #powTestCases()} and collects them into a {@code List}.
      * @return a list of test cases as described above
      */
-    private static List<BinaryIntOperatorTestCase> collectPowFractionTestCases() {
+    private static List<BinaryIntOperatorTestCase> collectPowTestCases() {
         List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
 
         testCases.add(new BinaryIntOperatorTestCase(3, 7, 0, 1, 1));
@@ -537,8 +539,8 @@ final class CommonTestCases {
      *
      * @return a list of test cases as described above
      */
-    static List<BinaryIntOperatorTestCase> powFractionTestCases() {
-        return Collections.unmodifiableList(powFractionTestCasesList);
+    static List<BinaryIntOperatorTestCase> powTestCases() {
+        return Collections.unmodifiableList(powTestCasesList);
     }
 
     // CHECKSTYLE: stop VisibilityModifier
