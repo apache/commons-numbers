@@ -153,8 +153,8 @@ public class FractionTest {
         Assertions.assertEquals(-1, b.compareTo(a));
         Assertions.assertEquals(-1, d.compareTo(a));
         Assertions.assertEquals(1, a.compareTo(d));
-//        Assertions.assertEquals(-1, e.compareTo(a));
-//        Assertions.assertEquals(1, a.compareTo(e));
+        Assertions.assertEquals(-1, e.compareTo(a));
+        Assertions.assertEquals(1, a.compareTo(e));
         Assertions.assertEquals(0, d.compareTo(e));
 
         Assertions.assertEquals(0, Fraction.of(0, 3).compareTo(Fraction.of(0, -2)));

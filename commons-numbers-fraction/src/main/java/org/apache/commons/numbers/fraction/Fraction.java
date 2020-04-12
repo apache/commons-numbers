@@ -696,8 +696,16 @@ public final class Fraction
      */
     @Override
     public int compareTo(Fraction other) {
-        return Long.compare(((long) numerator) * other.denominator,
-                            ((long) denominator) * other.numerator);
+        final int lhsSigNum = signum();
+        final int rhsSigNum = other.signum();
+
+        if (lhsSigNum != rhsSigNum) {
+            return (lhsSigNum > rhsSigNum) ? 1 : -1;
+        }
+        // Same sign: compare magnitude
+        final long nOd = ((long) numerator) * other.denominator;
+        final long dOn = ((long) denominator) * other.numerator;
+        return Long.compare(nOd, dOn);
     }
 
     /**

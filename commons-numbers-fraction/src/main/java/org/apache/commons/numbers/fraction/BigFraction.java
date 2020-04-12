@@ -992,10 +992,12 @@ public final class BigFraction
         if (lhsSigNum != rhsSigNum) {
             return (lhsSigNum > rhsSigNum) ? 1 : -1;
         }
+        // Same sign.
+        // Avoid a multiply if both fractions are zero
         if (lhsSigNum == 0) {
             return 0;
         }
-
+        // Compare magnitude
         final BigInteger nOd = numerator.multiply(other.denominator);
         final BigInteger dOn = denominator.multiply(other.numerator);
         return nOd.compareTo(dOn);
