@@ -26,6 +26,11 @@ import org.junit.jupiter.api.Test;
  */
 public class FractionTest {
 
+    /** The zero representation with positive denominator. */
+    private static final Fraction ZERO_P = Fraction.of(0, 1);
+    /** The zero representation with negative denominator. */
+    private static final Fraction ZERO_N = Fraction.of(0, -1);
+
     private void assertFraction(int expectedNumerator, int expectedDenominator, Fraction actual) {
         Assertions.assertEquals(expectedNumerator, actual.getNumerator());
         Assertions.assertEquals(expectedDenominator, actual.getDenominator());
@@ -147,6 +152,8 @@ public class FractionTest {
         Assertions.assertEquals(-1, pi1.compareTo(pi2));
         Assertions.assertEquals(1, pi2.compareTo(pi1));
         Assertions.assertEquals(0.0, pi1.doubleValue() - pi2.doubleValue(), 1.0e-20);
+
+        Assertions.assertEquals(0, ZERO_P.compareTo(ZERO_N));
     }
 
     @Test
@@ -156,6 +163,9 @@ public class FractionTest {
 
         Assertions.assertEquals(0.5, first.doubleValue(), 0.0);
         Assertions.assertEquals(1.0 / 3.0, second.doubleValue(), 0.0);
+
+        Assertions.assertEquals(0.0, ZERO_P.doubleValue());
+        Assertions.assertEquals(-0.0, ZERO_N.doubleValue());
     }
 
     @Test
@@ -165,6 +175,9 @@ public class FractionTest {
 
         Assertions.assertEquals(0.5f, first.floatValue(), 0.0f);
         Assertions.assertEquals((float)(1.0 / 3.0), second.floatValue(), 0.0f);
+
+        Assertions.assertEquals(0.0f, ZERO_P.floatValue());
+        Assertions.assertEquals(-0.0f, ZERO_N.floatValue());
     }
 
     @Test
@@ -174,6 +187,9 @@ public class FractionTest {
 
         Assertions.assertEquals(0, first.intValue());
         Assertions.assertEquals(1, second.intValue());
+
+        Assertions.assertEquals(0, ZERO_P.intValue());
+        Assertions.assertEquals(0, ZERO_N.intValue());
     }
 
     @Test
@@ -183,6 +199,9 @@ public class FractionTest {
 
         Assertions.assertEquals(0L, first.longValue());
         Assertions.assertEquals(1L, second.longValue());
+
+        Assertions.assertEquals(0L, ZERO_P.longValue());
+        Assertions.assertEquals(0L, ZERO_N.longValue());
     }
 
     @Test

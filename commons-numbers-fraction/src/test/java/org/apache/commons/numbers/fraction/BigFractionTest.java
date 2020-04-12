@@ -27,6 +27,11 @@ import org.junit.jupiter.api.Test;
 
 public class BigFractionTest {
 
+    /** The zero representation with positive denominator. */
+    private static final BigFraction ZERO_P = BigFraction.of(0, 1);
+    /** The zero representation with negative denominator. */
+    private static final BigFraction ZERO_N = BigFraction.of(0, -1);
+
     private static void assertFraction(long expectedNumerator, long expectedDenominator, BigFraction actual) {
         Assertions.assertEquals(BigInteger.valueOf(expectedNumerator), actual.getNumerator());
         Assertions.assertEquals(BigInteger.valueOf(expectedDenominator), actual.getDenominator());
@@ -186,6 +191,8 @@ public class BigFractionTest {
         Assertions.assertEquals(-1, pi1.compareTo(pi2));
         Assertions.assertEquals(1, pi2.compareTo(pi1));
         Assertions.assertEquals(0.0, pi1.doubleValue() - pi2.doubleValue(), 1.0e-20);
+
+        Assertions.assertEquals(0, ZERO_P.compareTo(ZERO_N));
     }
 
     @Test
@@ -197,6 +204,9 @@ public class BigFractionTest {
         assertDoubleValue(-0.5, 1, -2);
         assertDoubleValue(0.5, -1, -2);
         assertDoubleValue(1.0 / 3.0, 1, 3);
+
+        Assertions.assertEquals(0.0, ZERO_P.doubleValue());
+        Assertions.assertEquals(0.0, ZERO_N.doubleValue());
 
         //NUMBERS-120
         assertDoubleValue(
@@ -357,6 +367,9 @@ public class BigFractionTest {
         Assertions.assertEquals(e, BigFraction.of(-1, -3).floatValue(), 0.0f);
         Assertions.assertEquals(-e, BigFraction.of(-1, 3).floatValue(), 0.0f);
         Assertions.assertEquals(-e, BigFraction.of(1, -3).floatValue(), 0.0f);
+
+        Assertions.assertEquals(0.0f, ZERO_P.floatValue());
+        Assertions.assertEquals(0.0f, ZERO_N.floatValue());
     }
 
     @Test
@@ -370,6 +383,9 @@ public class BigFractionTest {
         Assertions.assertEquals(1, BigFraction.of(-3, -2).intValue());
         Assertions.assertEquals(-1, BigFraction.of(-3, 2).intValue());
         Assertions.assertEquals(-1, BigFraction.of(3, -2).intValue());
+
+        Assertions.assertEquals(0, ZERO_P.intValue());
+        Assertions.assertEquals(0, ZERO_N.intValue());
     }
 
     @Test
@@ -383,6 +399,9 @@ public class BigFractionTest {
         Assertions.assertEquals(1L, BigFraction.of(-3, -2).longValue());
         Assertions.assertEquals(-1L, BigFraction.of(-3, 2).longValue());
         Assertions.assertEquals(-1L, BigFraction.of(3, -2).longValue());
+
+        Assertions.assertEquals(0, ZERO_P.longValue());
+        Assertions.assertEquals(0, ZERO_N.longValue());
     }
 
     @Test
