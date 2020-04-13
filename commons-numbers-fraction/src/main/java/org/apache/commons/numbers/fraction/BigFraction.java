@@ -959,10 +959,10 @@ public final class BigFraction
     @Override
     public String toString() {
         final String str;
-        if (BigInteger.ONE.equals(denominator)) {
-            str = numerator.toString();
-        } else if (isZero()) {
+        if (isZero()) {
             str = "0";
+        } else if (BigInteger.ONE.equals(denominator)) {
+            str = numerator.toString();
         } else {
             str = numerator + " / " + denominator;
         }

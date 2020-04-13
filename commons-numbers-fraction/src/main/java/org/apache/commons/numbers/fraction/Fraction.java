@@ -699,10 +699,10 @@ public final class Fraction
     @Override
     public String toString() {
         final String str;
-        if (denominator == 1) {
-            str = Integer.toString(numerator);
-        } else if (isZero()) {
+        if (isZero()) {
             str = "0";
+        } else if (denominator == 1) {
+            str = Integer.toString(numerator);
         } else {
             str = numerator + " / " + denominator;
         }
