@@ -170,6 +170,9 @@ final class CommonTestCases {
         testCases.add(new DoubleToFractionTestCase(9d / 11d, 9, 11));
         testCases.add(new DoubleToFractionTestCase(10d / 11d, 10, 11));
 
+        testCases.add(new DoubleToFractionTestCase(-1d / 2d, -1, 2));
+        testCases.add(new DoubleToFractionTestCase(-1d / 3d, -1, 3));
+
         testCases.add(new DoubleToFractionTestCase(0.00000000000001, 0, 1));
         testCases.add(new DoubleToFractionTestCase(0.40000000000001, 2, 5));
         testCases.add(new DoubleToFractionTestCase(15.0000000000001, 15, 1));
