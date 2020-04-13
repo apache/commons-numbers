@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.Objects;
-import org.apache.commons.numbers.core.ArithmeticUtils;
 import org.apache.commons.numbers.core.NativeOperators;
 
 /**
@@ -899,59 +898,16 @@ public final class BigFraction
             return this;
         }
 
+        // Note: Raise the BigIntegers to the power and then reduce.
+        // The supported range for BigInteger is currently
+        // +/-2^(Integer.MAX_VALUE) exclusive thus larger
+        // exponents (long, BigInteger) are currently not supported.
         if (exponent < 0) {
             return new BigFraction(denominator.pow(-exponent),
                                    numerator.pow(-exponent));
         }
         return new BigFraction(numerator.pow(exponent),
                                denominator.pow(exponent));
-    }
-
-    /**
-     * Returns a {@code BigFraction} whose value is
-     * <code>this<sup>exponent</sup></code>, returning the result in reduced form.
-     *
-     * @param exponent exponent to which this {@code BigFraction} is to be raised.
-     * @return <code>this<sup>exponent</sup></code>.
-     */
-    public BigFraction pow(final long exponent) {
-        if (exponent == 0) {
-            return ONE;
-        }
-        if (isZero()) {
-            return this;
-        }
-
-        if (exponent < 0) {
-            return new BigFraction(ArithmeticUtils.pow(denominator, -exponent),
-                                   ArithmeticUtils.pow(numerator,   -exponent));
-        }
-        return new BigFraction(ArithmeticUtils.pow(numerator,   exponent),
-                               ArithmeticUtils.pow(denominator, exponent));
-    }
-
-    /**
-     * Returns a {@code BigFraction} whose value is
-     * <code>this<sup>exponent</sup></code>, returning the result in reduced form.
-     *
-     * @param exponent exponent to which this {@code BigFraction} is to be raised.
-     * @return <code>this<sup>exponent</sup></code>.
-     */
-    public BigFraction pow(final BigInteger exponent) {
-        if (exponent.signum() == 0) {
-            return ONE;
-        }
-        if (isZero()) {
-            return this;
-        }
-
-        if (exponent.signum() == -1) {
-            final BigInteger eNeg = exponent.negate();
-            return new BigFraction(ArithmeticUtils.pow(denominator, eNeg),
-                                   ArithmeticUtils.pow(numerator,   eNeg));
-        }
-        return new BigFraction(ArithmeticUtils.pow(numerator,   exponent),
-                               ArithmeticUtils.pow(denominator, exponent));
     }
 
     /**

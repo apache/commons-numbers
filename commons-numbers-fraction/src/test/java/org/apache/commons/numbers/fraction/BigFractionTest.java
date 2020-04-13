@@ -556,8 +556,6 @@ public class BigFractionTest {
             BigFraction f1 = BigFraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
             int exponent = testCase.secondOperand;
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.pow(exponent));
-            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.pow((long) exponent));
-            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.pow(BigInteger.valueOf(exponent)));
         }
 
         // Note: BigInteger magnitude is limited to 2^Integer.MAX_VALUE exclusive
