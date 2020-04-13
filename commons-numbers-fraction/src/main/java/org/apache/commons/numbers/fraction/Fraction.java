@@ -584,7 +584,7 @@ public final class Fraction
      *
      * @param value Value to multiply by.
      * @return {@code this * value}.
-     * @throws ArithmeticException if the resulting numerator or denominator
+     * @throws ArithmeticException if the resulting numerator
      * cannot be represented in an {@code int}.
      */
     @Override
@@ -592,7 +592,12 @@ public final class Fraction
         if (value == 0 || isZero()) {
             return ZERO;
         }
-        return multiply(of(value));
+
+        // knuth 4.5.1
+        // Make sure we don't overflow unless the result *must* overflow.
+        final int d2 = ArithmeticUtils.gcd(value, denominator);
+        return new Fraction(Math.multiplyExact(numerator, value / d2),
+                            denominator / d2);
     }
 
     /**
