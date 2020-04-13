@@ -595,6 +595,7 @@ public final class Fraction
 
         // knuth 4.5.1
         // Make sure we don't overflow unless the result *must* overflow.
+        // (see multiply(Fraction) using value / 1 as the argument).
         final int d2 = ArithmeticUtils.gcd(value, denominator);
         return new Fraction(Math.multiplyExact(numerator, value / d2),
                             denominator / d2);
@@ -641,7 +642,13 @@ public final class Fraction
             return ZERO;
         }
         // Multiply by reciprocal
-        return multiply(new Fraction(1, value));
+
+        // knuth 4.5.1
+        // Make sure we don't overflow unless the result *must* overflow.
+        // (see multiply(Fraction) using 1 / value as the argument).
+        final int d1 = ArithmeticUtils.gcd(numerator, value);
+        return new Fraction(numerator / d1,
+                            Math.multiplyExact(denominator, value / d1));
     }
 
     /**
