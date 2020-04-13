@@ -52,12 +52,15 @@ final class CommonTestCases {
      */
     private static final List<UnaryOperatorTestCase> negateTestCasesList;
 
-    // TODO addIntTestCasesList
-
     /**
      * See {@link #addFractionTestCases()}
      */
     private static final List<BinaryOperatorTestCase> addFractionTestCasesList;
+
+    /**
+     * See {@link #addIntTestCases()}
+     */
+    private static final List<BinaryIntOperatorTestCase> addIntTestCasesList;
 
     /**
      * See {@link #divideByFractionTestCases()}
@@ -65,14 +68,29 @@ final class CommonTestCases {
     private static final List<BinaryOperatorTestCase> divideByFractionTestCasesList;
 
     /**
+     * See {@link #divideByIntTestCases()}
+     */
+    private static final List<BinaryIntOperatorTestCase> divideByIntTestCasesList;
+
+    /**
      * See {@link #multiplyByFractionTestCases()}
      */
     private static final List<BinaryOperatorTestCase> multiplyByFractionTestCasesList;
 
     /**
+     * See {@link #multiplyByIntTestCases()}
+     */
+    private static final List<BinaryIntOperatorTestCase> multiplyByIntTestCasesList;
+
+    /**
      * See {@link #subtractFractionTestCases()}
      */
     private static final List<BinaryOperatorTestCase> subtractFractionTestCasesList;
+
+    /**
+     * See {@link #subtractIntTestCases()}
+     */
+    private static final List<BinaryIntOperatorTestCase> subtractIntTestCasesList;
 
     /**
      * See {@link #powTestCases()}
@@ -86,9 +104,13 @@ final class CommonTestCases {
         reciprocalTestCasesList = collectReciprocalTestCases();
         negateTestCasesList = collectNegateTestCases();
         addFractionTestCasesList = collectAddFractionTestCases();
+        addIntTestCasesList = collectAddIntTestCases();
         divideByFractionTestCasesList = collectDivideByFractionTestCases();
+        divideByIntTestCasesList = collectDivideByIntTestCases();
         multiplyByFractionTestCasesList = collectMultiplyByFractionTestCases();
+        multiplyByIntTestCasesList = collectMultiplyByIntTestCases();
         subtractFractionTestCasesList = collectSubtractFractionTestCases();
+        subtractIntTestCasesList = collectSubtractIntTestCases();
         powTestCasesList = collectPowTestCases();
     }
 
@@ -290,6 +312,23 @@ final class CommonTestCases {
     }
 
     /**
+     * Defines test cases as described in {@link #addIntTestCases()} and
+     * collects them into a {@code List}.
+     * @return a list of test cases as described above
+     */
+    private static List<BinaryIntOperatorTestCase> collectAddIntTestCases() {
+        List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
+
+        testCases.add(new BinaryIntOperatorTestCase(1, 3, 0, 1, 3));
+        testCases.add(new BinaryIntOperatorTestCase(-1, 3, 0, -1, 3));
+        testCases.add(new BinaryIntOperatorTestCase(1, 3, 1, 4, 3));
+        testCases.add(new BinaryIntOperatorTestCase(1, 3, -1, -2, 3));
+        testCases.add(new BinaryIntOperatorTestCase(Integer.MAX_VALUE - 1, 1, 1, Integer.MAX_VALUE, 1));
+
+        return testCases;
+    }
+
+    /**
      * Defines test cases as described in
      * {@link #divideByFractionTestCases()} and collects them into a {@code List}.
      * @return a list of test cases as described above
@@ -323,6 +362,24 @@ final class CommonTestCases {
 
     /**
      * Defines test cases as described in
+     * {@link #divideByIntTestCases()} and collects them into a {@code List}.
+     * @return a list of test cases as described above
+     */
+    private static List<BinaryIntOperatorTestCase> collectDivideByIntTestCases() {
+        List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
+
+        testCases.add(new BinaryIntOperatorTestCase(1, 3, 1, 1, 3));
+        testCases.add(new BinaryIntOperatorTestCase(0, 5, 11, 0, 1));
+        testCases.add(new BinaryIntOperatorTestCase(6, 35, 15, 2, 175));
+
+        // This captures an implementation detail
+        testCases.add(new BinaryIntOperatorTestCase(1, 3, -1, 1, -3));
+
+        return testCases;
+    }
+
+    /**
+     * Defines test cases as described in
      * {@link #multiplyByFractionTestCases()} and collects them into a {@code List}.
      * @return a list of test cases as described above
      */
@@ -342,6 +399,27 @@ final class CommonTestCases {
                 Integer.MAX_VALUE, 1,
                 Integer.MIN_VALUE, Integer.MAX_VALUE,
                 Integer.MIN_VALUE, 1));
+
+        return testCases;
+    }
+
+    /**
+     * Defines test cases as described in
+     * {@link #multiplyByIntTestCases()} and collects them into a {@code List}.
+     * @return a list of test cases as described above
+     */
+    private static List<BinaryIntOperatorTestCase> collectMultiplyByIntTestCases() {
+        List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
+
+        testCases.add(new BinaryIntOperatorTestCase(1, 3, 1, 1, 3));
+        testCases.add(new BinaryIntOperatorTestCase(6, 35, 15, 18, 7));
+        testCases.add(new BinaryIntOperatorTestCase(Integer.MIN_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, 1));
+        // Test zero with multiply by integer
+        testCases.add(new BinaryIntOperatorTestCase(0, 1, 42, 0, 1));
+        testCases.add(new BinaryIntOperatorTestCase(1, 1, 0, 0, 1));
+
+        // This captures an implementation detail
+        testCases.add(new BinaryIntOperatorTestCase(1, 3, -1, -1, 3));
 
         return testCases;
     }
@@ -381,6 +459,22 @@ final class CommonTestCases {
                 1, 1,
                 Integer.MAX_VALUE - 1, 1
         ));
+
+        return testCases;
+    }
+
+    /**
+     * Defines test cases as described in
+     * {@link #subtractIntTestCases()} and collects them into a {@code List}.
+     * @return a list of test cases as described above
+     */
+    private static List<BinaryIntOperatorTestCase> collectSubtractIntTestCases() {
+        List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
+
+        testCases.add(new BinaryIntOperatorTestCase(1, 3, 1, -2, 3));
+        testCases.add(new BinaryIntOperatorTestCase(0, 1, 3, -3, 1));
+        testCases.add(new BinaryIntOperatorTestCase(2, 3, 3, -7, 3));
+        testCases.add(new BinaryIntOperatorTestCase(2, 3, 0, 2, 3));
 
         return testCases;
     }
@@ -479,10 +573,24 @@ final class CommonTestCases {
      * specified numerator and denominator in the {@code int} range, should
      * be added, and the expected numerator and denominator of the resulting
      * fraction are also in the {@code int} range.
+     *
      * @return a list of test cases as described above
      */
     static List<BinaryOperatorTestCase> addFractionTestCases() {
         return Collections.unmodifiableList(addFractionTestCasesList);
+    }
+
+    /**
+     * Provides a list of test cases where a fraction, created from a
+     * specified numerator and denominator in the {@code int} range, should
+     * be added to a specified value in the {@code int} range,
+     * and the expected numerator and denominator of the resulting fraction
+     * are in the {@code int} range as well.
+     *
+     * @return a list of test cases as described above
+     */
+    static List<BinaryIntOperatorTestCase> addIntTestCases() {
+        return Collections.unmodifiableList(addIntTestCasesList);
     }
 
     /**
@@ -505,6 +613,22 @@ final class CommonTestCases {
     /**
      * Provides a list of test cases where a fraction, created from a
      * specified numerator and denominator in the {@code int} range, should
+     * be divided by a specified value in the {@code int} range,
+     * and the expected numerator and denominator of the resulting fraction
+     * are in the {@code int} range as well.
+     *
+     * <p>The first operand in each test case is the dividend and the second
+     * operand is the divisor.</p>
+     *
+     * @return a list of test cases as described above
+     */
+    static List<BinaryIntOperatorTestCase> divideByIntTestCases() {
+        return Collections.unmodifiableList(divideByIntTestCasesList);
+    }
+
+    /**
+     * Provides a list of test cases where a fraction, created from a
+     * specified numerator and denominator in the {@code int} range, should
      * be multiplied by another fraction, also created from a specified
      * numerator and denominator in the {@code int} range, and the expected
      * numerator and denominator of the resulting fraction are in the {@code
@@ -514,6 +638,19 @@ final class CommonTestCases {
      */
     static List<BinaryOperatorTestCase> multiplyByFractionTestCases() {
         return Collections.unmodifiableList(multiplyByFractionTestCasesList);
+    }
+
+    /**
+     * Provides a list of test cases where a fraction, created from a
+     * specified numerator and denominator in the {@code int} range, should
+     * be multiplied by a specified value in the {@code int} range,
+     * and the expected numerator and denominator of the resulting fraction
+     * are in the {@code int} range as well.
+     *
+     * @return a list of test cases as described above
+     */
+    static List<BinaryIntOperatorTestCase> multiplyByIntTestCases() {
+        return Collections.unmodifiableList(multiplyByIntTestCasesList);
     }
 
     /**
@@ -531,6 +668,22 @@ final class CommonTestCases {
      */
     static List<BinaryOperatorTestCase> subtractFractionTestCases() {
         return Collections.unmodifiableList(subtractFractionTestCasesList);
+    }
+
+    /**
+     * Provides a list of test cases where a fraction, created from a
+     * specified numerator and denominator in the {@code int} range, should
+     * have a specified value in the {@code int} range subtracted,
+     * and the expected numerator and denominator of the resulting fraction
+     * are in the {@code int} range as well.
+     *
+     * <p>The first operand in each test case is the minuend and the second
+     * operand is the subtrahend.</p>
+     *
+     * @return a list of test cases as described above
+     */
+    static List<BinaryIntOperatorTestCase> subtractIntTestCases() {
+        return Collections.unmodifiableList(subtractIntTestCasesList);
     }
 
     /**

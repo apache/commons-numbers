@@ -303,11 +303,13 @@ public class FractionTest {
             Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.add(f2));
         }
+        for (CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.addIntTestCases()) {
+            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            int i2 = testCase.secondOperand;
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.add(i2));
+        }
 
         Assertions.assertThrows(NullPointerException.class, () -> Fraction.ONE.add((Fraction) null));
-
-        Fraction f1 = Fraction.of(Integer.MAX_VALUE - 1, 1);
-        assertFraction(Integer.MAX_VALUE, 1, f1.add(1));
 
         // Special cases
         final Fraction f3 = Fraction.of(Integer.MAX_VALUE, 1);
@@ -350,18 +352,16 @@ public class FractionTest {
             Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.divide(f2));
         }
+        for (CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.divideByIntTestCases()) {
+            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            int i2 = testCase.secondOperand;
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.divide(i2));
+        }
 
         Assertions.assertThrows(NullPointerException.class, () -> Fraction.ONE.divide((Fraction) null));
 
         Assertions.assertThrows(FractionException.class, () -> Fraction.of(1, 2).divide(Fraction.ZERO));
         Assertions.assertThrows(FractionException.class, () -> Fraction.of(1, 2).divide(0));
-
-        Fraction f1 = Fraction.of(0, 5);
-        Assertions.assertEquals(Fraction.ZERO, f1.divide(Fraction.of(2, 7)));
-        Assertions.assertEquals(Fraction.ZERO, f1.divide(11));
-
-        f1 = Fraction.of(6, 35);
-        assertFraction(2, 175, f1.divide(15));
 
         // Special cases
         final Fraction f3 = Fraction.of(1, Integer.MAX_VALUE);
@@ -382,18 +382,13 @@ public class FractionTest {
             Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.multiply(f2));
         }
+        for (CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.multiplyByIntTestCases()) {
+            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            int i2 = testCase.secondOperand;
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.multiply(i2));
+        }
 
         Assertions.assertThrows(NullPointerException.class, () -> Fraction.ONE.multiply((Fraction) null));
-
-        Fraction f1 = Fraction.of(6, 35);
-        assertFraction(18, 7, f1.multiply(15));
-
-        f1 = Fraction.of(Integer.MIN_VALUE, Integer.MAX_VALUE);
-        assertFraction(Integer.MIN_VALUE, 1, f1.multiply(Integer.MAX_VALUE));
-
-        // Test zero with multiply by integer
-        Assertions.assertEquals(Fraction.ZERO, Fraction.ZERO.multiply(42));
-        Assertions.assertEquals(Fraction.ZERO, Fraction.ONE.multiply(0));
     }
 
     @Test
@@ -417,13 +412,13 @@ public class FractionTest {
             Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.subtract(f2));
         }
+        for (CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.subtractIntTestCases()) {
+            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            int i2 = testCase.secondOperand;
+            assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.subtract(i2));
+        }
 
         Assertions.assertThrows(NullPointerException.class, () -> Fraction.ONE.add((Fraction) null));
-
-        assertFraction(-3, 1, Fraction.ZERO.subtract(3));
-
-        Fraction f1 = Fraction.of(2, 3);
-        assertFraction(-7, 3, f1.subtract(3));
 
         final Fraction f3 = Fraction.of(1, Integer.MAX_VALUE);
         final Fraction f4 = Fraction.of(1, Integer.MAX_VALUE - 1);
