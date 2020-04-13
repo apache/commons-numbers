@@ -39,10 +39,10 @@ public final class BigFraction
                NativeOperators<BigFraction>,
                Serializable {
     /** A fraction representing "0". */
-    public static final BigFraction ZERO = of(0);
+    public static final BigFraction ZERO = new BigFraction(BigInteger.ZERO);
 
     /** A fraction representing "1". */
-    public static final BigFraction ONE = of(1);
+    public static final BigFraction ONE = new BigFraction(BigInteger.ONE);
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20190701L;
@@ -58,6 +58,10 @@ public final class BigFraction
 
     /**
      * Private constructor: Instances are created using factory methods.
+     *
+     * <p>This constructor should only be invoked when the fraction is known
+     * to be non-zero; otherwise use {@link #ZERO}. This avoids creating
+     * the zero representation {@code 0 / -1}.
      *
      * @param num Numerator, must not be {@code null}.
      * @param den Denominator, must not be {@code null}.
@@ -133,6 +137,9 @@ public final class BigFraction
                                     final int maxIterations) {
         if (!Double.isFinite(value)) {
             throw new IllegalArgumentException(NOT_FINITE + value);
+        }
+        if (value == 0) {
+            return ZERO;
         }
 
         final long overflow = Integer.MAX_VALUE;
@@ -231,6 +238,9 @@ public final class BigFraction
         if (!Double.isFinite(value)) {
             throw new IllegalArgumentException(NOT_FINITE + value);
         }
+        if (value == 0) {
+            return ZERO;
+        }
 
         final long bits = Double.doubleToLongBits(value);
         final long sign = bits & 0x8000000000000000L;
@@ -320,6 +330,9 @@ public final class BigFraction
      * @return a new instance.
      */
     public static BigFraction of(final int num) {
+        if (num == 0) {
+            return ZERO;
+        }
         return new BigFraction(BigInteger.valueOf(num));
     }
 
@@ -330,6 +343,9 @@ public final class BigFraction
      * @return a new instance.
      */
     public static BigFraction of(final long num) {
+        if (num == 0) {
+            return ZERO;
+        }
         return new BigFraction(BigInteger.valueOf(num));
     }
 
@@ -342,6 +358,9 @@ public final class BigFraction
      */
     public static BigFraction of(final BigInteger num) {
         Objects.requireNonNull(num, "numerator");
+        if (num.signum() == 0) {
+            return ZERO;
+        }
         return new BigFraction(num);
     }
 
@@ -355,6 +374,9 @@ public final class BigFraction
      * @throws ArithmeticException if {@code den} is zero.
      */
     public static BigFraction of(final int num, final int den) {
+        if (num == 0) {
+            return ZERO;
+        }
         return new BigFraction(BigInteger.valueOf(num), BigInteger.valueOf(den));
     }
 
@@ -368,6 +390,9 @@ public final class BigFraction
      * @throws ArithmeticException if {@code den} is zero.
      */
     public static BigFraction of(final long num, final long den) {
+        if (num == 0) {
+            return ZERO;
+        }
         return new BigFraction(BigInteger.valueOf(num), BigInteger.valueOf(den));
     }
 
@@ -382,6 +407,9 @@ public final class BigFraction
      * @throws ArithmeticException if the denominator is zero.
      */
     public static BigFraction of(final BigInteger num, final BigInteger den) {
+        if (num.signum() == 0) {
+            return ZERO;
+        }
         return new BigFraction(num, den);
     }
 
@@ -423,7 +451,7 @@ public final class BigFraction
         final int slashLoc = stripped.indexOf('/');
         // if no slash, parse as single number
         if (slashLoc == -1) {
-            return BigFraction.of(new BigInteger(stripped.trim()));
+            return of(new BigInteger(stripped.trim()));
         }
         final BigInteger num = new BigInteger(stripped.substring(0, slashLoc).trim());
         final BigInteger denom = new BigInteger(stripped.substring(slashLoc + 1).trim());
@@ -654,6 +682,7 @@ public final class BigFraction
             return of(value);
         }
 
+        // Direct constructor: cannot add an integer to a fraction to produce zero
         return new BigFraction(numerator.add(denominator.multiply(value)), denominator);
     }
 
@@ -728,6 +757,7 @@ public final class BigFraction
             return of(value.negate());
         }
 
+        // Direct constructor: cannot subtract an integer from a fraction to produce zero
         return new BigFraction(numerator.subtract(denominator.multiply(value)), denominator);
     }
 
@@ -756,6 +786,11 @@ public final class BigFraction
             num = (numerator.multiply(value.denominator)).subtract((value.numerator).multiply(denominator));
             den = denominator.multiply(value.denominator);
         }
+
+        if (num.signum() == 0) {
+            return ZERO;
+        }
+
         return new BigFraction(num, den);
     }
 
@@ -857,7 +892,7 @@ public final class BigFraction
             throw new FractionException(FractionException.ERROR_DIVIDE_BY_ZERO);
         }
         if (isZero()) {
-            return this;
+            return ZERO;
         }
         return new BigFraction(numerator, denominator.multiply(value));
     }
@@ -876,7 +911,7 @@ public final class BigFraction
             throw new FractionException(FractionException.ERROR_DIVIDE_BY_ZERO);
         }
         if (isZero()) {
-            return this;
+            return ZERO;
         }
         return multiply(value.reciprocal());
     }
@@ -895,7 +930,7 @@ public final class BigFraction
             return ONE;
         }
         if (isZero()) {
-            return this;
+            return ZERO;
         }
 
         // Note: Raise the BigIntegers to the power and then reduce.

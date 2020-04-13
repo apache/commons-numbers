@@ -16,6 +16,7 @@
  */
 package org.apache.commons.numbers.fraction;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import org.apache.commons.numbers.core.TestUtils;
 
@@ -63,6 +64,16 @@ public class FractionTest {
 
         // Divide by zero
         Assertions.assertThrows(ArithmeticException.class, () -> Fraction.of(1, 0));
+    }
+
+    @Test
+    public void testConstructorZero() {
+        Assertions.assertSame(Fraction.ZERO, Fraction.from(0.0));
+        Assertions.assertSame(Fraction.ZERO, Fraction.from(0.0, 1e-10, 100));
+        Assertions.assertSame(Fraction.ZERO, Fraction.from(0.0, 100));
+        Assertions.assertSame(Fraction.ZERO, Fraction.of(0));
+        Assertions.assertSame(Fraction.ZERO, Fraction.of(0, 1));
+        Assertions.assertSame(Fraction.ZERO, Fraction.of(0, -1));
     }
 
     // MATH-179
@@ -199,7 +210,7 @@ public class FractionTest {
 
         Assertions.assertEquals(0.0, Fraction.ZERO.doubleValue());
         Assertions.assertEquals(0.0, ZERO_P.doubleValue());
-        Assertions.assertEquals(-0.0, ZERO_N.doubleValue());
+        Assertions.assertEquals(0.0, ZERO_N.doubleValue());
     }
 
     @Test
@@ -216,7 +227,7 @@ public class FractionTest {
         Assertions.assertEquals(-e, Fraction.of(1, -3).floatValue());
 
         Assertions.assertEquals(0.0f, ZERO_P.floatValue());
-        Assertions.assertEquals(-0.0f, ZERO_N.floatValue());
+        Assertions.assertEquals(0.0f, ZERO_N.floatValue());
     }
 
     @Test
@@ -510,14 +521,15 @@ public class FractionTest {
      * Assert the two fractions are equal. The contract of {@link Object#hashCode()} requires
      * that the hash code must also be equal.
      *
-     * <p>This method must not be called with the same instance for both arguments. It is
-     * intended to be used to test different objects that are equal have the same hash code.
+     * <p>Ideally this method should not be called with the same instance for both arguments.
+     * It is intended to be used to test different objects that are equal have the same hash code.
+     * However the same object may be constructed for different arguments using factory
+     * constructors, e.g. zero.
      *
      * @param f1 Fraction 1.
      * @param f2 Fraction 2.
      */
     private static void assertEqualAndHashCodeEqual(Fraction f1, Fraction f2) {
-        Assertions.assertNotSame(f1, f2, "Do not call this assertion with the same object");
         Assertions.assertEquals(f1, f2);
         Assertions.assertEquals(f1.hashCode(), f2.hashCode(), "Equal fractions have different hashCode");
         // Check the computation matches the result of Arrays.hashCode and the signum.

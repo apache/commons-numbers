@@ -96,6 +96,22 @@ public class BigFractionTest {
             () -> BigFraction.from(2.0 * Integer.MAX_VALUE, 1.0e-5, 100000));
     }
 
+    @Test
+    public void testConstructorZero() {
+        Assertions.assertSame(BigFraction.ZERO, BigFraction.from(0.0));
+        Assertions.assertSame(BigFraction.ZERO, BigFraction.from(0.0, 1e-10, 100));
+        Assertions.assertSame(BigFraction.ZERO, BigFraction.from(0.0, 100));
+        Assertions.assertSame(BigFraction.ZERO, BigFraction.of(0));
+        Assertions.assertSame(BigFraction.ZERO, BigFraction.of(0L));
+        Assertions.assertSame(BigFraction.ZERO, BigFraction.of(BigInteger.ZERO));
+        Assertions.assertSame(BigFraction.ZERO, BigFraction.of(0, 1));
+        Assertions.assertSame(BigFraction.ZERO, BigFraction.of(0, -1));
+        Assertions.assertSame(BigFraction.ZERO, BigFraction.of(0L, 1L));
+        Assertions.assertSame(BigFraction.ZERO, BigFraction.of(0L, -1L));
+        Assertions.assertSame(BigFraction.ZERO, BigFraction.of(BigInteger.ZERO, BigInteger.ONE));
+        Assertions.assertSame(BigFraction.ZERO, BigFraction.of(BigInteger.ZERO, BigInteger.ONE.negate()));
+    }
+
     // MATH-179
     @Test
     public void testDoubleConstructor() throws Exception {
@@ -624,14 +640,15 @@ public class BigFractionTest {
      * Assert the two fractions are equal. The contract of {@link Object#hashCode()} requires
      * that the hash code must also be equal.
      *
-     * <p>This method must not be called with the same instance for both arguments. It is
-     * intended to be used to test different objects that are equal have the same hash code.
+     * <p>Ideally this method should not be called with the same instance for both arguments.
+     * It is intended to be used to test different objects that are equal have the same hash code.
+     * However the same object may be constructed for different arguments using factory
+     * constructors, e.g. zero.
      *
      * @param f1 Fraction 1.
      * @param f2 Fraction 2.
      */
     private static void assertEqualAndHashCodeEqual(BigFraction f1, BigFraction f2) {
-        Assertions.assertNotSame(f1, f2, "Do not call this assertion with the same object");
         Assertions.assertEquals(f1, f2);
         Assertions.assertEquals(f1.hashCode(), f2.hashCode(), "Equal fractions have different hashCode");
         // Check the computation matches the result of Arrays.hashCode and the signum.

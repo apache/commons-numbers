@@ -36,10 +36,10 @@ public final class Fraction
                NativeOperators<Fraction>,
                Serializable {
     /** A fraction representing "0". */
-    public static final Fraction ZERO = of(0);
+    public static final Fraction ZERO = new Fraction(0);
 
     /** A fraction representing "1". */
-    public static final Fraction ONE = of(1);
+    public static final Fraction ONE = new Fraction(1);
 
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20190701L;
@@ -58,6 +58,10 @@ public final class Fraction
 
     /**
      * Private constructor: Instances are created using factory methods.
+     *
+     * <p>This constructor should only be invoked when the fraction is known
+     * to be non-zero; otherwise use {@link #ZERO}. This avoids creating
+     * the zero representation {@code 0 / -1}.
      *
      * @param num Numerator.
      * @param den Denominator.
@@ -87,15 +91,11 @@ public final class Fraction
                 q = den;
             }
 
-            // Will not throw
+            // Will not throw.
+            // Cannot return 0 as gcd(0, 0) has been eliminated.
             final int d = ArithmeticUtils.gcd(p, q);
-            if (d > 1) {
-                p /= d;
-                q /= d;
-            }
-
-            numerator = p;
-            denominator = q;
+            numerator = p / d;
+            denominator = q / d;
         }
     }
 
@@ -257,6 +257,9 @@ public final class Fraction
     public static Fraction from(final double value,
                                 final double epsilon,
                                 final int maxIterations) {
+        if (value == 0) {
+            return ZERO;
+        }
         return new Fraction(value, epsilon, Integer.MAX_VALUE, maxIterations);
     }
 
@@ -278,6 +281,9 @@ public final class Fraction
      */
     public static Fraction from(final double value,
                                 final int maxDenominator) {
+        if (value == 0) {
+            return ZERO;
+        }
         return new Fraction(value, 0, maxDenominator, 100);
     }
 
@@ -288,6 +294,9 @@ public final class Fraction
      * @return a new instance.
      */
     public static Fraction of(final int num) {
+        if (num == 0) {
+            return ZERO;
+        }
         return new Fraction(num);
     }
 
@@ -301,6 +310,9 @@ public final class Fraction
      * @return a new instance.
      */
     public static Fraction of(final int num, final int den) {
+        if (num == 0) {
+            return ZERO;
+        }
         return new Fraction(num, den);
     }
 
@@ -342,7 +354,7 @@ public final class Fraction
         final int slashLoc = stripped.indexOf('/');
         // if no slash, parse as single number
         if (slashLoc == -1) {
-            return Fraction.of(Integer.parseInt(stripped.trim()));
+            return of(Integer.parseInt(stripped.trim()));
         }
         final int num = Integer.parseInt(stripped.substring(0, slashLoc).trim());
         final int denom = Integer.parseInt(stripped.substring(slashLoc + 1).trim());
@@ -469,6 +481,7 @@ public final class Fraction
      * cannot be represented in an {@code int}.
      */
     public Fraction add(final int value) {
+        // Direct constructor: cannot add an integer to a fraction to produce zero
         return new Fraction(numerator + value * denominator, denominator);
     }
 
@@ -496,6 +509,7 @@ public final class Fraction
      * cannot be represented in an {@code int}.
      */
     public Fraction subtract(final int value) {
+        // Direct constructor: cannot subtract an integer from a fraction to produce zero
         return new Fraction(numerator - value * denominator, denominator);
     }
 
@@ -600,8 +614,8 @@ public final class Fraction
         // Make sure we don't overflow unless the result *must* overflow.
         final int d1 = ArithmeticUtils.gcd(numerator, value.denominator);
         final int d2 = ArithmeticUtils.gcd(value.numerator, denominator);
-        return of(Math.multiplyExact(numerator / d1, value.numerator / d2),
-                  Math.multiplyExact(denominator / d2, value.denominator / d1));
+        return new Fraction(Math.multiplyExact(numerator / d1, value.numerator / d2),
+                            Math.multiplyExact(denominator / d2, value.denominator / d1));
     }
 
     /**
@@ -615,7 +629,14 @@ public final class Fraction
      * by an {@code int}.
      */
     public Fraction divide(final int value) {
-        return divide(of(value));
+        if (value == 0) {
+            throw new FractionException(FractionException.ERROR_DIVIDE_BY_ZERO);
+        }
+        if (isZero()) {
+            return ZERO;
+        }
+        // Multiply by reciprocal
+        return multiply(new Fraction(1, value));
     }
 
     /**
@@ -634,7 +655,7 @@ public final class Fraction
             throw new FractionException(FractionException.ERROR_DIVIDE_BY_ZERO);
         }
         if (isZero()) {
-            return this;
+            return ZERO;
         }
         return multiply(value.reciprocal());
     }
@@ -653,7 +674,7 @@ public final class Fraction
             return ONE;
         }
         if (isZero()) {
-            return this;
+            return ZERO;
         }
 
         if (exponent < 0) {

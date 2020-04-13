@@ -127,7 +127,7 @@ final class CommonTestCases {
 
         testCases.add(new UnaryOperatorTestCase(0, 1, 0, 1));
         testCases.add(new UnaryOperatorTestCase(0, 2, 0, 1));
-        testCases.add(new UnaryOperatorTestCase(0, -1, 0, -1));
+        testCases.add(new UnaryOperatorTestCase(0, -1, 0, 1));
         testCases.add(new UnaryOperatorTestCase(1, 2, 1, 2));
         testCases.add(new UnaryOperatorTestCase(2, 4, 1, 2));
         testCases.add(new UnaryOperatorTestCase(-1, 2, -1, 2));
@@ -216,7 +216,7 @@ final class CommonTestCases {
         testCases.add(new UnaryOperatorTestCase(-11, 23, 11, 23));
         testCases.add(new UnaryOperatorTestCase(13, -24, -13, -24));
         testCases.add(new UnaryOperatorTestCase(0, 1, 0, 1));
-        testCases.add(new UnaryOperatorTestCase(0, -1, 0, -1));
+        testCases.add(new UnaryOperatorTestCase(0, -1, 0, 1));
 
         return testCases;
     }
@@ -249,9 +249,8 @@ final class CommonTestCases {
         testCases.add(new UnaryOperatorTestCase(-50, 75, 2, 3));
         testCases.add(new UnaryOperatorTestCase(Integer.MAX_VALUE - 1, Integer.MAX_VALUE, Integer.MIN_VALUE + 2, Integer.MAX_VALUE));
         testCases.add(new UnaryOperatorTestCase(1, Integer.MIN_VALUE, -1, Integer.MIN_VALUE));
-        // Negation of zero is a no-op
         testCases.add(new UnaryOperatorTestCase(0, 1, 0, 1));
-        testCases.add(new UnaryOperatorTestCase(0, -1, 0, -1));
+        testCases.add(new UnaryOperatorTestCase(0, -1, 0, 1));
 
         // XXX Failed by "BigFraction" (whose implementation differs from "Fraction").
         // These are tested explicitly in FractionTest.
@@ -342,7 +341,7 @@ final class CommonTestCases {
         testCases.add(new BinaryOperatorTestCase(2, 3, 2, 3, 1, 1));
         testCases.add(new BinaryOperatorTestCase(0, 3, 2, 3, 0, 1));
         // Return the original zero representation
-        testCases.add(new BinaryOperatorTestCase(0, -3, 2, 3, 0, -1));
+        testCases.add(new BinaryOperatorTestCase(0, -3, 2, 3, 0, 1));
 
         testCases.add(new BinaryOperatorTestCase(
                 2, 7,
@@ -503,7 +502,7 @@ final class CommonTestCases {
         testCases.add(new BinaryIntOperatorTestCase(2, 3, -13, 1594323, 8192));
 
         testCases.add(new BinaryIntOperatorTestCase(0, 1, Integer.MAX_VALUE, 0, 1));
-        testCases.add(new BinaryIntOperatorTestCase(0, -1, Integer.MAX_VALUE, 0, -1));
+        testCases.add(new BinaryIntOperatorTestCase(0, -1, Integer.MAX_VALUE, 0, 1));
 
         return testCases;
     }
