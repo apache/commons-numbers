@@ -696,15 +696,27 @@ public final class Fraction
      */
     @Override
     public int compareTo(Fraction other) {
-        final int lhsSigNum = signum();
-        final int rhsSigNum = other.signum();
+        // Compute the sign of each part
+        final int lns = Integer.signum(numerator);
+        final int lds = Integer.signum(denominator);
+        final int rns = Integer.signum(other.numerator);
+        final int rds = Integer.signum(other.denominator);
+
+        final int lhsSigNum = lns * lds;
+        final int rhsSigNum = rns * rds;
 
         if (lhsSigNum != rhsSigNum) {
             return (lhsSigNum > rhsSigNum) ? 1 : -1;
         }
-        // Same sign: compare magnitude
-        final long nOd = ((long) numerator) * other.denominator;
-        final long dOn = ((long) denominator) * other.numerator;
+        // Same sign.
+        // Avoid a multiply if both fractions are zero
+        if (lhsSigNum == 0) {
+            return 0;
+        }
+        // Compare absolute magnitude.
+        // Multiplication by the signum is equal to the absolute.
+        final long nOd = ((long) numerator) * lns * other.denominator * rds;
+        final long dOn = ((long) denominator) * lds * other.numerator * rns;
         return Long.compare(nOd, dOn);
     }
 

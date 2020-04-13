@@ -953,9 +953,9 @@ public final class BigFraction
         if (lhsSigNum == 0) {
             return 0;
         }
-        // Compare magnitude
-        final BigInteger nOd = numerator.multiply(other.denominator);
-        final BigInteger dOn = denominator.multiply(other.numerator);
+        // Compare absolute magnitude
+        final BigInteger nOd = numerator.abs().multiply(other.denominator.abs());
+        final BigInteger dOn = denominator.abs().multiply(other.numerator.abs());
         return nOd.compareTo(dOn);
     }
 

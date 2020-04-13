@@ -211,9 +211,9 @@ public class BigFractionTest {
         Assertions.assertEquals(0, f.compareTo(a));
         Assertions.assertEquals(1, f.compareTo(e));
         Assertions.assertEquals(-1, e.compareTo(f));
-//        Assertions.assertEquals(-1, g.compareTo(a));
+        Assertions.assertEquals(-1, g.compareTo(a));
         Assertions.assertEquals(-1, g.compareTo(f));
-//        Assertions.assertEquals(1, a.compareTo(g));
+        Assertions.assertEquals(1, a.compareTo(g));
         Assertions.assertEquals(-1, d.compareTo(g));
 
         Assertions.assertEquals(0, BigFraction.of(0, 3).compareTo(BigFraction.of(0, -2)));
