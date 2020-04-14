@@ -615,13 +615,29 @@ public final class Fraction
         if (value.isZero() || isZero()) {
             return ZERO;
         }
+        return multiply(value.numerator, value.denominator);
+    }
 
+    /**
+     * Multiply this fraction by the passed fraction decomposed into a numerator and
+     * denominator, returning the result in reduced form.
+     *
+     * <p>This is a utility method to be used by multiply and divide. The decomposed
+     * fraction arguments and this fraction are not checked for zero.
+     *
+     * @param num Fraction numerator.
+     * @param den Fraction denominator.
+     * @return {@code this * num / den}.
+     * @throws ArithmeticException if the resulting numerator or denominator cannot
+     * be represented in an {@code int}.
+     */
+    private Fraction multiply(int num, int den) {
         // knuth 4.5.1
         // Make sure we don't overflow unless the result *must* overflow.
-        final int d1 = ArithmeticUtils.gcd(numerator, value.denominator);
-        final int d2 = ArithmeticUtils.gcd(value.numerator, denominator);
-        return new Fraction(Math.multiplyExact(numerator / d1, value.numerator / d2),
-                            Math.multiplyExact(denominator / d2, value.denominator / d1));
+        final int d1 = ArithmeticUtils.gcd(numerator, den);
+        final int d2 = ArithmeticUtils.gcd(num, denominator);
+        return new Fraction(Math.multiplyExact(numerator / d1, num / d2),
+                            Math.multiplyExact(denominator / d2, den / d1));
     }
 
     /**
@@ -669,7 +685,8 @@ public final class Fraction
         if (isZero()) {
             return ZERO;
         }
-        return multiply(value.reciprocal());
+        // Multiply by reciprocal
+        return multiply(value.denominator, value.numerator);
     }
 
     /**

@@ -913,7 +913,9 @@ public final class BigFraction
         if (isZero()) {
             return ZERO;
         }
-        return multiply(value.reciprocal());
+        // Multiply by reciprocal
+        return new BigFraction(numerator.multiply(value.denominator),
+                               denominator.multiply(value.numerator));
     }
 
     /**
