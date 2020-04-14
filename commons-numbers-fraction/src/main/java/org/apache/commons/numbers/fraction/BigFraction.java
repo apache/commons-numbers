@@ -682,8 +682,7 @@ public final class BigFraction
             return of(value);
         }
 
-        // Direct constructor: cannot add an integer to a fraction to produce zero
-        return new BigFraction(numerator.add(denominator.multiply(value)), denominator);
+        return of(numerator.add(denominator.multiply(value)), denominator);
     }
 
     /**
@@ -757,8 +756,7 @@ public final class BigFraction
             return of(value.negate());
         }
 
-        // Direct constructor: cannot subtract an integer from a fraction to produce zero
-        return new BigFraction(numerator.subtract(denominator.multiply(value)), denominator);
+        return of(numerator.subtract(denominator.multiply(value)), denominator);
     }
 
     /**

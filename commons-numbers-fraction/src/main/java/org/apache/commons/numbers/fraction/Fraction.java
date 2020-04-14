@@ -481,8 +481,7 @@ public final class Fraction
      * cannot be represented in an {@code int}.
      */
     public Fraction add(final int value) {
-        // Direct constructor: cannot add an integer to a fraction to produce zero
-        return new Fraction(numerator + value * denominator, denominator);
+        return of(numerator + value * denominator, denominator);
     }
 
     /**
@@ -509,8 +508,7 @@ public final class Fraction
      * cannot be represented in an {@code int}.
      */
     public Fraction subtract(final int value) {
-        // Direct constructor: cannot subtract an integer from a fraction to produce zero
-        return new Fraction(numerator - value * denominator, denominator);
+        return of(numerator - value * denominator, denominator);
     }
 
     /**

@@ -322,6 +322,7 @@ final class CommonTestCases {
         testCases.add(new BinaryIntOperatorTestCase(-1, 3, 0, -1, 3));
         testCases.add(new BinaryIntOperatorTestCase(1, 3, 1, 4, 3));
         testCases.add(new BinaryIntOperatorTestCase(1, 3, -1, -2, 3));
+        testCases.add(new BinaryIntOperatorTestCase(2, -1, 2, 0, 1));
         testCases.add(new BinaryIntOperatorTestCase(Integer.MAX_VALUE - 1, 1, 1, Integer.MAX_VALUE, 1));
 
         return testCases;
@@ -474,6 +475,7 @@ final class CommonTestCases {
         testCases.add(new BinaryIntOperatorTestCase(0, 1, 3, -3, 1));
         testCases.add(new BinaryIntOperatorTestCase(2, 3, 3, -7, 3));
         testCases.add(new BinaryIntOperatorTestCase(2, 3, 0, 2, 3));
+        testCases.add(new BinaryIntOperatorTestCase(2, -1, -2, 0, 1));
 
         return testCases;
     }
