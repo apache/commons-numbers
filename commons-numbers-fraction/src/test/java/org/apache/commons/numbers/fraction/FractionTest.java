@@ -271,17 +271,6 @@ public class FractionTest {
     }
 
     @Test
-    public void testMath1261() {
-        final Fraction a = Fraction.of(Integer.MAX_VALUE, 2);
-        final Fraction b = a.multiply(2);
-        Assertions.assertTrue(b.equals(Fraction.of(Integer.MAX_VALUE)));
-
-        final Fraction c = Fraction.of(2, Integer.MAX_VALUE);
-        final Fraction d = c.divide(2);
-        Assertions.assertTrue(d.equals(Fraction.of(1, Integer.MAX_VALUE)));
-    }
-
-    @Test
     public void testReciprocal() {
         for (CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.reciprocalTestCases()) {
             Fraction f = Fraction.of(testCase.operandNumerator, testCase.operandDenominator);
@@ -618,5 +607,14 @@ public class FractionTest {
         Assertions.assertThrows(NumberFormatException.class, () -> Fraction.parse("1 / z"));
         Assertions.assertThrows(NumberFormatException.class, () -> Fraction.parse("1 / --2"));
         Assertions.assertThrows(NumberFormatException.class, () -> Fraction.parse("x"));
+    }
+
+    @Test
+    public void testMath1261() {
+        final Fraction a = Fraction.of(Integer.MAX_VALUE, 2);
+        assertFraction(Integer.MAX_VALUE, 1, a.multiply(2));
+
+        final Fraction b = Fraction.of(2, Integer.MAX_VALUE);
+        assertFraction(1, Integer.MAX_VALUE, b.divide(2));
     }
 }
