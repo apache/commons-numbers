@@ -482,8 +482,8 @@ public final class Fraction
      */
     public Fraction add(final int value) {
         // Convert to numerator with same effective denominator
-        final long f = (long) value * denominator;
-        return of(Math.toIntExact(numerator + f), denominator);
+        final long num = (long) value * denominator;
+        return of(Math.toIntExact(numerator + num), denominator);
     }
 
     /**
@@ -511,8 +511,8 @@ public final class Fraction
      */
     public Fraction subtract(final int value) {
         // Convert to numerator with same effective denominator
-        final long f = (long) value * denominator;
-        return of(Math.toIntExact(numerator - f), denominator);
+        final long num = (long) value * denominator;
+        return of(Math.toIntExact(numerator - num), denominator);
     }
 
     /**
