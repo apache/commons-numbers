@@ -16,7 +16,6 @@
  */
 package org.apache.commons.numbers.fraction;
 
-import java.math.BigInteger;
 import java.util.Arrays;
 import org.apache.commons.numbers.core.TestUtils;
 
