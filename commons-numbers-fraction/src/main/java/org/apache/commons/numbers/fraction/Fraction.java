@@ -477,11 +477,13 @@ public final class Fraction
      *
      * @param value Value to add.
      * @return {@code this + value}.
-     * @throws ArithmeticException if the resulting numerator or denominator
+     * @throws ArithmeticException if the resulting numerator
      * cannot be represented in an {@code int}.
      */
     public Fraction add(final int value) {
-        return of(numerator + value * denominator, denominator);
+        // Convert to numerator with same effective denominator
+        final long f = (long) value * denominator;
+        return of(Math.toIntExact(numerator + f), denominator);
     }
 
     /**
@@ -504,11 +506,13 @@ public final class Fraction
      *
      * @param value Value to subtract.
      * @return {@code this - value}.
-     * @throws ArithmeticException if the resulting numerator or denominator
+     * @throws ArithmeticException if the resulting numerator
      * cannot be represented in an {@code int}.
      */
     public Fraction subtract(final int value) {
-        return of(numerator - value * denominator, denominator);
+        // Convert to numerator with same effective denominator
+        final long f = (long) value * denominator;
+        return of(Math.toIntExact(numerator - f), denominator);
     }
 
     /**

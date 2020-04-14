@@ -311,37 +311,26 @@ public class FractionTest {
         Assertions.assertThrows(NullPointerException.class, () -> Fraction.ONE.add((Fraction) null));
 
         // Special cases
-        final Fraction f3 = Fraction.of(Integer.MAX_VALUE, 1);
-        Assertions.assertThrows(ArithmeticException.class,
-            () -> {
-                Fraction f = f3.add(Fraction.ONE); // should overflow
-                Assertions.fail("expecting ArithmeticException but got: " + f.toString());
-            }
-        );
+        final Fraction f3 = Fraction.of(1, Integer.MAX_VALUE);
+        final Fraction f4 = Fraction.of(1, Integer.MAX_VALUE - 1);
+        Assertions.assertThrows(ArithmeticException.class, () -> f3.add(f4));
 
         // denominator should not be a multiple of 2 or 3 to trigger overflow
-        final Fraction f4 = Fraction.of(Integer.MIN_VALUE, 5);
-        final Fraction f5 = Fraction.of(-1, 5);
-        Assertions.assertThrows(ArithmeticException.class,
-            () -> {
-                Fraction f = f4.add(f5); // should overflow
-                Assertions.fail("expecting ArithmeticException but got: " + f.toString());
-            }
-        );
+        final Fraction f5 = Fraction.of(Integer.MIN_VALUE, 5);
+        final Fraction f6 = Fraction.of(-1, 5);
+        Assertions.assertThrows(ArithmeticException.class, () -> f5.add(f6));
 
-        final Fraction f6 = Fraction.of(-Integer.MAX_VALUE, 1);
-        Assertions.assertThrows(ArithmeticException.class,
-            () -> f6.add(f6)
-        );
+        final Fraction f7 = Fraction.of(Integer.MIN_VALUE, 1);
+        Assertions.assertThrows(ArithmeticException.class, () -> f7.add(Fraction.ONE.negate()));
+        Assertions.assertThrows(ArithmeticException.class, () -> f7.add(-1));
 
-        final Fraction f7 = Fraction.of(3, 327680);
-        final Fraction f8 = Fraction.of(2, 59049);
-        Assertions.assertThrows(ArithmeticException.class,
-            () -> {
-                Fraction f = f7.add(f8); // should overflow
-                Assertions.fail("expecting ArithmeticException but got: " + f.toString());
-            }
-        );
+        final Fraction f8 = Fraction.of(Integer.MAX_VALUE, 1);
+        Assertions.assertThrows(ArithmeticException.class, () -> f8.add(Fraction.ONE));
+        Assertions.assertThrows(ArithmeticException.class, () -> f8.add(1));
+
+        final Fraction f9 = Fraction.of(3, 327680);
+        final Fraction f10 = Fraction.of(2, 59049);
+        Assertions.assertThrows(ArithmeticException.class, () -> f9.add(f10));
     }
 
     @Test
@@ -419,40 +408,27 @@ public class FractionTest {
 
         Assertions.assertThrows(NullPointerException.class, () -> Fraction.ONE.add((Fraction) null));
 
+        // Special cases
         final Fraction f3 = Fraction.of(1, Integer.MAX_VALUE);
         final Fraction f4 = Fraction.of(1, Integer.MAX_VALUE - 1);
-        Assertions.assertThrows(ArithmeticException.class,
-            () -> f3.subtract(f4)  //should overflow
-        );
+        Assertions.assertThrows(ArithmeticException.class, () -> f3.subtract(f4));
 
         // denominator should not be a multiple of 2 or 3 to trigger overflow
         final Fraction f5 = Fraction.of(Integer.MIN_VALUE, 5);
         final Fraction f6 = Fraction.of(1, 5);
-        Assertions.assertThrows(ArithmeticException.class,
-            () -> {
-                Fraction f = f5.subtract(f6); // should overflow
-                Assertions.fail("expecting ArithmeticException but got: " + f.toString());
-            }
-        );
+        Assertions.assertThrows(ArithmeticException.class, () -> f5.subtract(f6));
 
         final Fraction f7 = Fraction.of(Integer.MIN_VALUE, 1);
-        Assertions.assertThrows(ArithmeticException.class,
-            () -> f7.subtract(Fraction.ONE)
-        );
+        Assertions.assertThrows(ArithmeticException.class, () -> f7.subtract(Fraction.ONE));
+        Assertions.assertThrows(ArithmeticException.class, () -> f7.subtract(1));
 
         final Fraction f8 = Fraction.of(Integer.MAX_VALUE, 1);
-        Assertions.assertThrows(ArithmeticException.class,
-            () -> f8.subtract(Fraction.ONE.negate())
-        );
+        Assertions.assertThrows(ArithmeticException.class, () -> f8.subtract(Fraction.ONE.negate()));
+        Assertions.assertThrows(ArithmeticException.class, () -> f8.subtract(-1));
 
         final Fraction f9 = Fraction.of(3, 327680);
         final Fraction f10 = Fraction.of(2, 59049);
-        Assertions.assertThrows(ArithmeticException.class,
-            () -> {
-                Fraction f = f9.subtract(f10); // should overflow
-                Assertions.fail("expecting ArithmeticException but got: " + f.toString());
-            }
-        );
+        Assertions.assertThrows(ArithmeticException.class, () -> f9.subtract(f10));
     }
 
     @Test
