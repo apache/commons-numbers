@@ -351,16 +351,19 @@ public class FractionTest {
         Assertions.assertThrows(FractionException.class, () -> Fraction.of(1, 2).divide(Fraction.ZERO));
         Assertions.assertThrows(FractionException.class, () -> Fraction.of(1, 2).divide(0));
 
-        // Special cases
+        // Special cases for overflow
+        final Fraction two = Fraction.of(2);
         final Fraction f3 = Fraction.of(1, Integer.MAX_VALUE);
-        Assertions.assertThrows(ArithmeticException.class,
-            () -> f3.divide(f3.reciprocal())  // should overflow
-        );
+        Assertions.assertThrows(ArithmeticException.class, () -> f3.divide(two));
+        Assertions.assertThrows(ArithmeticException.class, () -> f3.divide(two.negate()));
+        Assertions.assertThrows(ArithmeticException.class, () -> f3.divide(2));
+        Assertions.assertThrows(ArithmeticException.class, () -> f3.divide(-2));
 
-        final Fraction f4 = Fraction.of(1, -Integer.MAX_VALUE);
-        Assertions.assertThrows(ArithmeticException.class,
-            () -> f4.divide(f4.reciprocal())  // should overflow
-        );
+        final Fraction f4 = Fraction.of(1, Integer.MIN_VALUE);
+        Assertions.assertThrows(ArithmeticException.class, () -> f4.divide(two));
+        Assertions.assertThrows(ArithmeticException.class, () -> f4.divide(two.negate()));
+        Assertions.assertThrows(ArithmeticException.class, () -> f4.divide(2));
+        Assertions.assertThrows(ArithmeticException.class, () -> f4.divide(-2));
     }
 
     @Test
@@ -377,6 +380,20 @@ public class FractionTest {
         }
 
         Assertions.assertThrows(NullPointerException.class, () -> Fraction.ONE.multiply((Fraction) null));
+
+        // Special cases for overflow
+        final Fraction two = Fraction.of(2);
+        final Fraction f3 = Fraction.of(Integer.MAX_VALUE);
+        Assertions.assertThrows(ArithmeticException.class, () -> f3.multiply(two));
+        Assertions.assertThrows(ArithmeticException.class, () -> f3.multiply(two.negate()));
+        Assertions.assertThrows(ArithmeticException.class, () -> f3.multiply(2));
+        Assertions.assertThrows(ArithmeticException.class, () -> f3.multiply(-2));
+
+        final Fraction f4 = Fraction.of(Integer.MIN_VALUE);
+        Assertions.assertThrows(ArithmeticException.class, () -> f4.multiply(two));
+        Assertions.assertThrows(ArithmeticException.class, () -> f4.multiply(two.negate()));
+        Assertions.assertThrows(ArithmeticException.class, () -> f4.multiply(2));
+        Assertions.assertThrows(ArithmeticException.class, () -> f4.multiply(-2));
     }
 
     @Test
