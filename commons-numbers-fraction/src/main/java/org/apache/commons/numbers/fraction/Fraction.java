@@ -444,7 +444,7 @@ public final class Fraction
      * Returns the {@code float} value closest to this fraction.
      * This calculates the fraction as numerator divided by denominator.
      *
-     * @return the fraction as {@code float}.
+     * @return the fraction as a {@code float}.
      */
     @Override
     public float floatValue() {
@@ -458,6 +458,8 @@ public final class Fraction
      */
     @Override
     public int intValue() {
+        // Note: numerator / denominator fails for Integer.MIN_VALUE / -1.
+        // Casting the double value handles this case.
         return (int) doubleValue();
     }
 
@@ -468,7 +470,7 @@ public final class Fraction
      */
     @Override
     public long longValue() {
-        return (long) doubleValue();
+        return (long) numerator / denominator;
     }
 
     /**

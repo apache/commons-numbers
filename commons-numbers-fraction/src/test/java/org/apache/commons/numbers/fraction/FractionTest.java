@@ -244,6 +244,11 @@ public class FractionTest {
         Assertions.assertEquals(-1, Fraction.of(-3, 2).intValue());
         Assertions.assertEquals(-1, Fraction.of(3, -2).intValue());
 
+        Assertions.assertEquals(0, Fraction.of(1, Integer.MIN_VALUE).intValue());
+        Assertions.assertEquals(0, Fraction.of(-1, Integer.MIN_VALUE).intValue());
+        Assertions.assertEquals(Integer.MIN_VALUE, Fraction.of(Integer.MIN_VALUE, 1).intValue());
+        Assertions.assertEquals(Integer.MAX_VALUE, Fraction.of(Integer.MIN_VALUE, -1).intValue());
+
         Assertions.assertEquals(0, ZERO_P.intValue());
         Assertions.assertEquals(0, ZERO_N.intValue());
     }
@@ -259,6 +264,11 @@ public class FractionTest {
         Assertions.assertEquals(1L, Fraction.of(-3, -2).longValue());
         Assertions.assertEquals(-1L, Fraction.of(-3, 2).longValue());
         Assertions.assertEquals(-1L, Fraction.of(3, -2).longValue());
+
+        Assertions.assertEquals(0, Fraction.of(1, Integer.MIN_VALUE).longValue());
+        Assertions.assertEquals(0, Fraction.of(-1, Integer.MIN_VALUE).longValue());
+        Assertions.assertEquals(Integer.MIN_VALUE, Fraction.of(Integer.MIN_VALUE, 1).longValue());
+        Assertions.assertEquals(Integer.MAX_VALUE + 1L, Fraction.of(Integer.MIN_VALUE, -1).longValue());
 
         Assertions.assertEquals(0L, ZERO_P.longValue());
         Assertions.assertEquals(0L, ZERO_N.longValue());
