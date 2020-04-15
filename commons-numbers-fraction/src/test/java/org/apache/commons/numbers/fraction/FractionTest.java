@@ -16,9 +16,12 @@
  */
 package org.apache.commons.numbers.fraction;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.numbers.core.TestUtils;
-
+import org.apache.commons.numbers.fraction.CommonTestCases.BinaryIntOperatorTestCase;
+import org.apache.commons.numbers.fraction.CommonTestCases.BinaryOperatorTestCase;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -307,30 +310,18 @@ public class FractionTest {
             int i2 = testCase.secondOperand;
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.add(i2));
         }
+        for (CommonTestCases.BinaryOperatorTestCase testCase : addFractionOverflowTestCases()) {
+            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+            Assertions.assertThrows(ArithmeticException.class, () -> f1.add(f2));
+        }
+        for (CommonTestCases.BinaryIntOperatorTestCase testCase : addIntOverflowTestCases()) {
+            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            int i2 = testCase.secondOperand;
+            Assertions.assertThrows(ArithmeticException.class, () -> f1.add(i2));
+        }
 
         Assertions.assertThrows(NullPointerException.class, () -> Fraction.ONE.add((Fraction) null));
-
-        // Special cases
-        final Fraction f3 = Fraction.of(1, Integer.MAX_VALUE);
-        final Fraction f4 = Fraction.of(1, Integer.MAX_VALUE - 1);
-        Assertions.assertThrows(ArithmeticException.class, () -> f3.add(f4));
-
-        // denominator should not be a multiple of 2 or 3 to trigger overflow
-        final Fraction f5 = Fraction.of(Integer.MIN_VALUE, 5);
-        final Fraction f6 = Fraction.of(-1, 5);
-        Assertions.assertThrows(ArithmeticException.class, () -> f5.add(f6));
-
-        final Fraction f7 = Fraction.of(Integer.MIN_VALUE, 1);
-        Assertions.assertThrows(ArithmeticException.class, () -> f7.add(Fraction.ONE.negate()));
-        Assertions.assertThrows(ArithmeticException.class, () -> f7.add(-1));
-
-        final Fraction f8 = Fraction.of(Integer.MAX_VALUE, 1);
-        Assertions.assertThrows(ArithmeticException.class, () -> f8.add(Fraction.ONE));
-        Assertions.assertThrows(ArithmeticException.class, () -> f8.add(1));
-
-        final Fraction f9 = Fraction.of(3, 327680);
-        final Fraction f10 = Fraction.of(2, 59049);
-        Assertions.assertThrows(ArithmeticException.class, () -> f9.add(f10));
     }
 
     @Test
@@ -345,25 +336,21 @@ public class FractionTest {
             int i2 = testCase.secondOperand;
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.divide(i2));
         }
+        for (CommonTestCases.BinaryOperatorTestCase testCase : divideByFractionOverflowTestCases()) {
+            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+            Assertions.assertThrows(ArithmeticException.class, () -> f1.divide(f2));
+        }
+        for (CommonTestCases.BinaryIntOperatorTestCase testCase : divideByIntOverflowTestCases()) {
+            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            int i2 = testCase.secondOperand;
+            Assertions.assertThrows(ArithmeticException.class, () -> f1.divide(i2));
+        }
 
         Assertions.assertThrows(NullPointerException.class, () -> Fraction.ONE.divide((Fraction) null));
 
         Assertions.assertThrows(FractionException.class, () -> Fraction.of(1, 2).divide(Fraction.ZERO));
         Assertions.assertThrows(FractionException.class, () -> Fraction.of(1, 2).divide(0));
-
-        // Special cases for overflow
-        final Fraction two = Fraction.of(2);
-        final Fraction f3 = Fraction.of(1, Integer.MAX_VALUE);
-        Assertions.assertThrows(ArithmeticException.class, () -> f3.divide(two));
-        Assertions.assertThrows(ArithmeticException.class, () -> f3.divide(two.negate()));
-        Assertions.assertThrows(ArithmeticException.class, () -> f3.divide(2));
-        Assertions.assertThrows(ArithmeticException.class, () -> f3.divide(-2));
-
-        final Fraction f4 = Fraction.of(1, Integer.MIN_VALUE);
-        Assertions.assertThrows(ArithmeticException.class, () -> f4.divide(two));
-        Assertions.assertThrows(ArithmeticException.class, () -> f4.divide(two.negate()));
-        Assertions.assertThrows(ArithmeticException.class, () -> f4.divide(2));
-        Assertions.assertThrows(ArithmeticException.class, () -> f4.divide(-2));
     }
 
     @Test
@@ -378,22 +365,18 @@ public class FractionTest {
             int i2 = testCase.secondOperand;
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.multiply(i2));
         }
+        for (CommonTestCases.BinaryOperatorTestCase testCase : multiplyByFractionOverflowTestCases()) {
+            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+            Assertions.assertThrows(ArithmeticException.class, () -> f1.multiply(f2));
+        }
+        for (CommonTestCases.BinaryIntOperatorTestCase testCase : multiplyByIntOverflowTestCases()) {
+            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            int i2 = testCase.secondOperand;
+            Assertions.assertThrows(ArithmeticException.class, () -> f1.multiply(i2));
+        }
 
         Assertions.assertThrows(NullPointerException.class, () -> Fraction.ONE.multiply((Fraction) null));
-
-        // Special cases for overflow
-        final Fraction two = Fraction.of(2);
-        final Fraction f3 = Fraction.of(Integer.MAX_VALUE);
-        Assertions.assertThrows(ArithmeticException.class, () -> f3.multiply(two));
-        Assertions.assertThrows(ArithmeticException.class, () -> f3.multiply(two.negate()));
-        Assertions.assertThrows(ArithmeticException.class, () -> f3.multiply(2));
-        Assertions.assertThrows(ArithmeticException.class, () -> f3.multiply(-2));
-
-        final Fraction f4 = Fraction.of(Integer.MIN_VALUE);
-        Assertions.assertThrows(ArithmeticException.class, () -> f4.multiply(two));
-        Assertions.assertThrows(ArithmeticException.class, () -> f4.multiply(two.negate()));
-        Assertions.assertThrows(ArithmeticException.class, () -> f4.multiply(2));
-        Assertions.assertThrows(ArithmeticException.class, () -> f4.multiply(-2));
     }
 
     @Test
@@ -422,30 +405,18 @@ public class FractionTest {
             int i2 = testCase.secondOperand;
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.subtract(i2));
         }
+        for (CommonTestCases.BinaryOperatorTestCase testCase : subtractFractionOverflowTestCases()) {
+            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+            Assertions.assertThrows(ArithmeticException.class, () -> f1.subtract(f2));
+        }
+        for (CommonTestCases.BinaryIntOperatorTestCase testCase : subtractIntOverflowTestCases()) {
+            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            int i2 = testCase.secondOperand;
+            Assertions.assertThrows(ArithmeticException.class, () -> f1.subtract(i2));
+        }
 
         Assertions.assertThrows(NullPointerException.class, () -> Fraction.ONE.add((Fraction) null));
-
-        // Special cases
-        final Fraction f3 = Fraction.of(1, Integer.MAX_VALUE);
-        final Fraction f4 = Fraction.of(1, Integer.MAX_VALUE - 1);
-        Assertions.assertThrows(ArithmeticException.class, () -> f3.subtract(f4));
-
-        // denominator should not be a multiple of 2 or 3 to trigger overflow
-        final Fraction f5 = Fraction.of(Integer.MIN_VALUE, 5);
-        final Fraction f6 = Fraction.of(1, 5);
-        Assertions.assertThrows(ArithmeticException.class, () -> f5.subtract(f6));
-
-        final Fraction f7 = Fraction.of(Integer.MIN_VALUE, 1);
-        Assertions.assertThrows(ArithmeticException.class, () -> f7.subtract(Fraction.ONE));
-        Assertions.assertThrows(ArithmeticException.class, () -> f7.subtract(1));
-
-        final Fraction f8 = Fraction.of(Integer.MAX_VALUE, 1);
-        Assertions.assertThrows(ArithmeticException.class, () -> f8.subtract(Fraction.ONE.negate()));
-        Assertions.assertThrows(ArithmeticException.class, () -> f8.subtract(-1));
-
-        final Fraction f9 = Fraction.of(3, 327680);
-        final Fraction f10 = Fraction.of(2, 59049);
-        Assertions.assertThrows(ArithmeticException.class, () -> f9.subtract(f10));
     }
 
     @Test
@@ -608,5 +579,111 @@ public class FractionTest {
 
         final Fraction b = Fraction.of(2, Integer.MAX_VALUE);
         assertFraction(1, Integer.MAX_VALUE, b.divide(2));
+    }
+
+    /**
+     * Defines test cases that cause overflow in {@link Fraction#add(Fraction)}.
+     * @return a list of test cases
+     */
+    private static List<BinaryOperatorTestCase> addFractionOverflowTestCases() {
+        List<BinaryOperatorTestCase> testCases = new ArrayList<>();
+        testCases.add(new BinaryOperatorTestCase(1, Integer.MAX_VALUE, 1, Integer.MAX_VALUE - 1, 0, 0));
+        testCases.add(new BinaryOperatorTestCase(Integer.MIN_VALUE, 5, -1, 5, 0, 0));
+        testCases.add(new BinaryOperatorTestCase(Integer.MIN_VALUE, 1, -1, 1, 0, 0));
+        testCases.add(new BinaryOperatorTestCase(Integer.MAX_VALUE, 1, 1, 1, 0, 0));
+        testCases.add(new BinaryOperatorTestCase(3, 327680, 2, 59049, 0, 0));
+        testCases.add(new BinaryOperatorTestCase(1, 2, Integer.MIN_VALUE, -2, 0, 0));
+        return testCases;
+    }
+
+    /**
+     * Defines test cases that cause overflow in {@link Fraction#add(int)}.
+     * @return a list of test cases
+     */
+    private static List<BinaryIntOperatorTestCase> addIntOverflowTestCases() {
+        List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
+        testCases.add(new BinaryIntOperatorTestCase(Integer.MIN_VALUE, 1, -1, 0, 0));
+        testCases.add(new BinaryIntOperatorTestCase(Integer.MAX_VALUE, 1, 1, 0, 0));
+        testCases.add(new BinaryIntOperatorTestCase(1, 2, Integer.MIN_VALUE / -2, 0, 0));
+        return testCases;
+    }
+
+    /**
+     * Defines test cases that cause overflow in {@link Fraction#divide(Fraction)}.
+     * @return a list of test cases
+     */
+    private static List<BinaryOperatorTestCase> divideByFractionOverflowTestCases() {
+        List<BinaryOperatorTestCase> testCases = new ArrayList<>();
+        testCases.add(new BinaryOperatorTestCase(1, Integer.MAX_VALUE, 2, 1, 0, 0));
+        testCases.add(new BinaryOperatorTestCase(1, Integer.MAX_VALUE, -2, 1, 0, 0));
+        testCases.add(new BinaryOperatorTestCase(1, Integer.MIN_VALUE, 2, 1, 0, 0));
+        testCases.add(new BinaryOperatorTestCase(1, Integer.MIN_VALUE, -2, 1, 0, 0));
+        return testCases;
+    }
+
+    /**
+     * Defines test cases that cause overflow in {@link Fraction#divide(int)}.
+     * @return a list of test cases
+     */
+    private static List<BinaryIntOperatorTestCase> divideByIntOverflowTestCases() {
+        List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
+        testCases.add(new BinaryIntOperatorTestCase(1, Integer.MAX_VALUE, 2, 0, 0));
+        testCases.add(new BinaryIntOperatorTestCase(1, Integer.MAX_VALUE, -2, 0, 0));
+        testCases.add(new BinaryIntOperatorTestCase(1, Integer.MIN_VALUE, 2, 0, 0));
+        testCases.add(new BinaryIntOperatorTestCase(1, Integer.MIN_VALUE, -2, 0, 0));
+        return testCases;
+    }
+
+    /**
+     * Defines test cases that cause overflow in {@link Fraction#multiply(Fraction)}.
+     * @return a list of test cases
+     */
+    private static List<BinaryOperatorTestCase> multiplyByFractionOverflowTestCases() {
+        List<BinaryOperatorTestCase> testCases = new ArrayList<>();
+        testCases.add(new BinaryOperatorTestCase(Integer.MAX_VALUE, 1, 2, 1, 0, 0));
+        testCases.add(new BinaryOperatorTestCase(Integer.MAX_VALUE, 1, -2, 1, 0, 0));
+        testCases.add(new BinaryOperatorTestCase(Integer.MIN_VALUE, 1, 2, 1, 0, 0));
+        testCases.add(new BinaryOperatorTestCase(Integer.MIN_VALUE, 1, -2, 1, 0, 0));
+        return testCases;
+    }
+
+    /**
+     * Defines test cases that cause overflow in {@link Fraction#multiply(int)}.
+     * @return a list of test cases
+     */
+    private static List<BinaryIntOperatorTestCase> multiplyByIntOverflowTestCases() {
+        List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
+        testCases.add(new BinaryIntOperatorTestCase(Integer.MAX_VALUE, 1, 2, 0, 0));
+        testCases.add(new BinaryIntOperatorTestCase(Integer.MAX_VALUE, 1, -2, 0, 0));
+        testCases.add(new BinaryIntOperatorTestCase(Integer.MIN_VALUE, 1, 2, 0, 0));
+        testCases.add(new BinaryIntOperatorTestCase(Integer.MIN_VALUE, 1, -2, 0, 0));
+        return testCases;
+    }
+
+    /**
+     * Defines test cases that cause overflow in {@link Fraction#subtract(Fraction)}.
+     * @return a list of test cases
+     */
+    private static List<BinaryOperatorTestCase> subtractFractionOverflowTestCases() {
+        List<BinaryOperatorTestCase> testCases = new ArrayList<>();
+        testCases.add(new BinaryOperatorTestCase(1, Integer.MAX_VALUE, 1, Integer.MAX_VALUE - 1, 0, 0));
+        testCases.add(new BinaryOperatorTestCase(Integer.MIN_VALUE, 5, 1, 5, 0, 0));
+        testCases.add(new BinaryOperatorTestCase(Integer.MIN_VALUE, 1, 1, 1, 0, 0));
+        testCases.add(new BinaryOperatorTestCase(Integer.MAX_VALUE, 1, -1, 1, 0, 0));
+        testCases.add(new BinaryOperatorTestCase(3, 327680, 2, 59049, 0, 0));
+        testCases.add(new BinaryOperatorTestCase(1, 2, Integer.MIN_VALUE, 2, 0, 0));
+        return testCases;
+    }
+
+    /**
+     * Defines test cases that cause overflow in {@link Fraction#subtract(int)}.
+     * @return a list of test cases
+     */
+    private static List<BinaryIntOperatorTestCase> subtractIntOverflowTestCases() {
+        List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
+        testCases.add(new BinaryIntOperatorTestCase(Integer.MIN_VALUE, 1, 1, 0, 0));
+        testCases.add(new BinaryIntOperatorTestCase(Integer.MAX_VALUE, 1, -1, 0, 0));
+        testCases.add(new BinaryIntOperatorTestCase(1, 2, Integer.MIN_VALUE / 2, 0, 0));
+        return testCases;
     }
 }
