@@ -152,7 +152,7 @@ public final class BigFraction
 
         // check for (almost) integer arguments, which should not go
         // to iterations.
-        if (Math.abs(a0 - value) < epsilon) {
+        if (Math.abs(a0 - value) <= epsilon) {
             return new BigFraction(BigInteger.valueOf(a0),
                                    BigInteger.ONE);
         }

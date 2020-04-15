@@ -161,7 +161,7 @@ public final class Fraction
         }
 
         // check for (almost) integer arguments, which should not go to iterations.
-        if (Math.abs(a0 - value) < epsilon) {
+        if (Math.abs(a0 - value) <= epsilon) {
             this.numerator = (int) a0;
             this.denominator = 1;
             return;
