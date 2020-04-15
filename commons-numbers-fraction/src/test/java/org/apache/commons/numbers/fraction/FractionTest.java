@@ -322,6 +322,11 @@ public class FractionTest {
         }
 
         Assertions.assertThrows(NullPointerException.class, () -> Fraction.ONE.add((Fraction) null));
+
+        // Edge case
+        assertFraction(Integer.MIN_VALUE, -1, Fraction.ZERO.add(Fraction.of(Integer.MIN_VALUE, -1)));
+        assertFraction(Integer.MIN_VALUE, 1, Fraction.ZERO.add(Fraction.of(Integer.MIN_VALUE, 1)));
+        assertFraction(Integer.MIN_VALUE, 1, Fraction.ZERO.add(Integer.MIN_VALUE));
     }
 
     @Test
@@ -417,6 +422,11 @@ public class FractionTest {
         }
 
         Assertions.assertThrows(NullPointerException.class, () -> Fraction.ONE.add((Fraction) null));
+
+        // Edge case
+        assertFraction(Integer.MIN_VALUE, 1, Fraction.ZERO.subtract(Fraction.of(Integer.MIN_VALUE, -1)));
+        assertFraction(Integer.MIN_VALUE, -1, Fraction.ZERO.subtract(Fraction.of(Integer.MIN_VALUE, 1)));
+        assertFraction(Integer.MIN_VALUE, -1, Fraction.ZERO.subtract(Integer.MIN_VALUE));
     }
 
     @Test

@@ -481,6 +481,12 @@ public final class Fraction
      * cannot be represented in an {@code int}.
      */
     public Fraction add(final int value) {
+        if (value == 0) {
+            return this;
+        }
+        if (isZero()) {
+            return new Fraction(value);
+        }
         // Convert to numerator with same effective denominator
         final long num = (long) value * denominator;
         return of(Math.toIntExact(numerator + num), denominator);
@@ -510,6 +516,15 @@ public final class Fraction
      * cannot be represented in an {@code int}.
      */
     public Fraction subtract(final int value) {
+        if (value == 0) {
+            return this;
+        }
+        if (isZero()) {
+            // Special case for min value
+            return value == Integer.MIN_VALUE ?
+                new Fraction(Integer.MIN_VALUE, -1) :
+                new Fraction(-value);
+        }
         // Convert to numerator with same effective denominator
         final long num = (long) value * denominator;
         return of(Math.toIntExact(numerator - num), denominator);
