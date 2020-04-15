@@ -44,13 +44,13 @@ public class FractionTest {
     }
 
     private static void assertDoubleValue(double expected, int numerator, int denominator) {
-        Fraction f = Fraction.of(numerator, denominator);
+        final Fraction f = Fraction.of(numerator, denominator);
         Assertions.assertEquals(expected, f.doubleValue());
     }
 
     @Test
     public void testConstructor() {
-        for (CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.numDenConstructorTestCases()) {
+        for (final CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.numDenConstructorTestCases()) {
             assertFraction(
                     testCase.expectedNumerator,
                     testCase.expectedDenominator,
@@ -81,7 +81,7 @@ public class FractionTest {
     // MATH-179
     @Test
     public void testDoubleConstructor() throws Exception  {
-        for (CommonTestCases.DoubleToFractionTestCase testCase : CommonTestCases.doubleConstructorTestCases()) {
+        for (final CommonTestCases.DoubleToFractionTestCase testCase : CommonTestCases.doubleConstructorTestCases()) {
             assertFraction(
                     testCase.expectedNumerator,
                     testCase.expectedDenominator,
@@ -193,8 +193,8 @@ public class FractionTest {
         // these two values are different approximations of PI
         // the first  one is approximately PI - 3.07e-18
         // the second one is approximately PI + 1.936e-17
-        Fraction pi1 = Fraction.of(1068966896, 340262731);
-        Fraction pi2 = Fraction.of(411557987, 131002976);
+        final Fraction pi1 = Fraction.of(1068966896, 340262731);
+        final Fraction pi2 = Fraction.of(411557987, 131002976);
         Assertions.assertEquals(-1, pi1.compareTo(pi2));
         Assertions.assertEquals(1, pi2.compareTo(pi1));
         Assertions.assertEquals(0.0, pi1.doubleValue() - pi2.doubleValue(), 1.0e-20);
@@ -266,16 +266,16 @@ public class FractionTest {
 
     @Test
     public void testAbs() {
-        for (CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.absTestCases()) {
-            Fraction f = Fraction.of(testCase.operandNumerator, testCase.operandDenominator);
+        for (final CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.absTestCases()) {
+            final Fraction f = Fraction.of(testCase.operandNumerator, testCase.operandDenominator);
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f.abs());
         }
     }
 
     @Test
     public void testReciprocal() {
-        for (CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.reciprocalTestCases()) {
-            Fraction f = Fraction.of(testCase.operandNumerator, testCase.operandDenominator);
+        for (final CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.reciprocalTestCases()) {
+            final Fraction f = Fraction.of(testCase.operandNumerator, testCase.operandDenominator);
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f.reciprocal());
         }
 
@@ -285,8 +285,8 @@ public class FractionTest {
 
     @Test
     public void testNegate() {
-        for (CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.negateTestCases()) {
-            Fraction f = Fraction.of(testCase.operandNumerator, testCase.operandDenominator);
+        for (final CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.negateTestCases()) {
+            final Fraction f = Fraction.of(testCase.operandNumerator, testCase.operandDenominator);
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f.negate());
         }
 
@@ -300,24 +300,24 @@ public class FractionTest {
 
     @Test
     public void testAdd() {
-        for (CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.addFractionTestCases()) {
-            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
-            Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+        for (final CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.addFractionTestCases()) {
+            final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            final Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.add(f2));
         }
-        for (CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.addIntTestCases()) {
-            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
-            int i2 = testCase.secondOperand;
+        for (final CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.addIntTestCases()) {
+            final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            final int i2 = testCase.secondOperand;
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.add(i2));
         }
-        for (CommonTestCases.BinaryOperatorTestCase testCase : addFractionOverflowTestCases()) {
-            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
-            Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+        for (final CommonTestCases.BinaryOperatorTestCase testCase : addFractionOverflowTestCases()) {
+            final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            final Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
             Assertions.assertThrows(ArithmeticException.class, () -> f1.add(f2));
         }
-        for (CommonTestCases.BinaryIntOperatorTestCase testCase : addIntOverflowTestCases()) {
-            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
-            int i2 = testCase.secondOperand;
+        for (final CommonTestCases.BinaryIntOperatorTestCase testCase : addIntOverflowTestCases()) {
+            final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            final int i2 = testCase.secondOperand;
             Assertions.assertThrows(ArithmeticException.class, () -> f1.add(i2));
         }
 
@@ -331,24 +331,24 @@ public class FractionTest {
 
     @Test
     public void testDivide() {
-        for (CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.divideByFractionTestCases()) {
-            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
-            Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+        for (final CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.divideByFractionTestCases()) {
+            final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            final Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.divide(f2));
         }
-        for (CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.divideByIntTestCases()) {
-            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
-            int i2 = testCase.secondOperand;
+        for (final CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.divideByIntTestCases()) {
+            final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            final int i2 = testCase.secondOperand;
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.divide(i2));
         }
-        for (CommonTestCases.BinaryOperatorTestCase testCase : divideByFractionOverflowTestCases()) {
-            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
-            Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+        for (final CommonTestCases.BinaryOperatorTestCase testCase : divideByFractionOverflowTestCases()) {
+            final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            final Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
             Assertions.assertThrows(ArithmeticException.class, () -> f1.divide(f2));
         }
-        for (CommonTestCases.BinaryIntOperatorTestCase testCase : divideByIntOverflowTestCases()) {
-            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
-            int i2 = testCase.secondOperand;
+        for (final CommonTestCases.BinaryIntOperatorTestCase testCase : divideByIntOverflowTestCases()) {
+            final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            final int i2 = testCase.secondOperand;
             Assertions.assertThrows(ArithmeticException.class, () -> f1.divide(i2));
         }
 
@@ -360,24 +360,24 @@ public class FractionTest {
 
     @Test
     public void testMultiply() {
-        for (CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.multiplyByFractionTestCases()) {
-            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
-            Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+        for (final CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.multiplyByFractionTestCases()) {
+            final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            final Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.multiply(f2));
         }
-        for (CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.multiplyByIntTestCases()) {
-            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
-            int i2 = testCase.secondOperand;
+        for (final CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.multiplyByIntTestCases()) {
+            final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            final int i2 = testCase.secondOperand;
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.multiply(i2));
         }
-        for (CommonTestCases.BinaryOperatorTestCase testCase : multiplyByFractionOverflowTestCases()) {
-            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
-            Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+        for (final CommonTestCases.BinaryOperatorTestCase testCase : multiplyByFractionOverflowTestCases()) {
+            final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            final Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
             Assertions.assertThrows(ArithmeticException.class, () -> f1.multiply(f2));
         }
-        for (CommonTestCases.BinaryIntOperatorTestCase testCase : multiplyByIntOverflowTestCases()) {
-            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
-            int i2 = testCase.secondOperand;
+        for (final CommonTestCases.BinaryIntOperatorTestCase testCase : multiplyByIntOverflowTestCases()) {
+            final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            final int i2 = testCase.secondOperand;
             Assertions.assertThrows(ArithmeticException.class, () -> f1.multiply(i2));
         }
 
@@ -386,9 +386,9 @@ public class FractionTest {
 
     @Test
     public void testPow() {
-        for (CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.powTestCases()) {
-            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
-            int exponent = testCase.secondOperand;
+        for (final CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.powTestCases()) {
+            final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            final int exponent = testCase.secondOperand;
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.pow(exponent));
         }
 
@@ -400,24 +400,24 @@ public class FractionTest {
 
     @Test
     public void testSubtract() {
-        for (CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.subtractFractionTestCases()) {
-            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
-            Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+        for (final CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.subtractFractionTestCases()) {
+            final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            final Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.subtract(f2));
         }
-        for (CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.subtractIntTestCases()) {
-            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
-            int i2 = testCase.secondOperand;
+        for (final CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.subtractIntTestCases()) {
+            final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            final int i2 = testCase.secondOperand;
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f1.subtract(i2));
         }
-        for (CommonTestCases.BinaryOperatorTestCase testCase : subtractFractionOverflowTestCases()) {
-            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
-            Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
+        for (final CommonTestCases.BinaryOperatorTestCase testCase : subtractFractionOverflowTestCases()) {
+            final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            final Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
             Assertions.assertThrows(ArithmeticException.class, () -> f1.subtract(f2));
         }
-        for (CommonTestCases.BinaryIntOperatorTestCase testCase : subtractIntOverflowTestCases()) {
-            Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
-            int i2 = testCase.secondOperand;
+        for (final CommonTestCases.BinaryIntOperatorTestCase testCase : subtractIntOverflowTestCases()) {
+            final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
+            final int i2 = testCase.secondOperand;
             Assertions.assertThrows(ArithmeticException.class, () -> f1.subtract(i2));
         }
 
@@ -431,24 +431,24 @@ public class FractionTest {
 
     @Test
     public void testEqualsAndHashCode() {
-        Fraction zero = Fraction.of(0, 1);
+        final Fraction zero = Fraction.of(0, 1);
         Assertions.assertEquals(zero, zero);
         Assertions.assertNotEquals(zero, null);
         Assertions.assertFalse(zero.equals(new Object()));
         Assertions.assertFalse(zero.equals(Double.valueOf(0)));
 
         // Equal to same rational number
-        Fraction zero2 = Fraction.of(0, 2);
+        final Fraction zero2 = Fraction.of(0, 2);
         assertEqualAndHashCodeEqual(zero, zero2);
 
         // Not equal to different rational number
-        Fraction one = Fraction.of(1, 1);
+        final Fraction one = Fraction.of(1, 1);
         Assertions.assertNotEquals(zero, one);
         Assertions.assertNotEquals(one, zero);
 
         // Test using different representations of the same fraction
         // (Denominators are primes)
-        for (int[] f : new int[][] {{1, 1}, {2, 3}, {6826, 15373}, {1373, 103813}, {0, 3}}) {
+        for (final int[] f : new int[][] {{1, 1}, {2, 3}, {6826, 15373}, {1373, 103813}, {0, 3}}) {
             final int num = f[0];
             final int den = f[1];
             Fraction f1 = Fraction.of(-num, den);
@@ -462,19 +462,19 @@ public class FractionTest {
         }
 
         // Same numerator or denominator as 1/1
-        Fraction half = Fraction.of(1, 2);
-        Fraction two = Fraction.of(2, 1);
+        final Fraction half = Fraction.of(1, 2);
+        final Fraction two = Fraction.of(2, 1);
         Assertions.assertNotEquals(one, half);
         Assertions.assertNotEquals(one, two);
 
         // Check worst case fractions which will have a component using MIN_VALUE.
         // Note: abs(MIN_VALUE) is negative but this should not effect the equals result.
-        Fraction almostOne = Fraction.of(Integer.MIN_VALUE, Integer.MAX_VALUE);
-        Fraction almostOne2 = Fraction.of(Integer.MIN_VALUE, -Integer.MAX_VALUE);
+        final Fraction almostOne = Fraction.of(Integer.MIN_VALUE, Integer.MAX_VALUE);
+        final Fraction almostOne2 = Fraction.of(Integer.MIN_VALUE, -Integer.MAX_VALUE);
         Assertions.assertEquals(almostOne, almostOne);
         Assertions.assertNotEquals(almostOne, almostOne2);
-        Fraction almostZero = Fraction.of(-1, Integer.MIN_VALUE);
-        Fraction almostZero2 = Fraction.of(1, Integer.MIN_VALUE);
+        final Fraction almostZero = Fraction.of(-1, Integer.MIN_VALUE);
+        final Fraction almostZero2 = Fraction.of(1, Integer.MIN_VALUE);
         Assertions.assertEquals(almostZero, almostZero);
         Assertions.assertNotEquals(almostZero, almostZero2);
     }
@@ -514,12 +514,12 @@ public class FractionTest {
 
     @Test
     public void testSerial() {
-        Fraction[] fractions = {
+        final Fraction[] fractions = {
             Fraction.of(3, 4), Fraction.ONE, Fraction.ZERO,
             Fraction.of(17), Fraction.from(Math.PI, 1000),
             Fraction.of(-5, 2)
         };
-        for (Fraction fraction : fractions) {
+        for (final Fraction fraction : fractions) {
             Assertions.assertEquals(fraction,
                                     TestUtils.serializeAndRecover(fraction));
         }
@@ -537,7 +537,7 @@ public class FractionTest {
 
     @Test
     public void testParse() {
-        String[] validExpressions = new String[] {
+        final String[] validExpressions = new String[] {
             "1 / 2",
             "-1 / 2",
             "1 / -2",
@@ -553,7 +553,7 @@ public class FractionTest {
             "-3",
             "-3"
         };
-        Fraction[] fractions = {
+        final Fraction[] fractions = {
             Fraction.of(1, 2),
             Fraction.of(-1, 2),
             Fraction.of(1, -2),
@@ -570,7 +570,7 @@ public class FractionTest {
             Fraction.of(3, -1),
         };
         int inc = 0;
-        for (Fraction fraction : fractions) {
+        for (final Fraction fraction : fractions) {
             Assertions.assertEquals(fraction,
                                     Fraction.parse(validExpressions[inc]));
             inc++;
@@ -596,7 +596,7 @@ public class FractionTest {
      * @return a list of test cases
      */
     private static List<BinaryOperatorTestCase> addFractionOverflowTestCases() {
-        List<BinaryOperatorTestCase> testCases = new ArrayList<>();
+        final List<BinaryOperatorTestCase> testCases = new ArrayList<>();
         testCases.add(new BinaryOperatorTestCase(1, Integer.MAX_VALUE, 1, Integer.MAX_VALUE - 1, 0, 0));
         testCases.add(new BinaryOperatorTestCase(Integer.MIN_VALUE, 5, -1, 5, 0, 0));
         testCases.add(new BinaryOperatorTestCase(Integer.MIN_VALUE, 1, -1, 1, 0, 0));
@@ -611,7 +611,7 @@ public class FractionTest {
      * @return a list of test cases
      */
     private static List<BinaryIntOperatorTestCase> addIntOverflowTestCases() {
-        List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
+        final List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
         testCases.add(new BinaryIntOperatorTestCase(Integer.MIN_VALUE, 1, -1, 0, 0));
         testCases.add(new BinaryIntOperatorTestCase(Integer.MAX_VALUE, 1, 1, 0, 0));
         testCases.add(new BinaryIntOperatorTestCase(1, 2, Integer.MIN_VALUE / -2, 0, 0));
@@ -623,7 +623,7 @@ public class FractionTest {
      * @return a list of test cases
      */
     private static List<BinaryOperatorTestCase> divideByFractionOverflowTestCases() {
-        List<BinaryOperatorTestCase> testCases = new ArrayList<>();
+        final List<BinaryOperatorTestCase> testCases = new ArrayList<>();
         testCases.add(new BinaryOperatorTestCase(1, Integer.MAX_VALUE, 2, 1, 0, 0));
         testCases.add(new BinaryOperatorTestCase(1, Integer.MAX_VALUE, -2, 1, 0, 0));
         testCases.add(new BinaryOperatorTestCase(1, Integer.MIN_VALUE, 2, 1, 0, 0));
@@ -636,7 +636,7 @@ public class FractionTest {
      * @return a list of test cases
      */
     private static List<BinaryIntOperatorTestCase> divideByIntOverflowTestCases() {
-        List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
+        final List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
         testCases.add(new BinaryIntOperatorTestCase(1, Integer.MAX_VALUE, 2, 0, 0));
         testCases.add(new BinaryIntOperatorTestCase(1, Integer.MAX_VALUE, -2, 0, 0));
         testCases.add(new BinaryIntOperatorTestCase(1, Integer.MIN_VALUE, 2, 0, 0));
@@ -649,7 +649,7 @@ public class FractionTest {
      * @return a list of test cases
      */
     private static List<BinaryOperatorTestCase> multiplyByFractionOverflowTestCases() {
-        List<BinaryOperatorTestCase> testCases = new ArrayList<>();
+        final List<BinaryOperatorTestCase> testCases = new ArrayList<>();
         testCases.add(new BinaryOperatorTestCase(Integer.MAX_VALUE, 1, 2, 1, 0, 0));
         testCases.add(new BinaryOperatorTestCase(Integer.MAX_VALUE, 1, -2, 1, 0, 0));
         testCases.add(new BinaryOperatorTestCase(Integer.MIN_VALUE, 1, 2, 1, 0, 0));
@@ -662,7 +662,7 @@ public class FractionTest {
      * @return a list of test cases
      */
     private static List<BinaryIntOperatorTestCase> multiplyByIntOverflowTestCases() {
-        List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
+        final List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
         testCases.add(new BinaryIntOperatorTestCase(Integer.MAX_VALUE, 1, 2, 0, 0));
         testCases.add(new BinaryIntOperatorTestCase(Integer.MAX_VALUE, 1, -2, 0, 0));
         testCases.add(new BinaryIntOperatorTestCase(Integer.MIN_VALUE, 1, 2, 0, 0));
@@ -675,7 +675,7 @@ public class FractionTest {
      * @return a list of test cases
      */
     private static List<BinaryOperatorTestCase> subtractFractionOverflowTestCases() {
-        List<BinaryOperatorTestCase> testCases = new ArrayList<>();
+        final List<BinaryOperatorTestCase> testCases = new ArrayList<>();
         testCases.add(new BinaryOperatorTestCase(1, Integer.MAX_VALUE, 1, Integer.MAX_VALUE - 1, 0, 0));
         testCases.add(new BinaryOperatorTestCase(Integer.MIN_VALUE, 5, 1, 5, 0, 0));
         testCases.add(new BinaryOperatorTestCase(Integer.MIN_VALUE, 1, 1, 1, 0, 0));
@@ -690,7 +690,7 @@ public class FractionTest {
      * @return a list of test cases
      */
     private static List<BinaryIntOperatorTestCase> subtractIntOverflowTestCases() {
-        List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
+        final List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
         testCases.add(new BinaryIntOperatorTestCase(Integer.MIN_VALUE, 1, 1, 0, 0));
         testCases.add(new BinaryIntOperatorTestCase(Integer.MAX_VALUE, 1, -1, 0, 0));
         testCases.add(new BinaryIntOperatorTestCase(1, 2, Integer.MIN_VALUE / 2, 0, 0));

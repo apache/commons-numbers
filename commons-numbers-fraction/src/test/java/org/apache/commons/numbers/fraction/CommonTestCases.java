@@ -123,7 +123,7 @@ final class CommonTestCases {
      * @return a list of test cases as described above
      */
     private static List<UnaryOperatorTestCase> collectNumDenConstructorTestCases() {
-        List<UnaryOperatorTestCase> testCases = new ArrayList<>();
+        final List<UnaryOperatorTestCase> testCases = new ArrayList<>();
 
         testCases.add(new UnaryOperatorTestCase(0, 1, 0, 1));
         testCases.add(new UnaryOperatorTestCase(0, 2, 0, 1));
@@ -148,7 +148,7 @@ final class CommonTestCases {
      * @return a list of test cases as described above
      */
     private static List<DoubleToFractionTestCase> collectDoubleConstructorTestCases() {
-        List<DoubleToFractionTestCase> testCases = new ArrayList<>();
+        final List<DoubleToFractionTestCase> testCases = new ArrayList<>();
 
         testCases.add(new DoubleToFractionTestCase(1d / 2d, 1, 2));
         testCases.add(new DoubleToFractionTestCase(1d / 3d, 1, 3));
@@ -210,7 +210,7 @@ final class CommonTestCases {
      * @return a list of test cases as described above
      */
     private static List<UnaryOperatorTestCase> collectAbsTestCases() {
-        List<UnaryOperatorTestCase> testCases = new ArrayList<>();
+        final List<UnaryOperatorTestCase> testCases = new ArrayList<>();
 
         testCases.add(new UnaryOperatorTestCase(10, 21, 10, 21));
         testCases.add(new UnaryOperatorTestCase(-11, 23, 11, 23));
@@ -227,7 +227,7 @@ final class CommonTestCases {
      * @return a list of test cases as described above
      */
     private static List<UnaryOperatorTestCase> collectReciprocalTestCases() {
-        List<UnaryOperatorTestCase> testCases = new ArrayList<>();
+        final List<UnaryOperatorTestCase> testCases = new ArrayList<>();
 
         testCases.add(new UnaryOperatorTestCase(50, 75, 3, 2));
         testCases.add(new UnaryOperatorTestCase(4, 3, 3, 4));
@@ -243,7 +243,7 @@ final class CommonTestCases {
      * @return a list of test cases as described above
      */
     private static List<UnaryOperatorTestCase> collectNegateTestCases() {
-        List<UnaryOperatorTestCase> testCases = new ArrayList<>();
+        final List<UnaryOperatorTestCase> testCases = new ArrayList<>();
 
         testCases.add(new UnaryOperatorTestCase(50, 75, -2, 3));
         testCases.add(new UnaryOperatorTestCase(-50, 75, 2, 3));
@@ -266,7 +266,7 @@ final class CommonTestCases {
      * @return a list of test cases as described above
      */
     private static List<BinaryOperatorTestCase> collectAddFractionTestCases() {
-        List<BinaryOperatorTestCase> testCases = new ArrayList<>();
+        final List<BinaryOperatorTestCase> testCases = new ArrayList<>();
 
         testCases.add(new BinaryOperatorTestCase(1, 2, 1, 2, 1, 1));
         testCases.add(new BinaryOperatorTestCase(1, 2, 2, 3, 7, 6));
@@ -316,7 +316,7 @@ final class CommonTestCases {
      * @return a list of test cases as described above
      */
     private static List<BinaryIntOperatorTestCase> collectAddIntTestCases() {
-        List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
+        final List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
 
         testCases.add(new BinaryIntOperatorTestCase(1, 3, 0, 1, 3));
         testCases.add(new BinaryIntOperatorTestCase(-1, 3, 0, -1, 3));
@@ -334,7 +334,7 @@ final class CommonTestCases {
      * @return a list of test cases as described above
      */
     private static List<BinaryOperatorTestCase> collectDivideByFractionTestCases() {
-        List<BinaryOperatorTestCase> testCases = new ArrayList<>();
+        final List<BinaryOperatorTestCase> testCases = new ArrayList<>();
 
         testCases.add(new BinaryOperatorTestCase(1, 2, 1, 2, 1, 1));
         testCases.add(new BinaryOperatorTestCase(1, 2, 2, 3, 3, 4));
@@ -366,7 +366,7 @@ final class CommonTestCases {
      * @return a list of test cases as described above
      */
     private static List<BinaryIntOperatorTestCase> collectDivideByIntTestCases() {
-        List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
+        final List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
 
         testCases.add(new BinaryIntOperatorTestCase(1, 3, 1, 1, 3));
         testCases.add(new BinaryIntOperatorTestCase(0, 5, 11, 0, 1));
@@ -384,7 +384,7 @@ final class CommonTestCases {
      * @return a list of test cases as described above
      */
     private static List<BinaryOperatorTestCase> collectMultiplyByFractionTestCases() {
-        List<BinaryOperatorTestCase> testCases = new ArrayList<>();
+        final List<BinaryOperatorTestCase> testCases = new ArrayList<>();
 
         testCases.add(new BinaryOperatorTestCase(1, 2, 1, 2, 1, 4));
         testCases.add(new BinaryOperatorTestCase(1, 2, 2, 3, 1, 3));
@@ -409,7 +409,7 @@ final class CommonTestCases {
      * @return a list of test cases as described above
      */
     private static List<BinaryIntOperatorTestCase> collectMultiplyByIntTestCases() {
-        List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
+        final List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
 
         testCases.add(new BinaryIntOperatorTestCase(1, 3, 1, 1, 3));
         testCases.add(new BinaryIntOperatorTestCase(6, 35, 15, 18, 7));
@@ -430,7 +430,7 @@ final class CommonTestCases {
      * @return a list of test cases as described above
      */
     private static List<BinaryOperatorTestCase> collectSubtractFractionTestCases() {
-        List<BinaryOperatorTestCase> testCases = new ArrayList<>();
+        final List<BinaryOperatorTestCase> testCases = new ArrayList<>();
 
         testCases.add(new BinaryOperatorTestCase(1, 2, 1, 2, 0, 1));
         testCases.add(new BinaryOperatorTestCase(1, 2, 2, 3, -1, 6));
@@ -469,7 +469,7 @@ final class CommonTestCases {
      * @return a list of test cases as described above
      */
     private static List<BinaryIntOperatorTestCase> collectSubtractIntTestCases() {
-        List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
+        final List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
 
         testCases.add(new BinaryIntOperatorTestCase(1, 3, 1, -2, 3));
         testCases.add(new BinaryIntOperatorTestCase(0, 1, 3, -3, 1));
@@ -486,7 +486,7 @@ final class CommonTestCases {
      * @return a list of test cases as described above
      */
     private static List<BinaryIntOperatorTestCase> collectPowTestCases() {
-        List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
+        final List<BinaryIntOperatorTestCase> testCases = new ArrayList<>();
 
         testCases.add(new BinaryIntOperatorTestCase(3, 7, 0, 1, 1));
         testCases.add(new BinaryIntOperatorTestCase(3, 7, 1, 3, 7));
