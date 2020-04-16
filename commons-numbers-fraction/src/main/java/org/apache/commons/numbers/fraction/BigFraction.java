@@ -252,12 +252,10 @@ public final class BigFraction
         int k;
 
         if (exponent == 0) {
+            // Subnormal number, the effective exponent bias is 1022, not 1023.
+            // Note: mantissa is never zero as that case has been eliminated.
             m = mantissa;
-            k = 0; // For simplicity, when number is 0.
-            if (m != 0) {
-                // Subnormal number, the effective exponent bias is 1022, not 1023.
-                k = -1074;
-            }
+            k = -1074;
         } else {
             // Normalized number: Add the implicit most significant bit.
             m = mantissa | 0x0010000000000000L;
