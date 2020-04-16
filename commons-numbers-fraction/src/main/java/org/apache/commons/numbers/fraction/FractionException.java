@@ -16,17 +16,15 @@
  */
 package org.apache.commons.numbers.fraction;
 
-import java.text.MessageFormat;
-
 /**
  * Package private exception class with constants for frequently used messages.
  */
 class FractionException extends ArithmeticException {
 
     /** Error message for overflow during conversion. */
-    static final String ERROR_CONVERSION_OVERFLOW = "Overflow trying to convert {0} to fraction ({1}/{2})";
+    static final String ERROR_CONVERSION_OVERFLOW = "Overflow trying to convert %s to fraction (%d/%d)";
     /** Error message when iterative conversion fails. */
-    static final String ERROR_CONVERSION = "Unable to convert {0} to fraction after {1} iterations";
+    static final String ERROR_CONVERSION = "Unable to convert %s to fraction after %d iterations";
     /** Error message for zero-valued denominator. */
     static final String ERROR_ZERO_DENOMINATOR = "Denominator must be different from 0";
     /** Error message for divide by zero. */
@@ -37,12 +35,12 @@ class FractionException extends ArithmeticException {
 
     /**
      * Create an exception where the message is constructed by applying
-     * the {@code format()} method from {@code java.text.MessageFormat}.
+     * {@link String#format(String, Object...)}.
      *
-     * @param message  the exception message with replaceable parameters
+     * @param message  the exception message format string
      * @param formatArguments the arguments for formatting the message
      */
     FractionException(String message, Object... formatArguments) {
-        super(MessageFormat.format(message, formatArguments));
+        super(String.format(message, formatArguments));
     }
 }
