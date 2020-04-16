@@ -163,6 +163,8 @@ public class BigFractionTest {
         assertFraction(pow31, 3, BigFraction.from(Integer.MIN_VALUE / -3.0, 10));
         assertFraction(-1, pow31, BigFraction.from(1.0 / Integer.MIN_VALUE, Integer.MIN_VALUE));
         assertFraction(1, pow31, BigFraction.from(-1.0 / Integer.MIN_VALUE, Integer.MIN_VALUE));
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> BigFraction.from(1.0, 0));
     }
 
     @Test

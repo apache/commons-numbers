@@ -313,9 +313,13 @@ public final class Fraction
      * Continued Fraction</a> equations (11) and (22)-(26)</li>
      * </ul>
      *
+     * <p>Note: The magnitude of the {@code maxDenominator} is used allowing use of
+     * {@link Integer#MIN_VALUE} for a supported maximum denominator of 2<sup>31</sup>.
+     *
      * @param value Value to convert to a fraction.
      * @param maxDenominator Maximum allowed value for denominator.
-     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
+     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite
+     * or {@code maxDenominator} is zero.
      * @throws ArithmeticException if the continued fraction failed to converge.
      * @return a new instance.
      */
@@ -323,6 +327,10 @@ public final class Fraction
                                 final int maxDenominator) {
         if (value == 0) {
             return ZERO;
+        }
+        if (maxDenominator == 0) {
+            // Re-use the zero denominator message
+            throw new IllegalArgumentException(FractionException.ERROR_ZERO_DENOMINATOR);
         }
         return new Fraction(value, 0, maxDenominator, 100);
     }

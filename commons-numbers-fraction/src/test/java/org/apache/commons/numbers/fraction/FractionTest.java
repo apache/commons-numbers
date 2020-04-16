@@ -115,6 +115,8 @@ public class FractionTest {
         assertFraction(Integer.MIN_VALUE, -3, Fraction.from(Integer.MIN_VALUE / -3.0, 10));
         assertFraction(1, Integer.MIN_VALUE, Fraction.from(1.0 / Integer.MIN_VALUE, Integer.MIN_VALUE));
         assertFraction(-1, Integer.MIN_VALUE, Fraction.from(-1.0 / Integer.MIN_VALUE, Integer.MIN_VALUE));
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> Fraction.from(1.0, 0));
     }
 
     @Test
