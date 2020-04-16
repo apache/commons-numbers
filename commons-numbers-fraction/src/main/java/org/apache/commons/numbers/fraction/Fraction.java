@@ -157,7 +157,7 @@ public final class Fraction
         double r0 = value;
         long a0 = (long)Math.floor(r0);
         if (Math.abs(a0) > overflow) {
-            throw new FractionException(FractionException.ERROR_CONVERSION, value, a0, 1L);
+            throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, a0, 1L);
         }
 
         // check for (almost) integer arguments, which should not go to iterations.
@@ -192,7 +192,7 @@ public final class Fraction
                     Math.abs(q1) < maxDenominator) {
                     break;
                 }
-                throw new FractionException(FractionException.ERROR_CONVERSION, value, p2, q2);
+                throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, p2, q2);
             }
 
             final double convergent = (double)p2 / (double)q2;
