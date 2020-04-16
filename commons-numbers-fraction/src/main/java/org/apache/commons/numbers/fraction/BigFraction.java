@@ -47,8 +47,14 @@ public final class BigFraction
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20190701L;
 
+    /** The default iterations used for convergence. */
+    private static final int DEFAULT_MAX_ITERATIONS = 100;
+
     /** Message for non-finite input double argument to factory constructors. */
     private static final String NOT_FINITE = "Not finite: ";
+
+    /** The overflow limit for conversion from a double (2^31). */
+    private static final long OVERFLOW = 1L << 31;
 
     /** The numerator of this fraction reduced to lowest terms. */
     private final BigInteger numerator;
@@ -142,20 +148,27 @@ public final class BigFraction
             return ZERO;
         }
 
-        final long overflow = Integer.MAX_VALUE;
-        double r0 = value;
+        // Remove sign, this is restored at the end.
+        // (Assumes the value is not zero and thus signum(value) is not zero).
+        final double absValue = Math.abs(value);
+        double r0 = absValue;
         long a0 = (long) Math.floor(r0);
-
-        if (Math.abs(a0) > overflow) {
-            throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, a0, 1L);
+        if (a0 > OVERFLOW) {
+            throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, a0, 1);
         }
 
-        // check for (almost) integer arguments, which should not go
-        // to iterations.
-        if (Math.abs(a0 - value) <= epsilon) {
-            return new BigFraction(BigInteger.valueOf(a0),
-                                   BigInteger.ONE);
+        // check for (almost) integer arguments, which should not go to iterations.
+        if (r0 - a0 <= epsilon) {
+            // Restore the sign.
+            if (value < 0) {
+                a0 = -a0;
+            }
+            return new BigFraction(BigInteger.valueOf(a0));
         }
+
+        // Support 2^31 as maximum denominator.
+        // This is negative as an integer so convert to long.
+        final long maxDen = Math.abs((long) maxDenominator);
 
         long p0 = 1;
         long q0 = 0;
@@ -169,16 +182,16 @@ public final class BigFraction
         boolean stop = false;
         do {
             ++n;
-            final double r1 = 1d / (r0 - a0);
+            final double r1 = 1.0 / (r0 - a0);
             final long a1 = (long) Math.floor(r1);
             p2 = (a1 * p1) + p0;
             q2 = (a1 * q1) + q0;
-            if (p2 > overflow ||
-                q2 > overflow) {
-                // in maxDenominator mode, if the last fraction was very close to the actual value
-                // q2 may overflow in the next iteration; in this case return the last one.
-                if (epsilon == 0 &&
-                    Math.abs(q1) < maxDenominator) {
+            if (Long.compareUnsigned(p2, OVERFLOW) > 0 ||
+                Long.compareUnsigned(q2, OVERFLOW) > 0) {
+                // In maxDenominator mode, fall-back to the previous valid fraction.
+                if (epsilon == 0) {
+                    p2 = p1;
+                    q2 = q1;
                     break;
                 }
                 throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, p2, q2);
@@ -186,8 +199,8 @@ public final class BigFraction
 
             final double convergent = (double) p2 / (double) q2;
             if (n < maxIterations &&
-                Math.abs(convergent - value) > epsilon &&
-                q2 < maxDenominator) {
+                Math.abs(convergent - absValue) > epsilon &&
+                q2 < maxDen) {
                 p0 = p1;
                 p1 = p2;
                 q0 = q1;
@@ -203,11 +216,24 @@ public final class BigFraction
             throw new FractionException(FractionException.ERROR_CONVERSION, value, maxIterations);
         }
 
-        return q2 < maxDenominator ?
-            new BigFraction(BigInteger.valueOf(p2),
-                            BigInteger.valueOf(q2)) :
-            new BigFraction(BigInteger.valueOf(p1),
-                            BigInteger.valueOf(q1));
+        // Use p2 / q2 or p1 / q1 if q2 has grown too large in maxDenominator mode
+        long num;
+        long den;
+        if (q2 <= maxDen) {
+            num = p2;
+            den = q2;
+        } else {
+            num = p1;
+            den = q1;
+        }
+
+        // Restore the sign.
+        if (Math.signum(num) * Math.signum(den) != Math.signum(value)) {
+            num = -num;
+        }
+
+        return new BigFraction(BigInteger.valueOf(num),
+                               BigInteger.valueOf(den));
     }
 
     /**
@@ -290,18 +316,26 @@ public final class BigFraction
      * @param epsilon Maximum error allowed. The resulting fraction is within
      * {@code epsilon} of {@code value}, in absolute terms.
      * @param maxIterations Maximum number of convergents.
-     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
+     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite;
+     * {@code epsilon} is not positive; or {@code maxIterations < 1}.
      * @throws ArithmeticException if the continued fraction failed to converge.
      * @return a new instance.
      */
     public static BigFraction from(final double value,
                                    final double epsilon,
                                    final int maxIterations) {
-        return from(value, epsilon, Integer.MAX_VALUE, maxIterations);
+        if (maxIterations < 1) {
+            throw new IllegalArgumentException("Max iterations must be strictly positive: " + maxIterations);
+        }
+        if (epsilon >= 0) {
+            return from(value, epsilon, Integer.MIN_VALUE, maxIterations);
+        }
+        throw new IllegalArgumentException("Epsilon must be positive: " + maxIterations);
     }
 
     /**
      * Create a fraction given the double value and maximum denominator.
+     *
      * <p>
      * References:
      * <ul>
@@ -309,15 +343,23 @@ public final class BigFraction
      * Continued Fraction</a> equations (11) and (22)-(26)</li>
      * </ul>
      *
+     * <p>Note: The magnitude of the {@code maxDenominator} is used allowing use of
+     * {@link Integer#MIN_VALUE} for a supported maximum denominator of 2<sup>31</sup>.
+     *
      * @param value Value to convert to a fraction.
      * @param maxDenominator Maximum allowed value for denominator.
-     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
+     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite
+     * or {@code maxDenominator} is zero.
      * @throws ArithmeticException if the continued fraction failed to converge.
      * @return a new instance.
      */
     public static BigFraction from(final double value,
                                    final int maxDenominator) {
-        return from(value, 0, maxDenominator, 100);
+        if (maxDenominator == 0) {
+            // Re-use the zero denominator message
+            throw new IllegalArgumentException(FractionException.ERROR_ZERO_DENOMINATOR);
+        }
+        return from(value, 0, maxDenominator, DEFAULT_MAX_ITERATIONS);
     }
 
     /**

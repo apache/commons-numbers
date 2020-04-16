@@ -99,23 +99,28 @@ public class FractionTest {
     }
 
     // MATH-181
+    // NUMBERS-147
     @Test
     public void testDoubleConstructorWithMaxDenominator() throws Exception  {
-        assertFraction(2, 5, Fraction.from(0.4,   9));
-        assertFraction(2, 5, Fraction.from(0.4,  99));
-        assertFraction(2, 5, Fraction.from(0.4, 999));
+        for (final CommonTestCases.DoubleToFractionTestCase testCase : CommonTestCases.doubleMaxDenomConstructorTestCases()) {
+            assertFraction(
+                    testCase.expectedNumerator,
+                    testCase.expectedDenominator,
+                    Fraction.from(testCase.operand, testCase.maxDenominator)
+            );
+        }
 
-        assertFraction(3, 5,      Fraction.from(0.6152,    9));
-        assertFraction(8, 13,     Fraction.from(0.6152,   99));
-        assertFraction(510, 829,  Fraction.from(0.6152,  999));
-        assertFraction(769, 1250, Fraction.from(0.6152, 9999));
+        // Cases with different exact results from BigFraction
+        assertFraction(Integer.MIN_VALUE, -1, Fraction.from(Integer.MIN_VALUE * -1.0, 2));
+        assertFraction(Integer.MIN_VALUE, -3, Fraction.from(Integer.MIN_VALUE / -3.0, 10));
+        assertFraction(1, Integer.MIN_VALUE, Fraction.from(1.0 / Integer.MIN_VALUE, Integer.MIN_VALUE));
+        assertFraction(-1, Integer.MIN_VALUE, Fraction.from(-1.0 / Integer.MIN_VALUE, Integer.MIN_VALUE));
 
-        // MATH-996
-        assertFraction(1, 2, Fraction.from(0.5000000001, 10));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> Fraction.from(1.0, 0));
     }
 
     @Test
-    public void testDoubleConstructorThrowsWithNonFinite() {
+    public void testDoubleConstructorThrows() {
         final double eps = 1e-5;
         final int maxIterations = Integer.MAX_VALUE;
         final int maxDenominator = Integer.MAX_VALUE;
@@ -124,6 +129,11 @@ public class FractionTest {
             Assertions.assertThrows(IllegalArgumentException.class, () -> Fraction.from(value, eps, maxIterations));
             Assertions.assertThrows(IllegalArgumentException.class, () -> Fraction.from(value, maxDenominator));
         }
+        Assertions.assertThrows(IllegalArgumentException.class, () -> Fraction.from(1.0, Double.NaN, maxIterations));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> Fraction.from(1.0, -1.0, maxIterations));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> Fraction.from(1.0, eps, 0));
+        // Test a zero epsilon is allowed
+        assertFraction(1, 1, Fraction.from(1.0, 0, maxIterations));
     }
 
     @Test
@@ -131,6 +141,17 @@ public class FractionTest {
         // the golden ratio is notoriously a difficult number for continuous fraction
         Assertions.assertThrows(ArithmeticException.class,
             () -> Fraction.from((1 + Math.sqrt(5)) / 2, 1.0e-12, 25)
+        );
+    }
+
+    // MATH-1029
+    @Test
+    public void testDoubleConstructorWithMaxDenominatorOverFlow() {
+        Assertions.assertThrows(ArithmeticException.class,
+            () -> Fraction.from(1e10, 1000)
+        );
+        Assertions.assertThrows(ArithmeticException.class,
+            () -> Fraction.from(-1e10, 1000)
         );
     }
 

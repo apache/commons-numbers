@@ -47,8 +47,14 @@ public final class Fraction
     /** The default epsilon used for convergence. */
     private static final double DEFAULT_EPSILON = 1e-5;
 
+    /** The default iterations used for convergence. */
+    private static final int DEFAULT_MAX_ITERATIONS = 100;
+
     /** Message for non-finite input double argument to factory constructors. */
     private static final String NOT_FINITE = "Not finite: ";
+
+    /** The overflow limit for conversion from a double (2^31). */
+    private static final long OVERFLOW = 1L << 31;
 
     /** The numerator of this fraction reduced to lowest terms. */
     private final int numerator;
@@ -136,7 +142,11 @@ public final class Fraction
      *     https://issues.apache.org/jira/browse/MATH-181
      * </p>
      *
-     * @param value Value to convert to a fraction.
+     * <p>
+     * Warning: This conversion assumes the value is not zero.
+     * </p>
+     *
+     * @param value Value to convert to a fraction. Must not be zero.
      * @param epsilon Maximum error allowed.
      * The resulting fraction is within {@code epsilon} of {@code value},
      * in absolute terms.
@@ -153,19 +163,35 @@ public final class Fraction
             throw new IllegalArgumentException(NOT_FINITE + value);
         }
 
-        final long overflow = Integer.MAX_VALUE;
-        double r0 = value;
-        long a0 = (long)Math.floor(r0);
-        if (Math.abs(a0) > overflow) {
-            throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, a0, 1L);
+        // Remove sign, this is restored at the end.
+        // (Assumes the value is not zero and thus signum(value) is not zero).
+        final double absValue = Math.abs(value);
+        double r0 = absValue;
+        long a0 = (long) Math.floor(r0);
+        if (a0 > OVERFLOW) {
+            throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, a0, 1);
         }
 
         // check for (almost) integer arguments, which should not go to iterations.
-        if (Math.abs(a0 - value) <= epsilon) {
-            this.numerator = (int) a0;
-            this.denominator = 1;
+        if (r0 - a0 <= epsilon) {
+            int num = (int) a0;
+            int den = 1;
+            // Restore the sign.
+            if (Math.signum(num) != Math.signum(value)) {
+                if (num == Integer.MIN_VALUE) {
+                    den = -den;
+                } else {
+                    num = -num;
+                }
+            }
+            this.numerator = num;
+            this.denominator = den;
             return;
         }
+
+        // Support 2^31 as maximum denominator.
+        // This is negative as an integer so convert to long.
+        final long maxDen = Math.abs((long) maxDenominator);
 
         long p0 = 1;
         long q0 = 0;
@@ -180,25 +206,25 @@ public final class Fraction
         do {
             ++n;
             final double r1 = 1.0 / (r0 - a0);
-            final long a1 = (long)Math.floor(r1);
+            final long a1 = (long) Math.floor(r1);
             p2 = (a1 * p1) + p0;
             q2 = (a1 * q1) + q0;
 
-            if (Math.abs(p2) > overflow ||
-                Math.abs(q2) > overflow) {
-                // in maxDenominator mode, if the last fraction was very close to the actual value
-                // q2 may overflow in the next iteration; in this case return the last one.
-                if (epsilon == 0.0 &&
-                    Math.abs(q1) < maxDenominator) {
+            if (Long.compareUnsigned(p2, OVERFLOW) > 0 ||
+                Long.compareUnsigned(q2, OVERFLOW) > 0) {
+                // In maxDenominator mode, fall-back to the previous valid fraction.
+                if (epsilon == 0.0) {
+                    p2 = p1;
+                    q2 = q1;
                     break;
                 }
                 throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, p2, q2);
             }
 
-            final double convergent = (double)p2 / (double)q2;
+            final double convergent = (double) p2 / (double) q2;
             if (n < maxIterations &&
-                Math.abs(convergent - value) > epsilon &&
-                q2 < maxDenominator) {
+                Math.abs(convergent - absValue) > epsilon &&
+                q2 < maxDen) {
                 p0 = p1;
                 p1 = p2;
                 q0 = q1;
@@ -214,13 +240,30 @@ public final class Fraction
             throw new FractionException(FractionException.ERROR_CONVERSION, value, maxIterations);
         }
 
-        if (q2 < maxDenominator) {
-            this.numerator = (int) p2;
-            this.denominator = (int) q2;
+        // Use p2 / q2 or p1 / q1 if q2 has grown too large in maxDenominator mode
+        // Note: Conversion of long 2^31 to an integer will create a negative. This could
+        // be either the numerator or denominator. This is handled by restoring the sign.
+        int num;
+        int den;
+        if (q2 <= maxDen) {
+            num = (int) p2;
+            den = (int) q2;
         } else {
-            this.numerator = (int) p1;
-            this.denominator = (int) q1;
+            num = (int) p1;
+            den = (int) q1;
         }
+
+        // Restore the sign.
+        if (Math.signum(num) * Math.signum(den) != Math.signum(value)) {
+            if (num == Integer.MIN_VALUE) {
+                den = -den;
+            } else {
+                num = -num;
+            }
+        }
+
+        this.numerator = num;
+        this.denominator = den;
     }
 
     /**
@@ -228,12 +271,11 @@ public final class Fraction
      *
      * @param value Value to convert to a fraction.
      * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
-     * @throws ArithmeticException if the continued fraction failed to
-     * converge.
+     * @throws ArithmeticException if the continued fraction failed to converge.
      * @return a new instance.
      */
     public static Fraction from(final double value) {
-        return from(value, DEFAULT_EPSILON, 100);
+        return from(value, DEFAULT_EPSILON, DEFAULT_MAX_ITERATIONS);
     }
 
     /**
@@ -250,7 +292,8 @@ public final class Fraction
      * @param epsilon Maximum error allowed. The resulting fraction is within
      * {@code epsilon} of {@code value}, in absolute terms.
      * @param maxIterations Maximum number of convergents.
-     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
+     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite;
+     * {@code epsilon} is not positive; or {@code maxIterations < 1}.
      * @throws ArithmeticException if the continued fraction failed to converge.
      * @return a new instance.
      */
@@ -260,7 +303,13 @@ public final class Fraction
         if (value == 0) {
             return ZERO;
         }
-        return new Fraction(value, epsilon, Integer.MAX_VALUE, maxIterations);
+        if (maxIterations < 1) {
+            throw new IllegalArgumentException("Max iterations must be strictly positive: " + maxIterations);
+        }
+        if (epsilon >= 0) {
+            return new Fraction(value, epsilon, Integer.MIN_VALUE, maxIterations);
+        }
+        throw new IllegalArgumentException("Epsilon must be positive: " + maxIterations);
     }
 
     /**
@@ -273,9 +322,13 @@ public final class Fraction
      * Continued Fraction</a> equations (11) and (22)-(26)</li>
      * </ul>
      *
+     * <p>Note: The magnitude of the {@code maxDenominator} is used allowing use of
+     * {@link Integer#MIN_VALUE} for a supported maximum denominator of 2<sup>31</sup>.
+     *
      * @param value Value to convert to a fraction.
      * @param maxDenominator Maximum allowed value for denominator.
-     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
+     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite
+     * or {@code maxDenominator} is zero.
      * @throws ArithmeticException if the continued fraction failed to converge.
      * @return a new instance.
      */
@@ -284,7 +337,11 @@ public final class Fraction
         if (value == 0) {
             return ZERO;
         }
-        return new Fraction(value, 0, maxDenominator, 100);
+        if (maxDenominator == 0) {
+            // Re-use the zero denominator message
+            throw new IllegalArgumentException(FractionException.ERROR_ZERO_DENOMINATOR);
+        }
+        return new Fraction(value, 0, maxDenominator, DEFAULT_MAX_ITERATIONS);
     }
 
     /**

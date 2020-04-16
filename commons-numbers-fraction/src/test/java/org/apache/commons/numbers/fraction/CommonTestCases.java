@@ -38,6 +38,11 @@ final class CommonTestCases {
     private static final List<DoubleToFractionTestCase> doubleConstructorTestCasesList;
 
     /**
+     * See {@link #doubleMaxDenomConstructorTestCases()}
+     */
+    private static final List<DoubleToFractionTestCase> doubleMaxDenomConstructorTestCasesList;
+
+    /**
      * See {@link #absTestCases()}
      */
     private static final List<UnaryOperatorTestCase> absTestCasesList;
@@ -100,6 +105,7 @@ final class CommonTestCases {
     static {
         numDenConstructorTestCasesList = collectNumDenConstructorTestCases();
         doubleConstructorTestCasesList = collectDoubleConstructorTestCases();
+        doubleMaxDenomConstructorTestCasesList = collectDoubleMaxDenomConstructorTestCases();
         absTestCasesList = collectAbsTestCases();
         reciprocalTestCasesList = collectReciprocalTestCases();
         negateTestCasesList = collectNegateTestCases();
@@ -201,6 +207,63 @@ final class CommonTestCases {
         testCases.add(new DoubleToFractionTestCase(15.0, 15, 1));
         testCases.add(new DoubleToFractionTestCase(0.0, 0, 1));
         testCases.add(new DoubleToFractionTestCase(-0.0, 0, 1));
+
+        return testCases;
+    }
+
+    /**
+     * Defines test cases as described in
+     * {@link #doubleMaxDenomConstructorTestCases()} and collects them into a {@code List}.
+     * @return a list of test cases as described above
+     */
+    private static List<DoubleToFractionTestCase> collectDoubleMaxDenomConstructorTestCases() {
+        final List<DoubleToFractionTestCase> testCases = new ArrayList<>();
+        testCases.add(new DoubleToFractionTestCase(0.4,   9, 2, 5));
+        testCases.add(new DoubleToFractionTestCase(0.4,  99, 2, 5));
+        testCases.add(new DoubleToFractionTestCase(0.4, 999, 2, 5));
+        testCases.add(new DoubleToFractionTestCase(-0.4,   9, -2, 5));
+        testCases.add(new DoubleToFractionTestCase(-0.4,  99, -2, 5));
+        testCases.add(new DoubleToFractionTestCase(-0.4, 999, -2, 5));
+
+        testCases.add(new DoubleToFractionTestCase(0.6152,    9, 3, 5));
+        testCases.add(new DoubleToFractionTestCase(0.6152,   99, 8, 13));
+        testCases.add(new DoubleToFractionTestCase(0.6152,  999, 510, 829));
+        testCases.add(new DoubleToFractionTestCase(0.6152, 9999, 769, 1250));
+        testCases.add(new DoubleToFractionTestCase(-0.6152,    9, -3, 5));
+        testCases.add(new DoubleToFractionTestCase(-0.6152,   99, -8, 13));
+        testCases.add(new DoubleToFractionTestCase(-0.6152,  999, -510, 829));
+        testCases.add(new DoubleToFractionTestCase(-0.6152, 9999, -769, 1250));
+
+        // Underflow
+        testCases.add(new DoubleToFractionTestCase(0x1.0p-40, Integer.MAX_VALUE, 0, 1));
+        testCases.add(new DoubleToFractionTestCase(-0x1.0p-40, Integer.MAX_VALUE, 0, 1));
+
+        // Overflow
+        testCases.add(new DoubleToFractionTestCase(Math.nextUp((double) Integer.MAX_VALUE), Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
+        testCases.add(new DoubleToFractionTestCase(-Math.nextUp((double) Integer.MAX_VALUE), Integer.MIN_VALUE, -Integer.MAX_VALUE, 1));
+        testCases.add(new DoubleToFractionTestCase(Math.nextUp((double) Integer.MAX_VALUE) / (1 << 15), Integer.MIN_VALUE, Integer.MAX_VALUE, 1 << 15));
+        testCases.add(new DoubleToFractionTestCase(-Math.nextUp((double) Integer.MAX_VALUE) / (1 << 15), Integer.MIN_VALUE, -Integer.MAX_VALUE, 1 << 15));
+        testCases.add(new DoubleToFractionTestCase(Math.nextUp(1.0), Integer.MIN_VALUE, 1, 1));
+        testCases.add(new DoubleToFractionTestCase(-Math.nextUp(1.0), Integer.MIN_VALUE, -1, 1));
+
+        // MATH-996
+        testCases.add(new DoubleToFractionTestCase(0.5000000001, 10, 1, 2));
+        testCases.add(new DoubleToFractionTestCase(-0.5000000001, 10, -1, 2));
+
+        // NUMBERS-147
+        testCases.add(new DoubleToFractionTestCase(Integer.MAX_VALUE * 1.0, 2, Integer.MAX_VALUE, 1));
+        testCases.add(new DoubleToFractionTestCase(Integer.MAX_VALUE * -1.0, 2, -Integer.MAX_VALUE, 1));
+        testCases.add(new DoubleToFractionTestCase(1.0 / Integer.MAX_VALUE, Integer.MAX_VALUE, 1, Integer.MAX_VALUE));
+        testCases.add(new DoubleToFractionTestCase(-1.0 / Integer.MAX_VALUE, Integer.MAX_VALUE, -1, Integer.MAX_VALUE));
+        testCases.add(new DoubleToFractionTestCase(Integer.MIN_VALUE * 1.0, 2, Integer.MIN_VALUE, 1));
+
+        // Using 2^31:
+        // Representations in Fraction and BigFraction are different since BigFraction
+        // can use +2^31 but Fraction is limited to -2^31
+        // .from(Integer.MIN_VALUE * -1.0, 2)
+        // .from(Integer.MIN_VALUE / -3.0, Integer.MIN_VALUE)
+        // .from(1.0 / Integer.MIN_VALUE, Integer.MIN_VALUE)
+        // .from(-1.0 / Integer.MIN_VALUE, Integer.MIN_VALUE)
 
         return testCases;
     }
@@ -528,10 +591,24 @@ final class CommonTestCases {
      * allowed, and the expected numerator and denominator of the resulting
      * fraction are in the {@code int} range.
      *
+     * <p>The maximum denominator in the test cases will be zero and should be ignored.
+     *
      * @return a list of test cases as described above
      */
     static List<DoubleToFractionTestCase> doubleConstructorTestCases() {
         return Collections.unmodifiableList(doubleConstructorTestCasesList);
+    }
+
+    /**
+     * Provides a list of test cases where a {@code double} value should be
+     * converted to a fraction with a specified maximum denominator, and the
+     * expected numerator and denominator of the resulting fraction are in the
+     * {@code int} range.
+     *
+     * @return a list of test cases as described above
+     */
+    static List<DoubleToFractionTestCase> doubleMaxDenomConstructorTestCases() {
+        return Collections.unmodifiableList(doubleMaxDenomConstructorTestCasesList);
     }
 
     /**
@@ -791,19 +868,32 @@ final class CommonTestCases {
      * should be performed on a {@code double} value and the numerator and
      * denominator of the expected result
      * are in the {@code int} range.
+     *
+     * <p>Optionally captures a maximum denominator. This will be zero if
+     * not required in the test case.
      */
     static class DoubleToFractionTestCase {
         final double operand;
+        final int maxDenominator;
         final int expectedNumerator;
         final int expectedDenominator;
 
         DoubleToFractionTestCase(
                 double operand,
+                int maxDenominator,
                 int expectedNumerator,
                 int expectedDenominator) {
             this.operand = operand;
+            this.maxDenominator = maxDenominator;
             this.expectedNumerator = expectedNumerator;
             this.expectedDenominator = expectedDenominator;
+        }
+
+        DoubleToFractionTestCase(
+                double operand,
+                int expectedNumerator,
+                int expectedDenominator) {
+            this(operand, 0, expectedNumerator, expectedDenominator);
         }
     }
 }
