@@ -146,19 +146,23 @@ public class BigFractionTest {
     }
 
     // MATH-181
+    // NUMBERS-147
     @Test
     public void testDoubleConstructorWithMaxDenominator() throws Exception {
-        assertFraction(2, 5, BigFraction.from(0.4,   9));
-        assertFraction(2, 5, BigFraction.from(0.4,  99));
-        assertFraction(2, 5, BigFraction.from(0.4, 999));
+        for (final CommonTestCases.DoubleToFractionTestCase testCase : CommonTestCases.doubleMaxDenomConstructorTestCases()) {
+            assertFraction(
+                    testCase.expectedNumerator,
+                    testCase.expectedDenominator,
+                    BigFraction.from(testCase.operand, testCase.maxDenominator)
+            );
+        }
 
-        assertFraction(3, 5,      BigFraction.from(0.6152,    9));
-        assertFraction(8, 13,     BigFraction.from(0.6152,   99));
-        assertFraction(510, 829,  BigFraction.from(0.6152,  999));
-        assertFraction(769, 1250, BigFraction.from(0.6152, 9999));
-
-        // MATH-996
-        assertFraction(1, 2, BigFraction.from(0.5000000001, 10));
+        // Cases with different exact results from BigFraction
+        final long pow31 = 1L << 31;
+        assertFraction(pow31, 1, BigFraction.from(Integer.MIN_VALUE * -1.0, 2));
+        assertFraction(pow31, 3, BigFraction.from(Integer.MIN_VALUE / -3.0, 10));
+        assertFraction(-1, pow31, BigFraction.from(1.0 / Integer.MIN_VALUE, Integer.MIN_VALUE));
+        assertFraction(1, pow31, BigFraction.from(-1.0 / Integer.MIN_VALUE, Integer.MIN_VALUE));
     }
 
     @Test
@@ -189,6 +193,20 @@ public class BigFractionTest {
         );
         Assertions.assertThrows(ArithmeticException.class,
             () -> BigFraction.from(-1e10, 1000)
+        );
+    }
+
+    @Test
+    public void testDoubleConstructorOverflow() {
+        assertDoubleConstructorOverflow(0.75000000001455192);
+        assertDoubleConstructorOverflow(1.0e10);
+        assertDoubleConstructorOverflow(-1.0e10);
+        assertDoubleConstructorOverflow(-43979.60679604749);
+    }
+
+    private void assertDoubleConstructorOverflow(final double a) {
+        Assertions.assertThrows(ArithmeticException.class,
+            () -> BigFraction.from(a, 1.0e-12, 1000)
         );
     }
 
