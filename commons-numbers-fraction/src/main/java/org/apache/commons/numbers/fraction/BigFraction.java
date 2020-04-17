@@ -316,14 +316,21 @@ public final class BigFraction
      * @param epsilon Maximum error allowed. The resulting fraction is within
      * {@code epsilon} of {@code value}, in absolute terms.
      * @param maxIterations Maximum number of convergents.
-     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
+     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite;
+     * {@code epsilon} is not positive; or {@code maxIterations < 1}.
      * @throws ArithmeticException if the continued fraction failed to converge.
      * @return a new instance.
      */
     public static BigFraction from(final double value,
                                    final double epsilon,
                                    final int maxIterations) {
-        return from(value, epsilon, Integer.MIN_VALUE, maxIterations);
+        if (maxIterations < 1) {
+            throw new IllegalArgumentException("Max iterations must be strictly positiive: " + maxIterations);
+        }
+        if (epsilon >= 0) {
+            return from(value, epsilon, Integer.MIN_VALUE, maxIterations);
+        }
+        throw new IllegalArgumentException("Epsilon must be positiive: " + maxIterations);
     }
 
     /**

@@ -120,7 +120,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testDoubleConstructorThrowsWithNonFinite() {
+    public void testDoubleConstructorThrows() {
         final double eps = 1e-5;
         final int maxIterations = Integer.MAX_VALUE;
         final int maxDenominator = Integer.MAX_VALUE;
@@ -129,6 +129,11 @@ public class FractionTest {
             Assertions.assertThrows(IllegalArgumentException.class, () -> Fraction.from(value, eps, maxIterations));
             Assertions.assertThrows(IllegalArgumentException.class, () -> Fraction.from(value, maxDenominator));
         }
+        Assertions.assertThrows(IllegalArgumentException.class, () -> Fraction.from(1.0, Double.NaN, maxIterations));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> Fraction.from(1.0, -1.0, maxIterations));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> Fraction.from(1.0, eps, 0));
+        // Test a zero epsilon is allowed
+        assertFraction(1, 1, Fraction.from(1.0, 0, maxIterations));
     }
 
     @Test

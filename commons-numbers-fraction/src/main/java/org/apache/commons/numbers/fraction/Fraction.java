@@ -271,8 +271,7 @@ public final class Fraction
      *
      * @param value Value to convert to a fraction.
      * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
-     * @throws ArithmeticException if the continued fraction failed to
-     * converge.
+     * @throws ArithmeticException if the continued fraction failed to converge.
      * @return a new instance.
      */
     public static Fraction from(final double value) {
@@ -293,7 +292,8 @@ public final class Fraction
      * @param epsilon Maximum error allowed. The resulting fraction is within
      * {@code epsilon} of {@code value}, in absolute terms.
      * @param maxIterations Maximum number of convergents.
-     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite.
+     * @throws IllegalArgumentException if the given {@code value} is NaN or infinite;
+     * {@code epsilon} is not positive; or {@code maxIterations < 1}.
      * @throws ArithmeticException if the continued fraction failed to converge.
      * @return a new instance.
      */
@@ -303,7 +303,13 @@ public final class Fraction
         if (value == 0) {
             return ZERO;
         }
-        return new Fraction(value, epsilon, Integer.MIN_VALUE, maxIterations);
+        if (maxIterations < 1) {
+            throw new IllegalArgumentException("Max iterations must be strictly positiive: " + maxIterations);
+        }
+        if (epsilon >= 0) {
+            return new Fraction(value, epsilon, Integer.MIN_VALUE, maxIterations);
+        }
+        throw new IllegalArgumentException("Epsilon must be positiive: " + maxIterations);
     }
 
     /**
