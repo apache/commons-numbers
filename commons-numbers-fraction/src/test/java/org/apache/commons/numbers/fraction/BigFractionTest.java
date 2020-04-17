@@ -157,7 +157,7 @@ public class BigFractionTest {
             );
         }
 
-        // Cases with different exact results from BigFraction
+        // Cases with different exact results from Fraction
         final long pow31 = 1L << 31;
         assertFraction(pow31, 1, BigFraction.from(Integer.MIN_VALUE * -1.0, 2));
         assertFraction(pow31, 3, BigFraction.from(Integer.MIN_VALUE / -3.0, 10));

@@ -583,7 +583,7 @@ final class CommonTestCases {
      * allowed, and the expected numerator and denominator of the resulting
      * fraction are in the {@code int} range.
      *
-     * <p>The maximum denominator in the test case will zero and should be ignored.
+     * <p>The maximum denominator in the test cases will be zero and should be ignored.
      *
      * @return a list of test cases as described above
      */
