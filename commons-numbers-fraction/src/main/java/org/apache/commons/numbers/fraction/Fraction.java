@@ -209,10 +209,11 @@ public final class Fraction
 
             if (Long.compareUnsigned(p2, OVERFLOW) > 0 ||
                 Long.compareUnsigned(q2, OVERFLOW) > 0) {
-                // in maxDenominator mode, if the last fraction was very close to the actual value
-                // q2 may overflow in the next iteration; in this case return the last one if valid.
+                // In maxDenominator mode, fall-back to the previous valid fraction.
                 if (epsilon == 0.0 &&
                     q1 <= maxDen) {
+                    p2 = p1;
+                    q2 = q1;
                     break;
                 }
                 throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, p2, q2);

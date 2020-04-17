@@ -238,6 +238,14 @@ final class CommonTestCases {
         testCases.add(new DoubleToFractionTestCase(0x1.0p-40, Integer.MAX_VALUE, 0, 1));
         testCases.add(new DoubleToFractionTestCase(-0x1.0p-40, Integer.MAX_VALUE, 0, 1));
 
+        // Overflow
+        testCases.add(new DoubleToFractionTestCase(Math.nextUp((double) Integer.MAX_VALUE), Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
+        testCases.add(new DoubleToFractionTestCase(-Math.nextUp((double) Integer.MAX_VALUE), Integer.MIN_VALUE, -Integer.MAX_VALUE, 1));
+        testCases.add(new DoubleToFractionTestCase(Math.nextUp((double) Integer.MAX_VALUE) / (1 << 15), Integer.MIN_VALUE, Integer.MAX_VALUE, 1 << 15));
+        testCases.add(new DoubleToFractionTestCase(-Math.nextUp((double) Integer.MAX_VALUE) / (1 << 15), Integer.MIN_VALUE, -Integer.MAX_VALUE, 1 << 15));
+        testCases.add(new DoubleToFractionTestCase(Math.nextUp(1.0), Integer.MIN_VALUE, 1, 1));
+        testCases.add(new DoubleToFractionTestCase(-Math.nextUp(1.0), Integer.MIN_VALUE, -1, 1));
+
         // MATH-996
         testCases.add(new DoubleToFractionTestCase(0.5000000001, 10, 1, 2));
         testCases.add(new DoubleToFractionTestCase(-0.5000000001, 10, -1, 2));
