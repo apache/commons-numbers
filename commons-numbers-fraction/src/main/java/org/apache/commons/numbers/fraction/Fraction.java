@@ -47,6 +47,9 @@ public final class Fraction
     /** The default epsilon used for convergence. */
     private static final double DEFAULT_EPSILON = 1e-5;
 
+    /** The default iterations used for convergence. */
+    private static final int DEFAULT_MAX_ITERATIONS = 100;
+
     /** Message for non-finite input double argument to factory constructors. */
     private static final String NOT_FINITE = "Not finite: ";
 
@@ -273,7 +276,7 @@ public final class Fraction
      * @return a new instance.
      */
     public static Fraction from(final double value) {
-        return from(value, DEFAULT_EPSILON, 100);
+        return from(value, DEFAULT_EPSILON, DEFAULT_MAX_ITERATIONS);
     }
 
     /**
@@ -332,7 +335,7 @@ public final class Fraction
             // Re-use the zero denominator message
             throw new IllegalArgumentException(FractionException.ERROR_ZERO_DENOMINATOR);
         }
-        return new Fraction(value, 0, maxDenominator, 100);
+        return new Fraction(value, 0, maxDenominator, DEFAULT_MAX_ITERATIONS);
     }
 
     /**

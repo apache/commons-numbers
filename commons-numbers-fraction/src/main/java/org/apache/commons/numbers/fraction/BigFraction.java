@@ -47,6 +47,9 @@ public final class BigFraction
     /** Serializable version identifier. */
     private static final long serialVersionUID = 20190701L;
 
+    /** The default iterations used for convergence. */
+    private static final int DEFAULT_MAX_ITERATIONS = 100;
+
     /** Message for non-finite input double argument to factory constructors. */
     private static final String NOT_FINITE = "Not finite: ";
 
@@ -349,7 +352,7 @@ public final class BigFraction
             // Re-use the zero denominator message
             throw new IllegalArgumentException(FractionException.ERROR_ZERO_DENOMINATOR);
         }
-        return from(value, 0, maxDenominator, 100);
+        return from(value, 0, maxDenominator, DEFAULT_MAX_ITERATIONS);
     }
 
     /**
