@@ -157,7 +157,7 @@ public final class BigFraction
         // check for (almost) integer arguments, which should not go to iterations.
         if (r0 - a0 <= epsilon) {
             // Restore the sign.
-            if (Math.signum(a0) != Math.signum(value)) {
+            if (value < 0) {
                 a0 = -a0;
             }
             return new BigFraction(BigInteger.valueOf(a0));
