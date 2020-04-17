@@ -186,8 +186,7 @@ public final class BigFraction
             if (Long.compareUnsigned(p2, OVERFLOW) > 0 ||
                 Long.compareUnsigned(q2, OVERFLOW) > 0) {
                 // In maxDenominator mode, fall-back to the previous valid fraction.
-                if (epsilon == 0 &&
-                    q1 <= maxDen) {
+                if (epsilon == 0) {
                     p2 = p1;
                     q2 = q1;
                     break;
@@ -214,7 +213,7 @@ public final class BigFraction
             throw new FractionException(FractionException.ERROR_CONVERSION, value, maxIterations);
         }
 
-        // Use p2 / q2 or p1 / q1 if an overflow in maxDenominator mode
+        // Use p2 / q2 or p1 / q1 if q2 has grown too large in maxDenominator mode
         long num;
         long den;
         if (q2 <= maxDen) {
