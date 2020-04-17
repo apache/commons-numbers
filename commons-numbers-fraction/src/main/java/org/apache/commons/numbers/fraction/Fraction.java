@@ -207,12 +207,12 @@ public final class Fraction
             p2 = (a1 * p1) + p0;
             q2 = (a1 * q1) + q0;
 
-            if (Math.abs(p2) > OVERFLOW ||
-                Math.abs(q2) > OVERFLOW) {
+            if (Long.compareUnsigned(p2, OVERFLOW) > 0 ||
+                Long.compareUnsigned(q2, OVERFLOW) > 0) {
                 // in maxDenominator mode, if the last fraction was very close to the actual value
                 // q2 may overflow in the next iteration; in this case return the last one if valid.
                 if (epsilon == 0.0 &&
-                    Math.abs(q1) <= maxDen) {
+                    q1 <= maxDen) {
                     break;
                 }
                 throw new FractionException(FractionException.ERROR_CONVERSION_OVERFLOW, value, p2, q2);
