@@ -463,8 +463,8 @@ public class FractionTest {
     @Test
     void testEqualsAndHashCode() {
         final Fraction zero = Fraction.of(0, 1);
-        Assertions.assertEquals(zero, zero);
-        Assertions.assertNotEquals(zero, null);
+        Assertions.assertTrue(zero.equals(zero));
+        Assertions.assertFalse(zero.equals(null));
         Assertions.assertFalse(zero.equals(new Object()));
         Assertions.assertFalse(zero.equals(Double.valueOf(0)));
 
