@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
  */
 public class FP64Test {
     @Test
-    public void testConsistencyWithDouble() {
+    void testConsistencyWithDouble() {
         final double v = -5.67e89;
         final Double a = Double.valueOf(v);
         final FP64 b = FP64.of(v);
@@ -38,7 +38,7 @@ public class FP64Test {
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         final FP64 a = FP64.of(1.23);
         final FP64 b = FP64.of(4.56);
 
@@ -54,23 +54,23 @@ public class FP64Test {
     }
 
     @Test
-    public void testOne() {
+    void testOne() {
         Assertions.assertEquals(1d, FP64.of(-3.4).one().doubleValue(), 0d);
     }
     @Test
-    public void testZero() {
+    void testZero() {
         Assertions.assertEquals(0d, FP64.of(-3.4).zero().doubleValue(), 0d);
     }
 
     @Test
-    public void testSubtract() {
+    void testSubtract() {
         final double a = 123.4;
         final double b = 5678.9;
 
         Assertions.assertEquals(a - b, FP64.of(a).subtract(FP64.of(b)).doubleValue(), 0d);
     }
     @Test
-    public void testDivide() {
+    void testDivide() {
         final double a = 123.4;
         final double b = 5678.9;
 
@@ -78,7 +78,7 @@ public class FP64Test {
     }
 
     @Test
-    public void testMultiplyInt() {
+    void testMultiplyInt() {
         final double a = 123.4;
         final int n = 3456789;
 
@@ -86,19 +86,19 @@ public class FP64Test {
     }
 
     @Test
-    public void testPowInt() {
+    void testPowInt() {
         final double a = 123.4;
         final int n = 5;
 
         Assertions.assertEquals(Math.pow(a, n), FP64.of(a).pow(n).doubleValue(), 0d);
     }
     @Test
-    public void testZeroPow() {
+    void testZeroPow() {
         Assertions.assertSame(FP64.of(9876.5).one(), FP64.of(2.3456).pow(0));
     }
 
     @Test
-    public void testCompare() {
+    void testCompare() {
         Assertions.assertTrue(FP64.of(0).compareTo(FP64.of(-1)) > 0);
         Assertions.assertTrue(FP64.of(1).compareTo(FP64.of(2)) < 0);
 

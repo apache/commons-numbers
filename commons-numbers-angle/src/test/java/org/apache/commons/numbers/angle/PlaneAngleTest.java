@@ -24,14 +24,14 @@ import org.junit.jupiter.api.Test;
  */
 public class PlaneAngleTest {
     @Test
-    public void testConversionTurns() {
+    void testConversionTurns() {
         final double value = 12.3456;
         final PlaneAngle a = PlaneAngle.ofTurns(value);
         Assertions.assertEquals(value, a.toTurns(), 0d);
     }
 
     @Test
-    public void testConversionRadians() {
+    void testConversionRadians() {
         final double one = 2 * Math.PI;
         final double value = 12.3456 * one;
         final PlaneAngle a = PlaneAngle.ofRadians(value);
@@ -39,7 +39,7 @@ public class PlaneAngleTest {
     }
 
     @Test
-    public void testConversionDegrees() {
+    void testConversionDegrees() {
         final double one = 360;
         final double value = 12.3456 * one;
         final PlaneAngle a = PlaneAngle.ofDegrees(value);
@@ -47,7 +47,7 @@ public class PlaneAngleTest {
     }
 
     @Test
-    public void testNormalizeRadians() {
+    void testNormalizeRadians() {
         for (double a = -15.0; a <= 15.0; a += 0.1) {
             for (double b = -15.0; b <= 15.0; b += 0.2) {
                 final PlaneAngle aA = PlaneAngle.ofRadians(a);
@@ -62,7 +62,7 @@ public class PlaneAngleTest {
     }
 
     @Test
-    public void testNormalizeMixed() {
+    void testNormalizeMixed() {
         for (double a = -15.0; a <= 15.0; a += 0.1) {
             for (double b = -15.0; b <= 15.0; b += 0.2) {
                 final PlaneAngle aA = PlaneAngle.ofDegrees(a);
@@ -77,7 +77,7 @@ public class PlaneAngleTest {
     }
 
     @Test
-    public void testNormalizeAroundZero1() {
+    void testNormalizeAroundZero1() {
         final double value = 1.25;
         final double expected = 0.25;
         final double actual = PlaneAngle.ofTurns(value).normalize(PlaneAngle.ZERO).toTurns();
@@ -85,7 +85,7 @@ public class PlaneAngleTest {
         Assertions.assertEquals(expected, actual, tol);
     }
     @Test
-    public void testNormalizeAroundZero2() {
+    void testNormalizeAroundZero2() {
         final double value = 0.75;
         final double expected = -0.25;
         final double actual = PlaneAngle.ofTurns(value).normalize(PlaneAngle.ZERO).toTurns();
@@ -93,7 +93,7 @@ public class PlaneAngleTest {
         Assertions.assertEquals(expected, actual, tol);
     }
     @Test
-    public void testNormalizeAroundZero3() {
+    void testNormalizeAroundZero3() {
         final double value = 0.5 + 1e-10;
         final double expected = -0.5 + 1e-10;
         final double actual = PlaneAngle.ofTurns(value).normalize(PlaneAngle.ZERO).toTurns();
@@ -101,7 +101,7 @@ public class PlaneAngleTest {
         Assertions.assertEquals(expected, actual, tol);
     }
     @Test
-    public void testNormalizeAroundZero4() {
+    void testNormalizeAroundZero4() {
         final double value = 5 * Math.PI / 4;
         final double expected = Math.PI * (1d / 4 - 1);
         final double actual = PlaneAngle.ofRadians(value).normalize(PlaneAngle.ZERO).toRadians();
@@ -110,7 +110,7 @@ public class PlaneAngleTest {
     }
 
     @Test
-    public void testNormalizeUpperAndLowerBounds() {
+    void testNormalizeUpperAndLowerBounds() {
         // arrange
         double eps = 1e-15;
 
@@ -129,7 +129,7 @@ public class PlaneAngleTest {
     }
 
     @Test
-    public void testNormalizeVeryCloseToBounds() {
+    void testNormalizeVeryCloseToBounds() {
         // arrange
         double eps = 1e-22;
 
@@ -151,7 +151,7 @@ public class PlaneAngleTest {
     }
 
     @Test
-    public void testHashCode() {
+    void testHashCode() {
         // Test assumes that the internal representation is in "turns".
         final double value = -123.456789;
         final int expected = Double.valueOf(value).hashCode();
@@ -160,7 +160,7 @@ public class PlaneAngleTest {
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         final double value = 12345.6789;
         final PlaneAngle a = PlaneAngle.ofRadians(value);
         Assertions.assertTrue(a.equals(a));
@@ -171,11 +171,11 @@ public class PlaneAngleTest {
     }
 
     @Test
-    public void testZero() {
+    void testZero() {
         Assertions.assertEquals(0, PlaneAngle.ZERO.toRadians(), 0d);
     }
     @Test
-    public void testPi() {
+    void testPi() {
         Assertions.assertEquals(Math.PI, PlaneAngle.PI.toRadians(), 0d);
     }
 }

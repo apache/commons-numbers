@@ -359,7 +359,7 @@ public class LinearCombinationsTest {
      * greater in magnitude than the the original number due to round-off in the split.
      */
     @Test
-    public void testOverflow() {
+    void testOverflow() {
         // Create a simple dot product that is different in high precision and has
         // values that create a high part above the original number. This can be done using
         // a mantissa with almost all bits set to 1.
@@ -423,7 +423,7 @@ public class LinearCombinationsTest {
      * This case is derived from computations on a complex cis number.
      */
     @Test
-    public void testCisNumber() {
+    void testCisNumber() {
         final double theta = 5.992112452678286E-7;
         final double x = Math.cos(theta);
         final double y = Math.sin(theta);
@@ -439,7 +439,7 @@ public class LinearCombinationsTest {
      * round-off sum in single or 2-fold precision.
      */
     @Test
-    public void testSumZero() {
+    void testSumZero() {
         // Fixed seed for stability
         final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_128_PP, 876543L);
         final int size = 10;
@@ -569,7 +569,7 @@ public class LinearCombinationsTest {
      * Test the clip method does what it specifies.
      */
     @Test
-    public void testClip() {
+    void testClip() {
         // min value is not affected
         Assertions.assertEquals(Double.MIN_VALUE, clip(MIN).doubleValue());
         Assertions.assertEquals(-Double.MIN_VALUE, clip(MIN.negate()).doubleValue());

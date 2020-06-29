@@ -24,42 +24,42 @@ import org.junit.jupiter.api.Test;
  */
 public class RegularizedGammaTest {
     @Test
-    public void testRegularizedGammaNanPositive() {
+    void testRegularizedGammaNanPositive() {
         testRegularizedGamma(Double.NaN, Double.NaN, 1.0);
     }
 
     @Test
-    public void testRegularizedGammaPositiveNan() {
+    void testRegularizedGammaPositiveNan() {
         testRegularizedGamma(Double.NaN, 1.0, Double.NaN);
     }
 
     @Test
-    public void testRegularizedGammaNegativePositive() {
+    void testRegularizedGammaNegativePositive() {
         testRegularizedGamma(Double.NaN, -1.5, 1.0);
     }
 
     @Test
-    public void testRegularizedGammaPositiveNegative() {
+    void testRegularizedGammaPositiveNegative() {
         testRegularizedGamma(Double.NaN, 1.0, -1.0);
     }
 
     @Test
-    public void testRegularizedGammaZeroPositive() {
+    void testRegularizedGammaZeroPositive() {
         testRegularizedGamma(Double.NaN, 0.0, 1.0);
     }
 
     @Test
-    public void testRegularizedGammaPositiveZero() {
+    void testRegularizedGammaPositiveZero() {
         testRegularizedGamma(0.0, 1.0, 0.0);
     }
 
     @Test
-    public void testRegularizedGammaPositivePositive() {
+    void testRegularizedGammaPositivePositive() {
         testRegularizedGamma(0.632120558828558, 1.0, 1.0);
     }
 
     @Test
-    public void testRegularizedGammaPWithACloseToZero() {
+    void testRegularizedGammaPWithACloseToZero() {
         // Creates a case where the regularized gamma P series is evaluated and the
         // result is outside the expected bounds of [0, 1]. This should be clipped to 1.0.
         final double a = 1e-18;
@@ -69,7 +69,7 @@ public class RegularizedGammaTest {
     }
 
     @Test
-    public void testRegularizedGammaPWithAVeryCloseToZero() {
+    void testRegularizedGammaPWithAVeryCloseToZero() {
         // Creates a case where the partial sum is infinite due to inclusion of 1 / a
         final double a = Double.MIN_VALUE;
         // x must force use of the series in regularized gamma P using x < a + 1
@@ -85,7 +85,7 @@ public class RegularizedGammaTest {
     }
 
     @Test
-    public void testRegularizedGammaMaxIterationsExceededThrows() {
+    void testRegularizedGammaMaxIterationsExceededThrows() {
         final double a = 1.0;
         final double x = 1.0;
         // OK without

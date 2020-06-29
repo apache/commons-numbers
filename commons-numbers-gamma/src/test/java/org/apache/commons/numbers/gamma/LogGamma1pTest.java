@@ -44,7 +44,7 @@ public class LogGamma1pTest {
     };
 
     @Test
-    public void testLogGamma1p() {
+    void testLogGamma1p() {
         final int ulps = 3;
         for (int i = 0; i < LOG_GAMMA1P_REF.length; i++) {
             final double[] ref = LOG_GAMMA1P_REF[i];
@@ -57,14 +57,14 @@ public class LogGamma1pTest {
     }
 
     @Test
-    public void testLogGamma1pPrecondition1() {
+    void testLogGamma1pPrecondition1() {
         Assertions.assertThrows(GammaException.class,
             () -> LogGamma1p.value(-0.51)
         );
     }
 
     @Test
-    public void testLogGamma1pPrecondition2() {
+    void testLogGamma1pPrecondition2() {
         Assertions.assertThrows(GammaException.class,
             () -> LogGamma1p.value(1.51)
         );

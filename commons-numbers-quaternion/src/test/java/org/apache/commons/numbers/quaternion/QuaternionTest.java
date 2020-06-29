@@ -28,12 +28,12 @@ public class QuaternionTest {
     private static final double COMPARISON_EPS = 1e-14;
 
     @Test
-    public void testZeroQuaternion() {
+    void testZeroQuaternion() {
         Assertions.assertEquals(0, Quaternion.ZERO.norm(), 0d);
     }
 
     @Test
-    public void testUnitQuaternions() {
+    void testUnitQuaternions() {
         Assertions.assertEquals(1, Quaternion.ONE.norm(), 0d);
         Assertions.assertSame(Quaternion.ONE, Quaternion.ONE.normalize());
 
@@ -48,7 +48,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testAccessors1() {
+    final void testAccessors1() {
         final double q0 = 2;
         final double q1 = 5.4;
         final double q2 = 17;
@@ -62,7 +62,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testAccessors2() {
+    final void testAccessors2() {
         final double q0 = 2;
         final double q1 = 5.4;
         final double q2 = 17;
@@ -79,7 +79,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testAccessors3() {
+    final void testAccessors3() {
         final double q0 = 2;
         final double q1 = 5.4;
         final double q2 = 17;
@@ -96,14 +96,14 @@ public class QuaternionTest {
     }
 
     @Test
-    public void testWrongDimension() {
+    void testWrongDimension() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> Quaternion.of(new double[] {1, 2})
         );
     }
 
     @Test
-    public final void testConjugate() {
+    final void testConjugate() {
         final double q0 = 2;
         final double q1 = 5.4;
         final double q2 = 17;
@@ -120,7 +120,7 @@ public class QuaternionTest {
 
     /* TODO remove dependency on Vector3D
     @Test
-    public final void testProductQuaternionQuaternion() {
+    final void testProductQuaternionQuaternion() {
 
         // Case : analytic test case
 
@@ -165,7 +165,7 @@ public class QuaternionTest {
     */
     /* TODO remove dependency on Vector3D
     @Test
-    public final void testProductQuaternionVector() {
+    final void testProductQuaternionVector() {
 
         // Case : Product between a vector and a quaternion : QxV
 
@@ -216,7 +216,7 @@ public class QuaternionTest {
     }
     */
     @Test
-    public final void testDotProductQuaternionQuaternion() {
+    final void testDotProductQuaternionQuaternion() {
         // expected output
         final double expected = -6.;
         // inputs
@@ -231,7 +231,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testScalarMultiplyDouble() {
+    final void testScalarMultiplyDouble() {
         // expected outputs
         final double w = 1.6;
         final double x = -4.8;
@@ -250,7 +250,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testAddQuaternionQuaternion() {
+    final void testAddQuaternionQuaternion() {
         // expected outputs
         final double w = 4;
         final double x = -1;
@@ -275,7 +275,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testSubtractQuaternionQuaternion() {
+    final void testSubtractQuaternionQuaternion() {
         // expected outputs
         final double w = -2.;
         final double x = 5.;
@@ -300,7 +300,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testNorm() {
+    final void testNorm() {
 
         final double q0 = 2;
         final double q1 = 1;
@@ -317,7 +317,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testNormalize() {
+    final void testNormalize() {
 
         final Quaternion q = Quaternion.of(2, 1, -4, -2);
 
@@ -334,7 +334,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testNormalizeFail_zero() {
+    final void testNormalizeFail_zero() {
         final Quaternion q = Quaternion.of(0, 0, 0, 0);
         Assertions.assertThrows(IllegalStateException.class,
                 q::normalize
@@ -342,7 +342,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testNormalizeFail_nan() {
+    final void testNormalizeFail_nan() {
         final Quaternion q = Quaternion.of(0, 0, 0, Double.NaN);
         Assertions.assertThrows(IllegalStateException.class,
                 q::normalize
@@ -351,7 +351,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testNormalizeFail_positiveInfinity() {
+    final void testNormalizeFail_positiveInfinity() {
         final Quaternion q = Quaternion.of(0, 0, Double.POSITIVE_INFINITY, 0);
         Assertions.assertThrows(IllegalStateException.class,
                 q::normalize
@@ -359,7 +359,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testNormalizeFail_negativeInfinity() {
+    final void testNormalizeFail_negativeInfinity() {
         final Quaternion q = Quaternion.of(0, Double.NEGATIVE_INFINITY, 0, 0);
         Assertions.assertThrows(IllegalStateException.class,
                 q::normalize
@@ -367,7 +367,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testObjectEquals() {
+    final void testObjectEquals() {
         final double one = 1;
         final Quaternion q1 = Quaternion.of(one, one, one, one);
         Assertions.assertEquals(q1, q1);
@@ -382,7 +382,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public void testHashCode() {
+    void testHashCode() {
         Quaternion x = Quaternion.of(0.0, 0.0, 0.0, 0.0);
         Quaternion y = Quaternion.of(0.0, 0.0 + Double.MIN_VALUE, 0.0, 0.0);
         Assertions.assertNotEquals(x.hashCode(), y.hashCode());
@@ -415,7 +415,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testQuaternionEquals() {
+    final void testQuaternionEquals() {
         final double inc = 1e-5;
         final Quaternion q1 = Quaternion.of(2, 1, -4, -2);
         final Quaternion q2 = Quaternion.of(q1.getW() + inc, q1.getX(), q1.getY(), q1.getZ());
@@ -435,7 +435,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testQuaternionEquals2() {
+    final void testQuaternionEquals2() {
         final Quaternion q1 = Quaternion.of(1, 4, 2, 3);
         final double gap = 1e-5;
         final Quaternion q2 = Quaternion.of(1 + gap, 4 + gap, 2 + gap, 3 + gap);
@@ -446,7 +446,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testIsUnit() {
+    final void testIsUnit() {
         final Random r = new Random(48);
         final int numberOfTrials = 1000;
         for (int i = 0; i < numberOfTrials; i++) {
@@ -460,7 +460,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testIsPure() {
+    final void testIsPure() {
         final Quaternion q1 = Quaternion.of(0, 5, 4, 8);
         Assertions.assertTrue(q1.isPure(EPS));
 
@@ -480,7 +480,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testPositivePolarFormWhenScalarPositive() {
+    final void testPositivePolarFormWhenScalarPositive() {
         Quaternion q = Quaternion.of(3, -3, -3, 3).positivePolarForm();
         Quaternion expected = Quaternion.of(0.5, -0.5, -0.5, 0.5);
         assertEquals(q, expected, EPS);
@@ -489,7 +489,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testPositivePolarFormWhenScalarNegative() {
+    final void testPositivePolarFormWhenScalarNegative() {
         Quaternion q = Quaternion.of(-3, 3, -3, 3).positivePolarForm();
         Quaternion expected = Quaternion.of(0.5, -0.5, 0.5, -0.5);
         assertEquals(q, expected, EPS);
@@ -498,7 +498,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testPositivePolarFormWhenScalarPositiveAndNormalized() {
+    final void testPositivePolarFormWhenScalarPositiveAndNormalized() {
         Quaternion q = Quaternion.of(123, 45, 67, 89).normalize().positivePolarForm();
 
         Assertions.assertTrue(q.getW() >= 0);
@@ -506,7 +506,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testPositivePolarFormWhenScalarNegativeAndNormalized() {
+    final void testPositivePolarFormWhenScalarNegativeAndNormalized() {
         Quaternion q = Quaternion.of(123, 45, 67, 89).normalize().negate().positivePolarForm();
 
         Assertions.assertTrue(q.getW() >= 0);
@@ -514,7 +514,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public void testNegate() {
+    void testNegate() {
         final double a = -1;
         final double b = 2;
         final double c = -3;
@@ -530,7 +530,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public void testNegateNormalized() {
+    void testNegateNormalized() {
         final double a = -1;
         final double b = 2;
         final double c = -3;
@@ -541,7 +541,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public void testNegatePositivePolarForm() {
+    void testNegatePositivePolarForm() {
         final double a = -1;
         final double b = 2;
         final double c = -3;
@@ -553,7 +553,7 @@ public class QuaternionTest {
 
     /* TODO remove dependency on Rotation
     @Test
-    public final void testPolarForm() {
+    final void testPolarForm() {
         final Random r = new Random(48);
         final int numberOfTrials = 1000;
         for (int i = 0; i < numberOfTrials; i++) {
@@ -581,7 +581,7 @@ public class QuaternionTest {
     }
 */
     @Test
-    public final void testInverse() {
+    final void testInverse() {
         final Quaternion q = Quaternion.of(1.5, 4, 2, -2.5);
 
         final Quaternion inverseQ = q.inverse();
@@ -606,7 +606,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public void testInverse_zeroNorm() {
+    void testInverse_zeroNorm() {
         Quaternion q = Quaternion.of(0, 0, 0, 0);
         Assertions.assertThrows(IllegalStateException.class,
                 q::inverse
@@ -614,7 +614,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public void testInverse_nanNorm() {
+    void testInverse_nanNorm() {
         Quaternion q = Quaternion.of(Double.NaN, 0, 0, 0);
         Assertions.assertThrows(IllegalStateException.class,
                 q::inverse
@@ -622,7 +622,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public void testInverse_positiveInfinityNorm() {
+    void testInverse_positiveInfinityNorm() {
         Quaternion q = Quaternion.of(0, Double.POSITIVE_INFINITY, 0, 0);
         Assertions.assertThrows(IllegalStateException.class,
                 q::inverse
@@ -630,7 +630,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public void testInverse_negativeInfinityNorm() {
+    void testInverse_negativeInfinityNorm() {
         Quaternion q = Quaternion.of(0, 0, Double.NEGATIVE_INFINITY, 0);
         Assertions.assertThrows(IllegalStateException.class,
                 q::inverse
@@ -638,7 +638,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public void testInverseNormalized() {
+    void testInverseNormalized() {
         final Quaternion invQ = Quaternion.of(-1.2, 3.4, -5.6, -7.8).normalize().inverse();
         final Quaternion q = invQ.inverse();
         final Quaternion result = q.multiply(invQ);
@@ -646,7 +646,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public void testInversePositivePolarForm() {
+    void testInversePositivePolarForm() {
         final Quaternion invQ = Quaternion.of(1.2, -3.4, 5.6, -7.8).positivePolarForm().inverse();
         final Quaternion q = invQ.inverse();
         final Quaternion result = q.multiply(invQ);
@@ -654,7 +654,7 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testMultiply() {
+    final void testMultiply() {
         final Quaternion q1 = Quaternion.of(1, 2, 3, 4);
         final Quaternion q2 = Quaternion.of(4, 3, 2, 1);
         final Quaternion actual = q1.multiply(q2);
@@ -667,14 +667,14 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testParseFromToString() {
+    final void testParseFromToString() {
         final Quaternion q = Quaternion.of(1.1, 2.2, 3.3, 4.4);
         Quaternion parsed = Quaternion.parse(q.toString());
         assertEquals(parsed, q, EPS);
     }
 
     @Test
-    public final void testParseSpecials() {
+    final void testParseSpecials() {
         Quaternion parsed = Quaternion.parse("[1e-5 Infinity NaN -0xa.cp0]");
         Assertions.assertEquals(1e-5, parsed.getW(), EPS);
         Assertions.assertTrue(Double.isInfinite(parsed.getX()));
@@ -683,56 +683,56 @@ public class QuaternionTest {
     }
 
     @Test
-    public final void testParseMissingStart() {
+    final void testParseMissingStart() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> Quaternion.parse("1.0 2.0 3.0 4.0]")
         );
     }
 
     @Test
-    public final void testParseMissingEnd() {
+    final void testParseMissingEnd() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> Quaternion.parse("[1.0 2.0 3.0 4.0")
         );
     }
 
     @Test
-    public final void testParseMissingPart() {
+    final void testParseMissingPart() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> Quaternion.parse("[1.0 2.0 3.0 ]")
         );
     }
 
     @Test
-    public final void testParseInvalidScalar() {
+    final void testParseInvalidScalar() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> Quaternion.parse("[1.x 2.0 3.0 4.0]")
         );
     }
 
     @Test
-    public final void testParseInvalidI() {
+    final void testParseInvalidI() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> Quaternion.parse("[1.0 2.0x 3.0 4.0]")
         );
     }
 
     @Test
-    public final void testParseInvalidJ() {
+    final void testParseInvalidJ() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> Quaternion.parse("[1.0 2.0 3.0x 4.0]")
         );
     }
 
     @Test
-    public final void testParseInvalidK() {
+    final void testParseInvalidK() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> Quaternion.parse("[1.0 2.0 3.0 4.0x]")
         );
     }
 
     @Test
-    public final void testToString() {
+    final void testToString() {
         final Quaternion q = Quaternion.of(1, 2, 3, 4);
         Assertions.assertEquals("[1.0 2.0 3.0 4.0]", q.toString());
     }

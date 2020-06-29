@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 public class ArithmeticUtilsTest {
 
     @Test
-    public void testGcd() {
+    void testGcd() {
         int a = 30;
         int b = 50;
         int c = 77;
@@ -81,7 +81,7 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void testGcdConsistency() {
+    void testGcdConsistency() {
         // Use Integer to prevent varargs vs array issue with Arrays.asList
         Integer[] primeList = {19, 23, 53, 67, 73, 79, 101, 103, 111, 131};
 
@@ -102,7 +102,7 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void  testGcdLong() {
+    void  testGcdLong() {
         long a = 30;
         long b = 50;
         long c = 77;
@@ -156,7 +156,7 @@ public class ArithmeticUtilsTest {
 
 
     @Test
-    public void testLcm() {
+    void testLcm() {
         int a = 30;
         int b = 50;
         int c = 77;
@@ -203,7 +203,7 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void testLcmLong() {
+    void testLcmLong() {
         long a = 30;
         long b = 50;
         long c = 77;
@@ -254,7 +254,7 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void testPow() {
+    void testPow() {
 
         Assertions.assertEquals(1801088541, ArithmeticUtils.pow(21, 7));
         Assertions.assertEquals(1, ArithmeticUtils.pow(21, 0));
@@ -322,14 +322,14 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void testPowIntOverflow() {
+    void testPowIntOverflow() {
         Assertions.assertThrows(ArithmeticException.class,
             () -> ArithmeticUtils.pow(21, 8)
         );
     }
 
     @Test
-    public void testPowInt() {
+    void testPowInt() {
         final int base = 21;
 
         Assertions.assertEquals(85766121L,
@@ -339,14 +339,14 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void testPowNegativeIntOverflow() {
+    void testPowNegativeIntOverflow() {
         Assertions.assertThrows(ArithmeticException.class,
             () -> ArithmeticUtils.pow(-21, 8)
         );
     }
 
     @Test
-    public void testPowNegativeInt() {
+    void testPowNegativeInt() {
         final int base = -21;
 
         Assertions.assertEquals(85766121,
@@ -356,7 +356,7 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void testPowMinusOneInt() {
+    void testPowMinusOneInt() {
         final int base = -1;
         for (int i = 0; i < 100; i++) {
             final int pow = ArithmeticUtils.pow(base, i);
@@ -365,7 +365,7 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void testPowOneInt() {
+    void testPowOneInt() {
         final int base = 1;
         for (int i = 0; i < 100; i++) {
             final int pow = ArithmeticUtils.pow(base, i);
@@ -374,14 +374,14 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void testPowLongOverflow() {
+    void testPowLongOverflow() {
         Assertions.assertThrows(ArithmeticException.class,
             () -> ArithmeticUtils.pow(21, 15)
         );
     }
 
     @Test
-    public void testPowLong() {
+    void testPowLong() {
         final long base = 21;
 
         Assertions.assertEquals(154472377739119461L,
@@ -391,14 +391,14 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void testPowNegativeLongOverflow() {
+    void testPowNegativeLongOverflow() {
         Assertions.assertThrows(ArithmeticException.class,
             () -> ArithmeticUtils.pow(-21L, 15)
         );
     }
 
     @Test
-    public void testPowNegativeLong() {
+    void testPowNegativeLong() {
         final long base = -21;
 
         Assertions.assertEquals(-154472377739119461L,
@@ -408,7 +408,7 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void testPowMinusOneLong() {
+    void testPowMinusOneLong() {
         final long base = -1;
         for (int i = 0; i < 100; i++) {
             final long pow = ArithmeticUtils.pow(base, i);
@@ -417,7 +417,7 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void testPowOneLong() {
+    void testPowOneLong() {
         final long base = 1;
         for (int i = 0; i < 100; i++) {
             final long pow = ArithmeticUtils.pow(base, i);
@@ -426,7 +426,7 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void testIsPowerOfTwo() {
+    void testIsPowerOfTwo() {
         final int n = 1025;
         final boolean[] expected = new boolean[n];
         Arrays.fill(expected, false);
@@ -533,13 +533,13 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void testRemainderUnsignedInt() {
+    void testRemainderUnsignedInt() {
         Assertions.assertEquals(36, ArithmeticUtils.remainderUnsigned(-2147479015, 63));
         Assertions.assertEquals(6, ArithmeticUtils.remainderUnsigned(-2147479015, 25));
     }
 
     @Test
-    public void testRemainderUnsignedIntSpecialCases() {
+    void testRemainderUnsignedIntSpecialCases() {
         int[] ints = getIntSpecialCases();
         for (int dividend : ints) {
             for (int divisor : ints) {
@@ -555,12 +555,12 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void testRemainderUnsignedLong() {
+    void testRemainderUnsignedLong() {
         Assertions.assertEquals(48L, ArithmeticUtils.remainderUnsigned(-2147479015L, 63L));
     }
 
     @Test
-    public void testRemainderUnsignedLongSpecialCases() {
+    void testRemainderUnsignedLongSpecialCases() {
         long[] longs = getLongSpecialCases();
         for (long dividend : longs) {
             for (long divisor : longs) {
@@ -579,7 +579,7 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void testDivideUnsignedInt() {
+    void testDivideUnsignedInt() {
         Assertions.assertEquals(34087115, ArithmeticUtils.divideUnsigned(-2147479015, 63));
         Assertions.assertEquals(85899531, ArithmeticUtils.divideUnsigned(-2147479015, 25));
         Assertions.assertEquals(2147483646, ArithmeticUtils.divideUnsigned(-3, 2));
@@ -593,7 +593,7 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void testDivideUnsignedIntSpecialCases() {
+    void testDivideUnsignedIntSpecialCases() {
         int[] ints = getIntSpecialCases();
         for (int dividend : ints) {
             for (int divisor : ints) {
@@ -609,12 +609,12 @@ public class ArithmeticUtilsTest {
     }
 
     @Test
-    public void testDivideUnsignedLong() {
+    void testDivideUnsignedLong() {
         Assertions.assertEquals(292805461453366231L, ArithmeticUtils.divideUnsigned(-2147479015L, 63L));
     }
 
     @Test
-    public void testDivideUnsignedLongSpecialCases() {
+    void testDivideUnsignedLongSpecialCases() {
         long[] longs = getLongSpecialCases();
         for (long dividend : longs) {
             for (long divisor : longs) {

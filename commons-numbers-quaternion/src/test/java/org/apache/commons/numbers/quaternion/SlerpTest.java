@@ -29,7 +29,7 @@ public class SlerpTest {
     private static final double INV_SQRT_2 = 1.0 / SQRT_2;
 
     @Test
-    public void testSlerp_sphericalAlgorithm() {
+    void testSlerp_sphericalAlgorithm() {
         // arrange
         Quaternion q1 = createZRotation(0.75 * Math.PI);
         Quaternion q2 = createZRotation(-0.75 * Math.PI);
@@ -47,7 +47,7 @@ public class SlerpTest {
     }
 
     @Test
-    public void testSlerp_sphericalAlgorithm_allOutputsAreInPositivePolarForm() {
+    void testSlerp_sphericalAlgorithm_allOutputsAreInPositivePolarForm() {
         // arrange
         Quaternion q1 = createZRotation(0.75 * Math.PI);
         Quaternion q2 = createZRotation(-0.75 * Math.PI);
@@ -69,7 +69,7 @@ public class SlerpTest {
     }
 
     @Test
-    public void testSlerp_nonNormalizedInputs() {
+    void testSlerp_nonNormalizedInputs() {
         // arrange
         Quaternion q1 = createZRotation(0).multiply(10.0);
         Quaternion q2 = createZRotation(Math.PI).multiply(0.2);
@@ -85,7 +85,7 @@ public class SlerpTest {
     }
 
     @Test
-    public void testSlerp_linearAlgorithm() {
+    void testSlerp_linearAlgorithm() {
         // arrange
         Quaternion q1 = createZRotation(0.75 * Math.PI);
         Quaternion q2 = createZRotation(0.76 * Math.PI);
@@ -101,7 +101,7 @@ public class SlerpTest {
     }
 
     @Test
-    public void testSlerp_linearAlgorithm_allOutputsAreInPositivePolarForm() {
+    void testSlerp_linearAlgorithm_allOutputsAreInPositivePolarForm() {
         // arrange
         Quaternion q1 = createZRotation(0.75 * Math.PI);
         Quaternion q2 = createZRotation(0.76 * Math.PI);
@@ -123,7 +123,7 @@ public class SlerpTest {
     }
 
     @Test
-    public void testSlerp_identicalInputs() {
+    void testSlerp_identicalInputs() {
         // arrange
         Quaternion q1 = createZRotation(0);
         Quaternion q2 = createZRotation(0);
@@ -139,7 +139,7 @@ public class SlerpTest {
     }
 
     @Test
-    public void testSlerp_inputQuaternionsHaveMinusOneDotProduct() {
+    void testSlerp_inputQuaternionsHaveMinusOneDotProduct() {
         // arrange
         Quaternion q1 = createZRotation(0.5 * Math.PI);
         Quaternion q2 = createZRotation(1.5 * Math.PI).conjugate(); // 3pi/2 around -z
@@ -157,7 +157,7 @@ public class SlerpTest {
     }
 
     @Test
-    public void testSlerp_tOutsideOfZeroToOne() {
+    void testSlerp_tOutsideOfZeroToOne() {
         // arrange
         Quaternion q1 = createZRotation(0);
         Quaternion q2 = createZRotation(0.25 * Math.PI);
@@ -175,7 +175,7 @@ public class SlerpTest {
     }
 
     @Test
-    public void testVectorTransform_simple() {
+    void testVectorTransform_simple() {
         // arrange
         Quaternion q0 = Quaternion.of(1, 0, 0, 0); // rotation of zero
         Quaternion q1 = Quaternion.of(0, 0, 0, 1); // pi rotation around +z
@@ -202,7 +202,7 @@ public class SlerpTest {
     }
 
     @Test
-    public void testVectorTransform_multipleCombinations() {
+    void testVectorTransform_multipleCombinations() {
         // arrange
         Quaternion[] quaternions = {
                 // +x axis
@@ -280,7 +280,7 @@ public class SlerpTest {
     }
 
     @Test
-    public void testVectorTransform_tOutsideOfZeroToOne_() {
+    void testVectorTransform_tOutsideOfZeroToOne_() {
         // arrange
         double angle1 = Math.PI * 0.25;
         double angle2 = Math.PI * 0.75;

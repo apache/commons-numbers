@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
  */
 public class ErfTest {
     @Test
-    public void testErf0() {
+    void testErf0() {
         double actual = Erf.value(0);
         double expected = 0;
         Assertions.assertEquals(expected, actual, 1e-15);
@@ -32,7 +32,7 @@ public class ErfTest {
     }
 
     @Test
-    public void testErf1960() {
+    void testErf1960() {
         double x = 1.960 / Math.sqrt(2);
         double actual = Erf.value(x);
         double expected = 0.95;
@@ -46,7 +46,7 @@ public class ErfTest {
     }
 
     @Test
-    public void testErf2576() {
+    void testErf2576() {
         double x = 2.576 / Math.sqrt(2);
         double actual = Erf.value(x);
         double expected = 0.99;
@@ -60,7 +60,7 @@ public class ErfTest {
     }
 
     @Test
-    public void testErf2807() {
+    void testErf2807() {
         double x = 2.807 / Math.sqrt(2);
         double actual = Erf.value(x);
         double expected = 0.995;
@@ -74,7 +74,7 @@ public class ErfTest {
     }
 
     @Test
-    public void testErf3291() {
+    void testErf3291() {
         double x = 3.291 / Math.sqrt(2);
         double actual = Erf.value(x);
         double expected = 0.999;
@@ -91,7 +91,7 @@ public class ErfTest {
      * MATH-301, MATH-456
      */
     @Test
-    public void testLargeValues() {
+    void testLargeValues() {
         for (int i = 1; i < 200; i *= 10) {
             double result = Erf.value(i);
             Assertions.assertFalse(Double.isNaN(result));
@@ -117,7 +117,7 @@ public class ErfTest {
      * (Apple OSX packaged version) erfl (extended precision erf).
      */
     @Test
-    public void testErfGnu() {
+    void testErfGnu() {
         final double tol = 1E-15;
         final double[] gnuValues = new double[] {
             -1, -1, -1, -1, -1,

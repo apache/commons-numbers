@@ -28,7 +28,7 @@ public class ErfDifferenceTest {
      * with results obtained from Erf.value(double) and Erfc.value(double).
      */
     @Test
-    public void testTwoArgumentErf() {
+    void testTwoArgumentErf() {
         final double[] xi = new double[] {-2, -1, -0.9, -0.1, 0, 0.1, 0.9, 1, 2};
         for (double x1 : xi) {
             for (double x2 : xi) {

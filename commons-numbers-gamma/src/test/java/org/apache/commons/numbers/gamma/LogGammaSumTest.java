@@ -129,7 +129,7 @@ public class LogGammaSumTest {
     };
 
     @Test
-    public void testLogGammaSum() {
+    void testLogGammaSum() {
         final int ulps = 2;
         for (int i = 0; i < LOG_GAMMA_SUM_REF.length; i++) {
             final double[] ref = LOG_GAMMA_SUM_REF[i];
@@ -145,28 +145,28 @@ public class LogGammaSumTest {
     }
 
     @Test
-    public void testLogGammaSumPrecondition1() {
+    void testLogGammaSumPrecondition1() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> LogGammaSum.value(0, 1)
         );
     }
 
     @Test
-    public void testLogGammaSumPrecondition2() {
+    void testLogGammaSumPrecondition2() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> LogGammaSum.value(3, 1)
         );
     }
 
     @Test
-    public void testLogGammaSumPrecondition3() {
+    void testLogGammaSumPrecondition3() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> LogGammaSum.value(1, 0)
         );
     }
 
     @Test
-    public void testLogGammaSumPrecondition4() {
+    void testLogGammaSumPrecondition4() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> LogGammaSum.value(1, 3)
         );

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 public class CosAngleTest {
 
     @Test
-    public void testCosAngle2D() {
+    void testCosAngle2D() {
         double expected;
 
         final double[] v1 = {1, 0};
@@ -51,7 +51,7 @@ public class CosAngleTest {
     }
 
     @Test
-    public void testCosAngle3D() {
+    void testCosAngle3D() {
         double expected;
 
         final double[] v1 = {1, 1, 0};
@@ -64,7 +64,7 @@ public class CosAngleTest {
     }
 
     @Test
-    public void testCosAngleExtreme() {
+    void testCosAngleExtreme() {
         double expected;
 
         final double tiny = 1e-200;
@@ -80,7 +80,7 @@ public class CosAngleTest {
     }
 
     @Test
-    public void testCosAngle_dimensionMismatch() {
+    void testCosAngle_dimensionMismatch() {
         final double[] a = {1.0};
         final double[] b = {1.0, 2.0};
 

@@ -129,7 +129,7 @@ public class ComplexEdgeCaseTest {
     }
 
     @Test
-    public void testAcos() {
+    void testAcos() {
         // acos(z) = (pi / 2) + i ln(iz + sqrt(1 - z^2))
         final String name = "acos";
         final UnaryOperator<Complex> operation = Complex::acos;
@@ -165,7 +165,7 @@ public class ComplexEdgeCaseTest {
     // acosh is defined by acos so is not tested
 
     @Test
-    public void testAsin() {
+    void testAsin() {
         // asin(z) = -i (ln(iz + sqrt(1 - z^2)))
         final String name = "asin";
         final UnaryOperator<Complex> operation = Complex::asin;
@@ -198,7 +198,7 @@ public class ComplexEdgeCaseTest {
     // asinh is defined by asin so is not tested
 
     @Test
-    public void testAtanh() {
+    void testAtanh() {
         // atanh(z) = (1/2) ln((1 + z) / (1 - z))
         // Odd function: negative real cases defined by positive real cases
         final String name = "atanh";
@@ -227,7 +227,7 @@ public class ComplexEdgeCaseTest {
     }
 
     @Test
-    public void testCosh() {
+    void testCosh() {
         // cosh(a + b i) = cosh(a)cos(b) + i sinh(a)sin(b)
         // Even function: negative real cases defined by positive real cases
         final String name = "cosh";
@@ -292,7 +292,7 @@ public class ComplexEdgeCaseTest {
     }
 
     @Test
-    public void testSinh() {
+    void testSinh() {
         // sinh(a + b i) = sinh(a)cos(b) + i cosh(a)sin(b)
         // Odd function: negative real cases defined by positive real cases
         final String name = "sinh";
@@ -355,7 +355,7 @@ public class ComplexEdgeCaseTest {
     }
 
     @Test
-    public void testTanh() {
+    void testTanh() {
         // tan(a + b i) = sinh(2a)/(cosh(2a)+cos(2b)) + i [sin(2b)/(cosh(2a)+cos(2b))]
         // Odd function: negative real cases defined by positive real cases
         final String name = "tanh";
@@ -402,7 +402,7 @@ public class ComplexEdgeCaseTest {
     }
 
     @Test
-    public void testExp() {
+    void testExp() {
         final String name = "exp";
         final UnaryOperator<Complex> operation = Complex::exp;
 
@@ -424,7 +424,7 @@ public class ComplexEdgeCaseTest {
     }
 
     @Test
-    public void testLog() {
+    void testLog() {
         final String name = "log";
         final UnaryOperator<Complex> operation = Complex::log;
 
@@ -558,7 +558,7 @@ public class ComplexEdgeCaseTest {
     }
 
     @Test
-    public void testSqrt() {
+    void testSqrt() {
         final String name = "sqrt";
         final UnaryOperator<Complex> operation = Complex::sqrt;
 
@@ -640,7 +640,7 @@ public class ComplexEdgeCaseTest {
     // multiply/divide are tested in CStandardTest
 
     @Test
-    public void testDivide() {
+    void testDivide() {
         final String name = "divide";
         final BiFunction<Complex, Complex, Complex> operation = Complex::divide;
 
@@ -680,7 +680,7 @@ public class ComplexEdgeCaseTest {
     }
 
     @Test
-    public void testPow() {
+    void testPow() {
         final String name = "pow";
         final BiFunction<Complex, Complex, Complex> operation = Complex::pow;
 

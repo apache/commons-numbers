@@ -24,12 +24,12 @@ import org.junit.jupiter.api.Test;
  */
 public class LanczosApproximationTest {
     @Test
-    public void testG() {
+    void testG() {
         Assertions.assertEquals(607d / 128d, LanczosApproximation.g(), 0d);
     }
 
     @Test
-    public void testSomeValues() {
+    void testSomeValues() {
         // Given that few values are checked, this test would only serve
         // as early warning of unexpected changes to the current code.
         Assertions.assertEquals(29.020294557631818d, LanczosApproximation.value(0.1d), 0d);

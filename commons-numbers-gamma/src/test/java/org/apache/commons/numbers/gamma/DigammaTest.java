@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
  */
 public class DigammaTest {
     @Test
-    public void testDigammaLargeArgs() {
+    void testDigammaLargeArgs() {
         double eps = 1e-8;
         Assertions.assertEquals(4.6001618527380874002, Digamma.value(100), eps);
         Assertions.assertEquals(3.9019896734278921970, Digamma.value(50), eps);
@@ -41,7 +41,7 @@ public class DigammaTest {
     }
 
     @Test
-    public void testDigammaSmallArgs() {
+    void testDigammaSmallArgs() {
         // values for negative powers of 10 from 1 to 30 as computed by webMathematica with 20 digits.
         // For example, to compute trigamma($i) = Polygamma(1, $i), use
         //
@@ -58,7 +58,7 @@ public class DigammaTest {
     }
 
     @Test
-    public void testDigammaZero() {
+    void testDigammaZero() {
         // webMathematica states Complexinfinity.
         // The value computed is Double.NEGATIVE_INFINITY but we leave this as a test for infinity
         // since the next value down -Double.MIN_VALUE is Double.POSITIVE_INFINITY indicating
@@ -67,7 +67,7 @@ public class DigammaTest {
     }
 
     @Test
-    public void testDigammaNonRealArgs() {
+    void testDigammaNonRealArgs() {
         Assertions.assertTrue(Double.isNaN(Digamma.value(Double.NaN)));
         Assertions.assertTrue(Double.isInfinite(Digamma.value(Double.POSITIVE_INFINITY)));
         Assertions.assertTrue(Double.isInfinite(Digamma.value(Double.NEGATIVE_INFINITY)));

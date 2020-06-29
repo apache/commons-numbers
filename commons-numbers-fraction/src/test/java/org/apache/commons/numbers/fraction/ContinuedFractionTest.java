@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 public class ContinuedFractionTest {
 
     @Test
-    public void testGoldenRatio() throws Exception {
+    void testGoldenRatio() throws Exception {
         ContinuedFraction cf = new ContinuedFraction() {
             @Override
             public double getA(int n, double x) {
@@ -45,7 +45,7 @@ public class ContinuedFractionTest {
     }
 
     @Test
-    public void test415Over93() throws Exception {
+    void test415Over93() throws Exception {
         // https://en.wikipedia.org/wiki/Continued_fraction
         // 415             1
         // ---  = 4 + ---------
@@ -80,7 +80,7 @@ public class ContinuedFractionTest {
     }
 
     @Test
-    public void testMaxIterationsThrows() throws Exception {
+    void testMaxIterationsThrows() throws Exception {
         ContinuedFraction cf = new ContinuedFraction() {
             @Override
             public double getA(int n, double x) {
@@ -101,7 +101,7 @@ public class ContinuedFractionTest {
     }
 
     @Test
-    public void testNaNThrows() throws Exception {
+    void testNaNThrows() throws Exception {
         // Create a NaN during the iteration
         ContinuedFraction cf = new ContinuedFraction() {
             @Override
@@ -122,7 +122,7 @@ public class ContinuedFractionTest {
     }
 
     @Test
-    public void testInfThrows() throws Exception {
+    void testInfThrows() throws Exception {
         // Create an infinity during the iteration:
         // a / cPrev  => a_1 / b_0 => Double.MAX_VALUE / 0.5
         ContinuedFraction cf = new ContinuedFraction() {
@@ -150,7 +150,7 @@ public class ContinuedFractionTest {
 
     // NUMBERS-46
     @Test
-    public void testOneIteration() {
+    void testOneIteration() {
         ContinuedFraction cf = new ContinuedFraction() {
             @Override
             public double getA(int n, double x) {
@@ -170,7 +170,7 @@ public class ContinuedFractionTest {
 
     // NUMBERS-46
     @Test
-    public void testTwoIterations() {
+    void testTwoIterations() {
         ContinuedFraction cf = new ContinuedFraction() {
             @Override
             public double getA(int n, double x) {

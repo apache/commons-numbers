@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
  */
 public class MultidimensionalCounterTest {
     @Test
-    public void testPreconditions() {
+    void testPreconditions() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> MultidimensionalCounter.of(0, 1));
         Assertions.assertThrows(IllegalArgumentException.class, () -> MultidimensionalCounter.of(2, 0));
         Assertions.assertThrows(IllegalArgumentException.class, () -> MultidimensionalCounter.of(-1, 1));
@@ -43,7 +43,7 @@ public class MultidimensionalCounterTest {
     }
 
     @Test
-    public void testMulti2UniConversion() {
+    void testMulti2UniConversion() {
         final MultidimensionalCounter c = MultidimensionalCounter.of(2, 4, 5);
         Assertions.assertEquals(33, c.toUni(1, 2, 3));
 
@@ -53,7 +53,7 @@ public class MultidimensionalCounterTest {
     }
 
     @Test
-    public void testAccessors() {
+    void testAccessors() {
         final int[] originalSize = new int[] {2, 6, 5};
         final MultidimensionalCounter c = MultidimensionalCounter.of(originalSize);
         final int nDim = c.getDimension();
@@ -66,7 +66,7 @@ public class MultidimensionalCounterTest {
     }
 
     @Test
-    public void testIterationConsistency() {
+    void testIterationConsistency() {
         final MultidimensionalCounter c = MultidimensionalCounter.of(2, 3, 4);
         final int[][] expected = new int[][] {
             {0, 0, 0},
@@ -112,7 +112,7 @@ public class MultidimensionalCounterTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         final int[] sizes = new int[] {7, 5, 3, 1};
         final MultidimensionalCounter c = MultidimensionalCounter.of(sizes);
         Assertions.assertEquals(Arrays.toString(sizes), c.toString());

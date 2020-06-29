@@ -25,12 +25,12 @@ import org.junit.jupiter.api.Test;
 public class LogBinomialCoefficientTest {
     /** Verify that b(0,0) = 1 */
     @Test
-    public void test0Choose0() {
+    void test0Choose0() {
         Assertions.assertEquals(0d, LogBinomialCoefficient.value(0, 0), 0);
     }
 
     @Test
-    public void testBinomialCoefficient() {
+    void testBinomialCoefficient() {
         final long[] bcoef5 = {1, 5, 10, 10, 5, 1};
         final long[] bcoef6 = {1, 6, 15, 20, 15, 6, 1};
 
@@ -54,14 +54,14 @@ public class LogBinomialCoefficientTest {
     }
 
     @Test
-    public void testBinomialCoefficientFail1() {
+    void testBinomialCoefficientFail1() {
         Assertions.assertThrows(CombinatoricsException.class,
             () -> LogBinomialCoefficient.value(4, 5)
         );
     }
 
     @Test
-    public void testBinomialCoefficientFail2() {
+    void testBinomialCoefficientFail2() {
         Assertions.assertThrows(CombinatoricsException.class,
             () -> LogBinomialCoefficient.value(-1, -2)
         );
@@ -72,7 +72,7 @@ public class LogBinomialCoefficientTest {
      * JIRA: MATH-241
      */
     @Test
-    public void testBinomialCoefficientLarge() throws Exception {
+    void testBinomialCoefficientLarge() throws Exception {
         // This tests all legal and illegal values for n <= 200.
         for (int n = 0; n <= 200; n++) {
             for (int k = 0; k <= n; k++) {

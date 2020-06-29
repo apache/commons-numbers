@@ -28,21 +28,21 @@ import org.junit.jupiter.api.Test;
  */
 public class CombinationsTest {
     @Test
-    public void testGetN() {
+    void testGetN() {
         final int n = 5;
         final int k = 3;
         Assertions.assertEquals(n, Combinations.of(n, k).getN());
     }
 
     @Test
-    public void testGetK() {
+    void testGetK() {
         final int n = 5;
         final int k = 3;
         Assertions.assertEquals(k, Combinations.of(n, k).getK());
     }
 
     @Test
-    public void testLexicographicIterator() {
+    void testLexicographicIterator() {
         checkLexicographicIterator(5, 3);
         checkLexicographicIterator(6, 4);
         checkLexicographicIterator(8, 2);
@@ -57,14 +57,14 @@ public class CombinationsTest {
     }
 
     @Test
-    public void testLexicographicIteratorThrows() {
+    void testLexicographicIteratorThrows() {
         checkLexicographicIteratorThrows(2, 1);
         // Only 1 combination
         checkLexicographicIteratorThrows(1, 1);
     }
 
     @Test
-    public void testLexicographicComparatorWrongIterate1() {
+    void testLexicographicComparatorWrongIterate1() {
         final int n = 5;
         final int k = 3;
         final Comparator<int[]> comp = Combinations.of(n, k).comparator();
@@ -74,7 +74,7 @@ public class CombinationsTest {
     }
 
     @Test
-    public void testLexicographicComparatorWrongIterate2() {
+    void testLexicographicComparatorWrongIterate2() {
         final int n = 5;
         final int k = 3;
         final Comparator<int[]> comp = Combinations.of(n, k).comparator();
@@ -84,7 +84,7 @@ public class CombinationsTest {
     }
 
     @Test
-    public void testLexicographicComparatorWrongIterate3() {
+    void testLexicographicComparatorWrongIterate3() {
         final int n = 5;
         final int k = 3;
         final Comparator<int[]> comp = Combinations.of(n, k).comparator();
@@ -94,7 +94,7 @@ public class CombinationsTest {
     }
 
     @Test
-    public void testLexicographicComparatorWrongIterate4() {
+    void testLexicographicComparatorWrongIterate4() {
         final int n = 5;
         final int k = 3;
         final Comparator<int[]> comp = Combinations.of(n, k).comparator();
@@ -104,7 +104,7 @@ public class CombinationsTest {
     }
 
     @Test
-    public void testLexicographicComparator() {
+    void testLexicographicComparator() {
         final int n = 5;
         final int k = 3;
         final Comparator<int[]> comp = Combinations.of(n, k).comparator();
@@ -120,7 +120,7 @@ public class CombinationsTest {
      * Check that iterates can be passed unsorted.
      */
     @Test
-    public void testLexicographicComparatorUnsorted() {
+    void testLexicographicComparatorUnsorted() {
         final int n = 5;
         final int k = 3;
         final Comparator<int[]> comp = Combinations.of(n, k).comparator();
@@ -133,7 +133,7 @@ public class CombinationsTest {
     }
 
     @Test
-    public void testEmptyCombination() {
+    void testEmptyCombination() {
         final Iterator<int[]> iter = Combinations.of(12345, 0).iterator();
         Assertions.assertTrue(iter.hasNext());
         final int[] c = iter.next();
@@ -142,7 +142,7 @@ public class CombinationsTest {
     }
 
     @Test
-    public void testFullSetCombination() {
+    void testFullSetCombination() {
         final int n = 67;
         final Iterator<int[]> iter = Combinations.of(n, n).iterator();
         Assertions.assertTrue(iter.hasNext());
@@ -215,28 +215,28 @@ public class CombinationsTest {
     }
 
     @Test
-    public void testBinomialCoefficientKLargerThanN() {
+    void testBinomialCoefficientKLargerThanN() {
         Assertions.assertThrows(CombinatoricsException.class,
             () -> Combinations.of(4, 5)
         );
     }
 
     @Test
-    public void testBinomialCoefficientNegativeN() {
+    void testBinomialCoefficientNegativeN() {
         Assertions.assertThrows(CombinatoricsException.class,
             () -> Combinations.of(-1, 1)
         );
     }
 
     @Test
-    public void testBinomialCoefficientNegativeK() {
+    void testBinomialCoefficientNegativeK() {
         Assertions.assertThrows(CombinatoricsException.class,
             () -> Combinations.of(10, -1)
         );
     }
 
     @Test
-    public void testBinomialCoefficientKAboveN() {
+    void testBinomialCoefficientKAboveN() {
         Assertions.assertThrows(CombinatoricsException.class,
             () -> Combinations.of(10, 20)
         );

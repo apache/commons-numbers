@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
  */
 public class DoublePrecisionTest {
     @Test
-    public void testSplitAssumptions() {
+    void testSplitAssumptions() {
         // The multiplier used to split the double value into high and low parts.
         final double scale = (1 << 27) + 1;
         // The upper limit above which a number may overflow during the split into a high part.
@@ -40,7 +40,7 @@ public class DoublePrecisionTest {
     }
 
     @Test
-    public void testHighPart() {
+    void testHighPart() {
         Assertions.assertEquals(Double.NaN, DoublePrecision.highPart(Double.POSITIVE_INFINITY));
         Assertions.assertEquals(Double.NaN, DoublePrecision.highPart(Double.NEGATIVE_INFINITY));
         Assertions.assertEquals(Double.NaN, DoublePrecision.highPart(Double.NaN));
@@ -50,7 +50,7 @@ public class DoublePrecisionTest {
     }
 
     @Test
-    public void testHighPartUnscaled() {
+    void testHighPartUnscaled() {
         Assertions.assertEquals(Double.NaN, DoublePrecision.highPartUnscaled(Double.POSITIVE_INFINITY));
         Assertions.assertEquals(Double.NaN, DoublePrecision.highPartUnscaled(Double.NEGATIVE_INFINITY));
         Assertions.assertEquals(Double.NaN, DoublePrecision.highPartUnscaled(Double.NaN));
@@ -64,7 +64,7 @@ public class DoublePrecisionTest {
      * result as JDK 9 Math.fma(x, y, -x * y) for edge cases.
      */
     @Test
-    public void testProductLow() {
+    void testProductLow() {
         assertProductLow(0.0, 1.0, Math.nextDown(Double.MIN_NORMAL));
         assertProductLow(0.0, -1.0, Math.nextDown(Double.MIN_NORMAL));
         assertProductLow(Double.NaN, 1.0, Double.POSITIVE_INFINITY);
@@ -79,7 +79,7 @@ public class DoublePrecisionTest {
     }
 
     @Test
-    public void testIsNotNormal() {
+    void testIsNotNormal() {
         for (double a : new double[] {Double.MAX_VALUE, 1.0, Double.MIN_NORMAL}) {
             Assertions.assertFalse(DoublePrecision.isNotNormal(a));
             Assertions.assertFalse(DoublePrecision.isNotNormal(-a));
