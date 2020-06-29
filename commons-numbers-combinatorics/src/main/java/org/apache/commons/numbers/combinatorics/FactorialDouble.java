@@ -54,9 +54,14 @@ public final class FactorialDouble {
         }
 
         final int beginCopy = 2;
-        final int endCopy = cache == null || cache.length <= beginCopy ?
-            beginCopy : cache.length <= numValues ?
-            cache.length : numValues;
+        int endCopy;
+        if (cache == null || cache.length <= beginCopy) {
+            endCopy = beginCopy;
+        } else if (cache.length <= numValues) {
+            endCopy = cache.length;
+        } else {
+            endCopy = numValues;
+        }
 
         // Copy available values.
         for (int i = beginCopy; i < endCopy; i++) {
