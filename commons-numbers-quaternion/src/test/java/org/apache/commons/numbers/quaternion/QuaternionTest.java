@@ -395,22 +395,22 @@ public class QuaternionTest {
 
         x = Quaternion.of(0.0, 0.0, 0.0, 0.0);
         y = Quaternion.of(-0.0, 0.0, 0.0, 0.0);
-        Assertions.assertTrue(x.hashCode() != y.hashCode());
+        Assertions.assertNotEquals(x.hashCode(), y.hashCode());
         Assertions.assertNotEquals(x, y, msg);
 
         x = Quaternion.of(0.0, 0.0, 0.0, 0.0);
         y = Quaternion.of(0.0, -0.0, 0.0, 0.0);
-        Assertions.assertTrue(x.hashCode() != y.hashCode());
+        Assertions.assertNotEquals(x.hashCode(), y.hashCode());
         Assertions.assertNotEquals(x, y, msg);
 
         x = Quaternion.of(0.0, 0.0, 0.0, 0.0);
         y = Quaternion.of(0.0, 0.0, -0.0, 0.0);
-        Assertions.assertTrue(x.hashCode() != y.hashCode());
+        Assertions.assertNotEquals(x.hashCode(), y.hashCode());
         Assertions.assertNotEquals(x, y, msg);
 
         x = Quaternion.of(0.0, 0.0, 0.0, 0.0);
         y = Quaternion.of(0.0, 0.0, 0.0, -0.0);
-        Assertions.assertTrue(x.hashCode() != y.hashCode());
+        Assertions.assertNotEquals(x.hashCode(), y.hashCode());
         Assertions.assertNotEquals(x, y, msg);
     }
 

@@ -39,15 +39,15 @@ public class FactorialDoubleTest {
     @Test
     void testLargestFactorialDouble() {
         final int n = 170;
-        Assertions.assertTrue(
-                Double.POSITIVE_INFINITY != FactorialDouble.create().value(n), n + "!");
+        Assertions.assertNotEquals(
+            Double.POSITIVE_INFINITY, FactorialDouble.create().value(n), () -> n + "!");
     }
 
     @Test
     void testFactorialDoubleTooLarge() {
         final int n = 171;
         Assertions.assertEquals(
-                Double.POSITIVE_INFINITY, FactorialDouble.create().value(n), 0d, n + "!");
+                Double.POSITIVE_INFINITY, FactorialDouble.create().value(n), () -> n + "!");
     }
 
     @Test
