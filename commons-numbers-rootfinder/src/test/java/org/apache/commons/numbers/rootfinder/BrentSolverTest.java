@@ -146,24 +146,17 @@ public class BrentSolverTest {
                                                    DEFAULT_RELATIVE_ACCURACY,
                                                    DEFAULT_FUNCTION_ACCURACY);
 
-        double result;
-        MonitoredFunction f;
-
         // Very large bracket around 1 for testing fast growth behavior.
-        f = new MonitoredFunction(func);
-        result = solver.findRoot(f, 0.85, 5);
+        final MonitoredFunction f = new MonitoredFunction(func);
+        final double result = solver.findRoot(f, 0.85, 5);
         Assertions.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
         Assertions.assertTrue(f.getCallsCount() <= 15);
 
-        try {
-            f = new MonitoredFunction(func, 10);
-            result = solver.findRoot(f, 0.85, 5);
-            Assertions.fail("Expected too many calls condition");
-        } catch (IllegalStateException ex) {
-            // Expected.
-            // Ensure expected error condition.
-            Assertions.assertNotEquals(-1, ex.getMessage().indexOf("too many calls"));
-        }
+        final MonitoredFunction f2 = new MonitoredFunction(func, 10);
+        final IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class,
+            () -> solver.findRoot(f2, 0.85, 5), "Expected too many calls condition");
+        // Ensure expected error condition.
+        Assertions.assertNotEquals(-1, ex.getMessage().indexOf("too many calls"));
     }
 
     @Test
