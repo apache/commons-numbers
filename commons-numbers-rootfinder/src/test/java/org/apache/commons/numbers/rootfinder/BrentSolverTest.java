@@ -153,7 +153,7 @@ public class BrentSolverTest {
         Assertions.assertTrue(f.getCallsCount() <= 15);
 
         final MonitoredFunction f2 = new MonitoredFunction(func, 10);
-        final IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class,
+        final IllegalStateException ex = Assertions.assertThrows(IllegalStateException.class,
             () -> solver.findRoot(f2, 0.85, 5), "Expected too many calls condition");
         // Ensure expected error condition.
         Assertions.assertNotEquals(-1, ex.getMessage().indexOf("too many calls"));

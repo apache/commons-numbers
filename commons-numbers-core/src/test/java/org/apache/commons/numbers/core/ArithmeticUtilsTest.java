@@ -304,12 +304,8 @@ public class ArithmeticUtilsTest {
 
         Assertions.assertEquals(BigInteger.valueOf(1801088541L), ArithmeticUtils.pow(twentyOne, BigInteger.valueOf(7L)));
         Assertions.assertEquals(BigInteger.ONE, ArithmeticUtils.pow(twentyOne, BigInteger.ZERO));
-        try {
-            ArithmeticUtils.pow(twentyOne, BigInteger.valueOf(-7L));
-            Assertions.fail("Expecting IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            // expected behavior
-        }
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
+            ArithmeticUtils.pow(twentyOne, BigInteger.valueOf(-7L)));
 
         BigInteger bigOne =
             new BigInteger("1543786922199448028351389769265814882661837148" +
