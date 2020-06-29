@@ -84,15 +84,20 @@ public class LogFactorialTest {
     void testZeroCache() {
         // Ensure that no exception is thrown.
         final LogFactorial f = LogFactorial.create().withCache(0);
-        Assertions.assertEquals(0, f.value(0), 0d);
-        Assertions.assertEquals(0, f.value(1), 0d);
+        Assertions.assertEquals(0, f.value(0));
+        Assertions.assertEquals(0, f.value(1));
     }
 
     @Test
     void testUselessCache() {
         // Ensure that no exception is thrown.
-        LogFactorial.create().withCache(1);
-        LogFactorial.create().withCache(2);
+        LogFactorial f = LogFactorial.create().withCache(1);
+        Assertions.assertEquals(0, f.value(0));
+        Assertions.assertEquals(0, f.value(1));
+
+        f = LogFactorial.create().withCache(2);
+        Assertions.assertEquals(0, f.value(0));
+        Assertions.assertEquals(0, f.value(1));
     }
 
     @Test
