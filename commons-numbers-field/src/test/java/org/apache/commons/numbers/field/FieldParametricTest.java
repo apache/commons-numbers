@@ -134,7 +134,7 @@ class FieldParametricTest {
 
     @ParameterizedTest
     @MethodSource("getList")
-    public <T extends Addition<T>> void testAdd(FieldTestData<T> data) {
+    <T extends Addition<T>> void testAdd(FieldTestData<T> data) {
         Field<T> field = data.getField();
         T a = data.getA();
         T b = data.getB();
@@ -146,7 +146,7 @@ class FieldParametricTest {
 
     @ParameterizedTest
     @MethodSource("getList")
-    public <T extends Addition<T>> void testSubtract(FieldTestData<T> data) {
+    <T extends Addition<T>> void testSubtract(FieldTestData<T> data) {
         Field<T> field = data.getField();
         T a = data.getA();
         T b = data.getB();
@@ -158,7 +158,7 @@ class FieldParametricTest {
 
     @ParameterizedTest
     @MethodSource("getList")
-    public <T extends Addition<T>> void testMultiplyInt(FieldTestData<T> data) {
+    <T extends Addition<T>> void testMultiplyInt(FieldTestData<T> data) {
         Field<T> field = data.getField();
         T a = data.getA();
         final int n = 5;
@@ -175,7 +175,7 @@ class FieldParametricTest {
 
     @ParameterizedTest
     @MethodSource("getList")
-    public <T extends Addition<T>> void testZero(FieldTestData<T> data) {
+    <T extends Addition<T>> void testZero(FieldTestData<T> data) {
         Field<T> field = data.getField();
         T a = data.getA();
 
@@ -186,7 +186,7 @@ class FieldParametricTest {
 
     @ParameterizedTest
     @MethodSource("getList")
-    public <T extends Multiplication<T>> void testMultiply(FieldTestData<T> data) {
+    <T extends Multiplication<T>> void testMultiply(FieldTestData<T> data) {
         Field<T> field = data.getField();
         T a = data.getA();
         T b = data.getB();
@@ -198,7 +198,7 @@ class FieldParametricTest {
 
     @ParameterizedTest
     @MethodSource("getList")
-    public <T extends Multiplication<T>> void testDivide(FieldTestData<T> data) {
+    <T extends Multiplication<T>> void testDivide(FieldTestData<T> data) {
         Field<T> field = data.getField();
         T a = data.getA();
         T b = data.getB();
@@ -210,7 +210,7 @@ class FieldParametricTest {
 
     @ParameterizedTest
     @MethodSource("getList")
-    public <T extends Multiplication<T>> void testOne(FieldTestData<T> data) {
+    <T extends Multiplication<T>> void testOne(FieldTestData<T> data) {
         Field<T> field = data.getField();
         T a = data.getA();
 
