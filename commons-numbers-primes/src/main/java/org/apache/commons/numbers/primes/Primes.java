@@ -70,13 +70,10 @@ public final class Primes {
         if (n < 0) {
             throw new IllegalArgumentException(MessageFormat.format(NUMBER_TOO_SMALL, n, 0));
         }
-        if (n == 2) {
+        if (n <= 2) {
             return 2;
         }
         n |= 1; // make sure n is odd
-        if (n == 1) {
-            return 2;
-        }
 
         if (isPrime(n)) {
             return n;
