@@ -36,7 +36,7 @@ class FieldParametricTest {
 
     @ParameterizedTest
     @MethodSource("getList")
-    public <T> void testAdditionAssociativity(FieldTestData<T> data) {
+    <T> void testAdditionAssociativity(FieldTestData<T> data) {
         Field<T> field = data.getField();
         T a = data.getA();
         T b = data.getB();
@@ -48,7 +48,7 @@ class FieldParametricTest {
 
     @ParameterizedTest
     @MethodSource("getList")
-    public <T> void testAdditionCommutativity(FieldTestData<T> data) {
+    <T> void testAdditionCommutativity(FieldTestData<T> data) {
         Field<T> field = data.getField();
         T a = data.getA();
         T b = data.getB();
@@ -59,7 +59,7 @@ class FieldParametricTest {
 
     @ParameterizedTest
     @MethodSource("getList")
-    public <T> void testAdditiveIdentity(FieldTestData<T> data) {
+    <T> void testAdditiveIdentity(FieldTestData<T> data) {
         Field<T> field = data.getField();
         T a = data.getA();
         final T r1 = field.add(a, field.zero());
@@ -69,7 +69,7 @@ class FieldParametricTest {
 
     @ParameterizedTest
     @MethodSource("getList")
-    public <T> void testAdditiveInverse(FieldTestData<T> data) {
+    <T> void testAdditiveInverse(FieldTestData<T> data) {
         Field<T> field = data.getField();
         T a = data.getA();
         final T r1 = field.add(a, field.negate(a));
@@ -79,7 +79,7 @@ class FieldParametricTest {
 
     @ParameterizedTest
     @MethodSource("getList")
-    public <T> void testMultiplicationAssociativity(FieldTestData<T> data) {
+    <T> void testMultiplicationAssociativity(FieldTestData<T> data) {
         Field<T> field = data.getField();
         T a = data.getA();
         T b = data.getB();
@@ -91,7 +91,7 @@ class FieldParametricTest {
 
     @ParameterizedTest
     @MethodSource("getList")
-    public <T> void testMultiplicationCommutativity(FieldTestData<T> data) {
+    <T> void testMultiplicationCommutativity(FieldTestData<T> data) {
         Field<T> field = data.getField();
         T a = data.getA();
         T b = data.getB();
@@ -102,7 +102,7 @@ class FieldParametricTest {
 
     @ParameterizedTest
     @MethodSource("getList")
-    public <T> void testMultiplicativeIdentity(FieldTestData<T> data) {
+    <T> void testMultiplicativeIdentity(FieldTestData<T> data) {
         Field<T> field = data.getField();
         T a = data.getA();
         final T r1 = field.multiply(a, field.one());
@@ -112,7 +112,7 @@ class FieldParametricTest {
 
     @ParameterizedTest
     @MethodSource("getList")
-    public <T> void testMultiplicativeInverse(FieldTestData<T> data) {
+    <T> void testMultiplicativeInverse(FieldTestData<T> data) {
         Field<T> field = data.getField();
         T a = data.getA();
         final T r1 = field.multiply(a, field.reciprocal(a));
@@ -122,7 +122,7 @@ class FieldParametricTest {
 
     @ParameterizedTest
     @MethodSource("getList")
-    public <T> void testDistributivity(FieldTestData<T> data) {
+    <T> void testDistributivity(FieldTestData<T> data) {
         Field<T> field = data.getField();
         T a = data.getA();
         T b = data.getB();
