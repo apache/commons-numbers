@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link FP64}.
  */
-public class FP64Test {
+class FP64Test {
     @Test
     void testConsistencyWithDouble() {
         final double v = -5.67e89;

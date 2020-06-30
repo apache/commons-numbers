@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link LogGamma}.
  */
-public class LogGammaTest {
+class LogGammaTest {
     /**
      * Reference data for the {@link Gamma#logGamma(double)} function. This data
      * was generated with the following <a

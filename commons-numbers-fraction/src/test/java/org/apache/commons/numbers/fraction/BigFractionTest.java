@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link BigFraction}.
  */
-public class BigFractionTest {
+class BigFractionTest {
 
     /** The zero representation with positive denominator. */
     private static final BigFraction ZERO_P = BigFraction.of(0, 1);

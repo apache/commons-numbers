@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link InverseErf}.
  */
-public class InverseErfTest {
+class InverseErfTest {
     @Test
     void testErfInvNaN() {
         Assertions.assertTrue(Double.isNaN(InverseErf.value(-1.001)));

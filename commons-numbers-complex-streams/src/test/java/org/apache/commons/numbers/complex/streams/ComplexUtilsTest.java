@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link ComplexUtils}.
  */
-public class ComplexUtilsTest {
+class ComplexUtilsTest {
 
     private static final double inf = Double.POSITIVE_INFINITY;
     private static final double negInf = Double.NEGATIVE_INFINITY;

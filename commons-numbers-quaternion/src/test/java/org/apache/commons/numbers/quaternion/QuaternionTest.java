@@ -21,7 +21,7 @@ import java.util.Random;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class QuaternionTest {
+class QuaternionTest {
     /** Epsilon for double comparison. */
     private static final double EPS = Math.ulp(1d);
     /** Epsilon for double comparison. */

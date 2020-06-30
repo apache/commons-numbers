@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the {@link LogBinomialCoefficient} class.
  */
-public class LogBinomialCoefficientTest {
+class LogBinomialCoefficientTest {
     /** Verify that b(0,0) = 1 */
     @Test
     void test0Choose0() {

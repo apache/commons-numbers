@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the {@link FactorialDouble} class.
  */
-public class FactorialDoubleTest {
+class FactorialDoubleTest {
     @Test
     void testFactorialZero() {
         Assertions.assertEquals(1, FactorialDouble.create().value(0), 0d, "0!");

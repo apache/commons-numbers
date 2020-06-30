@@ -36,7 +36,7 @@ import java.util.function.UnaryOperator;
  * @see <a href="http://www.open-std.org/JTC1/SC22/WG14/www/standards">
  *    ISO/IEC 9899 - Programming languages - C</a>
  */
-public class ComplexEdgeCaseTest {
+class ComplexEdgeCaseTest {
     private static final double inf = Double.POSITIVE_INFINITY;
     private static final double nan = Double.NaN;
 

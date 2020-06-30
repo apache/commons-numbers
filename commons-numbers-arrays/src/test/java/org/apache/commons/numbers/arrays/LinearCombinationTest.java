@@ -26,7 +26,7 @@ import org.apache.commons.numbers.fraction.BigFraction;
 /**
  * Test cases for the {@link LinearCombination} class.
  */
-public class LinearCombinationTest {
+class LinearCombinationTest {
     // MATH-1005
     @Test
     void testSingleElementArray() {

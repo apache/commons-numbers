@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link Trigamma}.
  */
-public class TrigammaTest {
+class TrigammaTest {
     @Test
     void testTrigamma() {
         double eps = 1e-8;

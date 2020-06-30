@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the {@link SafeNorm} class.
  */
-public class SafeNormTest {
+class SafeNormTest {
 
     @Test
     void testTiny() {

@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the {@link BrentSolver} class.
  */
-public class BrentSolverTest {
+class BrentSolverTest {
     private static final double DEFAULT_ABSOLUTE_ACCURACY = 1e-6;
     private static final double DEFAULT_RELATIVE_ACCURACY = 1e-14;
     private static final double DEFAULT_FUNCTION_ACCURACY = 1e-15;

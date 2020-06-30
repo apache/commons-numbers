@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link RegularizedGamma}.
  */
-public class RegularizedGammaTest {
+class RegularizedGammaTest {
     @Test
     void testRegularizedGammaNanPositive() {
         testRegularizedGamma(Double.NaN, Double.NaN, 1.0);

@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link Gamma}.
  */
-public class GammaTest {
+class GammaTest {
     /**
      * Reference data for the {@link Gamma#value(double)} function. This
      * data was generated with the following <a

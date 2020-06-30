@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link ErfDifference}.
  */
-public class ErfDifferenceTest {
+class ErfDifferenceTest {
     /**
      * Test the implementation of ErfDifference.value(double, double) for consistency
      * with results obtained from Erf.value(double) and Erfc.value(double).

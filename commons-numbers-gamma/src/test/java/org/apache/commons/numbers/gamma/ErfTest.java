@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link Erf}.
  */
-public class ErfTest {
+class ErfTest {
     @Test
     void testErf0() {
         double actual = Erf.value(0);

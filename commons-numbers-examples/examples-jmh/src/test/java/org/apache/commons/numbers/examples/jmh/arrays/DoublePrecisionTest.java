@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link DoublePrecision}.
  */
-public class DoublePrecisionTest {
+class DoublePrecisionTest {
     @Test
     void testSplitAssumptions() {
         // The multiplier used to split the double value into high and low parts.

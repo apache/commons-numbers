@@ -24,7 +24,7 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class SmallPrimesTest {
+class SmallPrimesTest {
 
     // Primes larger than the small PRIMES array in SmallPrimes
     private static final int[] LARGE_PRIME = {3673, 3677};

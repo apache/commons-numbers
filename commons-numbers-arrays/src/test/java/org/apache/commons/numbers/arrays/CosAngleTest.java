@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the {@link CosAngle} class.
  */
-public class CosAngleTest {
+class CosAngleTest {
 
     @Test
     void testCosAngle2D() {

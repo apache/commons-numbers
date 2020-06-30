@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link ContinuedFraction}.
  */
-public class ContinuedFractionTest {
+class ContinuedFractionTest {
 
     @Test
     void testGoldenRatio() throws Exception {

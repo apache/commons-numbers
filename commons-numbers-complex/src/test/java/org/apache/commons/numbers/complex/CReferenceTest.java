@@ -36,7 +36,7 @@ import java.util.function.UnaryOperator;
  * @see <a href="http://www.open-std.org/JTC1/SC22/WG14/www/standards">
  *    ISO/IEC 9899 - Programming languages - C</a>
  */
-public class CReferenceTest {
+class CReferenceTest {
     /** Positive zero bits. */
     private static final long POSITIVE_ZERO_DOUBLE_BITS = Double.doubleToRawLongBits(+0.0);
     /** Negative zero bits. */

@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link Erfc}.
  */
-public class ErfcTest {
+class ErfcTest {
     /**
      * Compare erfc against reference values computed using GCC 4.2.1
      * (Apple OSX packaged version) erfcl (extended precision erfc).

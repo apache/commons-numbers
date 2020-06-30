@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link Digamma}.
  */
-public class DigammaTest {
+class DigammaTest {
     @Test
     void testDigammaLargeArgs() {
         double eps = 1e-8;

@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link LogGammaSum}.
  */
-public class LogGammaSumTest {
+class LogGammaSumTest {
     /**
      * Reference data for the {@link LogGammaSum#value(double, double)}
      * function. This data was generated with the following

@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for the {@link Combinations} class.
  */
-public class CombinationsTest {
+class CombinationsTest {
     @Test
     void testGetN() {
         final int n = 5;

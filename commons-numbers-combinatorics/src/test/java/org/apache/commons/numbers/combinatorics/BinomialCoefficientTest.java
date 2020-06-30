@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the {@link BinomialCoefficient} class.
  */
-public class BinomialCoefficientTest {
+class BinomialCoefficientTest {
     /** Cached binomial coefficients. */
     private static final List<Map<Integer, Long>> binomialCache = new ArrayList<>();
 

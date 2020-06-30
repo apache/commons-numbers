@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
  * Test cases for the {@link Precision} class.
  *
  */
-public class PrecisionTest {
+class PrecisionTest {
 
     // Interfaces to allow testing equals variants with the same conditions
 

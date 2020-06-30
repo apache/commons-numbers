@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link InvGamma1pm1}.
  */
-public class InvGamma1pm1Test {
+class InvGamma1pm1Test {
     /**
      * <p>
      * Reference values for the {@link InvGamma1pm1#value(double)} method.

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
  * Test cases for the {@link MultidimensionalCounter} class.
  *
  */
-public class MultidimensionalCounterTest {
+class MultidimensionalCounterTest {
     @Test
     void testPreconditions() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> MultidimensionalCounter.of(0, 1));

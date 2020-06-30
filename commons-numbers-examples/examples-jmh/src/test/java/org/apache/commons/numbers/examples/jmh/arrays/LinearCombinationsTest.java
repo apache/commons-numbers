@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 /**
  * Test each implementation of the LinearCombination interface.
  */
-public class LinearCombinationsTest {
+class LinearCombinationsTest {
     /** Double.MIN_VALUE as a BigDecimal. Use string constructor to truncate precision to 4.9e-324. */
     private static final BigDecimal MIN = BigDecimal.valueOf(Double.MIN_VALUE);
 
@@ -66,7 +66,7 @@ public class LinearCombinationsTest {
 
     @ParameterizedTest
     @MethodSource("provideLinearCombination")
-    public void testSingleElementArray(ND fun) {
+    void testSingleElementArray(ND fun) {
         final double[] a = {1.23456789};
         final double[] b = {98765432.1};
 
@@ -75,7 +75,7 @@ public class LinearCombinationsTest {
 
     @ParameterizedTest
     @MethodSource("provideLinearCombination")
-    public void testTwoSums(ND fun) {
+    void testTwoSums(ND fun) {
         final BigFraction[] aF = new BigFraction[] {
             BigFraction.of(-1321008684645961L, 268435456L),
             BigFraction.of(-5774608829631843L, 268435456L),
@@ -117,7 +117,7 @@ public class LinearCombinationsTest {
 
     @ParameterizedTest
     @MethodSource("provideLinearCombination")
-    public void testHuge(ND fun) {
+    void testHuge(ND fun) {
         final int scale = 971;
         final double[] a = new double[] {
             -1321008684645961.0 / 268435456.0,
@@ -152,7 +152,7 @@ public class LinearCombinationsTest {
 
     @ParameterizedTest
     @MethodSource("provideLinearCombination")
-    public void testArrayVsInline(ND fun) {
+    void testArrayVsInline(ND fun) {
         // Assume the instance implements the inline functions
         final TwoD fun2 = (TwoD) fun;
         final ThreeD fun3 = (ThreeD) fun;
@@ -195,7 +195,7 @@ public class LinearCombinationsTest {
 
     @ParameterizedTest
     @MethodSource("provideLinearCombination")
-    public void testNonFinite(ND fun) {
+    void testNonFinite(ND fun) {
         final double[][] a = new double[][] {
             {1, 2, 3, 4},
             {1, Double.POSITIVE_INFINITY, 3, 4},

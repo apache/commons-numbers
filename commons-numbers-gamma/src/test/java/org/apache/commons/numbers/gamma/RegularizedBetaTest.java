@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link RegularizedBeta}.
  */
-public class RegularizedBetaTest {
+class RegularizedBetaTest {
     @Test
     void testRegularizedBetaNanPositivePositive() {
         testRegularizedBeta(Double.NaN, Double.NaN, 1.0, 1.0);

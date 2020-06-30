@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the {@link LogFactorial} class.
  */
-public class LogFactorialTest {
+class LogFactorialTest {
     @Test
     void testNonPositiveArgumentWithCache() {
         Assertions.assertThrows(IllegalArgumentException.class,

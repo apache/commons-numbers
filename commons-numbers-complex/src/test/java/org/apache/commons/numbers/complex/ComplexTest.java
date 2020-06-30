@@ -43,7 +43,7 @@ import org.junit.jupiter.api.Test;
  *     imaginary parts that can create intermediate overflow or underflow.
  * </ul>
  */
-public class ComplexTest {
+class ComplexTest {
 
     private static final double inf = Double.POSITIVE_INFINITY;
     private static final double neginf = Double.NEGATIVE_INFINITY;

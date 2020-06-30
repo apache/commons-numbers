@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the {@link PlaneAngleRadians} class.
  */
-public class PlaneAngleRadiansTest {
+class PlaneAngleRadiansTest {
     @Test
     @SuppressWarnings("squid:S3415")
     void testConstants() {

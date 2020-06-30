@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link LogGamma1p}.
  */
-public class LogGamma1pTest {
+class LogGamma1pTest {
     private static final double[][] LOG_GAMMA1P_REF = {
         {-0.5, .5723649429247001},
         {-0.375, .3608294954889402},

@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
  * Test cases for the {@link ArithmeticUtils} class.
  *
  */
-public class ArithmeticUtilsTest {
+class ArithmeticUtilsTest {
 
     @Test
     void testGcd() {

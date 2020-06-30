@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the {@link Factorial} class.
  */
-public class FactorialTest {
+class FactorialTest {
     @Test
     void testFactorialZero() {
         Assertions.assertEquals(1, Factorial.value(0), "0!");

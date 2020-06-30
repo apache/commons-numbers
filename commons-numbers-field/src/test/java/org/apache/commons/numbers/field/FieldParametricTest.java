@@ -28,7 +28,7 @@ import org.apache.commons.numbers.core.Multiplication;
 /**
  * Tests for fields.
  */
-public class FieldParametricTest {
+class FieldParametricTest {
 
     private static Stream<FieldTestData<?>> getList() {
         return FieldsList.list().stream();

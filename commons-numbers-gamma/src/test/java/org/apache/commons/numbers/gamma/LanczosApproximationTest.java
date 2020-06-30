@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link LanczosApproximation}.
  */
-public class LanczosApproximationTest {
+class LanczosApproximationTest {
     @Test
     void testG() {
         Assertions.assertEquals(607d / 128d, LanczosApproximation.g(), 0d);

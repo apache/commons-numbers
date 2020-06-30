@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link Fraction}.
  */
-public class FractionTest {
+class FractionTest {
 
     /** The zero representation with positive denominator. */
     private static final Fraction ZERO_P = Fraction.of(0, 1);

@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the {@link PlaneAngle} class.
  */
-public class PlaneAngleTest {
+class PlaneAngleTest {
     @Test
     void testConversionTurns() {
         final double value = 12.3456;

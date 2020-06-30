@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link LogBeta}.
  */
-public class LogBetaTest {
+class LogBetaTest {
     private static final double[][] LOG_BETA_REF = {
         {0.125, 0.125, 2.750814190409515},
         {0.125, 0.25, 2.444366899981226},
