@@ -88,7 +88,6 @@ public final class Primes {
         if (0 == rem) { // if n % 3 == 0
             n += 2; // n % 3 == 2
         } else if (1 == rem) { // if n % 3 == 1
-            // if (isPrime(n)) return n;
             n += 4; // n % 3 == 2
         }
         while (true) { // this loop skips all multiple of 3
