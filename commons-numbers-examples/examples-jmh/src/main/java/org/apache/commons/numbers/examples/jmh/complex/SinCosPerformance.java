@@ -82,7 +82,7 @@ public class SinCosPerformance {
     /**
      * Contains an array of numbers.
      */
-    public static abstract class BaseNumbers extends NumberSize {
+    public abstract static class BaseNumbers extends NumberSize {
         /** The numbers. */
         protected double[] numbers;
 
@@ -130,6 +130,7 @@ public class SinCosPerformance {
         @Param({"pi", "pi/2", "random", "edge"})
         private String type;
 
+        /** {@inheritDoc} */
         @Override
         protected double[] createNumbers(SplittableRandom rng) {
             DoubleSupplier generator;
@@ -162,6 +163,7 @@ public class SinCosPerformance {
         @Param({"1.57079", "3.14159", "10", "100", "1e4", "1e8", "1e16", "1e32"})
         private double range;
 
+        /** {@inheritDoc} */
         @Override
         protected double[] createNumbers(SplittableRandom rng) {
             return rng.doubles(getSize(), -range, range).toArray();
