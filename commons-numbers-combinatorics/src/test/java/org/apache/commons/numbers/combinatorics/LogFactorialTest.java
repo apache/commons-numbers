@@ -108,7 +108,7 @@ class LogFactorialTest {
 
         final int val = max + max / 2;
         final double expected = logFactorial(val);
-        Assertions.assertEquals(expected, f2.value(val), 0d);
+        Assertions.assertEquals(expected, f2.value(val));
     }
 
     @Test
@@ -119,7 +119,7 @@ class LogFactorialTest {
 
         final int val = max / 4;
         final double expected = logFactorial(val);
-        Assertions.assertEquals(expected, f2.value(val), 0d);
+        Assertions.assertEquals(expected, f2.value(val));
     }
 
     // Direct implementation.

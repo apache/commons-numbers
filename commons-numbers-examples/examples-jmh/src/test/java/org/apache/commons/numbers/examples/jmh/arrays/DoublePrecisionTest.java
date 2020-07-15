@@ -75,6 +75,7 @@ class DoublePrecisionTest {
     }
 
     private static void assertProductLow(double expected, double x, double y) {
+        // Requires a delta of 0.0 to assert -0.0 == 0.0
         Assertions.assertEquals(expected, DoublePrecision.productLow(x, y, x * y), 0.0);
     }
 

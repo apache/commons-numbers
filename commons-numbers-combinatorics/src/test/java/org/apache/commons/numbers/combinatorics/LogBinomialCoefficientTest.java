@@ -26,7 +26,7 @@ class LogBinomialCoefficientTest {
     /** Verify that b(0,0) = 1 */
     @Test
     void test0Choose0() {
-        Assertions.assertEquals(0d, LogBinomialCoefficient.value(0, 0), 0);
+        Assertions.assertEquals(0d, LogBinomialCoefficient.value(0, 0));
     }
 
     @Test

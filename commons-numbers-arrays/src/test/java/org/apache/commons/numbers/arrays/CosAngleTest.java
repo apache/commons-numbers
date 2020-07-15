@@ -30,11 +30,11 @@ class CosAngleTest {
 
         final double[] v1 = {1, 0};
         expected = 1;
-        Assertions.assertEquals(expected, CosAngle.value(v1, v1), 0d);
+        Assertions.assertEquals(expected, CosAngle.value(v1, v1));
 
         final double[] v2 = {0, 1};
         expected = 0;
-        Assertions.assertEquals(expected, CosAngle.value(v1, v2), 0d);
+        Assertions.assertEquals(expected, CosAngle.value(v1, v2));
 
         final double[] v3 = {7, 7};
         expected = Math.sqrt(2) / 2;
@@ -43,11 +43,11 @@ class CosAngleTest {
 
         final double[] v4 = {-5, 0};
         expected = -1;
-        Assertions.assertEquals(expected, CosAngle.value(v1, v4), 0);
+        Assertions.assertEquals(expected, CosAngle.value(v1, v4));
 
         final double[] v5 = {-100, 100};
         expected = 0;
-        Assertions.assertEquals(expected, CosAngle.value(v3, v5), 0);
+        Assertions.assertEquals(expected, CosAngle.value(v3, v5));
     }
 
     @Test

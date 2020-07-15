@@ -26,7 +26,7 @@ class BinomialCoefficientDoubleTest {
     /** Verify that b(0,0) = 1 */
     @Test
     void test0Choose0() {
-        Assertions.assertEquals(1d, BinomialCoefficientDouble.value(0, 0), 0);
+        Assertions.assertEquals(1d, BinomialCoefficientDouble.value(0, 0));
     }
 
     @Test

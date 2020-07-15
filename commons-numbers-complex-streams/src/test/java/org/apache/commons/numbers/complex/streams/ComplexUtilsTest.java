@@ -365,7 +365,7 @@ class ComplexUtilsTest {
         final Complex[] complex = ComplexUtils.real2Complex(real);
 
         for (int i = 0; i < real.length; i++) {
-            Assertions.assertEquals(real[i], complex[i].getReal(), 0d);
+            Assertions.assertEquals(real[i], complex[i].getReal());
         }
     }
 
@@ -756,7 +756,7 @@ class ComplexUtilsTest {
         double[] observed = ComplexUtils.abs(c);
         Assertions.assertEquals(c.length, observed.length);
         for (int i = 0; i < c.length; i++) {
-            Assertions.assertEquals(c[i].abs(), observed[i], 0);
+            Assertions.assertEquals(c[i].abs(), observed[i]);
         }
     }
 
@@ -766,7 +766,7 @@ class ComplexUtilsTest {
         double[] observed = ComplexUtils.arg(c);
         Assertions.assertEquals(c.length, observed.length);
         for (int i = 0; i < c.length; i++) {
-            Assertions.assertEquals(c[i].arg(), observed[i], 0);
+            Assertions.assertEquals(c[i].arg(), observed[i]);
         }
     }
 }

@@ -25,14 +25,14 @@ import org.junit.jupiter.api.Test;
 class FactorialDoubleTest {
     @Test
     void testFactorialZero() {
-        Assertions.assertEquals(1, FactorialDouble.create().value(0), 0d, "0!");
+        Assertions.assertEquals(1, FactorialDouble.create().value(0), "0!");
     }
 
     @Test
     void testFactorialDirect() {
         for (int i = 1; i < 21; i++) {
             Assertions.assertEquals(
-                    factorialDirect(i), FactorialDouble.create().value(i), 0d, i + "!");
+                    factorialDirect(i), FactorialDouble.create().value(i), i + "!");
         }
     }
 
@@ -98,15 +98,15 @@ class FactorialDoubleTest {
         final FactorialDouble f2 = f1.withCache(2 * max);
 
         final int val = max + max / 2;
-        Assertions.assertEquals(f1.value(val), f2.value(val), 0d);
+        Assertions.assertEquals(f1.value(val), f2.value(val));
     }
 
     @Test
     void testZeroCache() {
         // Ensure that no exception is thrown.
         final FactorialDouble f = FactorialDouble.create().withCache(0);
-        Assertions.assertEquals(1, f.value(0), 0d);
-        Assertions.assertEquals(1, f.value(1), 0d);
+        Assertions.assertEquals(1, f.value(0));
+        Assertions.assertEquals(1, f.value(1));
     }
 
     @Test
@@ -124,7 +124,7 @@ class FactorialDoubleTest {
         final FactorialDouble f2 = f1.withCache(max / 2);
 
         final int val = max / 4;
-        Assertions.assertEquals(f1.value(val), f2.value(val), 0d);
+        Assertions.assertEquals(f1.value(val), f2.value(val));
     }
 
     /**

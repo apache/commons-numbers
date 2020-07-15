@@ -33,7 +33,7 @@ class LinearCombinationTest {
         final double[] a = {1.23456789};
         final double[] b = {98765432.1};
 
-        Assertions.assertEquals(a[0] * b[0], LinearCombination.value(a, b), 0d);
+        Assertions.assertEquals(a[0] * b[0], LinearCombination.value(a, b));
     }
 
     @Test
@@ -62,7 +62,7 @@ class LinearCombinationTest {
                                                            a[1], b[1],
                                                            a[2], b[2]);
         final double abSumArray = LinearCombination.value(a, b);
-        Assertions.assertEquals(abSumInline, abSumArray, 0);
+        Assertions.assertEquals(abSumInline, abSumArray);
 
         // Compare with arbitrary precision computation.
         BigFraction result = BigFraction.ZERO;
@@ -97,19 +97,19 @@ class LinearCombinationTest {
             sInline = LinearCombination.value(u1, v1, u2, v2);
             sArray = LinearCombination.value(new double[] {u1, u2},
                                              new double[] {v1, v2});
-            Assertions.assertEquals(sInline, sArray, 0);
+            Assertions.assertEquals(sInline, sArray);
 
             // Two sums.
             sInline = LinearCombination.value(u1, v1, u2, v2, u3, v3);
             sArray = LinearCombination.value(new double[] {u1, u2, u3},
                                              new double[] {v1, v2, v3});
-            Assertions.assertEquals(sInline, sArray, 0);
+            Assertions.assertEquals(sInline, sArray);
 
             // Three sums.
             sInline = LinearCombination.value(u1, v1, u2, v2, u3, v3, u4, v4);
             sArray = LinearCombination.value(new double[] {u1, u2, u3, u4},
                                              new double[] {v1, v2, v3, v4});
-            Assertions.assertEquals(sInline, sArray, 0);
+            Assertions.assertEquals(sInline, sArray);
         }
     }
 
@@ -139,7 +139,7 @@ class LinearCombinationTest {
                                                            scaledA[2], scaledB[2]);
         final double abSumArray = LinearCombination.value(scaledA, scaledB);
 
-        Assertions.assertEquals(abSumInline, abSumArray, 0);
+        Assertions.assertEquals(abSumInline, abSumArray);
         Assertions.assertEquals(-1.8551294182586248737720779899, abSumInline, 1e-15);
 
         final double naive = scaledA[0] * scaledB[0] + scaledA[1] * scaledB[1] + scaledA[2] * scaledB[2];

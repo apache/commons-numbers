@@ -106,10 +106,10 @@ class ErfTest {
             Assertions.assertFalse(Double.isNaN(result));
             Assertions.assertTrue(result >= 1 && result <= 2);
         }
-        Assertions.assertEquals(-1, Erf.value(Double.NEGATIVE_INFINITY), 0);
-        Assertions.assertEquals(1, Erf.value(Double.POSITIVE_INFINITY), 0);
-        Assertions.assertEquals(2, Erfc.value(Double.NEGATIVE_INFINITY), 0);
-        Assertions.assertEquals(0, Erfc.value(Double.POSITIVE_INFINITY), 0);
+        Assertions.assertEquals(-1, Erf.value(Double.NEGATIVE_INFINITY));
+        Assertions.assertEquals(1, Erf.value(Double.POSITIVE_INFINITY));
+        Assertions.assertEquals(2, Erfc.value(Double.NEGATIVE_INFINITY));
+        Assertions.assertEquals(0, Erfc.value(Double.POSITIVE_INFINITY));
     }
 
     /**

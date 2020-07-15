@@ -27,7 +27,7 @@ class PlaneAngleTest {
     void testConversionTurns() {
         final double value = 12.3456;
         final PlaneAngle a = PlaneAngle.ofTurns(value);
-        Assertions.assertEquals(value, a.toTurns(), 0d);
+        Assertions.assertEquals(value, a.toTurns());
     }
 
     @Test
@@ -35,7 +35,7 @@ class PlaneAngleTest {
         final double one = 2 * Math.PI;
         final double value = 12.3456 * one;
         final PlaneAngle a = PlaneAngle.ofRadians(value);
-        Assertions.assertEquals(value, a.toRadians(), 0d);
+        Assertions.assertEquals(value, a.toRadians());
     }
 
     @Test
@@ -43,7 +43,7 @@ class PlaneAngleTest {
         final double one = 360;
         final double value = 12.3456 * one;
         final PlaneAngle a = PlaneAngle.ofDegrees(value);
-        Assertions.assertEquals(value, a.toDegrees(), 0d);
+        Assertions.assertEquals(value, a.toDegrees());
     }
 
     @Test
@@ -172,10 +172,10 @@ class PlaneAngleTest {
 
     @Test
     void testZero() {
-        Assertions.assertEquals(0, PlaneAngle.ZERO.toRadians(), 0d);
+        Assertions.assertEquals(0, PlaneAngle.ZERO.toRadians());
     }
     @Test
     void testPi() {
-        Assertions.assertEquals(Math.PI, PlaneAngle.PI.toRadians(), 0d);
+        Assertions.assertEquals(Math.PI, PlaneAngle.PI.toRadians());
     }
 }

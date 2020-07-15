@@ -29,8 +29,8 @@ class FP64Test {
         final Double a = Double.valueOf(v);
         final FP64 b = FP64.of(v);
 
-        Assertions.assertEquals(a.doubleValue(), b.doubleValue(), 0d);
-        Assertions.assertEquals(a.floatValue(), b.floatValue(), 0f);
+        Assertions.assertEquals(a.doubleValue(), b.doubleValue());
+        Assertions.assertEquals(a.floatValue(), b.floatValue());
         Assertions.assertEquals(a.intValue(), b.intValue());
         Assertions.assertEquals(a.longValue(), b.longValue());
         Assertions.assertEquals(a.byteValue(), b.byteValue());
@@ -55,11 +55,11 @@ class FP64Test {
 
     @Test
     void testOne() {
-        Assertions.assertEquals(1d, FP64.of(-3.4).one().doubleValue(), 0d);
+        Assertions.assertEquals(1d, FP64.of(-3.4).one().doubleValue());
     }
     @Test
     void testZero() {
-        Assertions.assertEquals(0d, FP64.of(-3.4).zero().doubleValue(), 0d);
+        Assertions.assertEquals(0d, FP64.of(-3.4).zero().doubleValue());
     }
 
     @Test
@@ -67,14 +67,14 @@ class FP64Test {
         final double a = 123.4;
         final double b = 5678.9;
 
-        Assertions.assertEquals(a - b, FP64.of(a).subtract(FP64.of(b)).doubleValue(), 0d);
+        Assertions.assertEquals(a - b, FP64.of(a).subtract(FP64.of(b)).doubleValue());
     }
     @Test
     void testDivide() {
         final double a = 123.4;
         final double b = 5678.9;
 
-        Assertions.assertEquals(a / b, FP64.of(a).divide(FP64.of(b)).doubleValue(), 0d);
+        Assertions.assertEquals(a / b, FP64.of(a).divide(FP64.of(b)).doubleValue());
     }
 
     @Test
@@ -82,7 +82,7 @@ class FP64Test {
         final double a = 123.4;
         final int n = 3456789;
 
-        Assertions.assertEquals(n * a, FP64.of(a).multiply(n).doubleValue(), 0d);
+        Assertions.assertEquals(n * a, FP64.of(a).multiply(n).doubleValue());
     }
 
     @Test
@@ -90,7 +90,7 @@ class FP64Test {
         final double a = 123.4;
         final int n = 5;
 
-        Assertions.assertEquals(Math.pow(a, n), FP64.of(a).pow(n).doubleValue(), 0d);
+        Assertions.assertEquals(Math.pow(a, n), FP64.of(a).pow(n).doubleValue());
     }
     @Test
     void testZeroPow() {

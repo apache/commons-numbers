@@ -47,9 +47,9 @@ class SafeNormTest {
 
     @Test
     void testUnit3D() {
-        Assertions.assertEquals(1, SafeNorm.value(new double[] {1, 0, 0}), 0d);
-        Assertions.assertEquals(1, SafeNorm.value(new double[] {0, 1, 0}), 0d);
-        Assertions.assertEquals(1, SafeNorm.value(new double[] {0, 0, 1}), 0d);
+        Assertions.assertEquals(1, SafeNorm.value(new double[] {1, 0, 0}));
+        Assertions.assertEquals(1, SafeNorm.value(new double[] {0, 1, 0}));
+        Assertions.assertEquals(1, SafeNorm.value(new double[] {0, 0, 1}));
     }
 
     @Test

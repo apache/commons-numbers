@@ -320,80 +320,80 @@ class PrecisionTest {
     @Test
     void testRoundDouble() {
         double x = 1.234567890;
-        Assertions.assertEquals(1.23, Precision.round(x, 2), 0.0);
-        Assertions.assertEquals(1.235, Precision.round(x, 3), 0.0);
-        Assertions.assertEquals(1.2346, Precision.round(x, 4), 0.0);
+        Assertions.assertEquals(1.23, Precision.round(x, 2));
+        Assertions.assertEquals(1.235, Precision.round(x, 3));
+        Assertions.assertEquals(1.2346, Precision.round(x, 4));
 
         // JIRA MATH-151
-        Assertions.assertEquals(39.25, Precision.round(39.245, 2), 0.0);
-        Assertions.assertEquals(39.24, Precision.round(39.245, 2, RoundingMode.DOWN), 0.0);
+        Assertions.assertEquals(39.25, Precision.round(39.245, 2));
+        Assertions.assertEquals(39.24, Precision.round(39.245, 2, RoundingMode.DOWN));
         double xx = 39.0;
         xx += 245d / 1000d;
-        Assertions.assertEquals(39.25, Precision.round(xx, 2), 0.0);
+        Assertions.assertEquals(39.25, Precision.round(xx, 2));
 
         // BZ 35904
-        Assertions.assertEquals(30.1d, Precision.round(30.095d, 2), 0.0d);
-        Assertions.assertEquals(30.1d, Precision.round(30.095d, 1), 0.0d);
-        Assertions.assertEquals(33.1d, Precision.round(33.095d, 1), 0.0d);
-        Assertions.assertEquals(33.1d, Precision.round(33.095d, 2), 0.0d);
-        Assertions.assertEquals(50.09d, Precision.round(50.085d, 2), 0.0d);
-        Assertions.assertEquals(50.19d, Precision.round(50.185d, 2), 0.0d);
-        Assertions.assertEquals(50.01d, Precision.round(50.005d, 2), 0.0d);
-        Assertions.assertEquals(30.01d, Precision.round(30.005d, 2), 0.0d);
-        Assertions.assertEquals(30.65d, Precision.round(30.645d, 2), 0.0d);
+        Assertions.assertEquals(30.1d, Precision.round(30.095d, 2));
+        Assertions.assertEquals(30.1d, Precision.round(30.095d, 1));
+        Assertions.assertEquals(33.1d, Precision.round(33.095d, 1));
+        Assertions.assertEquals(33.1d, Precision.round(33.095d, 2));
+        Assertions.assertEquals(50.09d, Precision.round(50.085d, 2));
+        Assertions.assertEquals(50.19d, Precision.round(50.185d, 2));
+        Assertions.assertEquals(50.01d, Precision.round(50.005d, 2));
+        Assertions.assertEquals(30.01d, Precision.round(30.005d, 2));
+        Assertions.assertEquals(30.65d, Precision.round(30.645d, 2));
 
-        Assertions.assertEquals(1.24, Precision.round(x, 2, RoundingMode.CEILING), 0.0);
-        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.CEILING), 0.0);
-        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.CEILING), 0.0);
-        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.CEILING), 0.0);
-        Assertions.assertEquals(-1.234, Precision.round(-x, 3, RoundingMode.CEILING), 0.0);
-        Assertions.assertEquals(-1.2345, Precision.round(-x, 4, RoundingMode.CEILING), 0.0);
+        Assertions.assertEquals(1.24, Precision.round(x, 2, RoundingMode.CEILING));
+        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.CEILING));
+        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.CEILING));
+        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.CEILING));
+        Assertions.assertEquals(-1.234, Precision.round(-x, 3, RoundingMode.CEILING));
+        Assertions.assertEquals(-1.2345, Precision.round(-x, 4, RoundingMode.CEILING));
 
-        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.DOWN), 0.0);
-        Assertions.assertEquals(1.234, Precision.round(x, 3, RoundingMode.DOWN), 0.0);
-        Assertions.assertEquals(1.2345, Precision.round(x, 4, RoundingMode.DOWN), 0.0);
-        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.DOWN), 0.0);
-        Assertions.assertEquals(-1.234, Precision.round(-x, 3, RoundingMode.DOWN), 0.0);
-        Assertions.assertEquals(-1.2345, Precision.round(-x, 4, RoundingMode.DOWN), 0.0);
+        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.DOWN));
+        Assertions.assertEquals(1.234, Precision.round(x, 3, RoundingMode.DOWN));
+        Assertions.assertEquals(1.2345, Precision.round(x, 4, RoundingMode.DOWN));
+        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.DOWN));
+        Assertions.assertEquals(-1.234, Precision.round(-x, 3, RoundingMode.DOWN));
+        Assertions.assertEquals(-1.2345, Precision.round(-x, 4, RoundingMode.DOWN));
 
-        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.FLOOR), 0.0);
-        Assertions.assertEquals(1.234, Precision.round(x, 3, RoundingMode.FLOOR), 0.0);
-        Assertions.assertEquals(1.2345, Precision.round(x, 4, RoundingMode.FLOOR), 0.0);
-        Assertions.assertEquals(-1.24, Precision.round(-x, 2, RoundingMode.FLOOR), 0.0);
-        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.FLOOR), 0.0);
-        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.FLOOR), 0.0);
+        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.FLOOR));
+        Assertions.assertEquals(1.234, Precision.round(x, 3, RoundingMode.FLOOR));
+        Assertions.assertEquals(1.2345, Precision.round(x, 4, RoundingMode.FLOOR));
+        Assertions.assertEquals(-1.24, Precision.round(-x, 2, RoundingMode.FLOOR));
+        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.FLOOR));
+        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.FLOOR));
 
-        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.HALF_DOWN), 0.0);
-        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.HALF_DOWN), 0.0);
-        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.HALF_DOWN), 0.0);
-        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.HALF_DOWN), 0.0);
-        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.HALF_DOWN), 0.0);
-        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.HALF_DOWN), 0.0);
-        Assertions.assertEquals(1.234, Precision.round(1.2345, 3, RoundingMode.HALF_DOWN), 0.0);
-        Assertions.assertEquals(-1.234, Precision.round(-1.2345, 3, RoundingMode.HALF_DOWN), 0.0);
+        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.HALF_DOWN));
+        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.HALF_DOWN));
+        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.HALF_DOWN));
+        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.HALF_DOWN));
+        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.HALF_DOWN));
+        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.HALF_DOWN));
+        Assertions.assertEquals(1.234, Precision.round(1.2345, 3, RoundingMode.HALF_DOWN));
+        Assertions.assertEquals(-1.234, Precision.round(-1.2345, 3, RoundingMode.HALF_DOWN));
 
-        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.HALF_EVEN), 0.0);
-        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.HALF_EVEN), 0.0);
-        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.HALF_EVEN), 0.0);
-        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.HALF_EVEN), 0.0);
-        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.HALF_EVEN), 0.0);
-        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.HALF_EVEN), 0.0);
-        Assertions.assertEquals(1.234, Precision.round(1.2345, 3, RoundingMode.HALF_EVEN), 0.0);
-        Assertions.assertEquals(-1.234, Precision.round(-1.2345, 3, RoundingMode.HALF_EVEN), 0.0);
-        Assertions.assertEquals(1.236, Precision.round(1.2355, 3, RoundingMode.HALF_EVEN), 0.0);
-        Assertions.assertEquals(-1.236, Precision.round(-1.2355, 3, RoundingMode.HALF_EVEN), 0.0);
+        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.HALF_EVEN));
+        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.HALF_EVEN));
+        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.HALF_EVEN));
+        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.HALF_EVEN));
+        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.HALF_EVEN));
+        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.HALF_EVEN));
+        Assertions.assertEquals(1.234, Precision.round(1.2345, 3, RoundingMode.HALF_EVEN));
+        Assertions.assertEquals(-1.234, Precision.round(-1.2345, 3, RoundingMode.HALF_EVEN));
+        Assertions.assertEquals(1.236, Precision.round(1.2355, 3, RoundingMode.HALF_EVEN));
+        Assertions.assertEquals(-1.236, Precision.round(-1.2355, 3, RoundingMode.HALF_EVEN));
 
-        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.HALF_UP), 0.0);
-        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.HALF_UP), 0.0);
-        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.HALF_UP), 0.0);
-        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.HALF_UP), 0.0);
-        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.HALF_UP), 0.0);
-        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.HALF_UP), 0.0);
-        Assertions.assertEquals(1.235, Precision.round(1.2345, 3, RoundingMode.HALF_UP), 0.0);
-        Assertions.assertEquals(-1.235, Precision.round(-1.2345, 3, RoundingMode.HALF_UP), 0.0);
+        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.HALF_UP));
+        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.HALF_UP));
+        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.HALF_UP));
+        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.HALF_UP));
+        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.HALF_UP));
+        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.HALF_UP));
+        Assertions.assertEquals(1.235, Precision.round(1.2345, 3, RoundingMode.HALF_UP));
+        Assertions.assertEquals(-1.235, Precision.round(-1.2345, 3, RoundingMode.HALF_UP));
 
-        Assertions.assertEquals(-1.23, Precision.round(-1.23, 2, RoundingMode.UNNECESSARY), 0.0);
-        Assertions.assertEquals(1.23, Precision.round(1.23, 2, RoundingMode.UNNECESSARY), 0.0);
+        Assertions.assertEquals(-1.23, Precision.round(-1.23, 2, RoundingMode.UNNECESSARY));
+        Assertions.assertEquals(1.23, Precision.round(1.23, 2, RoundingMode.UNNECESSARY));
 
         try {
             Precision.round(1.234, 2, RoundingMode.UNNECESSARY);
@@ -402,21 +402,21 @@ class PrecisionTest {
             // expected
         }
 
-        Assertions.assertEquals(1.24, Precision.round(x, 2, RoundingMode.UP), 0.0);
-        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.UP), 0.0);
-        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.UP), 0.0);
-        Assertions.assertEquals(-1.24, Precision.round(-x, 2, RoundingMode.UP), 0.0);
-        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.UP), 0.0);
-        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.UP), 0.0);
+        Assertions.assertEquals(1.24, Precision.round(x, 2, RoundingMode.UP));
+        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.UP));
+        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.UP));
+        Assertions.assertEquals(-1.24, Precision.round(-x, 2, RoundingMode.UP));
+        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.UP));
+        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.UP));
 
         // MATH-151
-        Assertions.assertEquals(39.25, Precision.round(39.245, 2, RoundingMode.HALF_UP), 0.0);
+        Assertions.assertEquals(39.25, Precision.round(39.245, 2, RoundingMode.HALF_UP));
 
         // special values
-        Assertions.assertEquals(Double.NaN, Precision.round(Double.NaN, 2), 0.0);
-        Assertions.assertEquals(0.0, Precision.round(0.0, 2), 0.0);
-        Assertions.assertEquals(Double.POSITIVE_INFINITY, Precision.round(Double.POSITIVE_INFINITY, 2), 0.0);
-        Assertions.assertEquals(Double.NEGATIVE_INFINITY, Precision.round(Double.NEGATIVE_INFINITY, 2), 0.0);
+        Assertions.assertEquals(Double.NaN, Precision.round(Double.NaN, 2));
+        Assertions.assertEquals(0.0, Precision.round(0.0, 2));
+        Assertions.assertEquals(Double.POSITIVE_INFINITY, Precision.round(Double.POSITIVE_INFINITY, 2));
+        Assertions.assertEquals(Double.NEGATIVE_INFINITY, Precision.round(Double.NEGATIVE_INFINITY, 2));
         // comparison of positive and negative zero is not possible -> always equal thus do string comparison
         Assertions.assertEquals("-0.0", Double.toString(Precision.round(-0.0, 0)));
         Assertions.assertEquals("-0.0", Double.toString(Precision.round(-1e-10, 0)));

@@ -185,6 +185,6 @@ class ContinuedFractionTest {
 
         final double eps = 0.5;
         double gr = cf.evaluate(0, eps, 2);
-        Assertions.assertEquals(1.5, gr, 0d);
+        Assertions.assertEquals(1.5, gr);
     }
 }

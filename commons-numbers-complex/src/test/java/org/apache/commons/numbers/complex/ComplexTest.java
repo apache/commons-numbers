@@ -1024,6 +1024,7 @@ class ComplexTest {
                 if (Double.compare(b, 0.0) == 0) {
                     // (-0.0, 0.0).multiply( (0,1) ) => (-0.0, 0.0) expected (-0.0,-0.0)
                     // ( 0.0, 0.0).multiply( (0,1) ) => ( 0.0, 0.0) expected (-0.0, 0.0)
+                    // Sign is allowed to be different for zero.
                     Assertions.assertEquals(0, z.getReal(), 0.0);
                     Assertions.assertEquals(0, z.getImaginary(), 0.0);
                     Assertions.assertNotEquals(x, z);
@@ -1051,10 +1052,9 @@ class ComplexTest {
                 final Complex z2 = c.multiply(Complex.I).negate();
                 // Does not work when imaginary part is -0.0.
                 if (Double.compare(b, -0.0) == 0) {
-                    // (-0.0,-0.0).multiply( (-0.0,-1) ) => ( 0.0, 0.0) expected (-0.0,
-                    // 0.0)
-                    // ( 0.0,-0.0).multiply( (-0.0,-1) ) => (-0.0, 0.0) expected
-                    // (-0.0,-0.0)
+                    // (-0.0,-0.0).multiply( (-0.0,-1) ) => ( 0.0, 0.0) expected (-0.0, 0.0)
+                    // ( 0.0,-0.0).multiply( (-0.0,-1) ) => (-0.0, 0.0) expected (-0.0,-0.0)
+                    // Sign is allowed to be different for zero.
                     Assertions.assertEquals(0, z.getReal(), 0.0);
                     Assertions.assertEquals(0, z.getImaginary(), 0.0);
                     Assertions.assertNotEquals(x, z);
@@ -1105,7 +1105,7 @@ class ComplexTest {
     void testDivideNanInf() {
         Complex z = oneInf.divide(Complex.ONE);
         Assertions.assertTrue(Double.isNaN(z.getReal()));
-        Assertions.assertEquals(inf, z.getImaginary(), 0);
+        Assertions.assertEquals(inf, z.getImaginary());
 
         z = negInfNegInf.divide(oneNan);
         Assertions.assertTrue(Double.isNaN(z.getReal()));
@@ -1385,8 +1385,7 @@ class ComplexTest {
                     Complex z = c.divide(ofImaginary(arg));
                     final boolean expectedFailure = (expectedFailures & 0x1) == 1;
                     expectedFailures >>>= 1;
-                    // If divide by zero then the divide(Complex) method matches divide by
-                    // real.
+                    // If divide by zero then the divide(Complex) method matches divide by real.
                     // To match divide by imaginary requires multiplication by I.
                     if (arg == 0) {
                         // Same result if multiplied by I. The sign may not match so
@@ -1399,8 +1398,7 @@ class ComplexTest {
                         Assertions.assertEquals(ya, za, () -> c + " divideImaginary " + arg + ": real");
                         Assertions.assertEquals(yb, zb, () -> c + " divideImaginary " + arg + ": imaginary");
                     } else {
-                        // Check the same answer. Sign is allowed to be different for
-                        // zero.
+                        // Check the same answer. Sign is allowed to be different for zero.
                         Assertions.assertEquals(y.getReal(), z.getReal(), 0,
                             () -> c + " divideImaginary " + arg + ": real");
                         Assertions.assertEquals(y.getImaginary(), z.getImaginary(), 0,
