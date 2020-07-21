@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link LogGamma}.
  */
-public class LogGammaTest {
+class LogGammaTest {
     /**
      * Reference data for the {@link Gamma#logGamma(double)} function. This data
      * was generated with the following <a
@@ -176,27 +176,27 @@ public class LogGammaTest {
     };
 
     @Test
-    public void testLogGammaNan() {
+    void testLogGammaNan() {
         testLogGamma(Double.NaN, Double.NaN);
     }
 
     @Test
-    public void testLogGammaNegative() {
+    void testLogGammaNegative() {
         testLogGamma(Double.NaN, -1.0);
     }
 
     @Test
-    public void testLogGammaZero() {
+    void testLogGammaZero() {
         testLogGamma(Double.NaN, 0.0);
     }
 
     @Test
-    public void testLogGammaPositive() {
+    void testLogGammaPositive() {
         testLogGamma(0.6931471805599457, 3.0);
     }
 
     @Test
-    public void testLogGamma() {
+    void testLogGamma() {
         final int ulps = 3;
         for (int i = 0; i < LOG_GAMMA_REF.length; i++) {
             final double[] data = LOG_GAMMA_REF[i];
@@ -214,12 +214,12 @@ public class LogGammaTest {
     }
 
     @Test
-    public void testLogGammaPrecondition1() {
+    void testLogGammaPrecondition1() {
         Assertions.assertTrue(Double.isNaN(LogGamma.value(0.0)));
     }
 
     @Test
-    public void testLogGammaPrecondition2() {
+    void testLogGammaPrecondition2() {
         Assertions.assertTrue(Double.isNaN(LogGamma.value(-1.0)));
     }
 

@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 /**
  * Test the accuracy of each implementation of {@link LinearCombination}.
  */
-public class LinearCombinationAccuracyTest {
+class LinearCombinationAccuracyTest {
     /**
      * The dot product length.
      * This must be the same for the accuracy report as the assertions.
@@ -84,7 +84,7 @@ public class LinearCombinationAccuracyTest {
      */
     @ParameterizedTest
     @MethodSource("provideLinearCombination")
-    public void testDotProduct(ND fun, double passC, double failC) {
+    void testDotProduct(ND fun, double passC, double failC) {
         final double[] x = new double[LENGTH];
         final double[] y = new double[LENGTH];
         // Fixed seed to consistency
@@ -125,7 +125,7 @@ public class LinearCombinationAccuracyTest {
      */
     @Test
     @Disabled("This method is used to output a report of the accuracy of implementations.")
-    public void reportRelativeError() throws IOException {
+    void reportRelativeError() throws IOException {
         // Ogita et al (2005) Figure 6.2 used length=100, samples=1000 with c in 1 to 1e120.
         // Ogita et al (2005) Figure 6.4 used length=1000, samples=2000 with c in 1 to 1e120.
         // Here the condition number is in 1e10 to 1e120 as low condition numbers are

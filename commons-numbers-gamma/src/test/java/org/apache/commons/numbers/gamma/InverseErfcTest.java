@@ -22,15 +22,15 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link InverseErfc}.
  */
-public class InverseErfcTest {
+class InverseErfcTest {
     @Test
-    public void testErfcInvNaN() {
+    void testErfcInvNaN() {
         Assertions.assertTrue(Double.isNaN(InverseErfc.value(-0.001)));
         Assertions.assertTrue(Double.isNaN(InverseErfc.value(+2.001)));
     }
 
     @Test
-    public void testErfcInvInfinite() {
+    void testErfcInvInfinite() {
         Assertions.assertTrue(Double.isInfinite(InverseErfc.value(-0)));
         Assertions.assertTrue(InverseErfc.value(0) > 0);
         Assertions.assertTrue(Double.isInfinite(InverseErfc.value(+2)));
@@ -38,7 +38,7 @@ public class InverseErfcTest {
     }
 
     @Test
-    public void testErfcInv() {
+    void testErfcInv() {
         for (double x = -5.85; x < 5.9; x += 0.01) {
             final double y = Erfc.value(x);
             final double dydxAbs = 2 * Math.exp(-x * x) / Math.sqrt(Math.PI);

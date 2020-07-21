@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link Fraction}.
  */
-public class FractionTest {
+class FractionTest {
 
     /** The zero representation with positive denominator. */
     private static final Fraction ZERO_P = Fraction.of(0, 1);
@@ -49,7 +49,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         for (final CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.numDenConstructorTestCases()) {
             assertFraction(
                     testCase.expectedNumerator,
@@ -69,7 +69,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testConstructorZero() {
+    void testConstructorZero() {
         Assertions.assertSame(Fraction.ZERO, Fraction.from(0.0));
         Assertions.assertSame(Fraction.ZERO, Fraction.from(0.0, 1e-10, 100));
         Assertions.assertSame(Fraction.ZERO, Fraction.from(0.0, 100));
@@ -80,7 +80,7 @@ public class FractionTest {
 
     // MATH-179
     @Test
-    public void testDoubleConstructor() throws Exception  {
+    void testDoubleConstructor() throws Exception  {
         for (final CommonTestCases.DoubleToFractionTestCase testCase : CommonTestCases.doubleConstructorTestCases()) {
             assertFraction(
                     testCase.expectedNumerator,
@@ -101,7 +101,7 @@ public class FractionTest {
     // MATH-181
     // NUMBERS-147
     @Test
-    public void testDoubleConstructorWithMaxDenominator() throws Exception  {
+    void testDoubleConstructorWithMaxDenominator() throws Exception  {
         for (final CommonTestCases.DoubleToFractionTestCase testCase : CommonTestCases.doubleMaxDenomConstructorTestCases()) {
             assertFraction(
                     testCase.expectedNumerator,
@@ -120,7 +120,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testDoubleConstructorThrows() {
+    void testDoubleConstructorThrows() {
         final double eps = 1e-5;
         final int maxIterations = Integer.MAX_VALUE;
         final int maxDenominator = Integer.MAX_VALUE;
@@ -137,7 +137,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testDoubleConstructorGoldenRatioThrows() {
+    void testDoubleConstructorGoldenRatioThrows() {
         // the golden ratio is notoriously a difficult number for continuous fraction
         Assertions.assertThrows(ArithmeticException.class,
             () -> Fraction.from((1 + Math.sqrt(5)) / 2, 1.0e-12, 25)
@@ -146,7 +146,7 @@ public class FractionTest {
 
     // MATH-1029
     @Test
-    public void testDoubleConstructorWithMaxDenominatorOverFlow() {
+    void testDoubleConstructorWithMaxDenominatorOverFlow() {
         Assertions.assertThrows(ArithmeticException.class,
             () -> Fraction.from(1e10, 1000)
         );
@@ -156,7 +156,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testDoubleConstructorOverflow() {
+    void testDoubleConstructorOverflow() {
         assertDoubleConstructorOverflow(0.75000000001455192);
         assertDoubleConstructorOverflow(1.0e10);
         assertDoubleConstructorOverflow(-1.0e10);
@@ -170,7 +170,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testDoubleConstructorWithEpsilonLimit() throws Exception  {
+    void testDoubleConstructorWithEpsilonLimit() throws Exception  {
         assertFraction(2, 5, Fraction.from(0.4, 1.0e-5, 100));
 
         assertFraction(3, 5,      Fraction.from(0.6152, 0.02, 100));
@@ -182,7 +182,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testCompareTo() {
+    void testCompareTo() {
         final Fraction a = Fraction.of(1, 2);
         final Fraction b = Fraction.of(1, 3);
         final Fraction c = Fraction.of(1, 2);
@@ -224,7 +224,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testDoubleValue() {
+    void testDoubleValue() {
         assertDoubleValue(0.5, 1, 2);
         assertDoubleValue(-0.5, -1, 2);
         assertDoubleValue(-0.5, 1, -2);
@@ -237,7 +237,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testFloatValue() {
+    void testFloatValue() {
         Assertions.assertEquals(0.5f, Fraction.of(1, 2).floatValue());
         Assertions.assertEquals(0.5f, Fraction.of(-1, -2).floatValue());
         Assertions.assertEquals(-0.5f, Fraction.of(-1, 2).floatValue());
@@ -254,7 +254,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testIntValue() {
+    void testIntValue() {
         Assertions.assertEquals(0, Fraction.of(1, 2).intValue());
         Assertions.assertEquals(0, Fraction.of(-1, -2).intValue());
         Assertions.assertEquals(0, Fraction.of(-1, 2).intValue());
@@ -275,7 +275,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testLongValue() {
+    void testLongValue() {
         Assertions.assertEquals(0L, Fraction.of(1, 2).longValue());
         Assertions.assertEquals(0L, Fraction.of(-1, -2).longValue());
         Assertions.assertEquals(0L, Fraction.of(-1, 2).longValue());
@@ -296,7 +296,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testAbs() {
+    void testAbs() {
         for (final CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.absTestCases()) {
             final Fraction f = Fraction.of(testCase.operandNumerator, testCase.operandDenominator);
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f.abs());
@@ -304,7 +304,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testReciprocal() {
+    void testReciprocal() {
         for (final CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.reciprocalTestCases()) {
             final Fraction f = Fraction.of(testCase.operandNumerator, testCase.operandDenominator);
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f.reciprocal());
@@ -315,7 +315,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testNegate() {
+    void testNegate() {
         for (final CommonTestCases.UnaryOperatorTestCase testCase : CommonTestCases.negateTestCases()) {
             final Fraction f = Fraction.of(testCase.operandNumerator, testCase.operandDenominator);
             assertFraction(testCase.expectedNumerator, testCase.expectedDenominator, f.negate());
@@ -330,7 +330,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testAdd() {
+    void testAdd() {
         for (final CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.addFractionTestCases()) {
             final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
             final Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
@@ -361,7 +361,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testDivide() {
+    void testDivide() {
         for (final CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.divideByFractionTestCases()) {
             final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
             final Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
@@ -390,7 +390,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testMultiply() {
+    void testMultiply() {
         for (final CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.multiplyByFractionTestCases()) {
             final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
             final Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
@@ -416,7 +416,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testPow() {
+    void testPow() {
         for (final CommonTestCases.BinaryIntOperatorTestCase testCase : CommonTestCases.powTestCases()) {
             final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
             final int exponent = testCase.secondOperand;
@@ -430,7 +430,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testSubtract() {
+    void testSubtract() {
         for (final CommonTestCases.BinaryOperatorTestCase testCase : CommonTestCases.subtractFractionTestCases()) {
             final Fraction f1 = Fraction.of(testCase.firstOperandNumerator, testCase.firstOperandDenominator);
             final Fraction f2 = Fraction.of(testCase.secondOperandNumerator, testCase.secondOperandDenominator);
@@ -461,10 +461,10 @@ public class FractionTest {
     }
 
     @Test
-    public void testEqualsAndHashCode() {
+    void testEqualsAndHashCode() {
         final Fraction zero = Fraction.of(0, 1);
-        Assertions.assertEquals(zero, zero);
-        Assertions.assertNotEquals(zero, null);
+        Assertions.assertTrue(zero.equals(zero));
+        Assertions.assertFalse(zero.equals(null));
         Assertions.assertFalse(zero.equals(new Object()));
         Assertions.assertFalse(zero.equals(Double.valueOf(0)));
 
@@ -534,17 +534,17 @@ public class FractionTest {
     }
 
     @Test
-    public void testAdditiveNeutral() {
+    void testAdditiveNeutral() {
         Assertions.assertEquals(Fraction.ZERO, Fraction.ONE.zero());
     }
 
     @Test
-    public void testMultiplicativeNeutral() {
+    void testMultiplicativeNeutral() {
         Assertions.assertEquals(Fraction.ONE, Fraction.ZERO.one());
     }
 
     @Test
-    public void testSerial() {
+    void testSerial() {
         final Fraction[] fractions = {
             Fraction.of(3, 4), Fraction.ONE, Fraction.ZERO,
             Fraction.of(17), Fraction.from(Math.PI, 1000),
@@ -557,7 +557,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         Assertions.assertEquals("0", Fraction.of(0, 3).toString());
         Assertions.assertEquals("0", Fraction.of(0, -3).toString());
         Assertions.assertEquals("3", Fraction.of(6, 2).toString());
@@ -567,7 +567,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testParse() {
+    void testParse() {
         final String[] validExpressions = new String[] {
             "1 / 2",
             "-1 / 2",
@@ -614,7 +614,7 @@ public class FractionTest {
     }
 
     @Test
-    public void testMath1261() {
+    void testMath1261() {
         final Fraction a = Fraction.of(Integer.MAX_VALUE, 2);
         assertFraction(Integer.MAX_VALUE, 1, a.multiply(2));
 

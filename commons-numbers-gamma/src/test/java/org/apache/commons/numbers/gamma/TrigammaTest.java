@@ -22,9 +22,9 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link Trigamma}.
  */
-public class TrigammaTest {
+class TrigammaTest {
     @Test
-    public void testTrigamma() {
+    void testTrigamma() {
         double eps = 1e-8;
         // computed using webMathematica.  For example, to compute trigamma($i) = Polygamma(1, $i), use
         //
@@ -62,7 +62,7 @@ public class TrigammaTest {
     }
 
     @Test
-    public void testTrigammaNonRealArgs() {
+    void testTrigammaNonRealArgs() {
         Assertions.assertTrue(Double.isNaN(Trigamma.value(Double.NaN)));
         Assertions.assertTrue(Double.isInfinite(Trigamma.value(Double.POSITIVE_INFINITY)));
         Assertions.assertTrue(Double.isInfinite(Trigamma.value(Double.NEGATIVE_INFINITY)));

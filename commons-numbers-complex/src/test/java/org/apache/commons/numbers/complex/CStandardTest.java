@@ -37,7 +37,7 @@ import java.util.function.UnaryOperator;
  * @see <a href="http://www.open-std.org/JTC1/SC22/WG14/www/standards">
  *    ISO/IEC 9899 - Programming languages - C</a>
  */
-public class CStandardTest {
+class CStandardTest {
 
     private static final double inf = Double.POSITIVE_INFINITY;
     private static final double negInf = Double.NEGATIVE_INFINITY;
@@ -724,7 +724,7 @@ public class CStandardTest {
      * ISO C Standard G.5 (4).
      */
     @Test
-    public void testMultiply() {
+    void testMultiply() {
         final ArrayList<Complex> infinites = createInfinites();
         final ArrayList<Complex> nonZeroFinites = createNonZeroFinites();
         final ArrayList<Complex> zeroFinites = createZeroFinites();
@@ -783,7 +783,7 @@ public class CStandardTest {
      * ISO C Standard G.5 (4).
      */
     @Test
-    public void testDivide() {
+    void testDivide() {
         final ArrayList<Complex> infinites = createInfinites();
         final ArrayList<Complex> nonZeroFinites = createNonZeroFinites();
         final ArrayList<Complex> zeroFinites = createZeroFinites();
@@ -850,7 +850,7 @@ public class CStandardTest {
      * ISO C Standard G.6 (3).
      */
     @Test
-    public void testSqrt1() {
+    void testSqrt1() {
         assertComplex(complex(-2.0, 0.0).sqrt(), complex(0.0, Math.sqrt(2)));
         assertComplex(complex(-2.0, -0.0).sqrt(), complex(0.0, -Math.sqrt(2)));
     }
@@ -859,7 +859,7 @@ public class CStandardTest {
      * ISO C Standard G.6 (7).
      */
     @Test
-    public void testImplicitTrig() {
+    void testImplicitTrig() {
         final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
         for (int i = 0; i < 100; i++) {
             final double re = next(rng);
@@ -890,7 +890,7 @@ public class CStandardTest {
      * Functionality is defined by ISO C Standard F.9.4.3 hypot function.
      */
     @Test
-    public void testAbs() {
+    void testAbs() {
         Assertions.assertEquals(inf, complex(inf, nan).abs());
         Assertions.assertEquals(inf, complex(negInf, nan).abs());
         final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_128_PP);
@@ -975,7 +975,7 @@ public class CStandardTest {
      * ISO C Standard G.6.1.1.
      */
     @Test
-    public void testAcos() {
+    void testAcos() {
         final UnaryOperator<Complex> operation = Complex::acos;
         assertConjugateEquality(operation);
         assertComplex(Complex.ZERO, operation, piTwoNegZero);
@@ -1012,7 +1012,7 @@ public class CStandardTest {
      *   Complex math functions cacosh and ctanh</a>
      */
     @Test
-    public void testAcosh() {
+    void testAcosh() {
         final UnaryOperator<Complex> operation = Complex::acosh;
         assertConjugateEquality(operation);
         assertComplex(Complex.ZERO, operation, zeroPiTwo);
@@ -1046,7 +1046,7 @@ public class CStandardTest {
      * ISO C Standard G.6.2.2.
      */
     @Test
-    public void testAsinh() {
+    void testAsinh() {
         final UnaryOperator<Complex> operation = Complex::asinh;
         final FunctionType type = FunctionType.ODD;
         assertConjugateEquality(operation);
@@ -1075,7 +1075,7 @@ public class CStandardTest {
      * ISO C Standard G.6.2.3.
      */
     @Test
-    public void testAtanh() {
+    void testAtanh() {
         final UnaryOperator<Complex> operation = Complex::atanh;
         final FunctionType type = FunctionType.ODD;
         assertConjugateEquality(operation);
@@ -1106,7 +1106,7 @@ public class CStandardTest {
      * ISO C Standard G.6.2.4.
      */
     @Test
-    public void testCosh() {
+    void testCosh() {
         final UnaryOperator<Complex> operation = Complex::cosh;
         final FunctionType type = FunctionType.EVEN;
         assertConjugateEquality(operation);
@@ -1137,7 +1137,7 @@ public class CStandardTest {
      * ISO C Standard G.6.2.5.
      */
     @Test
-    public void testSinh() {
+    void testSinh() {
         final UnaryOperator<Complex> operation = Complex::sinh;
         final FunctionType type = FunctionType.ODD;
         assertConjugateEquality(operation);
@@ -1172,7 +1172,7 @@ public class CStandardTest {
      *   Complex math functions cacosh and ctanh</a>
      */
     @Test
-    public void testTanh() {
+    void testTanh() {
         final UnaryOperator<Complex> operation = Complex::tanh;
         final FunctionType type = FunctionType.ODD;
         assertConjugateEquality(operation);
@@ -1202,7 +1202,7 @@ public class CStandardTest {
      * ISO C Standard G.6.3.1.
      */
     @Test
-    public void testExp() {
+    void testExp() {
         final UnaryOperator<Complex> operation = Complex::exp;
         assertConjugateEquality(operation);
         assertComplex(Complex.ZERO, operation, oneZero);
@@ -1235,7 +1235,7 @@ public class CStandardTest {
      * ISO C Standard G.6.3.2.
      */
     @Test
-    public void testLog() {
+    void testLog() {
         final UnaryOperator<Complex> operation = Complex::log;
         assertConjugateEquality(operation);
         assertComplex(negZeroZero, operation, negInfPi);
@@ -1268,7 +1268,7 @@ public class CStandardTest {
      * has no effect on infinite or nan.
      */
     @Test
-    public void testLog10() {
+    void testLog10() {
         final UnaryOperator<Complex> operation = Complex::log10;
         assertConjugateEquality(operation);
         assertComplex(negZeroZero, operation, negInfPi);
@@ -1300,7 +1300,7 @@ public class CStandardTest {
      * ISO C Standard G.6.4.2.
      */
     @Test
-    public void testSqrt() {
+    void testSqrt() {
         final UnaryOperator<Complex> operation = Complex::sqrt;
         assertConjugateEquality(operation);
         assertComplex(negZeroZero, operation, Complex.ZERO);

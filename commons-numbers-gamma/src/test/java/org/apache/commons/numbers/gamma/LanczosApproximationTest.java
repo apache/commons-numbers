@@ -22,18 +22,18 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link LanczosApproximation}.
  */
-public class LanczosApproximationTest {
+class LanczosApproximationTest {
     @Test
-    public void testG() {
-        Assertions.assertEquals(607d / 128d, LanczosApproximation.g(), 0d);
+    void testG() {
+        Assertions.assertEquals(607d / 128d, LanczosApproximation.g());
     }
 
     @Test
-    public void testSomeValues() {
+    void testSomeValues() {
         // Given that few values are checked, this test would only serve
         // as early warning of unexpected changes to the current code.
-        Assertions.assertEquals(29.020294557631818d, LanczosApproximation.value(0.1d), 0d);
-        Assertions.assertEquals(13.14778027539684d, LanczosApproximation.value(1.0d), 0d);
-        Assertions.assertEquals(7.897828855157814d, LanczosApproximation.value(2.0d), 0d);
+        Assertions.assertEquals(29.020294557631818d, LanczosApproximation.value(0.1d));
+        Assertions.assertEquals(13.14778027539684d, LanczosApproximation.value(1.0d));
+        Assertions.assertEquals(7.897828855157814d, LanczosApproximation.value(2.0d));
     }
 }

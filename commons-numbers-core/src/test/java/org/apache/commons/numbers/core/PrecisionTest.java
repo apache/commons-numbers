@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
  * Test cases for the {@link Precision} class.
  *
  */
-public class PrecisionTest {
+class PrecisionTest {
 
     // Interfaces to allow testing equals variants with the same conditions
 
@@ -50,7 +50,7 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testEqualsWithRelativeTolerance() {
+    void testEqualsWithRelativeTolerance() {
         Assertions.assertTrue(Precision.equalsWithRelativeTolerance(0d, 0d, 0d));
         Assertions.assertTrue(Precision.equalsWithRelativeTolerance(0d, 1 / Double.NEGATIVE_INFINITY, 0d));
 
@@ -77,7 +77,7 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testEqualsIncludingNaN() {
+    void testEqualsIncludingNaN() {
         double[] testArray = {
             Double.NaN,
             Double.POSITIVE_INFINITY,
@@ -98,12 +98,12 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testEqualsWithAllowedDelta() {
+    void testEqualsWithAllowedDelta() {
         assertEqualsWithAllowedDelta(Precision::equalsIncludingNaN, true);
     }
 
     @Test
-    public void testEqualsIncludingNaNWithAllowedDelta() {
+    void testEqualsIncludingNaNWithAllowedDelta() {
         assertEqualsWithAllowedDelta(Precision::equalsIncludingNaN, true);
     }
 
@@ -120,18 +120,18 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testEqualsWithAllowedUlps() {
+    void testEqualsWithAllowedUlps() {
         assertEqualsIncludingNaNWithAllowedUlps(Precision::equals, false, false);
     }
 
     @Test
-    public void testEqualsWithImplicitAllowedUlpsOf1() {
+    void testEqualsWithImplicitAllowedUlpsOf1() {
         // Use the version without the ulp argument
         assertEqualsIncludingNaNWithAllowedUlps((a, b, ulp) -> Precision.equals(a, b), false, true);
     }
 
     @Test
-    public void testEqualsIncludingNaNWithAllowedUlps() {
+    void testEqualsIncludingNaNWithAllowedUlps() {
         assertEqualsIncludingNaNWithAllowedUlps(Precision::equalsIncludingNaN, true, false);
     }
 
@@ -176,7 +176,7 @@ public class PrecisionTest {
     // converted to float
 
     @Test
-    public void testFloatEqualsIncludingNaN() {
+    void testFloatEqualsIncludingNaN() {
         float[] testArray = {
             Float.NaN,
             Float.POSITIVE_INFINITY,
@@ -197,12 +197,12 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testFloatEqualsWithAllowedDelta() {
+    void testFloatEqualsWithAllowedDelta() {
         assertFloatEqualsWithAllowedDelta(Precision::equalsIncludingNaN, true);
     }
 
     @Test
-    public void testFloatEqualsIncludingNaNWithAllowedDelta() {
+    void testFloatEqualsIncludingNaNWithAllowedDelta() {
         assertFloatEqualsWithAllowedDelta(Precision::equalsIncludingNaN, true);
     }
 
@@ -219,18 +219,18 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testFloatEqualsWithAllowedUlps() {
+    void testFloatEqualsWithAllowedUlps() {
         assertFloatEqualsIncludingNaNWithAllowedUlps(Precision::equals, false, false);
     }
 
     @Test
-    public void testFloatEqualsWithImplicitAllowedUlpsOf1() {
+    void testFloatEqualsWithImplicitAllowedUlpsOf1() {
         // Use the version without the ulp argument
         assertFloatEqualsIncludingNaNWithAllowedUlps((a, b, ulp) -> Precision.equals(a, b), false, true);
     }
 
     @Test
-    public void testFloatEqualsIncludingNaNWithAllowedUlps() {
+    void testFloatEqualsIncludingNaNWithAllowedUlps() {
         assertFloatEqualsIncludingNaNWithAllowedUlps(Precision::equalsIncludingNaN, true, false);
     }
 
@@ -272,7 +272,7 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testCompareToEpsilon() {
+    void testCompareToEpsilon() {
         Assertions.assertEquals(0, Precision.compareTo(152.33, 152.32, .011));
         Assertions.assertTrue(Precision.compareTo(152.308, 152.32, .011) < 0);
         Assertions.assertTrue(Precision.compareTo(152.33, 152.318, .011) > 0);
@@ -281,7 +281,7 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testCompareToMaxUlps() {
+    void testCompareToMaxUlps() {
         double a = 152.32;
         double delta = Math.ulp(a);
         for (int i = 0; i <= 10; ++i) {
@@ -318,82 +318,82 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testRoundDouble() {
+    void testRoundDouble() {
         double x = 1.234567890;
-        Assertions.assertEquals(1.23, Precision.round(x, 2), 0.0);
-        Assertions.assertEquals(1.235, Precision.round(x, 3), 0.0);
-        Assertions.assertEquals(1.2346, Precision.round(x, 4), 0.0);
+        Assertions.assertEquals(1.23, Precision.round(x, 2));
+        Assertions.assertEquals(1.235, Precision.round(x, 3));
+        Assertions.assertEquals(1.2346, Precision.round(x, 4));
 
         // JIRA MATH-151
-        Assertions.assertEquals(39.25, Precision.round(39.245, 2), 0.0);
-        Assertions.assertEquals(39.24, Precision.round(39.245, 2, RoundingMode.DOWN), 0.0);
+        Assertions.assertEquals(39.25, Precision.round(39.245, 2));
+        Assertions.assertEquals(39.24, Precision.round(39.245, 2, RoundingMode.DOWN));
         double xx = 39.0;
         xx += 245d / 1000d;
-        Assertions.assertEquals(39.25, Precision.round(xx, 2), 0.0);
+        Assertions.assertEquals(39.25, Precision.round(xx, 2));
 
         // BZ 35904
-        Assertions.assertEquals(30.1d, Precision.round(30.095d, 2), 0.0d);
-        Assertions.assertEquals(30.1d, Precision.round(30.095d, 1), 0.0d);
-        Assertions.assertEquals(33.1d, Precision.round(33.095d, 1), 0.0d);
-        Assertions.assertEquals(33.1d, Precision.round(33.095d, 2), 0.0d);
-        Assertions.assertEquals(50.09d, Precision.round(50.085d, 2), 0.0d);
-        Assertions.assertEquals(50.19d, Precision.round(50.185d, 2), 0.0d);
-        Assertions.assertEquals(50.01d, Precision.round(50.005d, 2), 0.0d);
-        Assertions.assertEquals(30.01d, Precision.round(30.005d, 2), 0.0d);
-        Assertions.assertEquals(30.65d, Precision.round(30.645d, 2), 0.0d);
+        Assertions.assertEquals(30.1d, Precision.round(30.095d, 2));
+        Assertions.assertEquals(30.1d, Precision.round(30.095d, 1));
+        Assertions.assertEquals(33.1d, Precision.round(33.095d, 1));
+        Assertions.assertEquals(33.1d, Precision.round(33.095d, 2));
+        Assertions.assertEquals(50.09d, Precision.round(50.085d, 2));
+        Assertions.assertEquals(50.19d, Precision.round(50.185d, 2));
+        Assertions.assertEquals(50.01d, Precision.round(50.005d, 2));
+        Assertions.assertEquals(30.01d, Precision.round(30.005d, 2));
+        Assertions.assertEquals(30.65d, Precision.round(30.645d, 2));
 
-        Assertions.assertEquals(1.24, Precision.round(x, 2, RoundingMode.CEILING), 0.0);
-        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.CEILING), 0.0);
-        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.CEILING), 0.0);
-        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.CEILING), 0.0);
-        Assertions.assertEquals(-1.234, Precision.round(-x, 3, RoundingMode.CEILING), 0.0);
-        Assertions.assertEquals(-1.2345, Precision.round(-x, 4, RoundingMode.CEILING), 0.0);
+        Assertions.assertEquals(1.24, Precision.round(x, 2, RoundingMode.CEILING));
+        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.CEILING));
+        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.CEILING));
+        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.CEILING));
+        Assertions.assertEquals(-1.234, Precision.round(-x, 3, RoundingMode.CEILING));
+        Assertions.assertEquals(-1.2345, Precision.round(-x, 4, RoundingMode.CEILING));
 
-        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.DOWN), 0.0);
-        Assertions.assertEquals(1.234, Precision.round(x, 3, RoundingMode.DOWN), 0.0);
-        Assertions.assertEquals(1.2345, Precision.round(x, 4, RoundingMode.DOWN), 0.0);
-        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.DOWN), 0.0);
-        Assertions.assertEquals(-1.234, Precision.round(-x, 3, RoundingMode.DOWN), 0.0);
-        Assertions.assertEquals(-1.2345, Precision.round(-x, 4, RoundingMode.DOWN), 0.0);
+        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.DOWN));
+        Assertions.assertEquals(1.234, Precision.round(x, 3, RoundingMode.DOWN));
+        Assertions.assertEquals(1.2345, Precision.round(x, 4, RoundingMode.DOWN));
+        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.DOWN));
+        Assertions.assertEquals(-1.234, Precision.round(-x, 3, RoundingMode.DOWN));
+        Assertions.assertEquals(-1.2345, Precision.round(-x, 4, RoundingMode.DOWN));
 
-        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.FLOOR), 0.0);
-        Assertions.assertEquals(1.234, Precision.round(x, 3, RoundingMode.FLOOR), 0.0);
-        Assertions.assertEquals(1.2345, Precision.round(x, 4, RoundingMode.FLOOR), 0.0);
-        Assertions.assertEquals(-1.24, Precision.round(-x, 2, RoundingMode.FLOOR), 0.0);
-        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.FLOOR), 0.0);
-        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.FLOOR), 0.0);
+        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.FLOOR));
+        Assertions.assertEquals(1.234, Precision.round(x, 3, RoundingMode.FLOOR));
+        Assertions.assertEquals(1.2345, Precision.round(x, 4, RoundingMode.FLOOR));
+        Assertions.assertEquals(-1.24, Precision.round(-x, 2, RoundingMode.FLOOR));
+        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.FLOOR));
+        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.FLOOR));
 
-        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.HALF_DOWN), 0.0);
-        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.HALF_DOWN), 0.0);
-        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.HALF_DOWN), 0.0);
-        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.HALF_DOWN), 0.0);
-        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.HALF_DOWN), 0.0);
-        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.HALF_DOWN), 0.0);
-        Assertions.assertEquals(1.234, Precision.round(1.2345, 3, RoundingMode.HALF_DOWN), 0.0);
-        Assertions.assertEquals(-1.234, Precision.round(-1.2345, 3, RoundingMode.HALF_DOWN), 0.0);
+        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.HALF_DOWN));
+        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.HALF_DOWN));
+        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.HALF_DOWN));
+        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.HALF_DOWN));
+        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.HALF_DOWN));
+        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.HALF_DOWN));
+        Assertions.assertEquals(1.234, Precision.round(1.2345, 3, RoundingMode.HALF_DOWN));
+        Assertions.assertEquals(-1.234, Precision.round(-1.2345, 3, RoundingMode.HALF_DOWN));
 
-        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.HALF_EVEN), 0.0);
-        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.HALF_EVEN), 0.0);
-        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.HALF_EVEN), 0.0);
-        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.HALF_EVEN), 0.0);
-        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.HALF_EVEN), 0.0);
-        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.HALF_EVEN), 0.0);
-        Assertions.assertEquals(1.234, Precision.round(1.2345, 3, RoundingMode.HALF_EVEN), 0.0);
-        Assertions.assertEquals(-1.234, Precision.round(-1.2345, 3, RoundingMode.HALF_EVEN), 0.0);
-        Assertions.assertEquals(1.236, Precision.round(1.2355, 3, RoundingMode.HALF_EVEN), 0.0);
-        Assertions.assertEquals(-1.236, Precision.round(-1.2355, 3, RoundingMode.HALF_EVEN), 0.0);
+        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.HALF_EVEN));
+        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.HALF_EVEN));
+        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.HALF_EVEN));
+        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.HALF_EVEN));
+        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.HALF_EVEN));
+        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.HALF_EVEN));
+        Assertions.assertEquals(1.234, Precision.round(1.2345, 3, RoundingMode.HALF_EVEN));
+        Assertions.assertEquals(-1.234, Precision.round(-1.2345, 3, RoundingMode.HALF_EVEN));
+        Assertions.assertEquals(1.236, Precision.round(1.2355, 3, RoundingMode.HALF_EVEN));
+        Assertions.assertEquals(-1.236, Precision.round(-1.2355, 3, RoundingMode.HALF_EVEN));
 
-        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.HALF_UP), 0.0);
-        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.HALF_UP), 0.0);
-        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.HALF_UP), 0.0);
-        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.HALF_UP), 0.0);
-        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.HALF_UP), 0.0);
-        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.HALF_UP), 0.0);
-        Assertions.assertEquals(1.235, Precision.round(1.2345, 3, RoundingMode.HALF_UP), 0.0);
-        Assertions.assertEquals(-1.235, Precision.round(-1.2345, 3, RoundingMode.HALF_UP), 0.0);
+        Assertions.assertEquals(1.23, Precision.round(x, 2, RoundingMode.HALF_UP));
+        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.HALF_UP));
+        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.HALF_UP));
+        Assertions.assertEquals(-1.23, Precision.round(-x, 2, RoundingMode.HALF_UP));
+        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.HALF_UP));
+        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.HALF_UP));
+        Assertions.assertEquals(1.235, Precision.round(1.2345, 3, RoundingMode.HALF_UP));
+        Assertions.assertEquals(-1.235, Precision.round(-1.2345, 3, RoundingMode.HALF_UP));
 
-        Assertions.assertEquals(-1.23, Precision.round(-1.23, 2, RoundingMode.UNNECESSARY), 0.0);
-        Assertions.assertEquals(1.23, Precision.round(1.23, 2, RoundingMode.UNNECESSARY), 0.0);
+        Assertions.assertEquals(-1.23, Precision.round(-1.23, 2, RoundingMode.UNNECESSARY));
+        Assertions.assertEquals(1.23, Precision.round(1.23, 2, RoundingMode.UNNECESSARY));
 
         try {
             Precision.round(1.234, 2, RoundingMode.UNNECESSARY);
@@ -402,28 +402,28 @@ public class PrecisionTest {
             // expected
         }
 
-        Assertions.assertEquals(1.24, Precision.round(x, 2, RoundingMode.UP), 0.0);
-        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.UP), 0.0);
-        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.UP), 0.0);
-        Assertions.assertEquals(-1.24, Precision.round(-x, 2, RoundingMode.UP), 0.0);
-        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.UP), 0.0);
-        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.UP), 0.0);
+        Assertions.assertEquals(1.24, Precision.round(x, 2, RoundingMode.UP));
+        Assertions.assertEquals(1.235, Precision.round(x, 3, RoundingMode.UP));
+        Assertions.assertEquals(1.2346, Precision.round(x, 4, RoundingMode.UP));
+        Assertions.assertEquals(-1.24, Precision.round(-x, 2, RoundingMode.UP));
+        Assertions.assertEquals(-1.235, Precision.round(-x, 3, RoundingMode.UP));
+        Assertions.assertEquals(-1.2346, Precision.round(-x, 4, RoundingMode.UP));
 
         // MATH-151
-        Assertions.assertEquals(39.25, Precision.round(39.245, 2, RoundingMode.HALF_UP), 0.0);
+        Assertions.assertEquals(39.25, Precision.round(39.245, 2, RoundingMode.HALF_UP));
 
         // special values
-        Assertions.assertEquals(Double.NaN, Precision.round(Double.NaN, 2), 0.0);
-        Assertions.assertEquals(0.0, Precision.round(0.0, 2), 0.0);
-        Assertions.assertEquals(Double.POSITIVE_INFINITY, Precision.round(Double.POSITIVE_INFINITY, 2), 0.0);
-        Assertions.assertEquals(Double.NEGATIVE_INFINITY, Precision.round(Double.NEGATIVE_INFINITY, 2), 0.0);
+        Assertions.assertEquals(Double.NaN, Precision.round(Double.NaN, 2));
+        Assertions.assertEquals(0.0, Precision.round(0.0, 2));
+        Assertions.assertEquals(Double.POSITIVE_INFINITY, Precision.round(Double.POSITIVE_INFINITY, 2));
+        Assertions.assertEquals(Double.NEGATIVE_INFINITY, Precision.round(Double.NEGATIVE_INFINITY, 2));
         // comparison of positive and negative zero is not possible -> always equal thus do string comparison
         Assertions.assertEquals("-0.0", Double.toString(Precision.round(-0.0, 0)));
         Assertions.assertEquals("-0.0", Double.toString(Precision.round(-1e-10, 0)));
     }
 
     @Test
-    public void testRepresentableDelta() {
+    void testRepresentableDelta() {
         int nonRepresentableCount = 0;
         final double x = 100;
         final int numTrials = 10000;
@@ -439,13 +439,13 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testIssue721() {
+    void testIssue721() {
         Assertions.assertEquals(-53, Math.getExponent(Precision.EPSILON));
         Assertions.assertEquals(-1022, Math.getExponent(Precision.SAFE_MIN));
     }
 
     @Test
-    public void testMath475() {
+    void testMath475() {
         final double a = 1.7976931348623182E16;
         final double b = Math.nextUp(a);
 
@@ -464,7 +464,7 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testMath475Float() {
+    void testMath475Float() {
         final float a = 1.7976931348623182E16f;
         final float b = Math.nextUp(a);
 
@@ -483,7 +483,7 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testMath843() {
+    void testMath843() {
         final double afterEpsilon = Math.nextAfter(Precision.EPSILON,
                                                    Double.POSITIVE_INFINITY);
 
@@ -495,7 +495,7 @@ public class PrecisionTest {
     }
 
     @Test
-    public void testMath1127() {
+    void testMath1127() {
         Assertions.assertFalse(Precision.equals(2.0, -2.0, 1));
         Assertions.assertTrue(Precision.equals(0.0, -0.0, 0));
         Assertions.assertFalse(Precision.equals(2.0f, -2.0f, 1));

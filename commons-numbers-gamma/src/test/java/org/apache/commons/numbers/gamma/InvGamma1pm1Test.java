@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link InvGamma1pm1}.
  */
-public class InvGamma1pm1Test {
+class InvGamma1pm1Test {
     /**
      * <p>
      * Reference values for the {@link InvGamma1pm1#value(double)} method.
@@ -65,7 +65,7 @@ public class InvGamma1pm1Test {
     };
 
     @Test
-    public void testInvGamma1pm1() {
+    void testInvGamma1pm1() {
         final int ulps = 3;
         for (int i = 0; i < INV_GAMMA1P_M1_REF.length; i++) {
             final double[] ref = INV_GAMMA1P_M1_REF[i];
@@ -78,14 +78,14 @@ public class InvGamma1pm1Test {
     }
 
     @Test
-    public void testInvGamma1pm1Precondition1() {
+    void testInvGamma1pm1Precondition1() {
         Assertions.assertThrows(GammaException.class,
             () -> InvGamma1pm1.value(-0.51)
         );
     }
 
     @Test
-    public void testInvGamma1pm1Precondition2() {
+    void testInvGamma1pm1Precondition2() {
         Assertions.assertThrows(GammaException.class,
             () -> InvGamma1pm1.value(1.51)
         );

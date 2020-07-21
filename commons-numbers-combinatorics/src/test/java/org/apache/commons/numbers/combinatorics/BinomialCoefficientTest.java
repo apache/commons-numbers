@@ -27,18 +27,18 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the {@link BinomialCoefficient} class.
  */
-public class BinomialCoefficientTest {
+class BinomialCoefficientTest {
     /** Cached binomial coefficients. */
     private static final List<Map<Integer, Long>> binomialCache = new ArrayList<>();
 
     /** Verify that b(0,0) = 1 */
     @Test
-    public void test0Choose0() {
+    void test0Choose0() {
         Assertions.assertEquals(1, BinomialCoefficient.value(0, 0));
     }
 
     @Test
-    public void testBinomialCoefficient() {
+    void testBinomialCoefficient() {
         final long[] bcoef5 = {1, 5, 10, 10, 5, 1};
         final long[] bcoef6 = {1, 6, 15, 20, 15, 6, 1};
 
@@ -72,28 +72,28 @@ public class BinomialCoefficientTest {
     }
 
     @Test
-    public void testBinomialCoefficientKLargerThanN() {
+    void testBinomialCoefficientKLargerThanN() {
         Assertions.assertThrows(CombinatoricsException.class,
             () -> BinomialCoefficient.value(4, 5)
         );
     }
 
     @Test
-    public void testBinomialCoefficientNegativeN() {
+    void testBinomialCoefficientNegativeN() {
         Assertions.assertThrows(CombinatoricsException.class,
             () -> BinomialCoefficient.value(-1, 1)
         );
     }
 
     @Test
-    public void testBinomialCoefficientNegativeK() {
+    void testBinomialCoefficientNegativeK() {
         Assertions.assertThrows(CombinatoricsException.class,
             () -> BinomialCoefficient.value(10, -1)
         );
     }
 
     @Test
-    public void testBinomialCoefficientNAbove66ResultOverflow() {
+    void testBinomialCoefficientNAbove66ResultOverflow() {
         Assertions.assertThrows(ArithmeticException.class,
             () -> BinomialCoefficient.value(67, 30)
         );
@@ -104,7 +104,7 @@ public class BinomialCoefficientTest {
      * JIRA: MATH-241
      */
     @Test
-    public void testBinomialCoefficientLarge() throws Exception {
+    void testBinomialCoefficientLarge() throws Exception {
         // This tests all legal and illegal values for n <= 200.
         for (int n = 0; n <= 200; n++) {
             for (int k = 0; k <= n; k++) {
@@ -144,21 +144,21 @@ public class BinomialCoefficientTest {
     }
 
     @Test
-    public void checkNLessThanOne() {
+    void checkNLessThanOne() {
         Assertions.assertThrows(CombinatoricsException.class,
             () -> BinomialCoefficient.checkBinomial(-1, -2)
         );
     }
 
     @Test
-    public void checkKGreaterThanN() {
+    void checkKGreaterThanN() {
         Assertions.assertThrows(CombinatoricsException.class,
             () -> BinomialCoefficient.checkBinomial(4, 5)
         );
     }
 
     @Test
-    public void testCheckBinomial3() {
+    void testCheckBinomial3() {
         // OK (no exception thrown)
         BinomialCoefficient.checkBinomial(5, 4);
     }

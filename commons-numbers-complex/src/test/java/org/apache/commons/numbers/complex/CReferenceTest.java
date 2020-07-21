@@ -36,7 +36,7 @@ import java.util.function.UnaryOperator;
  * @see <a href="http://www.open-std.org/JTC1/SC22/WG14/www/standards">
  *    ISO/IEC 9899 - Programming languages - C</a>
  */
-public class CReferenceTest {
+class CReferenceTest {
     /** Positive zero bits. */
     private static final long POSITIVE_ZERO_DOUBLE_BITS = Double.doubleToRawLongBits(+0.0);
     /** Negative zero bits. */
@@ -266,72 +266,72 @@ public class CReferenceTest {
     }
 
     @Test
-    public void testAcos() {
+    void testAcos() {
         assertOperation("acos", Complex::acos, 2);
     }
 
     @Test
-    public void testAcosh() {
+    void testAcosh() {
         assertOperation("acosh", Complex::acosh, 2);
     }
 
     @Test
-    public void testAsinh() {
+    void testAsinh() {
         // Odd function: negative real cases defined by positive real cases
         assertOperation("asinh", Complex::asinh, 3);
     }
 
     @Test
-    public void testAtanh() {
+    void testAtanh() {
         // Odd function: negative real cases defined by positive real cases
         assertOperation("atanh", Complex::atanh, 1);
     }
 
     @Test
-    public void testCosh() {
+    void testCosh() {
         // Even function: negative real cases defined by positive real cases
         assertOperation("cosh", Complex::cosh, 2);
     }
 
     @Test
-    public void testSinh() {
+    void testSinh() {
         // Odd function: negative real cases defined by positive real cases
         assertOperation("sinh", Complex::sinh, 2);
     }
 
     @Test
-    public void testTanh() {
+    void testTanh() {
         // Odd function: negative real cases defined by positive real cases
         assertOperation("tanh", Complex::tanh, 2);
     }
 
     @Test
-    public void testExp() {
+    void testExp() {
         assertOperation("exp", Complex::exp, 2);
     }
 
     @Test
-    public void testLog() {
+    void testLog() {
         assertOperation("log", Complex::log, 1);
     }
 
     @Test
-    public void testSqrt() {
+    void testSqrt() {
         assertOperation("sqrt", Complex::sqrt, 1);
     }
 
     @Test
-    public void testMultiply() {
+    void testMultiply() {
         assertBiOperation("multiply", Complex::multiply, 0);
     }
 
     @Test
-    public void testDivide() {
+    void testDivide() {
         assertBiOperation("divide", Complex::divide, 7);
     }
 
     @Test
-    public void testPowComplex() {
+    void testPowComplex() {
         assertBiOperation("pow", Complex::pow, 9);
     }
 }

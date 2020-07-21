@@ -22,51 +22,51 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the {@link SafeNorm} class.
  */
-public class SafeNormTest {
+class SafeNormTest {
 
     @Test
-    public void testTiny() {
+    void testTiny() {
         final double s = 1e-320;
         final double[] v = new double[] {s, s};
         Assertions.assertEquals(Math.sqrt(2) * s, SafeNorm.value(v));
     }
 
     @Test
-    public void testBig() {
+    void testBig() {
         final double s = 1e300;
         final double[] v = new double[] {s, s};
         Assertions.assertEquals(Math.sqrt(2) * s, SafeNorm.value(v));
     }
 
     @Test
-    public void testOne3D() {
+    void testOne3D() {
         final double s = 1;
         final double[] v = new double[] {s, s, s};
         Assertions.assertEquals(Math.sqrt(3), SafeNorm.value(v));
     }
 
     @Test
-    public void testUnit3D() {
-        Assertions.assertEquals(1, SafeNorm.value(new double[] {1, 0, 0}), 0d);
-        Assertions.assertEquals(1, SafeNorm.value(new double[] {0, 1, 0}), 0d);
-        Assertions.assertEquals(1, SafeNorm.value(new double[] {0, 0, 1}), 0d);
+    void testUnit3D() {
+        Assertions.assertEquals(1, SafeNorm.value(new double[] {1, 0, 0}));
+        Assertions.assertEquals(1, SafeNorm.value(new double[] {0, 1, 0}));
+        Assertions.assertEquals(1, SafeNorm.value(new double[] {0, 0, 1}));
     }
 
     @Test
-    public void testSimple() {
+    void testSimple() {
         final double[] v = new double[] {-0.9, 8.7, -6.5, -4.3, -2.1, 0, 1.2, 3.4, -5.6, 7.8, 9.0};
         final double expected = direct(v);
         Assertions.assertEquals(expected, SafeNorm.value(v));
     }
 
     @Test
-    public void testZero() {
+    void testZero() {
         final double[] v = new double[] {0, 0, 0, 0, 0};
         Assertions.assertEquals(0d, SafeNorm.value(v));
     }
 
     @Test
-    public void testTinyAndSmallNormal() {
+    void testTinyAndSmallNormal() {
         // Ensure the sum of the squared values for 'normal' values (1e-19*1e-19)
         // is less than largest tiny value (1e-20)
         final double[] v = new double[] {1e-20, 1e-19};

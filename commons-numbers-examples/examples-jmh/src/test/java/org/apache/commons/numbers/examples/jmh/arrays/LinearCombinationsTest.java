@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 /**
  * Test each implementation of the LinearCombination interface.
  */
-public class LinearCombinationsTest {
+class LinearCombinationsTest {
     /** Double.MIN_VALUE as a BigDecimal. Use string constructor to truncate precision to 4.9e-324. */
     private static final BigDecimal MIN = BigDecimal.valueOf(Double.MIN_VALUE);
 
@@ -66,7 +66,7 @@ public class LinearCombinationsTest {
 
     @ParameterizedTest
     @MethodSource("provideLinearCombination")
-    public void testSingleElementArray(ND fun) {
+    void testSingleElementArray(ND fun) {
         final double[] a = {1.23456789};
         final double[] b = {98765432.1};
 
@@ -75,7 +75,7 @@ public class LinearCombinationsTest {
 
     @ParameterizedTest
     @MethodSource("provideLinearCombination")
-    public void testTwoSums(ND fun) {
+    void testTwoSums(ND fun) {
         final BigFraction[] aF = new BigFraction[] {
             BigFraction.of(-1321008684645961L, 268435456L),
             BigFraction.of(-5774608829631843L, 268435456L),
@@ -117,7 +117,7 @@ public class LinearCombinationsTest {
 
     @ParameterizedTest
     @MethodSource("provideLinearCombination")
-    public void testHuge(ND fun) {
+    void testHuge(ND fun) {
         final int scale = 971;
         final double[] a = new double[] {
             -1321008684645961.0 / 268435456.0,
@@ -152,7 +152,7 @@ public class LinearCombinationsTest {
 
     @ParameterizedTest
     @MethodSource("provideLinearCombination")
-    public void testArrayVsInline(ND fun) {
+    void testArrayVsInline(ND fun) {
         // Assume the instance implements the inline functions
         final TwoD fun2 = (TwoD) fun;
         final ThreeD fun3 = (ThreeD) fun;
@@ -195,7 +195,7 @@ public class LinearCombinationsTest {
 
     @ParameterizedTest
     @MethodSource("provideLinearCombination")
-    public void testNonFinite(ND fun) {
+    void testNonFinite(ND fun) {
         final double[][] a = new double[][] {
             {1, 2, 3, 4},
             {1, Double.POSITIVE_INFINITY, 3, 4},
@@ -359,7 +359,7 @@ public class LinearCombinationsTest {
      * greater in magnitude than the the original number due to round-off in the split.
      */
     @Test
-    public void testOverflow() {
+    void testOverflow() {
         // Create a simple dot product that is different in high precision and has
         // values that create a high part above the original number. This can be done using
         // a mantissa with almost all bits set to 1.
@@ -423,7 +423,7 @@ public class LinearCombinationsTest {
      * This case is derived from computations on a complex cis number.
      */
     @Test
-    public void testCisNumber() {
+    void testCisNumber() {
         final double theta = 5.992112452678286E-7;
         final double x = Math.cos(theta);
         final double y = Math.sin(theta);
@@ -439,7 +439,7 @@ public class LinearCombinationsTest {
      * round-off sum in single or 2-fold precision.
      */
     @Test
-    public void testSumZero() {
+    void testSumZero() {
         // Fixed seed for stability
         final UniformRandomProvider rng = RandomSource.create(RandomSource.XO_RO_SHI_RO_128_PP, 876543L);
         final int size = 10;
@@ -569,7 +569,7 @@ public class LinearCombinationsTest {
      * Test the clip method does what it specifies.
      */
     @Test
-    public void testClip() {
+    void testClip() {
         // min value is not affected
         Assertions.assertEquals(Double.MIN_VALUE, clip(MIN).doubleValue());
         Assertions.assertEquals(-Double.MIN_VALUE, clip(MIN.negate()).doubleValue());

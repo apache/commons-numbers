@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link Gamma}.
  */
-public class GammaTest {
+class GammaTest {
     /**
      * Reference data for the {@link Gamma#value(double)} function. This
      * data was generated with the following <a
@@ -507,7 +507,7 @@ public class GammaTest {
     };
 
     @Test
-    public void testGamma() {
+    void testGamma() {
         for (int i = 0; i < GAMMA_REF.length; i++) {
             final double[] ref = GAMMA_REF[i];
             final double x = ref[0];
@@ -532,14 +532,14 @@ public class GammaTest {
     }
 
     @Test
-    public void testGammaNegativeInteger() {
+    void testGammaNegativeInteger() {
         for (int i = -100; i <= 0; i++) {
             Assertions.assertTrue(Double.isNaN(Gamma.value(i)), Integer.toString(i));
         }
     }
 
     @Test
-    public void testGammaNegativeDouble() {
+    void testGammaNegativeDouble() {
         // check that the gamma function properly switches sign
         // see: https://en.wikipedia.org/wiki/Gamma_function
 

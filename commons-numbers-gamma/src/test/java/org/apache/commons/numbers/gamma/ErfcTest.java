@@ -22,13 +22,13 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link Erfc}.
  */
-public class ErfcTest {
+class ErfcTest {
     /**
      * Compare erfc against reference values computed using GCC 4.2.1
      * (Apple OSX packaged version) erfcl (extended precision erfc).
      */
     @Test
-    public void testErfcGnu() {
+    void testErfcGnu() {
         final double tol = 1e-15;
         final double[] gnuValues = new double[] {
             2,  2,  2,  2,  2,
@@ -56,7 +56,7 @@ public class ErfcTest {
      * http//www.jstatsoft.org/v11/a05/paper
      */
     @Test
-    public void testErfcMaple() {
+    void testErfcMaple() {
         double[][] ref = new double[][] {
             {0.1, 4.60172162722971e-01},
             {1.2, 1.15069670221708e-01},

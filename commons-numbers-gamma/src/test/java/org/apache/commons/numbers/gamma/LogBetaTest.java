@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link LogBeta}.
  */
-public class LogBetaTest {
+class LogBetaTest {
     private static final double[][] LOG_BETA_REF = {
         {0.125, 0.125, 2.750814190409515},
         {0.125, 0.25, 2.444366899981226},
@@ -534,7 +534,7 @@ public class LogBetaTest {
     };
 
     @Test
-    public void testLogBeta() {
+    void testLogBeta() {
         final int ulps = 3;
         for (int i = 0; i < LOG_BETA_REF.length; i++) {
             final double[] ref = LOG_BETA_REF[i];
@@ -550,37 +550,37 @@ public class LogBetaTest {
     }
 
     @Test
-    public void testLogBetaNanPositive() {
+    void testLogBetaNanPositive() {
         testLogBeta(Double.NaN, Double.NaN, 2);
     }
 
     @Test
-    public void testLogBetaPositiveNan() {
+    void testLogBetaPositiveNan() {
         testLogBeta(Double.NaN, 1, Double.NaN);
     }
 
     @Test
-    public void testLogBetaNegativePositive() {
+    void testLogBetaNegativePositive() {
         testLogBeta(Double.NaN, -1, 2);
     }
 
     @Test
-    public void testLogBetaPositiveNegative() {
+    void testLogBetaPositiveNegative() {
         testLogBeta(Double.NaN, 1, -2);
     }
 
     @Test
-    public void testLogBetaZeroPositive() {
+    void testLogBetaZeroPositive() {
         testLogBeta(Double.NaN, 0, 2);
     }
 
     @Test
-    public void testLogBetaPositiveZero() {
+    void testLogBetaPositiveZero() {
         testLogBeta(Double.NaN, 1, 0);
     }
 
     @Test
-    public void testLogBetaPositivePositive() {
+    void testLogBetaPositivePositive() {
         testLogBeta(-0.693147180559945, 1, 2);
     }
 
@@ -616,7 +616,7 @@ public class LogBetaTest {
     }
 
     @Test
-    public void testLogGammaMinusLogGammaSum() {
+    void testLogGammaMinusLogGammaSum() {
         final int ulps = 4;
         for (int i = 0; i < LOG_GAMMA_MINUS_LOG_GAMMA_SUM_REF.length; i++) {
             final double[] ref = LOG_GAMMA_MINUS_LOG_GAMMA_SUM_REF[i];
@@ -632,14 +632,14 @@ public class LogBetaTest {
     }
 
     @Test
-    public void testLogGammaMinusLogGammaSumPrecondition1() {
+    void testLogGammaMinusLogGammaSumPrecondition1() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> logGammaMinusLogGammaSum(-1, 8)
         );
     }
 
     @Test
-    public void testLogGammaMinusLogGammaSumPrecondition2() {
+    void testLogGammaMinusLogGammaSumPrecondition2() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> logGammaMinusLogGammaSum(1, 7)
         );
@@ -671,7 +671,7 @@ public class LogBetaTest {
     }
 
     @Test
-    public void testSumDeltaMinusDeltaSum() {
+    void testSumDeltaMinusDeltaSum() {
         final int ulps = 3;
         for (int i = 0; i < SUM_DELTA_MINUS_DELTA_SUM_REF.length; i++) {
             final double[] ref = SUM_DELTA_MINUS_DELTA_SUM_REF[i];
@@ -687,14 +687,14 @@ public class LogBetaTest {
     }
 
     @Test
-    public void testSumDeltaMinusDeltaSumPrecondition1() {
+    void testSumDeltaMinusDeltaSumPrecondition1() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> sumDeltaMinusDeltaSum(9, 10)
         );
     }
 
     @Test
-    public void testSumDeltaMinusDeltaSumPrecondition2() {
+    void testSumDeltaMinusDeltaSumPrecondition2() {
         Assertions.assertThrows(IllegalArgumentException.class,
             () -> sumDeltaMinusDeltaSum(10, 9)
         );

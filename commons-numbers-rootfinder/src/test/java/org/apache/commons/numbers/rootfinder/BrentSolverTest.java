@@ -24,13 +24,13 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the {@link BrentSolver} class.
  */
-public class BrentSolverTest {
+class BrentSolverTest {
     private static final double DEFAULT_ABSOLUTE_ACCURACY = 1e-6;
     private static final double DEFAULT_RELATIVE_ACCURACY = 1e-14;
     private static final double DEFAULT_FUNCTION_ACCURACY = 1e-15;
 
     @Test
-    public void testSinZero() {
+    void testSinZero() {
         // The sinus function is behaved well around the root at pi. The second
         // order derivative is zero, which means linar approximating methods will
         // still converge quadratically.
@@ -56,7 +56,7 @@ public class BrentSolverTest {
     }
 
     @Test
-    public void testQuinticZero() {
+    void testQuinticZero() {
         // The quintic function has zeros at 0, +-0.5 and +-1.
         // Around the root of 0 the function is well behaved, with a second derivative
         // of zero a 0.
@@ -140,34 +140,27 @@ public class BrentSolverTest {
     }
 
     @Test
-    public void testTooManyCalls() {
+    void testTooManyCalls() {
         final DoubleUnaryOperator func = new QuinticFunction();
         final BrentSolver solver = new BrentSolver(DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_RELATIVE_ACCURACY,
                                                    DEFAULT_FUNCTION_ACCURACY);
 
-        double result;
-        MonitoredFunction f;
-
         // Very large bracket around 1 for testing fast growth behavior.
-        f = new MonitoredFunction(func);
-        result = solver.findRoot(f, 0.85, 5);
+        final MonitoredFunction f = new MonitoredFunction(func);
+        final double result = solver.findRoot(f, 0.85, 5);
         Assertions.assertEquals(1.0, result, DEFAULT_ABSOLUTE_ACCURACY);
         Assertions.assertTrue(f.getCallsCount() <= 15);
 
-        try {
-            f = new MonitoredFunction(func, 10);
-            result = solver.findRoot(f, 0.85, 5);
-            Assertions.fail("Expected too many calls condition");
-        } catch (IllegalStateException ex) {
-            // Expected.
-            // Ensure expected error condition.
-            Assertions.assertNotEquals(-1, ex.getMessage().indexOf("too many calls"));
-        }
+        final MonitoredFunction f2 = new MonitoredFunction(func, 10);
+        final IllegalStateException ex = Assertions.assertThrows(IllegalStateException.class,
+            () -> solver.findRoot(f2, 0.85, 5), "Expected too many calls condition");
+        // Ensure expected error condition.
+        Assertions.assertNotEquals(-1, ex.getMessage().indexOf("too many calls"));
     }
 
     @Test
-    public void testRootEndpoints() {
+    void testRootEndpoints() {
         final DoubleUnaryOperator f = new Sin();
         final BrentSolver solver = new BrentSolver(DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_RELATIVE_ACCURACY,
@@ -188,7 +181,7 @@ public class BrentSolverTest {
     }
 
     @Test
-    public void testBadEndpoints() {
+    void testBadEndpoints() {
         final DoubleUnaryOperator f = new Sin();
         final BrentSolver solver = new BrentSolver(DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_RELATIVE_ACCURACY,
@@ -217,7 +210,7 @@ public class BrentSolverTest {
     }
 
     @Test
-    public void testBadInitialGuess() {
+    void testBadInitialGuess() {
         final DoubleUnaryOperator func = new QuinticFunction();
         final BrentSolver solver = new BrentSolver(DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_RELATIVE_ACCURACY,
@@ -234,7 +227,7 @@ public class BrentSolverTest {
     }
 
     @Test
-    public void testInitialGuess() {
+    void testInitialGuess() {
         final DoubleUnaryOperator func = new QuinticFunction();
         final BrentSolver solver = new BrentSolver(DEFAULT_ABSOLUTE_ACCURACY,
                                                    DEFAULT_RELATIVE_ACCURACY,

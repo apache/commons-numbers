@@ -22,72 +22,72 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link RegularizedBeta}.
  */
-public class RegularizedBetaTest {
+class RegularizedBetaTest {
     @Test
-    public void testRegularizedBetaNanPositivePositive() {
+    void testRegularizedBetaNanPositivePositive() {
         testRegularizedBeta(Double.NaN, Double.NaN, 1.0, 1.0);
     }
 
     @Test
-    public void testRegularizedBetaPositiveNanPositive() {
+    void testRegularizedBetaPositiveNanPositive() {
         testRegularizedBeta(Double.NaN, 0.5, Double.NaN, 1.0);
     }
 
     @Test
-    public void testRegularizedBetaPositivePositiveNan() {
+    void testRegularizedBetaPositivePositiveNan() {
         testRegularizedBeta(Double.NaN, 0.5, 1.0, Double.NaN);
     }
 
     @Test
-    public void testRegularizedBetaNegativePositivePositive() {
+    void testRegularizedBetaNegativePositivePositive() {
         testRegularizedBeta(Double.NaN, -0.5, 1.0, 2.0);
     }
 
     @Test
-    public void testRegularizedBetaPositiveNegativePositive() {
+    void testRegularizedBetaPositiveNegativePositive() {
         testRegularizedBeta(Double.NaN, 0.5, -1.0, 2.0);
     }
 
     @Test
-    public void testRegularizedBetaPositivePositiveNegative() {
+    void testRegularizedBetaPositivePositiveNegative() {
         testRegularizedBeta(Double.NaN, 0.5, 1.0, -2.0);
     }
 
     @Test
-    public void testRegularizedBetaZeroPositivePositive() {
+    void testRegularizedBetaZeroPositivePositive() {
         testRegularizedBeta(0.0, 0.0, 1.0, 2.0);
     }
 
     @Test
-    public void testRegularizedBetaPositiveZeroPositive() {
+    void testRegularizedBetaPositiveZeroPositive() {
         testRegularizedBeta(Double.NaN, 0.5, 0.0, 2.0);
     }
 
     @Test
-    public void testRegularizedBetaPositivePositiveZero() {
+    void testRegularizedBetaPositivePositiveZero() {
         testRegularizedBeta(Double.NaN, 0.5, 1.0, 0.0);
     }
 
 
     @Test
-    public void testRegularizedBetaAboveOnePositivePositive() {
+    void testRegularizedBetaAboveOnePositivePositive() {
         testRegularizedBeta(Double.NaN, 1.5, 1.0, 2.0);
     }
 
     @Test
-    public void testRegularizedBetaPositivePositivePositive() {
+    void testRegularizedBetaPositivePositivePositive() {
         testRegularizedBeta(0.75, 0.5, 1.0, 2.0);
     }
 
     @Test
-    public void testRegularizedBetaTinyArgument() {
+    void testRegularizedBetaTinyArgument() {
         double actual = RegularizedBeta.value(1e-17, 1.0, 1e12);
         // This value is from R: pbeta(1e-17,1,1e12)
         Assertions.assertEquals(9.999950000166648e-6, actual, 1e-16);
     }
 
     @Test
-    public void testMath1067() {
+    void testMath1067() {
         final double x = 0.22580645161290325;
         final double a = 64.33333333333334;
         final double b = 223;

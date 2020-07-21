@@ -22,19 +22,19 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the {@link CosAngle} class.
  */
-public class CosAngleTest {
+class CosAngleTest {
 
     @Test
-    public void testCosAngle2D() {
+    void testCosAngle2D() {
         double expected;
 
         final double[] v1 = {1, 0};
         expected = 1;
-        Assertions.assertEquals(expected, CosAngle.value(v1, v1), 0d);
+        Assertions.assertEquals(expected, CosAngle.value(v1, v1));
 
         final double[] v2 = {0, 1};
         expected = 0;
-        Assertions.assertEquals(expected, CosAngle.value(v1, v2), 0d);
+        Assertions.assertEquals(expected, CosAngle.value(v1, v2));
 
         final double[] v3 = {7, 7};
         expected = Math.sqrt(2) / 2;
@@ -43,15 +43,15 @@ public class CosAngleTest {
 
         final double[] v4 = {-5, 0};
         expected = -1;
-        Assertions.assertEquals(expected, CosAngle.value(v1, v4), 0);
+        Assertions.assertEquals(expected, CosAngle.value(v1, v4));
 
         final double[] v5 = {-100, 100};
         expected = 0;
-        Assertions.assertEquals(expected, CosAngle.value(v3, v5), 0);
+        Assertions.assertEquals(expected, CosAngle.value(v3, v5));
     }
 
     @Test
-    public void testCosAngle3D() {
+    void testCosAngle3D() {
         double expected;
 
         final double[] v1 = {1, 1, 0};
@@ -64,7 +64,7 @@ public class CosAngleTest {
     }
 
     @Test
-    public void testCosAngleExtreme() {
+    void testCosAngleExtreme() {
         double expected;
 
         final double tiny = 1e-200;
@@ -80,7 +80,7 @@ public class CosAngleTest {
     }
 
     @Test
-    public void testCosAngle_dimensionMismatch() {
+    void testCosAngle_dimensionMismatch() {
         final double[] a = {1.0};
         final double[] b = {1.0, 2.0};
 
