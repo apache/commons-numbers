@@ -47,10 +47,16 @@ public final class Precision {
     public static final double SAFE_MIN;
 
     /** Exponent offset in IEEE754 representation. */
-    private static final long EXPONENT_OFFSET = 1023L;
+    private static final int EXPONENT_OFFSET = 1023;
+    /** Exponent shift in IEEE754 representation. */
+    private static final int EXPONENT_SHIFT = 52;
 
     /** Offset to order signed double numbers lexicographically. */
     private static final long SGN_MASK = 0x8000000000000000L;
+    /** bit mask for IEEE double exponent **/
+    private static final long EXPONENT_MASK = 0x7ff0000000000000L;
+    /** bit mask for IEEE double mantissa and sign **/
+    private static final long SIGNED_FRACTION_MASK = 0x800fffffffffffffL;
     /** Offset to order signed double numbers lexicographically. */
     private static final int SGN_MASK_FLOAT = 0x80000000;
     /** Positive zero. */
@@ -70,14 +76,14 @@ public final class Precision {
          *  However, OpenJDK (Sparc Solaris) cannot handle such small
          *  constants: MATH-721
          */
-        EPSILON = Double.longBitsToDouble((EXPONENT_OFFSET - 53L) << 52);
+        EPSILON = Double.longBitsToDouble((EXPONENT_OFFSET - 53L) << EXPONENT_SHIFT);
 
         /*
          * This was previously expressed as = 0x1.0p-1022
          * However, OpenJDK (Sparc Solaris) cannot handle such small
          * constants: MATH-721
          */
-        SAFE_MIN = Double.longBitsToDouble((EXPONENT_OFFSET - 1022L) << 52);
+        SAFE_MIN = Double.longBitsToDouble((EXPONENT_OFFSET - 1022L) << EXPONENT_SHIFT);
     }
 
     /**
@@ -499,5 +505,42 @@ public final class Precision {
     public static double representableDelta(double x,
                                             double delta) {
         return x + delta - x;
+    }
+
+    /**
+     * Extract the raw exponent of a double. This value is shifted by an offset (1023)
+     * @param d value to extract the exponent from
+     * @return the IEEE exponent in the EXPONENT_MASK bits, as an integer
+     */
+    public static int getRawExponent(double d) {
+        long bits = Double.doubleToLongBits(d);
+        return (int) ((bits & EXPONENT_MASK) >>> EXPONENT_SHIFT);
+    }
+
+    /**
+     * Extract the exponent of a double. This is a fast way to compute floor(log2(d)).
+     * @param d value to extract the exponent from
+     * @return the IEEE exponent in the EXPONENT_MASK bits minus the offset, as an integer
+     */
+    public static int getExponent(double d) {
+        return getRawExponent(d) - EXPONENT_OFFSET;
+    }
+
+    /**
+     * Change the exponent of the input d by the value exp.
+     * This can be used to multiply or divide d by a power of 2 without touching
+     * the mantissa bits. Output is undefined for special values such as Infinity or NaN
+     * @param d value to change
+     * @param exp exponent to add to the existing exponent (may be negative)
+     * @return a double with the same sign/mantissa bits as d, but exponent changed by exp
+     */
+    public static double updateExponent(double d, int exp) {
+        if (d == 0 ||
+                exp == 0) {
+            return d;
+        }
+        long bits = Double.doubleToLongBits(d);
+        return Double.longBitsToDouble((bits & SIGNED_FRACTION_MASK) |
+                ((((bits & EXPONENT_MASK) >>> EXPONENT_SHIFT) + exp) << EXPONENT_SHIFT));
     }
 }

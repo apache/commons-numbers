@@ -501,4 +501,21 @@ class PrecisionTest {
         Assertions.assertFalse(Precision.equals(2.0f, -2.0f, 1));
         Assertions.assertTrue(Precision.equals(0.0f, -0.0f, 0));
     }
+
+    @Test
+    void testExponentFunctions() {
+        Assertions.assertEquals(0, Precision.getExponent(1.0));
+        Assertions.assertEquals(1, Precision.getExponent(2.0));
+        Assertions.assertEquals(-1, Precision.getExponent(0.5));
+        Assertions.assertEquals(55, Precision.getExponent(1L << 55));
+
+        Assertions.assertEquals(2.0, Precision.updateExponent(1.0, 1));
+        Assertions.assertEquals(1.0, Precision.updateExponent(2.0, -1));
+
+        double d = 10.0/3.0; // something with all fraction bits
+        Assertions.assertEquals(Double.doubleToLongBits(d),
+                Double.doubleToLongBits(Precision.updateExponent(Precision.updateExponent(d, 23), -23)));
+
+        Assertions.assertEquals(2047, Precision.getRawExponent(Double.POSITIVE_INFINITY));
+    }
 }
