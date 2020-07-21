@@ -486,21 +486,18 @@ public final class Precision {
     }
 
     /**
-     * Computes a number {@code delta} close to {@code originalDelta} with
-     * the property that <pre><code>
-     *   x + delta - x
-     * </code></pre>
-     * is exactly machine-representable.
-     * This is useful when computing numerical derivatives, in order to reduce
-     * roundoff errors.
+     * Computes a number close to {@code delta} with the property that
+     * {@code (x + delta - x)} is exactly machine-representable.
+     * This is useful when computing numerical derivatives, in order to
+     * reduce roundoff errors.
      *
      * @param x Value.
-     * @param originalDelta Offset value.
-     * @return a number {@code delta} so that {@code x + delta} and {@code x}
-     * differ by a representable floating number.
+     * @param delta Offset value.
+     * @return the machine-representable floating number closest to the
+     * difference between {@code x + delta} and {@code x}.
      */
     public static double representableDelta(double x,
-                                            double originalDelta) {
-        return x + originalDelta - x;
+                                            double delta) {
+        return x + delta - x;
     }
 }
