@@ -47,6 +47,7 @@ Apache Commons Numbers
 [![Coverage Status](https://coveralls.io/repos/apache/commons-numbers/badge.svg)](https://coveralls.io/r/apache/commons-numbers)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=commons-numbers&metric=alert_status)](https://sonarcloud.io/dashboard?id=commons-numbers)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-parent/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.commons/commons-numbers-parent/)
+[![Code Quality:Java](https://img.shields.io/lgtm/grade/java/g/apache/commons-numbers.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/apache/commons-numbers/context:java)
 
 The Apache Commons Numbers project provides number types and utilities.
 
