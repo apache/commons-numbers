@@ -778,4 +778,15 @@ class BigFractionTest {
                                                    fractionA.getDenominator().multiply(fractionB.getDenominator()));
         Assertions.assertEquals(correctResult, errorResult);
     }
+
+    @Test
+    void testNumbers150() {
+        // zero to negative powers should throw an exception
+        Assertions.assertThrows(ArithmeticException.class, () -> BigFraction.ZERO.pow(-1));
+        Assertions.assertThrows(ArithmeticException.class, () -> BigFraction.ZERO.pow(Integer.MIN_VALUE));
+
+        // shall overflow
+        Assertions.assertThrows(ArithmeticException.class, () -> BigFraction.of(2).pow(Integer.MIN_VALUE));
+        Assertions.assertThrows(ArithmeticException.class, () -> BigFraction.of(1, 2).pow(Integer.MIN_VALUE));
+    }
 }

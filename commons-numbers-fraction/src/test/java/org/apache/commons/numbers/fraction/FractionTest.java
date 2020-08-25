@@ -622,6 +622,17 @@ class FractionTest {
         assertFraction(1, Integer.MAX_VALUE, b.divide(2));
     }
 
+    @Test
+    void testNumbers150() {
+        // zero to negative powers should throw an exception
+        Assertions.assertThrows(ArithmeticException.class, () -> Fraction.ZERO.pow(-1));
+        Assertions.assertThrows(ArithmeticException.class, () -> Fraction.ZERO.pow(Integer.MIN_VALUE));
+
+        // shall overflow
+        Assertions.assertThrows(ArithmeticException.class, () -> Fraction.of(2).pow(Integer.MIN_VALUE));
+        Assertions.assertThrows(ArithmeticException.class, () -> Fraction.of(1, 2).pow(Integer.MIN_VALUE));
+    }
+
     /**
      * Defines test cases that cause overflow in {@link Fraction#add(Fraction)}.
      * @return a list of test cases
