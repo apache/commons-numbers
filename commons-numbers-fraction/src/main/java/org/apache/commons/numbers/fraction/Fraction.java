@@ -56,9 +56,6 @@ public final class Fraction
     /** The overflow limit for conversion from a double (2^31). */
     private static final long OVERFLOW = 1L << 31;
 
-    /** The denominator must not be zero String. */
-    static final String STRING_THE_DENOMINATOR_MUST_NOT_BE_ZERO = "The denominator must not be zero";
-
     /** The numerator of this fraction reduced to lowest terms. */
     private final int numerator;
 
@@ -786,7 +783,7 @@ public final class Fraction
         }
         if (isZero()) {
             if (exponent < 0) {
-                throw new ArithmeticException(STRING_THE_DENOMINATOR_MUST_NOT_BE_ZERO);
+                throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
             } else {
                 return ZERO;
             }

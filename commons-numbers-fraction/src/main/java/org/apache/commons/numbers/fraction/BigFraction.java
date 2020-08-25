@@ -23,7 +23,6 @@ import java.math.RoundingMode;
 import java.util.Objects;
 import org.apache.commons.numbers.core.ArithmeticUtils;
 import org.apache.commons.numbers.core.NativeOperators;
-import static org.apache.commons.numbers.fraction.Fraction.STRING_THE_DENOMINATOR_MUST_NOT_BE_ZERO;
 
 /**
  * Representation of a rational number using arbitrary precision.
@@ -976,7 +975,7 @@ public final class BigFraction
         }
         if (isZero()) {
             if (exponent < 0) {
-                throw new ArithmeticException(STRING_THE_DENOMINATOR_MUST_NOT_BE_ZERO);
+                throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
             } else {
                 return ZERO;
             }
