@@ -24,8 +24,6 @@ import org.apache.commons.numbers.fraction.CommonTestCases.BinaryIntOperatorTest
 import org.apache.commons.numbers.fraction.CommonTestCases.BinaryOperatorTestCase;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests for {@link Fraction}.
@@ -627,15 +625,15 @@ class FractionTest {
     @Test
     void testNumbers150(){
         // zero to negative powers should throw an exception
-        assertThrows(ArithmeticException.class, () -> Fraction.ZERO.pow(-1));
-        assertThrows(ArithmeticException.class, () -> Fraction.ZERO.pow(Integer.MIN_VALUE));
+        Assertions.assertThrows(ArithmeticException.class, () -> Fraction.ZERO.pow(-1));
+        Assertions.assertThrows(ArithmeticException.class, () -> Fraction.ZERO.pow(Integer.MIN_VALUE));
 
         // one to any power is still one.
         Fraction f = Fraction.ONE.pow(Integer.MIN_VALUE);
-        assertEquals(f, Fraction.ONE);
+        Assertions.assertEquals(f, Fraction.ONE);
 
         // shall overflow
-        assertThrows(ArithmeticException.class, ()-> Fraction.of(2).pow(Integer.MIN_VALUE));
+        Assertions.assertThrows(ArithmeticException.class, ()-> Fraction.of(2).pow(Integer.MIN_VALUE));
     }
 
     /**
