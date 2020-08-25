@@ -987,11 +987,8 @@ public final class BigFraction
         }
         if (exponent == Integer.MIN_VALUE) {
             // MIN_VALUE can't be negated
-            final int temp = exponent / 2;
-            final BigInteger newDenominator = denominator.pow(-temp);
-            final BigInteger newNumerator = numerator.pow(-temp);
-            return new BigFraction(newDenominator.multiply(newDenominator),
-                                   newNumerator.multiply(newNumerator));
+            return new BigFraction(denominator.pow(Integer.MAX_VALUE).multiply(denominator),
+                                   numerator.pow(Integer.MAX_VALUE).multiply(numerator));
         }
         // Note: Raise the BigIntegers to the power and then reduce.
         // The supported range for BigInteger is currently

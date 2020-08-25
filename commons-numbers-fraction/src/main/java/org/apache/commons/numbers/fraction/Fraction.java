@@ -795,6 +795,7 @@ public final class Fraction
             return this.reciprocal();
         }
         if (exponent == Integer.MIN_VALUE) {
+            // MIN_VALUE can't be negated
             return new Fraction(ArithmeticUtils.pow(denominator, Integer.MAX_VALUE) * denominator,
                                 ArithmeticUtils.pow(numerator, Integer.MAX_VALUE) * numerator);
         }
