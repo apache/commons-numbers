@@ -976,9 +976,8 @@ public final class BigFraction
         if (isZero()) {
             if (exponent < 0) {
                 throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
-            } else {
-                return ZERO;
             }
+            return ZERO;
         }
         if (exponent > 0) {
             return new BigFraction(ArithmeticUtils.pow(this.numerator, exponent),

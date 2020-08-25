@@ -784,9 +784,8 @@ public final class Fraction
         if (isZero()) {
             if (exponent < 0) {
                 throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
-            } else {
-                return ZERO;
             }
+            return ZERO;
         }
         if (exponent > 0) {
             return new Fraction(ArithmeticUtils.pow(this.numerator, exponent),
