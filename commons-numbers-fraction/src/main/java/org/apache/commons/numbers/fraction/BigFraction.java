@@ -21,7 +21,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.Objects;
+import org.apache.commons.numbers.core.ArithmeticUtils;
 import org.apache.commons.numbers.core.NativeOperators;
+import static org.apache.commons.numbers.fraction.Fraction.STRING_THE_DENOMINATOR_MUST_NOT_BE_ZERO;
 
 /**
  * Representation of a rational number using arbitrary precision.
@@ -966,23 +968,44 @@ public final class BigFraction
      */
     @Override
     public BigFraction pow(final int exponent) {
+        if (exponent == 1) {
+            return this;
+        }
         if (exponent == 0) {
             return ONE;
         }
         if (isZero()) {
+            // By design BigFraction 0 / 1 is zero when raised to any non-zero power
+            // and 1 / 1 when raised to the power 0.
             return ZERO;
         }
-
+        if (exponent > 0) {
+            return new BigFraction(
+                    ArithmeticUtils.pow(this.numerator, exponent),
+                    ArithmeticUtils.pow(this.denominator, exponent)
+            );
+        }
+        if (exponent == -1) {
+            return this.reciprocal();
+        }
+        if (exponent == Integer.MIN_VALUE) {
+            // MIN_VALUE can't be negated
+            final int temp = exponent >> 1;
+            final BigInteger newDenominator = denominator.pow(-temp);
+            final BigInteger newNumerator = numerator.pow(-temp);
+            return new BigFraction(
+                    newDenominator.multiply(newDenominator),
+                    newNumerator.multiply(newNumerator)
+            );
+        }
         // Note: Raise the BigIntegers to the power and then reduce.
         // The supported range for BigInteger is currently
         // +/-2^(Integer.MAX_VALUE) exclusive thus larger
         // exponents (long, BigInteger) are currently not supported.
-        if (exponent < 0) {
-            return new BigFraction(denominator.pow(-exponent),
-                                   numerator.pow(-exponent));
-        }
-        return new BigFraction(numerator.pow(exponent),
-                               denominator.pow(exponent));
+        return new BigFraction(
+                denominator.pow(-exponent),
+                numerator.pow(-exponent)
+        );
     }
 
     /**

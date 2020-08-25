@@ -56,6 +56,9 @@ public final class Fraction
     /** The overflow limit for conversion from a double (2^31). */
     private static final long OVERFLOW = 1L << 31;
 
+    /** The denominator must not be zero String. */
+    static final String STRING_THE_DENOMINATOR_MUST_NOT_BE_ZERO = "The denominator must not be zero";
+
     /** The numerator of this fraction reduced to lowest terms. */
     private final int numerator;
 
@@ -775,19 +778,36 @@ public final class Fraction
      */
     @Override
     public Fraction pow(final int exponent) {
+        if (exponent == 1) {
+            return this;
+        }
         if (exponent == 0) {
             return ONE;
         }
         if (isZero()) {
+            // By design Fraction 0 / 1 is zero when raised to any non-zero power
+            // and 1 / 1 when raised to the power 0.
             return ZERO;
         }
-
-        if (exponent < 0) {
-            return new Fraction(ArithmeticUtils.pow(denominator, -exponent),
-                                ArithmeticUtils.pow(numerator,   -exponent));
+        if (exponent > 0) {
+            return new Fraction(
+                    ArithmeticUtils.pow(this.numerator, exponent),
+                    ArithmeticUtils.pow(this.denominator, exponent)
+            );
         }
-        return new Fraction(ArithmeticUtils.pow(numerator,   exponent),
-                            ArithmeticUtils.pow(denominator, exponent));
+        if (exponent == -1) {
+            return this.reciprocal();
+        }
+        if (exponent == Integer.MIN_VALUE) {
+            return new Fraction(
+                    ArithmeticUtils.pow(this.denominator, Integer.MAX_VALUE) * this.denominator,
+                    ArithmeticUtils.pow(this.numerator, Integer.MAX_VALUE) * this.numerator
+            );
+        }
+        return new Fraction(
+                ArithmeticUtils.pow(this.denominator, -exponent),
+                ArithmeticUtils.pow(this.numerator, -exponent)
+        );
     }
 
     /**

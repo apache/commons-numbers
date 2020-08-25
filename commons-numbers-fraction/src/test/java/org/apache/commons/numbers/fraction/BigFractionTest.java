@@ -24,6 +24,8 @@ import org.apache.commons.numbers.core.TestUtils;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests for {@link BigFraction}.
@@ -777,5 +779,16 @@ class BigFractionTest {
         final BigFraction correctResult = BigFraction.of(fractionA.getNumerator().multiply(fractionB.getNumerator()),
                                                    fractionA.getDenominator().multiply(fractionB.getDenominator()));
         Assertions.assertEquals(correctResult, errorResult);
+    }
+
+    @Test
+    void testNumbers150(){
+        // zero to negative powers should throw an exception
+        assertThrows(ArithmeticException.class, () -> BigFraction.ZERO.pow(-1));
+        assertThrows(ArithmeticException.class, () -> BigFraction.ZERO.pow(Integer.MIN_VALUE));
+
+        // one to any power is still one.
+        BigFraction f = BigFraction.ONE.pow(Integer.MIN_VALUE);
+        assertEquals(f, BigFraction.ONE);
     }
 }
