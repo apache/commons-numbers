@@ -628,10 +628,6 @@ class FractionTest {
         Assertions.assertThrows(ArithmeticException.class, () -> Fraction.ZERO.pow(-1));
         Assertions.assertThrows(ArithmeticException.class, () -> Fraction.ZERO.pow(Integer.MIN_VALUE));
 
-        // one to any power is still one.
-        Fraction f = Fraction.ONE.pow(Integer.MIN_VALUE);
-        Assertions.assertEquals(f, Fraction.ONE);
-
         // shall overflow
         Assertions.assertThrows(ArithmeticException.class, ()-> Fraction.of(2).pow(Integer.MIN_VALUE));
     }
