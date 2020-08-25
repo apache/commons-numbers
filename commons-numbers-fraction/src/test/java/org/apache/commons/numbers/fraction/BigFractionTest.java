@@ -780,12 +780,12 @@ class BigFractionTest {
     }
 
     @Test
-    void testNumbers150(){
+    void testNumbers150() {
         // zero to negative powers should throw an exception
         Assertions.assertThrows(ArithmeticException.class, () -> BigFraction.ZERO.pow(-1));
         Assertions.assertThrows(ArithmeticException.class, () -> BigFraction.ZERO.pow(Integer.MIN_VALUE));
 
         // shall overflow
-        Assertions.assertThrows(ArithmeticException.class, ()-> Fraction.of(2).pow(Integer.MIN_VALUE));
+        Assertions.assertThrows(ArithmeticException.class, () -> Fraction.of(2).pow(Integer.MIN_VALUE));
     }
 }
