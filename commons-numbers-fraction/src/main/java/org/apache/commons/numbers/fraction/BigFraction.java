@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.Objects;
-import org.apache.commons.numbers.core.ArithmeticUtils;
 import org.apache.commons.numbers.core.NativeOperators;
 
 /**
