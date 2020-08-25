@@ -786,6 +786,7 @@ class BigFractionTest {
         Assertions.assertThrows(ArithmeticException.class, () -> BigFraction.ZERO.pow(Integer.MIN_VALUE));
 
         // shall overflow
-        Assertions.assertThrows(ArithmeticException.class, () -> Fraction.of(2).pow(Integer.MIN_VALUE));
+        Assertions.assertThrows(ArithmeticException.class, () -> BigFraction.of(2).pow(Integer.MIN_VALUE));
+        Assertions.assertThrows(ArithmeticException.class, () -> BigFraction.of(1 , 2).pow(Integer.MIN_VALUE));
     }
 }

@@ -788,18 +788,18 @@ public final class Fraction
             return ZERO;
         }
         if (exponent > 0) {
-            return new Fraction(ArithmeticUtils.pow(this.numerator, exponent),
-                    ArithmeticUtils.pow(this.denominator, exponent));
+            return new Fraction(ArithmeticUtils.pow(numerator, exponent),
+                                ArithmeticUtils.pow(denominator, exponent));
         }
         if (exponent == -1) {
             return this.reciprocal();
         }
         if (exponent == Integer.MIN_VALUE) {
-            return new Fraction(ArithmeticUtils.pow(this.denominator, Integer.MAX_VALUE) * this.denominator,
-                    ArithmeticUtils.pow(this.numerator, Integer.MAX_VALUE) * this.numerator);
+            return new Fraction(ArithmeticUtils.pow(denominator, Integer.MAX_VALUE) * denominator,
+                                ArithmeticUtils.pow(numerator, Integer.MAX_VALUE) * numerator);
         }
-        return new Fraction(ArithmeticUtils.pow(this.denominator, -exponent),
-                ArithmeticUtils.pow(this.numerator, -exponent));
+        return new Fraction(ArithmeticUtils.pow(denominator, -exponent),
+                            ArithmeticUtils.pow(numerator, -exponent));
     }
 
     /**

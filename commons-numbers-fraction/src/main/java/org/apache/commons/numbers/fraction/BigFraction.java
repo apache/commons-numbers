@@ -979,8 +979,8 @@ public final class BigFraction
             return ZERO;
         }
         if (exponent > 0) {
-            return new BigFraction(this.numerator.pow(exponent),
-                    this.denominator.pow(exponent));
+            return new BigFraction(numerator.pow(exponent),
+                                   denominator.pow(exponent));
         }
         if (exponent == -1) {
             return this.reciprocal();
@@ -991,14 +991,14 @@ public final class BigFraction
             final BigInteger newDenominator = denominator.pow(-temp);
             final BigInteger newNumerator = numerator.pow(-temp);
             return new BigFraction(newDenominator.multiply(newDenominator),
-                    newNumerator.multiply(newNumerator));
+                                   newNumerator.multiply(newNumerator));
         }
         // Note: Raise the BigIntegers to the power and then reduce.
         // The supported range for BigInteger is currently
         // +/-2^(Integer.MAX_VALUE) exclusive thus larger
         // exponents (long, BigInteger) are currently not supported.
         return new BigFraction(denominator.pow(-exponent),
-                numerator.pow(-exponent));
+                               numerator.pow(-exponent));
     }
 
     /**
