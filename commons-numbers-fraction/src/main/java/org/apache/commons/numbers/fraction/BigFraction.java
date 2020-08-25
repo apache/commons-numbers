@@ -980,8 +980,8 @@ public final class BigFraction
             return ZERO;
         }
         if (exponent > 0) {
-            return new BigFraction(ArithmeticUtils.pow(this.numerator, exponent),
-                    ArithmeticUtils.pow(this.denominator, exponent));
+            return new BigFraction(this.numerator.pow(exponent),
+                    this.denominator.pow(exponent));
         }
         if (exponent == -1) {
             return this.reciprocal();
