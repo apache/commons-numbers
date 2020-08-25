@@ -975,9 +975,11 @@ public final class BigFraction
             return ONE;
         }
         if (isZero()) {
-            // By design BigFraction 0 / 1 is zero when raised to any non-zero power
-            // and 1 / 1 when raised to the power 0.
-            return ZERO;
+            if (exponent < 0) {
+                throw new ArithmeticException(STRING_THE_DENOMINATOR_MUST_NOT_BE_ZERO);
+            } else {
+                return ZERO;
+            }
         }
         if (exponent > 0) {
             return new BigFraction(

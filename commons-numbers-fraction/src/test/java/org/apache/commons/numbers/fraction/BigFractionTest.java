@@ -790,5 +790,8 @@ class BigFractionTest {
         // one to any power is still one.
         BigFraction f = BigFraction.ONE.pow(Integer.MIN_VALUE);
         assertEquals(f, BigFraction.ONE);
+
+        // shall overflow
+        assertThrows(ArithmeticException.class, ()-> Fraction.of(2).pow(Integer.MIN_VALUE));
     }
 }

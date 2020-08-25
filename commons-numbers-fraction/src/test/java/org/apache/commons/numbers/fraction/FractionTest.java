@@ -633,6 +633,9 @@ class FractionTest {
         // one to any power is still one.
         Fraction f = Fraction.ONE.pow(Integer.MIN_VALUE);
         assertEquals(f, Fraction.ONE);
+
+        // shall overflow
+        assertThrows(ArithmeticException.class, ()-> Fraction.of(2).pow(Integer.MIN_VALUE));
     }
 
     /**
