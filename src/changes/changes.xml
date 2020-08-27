@@ -72,6 +72,9 @@ Apache Commons Numbers 1.0-beta1 contains the following library modules:
         "Fraction/BigFraction": Fixed pow(int) to handle Integer.MIN_VALUE and throw
         ArithmeticException for negative exponents to a fraction of zero.
       </action>
+      <action dev="aherbert" type="update" issue="NUMBERS-151" due-to="Jin Xu">
+        "ArithmeticUtils": Refine pow(int, int) and pow(long, int) for edge cases.
+      </action>
     </release>
 
     <release version="1.0-beta1" date="2020-04-08" description="
