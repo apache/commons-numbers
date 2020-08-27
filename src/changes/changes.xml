@@ -75,6 +75,10 @@ Apache Commons Numbers 1.0-beta1 contains the following library modules:
       <action dev="aherbert" type="update" issue="NUMBERS-151" due-to="Jin Xu">
         "ArithmeticUtils": Refine pow(int, int) and pow(long, int) for edge cases.
       </action>
+      <action dev="aherbert" type="update" issue="NUMBERS-149" due-to="Jin Xu">
+        "Fraction": Port tests from commons-lang Fraction to demonstrate functional compatibility
+        between the lang and numbers implementation of Fraction.
+      </action>
     </release>
 
     <release version="1.0-beta1" date="2020-04-08" description="
