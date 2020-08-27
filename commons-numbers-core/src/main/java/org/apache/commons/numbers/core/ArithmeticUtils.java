@@ -266,6 +266,16 @@ public final class ArithmeticUtils {
     /**
      * Raise an int to an int power.
      *
+     * <p>Special cases:</p>
+     * <ul>
+     *   <li>{@code k^0} returns {@code 1} (including {@code k=0})
+     *   <li>{@code k^1} returns {@code k} (including {@code k=0})
+     *   <li>{@code 0^0} returns {@code 1}
+     *   <li>{@code 0^e} returns {@code 0}
+     *   <li>{@code 1^e} returns {@code 1}
+     *   <li>{@code (-1)^e} returns {@code -1 or 1} if {@code e} is odd or even
+     * </ul>
+     *
      * @param k Number to raise.
      * @param e Exponent (must be positive or zero).
      * @return \( k^e \)
@@ -276,6 +286,22 @@ public final class ArithmeticUtils {
                           final int e) {
         if (e < 0) {
             throw new IllegalArgumentException(NEGATIVE_EXPONENT_1 + e + NEGATIVE_EXPONENT_2);
+        }
+
+        if (k == 0) {
+            return e == 0 ? 1 : 0;
+        }
+
+        if (k == 1) {
+            return 1;
+        }
+
+        if (k == -1) {
+            return (e & 1) == 0 ? 1 : -1;
+        }
+
+        if (e >= 31) {
+            throw new ArithmeticException("integer overflow");
         }
 
         int exp = e;
@@ -300,6 +326,16 @@ public final class ArithmeticUtils {
     /**
      * Raise a long to an int power.
      *
+     * <p>Special cases:</p>
+     * <ul>
+     *   <li>{@code k^0} returns {@code 1} (including {@code k=0})
+     *   <li>{@code k^1} returns {@code k} (including {@code k=0})
+     *   <li>{@code 0^0} returns {@code 1}
+     *   <li>{@code 0^e} returns {@code 0}
+     *   <li>{@code 1^e} returns {@code 1}
+     *   <li>{@code (-1)^e} returns {@code -1 or 1} if {@code e} is odd or even
+     * </ul>
+     *
      * @param k Number to raise.
      * @param e Exponent (must be positive or zero).
      * @return \( k^e \)
@@ -310,6 +346,22 @@ public final class ArithmeticUtils {
                            final int e) {
         if (e < 0) {
             throw new IllegalArgumentException(NEGATIVE_EXPONENT_1 + e + NEGATIVE_EXPONENT_2);
+        }
+
+        if (k == 0L) {
+            return e == 0 ? 1L : 0L;
+        }
+
+        if (k == 1L) {
+            return 1L;
+        }
+
+        if (k == -1L) {
+            return (e & 1) == 0 ? 1L : -1L;
+        }
+
+        if (e >= 63) {
+            throw new ArithmeticException("long overflow");
         }
 
         int exp = e;
