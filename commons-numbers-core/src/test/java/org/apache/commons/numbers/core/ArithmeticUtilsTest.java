@@ -422,6 +422,25 @@ class ArithmeticUtilsTest {
     }
 
     @Test
+    void testPowEdgeCases() {
+        Assertions.assertEquals(0, ArithmeticUtils.pow(0, 2));
+        Assertions.assertEquals(0L, ArithmeticUtils.pow(0L, 2));
+        Assertions.assertEquals(0, ArithmeticUtils.pow(0, 1));
+        Assertions.assertEquals(0L, ArithmeticUtils.pow(0L, 1));
+        Assertions.assertEquals(1, ArithmeticUtils.pow(0, 0));
+        Assertions.assertEquals(1L, ArithmeticUtils.pow(0L, 0));
+
+        for (int i = 20; i <= 35; i++) {
+            final int ti = i;
+            Assertions.assertThrows(ArithmeticException.class, () -> ArithmeticUtils.pow(3, ti));
+        }
+        for (int i = 40; i <= 70; i++) {
+            final int ti = i;
+            Assertions.assertThrows(ArithmeticException.class, () -> ArithmeticUtils.pow(3L, ti));
+        }
+    }
+
+    @Test
     void testIsPowerOfTwo() {
         final int n = 1025;
         final boolean[] expected = new boolean[n];

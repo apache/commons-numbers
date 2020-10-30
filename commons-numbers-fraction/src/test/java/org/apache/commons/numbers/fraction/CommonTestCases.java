@@ -570,6 +570,10 @@ final class CommonTestCases {
         testCases.add(new BinaryIntOperatorTestCase(0, 1, Integer.MAX_VALUE, 0, 1));
         testCases.add(new BinaryIntOperatorTestCase(0, -1, Integer.MAX_VALUE, 0, 1));
 
+        testCases.add(new BinaryIntOperatorTestCase(1, 1, Integer.MIN_VALUE, 1, 1));
+        testCases.add(new BinaryIntOperatorTestCase(1, -1, Integer.MIN_VALUE, 1, 1));
+        testCases.add(new BinaryIntOperatorTestCase(-1, 1, Integer.MIN_VALUE, 1, 1));
+        testCases.add(new BinaryIntOperatorTestCase(-1, -1, Integer.MIN_VALUE, 1, 1));
         return testCases;
     }
 

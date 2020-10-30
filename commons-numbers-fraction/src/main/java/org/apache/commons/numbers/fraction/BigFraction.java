@@ -966,23 +966,36 @@ public final class BigFraction
      */
     @Override
     public BigFraction pow(final int exponent) {
+        if (exponent == 1) {
+            return this;
+        }
         if (exponent == 0) {
             return ONE;
         }
         if (isZero()) {
+            if (exponent < 0) {
+                throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
+            }
             return ZERO;
         }
-
+        if (exponent > 0) {
+            return new BigFraction(numerator.pow(exponent),
+                                   denominator.pow(exponent));
+        }
+        if (exponent == -1) {
+            return this.reciprocal();
+        }
+        if (exponent == Integer.MIN_VALUE) {
+            // MIN_VALUE can't be negated
+            return new BigFraction(denominator.pow(Integer.MAX_VALUE).multiply(denominator),
+                                   numerator.pow(Integer.MAX_VALUE).multiply(numerator));
+        }
         // Note: Raise the BigIntegers to the power and then reduce.
         // The supported range for BigInteger is currently
         // +/-2^(Integer.MAX_VALUE) exclusive thus larger
         // exponents (long, BigInteger) are currently not supported.
-        if (exponent < 0) {
-            return new BigFraction(denominator.pow(-exponent),
-                                   numerator.pow(-exponent));
-        }
-        return new BigFraction(numerator.pow(exponent),
-                               denominator.pow(exponent));
+        return new BigFraction(denominator.pow(-exponent),
+                               numerator.pow(-exponent));
     }
 
     /**

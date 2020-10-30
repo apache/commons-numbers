@@ -775,19 +775,32 @@ public final class Fraction
      */
     @Override
     public Fraction pow(final int exponent) {
+        if (exponent == 1) {
+            return this;
+        }
         if (exponent == 0) {
             return ONE;
         }
         if (isZero()) {
+            if (exponent < 0) {
+                throw new FractionException(FractionException.ERROR_ZERO_DENOMINATOR);
+            }
             return ZERO;
         }
-
-        if (exponent < 0) {
-            return new Fraction(ArithmeticUtils.pow(denominator, -exponent),
-                                ArithmeticUtils.pow(numerator,   -exponent));
+        if (exponent > 0) {
+            return new Fraction(ArithmeticUtils.pow(numerator, exponent),
+                                ArithmeticUtils.pow(denominator, exponent));
         }
-        return new Fraction(ArithmeticUtils.pow(numerator,   exponent),
-                            ArithmeticUtils.pow(denominator, exponent));
+        if (exponent == -1) {
+            return this.reciprocal();
+        }
+        if (exponent == Integer.MIN_VALUE) {
+            // MIN_VALUE can't be negated
+            return new Fraction(ArithmeticUtils.pow(denominator, Integer.MAX_VALUE) * denominator,
+                                ArithmeticUtils.pow(numerator, Integer.MAX_VALUE) * numerator);
+        }
+        return new Fraction(ArithmeticUtils.pow(denominator, -exponent),
+                            ArithmeticUtils.pow(numerator, -exponent));
     }
 
     /**
