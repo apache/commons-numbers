@@ -55,15 +55,19 @@ public final class Trigamma {
             return 1 / (x * x);
         }
 
-        if (x >= C_LIMIT) {
-            final double inv = 1 / (x * x);
-            //  1    1      1       1       1
-            //  - + ---- + ---- - ----- + -----
-            //  x      2      3       5       7
-            //      2 x    6 x    30 x    42 x
-            return 1 / x + inv / 2 + inv / x * (F_1_6 - inv * (F_1_30 + F_1_42 * inv));
+        double trigamma = 0;
+        while (x < C_LIMIT) {
+            trigamma += 1 / (x * x);
+            x += 1;
         }
 
-        return value(x + 1) + 1 / (x * x);
+        final double inv = 1 / (x * x);
+        //  1    1      1       1       1
+        //  - + ---- + ---- - ----- + -----
+        //  x      2      3       5       7
+        //      2 x    6 x    30 x    42 x
+        trigamma += 1 / x + inv / 2 + inv / x * (F_1_6 - inv * (F_1_30 + F_1_42 * inv));
+
+        return trigamma;
     }
 }

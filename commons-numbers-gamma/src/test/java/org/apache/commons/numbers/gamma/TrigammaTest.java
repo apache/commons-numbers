@@ -25,12 +25,24 @@ import org.junit.jupiter.api.Test;
 class TrigammaTest {
     @Test
     void testTrigamma() {
-        double eps = 1e-8;
+        final double eps = 1e-9; // Allowed relative error.
         // computed using webMathematica.  For example, to compute trigamma($i) = Polygamma(1, $i), use
         //
         // http://functions.wolfram.com/webMathematica/Evaluated.jsp?name=PolyGamma2&plottype=0&vars={%221%22,%22$i%22}&digits=20
-        double[] data = {
-            0.0, Double.POSITIVE_INFINITY,
+        final double[] data = {
+            -98765.4321, 10.332673372988805424,
+            -100.5, 9.8597034918700861520,
+            -50.5, 9.8499971860824842274,
+            -20.5, 9.8219943446498794821,
+            -10.5, 9.7787577398148123845,
+            -5.5, 9.7033198653394003812,
+            -2.5, 9.5392466449891237539,
+            -0.5, 8.9348022005446793094,
+            -1e-1, 101.92253995947720352,
+            -1e-2, 10001.669304101071825,
+            -1e-3, 1.0000016473414317771e6,
+            -1e-4, 1.0000000164517451070e8,
+            -1e-5, 1.0000000001644958108e10,
             1e-11, 1e22,
             1e-10, 1e20,
             1e-9, 1.0000000000000000016e18,
@@ -43,22 +55,31 @@ class TrigammaTest {
             1e-2, 10001.621213528313220,
             1e-1, 101.43329915079275882,
             1, 1.6449340668482264365,
+            1.5, 0.93480220054467930942,
             2, 0.64493406684822643647,
+            2.5, 0.49035775610023486497,
             3, 0.39493406684822643647,
+            3.5, 0.33035775610023486497,
             4, 0.28382295573711532536,
+            4.5, 0.24872510303901037518,
             5, 0.22132295573711532536,
+            7.5, 0.14261589669670379977,
             10, 0.10516633568168574612,
             20, 0.051270822935203119832,
             50, 0.020201333226697125806,
-            100, 0.010050166663333571395
+            100, 0.010050166663333571395,
+            12345.6789, 0.000081003281325733214110
         };
         for (int i = data.length - 2; i >= 0; i -= 2) {
             final double value = data[i];
             final double expected = data[i + 1];
-            // Allowed error is 1e-8 relative or absolute error whichever is larger.
-            final double error = Math.max(expected * eps, eps);
-            Assertions.assertEquals(expected, Trigamma.value(value), error, () -> "trigamma " + value);
+            Assertions.assertEquals(1, Trigamma.value(value) / expected, eps, () -> "trigamma " + value);
         }
+    }
+
+    @Test
+    void testTrigammaZero() {
+        Assertions.assertEquals(Double.POSITIVE_INFINITY, Trigamma.value(0), 0d);
     }
 
     @Test
