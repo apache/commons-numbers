@@ -31,7 +31,6 @@ public final class TestUtils {
      * Collection of static methods used in math unit tests.
      */
     private TestUtils() {
-        super();
     }
 
     /**
